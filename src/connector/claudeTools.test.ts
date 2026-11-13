@@ -1812,10 +1812,15 @@ describe('slice 8: rate limits', { timeout: 60_000 }, () => {
     expect(
       backend.rates.get(`${USER}|write|d|${Math.floor(now / 86_400_000)}`),
     ).toBe(20)
-    // A day's worth, one minute at a time.
+    // A day's worth, one minute at a time. Each real write encrypts and
+    // stores the notebook, so 480 of them took 10-25 s alone and timed out in
+    // full runs on a busy machine. The day count is set to 460 (as if 23 more
+    // full minutes had passed); the last 40 writes still go through the
+    // limiter, two minutes of 20 each.
     const day = Math.floor(now / 86_400_000)
     const dayStart = day * 86_400_000
     now = dayStart + 3_600_000
+    backend.rates.set(`${USER}|write|d|${day}`, 460)
     let done = backend.rates.get(`${USER}|write|d|${day}`) ?? 0
     while (done < 500) {
       for (let i = 0; i < 20 && done < 500; i++) {

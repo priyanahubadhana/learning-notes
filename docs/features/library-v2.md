@@ -358,3 +358,20 @@ One surface group per commit, each behind `library.v2`, each with tests and a se
 - D8. "Bank" in the owner's note is read as the Knowledge tab (the knowledge bank). Export lives there plus a shortcut in More › View.
 - D9. Search on Books is grouped, on Knowledge in place, on Journal / Themes / Tags grouped (MF only names Knowledge and "elsewhere").
 - D10. Shelf "Want to read" contains captured links and imported books not yet opened; status can be set by hand and wins over automatic status.
+
+## Build lines of the first build (slice 6, short form)
+
+The lines below are the short "When I do X" form that `npm run check:dod` counts; the full tables above stay the source. Each has an end-to-end test in `e2e/libraryV2.spec.ts`. Full build spec: [../plans/library-v2-spec.md](../plans/library-v2-spec.md).
+
+- When I open the Library, I see the title, one + Add button and one row More, Books, Knowledge, search (LB-B01).
+- When I have opened books, Continue reading shows them first with covers, only on All without a filter (LB-B02, B05, B06).
+- When I tap + Add, one menu offers Import, Capture and Prompts with the file rules (LB-B07).
+- When I open the side panel, I see Shelves with counts, my collections and Recent; a tap on a shelf filters (LB-B14, B15).
+- When I tap a cover, the notes page opens; the menu has Continue first, Mark as, collections, Delete with Undo (LB-B20, B21, B22, B24).
+- When I tap More, I can pick a type, tags and view choices; a chip with a cross shows the active filter (LB-B27 to B31).
+- When I open the Tag picker from More, the shared picker opens in filter mode (LB-B32).
+- When I tap the search icon, a box opens in place; three letters group the results (LB-B34, B35).
+- When I tap Knowledge, my highlights show first with a View menu and a preview with Jump (LB-B38 to B41).
+- When I open Export, I choose what to include, see a live count and download Markdown or CSV (LB-B45 to B48).
+- When the level is Professional, one extra row appears and stays on one line at 820 px portrait (LB-P01, P02).
+- When the flag is off, today's Library is unchanged (LB-B56).

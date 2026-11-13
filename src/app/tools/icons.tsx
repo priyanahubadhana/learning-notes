@@ -35,6 +35,10 @@ import {
   Heading1,
   Heading2,
   Heading3,
+  Heading4,
+  Heading5,
+  Heading6,
+  ListCollapse,
   Highlighter,
   History,
   Import,
@@ -128,6 +132,7 @@ import {
   Rewind,
   FastForward,
   ArrowUpRight,
+  SquareArrowOutUpRight,
   Tag,
   SquareCheck,
   Lightbulb,
@@ -178,6 +183,10 @@ const ICONS = {
   heading1: Heading1,
   heading2: Heading2,
   heading3: Heading3,
+  heading4: Heading4,
+  heading5: Heading5,
+  heading6: Heading6,
+  toggleHeading: ListCollapse,
   highlighter: Highlighter,
   history: History,
   import: Import,
@@ -272,6 +281,7 @@ const ICONS = {
   rewind: Rewind,
   fastForward: FastForward,
   arrowUpRight: ArrowUpRight,
+  openNew: SquareArrowOutUpRight,
   tag: Tag,
   checkSquare: SquareCheck,
   lightbulb: Lightbulb,
@@ -285,7 +295,8 @@ const ICONS = {
 
 export type IconName = keyof typeof ICONS
 
-const isIconName = (n: string): n is IconName =>
+// eslint-disable-next-line react-refresh/only-export-components -- tiny shared check
+export const isIconName = (n: string): n is IconName =>
   Object.prototype.hasOwnProperty.call(ICONS, n)
 
 /** A thin (1.6 px) line icon, decorative: the button carries the name. */

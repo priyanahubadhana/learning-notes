@@ -36,6 +36,7 @@ import { historyState } from '../core/historySteps'
 import { useFlag } from '../app/flags'
 import { padHistoryState } from './writePad/padHistory'
 import { MainBarRow } from '../app/tools/main/MainBar'
+import { ToolbarV8Lazy } from '../app/tools/v8/ToolbarV8Lazy'
 import { HoverName } from '../app/tools/HoverName'
 import { MiniToolbar } from '../app/tools/main/MiniToolbar'
 import { MicroBar } from '../app/tools/main/MicroBar'
@@ -120,6 +121,7 @@ const KeyboardBar = lazy(() => import('../app/tools/main/KeyboardBar'))
 function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const kbInset = useKeyboardInset()
   const settings = useBarSettings()
+  const toolbarV8 = useFlag('toolbar.v8')
   const { buttonPx, hoverTips, shortcutHints, autoHide } = settings
   const layout = useBarLayout()
   const groups = barGroups(layout)
@@ -298,16 +300,22 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
           : 'relative border-y border-line bg-bg px-2 py-1 phone:px-1'
       }
     >
-      <MainBarRow
-        editor={editor}
-        px={buttonPx}
-        tips={hoverTips}
-        history={history}
-        menuOpen={panel === 'menu'}
-        menuRef={menuButton}
-        onMenu={() => setPanel(panel === 'menu' ? null : 'menu')}
-      />
-      <ContextBar up={up(place)} />
+      {toolbarV8 ? (
+        <ToolbarV8Lazy />
+      ) : (
+        <>
+          <MainBarRow
+            editor={editor}
+            px={buttonPx}
+            tips={hoverTips}
+            history={history}
+            menuOpen={panel === 'menu'}
+            menuRef={menuButton}
+            onMenu={() => setPanel(panel === 'menu' ? null : 'menu')}
+          />
+          <ContextBar up={up(place)} />
+        </>
+      )}
     </div>
   )
 
@@ -508,7 +516,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
         <MiniKeys editor={editor} />
       </ToolsBoundary>
       <HoverName />
-      {layout.short !== null && (
+      {!toolbarV8 && layout.short !== null && (
         <ToolsBoundary name="options pill">
           <OptionsPill editor={editor} barPlace={layout.short} />
         </ToolsBoundary>

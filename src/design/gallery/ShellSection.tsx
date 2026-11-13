@@ -27,8 +27,8 @@ export default function ShellSection() {
   const [pop, setPop] = useState(false)
   const [popLow, setPopLow] = useState(false)
   const [edge, setEdge] = useState(false)
-  // The demo bars float over the page like real ones, so they stay off until asked for
-  // (always on, they covered menus of other sections near the bottom of the screen).
+  // The demo bars float over the whole gallery; shown only on request so
+  // they never cover another part's demo.
   const [bars, setBars] = useState(false)
   const [said, setSaid] = useState('Nothing yet')
   const [popAnchor, setPopAnchor] = useState<HTMLElement | null>(null)
@@ -176,8 +176,7 @@ export default function ShellSection() {
             type="button"
             className={btn}
             data-testid="open-bars"
-            aria-pressed={bars}
-            onClick={() => setBars(!bars)}
+            onClick={() => setBars(true)}
           >
             {S.showBars}
           </button>

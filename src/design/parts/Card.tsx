@@ -72,6 +72,8 @@ export function Card(props: CardProps) {
   const [closing, setClosing] = useState(false)
   const [picked, setPicked] = useState(false)
   const [fade, setFade] = useState(false)
+  // true once the open motion has finished (at once when there is none)
+  const [settled, setSettled] = useState(false)
   const closingRef = useRef(false)
   const reasonRef = useRef<CardCloseReason>('outside')
   const handleRef = useRef<OverlayHandle | null>(null)
@@ -180,6 +182,8 @@ export function Card(props: CardProps) {
         ref={(el) => {
           rootRef.current = el
           setNode(el)
+          if (el && getComputedStyle(el).animationName === 'none')
+            setSettled(true)
         }}
         className="pcard"
         role="dialog"
@@ -190,6 +194,10 @@ export function Card(props: CardProps) {
         data-static={isStatic || undefined}
         data-side={side}
         data-state={closing ? 'closing' : 'open'}
+        data-settled={(settled && !closing) || undefined}
+        onAnimationEnd={(e) => {
+          if (e.target === e.currentTarget && !closing) setSettled(true)
+        }}
         data-picked={picked || undefined}
         data-fade={fade || undefined}
         tabIndex={-1}
@@ -278,6 +286,7 @@ export function CardTrigger({
   glowKey,
   testId,
   className,
+  describedBy,
   children,
 }: {
   open: boolean
@@ -286,6 +295,8 @@ export function CardTrigger({
   glowKey?: number
   testId?: string
   className?: string
+  /** Id of the element that describes this button. */
+  describedBy?: string
   children?: ReactNode
 }) {
   return (
@@ -297,6 +308,7 @@ export function CardTrigger({
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-label={label}
+      aria-describedby={describedBy}
       data-pressed={open || undefined}
       onClick={(e) => onClick(e.currentTarget)}
     >

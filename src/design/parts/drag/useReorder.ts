@@ -1,3 +1,4 @@
+import { flushSync } from 'react-dom'
 import { onRouted } from '../../../app/input/eventRouter'
 import {
   useCallback,
@@ -346,7 +347,24 @@ export function useReorder<T>(props: ReorderProps<T>) {
     if (dest !== cur) {
       const next = moveItem(order, cur, dest)
       orderRef.current = next
-      setDrag({ id: p.id, phase: 'lifted', order: next, invalid })
+      // Draw the new order now. The next pointer move measures the rows to find
+      // the slot under the finger; if this render were still waiting (a busy
+      // device), it would measure the old layout and pick the wrong slot.
+      // WebKit crashes when the element holding the pointer capture is
+      // moved in the page, so let go first and take hold again right after.
+      try {
+        p.cap?.releasePointerCapture(p.pointerId)
+      } catch {
+        /* already released */
+      }
+      flushSync(() =>
+        setDrag({ id: p.id, phase: 'lifted', order: next, invalid }),
+      )
+      try {
+        if (p.cap?.isConnected) p.cap.setPointerCapture(p.pointerId)
+      } catch {
+        /* the pointer is gone */
+      }
     } else {
       setDrag((d) => (d && d.invalid !== invalid ? { ...d, invalid } : d))
     }
@@ -375,6 +393,22 @@ export function useReorder<T>(props: ReorderProps<T>) {
     const fitFn = propsRef.current.fit
     const order = orderRef.current
     finish(!fitFn || fitFn(p.id, order.indexOf(p.id), order))
+  }
+
+  /**
+   * Showing a new order makes React move the dragged row in the page, and the
+   * browser then lets go of the pointer. The drag goes on, so take hold again;
+   * otherwise a pointer that outruns the row (a busy device) is no longer ours
+   * and the drag stops in the middle.
+   */
+  const onLostCapture = (e: RPointerEvent<HTMLElement>) => {
+    const p = press.current
+    if (!p || e.pointerId !== p.pointerId || !p.cap?.isConnected) return
+    try {
+      p.cap.setPointerCapture(p.pointerId)
+    } catch {
+      /* the pointer is gone */
+    }
   }
 
   const onCancel = (e: RPointerEvent<HTMLElement>) => {
@@ -528,6 +562,7 @@ export function useReorder<T>(props: ReorderProps<T>) {
       onPointerMove: onMove,
       onPointerUp: onUp,
       onPointerCancel: onCancel,
+      onLostPointerCapture: onLostCapture,
       onKeyDown: (e: RKeyboardEvent<HTMLElement>) => onKeyDown(e, id),
     }),
     gripProps: (id: string) => ({

@@ -1,0 +1,181 @@
+/* SP-50 / SP-51 Sheet: docked right on wide screens, full screen on a phone. Card look: design-study 3. */
+.fb-sheet {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: min(var(--fb-sheet-w), 100%);
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--card-fill);
+  color: var(--color-ink);
+  box-shadow:
+    0 0 0 1px var(--card-hair),
+    var(--card-hi),
+    var(--card-shadow);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  outline: none;
+  touch-action: pan-y;
+}
+:root[data-glass='lite'] .fb-sheet {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .fb-sheet {
+    background: var(--color-surface-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+.fb-sheet[data-mode='floating'] {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: 100%;
+  max-width: 100%;
+  height: 100dvh;
+  max-height: none;
+  border-radius: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: fb-sheet-in var(--fb-dur-sheet-in) var(--ease-out) both;
+}
+.fb-sheet[data-mode='floating'][data-closing] {
+  animation: fb-sheet-out var(--fb-dur-sheet-out) var(--ease-in) both;
+  pointer-events: none;
+}
+@media (min-width: 1024px) {
+  .fb-sheet[data-mode='floating'] {
+    width: var(--fb-sheet-w);
+    border-radius: var(--r-lg) 0 0 var(--r-lg);
+  }
+}
+.fb-sheet[data-mode='inline'] {
+  height: 360px;
+  border-radius: var(--r-lg);
+}
+.fb-sheet[data-phone] {
+  width: 100%;
+  max-width: 390px;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+}
+.fb-sheet__grab {
+  display: none;
+  align-self: center;
+  width: 36px;
+  height: 5px;
+  margin-top: var(--space-2);
+  border-radius: var(--r-pill);
+  background: var(--color-line-strong);
+  opacity: 0.5;
+}
+@media (max-width: 639px) {
+  .fb-sheet[data-mode='floating'] {
+    animation-name: fb-sheet-up;
+  }
+  .fb-sheet[data-mode='floating'][data-closing] {
+    animation-name: fb-sheet-down;
+  }
+  .fb-sheet[data-mode='floating'] .fb-sheet__grab {
+    display: block;
+  }
+}
+.fb-sheet[data-phone] .fb-sheet__grab {
+  display: block;
+}
+.fb-sheet__head {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+  min-height: 56px;
+  padding: 0 var(--space-2) 0 var(--space-4);
+}
+.fb-sheet__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.fb-sheet__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-1) var(--space-4) var(--space-4);
+}
+.fb-sheet__foot {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--card-hair);
+}
+
+/* The close button shared by the feedback parts */
+.fb-x {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.fb-x:hover {
+  background: var(--color-hover);
+}
+.fb-x:active {
+  background: var(--color-pressed);
+}
+.fb-x:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+@keyframes fb-sheet-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+@keyframes fb-sheet-out {
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes fb-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes fb-sheet-down {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Gallery examples sit on a plain page, where the blur shows nothing, and a
+   dozen 28 px blurs at once stall software-rendered WebKit (CI). */
+.fb-sheet[data-mode='inline'] {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fb-sheet[data-mode='floating'],
+  .fb-sheet[data-mode='floating'][data-closing] {
+    animation-duration: 0.01ms;
+  }
+}

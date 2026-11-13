@@ -223,8 +223,32 @@
   border-radius: var(--r-pill);
   background: var(--card-well, var(--color-neutral-fill));
   overflow-x: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--card-track, var(--color-line-strong)) transparent;
+  scrollbar-width: none;
+}
+.pm-range__track::-webkit-scrollbar {
+  display: none;
+}
+.pm-range__scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+/* Our own thin track: always drawn, also on touch screens (no overlay bar). */
+.pm-range__rail {
+  position: relative;
+  height: 4px;
+  margin: 0 12px;
+  border-radius: var(--r-pill);
+  background: var(--card-track, var(--color-line));
+}
+.pm-range__thumb {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: var(--r-pill);
+  background: var(--color-line-strong);
 }
 /* A soft fade on the edge that still has hidden segments (set by onScroll). */
 .pm-range__track[data-fade='end'] {
@@ -282,7 +306,7 @@
 }
 .pm-pop {
   position: absolute;
-  z-index: var(--z-card);
+  z-index: var(--z-card, var(--z-pop));
   box-sizing: border-box;
   width: 320px;
   max-width: calc(100vw - 32px);
@@ -292,7 +316,7 @@
   gap: 8px;
   padding: 12px;
   border-radius: var(--r-lg);
-  background: var(--card-fill, var(--color-surface-2));
+  background: var(--color-surface-2);
   border: 1px solid var(--color-line);
   box-shadow: var(--card-shadow, var(--elev-2));
 }

@@ -4,14 +4,9 @@
 - Keep going from step to step in the same chat; don't stop between steps or ask the owner to `/clear` + `/next`. `/next` is for when the owner opens a new chat.
 - Big steps: no need to ask over ~150k tokens; split the step into parts yourself and carry on.
 - Auto-compact stays on: when the chat gets long, Claude Code compacts it by itself and work carries on. Don't ask the owner to type `/compact`.
-- After every sub-step: update docs/HANDOFF.md (5 lines) and commit. At the end of every step: update docs/CHANGELOG.md and docs/IDEAS.md, run the full suite, push to GitHub, mirror, then start the next step.
+- After every sub-step: update docs/HANDOFF.md (5 lines) and commit (during the build: docs/BUILD-STATE.md instead, ECONOMY-MODE.md section 3). At the end of every step: update docs/CHANGELOG.md and docs/IDEAS.md, run the full suite, push to GitHub, mirror, then start the next step.
 - `/next` reads only docs/HANDOFF.md and docs/INDEX.md, after checking Git and `npm audit`.
-- **Models (owner-approved 6 Nov 2026):**
-  - **Opus** plans.
-  - **Fable** handles hard reasoning, audits, and anything Opus couldn't solve.
-  - **Sonnet** builds, at medium effort (raise it only when a task truly needs it).
-  - Write plans clear enough for Sonnet to follow: the files to touch, data shapes, rules and tests.
-  - If Sonnet keeps failing at something, hand that part to Opus, then Fable.
+- **Models:** see CLAUDE.md "How Work Runs". If Sonnet fails twice at something, hand it to Opus, then Fable.
   - Helper agents are allowed. Run several in parallel (separate git worktrees for independent work); pushes happen one at a time, each rebased on the latest main.
 - **Workflow:**
   - Keep the work continuous and well tested.

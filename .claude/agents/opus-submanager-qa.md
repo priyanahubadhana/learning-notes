@@ -1,6 +1,6 @@
 ---
 name: opus-submanager-qa
-description: Sub-manager for quality: strict Apple-style reviews, test sweeps, CI failures, security and consistency audits. Delegates checks to executors and reports findings to the main manager.
+description: Legacy/rollback for the build (economy mode); still used for non-build tasks. Sub-manager for quality: strict Apple-style reviews, test sweeps, CI failures, security and consistency audits. Delegates checks to executors and reports findings to the main manager.
 model: opus
 ---
 

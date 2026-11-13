@@ -1,12 +1,14 @@
 import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useMemo, useReducer } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import type { LearningNotesDB } from '../core/db'
 import { toCatalog } from '../aitools/catalog'
+import { OnOffChoice } from '../design/parts/OnOff'
 import { t, type MessageKey } from '../i18n/t'
 import { toolDesc, toolName } from './names'
 import {
   COLOURS,
+  NEEDS_OWN_ARGS,
   check,
   isReady,
   newDraft,
@@ -19,6 +21,10 @@ import {
 
 const field =
   'min-h-11 w-full rounded-lg border border-line bg-bg px-3 text-sm outline-none focus:border-accent'
+/** The one card frame every block of the Build screen uses. */
+const card = 'flex flex-col gap-2 rounded-lg border border-line p-3'
+const primary =
+  'aifw-primary inline-flex min-h-11 items-center justify-center rounded-lg bg-accent px-5 text-sm font-semibold text-on-accent'
 const btn =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line px-3 text-sm hover:bg-hover disabled:opacity-40'
 const iconBtn =
@@ -27,6 +33,7 @@ const iconBtn =
 const problemText = (p: Problem) => t(`aifw.problem.${p}` as MessageKey)
 
 type Kind = Destination['kind']
+const DEST_KINDS: readonly Kind[] = ['new_notebook', 'notebook', 'page']
 
 /**
  * The Build screen's first half (AF-20): where the result goes, the steps to
@@ -35,9 +42,12 @@ type Kind = Destination['kind']
 export function BuildPlan({
   db,
   onStart,
+  onDestination,
 }: {
   db: LearningNotesDB
   onStart: (plan: Record<string, unknown>, name: string) => void
+  /** Told whenever the destination changes (the goal box above uses it). */
+  onDestination: (destination: Destination) => void
 }) {
   const tools = useMemo(() => toCatalog(), [])
   const [draft, dispatch] = useReducer(reduce, undefined, newDraft)
@@ -58,9 +68,16 @@ export function BuildPlan({
         .then((l) => l.sort((a, b) => a.title.localeCompare(b.title))),
     [db],
   )
+  const told = draft.destination
+  useEffect(() => onDestination(told), [told, onDestination])
   const checked = check(draft, tools)
   const dest = draft.destination
-  const pickable = tools.filter((x) => x.id !== 'notebooks.create')
+  const pickable = tools.filter(
+    (x) =>
+      x.id !== 'notebooks.create' &&
+      x.surfaces.includes('app') &&
+      !NEEDS_OWN_ARGS.has(x.id),
+  )
 
   const setKind = (kind: Kind) =>
     dispatch({
@@ -95,39 +112,28 @@ export function BuildPlan({
   }
 
   return (
-    <div className="flex flex-col gap-5" data-testid="aifw-build">
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-semibold">
+    <div className="flex flex-col gap-4" data-testid="aifw-build">
+      <fieldset className={card} data-aifw-card>
+        <legend className="float-left mb-1 w-full text-sm font-semibold">
           {t('aifw.dest.title')}
         </legend>
-        <div className="flex flex-wrap gap-2" role="radiogroup">
-          {(['new_notebook', 'notebook', 'page'] as const).map((k) => (
-            <label
-              key={k}
-              className={`inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border px-3 text-sm ${
-                dest.kind === k
-                  ? 'border-accent bg-soft'
-                  : 'border-line hover:bg-hover'
-              }`}
-            >
-              <input
-                type="radio"
-                name="aifw-dest"
-                checked={dest.kind === k}
-                onChange={() => setKind(k)}
-                data-testid={`aifw-dest-${k}`}
-                className="size-4"
-              />
-              {t(
-                (k === 'new_notebook'
-                  ? 'aifw.dest.new'
-                  : k === 'notebook'
-                    ? 'aifw.dest.notebook'
-                    : 'aifw.dest.page') as MessageKey,
-              )}
-            </label>
-          ))}
-        </div>
+        <OnOffChoice<Kind>
+          block
+          label={t('aifw.dest.title')}
+          value={dest.kind}
+          onChange={setKind}
+          options={DEST_KINDS.map((k) => ({
+            value: k,
+            testId: `aifw-dest-kind-${k}`,
+            label: t(
+              (k === 'new_notebook'
+                ? 'aifw.dest.new'
+                : k === 'notebook'
+                  ? 'aifw.dest.notebook'
+                  : 'aifw.dest.page') as MessageKey,
+            ),
+          }))}
+        />
         {dest.kind === 'new_notebook' && (
           <input
             type="text"
@@ -200,7 +206,7 @@ export function BuildPlan({
         )}
       </fieldset>
 
-      <section className="flex flex-col gap-2" aria-labelledby="aifw-pick">
+      <section className={card} data-aifw-card aria-labelledby="aifw-pick">
         <h3 id="aifw-pick" className="text-sm font-semibold">
           {t('aifw.pick.title')}
         </h3>
@@ -229,7 +235,7 @@ export function BuildPlan({
         </ul>
       </section>
 
-      <section className="flex flex-col gap-2" aria-labelledby="aifw-plan">
+      <section className={card} data-aifw-card aria-labelledby="aifw-plan">
         <h3 id="aifw-plan" className="text-sm font-semibold">
           {t('aifw.plan.title')}
         </h3>
@@ -400,7 +406,7 @@ export function BuildPlan({
           type="button"
           data-testid="aifw-start"
           disabled={!isReady(checked)}
-          className="inline-flex min-h-11 items-center justify-center rounded-lg bg-accent px-5 text-sm font-semibold text-on-accent disabled:opacity-40"
+          className={primary}
           onClick={start}
         >
           {t('aifw.start')}

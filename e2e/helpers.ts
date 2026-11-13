@@ -12,7 +12,7 @@ export const sidebar = (page: Page) => page.locator('aside')
 /** On a phone the sidebar is a drawer: opens it (nothing to do on a computer). */
 export async function showSidebar(page: Page) {
   const open = page.getByRole('button', { name: 'Open menu' })
-  await sidebar(page).waitFor({ state: 'attached' }) // the app has loaded
+  await expect(sidebar(page)).toBeAttached() // the app has loaded (uses the project's expect timeout: WebKit starts slowly)
   await closeCorner(page)
   // Most steps look for notebooks and pages: go to the Notebooks space.
   const notebooks = page.locator('[data-space="notebooks"]')
@@ -414,7 +414,7 @@ export const highlighted = (page: Page) =>
 
 /** Opens the search popup with Ctrl+K and returns it. */
 export async function openSearchPopup(page: Page): Promise<Locator> {
-  await sidebar(page).waitFor({ state: 'attached' }) // the app has loaded
+  await expect(sidebar(page)).toBeAttached() // the app has loaded (uses the project's expect timeout: WebKit starts slowly)
   await page.keyboard.press('Control+K')
   const popup = page.getByRole('dialog', { name: 'Search' })
   await expect(popup).toBeVisible()

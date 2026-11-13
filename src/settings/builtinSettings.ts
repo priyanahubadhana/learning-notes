@@ -482,7 +482,12 @@ export const showRefreshSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
-/** Undo and Redo in the top bar when the device mode is Computer (iPad and phone always show them). */
+/**
+ * Undo and Redo in the top bar when the device mode is Computer (iPad and
+ * phone always show them). Not in the list below: the new frame (flag
+ * foundation.shell) registers it when it loads, so with the flag off
+ * Settings shows no such row.
+ */
 export const showUndoRedoSetting: SettingDefinition<OnOff> = {
   id: 'general.showUndoRedo',
   labelKey: 'settings.showUndoRedo.label',
@@ -804,7 +809,6 @@ for (const definition of [
   shortcutHintsSetting,
   barAutoHideSetting,
   showRefreshSetting,
-  showUndoRedoSetting,
   scrollHintsSetting,
   autoUpdateSetting,
   autoSwitchSetting,

@@ -25,6 +25,14 @@ import { useDue } from './useDue'
 import { useEscape } from './useEscape'
 import { useFrameSize } from './useFrameSize'
 import './shell.css'
+import {
+  settingsRegistry,
+  showUndoRedoSetting,
+} from '../../settings/builtinSettings'
+
+// The Settings row for Undo and Redo exists only with the new frame.
+if (!settingsRegistry.get(showUndoRedoSetting.id))
+  settingsRegistry.register(showUndoRedoSetting)
 
 /**
  * Everything the frame needs from the app. The app keeps all the state (its

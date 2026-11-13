@@ -2,21 +2,13 @@ import { Check, Copy } from 'lucide-react'
 import { useState } from 'react'
 import { StepError } from '../aitools/jobs/filler'
 import { t } from '../i18n/t'
+import { GrowArea } from './GrowArea'
 import { toolName } from './names'
+import { problemText } from './validatorText'
 import type { PasteFiller, PasteRequest } from './pasteFiller'
 
 const btn =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line px-3 text-sm hover:bg-hover disabled:opacity-40'
-
-/** A problem line from the checker, in the app's language where it is a code. */
-function problemLine(p: string): string {
-  if (p === ':empty') return t('aifw.paste.empty')
-  if (p === ':json') return t('aifw.paste.json')
-  if (p === ':object') return t('aifw.paste.object')
-  if (p.startsWith(':missing '))
-    return t('aifw.paste.missing', { field: p.slice(9) })
-  return p
-}
 
 /**
  * The copy-prompt / paste-answer path (AF-21). The pasted answer is checked
@@ -65,7 +57,7 @@ export function PasteBox({
           {t('aifw.paste.repair')}
         </p>
       )}
-      <textarea
+      <GrowArea
         readOnly
         value={request.prompt}
         aria-label={t('aifw.paste.prompt')}
@@ -85,7 +77,7 @@ export function PasteBox({
         )}
         {copied ? t('aifw.paste.copied') : t('aifw.paste.copy')}
       </button>
-      <textarea
+      <GrowArea
         value={text}
         aria-label={t('aifw.paste.label')}
         data-testid="aifw-answer"
@@ -100,7 +92,7 @@ export function PasteBox({
           <p className="font-semibold">{t('aifw.paste.bad')}</p>
           <ul className="ml-4 list-disc">
             {problems.slice(0, 5).map((p) => (
-              <li key={p}>{problemLine(p)}</li>
+              <li key={p}>{problemText(p)}</li>
             ))}
           </ul>
         </div>

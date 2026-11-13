@@ -9,13 +9,15 @@ Researched 12 Nov 2026 from official Claude Code docs (costs, sub-agents, prompt
 3. **Use Fable and Opus only for hard thinking** (planning, architecture, design judgement, final review). They burn your 5-hour and weekly limit fastest.
 4. **Give agents short briefs that point to files.** Write "read docs/design/X.md, do Y", not pasted text. Sub-agents start empty and see only the brief plus CLAUDE.md.
 5. **Use sub-agents for noisy side jobs** (search, tests, logs, research). Only a summary returns, so the main chat stays small. Do quick edits and back-and-forth inline; a sub-agent starts cold and costs more.
-6. **Make Explore run on Haiku.** Add `.claude/agents/Explore.md` with `model: haiku`. Explore skips CLAUDE.md, so it is already cheap.
+6. **Make search run on Haiku.** Use `.claude/agents/economy-search.md` (`model: haiku`, read-only: Glob, Grep, Read). It is named economy-search, not Explore, to avoid clashing with the built-in Explore agent (whose model and interaction with our file are unverified).
 7. **Never re-read files; batch independent tool calls in one message.** Fewer round trips means fewer re-sent contexts and faster work. Run agents in parallel only when files do not overlap.
 8. **Keep CLAUDE.md under about 200 lines.** It loads on every request of every agent. Move workflow detail into rule files or skills that load on demand (we already do this). Use `omitClaudeMd: true` for pure-executor agents.
 9. **`/clear` between unrelated tasks; `/compact` at natural breaks, not mid-task.** Stale context is re-paid on every message. After a break longer than the cache lifetime (1 hour on a subscription, 5 minutes for sub-agents), the next turn is a full-price re-read, so batch work in bursts.
 10. **Checkpoint and measure.** Commit small, keep PENDING/HANDOFF notes. Run `/usage` to see which skills, agents and MCP servers use the most, plus the cache hit line; `/context` shows what fills the window. Limit gh/API calls (one `gh` call with `--json`, then reuse the result). When a limit hits, Claude Code can wait and continue automatically after reset (v2.1.234+).
 
 ## Model per role
+
+Non-build tasks. The build: docs/ECONOMY-MODE.md section 2.
 
 | Role                                   | Model                                 | Effort |
 | -------------------------------------- | ------------------------------------- | ------ |

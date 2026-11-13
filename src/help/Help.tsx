@@ -38,6 +38,9 @@ if (typeof document !== 'undefined') {
   document.addEventListener('pointerdown', () => (tabbing = false), true)
 }
 
+/** Every kind of toast on screen (app, shell and shared stack). */
+const TOAST_SELECTOR = '[data-toast], [data-testid="shell-toast"], .fb-toast'
+
 /** Wait before a hover tip appears (like a desktop app's tooltips). */
 const HOVER_DELAY_MS = 450
 
@@ -226,6 +229,32 @@ function Bubble({
       node.style.left = `${Math.max(8, vw - 8 - r2.width)}px`
     else if (r2.left < 8) node.style.left = '8px'
   }, [box, up])
+  // Gate 3 v5 (slice 6, fix 4): a tip and a toast never share a spot. The
+  // toast is the feedback, so while one covers the tip the tip steps aside.
+  useEffect(() => {
+    const node = el.current
+    if (!node) return
+    const check = () => {
+      const r = node.getBoundingClientRect()
+      const hit = Array.from(document.querySelectorAll(TOAST_SELECTOR)).some(
+        (n) => {
+          const b = n.getBoundingClientRect()
+          return (
+            b.width > 0 &&
+            r.left < b.right &&
+            b.left < r.right &&
+            r.top < b.bottom &&
+            b.top < r.bottom
+          )
+        },
+      )
+      node.style.visibility = hit ? 'hidden' : ''
+    }
+    check()
+    const mo = new MutationObserver(check)
+    mo.observe(document.body, { childList: true, subtree: true })
+    return () => mo.disconnect()
+  }, [box])
   const image = tipImage(id)
   return createPortal(
     <span

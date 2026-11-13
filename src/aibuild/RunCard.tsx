@@ -4,6 +4,7 @@ import { t, type MessageKey } from '../i18n/t'
 import type { Engine } from './engine'
 import { useJob, usePasteRequest } from './hooks'
 import { previewLines, toolName } from './names'
+import { stepErrorText } from './errorText'
 import { PasteBox } from './PasteBox'
 
 const btn =
@@ -70,7 +71,11 @@ export function RunCard({
         data-testid="aifw-run-title"
         className="text-base font-semibold"
       >
-        {t('aifw.run.title', { name })}
+        {state === 'preview'
+          ? t('aifw.run.check')
+          : state === 'applied' || state === 'undone'
+            ? t('aifw.run.finished')
+            : t('aifw.run.title', { name })}
       </h3>
 
       <ol className="flex flex-col gap-2" data-testid="aifw-run-steps">
@@ -121,7 +126,9 @@ export function RunCard({
                 )}
               </div>
               {s.state === 'failed' && s.error && (
-                <p className="text-xs text-muted">{s.error}</p>
+                <p className="text-xs text-muted" data-testid="aifw-step-error">
+                  {stepErrorText(s.error)}
+                </p>
               )}
               {waiting && pending && (
                 <PasteBox

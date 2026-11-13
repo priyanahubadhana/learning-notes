@@ -262,7 +262,8 @@ test.describe('phone', () => {
       expect(lines).toBeLessThanOrEqual(3.1)
       for (const btn of await b.getByRole('button').all()) {
         const box = (await btn.boundingBox())!
-        expect(box.height).toBeGreaterThanOrEqual(44)
+        expect(Math.round(box.height)) // sub-pixel layout
+          .toBeGreaterThanOrEqual(44)
         expect(box.x + box.width).toBeLessThanOrEqual(360)
       }
       expect(

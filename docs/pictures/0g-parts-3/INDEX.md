@@ -1,8 +1,8 @@
 # Slice 0g step 3: Parts gallery pictures
 
-Head commit when taken: be79fb29 (last source edit: the danger-text colour fix, Dialogs.css / ToastStack.css). Flag state: gallery at #/design-tokens. 144 pictures.
+Head commit when taken: 6787151f (last source edit: Tool frame demo words moved to the top, Step3.css). Flag state: gallery at #/design-tokens. 144 pictures.
 Name: `<section>-<level>-<theme>-<size>.png`. Sections: feedback, shellparts, wizard, toolframe, pills, compare. Levels: beginner, professional. Themes: day, night, sepia. Sizes: ipad-landscape 1194x834, ipad-portrait 834x1194 (WebKit iPad Pro 11), phone 390x844, pc 1336x720 (Chromium).
-Fix proof: feedback-_-night-_ (red Delete button text now dark on Night, ratio checked by e2e/parts-gallery-contrast.spec.ts).
+Fix proof (gate-2 round): toolframe-_-phone (demo words no longer under the dot; "Unlock Curves" and Level readout row added, S3-40); compare-_ ("History steps" line, S3-38). Earlier fix proof: feedback-_-night-_ (red Delete button text now dark on Night, ratio checked by e2e/parts-gallery-contrast.spec.ts).
 
 ## Repeat-fault list (docs/ECONOMY-MODE.md section 7)
 

@@ -15,6 +15,7 @@ import {
 } from '../aitools/plan/planner'
 import { t, type MessageKey } from '../i18n/t'
 import { newJobId, type Destination } from './buildState'
+import { GrowArea } from './GrowArea'
 import { toolName } from './names'
 
 const field =
@@ -243,7 +244,7 @@ export function GoalBox({
               </ul>
             </div>
           )}
-          <textarea
+          <GrowArea
             readOnly
             value={prompt}
             aria-label={t('aifw.paste.prompt')}
@@ -263,7 +264,7 @@ export function GoalBox({
             )}
             {copied ? t('aifw.paste.copied') : t('aifw.paste.copy')}
           </button>
-          <textarea
+          <GrowArea
             value={answer}
             aria-label={t('aifw.goal.pasteLabel')}
             data-testid="aifw-goal-answer"

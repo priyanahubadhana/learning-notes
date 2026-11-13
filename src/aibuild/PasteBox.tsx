@@ -2,6 +2,7 @@ import { Check, Copy } from 'lucide-react'
 import { useState } from 'react'
 import { StepError } from '../aitools/jobs/filler'
 import { t } from '../i18n/t'
+import { GrowArea } from './GrowArea'
 import { toolName } from './names'
 import { problemText } from './validatorText'
 import type { PasteFiller, PasteRequest } from './pasteFiller'
@@ -56,7 +57,7 @@ export function PasteBox({
           {t('aifw.paste.repair')}
         </p>
       )}
-      <textarea
+      <GrowArea
         readOnly
         value={request.prompt}
         aria-label={t('aifw.paste.prompt')}
@@ -76,7 +77,7 @@ export function PasteBox({
         )}
         {copied ? t('aifw.paste.copied') : t('aifw.paste.copy')}
       </button>
-      <textarea
+      <GrowArea
         value={text}
         aria-label={t('aifw.paste.label')}
         data-testid="aifw-answer"

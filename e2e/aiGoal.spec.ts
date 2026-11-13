@@ -252,7 +252,7 @@ test.describe('AI framework: slice 5a tools through the goal box', () => {
     await expect(
       page
         .getByTestId('aifw-preview-line')
-        .filter({ hasText: 'New: Renamed page' }),
+        .filter({ hasText: 'New page: Renamed page' }),
     ).toHaveCount(1)
     await page.getByTestId('aifw-apply').click()
     await expect(page.getByTestId('aifw-done')).toBeVisible()

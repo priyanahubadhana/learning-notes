@@ -9,7 +9,7 @@ import { test, type Page } from '@playwright/test'
  */
 test.skip(!process.env.SHOTS, 'pictures only on request')
 const PHASE = process.env.PHASE ?? 'after'
-const OUT = 'screenshots/gate3-9b'
+const OUT = process.env.SHOTS_OUT ?? 'screenshots/gate3-9b'
 const SIZES = {
   phone: { width: 390, height: 844, touch: true },
   ipad: { width: 1194, height: 834, touch: true },
@@ -80,7 +80,7 @@ for (const [dev, size] of Object.entries(SIZES))
       await page.getByTestId('aifw-open').click()
       await page.getByTestId('aifw-build').waitFor()
       await snap(page, `build-${dev}-${tn}`)
-      if (PHASE === 'before') return context.close()
+      if (PHASE === 'before' && !process.env.FULL) return context.close()
 
       // Plan with steps.
       await page.getByTestId('aifw-dest-name').fill('Habits')

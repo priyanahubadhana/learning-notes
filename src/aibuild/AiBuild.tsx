@@ -89,6 +89,7 @@ export default function AiBuild({
 
   const start = (plan: Record<string, unknown>, name: string) => {
     if (!engine) return
+    toasts.current?.clear()
     void (async () => {
       const made = await engine.runner.create(plan)
       if (!made.ok) return say(t('aifw.run.error'))
@@ -110,7 +111,10 @@ export default function AiBuild({
       className={`min-h-11 rounded-lg px-4 text-sm font-medium ${
         tab === id ? 'bg-soft' : 'text-muted hover:bg-hover'
       }`}
-      onClick={() => setTab(id)}
+      onClick={() => {
+        if (id !== tab) toasts.current?.clear()
+        setTab(id)
+      }}
       onKeyDown={(e) => {
         if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
         e.preventDefault()
@@ -187,6 +191,7 @@ export default function AiBuild({
                 onUndo={undo}
                 onRedo={redo}
                 onBack={() => {
+                  toasts.current?.clear()
                   setRun(null)
                   setFresh((n) => n + 1)
                 }}

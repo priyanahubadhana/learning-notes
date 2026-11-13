@@ -1,4 +1,5 @@
 import { Fragment, Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { usePhoneScreen } from '../../app/usePhoneScreen'
 import { revealWhenReady } from '../../editor/revealBlock'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
@@ -155,6 +156,8 @@ function SettingsV3Body({
 
   // The phone preview: open or shut, and how many changes it has not shown.
   const wide = useWide(root)
+  const phone = usePhoneScreen()
+  const [pillSlot, setPillSlot] = useState<HTMLElement | null>(null)
   const [sheetOpen, setSheetOpen] = useState(false)
   const [unseen, setUnseen] = useState(0)
   const toggleSheet = () => {
@@ -199,6 +202,9 @@ function SettingsV3Body({
           >
             <Icon name="redo" />
           </button>
+          {!wide && phone && (
+            <span ref={setPillSlot} className="sv3-pill-slot" />
+          )}
         </div>
       </div>
       <div className="sv3-search">
@@ -317,6 +323,7 @@ function SettingsV3Body({
           db={db}
           section={current}
           area={root}
+          slot={phone ? pillSlot : null}
         />
       )}
     </div>

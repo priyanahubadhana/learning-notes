@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
+import { usePhoneScreen } from '../app/usePhoneScreen'
 import { OnOff } from '../design/parts/OnOff'
 import { Card, CardTrigger } from '../design/parts/Card'
-import { Tile, TileGroup } from '../design/parts/CardParts'
+import { CardNote, SwitchRow, Tile, TileGroup } from '../design/parts/CardParts'
 import { activeTool, type ModeTool } from '../app/tools/main/mainTools'
 import {
   HIGHLIGHT_COLOURS,
@@ -23,8 +24,8 @@ const TOOLS = [
   'lasso',
 ] as const satisfies readonly ModeTool[]
 
-const btn = (active: boolean) =>
-  `min-h-11 min-w-11 rounded-lg px-3 text-sm hover:bg-hover ${active ? 'bg-hover font-medium' : ''}`
+const btn = (active: boolean, tight = false) =>
+  `min-h-11 min-w-11 rounded-lg ${tight ? 'px-2' : 'px-3'} text-sm hover:bg-hover ${active ? 'bg-hover font-medium' : ''}`
 
 /**
  * C2b: the small drawing strip of the book reader (shown while Pen is on):
@@ -52,6 +53,9 @@ export function ReaderInkBar({
   // Reader v2: pen type, highlighter opacity and a custom colour wait behind reader.inkLook (RD-P19).
   const inkLookOn = useUnlocked('reader.inkLook')
   const inkLook = !v2 || inkLookOn
+  // Gate 3, ninth visit (fix 6): on a phone the bar is 2 rows; sizes, pen
+  // type, opacity and Finger draws fold behind one ▾.
+  const compact = usePhoneScreen() && v2
   const tools = v2 && !inkTools ? TOOLS.filter((x) => x !== 'lasso') : TOOLS
   // Drawing starts with the Pen.
   useEffect(() => {
@@ -74,7 +78,7 @@ export function ReaderInkBar({
       data-testid="reader-ink-bar"
       className={
         v2
-          ? 'flex flex-wrap items-center gap-1 px-1.5 py-1'
+          ? `flex flex-wrap items-center ${compact ? '' : 'gap-1'} px-1.5 py-1`
           : 'flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1'
       }
     >
@@ -84,7 +88,7 @@ export function ReaderInkBar({
           type="button"
           aria-pressed={tool === id}
           data-testid={`reader-ink-${id}`}
-          className={btn(tool === id)}
+          className={btn(tool === id, compact)}
           onClick={() => activeTool.set(id)}
         >
           {t(`main.tool.${id}`)}
@@ -101,6 +105,20 @@ export function ReaderInkBar({
         >
           <Icon name="tape" size={18} />
         </button>
+      )}
+      {compact && (
+        <>
+          <span className="flex-1" />
+          <button
+            type="button"
+            data-testid="reader-ink-done"
+            className={btn(false, true)}
+            onClick={onDone}
+          >
+            {t('reader.ink.done')}
+          </button>
+          <span className="basis-full" aria-hidden />
+        </>
       )}
       {colours.map((c) => (
         <button
@@ -130,42 +148,44 @@ export function ReaderInkBar({
           />
         </button>
       ))}
-      {mode !== 'simple' && (tool === 'pen' || tool === 'highlighter') && (
-        <span
-          role="group"
-          aria-label={t('reader.ink.size')}
-          className="flex items-center"
-        >
-          {([0, 1, 2] as const).map((n) => (
-            <button
-              key={n}
-              type="button"
-              data-testid={`reader-ink-size-${n}`}
-              aria-pressed={(tool === 'pen' ? pen.size : hl.size) === n}
-              aria-label={t(`reader.ink.size.${n}` as 'reader.ink.size.0')}
-              className={btn((tool === 'pen' ? pen.size : hl.size) === n)}
-              onClick={() =>
-                tool === 'pen'
-                  ? penSettings.update({ size: n, exact: null })
-                  : highlighterSettings.update({ size: n })
-              }
-            >
-              <span
-                aria-hidden
-                className="mx-auto block rounded-full bg-current"
-                style={{ width: 6 + n * 4, height: 6 + n * 4 }}
-              />
-            </button>
-          ))}
-        </span>
-      )}
-      {mode === 'full' && inkLook && tool === 'pen' && (
+      {!compact &&
+        mode !== 'simple' &&
+        (tool === 'pen' || tool === 'highlighter') && (
+          <span
+            role="group"
+            aria-label={t('reader.ink.size')}
+            className="flex items-center"
+          >
+            {([0, 1, 2] as const).map((n) => (
+              <button
+                key={n}
+                type="button"
+                data-testid={`reader-ink-size-${n}`}
+                aria-pressed={(tool === 'pen' ? pen.size : hl.size) === n}
+                aria-label={t(`reader.ink.size.${n}` as 'reader.ink.size.0')}
+                className={btn((tool === 'pen' ? pen.size : hl.size) === n)}
+                onClick={() =>
+                  tool === 'pen'
+                    ? penSettings.update({ size: n, exact: null })
+                    : highlighterSettings.update({ size: n })
+                }
+              >
+                <span
+                  aria-hidden
+                  className="mx-auto block rounded-full bg-current"
+                  style={{ width: 6 + n * 4, height: 6 + n * 4 }}
+                />
+              </button>
+            ))}
+          </span>
+        )}
+      {!compact && mode === 'full' && inkLook && tool === 'pen' && (
         <PenTypeMenu
           value={pen.type}
           onChange={(p) => penSettings.update({ type: p })}
         />
       )}
-      {mode === 'full' && inkLook && tool === 'highlighter' && (
+      {!compact && mode === 'full' && inkLook && tool === 'highlighter' && (
         <label className="flex items-center gap-1 text-sm">
           {t('reader.ink.opacity')}
           <input
@@ -181,7 +201,8 @@ export function ReaderInkBar({
           />
         </label>
       )}
-      {mode === 'full' &&
+      {!compact &&
+        mode === 'full' &&
         inkLook &&
         (tool === 'pen' || tool === 'highlighter') && (
           <label
@@ -189,9 +210,9 @@ export function ReaderInkBar({
             className="relative flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg hover:bg-hover"
           >
             <span className="sr-only">{t('reader.ink.customColour')}</span>
-            <i
+            <span
               aria-hidden
-              className="pcard-swatch"
+              className="block size-5 rounded-full border border-line"
               style={{
                 background: /^#[0-9a-f]{6}$/i.test(current)
                   ? current
@@ -210,7 +231,8 @@ export function ReaderInkBar({
             />
           </label>
         )}
-      {v2 && (
+      {compact && <InkOptions tool={tool} mode={mode} inkLook={inkLook} />}
+      {v2 && !compact && (
         <>
           <span className="flex min-h-11 items-center gap-2 px-2 text-sm">
             <span aria-hidden>{t('readerv2.finger.label')}</span>
@@ -227,15 +249,17 @@ export function ReaderInkBar({
         </>
       )}
       {!v2 && <span className="flex-1" />}
-      <button
-        type="button"
-        data-testid="reader-ink-done"
-        className={btn(false)}
-        onClick={onDone}
-      >
-        {t('reader.ink.done')}
-      </button>
-      {v2 && (
+      {!compact && (
+        <button
+          type="button"
+          data-testid="reader-ink-done"
+          className={btn(false)}
+          onClick={onDone}
+        >
+          {t('reader.ink.done')}
+        </button>
+      )}
+      {v2 && !compact && (
         <p
           className="basis-full px-2 text-xs text-ink-soft"
           data-testid="reader-ink-finger-note"
@@ -288,6 +312,134 @@ function PenTypeMenu({
               />
             ))}
           </TileGroup>
+        </Card>
+      )}
+    </>
+  )
+}
+
+/**
+ * Phone pen bar (gate 3, ninth visit, fix 6): one ▾ holds sizes, pen type,
+ * highlighter opacity and Finger draws with its explanation.
+ */
+function InkOptions({
+  tool,
+  mode,
+  inkLook,
+}: {
+  tool: ModeTool
+  mode: InkBarMode
+  inkLook: boolean
+}) {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  const pen = penSettings.useValue()
+  const hl = highlighterSettings.useValue()
+  const label = t('readerv2.ink.options')
+  const inking = tool === 'pen' || tool === 'highlighter'
+  const size = tool === 'pen' ? pen.size : hl.size
+  const current = tool === 'highlighter' ? hl.colour : pen.colour
+  return (
+    <>
+      <CardTrigger
+        open={!!anchor}
+        label={label}
+        testId="reader-ink-options"
+        onClick={(el) => setAnchor(anchor ? null : el)}
+      >
+        {null}
+      </CardTrigger>
+      {anchor && (
+        <Card
+          anchor={anchor}
+          size="pick"
+          title={label}
+          onClose={() => setAnchor(null)}
+        >
+          {mode !== 'simple' && inking && (
+            <TileGroup label={t('reader.ink.size')} columns={3}>
+              {([0, 1, 2] as const).map((n) => (
+                <Tile
+                  key={n}
+                  label={t(`reader.ink.size.${n}` as 'reader.ink.size.0')}
+                  selected={size === n}
+                  testId={`reader-ink-size-${n}`}
+                  onSelect={() =>
+                    tool === 'pen'
+                      ? penSettings.update({ size: n, exact: null })
+                      : highlighterSettings.update({ size: n })
+                  }
+                />
+              ))}
+            </TileGroup>
+          )}
+          {mode === 'full' && inkLook && tool === 'pen' && (
+            <TileGroup label={t('reader.ink.type')} columns={3}>
+              {PEN_TYPES.map((p) => (
+                <Tile
+                  key={p}
+                  label={t(`ink.pen.${p}` as 'ink.pen.ball')}
+                  selected={p === pen.type}
+                  testId={`reader-ink-type-${p}`}
+                  onSelect={() => penSettings.update({ type: p })}
+                />
+              ))}
+            </TileGroup>
+          )}
+          {mode === 'full' && inkLook && tool === 'highlighter' && (
+            <label className="pcard-row">
+              {t('reader.ink.opacity')}
+              <input
+                type="range"
+                min={20}
+                max={90}
+                value={hl.opacity}
+                data-testid="reader-ink-opacity"
+                onChange={(e) =>
+                  highlighterSettings.update({
+                    opacity: Number(e.target.value),
+                  })
+                }
+                className="min-h-11 w-28"
+              />
+            </label>
+          )}
+          {mode === 'full' && inkLook && inking && (
+            <label
+              data-testid="reader-ink-custom"
+              className="pcard-row relative cursor-pointer"
+            >
+              {t('reader.ink.customColour')}
+              <span
+                aria-hidden
+                className="block size-5 rounded-full border border-line"
+                style={{
+                  background: /^#[0-9a-f]{6}$/i.test(current)
+                    ? current
+                    : 'var(--color-ink)',
+                }}
+              />
+              <input
+                type="color"
+                value={/^#[0-9a-f]{6}$/i.test(current) ? current : '#000000'}
+                onChange={(e) =>
+                  tool === 'highlighter'
+                    ? highlighterSettings.update({ colour: e.target.value })
+                    : penSettings.update({ colour: e.target.value })
+                }
+                className="absolute inset-0 cursor-pointer opacity-0"
+              />
+            </label>
+          )}
+          <SwitchRow
+            label={t('readerv2.finger.label')}
+            checked={pen.finger === 'on'}
+            onChange={(on) => penSettings.update({ finger: on ? 'on' : 'off' })}
+          />
+          <CardNote>
+            {pen.finger === 'on'
+              ? t('readerv2.finger.on')
+              : t('readerv2.finger.off')}
+          </CardNote>
         </Card>
       )}
     </>

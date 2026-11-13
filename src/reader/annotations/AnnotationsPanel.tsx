@@ -221,11 +221,12 @@ export function AnnotationsPanel({
                 )}
                 {a.note && <span className="mt-1 block text-sm">{a.note}</span>}
               </button>
-              <div className="mt-1 flex flex-wrap gap-1">
+              {/* One row; Delete in danger red (gate 3, ninth visit, fix 7). */}
+              <div className="mt-1 flex gap-0.5">
                 <button
                   type="button"
                   onClick={() => setEditing(a)}
-                  className="min-h-11 min-w-11 rounded-lg px-3 text-sm text-ink-soft hover:bg-hover"
+                  className="min-h-11 min-w-11 rounded-lg px-2.5 text-sm text-ink-soft hover:bg-hover"
                 >
                   {t('annot.edit')}
                 </button>
@@ -233,7 +234,7 @@ export function AnnotationsPanel({
                   <button
                     type="button"
                     onClick={() => onMakeCard(a)}
-                    className="min-h-11 min-w-11 rounded-lg px-3 text-sm text-ink-soft hover:bg-hover"
+                    className="min-h-11 min-w-11 rounded-lg px-2.5 text-sm text-ink-soft hover:bg-hover"
                   >
                     {t('annot.makeCard')}
                   </button>
@@ -241,7 +242,7 @@ export function AnnotationsPanel({
                 <button
                   type="button"
                   onClick={() => void remove(a)}
-                  className="min-h-11 min-w-11 rounded-lg px-3 text-sm text-ink-soft hover:bg-hover"
+                  className="min-h-11 min-w-11 rounded-lg px-2.5 text-sm text-danger hover:bg-hover"
                 >
                   {t('annot.delete')}
                 </button>

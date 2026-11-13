@@ -960,3 +960,14 @@
   border: 0;
   background: none;
 }
+
+/* Gate 3, ninth visit (slice 7, fix 5): on a phone the Preview pill sits in
+   the header row beside Undo and Redo, never over a description. */
+.sv3-pill-slot {
+  display: contents;
+}
+.sv3-pill-slot .sv3-pill {
+  position: static;
+  margin-inline-start: var(--space-2);
+  padding: 0 14px;
+}

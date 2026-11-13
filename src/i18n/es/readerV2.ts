@@ -35,6 +35,7 @@ export const esReaderV2 = {
   'readerv2.listen.deviceOnly':
     'Solo se usan voces de este dispositivo. Tu texto no sale de él.',
   'readerv2.sticky.tool': 'Nota adhesiva',
+  'readerv2.ink.options': 'Opciones del lápiz',
   'readerv2.finger.label': 'Dibujar con el dedo',
   'readerv2.finger.on': 'Tu dedo dibuja y la página no se desplaza debajo.',
   'readerv2.finger.off': 'Tu dedo desplaza la página. Solo el Pencil dibuja.',
@@ -76,6 +77,8 @@ export const esReaderV2 = {
     'Nada responde salvo el candado. Un deslizamiento sigue pasando la página.',
   'readerv2.lock.note':
     'Se recuerda para este libro. Para salir de Solo ver o Congelado, mantén pulsado el candado 1,5 segundos. Es un bloqueo de comodidad, no una contraseña.',
+  'readerv2.lock.noteBasic':
+    'Se recuerda para este libro. Para salir de Solo ver, mantén pulsado el candado 1,5 segundos. Es un bloqueo de comodidad, no una contraseña.',
   'readerv2.lock.set': '{mode}.',
   'readerv2.lock.holdHint': 'Mantén pulsado el candado para desbloquear.',
   'readerv2.lock.holding': 'Mantén pulsado para desbloquear…',

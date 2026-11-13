@@ -420,6 +420,22 @@ function aboveTabBar(): number | undefined {
     : undefined
 }
 
+/**
+ * Gate 3, ninth visit (slice 7, fix 3): while a bottom card or sheet is open
+ * (a dialog whose lower edge meets the window's), the toast sits just above
+ * its top edge, so it never hides a row of the card.
+ */
+function aboveBottomCard(): number | undefined {
+  const h = window.innerHeight
+  let lift: number | undefined
+  for (const el of document.querySelectorAll('[role="dialog"]')) {
+    const r = el.getBoundingClientRect()
+    if (r.height > 0 && r.bottom >= h - 2 && r.top > h / 3)
+      lift = Math.max(lift ?? 0, Math.round(h - r.top + 12))
+  }
+  return lift
+}
+
 export function Toast({
   message,
   action,
@@ -437,6 +453,20 @@ export function Toast({
   const held = useRef(false)
   // B3-11: above the on-screen keyboard and its 44 px bar, never under them.
   const kb = useKeyboardInset()
+  // Re-measured while shown: a card may open under a toast already up.
+  const [lift, setLift] = useState(aboveBottomCard)
+  useEffect(() => {
+    let frame = 0
+    const seen = new MutationObserver(() => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => setLift(aboveBottomCard()))
+    })
+    seen.observe(document.body, { childList: true, subtree: true })
+    return () => {
+      seen.disconnect()
+      cancelAnimationFrame(frame)
+    }
+  }, [])
   // A tap holds the toast; a tap anywhere else lets it go.
   useEffect(() => {
     if (!onRelease) return
@@ -476,7 +506,10 @@ export function Toast({
       data-popup-trigger
       data-toast
       // The toast layer of the one stacking scale: above every open card (gate 3).
-      style={{ bottom: toastBottom(kb) ?? aboveTabBar(), zIndex: LAYERS.toast }}
+      style={{
+        bottom: toastBottom(kb) ?? lift ?? aboveTabBar(),
+        zIndex: LAYERS.toast,
+      }}
       className="fixed bottom-5 left-1/2 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
     >
       <span>{message}</span>

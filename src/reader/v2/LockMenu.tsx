@@ -202,7 +202,9 @@ export function LockMenuCard({
           ))}
         </CardWell>
       </CardGroup>
-      <p className="pcard-note">{t('readerv2.lock.note')}</p>
+      <p className="pcard-note">
+        {t(frozenOn ? 'readerv2.lock.note' : 'readerv2.lock.noteBasic')}
+      </p>
     </Card>
   )
 }

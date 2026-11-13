@@ -34,6 +34,7 @@ export const enLateReaderV2 = {
   'readerv2.listen.deviceOnly':
     'Only voices on this device are used. Your text never leaves it.',
   'readerv2.sticky.tool': 'Sticky note',
+  'readerv2.ink.options': 'Pen options',
   'readerv2.finger.label': 'Finger draws',
   'readerv2.finger.on':
     'Your finger draws, and the page does not scroll under it.',
@@ -75,6 +76,8 @@ export const enLateReaderV2 = {
     'Nothing responds except the padlock. A swipe still turns the page.',
   'readerv2.lock.note':
     'Remembered for this book. To leave View only or Frozen, hold the padlock for 1.5 seconds. This is a comfort lock, not a password.',
+  'readerv2.lock.noteBasic':
+    'Remembered for this book. To leave View only, hold the padlock for 1.5 seconds. This is a comfort lock, not a password.',
   'readerv2.lock.set': '{mode}.',
   'readerv2.lock.holdHint': 'Hold the padlock to unlock.',
   'readerv2.lock.holding': 'Hold to unlock…',

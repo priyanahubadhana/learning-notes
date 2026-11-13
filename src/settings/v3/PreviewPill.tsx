@@ -23,6 +23,7 @@ export function PreviewPill({
   last,
   db,
   section,
+  slot,
 }: {
   open: boolean
   onToggle(): void
@@ -33,6 +34,12 @@ export function PreviewPill({
   last: Change | null
   db: LearningNotesDB
   section: string
+  /**
+   * Gate 3, ninth visit (slice 7, fix 5): on a phone the pill docks in this
+   * spot of the header row (beside Undo and Redo), so it never lies on a
+   * description.
+   */
+  slot?: HTMLElement | null
 }) {
   const pill = useRef<HTMLButtonElement>(null)
   const sheet = useRef<HTMLDivElement>(null)
@@ -64,8 +71,24 @@ export function PreviewPill({
     }
   }, [open, area])
 
+  const pillEl = (
+    <button
+      ref={pill}
+      type="button"
+      data-popup-trigger
+      data-preview-pill
+      data-pulse={pulse > 0 && !open ? 'on' : undefined}
+      aria-expanded={open}
+      onClick={onToggle}
+      className="sv3-pill"
+    >
+      <Icon name="eye" />
+      {tv('sv3.preview')}
+    </button>
+  )
   return createPortal(
     <>
+      {slot ? createPortal(pillEl, slot) : pillEl}
       {open && (
         <div
           ref={sheet}
@@ -88,19 +111,6 @@ export function PreviewPill({
           <PreviewBody last={last} db={db} section={section} />
         </div>
       )}
-      <button
-        ref={pill}
-        type="button"
-        data-popup-trigger
-        data-preview-pill
-        data-pulse={pulse > 0 && !open ? 'on' : undefined}
-        aria-expanded={open}
-        onClick={onToggle}
-        className="sv3-pill"
-      >
-        <Icon name="eye" />
-        {tv('sv3.preview')}
-      </button>
       <span role="status" className="sr-only">
         {pulse > 0 && !open ? tv('sv3.previewChanged') : ''}
       </span>

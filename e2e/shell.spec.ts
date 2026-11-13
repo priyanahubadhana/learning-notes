@@ -1,7 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import {
   addPage,
-  cornerAction,
   createNotebook,
   openPage,
   pageAction,

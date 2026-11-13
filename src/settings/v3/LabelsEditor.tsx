@@ -12,6 +12,7 @@ import {
   markName,
   type LabelDef,
 } from '../../revise/reviseMarks'
+import './labelsEditor.css'
 
 /**
  * The Revise labels list in Settings v3: name, colour, add, remove. Same

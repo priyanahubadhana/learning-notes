@@ -631,3 +631,106 @@ test('card block: no nesting line shows after the "A" label', async ({
   })
   expect(border).toBe('0px')
 })
+
+test('ST23: the Labels sheet shows colour dots, an Add label button and 16 px under Undo', async ({
+  page,
+}) => {
+  await asLevel(page, 'professional')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Cardiology', exact: true })
+    .click()
+  await tab(page, 'Revise').click()
+  await main(page).getByRole('button', { name: 'Labels', exact: true }).click()
+  const sheet = page.getByTestId('revise-labels')
+  const dot = sheet.locator('.sv3-swatch span').first()
+  await expect(dot).toBeVisible()
+  const box = (await dot.boundingBox())!
+  expect(Math.round(box.width)).toBe(24)
+  const swatch = (await sheet.locator('.sv3-swatch').first().boundingBox())!
+  expect(Math.round(swatch.width)).toBe(44)
+  const add = sheet.getByRole('button', { name: /Add label/ })
+  expect((await add.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+  await expect(add).toHaveCSS('border-style', 'solid')
+  const undo = (await sheet
+    .getByRole('button', { name: 'Undo', exact: true })
+    .boundingBox())!
+  const field = (await sheet.getByRole('textbox').first().boundingBox())!
+  expect(Math.round(field.y - (undo.y + undo.height))).toBeGreaterThanOrEqual(
+    16,
+  )
+})
+
+test('ST17: an empty Summary shows the shared Empty state with one button', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Cardiology', exact: true })
+    .click()
+  await tab(page, 'Summary').click()
+  const empty = main(page).getByTestId('summary-empty')
+  await expect(empty).toContainText('No summary yet')
+  await expect(empty.getByRole('button')).toHaveCount(1)
+  await empty.getByRole('button', { name: 'Go to notes' }).click()
+  await expect(tab(page, 'Notes')).toHaveAttribute('aria-selected', 'true')
+})
+
+test('ST17: an empty Revise lesson shows the shared Empty state with one button', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Cardiology', exact: true })
+    .click()
+  await tab(page, 'Revise').click()
+  const empty = main(page).getByTestId('revise-empty')
+  await expect(empty).toContainText('Nothing marked yet')
+  await expect(
+    main(page).getByText('Nothing marked in this lesson yet.'),
+  ).toHaveCount(0)
+  await expect(empty.getByRole('button')).toHaveCount(1)
+  await empty.getByRole('button', { name: 'Mark words in this lesson' }).click()
+  await expect(page).toHaveURL(/#\/page\//)
+})
+
+test('ST21: the saved chip has a bookmark and differs from the live chip; phone gap 8 px', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await asLevel(page, 'professional')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S1?', 1)
+  await openCards(page)
+  await page.getByTestId('study-header-filter').click()
+  await page.getByRole('menuitemradio', { name: 'New' }).click()
+  await page.getByTestId('study-header-filter').click()
+  await page.getByRole('menuitem', { name: 'Save filter' }).click()
+  const chips = page.getByTestId('study-header').locator('.study-header__chip')
+  await expect(chips).toHaveCount(2)
+  await expect(chips.first()).toHaveAttribute('data-saved', 'true')
+  await expect(chips.first().locator('svg')).toHaveCount(1)
+  await expect(chips.last()).not.toHaveAttribute('data-saved', 'true')
+  await expect(chips.last().locator('svg')).toHaveCount(0)
+  const head = (await page
+    .getByTestId('study-header')
+    .locator('.study-header')
+    .boundingBox())!
+  const row = (await page
+    .getByTestId('study-header')
+    .locator('.study-header__chips')
+    .boundingBox())!
+  expect(Math.round(row.y - (head.y + head.height))).toBeGreaterThanOrEqual(8)
+})

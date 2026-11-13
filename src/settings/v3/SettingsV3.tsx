@@ -49,6 +49,7 @@ import { TryNewHeader } from './TryNewHeader'
 import { inSection, useVisibleSettings } from './visibleSettings'
 import { tv } from './tv'
 import { useWide } from './useWide'
+import './labelsEditor.css'
 import './settingsV3.css'
 
 /**

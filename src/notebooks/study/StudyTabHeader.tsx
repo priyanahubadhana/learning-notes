@@ -110,11 +110,13 @@ export function StudyTabHeader({
                   <Icon name="bookmark" size={14} />
                 </span>
               )}
+              {chip.saved && (
+                <span className="sr-only">{t('st21.savedChip')}</span>
+              )}
               {chip.onSelect ? (
                 <button
                   type="button"
                   onClick={chip.onSelect}
-                  title={chip.saved ? t('st21.savedChip') : undefined}
                   className="study-header__chipname"
                 >
                   {chip.label}

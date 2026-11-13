@@ -12,6 +12,14 @@ describe('behaviour lines in a spec', () => {
   it('counts bullets that start with an ID', () => {
     expect(behaviourLineCount('- PM-01 When a\n- PM-100 When b')).toBe(2)
   })
+  it('counts bullets with a bold ID with or without a dash', () => {
+    const t = [
+      '- **ST3** When a',
+      '- **ST23** (`review.x`) When b',
+      '- **PM-2** When c',
+    ].join('\n')
+    expect(behaviourLineCount(t)).toBe(3)
+  })
   it('counts table rows with an ID', () => {
     const t = [
       '| ID | Action | Result |',

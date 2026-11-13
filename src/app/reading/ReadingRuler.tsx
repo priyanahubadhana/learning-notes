@@ -31,7 +31,7 @@ export function ReadingRuler({
   lineHeight: number
   colours?: RulerColours
   /** Keep the band inside this element (the page), not the whole window. */
-  within?: HTMLElement | null
+  within?: { readonly current: HTMLElement | null }
 }) {
   const [y, setY] = useState(() => Math.round(window.innerHeight * 0.4))
 
@@ -72,7 +72,7 @@ export function ReadingRuler({
 
   const band = mode === 'focus' ? lineHeight * 2.4 : lineHeight * 1.3
   // Clipped to the page (gate 3 fixes 2 and 3): the app shell stays normal.
-  const box = within?.getBoundingClientRect()
+  const box = within?.current?.getBoundingClientRect()
   const area = box
     ? { left: box.left, top: box.top, width: box.width, height: box.height }
     : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }

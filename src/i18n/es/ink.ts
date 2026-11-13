@@ -39,7 +39,7 @@ export const esInk = {
   'annot.panel': 'Subrayados y notas',
   'annot.panelEmpty':
     'Aún no hay nada. Selecciona texto mientras lees para subrayarlo o añadir una nota.',
-  'annot.pin': 'Fijar (marcador aquí)',
+  'annot.pin': 'Marcador',
   'annot.popup': 'Texto seleccionado',
   'annot.removed': 'Eliminado.',
   'annot.save': 'Guardar',

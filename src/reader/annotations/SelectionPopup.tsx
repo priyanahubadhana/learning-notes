@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { HIGHLIGHT_COLOURS, type HighlightColour } from '../../core/types'
 import { COLOUR_FILL, lookupUrl, type PopupRect } from './colours'
 import { t } from '../../i18n/t'
+import { Icon } from '../../app/tools/icons'
 
 /**
  * The small bar over a text selection while reading (C4): five highlight
@@ -70,6 +71,8 @@ export function SelectionPopup({
   )
   const btn =
     'min-h-11 min-w-11 rounded-lg px-2 text-sm hover:bg-hover focus-visible:outline-2 focus-visible:outline-accent'
+  const act =
+    'flex min-h-11 min-w-11 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg px-2 text-xs hover:bg-hover focus-visible:outline-2 focus-visible:outline-accent'
   return (
     <div
       ref={ref}
@@ -78,7 +81,7 @@ export function SelectionPopup({
       role="toolbar"
       aria-label={t('annot.popup')}
       data-testid="selection-popup"
-      className="fixed z-50 flex flex-wrap items-center gap-0.5 rounded-xl border border-line bg-bg p-1 shadow-lg"
+      className="fixed z-50 flex flex-col rounded-xl border border-line bg-bg p-1 shadow-lg"
       style={{
         insetInlineStart: left,
         top,
@@ -88,89 +91,102 @@ export function SelectionPopup({
       onPointerDown={(e) => e.preventDefault()}
       onMouseDown={(e) => e.preventDefault()}
     >
-      {HIGHLIGHT_COLOURS.map((c) => (
-        <IconButton
-          tip="annot.highlightColour"
-          bare
-          tipClassName="inline-flex shrink-0"
-          key={c}
-          type="button"
-          data-testid={`hl-${c}`}
-          aria-label={t('annot.highlight', { colour: t(`annot.colour.${c}`) })}
-          onClick={() => onColour(c)}
-          className="flex size-11 items-center justify-center rounded-lg hover:bg-hover"
-        >
-          <span
-            aria-hidden
-            className="size-6 rounded-full border border-line"
-            style={{ background: COLOUR_FILL[c] }}
-          />
-        </IconButton>
-      ))}
-      <button type="button" onClick={onNote} className={btn}>
-        {t('annot.note')}
-      </button>
-      {onSticky && (
-        <button
-          type="button"
-          data-testid="popup-sticky"
-          onClick={onSticky}
-          className={btn}
-        >
-          {t('readerv2.sticky.popup')}
+      <div className="h-track flex flex-nowrap items-center gap-0.5">
+        {HIGHLIGHT_COLOURS.map((c) => (
+          <IconButton
+            tip="annot.highlightColour"
+            bare
+            tipClassName="inline-flex shrink-0"
+            key={c}
+            type="button"
+            data-testid={`hl-${c}`}
+            aria-label={t('annot.highlight', {
+              colour: t(`annot.colour.${c}`),
+            })}
+            onClick={() => onColour(c)}
+            className="flex size-11 items-center justify-center rounded-lg hover:bg-hover"
+          >
+            <span
+              aria-hidden
+              className="size-6 rounded-full border border-line"
+              style={{ background: COLOUR_FILL[c] }}
+            />
+          </IconButton>
+        ))}
+        <button type="button" onClick={onNote} className={act}>
+          <Icon name="penLine" />
+          <span>{t('annot.note')}</span>
         </button>
-      )}
-      <button type="button" onClick={onCopy} className={btn}>
-        {t('annot.copy')}
-      </button>
-      {onDefine && (
-        <button
-          type="button"
-          data-testid="popup-define"
-          onClick={onDefine}
-          className={btn}
-        >
-          {t('annot.define')}
+        {onSticky && (
+          <button
+            type="button"
+            data-testid="popup-sticky"
+            onClick={onSticky}
+            className={act}
+          >
+            <Icon name="clipboard" />
+            <span>{t('readerv2.sticky.popup')}</span>
+          </button>
+        )}
+        <button type="button" onClick={onCopy} className={act}>
+          <Icon name="copy" />
+          <span>{t('annot.copy')}</span>
         </button>
-      )}
-      {extras && (
-        <button
-          type="button"
-          aria-expanded={lookup}
-          onClick={() => setLookup((v) => !v)}
-          className={btn}
-        >
-          {t('annot.lookUp')}
+        {onDefine && (
+          <button
+            type="button"
+            data-testid="popup-define"
+            onClick={onDefine}
+            className={act}
+          >
+            <Icon name="bookOpen" />
+            <span>{t('annot.define')}</span>
+          </button>
+        )}
+        {extras && (
+          <button
+            type="button"
+            aria-expanded={lookup}
+            onClick={() => setLookup((v) => !v)}
+            className={act}
+          >
+            <Icon name="search" />
+            <span>{t('annot.lookUp')}</span>
+          </button>
+        )}
+        <button type="button" onClick={onPin} className={act}>
+          <Icon name="bookmark" />
+          <span>{t('annot.pin')}</span>
         </button>
-      )}
-      <button type="button" onClick={onPin} className={btn}>
-        {t('annot.pin')}
-      </button>
-      {extras && onSaveTo && (
-        <button type="button" onClick={onSaveTo} className={btn}>
-          {t('annot.saveTo')}
-        </button>
-      )}
-      {extras && onMakeCard && (
-        <button
-          type="button"
-          data-testid="popup-make-card"
-          onClick={onMakeCard}
-          className={btn}
-        >
-          {t('annot.makeCard')}
-        </button>
-      )}
-      {extras && onAsk && (
-        <button
-          type="button"
-          data-testid="popup-ask"
-          onClick={onAsk}
-          className={btn}
-        >
-          {t('annot.askAi')}
-        </button>
-      )}
+        {extras && onSaveTo && (
+          <button type="button" onClick={onSaveTo} className={act}>
+            <Icon name="save" />
+            <span>{t('annot.saveTo')}</span>
+          </button>
+        )}
+        {extras && onMakeCard && (
+          <button
+            type="button"
+            data-testid="popup-make-card"
+            onClick={onMakeCard}
+            className={act}
+          >
+            <Icon name="cards" />
+            <span>{t('annot.makeCard')}</span>
+          </button>
+        )}
+        {extras && onAsk && (
+          <button
+            type="button"
+            data-testid="popup-ask"
+            onClick={onAsk}
+            className={act}
+          >
+            <Icon name="sparkles" />
+            <span>{t('annot.askAi')}</span>
+          </button>
+        )}
+      </div>
       {extras && lookup && (
         <div className="flex w-full flex-wrap items-center gap-1 border-t border-line pt-1">
           {(['dictionary', 'wikipedia', 'translate'] as const).map((k) => (

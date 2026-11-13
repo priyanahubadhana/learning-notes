@@ -215,3 +215,20 @@ test('gate 3 fix 4: pen type is the shared ▾ menu, the custom colour a swatch;
   await page.getByTestId('reader-ink-type-fountain').click()
   await expect(page.getByTestId('reader-ink-type')).toContainText('Fountain')
 })
+
+test('gate 3 fix 6: the selection pop-up is one row of icon + label buttons, with Bookmark', async ({
+  page,
+}) => {
+  await openPdf(page)
+  await selectAlpha(page)
+  const pop = page.getByTestId('selection-popup')
+  await expect(pop).toBeVisible()
+  const define = (await pop.getByTestId('popup-define').boundingBox())!
+  const mark = pop.getByRole('button', { name: 'Bookmark', exact: true })
+  await expect(mark).toBeAttached()
+  const note = (await pop
+    .getByRole('button', { name: 'Note', exact: true })
+    .boundingBox())!
+  expect(Math.abs(define.y - note.y)).toBeLessThan(2)
+  await expect(pop.getByTestId('popup-define').locator('svg')).toHaveCount(1)
+})

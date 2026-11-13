@@ -39,7 +39,7 @@ export const hiInk = {
   'annot.panel': 'हाइलाइट और नोट',
   'annot.panelEmpty':
     'यहाँ अभी कुछ नहीं है। पढ़ते समय टेक्स्ट चुनकर उसे हाइलाइट करें या नोट जोड़ें।',
-  'annot.pin': 'पिन (यहाँ बुकमार्क)',
+  'annot.pin': 'बुकमार्क',
   'annot.popup': 'चुना हुआ टेक्स्ट',
   'annot.removed': 'हटाया गया।',
   'annot.save': 'सहेजें',

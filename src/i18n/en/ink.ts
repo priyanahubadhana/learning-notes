@@ -37,7 +37,7 @@ export const enInk = {
   'annot.panel': 'Highlights and notes',
   'annot.panelEmpty':
     'Nothing here yet. Select some text while reading to highlight it or add a note.',
-  'annot.pin': 'Pin (bookmark here)',
+  'annot.pin': 'Bookmark',
   'annot.popup': 'Selected text',
   'annot.removed': 'Removed.',
   'annot.save': 'Save',

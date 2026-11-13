@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { miniToolbarOpen } from '../app/tools/main/mainTools'
 import { createPortal } from 'react-dom'
 import { AppUiContext, TopBarSlotContext } from '../app/appUi'
 import { useFlag } from '../app/flags'
@@ -243,6 +244,12 @@ export function PageView({
   const pageTab: PageTab =
     isExtraTab(rawTab) && !extraTabs.includes(rawTab) ? 'notes' : rawTab
   const setPageTab = (tab: PageTab) => setPageTabState({ pageId: page.id, tab })
+  // Why: the touch selection bar sits in <body>, so it stayed over the
+  // Summary or Review tab after a switch and covered its header (ST24 on
+  // iPad). Another tab hides the notes, so the bar goes with them.
+  useEffect(() => {
+    if (pageTab !== 'notes') miniToolbarOpen.set(false)
+  }, [pageTab])
   if (
     studyV2 &&
     peekSummaryField(page.id) &&

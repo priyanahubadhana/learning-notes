@@ -32,6 +32,64 @@ async function asLevel(page: Page, level: 'beginner' | 'professional') {
   }, level)
 }
 
+/**
+ * Runs a selection action ("Make card", "Add to Summary", "Key point") on
+ * `text`. On a computer: the toolbar over the selected text. On touch (iPad)
+ * that toolbar gives way to the docked bar, so the touch path is used: a
+ * Pencil hold on the first letter, a drag to the last, then the mini bar's
+ * "More" (MiniToolbar.tsx) and the action.
+ */
+async function selectionAction(page: Page, text: string, name: string) {
+  if (!test.info().project.use.hasTouch) {
+    await selectText(page, text)
+    await page.getByRole('button', { name, exact: true }).click()
+    return
+  }
+  const ends = await page.evaluate((wanted) => {
+    const root = document.querySelector('.bn-editor')!
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const at = node.textContent!.indexOf(wanted)
+      if (at < 0) continue
+      const range = document.createRange()
+      range.setStart(node, at)
+      range.setEnd(node, at + wanted.length)
+      const r = range.getBoundingClientRect()
+      const y = r.top + r.height / 2
+      return { a: { x: r.left + 1, y }, b: { x: r.right - 0.5, y } }
+    }
+    throw new Error('Text not found: ' + wanted)
+  }, text)
+  const pen = async (type: string, at: { x: number; y: number }) =>
+    page.evaluate(
+      ({ type, at }) => {
+        const el = document.elementFromPoint(at.x, at.y)!
+        el.dispatchEvent(
+          new PointerEvent(type, {
+            pointerType: 'pen',
+            pointerId: 21,
+            clientX: at.x,
+            clientY: at.y,
+            bubbles: true,
+            cancelable: true,
+            isPrimary: true,
+            button: type === 'pointermove' ? -1 : 0,
+            buttons: type === 'pointerup' ? 0 : 1,
+          }),
+        )
+      },
+      { type, at },
+    )
+  await pen('pointerdown', ends.a)
+  await page.waitForTimeout(700) // past the hold time (up to 600 ms)
+  await pen('pointermove', ends.b)
+  await pen('pointerup', ends.b)
+  const mini = page.locator('[data-mini-toolbar]')
+  await expect(mini).toBeVisible()
+  await mini.getByRole('button', { name: 'More', exact: true }).click()
+  await mini.getByRole('button', { name, exact: true }).click()
+}
+
 async function openCards(page: Page) {
   await (
     await openSidebar(page)
@@ -151,8 +209,7 @@ test('ST3 + ST4: Make card on a selection adds a card under the text; Undo remov
   await page.goto(FLAGGED)
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await typeInEditor(page, 'The first heart sound is S1')
-  await selectText(page, 'first heart sound')
-  await page.getByRole('button', { name: 'Make card', exact: true }).click()
+  await selectionAction(page, 'first heart sound', 'Make card')
   // The selection is the answer of a new card under the text; the text stays.
   const cards = page.locator('[data-content-type="card"]')
   await expect(cards).toHaveCount(1)
@@ -254,10 +311,7 @@ const pageTab = (page: Page, name: string) =>
 async function oneSummaryLine(page: Page) {
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await typeInEditor(page, 'The first heart sound is S1')
-  await selectText(page, 'first heart sound')
-  await page
-    .getByRole('button', { name: 'Add to Summary', exact: true })
-    .click()
+  await selectionAction(page, 'first heart sound', 'Add to Summary')
 }
 
 test('ST7: Add to Summary makes the Summary tab count glow once', async ({
@@ -296,8 +350,7 @@ test('ST9: Revise groups marks by label; "My summary" is one line that opens the
   await page.goto(FLAGGED)
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await typeInEditor(page, 'The first heart sound is S1')
-  await selectText(page, 'first heart sound')
-  await page.getByRole('button', { name: 'Key point', exact: true }).click()
+  await selectionAction(page, 'first heart sound', 'Key point')
   await waitForSaved(page)
   await (
     await openSidebar(page)
@@ -322,8 +375,7 @@ test('ST23: Professional taps Labels in Revise and edits the labels', async ({
   await page.goto(FLAGGED)
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   await typeInEditor(page, 'The first heart sound is S1')
-  await selectText(page, 'first heart sound')
-  await page.getByRole('button', { name: 'Key point', exact: true }).click()
+  await selectionAction(page, 'first heart sound', 'Key point')
   await waitForSaved(page)
   await (
     await openSidebar(page)
@@ -355,6 +407,8 @@ test('ST24: Professional switches the Summary to Notebook and exports it', async
   await oneSummaryLine(page)
   await page.waitForTimeout(800)
   await pageTab(page, 'summary').click()
+  // The touch selection bar goes with the notes (it covered this header).
+  await expect(page.locator('[data-mini-toolbar]')).toHaveCount(0)
   await page.getByTestId('study-header-filter').click()
   await page.getByRole('menuitemradio', { name: 'Notebook' }).click()
   await expect(main(page).locator('[data-summary-line]')).toHaveCount(1)

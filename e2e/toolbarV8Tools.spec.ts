@@ -633,3 +633,44 @@ test('1d gate fixes: iPad portrait Edit picture card never covers the picture; t
     c.y + c.height <= p.y
   expect(apart).toBe(true)
 })
+
+// Why: with an ink tool on, the page's box was stretched past its text and
+// did not resize when a picture loaded, so its frame kept the old height and
+// a 44 pt resize handle sat over the picture until the next tool change.
+test('1d fix: the text box frame grows with a picture placed while the Lasso is on', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 820, height: 1180 })
+  await open(page, 'lasso', 'professional', PRO_ALL)
+  await hideSidebar(page)
+  const png = await solidPng(400, 200)
+  await page.locator('.bn-editor').click({ force: true })
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('/image')
+  await page.keyboard.press('Enter')
+  await page
+    .getByTestId('picture-input-photos')
+    .setInputFiles({ name: 'p.png', mimeType: 'image/png', buffer: png })
+  await page.getByRole('button', { name: 'Place picture' }).click()
+  const img = page.locator('.bn-editor img')
+  await expect(img).toBeVisible()
+  await expect(page.locator('[data-main-frame]')).toHaveCount(1)
+  // The frame reaches below the picture, and no handle covers its middle.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const f = document
+          .querySelector('[data-main-frame]')!
+          .getBoundingClientRect()
+        const p = document
+          .querySelector('.bn-editor img')!
+          .getBoundingClientRect()
+        const at = document.elementFromPoint(
+          p.x + p.width / 2,
+          p.y + p.height / 2,
+        )
+        return f.bottom >= p.bottom && !at?.closest('[data-resize-handle]')
+      }),
+    )
+    .toBe(true)
+})

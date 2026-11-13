@@ -309,7 +309,17 @@ export function PaperFrame({
   useEffect(() => {
     const el = boxEl.current
     if (!el) return
+    // Why: with an ink tool on, the box is stretched past its text, so it
+    // does not resize when a picture loads; the frame and its handles kept
+    // the old height and a handle sat over the picture. Watch the editor too.
+    let watched: Element | null = null
     const measure = () => {
+      const now = el.querySelector('.bn-editor')
+      if (now && now !== watched) {
+        if (watched) ro.unobserve(watched)
+        ro.observe(now)
+        watched = now
+      }
       setBoxBottom(
         el.getBoundingClientRect().bottom -
           (el.parentElement?.getBoundingClientRect().top ?? 0),
@@ -328,8 +338,8 @@ export function PaperFrame({
         ),
       )
     }
-    measure()
     const ro = new ResizeObserver(measure)
+    measure()
     ro.observe(el)
     return () => ro.disconnect()
   }, [k, reportHeight])

@@ -536,7 +536,10 @@ test('ST15: Capture takes a pasted link and keeps a YouTube start time', async (
 }) => {
   await asLevel(page, 'beginner')
   await page.goto('/?flags=study.v2#/capture')
-  await expect(page.getByTestId('notes-panel')).toBeVisible()
+  await expect(page.getByTestId('capture-url')).toBeVisible()
+  // Beginner: pasting a link only; the other ways in are Professional (ST28).
+  await expect(page.getByTestId('notes-panel')).toHaveCount(0)
+  await expect(page.getByTestId('capture-address')).toHaveCount(0)
   await page
     .getByTestId('capture-url')
     .fill('https://youtu.be/dQw4w9WgXcQ?t=90')
@@ -604,4 +607,15 @@ test('ST22: Beginner has no card strip', async ({ page }) => {
     .getByRole('button', { name: /Which valves close/ })
     .dispatchEvent('contextmenu')
   await expect(page.getByTestId('card-strip')).toHaveCount(0)
+})
+
+test('ST28: Professional finds the bookmarklet, the iOS Shortcut and Notes from your own AI', async ({
+  page,
+}) => {
+  await asLevel(page, 'professional')
+  await page.goto('/?flags=study.v2#/capture')
+  await expect(page.getByTestId('capture-url')).toBeVisible()
+  await expect(page.getByTestId('notes-panel')).toBeVisible()
+  await expect(page.getByTestId('capture-address')).toBeVisible()
+  await expect(page.getByText('Send to Learning Notes')).toBeVisible()
 })

@@ -1,6 +1,8 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
+import { useFlag } from '../app/flags'
+import { useUnlocked } from '../settings/level'
 import type { LearningNotesDB } from '../core/db'
 import { isHttpsUrl } from '../core/sourceCheck'
 import { t } from '../i18n/t'
@@ -33,6 +35,9 @@ export function CaptureScreen({
   onClose: () => void
 }) {
   const { toast } = useContext(AppUiContext)
+  const v2 = useFlag('study.v2')
+  const proWays = useUnlocked('ai.capture')
+  const ways = !v2 || proWays
   const [url, setUrl] = useState(draft?.url ?? '')
   const [title, setTitle] = useState(draft?.title ?? '')
   const [text, setText] = useState(draft?.text ?? '')
@@ -143,13 +148,17 @@ export function CaptureScreen({
           {t('capture.save')}
         </button>
       </form>
-      <NotesPanel
-        db={db}
-        workspaceId={workspaceId}
-        input={input}
-        onDone={onOpenPage}
-      />
-      <WaysIn />
+      {ways && (
+        <>
+          <NotesPanel
+            db={db}
+            workspaceId={workspaceId}
+            input={input}
+            onDone={onOpenPage}
+          />
+          <WaysIn />
+        </>
+      )}
     </div>
   )
 }

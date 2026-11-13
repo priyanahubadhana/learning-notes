@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: storage safety spec and mock-up
+
+- What: spec docs/features/storage-safety.md (IDs SS-01 to SS-09, When lines, Won't do) and a static mock-up of the Safari tab notice, the Show how pop-up, one-tap backup, storage full and connection lost, using the shared Banner, Dialog and Toast.
+- Why: the slice had helpers but only one PENDING line as its spec; a new visual pattern needs a spec and mock-up before the UI is built.
+- Files: docs/features/storage-safety.md, docs/mockups/storage-safety-mock.html, docs/mockups/storage-safety/, docs/PENDING.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: test guard hook strengthened; batch CI decision recorded
 
 - What: guard-tests.mjs also blocks longer timeouts, grepInvert/testIgnore, new skip/fixme and deleted test files unless a `test-guard-reason` comment (5+ words) is on the line; tried on scratch inputs (block without, allow with). ECONOMY-MODE section 12 and DECISIONS record the rules and the batch CI decision.

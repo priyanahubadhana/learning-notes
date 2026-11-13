@@ -55,8 +55,7 @@ export const esAiStudio = {
   'aifw.wf.chip.rating': 'Valoración {n}+',
   'aifw.wf.chip.uses': 'Usado {n}+ veces',
   'aifw.wf.chip.remove': 'Quitar filtro: {name}',
-  'aifw.wf.empty':
-    'Aún no hay flujos. Crea un plan y toca Guardar como flujo.',
+  'aifw.wf.empty': 'Aún no hay flujos. Crea un plan y toca Guardar como flujo.',
   'aifw.wf.noMatch': 'Ningún flujo coincide con estos filtros.',
   'aifw.wf.run': 'Ejecutar',
   'aifw.wf.runName': 'Ejecutar flujo: {name}',

@@ -8,6 +8,7 @@
   "ai -> sync",
   "aibuild -> ai",
   "aibuild -> aitools",
+  "aibuild -> tags",
   "aibuild -> design",
   "aitools -> ..",
   "aitools -> ai",

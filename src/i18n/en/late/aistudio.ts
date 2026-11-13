@@ -5,8 +5,7 @@ export const enLateAiStudio = {
 
   'aifw.bar.path': 'Goes to: {path}',
   'aifw.bar.pathNone': 'Choose where it goes.',
-  'aifw.bar.estimate':
-    'Free by paste. A paid model: about {cost} (estimated).',
+  'aifw.bar.estimate': 'Free by paste. A paid model: about {cost} (estimated).',
   'aifw.bar.noEstimate': 'The cost shows when the plan is ready.',
 
   'aifw.studio.title': 'Studio',

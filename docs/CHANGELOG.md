@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: AI framework slice 6 (cost additions, Studio, Workflows), flag ai.framework off
+
+- What: Claude's cache storage charge is part of every cost (never lower than real); Ask this book preview shows the true token count from Claude, or "(estimated)" offline or on failure, under all the rules of a real call. Build screen: stacked run bar (phone), Studio tab (tiles toggle, "Make selected" = one plan, combined cost), Workflows tab (shared Tag picker, chips, Clear all, live N of M, Save as workflow, Run, Remove with Undo). Owner comments A1 to A4 handled. Workflows are kept on this device (no new table).
+- Why: owner comments on the AI mock-up and the queued cost additions in docs/features/ai.md.
+- Files: src/ai/countTokens.ts, usage.ts, providers.ts, route.ts, AskBook.tsx, src/aibuild/ (Studio, Workflows, RunBar, DestinationPicker, studioPlan, workflowList), src/i18n/*/aistudio.ts, e2e/aiStudio.spec.ts, e2e/aiBook.spec.ts, playwright.config.ts (one line), docs/features/ai-framework.md, ai.md.
+
 ### 13 Nov 2026: fast start (WebKit start 15 s -> 1.2 s)
 
 - What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.

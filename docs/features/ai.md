@@ -52,9 +52,9 @@ The user's own API key calls the provider straight from the browser. No server o
 
 - **Prompt library and skills:** [prompt-library.md](prompt-library.md). `AiRequest.cachePrefix` / `AiCall.cachePrefix` puts a long text first and marks it for Claude prompt caching (cached tokens are counted in the usage); other companies get it in front of the prompt.
 
-## Cost additions (queued)
+## Cost additions (built in AI framework slice 6)
 
-Item 5 (prompt caching) and item 6 (real token count). One small sub-slice, at the start of AI framework slice 6.
+Item 5 (prompt caching) and item 6 (real token count). Code: `src/ai/usage.ts` (`costOf`, `worstCost`), `src/ai/countTokens.ts`; tests `src/ai/costAdditions.test.ts` and `e2e/aiBook.spec.ts`. The count call is made for the Ask this book preview; the guess is shown as "(estimated)". A key already at its monthly limit sends no count call.
 
 - When I send a long text with a cached prefix, the reusable part is marked for caching, and the cost shown includes any storage charge, so it is never lower than the real cost.
 - When I open the preview of a page, the true token count is asked from the provider, if the provider offers one; the preview then shows that count.

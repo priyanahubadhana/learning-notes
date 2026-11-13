@@ -175,6 +175,21 @@ Tools: `tags.add`, `tags.remove`, `tags.rename`, `library.pin` (same folders as 
 - When a notebook or page is locked, a tag name is blank or already used under the same parent, or the page, tag or notebook is gone → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
 - When the spend limit is ₹0 → none of these tools makes any network or paid call (V4-G6).
 
+### Slice 6: cost additions, Studio, Workflows, run bar
+
+Code: `src/ai/countTokens.ts`, `src/aibuild/Studio.tsx`, `studioPlan.ts`, `Workflows.tsx`, `workflowList.ts`, `RunBar.tsx`. Owner comments A1 to A4: [docs/mockups/ai-v3-comments.md](../mockups/ai-v3-comments.md). Cost additions: [ai.md](ai.md).
+
+- When a tile in Studio is tapped → it switches on or off (shown pressed); nothing runs yet (SB-1).
+- When I tap "Make selected" → ONE plan of real catalog steps is made (a new notebook if chosen, a page to hold the result, then one step per ticked tile) and runs through the same progress, preview, Apply and Undo as Build (SB-2).
+- When tiles are ticked → one combined cost is shown, "Free by paste" and what a paid model would cost, worded "estimated" (SB-3).
+- When I am on a phone → the bottom row is stacked: the path (it wraps), then the effort chip with the estimate, then a full-width Run; nothing overlaps (A1).
+- When a plan is ready → the "Plan ready" notice is placed clear of the plan title (A2, tested at every size in `e2e/aiGoal.spec.ts`).
+- When I tap "Save as workflow" → the plan is kept on this device and appears under Workflows; Run starts it as a new job and counts one use (SW-5).
+- When I filter Workflows → by tags (the shared Tag picker, Any or All), under More filters by what it is made for, minimum rating and times used, by the search box, and sorted by rating, most used, name or recently run; every filter shows as a chip with ✕, Clear all removes them, and "N of M" updates live (SW-1 to SW-4).
+- When the Tag picker is open and I press Esc → only the picker closes.
+
+Won't do (slice 6): parts 7 and 8; any paid call; a database table for workflows (they are kept on this device until the main manager gives a Dexie version); saved views of Workflows filters (left for the next slice).
+
 ### Slice 3: Build screen texts
 
 - AF-43. When a step or job shows a reason (step failed, stopped, nothing to

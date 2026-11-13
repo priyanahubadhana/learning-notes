@@ -146,7 +146,7 @@
 }
 .fb-btn[data-variant='danger'] {
   background: var(--color-danger);
-  color: #fff;
+  color: var(--color-surface-0);
 }
 .fb-btn:disabled {
   opacity: 0.4;

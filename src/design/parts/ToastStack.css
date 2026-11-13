@@ -73,7 +73,7 @@
 .fb-toast[data-kind='problem'] .fb-toast__icon {
   border-radius: var(--r-pill);
   background: var(--color-danger);
-  color: #fff;
+  color: var(--color-surface-0);
   font-size: 13px;
 }
 .fb-toast__text {

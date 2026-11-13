@@ -72,7 +72,12 @@ test('a hostile EPUB runs nothing: no inline or external script, no on… handle
     scripts: document.getElementsByTagNameNS('*', 'script').length,
     frames: document.querySelectorAll('iframe, frame, object, embed').length,
     refresh: document.querySelectorAll('meta[http-equiv="refresh"]').length,
-    first: document.head?.firstElementChild?.outerHTML ?? '',
+    // The reader adds its own style tags at the top later; the first thing
+    // after them is the page rule, before anything the book brought.
+    first:
+      Array.from(document.head?.children ?? []).find(
+        (c) => c.localName !== 'style',
+      )?.outerHTML ?? '',
     handlers: Array.from(document.getElementsByTagName('*')).flatMap((el) =>
       Array.from(el.attributes)
         .filter((a) => /^on/i.test(a.name))
@@ -120,7 +125,10 @@ test('book frames take events on WebKit: the frame sandbox allows scripts and ke
   ])
   // The no-scripts page rule is in every ordinary book page too.
   const first = await frame.evaluate(
-    () => document.head?.firstElementChild?.getAttribute('content') ?? '',
+    () =>
+      Array.from(document.head?.children ?? [])
+        .find((c) => c.localName !== 'style')
+        ?.getAttribute('content') ?? '',
   )
   expect(first).toContain("script-src 'none'")
 })

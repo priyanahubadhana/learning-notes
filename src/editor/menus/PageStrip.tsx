@@ -14,7 +14,7 @@ import type { EditorBlock } from '../mapping'
 import { boxHost } from '../pasteBox'
 import type { AppSchema } from '../schema'
 import { posNear, rangeForTaps } from '../tapSelect'
-import { pasteIn } from './pasteMenu'
+import { pasteIn, peekPasteForms } from './pasteMenu'
 import { moreCommands, pasteMenu, stripItems } from './stripModel'
 
 type Editor = AppSchema['BlockNoteEditor']
@@ -84,14 +84,25 @@ export default function PageStrip({
     }
   }, [view, at.x, at.y])
 
+  // What the clipboard allows (null until known: every row stays).
+  const [forms, setForms] = useState<string[] | null>(null)
+  useEffect(() => {
+    let live = true
+    void peekPasteForms(editor).then((f) => live && setForms(f))
+    return () => {
+      live = false
+    }
+  }, [editor])
+
   const items = useMemo(() => {
     const ai = readAiConfig()
     const menu = pasteMenu({
       box: !!boxHost(editor),
       ai: ai.enabled && ai.candidates.length > 0,
+      forms,
     })
     return stripItems().map((i) => (i.id === 'paste' ? { ...i, menu } : i))
-  }, [editor])
+  }, [editor, forms])
   const commands = useMemo(() => moreCommands({ pro }), [pro])
 
   const block = (): EditorBlock => editor.getTextCursorPosition().block

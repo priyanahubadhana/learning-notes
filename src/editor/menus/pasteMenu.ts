@@ -41,6 +41,33 @@ export async function readClipboardData(): Promise<PasteData | null> {
 }
 
 /**
+ * What the clipboard allows in Paste ▾ (the planner's choices), or null when
+ * the browser has not allowed a look yet. It never asks: a look is taken only
+ * when the clipboard-read permission is already granted.
+ */
+export async function peekPasteForms(editor: Editor): Promise<string[] | null> {
+  try {
+    const p = await navigator.permissions?.query({
+      name: 'clipboard-read' as PermissionName,
+    })
+    if (p?.state !== 'granted') return null
+    const data = await readClipboardData()
+    if (!data) return null
+    const plan = planPaste(data) ?? {
+      kind: 'text',
+      text: data.text,
+      rich: false,
+    }
+    const forms: string[] = choicesFor(plan, { box: !!boxHost(editor) })
+    // Tab rows already paste as a table; "As table" stays listed for them.
+    if (plan.kind === 'table' && !forms.includes('table')) forms.push('table')
+    return forms
+  } catch {
+    return null
+  }
+}
+
+/**
  * A pick of the strip's Paste ▾ (PM-41): reads the clipboard and pastes in
  * that form. A form that does not fit this clipboard pastes as it was
  * copied, never nothing. The paste is one Undo step (applyPaste transacts).

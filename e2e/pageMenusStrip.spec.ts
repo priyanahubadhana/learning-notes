@@ -80,10 +80,52 @@ test('PM-22 ⋯ opens the full list; Professional adds Copy as', async ({
   await expect(page.getByTestId('cl-item-copyMarkdown')).toBeAttached()
 })
 
-test('PM-41 Paste ▾ shows the forms in one card and picking Plain pastes plain text', async ({
+/** A stand-in clipboard: the same answer in every browser, no permission step. */
+async function standInClipboard(page: Page, text: string) {
+  await page.addInitScript((value) => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { readText: async () => value },
+      configurable: true,
+    })
+    Object.defineProperty(navigator, 'permissions', {
+      value: { query: async () => ({ state: 'granted' }) },
+      configurable: true,
+    })
+  }, text)
+}
+
+async function pasteChoices(page: Page): Promise<string[]> {
+  await rightClickWord(page)
+  await strip(page).getByTestId('cs-paste').click()
+  await expect(page.getByTestId('cs-picker')).toHaveCount(1)
+  return page
+    .locator('[data-testid^="cs-pick-"]')
+    .evaluateAll((els) =>
+      els.map((el) => el.getAttribute('data-testid')!.slice(8)),
+    )
+}
+
+test('PM-41 Paste ▾ offers Table for rows and Link for an address', async ({
   page,
 }) => {
-  // A stand-in clipboard: the same answer in every browser, no permission step.
+  await standInClipboard(page, 'a\tb\n1\t2')
+  await openNote(page, 'beginner')
+  const forms = await pasteChoices(page)
+  expect(forms).toContain('table')
+  expect(forms).not.toContain('link')
+})
+
+test('PM-41 Paste ▾ offers Link for a lone address', async ({ page }) => {
+  await standInClipboard(page, 'https://example.com/page')
+  await openNote(page, 'beginner')
+  const forms = await pasteChoices(page)
+  expect(forms).toContain('link')
+  expect(forms).not.toContain('table')
+})
+
+test('PM-41 Paste ▾ shows every row while the browser has not allowed a look', async ({
+  page,
+}) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, 'clipboard', {
       value: { readText: async () => 'alpha beta' },
@@ -91,12 +133,24 @@ test('PM-41 Paste ▾ shows the forms in one card and picking Plain pastes plain
     })
   })
   await openNote(page, 'beginner')
+  const forms = await pasteChoices(page)
+  expect(forms).toEqual(expect.arrayContaining(['table', 'link', 'quote']))
+})
+
+test('PM-41 Paste ▾ shows the forms in one card and picking Plain pastes plain text', async ({
+  page,
+}) => {
+  await standInClipboard(page, 'alpha beta')
+  await openNote(page, 'beginner')
   await page.keyboard.press('End')
   await rightClickWord(page)
   await strip(page).getByTestId('cs-paste').click()
   await expect(page.getByTestId('cs-picker')).toHaveCount(1)
-  for (const id of ['keep', 'plain', 'table', 'quote', 'link'])
+  for (const id of ['keep', 'plain', 'quote'])
     await expect(page.getByTestId(`cs-pick-${id}`)).toBeVisible()
+  // Plain words on the clipboard: no table and no link row.
+  for (const id of ['table', 'link'])
+    await expect(page.getByTestId(`cs-pick-${id}`)).toHaveCount(0)
   await page.getByTestId('cs-pick-plain').click()
   await expect(page.locator('.bn-editor')).toContainText('alpha beta')
   // PM-45: one Undo takes the whole paste back.

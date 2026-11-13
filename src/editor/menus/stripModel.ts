@@ -62,8 +62,17 @@ export function stripItems(): StripItem[] {
   ]
 }
 
-/** The ▾ list of Paste (PM-41). Rows that do not apply are left out. */
-export function pasteMenu(o: { box: boolean; ai: boolean }): StripMenuItem[] {
+/**
+ * The ▾ list of Paste (PM-41). Rows that do not apply are left out. `forms`
+ * is what the clipboard allows (from the paste planner); null = not known
+ * yet (the browser has not allowed a look), so every row stays.
+ */
+export function pasteMenu(o: {
+  box: boolean
+  ai: boolean
+  forms?: readonly string[] | null
+}): StripMenuItem[] {
+  const has = (id: string) => !o.forms || o.forms.includes(id)
   const rows: StripMenuItem[] = [
     {
       id: 'keep',
@@ -76,31 +85,33 @@ export function pasteMenu(o: { box: boolean; ai: boolean }): StripMenuItem[] {
       hint: t('parts.menus.pastePlainHint'),
     },
   ]
-  if (o.box) {
+  if (o.box && has('box')) {
     rows.push({
       id: 'box',
       label: t('pageMenus.pasteBox'),
       hint: t('pageMenus.pasteBoxHint'),
     })
   }
-  rows.push(
-    {
+  if (has('table')) {
+    rows.push({
       id: 'table',
       label: t('parts.menus.pasteTable'),
       hint: t('parts.menus.pasteTableHint'),
-    },
-    {
-      id: 'quote',
-      label: t('pageMenus.pasteQuote'),
-      hint: t('pageMenus.pasteQuoteHint'),
-    },
-    {
+    })
+  }
+  rows.push({
+    id: 'quote',
+    label: t('pageMenus.pasteQuote'),
+    hint: t('pageMenus.pasteQuoteHint'),
+  })
+  if (has('link')) {
+    rows.push({
       id: 'link',
       label: t('pageMenus.pasteLink'),
       hint: t('pageMenus.pasteLinkHint'),
-    },
-  )
-  if (o.ai) {
+    })
+  }
+  if (o.ai && has('cleanup')) {
     rows.push({
       id: 'cleanup',
       label: t('pageMenus.pasteCleanup'),

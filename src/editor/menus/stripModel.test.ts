@@ -31,6 +31,35 @@ describe('page strip model (PM-20, PM-22, PM-41)', () => {
     ])
   })
 
+  it('PM-20 the strip has no Add to favourites and no Comment', () => {
+    const ids = stripItems().map((i) => i.id)
+    expect(ids).not.toContain('favourite')
+    expect(ids).not.toContain('comment')
+    const more = moreCommands({ pro: true })[0].items.map((i) => i.id)
+    expect(more.join(' ')).not.toMatch(/favourite|comment/i)
+  })
+
+  it('PM-41 Paste ▾ shows only the rows the clipboard allows', () => {
+    const ids = (forms: string[]) =>
+      pasteMenu({ box: true, ai: true, forms }).map((r) => r.id)
+    expect(ids(['keep'])).toEqual(['keep', 'plain', 'quote'])
+    expect(ids(['keep', 'link'])).toEqual(['keep', 'plain', 'quote', 'link'])
+    expect(ids(['keep', 'table', 'cleanup', 'box'])).toEqual([
+      'keep',
+      'plain',
+      'box',
+      'table',
+      'quote',
+      'cleanup',
+    ])
+    // AI off: no Clean up even when the text could use it.
+    expect(
+      pasteMenu({ box: false, ai: false, forms: ['keep', 'cleanup'] }).map(
+        (r) => r.id,
+      ),
+    ).toEqual(['keep', 'plain', 'quote'])
+  })
+
   it('PM-22 ⋯ has the four basic rows; Professional adds Copy as', () => {
     const beginner = moreCommands({ pro: false })[0].items.map((i) => i.id)
     expect(beginner).toEqual(['select', 'selectAll', 'picture', 'line'])

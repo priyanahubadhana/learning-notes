@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: storage safety merged; BUG-006 in the preview
+
+build/next: TB-33/TB-34 test timing fixed (a376f39d, merged 4579cdb4), CI 43522929290 green on 1d7db514, so BUG-006 is in the preview. iPad storage safety merged cfebd3a4 (flag OFF, gates 2+3 passed); first load 319,763 B, lazy-load follow-up queued. Gate 3: AI cost additions PASS, toolbar 1e/1f FAIL (7), 12 rest FAIL (6), Reader fixes in gate 2. Files: docs/BUILD-STATE.md, PENDING.md, CHANGELOG.md.
+
 ### 14 Nov 2026: build manager run 7 (gates)
 
 Card close focus-trap fix c17bd0d9 on build/next (src/design/parts/Card.tsx, Card.test.ts): the card drops its Tab trap and returns focus at once, not after the 130 ms closing motion; fixes red e2e/toolbarV8Tools.spec.ts:585 on ipad-webkit (CI 43505401817); after-the-fact gate 2 PASS. Gate 2: 8b PASS; Reader v2 PASS at 7d36cbdb (RD-P25 deterministic, book pages block outside pictures); toolbar 1e/1f round 3 FAIL (flaky 200 ms test); 12 rest FAIL then paste tests added (cb3eba9d). Gate 3: 8b PASS. Two decisions logged for the owner (iPad paste tests, EPUB scripts). Files: docs/BUILD-STATE.md, PENDING.md, DECISIONS.md, CHANGELOG.md.

@@ -139,3 +139,24 @@ Applied 13 Nov; the live wording is CLAUDE.md "How Work Runs".
 Switch: let the Fable build orchestrator finish and merge its current slice (or stop it once its helpers have pushed), make sure docs/BUILD-STATE.md is current, then start the agent `economy-orchestrator` with the prompt: `Continue the build. Read docs/BUILD-STATE.md and follow your agent file.` When it ends with "RESTART economy-orchestrator", start it again with the same prompt.
 
 Rollback (any time, nothing to undo in code): stop it and start `fable-manager` with `Continue the build from docs/BUILD-STATE.md per docs/plans/build-master-plan.md`. Delete nothing.
+
+## 9. Brief template (short form for every helper)
+
+Fable sends six lines, in this order:
+
+1. **Goal:** one sentence on what must exist at the end.
+2. **Where:** the worktree and the exact file paths, with line numbers if known.
+3. **Spec:** a file path plus a heading. Point to it; never paste it.
+4. **Done when:** the exact targeted tests that must pass, and what to commit.
+5. **Do not touch:** files or behaviour that are off limits.
+6. **Report:** at most 5 lines: done or not, commit id, test result, open problems.
+
+Leave out:
+
+- the history of the task and the reasons behind it;
+- pasted file contents or pasted spec text;
+- rules the helper's own agent file already holds;
+- full test-suite runs (those belong to CI);
+- greetings and thanks.
+
+For Haiku, name every step. Sonnet needs less detail.

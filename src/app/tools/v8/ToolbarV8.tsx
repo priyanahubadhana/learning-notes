@@ -41,11 +41,20 @@ const SelCardBody = lazy(() =>
 /** The selected text box's rect: the Box card hangs around it, never over it. */
 const activeBoxRect = () => {
   const at = activeBox.get()
-  return at
-    ? (document
+  const r = at
+    ? document
         .querySelector(`[data-paper-box="${at.boxId}"]`)
-        ?.getBoundingClientRect() ?? null)
+        ?.getBoundingClientRect()
     : null
+  if (!r) return null
+  // The frame and the handles sit just outside the box: keep clear of them too.
+  const pad = 24
+  return {
+    left: r.left - pad,
+    top: r.top - pad,
+    width: r.width + 2 * pad,
+    height: r.height + 2 * pad,
+  }
 }
 
 /** The picked picture's rect: the Edit picture card keeps clear of it. */

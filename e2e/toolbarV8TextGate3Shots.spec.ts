@@ -71,7 +71,9 @@ async function openChip(page: Page, id: string) {
 }
 
 async function closeCard(page: Page) {
-  await page.getByRole('button', { name: 'Close' }).click()
+  await page.getByTestId('pcard-close').click()
+  // The card has finished closing before the next tap.
+  await expect(page.locator('.pcard')).toHaveCount(0)
 }
 
 for (const [dev, size] of Object.entries(SIZES)) {
@@ -122,9 +124,9 @@ for (const [dev, size] of Object.entries(SIZES)) {
           await settle(page)
           await shot('alltools')
           await closeCard(page)
-        } else await closeCard(page)
+          await page.getByTestId('v8-more').click()
+        }
         // The bar turned off: the one Show toolbar pill.
-        await page.getByTestId('v8-more').click()
         await page.getByTestId('v8-more-hide').click()
         await page.getByRole('button', { name: 'Turn off' }).click()
         await expect(page.getByTestId('show-tool-bar')).toBeVisible()

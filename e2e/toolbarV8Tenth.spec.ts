@@ -189,6 +189,15 @@ test('TB-33 Text size labels sit on one line', async ({ page }) => {
   await expect(card(page, 'sel.size')).toBeVisible()
   const labels = card(page, 'sel.size').locator('.pcard-tile-label')
   await expect(labels).toHaveCount(5)
+  // Measure the card at rest: the selected tile pops in from scale 0.93
+  // (pcard-pop, 280 ms), and a label read mid-pop sits a pixel off.
+  await card(page, 'sel.size').evaluate((el) =>
+    Promise.all(
+      el
+        .getAnimations({ subtree: true })
+        .map((a) => a.finished.catch(() => {})),
+    ),
+  )
   const tops = await labels.evaluateAll((els) =>
     els.map((e) => Math.round(e.getBoundingClientRect().top)),
   )

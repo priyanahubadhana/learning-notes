@@ -70,4 +70,9 @@ export const enLateStudyV2 = {
   'st22.resumed': 'Card resumed',
   'st23.changed': 'Labels changed',
   'st23.redo': 'Redo',
+  'st12.run': 'Run',
+  'st12.runNamed': 'Run {name}',
+  'st13.copy': 'Copy prompt',
+  'st13.add': 'Add to page',
+  'st14.limit': 'Your monthly limit: {amount}',
 } as const

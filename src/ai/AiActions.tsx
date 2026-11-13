@@ -2,6 +2,8 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useRef, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
+import { useFlag } from '../app/flags'
+import { formatCost } from './costCurrency'
 import { readPref, writePref } from '../app/uiPrefs'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
@@ -67,6 +69,7 @@ export function AiActions({
     [db, page.notebookId],
   )
   const config = forNotebook(readAiConfig(), notebook)
+  const v2 = useFlag('study.v2')
   const prompts = (
     <PromptsEntry
       db={db}
@@ -200,6 +203,11 @@ export function AiActions({
                 host: PROVIDERS[config.provider].host,
               })}
             </p>
+            {v2 && (
+              <p className="mb-4 text-sm" data-testid="ai-limit">
+                {t('st14.limit', { amount: formatCost(config.capUsd) })}
+              </p>
+            )}
             <div className="flex justify-end gap-2">
               <button
                 type="button"

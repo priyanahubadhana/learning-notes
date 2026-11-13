@@ -1,5 +1,8 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
+import { useFlag } from '../app/flags'
+import { useUnlocked } from '../settings/level'
+import { StarterTiles, starterItems } from './StarterTiles'
 import { runTask } from '../app/errors'
 import { PopupHeader } from '../app/tools/PopupClose'
 import { readPref, writePref } from '../app/uiPrefs'
@@ -68,6 +71,8 @@ export default function PromptsDialog({
   renderRowAction,
 }: DialogProps) {
   const { toast } = useContext(AppUiContext)
+  const v2 = useFlag('study.v2') && !onPick
+  const manage = useUnlocked('ai.prompts')
   const [lib, setLib] = useState<Library | null>(null)
   const [items, setItems] = useState<PromptItem[]>([])
   const [filter, setFilter] = useState<LibraryFilter>({
@@ -178,8 +183,13 @@ export default function PromptsDialog({
             onDelete={editing.id ? () => runTask(remove(editing)) : undefined}
             onCancel={() => setEditing(null)}
           />
+        ) : v2 && !manage ? (
+          <StarterTiles items={starterItems(items)} onRun={setRunning} />
         ) : (
           <>
+            {v2 && (
+              <StarterTiles items={starterItems(items)} onRun={setRunning} />
+            )}
             <div className="mb-2 flex flex-wrap gap-2">
               <input
                 type="search"

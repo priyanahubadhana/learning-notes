@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { runTask } from '../app/errors'
+import { useFlag } from '../app/flags'
 import { t, type MessageKey } from '../i18n/t'
 import { copyTextFor } from './pasteText'
 import type { PromptItem } from './promptModel'
@@ -27,6 +28,7 @@ export function PasteIn({
 }) {
   const [raw, setRaw] = useState('')
   const [problem, setProblem] = useState<FormatProblem | null>(null)
+  const v2 = useFlag('study.v2')
   const fileRef = useRef<HTMLInputElement>(null)
   /** A .lnskill.json (or .json/.txt) file: read as text, then the same checks as a paste. */
   const takeFile = (file: File | undefined) => {
@@ -44,6 +46,7 @@ export function PasteIn({
     <details
       className="rounded-lg border border-line p-2 text-sm"
       data-testid="paste-in"
+      open={v2 || undefined}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault()
@@ -63,7 +66,7 @@ export function PasteIn({
             runTask(navigator.clipboard.writeText(copyTextFor(item, input)))
           }
         >
-          {t('prompts.paste.copy')}
+          {v2 ? t('st13.copy') : t('prompts.paste.copy')}
         </button>
         <label className="flex flex-col gap-1">
           <span className="text-muted">{t('prompts.paste.answerLabel')}</span>

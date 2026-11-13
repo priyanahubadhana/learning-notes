@@ -69,4 +69,9 @@ export const hiStudyV2 = {
   'st22.resumed': 'कार्ड फिर शुरू',
   'st23.changed': 'लेबल बदले गए',
   'st23.redo': 'फिर करें',
+  'st12.run': 'चलाएँ',
+  'st12.runNamed': '{name} चलाएँ',
+  'st13.copy': 'प्रॉम्प्ट कॉपी करें',
+  'st13.add': 'पेज में जोड़ें',
+  'st14.limit': 'आपकी मासिक सीमा: {amount}',
 } as const

@@ -70,4 +70,9 @@ export const esStudyV2 = {
   'st22.resumed': 'Tarjeta reanudada',
   'st23.changed': 'Etiquetas cambiadas',
   'st23.redo': 'Rehacer',
+  'st12.run': 'Ejecutar',
+  'st12.runNamed': 'Ejecutar {name}',
+  'st13.copy': 'Copiar la instrucción',
+  'st13.add': 'Añadir a la página',
+  'st14.limit': 'Tu límite mensual: {amount}',
 } as const

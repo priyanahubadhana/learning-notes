@@ -2,6 +2,8 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
+import { useFlag } from '../app/flags'
+import { formatCost } from '../ai/costCurrency'
 import { readPref, writePref } from '../app/uiPrefs'
 import { addBlocks } from '../core/blockBulk'
 import type { LearningNotesDB } from '../core/db'
@@ -65,6 +67,7 @@ export function RunPrompt({
   onChanged?: () => void
 }) {
   const { toast, openSettings } = useContext(AppUiContext)
+  const v2 = useFlag('study.v2')
   const [item, setItem] = useState(first)
   const [input, setInput] = useState<InputValue>(EMPTY_INPUT)
   const [answer, setAnswer] = useState('')
@@ -165,12 +168,27 @@ export function RunPrompt({
       <AiOffCard />
       {privacy && (
         <div className="rounded-lg border border-line p-3 text-sm" role="alert">
+          {v2 && <h4 className="mb-1 font-semibold">{t('ai.privacyTitle')}</h4>}
           <p className="mb-2">
             {t('ai.privacy', {
               provider: t(`ai.provider.${config.provider}`),
               host: PROVIDERS[config.provider].host,
             })}
           </p>
+          {v2 && (
+            <p className="mb-2" data-testid="ai-limit">
+              {t('st14.limit', { amount: formatCost(config.capUsd) })}
+            </p>
+          )}
+          {v2 && (
+            <button
+              type="button"
+              className={`${btn} mr-2`}
+              onClick={() => setPrivacy(false)}
+            >
+              {t('annot.cancel')}
+            </button>
+          )}
           <button
             type="button"
             data-testid="ai-privacy-ok"
@@ -186,15 +204,17 @@ export function RunPrompt({
         </div>
       )}
       <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          data-testid="run-ai"
-          className={primary}
-          disabled={busy || input.busy || !input.text}
-          onClick={() => runTask(run())}
-        >
-          {busy ? t('ai.working') : t('prompts.run')}
-        </button>
+        {(!v2 || config.enabled) && (
+          <button
+            type="button"
+            data-testid="run-ai"
+            className={primary}
+            disabled={busy || input.busy || !input.text}
+            onClick={() => runTask(run())}
+          >
+            {busy ? t('ai.working') : t('prompts.run')}
+          </button>
+        )}
       </div>
       <PasteIn
         item={item}
@@ -244,7 +264,7 @@ export function RunPrompt({
                   )
                 }
               >
-                {t('prompts.addToPage')}
+                {v2 ? t('st13.add') : t('prompts.addToPage')}
               </button>
             )}
           </div>

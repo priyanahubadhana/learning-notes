@@ -55,7 +55,7 @@ function ActionsCard() {
   const l = lassoSettings.useValue()
   const row = lassoRow.useValue()
   return (
-    <>
+    <div className="v8scroll">
       <CardGroup label={t('v8.lasso.actionsGroup')}>
         <ul className="v8list" data-testid="v8-lasso-actions">
           {LASSO_ACTIONS.map((a) => (
@@ -98,7 +98,7 @@ function ActionsCard() {
           </CardGroup>
         </>
       ) : null}
-    </>
+    </div>
   )
 }
 

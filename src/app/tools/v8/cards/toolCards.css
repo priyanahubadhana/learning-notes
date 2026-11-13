@@ -46,8 +46,10 @@
   border-top: 1px solid var(--color-line);
 }
 .v8sel button {
-  display: inline-grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-width: 44px;
   min-height: 44px;
   border: 0;
@@ -56,12 +58,24 @@
   color: var(--color-ink-soft);
   cursor: pointer;
 }
-.v8sel button:hover:not([data-coming]) {
+.v8sel button:hover {
   background: var(--color-hover);
   color: var(--color-ink);
 }
-.v8sel button[data-coming] {
-  opacity: 0.55;
+/* A word beside each icon where there is room (PC, iPad landscape). */
+.v8sel-word {
+  display: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+@media (min-width: 1000px) {
+  .v8sel button {
+    padding: 0 10px;
+  }
+  .v8sel-word {
+    display: inline;
+  }
 }
 .v8sel button:focus-visible {
   outline: 2px solid var(--color-accent);
@@ -86,9 +100,33 @@
   text-align: left;
   cursor: pointer;
 }
-.v8sel-more button:hover:not([data-coming]) {
+.v8sel-more button:hover {
   background: var(--card-well);
 }
-.v8sel-more button[data-coming] {
-  opacity: 0.55;
+
+/* The Lasso Actions card scrolls inside the window instead of jumping above its chip. */
+.v8scroll {
+  max-height: calc(100dvh - 260px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.v8scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* The Colour picker row: the swatch sits where a switch would. */
+.v8swatchinput {
+  flex: none;
+  width: 40px;
+  height: 28px;
+  padding: 2px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  cursor: pointer;
+}
+.v8swatchinput:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }

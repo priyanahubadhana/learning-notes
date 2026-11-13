@@ -89,6 +89,7 @@ export function ToolRow({
     id: it.id,
     priority: 100 - i,
     fixedW: it.kind === 'toggle' ? 44 : undefined,
+    keepName: it.kind === 'menu' && openCard === cardIdOf(it),
   }))
   const { rowRef, measureRef, result } = useFold(specs, { gap: 8, moreW: 44 })
   const shown = items.filter((i) => result.shown.includes(i.id))
@@ -122,7 +123,11 @@ export function ToolRow({
               testId={`v8-chip-${cardIdOf(item)}`}
               onClick={(el) => onToggleCard(cardIdOf(item), el)}
             >
-              <Face item={item} pen={pen} names={result.names} />
+              <Face
+                item={item}
+                pen={pen}
+                names={result.names || openCard === cardIdOf(item)}
+              />
             </CardTrigger>
           ) : (
             <button

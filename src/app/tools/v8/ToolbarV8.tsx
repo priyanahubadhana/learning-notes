@@ -112,10 +112,8 @@ export default function ToolbarV8() {
         <Suspense fallback={null}>
           <SelectionBarV8
             lasso={tool === 'lasso'}
-            moreOpen={card?.id === 'sel.more'}
-            onMore={(a) => onToggleCard('sel.more', a)}
-            pictureOpen={card?.id === 'sel.picture'}
-            onPicture={(a) => onToggleCard('sel.picture', a)}
+            openId={card?.id ?? null}
+            onCard={(id, a) => onToggleCard(id, a)}
           />
         </Suspense>
       ) : null}
@@ -142,7 +140,11 @@ export default function ToolbarV8() {
             ) : card.id.startsWith('lasso.') ? (
               <LassoCardBody id={card.id} />
             ) : card.id.startsWith('sel.') ? (
-              <SelCardBody id={card.id} onDone={() => onCloseCard(card.id)} />
+              <SelCardBody
+                id={card.id}
+                onDone={() => onCloseCard(card.id)}
+                onSwap={(id) => setCard((c) => (c ? { ...c, id } : c))}
+              />
             ) : (
               /* 1e and 1f fill the other cards. */
               <p className="v8note">{t('v8.card.empty')}</p>

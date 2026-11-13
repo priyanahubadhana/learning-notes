@@ -98,6 +98,9 @@ export function cardInfo(id: string): {
 } {
   if (id === 'insert') return { title: 'v8.tool.insert', size: 'panel' }
   if (id === 'sel.more') return { title: 'v8.sel.more', size: 'pick' }
+  if (id === 'sel.colour') return { title: 'ink.sel.colour', size: 'pick' }
+  if (id === 'sel.resize') return { title: 'main.sel.resize', size: 'pick' }
+  if (id === 'sel.move') return { title: 'v8.sel.move', size: 'pick' }
   if (id === 'sel.picture') return { title: 'v8.sel.editPicture', size: 'pick' }
   if (id === 'fold.bar' || id === 'fold.row')
     return { title: 'v8.fold.title', size: 'pick' }

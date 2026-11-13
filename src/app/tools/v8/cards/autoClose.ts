@@ -16,6 +16,8 @@ export function cardAutoClose(
       return !unlocked('tb.eraserOptions')
     case 'lasso.shape':
       return !unlocked('tb.lassoOptions')
+    case 'sel.colour':
+      return true
     case 'shapes.size':
       return penAutoClose('pen.size', unlocked)
     case 'shapes.colour':

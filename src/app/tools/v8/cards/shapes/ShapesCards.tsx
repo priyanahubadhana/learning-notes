@@ -81,7 +81,7 @@ function ShapeCard() {
       <CardGroup label={t('v8.pen.shapeHelp')}>
         <CardWell>
           <SwitchRow
-            label={t('ink.pen.holdShape')}
+            label={t('v8.shapes.holdShape')}
             checked={pen.holdShape}
             onChange={(holdShape) => penSettings.update({ holdShape })}
           />
@@ -110,21 +110,21 @@ function ShapeCard() {
               checked={mag.on}
               onChange={() => toggleMagnifier()}
             />
+            <label className="pcard-row">
+              <span>{t('v8.pen.pickColour')}</span>
+              <input
+                type="color"
+                className="v8swatchinput"
+                aria-label={t('v8.pen.pickColour')}
+                data-testid="v8-shape-picker"
+                value={isHex(pen.colour) ? pen.colour : '#000000'}
+                onChange={(e) => {
+                  addCustomColour(e.target.value)
+                  penSettings.update({ colour: e.target.value.toLowerCase() })
+                }}
+              />
+            </label>
           </CardWell>
-          <div className="v8pick">
-            <input
-              type="color"
-              className="v8colourinput"
-              aria-label={t('v8.pen.pickColour')}
-              data-testid="v8-shape-picker"
-              value={isHex(pen.colour) ? pen.colour : '#000000'}
-              onChange={(e) => {
-                addCustomColour(e.target.value)
-                penSettings.update({ colour: e.target.value.toLowerCase() })
-              }}
-            />
-            <span>{t('v8.pen.pickColour')}</span>
-          </div>
         </CardGroup>
       ) : null}
     </>

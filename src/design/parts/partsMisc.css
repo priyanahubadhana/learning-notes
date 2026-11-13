@@ -606,3 +606,15 @@
     transition: none;
   }
 }
+
+/* The gallery's "Reduce motion" switch does the same as the system setting. */
+:root[data-motion='reduce'] .pm-empty,
+:root[data-motion='reduce'] .pm-ob,
+:root[data-motion='reduce'] .pm-dlg {
+  animation: none;
+}
+:root[data-motion='reduce'] .pm-seg,
+:root[data-motion='reduce'] .pm-ob__btn,
+:root[data-motion='reduce'] .pm-btn {
+  transition: none;
+}

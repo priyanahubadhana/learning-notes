@@ -60,8 +60,35 @@ async function textNodes(page: Page, id: string) {
   }, id)
 }
 
+/** Marks and the ring of the current change: at least 3 against what they sit on. */
+async function marks(page: Page, theme: string) {
+  const d = page.getByTestId('demo-cmp-side')
+  await d.scrollIntoViewIfNeeded()
+  await d.getByTestId('ba-next').click()
+  for (const kind of ['added', 'removed', 'changed']) {
+    const cell = d.locator(`.ba-cell[data-kind="${kind}"]`).first()
+    await cell.evaluate((el) => {
+      el.style.borderTopColor = getComputedStyle(el).borderInlineStartColor
+    })
+    expect(
+      await contrastOf(cell, 'border'),
+      `${theme} ${kind} mark`,
+    ).toBeGreaterThanOrEqual(3)
+  }
+  const cur = d.locator('.ba-cell[data-current]').first()
+  await expect(cur).toBeAttached()
+  await cur.evaluate((el) => {
+    const m = getComputedStyle(el).boxShadow.match(/rgba?([^)]*)/)
+    el.style.borderTopColor = m ? m[0] : 'transparent'
+  })
+  expect(
+    await contrastOf(cur, 'border'),
+    `${theme} current-change ring`,
+  ).toBeGreaterThanOrEqual(3)
+}
+
 for (const theme of THEMES) {
-  test(`S3-39 reduced motion, then ${theme}: nothing keeps moving; text is at least 4.5 and rings are drawn`, async ({
+  test(`S3-39 reduced motion, then ${theme}: nothing keeps moving; text is at least 4.5, marks and rings at least 3`, async ({
     page,
   }) => {
     await open(page)
@@ -94,6 +121,35 @@ for (const theme of THEMES) {
         [...PARTS],
       )
       expect(running, `${theme}: endless animations`).toEqual([])
+      // ... and no transition or animation of any length is left on a step 3 part
+      const slow = await page.evaluate(
+        (ids) => {
+          // 0.01 ms is the app's "instant" (see tokens.css); anything longer moves
+          const secs = (v: string) =>
+            v.split(',').map((x) => {
+              const n = parseFloat(x)
+              return x.trim().endsWith('ms') ? n / 1000 : n
+            })
+          const bad: string[] = []
+          for (const i of ids) {
+            const root = document.querySelector(`[data-testid="gal-${i}"]`)
+            root?.querySelectorAll<HTMLElement>('*').forEach((el) => {
+              const s = getComputedStyle(el)
+              const t = secs(s.transitionDuration).some((d) => d > 0.00002)
+              const a =
+                s.animationName !== 'none' &&
+                secs(s.animationDuration).some((d) => d > 0.00002)
+              if ((t && s.transitionProperty !== 'none') || a)
+                bad.push(
+                  `${i} ${el.tagName}.${String(el.className).slice(0, 40)} ${s.transitionDuration} ${s.animationDuration}`,
+                )
+            })
+          }
+          return [...new Set(bad)].slice(0, 12)
+        },
+        [...PARTS],
+      )
+      expect(slow, `${theme}: not instant`).toEqual([])
       for (const id of PARTS) {
         const sec = page.getByTestId(`gal-${id}`)
         await sec.scrollIntoViewIfNeeded()
@@ -121,11 +177,21 @@ for (const theme of THEMES) {
             ok: el.matches(':focus-visible'),
           }
         })
-        if (ring.ok) {
-          expect(ring.st, `${theme} ${id} ring style`).not.toBe('none')
-          expect(parseFloat(ring.w)).toBeGreaterThan(0)
-        }
+        expect(ring.ok, `${theme} ${id} the ring shows for the keyboard`).toBe(
+          true,
+        )
+        expect(ring.st, `${theme} ${id} ring style`).not.toBe('none')
+        expect(parseFloat(ring.w)).toBeGreaterThan(0)
+        // the ring colour against what is outside the button
+        await btn.evaluate((el) => {
+          el.style.borderTopColor = getComputedStyle(el).outlineColor
+        })
+        expect(
+          await contrastOf(btn, 'border'),
+          `${theme} ${id} ring`,
+        ).toBeGreaterThanOrEqual(3)
       }
+      await marks(page, theme)
     }
   })
 }

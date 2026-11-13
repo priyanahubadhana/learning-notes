@@ -105,3 +105,7 @@ textarea.clr-field {
     transition: none;
   }
 }
+:root[data-motion='reduce'] .clr-btn,
+:root[data-motion='reduce'] .clr-field {
+  transition: none;
+}

@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: build system trial benchmark
+
+The new build system is a TRIAL against the old one. Added docs/plans/system-trial-2026-11-13.md (metrics, how to measure, baseline from git and gh), pulse script now appends a CSV row to docs/metrics/build-pulse.csv, trial line in ECONOMY-MODE.md and BUILD-STATE.md. No rule changed.
+
 ### 13 Nov 2026: build system replaced by the simple system (owner request)
 
 - What: docs/ECONOMY-MODE.md rewritten from 230 lines and 13 sections to 95 lines (causes with evidence, roles, the 4-step path of a slice, 8 rules, hourly pulse, briefs, guards). Opus manager follows the plan and never builds; each Sonnet builder owns one whole slice to merged; Opus gate 2 once; Fable only for the design check and the final look; no Haiku in the build. docs/BUILD-STATE.md rewritten as one table with milestones (200 lines to about 95). New read-only script scripts/build-pulse.sh prints PROGRESS or STALL for the hourly check.

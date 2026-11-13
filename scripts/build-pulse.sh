@@ -41,3 +41,15 @@ elif [ "$mcount" -eq 0 ] && [ "$green" -eq 0 ] && [ "$active" -lt 2 ]; then
 else
   echo "PROGRESS"
 fi
+
+# CSV row for later comparison (system trial, docs/plans/system-trial-2026-11-13.md)
+csv=docs/metrics/build-pulse.csv
+mkdir -p docs/metrics
+[ -f "$csv" ] || echo "timestamp,merges_60min,active_slices,green_60min,red_60min,cancelled_60min,state_age_min,verdict" > "$csv"
+counts=$(gh run list --branch build/next --limit 30 --json conclusion,updatedAt \
+  --jq '[.[] | select((.updatedAt | fromdateiso8601) > (now - 3600))] | "\([.[]|select(.conclusion=="success")]|length),\([.[]|select(.conclusion=="failure")]|length),\([.[]|select(.conclusion=="cancelled")]|length)"' 2>/dev/null)
+counts=${counts:-0,0,0}
+if [ "$age" -gt 90 ]; then v=STALL
+elif [ "$mcount" -eq 0 ] && [ "$green" -eq 0 ] && [ "$active" -lt 2 ]; then v=STALL
+else v=PROGRESS; fi
+echo "$(date '+%Y-%m-%dT%H:%M:%S%z'),$mcount,$active,$counts,$age,$v" >> "$csv"

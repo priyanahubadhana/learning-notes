@@ -1,0 +1,30 @@
+# Build system trial, 13 Nov 2026
+
+**What is tested.** OLD = economy mode (Opus orchestrator, up to 6 Sonnet builders, Haiku mechanic, gate-2 Opus, Fable gate 3), in force 13 Nov 00:30 to 19:40 IST. NEW = simple system (Opus manager, Sonnet builders owning a whole slice, Opus gate 2, Fable for design check and final look only), from 13 Nov 19:40 IST.
+**Period.** From 19:40 IST 13 Nov until the owner reviews, at least 2 build nights. Quality rules and tests are identical in both.
+**Record.** The pulse script appends a row to `docs/metrics/build-pulse.csv` on every run. Fill the NEW column from the commands below at each review. All times IST (UTC+5:30). Window W = the period measured; "per 3 h" = count / hours in W x 3.
+
+## Metrics, how to measure, baseline
+
+Baseline window A = 13 Nov 00:30-19:40 (19.17 h). Reference B = 12 Nov 00:30-19:40.
+Variables: `S='<start> +0530'; E='<end> +0530'` and `git fetch -q origin` first.
+
+| # | Metric | How to measure | Baseline A (13 Nov) | Ref B (12 Nov) | NEW |
+| - | ------ | -------------- | ------------------- | -------------- | --- |
+| 1 | Merges into build/next per 3 h | `git log origin/build/next --first-parent --merges --since="$S" --until="$E" --oneline \| wc -l` | 17 total = 2.7 / 3 h | 16 = 2.5 / 3 h | |
+| 2 | Slice branches with new commits per 3 h | for each `origin/*` ref: `git log $b --no-merges --since=.. --until=.. --oneline`; count refs with >0 (run per 3 h window for a true rate) | 17 branches in 19 h (about 2.7 / 3 h) | not counted | |
+| 3 | Commits per 3 h | `git log --remotes --no-merges --since="$S" --until="$E" --format=%H \| sort -u \| wc -l` | 199 = 31 / 3 h (136 on main+build/next only) | 280 = 44 / 3 h | |
+| 4 | CI runs green / red / cancelled, median minutes | `gh run list --limit 300 --json conclusion,createdAt,updatedAt,startedAt,headBranch,displayTitle`; filter by createdAt in window (UTC); minutes = updatedAt - startedAt | 36 runs: 3 green, 23 red, 9 cancelled, 1 running; median 28.1 min | 30 runs: 8 green, 12 red, 10 cancelled; median 29.8 min | |
+| 5 | Red-run causes (format / lint / test timing / real bug) | for each red run: `gh run view <id> --log-failed \| head -60`; tag one cause. Not yet classified for baseline (many red runs were on one long-failing PR run of build/next and on docs-only pushes to main) | unclassified | unclassified | |
+| 6 | Gate-3 (Fable) visits, PASS/FAIL | count lines "gate 3" in docs/BUILD-STATE.md history / CHANGELOG; record PASS or FAIL each | not recorded | not recorded | |
+| 7 | Gate-2 PASS/FAIL | same, "gate 2" | not recorded | not recorded | |
+| 8 | Slice start to merged (hours) | first commit on slice branch: `git log origin/slice/X --reverse --format=%ct \| head -1`; merge time: `git log origin/build/next --first-parent --merges --grep=X --format=%ct -1` | not computed | not computed | |
+| 9 | Idle / stall minutes | count `STALL` rows in build-pulse.csv x interval minutes | no pulse before 13 Nov evening | n/a | |
+| 10 | Orchestrator restarts | count manager restarts noted in BUILD-STATE / CHANGELOG | not recorded | not recorded | |
+| 11 | Owner interventions needed | count owner messages that unblock the build (owner tallies; log in CHANGELOG) | not recorded | not recorded | |
+| 12 | Weekly usage % at start / end | owner reads /usage | start of NEW: 21% all models, 14% Fable (about 19:30, 13 Nov) | n/a | end: |
+| 13 | Milestones M1 / M2 / M3 hit vs target | compare merge time of each milestone in BUILD-STATE table with its target time | see BUILD-STATE milestones table | n/a | |
+
+Baseline method notes: plain git log over the whole window. Branch count in row 2 is distinct branches over the whole window, not a rolling 3 h rate. Row 5 to 8, 10, 11 had no records; start recording now so the NEW side is complete, then compare only rows that have both sides.
+
+Verdict rule (proposal): NEW wins if merges per 3 h are at least equal, red share of CI runs is lower, stalls and owner interventions are fewer, and usage per merge is lower.

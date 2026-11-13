@@ -1,0 +1,193 @@
+/* Wizard steps (S3-13 to S3-19): a 52 px strip, one line, never sideways scroll. */
+.wz {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+}
+.wz-list {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+}
+.wz-item {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+.wz-line {
+  flex: none;
+  width: 24px;
+  height: 1px;
+  background: var(--card-hair);
+}
+.wz-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--dur-1) var(--ease-out);
+}
+.wz-step:hover {
+  background: var(--card-well);
+}
+.wz-step:active {
+  transform: scale(0.96);
+}
+.wz-step:focus-visible,
+.wz-arrow:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.wz-step[aria-disabled='true'] {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.wz-step[aria-disabled='true']:hover {
+  background: transparent;
+}
+.wz-circle {
+  box-sizing: border-box;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--card-well-2);
+  color: var(--color-ink-soft);
+  font-size: 12.5px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  transition: background var(--dur-2) var(--ease-out);
+}
+.wz-step[data-state='current'] {
+  color: var(--color-ink);
+}
+.wz-step[data-state='current'] .wz-circle {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.wz-step[data-state='done'] {
+  color: var(--color-ink-soft);
+}
+.wz-step[data-state='done'] .wz-circle {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.wz-step[data-state='error'] {
+  color: var(--color-ink);
+}
+.wz-step[data-state='error'] .wz-circle {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  box-shadow: inset 0 0 0 2px var(--color-danger);
+}
+.wz-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 14ch;
+}
+
+.wz-compact {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+.wz-compact-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.wz-arrow {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.wz-arrow:hover {
+  background: var(--color-hover);
+}
+.wz-arrow[aria-disabled='true'] {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.wz-progress {
+  position: absolute;
+  inset-inline: 8px;
+  bottom: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--card-track);
+  overflow: hidden;
+}
+.wz-progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-accent);
+  transition: width var(--dur-2) var(--ease-out);
+}
+.wz-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .wz-step,
+  .wz-circle,
+  .wz-progress-fill {
+    transition: none;
+  }
+}
+:root[data-motion='reduce'] .wz-step,
+:root[data-motion='reduce'] .wz-circle,
+:root[data-motion='reduce'] .wz-progress-fill {
+  transition: none;
+}
+/* In compact mode the full strip stays in the page, unseen, so it can be measured. */
+.wz-list[data-measure] {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+  max-width: none;
+  overflow: visible;
+}

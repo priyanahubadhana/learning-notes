@@ -9,6 +9,7 @@ import { enPartsDrag } from './drag'
 import { enPartsFeedback } from './feedback'
 import { enPartsMenus } from './menus'
 import { enPartsMisc } from './misc'
+import { enPartsStep3 } from './step3'
 
 export const enParts = {
   ...enPartsCore,
@@ -17,4 +18,5 @@ export const enParts = {
   ...enPartsMisc,
   ...enPartsMenus,
   ...enPartsFeedback,
+  ...enPartsStep3,
 }

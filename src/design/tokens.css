@@ -467,6 +467,8 @@
   --z-tabbar: 30;
   --z-fbar: 40;
   --z-chip: 41;
+  --z-tool: 43; /* full-screen Tool frame (step 3, D16) */
+  --z-pills: 45; /* status pill stack, above the frame */
   --z-drawer-scrim: 59;
   --z-drawer: 60;
   --z-sheet-scrim: 79;

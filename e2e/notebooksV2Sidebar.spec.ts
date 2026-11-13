@@ -60,7 +60,7 @@ test('NB-B22 Collapse all folds every notebook; the same button reads Expand all
   await start(page)
   const side = sidebar(page)
   const all = side.getByTestId('nbv2-collapse-all')
-  await expect(all).toHaveText('Collapse all')
+  await expect(all).toHaveAccessibleName('Collapse all')
   await all.click()
   await expect(
     side.getByRole('button', { name: 'Alpha page', exact: true }),
@@ -68,7 +68,7 @@ test('NB-B22 Collapse all folds every notebook; the same button reads Expand all
   await expect(
     side.getByRole('button', { name: 'Zeta page', exact: true }),
   ).toBeHidden()
-  await expect(all).toHaveText('Expand all')
+  await expect(all).toHaveAccessibleName('Expand all')
   await all.click()
   await expect(
     side.getByRole('button', { name: 'Alpha page', exact: true }),
@@ -76,7 +76,7 @@ test('NB-B22 Collapse all folds every notebook; the same button reads Expand all
   await expect(
     side.getByRole('button', { name: 'Zeta page', exact: true }),
   ).toBeVisible()
-  await expect(all).toHaveText('Collapse all')
+  await expect(all).toHaveAccessibleName('Collapse all')
 })
 
 test('NB-B22 with the switch off there is no Collapse all (today unchanged)', async ({

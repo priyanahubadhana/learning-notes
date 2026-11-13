@@ -32,6 +32,7 @@ const PAGE_ANSWER = JSON.stringify({
 
 async function toGoalAsk(page: Page) {
   await page.goto(FLAGGED)
+  await expect(page.getByTestId('aifw-entry')).toBeVisible()
   await page.getByTestId('aifw-open').click()
   await expect(page.getByTestId('aifw-build')).toBeVisible()
   await page.getByTestId('aifw-dest-name').fill('Habits')

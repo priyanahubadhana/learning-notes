@@ -9,6 +9,7 @@ async function open(page: Page, theme = 'day') {
     localStorage.setItem('learning-notes:theme', JSON.stringify(th))
   }, theme)
   await page.goto(FLAGGED)
+  await expect(page.getByTestId('aifw-entry')).toBeVisible()
   await page.getByTestId('aifw-open').click()
   await expect(page.getByTestId('aifw-build')).toBeVisible()
 }

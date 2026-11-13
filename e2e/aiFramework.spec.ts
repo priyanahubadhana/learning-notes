@@ -155,6 +155,7 @@ test.describe('AI framework: Build (flag on)', () => {
       page,
     }) => {
       await page.goto(FLAGGED)
+      await expect(page.getByTestId('aifw-entry')).toBeVisible()
       await page.getByTestId('aifw-open').click()
       await page.getByTestId('aifw-dest-name').fill('Skips')
       await page.getByTestId('aifw-pick-pages.write_notes').click()
@@ -176,6 +177,7 @@ test.describe('AI framework: Build (flag on)', () => {
       page,
     }) => {
       await page.goto(FLAGGED)
+      await expect(page.getByTestId('aifw-entry')).toBeVisible()
       await page.getByTestId('aifw-open').click()
       await page.getByTestId('aifw-dest-name').fill('Halted')
       await page.getByTestId('aifw-pick-pages.write_notes').click()

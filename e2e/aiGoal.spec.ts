@@ -55,6 +55,8 @@ function watchNetwork(page: Page): string[] {
 
 async function openGoal(page: Page) {
   await page.goto(FLAGGED)
+  // The app starts slowly on WebKit; wait for the card the project's way.
+  await expect(page.getByTestId('aifw-entry')).toBeVisible()
   await page.getByTestId('aifw-open').click()
   await expect(page.getByTestId('aifw-goal')).toBeVisible()
 }

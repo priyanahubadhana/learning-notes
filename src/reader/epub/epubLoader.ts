@@ -1,4 +1,5 @@
 import { strFromU8, unzipSync } from 'fflate'
+import { bookGuard } from './bookSandbox'
 
 /**
  * What foliate-js's EPUB class asks of a "zip loader": the entries and three
@@ -11,6 +12,8 @@ export interface EpubLoader {
   loadText: (name: string) => string | null
   loadBlob: (name: string, type?: string) => Blob | null
   getSize: (name: string) => number
+  /** Cleans every book file before it becomes a frame (EPUB guard 2). */
+  guard: typeof bookGuard
 }
 
 export function makeEpubLoader(bytes: Uint8Array): EpubLoader {
@@ -27,6 +30,7 @@ export function makeEpubLoader(bytes: Uint8Array): EpubLoader {
           })
         : null,
     getSize: (name) => (has(name) ? files[name].length : 0),
+    guard: bookGuard,
   }
 }
 

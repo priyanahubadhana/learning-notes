@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: EPUB taps and selection on iPad (slice 7 item 3)
+
+- What: the three EPUB guards are built and the book frames run with `allow-same-origin allow-scripts` again. Guard 1: a site rules test keeps `script-src` strict. Guard 2: `bookGuard` in the EPUB loader cleans every book page and adds a "no scripts" rule to it; script files are never loaded. Guard 3: a hostile EPUB test on chromium and ipad-webkit. The 4 WebKit skips are gone (RD-B27, RD-B28, RD-P29 in an EPUB, tap on a highlight with a note).
+- Why: WebKit delivers no taps or selection into a book frame without `allow-scripts` (bug 218086), so EPUB notes and highlights did not work on iPad.
+- Files: src/reader/epub/bookSandbox.ts (+ test), src/reader/epub/epubLoader.ts, src/vendor/foliate-js/epub.js, epub.d.ts, paginator.js, fixed-layout.js, README.md, scripts/siteRules.test.mjs, e2e/readerV2EpubSafety.spec.ts, e2e/fixtures/books.ts, e2e/readerV2StickyEpub.spec.ts, e2e/readerV2Aids.spec.ts, docs/DECISIONS.md.
+
 ### 14 Nov 2026: Reader v2 final-look fixes (slice 7)
 
 - What: line focus band top = the snapped line's top, height = that line's height, re-measured when the page re-lays (Aa card shut, text layer rebuilt, scroll); its listeners go through the event router. Phone pen bar: the colours' scroll area ends 8 px before the pen ▾ pill. New picture of an open EPUB on WebKit (iPad size). build/next merged in; `frame-ancestors 'self'` kept in both CSP lines of public/_headers, scripts/siteRules.test.mjs and e2e/offline.spec.ts.

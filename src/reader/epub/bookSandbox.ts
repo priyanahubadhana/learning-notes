@@ -151,28 +151,18 @@ export async function cleanBookData(
   return { data: await cleanBookPayload(await data, t), type: t }
 }
 
-interface BookTransform {
-  transformTarget?: EventTarget
-}
-
 /**
- * Hooks the guard into foliate's loader. Call before `view.open(book)`, so it
- * runs before foliate's own style fix-ups (they read `type` at once, so the
- * type stays a plain string here).
+ * The guard foliate's loader calls for every file (patch 3 in
+ * src/vendor/foliate-js/README.md): scripts are never loaded, every page is
+ * cleaned. It runs before foliate's own style fix-ups, which read `type` at
+ * once, so the type stays a plain string here.
  */
-export function guardBook(book: object) {
-  const target = (book as BookTransform).transformTarget
-  if (!target) throw new Error('EPUB loader has no transform hook')
-  target.addEventListener('load', (e) => {
-    const detail = (e as CustomEvent<{ isScript: boolean; allow: unknown }>)
-      .detail
-    if (detail.isScript) detail.allow = false
-  })
-  target.addEventListener('data', (e) => {
-    const detail = (e as CustomEvent<{ data: unknown; type: unknown }>).detail
+export const bookGuard = {
+  allow: (detail: { isScript: boolean }) => !detail.isScript,
+  data: (detail: { data: unknown; type: unknown }) => {
     const type = bookDataType(detail.type)
     const data = detail.data
     detail.type = type
     detail.data = Promise.resolve(data).then((d) => cleanBookPayload(d, type))
-  })
+  },
 }

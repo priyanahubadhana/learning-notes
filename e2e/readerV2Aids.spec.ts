@@ -307,12 +307,7 @@ test('RD-P29 reader.lineFocus: Line focus or Ruler in Aa › Reading aids; follo
 
 test('RD-P29 reader.lineFocus: in an EPUB, a tap inside the book frame moves the band', async ({
   page,
-  browserName,
 }) => {
-  test.skip(
-    browserName === 'webkit',
-    'WebKit refuses the EPUB blob frame under the app CSP (frame-ancestors), so the frame stays empty and there is no book text to tap; runs on Chromium. Logged as a possible Safari EPUB bug.',
-  )
   await openBook(page, 'epub', ['reader.lineFocus'])
   await aaMore(page)
   await page.getByTestId('aa-ruler-ruler').click()

@@ -14,7 +14,6 @@ import { bookFontCss } from './bookFont'
 import { bookSource } from '../aloud/bookText'
 import { setBookAloudHost } from '../aloud/bookAloud'
 import { glowMs, prefersReducedMotion } from '../v2/glowPref'
-import { guardBook } from './bookSandbox'
 import { epubCss, flattenToc, makeEpubLoader, type TocNode } from './epubLoader'
 
 /** The parts of foliate-js's view that we use (the library is plain JS). */
@@ -192,8 +191,6 @@ export function EpubView(props: EpubViewProps) {
         ])
         const loader = makeEpubLoader(new Uint8Array(propsRef.current.data))
         const book = await new EPUB(loader).init()
-        // No book may bring code into its frame (EPUB guard 2).
-        guardBook(book)
         if (cancelled) return
         view = document.createElement('foliate-view') as FoliateView
         view.style.cssText = 'display:block;width:100%;height:100%'

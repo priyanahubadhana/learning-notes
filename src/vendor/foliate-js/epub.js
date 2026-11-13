@@ -708,7 +708,8 @@ class Loader {
     #children = new Map()
     #refCount = new Map()
     eventTarget = new EventTarget()
-    constructor({ loadText, loadBlob, resources }) {
+    constructor({ loadText, loadBlob, resources, guard }) {
+        this.guard = guard
         this.loadText = loadText
         this.loadBlob = loadBlob
         this.manifest = resources.manifest
@@ -719,6 +720,8 @@ class Loader {
     async createURL(href, data, type, parent) {
         if (!data) return ''
         const detail = { data, type }
+        // patch 3: cleaned before anyone else sees it (type stays a string)
+        this.guard?.data(detail)
         Object.defineProperty(detail, 'name', { value: href }) // readonly
         const event = new CustomEvent('data', { detail })
         this.eventTarget.dispatchEvent(event)
@@ -769,6 +772,7 @@ class Loader {
         const event = new CustomEvent('load', { detail })
         this.eventTarget.dispatchEvent(event)
         const allow = await event.detail.allow
+            && (!this.guard || this.guard.allow(detail))
         if (!allow) return null
 
         const parent = parents.at(-1)
@@ -933,10 +937,12 @@ export class EPUB {
     parser = new DOMParser()
     #loader
     #encryption
-    constructor({ loadText, loadBlob, getSize, sha1 }) {
+    constructor({ loadText, loadBlob, getSize, sha1, guard }) {
         this.loadText = loadText
         this.loadBlob = loadBlob
         this.getSize = getSize
+        // patch 3: our book guard (src/reader/epub/bookSandbox.ts)
+        this.guard = guard
         this.#encryption = new Encryption(deobfuscators(sha1))
     }
     async #loadXML(uri) {
@@ -974,6 +980,7 @@ ${doc.querySelector('parsererror').innerText}`)
             loadBlob: uri => Promise.resolve(this.loadBlob(uri))
                 .then(this.#encryption.getDecoder(uri)),
             resources: this.resources,
+            guard: this.guard,
         })
         this.transformTarget = this.#loader.eventTarget
         this.sections = this.resources.spine.map((spineItem, index) => {

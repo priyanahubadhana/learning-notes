@@ -1,6 +1,11 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { BOOK_PAGE_CSP, cleanBookData, hardenBookPage } from './bookSandbox'
+import {
+  BOOK_PAGE_CSP,
+  bookGuard,
+  cleanBookData,
+  hardenBookPage,
+} from './bookSandbox'
 
 const XHTML = 'application/xhtml+xml'
 
@@ -110,5 +115,23 @@ describe('book resource guard', () => {
     expect((await cleanBookData(blob, 'application/x-what')).type).toBe(
       'text/plain',
     )
+  })
+})
+
+describe('the guard is part of our EPUB loader', () => {
+  it('every loader made by makeEpubLoader carries it; scripts are refused', async () => {
+    const { makeEpubLoader } = await import('./epubLoader')
+    const { zipSync, strToU8 } = await import('fflate')
+    const loader = makeEpubLoader(zipSync({ a: strToU8('x') }))
+    expect(loader.guard).toBe(bookGuard)
+    expect(bookGuard.allow({ isScript: true })).toBe(false)
+    expect(bookGuard.allow({ isScript: false })).toBe(true)
+    const detail: { data: unknown; type: unknown } = {
+      data: '<p onclick="x">a</p>',
+      type: 'text/html',
+    }
+    bookGuard.data(detail)
+    expect(detail.type).toBe('text/html')
+    expect(String(await detail.data)).not.toContain('onclick')
   })
 })

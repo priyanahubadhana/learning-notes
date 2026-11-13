@@ -41,7 +41,7 @@ export const hiAiStudio = {
   'aifw.wf.stars_one': '{count} सितारा',
   'aifw.wf.stars_other': '{count} सितारे',
   'aifw.wf.minRating': 'कम से कम',
-  'aifw.wf.minUses': 'उपयोग की बार',
+  'aifw.wf.minUses': 'कितनी बार उपयोग',
   'aifw.wf.times': '{n} बार',
   'aifw.wf.sort': 'क्रम',
   'aifw.wf.sort.rating': 'रेटिंग',

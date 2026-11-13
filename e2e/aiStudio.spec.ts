@@ -333,10 +333,15 @@ test.describe('AI framework: Workflows saved views (A4)', () => {
       page.getByRole('menuitemradio', { name: '2 stars' }),
     ).toBeVisible()
     // The open list is solid (not see-through).
-    const bg = await page
-      .getByRole('menu')
-      .evaluate((el) => getComputedStyle(el).backgroundColor)
-    expect(bg).not.toMatch(/rgba(.*,s*0?.d+)$/)
+    const look = await page.getByRole('menu').evaluate((el) => {
+      const cs = getComputedStyle(el)
+      return { bg: cs.backgroundColor, blur: cs.backdropFilter }
+    })
+    // Alpha is 1: "rgb(r, g, b)" has none; "rgba(r, g, b, a)" must end in 1.
+    const parts = look.bg.match(/[\d.]+/g) ?? []
+    expect(parts.length).toBeGreaterThanOrEqual(3)
+    expect(/^rgba/.test(look.bg) ? Number(parts[3]) : 1).toBe(1)
+    expect(look.blur).toBe('none')
     // Esc closes only the list.
     await page.keyboard.press('Escape')
     await expect(page.getByRole('menu')).toHaveCount(0)

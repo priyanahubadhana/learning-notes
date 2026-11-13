@@ -245,12 +245,12 @@ export function PictureHandles({ editor }: { editor: Host }) {
   useEffect(() => {
     if (!barV8 || !img) return
     const holder = img.closest<HTMLElement>('.bn-file-block-content-wrapper')
-    const paper = img.closest<HTMLElement>('[data-paper-box]')
+    const root = document.documentElement
     holder?.setAttribute('data-v8-picked', '')
-    paper?.setAttribute('data-v8-picked', '')
+    root.setAttribute('data-v8-picture', '')
     return () => {
       holder?.removeAttribute('data-v8-picked')
-      paper?.removeAttribute('data-v8-picked')
+      root.removeAttribute('data-v8-picture')
     }
   }, [barV8, img])
 

@@ -1270,6 +1270,11 @@ html[data-box-drag] {
   outline-offset: 2px !important;
   border-radius: 2px;
 }
-[data-paper-box][data-v8-picked] [data-box-frame] {
+:root[data-v8-picture] [data-box-frame] {
   border-color: transparent !important;
+}
+:root[data-v8-picture] [data-main-frame],
+:root[data-v8-picture] [data-main-handles],
+:root[data-v8-picture] [data-resize-handle] {
+  visibility: hidden;
 }

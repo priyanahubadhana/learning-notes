@@ -138,6 +138,11 @@ test('TB-34 a selected picture has one set of handles and the accent frame', asy
   // BlockNote's own side pills are hidden: one set only.
   for (const h of await page.locator('.bn-resize-handle').all())
     await expect(h).toBeHidden()
+  // The text box stays quiet: no box frame, no box handles.
+  for (const h of await page
+    .locator('[data-resize-handle], [data-main-frame]')
+    .all())
+    await expect(h).toBeHidden()
   // The accent frame of a drawing (1 px dashed), not the orange outline.
   await expect(img).toHaveCSS('outline-style', 'dashed')
   await expect(img).toHaveCSS('outline-width', '1px')

@@ -44,7 +44,11 @@ async function openBook(page: Page, size: Size, unlocked: string[] = []) {
   await expect(page.locator('[data-pdf-page="1"] canvas')).toBeVisible()
   await expect(page.locator('[data-bars-ready]')).toHaveCount(1)
   const hide = page.getByRole('button', { name: 'Hide menu' })
-  if (await hide.isVisible()) await hide.click()
+  // One retried step, not check-then-click: the sidebar slides, so a click can land mid-move on WebKit.
+  await expect(async () => {
+    if (await hide.isVisible()) await hide.click({ timeout: 2000 })
+    await expect(hide).toBeHidden({ timeout: 1000 })
+  }).toPass()
 }
 
 async function highlight(page: Page) {

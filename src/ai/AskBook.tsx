@@ -39,6 +39,7 @@ import { PromptPickerButton } from '../prompts/PromptPickerButton'
 import { openEpub, pdfParts, type EpubBook } from './bookText'
 import { AiError, PROVIDERS } from './provider'
 import { callAi } from './route'
+import { estimateTokens } from './provider'
 import { countPromptTokens, type TokenCount } from './countTokens'
 import { costOf } from './usage'
 import { AiOffCard } from './AiOffCard'
@@ -168,6 +169,12 @@ export function AskBook(props: AskBookProps) {
     return () => ctrl.abort()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countText])
+
+  // The guess shows at once; the true count replaces it in place (no jump).
+  const shown: TokenCount = count ?? {
+    tokens: estimateTokens(countText ?? ''),
+    estimated: true,
+  }
 
   const why = blocker(
     config,
@@ -517,16 +524,17 @@ export function AskBook(props: AskBookProps) {
               what: prepared.what,
               host,
               cost: formatCost(cost, 4),
-            })}
+            })}{' '}
+            <span data-testid="ask-book-tokens">
+              {t('ai.book.tokens', { n: shown.tokens })}
+              {shown.estimated && (
+                <>
+                  {' '}
+                  <span className="text-muted">{t('ai.book.estimated')}</span>
+                </>
+              )}
+            </span>
           </p>
-          {count && (
-            <p className="text-muted" data-testid="ask-book-tokens">
-              {t(count.estimated ? 'ai.book.tokensGuess' : 'ai.book.tokens', {
-                n: count.tokens,
-                host,
-              })}
-            </p>
-          )}
           {prepared.gathered.cut && (
             <p className="text-muted">
               {t(mode === 'story' ? 'ai.book.cutStory' : 'ai.book.cut')}

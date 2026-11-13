@@ -174,6 +174,37 @@ test('when the count fails the preview says the number is estimated', async ({
   await expect(page.getByTestId('ask-book-tokens')).toContainText('estimated')
 })
 
+test('the count sits in the cost line, with no extra row', async ({ page }) => {
+  await setUp(page)
+  await page.getByTestId('ask-book-question').fill('Where is energy made?')
+  await page.getByTestId('ask-book-prepare').click()
+  const line = page.getByTestId('ask-book-preview').locator('p').first()
+  await expect(line.getByTestId('ask-book-tokens')).toHaveText('321 tokens')
+  await expect(line).not.toContainText('~')
+})
+
+test('offline: the guess shows, marked estimated, and no count call is made', async ({
+  page,
+  context,
+}) => {
+  let counts = 0
+  await setUp(page)
+  await page.route(
+    'https://api.anthropic.com/v1/messages/count_tokens',
+    (route) => {
+      counts++
+      return route.fulfill({ json: { input_tokens: 321 } })
+    },
+  )
+  await context.setOffline(true)
+  await page.getByTestId('ask-book-question').fill('Where is energy made?')
+  await page.getByTestId('ask-book-prepare').click()
+  const tokens = page.getByTestId('ask-book-tokens')
+  await expect(tokens).toContainText('estimated')
+  await expect(tokens).not.toContainText('321')
+  expect(counts).toBe(0)
+})
+
 test('the monthly cap blocks the call: nothing is sent', async ({ page }) => {
   let calls = 0
   await page.route('https://api.anthropic.com/**', (route) => {

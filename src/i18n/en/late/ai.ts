@@ -36,8 +36,8 @@ export const enLateAi = {
   'ai.book.to': 'To page',
   'ai.book.whereChapter': 'chapter {n}',
   'ai.book.wherePage': 'page {page}',
-  'ai.book.tokens': '{n} tokens, counted by {host}.',
-  'ai.book.tokensGuess': 'About {n} tokens (estimated).',
+  'ai.book.tokens': '{n} tokens',
+  'ai.book.estimated': 'estimated',
   'ai.book.willSend':
     '{words} words ({what}) go to {host}. About {cost} at most.',
   'ai.cap.hint':

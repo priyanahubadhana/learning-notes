@@ -42,8 +42,8 @@ export const hiAi = {
   'ai.book.to': 'इस पृष्ठ तक',
   'ai.book.whereChapter': 'अध्याय {n}',
   'ai.book.wherePage': 'पृष्ठ {page}',
-  'ai.book.tokens': '{n} टोकन, {host} ने गिने।',
-  'ai.book.tokensGuess': 'लगभग {n} टोकन (अनुमान)।',
+  'ai.book.tokens': '{n} टोकन',
+  'ai.book.estimated': 'अनुमान',
   'ai.book.willSend':
     '{words} शब्द ({what}) {host} को जाएँगे। अधिक से अधिक लगभग {cost}।',
   'ai.cap': 'हर कुंजी की मासिक सीमा ({currency})',

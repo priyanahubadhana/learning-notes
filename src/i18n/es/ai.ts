@@ -45,8 +45,8 @@ export const esAi = {
   'ai.book.to': 'Hasta la página',
   'ai.book.whereChapter': 'el capítulo {n}',
   'ai.book.wherePage': 'la página {page}',
-  'ai.book.tokens': '{n} tokens, contados por {host}.',
-  'ai.book.tokensGuess': 'Unos {n} tokens (estimado).',
+  'ai.book.tokens': '{n} tokens',
+  'ai.book.estimated': 'estimado',
   'ai.book.willSend':
     '{words} palabras ({what}) van a {host}. Como mucho unos {cost}.',
   'ai.cap': 'Límite mensual de cada clave ({currency})',

@@ -74,6 +74,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-13 · ST27 (study v2) waits for slice 9 part 6.** The AI mode workflows (`src/aibuild/Workflows.tsx`) live only on `slice/9-ai-framework-6`, not merged into `build/next`, so slice 15 does not add them to the library list (no copy of unmerged code). Prompts, versions and skills stay as they are. When 9-6 merges, one sub-slice adds workflows to the library list with its e2e test (ST27).
 - **2026-11-13 · foundationInput e2e no longer checks the gesture router is absent at start.** Slice 4 (search v2 8, hold strip) uses it on purpose (`useRowHold`), so it loads with the app; the spec line "not in the first-load bundle" (foundation-input.md) is out of date for the gesture router. The event router check stays. Owner may prefer to lazy-load it behind the flag instead.
 - **2026-11-13 · Sidebar starts closed on iPad portrait (slice 5, flag home.v2).** src/App.tsx (~line 845): when `home.v2` is on and the screen is 40rem to 859.98px wide, the sidebar's first-run default is closed so the Home board keeps its width; an own choice is remembered. Review whether to make this the shell default for all slices (orchestration review fix 3).
 

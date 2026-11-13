@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: study v2 on iPad (slice 15h)
+
+- What: the study v2 e2e tests use the touch path on iPad (Pencil hold + drag, mini bar "More" → Make card / Add to Summary / Key point). The mini selection bar now closes when a page switches from Notes to another tab. ST27 (workflows in the library) waits for slice 9 part 6 (DECISIONS).
+- Why: 6 tests used the computer-only toolbar; the bar covered the Summary header on iPad.
+- Files: e2e/study-v2.spec.ts, src/pages/PageView.tsx, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: fast start (WebKit start 15 s -> 1.2 s)
 
 - What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.

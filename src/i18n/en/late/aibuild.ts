@@ -5,7 +5,7 @@ export const enLateAiBuild = {
     'Pick steps, paste the answers from any chat you like, and look at the result before anything is saved. The app sends nothing anywhere.',
   'aifw.entry.open': 'Open Build',
   'aifw.close': 'Close',
-  'aifw.tabs.label': 'Build and Activity',
+  'aifw.tabs.label': 'Build, Studio, Workflows and Activity',
   'aifw.tab.build': 'Build',
   'aifw.tab.activity': 'Activity',
 

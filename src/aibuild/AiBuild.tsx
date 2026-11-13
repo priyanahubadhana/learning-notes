@@ -3,18 +3,26 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { trapFocus } from '../app/overlay'
 import type { LearningNotesDB } from '../core/db'
 import type { AiJob } from '../aitools/jobs/jobTypes'
-import { t } from '../i18n/t'
+import { t, type MessageKey } from '../i18n/t'
 import './aibuild.css'
 import { Activity } from './Activity'
 import { BuildPlan } from './BuildPlan'
 import { BuildToasts, type BuildToastsApi } from './BuildToasts'
 import { getEngine, type Engine } from './engine'
 import { GoalBox } from './GoalBox'
-import { newDraft, type Destination } from './buildState'
+import { newDraft, newJobId, type Destination } from './buildState'
 import { RunCard } from './RunCard'
+import { Studio } from './Studio'
+import { Workflows } from './Workflows'
+import {
+  loadWorkflows,
+  noteRun,
+  saveWorkflows,
+  type Workflow,
+} from './workflowList'
 
-type Tab = 'build' | 'activity'
-const TABS: readonly Tab[] = ['build', 'activity']
+type Tab = 'build' | 'studio' | 'workflows' | 'activity'
+const TABS: readonly Tab[] = ['build', 'studio', 'workflows', 'activity']
 
 /**
  * The Build screen (AF-20 to AF-23): pick steps, run them, look at the
@@ -33,6 +41,7 @@ export default function AiBuild({
   const [run, setRun] = useState<{ id: string; name: string } | null>(null)
   const [fresh, setFresh] = useState(0)
   const [place, setPlace] = useState<Destination>(() => newDraft().destination)
+  const [workflows, setWorkflowsState] = useState<Workflow[]>(loadWorkflows)
   const toasts = useRef<BuildToastsApi>(null)
   const sheet = useRef<HTMLDivElement>(null)
 
@@ -98,6 +107,38 @@ export default function AiBuild({
     })().catch(() => say(t('aifw.run.error')))
   }
 
+  const setWorkflows = (next: Workflow[]) => {
+    setWorkflowsState(next)
+    saveWorkflows(next)
+  }
+  const saveWorkflow = (plan: Record<string, unknown>, name: string) => {
+    const made: Workflow = {
+      id: newJobId(),
+      name,
+      tagIds: [],
+      forType: '',
+      rating: 0,
+      uses: 0,
+      lastRun: 0,
+      plan,
+    }
+    setWorkflows([made, ...workflows])
+    say(t('aifw.wf.saved', { name }))
+  }
+  const runWorkflow = (w: Workflow) => {
+    setWorkflows(noteRun(workflows, w.id, Date.now()))
+    setTab('build')
+    start({ ...w.plan, id: newJobId() }, w.name)
+  }
+  const removeWorkflow = (w: Workflow) => {
+    setWorkflows(workflows.filter((x) => x.id !== w.id))
+    say(t('aifw.wf.removed', { name: w.name }), {
+      label: t('aifw.undo'),
+      run: () =>
+        setWorkflows([w, ...loadWorkflows().filter((x) => x.id !== w.id)]),
+    })
+  }
+
   const tabButton = (id: Tab) => (
     <button
       key={id}
@@ -123,9 +164,31 @@ export default function AiBuild({
         document.getElementById(`aifw-tab-${next}`)?.focus()
       }}
     >
-      {t(id === 'build' ? 'aifw.tab.build' : 'aifw.tab.activity')}
+      {t(`aifw.tab.${id}` as MessageKey)}
     </button>
   )
+
+  const runCard =
+    run && engine ? (
+      <RunCard
+        engine={engine}
+        jobId={run.id}
+        name={run.name}
+        onApplied={(job) =>
+          say(t('aifw.toast.done', { name: run.name }), {
+            label: t('aifw.undo'),
+            run: () => undo(job),
+          })
+        }
+        onUndo={undo}
+        onRedo={redo}
+        onBack={() => {
+          toasts.current?.clear()
+          setRun(null)
+          setFresh((n) => n + 1)
+        }}
+      />
+    ) : null
 
   return (
     <div
@@ -146,7 +209,7 @@ export default function AiBuild({
       }}
       className="bg-bg text-ink"
       onKeyDown={(e) => {
-        if (e.key === 'Escape') onClose()
+        if (e.key === 'Escape' && !e.defaultPrevented) onClose()
       }}
     >
       <div className="h-full overflow-y-auto">
@@ -175,33 +238,31 @@ export default function AiBuild({
             aria-labelledby={`aifw-tab-${tab}`}
             className="flex flex-col gap-4"
           >
-            {!engine ? null : tab === 'activity' ? (
+            {!engine ? null : tab === 'studio' ? (
+              run ? (
+                runCard
+              ) : (
+                <Studio db={db} onStart={start} onSave={saveWorkflow} />
+              )
+            ) : tab === 'workflows' ? (
+              <Workflows
+                db={db}
+                items={workflows}
+                onChange={setWorkflows}
+                onRun={runWorkflow}
+                onRemove={removeWorkflow}
+              />
+            ) : tab === 'activity' ? (
               <Activity engine={engine} onUndo={undo} onRedo={redo} />
             ) : run ? (
-              <RunCard
-                engine={engine}
-                jobId={run.id}
-                name={run.name}
-                onApplied={(job) =>
-                  say(t('aifw.toast.done', { name: run.name }), {
-                    label: t('aifw.undo'),
-                    run: () => undo(job),
-                  })
-                }
-                onUndo={undo}
-                onRedo={redo}
-                onBack={() => {
-                  toasts.current?.clear()
-                  setRun(null)
-                  setFresh((n) => n + 1)
-                }}
-              />
+              runCard
             ) : (
               <>
                 <GoalBox
                   key={`goal${fresh}`}
                   place={place}
                   onStart={start}
+                  onSave={saveWorkflow}
                   onReady={(title) =>
                     say(t('aifw.goal.toast', { name: title }))
                   }

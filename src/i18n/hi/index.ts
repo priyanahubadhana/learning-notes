@@ -33,6 +33,7 @@ import { hiAiBuild } from './aibuild'
 import { hiAiJobs } from './aijobs'
 import { hiReviewV2 } from './reviewV2'
 import { hiAiPlan } from './aiplan'
+import { hiAiStudio } from './aistudio'
 import { hiParts } from './parts'
 import { hiNotebooksV2 } from './notebooksV2'
 import { hiSearchV2 } from './searchV2'
@@ -74,6 +75,7 @@ export const hi: Record<string, string> = {
   ...hiAiJobs,
   ...hiReviewV2,
   ...hiAiPlan,
+  ...hiAiStudio,
   ...hiParts,
   ...hiNotebooksV2,
   ...hiSearchV2,

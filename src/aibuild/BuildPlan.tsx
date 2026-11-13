@@ -1,9 +1,13 @@
 import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react'
-import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useMemo, useReducer } from 'react'
 import type { LearningNotesDB } from '../core/db'
 import { toCatalog } from '../aitools/catalog'
-import { OnOffChoice } from '../design/parts/OnOff'
+import { formatCost } from '../ai/costCurrency'
+import { DEFAULT_USD_TO_INR } from '../aitools/plan/cost'
+import { RunBar } from './RunBar'
+import { studioCost } from './studioPlan'
+import { DestinationPicker } from './DestinationPicker'
+import { destinationName, useDestinationLists } from './destinationLists'
 import { t, type MessageKey } from '../i18n/t'
 import { toolDesc, toolName } from './names'
 import {
@@ -23,17 +27,12 @@ const field =
   'min-h-11 w-full rounded-lg border border-line bg-bg px-3 text-sm outline-none focus:border-accent'
 /** The one card frame every block of the Build screen uses. */
 const card = 'flex flex-col gap-2 rounded-lg border border-line p-3'
-const primary =
-  'aifw-primary inline-flex min-h-11 items-center justify-center rounded-lg bg-accent px-5 text-sm font-semibold text-on-accent'
 const btn =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-line px-3 text-sm hover:bg-hover disabled:opacity-40'
 const iconBtn =
   'inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-hover disabled:opacity-30'
 
 const problemText = (p: Problem) => t(`aifw.problem.${p}` as MessageKey)
-
-type Kind = Destination['kind']
-const DEST_KINDS: readonly Kind[] = ['new_notebook', 'notebook', 'page']
 
 /**
  * The Build screen's first half (AF-20): where the result goes, the steps to
@@ -51,26 +50,11 @@ export function BuildPlan({
 }) {
   const tools = useMemo(() => toCatalog(), [])
   const [draft, dispatch] = useReducer(reduce, undefined, newDraft)
-  const notebooks = useLiveQuery(
-    () =>
-      db.notebooks
-        .filter((n) => !n.deletedAt && !n.kind)
-        .toArray()
-        .then((l) => l.sort((a, b) => a.title.localeCompare(b.title))),
-    [db],
-  )
-  const pages = useLiveQuery(
-    () =>
-      db.pages
-        .filter((p) => !p.deletedAt)
-        .limit(500)
-        .toArray()
-        .then((l) => l.sort((a, b) => a.title.localeCompare(b.title))),
-    [db],
-  )
+  const lists = useDestinationLists(db)
   const told = draft.destination
   useEffect(() => onDestination(told), [told, onDestination])
   const checked = check(draft, tools)
+  const ready = isReady(checked)
   const dest = draft.destination
   const pickable = tools.filter(
     (x) =>
@@ -79,23 +63,7 @@ export function BuildPlan({
       !NEEDS_OWN_ARGS.has(x.id),
   )
 
-  const setKind = (kind: Kind) =>
-    dispatch({
-      type: 'destination',
-      destination:
-        kind === 'new_notebook'
-          ? { kind, title: '' }
-          : kind === 'notebook'
-            ? { kind, id: '' }
-            : { kind, id: '', notebookId: '' },
-    })
-
-  const nameOf = (): string => {
-    if (dest.kind === 'new_notebook') return dest.title.trim()
-    if (dest.kind === 'notebook')
-      return notebooks?.find((n) => n.id === dest.id)?.title ?? ''
-    return pages?.find((p) => p.id === dest.id)?.title ?? ''
-  }
+  const nameOf = () => destinationName(dest, lists)
 
   const start = () => {
     if (!isReady(checked)) return
@@ -117,88 +85,13 @@ export function BuildPlan({
         <legend className="float-left mb-1 w-full text-sm font-semibold">
           {t('aifw.dest.title')}
         </legend>
-        <OnOffChoice<Kind>
-          block
-          label={t('aifw.dest.title')}
-          value={dest.kind}
-          onChange={setKind}
-          options={DEST_KINDS.map((k) => ({
-            value: k,
-            testId: `aifw-dest-kind-${k}`,
-            label: t(
-              (k === 'new_notebook'
-                ? 'aifw.dest.new'
-                : k === 'notebook'
-                  ? 'aifw.dest.notebook'
-                  : 'aifw.dest.page') as MessageKey,
-            ),
-          }))}
+        <DestinationPicker
+          value={dest}
+          lists={lists}
+          onChange={(destination) =>
+            dispatch({ type: 'destination', destination })
+          }
         />
-        {dest.kind === 'new_notebook' && (
-          <input
-            type="text"
-            value={dest.title}
-            maxLength={120}
-            aria-label={t('aifw.dest.name')}
-            placeholder={t('aifw.dest.name')}
-            data-testid="aifw-dest-name"
-            className={field}
-            onChange={(e) =>
-              dispatch({
-                type: 'destination',
-                destination: { kind: 'new_notebook', title: e.target.value },
-              })
-            }
-          />
-        )}
-        {dest.kind === 'notebook' && (
-          <select
-            value={dest.id}
-            aria-label={t('aifw.dest.pickNotebook')}
-            data-testid="aifw-dest-notebook"
-            className={field}
-            onChange={(e) =>
-              dispatch({
-                type: 'destination',
-                destination: { kind: 'notebook', id: e.target.value },
-              })
-            }
-          >
-            <option value="">{t('aifw.dest.choose')}</option>
-            {notebooks?.map((n) => (
-              <option key={n.id} value={n.id}>
-                {n.title}
-              </option>
-            ))}
-          </select>
-        )}
-        {dest.kind === 'page' && (
-          <select
-            value={dest.id}
-            aria-label={t('aifw.dest.pickPage')}
-            data-testid="aifw-dest-page"
-            className={field}
-            onChange={(e) =>
-              dispatch({
-                type: 'destination',
-                destination: {
-                  kind: 'page',
-                  id: e.target.value,
-                  notebookId:
-                    pages?.find((p) => p.id === e.target.value)?.notebookId ??
-                    '',
-                },
-              })
-            }
-          >
-            <option value="">{t('aifw.dest.choose')}</option>
-            {pages?.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.title}
-              </option>
-            ))}
-          </select>
-        )}
         {checked.plan && checked.plan !== 'empty' && (
           <p className="text-xs text-muted" data-testid="aifw-plan-problem">
             {problemText(checked.plan)}
@@ -401,28 +294,35 @@ export function BuildPlan({
         </ol>
       </section>
 
-      <div className="flex flex-wrap items-center gap-2">
+      <RunBar
+        path={nameOf()}
+        chip={t('aifw.effort.standard')}
+        estimate={
+          ready
+            ? t('aifw.bar.estimate', {
+                cost: formatCost(
+                  studioCost(draft, tools).totalInr / DEFAULT_USD_TO_INR,
+                ),
+              })
+            : t('aifw.bar.noEstimate')
+        }
+        runLabel={t('aifw.start')}
+        runTestId="aifw-start"
+        disabled={!ready}
+        onRun={start}
+      >
         <button
           type="button"
-          data-testid="aifw-start"
-          disabled={!isReady(checked)}
-          className={primary}
-          onClick={start}
-        >
-          {t('aifw.start')}
-        </button>
-        <button
-          type="button"
-          className={btn}
+          className={`${btn} w-full sm:w-auto`}
           disabled={draft.steps.length === 0}
           onClick={() => dispatch({ type: 'reset' })}
         >
           {t('aifw.reset')}
         </button>
-        {checked.plan === 'empty' && (
-          <span className="text-xs text-muted">{problemText('empty')}</span>
-        )}
-      </div>
+      </RunBar>
+      {checked.plan === 'empty' && (
+        <p className="text-xs text-muted">{problemText('empty')}</p>
+      )}
     </div>
   )
 }

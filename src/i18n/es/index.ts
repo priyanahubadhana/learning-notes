@@ -33,6 +33,7 @@ import { esAiBuild } from './aibuild'
 import { esAiJobs } from './aijobs'
 import { esReviewV2 } from './reviewV2'
 import { esAiPlan } from './aiplan'
+import { esAiStudio } from './aistudio'
 import { esParts } from './parts'
 import { esNotebooksV2 } from './notebooksV2'
 import { esSearchV2 } from './searchV2'
@@ -74,6 +75,7 @@ export const es: Record<string, string> = {
   ...esAiJobs,
   ...esReviewV2,
   ...esAiPlan,
+  ...esAiStudio,
   ...esParts,
   ...esNotebooksV2,
   ...esSearchV2,

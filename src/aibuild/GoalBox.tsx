@@ -51,11 +51,14 @@ function problemLine(p: string): string {
 export function GoalBox({
   place,
   onStart,
+  onSave,
   onReady,
 }: {
   /** Where it goes: the one place set in the card below. */
   place: Destination
   onStart: (plan: Plan, name: string) => void
+  /** Keeps the plan as a workflow to run again. */
+  onSave: (plan: Plan, name: string) => void
   /** Told when a plan becomes ready (the screen shows the toast). */
   onReady: (title: string) => void
 }) {
@@ -211,6 +214,14 @@ export function GoalBox({
               onClick={() => onStart(plan, String(plan.goal))}
             >
               {t('aifw.start')}
+            </button>
+            <button
+              type="button"
+              className={btn}
+              data-testid="aifw-goal-save"
+              onClick={() => onSave(plan, String(plan.goal))}
+            >
+              {t('aifw.wf.save')}
             </button>
             <button
               type="button"

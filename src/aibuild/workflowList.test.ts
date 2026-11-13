@@ -12,7 +12,7 @@ import {
   noteRun,
   saveWorkflows,
   type Workflow,
-} from './workflows'
+} from './workflowList'
 
 const wf = (o: Partial<Workflow> & { id: string }): Workflow => ({
   name: o.id,

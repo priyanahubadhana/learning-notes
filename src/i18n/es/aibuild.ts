@@ -5,7 +5,7 @@ export const esAiBuild = {
     'Elige pasos, pega las respuestas de cualquier chat y mira el resultado antes de guardar nada. La app no envía nada a ningún sitio.',
   'aifw.entry.open': 'Abrir Crear',
   'aifw.close': 'Cerrar',
-  'aifw.tabs.label': 'Crear y Actividad',
+  'aifw.tabs.label': 'Crear, Estudio, Flujos y Actividad',
   'aifw.tab.build': 'Crear',
   'aifw.tab.activity': 'Actividad',
 

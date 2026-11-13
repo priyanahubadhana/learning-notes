@@ -102,6 +102,7 @@ export default defineConfig({
         /lassoPencil/,
         /magnifier/,
         /aiPicker/,
+        /aiStudio/,
         /openNotebook/,
         /startSpeed/,
         /startSeeding/,

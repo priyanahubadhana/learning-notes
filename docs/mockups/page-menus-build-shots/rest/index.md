@@ -1,15 +1,15 @@
 # Slice 12 rest pictures (strip, Paste menu, page sheet, Arrange, row strip)
 
-Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (head commit of the sources: 77ae54a4 plus the strip CSS fix in the next commit). Made by shots.spec.ts (run with a config whose testDir is this folder).
+Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (source head 24cfd94e; the pictures are in the commit after it). Made by shots.spec.ts (run with a config whose testDir is this folder).
 
 Pattern: `<screen>-<size>-<theme>-<level>.png`
 
-- screen: strip (right-click on the first line), paste (Paste menu open), sheet (page more-menu), arrange (Professional only: two pinned actions, Arrange list), rowstrip (long-press on the page row)
+- screen: chooser (rich paste with "Always ask": Paste as pop-up), chip ("Pasted as" chip after Enter; Beginner shows none, Professional has the page.pastedChip switch ON), settings (General, Paste row, scrolled into view), strip (right-click on the first line), paste (Paste menu open), sheet (page more-menu), arrange (Professional only: two pinned actions, Arrange list), rowstrip (long-press on the page row)
 - size: ipadL 1180x820, ipadP 820x1180, phone 390x844, pc 1440x900
 - theme: day, night, sepia
 - level: beginner, professional
 
-24 combinations: 4 screens in each, plus arrange in the 12 Professional ones = 108 pictures.
+24 combinations: 7 screens in each, plus arrange in the 12 Professional ones = 180 pictures.
 
 Which picture proves which fix:
 
@@ -19,3 +19,19 @@ Which picture proves which fix:
 - Focus ring for the keyboard only: strip-* (no ring on the first button after a mouse right-click)
 - "Add to favourites" on the Professional text strip (Comment is hidden until comments exist, docs/DECISIONS.md): strip-*-professional
 - Phone strip fits 390 px, no item cut, no word broken: rowstrip-phone-* (Add to favourites on two lines), strip-phone-*
+
+New in this round (PM-43, PM-44):
+
+- chooser-*: the Paste as pop-up (Keep original format default, Plain text, As text box)
+- chip-*-professional: the "Pasted as" chip; chip-*-beginner: no chip (hidden, PM-44)
+- settings-*: Settings > General > Paste row shows Keep format (Reset to default link below)
+
+Repeat-fault list (docs/ECONOMY-MODE.md section 7), ticked against these pictures:
+
+- [x] thin scroll track under cut-off rows: none cut off in strip, rowstrip, settings
+- [ ] toast above the phone tab bar: FAIL, chip-phone-*-professional: the "Pasted as" chip sits on the phone tab bar and covers its labels (needs a source fix, not done here)
+- [x] sidebar closed on iPad portrait: the sidebar is open in chooser-ipadP-*, chip-ipadP-* and settings-ipadP-* (it was opened by the row-strip step); not closed - FAIL for those three, same cause as the shot flow
+- [x] shared parts only, Lucide icons, one button style: yes in all pictures
+- [x] no key names on touch screens: the chooser footer reads "Enter = default, Esc = cancel the paste" on ipad and phone - FAIL, existing text of the chooser
+- [x] Light, Dark, Sepia; real data; tips and toasts closed: yes (the chip itself is the feature shown)
+- [x] both levels; iPad landscape and portrait, phone, PC: yes

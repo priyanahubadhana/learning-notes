@@ -27,7 +27,10 @@ for (const [size, viewport] of Object.entries(SIZES)) {
           ([l, th]) => {
             localStorage.setItem(
               'learning-notes:level',
-              JSON.stringify({ level: l, unlocked: [] }),
+              JSON.stringify({
+                level: l,
+                unlocked: l === 'professional' ? ['page.pastedChip'] : [],
+              }),
             )
             localStorage.setItem('learning-notes:theme', JSON.stringify(th))
           },
@@ -89,6 +92,32 @@ for (const [size, viewport] of Object.entries(SIZES)) {
         })
         await page.getByTestId('row-strip').waitFor()
         await shot(page, `rowstrip-${tag}`)
+        await page.keyboard.press('Escape')
+        // The paste chooser, then the "Pasted as" chip (Professional switch on).
+        await page.evaluate(() =>
+          localStorage.setItem('learning-notes:general.pasteMode', '"ask"'),
+        )
+        await page.locator('.bn-editor').click()
+        await page.evaluate(() => {
+          const data = new DataTransfer()
+          data.setData('text/html', '<h2>Cell heading</h2><p><b>bold</b> and <i>rich</i> words</p>')
+          data.setData('text/plain', 'Cell heading, bold and rich words')
+          document.querySelector('.bn-editor')!.dispatchEvent(
+            new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }),
+          )
+        })
+        await page.getByRole('dialog', { name: 'Paste as' }).waitFor()
+        await shot(page, `chooser-${tag}`)
+        await page.keyboard.press('Enter')
+        await page.waitForTimeout(300)
+        await shot(page, `chip-${tag}`)
+        await page.evaluate(() =>
+          localStorage.removeItem('learning-notes:general.pasteMode'),
+        )
+        // Settings, Paste row.
+        await page.goto('/?flags=page.menus#/settings/general')
+        await page.getByRole('group', { name: 'Paste' }).scrollIntoViewIfNeeded()
+        await shot(page, `settings-${tag}`)
       })
     }
   }

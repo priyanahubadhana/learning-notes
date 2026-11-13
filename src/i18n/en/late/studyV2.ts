@@ -25,4 +25,17 @@ export const enLateStudyV2 = {
   'st2.status.new': 'New',
   'st2.status.suspended': 'Paused',
   'st2.title.cards': 'Cards',
+  'st5.types': 'Card type',
+  'st5.type.qa': 'Question / answer',
+  'st5.type.cloze': 'Blanks',
+  'st5.type.picture': 'Picture',
+  'st5.type.vocab': 'Vocabulary',
+  'st5.type.tf': 'True / false',
+  'st5.type.reverse': 'Reverse',
+  'st5.type.occl': 'Hide parts of a picture',
+  'st5.type.draw': 'Drawing',
+  'st5.type.soon': 'Types after Blanks are coming soon.',
+  'st5.blanksHint':
+    'Blanks are made in the note: select words, then tap Blank.',
+  'st3.made': 'Card made',
 } as const

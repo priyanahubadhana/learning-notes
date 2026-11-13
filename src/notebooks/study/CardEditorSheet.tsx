@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 import { updateBlock } from '../../core/blockService'
 import type { LearningNotesDB } from '../../core/db'
 import { Sheet } from '../../design/parts/Sheet'
+import { useUnlocked } from '../../settings/level'
+import { isMakeable, offeredTypes, type CardTypeId } from './cardTypes'
 import { t } from '../../i18n/t'
 import {
   isPlainQuestion,
@@ -28,8 +30,10 @@ export function CardEditorSheet({
   db: LearningNotesDB
   blockId: string
   onClose: () => void
-  onOpenNote: () => void
+  onOpenNote?: () => void
 }) {
+  const allTypes = useUnlocked('study.cardTypes')
+  const [type, setType] = useState<CardTypeId>('qa')
   const block = useLiveQuery(() => db.blocks.get(blockId), [db, blockId])
   const answers = useLiveQuery(
     async () =>
@@ -86,17 +90,43 @@ export function CardEditorSheet({
               </>
             )}
           </span>
-          <button
-            type="button"
-            className="card-editor__open"
-            onClick={onOpenNote}
-          >
-            {t('st2.editor.openNote')}
-          </button>
+          {onOpenNote && (
+            <button
+              type="button"
+              className="card-editor__open"
+              onClick={onOpenNote}
+            >
+              {t('st2.editor.openNote')}
+            </button>
+          )}
         </div>
       }
     >
       <div className="card-editor">
+        <div
+          role="radiogroup"
+          aria-label={t('st5.types')}
+          className="card-editor__types"
+          data-testid="card-types"
+        >
+          {offeredTypes(allTypes).map(({ id, label }) => (
+            <button
+              key={id}
+              type="button"
+              role="radio"
+              aria-checked={type === id}
+              aria-disabled={!isMakeable(id)}
+              onClick={() => isMakeable(id) && setType(id)}
+              className="card-editor__type"
+            >
+              {t(label)}
+            </button>
+          ))}
+        </div>
+        {allTypes && <p className="card-editor__hint">{t('st5.type.soon')}</p>}
+        {type === 'cloze' && (
+          <p className="card-editor__hint">{t('st5.blanksHint')}</p>
+        )}
         <label className="card-editor__label" htmlFor="card-editor-question">
           {t('st2.editor.question')}
         </label>

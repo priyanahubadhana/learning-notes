@@ -6,6 +6,8 @@ import {
 import { dayKeyOf } from '../core/homeDays'
 import { newMindMap, serializeMindMap } from './mindMap/model'
 import { cardSlashItem, type NestedCardPlace } from './cardActions'
+import { isOn } from '../app/flags'
+import { isUnlocked } from '../settings/level'
 import { t } from '../i18n/t'
 import type { AppSchema } from './schema'
 import { Icon } from '../app/tools/icons'
@@ -82,15 +84,17 @@ export function buildSlashMenuItems(
   }
   items.splice(quoteIndex === -1 ? items.length : quoteIndex + 1, 0, callout)
   items.push(cardSlashItem(editor, onPlaceNestedCard))
-  items.push({
-    title: t('cardList.slash.title'),
-    subtext: t('cardList.slash.subtext'),
-    aliases: ['cards', 'list', 'flashcards', 'deck'],
-    group: t('card.slash.group'),
-    icon: <Icon name="inbox" size={18} />,
-    onItemClick: () =>
-      insertOrUpdateBlockForSlashMenu(editor, { type: 'cardList' }),
-  })
+  // Study v2 (ST19): the Card list block is Professional (old ones still show).
+  if (!isOn('study.v2') || isUnlocked('study.cardList'))
+    items.push({
+      title: t('cardList.slash.title'),
+      subtext: t('cardList.slash.subtext'),
+      aliases: ['cards', 'list', 'flashcards', 'deck'],
+      group: t('card.slash.group'),
+      icon: <Icon name="inbox" size={18} />,
+      onItemClick: () =>
+        insertOrUpdateBlockForSlashMenu(editor, { type: 'cardList' }),
+    })
 
   items.push({
     title: t('mm.slash.title'),

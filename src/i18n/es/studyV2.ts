@@ -25,4 +25,17 @@ export const esStudyV2 = {
   'st2.status.new': 'Nueva',
   'st2.status.suspended': 'En pausa',
   'st2.title.cards': 'Tarjetas',
+  'st5.types': 'Tipo de tarjeta',
+  'st5.type.qa': 'Pregunta / respuesta',
+  'st5.type.cloze': 'Huecos',
+  'st5.type.picture': 'Imagen',
+  'st5.type.vocab': 'Vocabulario',
+  'st5.type.tf': 'Verdadero / falso',
+  'st5.type.reverse': 'Inversa',
+  'st5.type.occl': 'Ocultar partes de una imagen',
+  'st5.type.draw': 'Dibujo',
+  'st5.type.soon': 'Los tipos después de Huecos llegarán pronto.',
+  'st5.blanksHint':
+    'Los huecos se hacen en la nota: selecciona palabras y toca Hueco.',
+  'st3.made': 'Tarjeta creada',
 } as const

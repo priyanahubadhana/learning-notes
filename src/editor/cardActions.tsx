@@ -1,7 +1,9 @@
 import type { DefaultReactSuggestionItem } from '@blocknote/react'
+import { isOn } from '../app/flags'
 import { t } from '../i18n/t'
 import { CARD_BLOCK_TYPE } from '../recall/cardService'
 import type { EditorBlock } from './mapping'
+import { emitCardMade, emitCardOpen, glowBlock } from '../app/studyCardEvents'
 import type { AppSchema } from './schema'
 
 /**
@@ -34,6 +36,8 @@ export const canMakeCard = (block: Pick<EditorBlock, 'type'>): boolean =>
  */
 export function makeCard(editor: Editor, block: EditorBlock): boolean {
   if (!canMakeCard(block)) return false
+  const picked = isOn('study.v2') ? editor.getSelectedText().trim() : ''
+  if (picked) return makeCardBelow(editor, block, picked)
   const hasAnswer = block.children.length > 0
   editor.updateBlock(block, {
     type: CARD_BLOCK_TYPE,
@@ -44,6 +48,35 @@ export function makeCard(editor: Editor, block: EditorBlock): boolean {
   const answer = card?.children[0]
   if (answer && !hasAnswer) editor.setTextCursorPosition(answer, 'start')
   editor.focus() // the block menu had focus; typing should go to the card
+  return true
+}
+
+/**
+ * Study v2 (ST3): the selected words become the ANSWER of a new card under
+ * the text; the text itself stays. The new card glows once; Undo removes it.
+ */
+function makeCardBelow(editor: Editor, block: EditorBlock, picked: string) {
+  const [card] = editor.insertBlocks(
+    [
+      {
+        type: CARD_BLOCK_TYPE,
+        children: [{ type: 'paragraph', content: picked }],
+      },
+    ],
+    block,
+    'after',
+  )
+  editor.setTextCursorPosition(card, 'start')
+  editor.focus()
+  const id = card.id
+  emitCardMade({
+    blockId: id,
+    undo: () => {
+      const live = editor.getBlock(id)
+      if (live) editor.removeBlocks([live])
+    },
+  })
+  requestAnimationFrame(() => glowBlock(id))
   return true
 }
 
@@ -72,6 +105,7 @@ async function insertCardHere(editor: Editor) {
   })
   editor.updateBlock(card, { children: [{ type: 'paragraph' }] })
   editor.setTextCursorPosition(card.id, 'start')
+  if (isOn('study.v2')) emitCardOpen(card.id) // ST5: the card editor opens
 }
 
 /**

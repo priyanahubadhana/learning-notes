@@ -181,6 +181,7 @@ export const LIVE_IDLE_MS = 1_500
 const PictureChooser = lazy(() => import('../images/PictureChooser'))
 const SlashCommandList = lazy(() => import('./menus/SlashCommandList'))
 const PicturePlacement = lazy(() => import('../images/PicturePlacement'))
+const StudyCardHost = lazy(() => import('../notebooks/study/StudyCardHost'))
 
 export function PageEditor(props: PageEditorProps) {
   const { db, pageId } = props
@@ -455,6 +456,9 @@ function LoadedPageEditor({
     window.addEventListener('keydown', on, true)
     return () => window.removeEventListener('keydown', on, true)
   }, [editor])
+
+  // Study v2 (slice 15): the Undo toast after "Make card" and the card editor.
+  const studyV2 = useFlag('study.v2')
 
   // Table grips and block handles show only near the pointer (calmHandles.ts).
   useEffect(() => installCalmHandles(), [])
@@ -997,6 +1001,11 @@ function LoadedPageEditor({
           />
         </BlockNoteView>
         <PictureEditorHost />
+        {studyV2 && !boxId && (
+          <Suspense fallback={null}>
+            <StudyCardHost db={db} />
+          </Suspense>
+        )}
         {pictureAsk?.owner === editor && (
           <Suspense fallback={null}>
             <PictureChooser ask={pictureAsk} />

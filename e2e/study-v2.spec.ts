@@ -3,6 +3,8 @@ import {
   createNotebook,
   makeCard,
   openSidebar,
+  selectText,
+  slashCommand,
   typeInEditor,
 } from './helpers.ts'
 
@@ -133,4 +135,110 @@ test('flag off: the Cards tab is today’s', async ({ page }) => {
   await typeInEditor(page, 'x')
   await openCards(page)
   await expect(page.getByTestId('study-header')).toHaveCount(0)
+})
+
+// ---- 15b: cards in a page (ST3 to ST6, ST18, ST19) ----
+
+const editorText = (page: Page) => page.locator('.bn-editor')
+
+test('ST3 + ST4: Make card on a selection adds a card under the text; Undo removes it', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await typeInEditor(page, 'The first heart sound is S1')
+  await selectText(page, 'first heart sound')
+  await page.getByRole('button', { name: 'Make card', exact: true }).click()
+  // The selection is the answer of a new card under the text; the text stays.
+  const cards = page.locator('[data-content-type="card"]')
+  await expect(cards).toHaveCount(1)
+  await expect(editorText(page)).toContainText('The first heart sound is S1')
+  await expect(
+    page
+      .locator('.bn-block-group .bn-block-group')
+      .getByText('first heart sound', { exact: true }),
+  ).toBeVisible()
+  const toast = page.getByText('Card made')
+  await expect(toast).toBeVisible()
+  // ST4: Undo takes the card away.
+  await page.getByRole('button', { name: 'Undo', exact: true }).last().click()
+  await expect(cards).toHaveCount(0)
+  await expect(editorText(page)).toContainText('The first heart sound is S1')
+})
+
+test('ST5 + ST18: "/card" opens the card editor with Question / answer picked (Beginner: 2 types, Professional: 8)', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await typeInEditor(page, 'Intro')
+  await slashCommand(page, 'card')
+  const sheet = page.getByTestId('study-card-editor')
+  await expect(sheet).toBeVisible()
+  const types = sheet.getByTestId('card-types').getByRole('radio')
+  await expect(types).toHaveCount(2)
+  await expect(
+    sheet.getByRole('radio', { name: 'Question / answer' }),
+  ).toHaveAttribute('aria-checked', 'true')
+  await expect(sheet.getByRole('radio', { name: 'Blanks' })).toBeVisible()
+})
+
+test('ST18: Professional with the unlock sees all 8 card types', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'learning-notes:level',
+      JSON.stringify({ level: 'professional', unlocked: [] }),
+    )
+  })
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await typeInEditor(page, 'Intro')
+  await slashCommand(page, 'card')
+  const sheet = page.getByTestId('study-card-editor')
+  await expect(sheet.getByTestId('card-types').getByRole('radio')).toHaveCount(
+    8,
+  )
+})
+
+test('ST6: an old card block shows and reviews as before', async ({ page }) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S1?', 1)
+  await expect(
+    page.locator('[data-content-type="card"]').first(),
+  ).toContainText('Which valves close in S1?')
+  await page.reload()
+  await expect(page.locator('[data-content-type="card"]')).toHaveCount(1)
+  await expect(editorText(page)).toContainText('An answer')
+})
+
+test('ST19: "/card list" is Professional; Beginner does not see it', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await typeInEditor(page, 'Intro')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('/card list')
+  await expect(
+    page.getByText('No matches').or(page.getByText('Card list')),
+  ).toBeVisible()
+  await expect(page.getByText('Card list', { exact: true })).toHaveCount(0)
+})
+
+test('ST19: Professional types "/card list" and gets the Card list block', async ({
+  page,
+}) => {
+  await asLevel(page, 'professional')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await typeInEditor(page, 'Intro')
+  await slashCommand(page, 'card list')
+  await expect(page.locator('[data-content-type="cardList"]')).toHaveCount(1)
 })

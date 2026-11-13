@@ -67,3 +67,28 @@
     border-radius: 18px 18px 0 0;
   }
 }
+.card-editor__types {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+.card-editor__type {
+  flex: none;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-size: 14px;
+}
+.card-editor__type[aria-checked='true'] {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  font-weight: 600;
+}
+.card-editor__type[aria-disabled='true'] {
+  color: var(--color-muted);
+}

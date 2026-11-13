@@ -31,6 +31,7 @@ import {
 } from '../i18n/languages'
 import { dateLocale, t, type DateStyle, type MessageKey } from '../i18n/t'
 import { freeTip } from '../app/tools/freeBar'
+import { peekWasOff } from '../app/tools/peekFlag'
 import { isPathStyle, PATH_STYLES, type PathStyle } from '../pages/pathStyle'
 import {
   isPaperChoice,
@@ -397,6 +398,8 @@ export const barPlacementSetting: SettingDefinition<BarPlacement> = {
     ),
   },
   onChange: (value) => {
+    // A new choice here ends a peek (TB-75): a reload keeps it.
+    peekWasOff.set(false)
     // A short tip points at the bar that now floats.
     if (value === 'free') freeTip.set(true)
   },

@@ -103,6 +103,35 @@ test('TB-75 a reload during a peek keeps the bar turned off in Settings', async 
   await expect(bar(page)).toHaveCount(0)
 })
 
+/** Why: the peek flag was cleared only when the peek ended, so choosing On in Settings during a peek hid the bar again on reload. */
+test('TB-75 choosing On in Settings during a peek keeps the bar after a reload', async ({
+  page,
+}) => {
+  await open(page)
+  await turnOff(page)
+  await pill(page).click()
+  await expect(bar(page)).toBeVisible()
+  await page.getByTestId('v8-more').click()
+  await page.getByTestId('v8-more-settings').click()
+  await page.getByRole('button', { name: /^Tool bar, / }).click()
+  const row = page.locator('[data-setting-id="toolbar.show"]')
+  await row.getByRole('button', { name: 'Off', exact: true }).click()
+  await page.getByRole('button', { name: 'Turn off' }).click()
+  await row.getByRole('button', { name: 'On', exact: true }).click()
+  await expect(
+    row.getByRole('button', { name: 'On', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await page.reload()
+  // The bar is still on: no "Show toolbar" pill after the reload (it shows only when the bar is off).
+  await page.waitForTimeout(500)
+  await expect(pill(page)).toHaveCount(0)
+  await expect(
+    page
+      .locator('[data-setting-id="toolbar.show"]')
+      .getByRole('button', { name: 'On', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
+})
+
 test('TB-74 setting off (the default): typing leaves the bar alone and no pill shows', async ({
   page,
 }) => {

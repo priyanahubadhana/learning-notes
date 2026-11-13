@@ -1,14 +1,8 @@
-import { isBoolean } from '../../uiPrefs'
-import { prefStore } from '../store'
+import { peekWasOff } from '../peekFlag'
 import { hideToolBar, isToolBarOn, showToolBar } from '../toolbarVisibility'
 import { hideWhileWriting, nextTuck, tuckState, type TuckEvent } from './tuck'
 
-/**
- * TB-75: a peek (bar turned off in Settings, shown by the pill) is saved on
- * this device while it lasts. If the page is reloaded during the peek, the
- * bar goes back to "off" at start instead of staying on for good.
- */
-const peekWasOff = prefStore('toolbar.peekWasOff', isBoolean, false)
+/** TB-75: a reload during a peek puts the bar back to "off" (see peekFlag.ts). */
 if (peekWasOff.get()) {
   peekWasOff.set(false)
   hideToolBar()

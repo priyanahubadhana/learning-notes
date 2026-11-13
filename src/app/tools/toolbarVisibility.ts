@@ -7,6 +7,7 @@ import {
 } from '../../settings/settingsService'
 import { useDeviceSetting } from '../../settings/useSetting'
 import { isBarPlacement, type BarPlacement } from '../deviceMode'
+import { peekWasOff } from './peekFlag'
 import { prefStore } from './store'
 import { getAppActions } from './toolRuntime'
 
@@ -36,6 +37,7 @@ export const isToolBarOn = (): boolean =>
 
 /** Turns the bar on, where it sat last (Top at first). */
 export function showToolBar(): void {
+  peekWasOff.set(false) // a real "on" ends any peek (the pill sets it again after)
   writeDeviceSetting(barPlacementSetting, lastPlacement.get())
   turnedOff.set(false)
 }

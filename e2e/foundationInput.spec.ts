@@ -16,16 +16,19 @@ test('the app loads unchanged and the routers load at start through the row hold
 }) => {
   const errors: string[] = []
   page.on('pageerror', (e) => errors.push(e.message))
-  const scripts: Promise<string>[] = []
+  const urls = new Set<string>()
   page.on('response', (r) => {
-    if (r.request().resourceType() === 'script')
-      scripts.push(r.text().catch(() => ''))
+    if (r.request().resourceType() === 'script') urls.add(r.url())
   })
   await page.goto('/')
   await expect(page.locator('body')).toBeVisible()
   await page.waitForLoadState('networkidle')
   // Each router's own log text marks its code.
-  const bodies = await Promise.all(scripts)
+  // Read each script again by URL: WebKit can return an empty body from the
+  // live response object, so the response text is not a reliable source.
+  const bodies = await Promise.all(
+    [...urls].map((u) => page.request.get(u).then((r) => r.text())),
+  )
   expect(bodies.length).toBeGreaterThan(0)
   // test-guard-reason: slice 4 row hold loads routers at start by design
   expect(bodies.some((b) => b.includes('eventRouter: handler'))).toBe(true)

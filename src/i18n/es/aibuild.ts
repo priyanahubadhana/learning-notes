@@ -91,7 +91,8 @@ export const esAiBuild = {
   'aifw.paste.bad': 'Esa respuesta no encaja en este paso:',
   'aifw.paste.repair': 'La última respuesta no encajaba. Pega una corregida.',
   'aifw.paste.empty': 'Pega primero la respuesta.',
-  'aifw.paste.json': 'Esta no es la respuesta completa. Copia toda la respuesta del chat y pégala de nuevo.',
+  'aifw.paste.json':
+    'Esta no es la respuesta completa. Copia toda la respuesta del chat y pégala de nuevo.',
   'aifw.paste.object': 'La respuesta debe ser un objeto JSON.',
   'aifw.paste.missing': 'A la respuesta le falta la parte «{field}».',
   'aifw.paste.declined': 'Elegiste responder más tarde.',

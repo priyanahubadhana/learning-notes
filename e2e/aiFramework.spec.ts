@@ -90,7 +90,9 @@ async function flow(page: Page) {
   // Preview: nothing is saved yet.
   await expect(page.getByTestId('aifw-preview')).toBeVisible()
   await expect(
-    page.getByTestId('aifw-preview-line').filter({ hasText: /^New (notebook|page): Habits$/ }),
+    page
+      .getByTestId('aifw-preview-line')
+      .filter({ hasText: /^New (notebook|page): Habits$/ }),
   ).toHaveCount(2) // the notebook and the page
   await expect(stepStates).toHaveText(['Done', 'Done', 'Done'])
 

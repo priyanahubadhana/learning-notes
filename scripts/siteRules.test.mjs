@@ -39,6 +39,31 @@ describe('site rules', () => {
     expect(strict).toMatch(/img-src [^;]*https:/)
   })
 
+  // EPUB guard 1 (DECISIONS 13 Nov, "EPUB on iPad"): book frames run with
+  // `allow-scripts`, so the site policy must never let inline or blob scripts in.
+  it('script-src stays strict in both policies: no unsafe-inline, unsafe-eval, blob:, data: or wildcard', () => {
+    for (const name of [
+      'Content-Security-Policy',
+      'Content-Security-Policy-Report-Only',
+    ]) {
+      const policy = value(name)
+      const scripts = policy
+        .split(';')
+        .map((d) => d.trim())
+        .filter((d) => /^script-src(-elem|-attr)?\s/.test(d))
+      expect(scripts.length).toBeGreaterThan(0)
+      for (const d of scripts) {
+        expect(d).not.toContain("'unsafe-inline'")
+        expect(d).not.toContain("'unsafe-eval'")
+        expect(d).not.toMatch(/(^|\s)(blob:|data:|\*|https:|http:)(\s|$)/)
+      }
+      expect(policy).toMatch(/(^|;\s*)script-src 'self'[ ;]/)
+      expect(policy).toContain("object-src 'none'")
+      // No default-src fallback that could widen scripts either.
+      expect(policy).toMatch(/default-src 'self';/)
+    }
+  })
+
   it('the other security headers are there (S16)', () => {
     expect(value('X-Content-Type-Options')).toBe('nosniff')
     expect(value('X-Frame-Options')).toBe('DENY')

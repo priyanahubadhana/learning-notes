@@ -86,3 +86,34 @@ export function makeDocx(): Buffer {
     }),
   )
 }
+
+/**
+ * A hostile EPUB (EPUB guard 3): every way a book page could try to run code
+ * and reach the app. Each attempt would set `parent.__bookRan` (or the
+ * frame's own `__bookRan`) and add a "ran" mark to the app's title.
+ */
+export function makeHostileEpub(): Buffer {
+  const hit = (tag: string) =>
+    `try{(window.top||window).__bookRan=(window.top.__bookRan||[]).concat('${tag}');window.__bookRan=1;top.document.title+=' ran:${tag}'}catch(e){window.__bookRan=1}`
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;')
+  const page = `<?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink"><head><title>Bad</title><script>${hit('inline')}</script><script src="evil.js"></script><script src="/sw.js"></script><meta http-equiv="refresh" content="0;url=javascript:${esc(hit('refresh'))}"/></head><body onload="${esc(hit('onload'))}"><p onmouseover="${esc(hit('mouseover'))}" onclick="${esc(hit('onclick'))}">The quick brown fox jumps over the lazy dog.</p><p><a id="jslink" href="javascript:${esc(hit('jslink'))}">Bad link</a></p><img src="missing.png" onerror="${esc(hit('onerror'))}"/><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" onload="${esc(hit('svgload'))}"><script>${hit('svgscript')}</script></svg><iframe srcdoc="&lt;script&gt;parent.parent.__bookRan=['srcdoc']&lt;/script&gt;"></iframe><object data="evil.js" type="text/html"></object></body></html>`
+  return Buffer.from(
+    zipSync({
+      mimetype: [strToU8('application/epub+zip'), { level: 0 }],
+      'META-INF/container.xml': strToU8(
+        '<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>',
+      ),
+      'OEBPS/content.opf': strToU8(
+        `<?xml version="1.0"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="id">hostile-epub</dc:identifier><dc:title>Hostile</dc:title><dc:language>en</dc:language></metadata><manifest><item id="c1" href="c1.xhtml" media-type="application/xhtml+xml" properties="scripted svg"/><item id="evil" href="evil.js" media-type="application/javascript"/><item id="c2" href="c2.html" media-type="text/html"/><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/></manifest><spine><itemref idref="c1"/><itemref idref="c2"/></spine></package>`,
+      ),
+      'OEBPS/nav.xhtml': strToU8(
+        '<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>Nav</title></head><body><nav epub:type="toc"><ol><li><a href="c1.xhtml">One</a></li><li><a href="c2.html">Two</a></li></ol></nav></body></html>',
+      ),
+      'OEBPS/c1.xhtml': strToU8(page),
+      'OEBPS/evil.js': strToU8(hit('external')),
+      'OEBPS/c2.html': strToU8(
+        `<html><head><script>${hit('html-inline')}</script></head><body onload="${esc(hit('html-onload'))}"><p>Second page.</p></body></html>`,
+      ),
+    }),
+  )
+}

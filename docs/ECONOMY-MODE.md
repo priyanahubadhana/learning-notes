@@ -101,7 +101,7 @@ A "slice" = one master-plan area brought to merged on `build/next` after gate 2.
 
 How the share was worked out, and why it is rough: this week's measured helpers add up to about 250 units and the unmeasured build helpers to about 290 more; that, plus the main chat, roughly used up one weekly allowance, so one week is taken as about 550-650 units. That is an inference, not a reading. **Calibrate on day 1:** note `/usage` before and after the first economy slice; that weekly share x 18 is the real figure. If one slice uses more than 3% of the week, stop and review.
 
-### With up to 6 builders at once (owner's choice, 13 Nov)
+### With the builder count from Owner settings (CLAUDE.md, 13 Nov)
 
 The tables above assume 3 builders. With 6:
 
@@ -220,7 +220,7 @@ Expected gain (an estimate, not measured): about 10 to 15 minutes per CI run fro
 - Escape only with an approved reason: a line `push-guard-skip: <at least 5 words>` in the tip commit message. It is loud and logged in `.git/push-guard-skips.log`; every run is logged in `.git/push-guard.log`.
 - It only runs existing commands: it never weakens or skips a test, and CI stays the judge.
 
-## 12. Automatic escalation and stall checks (owner, 13 Nov 2026; wanted from the start)
+## 13. Automatic escalation and stall checks (owner, 13 Nov 2026; wanted from the start)
 
 The build escalates by itself; the owner never has to ask.
 

@@ -15,4 +15,4 @@
 
 See CLAUDE.md "How Work Runs". The build runs in economy mode (docs/ECONOMY-MODE.md); other tasks use Fable → Opus sub-managers → Sonnet/Haiku.
 
-- **Escalate automatically (owner, 13 Nov 2026):** stuck work goes Sonnet → Opus → Fable without waiting for the owner; stalls are fixed at once. Details: docs/ECONOMY-MODE.md section 12.
+- **Escalate automatically (owner, 13 Nov 2026):** stuck work goes Sonnet → Opus → Fable without waiting for the owner; stalls are fixed at once. Details: docs/ECONOMY-MODE.md section 13.

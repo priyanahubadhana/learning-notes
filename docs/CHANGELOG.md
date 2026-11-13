@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: Review v2 slice 8b, gate 2 fixes
+
+- What: Review chips are 44 pt tall for real (the clipped ::after hit area is gone), form one Tab stop and move with arrow keys; the More sheet tracks its draft as React state (the "Discard changes?" question can show). New tests: RV-B08 end to end (17 new left), RV-B28 on Light, Dark and Sepia incl. chips, RV-P11 scroll place, RV-P06 deck-only Start, RV-P07 Start on Got wrong, chip size and keys, draft dirty signal.
+- Why: gate 2 found a 36 px chip with a clipped hit area, radios without keys, and a draft dirty flag React could not see.
+- Files: src/review/v2/Chips.tsx, MoreSheet.tsx, moreDraft.ts, moreDraft.test.ts, reviewV2.css, e2e/review-v2-home.spec.ts, docs/mockups/review-v2-8b-shots/.
+
 ### 14 Nov 2026: toolbar v8 flaky tests fixed in the product
 
 - What: a card closed with ✕ hands focus back to its chip only if nothing else took it; the page's text box frame follows its text when a picture loads while an ink tool is on.

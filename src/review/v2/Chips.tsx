@@ -1,3 +1,4 @@
+import { useRef, type KeyboardEvent } from 'react'
 import { Icon } from '../../app/tools/icons'
 import { ScrollTrack } from '../../design/parts/ScrollTrack'
 import { t } from '../../i18n/t'
@@ -41,8 +42,23 @@ export function Chips({
     })),
     { key: 'wrong', label: t('rv2.chip.wrong', { count: wrongCount }) },
   ]
+  const root = useRef<HTMLDivElement>(null)
+  // A radiogroup: arrows move the pick, only the picked chip takes Tab.
+  const move = (e: KeyboardEvent, i: number) => {
+    const step =
+      e.key === 'ArrowRight' || e.key === 'ArrowDown'
+        ? 1
+        : e.key === 'ArrowLeft' || e.key === 'ArrowUp'
+          ? -1
+          : 0
+    if (!step) return
+    e.preventDefault()
+    const j = (i + step + all.length) % all.length
+    onScope(chipScope(all[j].key))
+    root.current?.querySelectorAll<HTMLElement>('[role="radio"]')[j]?.focus()
+  }
   return (
-    <div className="rv2-prow">
+    <div className="rv2-prow" ref={root}>
       {onMore && (
         <button
           type="button"
@@ -66,14 +82,16 @@ export function Chips({
         aria-label={t('rv2.chip.label')}
         data-testid="rv2-chips"
       >
-        {all.map((c) => (
+        {all.map((c, i) => (
           <button
             key={c.key}
             type="button"
             role="radio"
             aria-checked={c.key === current}
+            tabIndex={c.key === current ? 0 : -1}
             className="rv2-chip"
             onClick={() => onScope(chipScope(c.key))}
+            onKeyDown={(e) => move(e, i)}
           >
             {c.colour && (
               <span

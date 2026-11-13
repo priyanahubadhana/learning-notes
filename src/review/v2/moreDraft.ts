@@ -13,21 +13,26 @@ export interface DraftEdit {
   undo: () => Promise<void> | void
 }
 
-export function createDraft() {
+/** onDirty tells React when the draft gains or loses its first/last edit. */
+export function createDraft(onDirty?: (dirty: boolean) => void) {
   let edits = new Map<string, DraftEdit>()
+  const tell = () => onDirty?.(edits.size > 0)
   return {
     stage(edit: DraftEdit) {
       edits.set(edit.key, edit)
+      tell()
     },
     dirty: () => edits.size > 0,
     size: () => edits.size,
     discard() {
       edits = new Map()
+      tell()
     },
     /** Applies every edit in the order staged; null when there was nothing. */
     async commit(): Promise<(() => Promise<void>) | null> {
       const done = [...edits.values()]
       edits = new Map()
+      tell()
       if (!done.length) return null
       for (const e of done) await e.apply()
       return async () => {

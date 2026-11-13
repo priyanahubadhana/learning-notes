@@ -20,7 +20,8 @@ export interface ReviewMoreSheetProps {
  */
 export function ReviewMoreSheet({ onClose }: ReviewMoreSheetProps) {
   const ui = useContext(AppUiContext)
-  const [draft] = useState(createDraft)
+  const [dirty, setDirty] = useState(false)
+  const [draft] = useState(() => createDraft(setDirty))
   const tabs = useMemo(() => moreTabs(isUnlocked), [])
   const [tab, setTab] = useState<MoreTabId | string>(tabs[0]?.id ?? '')
   const [, bump] = useState(0)
@@ -50,7 +51,7 @@ export function ReviewMoreSheet({ onClose }: ReviewMoreSheetProps) {
         bump((n) => n + 1)
       }}
       setKey="review-more"
-      dirty={draft.dirty()}
+      dirty={dirty}
       onDone={done}
       onClose={() => {
         draft.discard()

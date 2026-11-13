@@ -52,3 +52,15 @@ describe('More tabs follow their own unlock switch (RV-P10)', () => {
     expect(moreTabs(() => false)).toEqual([])
   })
 })
+
+describe('draft dirty signal (React state in the More sheet)', () => {
+  it('tells the listener on stage, discard and commit', async () => {
+    const seen: boolean[] = []
+    const d = createDraft((x) => seen.push(x))
+    d.stage({ key: 'a', apply: vi.fn(), undo: vi.fn() })
+    d.discard()
+    d.stage({ key: 'b', apply: vi.fn(), undo: vi.fn() })
+    await d.commit()
+    expect(seen).toEqual([true, false, true, false])
+  })
+})

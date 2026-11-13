@@ -1,6 +1,6 @@
 # Slice 12 rest pictures (strip, Paste menu, page sheet, Arrange, row strip)
 
-Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (head commit of the sources: 3c06498f). Made by shots.spec.ts (run with a config whose testDir is this folder).
+Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (head commit of the sources: 77ae54a4 plus the strip CSS fix in the next commit). Made by shots.spec.ts (run with a config whose testDir is this folder).
 
 Pattern: `<screen>-<size>-<theme>-<level>.png`
 
@@ -18,4 +18,4 @@ Which picture proves which fix:
 - Paste ▾ rows that apply: paste-* (plain text on the clipboard: Keep, Plain, Quote)
 - Focus ring for the keyboard only: strip-* (no ring on the first button after a mouse right-click)
 - "Add to favourites" on the Professional text strip (Comment is hidden until comments exist, docs/DECISIONS.md): strip-*-professional
-- Phone strip fits 390 px, no item cut off: rowstrip-phone-*, strip-phone-*
+- Phone strip fits 390 px, no item cut, no word broken: rowstrip-phone-* (Add to favourites on two lines), strip-phone-*

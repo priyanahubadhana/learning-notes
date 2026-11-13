@@ -55,13 +55,15 @@ function watchNetwork(page: Page): string[] {
 
 async function openGoal(page: Page) {
   await page.goto(FLAGGED)
+  // The app starts slowly on WebKit; wait for the card the project's way.
+  await expect(page.getByTestId('aifw-entry')).toBeVisible()
   await page.getByTestId('aifw-open').click()
   await expect(page.getByTestId('aifw-goal')).toBeVisible()
 }
 
 async function ask(page: Page) {
   await page.getByTestId('aifw-goal-text').fill('Notes and cards on habits')
-  await page.getByTestId('aifw-goal-name').fill('Goal nb')
+  await page.getByTestId('aifw-dest-name').fill('Goal nb')
   await expect(page.getByTestId('aifw-goal-make')).toBeEnabled()
   await page.getByTestId('aifw-effort-deep').click()
   await expect(page.getByTestId('aifw-effort-deep')).toHaveAttribute(
@@ -252,7 +254,7 @@ test.describe('AI framework: slice 5a tools through the goal box', () => {
     await expect(
       page
         .getByTestId('aifw-preview-line')
-        .filter({ hasText: 'New: Renamed page' }),
+        .filter({ hasText: 'New page: Renamed page' }),
     ).toHaveCount(1)
     await page.getByTestId('aifw-apply').click()
     await expect(page.getByTestId('aifw-done')).toBeVisible()

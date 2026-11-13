@@ -13,6 +13,11 @@ const space = (page: Page, name: string) =>
     .getByRole('button', { name: `Space: ${name}` })
 
 async function setUp(page: Page, cap?: number, epub = false) {
+  // The preview asks Claude to count tokens; no test reaches the network.
+  await page.route(
+    'https://api.anthropic.com/v1/messages/count_tokens',
+    (route) => route.fulfill({ json: { input_tokens: 321 } }),
+  )
   await page.goto('/')
   await space(page, 'Library').click()
   await page.getByTestId('library-file').setInputFiles(
@@ -143,6 +148,30 @@ test('Story so far sends only what has been read; Stop ends a long answer', asyn
   expect(prompt).toContain('mitochondria')
   // Page 3 is ahead of the reader: never sent.
   expect(prompt).not.toContain('END')
+})
+
+test('the preview shows the true token count from the provider', async ({
+  page,
+}) => {
+  await setUp(page)
+  await page.getByTestId('ask-book-question').fill('Where is energy made?')
+  await page.getByTestId('ask-book-prepare').click()
+  const tokens = page.getByTestId('ask-book-tokens')
+  await expect(tokens).toContainText('321 tokens')
+  await expect(tokens).not.toContainText('estimated')
+})
+
+test('when the count fails the preview says the number is estimated', async ({
+  page,
+}) => {
+  await setUp(page)
+  await page.route(
+    'https://api.anthropic.com/v1/messages/count_tokens',
+    (route) => route.fulfill({ status: 500, body: '' }),
+  )
+  await page.getByTestId('ask-book-question').fill('Where is energy made?')
+  await page.getByTestId('ask-book-prepare').click()
+  await expect(page.getByTestId('ask-book-tokens')).toContainText('estimated')
 })
 
 test('the monthly cap blocks the call: nothing is sent', async ({ page }) => {

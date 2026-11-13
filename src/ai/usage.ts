@@ -71,11 +71,16 @@ export function readUsage(now: Date = new Date()): Usage {
   }
 }
 
+/** Claude charges a quarter more than plain input to store a text in its cache. */
+export const CACHE_WRITE_EXTRA = 0.25
+
 /**
  * Estimated dollars for some tokens. `cachedTokens` (part of inputTokens,
  * read from the provider's cache) cost the cached rate: the table's
  * `cached`, else a tenth of the input price for Claude (its published
  * cache-read rate), else the full input price (not known, so errs high).
+ * `cacheWriteTokens` (also part of inputTokens, stored in the cache) cost the
+ * input price plus the storage charge, so the cost is never below the real one.
  */
 export function costOf(
   provider: ProviderId,
@@ -83,12 +88,18 @@ export function costOf(
   inputTokens: number,
   outputTokens: number,
   cachedTokens = 0,
+  cacheWriteTokens = 0,
 ): number {
   const p = modelPrice(provider, model)
+  const written =
+    provider === 'anthropic'
+      ? Math.min(Math.max(cacheWriteTokens, 0), inputTokens)
+      : 0
   const cached = Math.min(Math.max(cachedTokens, 0), inputTokens)
   const cachedRate = p.cached ?? (provider === 'anthropic' ? p.in * 0.1 : p.in)
   return (
     ((inputTokens - cached) * p.in +
+      written * p.in * CACHE_WRITE_EXTRA +
       cached * cachedRate +
       outputTokens * p.out) /
     1_000_000
@@ -103,6 +114,7 @@ export function recordUsage(
   outputTokens: number,
   now: Date = new Date(),
   cachedTokens = 0,
+  cacheWriteTokens = 0,
 ): Usage {
   const s = read(now)
   const u = s.keys[keyId] ?? NONE
@@ -111,7 +123,14 @@ export function recordUsage(
     outputTokens: u.outputTokens + outputTokens,
     costUsd:
       u.costUsd +
-      costOf(provider, model, inputTokens, outputTokens, cachedTokens),
+      costOf(
+        provider,
+        model,
+        inputTokens,
+        outputTokens,
+        cachedTokens,
+        cacheWriteTokens,
+      ),
   }
   writePref('ai.usageByKey', s)
   for (const l of recordedListeners) l()
@@ -125,11 +144,15 @@ export function worstCost(
   prompt: string,
   maxTokens: number,
   images: readonly AiImage[] = [],
+  cachePrefix = '',
 ): number {
+  const prefix = estimateTokens(cachePrefix)
   const input =
     estimateTokens(prompt) +
+    prefix +
     images.reduce((n, i) => n + imageTokens(i.width, i.height), 0)
-  return costOf(provider, model, input, maxTokens)
+  // A cached prefix is assumed written (the dearest case), never just read.
+  return costOf(provider, model, input, maxTokens, 0, prefix)
 }
 
 /**
@@ -149,8 +172,16 @@ export function withinCap(
   now: Date = new Date(),
   images: readonly AiImage[] = [],
   reservedUsd = 0,
+  cachePrefix = '',
 ): boolean {
-  const worst = worstCost(provider, model, prompt, maxTokens, images)
+  const worst = worstCost(
+    provider,
+    model,
+    prompt,
+    maxTokens,
+    images,
+    cachePrefix,
+  )
   const spent = readKeyUsage(keyId, now).costUsd + othersSpent(keyId, now)
   return spent + reservedUsd + worst <= capUsd
 }

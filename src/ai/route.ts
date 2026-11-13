@@ -264,9 +264,10 @@ async function callAiOnce(
     const worst = worstCost(
       key.provider,
       c.model,
-      all,
+      req.prompt,
       req.maxTokens,
       req.images,
+      req.cachePrefix,
     )
     if (worst > Math.max(AUTO_OK_USD, (req.approvedUsd ?? 0) * 1.1 + 0.001)) {
       last = new AiError(
@@ -279,12 +280,13 @@ async function callAiOnce(
         key.id,
         key.provider,
         c.model,
-        all,
+        req.prompt,
         req.maxTokens,
         cap,
         new Date(),
         req.images,
         reserved.get(key.id) ?? 0,
+        req.cachePrefix,
       )
     ) {
       last = new AiError(t('ai.capReached'))
@@ -322,6 +324,7 @@ async function callAiOnce(
         result.outputTokens,
         undefined,
         result.cachedTokens,
+        result.cacheWriteTokens,
       )
       logSend({
         at: Date.now(),
@@ -338,6 +341,7 @@ async function callAiOnce(
           result.inputTokens,
           result.outputTokens,
           result.cachedTokens,
+          result.cacheWriteTokens,
         ),
       })
       return result

@@ -96,6 +96,8 @@ export interface AiResult {
   outputTokens: number
   /** Part of inputTokens read from the provider's cache (priced lower). */
   cachedTokens?: number
+  /** Part of inputTokens written to the cache (priced above plain input). */
+  cacheWriteTokens?: number
 }
 
 /** A failure with a plain reason (never contains the key). */

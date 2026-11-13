@@ -39,6 +39,7 @@ import { PromptPickerButton } from '../prompts/PromptPickerButton'
 import { openEpub, pdfParts, type EpubBook } from './bookText'
 import { AiError, PROVIDERS } from './provider'
 import { callAi } from './route'
+import { countPromptTokens, type TokenCount } from './countTokens'
 import { costOf } from './usage'
 import { AiOffCard } from './AiOffCard'
 import { useAiTick } from './aiOffStore'
@@ -115,6 +116,7 @@ export function AskBook(props: AskBookProps) {
   const [from, setFrom] = useState(here)
   const [to, setTo] = useState(here)
   const [prepared, setPrepared] = useState<Prepared | null>(null)
+  const [count, setCount] = useState<TokenCount | null>(null)
   const [answer, setAnswer] = useState('')
   const [parts, setParts] = useState<BookPart[]>([])
   const [running, setRunning] = useState(false)
@@ -147,6 +149,26 @@ export function AskBook(props: AskBookProps) {
 
   // Library books follow the global AI switch; only other notebooks need their own permission.
   const libraryBook = notebook?.kind === 'books' || notebook?.kind === 'sources'
+  // The true token count for the preview (the guess, marked estimated, when
+  // the provider cannot count, we are offline, or AI is not allowed here).
+  const countText = prepared?.prompt
+  useEffect(() => {
+    if (!countText) return
+    const ctrl = new AbortController()
+    void countPromptTokens(config, {
+      text: countText,
+      notebookId: page.notebookId,
+      allowedHere: !!notebook?.allowAi || libraryBook,
+      lockedBlocked: locked === true,
+      where: { db, pageId: page.id },
+      signal: ctrl.signal,
+    }).then((c) => {
+      if (!ctrl.signal.aborted) setCount(c)
+    })
+    return () => ctrl.abort()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [countText])
+
   const why = blocker(
     config,
     !!notebook?.allowAi || libraryBook,
@@ -203,6 +225,7 @@ export function AskBook(props: AskBookProps) {
 
   const reset = () => {
     setPrepared(null)
+    setCount(null)
     setAnswer('')
     setStopped(false)
   }
@@ -496,6 +519,14 @@ export function AskBook(props: AskBookProps) {
               cost: formatCost(cost, 4),
             })}
           </p>
+          {count && (
+            <p className="text-muted" data-testid="ask-book-tokens">
+              {t(count.estimated ? 'ai.book.tokensGuess' : 'ai.book.tokens', {
+                n: count.tokens,
+                host,
+              })}
+            </p>
+          )}
           {prepared.gathered.cut && (
             <p className="text-muted">
               {t(mode === 'story' ? 'ai.book.cutStory' : 'ai.book.cut')}

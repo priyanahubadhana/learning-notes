@@ -149,6 +149,9 @@ async function anthropic(call: AiCall): Promise<AiResult> {
       num(data.usage?.cache_read_input_tokens),
     outputTokens: num(data.usage?.output_tokens),
     cachedTokens: num(data.usage?.cache_read_input_tokens),
+    ...(num(data.usage?.cache_creation_input_tokens) > 0 && {
+      cacheWriteTokens: num(data.usage?.cache_creation_input_tokens),
+    }),
   }
 }
 
@@ -301,6 +304,7 @@ export async function stream(
   let inputTokens = 0
   let outputTokens = 0
   let cachedTokens = 0
+  let cacheWriteTokens = 0
   let cutOff = false
   try {
     for await (const ev of sseData(res.body)) {
@@ -315,6 +319,7 @@ export async function stream(
             num(u?.cache_creation_input_tokens) +
             num(u?.cache_read_input_tokens)
           cachedTokens = num(u?.cache_read_input_tokens)
+          cacheWriteTokens = num(u?.cache_creation_input_tokens)
         } else if (e.type === 'content_block_delta') {
           piece = e.delta?.text ?? ''
         } else if (e.type === 'message_delta') {
@@ -350,5 +355,12 @@ export async function stream(
       ((call.cachePrefix?.length ?? 0) + call.prompt.length) / 4,
     )
   if (!outputTokens) outputTokens = Math.ceil(text.length / 4)
-  return { text, inputTokens, outputTokens, cachedTokens, stopped }
+  return {
+    text,
+    inputTokens,
+    outputTokens,
+    cachedTokens,
+    ...(cacheWriteTokens > 0 && { cacheWriteTokens }),
+    stopped,
+  }
 }

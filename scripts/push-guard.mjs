@@ -94,6 +94,19 @@ function run(name, cmd) {
   throw new Error(name)
 }
 
+// Windows limits a command line to ~8k characters: pass files in chunks.
+function runEach(name, base, list) {
+  for (let i = 0; i < list.length; i += 40)
+    run(
+      name,
+      `${base} ${list
+        .slice(i, i + 40)
+        .map(q)
+        .join(' ')}`,
+    )
+}
+const TEXT = /.(ts|tsx|js|mjs|cjs|jsx|json|md|css|html|ya?ml)$/i
+
 for (const [, localSha, remoteRef, remoteSha] of lines) {
   if (ZERO.test(localSha)) continue // branch delete
   const branch = remoteRef.replace(/^refs\/heads\//, '')
@@ -129,24 +142,23 @@ for (const [, localSha, remoteRef, remoteSha] of lines) {
     `push guard: ${branch} (${short}), ${files.length} changed file(s), ${full ? 'code' : 'basic'} checks`,
   )
   try {
-    if (files.length)
-      run(
-        'prettier',
-        `npx prettier --check --ignore-unknown ${files.map(q).join(' ')}`,
-      )
+    runEach(
+      'prettier',
+      'npx prettier --check --ignore-unknown',
+      files.filter((f) => TEXT.test(f)),
+    )
     run('check:links', 'npm run check:links')
     if (full) {
       const lint = files.filter((f) => /\.(ts|tsx|js|mjs)$/.test(f))
-      if (lint.length)
-        run('eslint', `npx eslint --quiet ${lint.map(q).join(' ')}`)
+      runEach('eslint', 'npx eslint --quiet', lint)
       run('tsc', 'npx tsc -b')
       run('check:ratchet', 'npm run check:ratchet')
       const src = files.filter((f) => /^src\/.*\.(ts|tsx|js|mjs)$/.test(f))
-      if (src.length)
-        run(
-          'vitest related',
-          `npx vitest related --run --passWithNoTests ${src.map(q).join(' ')}`,
-        )
+      runEach(
+        'vitest related',
+        'npx vitest related --run --passWithNoTests',
+        src,
+      )
       let specs = files.filter((f) => /^e2e\/.*\.spec\.ts$/.test(f))
       if (
         branch === 'build/next' &&

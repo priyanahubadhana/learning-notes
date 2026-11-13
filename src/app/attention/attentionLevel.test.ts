@@ -99,3 +99,44 @@ describe('attention level', () => {
     )
   })
 })
+
+describe('storage safety codes (SS-01d, SS-04, SS-05)', () => {
+  it('lost beats full, full beats sync problems; home screen comes last', () => {
+    const all = {
+      storageLost: 1,
+      storageFull: 1,
+      homeScreen: true,
+      updateReady: true,
+      status: { phase: 'ready' as const, needsDriveTap: true },
+    }
+    expect(pick(all)).toMatchObject({ code: 'storageLost', level: 2 })
+    expect(pick({ ...all, storageLost: 0 })).toMatchObject({
+      code: 'storageFull',
+      level: 2,
+    })
+    expect(pick({ ...all, storageLost: 0, storageFull: 0 })?.code).toBe(
+      'driveTap',
+    )
+    expect(pick({ homeScreen: true, updateReady: true })?.code).toBe('update')
+    expect(pick({ homeScreen: true })).toMatchObject({
+      code: 'homeScreen',
+      level: 3,
+    })
+  })
+  it('home screen notice hides for 7 days after ✕ (SS-01c)', () => {
+    const s = store()
+    const a = pick({ homeScreen: true }, s)!
+    snooze(a, s, 1000, 1)
+    expect(pick({ homeScreen: true }, s, 1000 + 6 * DAY_MS)).toBeNull()
+    expect(pick({ homeScreen: true }, s, 1000 + 8 * DAY_MS)?.code).toBe(
+      'homeScreen',
+    )
+  })
+  it('full returns after ✕ when another save fails (SS-04c)', () => {
+    const s = store()
+    const a = pick({ storageFull: 1 }, s)!
+    snooze(a, s, 1000, 1)
+    expect(pick({ storageFull: 1 }, s)).toBeNull()
+    expect(pick({ storageFull: 2 }, s)?.code).toBe('storageFull')
+  })
+})

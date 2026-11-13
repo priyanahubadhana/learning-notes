@@ -10,6 +10,7 @@ import {
   type HighlightColour,
 } from '../../core/types'
 import { t } from '../../i18n/t'
+import { useReaderSwitch } from '../v2/proSwitches'
 import {
   deleteAnnotation,
   exportMarkdown,
@@ -45,6 +46,10 @@ export function AnnotationsPanel({
   onMakeCards?: (list: Annotation[]) => void
 }) {
   const { toast } = useContext(AppUiContext)
+  // Reader v2: filters, Markdown export and bulk cards wait behind their switches.
+  const filtersOn = useReaderSwitch('reader.noteFilters')
+  const exportOn = useReaderSwitch('reader.exportMd')
+  const bulkOn = useReaderSwitch('reader.bulkCards')
   const [filter, setFilter] = useState<AnnotationFilter>({})
   const [editing, setEditing] = useState<Annotation | null>(null)
   const all = useLiveQuery(() => listAnnotations(db, pageId), [db, pageId])
@@ -97,78 +102,85 @@ export function AnnotationsPanel({
       data-testid="annotations-panel"
       className="flex flex-col gap-3"
     >
-      <div
-        className="flex flex-wrap gap-1.5"
-        role="group"
-        aria-label={t('annot.filter.type')}
-      >
-        <button
-          type="button"
-          aria-pressed={!filter.type}
-          onClick={() => setFilter((f) => ({ ...f, type: undefined }))}
-          className={chip(!filter.type)}
-        >
-          {t('annot.filter.all')}
-        </button>
-        {(['highlight', 'note', 'bookmark'] as const).map((k) => (
-          <button
-            key={k}
-            type="button"
-            aria-pressed={filter.type === k}
-            onClick={() => setFilter((f) => ({ ...f, type: k }))}
-            className={chip(filter.type === k)}
+      {filtersOn && (
+        <>
+          <div
+            className="flex flex-wrap gap-1.5"
+            role="group"
+            aria-label={t('annot.filter.type')}
           >
-            {t(`annot.type.${k}`)}
-          </button>
-        ))}
-      </div>
-      <div
-        className="flex flex-wrap items-center gap-1"
-        role="group"
-        aria-label={t('annot.filter.colour')}
-      >
-        {HIGHLIGHT_COLOURS.map((c: HighlightColour) => (
-          <IconButton
-            tip="annot.colourFilter"
-            bare
-            tipClassName="inline-flex shrink-0"
-            key={c}
-            type="button"
-            aria-pressed={filter.colour === c}
-            aria-label={t(`annot.colour.${c}`)}
-            onClick={() =>
-              setFilter((f) => ({
-                ...f,
-                colour: f.colour === c ? undefined : c,
-              }))
-            }
-            className="flex size-11 items-center justify-center rounded-lg hover:bg-hover"
-          >
-            <span
-              aria-hidden
-              className={`size-5 rounded-full border ${filter.colour === c ? 'border-ink' : 'border-line'}`}
-              style={{ background: COLOUR_FILL[c] }}
-            />
-          </IconButton>
-        ))}
-        {chapters.length > 0 && (
-          <select
-            aria-label={t('annot.filter.chapter')}
-            value={filter.chapter ?? ''}
-            onChange={(e) =>
-              setFilter((f) => ({ ...f, chapter: e.target.value || undefined }))
-            }
-            className="min-h-11 rounded-lg border border-line bg-bg px-2 text-xs"
-          >
-            <option value="">{t('annot.filter.chapter')}</option>
-            {chapters.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
+            <button
+              type="button"
+              aria-pressed={!filter.type}
+              onClick={() => setFilter((f) => ({ ...f, type: undefined }))}
+              className={chip(!filter.type)}
+            >
+              {t('annot.filter.all')}
+            </button>
+            {(['highlight', 'note', 'bookmark'] as const).map((k) => (
+              <button
+                key={k}
+                type="button"
+                aria-pressed={filter.type === k}
+                onClick={() => setFilter((f) => ({ ...f, type: k }))}
+                className={chip(filter.type === k)}
+              >
+                {t(`annot.type.${k}`)}
+              </button>
             ))}
-          </select>
-        )}
-      </div>
+          </div>
+          <div
+            className="flex flex-wrap items-center gap-1"
+            role="group"
+            aria-label={t('annot.filter.colour')}
+          >
+            {HIGHLIGHT_COLOURS.map((c: HighlightColour) => (
+              <IconButton
+                tip="annot.colourFilter"
+                bare
+                tipClassName="inline-flex shrink-0"
+                key={c}
+                type="button"
+                aria-pressed={filter.colour === c}
+                aria-label={t(`annot.colour.${c}`)}
+                onClick={() =>
+                  setFilter((f) => ({
+                    ...f,
+                    colour: f.colour === c ? undefined : c,
+                  }))
+                }
+                className="flex size-11 items-center justify-center rounded-lg hover:bg-hover"
+              >
+                <span
+                  aria-hidden
+                  className={`size-5 rounded-full border ${filter.colour === c ? 'border-ink' : 'border-line'}`}
+                  style={{ background: COLOUR_FILL[c] }}
+                />
+              </IconButton>
+            ))}
+            {chapters.length > 0 && (
+              <select
+                aria-label={t('annot.filter.chapter')}
+                value={filter.chapter ?? ''}
+                onChange={(e) =>
+                  setFilter((f) => ({
+                    ...f,
+                    chapter: e.target.value || undefined,
+                  }))
+                }
+                className="min-h-11 rounded-lg border border-line bg-bg px-2 text-xs"
+              >
+                <option value="">{t('annot.filter.chapter')}</option>
+                {chapters.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        </>
+      )}
       {shown.length === 0 ? (
         <p className="text-sm text-muted">{t('annot.panelEmpty')}</p>
       ) : (
@@ -232,7 +244,7 @@ export function AnnotationsPanel({
       )}
       {shown.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {onMakeCards && (
+          {onMakeCards && bulkOn && (
             <button
               type="button"
               data-testid="make-cards-all"
@@ -242,21 +254,25 @@ export function AnnotationsPanel({
               {t('recall.cardsFromAll')}
             </button>
           )}
-          <button
-            type="button"
-            data-testid="export-copy"
-            onClick={() => void copyAll()}
-            className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover"
-          >
-            {t('annot.exportCopy')}
-          </button>
-          <button
-            type="button"
-            onClick={saveFile}
-            className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover"
-          >
-            {t('annot.exportFile')}
-          </button>
+          {exportOn && (
+            <>
+              <button
+                type="button"
+                data-testid="export-copy"
+                onClick={() => void copyAll()}
+                className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover"
+              >
+                {t('annot.exportCopy')}
+              </button>
+              <button
+                type="button"
+                onClick={saveFile}
+                className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover"
+              >
+                {t('annot.exportFile')}
+              </button>
+            </>
+          )}
         </div>
       )}
       {editing && (

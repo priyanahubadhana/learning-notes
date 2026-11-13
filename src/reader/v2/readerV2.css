@@ -662,3 +662,30 @@
   font-size: 15px;
   flex: none;
 }
+
+/* Edge-tap page turn: a short slide (180 ms, RD-B42). Reduced motion: none. */
+@keyframes rv2-slide-next {
+  from {
+    transform: translateX(24px);
+    opacity: 0.6;
+  }
+}
+@keyframes rv2-slide-prev {
+  from {
+    transform: translateX(-24px);
+    opacity: 0.6;
+  }
+}
+[data-slide='1'] > [data-testid='pdf-scroller'],
+[data-slide='1'] > [data-testid='epub-host'] {
+  animation: rv2-slide-next 180ms ease-out;
+}
+[data-slide='-1'] > [data-testid='pdf-scroller'],
+[data-slide='-1'] > [data-testid='epub-host'] {
+  animation: rv2-slide-prev 180ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-slide] > * {
+    animation: none !important;
+  }
+}

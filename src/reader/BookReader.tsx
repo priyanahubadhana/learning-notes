@@ -39,6 +39,7 @@ import { usePref } from '../app/usePref'
 import { isBoolean, readPref } from '../app/uiPrefs'
 import { GLOW_DEFAULT, GLOW_KEY, glowTarget, isGlowPref } from './v2/glowPref'
 import { usePageEdit } from './v2/usePageEdit'
+import { useReaderSwitches } from './v2/proSwitches'
 import { stepSize } from './epub/epubLoader'
 import { getBookFile, saveProgress } from '../library/libraryService'
 import { addBlocks } from '../core/blockBulk'
@@ -160,6 +161,11 @@ export function BookReader({
 }) {
   const { toast } = useContext(AppUiContext)
   const v2 = useFlag('reader.v2')
+  // Reader v2: each Professional part shows only with its switch (RD-P02 to RD-P32).
+  const sw = useReaderSwitches(v2)
+  // Reader v2 (RD-B42): a page turned from an edge slides in for 180 ms.
+  const [slide, setSlide] = useState<1 | -1 | 0>(0)
+  const slideTimer = useRef(0)
   const rootRef = useRef<HTMLDivElement>(null)
   const [barsAway, setBarsAway] = useState(false)
   const scrolling = useRef<{ el: HTMLElement | null; s: ScrollHide }>({
@@ -830,6 +836,11 @@ export function BookReader({
           })(),
         )
   const turn = (dir: 1 | -1) => {
+    if (v2) {
+      setSlide(dir)
+      window.clearTimeout(slideTimer.current)
+      slideTimer.current = window.setTimeout(() => setSlide(0), 180)
+    }
     if (format === 'pdf') {
       goPage(Math.min(pageCount || 1, Math.max(1, pageNo + dir)))
     } else {
@@ -839,12 +850,15 @@ export function BookReader({
       }))
     }
   }
-  /** A tap in full screen: edges turn the page, the middle shows the bar. */
+  /** A tap in full screen (or, with reader v2, in a paged book): edges turn the page, the middle shows the bar. */
+  const edgeTaps =
+    full || (v2 && (format === 'pdf' ? pdfPaged : epubFlow === 'paginated'))
   const onEdgeTap = (x: number, width: number) => {
-    if (!full) return
+    if (!edgeTaps) return
     const zone = tapZone(x, width)
     if (zone === 'previous') turn(-1)
     else if (zone === 'next') turn(1)
+    else if (!full) setBarsAway((a) => !a)
     else {
       const next = !barShown
       setBarShown(next)
@@ -876,7 +890,7 @@ export function BookReader({
       return toggleZoom(x, y)
     }
     lastTap.current = { x, y, t: now }
-    if (!full) return
+    if (!edgeTaps) return
     tapTimer.current = window.setTimeout(() => {
       lastTap.current = null
       const box = contentRef.current?.getBoundingClientRect()
@@ -912,27 +926,35 @@ export function BookReader({
     setTarget((prev) => ({ at: farAt, nonce: (prev?.nonce ?? 0) + 1 }))
   }
   const moreItems: MenuItem[] = [
-    {
-      label: t('reader.toolBar'),
-      icon: 'pen',
-      onSelect: () => {},
-      submenu: (['simple', 'compact', 'full'] as const).map((m) => ({
-        label: t(`reader.toolBar.${m}` as 'reader.toolBar.simple'),
-        icon: 'pen',
-        checked: penBar === m,
-        onSelect: () => setPenBar(m),
-      })),
-    },
+    ...(sw('reader.penBarStyle')
+      ? [
+          {
+            label: t('reader.toolBar'),
+            icon: 'pen',
+            onSelect: () => {},
+            submenu: (['simple', 'compact', 'full'] as const).map((m) => ({
+              label: t(`reader.toolBar.${m}` as 'reader.toolBar.simple'),
+              icon: 'pen',
+              checked: penBar === m,
+              onSelect: () => setPenBar(m),
+            })),
+          },
+        ]
+      : []),
     {
       label: t('reader.goTo'),
       icon: 'crosshair',
       onSelect: () => setGoTo(true),
     },
-    {
-      label: t('reader.syncFurthest'),
-      icon: 'swap',
-      onSelect: syncFurthest,
-    },
+    ...(sw('reader.syncFurthest')
+      ? [
+          {
+            label: t('reader.syncFurthest'),
+            icon: 'swap' as const,
+            onSelect: syncFurthest,
+          },
+        ]
+      : []),
   ]
   const openPdfTool = (tool: PdfTool) => {
     // Drawing in progress is saved first; the tool then works on the file.
@@ -1397,28 +1419,33 @@ export function BookReader({
       checked: flipOpen,
       onClick: () => setFlipOpen((v) => !v),
     },
-    {
-      id: 'fullscreen',
-      label: t(full ? 'reader.fullscreen.exit' : 'reader.fullscreen'),
-      icon: 'maximize' as const,
-      testId: 'reader-fullscreen',
-      onClick: () => {
-        setBarShown(false)
-        setFull((v) => !v)
-      },
-    },
+    ...(sw('reader.fullScreen')
+      ? [
+          {
+            id: 'fullscreen',
+            label: t(full ? 'reader.fullscreen.exit' : 'reader.fullscreen'),
+            icon: 'maximize' as const,
+            testId: 'reader-fullscreen',
+            onClick: () => {
+              setBarShown(false)
+              setFull((v) => !v)
+            },
+          },
+        ]
+      : []),
   ]
+  const historyItem: BarItem = {
+    id: 'history',
+    label: t('readerv2.more.bar'),
+    icon: 'undo',
+    testId: 'reader-history',
+    rank: 9,
+    w: 92,
+    onClick: () => {},
+    node: <HistoryButtons />,
+  }
   const barItems: BarItem[] = [
-    {
-      id: 'history',
-      label: t('readerv2.more.bar'),
-      icon: 'undo',
-      testId: 'reader-history',
-      rank: 9,
-      w: 92,
-      onClick: () => {},
-      node: <HistoryButtons />,
-    },
+    ...(sw('reader.historyBtns') ? [historyItem] : []),
     ...(format === 'pdf'
       ? [
           {
@@ -1519,7 +1546,7 @@ export function BookReader({
   ]
   const cardGroups: CardGroupDef[] = [
     { label: t('readerv2.more.view'), rows: viewRows },
-    ...(aiOn
+    ...(aiOn && sw('reader.askBook')
       ? [
           {
             label: t('ai.book.button'),
@@ -1654,6 +1681,7 @@ export function BookReader({
         onScrollCapture={v2Bars ? onV2Scroll : undefined}
         data-bars-ready={v2Bars && placed ? '' : undefined}
         data-read-page={look.page}
+        data-slide={slide || undefined}
         className="relative flex min-h-0 flex-1"
         style={{ background: pageSurface(look.page)?.bg }}
         onPointerDownCapture={(e) => {
@@ -1682,7 +1710,7 @@ export function BookReader({
         }}
       >
         <style>{`[data-read-page] [data-pdf-page] canvas{filter:${pdfFilter(look.page)}}[data-pdf-page] .textLayer ::selection{background:var(--select-tint)}`}</style>
-        {look.dim > 0 && (
+        {look.dim > 0 && sw('reader.dim') && (
           <div
             aria-hidden
             data-testid="reader-dim"
@@ -1818,7 +1846,7 @@ export function BookReader({
                 nonce: (c?.nonce ?? 0) + 1,
               }))
             }
-            backTo={flipFrom?.where ?? null}
+            backTo={sw('reader.flipBack') ? (flipFrom?.where ?? null) : null}
             onScrubStart={startScrub}
             onBack={() => {
               const from = flipFrom
@@ -1868,6 +1896,7 @@ export function BookReader({
               <FindPanel
                 doc={pdfDoc}
                 noText={noText}
+                onClose={v2 ? () => setPanel(null) : undefined}
                 onJump={(p) => {
                   setPanel(null)
                   goPage(p)

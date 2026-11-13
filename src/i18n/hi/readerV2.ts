@@ -103,5 +103,6 @@ export const hiReaderV2 = {
   'readerv2.pages.restoreYes': 'वापस लाएँ',
   'readerv2.pages.restoreNo': 'मेरे बदलाव रखें',
   'readerv2.pages.pageName': 'पन्ना {n}',
+  'readerv2.find.clear': 'खोज साफ़ करें',
   'readerv2.pages.tools': 'पन्ने के औज़ार',
 } as const

@@ -46,6 +46,9 @@ export function ReaderInkBar({
   const hl = highlighterSettings.useValue()
   // Reader v2: Lasso waits behind its Professional switch (RD-P18).
   const inkTools = useUnlocked('reader.inkTools')
+  // Reader v2: pen type, highlighter opacity and a custom colour wait behind reader.inkLook (RD-P19).
+  const inkLookOn = useUnlocked('reader.inkLook')
+  const inkLook = !v2 || inkLookOn
   const tools = v2 && !inkTools ? TOOLS.filter((x) => x !== 'lasso') : TOOLS
   // Drawing starts with the Pen.
   useEffect(() => {
@@ -153,7 +156,7 @@ export function ReaderInkBar({
           ))}
         </span>
       )}
-      {mode === 'full' && tool === 'pen' && (
+      {mode === 'full' && inkLook && tool === 'pen' && (
         <select
           data-testid="reader-ink-type"
           aria-label={t('reader.ink.type')}
@@ -170,7 +173,7 @@ export function ReaderInkBar({
           ))}
         </select>
       )}
-      {mode === 'full' && tool === 'highlighter' && (
+      {mode === 'full' && inkLook && tool === 'highlighter' && (
         <label className="flex items-center gap-1 text-sm">
           {t('reader.ink.opacity')}
           <input
@@ -186,22 +189,24 @@ export function ReaderInkBar({
           />
         </label>
       )}
-      {mode === 'full' && (tool === 'pen' || tool === 'highlighter') && (
-        <label className="flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-hover">
-          <span className="sr-only">{t('reader.ink.customColour')}</span>
-          <input
-            type="color"
-            data-testid="reader-ink-custom"
-            value={/^#[0-9a-f]{6}$/i.test(current) ? current : '#000000'}
-            onChange={(e) =>
-              tool === 'highlighter'
-                ? highlighterSettings.update({ colour: e.target.value })
-                : penSettings.update({ colour: e.target.value })
-            }
-            className="size-7 cursor-pointer rounded border border-line bg-transparent p-0"
-          />
-        </label>
-      )}
+      {mode === 'full' &&
+        inkLook &&
+        (tool === 'pen' || tool === 'highlighter') && (
+          <label className="flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-hover">
+            <span className="sr-only">{t('reader.ink.customColour')}</span>
+            <input
+              type="color"
+              data-testid="reader-ink-custom"
+              value={/^#[0-9a-f]{6}$/i.test(current) ? current : '#000000'}
+              onChange={(e) =>
+                tool === 'highlighter'
+                  ? highlighterSettings.update({ colour: e.target.value })
+                  : penSettings.update({ colour: e.target.value })
+              }
+              className="size-7 cursor-pointer rounded border border-line bg-transparent p-0"
+            />
+          </label>
+        )}
       {v2 && (
         <>
           <button

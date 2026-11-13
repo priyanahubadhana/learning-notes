@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useReaderSwitch } from './v2/proSwitches'
 import { t } from '../i18n/t'
 import type { MessageKey } from '../i18n/t'
 import {
@@ -48,8 +49,16 @@ export default function AaSheet({
   onClose: () => void
 }) {
   const epub = format === 'epub'
+  // Reader v2: Professional parts show with their switch (RD-P08 to RD-P12).
+  const layoutOn = useReaderSwitch('reader.layout')
+  const dimOn = useReaderSwitch('reader.dim')
+  const presetsOn = useReaderSwitch('reader.presets')
+  const progressOn = useReaderSwitch('reader.progressStyle')
+  const selMenuOn = useReaderSwitch('reader.selMenu')
   const [tab, setTab] = useState<Tab>(epub ? 'font' : 'layout')
-  const tabs = epub ? TABS : (['layout', 'more'] as const)
+  const tabs = (epub ? TABS : (['layout', 'more'] as const)).filter(
+    (id) => id !== 'themes' || presetsOn,
+  )
   const k = (key: string) => t(key as MessageKey)
   return (
     <div
@@ -119,23 +128,25 @@ export default function AaSheet({
               />
               <span className="w-12 text-end tabular-nums">{size}%</span>
             </label>
-            <label className="flex items-center gap-3 text-sm">
-              <span className="w-16 shrink-0">{t('aa.spacing')}</span>
-              <input
-                type="range"
-                min={1.2}
-                max={2.2}
-                step={0.1}
-                value={look.spacing}
-                data-testid="aa-spacing"
-                aria-label={t('aa.spacing')}
-                onChange={(e) => onLook({ spacing: Number(e.target.value) })}
-                className="min-h-11 flex-1"
-              />
-              <span className="w-12 text-end tabular-nums">
-                {look.spacing.toFixed(1)}
-              </span>
-            </label>
+            {layoutOn && (
+              <label className="flex items-center gap-3 text-sm">
+                <span className="w-16 shrink-0">{t('aa.spacing')}</span>
+                <input
+                  type="range"
+                  min={1.2}
+                  max={2.2}
+                  step={0.1}
+                  value={look.spacing}
+                  data-testid="aa-spacing"
+                  aria-label={t('aa.spacing')}
+                  onChange={(e) => onLook({ spacing: Number(e.target.value) })}
+                  className="min-h-11 flex-1"
+                />
+                <span className="w-12 text-end tabular-nums">
+                  {look.spacing.toFixed(1)}
+                </span>
+              </label>
+            )}
           </>
         )}
         {tab === 'layout' && (
@@ -178,7 +189,7 @@ export default function AaSheet({
                 className="size-5"
               />
             </label>
-            {epub && (
+            {epub && layoutOn && (
               <>
                 <div className="flex gap-2">
                   {(['left', 'justify'] as const).map((a) => (
@@ -211,21 +222,25 @@ export default function AaSheet({
                 </div>
               </>
             )}
-            <label className="flex items-center gap-3 text-sm">
-              <span className="w-16 shrink-0">{t('aa.dim')}</span>
-              <input
-                type="range"
-                min={0}
-                max={60}
-                step={5}
-                value={look.dim}
-                data-testid="aa-dim"
-                aria-label={t('aa.dim')}
-                onChange={(e) => onLook({ dim: Number(e.target.value) })}
-                className="min-h-11 flex-1"
-              />
-            </label>
-            <p className="text-xs text-muted">{t('aa.dim.note')}</p>
+            {dimOn && (
+              <>
+                <label className="flex items-center gap-3 text-sm">
+                  <span className="w-16 shrink-0">{t('aa.dim')}</span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={60}
+                    step={5}
+                    value={look.dim}
+                    data-testid="aa-dim"
+                    aria-label={t('aa.dim')}
+                    onChange={(e) => onLook({ dim: Number(e.target.value) })}
+                    className="min-h-11 flex-1"
+                  />
+                </label>
+                <p className="text-xs text-muted">{t('aa.dim.note')}</p>
+              </>
+            )}
           </>
         )}
         {tab === 'themes' && (
@@ -263,41 +278,47 @@ export default function AaSheet({
         )}
         {tab === 'more' && (
           <>
-            <p className="text-xs text-muted">{t('aa.progress')}</p>
-            <div className="flex gap-2">
-              {PROGRESS.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  data-testid={`aa-progress-${p}`}
-                  aria-pressed={look.progress === p}
-                  className={seg(look.progress === p)}
-                  onClick={() => onLook({ progress: p })}
-                >
-                  {k(`aa.progress.${p}`)}
-                </button>
-              ))}
-            </div>
-            <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
-              {t('aa.clock')}
-              <input
-                type="checkbox"
-                checked={look.clock}
-                data-testid="aa-clock"
-                onChange={(e) => onLook({ clock: e.target.checked })}
-                className="size-5"
-              />
-            </label>
-            <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
-              {t('aa.menuOnSelect')}
-              <input
-                type="checkbox"
-                checked={look.menuOnSelect}
-                data-testid="aa-menu"
-                onChange={(e) => onLook({ menuOnSelect: e.target.checked })}
-                className="size-5"
-              />
-            </label>
+            {progressOn && (
+              <>
+                <p className="text-xs text-muted">{t('aa.progress')}</p>
+                <div className="flex gap-2">
+                  {PROGRESS.map((p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      data-testid={`aa-progress-${p}`}
+                      aria-pressed={look.progress === p}
+                      className={seg(look.progress === p)}
+                      onClick={() => onLook({ progress: p })}
+                    >
+                      {k(`aa.progress.${p}`)}
+                    </button>
+                  ))}
+                </div>
+                <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
+                  {t('aa.clock')}
+                  <input
+                    type="checkbox"
+                    checked={look.clock}
+                    data-testid="aa-clock"
+                    onChange={(e) => onLook({ clock: e.target.checked })}
+                    className="size-5"
+                  />
+                </label>
+              </>
+            )}
+            {selMenuOn && (
+              <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
+                {t('aa.menuOnSelect')}
+                <input
+                  type="checkbox"
+                  checked={look.menuOnSelect}
+                  data-testid="aa-menu"
+                  onChange={(e) => onLook({ menuOnSelect: e.target.checked })}
+                  className="size-5"
+                />
+              </label>
+            )}
             {landGlow && (
               <>
                 <label className="flex min-h-11 items-center justify-between gap-3 text-sm">

@@ -12,10 +12,13 @@ export function FindPanel({
   doc,
   noText,
   onJump,
+  onClose,
 }: {
   doc: PDFDocumentProxy | null
   noText: boolean
   onJump: (page: number) => void
+  /** Reader v2: Esc closes Find, and a ✕ in the field clears it (RD-B45). */
+  onClose?: () => void
 }) {
   const [query, setQuery] = useState('')
   const [hits, setHits] = useState<PdfHit[]>([])
@@ -47,16 +50,38 @@ export function FindPanel({
   const searching = query.trim().length >= 2 && searched < total
   return (
     <div data-testid="pdf-find">
-      <input
-        ref={input}
-        type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder={t('reader.find.placeholder')}
-        aria-label={t('reader.find.placeholder')}
-        data-testid="pdf-find-input"
-        className="mb-2 min-h-11 w-full rounded-lg border border-line bg-bg px-3 text-sm"
-      />
+      <div className="relative">
+        <input
+          ref={input}
+          type={onClose ? 'text' : 'search'}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape' && onClose) {
+              e.stopPropagation()
+              onClose()
+            }
+          }}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t('reader.find.placeholder')}
+          aria-label={t('reader.find.placeholder')}
+          data-testid="pdf-find-input"
+          className="mb-2 min-h-11 w-full rounded-lg border border-line bg-bg ps-3 pe-11 text-sm"
+        />
+        {query && onClose && (
+          <button
+            type="button"
+            aria-label={t('readerv2.find.clear')}
+            data-testid="pdf-find-clear"
+            onClick={() => {
+              setQuery('')
+              input.current?.focus()
+            }}
+            className="absolute end-0 top-0 flex size-11 items-center justify-center rounded-lg text-muted hover:bg-hover"
+          >
+            ✕
+          </button>
+        )}
+      </div>
       {noText && (
         <p className="text-sm text-muted">{t('reader.find.noText')}</p>
       )}

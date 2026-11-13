@@ -102,4 +102,5 @@ export const enLateReaderV2 = {
   'readerv2.pages.restoreNo': 'Keep my edits',
   'readerv2.pages.pageName': 'Page {n}',
   'readerv2.pages.tools': 'Page tools',
+  'readerv2.find.clear': 'Clear search',
 } as const

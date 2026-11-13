@@ -102,5 +102,6 @@ export const esReaderV2 = {
   'readerv2.pages.restoreYes': 'Restaurar',
   'readerv2.pages.restoreNo': 'Conservar mis cambios',
   'readerv2.pages.pageName': 'Página {n}',
+  'readerv2.find.clear': 'Borrar la búsqueda',
   'readerv2.pages.tools': 'Herramientas de página',
 } as const

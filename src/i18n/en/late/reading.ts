@@ -32,6 +32,7 @@ export const enLateReading = {
   'reader.goTo.titleEpub': 'Go to location',
   'reader.goTo.titlePdf': 'Go to page',
   'reader.ink.customColour': 'Custom colour',
+  'reader.book.pictureOutside': 'Picture not shown: it is outside the book',
   'reader.ink.opacity': 'Opacity',
   'reader.ink.size': 'Size',
   'reader.ink.size.0': 'Thin',

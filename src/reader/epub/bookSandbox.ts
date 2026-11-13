@@ -1,3 +1,5 @@
+import { t } from '../../i18n/t'
+
 /**
  * EPUB guard 2 (DECISIONS 13 Nov, "EPUB on iPad"). Book frames run with
  * `allow-same-origin allow-scripts` (WebKit delivers no taps otherwise, bug
@@ -44,6 +46,46 @@ function badAddress(value: string): boolean {
   return v.startsWith('data:') && !SAFE_DATA.test(v)
 }
 
+/** An address that leaves the book (a website), as a browser reads it. */
+function outside(value: string | null | undefined): boolean {
+  // eslint-disable-next-line no-control-regex
+  const v = (value ?? '').replace(/[\u0000- ]/g, '').toLowerCase()
+  return /^(https?:)?\/\//.test(v) || /^(ftp|ws|wss):/.test(v)
+}
+
+const BOX_STYLE =
+  'display:inline-block;box-sizing:border-box;max-width:100%;padding:8px 12px;border:1px dashed color-mix(in srgb,currentColor 30%,transparent);border-radius:8px;font:13px/1.4 sans-serif;color:color-mix(in srgb,currentColor 60%,transparent)'
+
+/** Cuts every outside address out of one element; true when it was an img
+ * that must be replaced (the caller decides between a quiet box and nothing). */
+function dropOutside(el: Element): boolean {
+  const name = el.localName.toLowerCase()
+  const hrefs = ['src', 'srcset', 'poster', 'href', 'xlink:href']
+  const hit = hrefs.some((a) => outside(el.getAttribute(a)?.split(/\s/)[0]))
+  if (!hit) return false
+  if (name === 'img') return true
+  if (name === 'image' || name === 'source' || name === 'video') {
+    if (name === 'image') el.remove()
+    else
+      for (const a of hrefs)
+        if (outside(el.getAttribute(a))) el.removeAttribute(a)
+  }
+  return false
+}
+
+/** Replaces an outside picture with a quiet box, or removes a tracker. */
+function replacePicture(doc: Document, el: Element) {
+  const alt = (el.getAttribute('alt') ?? '').trim()
+  const size = (a: string) => parseFloat(el.getAttribute(a) ?? '') || 0
+  if (!alt && size('width') <= 2 && size('height') <= 2) return el.remove()
+  const ns = el.namespaceURI
+  const box = ns ? doc.createElementNS(ns, 'span') : doc.createElement('span')
+  box.setAttribute('data-outside-picture', '')
+  box.setAttribute('style', BOX_STYLE)
+  box.textContent = alt || t('reader.book.pictureOutside')
+  el.replaceWith(box)
+}
+
 function cleanElement(el: Element) {
   for (const a of Array.from(el.attributes)) {
     const name = a.localName.toLowerCase()
@@ -67,7 +109,11 @@ function cleanDocument(doc: Document) {
       el.remove()
       continue
     }
-    cleanElement(el)
+    if (dropOutside(el)) {
+      replacePicture(doc, el)
+      continue
+    }
+    if (el.isConnected) cleanElement(el)
   }
   const root = doc.documentElement
   if (!root || root.localName.toLowerCase() !== 'html') return // SVG page

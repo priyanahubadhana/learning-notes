@@ -75,6 +75,7 @@ export const hiReading = {
   'reader.goTo.titlePdf': 'पेज पर जाएँ',
   'reader.ink': 'पेन',
   'reader.ink.customColour': 'अपना रंग',
+  'reader.book.pictureOutside': 'चित्र नहीं दिखाया गया: यह किताब के बाहर है',
   'reader.ink.done': 'हो गया',
   'reader.ink.hint':
     'लिखा हुआ अपने पन्ने (PDF) या अनुच्छेद (EPUB) के साथ रहता है।',

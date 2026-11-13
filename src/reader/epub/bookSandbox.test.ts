@@ -135,3 +135,40 @@ describe('the guard is part of our EPUB loader', () => {
     expect(String(await detail.data)).not.toContain('onclick')
   })
 })
+
+describe('pictures from outside the book', () => {
+  const page = (body: string) =>
+    `<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>T</title></head><body>${body}</body></html>`
+  const out = (body: string) => hardenBookPage(page(body), XHTML)
+
+  it('shows a quiet box with the alt text instead of an outside picture', () => {
+    const html = out(
+      '<p><img src="https://t.example/p.png" alt="A sunny hill" width="120" height="60"/></p>',
+    )
+    expect(html).not.toContain('t.example')
+    expect(html).toContain('data-outside-picture')
+    expect(html).toContain('A sunny hill')
+    expect(html).toContain('dashed')
+  })
+  it('uses the translated line when there is no alt text but a real size', () => {
+    const html = out('<img src="//t.example/p.png" width="200" height="100"/>')
+    expect(html).toContain('Picture not shown: it is outside the book')
+  })
+  it('removes a tracker (tiny, no alt text) without a mark', () => {
+    const html = out(
+      '<p>Hi<img src="http://t.example/p.gif" width="1" height="1"/></p>',
+    )
+    expect(html).not.toContain('t.example')
+    expect(html).not.toContain('data-outside-picture')
+    expect(html).toContain('Hi')
+  })
+  it('keeps a picture that is inside the book', () => {
+    expect(out('<img src="pic.svg" alt="x"/>')).toContain('src="pic.svg"')
+  })
+  it('drops outside poster, source and svg image addresses', () => {
+    const html = out(
+      '<video poster="https://t.example/a.png"><source src="https://t.example/v.mp4"/></video><svg xmlns="http://www.w3.org/2000/svg"><image href="https://t.example/i.png"/></svg>',
+    )
+    expect(html).not.toContain('t.example')
+  })
+})

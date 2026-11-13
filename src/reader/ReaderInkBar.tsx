@@ -259,8 +259,9 @@ export function ReaderInkBar({
             <span className="sr-only">{t('reader.ink.customColour')}</span>
             <span
               aria-hidden
-              className="pcard-swatch border border-line"
+              className="pcard-swatch"
               style={{
+                outline: '1.5px solid var(--color-muted)',
                 background: /^#[0-9a-f]{6}$/i.test(current)
                   ? current
                   : 'var(--color-ink)',
@@ -480,8 +481,9 @@ function InkOptions({
               {t('reader.ink.customColour')}
               <span
                 aria-hidden
-                className="pcard-swatch border border-line"
+                className="pcard-swatch"
                 style={{
+                  outline: '1.5px solid var(--color-muted)',
                   background: /^#[0-9a-f]{6}$/i.test(current)
                     ? current
                     : 'var(--color-ink)',

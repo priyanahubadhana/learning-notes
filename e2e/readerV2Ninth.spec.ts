@@ -213,7 +213,8 @@ test('fix 6: phone pen bar is 2 rows; the custom swatch has the shared ring', as
     .first()
     .evaluate((el) => {
       const cs = getComputedStyle(el)
-      return parseFloat(cs.borderTopWidth) >= 1 && cs.borderTopStyle !== 'none'
+      // Final-look fix 2: the ring is the selected-dot ring (an outline; 1.5 px rounds to 1 on Chromium).
+      return parseFloat(cs.outlineWidth) >= 1 && cs.outlineStyle !== 'none'
     })
   expect(ring).toBe(true)
 })

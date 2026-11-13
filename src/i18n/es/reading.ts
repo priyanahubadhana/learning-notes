@@ -75,6 +75,7 @@ export const esReading = {
   'reader.goTo.titlePdf': 'Ir a la página',
   'reader.ink': 'Lápiz',
   'reader.ink.customColour': 'Color personalizado',
+  'reader.book.pictureOutside': 'Imagen no mostrada: está fuera del libro',
   'reader.ink.done': 'Listo',
   'reader.ink.hint': 'El dibujo se queda con su página (PDF) o párrafo (EPUB).',
   'reader.ink.label': 'Dibujar en las páginas del libro',

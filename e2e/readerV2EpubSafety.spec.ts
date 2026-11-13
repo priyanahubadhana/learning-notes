@@ -2,7 +2,7 @@
 /// <reference lib="dom" />
 import type { Frame, Page } from '@playwright/test'
 import { expect, test } from './fixtures/readerReady.ts'
-import { makeEpub, makeHostileEpub } from './fixtures/books.ts'
+import { makeEpub, makeHostileEpub, makePictureEpub } from './fixtures/books.ts'
 
 /**
  * Slice 7 (reader v2), EPUB guard 3 (DECISIONS 13 Nov, "EPUB on iPad"): book
@@ -152,4 +152,14 @@ test('a book picture from another website is never fetched (no "this book was op
   expect(rule).toContain('img-src blob: data:')
   await page.waitForTimeout(1000)
   expect(hits).toEqual([])
+})
+
+test('a blocked outside picture shows a quiet box with its alt text, never a broken-picture icon', async ({
+  page,
+}) => {
+  await openBook(page, makePictureEpub())
+  const frame = await bookFrame(page, 'quick brown fox')
+  const box = frame.locator('[data-outside-picture]')
+  await expect(box).toHaveText('Outside picture')
+  await expect(frame.locator('img[src^="https:"]')).toHaveCount(0)
 })

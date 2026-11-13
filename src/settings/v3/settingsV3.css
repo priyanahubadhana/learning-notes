@@ -389,6 +389,23 @@
   outline: 2px solid var(--color-accent);
 }
 
+/* Where the rail shows (no tab bar), the dock and the sheet stay inside the
+   content card: never over the rail or the card border. */
+@media (min-width: 40rem) and (min-height: 32rem) {
+  .sv3-dock {
+    inset-inline: calc(var(--sh-gap) * 2 + var(--sh-rail) + 1px)
+      calc(var(--sh-gap) + 1px);
+    bottom: calc(var(--sh-gap) + 1px);
+    border-radius: 0 0 calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px);
+    background: var(--color-surface-1);
+  }
+  .sv3-sheet {
+    left: calc(var(--sh-gap) * 2 + var(--sh-rail) + 9px);
+    right: calc(var(--sh-gap) + 9px);
+    bottom: calc(var(--sh-gap) + 69px);
+  }
+}
+
 /* Tablet and up: sections become a column. */
 @media (min-width: 641px) {
   .sv3 {

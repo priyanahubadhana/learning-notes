@@ -19,6 +19,9 @@ import { saveAnnotationTo, saveAnnotationToSummary } from './saveToNotes'
 import { createPage } from '../../pages/pageService'
 
 /** Today's date as the user's own calendar day. */
+/** Daily highlight buttons outside the reader (inside it: the reader v2 pill). */
+const boxBtn =
+  'min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover'
 const today = () => new Date().toLocaleDateString('en-CA')
 
 /**
@@ -161,14 +164,16 @@ export function DailyHighlights({
                   data-testid="daily-make-card"
                   onClick={() => makeCard(a)}
                   disabled={!!a.cardIds?.length}
-                  className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover disabled:opacity-50"
+                  className={
+                    pageId ? 'rv2-pg-chip' : `${boxBtn} disabled:opacity-50`
+                  }
                 >
                   {t('annot.makeCard')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSaving(a)}
-                  className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover"
+                  className={pageId ? 'rv2-pg-chip' : boxBtn}
                 >
                   {t('recall.dailySaveNotes')}
                 </button>
@@ -176,7 +181,11 @@ export function DailyHighlights({
                   type="button"
                   data-testid="daily-seen"
                   onClick={() => finish(a.id)}
-                  className="min-h-11 min-w-11 rounded-lg px-3 text-sm text-muted hover:bg-hover"
+                  className={
+                    pageId
+                      ? 'rv2-pg-chip'
+                      : 'min-h-11 min-w-11 rounded-lg px-3 text-sm text-muted hover:bg-hover'
+                  }
                 >
                   {t('recall.dailySeen')}
                 </button>

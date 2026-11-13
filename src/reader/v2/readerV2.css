@@ -599,11 +599,14 @@
   background: transparent;
   color: var(--color-ink);
   font: inherit;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
 }
 .rv2-pg-chip:hover:not(:disabled) {
   background: var(--color-hover);
+}
+.rv2-pg-chip--danger {
+  color: var(--color-danger);
 }
 .rv2-pg-chip:disabled {
   opacity: 0.4;

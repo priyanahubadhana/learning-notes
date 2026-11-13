@@ -13,6 +13,7 @@ import { t } from '../../i18n/t'
 import { useFlag } from '../../app/flags'
 import { DailyHighlights } from './DailyHighlights'
 import { useReaderSwitch } from '../v2/proSwitches'
+import { ScrollTrack } from '../../design/parts/ScrollTrack'
 import {
   deleteAnnotation,
   exportMarkdown,
@@ -97,8 +98,12 @@ export function AnnotationsPanel({
     setTimeout(() => URL.revokeObjectURL(url), 5000)
   }
 
+  // Gate 3, tenth visit, fix 5: reader v2 uses the Pages tab pill for every button.
+  const rowBtn = 'min-h-11 min-w-11 rounded-lg px-2.5 text-sm hover:bg-hover'
+  const boxBtn =
+    'min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover'
   const chip = (active: boolean) =>
-    `min-h-11 rounded-full border px-3 text-xs ${
+    `min-h-11 shrink-0 rounded-full border px-3 text-xs ${
       active ? 'border-accent bg-accent/10' : 'border-line text-muted'
     }`
   return (
@@ -112,8 +117,8 @@ export function AnnotationsPanel({
       )}
       {filtersOn && (
         <>
-          <div
-            className="flex flex-wrap gap-1.5"
+          <ScrollTrack
+            className="flex gap-1.5"
             role="group"
             aria-label={t('annot.filter.type')}
           >
@@ -136,7 +141,7 @@ export function AnnotationsPanel({
                 {t(`annot.type.${k}`)}
               </button>
             ))}
-          </div>
+          </ScrollTrack>
           <div
             className="flex flex-wrap items-center gap-1"
             role="group"
@@ -226,7 +231,7 @@ export function AnnotationsPanel({
                 <button
                   type="button"
                   onClick={() => setEditing(a)}
-                  className="min-h-11 min-w-11 rounded-lg px-2.5 text-sm text-ink-soft hover:bg-hover"
+                  className={v2 ? 'rv2-pg-chip' : rowBtn}
                 >
                   {t('annot.edit')}
                 </button>
@@ -234,7 +239,7 @@ export function AnnotationsPanel({
                   <button
                     type="button"
                     onClick={() => onMakeCard(a)}
-                    className="min-h-11 min-w-11 rounded-lg px-2.5 text-sm text-ink-soft hover:bg-hover"
+                    className={v2 ? 'rv2-pg-chip' : rowBtn}
                   >
                     {t('annot.makeCard')}
                   </button>
@@ -242,7 +247,11 @@ export function AnnotationsPanel({
                 <button
                   type="button"
                   onClick={() => void remove(a)}
-                  className="min-h-11 min-w-11 rounded-lg px-2.5 text-sm text-danger hover:bg-hover"
+                  className={
+                    v2
+                      ? 'rv2-pg-chip rv2-pg-chip--danger'
+                      : `${rowBtn} text-danger`
+                  }
                 >
                   {t('annot.delete')}
                 </button>
@@ -258,7 +267,7 @@ export function AnnotationsPanel({
               type="button"
               data-testid="make-cards-all"
               onClick={() => onMakeCards(shown.filter((a) => a.quote))}
-              className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover"
+              className={v2 ? 'rv2-pg-chip' : boxBtn}
             >
               {t('recall.cardsFromAll')}
             </button>
@@ -269,14 +278,14 @@ export function AnnotationsPanel({
                 type="button"
                 data-testid="export-copy"
                 onClick={() => void copyAll()}
-                className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover"
+                className={v2 ? 'rv2-pg-chip' : boxBtn}
               >
                 {t('annot.exportCopy')}
               </button>
               <button
                 type="button"
                 onClick={saveFile}
-                className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover"
+                className={v2 ? 'rv2-pg-chip' : boxBtn}
               >
                 {t('annot.exportFile')}
               </button>

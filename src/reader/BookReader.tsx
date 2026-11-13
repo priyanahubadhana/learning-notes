@@ -1757,6 +1757,7 @@ export function BookReader({
                 ? (16 * epubSize * look.spacing) / 100
                 : 24 * zoom
             }
+            within={contentRef.current}
             colours={{
               bg: pageSurface(look.page)?.bg ?? 'var(--color-bg)',
               soft: 'var(--color-line)',

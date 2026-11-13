@@ -448,3 +448,23 @@ test('gate 3 fix 1: the Aa More tab uses the shared switch, no browser checkbox'
   await expect(page.getByTestId('aa-awake')).toHaveAttribute('role', 'switch')
   await expect(page.locator('input[type="checkbox"]')).toHaveCount(0)
 })
+
+test('gate 3 fixes 2 and 3: line focus and the ruler stay on the page, never over the rail or the top bar', async ({
+  page,
+}) => {
+  await openBook(page, 'pdf', ['reader.lineFocus'])
+  const rail = (await page
+    .getByRole('navigation', { name: 'Spaces' })
+    .boundingBox())!
+  const reader = (await page.getByTestId('book-reader').boundingBox())!
+  for (const mode of ['ruler', 'focus'] as const) {
+    await aaMore(page)
+    await page.getByTestId(`aa-ruler-${mode}`).click()
+    await page.getByTestId('aa-close').click()
+    await page.mouse.move(reader.x + reader.width / 2, reader.y + 300)
+    const box = (await page.getByTestId('reading-ruler').boundingBox())!
+    expect(box.x).toBeGreaterThanOrEqual(rail.x + rail.width - 1)
+    expect(box.x + box.width).toBeLessThanOrEqual(reader.x + reader.width + 1)
+    expect(box.y).toBeGreaterThanOrEqual(reader.y - 1)
+  }
+})

@@ -24,11 +24,14 @@ export function ReadingRuler({
   mode,
   lineHeight,
   colours = READING,
+  within,
 }: {
   mode: Exclude<Ruler, 'off'>
   /** One line in pixels (text size × line spacing). */
   lineHeight: number
   colours?: RulerColours
+  /** Keep the band inside this element (the page), not the whole window. */
+  within?: HTMLElement | null
 }) {
   const [y, setY] = useState(() => Math.round(window.innerHeight * 0.4))
 
@@ -68,7 +71,12 @@ export function ReadingRuler({
   }, [lineHeight])
 
   const band = mode === 'focus' ? lineHeight * 2.4 : lineHeight * 1.3
-  const top = Math.max(0, y - band / 2)
+  // Clipped to the page (gate 3 fixes 2 and 3): the app shell stays normal.
+  const box = within?.getBoundingClientRect()
+  const area = box
+    ? { left: box.left, top: box.top, width: box.width, height: box.height }
+    : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }
+  const top = Math.max(0, y - area.top - band / 2)
 
   if (mode === 'focus') {
     return (
@@ -76,7 +84,8 @@ export function ReadingRuler({
         aria-hidden
         data-testid="reading-ruler"
         data-mode="focus"
-        className="pointer-events-none fixed inset-0 z-[75]"
+        className="pointer-events-none fixed z-[75] overflow-hidden"
+        style={area}
       >
         <div
           className="absolute inset-x-0 top-0"
@@ -98,9 +107,11 @@ export function ReadingRuler({
       aria-hidden
       data-testid="reading-ruler"
       data-mode="ruler"
-      className="pointer-events-none fixed inset-x-0 z-[75] border-y-2"
+      className="pointer-events-none fixed z-[75] border-y-2"
       style={{
-        top,
+        left: area.left,
+        width: area.width,
+        top: area.top + Math.min(top, Math.max(0, area.height - band)),
         height: band,
         borderColor: colours.soft,
         background: colours.mark,

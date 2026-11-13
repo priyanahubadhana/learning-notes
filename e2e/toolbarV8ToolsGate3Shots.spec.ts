@@ -85,7 +85,9 @@ async function shoot(page: Page, name: string, tool: string, cardId: string) {
   await expect(page.getByTestId(`v8-card-${cardId}`)).toBeVisible()
   await settle(page)
   await page.screenshot({ path: `${OUT}/${name}.png` })
-  await page.keyboard.press('Escape')
+  // Close by tap, as a finger would: Escape is a key press, so the chip
+  // would rightly get the keyboard focus ring in the next shots.
+  await page.getByRole('button', { name: 'Close' }).click()
 }
 
 for (const [dev, size] of Object.entries(SIZES)) {

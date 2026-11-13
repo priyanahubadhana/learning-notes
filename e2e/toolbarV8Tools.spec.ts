@@ -599,6 +599,21 @@ test('1d gate fixes: a tap on the Actions chip leaves no focus ring; the keyboar
   await expect(actions).not.toHaveCSS('outline-style', 'none')
 })
 
+test('1d gate fixes: Beginner tap-opened then closed Actions card leaves no focus-visible ring after a selection', async ({
+  page,
+}) => {
+  await open(page, 'lasso', 'beginner', [])
+  const actions = chip(page, 'lasso.actions')
+  await actions.click()
+  await expect(card(page, 'lasso.actions')).toBeVisible()
+  await page.getByRole('button', { name: 'Close' }).click()
+  // As in the gate 3 run: focus stays on the chip while Home/End pick words.
+  await actions.focus()
+  await page.keyboard.press('End')
+  await page.keyboard.press('Shift+Home')
+  await expect(actions).toHaveCSS('outline-style', 'none')
+})
+
 test('1d gate fixes: iPad portrait Edit picture card never covers the picture; the box tab and ⋯ step aside', async ({
   page,
 }) => {

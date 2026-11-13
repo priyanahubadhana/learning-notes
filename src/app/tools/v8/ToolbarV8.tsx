@@ -57,10 +57,17 @@ export default function ToolbarV8() {
     const root = document.documentElement
     const pointer = () => root.setAttribute('data-v8-pointer', '')
     const key = () => root.removeAttribute('data-v8-pointer')
+    // Only keys that move or act on focus bring the ring back: typing or
+    // Home/End in the text must not light up a chip a tap left focused.
+    const NAV = /^(Tab|Arrow|Escape$|Enter$| $|F6$)/
     // Watch only (never "handled"), ahead of everyone else.
     const first = { priority: PRIORITY.gesture + 1, name: 'v8-ring-modality' }
     const offPointer = onRouted('pointerdown', () => void pointer(), first)
-    const offKey = onRouted('keydown', () => void key(), first)
+    const offKey = onRouted(
+      'keydown',
+      (e) => void (NAV.test(e.key) && key()),
+      first,
+    )
     return () => {
       offPointer()
       offKey()

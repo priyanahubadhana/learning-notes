@@ -2,6 +2,7 @@
 
 ## Needs you
 
+- Needs you (13 Nov, the bugs-only rule has expired): open docs/HANDOFF.md with the owner, list the tasks carried forward repeatedly, and decide them.
 - Owner: when ready, add your test API key in Settings > AI (cap about $5); never paste it in chat.
 - Needs your OK (13 Nov, not applied): a proposed gate-2 rule, "report only spec gaps and breakages, not style". Until you say yes, gate 2 reports style as well.
 - DONE 13 Nov: Claude connector A tested by the owner on the PC (list, create notebook, append, revoke, reconnect all passed; safety switch passed in tests). It is registered with Claude Code (user scope), not Claude Desktop.

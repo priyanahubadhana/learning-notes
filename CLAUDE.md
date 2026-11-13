@@ -37,15 +37,15 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 
 ### Owner settings (change only on the owner's word; log each change in docs/DECISIONS.md)
 
-| Setting | Current value |
-| --- | --- |
-| Build manager | Opus (`economy-orchestrator`), restart about every 6 waves |
-| Builders | Sonnet, up to 8 on non-overlapping files (6 if rework or flakes rise) |
-| Mechanical work, search | Haiku |
-| Gate 2 | Opus |
-| Fable | brief check before building, gate 3, hard cases, reviews |
-| Weekly quota | 80% is a reference, not a cap |
-| Priority | first full build fast, then the remaining slices; quality first |
+| Setting                 | Current value                                                         |
+| ----------------------- | --------------------------------------------------------------------- |
+| Build manager           | Opus (`economy-orchestrator`), restart about every 6 waves            |
+| Builders                | Sonnet, up to 8 on non-overlapping files (6 if rework or flakes rise) |
+| Mechanical work, search | Haiku                                                                 |
+| Gate 2                  | Opus                                                                  |
+| Fable                   | brief check before building, gate 3, hard cases, reviews              |
+| Weekly quota            | 80% is a reference, not a cap                                         |
+| Priority                | first full build fast, then the remaining slices; quality first       |
 
 ## Always Apply (owner never repeats these)
 

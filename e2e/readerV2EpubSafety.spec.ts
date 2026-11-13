@@ -132,3 +132,24 @@ test('book frames take events on WebKit: the frame sandbox allows scripts and ke
   )
   expect(first).toContain("script-src 'none'")
 })
+
+test('a book picture from another website is never fetched (no "this book was opened" signal)', async ({
+  page,
+}) => {
+  const hits: string[] = []
+  await page.route('https://tracker.example/**', (route) => {
+    hits.push(route.request().url())
+    return route.fulfill({ status: 200, body: '' })
+  })
+  await openBook(page, makeHostileEpub())
+  const frame = await bookFrame(page, 'quick brown fox')
+  const rule = await frame.evaluate(
+    () =>
+      Array.from(document.head?.children ?? [])
+        .find((c) => c.localName !== 'style')
+        ?.getAttribute('content') ?? '',
+  )
+  expect(rule).toContain('img-src blob: data:')
+  await page.waitForTimeout(1000)
+  expect(hits).toEqual([])
+})

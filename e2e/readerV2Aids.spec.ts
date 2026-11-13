@@ -152,8 +152,32 @@ async function doubleTap(page: Page) {
   const box = (await page.getByTestId('pdf-scroller').boundingBox())!
   const x = box.x + box.width / 2
   const y = box.y + box.height / 2
-  await page.mouse.click(x, y)
-  await page.mouse.click(x, y)
+  // Both taps fire inside one evaluate, so the 320 ms app rule is not at the
+  // mercy of two slow round trips on WebKit.
+  await page.getByTestId('pdf-scroller').evaluate(
+    (el, p) => {
+      const fire = (type: string) =>
+        el.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            pointerId: 1,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: p.x,
+            clientY: p.y,
+            button: 0,
+            buttons: type === 'pointerup' ? 0 : 1,
+          }),
+        )
+      for (let i = 0; i < 2; i++) {
+        fire('pointerdown')
+        fire('pointerup')
+      }
+    },
+    { x, y },
+  )
 }
 
 test('RD-P25 reader.gestures: double-tap zoom only with the switch', async ({

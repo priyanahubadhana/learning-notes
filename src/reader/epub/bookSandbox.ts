@@ -3,11 +3,14 @@
  * `allow-same-origin allow-scripts` (WebKit delivers no taps otherwise, bug
  * 218086), so no book may bring code: every page is cleaned before it becomes
  * a frame, and gets a "no scripts" rule of its own that holds even where the
- * site header is missing (dev server, a preview host).
+ * site header is missing (dev server, a preview host). Pictures and media may
+ * only come from the book itself (blob:/data:): an outside address would tell
+ * its website that the book was opened.
  */
 
 /** The rule put first in every book page's head. */
-export const BOOK_PAGE_CSP = "script-src 'none'; object-src 'none'"
+export const BOOK_PAGE_CSP =
+  "script-src 'none'; object-src 'none'; img-src blob: data:; media-src blob: data:"
 
 const XHTML_NS = 'http://www.w3.org/1999/xhtml'
 

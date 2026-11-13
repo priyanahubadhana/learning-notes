@@ -34,6 +34,7 @@ import { pageAddressItem } from '../pages/pageAddressMenu'
 import { editLockItem } from '../app/lock/editLockMenu'
 import { useLockItem } from '../app/lock/lockMenu'
 import { CardsTab } from '../recall/CardsTab'
+import { useFlag } from '../app/flags'
 import { ReviseTab } from '../revise/ReviseTab'
 import type { ReviewScope } from '../recall/reviewService'
 import type { SearchHit } from '../search/searchQuery'
@@ -57,6 +58,9 @@ interface NotebookScreenProps {
   onClose: () => void
 }
 
+const CardsTabV2 = lazy(() =>
+  import('./study/CardsTabV2').then((m) => ({ default: m.CardsTabV2 })),
+)
 const ExportDialog = lazy(() =>
   import('../share/export/ExportDialog').then((m) => ({
     default: m.ExportDialog,
@@ -92,6 +96,7 @@ export function NotebookScreen({
   }
   const { toast } = useContext(AppUiContext)
   const lockItem = useLockItem(db, 'notebook', notebook.id, !!notebook.locked)
+  const studyV2 = useFlag('study.v2')
   const [menu, setMenu] = useState<DOMRect | null>(null)
   const [renaming, setRenaming] = useState<NotebookTab | null>(null)
   const [exporting, setExporting] = useState(false)
@@ -291,14 +296,25 @@ export function NotebookScreen({
               onReview={onReview}
             />
           )}
-          {active?.kind === 'cards' && (
-            <CardsTab
-              db={db}
-              notebookId={notebook.id}
-              onOpenHit={onOpenHit}
-              onReview={onReview}
-            />
-          )}
+          {active?.kind === 'cards' &&
+            (studyV2 ? (
+              <Suspense fallback={null}>
+                <CardsTabV2
+                  db={db}
+                  notebookId={notebook.id}
+                  onOpenHit={onOpenHit}
+                  onReview={onReview}
+                  onMakeCard={() => onCreatePage(notebook.id)}
+                />
+              </Suspense>
+            ) : (
+              <CardsTab
+                db={db}
+                notebookId={notebook.id}
+                onOpenHit={onOpenHit}
+                onReview={onReview}
+              />
+            ))}
         </div>
 
         {menu && (

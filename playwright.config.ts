@@ -82,6 +82,7 @@ export default defineConfig({
         /parts-gallery/,
         /pencilIsolation/,
         /updateV2/,
+        /study-v2/,
         /security-m1-/,
         /chromeIsolation/,
         /penTapChrome/,

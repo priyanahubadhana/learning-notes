@@ -29,6 +29,7 @@ import { enLateShell } from './shell'
 import { enLateAiBuild } from './aibuild'
 import { enLateAiJobs } from './aijobs'
 import { enLateReviewV2 } from './reviewV2'
+import { enLateStudyV2 } from './studyV2'
 import { enLateAiPlan } from './aiplan'
 import { enParts } from '../parts'
 import { enV2Notebooks } from '../v2/notebooks'
@@ -67,6 +68,7 @@ export const enLate = {
   ...enLateAiBuild,
   ...enLateAiJobs,
   ...enLateReviewV2,
+  ...enLateStudyV2,
   ...enLateAiPlan,
   ...enParts,
   ...enV2Notebooks,

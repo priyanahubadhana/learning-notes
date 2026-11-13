@@ -1,0 +1,69 @@
+/* Review card editor (slice 15): tokens only. */
+.card-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+}
+.card-editor__label {
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.card-editor__field {
+  width: 100%;
+  min-height: 96px;
+  padding: 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font: inherit;
+  resize: vertical;
+}
+.card-editor__field:focus {
+  border-color: var(--color-accent);
+  outline: none;
+}
+.card-editor__field[readonly] {
+  background: var(--color-soft);
+}
+.card-editor__answer {
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--color-soft);
+}
+.card-editor__answer p {
+  margin: 0 0 6px;
+}
+.card-editor__hint {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+.card-editor__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 16px;
+}
+.card-editor__status {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+.card-editor__open {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+}
+/* Phone: a bottom sheet, at most 90% high (docked right from 1024 px). */
+@media (max-width: 639px) {
+  .fb-sheet[data-testid='study-card-editor'] {
+    inset: auto 0 0 0;
+    height: auto;
+    max-height: 90dvh;
+    border-radius: 18px 18px 0 0;
+  }
+}

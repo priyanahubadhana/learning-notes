@@ -30,8 +30,8 @@ Repeat-fault list (docs/ECONOMY-MODE.md section 7), ticked against these picture
 
 - [x] thin scroll track under cut-off rows: none cut off in strip, rowstrip, settings
 - [ ] toast above the phone tab bar: FAIL, chip-phone-*-professional: the "Pasted as" chip sits on the phone tab bar and covers its labels (needs a source fix, not done here)
-- [x] sidebar closed on iPad portrait: the sidebar is open in chooser-ipadP-*, chip-ipadP-* and settings-ipadP-* (it was opened by the row-strip step); not closed - FAIL for those three, same cause as the shot flow
+- [ ] sidebar closed on iPad portrait: FAIL in chooser-ipadP-*, chip-ipadP-*, settings-ipadP-* (the shot flow opens it for the row strip; strip-, paste-, sheet-ipadP-* have it closed)
 - [x] shared parts only, Lucide icons, one button style: yes in all pictures
-- [x] no key names on touch screens: the chooser footer reads "Enter = default, Esc = cancel the paste" on ipad and phone - FAIL, existing text of the chooser
+- [ ] no key names on touch screens: FAIL, the existing chooser footer reads "Enter = default, Esc = cancel the paste" on iPad and phone (chooser-*)
 - [x] Light, Dark, Sepia; real data; tips and toasts closed: yes (the chip itself is the feature shown)
 - [x] both levels; iPad landscape and portrait, phone, PC: yes

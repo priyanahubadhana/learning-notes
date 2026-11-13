@@ -25,9 +25,12 @@ const FIELD = 'min-h-11 rounded-lg border-2 border-ink-soft bg-bg px-3 text-sm'
 export function TimerCard({
   db,
   projects,
+  bare,
 }: {
   db: LearningNotesDB
   projects: readonly Project[]
+  /** Inside a Home v2 widget: the widget draws the frame and the title. */
+  bare?: boolean
 }) {
   const running = useRunning(db)
   const now = useNow(!!running)
@@ -87,9 +90,11 @@ export function TimerCard({
     <section
       aria-label={t('home.timer')}
       data-testid="timer-card"
-      className="rounded-xl border border-line p-3"
+      className={bare ? '' : 'rounded-xl border border-line p-3'}
     >
-      <h3 className="mb-2 text-sm font-semibold">{t('home.timer')}</h3>
+      {!bare && (
+        <h3 className="mb-2 text-sm font-semibold">{t('home.timer')}</h3>
+      )}
       <div className="mb-3 text-center">
         <div
           data-testid="timer-clock"

@@ -126,7 +126,9 @@ export const enSidebar = {
   'space.home.soon':
     'Your day will live here: top priorities, tasks and a focus timer. For now, open today’s journal.',
   'space.home.title': 'Today',
+  'space.home.side': 'Your day is on the Home board.',
   'space.home.today': 'Open today’s journal ({date})',
+  'space.home.todayShort': 'Open today’s journal',
   'space.library': 'Library',
   'space.library.import': 'Import',
   'space.library.importSoon': 'Importing books comes with the Library.',

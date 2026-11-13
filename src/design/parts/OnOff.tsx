@@ -60,7 +60,7 @@ export function OnOff({
 }
 
 export type OnOffChoiceProps<V extends string | number> = {
-  options: readonly { value: V; label: string }[]
+  options: readonly { value: V; label: string; testId?: string }[]
   value: V
   onChange(next: V): void
   /** Screen-reader name of the whole group. */
@@ -69,6 +69,8 @@ export type OnOffChoiceProps<V extends string | number> = {
   testId?: string
   /** Id of the element that describes this group. */
   describedBy?: string
+  /** Fill the row: every choice the same width, long words wrap (phones). */
+  block?: boolean
 }
 
 /**
@@ -83,6 +85,7 @@ export function OnOffChoice<V extends string | number>({
   disabled,
   testId,
   describedBy,
+  block,
 }: OnOffChoiceProps<V>) {
   const group = useRef<HTMLDivElement>(null)
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -109,7 +112,7 @@ export function OnOffChoice<V extends string | number>({
       aria-describedby={describedBy}
       aria-disabled={disabled || undefined}
       data-testid={testId}
-      className="onoff-choice"
+      className={block ? 'onoff-choice onoff-block' : 'onoff-choice'}
       onKeyDown={onKey}
     >
       {options.map((o, i) => {
@@ -125,6 +128,7 @@ export function OnOffChoice<V extends string | number>({
             tabIndex={stop ? 0 : -1}
             disabled={disabled}
             className="onoff-opt"
+            data-testid={o.testId}
             onClick={() => onChange(o.value)}
           >
             {o.label}

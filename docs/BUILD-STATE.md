@@ -1,4 +1,4 @@
-# Build state (snapshot 13 Nov 2026, 00:05 IST)
+# Build state (13 Nov 2026; read "Run 4 handover" at the bottom FIRST, it overrides older lines)
 
 One file a new orchestrator reads to continue the build. Plan: [plans/build-master-plan.md](plans/build-master-plan.md) (read only the section of the slice you are working on). Economy setup: [ECONOMY-MODE.md](ECONOMY-MODE.md).
 
@@ -187,3 +187,14 @@ Full text: `docs/DECISIONS.md` "Decisions to review" on `build/next`. Build-nigh
 - 7 Reader v2 63c402d9: gate-2 fixes done (LockMenu below bar stack; red-first proof). **Touched hot file playwright.config.ts**: added readerV2 specs to ipad-webkit, click wait 30 s, and excluded 4 chromium-specific tests + readerV2StickyEpub on ipad-webkit. Gate 2 must judge this against "never weaken/skip" (safest: keep the specs added, drop the longer wait if it is global, and make exclusions explicit `test.skip(browserName)` with reasons, or fix them). Then gate 3 on screenshots/s7/v2 and v3. npm script for check-reader-nothing-lost still missing (hot file).
 - Gate 3 follow-ups logged in gate3 file: 3 (phone chips track, more pictures), 4 (help bubble, iPad night chips outline), shell (gear menu glyphs, dim Night/Sepia labels).
 - Still to do after merges: iPad storage-safety slice, release first full preview, owner iPad checklist (BUG-002, connector, key flows), then "preview ready" to main chat.
+
+## Run 4 handover (waves 12-14) - CURRENT TRUTH
+
+- build/next head 4af60d84: contains 0g follow-ups, 3, 12, 4, main merged (PR #5 auto-CI works again). CI 43390562339: only `e2e/foundationInput.spec.ts:14` line 31 red (`not.toContain('eventRouter: handler')`): slice 4 useRowHold loads gestureRouter -> eventRouter at start, on purpose. Decided fix (not weakening): replace that assert with a positive one that the routers load via the row hold, keep checks that other foundation modules stay out of first load; update foundation-input.md line + DECISIONS; commit needs `test-guard-reason:`. Integration builder does it.
+- Then batch merge (one CI): 6 36c80f8d (gate 2+3 PASS; delete its duplicate ScrollTrack/.h-track, keep 4's) + 9b 11bd7c96 (gate 2+3 PASS) + 5 cf445f7c (gate 2+3 PASS; same ScrollTrack dedupe).
+- perf-start e66e39ee (ln-sperf; WebKit start 15 s -> 1.2 s): gate 2 FAIL, add tests: upgrade (notebook v1/v2 gets only newer `since` starters), trashed starter never re-added. Hot files App.tsx + playwright.config.ts: merge alone after.
+- 7 Reader v2 4a083c0c: test weakening undone. Gate 2 FAIL 1: public/_headers `frame-ancestors 'none'` blanks EPUB on Safari/iPad (real bug, all users) -> `'self'`, then drop the 4 webkit EPUB skips. Gate 3 FAIL 8 fixes (gate3 file "Seventh visit"); failed gate 3 twice -> Opus builder. Reader is OUT of the first preview (coordinator).
+- 1d toolbar built (ln-s1 1a4d878f): needs gate 2 + gate 3 (screenshots/gate3-1/1d) and an ipad-webkit `toolbarV8` testMatch line in playwright.config.ts (hot, integration). Confirm Paste in TB-33 vs slice 12 Won't do.
+- Test-guard hook strengthened (eb9301d3); its Bash delete check needs a settings.json hook entry: Needs you (config).
+- Still open: shell toast position + sidebar default fix (coordinator item 3); repeat-faults list = docs/plans/orchestration-review-2026-11-13.md fix list, cite in every brief; ci.yml cannot skip weekly webkit on dispatch (left as is).
+- Then: iPad storage-safety slice, first full preview (all but Reader), owner iPad checklist, "preview ready".

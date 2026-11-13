@@ -62,6 +62,7 @@ export const esLibraryV2 = {
   'lib2.knowledge.bookOrder': 'Orden del libro',
   'lib2.knowledge.byColour': 'Color',
   'lib2.knowledge.colour': 'Color',
+  'lib2.knowledge.anyColour': 'Cualquier color',
   'lib2.knowledge.empty':
     'Aún no hay destacados. Destaca mientras lees y todo aparecerá aquí.',
   'lib2.knowledge.filters': 'Filtros de destacados',
@@ -95,6 +96,7 @@ export const esLibraryV2 = {
   'lib2.pro.status': 'Estado',
   'lib2.pro.type': 'Tipo',
   'lib2.recent': 'Recientes',
+  'lib2.recent.none': 'Nada aún.',
   'lib2.saved': 'Guardado',
   'lib2.search': 'Buscar en la biblioteca',
   'lib2.search.books': 'Libros',

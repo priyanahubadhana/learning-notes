@@ -311,7 +311,7 @@ Each commit ships behind `home.v2`, with its HM tests and screenshots.
 ## Decisions to review
 
 - **D1 Time range builder is for everyone.** shared-parts D6 proposed a Professional id `home.timeRangeBuilder`. The owner's round 2 says "Edit period bar visible for all". Pick: Beginner and Professional both get Edit time range; no new unlock id. Change shared-parts SP-10 and its SP-P06 line to match.
-- **D2 Beginner sees 4 cards** (Top 3, Tasks, Pending items, Daily Highlight) as the owner's earlier pick; the rest is in "Add a card". Existing users keep all current features as cards. The mock's Planner has 9 cards in every view; this is a choice.
+- **D2 Default layout** (accepted at gate 3): Cards (S), Record (S), Briefing (M), Top 3 (M), Pending items (M), Timer (M). The Pending items card shows its title as "n open" (e.g. "5 open"); the rest is in "Add a card". Existing users keep all current features as cards. The mock's Planner has 9 cards in every view; this is a choice.
 - **D3 Sizes in Beginner.** `pro-features.md` says M and L are Pro, the mock shows S/M/L to everyone. Pick: Beginner = default size and S, Pro = S/M/L. A saved bigger size is never shrunk if the switch goes off.
 - **D4 Old tabs stay as full screens** (Tasks, Plan, Routines, Reports) opened from cards, since the mock's cards are summaries (no matrix, no upcoming, no projects). Dropping them would lose features.
 - **D5 Grid logic.** The mock's drag (HOME 10640-10710) only shows a drop line and reorders on release; live reflow, wide-between-small and snap are new. Pick: order-based dense grid (`layoutGrid`) so layouts stay simple to save; a hole larger than one cell is "impossible".

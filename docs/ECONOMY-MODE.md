@@ -198,3 +198,15 @@ Goal: a little more speed with no loss of quality or design. Nothing here change
 10. **Fewer orchestrator restarts:** about every 6 waves (was 3), or sooner when its context is heavy. The tables of docs/BUILD-STATE.md are kept current after every merge, so a restart stays cheap.
 
 Expected gain (an estimate, not measured): about 10 to 15 minutes per CI run from rules 5 and 7, 1 to 2 hours per batch of 3 from rule 4, about one gate round (1 to 2 hours) per screen slice from rules 8 and 9. Roughly 25 to 35% less running time to the first full preview.
+
+## 12. Test guard and batch CI (13 Nov 2026, owner approved)
+
+**Test guard hook** (`.claude/hooks/guard-tests.mjs`). Nothing here loosens a test; the hook now blocks more:
+
+- Always blocked: new `.only`, fewer `expect()` calls, emptied test files.
+- Blocked unless a reason is given: raising `timeout`, `actionTimeout`, `navigationTimeout`, expect timeout, `test.setTimeout` or `retries`; adding `test.slow`, `grepInvert` or `testIgnore`; new `.skip(` / `.fixme(`; deleting a test file (`rm`, `git rm`, `Remove-Item`) in a Bash command.
+- Reason channel (the hook cannot see commit messages): the same added line, or the line just above it, carries a comment `test-guard-reason: <at least 5 words>`. For a Bash delete the comment goes inside the command. The commit message must repeat the reason. A builder only uses this when the owner or Fable has approved the exception; otherwise stop and report.
+- Lowering a timeout is allowed.
+- The Bash branch (file deletes) only works once settings.json has a Bash entry that runs this file; that settings change is not made yet (open owner decision).
+
+**Batch CI** (owner decision): one full CI run may cover up to 3 slices that have each passed gate 2 and gate 3. A red run is bisected one slice at a time (take the last merge out, run again). Tests are never skipped, and nothing reaches `main` without a green run.

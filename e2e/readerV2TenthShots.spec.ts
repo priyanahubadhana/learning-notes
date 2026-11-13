@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 import type { Page } from '@playwright/test'
 import { expect, test } from '@playwright/test'
-import { makePdf } from './fixtures/books.ts'
+import { makeEpub, makePdf } from './fixtures/books.ts'
 
 /**
  * Pictures for gate 3, tenth visit (Reader v2): the Settings Preview pill in
@@ -217,3 +217,56 @@ for (const { level, theme, name, viewport } of shots)
     }
     await context.close()
   })
+
+// Final look, fix 3: an open EPUB with its text, on WebKit at iPad size.
+test('shot v6 WebKit EPUB open with text', async ({ browser, browserName }) => {
+  test.skip(!process.env.SHOTS || browserName !== 'webkit', 'pictures only')
+  const context = await browser.newContext({
+    viewport: SIZES['ipad-land'],
+    hasTouch: true,
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: `http://localhost:${process.env.PW_PORT}`,
+          localStorage: [
+            { name: 'learning-notes:devicePicker.done', value: 'true' },
+            { name: 'learning-notes:onboarding.done', value: 'true' },
+            { name: 'learning-notes:accountGate.off', value: '1' },
+          ],
+        },
+      ],
+    },
+  })
+  const page = await context.newPage()
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/?flags=reader.v2')
+  await page.addStyleTag({ content: HIDE_TOASTS })
+  const menu = page.getByRole('button', { name: 'Open menu' })
+  if (await menu.isVisible()) await menu.click()
+  await page
+    .getByRole('navigation', { name: 'Spaces' })
+    .getByRole('button', { name: 'Space: Library' })
+    .click()
+  await page.getByTestId('library-file').setInputFiles({
+    name: 'story.epub',
+    mimeType: 'application/epub+zip',
+    buffer: makeEpub('The Story'),
+  })
+  await page.getByRole('button', { name: 'Start reading' }).click()
+  await expect(page.getByTestId('book-reader')).toBeVisible()
+  await expect
+    .poll(async () => {
+      for (const f of page.frames().slice(1)) {
+        const text = await f
+          .evaluate(() => document.body?.innerText ?? '')
+          .catch(() => '')
+        if (text.includes('quick brown fox')) return true
+      }
+      return false
+    })
+    .toBe(true)
+  await page.waitForTimeout(500)
+  await page.screenshot({ path: `${OUT}/epub-open-webkit-ipad-land.png` })
+  await context.close()
+})

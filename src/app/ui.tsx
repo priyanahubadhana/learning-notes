@@ -16,6 +16,7 @@ import { touchUi } from './touchUi'
 import { useKeyboardInset } from '../settings/deviceModeSettings'
 import type { ChoiceRequest, ToastAction } from './appUi'
 import { toastBottom } from './toastTiming'
+import { LAYERS } from './overlay/layers'
 import { Glyph, Icon } from './tools/icons'
 
 /** Small UI building blocks shared across features. */
@@ -453,8 +454,9 @@ export function Toast({
       // the pill's height (62 px) under the person's pen.
       data-popup-trigger
       data-toast
-      style={{ bottom: toastBottom(kb) }}
-      className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl phone:bottom-[calc(var(--sh-tabbar,56px)+env(safe-area-inset-bottom,0px)+16px)] border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
+      // The toast layer of the one stacking scale: above every open card (gate 3).
+      style={{ bottom: toastBottom(kb), zIndex: LAYERS.toast }}
+      className="fixed bottom-5 left-1/2 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl phone:bottom-[calc(var(--sh-tabbar,56px)+env(safe-area-inset-bottom,0px)+16px)] border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
     >
       <span>{message}</span>
       {action && (

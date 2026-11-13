@@ -147,3 +147,75 @@ export const noteRun = (
   now: number,
 ): Workflow[] =>
   list.map((w) => (w.id === id ? { ...w, uses: w.uses + 1, lastRun: now } : w))
+
+// ---- Saved views (A4) ----
+
+export interface SavedView {
+  id: string
+  name: string
+  filter: WfFilter
+}
+
+const VIEWS_KEY = 'aifw.workflowViews'
+const isFilter = (v: unknown): v is WfFilter => {
+  const f = v as WfFilter
+  return (
+    !!f &&
+    typeof f === 'object' &&
+    typeof f.q === 'string' &&
+    Array.isArray(f.tagIds) &&
+    f.tagIds.every((x) => typeof x === 'string') &&
+    (f.tagMatch === 'any' || f.tagMatch === 'all') &&
+    Array.isArray(f.forTypes) &&
+    f.forTypes.every((x) => typeof x === 'string') &&
+    typeof f.minRating === 'number' &&
+    typeof f.minUses === 'number' &&
+    (SORTS as readonly string[]).includes(f.sort)
+  )
+}
+const isViews = (v: unknown): v is SavedView[] =>
+  Array.isArray(v) &&
+  v.every((x) => {
+    const w = x as SavedView
+    return (
+      !!w &&
+      typeof w.id === 'string' &&
+      typeof w.name === 'string' &&
+      isFilter(w.filter)
+    )
+  })
+
+export const loadViews = (): SavedView[] => readPref(VIEWS_KEY, isViews, [])
+export const saveViews = (list: readonly SavedView[]): void =>
+  writePref(VIEWS_KEY, list.slice(0, 50))
+
+/** Adds a view; a blank name or a name already used (any case) adds nothing. */
+export function addView(
+  list: readonly SavedView[],
+  name: string,
+  filter: WfFilter,
+  id: string,
+): SavedView[] {
+  const n = name.trim().slice(0, 60)
+  if (!n || list.some((v) => v.name.toLowerCase() === n.toLowerCase()))
+    return [...list]
+  return [...list, { id, name: n, filter: { ...filter } }]
+}
+
+export const removeView = (
+  list: readonly SavedView[],
+  id: string,
+): SavedView[] => list.filter((v) => v.id !== id)
+
+const same = (a: readonly string[], b: readonly string[]) =>
+  a.length === b.length && a.every((x) => b.includes(x))
+
+/** Two filters give the same list (tag and type order does not matter). */
+export const sameFilter = (a: WfFilter, b: WfFilter): boolean =>
+  a.q.trim() === b.q.trim() &&
+  a.tagMatch === b.tagMatch &&
+  a.minRating === b.minRating &&
+  a.minUses === b.minUses &&
+  a.sort === b.sort &&
+  same(a.tagIds, b.tagIds) &&
+  same(a.forTypes, b.forTypes)

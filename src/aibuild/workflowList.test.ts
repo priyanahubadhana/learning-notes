@@ -8,7 +8,12 @@ import {
   clearAll,
   clearChip,
   filterWorkflows,
+  addView,
+  loadViews,
   loadWorkflows,
+  removeView,
+  saveViews,
+  sameFilter,
   noteRun,
   saveWorkflows,
   type Workflow,
@@ -148,5 +153,38 @@ describe('Workflows keep (SW-5)', () => {
   it('bad stored data gives an empty list, never a crash', () => {
     localStorage.setItem('learning-notes:aifw.workflows', '{"x":1}')
     expect(loadWorkflows()).toEqual([])
+  })
+})
+
+describe('Workflows saved views (A4)', () => {
+  const f = { ...EMPTY_FILTER, minRating: 4, tagIds: ['a'] }
+  it('a view keeps the whole filter and sort, with a trimmed name', () => {
+    const v = addView([], '  Best audio ', { ...f, sort: 'used' }, 'v1')
+    expect(v).toEqual([
+      { id: 'v1', name: 'Best audio', filter: { ...f, sort: 'used' } },
+    ])
+  })
+  it('a blank name or a name already used makes no view', () => {
+    expect(addView([], '   ', f, 'v1')).toEqual([])
+    const one = addView([], 'Best', f, 'v1')
+    expect(addView(one, 'best', f, 'v2')).toEqual(one)
+  })
+  it('sameFilter follows the result, not the order of tags', () => {
+    expect(sameFilter(f, { ...f })).toBe(true)
+    expect(sameFilter(f, { ...f, minRating: 3 })).toBe(false)
+    expect(
+      sameFilter({ ...f, tagIds: ['a', 'b'] }, { ...f, tagIds: ['b', 'a'] }),
+    ).toBe(true)
+  })
+  it('removes one view and keeps the rest', () => {
+    const two = addView(addView([], 'A', f, 'v1'), 'B', EMPTY_FILTER, 'v2')
+    expect(removeView(two, 'v1').map((v) => v.id)).toEqual(['v2'])
+  })
+  it('saves and loads; bad stored data gives none', () => {
+    const one = addView([], 'A', f, 'v1')
+    saveViews(one)
+    expect(loadViews()).toEqual(one)
+    localStorage.setItem('learning-notes:aifw.workflowViews', '[{"id":1}]')
+    expect(loadViews()).toEqual([])
   })
 })

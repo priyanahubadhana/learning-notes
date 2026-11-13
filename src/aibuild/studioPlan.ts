@@ -94,3 +94,16 @@ export function studioCost(
     perStepInr: est.steps.map((s) => s.inr),
   }
 }
+
+export interface Placement {
+  id: string
+  /** Names the text "Notes tab", "Cards deck" … (aifw.studio.place.<place>). */
+  place: string
+}
+
+/** One row per ticked tile, in the order they run: what it makes and where it lands. */
+export const placements = (sel: readonly string[]): Placement[] =>
+  STUDIO_TILES.filter((x) => sel.includes(x.id)).map((x) => ({
+    id: x.id,
+    place: x.id,
+  }))

@@ -251,6 +251,7 @@ export default function AiBuild({
                 onChange={setWorkflows}
                 onRun={runWorkflow}
                 onRemove={removeWorkflow}
+                onSay={say}
               />
             ) : tab === 'activity' ? (
               <Activity engine={engine} onUndo={undo} onRedo={redo} />

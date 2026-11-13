@@ -4,6 +4,7 @@ import { validatePlan } from '../aitools/validate'
 import { isReady } from './buildState'
 import {
   STUDIO_TILES,
+  placements,
   studioCost,
   studioDraft,
   studioPlan,
@@ -106,5 +107,18 @@ describe('Studio: combined cost (SB-3)', () => {
       two.perStepInr.reduce((n, x) => n + x, 0) + two.planningInr,
       8,
     )
+  })
+})
+
+describe('Studio: where each output goes (A3)', () => {
+  it('one row per ticked tile, in the order they run, each with its own place', () => {
+    expect(placements(['cards', 'notes', 'map'])).toEqual([
+      { id: 'notes', place: 'notes' },
+      { id: 'map', place: 'map' },
+      { id: 'cards', place: 'cards' },
+    ])
+  })
+  it('nothing ticked, no rows', () => {
+    expect(placements([])).toEqual([])
   })
 })

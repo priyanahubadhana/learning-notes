@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ChevronDown, Tags, X } from 'lucide-react'
+import { ChevronDown, Plus, Tags, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
@@ -7,18 +7,25 @@ import { ClearField } from '../design/parts/ClearField'
 import { TagPickerLazy } from '../design/parts/TagPicker/TagPickerLazy'
 import type { TagItem } from '../design/parts/TagPicker/tagSearch'
 import { t, type MessageKey } from '../i18n/t'
+import { newJobId } from './buildState'
 import { findOrCreateTagPath, listTags } from '../tags/tagService'
 import { joinTagPath } from '../tags/tagNames'
 import {
   EMPTY_FILTER,
   FOR_TYPES,
   SORTS,
+  addView,
   chipsOf,
   clearAll,
   clearChip,
   filterWorkflows,
+  loadViews,
+  removeView,
+  sameFilter,
+  saveViews,
   type Chip,
   type ForType,
+  type SavedView,
   type Sort,
   type WfFilter,
   type Workflow,
@@ -45,15 +52,25 @@ export function Workflows({
   onChange,
   onRun,
   onRemove,
+  onSay,
 }: {
   db: LearningNotesDB
   items: readonly Workflow[]
   onChange: (next: Workflow[]) => void
   onRun: (w: Workflow) => void
   onRemove: (w: Workflow) => void
+  /** A short message, with an optional Undo, shown as a toast. */
+  onSay?: (message: string, action?: { label: string; run: () => void }) => void
 }) {
   const [f, setF] = useState<WfFilter>(EMPTY_FILTER)
   const [more, setMore] = useState(false)
+  const [views, setViewsState] = useState<SavedView[]>(loadViews)
+  const [naming, setNaming] = useState<string | null>(null)
+  const [dup, setDup] = useState(false)
+  const setViews = (next: SavedView[]) => {
+    setViewsState(next)
+    saveViews(next)
+  }
   const [picker, setPicker] = useState<'filter' | string | null>(null)
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const liveTags = useLiveQuery(() => listTags(db), [db])
@@ -72,6 +89,24 @@ export function Workflows({
   )
   const shown = filterWorkflows(items, f)
   const chips = chipsOf(f)
+  const current = views.find((v) => sameFilter(v.filter, f))
+  const saveView = () => {
+    const name = (naming ?? '').trim()
+    if (!name) return
+    const next = addView(views, name, f, newJobId())
+    if (next.length === views.length) return setDup(true)
+    setViews(next)
+    setNaming(null)
+    setDup(false)
+    onSay?.(t('aifw.wf.view.saved', { name }))
+  }
+  const dropView = (v: SavedView) => {
+    setViews(removeView(views, v.id))
+    onSay?.(t('aifw.wf.view.removed', { name: v.name }), {
+      label: t('aifw.undo'),
+      run: () => setViews([...removeView(loadViews(), v.id), v]),
+    })
+  }
   const moreN = f.forTypes.length + (f.minRating ? 1 : 0) + (f.minUses ? 1 : 0)
   const patch = (p: Partial<WfFilter>) => setF({ ...f, ...p })
   const edit = (id: string, p: Partial<Workflow>) =>
@@ -241,6 +276,115 @@ export function Workflows({
               </select>
             </label>
           </div>
+        </div>
+      )}
+
+      <div
+        role="group"
+        aria-label={t('aifw.wf.views')}
+        className="flex flex-wrap items-center gap-2"
+        data-testid="aifw-wf-views"
+      >
+        <button
+          type="button"
+          aria-pressed={chips.length === 0}
+          data-testid="aifw-wf-view-all"
+          className={`${btn} ${chips.length === 0 ? 'border-accent bg-soft font-semibold' : ''}`}
+          onClick={() => setF(clearAll(f))}
+        >
+          {t('aifw.wf.view.all')}
+        </button>
+        {views.map((v) => (
+          <span
+            key={v.id}
+            data-testid="aifw-wf-view"
+            className={`inline-flex min-h-11 items-center rounded-lg border ${
+              current === v ? 'border-accent bg-soft' : 'border-line'
+            }`}
+          >
+            <button
+              type="button"
+              aria-pressed={current === v}
+              data-testid="aifw-wf-view-pick"
+              className="min-h-11 rounded-l-lg px-3 text-sm hover:bg-hover"
+              onClick={() => setF({ ...v.filter })}
+            >
+              {v.name}
+            </button>
+            <button
+              type="button"
+              className={iconBtn}
+              aria-label={t('aifw.wf.view.delete', { name: v.name })}
+              data-testid="aifw-wf-view-delete"
+              onClick={() => dropView(v)}
+            >
+              <X size={16} strokeWidth={1.6} aria-hidden />
+            </button>
+          </span>
+        ))}
+        {chips.length > 0 && !current && naming === null && (
+          <button
+            type="button"
+            className={btn}
+            data-testid="aifw-wf-view-save"
+            onClick={() => {
+              setNaming('')
+              setDup(false)
+            }}
+          >
+            <Plus size={18} strokeWidth={1.6} aria-hidden />
+            {t('aifw.wf.view.save')}
+          </button>
+        )}
+      </div>
+      {naming !== null && (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              autoFocus
+              value={naming}
+              maxLength={60}
+              aria-label={t('aifw.wf.view.name')}
+              placeholder={t('aifw.wf.view.name')}
+              data-testid="aifw-wf-view-name"
+              className={`${field} min-w-0 flex-1`}
+              onChange={(e) => {
+                setNaming(e.target.value)
+                setDup(false)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') saveView()
+                if (e.key === 'Escape') {
+                  e.stopPropagation()
+                  setNaming(null)
+                }
+              }}
+            />
+            <button
+              type="button"
+              className={btn}
+              disabled={!naming.trim()}
+              data-testid="aifw-wf-view-ok"
+              onClick={saveView}
+            >
+              {t('aifw.wf.view.saveBtn')}
+            </button>
+            <button
+              type="button"
+              className={iconBtn}
+              aria-label={t('aifw.wf.view.cancel')}
+              data-testid="aifw-wf-view-cancel"
+              onClick={() => setNaming(null)}
+            >
+              <X size={18} strokeWidth={1.6} aria-hidden />
+            </button>
+          </div>
+          {dup && (
+            <p className="text-xs" role="alert" data-testid="aifw-wf-view-dup">
+              {t('aifw.wf.view.dup')}
+            </p>
+          )}
         </div>
       )}
 

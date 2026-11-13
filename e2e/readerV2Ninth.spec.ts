@@ -6,8 +6,8 @@ import { makePdf } from './fixtures/books.ts'
 /**
  * Slice 7 (reader v2), gate 3 ninth visit, fix list B: the book panel on
  * iPad (under the reader bar; a shell card when docked), the toast above an
- * open bottom card, the whole Aa › More card, the Settings Preview pill off
- * the descriptions, a 2-row pen bar with ringed swatches, the notes actions
+ * open bottom card, the whole Aa › More card, (fix 5, the Settings Preview
+ * pill, waits for a decision: it conflicts with SET-B02/B03), a 2-row pen bar with ringed swatches, the notes actions
  * on one row with Delete in danger red, and a padlock note naming only the
  * modes shown.
  */
@@ -187,17 +187,6 @@ test('fix 4: Aa › More shows the whole card on phone', async ({ page }) => {
     })
     expect(free).toBe(true)
   }
-})
-
-test('fix 5: Settings Preview pill on phone sits in the header, off every description', async ({
-  page,
-}) => {
-  await page.setViewportSize(PHONE)
-  await page.goto('/?flags=settings.v3#/settings/pro')
-  await expect(page.locator('[data-pro-feature]').first()).toBeVisible()
-  const pill = page.locator('[data-preview-pill]')
-  await expect(pill).toBeVisible()
-  await expect(page.locator('.sv3-titlebar [data-preview-pill]')).toHaveCount(1)
 })
 
 test('fix 6: phone pen bar is 2 rows; the custom swatch has the shared ring', async ({

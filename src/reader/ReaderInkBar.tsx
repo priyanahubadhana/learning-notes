@@ -212,7 +212,7 @@ export function ReaderInkBar({
             <span className="sr-only">{t('reader.ink.customColour')}</span>
             <span
               aria-hidden
-              className="block size-5 rounded-full border border-line"
+              className="pcard-swatch border border-line"
               style={{
                 background: /^#[0-9a-f]{6}$/i.test(current)
                   ? current
@@ -411,7 +411,7 @@ function InkOptions({
               {t('reader.ink.customColour')}
               <span
                 aria-hidden
-                className="block size-5 rounded-full border border-line"
+                className="pcard-swatch border border-line"
                 style={{
                   background: /^#[0-9a-f]{6}$/i.test(current)
                     ? current

@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test'
  * registers the hold claimant when the sidebar or search mounts, so its code
  * is loaded at start. Its own unit tests and the hold e2e cover it now.
  */
-test('the app loads unchanged and the unused routers are not loaded', async ({
+test('the app loads unchanged and the routers load at start through the row hold', async ({
   page,
 }) => {
   const errors: string[] = []
@@ -27,8 +27,8 @@ test('the app loads unchanged and the unused routers are not loaded', async ({
   // Each router's own log text marks its code.
   const bodies = await Promise.all(scripts)
   expect(bodies.length).toBeGreaterThan(0)
-  for (const b of bodies) {
-    expect(b).not.toContain('eventRouter: handler')
-  }
+  // test-guard-reason: slice 4 row hold loads routers at start by design
+  expect(bodies.some((b) => b.includes('eventRouter: handler'))).toBe(true)
+  expect(bodies.some((b) => b.includes('gestureRouter: "'))).toBe(true)
   expect(errors).toEqual([])
 })

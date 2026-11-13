@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: Reader v2 final-look fixes (slice 7)
+
+- What: line focus band top = the snapped line's top, height = that line's height, re-measured when the page re-lays (Aa card shut, text layer rebuilt, scroll); its listeners go through the event router. Phone pen bar: the colours' scroll area ends 8 px before the pen ▾ pill. New picture of an open EPUB on WebKit (iPad size). build/next merged in; `frame-ancestors 'self'` kept in both CSP lines of public/_headers, scripts/siteRules.test.mjs and e2e/offline.spec.ts.
+- Why: the band was worked out only when the pointer moved, so after the Aa card closed it stayed one line low; the fifth swatch sat under the pill. `'self'` lets the app show its own EPUB frame on WebKit and still stops every other site from framing the app. The 4 WebKit EPUB skips stay: taps and selection inside the book frame still need `allow-scripts` (WebKit bug 218086), which DECISIONS allows only with three guards.
+- Files: src/app/reading/ReadingRuler.tsx, src/reader/ReaderInkBar.tsx, scripts/ratchet-baseline.json, e2e/readerV2Tenth.spec.ts, e2e/readerV2TenthShots.spec.ts, screenshots/s7/v6 (line-focus, pen-bar phone, epub-open-webkit), docs/CHANGELOG.md.
+
 ### 14 Nov 2026: toolbar v8 flaky tests fixed in the product
 
 - What: a card closed with ✕ hands focus back to its chip only if nothing else took it; the page's text box frame follows its text when a picture loads while an ink tool is on.

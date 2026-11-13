@@ -1,5 +1,7 @@
 # How the build runs (simple system, in force from 13 Nov 2026, 20:00 IST)
 
+**Rule freeze during the trial (owner, 13 Nov 2026):** no changes to rules, agent files or this file's rules during the trial, except fixes the owner approves. Builders: at most 5 at once.
+
 **TRIAL since 13 Nov 19:40 IST; benchmark: docs/plans/system-trial-2026-11-13.md**
 
 Owner, 13 Nov: "The way we are following the system, it is not working at all. Let Opus follow the plan and let the cheaper model do the work. This time it must work." This page replaces the 13-section economy mode of the same day (old text: `git show 780c28fe:docs/ECONOMY-MODE.md`). Quality rules and tests are unchanged (rules/quality.md).
@@ -23,7 +25,7 @@ Opus and Sonnet only. No Haiku in the build.
 | Role      | Who                                    | Job                                                                                                                     |
 | --------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Manager   | **Opus**, `economy-orchestrator`       | follows docs/plans/build-master-plan.md in the order of docs/BUILD-STATE.md; briefs; keeps the state file; never builds |
-| Builders  | **Sonnet**, `economy-builder`, up to 8 | one whole slice each, from the first test to merged, including texts, formatting, pictures and its own fixes            |
+| Builders  | **Sonnet**, `economy-builder`, up to 5 | one whole slice each, from the first test to merged, including texts, formatting, pictures and its own fixes            |
 | Review    | **Opus**, `economy-gate2`              | gate 2: one read-only check of a finished slice                                                                         |
 | Design    | **Fable**, `economy-gate3`             | two looks per slice only: the design check before building and the final look. Hard cases after Opus failed             |
 | Main chat | Fable, thin                            | starts the manager, runs the hourly pulse (section 5), talks to the owner                                               |

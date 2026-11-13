@@ -1176,3 +1176,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 ### 13 Nov 2026 (owner): core operating rules in CLAUDE.md
 
 Short core lines for hierarchy, escalation, token efficiency, continuity and quality, with pointers, plus an Owner settings table changed only on the owner's word. Global CLAUDE.md got the escalation and brief rules too.
+
+### 13 Nov 2026 (owner): trial at 5 builders, rules frozen
+
+Research (docs/plans/ai-build-best-practices-2026-11-13.md) puts the useful limit at 3-5 parallel builders; cap set to 5. No rule changes during the trial so the benchmark is fair.

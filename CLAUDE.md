@@ -40,7 +40,7 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 | Setting                 | Current value                                                           |
 | ----------------------- | ----------------------------------------------------------------------- |
 | Build manager           | Opus (`economy-orchestrator`); follows the plan, never builds           |
-| Builders                | Sonnet, up to 8, one whole slice each, on non-overlapping files         |
+| Builders                | Sonnet, up to 5, one whole slice each, on non-overlapping files         |
 | Mechanical work, search | the slice's own Sonnet builder; no Haiku in the build                   |
 | Gate 2                  | Opus, once per slice                                                    |
 | Fable                   | design check before building, final look (gate 3), hard cases           |

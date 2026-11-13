@@ -63,4 +63,7 @@ export const esNotebooksV2 = {
   'nbv2.more': 'Más acciones para {name}',
   'nbv2.star': 'Fijar {name}',
   'nbv2.unstar': 'Quitar {name} de los fijados',
+  'nbv2.duplicated': 'Copia creada: “{name}”',
+  'nbv2.duplicate.name': 'Copia de {name}',
+  'nbv2.duplicate.none': 'Todavía no hay ninguna página para copiar.',
 }

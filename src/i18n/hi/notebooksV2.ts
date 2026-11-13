@@ -62,4 +62,7 @@ export const hiNotebooksV2 = {
   'nbv2.more': '{name} के और विकल्प',
   'nbv2.star': '{name} को पिन करें',
   'nbv2.unstar': '{name} का पिन हटाएँ',
+  'nbv2.duplicated': 'कॉपी बन गई: “{name}”',
+  'nbv2.duplicate.name': '{name} की कॉपी',
+  'nbv2.duplicate.none': 'कॉपी करने के लिए अभी कोई पेज नहीं है।',
 }

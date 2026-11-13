@@ -51,4 +51,13 @@ export const esStudyV2 = {
   'st9.title': 'Repasar',
   'st9.count': '{count} marcas',
   'st11.browse': 'Explorar',
+  'st25.present': 'Presentar',
+  'st25.position': 'Diapositiva {n} de {total}',
+  'st25.theme': 'Tema',
+  'st25.previous': 'Diapositiva anterior',
+  'st25.next': 'Diapositiva siguiente',
+  'st25.title': 'Diapositivas',
+  'st25.count': '{count} diapositivas',
+  'st26.helpers': 'Ayudas de memoria',
+  'st25.close': 'Cerrar',
 } as const

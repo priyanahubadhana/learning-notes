@@ -1,11 +1,18 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { useFlag } from '../../app/flags'
+import { useUnlocked } from '../../settings/level'
+import { StudyTabHeader } from '../../notebooks/study/StudyTabHeader'
 import { loadPdfjs } from '../../app/pdfjs'
 import { downloadAttachment } from '../../core/attachments'
 import type { LearningNotesDB } from '../../core/db'
 import type { BookFile } from '../../core/types'
 import { t } from '../../i18n/t'
 import { pptxSlides, type SlidePicture } from './slidesModel'
+
+const SlidesPresent = lazy(() =>
+  import('./SlidesPresent').then((m) => ({ default: m.SlidesPresent })),
+)
 
 interface PdfDoc {
   getPage: (n: number) => Promise<unknown>
@@ -72,6 +79,11 @@ function Deck({ db, file }: { db: LearningNotesDB; file: BookFile }) {
     pages: number
   } | null>(null)
   const [failed, setFailed] = useState(false)
+  // Study v2 (ST25): present full screen, once Slides is unlocked.
+  const v2On = useFlag('study.v2')
+  const slidesUnlocked = useUnlocked('study.slides')
+  const canPresent = v2On && slidesUnlocked
+  const [presenting, setPresenting] = useState(false)
   const pictures = useMemo<SlidePicture[] | null>(() => {
     if (isPdf) return null
     try {
@@ -123,6 +135,15 @@ function Deck({ db, file }: { db: LearningNotesDB; file: BookFile }) {
             {t('tabs.slides.count', { count })}
           </span>
         )}
+        {canPresent && count > 0 && (
+          <button
+            type="button"
+            onClick={() => setPresenting(true)}
+            className="min-h-11 rounded-lg bg-accent px-3 text-sm font-medium text-white"
+          >
+            {t('st25.present')}
+          </button>
+        )}
         <button
           type="button"
           onClick={() => void downloadAttachment(db, file.id)}
@@ -155,6 +176,26 @@ function Deck({ db, file }: { db: LearningNotesDB; file: BookFile }) {
               ))}
         </div>
       )}
+      {presenting && (
+        <Suspense fallback={null}>
+          <SlidesPresent
+            count={count}
+            onSave={() => void downloadAttachment(db, file.id)}
+            onClose={() => setPresenting(false)}
+            render={(i) =>
+              isPdf && pdf?.doc ? (
+                <PdfSlide key={i} doc={pdf.doc} n={i + 1} total={count} />
+              ) : (
+                <img
+                  src={urls[i]}
+                  alt={t('tabs.slides.slide', { n: i + 1, total: count })}
+                  data-slide-present
+                />
+              )
+            }
+          />
+        </Suspense>
+      )}
     </section>
   )
 }
@@ -174,12 +215,20 @@ export default function SlidesTab({
         .sort((a, b) => a.createdAt - b.createdAt),
     [db, pageId],
   )
+  const v2 = useFlag('study.v2')
   if (!decks) return null
   if (decks.length === 0) {
     return <p className="text-sm text-muted">{t('tabs.slides.empty')}</p>
   }
   return (
     <div>
+      {v2 && (
+        <StudyTabHeader
+          title={t('st25.title')}
+          count={decks.length}
+          countLabel={t('st25.count', { count: decks.length })}
+        />
+      )}
       {decks.map((f) => (
         <Deck key={f.id} db={db} file={f} />
       ))}

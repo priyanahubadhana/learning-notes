@@ -3,6 +3,8 @@ import {
   createNotebook,
   makeCard,
   openSidebar,
+  cornerAction,
+  openMore,
   selectText,
   slashCommand,
   typeInEditor,
@@ -392,4 +394,115 @@ test('ST11: sidebar "All cards" opens the Review hub (Notes, Summary, Review) wi
   await expect(
     main(page).getByRole('button', { name: /Which valves close/ }),
   ).toBeVisible()
+})
+
+// ---- 15e: Slides and Memory helpers (ST25, ST26), 15g Anki entry (ST29) ----
+
+async function pptxDeck(page: Page) {
+  const { zipSync, strToU8 } = await import('fflate')
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    'base64',
+  )
+  const rel = (n: string) =>
+    strToU8(
+      `<Relationships><Relationship Id="r1" Target="../media/${n}"/></Relationships>`,
+    )
+  const pptx = Buffer.from(
+    zipSync({
+      'ppt/slides/_rels/slide1.xml.rels': rel('a.png'),
+      'ppt/slides/_rels/slide2.xml.rels': rel('b.png'),
+      'ppt/media/a.png': new Uint8Array(png),
+      'ppt/media/b.png': new Uint8Array(png),
+    }),
+  )
+  await createNotebook(page, 'Mine', 'First')
+  await cornerAction(page, 'Save & restore')
+  await openMore(page)
+  const nlm = main(page).getByRole('region', {
+    name: 'Bring in from NotebookLM',
+  })
+  await nlm.getByLabel('Choose a file').setInputFiles({
+    name: 'deck.pptx',
+    mimeType:
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    buffer: pptx,
+  })
+  await nlm.getByRole('button', { name: 'Add', exact: true }).click()
+  await expect(page.getByText(/Added to /)).toBeVisible()
+  await page.getByRole('button', { name: 'From NotebookLM' }).first().click()
+}
+
+test('ST25: Slides stays off until unlocked; then present full screen, swipe, theme, save', async ({
+  page,
+}) => {
+  await asLevel(page, 'professional')
+  await page.goto(FLAGGED)
+  await pptxDeck(page)
+  await page.locator('[data-page-tabs-menu]').click()
+  await page.getByText('Slides', { exact: true }).click()
+  await page.keyboard.press('Escape')
+  await pageTab(page, 'slides').click()
+  await expect(page.locator('[data-slide]')).toHaveCount(2)
+  await main(page).getByRole('button', { name: 'Present' }).click()
+  const present = page.getByTestId('slides-present')
+  await expect(present).toBeVisible()
+  await expect(present.getByRole('status')).toHaveText('Slide 1 of 2')
+  // Swipe left: the next slide.
+  const box = (await page.getByTestId('present-slide').boundingBox())!
+  await page.mouse.move(box.x + box.width - 20, box.y + box.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(box.x + 20, box.y + box.height / 2, { steps: 4 })
+  await page.mouse.up()
+  await expect(present.getByRole('status')).toHaveText('Slide 2 of 2')
+  await present.getByRole('button', { name: /^Theme/ }).click()
+  await page.getByRole('menuitemradio', { name: 'Sepia' }).click()
+  await expect(present).toHaveAttribute('data-theme-slides', 'sepia')
+  const download = page.waitForEvent('download')
+  await present
+    .getByRole('button', { name: 'Save the file', exact: true })
+    .click()
+  await download
+  await present.getByRole('button', { name: 'Close', exact: true }).click()
+  await expect(present).toHaveCount(0)
+})
+
+test('ST25: Beginner has no Slides tab in the tab menu', async ({ page }) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Mine', 'First')
+  await page.locator('[data-page-tabs-menu]').click()
+  await expect(page.getByText('Slides', { exact: true })).toHaveCount(0)
+})
+
+test('ST26 + ST29: Professional finds Memory helpers and Anki in Cards "⋯"', async ({
+  page,
+}) => {
+  await asLevel(page, 'professional')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S1?', 1)
+  await waitForSaved(page)
+  await openCards(page)
+  await page.getByTestId('study-header-more').click()
+  await expect(
+    page.getByRole('menuitem', { name: 'Import from Anki' }),
+  ).toBeVisible()
+  const download = page.waitForEvent('download')
+  await page.getByRole('menuitem', { name: 'Save for Anki' }).click()
+  expect((await download).suggestedFilename()).toMatch(/\.apkg$/)
+  await page.getByTestId('study-header-more').click()
+  await page.getByRole('menuitem', { name: 'Memory helpers' }).click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+})
+
+test('ST26 + ST29: Beginner has no "⋯" with Memory helpers or Anki', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S1?', 1)
+  await openCards(page)
+  await expect(page.getByTestId('study-header-more')).toHaveCount(0)
 })

@@ -15,6 +15,7 @@ import {
 import { useHitDetails, useSearch } from '../../search/useSearch'
 import { useUnlocked } from '../../settings/level'
 import { CardEditorSheet } from './CardEditorSheet'
+import { useCardsMore } from './useCardsMore'
 import { getReviewQueue, type ReviewScope } from '../../recall/reviewService'
 import './CardsTabV2.css'
 
@@ -68,6 +69,7 @@ export function CardsTabV2({
   const [shown, setShown] = useState(PAGE_SIZE)
   const [editing, setEditing] = useState<SearchHit | null>(null)
   const canFilter = useUnlocked('rev.browse')
+  const more = useCardsMore(db, notebookId)
   const activeStatus = canFilter ? status : null
   const query: SearchQuery = {
     text: '',
@@ -141,6 +143,7 @@ export function CardsTabV2({
             setShown(PAGE_SIZE)
           },
         }))}
+        moreItems={more.items}
         chips={chips}
         action={
           hits.length > 0 && (
@@ -205,6 +208,7 @@ export function CardsTabV2({
           {t('search.more')}
         </button>
       )}
+      {more.node}
       {editing?.blockId && (
         <CardEditorSheet
           db={db}

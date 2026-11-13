@@ -12,6 +12,7 @@ import {
 import { createPortal } from 'react-dom'
 import { AppUiContext, TopBarSlotContext } from '../app/appUi'
 import { useFlag } from '../app/flags'
+import { useUnlocked } from '../settings/level'
 import { peekSummaryField } from '../app/studyOpen'
 import { listSummary } from '../core/summaryService'
 import { altShortcutLabel } from '../app/keys'
@@ -213,7 +214,13 @@ export function PageView({
     pageId: string
     tab: PageTab
   }>({ pageId: page.id, tab: 'notes' })
-  const extraTabs = notebookPageTabs(notebook)
+  const studyV2On = useFlag('study.v2')
+  const slidesOn = useUnlocked('study.slides')
+  // Study v2: Slides stays off until it is unlocked (ST25).
+  const hideSlides = studyV2On && !slidesOn
+  const extraTabs = notebookPageTabs(notebook).filter(
+    (id) => !(hideSlides && id === 'slides'),
+  )
   const studyV2 = useFlag('study.v2')
   // Study v2: "Edit in Summary" (Revise) opens a page on its Summary tab.
   const rawTab =
@@ -629,7 +636,9 @@ export function PageView({
               onTab={setPageTab}
               className="mb-3"
               extras={extraTabs}
-              allExtras={EXTRA_TABS}
+              allExtras={EXTRA_TABS.filter(
+                (id) => !(hideSlides && id === 'slides'),
+              )}
               counts={
                 summaryCount === undefined
                   ? undefined

@@ -1,0 +1,102 @@
+/* Present mode (slice 15): the backdrop follows the chosen theme; tokens only. */
+.slides-present {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+.slides-present[data-theme-slides='night'] {
+  background: #0f0e13;
+  color: #f2f1f5;
+}
+.slides-present[data-theme-slides='sepia'] {
+  background: #efe6d3;
+  color: #3b2f1e;
+}
+.slides-present[data-theme-slides='day'] {
+  background: #fff;
+  color: #111;
+}
+.slides-present__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+.slides-present__count {
+  flex: 1;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.slides-present__btn,
+.slides-present__nav {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font-size: 15px;
+}
+.slides-present__nav {
+  font-size: 28px;
+}
+.slides-present__nav:disabled {
+  opacity: 0.3;
+}
+.slides-present__stage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: calc(100% - 60px);
+  padding: 0 8px 16px;
+}
+.slides-present__slide {
+  flex: 1;
+  min-width: 0;
+  max-height: 100%;
+  display: grid;
+  place-items: center;
+  touch-action: pan-y;
+}
+.slides-present__slide img,
+.slides-present__slide canvas {
+  max-height: calc(100vh - 100px);
+  width: auto;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+}
+.slides-present__menuwrap {
+  position: relative;
+}
+.slides-present__menu {
+  position: absolute;
+  inset-inline-end: 0;
+  top: 100%;
+  min-width: 160px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--color-surface-2);
+  color: var(--color-ink);
+  box-shadow: var(--card-shadow);
+}
+.slides-present__item {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  text-align: start;
+}
+.slides-present__item[aria-checked='true'] {
+  font-weight: 600;
+}

@@ -50,4 +50,13 @@ export const hiStudyV2 = {
   'st9.title': 'दोहराएँ',
   'st9.count': '{count} निशान',
   'st11.browse': 'ब्राउज़ करें',
+  'st25.present': 'प्रस्तुत करें',
+  'st25.position': 'स्लाइड {n} / {total}',
+  'st25.theme': 'थीम',
+  'st25.previous': 'पिछली स्लाइड',
+  'st25.next': 'अगली स्लाइड',
+  'st25.title': 'स्लाइड',
+  'st25.count': '{count} स्लाइड',
+  'st26.helpers': 'याद रखने के सहायक',
+  'st25.close': 'बंद करें',
 } as const

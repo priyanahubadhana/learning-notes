@@ -51,4 +51,13 @@ export const enLateStudyV2 = {
   'st9.title': 'Revise',
   'st9.count': '{count} marks',
   'st11.browse': 'Browse',
+  'st25.present': 'Present',
+  'st25.position': 'Slide {n} of {total}',
+  'st25.theme': 'Theme',
+  'st25.previous': 'Previous slide',
+  'st25.next': 'Next slide',
+  'st25.title': 'Slides',
+  'st25.count': '{count} slides',
+  'st26.helpers': 'Memory helpers',
+  'st25.close': 'Close',
 } as const

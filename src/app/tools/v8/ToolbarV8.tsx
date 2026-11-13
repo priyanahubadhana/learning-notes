@@ -147,6 +147,9 @@ export default function ToolbarV8() {
     setCard((c) => (c && c.id === id ? null : c))
 
   const info = card ? cardInfo(card.id) : null
+  /** The Box card stays 8 px under the bar (its tool line and Text row). */
+  const barBottom = () =>
+    (root.current?.getBoundingClientRect().bottom ?? 0) + 8
 
   return (
     <div ref={root} className="v8" data-testid="toolbar-v8" data-tool={tool}>
@@ -183,6 +186,7 @@ export default function ToolbarV8() {
           autoClose={cardAutoClose(card.id)}
           avoid={card.id === 'sel.picture' ? pickedPictureRect : undefined}
           around={card.id === 'text.box' ? activeBoxRect : undefined}
+          clearTop={card.id === 'text.box' ? barBottom : undefined}
           title={t(info.title)}
           testId={`v8-card-${card.id}`}
           onClose={() => onCloseCard(card.id)}
@@ -208,9 +212,7 @@ export default function ToolbarV8() {
               <InsertCardBody />
             ) : card.id === 'more.alltools' ? (
               <AllToolsCardBody />
-            ) : (
-              <p className="v8note">{t('v8.card.empty')}</p>
-            )}
+            ) : null}
           </Suspense>
         </Card>
       ) : null}

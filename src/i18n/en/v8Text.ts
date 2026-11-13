@@ -12,6 +12,10 @@ export const enV8Text = {
   'v8.box.look.plain': 'Plain',
   'v8.box.look.soft': 'Soft',
   'v8.box.look.sticky': 'Sticky',
+  'v8.box.look.custom': 'Custom',
+  'v8.box.useNew': 'Use this look for new boxes',
+  'v8.box.useNewHint':
+    'Select a box first: its look is what new boxes will use.',
   'v8.box.looks': 'Look',
   'v8.box.noBox': 'No box is selected. Your choice is used for new boxes.',
   'v8.box.newGroup': 'New boxes',

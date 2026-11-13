@@ -12,6 +12,10 @@ export const esV8Text = {
   'v8.box.look.plain': 'Liso',
   'v8.box.look.soft': 'Suave',
   'v8.box.look.sticky': 'Adhesiva',
+  'v8.box.look.custom': 'Personalizado',
+  'v8.box.useNew': 'Usar este aspecto en cuadros nuevos',
+  'v8.box.useNewHint':
+    'Elige primero un cuadro: su aspecto es el que usarán los cuadros nuevos.',
   'v8.box.looks': 'Aspecto',
   'v8.box.noBox':
     'No hay ningún cuadro seleccionado. Tu elección se usa en los cuadros nuevos.',

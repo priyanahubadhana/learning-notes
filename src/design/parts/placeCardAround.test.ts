@@ -46,6 +46,16 @@ describe('placeAround (TB-42, M1): right, else left, else under, else above', ()
     expect(p!.left + p!.width).toBeLessThanOrEqual(phone.width - 12)
     expect(p!.top).toBeGreaterThanOrEqual(12)
   })
+  it('never starts above clearTop: a tall card is shortened above the box and scrolls', () => {
+    const phone = { width: 390, height: 844 }
+    // The box sits low, so only "above" is left; the bar ends at y 168.
+    const box = { left: 16, top: 560, width: 358, height: 300 }
+    const p = placeAround(box, { width: 304, height: 520 }, phone, 168)
+    expect(p).not.toBeNull()
+    expect(p!.top).toBeGreaterThanOrEqual(168)
+    expect(p!.maxHeight).toBe(560 - 8 - 168)
+    expect(p!.top + p!.maxHeight!).toBeLessThanOrEqual(box.top - 8)
+  })
   it('returns null when nothing fits without covering the box', () => {
     const huge = { left: 12, top: 12, width: 1150, height: 790 }
     expect(placeAround(huge, SIZE, VP)).toBeNull()

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useActiveStyles, useBlockNoteEditor } from '@blocknote/react'
 import { CardTrigger } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
@@ -9,6 +10,7 @@ import type { V8ToolId } from './registryV8'
 import { FoldCard } from './FoldCard'
 import type { OpenCard } from './barState'
 import { useFold, type FoldSpec } from './useFold'
+import type { FoldResult } from './rowFold'
 import './toolbarV8.css'
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
@@ -85,13 +87,36 @@ export function ToolRow({
   const editor = useBlockNoteEditor()
   const active = useActiveStyles(editor as never) as Record<string, unknown>
   const items = ROW_ITEMS[tool]
+  // What the row showed while no card was open. A chip that was already on the
+  // row keeps its place while its card is open (the open chip may show its word,
+  // but nothing else re-folds, so "⋯ n" does not jump and Format stays put).
+  // Only a chip brought out of "⋯" is made room for.
+  const [free, setFree] = useState<FoldResult | null>(null)
+  const openItem = items.find(
+    (it) => it.kind === 'menu' && openCard === cardIdOf(it),
+  )
+  const frozen = !!openItem && !!free && free.shown.includes(openItem.id)
   const specs: FoldSpec[] = items.map((it, i) => ({
     id: it.id,
     priority: 100 - i,
     fixedW: it.kind === 'toggle' ? 44 : undefined,
-    keepName: it.kind === 'menu' && openCard === cardIdOf(it),
+    keepName: it === openItem && !frozen,
   }))
-  const { rowRef, measureRef, result } = useFold(specs, { gap: 8, moreW: 44 })
+  const {
+    rowRef,
+    measureRef,
+    result: live,
+  } = useFold(specs, {
+    gap: 8,
+    moreW: 44,
+  })
+  const result = frozen ? free : live
+  // Remember the free row (React's "adjust state while rendering" pattern).
+  if (
+    openCard === null &&
+    (!free || JSON.stringify(free) !== JSON.stringify(live))
+  )
+    setFree(live)
   const shown = items.filter((i) => result.shown.includes(i.id))
   const folded = items.filter((i) => result.folded.includes(i.id))
   const moreOpen = openCard === 'fold.row'

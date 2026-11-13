@@ -62,10 +62,15 @@ test('1f Insert: grouped 44 pt tiles, a thin scroll track, a close button; Begin
     expect(r.height).toBeGreaterThanOrEqual(44)
     expect(r.width).toBeGreaterThanOrEqual(44)
   }
-  const track = await c
-    .getByTestId('v8-insert')
-    .evaluate((e) => getComputedStyle(e).scrollbarWidth)
-  expect(track).toBe('thin')
+  // One rule (shared Card): the thin track shows exactly while the body is cut.
+  const cut = await c
+    .getByTestId('pcard-body')
+    .evaluate(
+      (b) =>
+        b.firstElementChild!.getBoundingClientRect().height - b.clientHeight >
+        1,
+    )
+  await expect(c.getByTestId('pcard-track')).toHaveCount(cut ? 1 : 0)
   await c.getByTestId('pcard-close').click()
   await expect(c).toHaveCount(0)
 })

@@ -277,11 +277,14 @@ function BoxSettingsCard() {
   const { at, box, style } = useActiveBoxStyle()
   const layout = useUnlocked('tb.textBox')
   const [saved, setSaved] = useState(false)
+  const look = BOX_LOOKS.find((l) => sameStyle(style, l.style))
+  const lookName = look ? t(look.label) : t('v8.box.look.custom')
   return (
     <CardGroup label={t('v8.box.newGroup')}>
       <button
         type="button"
-        className="pcard-row v8actrow"
+        data-chrome
+        className="v8fold-row v8setrow"
         data-testid="v8-boxset-new"
         disabled={!box}
         onClick={() => {
@@ -291,9 +294,14 @@ function BoxSettingsCard() {
           setSaved(true)
         }}
       >
-        <span>{t('boxStyle.useNew')}</span>
+        <Icon name="palette" size={18} />
+        <span>{t('v8.box.useNew')}</span>
+        <span className="v8setrow-value" data-testid="v8-boxset-value">
+          {lookName}
+        </span>
         {saved ? <Icon name="check" size={18} /> : null}
       </button>
+      {box ? null : <CardNote>{t('v8.box.useNewHint')}</CardNote>}
       {layout ? (
         <button
           type="button"

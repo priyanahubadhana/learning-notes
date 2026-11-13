@@ -5,6 +5,8 @@ import { placeBeside, type Side } from '../../app/overlay'
 export const CARD_GAP = 8
 export const CARD_EDGE = 12
 export const PHONE_MAX = 640
+/** The least height a card is shortened to (a title and a few rows). */
+const MIN_SHORT = 160
 
 export interface CardPos {
   left: number
@@ -14,6 +16,8 @@ export interface CardPos {
   arrowX: number | null
   /** Card width after the `100vw - 24` cap. */
   width: number
+  /** Set when the card must be shorter than itself to keep clear of something; the rest scrolls. */
+  maxHeight?: number
 }
 
 type RectLike = { left: number; top: number; width: number; height: number }
@@ -111,6 +115,8 @@ export function placeAround(
   box: RectLike,
   size: { width: number; height: number },
   viewport: { width: number; height: number },
+  /** Highest y the card may start at (just under a bar it must not cover); 0 = none. */
+  clearTop = 0,
 ): CardPos | null {
   const width = Math.min(size.width, viewport.width - 2 * CARD_EDGE)
   const maxLeft = Math.max(CARD_EDGE, viewport.width - CARD_EDGE - width)
@@ -128,8 +134,20 @@ export function placeAround(
     return { left, top: sideTop, side: 'left', arrowX: null, width }
   if (below + size.height <= viewport.height - CARD_EDGE)
     return { left: flatLeft, top: below, side: 'below', arrowX: null, width }
-  if (above >= CARD_EDGE)
+  const floor = Math.max(CARD_EDGE, clearTop)
+  if (above >= floor)
     return { left: flatLeft, top: above, side: 'above', arrowX: null, width }
+  // Too tall to sit above under the bar: shorten it to the room there is.
+  const room = box.top - CARD_GAP - floor
+  if (clearTop > 0 && room >= MIN_SHORT)
+    return {
+      left: flatLeft,
+      top: floor,
+      side: 'above',
+      arrowX: null,
+      width,
+      maxHeight: room,
+    }
   return null
 }
 
@@ -159,8 +177,10 @@ export function useAnchoredCard(opts: {
   avoid?: () => RectLike | null
   /** A box to hang around (right, left, under, above); wins over `avoid`. */
   around?: () => RectLike | null
+  /** With `around`: the card never starts above this y (the bottom of the bar + 8). */
+  clearTop?: () => number
 }): CardPos | null {
-  const { anchor, card, widthPx, active, avoid, around } = opts
+  const { anchor, card, widthPx, active, avoid, around, clearTop } = opts
   const [pos, setPos] = useState<CardPos | null>(null)
   useLayoutEffect(() => {
     if (!active || !anchor || !card) {
@@ -172,7 +192,7 @@ export function useAnchoredCard(opts: {
       const view = { width: root.clientWidth, height: window.innerHeight }
       const box = around?.() ?? null
       const next =
-        (box && placeAround(box, size, view)) ||
+        (box && placeAround(box, size, view, clearTop?.() ?? 0)) ||
         placeCard(rectOf(anchor), size, view, box ?? avoid?.() ?? null)
       setPos((prev) =>
         prev &&
@@ -180,7 +200,8 @@ export function useAnchoredCard(opts: {
         prev.top === next.top &&
         prev.side === next.side &&
         prev.arrowX === next.arrowX &&
-        prev.width === next.width
+        prev.width === next.width &&
+        prev.maxHeight === next.maxHeight
           ? prev
           : next,
       )
@@ -190,6 +211,6 @@ export function useAnchoredCard(opts: {
     ro.observe(card)
     ro.observe(document.documentElement)
     return () => ro.disconnect()
-  }, [anchor, card, widthPx, active, avoid, around])
+  }, [anchor, card, widthPx, active, avoid, around, clearTop])
   return active && anchor && card ? pos : null
 }

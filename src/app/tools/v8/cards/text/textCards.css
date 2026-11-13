@@ -59,21 +59,14 @@
   justify-content: space-between;
   min-height: 44px;
 }
+/* The card's own body scrolls (Card.css, data-cut): no second scroller inside it. */
 .v8scroll.v8thin {
-  scrollbar-width: thin;
-  scrollbar-color: var(--card-track) transparent;
-}
-.v8scroll.v8thin::-webkit-scrollbar {
-  display: block;
-  width: 4px;
-}
-.v8scroll.v8thin::-webkit-scrollbar-thumb {
-  border-radius: var(--r-pill);
-  background: var(--card-track);
+  max-height: none;
+  overflow: visible;
 }
 /* The Box card is short so it fits above or under a box on a phone. */
-.v8scroll.v8scroll-box {
-  max-height: min(calc(100dvh - 260px), 340px);
+.pcard[data-testid='v8-card-text.box'] {
+  max-height: min(calc(100dvh - 200px), 400px);
 }
 /* TB-41 line height: the sample is drawn with that spacing, two lines. */
 .v8line {
@@ -88,4 +81,16 @@
 }
 .v8line-loose {
   line-height: 2;
+}
+/* Box settings row: icon, label, the look's name on the right, then a tick. */
+.v8setrow > span:nth-of-type(1) {
+  flex: 1;
+}
+.v8setrow-value {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+.v8setrow:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }

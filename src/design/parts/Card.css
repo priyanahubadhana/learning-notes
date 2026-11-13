@@ -149,6 +149,21 @@
 .pcard-body::-webkit-scrollbar {
   display: none;
 }
+/* One rule for every card: a thin track shows while the body is cut and never
+   otherwise. It sits in the card's 12 px side padding, so the content keeps its width. */
+.pcard-track {
+  position: absolute;
+  right: 4px;
+  width: 3px;
+  pointer-events: none;
+}
+.pcard-track > i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-radius: var(--r-pill);
+  background: var(--card-track);
+}
 .pcard[data-fade] .pcard-body {
   -webkit-mask-image: linear-gradient(
     to bottom,

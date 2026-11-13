@@ -55,7 +55,18 @@ async function setUp(
   await page.goto('/?flags=toolbar.v8')
   await createNotebook(page, 'Biology', 'First')
   await hideSidebar(page)
+  if (size.width === 820) await closeDockedSidebar(page)
   await typeInEditor(page, 'The nucleus holds the DNA')
+}
+
+/** iPad portrait (and wider): the sidebar is docked, not a drawer; close it with the top bar's button so the page has its full width. */
+async function closeDockedSidebar(page: Page) {
+  const aside = page.locator('aside')
+  if (!(await aside.isVisible())) return
+  await page
+    .locator('button[aria-controls="sidebar"][aria-expanded="true"]:visible')
+    .click()
+  await expect(aside).toBeHidden()
 }
 
 const settle = (page: Page) => page.waitForTimeout(500)

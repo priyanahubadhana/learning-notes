@@ -16,6 +16,19 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 2. Budget: 80% of the week is a reference, not a cap. Speed matters more than saving quota; quality and design rules first, then the first full build fast.
 3. Top priority: FIRST FULL BUILD fast: build/next green, merge waiting slices, release the preview with new parts ON in the preview (Settings › Try new features), write the owner's iPad checklist (BUG-002, connector, key flows). Then the remaining slices.
 
+## Speed rules (13 Nov, from ECONOMY-MODE.md section 11; they win over older lines in this file and in the orchestrator's agent file)
+
+1. Up to **8** builders at once on files that do not overlap; hot files one at a time; at most 2 local ipad-webkit runs at the same moment. Back to 6 if rework reaches 2 rounds or local tests flake. Put a spare builder on toolbar 1d.
+2. Gate 2 and gate 3 run in parallel (different slices, or the same slice at the same commit). Merge only when both passed on the commit being merged. Gate 3 in visits of 2 to 4 slices.
+3. Flag-on pictures and gate 3 go ahead while CI runs.
+4. Batch CI: up to 3 slices that passed both gates, merged one after another with local targeted tests, tsc, lint and combined check:size, then one full run. Never a hot-file slice in a batch. Red: the failing test names the slice, else take the last merge out and run again. Never re-run until green.
+5. First job: merge `main` into `build/next` (DECISIONS.md: keep both sides) so pull request #5 runs CI by itself and publishes the preview. Build-time docs are written on `main` only; merge `main` into `build/next` before each batch.
+6. One run at a time per branch: no push to `build/next` and no new run while one is in progress.
+7. A hand-started run is green when every job except the weekly `webkit` job passed; judge it as soon as those jobs finish, do not wait for `webkit`. No workflow or test edits for this.
+8. Every screen brief points to the repeat-fault list (ECONOMY-MODE section 11, rule 8).
+9. A slice that failed gate 3 twice: Opus builder on its next fix round. Three fails: Fable-written brief (unchanged).
+10. Restart the orchestrator about every 6 waves, not 3; keep the tables in this file current after every merge.
+
 ## Fixed facts
 
 - **Live app:** `main` 9e2ec70d. App code last released at b5b0bc74 (CI run 43205383635), every new part switched OFF. A push of app code to `main` deploys by itself; docs-only pushes do not.
@@ -68,15 +81,16 @@ Specs for every slice exist in `docs/features/` on `build/next` (file named in t
 
 ### Not started (spec ready)
 
-| Slice                                                                                | Flag           | Spec            | Starts after                                      |
-| ------------------------------------------------------------------------------------ | -------------- | --------------- | ------------------------------------------------- |
-| 2 Text box v2 (keep engine, rebuild touch layer; BUG-001, BUG-002 if on this screen) | `textbox.v2`   | textbox-v2.md   | slice 1 (same lane P, strictly one after another) |
-| 0g step 3 (Tool frame, Wizard steps, Status pill stack, Before/after)                | -              | shared-parts.md | 0g step 2                                         |
-| 13 Things inside a page                                                              | `page.objects` | page-objects.md | slice 12                                          |
-| 14 Pictures, PDF, audio, reading                                                     | `media.v2`     | media-v2.md     | slice 13                                          |
-| 15 Study tabs                                                                        | `study.v2`     | study-v2.md     | slice 8                                           |
-| 16 Safety and data                                                                   | `safety.v2`    | safety-v2.md    | slice 7                                           |
-| 17 System layer                                                                      | `system.v2`    | system-v2.md    | 0g step 3, slice 16                               |
+| Slice                                                                                | Flag           | Spec                    | Starts after                                                     |
+| ------------------------------------------------------------------------------------ | -------------- | ----------------------- | ---------------------------------------------------------------- |
+| 2 Text box v2 (keep engine, rebuild touch layer; BUG-001, BUG-002 if on this screen) | `textbox.v2`   | textbox-v2.md           | slice 1 (same lane P, strictly one after another)                |
+| 0g step 3 (Tool frame, Wizard steps, Status pill stack, Before/after)                | -              | shared-parts.md         | 0g step 2                                                        |
+| AI cost additions (caching + real token count)                                       | -              | ai.md, "Cost additions" | one small sub-slice at the start of AI framework slice 6, queued |
+| 13 Things inside a page                                                              | `page.objects` | page-objects.md         | slice 12                                                         |
+| 14 Pictures, PDF, audio, reading                                                     | `media.v2`     | media-v2.md             | slice 13                                                         |
+| 15 Study tabs                                                                        | `study.v2`     | study-v2.md             | slice 8                                                          |
+| 16 Safety and data                                                                   | `safety.v2`    | safety-v2.md            | slice 7                                                          |
+| 17 System layer                                                                      | `system.v2`    | system-v2.md            | 0g step 3, slice 16                                              |
 
 Lane order (master plan 4.1): P = 1 → 2 → 12 → 13 → 14; S = 3, 4, 5, 6, 8, 15 (two at a time); R = 7 → 16 → 17; A = AI 5d → 6 → 7 → 8.
 
@@ -122,7 +136,7 @@ Full text: `docs/DECISIONS.md` "Decisions to review" on `build/next`. Build-nigh
 
 1. Run the refresh command. Read only the spec file of the slice you touch.
 2. First: `build/next` green (the red tests above).
-3. Then, 4 builders at once (up to 6 while rework stays under 2 rounds), in this order: finish and merge 3, 9 (5d), 4, 8, 7; 0g step 2 (SP-54); 1 (1d to 1f); 12; then 2, 0g step 3, 15, 16, 13, 14, 17; AI 6 to 8 beside them.
+3. Then, up to 8 builders at once (Speed rules above), in this order: finish and merge 3, 9 (5d), 4, 8, 7; 0g step 2 (SP-54); 1 (1d to 1f); 12; then 2, 0g step 3, 15, 16, 13, 14, 17; AI 6 to 8 beside them.
 4. After each merge: update this file and the Build board in `docs/PENDING.md`, add the CHANGELOG line, run the mirror copy (rules/sessions.md).
 5. Release to `main` only on a green `build/next`, flags off, as the master plan says.
 
@@ -136,3 +150,40 @@ Full text: `docs/DECISIONS.md` "Decisions to review" on `build/next`. Build-nigh
 - Pending docs jobs: docs/plans/docs-audit-2026-11-13.md SAFE list; research recs in docs/design/research-effectiveness-2026-11-13.md (gate 2 brief narrowing needs owner OK if it changes a rule).
 - Gate 2 results (13 Nov): all four FAIL. Common: check:dod does not read table-format spec lines (| XX-Bnn |) and needs a flag; fix in scripts/check-dod on build/next (wave 2, one builder). 0g: only that. 9b: tools5d.test.ts:170 g46 must assert the job's tag is in Trash (deletedAt). 3: fix flaky SET-B39/B40/B45 at the root, label SET-B36 test, add Won't do section. 8: e2e for RV-B08/B10/B20/B23/B27/B28, Error and Loading states, spec file list (Extras inline).
 - Decisions to review: runner.ts recover() runs jobs in parallel (9ebf1383); reviewService skips purgedAt logs also for flag-off users.
+
+## Wave 2 (13 Nov) and handover
+
+- check:dod reads table rows and flag "-" (build/next 2a4b809f). Real flags: notebooks.v2, page.menus.
+- Fixes done: 9b 5a4c818c (g46 Trash test; gate 2 fix closed, not re-gated: test-only). 3 779820be and 8 a6da5c17: gate 2 re-check PASS (8 also fixed useDue.ts rail badge bug).
+- Gate 3 (docs/plans/gate3-2026-11-13.md, b04a4737): 3 FAIL 10 fixes, 8 FAIL 8 fixes (both: no Sepia pictures). Next wave: fix-list builders for 3 and 8, 0g's 3 follow-ups, 4 (13), 12 (4), 7 (7); flag-on pictures for 5, 6, 9b then gate 3.
+- **build/next RED now.** 0g merged (baf5676f), gallery open() waits for 13 sections (2f7c5d65), origin/main merged in (0c936ce3, PR #5 conflict). CI 43295237433 failed: chromium shell.spec.ts:224 "works offline once loaded"; toolbarV8Pen.spec.ts:345 44 pt (maybe passed on retry); ipad-webkit parts-gallery-feedback SP-50 (sheet height) and SP-56 (banner bottom). First check if they fail on 3cbf6107 too. Fixing this is the next wave. 9b not merged yet (waits for green).
+- Owner question for gate 3 (in gate3 file): Settings On/Off as segmented button vs switches.
+
+## Waves 3-4 (13 Nov) and handover
+
+- build/next GREEN: CI 43310172930 (test races fixed, no app code: shell offline, Pen 44 pt, SP-50, SP-56, gallery widths; lint in mcp/src/setup.ts).
+- 9b merged into build/next f49fdad9 (local tsc/lint/vitest green); **CI for f49fdad9 not confirmed yet**: watch it first.
+- Slice 12: merging build/next hits a conflict in src/design/gallery/index.tsx; needs a Sonnet builder (aborted, nothing pushed).
+- Gate-3 fix lists done, pushed, need gate 2 then Fable gate 3 re-shoot review: 3 5ad4bd15 (10/10, On/Off = mock-up switch, SET-B09 spec changed: "Now:" box removed), 8 e06a98e8 (8/8; touched hot file src/App.tsx: iPad portrait sidebar closed; tooltip over sidebar in iPad landscape Home shots), 4 fc8ddf89 (13/13, size 318,226; "3 of 12" arrows and item 12 deferred in DECISIONS), 7 6a8141c7 (7/7; check:dod looks for readerV2.md, spec is reader-v2.md: pass the right slug; worktree has uncommitted sticky/panel edits from an earlier builder, keep them).
+- Still open: 12b fix list (after conflict), 0g 3 follow-ups, flag-on shots + gate 3 for 5, 6, 9b; 7 remaining sub-slices; iPad storage-safety slice; owner iPad checklist; first full preview.
+- Docs done on main: DECISIONS (On/Off switch), PENDING Needs you (gate-2 style rule, not applied), CHANGELOG, mirror.
+
+## Waves 5-7 (13 Nov, orchestrator run 2) and handover
+
+- CI 43318864743 on build/next f49fdad9 (9b merged) was CANCELLED: re-run CI on build/next first.
+- Gate 2 PASS: 4 a67d622c (SR-B05 marked Later), 12 b11e5756 (merge 1b810fc9 + G3 fixes + test follow-ups), 8 044370f7 (rotation via useFrameSize, RV-G02 webkit helper wait, RV-B08), 3 6132fcb3 (aria-describedby fix; test-only re-check not re-gated). 0g follow-ups f741719d.
+- Gate 3 (third visit, gate3 file, main 918c0060): PASS 8, 0g follow-ups. FAIL 5 (7), 6 (6), 9b (8), 12 (2: G3-2 row 24 px short, generic + icons H4-6/Toggle), 4 (7 left). Slice 3 needs a re-shoot + gate 3 (incl. sepia).
+- Slice 7: gate 2 FAIL = unfinished: 7g (RD-B42 edge-tap, Style Full), 7h rest (proSwitches.ts, Pro list, eraser); e2e missing RD-P02-17, P19-34, RD-B24/25/26/42/45/46/50; nothing-lost script R01-R92. Head 55e0ea34.
+- ln-s3 worktree has a popped old stash (conflicts in docs/INDEX.md, PENDING.md, i18n enO/hiO); stash entry kept. Leave it; slice 3 now works in ln-s3b.
+- Next wave: merge 8 then 0g follow-ups into build/next (one at a time, CI); fix lists 5, 6, 9b, 12, 4; re-shoot 3; 7g/7h builder; then storage-safety slice, preview, iPad checklist.
+
+## Waves 8-11 (13 Nov, orchestrator run 3) and handover
+
+- **build/next GREEN at 1024e183** (CI 43346204735: every required job passed; only the weekly warning-only `webkit` job timed out, which counts as green). Contains slice 8 (merge 6169d4b9) + SP-29 root fix (TimeRangeBar picker offset taken once). CI must be dispatched by hand: `gh workflow run ci.yml --ref build/next`.
+- **Ready to merge (gate 2 + gate 3 PASS), in this order, one at a time with CI:** 0g follow-ups (origin/slice/0g-parts f741719d), 3 (origin/slice/3-settings-v3 45390910), 12 (e2c3e03c), 4 (06895d62; size tight ~318.5k, re-check combined check:size), then 5 after its gate 2 (below). Haiku mechanics stopped twice while waiting on CI: do merges with a Sonnet helper or yourself.
+- 5 Home v2 c7ce3621: gate 3 PASS (fifth visit, 3 non-blocking follow-ups). Needs gate 2 on c7ce3621 (copied ScrollTrack from slice 4: expect a `.h-track` duplicate in src/index.css when 4 merges; merge 4 before 5).
+- 6 Library v2 0a154adc: gate 3 FAIL (fifth visit, 4 fixes; 6 has failed gate 3 three times: next try goes to Fable as a hard case / Opus builder with Fable brief). Also copied ScrollTrack.
+- 9b 11bd7c96: gate-3 v4 fixes done (f95531b9) + WebKit test waits for `aifw-entry` (build/next failed the same 8 WebKit tests: app start ~14 s on WebKit due to ~600 IndexedDB writes for starter templates; follow-up idea: batch them). Needs gate 2 re-check, then Fable gate 3 on screenshots/gate3-9b/v4/.
+- 7 Reader v2 63c402d9: gate-2 fixes done (LockMenu below bar stack; red-first proof). **Touched hot file playwright.config.ts**: added readerV2 specs to ipad-webkit, click wait 30 s, and excluded 4 chromium-specific tests + readerV2StickyEpub on ipad-webkit. Gate 2 must judge this against "never weaken/skip" (safest: keep the specs added, drop the longer wait if it is global, and make exclusions explicit `test.skip(browserName)` with reasons, or fix them). Then gate 3 on screenshots/s7/v2 and v3. npm script for check-reader-nothing-lost still missing (hot file).
+- Gate 3 follow-ups logged in gate3 file: 3 (phone chips track, more pictures), 4 (help bubble, iPad night chips outline), shell (gear menu glyphs, dim Night/Sepia labels).
+- Still to do after merges: iPad storage-safety slice, release first full preview, owner iPad checklist (BUG-002, connector, key flows), then "preview ready" to main chat.

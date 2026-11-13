@@ -46,6 +46,8 @@ export type CommandListProps = {
   parentId?: string
   opener?: HTMLElement | null
   initialQuery?: string
+  /** The ✕ in the search box was pressed (the caller may clear its own copy). */
+  onClearQuery?(): void
   initialShowAll?: boolean
   /** Items shown before "Show all". */
   limit?: number
@@ -152,7 +154,13 @@ export function CommandList(props: CommandListProps) {
       setNarrow(!!props.phone || vw < STRIP_PHONE_MAX)
       const t = targetRef.current
       const rect = t ? (typeof t === 'function' ? t() : t) : centreRect()
-      const vh = window.innerHeight
+      // On the phone the bottom tab bar is part of the screen edge.
+      const bar = document.querySelector('.sh-tabbar')
+      const barTop = bar ? bar.getBoundingClientRect().top : Infinity
+      const vh =
+        barTop > 0 && barTop < window.innerHeight
+          ? Math.floor(barTop)
+          : window.innerHeight
       // Up to 420 px tall; shorter (never under 240) when that keeps it clear of the selection.
       const listEl = el.querySelector<HTMLElement>('.cl__list')
       const chrome = el.offsetHeight - (listEl?.clientHeight ?? 0)
@@ -280,6 +288,24 @@ export function CommandList(props: CommandListProps) {
             setActive(0)
           }}
         />
+        {query && (
+          <button
+            type="button"
+            className="cl__clear"
+            data-testid="cl-clear"
+            aria-label={tm('parts.menus.clearSearch')}
+            // Keep the caret where it is while pressing ✕.
+            onPointerDown={(e) => e.preventDefault()}
+            onClick={() => {
+              setQuery('')
+              setActive(0)
+              props.onClearQuery?.()
+              inputRef.current?.focus()
+            }}
+          >
+            <Icon name="close" size={14} />
+          </button>
+        )}
       </div>
       <div
         id={listId}

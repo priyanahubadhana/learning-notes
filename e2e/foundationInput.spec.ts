@@ -3,7 +3,13 @@ import { expect, test } from '@playwright/test'
 /**
  * Slices 0c/0d (docs/features/foundation-input.md): the event and gesture
  * routers are built but unused. The app loads as before, and no script the
- * page loads contains them, so they attach no listeners while unused.
+ * page loads contains the event router, so it attaches no listeners while
+ * unused.
+ *
+ * Why the gesture router is no longer checked here (13 Nov 2026): slice 4
+ * (search v2 8, Context menu strip) made it used on purpose: `useRowHold`
+ * registers the hold claimant when the sidebar or search mounts, so its code
+ * is loaded at start. Its own unit tests and the hold e2e cover it now.
  */
 test('the app loads unchanged and the unused routers are not loaded', async ({
   page,
@@ -23,7 +29,6 @@ test('the app loads unchanged and the unused routers are not loaded', async ({
   expect(bodies.length).toBeGreaterThan(0)
   for (const b of bodies) {
     expect(b).not.toContain('eventRouter: handler')
-    expect(b).not.toContain('gestureRouter: "')
   }
   expect(errors).toEqual([])
 })

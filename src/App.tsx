@@ -38,7 +38,7 @@ import { setGlassLite, startGlassProbe } from './design/glass'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { toggleFavourite } from './app/favourites'
-import { useFlag } from './app/flags'
+import { isOn, useFlag } from './app/flags'
 import { useFrameSize } from './app/shell/useFrameSize'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
 import { QuietCorner } from './app/spaces/QuietCorner'
@@ -1257,7 +1257,8 @@ function App() {
       ) {
         e.preventDefault()
         e.stopPropagation()
-        setSearchChip('all')
+        // search.v2: this shortcut opens on the Features chip (SR-B01).
+        setSearchChip(isOn('search.v2') ? 'feature' : 'all')
         setSearchPopup(true)
       }
     }
@@ -1831,7 +1832,9 @@ function App() {
                   },
                 }}
               />
-            ) : notebooks.length === 0 && currentPage === null ? (
+            ) : notebooks.length === 0 &&
+              currentPage === null &&
+              !isOn('notebooks.v2') ? (
               <EmptyState
                 testId="no-notebooks"
                 className="mx-auto mt-[24vh] max-w-md"
@@ -1859,6 +1862,9 @@ function App() {
                 notebooks={notebooks}
                 onOpen={(id) => openNotebook(id)}
                 onCreate={() => runTask(createNotebookAndOpen())}
+                onReview={(notebookId) =>
+                  openReview({ kind: 'notebook', notebookId })
+                }
               />
             ) : null}
           </Suspense>
@@ -2049,6 +2055,8 @@ function App() {
                   }}
                   onSeeAll={openSearch}
                   initialChip={searchChip}
+                  pageId={currentPageId}
+                  notebookId={notebookId}
                 />
               </Suspense>
             )}

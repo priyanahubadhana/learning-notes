@@ -1,0 +1,146 @@
+# Gate 3 pictures: AI framework slice 9, part 6 (flag ai.framework ON)
+
+Taken by e2e/aiStudioShots.spec.ts (SHOTS=1 PW_PORT=<port> npx playwright test --project=chromium e2e/aiStudioShots.spec.ts) after the last source edit; last source commit 27990f56. Sizes: phone 390x844, iPad landscape 1194x834, iPad portrait 820x1180, PC 1336x800. Themes light, dark, sepia. Levels beginner, professional. 120 pictures = 5 screens x 4 sizes x 3 themes x 2 levels.
+
+Fixes proven: A3 per-tile placement and Undo/Redo = studio-plan-*; A4 saved views = workflows-naming-*, workflows-view-*; run bar path no longer squeezed on iPad and PC = studio-plan-ipad-*, studio-plan-pc-*; A1 stacked bar = studio-plan-phone-*.
+
+## Screens
+
+- studio-empty-<size>-<theme>-<level>.png: Studio, nothing ticked
+- studio-plan-<size>-<theme>-<level>.png: Studio: ticked tiles, Where it goes rows, Undo/Redo with status line (after one Undo)
+- workflows-list-<size>-<theme>-<level>.png: Workflows: three saved workflows, rated
+- workflows-naming-<size>-<theme>-<level>.png: Workflows: More filters, rating 4+, naming a saved view
+- workflows-view-<size>-<theme>-<level>.png: Workflows: saved view chip next to All workflows, filter chip, N of M
+
+## Repeat-fault list (docs/ECONOMY-MODE.md section 7), checked against these pictures
+
+- thin scroll track under a cut-off row: no row is cut off; the screen scrolls as a whole (ok)
+- toast above the phone tab bar: toasts are closed in every picture; unchanged BuildToasts part (ok)
+- sidebar closed on iPad portrait: the AI screen is a full-screen sheet; no sidebar shows (ok)
+- shared parts only: Lucide icons, ClearField, OnOffChoice, TagPicker, one button style per panel. NOT OK, already there before this part: Workflows uses native select boxes for Sort, rating, For and Used at least (see workflows-list-*). Reported to the manager; fixing needs a new shared select part.
+- no key names on touch screens: none shown (ok)
+- pictures in Light, Dark, Sepia with real data: yes (workflows saved through Studio)
+- both levels, iPad landscape and portrait, phone, PC: yes
+
+## Files
+
+- studio-empty-ipad-landscape-dark-beginner.png
+- studio-empty-ipad-landscape-dark-professional.png
+- studio-empty-ipad-landscape-light-beginner.png
+- studio-empty-ipad-landscape-light-professional.png
+- studio-empty-ipad-landscape-sepia-beginner.png
+- studio-empty-ipad-landscape-sepia-professional.png
+- studio-empty-ipad-portrait-dark-beginner.png
+- studio-empty-ipad-portrait-dark-professional.png
+- studio-empty-ipad-portrait-light-beginner.png
+- studio-empty-ipad-portrait-light-professional.png
+- studio-empty-ipad-portrait-sepia-beginner.png
+- studio-empty-ipad-portrait-sepia-professional.png
+- studio-empty-pc-dark-beginner.png
+- studio-empty-pc-dark-professional.png
+- studio-empty-pc-light-beginner.png
+- studio-empty-pc-light-professional.png
+- studio-empty-pc-sepia-beginner.png
+- studio-empty-pc-sepia-professional.png
+- studio-empty-phone-dark-beginner.png
+- studio-empty-phone-dark-professional.png
+- studio-empty-phone-light-beginner.png
+- studio-empty-phone-light-professional.png
+- studio-empty-phone-sepia-beginner.png
+- studio-empty-phone-sepia-professional.png
+- studio-plan-ipad-landscape-dark-beginner.png
+- studio-plan-ipad-landscape-dark-professional.png
+- studio-plan-ipad-landscape-light-beginner.png
+- studio-plan-ipad-landscape-light-professional.png
+- studio-plan-ipad-landscape-sepia-beginner.png
+- studio-plan-ipad-landscape-sepia-professional.png
+- studio-plan-ipad-portrait-dark-beginner.png
+- studio-plan-ipad-portrait-dark-professional.png
+- studio-plan-ipad-portrait-light-beginner.png
+- studio-plan-ipad-portrait-light-professional.png
+- studio-plan-ipad-portrait-sepia-beginner.png
+- studio-plan-ipad-portrait-sepia-professional.png
+- studio-plan-pc-dark-beginner.png
+- studio-plan-pc-dark-professional.png
+- studio-plan-pc-light-beginner.png
+- studio-plan-pc-light-professional.png
+- studio-plan-pc-sepia-beginner.png
+- studio-plan-pc-sepia-professional.png
+- studio-plan-phone-dark-beginner.png
+- studio-plan-phone-dark-professional.png
+- studio-plan-phone-light-beginner.png
+- studio-plan-phone-light-professional.png
+- studio-plan-phone-sepia-beginner.png
+- studio-plan-phone-sepia-professional.png
+- workflows-list-ipad-landscape-dark-beginner.png
+- workflows-list-ipad-landscape-dark-professional.png
+- workflows-list-ipad-landscape-light-beginner.png
+- workflows-list-ipad-landscape-light-professional.png
+- workflows-list-ipad-landscape-sepia-beginner.png
+- workflows-list-ipad-landscape-sepia-professional.png
+- workflows-list-ipad-portrait-dark-beginner.png
+- workflows-list-ipad-portrait-dark-professional.png
+- workflows-list-ipad-portrait-light-beginner.png
+- workflows-list-ipad-portrait-light-professional.png
+- workflows-list-ipad-portrait-sepia-beginner.png
+- workflows-list-ipad-portrait-sepia-professional.png
+- workflows-list-pc-dark-beginner.png
+- workflows-list-pc-dark-professional.png
+- workflows-list-pc-light-beginner.png
+- workflows-list-pc-light-professional.png
+- workflows-list-pc-sepia-beginner.png
+- workflows-list-pc-sepia-professional.png
+- workflows-list-phone-dark-beginner.png
+- workflows-list-phone-dark-professional.png
+- workflows-list-phone-light-beginner.png
+- workflows-list-phone-light-professional.png
+- workflows-list-phone-sepia-beginner.png
+- workflows-list-phone-sepia-professional.png
+- workflows-naming-ipad-landscape-dark-beginner.png
+- workflows-naming-ipad-landscape-dark-professional.png
+- workflows-naming-ipad-landscape-light-beginner.png
+- workflows-naming-ipad-landscape-light-professional.png
+- workflows-naming-ipad-landscape-sepia-beginner.png
+- workflows-naming-ipad-landscape-sepia-professional.png
+- workflows-naming-ipad-portrait-dark-beginner.png
+- workflows-naming-ipad-portrait-dark-professional.png
+- workflows-naming-ipad-portrait-light-beginner.png
+- workflows-naming-ipad-portrait-light-professional.png
+- workflows-naming-ipad-portrait-sepia-beginner.png
+- workflows-naming-ipad-portrait-sepia-professional.png
+- workflows-naming-pc-dark-beginner.png
+- workflows-naming-pc-dark-professional.png
+- workflows-naming-pc-light-beginner.png
+- workflows-naming-pc-light-professional.png
+- workflows-naming-pc-sepia-beginner.png
+- workflows-naming-pc-sepia-professional.png
+- workflows-naming-phone-dark-beginner.png
+- workflows-naming-phone-dark-professional.png
+- workflows-naming-phone-light-beginner.png
+- workflows-naming-phone-light-professional.png
+- workflows-naming-phone-sepia-beginner.png
+- workflows-naming-phone-sepia-professional.png
+- workflows-view-ipad-landscape-dark-beginner.png
+- workflows-view-ipad-landscape-dark-professional.png
+- workflows-view-ipad-landscape-light-beginner.png
+- workflows-view-ipad-landscape-light-professional.png
+- workflows-view-ipad-landscape-sepia-beginner.png
+- workflows-view-ipad-landscape-sepia-professional.png
+- workflows-view-ipad-portrait-dark-beginner.png
+- workflows-view-ipad-portrait-dark-professional.png
+- workflows-view-ipad-portrait-light-beginner.png
+- workflows-view-ipad-portrait-light-professional.png
+- workflows-view-ipad-portrait-sepia-beginner.png
+- workflows-view-ipad-portrait-sepia-professional.png
+- workflows-view-pc-dark-beginner.png
+- workflows-view-pc-dark-professional.png
+- workflows-view-pc-light-beginner.png
+- workflows-view-pc-light-professional.png
+- workflows-view-pc-sepia-beginner.png
+- workflows-view-pc-sepia-professional.png
+- workflows-view-phone-dark-beginner.png
+- workflows-view-phone-dark-professional.png
+- workflows-view-phone-light-beginner.png
+- workflows-view-phone-light-professional.png
+- workflows-view-phone-sepia-beginner.png
+- workflows-view-phone-sepia-professional.png

@@ -347,7 +347,10 @@ export function EpubView(props: EpubViewProps) {
   // Text size, theme and layout.
   useEffect(() => {
     const v = viewRef.current
-    if (!v) return
+    // The view is stored before foliate has opened the book, so its renderer
+    // may not exist yet (a size or theme change in that gap threw and sent the
+    // reader to the error screen). Opening applies the current settings itself.
+    if (!v || !(v as Partial<FoliateView>).renderer) return
     v.renderer.setAttribute('flow', props.flow)
     applyStyle(v, props.size, props.look)
     const mo = new MutationObserver(() => applyStyle(v, props.size, props.look))

@@ -62,7 +62,7 @@ Item 5 (prompt caching) and item 6 (real token count). Code: `src/ai/usage.ts` (
 - The count call sends note text, so it follows every rule of a real call: AI on, a key present, the notebook's Allow AI switch, locked pages never sent, and a row in the send log.
 - Providers without caching or counting work exactly as now.
 
-Won't do:
+### Won't do
 
 - No count call when the notebook does not allow AI, even if the preview was opened.
 - No estimate lower than the real cost (a cheaper re-read price alone does not count).

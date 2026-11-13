@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Card, type CardCloseReason } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
 import { Icon, type IconName } from '../icons'
@@ -24,12 +25,15 @@ export function FoldCard({
   onClose,
   testId,
   title,
+  children,
 }: {
   anchor: HTMLElement
   entries: FoldEntry[]
   onClose: (reason: CardCloseReason) => void
   testId: string
   title?: string
+  /** More below the list (the ⋯ card's own group). */
+  children?: ReactNode
 }) {
   return (
     <Card
@@ -59,6 +63,7 @@ export function FoldCard({
           </button>
         ))}
       </div>
+      {children}
     </Card>
   )
 }

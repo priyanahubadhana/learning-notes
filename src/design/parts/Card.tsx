@@ -44,6 +44,8 @@ export type CardProps = {
   placement?: 'anchored' | 'static'
   /** Rect the card keeps clear of (the selected picture); read at each placement. */
   avoid?: () => RectLike | null
+  /** A box the card hangs around: right, else left, under, above; never over it. */
+  around?: () => RectLike | null
   /** Force the phone sheet look (gallery cell). */
   phone?: boolean
   testId?: string
@@ -67,7 +69,9 @@ export function Card(props: CardProps) {
     testId,
   } = props
   const isStatic = placement === 'static'
-  const phone = usePhone() || !!props.phone
+  // A card that hangs around a box stays a floating card on a phone too (above or
+  // under the box), so the sheet never covers it.
+  const phone = (usePhone() && !props.around) || !!props.phone
   const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const [node, setNode] = useState<HTMLDivElement | null>(null)
@@ -136,6 +140,7 @@ export function Card(props: CardProps) {
     widthPx: WIDTH[size],
     active: !isStatic && !phone && !!anchor,
     avoid: props.avoid,
+    around: props.around,
   })
 
   // A floating card is hidden until positioned, and a hidden element cannot

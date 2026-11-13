@@ -101,6 +101,38 @@ export function placeCard(
   }
 }
 
+/**
+ * Where a card goes around a box it must never cover (TB-42, M1): right of
+ * the box, else left, else under it, else above it. The card keeps 12 px
+ * inside the screen. No arrow (it hangs beside the box, not from a chip).
+ * Null when nothing fits: the caller falls back to the usual placement.
+ */
+export function placeAround(
+  box: RectLike,
+  size: { width: number; height: number },
+  viewport: { width: number; height: number },
+): CardPos | null {
+  const width = Math.min(size.width, viewport.width - 2 * CARD_EDGE)
+  const maxLeft = Math.max(CARD_EDGE, viewport.width - CARD_EDGE - width)
+  const maxTop = Math.max(CARD_EDGE, viewport.height - CARD_EDGE - size.height)
+  const fitsY = size.height <= viewport.height - 2 * CARD_EDGE
+  const right = box.left + box.width + CARD_GAP
+  const left = box.left - CARD_GAP - width
+  const below = box.top + box.height + CARD_GAP
+  const above = box.top - CARD_GAP - size.height
+  const sideTop = clamp(box.top, CARD_EDGE, maxTop)
+  const flatLeft = clamp(box.left, CARD_EDGE, maxLeft)
+  if (fitsY && right + width <= viewport.width - CARD_EDGE)
+    return { left: right, top: sideTop, side: 'right', arrowX: null, width }
+  if (fitsY && left >= CARD_EDGE)
+    return { left, top: sideTop, side: 'left', arrowX: null, width }
+  if (below + size.height <= viewport.height - CARD_EDGE)
+    return { left: flatLeft, top: below, side: 'below', arrowX: null, width }
+  if (above >= CARD_EDGE)
+    return { left: flatLeft, top: above, side: 'above', arrowX: null, width }
+  return null
+}
+
 const PHONE_QUERY = `(max-width: ${PHONE_MAX}px)`
 const subscribePhone = (cb: () => void) => {
   const mq = globalThis.matchMedia?.(PHONE_QUERY)
@@ -125,8 +157,10 @@ export function useAnchoredCard(opts: {
   active: boolean
   /** Rect of something the card must keep clear of, read at each placement. */
   avoid?: () => RectLike | null
+  /** A box to hang around (right, left, under, above); wins over `avoid`. */
+  around?: () => RectLike | null
 }): CardPos | null {
-  const { anchor, card, widthPx, active, avoid } = opts
+  const { anchor, card, widthPx, active, avoid, around } = opts
   const [pos, setPos] = useState<CardPos | null>(null)
   useLayoutEffect(() => {
     if (!active || !anchor || !card) {
@@ -134,12 +168,12 @@ export function useAnchoredCard(opts: {
     }
     const run = () => {
       const root = document.documentElement
-      const next = placeCard(
-        rectOf(anchor),
-        { width: widthPx, height: card.offsetHeight },
-        { width: root.clientWidth, height: window.innerHeight },
-        avoid?.() ?? null,
-      )
+      const size = { width: widthPx, height: card.offsetHeight }
+      const view = { width: root.clientWidth, height: window.innerHeight }
+      const box = around?.() ?? null
+      const next =
+        (box && placeAround(box, size, view)) ||
+        placeCard(rectOf(anchor), size, view, box ?? avoid?.() ?? null)
       setPos((prev) =>
         prev &&
         prev.left === next.left &&
@@ -156,6 +190,6 @@ export function useAnchoredCard(opts: {
     ro.observe(card)
     ro.observe(document.documentElement)
     return () => ro.disconnect()
-  }, [anchor, card, widthPx, active, avoid])
+  }, [anchor, card, widthPx, active, avoid, around])
   return active && anchor && card ? pos : null
 }

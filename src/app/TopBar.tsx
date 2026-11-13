@@ -6,7 +6,8 @@ import { useSyncedSetting } from '../settings/useSetting'
 import { showRefreshSetting } from '../settings/builtinSettings'
 import { MenuIcon } from './ui'
 import { DeviceModeButton } from './DeviceModeMenu'
-import { showToolBar, useShowBarButton } from './tools/toolbarVisibility'
+import { showToolBar } from './tools/toolbarVisibility'
+import { ShowToolbarPill } from './tools/v8/ShowToolbarPill'
 
 const ICON_BUTTON =
   'size-11 shrink-0 items-center justify-center rounded-lg text-ink-soft enabled:hover:bg-hover enabled:hover:text-ink disabled:opacity-35'
@@ -35,7 +36,6 @@ export function TopBar({
   const canGoForward = useCanGoForward()
   const toggleName = t(sidebarHidden ? 'nav.showMenu' : 'nav.hideMenu')
   // While the tool bar is off, the way back stays in sight.
-  const barOff = useShowBarButton()
   const showRefresh = useSyncedSetting(db, showRefreshSetting)
 
   return (
@@ -123,16 +123,18 @@ export function TopBar({
         {title && <span className="min-w-0 truncate text-sm">{title}</span>}
       </div>
       <DeviceModeButton />
-      {barOff && (
-        <button
-          type="button"
-          data-testid="show-tool-bar"
-          onClick={showToolBar}
-          className="min-h-11 shrink-0 rounded-full bg-accent px-4 text-sm font-semibold text-white shadow-sm hover:opacity-90"
-        >
-          {t('bar.show')}
-        </button>
-      )}
+      <ShowToolbarPill
+        fallback={
+          <button
+            type="button"
+            data-testid="show-tool-bar"
+            onClick={showToolBar}
+            className="min-h-11 shrink-0 rounded-full bg-accent px-4 text-sm font-semibold text-white shadow-sm hover:opacity-90"
+          >
+            {t('bar.show')}
+          </button>
+        }
+      />
     </header>
   )
 }

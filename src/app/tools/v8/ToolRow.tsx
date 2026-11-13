@@ -52,7 +52,7 @@ function Face({
       ) : item.icon ? (
         <Icon name={item.icon} size={18} />
       ) : null}
-      {names && item.kind === 'menu' ? (
+      {names && item.kind === 'menu' && !item.iconOnly ? (
         <span className="v8chip-text">{v.text}</span>
       ) : null}
     </>

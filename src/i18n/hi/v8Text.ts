@@ -1,0 +1,28 @@
+/** नए टूल बार के टेक्स्ट, इन्सर्ट, और, सभी टूल कार्ड और "टूल बार दिखाएँ" बटन के हिंदी पाठ (toolbar.v8, भाग 1e, 1f, BUG-003). */
+export const hiV8Text = {
+  'settings.hideWhileWriting.description':
+    'लिखना शुरू करते ही टूल बार छिप जाता है। उसे वापस लाने के लिए "टूल बार दिखाएँ" दबाएँ।',
+  'settings.hideWhileWriting.label': 'लिखते समय टूल बार छिपाएँ',
+  'v8.allTools.title': 'सभी टूल',
+  'v8.bar.show': 'टूल बार दिखाएँ',
+  'v8.box.details': 'बॉक्स का विवरण',
+  'v8.box.look.card': 'कार्ड',
+  'v8.box.look.note': 'नोट',
+  'v8.box.look.outline': 'रूपरेखा',
+  'v8.box.look.plain': 'सादा',
+  'v8.box.look.soft': 'मुलायम',
+  'v8.box.look.sticky': 'चिपकू',
+  'v8.box.looks': 'रूप',
+  'v8.box.noBox': 'कोई बॉक्स चुना नहीं है। आपकी पसंद नए बॉक्स में लगेगी।',
+  'v8.box.newGroup': 'नए बॉक्स',
+  'v8.format.advanced': 'उन्नत',
+  'v8.format.paragraph': 'अनुच्छेद',
+  'v8.format.star': 'मुख्य बिंदु',
+  'v8.format.style': 'शैली',
+  'v8.format.text': 'टेक्स्ट',
+  'v8.insert.title': 'डालें',
+  'v8.more.allTools': 'सभी टूल',
+  'v8.more.groupApp': 'टूल बार',
+  'v8.more.hideBar': 'टूल बार छिपाएँ',
+  'v8.more.title': 'और',
+}

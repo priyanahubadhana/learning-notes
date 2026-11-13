@@ -1,0 +1,28 @@
+/** English texts of the new tool bar's Text, Insert, More and All tools cards and the Show toolbar pill (toolbar.v8, slices 1e, 1f, BUG-003). */
+export const enV8Text = {
+  'settings.hideWhileWriting.description':
+    'The tool bar tucks away when you start writing or typing. Tap "Show toolbar" to bring it back.',
+  'settings.hideWhileWriting.label': 'Hide toolbar while writing',
+  'v8.allTools.title': 'All tools',
+  'v8.bar.show': 'Show toolbar',
+  'v8.box.details': 'Box details',
+  'v8.box.look.card': 'Card',
+  'v8.box.look.note': 'Note',
+  'v8.box.look.outline': 'Outline',
+  'v8.box.look.plain': 'Plain',
+  'v8.box.look.soft': 'Soft',
+  'v8.box.look.sticky': 'Sticky',
+  'v8.box.looks': 'Look',
+  'v8.box.noBox': 'No box is selected. Your choice is used for new boxes.',
+  'v8.box.newGroup': 'New boxes',
+  'v8.format.advanced': 'Advanced',
+  'v8.format.paragraph': 'Paragraph',
+  'v8.format.star': 'Key point',
+  'v8.format.style': 'Style',
+  'v8.format.text': 'Text',
+  'v8.insert.title': 'Insert',
+  'v8.more.allTools': 'All tools',
+  'v8.more.groupApp': 'Tool bar',
+  'v8.more.hideBar': 'Hide the tool bar',
+  'v8.more.title': 'More',
+}

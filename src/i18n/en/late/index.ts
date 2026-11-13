@@ -37,6 +37,7 @@ import { enV2Search } from '../v2/search'
 import { enV2Panel } from '../v2/panel'
 import { enV8Pen } from '../v8Pen'
 import { enV8Tools } from '../v8Tools'
+import { enV8Text } from '../v8Text'
 
 export const enLate = {
   ...enLateAccounts,
@@ -77,4 +78,5 @@ export const enLate = {
   ...enLateLibraryV2,
   ...enV8Pen,
   ...enV8Tools,
+  ...enV8Text,
 }

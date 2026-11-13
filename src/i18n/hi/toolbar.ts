@@ -88,6 +88,7 @@ export const hiToolbar = {
   'v8.fold.title': 'और',
   'v8.item.actions': 'क्रियाएँ',
   'v8.item.bold': 'मोटा',
+  'v8.item.boxset': 'बॉक्स सेटिंग',
   'v8.item.box': 'बॉक्स',
   'v8.item.colour': 'रंग',
   'v8.item.feel': 'अनुभव',

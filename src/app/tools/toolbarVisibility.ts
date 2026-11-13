@@ -41,7 +41,7 @@ export function showToolBar(): void {
 }
 
 /** Turns it off at once (no question): used by Undo-free paths and tests. */
-function hideToolBar(): void {
+export function hideToolBar(): void {
   const now = readDeviceSetting(barPlacementSetting)
   if (now !== 'floating') lastPlacement.set(now)
   turnedOff.set(true)

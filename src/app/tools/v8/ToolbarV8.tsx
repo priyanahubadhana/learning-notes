@@ -18,8 +18,10 @@ import { ToolRow } from './ToolRow'
 import { isPenCard } from './cards/pen/penModel'
 import { cardAutoClose } from './cards/autoClose'
 import { isShapeDraw } from './cards/shapes/shapesModel'
+import { activeBox } from '../../../paper/activeBox'
 import { penSettings } from '../main/inkSettings'
 import { cardInfo } from './rowItems'
+import { useTuckWatcher } from './useTuckWatcher'
 import type { V8ToolId } from './registryV8'
 import './toolbarV8.css'
 
@@ -28,10 +30,23 @@ const PenCardBody = lazy(() => import('./cards/pen/PenCards'))
 const EraserCardBody = lazy(() => import('./cards/eraser/EraserCards'))
 const ShapesCardBody = lazy(() => import('./cards/shapes/ShapesCards'))
 const LassoCardBody = lazy(() => import('./cards/lasso/LassoCards'))
+const TextCardBody = lazy(() => import('./cards/text/TextCards'))
+const InsertCardBody = lazy(() => import('./cards/insert/InsertCards'))
+const AllToolsCardBody = lazy(() => import('./cards/alltools/AllToolsCard'))
 const SelectionBarV8 = lazy(() => import('./SelectionBarV8'))
 const SelCardBody = lazy(() =>
   import('./SelectionBarV8').then((m) => ({ default: m.SelCardBody })),
 )
+
+/** The selected text box's rect: the Box card hangs around it, never over it. */
+const activeBoxRect = () => {
+  const at = activeBox.get()
+  return at
+    ? (document
+        .querySelector(`[data-paper-box="${at.boxId}"]`)
+        ?.getBoundingClientRect() ?? null)
+    : null
+}
 
 /** The picked picture's rect: the Edit picture card keeps clear of it. */
 const pickedPictureRect = () =>
@@ -48,6 +63,7 @@ export default function ToolbarV8() {
   const picture = pictureControl.useValue() !== null
   const [card, setCard] = useState<OpenCard | null>(null)
   const root = useRef<HTMLDivElement>(null)
+  useTuckWatcher()
 
   // The shared stacking table as --z-* variables (the name tip uses --z-menu).
   useEffect(() => applyLayerVars(), [])
@@ -157,6 +173,7 @@ export default function ToolbarV8() {
           size={info.size}
           autoClose={cardAutoClose(card.id)}
           avoid={card.id === 'sel.picture' ? pickedPictureRect : undefined}
+          around={card.id === 'text.box' ? activeBoxRect : undefined}
           title={t(info.title)}
           testId={`v8-card-${card.id}`}
           onClose={() => onCloseCard(card.id)}
@@ -176,8 +193,13 @@ export default function ToolbarV8() {
                 onDone={() => onCloseCard(card.id)}
                 onSwap={(id) => setCard((c) => (c ? { ...c, id } : c))}
               />
+            ) : card.id.startsWith('text.') ? (
+              <TextCardBody id={card.id} />
+            ) : card.id === 'insert' ? (
+              <InsertCardBody />
+            ) : card.id === 'more.alltools' ? (
+              <AllToolsCardBody />
             ) : (
-              /* 1e and 1f fill the other cards. */
               <p className="v8note">{t('v8.card.empty')}</p>
             )}
           </Suspense>

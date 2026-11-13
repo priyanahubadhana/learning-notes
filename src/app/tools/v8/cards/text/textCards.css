@@ -1,0 +1,77 @@
+/* Toolbar v8, slice 1e: Format and Box cards. Tokens only. */
+.v8look {
+  display: block;
+  line-height: 1;
+  color: var(--color-ink);
+}
+.v8look-h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+.v8look-h2 {
+  font-size: 20px;
+  font-weight: 650;
+}
+.v8look-h3 {
+  font-size: 17px;
+  font-weight: 600;
+}
+.v8look-bold {
+  font-size: 20px;
+  font-weight: 700;
+}
+.v8look-italic {
+  font-size: 20px;
+  font-style: italic;
+}
+.v8look-underline {
+  font-size: 20px;
+  text-decoration: underline;
+}
+.v8look-strike {
+  font-size: 20px;
+  text-decoration: line-through;
+}
+.v8look-code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 17px;
+}
+.v8boxprev {
+  display: block;
+  width: 44px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  box-sizing: border-box;
+}
+.v8boxprev-sm {
+  width: 28px;
+  height: 24px;
+  border: 1px solid var(--color-line);
+}
+.v8num {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.v8actrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+}
+.v8scroll.v8thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--card-track) transparent;
+}
+.v8scroll.v8thin::-webkit-scrollbar {
+  display: block;
+  width: 4px;
+}
+.v8scroll.v8thin::-webkit-scrollbar-thumb {
+  border-radius: var(--r-pill);
+  background: var(--card-track);
+}
+/* The Box card is short so it fits above or under a box on a phone. */
+.v8scroll.v8scroll-box {
+  max-height: min(calc(100dvh - 260px), 340px);
+}

@@ -33,17 +33,22 @@ export function MinimiseChip({
   label,
   icon,
   onRestore,
+  testId = 'minimise-chip',
+  ariaLabel,
 }: {
   label: string
   icon?: ReactNode
+  testId?: string
+  /** The spoken name; by default "Show <label>". */
+  ariaLabel?: string
   onRestore: () => void
 }) {
   return createPortal(
     <button
       type="button"
       className="sh-chip"
-      data-testid="minimise-chip"
-      aria-label={t('shell.chip.show', { name: label })}
+      data-testid={testId}
+      aria-label={ariaLabel ?? t('shell.chip.show', { name: label })}
       onClick={onRestore}
     >
       <span aria-hidden="true">‹</span>

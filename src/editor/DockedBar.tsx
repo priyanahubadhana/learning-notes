@@ -34,6 +34,7 @@ import {
 } from '../settings/deviceModeSettings'
 import { historyState } from '../core/historySteps'
 import { useFlag } from '../app/flags'
+import { tuckState } from '../app/tools/v8/tuck'
 import { padHistoryState } from './writePad/padHistory'
 import { MainBarRow } from '../app/tools/main/MainBar'
 import { ToolbarV8Lazy } from '../app/tools/v8/ToolbarV8Lazy'
@@ -122,6 +123,8 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const kbInset = useKeyboardInset()
   const settings = useBarSettings()
   const toolbarV8 = useFlag('toolbar.v8')
+  // BUG-003: the bar tucked away while writing (the Show toolbar pill is up).
+  const tucked = tuckState.useValue().tucked
   const { buttonPx, hoverTips, shortcutHints, autoHide } = settings
   const layout = useBarLayout()
   const groups = barGroups(layout)
@@ -493,7 +496,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
             key={place}
             place={place}
             kind={kinds.includes('short') ? 'short' : 'ribbon'}
-            hidden={place !== 'free' && !shown}
+            hidden={(toolbarV8 && tucked) || (place !== 'free' && !shown)}
             onFraction={setFreeFraction}
           >
             {kinds.map((kind) =>

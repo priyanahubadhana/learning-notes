@@ -49,11 +49,14 @@ const ARROWS = [
 export function TileGroup({
   label,
   multi,
+  action,
   columns = 3,
   children,
 }: {
   label: string
   multi?: boolean
+  /** The tiles are buttons that act (a plain group, no single choice). */
+  action?: boolean
   columns?: number
   children: ReactNode
 }) {
@@ -94,7 +97,7 @@ export function TileGroup({
     <div
       ref={ref}
       className="pcard-tiles"
-      role={multi ? 'group' : 'radiogroup'}
+      role={multi || action ? 'group' : 'radiogroup'}
       aria-label={label}
       style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
       onKeyDown={onKey}
@@ -109,6 +112,8 @@ export type TileProps = {
   selected?: boolean
   disabled?: boolean
   multi?: boolean
+  /** A tile that does something (Insert, All tools): a button, not a choice. */
+  action?: boolean
   onSelect?: () => void
   /** Pins hover or pressed (gallery cells). */
   force?: 'hover' | 'pressed'
@@ -122,6 +127,7 @@ export function Tile({
   selected,
   disabled,
   multi,
+  action,
   onSelect,
   force,
   children,
@@ -132,8 +138,8 @@ export function Tile({
     <button
       type="button"
       className="pcard-tile"
-      role={multi ? 'checkbox' : 'radio'}
-      aria-checked={!!selected}
+      role={action ? undefined : multi ? 'checkbox' : 'radio'}
+      aria-checked={action ? undefined : !!selected}
       aria-label={label}
       disabled={disabled}
       data-force={force}

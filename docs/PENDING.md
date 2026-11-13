@@ -237,6 +237,7 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, customizable bars, layers, 
   - progress, then a full-screen "installing" state with interactions blocked;
   - restore with all data kept;
   - handle failures and interruptions.
+- BUG-006 (owner, 13 Nov, iPad Safari portrait, preview): the ⚙ Settings gear at the bottom of the left strip is not reachable; the strip does not scroll and the gear falls off screen (keyboard and format bar open). **Must be fixed before the live release**, also for the installed app: pin the gear inside the visible area or let the strip scroll; test on a short iPad Safari viewport. Screenshot: owner upload 13 Nov 20:29.
 - BUG-005: settings need visual previews (e.g. toolbar on/off) plus a guided walkthrough highlighting Compact view, Ribbon and Toolbar.
 - Standing instruction: ask until fully understood; no assumptions.
 - OWNER answers for the register:

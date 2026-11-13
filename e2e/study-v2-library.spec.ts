@@ -62,7 +62,12 @@ test('ST12: the library shows 6 starter prompts as tiles with Run, and nothing e
   const dialog = page.getByTestId('prompts-dialog')
   await expect(dialog.getByTestId('starter-tile')).toHaveCount(6)
   await expect(dialog.getByRole('button', { name: /^Run / })).toHaveCount(6)
-  const box = (await dialog.getByTestId('starter-tile').first().boundingBox())!
+  // Measure after the 280 ms pop-in, not mid-scale (the box includes it).
+  const first = dialog.getByTestId('starter-tile').first()
+  await first.evaluate((el) =>
+    Promise.all(el.getAnimations().map((x) => x.finished)),
+  )
+  const box = (await first.boundingBox())!
   expect(Math.round(box.width)).toBe(160)
   expect(Math.round(box.height)).toBe(112)
   await expect(dialog.getByTestId('prompt-search')).toHaveCount(0)

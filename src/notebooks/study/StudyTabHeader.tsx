@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { Icon } from '../../app/tools/icons'
 import { MenuPopover, type MenuItem } from '../../app/ui'
 import { t } from '../../i18n/t'
 import './StudyTabHeader.css'
@@ -9,6 +10,8 @@ export interface HeaderChip {
   onRemove: () => void
   /** A saved filter: tapping the name applies it. */
   onSelect?: () => void
+  /** A saved filter shows a bookmark, so it never looks like the live one. */
+  saved?: boolean
 }
 
 /**
@@ -97,11 +100,21 @@ export function StudyTabHeader({
       {chips.length > 0 && (
         <ul className="study-header__chips" aria-label={t('st2.filter')}>
           {chips.map((chip) => (
-            <li key={chip.id} className="study-header__chip">
+            <li
+              key={chip.id}
+              className="study-header__chip"
+              data-saved={chip.saved ? 'true' : undefined}
+            >
+              {chip.saved && (
+                <span aria-hidden className="study-header__chipicon">
+                  <Icon name="bookmark" size={14} />
+                </span>
+              )}
               {chip.onSelect ? (
                 <button
                   type="button"
                   onClick={chip.onSelect}
+                  title={chip.saved ? t('st21.savedChip') : undefined}
                   className="study-header__chipname"
                 >
                   {chip.label}

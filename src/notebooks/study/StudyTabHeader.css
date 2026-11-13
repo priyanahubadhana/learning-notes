@@ -62,9 +62,18 @@
   color: var(--color-muted);
   font-size: 12px;
 }
+.study-header__chipicon {
+  display: inline-flex;
+  margin-inline-end: 4px;
+  color: var(--color-accent);
+}
 @media (max-width: 639px) {
   .study-header {
     flex-wrap: wrap;
+  }
+  /* The wrapped Review button must not touch the chip row. */
+  .study-header__chips {
+    margin-top: 8px;
   }
 }
 .study-header__action {

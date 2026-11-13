@@ -121,6 +121,7 @@ export function CardsTabV2({
   const savedChips = canSave
     ? saved.map((f) => ({
         id: 'saved-' + f.id,
+        saved: true,
         label: t(STATUS_TEXT[f.status] ?? 'st2.filter'),
         onSelect: () => {
           setStatus(f.status)

@@ -95,7 +95,7 @@ Total: 169 features, plus 50 proposed by the build specs (219).
 | `reader.barScroll`      | Bar hides on scroll                  | The bar hides when you scroll down and returns when you scroll up; pin it.      |
 | `reader.lockDirection`  | Lock screen direction                | Try to keep the screen upright or sideways.                                     |
 | `reader.liquid`         | Liquid mode (beta)                   | A reflowed text view for PDFs.                                                  |
-| `reader.lineFocus`      | Line focus and ruler                 | Dim all but about two lines, or mark one line; Alt+Up/Down moves it.            |
+| `reader.lineFocus`      | Line focus and ruler                 | Dim all but about two lines, or mark one line; tap to move it.                  |
 | `reader.hideBlanks`     | Hide blanks (self-test)              | Hide recall words and tap to show them.                                         |
 | `reader.keepAwake`      | Keep screen awake                    | Stops the screen sleeping while you read.                                       |
 | `reader.tapCounts`      | Tap counts with Select               | 2 taps a word, 3 a line, 4 a paragraph, 5 a page.                               |

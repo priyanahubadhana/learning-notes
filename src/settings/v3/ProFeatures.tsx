@@ -245,7 +245,8 @@ function GroupCard({
       </header>
       <ul className="sv3-prog-list">
         {ids.map((id) => {
-          const checked = isUnlocked(id)
+          const later = COMING_LATER.has(id)
+          const checked = !later && isUnlocked(id)
           return (
             <li
               key={glow?.ids.includes(id) ? `${id}:${glow.seq}` : id}
@@ -256,7 +257,7 @@ function GroupCard({
               <div className="sv3-prof-text">
                 <span className="sv3-row-name">{nameOf(id)}</span>
                 <span className="sv3-line-help">{doesOf(id)}</span>
-                {COMING_LATER.has(id) && (
+                {later && (
                   <span className="sv3-line-help" data-coming-later>
                     {t('readerv2.comingLater')}
                   </span>
@@ -265,6 +266,7 @@ function GroupCard({
               <OnOff
                 checked={checked}
                 label={nameOf(id)}
+                disabled={later}
                 onChange={(next) => onToggle(id, next)}
               />
             </li>

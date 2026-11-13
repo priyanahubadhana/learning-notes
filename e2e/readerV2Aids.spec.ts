@@ -415,3 +415,20 @@ test('RD-P34 reader.liquid and reader.tapCounts carry "Coming later" in Settings
       page.locator(`[data-pro-feature="${id}"] [data-coming-later]`),
     ).toHaveText('Coming later')
 })
+
+test('RD-P34 gate 3 fix 8: Coming later switches stay off and disabled, even when unlocked', async ({
+  page,
+}) => {
+  await page.addInitScript((v) => {
+    if (!sessionStorage.getItem('seeded')) {
+      localStorage.setItem('learning-notes:level', v)
+      sessionStorage.setItem('seeded', '1')
+    }
+  }, BEGINNER(['reader.liquid', 'reader.tapCounts']))
+  await page.goto('/?flags=settings.v3#/settings/pro')
+  for (const id of ['reader.liquid', 'reader.tapCounts']) {
+    const sw = page.locator(`[data-pro-feature="${id}"] [role="switch"]`)
+    await expect(sw).toHaveAttribute('aria-checked', 'false')
+    await expect(sw).toBeDisabled()
+  }
+})

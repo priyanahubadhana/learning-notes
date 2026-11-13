@@ -274,7 +274,7 @@ export const PRO_FEATURE_TEXT: Record<string, readonly [string, string]> = {
   'reader.liquid': ['Liquid mode (beta)', 'A reflowed text view for PDFs.'],
   'reader.lineFocus': [
     'Line focus and ruler',
-    'Dim all but about two lines, or mark one line; Alt+Up/Down moves it.',
+    'Dim all but about two lines, or mark one line; tap to move it.',
   ],
   'reader.hideBlanks': [
     'Hide blanks (self-test)',

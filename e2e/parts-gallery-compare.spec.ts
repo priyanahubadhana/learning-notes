@@ -155,7 +155,28 @@ test('S3-35 Next change rings the change and counts; Previous goes back', async 
   await d.getByTestId('ba-next').click()
   await d.getByTestId('ba-next').click()
   await expect(d.getByTestId('ba-count')).toHaveText('2 of 4')
-  await expect(d.locator('[data-current]').first()).toBeVisible()
+  // the change is ringed and centred in both columns (or as near as the scroll allows)
+  let ringed = 0
+  for (const side of ['before', 'after']) {
+    const cell = d.getByTestId(`ba-col-${side}`).locator('[data-current]')
+    if ((await cell.count()) === 0) continue // a change that exists in one copy only
+    ringed++
+    expect(
+      await cell.evaluate((n) => getComputedStyle(n).boxShadow),
+      `${side}: ringed`,
+    ).not.toBe('none')
+    const body = d.getByTestId(`ba-body-${side}`)
+    const where = await Promise.all([box(cell), box(body)])
+    const edge = await body.evaluate(
+      (n) =>
+        n.scrollTop < 2 || n.scrollTop + n.clientHeight > n.scrollHeight - 2,
+    )
+    const off = Math.abs(
+      where[0].y + where[0].height / 2 - (where[1].y + where[1].height / 2),
+    )
+    expect(edge || off <= 24, `${side}: centred (off by ${off})`).toBe(true)
+  }
+  expect(ringed, 'the change is ringed in a column').toBeGreaterThan(0)
   await d.getByTestId('ba-prev').click()
   await expect(d.getByTestId('ba-count')).toHaveText('1 of 4')
   // keyboard: N and P
@@ -180,6 +201,15 @@ test('S3-36 on a phone Before is on top, After below', async ({ page }) => {
     () => document.documentElement.scrollWidth - window.innerWidth,
   )
   expect(over).toBeLessThanOrEqual(0)
+  // and the two copies scroll together
+  await d.getByTestId('ba-fold').first().click()
+  const A = d.getByTestId('ba-body-before')
+  const B = d.getByTestId('ba-body-after')
+  await A.evaluate((n) => n.scrollTo({ top: 90 }))
+  await expect
+    .poll(() => B.evaluate((n) => Math.round(n.scrollTop)))
+    .toBe(await A.evaluate((n) => Math.round(n.scrollTop)))
+  expect(await B.evaluate((n) => n.scrollTop)).toBeGreaterThan(0)
 })
 
 test('S3-37 two identical copies say so and the action buttons still work', async ({
@@ -192,11 +222,20 @@ test('S3-37 two identical copies say so and the action buttons still work', asyn
   await expect(page.getByTestId('ba-chosen')).toHaveText('Chosen: Keep mine')
 })
 
-test('S3-38 an action in the side view runs once from the footer', async ({
+test('S3-38 an action in the side view is one history step with an Undo toast; Undo brings the earlier state back', async ({
   page,
 }) => {
   await gallery(page)
   const d = demo(page, 'cmp-side')
+  await expect(page.getByTestId('ba-chosen')).toHaveText('Nothing chosen yet')
+  await expect(page.getByTestId('ba-steps')).toHaveText('History steps: 0')
   await d.getByTestId('ba-keep-theirs').click()
   await expect(page.getByTestId('ba-chosen')).toHaveText('Chosen: Keep theirs')
+  await expect(page.getByTestId('ba-steps')).toHaveText('History steps: 1')
+  const toast = page.getByTestId('shell-toast')
+  await expect(toast).toContainText('Chosen: Keep theirs')
+  await toast.getByRole('button', { name: 'Undo' }).click()
+  await expect(page.getByTestId('ba-chosen')).toHaveText('Nothing chosen yet')
+  await expect(page.getByTestId('ba-steps')).toHaveText('History steps: 0')
+  await expect(toast).toBeHidden()
 })

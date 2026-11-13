@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { shellToasts } from '../../app/shell/toastStore'
 import { BeforeAfter } from '../parts/BeforeAfter'
 import { CompareButton } from '../parts/CompareButton'
 import type { CompareDoc } from '../parts/compareBlocks'
@@ -29,6 +30,8 @@ const T = {
   applied: 'Chosen',
   nothing: 'Nothing chosen yet',
   hold: 'Hold the button',
+  undo: 'Undo',
+  steps: 'History steps',
 } as const
 
 const long = (n: number): { id: string; text: string }[] =>
@@ -88,13 +91,27 @@ function Live() {
 
 export default function CompareSection() {
   const [chosen, setChosen] = useState<string>(T.nothing)
+  const [steps, setSteps] = useState(0)
+  // One choice = one history step, with an Undo toast that brings the earlier state back (S3-38).
+  const choose = (label: string) => {
+    const earlier = chosen
+    setChosen(`${T.applied}: ${label}`)
+    setSteps((n) => n + 1)
+    shellToasts.show(`${T.applied}: ${label}`, {
+      label: T.undo,
+      onSelect: () => {
+        setChosen(earlier)
+        setSteps((n) => Math.max(0, n - 1))
+      },
+    })
+  }
   const actions = (
     <>
       <button
         type="button"
         className="fb-btn"
         data-testid="ba-keep-mine"
-        onClick={() => setChosen(`${T.applied}: ${T.keepMine}`)}
+        onClick={() => choose(T.keepMine)}
       >
         {T.keepMine}
       </button>
@@ -103,7 +120,7 @@ export default function CompareSection() {
         className="fb-btn"
         data-variant="main"
         data-testid="ba-keep-theirs"
-        onClick={() => setChosen(`${T.applied}: ${T.keepTheirs}`)}
+        onClick={() => choose(T.keepTheirs)}
       >
         {T.keepTheirs}
       </button>
@@ -126,6 +143,9 @@ export default function CompareSection() {
     <Section id="compare" title={T.title} help={T.help}>
       <p className="step3-said" data-testid="ba-chosen" aria-live="polite">
         {chosen}
+      </p>
+      <p className="step3-said" data-testid="ba-steps">
+        {`${T.steps}: ${steps}`}
       </p>
       <Cells>
         <Demo state="cmp-hold-after" label={T.holdAfter}>

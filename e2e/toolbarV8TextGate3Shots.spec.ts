@@ -79,8 +79,6 @@ async function closeCard(page: Page) {
 for (const [dev, size] of Object.entries(SIZES)) {
   for (const theme of ['day', 'night', 'sepia'] as const) {
     for (const level of ['beginner', 'professional'] as const) {
-      if (level === 'professional' && dev !== 'ipad-landscape' && dev !== 'pc')
-        continue
       test(`${dev} ${theme} ${level}`, async ({ page }) => {
         // test-guard-reason: many pictures in one run need more time
         test.setTimeout(120_000)

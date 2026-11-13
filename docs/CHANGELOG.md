@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: economy orchestrator aligned with speed rules
+
+- What: .claude/agents/economy-orchestrator.md now uses the speed rules: up to 8 builders on non-overlapping files (fall back to 6 on rework or flakes), next Opus round after two gate-3 fails, restart about every 6 waves, batch CI up to 3 fully gated slices per run.
+- Why: the orchestrator file still had the older limits (6 builders, 3 waves, Opus after two failed tries), which conflicted with ECONOMY-MODE section 11 and BUILD-STATE.
+- Files: .claude/agents/economy-orchestrator.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: build speed rules (no quality or design change)
 
 - What: ECONOMY-MODE.md gets section 11 "Speed rules" (builder cap 8, gates in parallel, pictures while CI runs, one CI run per batch of up to 3 gated slices, `main` merged into `build/next` to bring the automatic run back, one run at a time, repeat gate-3 fault list for builders, Opus sooner after repeat gate-3 fails, fewer orchestrator restarts). BUILD-STATE.md carries the same rules in short. DECISIONS.md lists each change and why quality is not affected.

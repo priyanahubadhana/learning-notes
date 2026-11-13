@@ -22,6 +22,26 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 - Usage limit hit: stopped helpers are resumed automatically when the limit resets (a scheduled wake-up), and every step is saved to git and `docs/PENDING.md` so nothing is lost.
 - Build (economy mode, from 13 Nov 2026, owner-approved; docs/ECONOMY-MODE.md): an **Opus** orchestrator (`economy-orchestrator`) reads docs/BUILD-STATE.md and briefs up to 6 **Sonnet** builders (`economy-builder`) directly; **Haiku** (`economy-mechanic`) does mechanical work and CI watching; **Opus** (`economy-gate2`) does gate 2. **Fable** plans, takes hard cases and checks every slice at least twice: the brief against the spec and mock-up before building, and the screenshots (gate 3) before merge. Same 3 gates, same tests. Rollback: `fable-manager`.
 
+## Core Operating Rules (owner, 13 Nov 2026; the default until the owner changes them)
+
+- **Hierarchy:** a manager plans and delegates; cheaper models do the work; nobody waits for the owner except for money, Supabase, switching parts ON, or possible data loss.
+- **Escalate by yourself:** Sonnet → Opus → Fable. Move up when the same test is red twice, a builder stops twice, or a gate fails twice; Fable solves what Opus could not. Fix stalls at once (green build with nothing merging, idle lanes). Detail: docs/ECONOMY-MODE.md section 12.
+- **Token efficiency:** briefs use the 6-line template (goal, where, spec pointer, done when, do not touch, report) and never paste file text; lookups go to the cheap search helper (economy-search, Haiku); Fable reads short digests, not raw sources. Detail: docs/ECONOMY-MODE.md, docs/design/token-efficiency.md.
+- **Continuity:** small commits pushed after every step; docs/BUILD-STATE.md and docs/PENDING.md always current; restart from the last commit. Detail: docs/CONTINUITY.md.
+- **Quality:** never traded for speed or cost; same tests, same 3 gates, never weaken a test. Detail: rules/quality.md.
+
+### Owner settings (change only on the owner's word; log each change in docs/DECISIONS.md)
+
+| Setting | Current value |
+| --- | --- |
+| Build manager | Opus (`economy-orchestrator`), restart about every 6 waves |
+| Builders | Sonnet, up to 8 on non-overlapping files (6 if rework or flakes rise) |
+| Mechanical work, search | Haiku |
+| Gate 2 | Opus |
+| Fable | brief check before building, gate 3, hard cases, reviews |
+| Weekly quota | 80% is a reference, not a cap |
+| Priority | first full build fast, then the remaining slices; quality first |
+
 ## Always Apply (owner never repeats these)
 
 Every task, every helper brief, every session, including after a restart:

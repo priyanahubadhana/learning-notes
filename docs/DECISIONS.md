@@ -1167,3 +1167,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Toasts: a 4th toast waits when 3 are showing.
 - Test guard hook (13 Nov 2026, owner approved): the hook also blocks longer timeouts (timeout, actionTimeout, expect, test), `grepInvert`, `testIgnore`, new `.skip(`/`.fixme(` and deleted test files. A weakening passes only with a comment `test-guard-reason: <5+ words>` on the same added line or the line above, repeated in the commit message. Deleting files via Bash is checked only after a Bash hook entry is added in settings.json (not done; owner to decide). Details: docs/ECONOMY-MODE.md section 12.
 - Batch CI (13 Nov 2026, owner decision): one CI run for up to 3 slices that passed gate 2 and gate 3. Red run: bisect one by one. Never skip tests, never merge to main without a green run.
+
+### 13 Nov 2026 (owner): core operating rules in CLAUDE.md
+
+Short core lines for hierarchy, escalation, token efficiency, continuity and quality, with pointers, plus an Owner settings table changed only on the owner's word. Global CLAUDE.md got the escalation and brief rules too.

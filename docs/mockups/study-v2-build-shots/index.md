@@ -1,8 +1,15 @@
 # Study v2 build pictures (slice 15)
 
-Flag study.v2 on, real data (one card, one Key point, one Summary line). Taken after the last source edit (src head 7ce326a6, which includes the token fix: slide themes and accent buttons use tokens, last source edit 23:40; all 144 pictures re-shot 23:44 to 23:46, after it) with e2e/studyV2Shots.spec.ts. Name: level-theme-size-state.
+Flag study.v2 on, real data (one card, one Key point, one Summary line). Taken after the last source edit (src head 2a323faf, gate 3 fix round; all pictures re-shot after it) with e2e/studyV2Shots.spec.ts and e2e/studyV2ExtraShots.spec.ts. Name: level-theme-size-state.
 
-Fix round proof: 5-summary on iPad portrait and phone shows no selection bar over the Summary header (PageView fix); the phone/iPad seeding uses the mini bar More twice in a row (MiniToolbar fix).
+Fix round proof (gate 3 thirteenth visit):
+1. Answer well edge, dark: *-night-*-3-card-editor.
+2. Revise / Summary body lines up with the title (16 px): *-1-revise, *-5-summary.
+3. Labels quiet (Professional): professional-*-1-revise.
+4. Summary line buttons centred on the first text line: *-5-summary.
+5. Professional type row wraps (no cut): professional-*-phone-3-card-editor, professional-*-ipad-portrait-3-card-editor.
+6. New states (extra shots, dark and light, phone and iPad portrait): 7-empty-cards, 8-empty-summary, 9-empty-revise, 10-labels (Professional), 11-filter-list-open (Beginner: 11-sort-list-open), 12-filter-chip, 13-saved-chip (Professional), 14-pick-tiles (Prompt library).
+7. Upright line after "A" was the editor's nesting line (a real fault, not the cursor); gone in *-4-notes.
 
 | Picture | Screen |
 | --- | --- |
@@ -150,3 +157,11 @@ Fix round proof: 5-summary on iPad portrait and phone shows no selection bar ove
 | professional-sepia-phone-4-notes.png | Page notes: card + Key point (ST3) |
 | professional-sepia-phone-5-summary.png | Page Summary tab (ST7, ST8) |
 | professional-sepia-phone-6-page-review.png | Page Review tab (ST10) |
+| *-7-empty-cards.png | Cards empty state |
+| *-8-empty-summary.png | Summary empty state |
+| *-9-empty-revise.png | Revise empty state |
+| *-10-labels.png | Labels panel (Professional) |
+| *-11-filter-list-open.png / *-11-sort-list-open.png | Open ▾ list (Filter, Professional / Sort, Beginner) |
+| *-12-filter-chip.png | Active filter chip with ✕ (Professional) |
+| *-13-saved-chip.png | Saved-filter chip (Professional) |
+| *-14-pick-tiles.png | Prompt library Pick tiles |

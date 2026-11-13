@@ -38,12 +38,8 @@ import { setGlassLite, startGlassProbe } from './design/glass'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { toggleFavourite } from './app/favourites'
-<<<<<<< HEAD
-import { useFlag } from './app/flags'
-import { useFrameSize } from './app/shell/useFrameSize'
-=======
 import { isOn, useFlag } from './app/flags'
->>>>>>> origin/slice/4-notebooks-search
+import { useFrameSize } from './app/shell/useFrameSize'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
 import { QuietCorner } from './app/spaces/QuietCorner'
 import {

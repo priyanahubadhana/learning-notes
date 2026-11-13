@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import Dexie from 'dexie'
 import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { STARTER_VERSION, starterTemplates } from './starterTemplates'
-import { ensureTemplates } from './templateService'
+import { ensureTemplates, startersReady } from './templateService'
 
 let db: LearningNotesDB
 let ws: string
@@ -179,4 +180,25 @@ describe('starter upgrade (perf-start gate 2)', () => {
       for (const t of trashed) expect(live).not.toContain(t)
     },
   )
+})
+
+describe('the template list waits while starters are still seeding (perf-start)', () => {
+  it('startersReady is false before and during seeding, true once every starter is written', async () => {
+    expect(await startersReady(db, ws)).toBe(false) // nothing yet
+    const seen: Promise<boolean>[] = []
+    const real = db.pages.bulkAdd.bind(db.pages)
+    vi.spyOn(db.pages, 'bulkAdd').mockImplementation((...args) => {
+      seen.push(Dexie.ignoreTransaction(() => startersReady(db, ws))) // mid-seeding
+      return real(...(args as Parameters<typeof real>))
+    })
+    await ensureTemplates(db, ws)
+    expect(seen.length).toBeGreaterThan(5)
+    expect((await Promise.all(seen)).every((ready) => !ready)).toBe(true)
+    expect(await startersReady(db, ws)).toBe(true)
+  })
+
+  it('a workspace whose starters were all written long ago is ready at once', async () => {
+    await ensureTemplates(db, ws)
+    expect(await startersReady(db, ws)).toBe(true)
+  })
 })

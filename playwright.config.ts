@@ -104,6 +104,7 @@ export default defineConfig({
         /aiPicker/,
         /openNotebook/,
         /startSpeed/,
+        /startSeeding/,
         /tryNewFeatures/,
         /libraryV2/,
         /foundationInput/,

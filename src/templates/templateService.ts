@@ -246,6 +246,19 @@ async function copyPageTree(
   }
 }
 
+/**
+ * True once every starter template is written. While the background seeding
+ * runs this is false, so lists that show templates wait instead of flashing
+ * a short list (a missing Study row) that then jumps (perf-start).
+ */
+export async function startersReady(
+  db: LearningNotesDB,
+  workspaceId: string,
+): Promise<boolean> {
+  const notebook = await findNotebookOfKind(db, workspaceId, 'templates')
+  return !!notebook && (notebook.starterVersion ?? 1) >= STARTER_VERSION
+}
+
 /** Template pages of a workspace, in order. */
 export async function listTemplates(
   db: LearningNotesDB,

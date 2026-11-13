@@ -18,7 +18,18 @@ async function shot(page: Page, name: string) {
   await page.screenshot({ path: `${OUT}/${name}.png` })
 }
 
+async function closeSide(page: Page) {
+  const hide = page.getByRole('button', { name: 'Hide menu' })
+  if (await hide.isVisible()) {
+    await hide.click()
+    await page.waitForTimeout(300)
+  }
+}
+
 for (const [size, viewport] of Object.entries(SIZES)) {
+ test.describe(size, () => {
+  // Touch screens (iPad, phone) shot with touch, so touch-only rules show.
+  test.use({ hasTouch: size !== 'pc' })
   for (const theme of THEMES) {
     for (const level of LEVELS) {
       test(`${size} ${theme} ${level}`, async ({ page }) => {
@@ -38,6 +49,7 @@ for (const [size, viewport] of Object.entries(SIZES)) {
         )
         await page.goto('/?flags=page.menus')
         await createNotebook(page, 'Biology', 'Cell division')
+        await closeSide(page)
         await page.locator('.bn-editor').click()
         await page.keyboard.type(
           'Cells divide by mitosis. Chromosomes line up first.',
@@ -73,26 +85,6 @@ for (const [size, viewport] of Object.entries(SIZES)) {
           await page.getByTestId('page-sheet').getByTestId('fb-sheet-close').click()
         }
         await page.getByTestId('page-sheet').waitFor({ state: 'detached' })
-        // A long-press on the page row opens the strip at that point (PM-23).
-        const side = await openSidebar(page)
-        const row = side.getByTestId('page-row').first().getByRole('button').first()
-        await page.waitForTimeout(600)
-        await row.evaluate(async (el) => {
-          const r = el.getBoundingClientRect()
-          const o = {
-            bubbles: true,
-            pointerType: 'touch',
-            isPrimary: true,
-            pointerId: 9,
-            clientX: r.left + r.width / 2,
-            clientY: r.top + r.height / 2,
-          }
-          el.dispatchEvent(new PointerEvent('pointerdown', o))
-          await new Promise((res) => setTimeout(res, 1700))
-        })
-        await page.getByTestId('row-strip').waitFor()
-        await shot(page, `rowstrip-${tag}`)
-        await page.keyboard.press('Escape')
         // The paste chooser, then the "Pasted as" chip (Professional switch on).
         await page.evaluate(() =>
           localStorage.setItem('learning-notes:general.pasteMode', '"ask"'),
@@ -116,9 +108,35 @@ for (const [size, viewport] of Object.entries(SIZES)) {
         )
         // Settings, Paste row.
         await page.goto('/?flags=page.menus#/settings/general')
+        await closeSide(page)
         await page.getByRole('group', { name: 'Paste' }).scrollIntoViewIfNeeded()
         await shot(page, `settings-${tag}`)
+        await page.goBack()
+        await closeSide(page)
+        // A long-press on the page row opens the strip at that point (PM-23).
+        const show = page.getByRole('button', { name: 'Show menu' })
+        if (await show.isVisible()) await show.click()
+        const side = await openSidebar(page)
+        const row = side.getByTestId('page-row').first().getByRole('button').first()
+        await page.waitForTimeout(600)
+        await row.evaluate(async (el) => {
+          const r = el.getBoundingClientRect()
+          const o = {
+            bubbles: true,
+            pointerType: 'touch',
+            isPrimary: true,
+            pointerId: 9,
+            clientX: r.left + r.width / 2,
+            clientY: r.top + r.height / 2,
+          }
+          el.dispatchEvent(new PointerEvent('pointerdown', o))
+          await new Promise((res) => setTimeout(res, 1700))
+        })
+        await page.getByTestId('row-strip').waitFor()
+        await shot(page, `rowstrip-${tag}`)
+        await page.keyboard.press('Escape')
       })
     }
   }
+  })
 }

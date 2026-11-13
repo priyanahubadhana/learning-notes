@@ -1,6 +1,6 @@
 # Slice 12 rest pictures (strip, Paste menu, page sheet, Arrange, row strip)
 
-Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (source head 24cfd94e; the pictures are in the commit after it). Made by shots.spec.ts (run with a config whose testDir is this folder).
+Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (source head 9e2fbb99; the pictures are in the commit after it). Made by shots.spec.ts (run with a config whose testDir is this folder).
 
 Pattern: `<screen>-<size>-<theme>-<level>.png`
 
@@ -29,9 +29,11 @@ New in this round (PM-43, PM-44):
 Repeat-fault list (docs/ECONOMY-MODE.md section 7), ticked against these pictures:
 
 - [x] thin scroll track under cut-off rows: none cut off in strip, rowstrip, settings
-- [ ] toast above the phone tab bar: FAIL, chip-phone-*-professional: the "Pasted as" chip sits on the phone tab bar and covers its labels (needs a source fix, not done here)
-- [ ] sidebar closed on iPad portrait: FAIL in chooser-ipadP-*, chip-ipadP-*, settings-ipadP-* (the shot flow opens it for the row strip; strip-, paste-, sheet-ipadP-* have it closed)
-- [x] shared parts only, Lucide icons, one button style: yes in all pictures
-- [ ] no key names on touch screens: FAIL, the existing chooser footer reads "Enter = default, Esc = cancel the paste" on iPad and phone (chooser-*)
+- [x] toast above the phone tab bar: chip-phone-* sit above the tab bar (e2e: the chip's bottom edge is above the bar's top)
+- [x] sidebar closed on iPad portrait: closed in every ipadP picture except rowstrip-ipadP-* (that screen is the sidebar's own page row strip)
+- [x] shared parts only, Lucide icons, one button style: yes
+- [x] no key names on touch screens: chooser-ipad*/phone-* shot with touch show no Enter/Esc line; chooser-pc-* (mouse) still shows it (e2e on chromium and ipad-webkit)
 - [x] Light, Dark, Sepia; real data; tips and toasts closed: yes (the chip itself is the feature shown)
 - [x] both levels; iPad landscape and portrait, phone, PC: yes
+
+Fixes this round and the picture that proves each: chip above the tab bar = chip-phone-*-professional; no key names on touch = chooser-ipadL/ipadP/phone-*; sidebar closed on iPad portrait = chooser-ipadP-*, chip-ipadP-*, settings-ipadP-*, strip-ipadP-*. iPad and phone pictures are shot with touch.

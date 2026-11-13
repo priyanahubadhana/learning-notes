@@ -96,7 +96,9 @@ describe('config', () => {
 
   it('lives in the settings table, so backups carry it (hash only)', async () => {
     const pin = await hashSecret('4321', ROUNDS)
-    await saveLockConfig(db, { pin })
+    // Fixed clock: a real Date.now() can end in "4321" (CI run 43492276792)
+    // and falsely trip the check below; the PIN itself was never stored.
+    await saveLockConfig(db, { pin }, 1_000)
     const row = await db.settings.get('lock.config')
     expect(JSON.stringify(row)).not.toContain('4321')
     expect(row?.value).toHaveProperty('pin.hash')

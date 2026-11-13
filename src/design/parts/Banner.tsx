@@ -15,6 +15,8 @@ const ICONS: Record<BannerKind, IconName> = {
   lock: 'lock',
   backup: 'save',
   update: 'rotate',
+  install: 'tablet',
+  storage: 'database',
 }
 
 /** One banner line: icon, text, one action, ✕. */

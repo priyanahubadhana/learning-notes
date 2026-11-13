@@ -62,4 +62,7 @@ export const esFlags = {
   'flags.safety.v2.desc': 'Las copias y el historial de deshacer rediseñados.',
   'flags.system.v2.name': 'Nuevas partes del sistema',
   'flags.system.v2.desc': 'Las partes internas de la app rediseñadas.',
+  'flags.storage.safety.name': 'Seguridad del almacenamiento',
+  'flags.storage.safety.desc':
+    'Avisos tranquilos cuando las notas no se guardan y una copia con un toque.',
 }

@@ -12,10 +12,37 @@ import { LockedAlertGate } from '../../sync/LockedAlertGate'
 import { getSyncStatus, subscribeSync } from '../../sync/syncStatus'
 import { browserSnooze, pickAttention } from './attentionLevel'
 import { getSignals, subscribeSignals } from './attentionSignals'
+import { useFlag } from '../flags'
 
 const AttentionBanner = lazy(() =>
   import('./AttentionBanner').then((m) => ({ default: m.AttentionBanner })),
 )
+
+const StorageSafetyBanner = lazy(() =>
+  import('./StorageSafetyBanner').then((m) => ({
+    default: m.StorageSafetyBanner,
+  })),
+)
+const SAFETY_CODES = new Set(['storageLost', 'storageFull', 'homeScreen'])
+
+/** Flag storage.safety: start its watchers (loaded on demand). */
+function useStorageSafety(on: boolean) {
+  useEffect(() => {
+    if (!on) return
+    let stop: (() => void) | undefined
+    let live = true
+    void import('./storageSafetyWire').then((m) => {
+      if (live) stop = m.startStorageSafety()
+    })
+    return () => {
+      live = false
+      stop?.()
+    }
+  }, [on])
+}
+
+/** Flag OFF: today exactly (SS-06). */
+const SAFETY_OFF = { storageFull: 0, storageLost: 0, homeScreen: false }
 
 const SESSION = Date.now()
 const IDLE_MS = 2000
@@ -58,9 +85,11 @@ export function AttentionGate({ db }: { db: LearningNotesDB }) {
   const status = useSyncExternalStore(subscribeSync, getSyncStatus)
   const gated = useReadOnlyGate()
   const signals = useSyncExternalStore(subscribeSignals, getSignals)
+  const safety = useFlag('storage.safety')
+  useStorageSafety(safety)
   const [now, setNow] = useState(() => Date.now())
   const found = pickAttention(
-    { status, ...signals },
+    { status, ...signals, ...(safety ? {} : SAFETY_OFF) },
     browserSnooze(),
     now,
     SESSION,
@@ -70,6 +99,17 @@ export function AttentionGate({ db }: { db: LearningNotesDB }) {
   if (gated) return null
   if (found?.level === 1) return <LockedAlertGate />
   if (!found || !quiet) return null
+  if (safety && SAFETY_CODES.has(found.code))
+    return (
+      <Suspense fallback={null}>
+        <StorageSafetyBanner
+          key={found.code}
+          attention={found}
+          session={SESSION}
+          onDismissed={() => setNow(Date.now())}
+        />
+      </Suspense>
+    )
   return (
     <Suspense fallback={null}>
       <AttentionBanner

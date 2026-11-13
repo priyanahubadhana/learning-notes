@@ -23,6 +23,7 @@ import { enLateSync } from './sync'
 import { enLateToolbar } from './toolbar'
 import { enLateUpdates } from './updates'
 import { enLateUpdateV2 } from './updateV2'
+import { enLateStorageSafety } from './storageSafety'
 import { enLateFlags } from './flags'
 import { enLateSlashMenu } from './slashMenu'
 import { enLateShell } from './shell'
@@ -73,4 +74,5 @@ export const enLate = {
   ...enV2Panel,
   ...enLateLibraryV2,
   ...enV8Pen,
+  ...enLateStorageSafety,
 }

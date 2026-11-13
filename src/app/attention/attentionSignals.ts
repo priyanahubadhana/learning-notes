@@ -14,6 +14,10 @@ export interface AttentionSignals {
   backupFailures: number
   /** Failed syncs in a row. */
   failStreak: number
+  /** Refused saves this start (flag storage.safety). */
+  storageFull: number
+  storageLost: number
+  homeScreen: boolean
 }
 
 let value: AttentionSignals = {
@@ -23,6 +27,9 @@ let value: AttentionSignals = {
   storageHigh: false,
   backupFailures: 0,
   failStreak: 0,
+  storageFull: 0,
+  storageLost: 0,
+  homeScreen: false,
 }
 const listeners = new Set<() => void>()
 

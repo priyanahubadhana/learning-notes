@@ -8,6 +8,18 @@ export function onStorageFull(listener: () => void): () => void {
   }
 }
 
+/** Storage safety (flag ON): true = it took the error, so the old message stays quiet. */
+let storageErrorListener: ((error: unknown) => boolean) | undefined
+
+export function onStorageError(
+  listener: (error: unknown) => boolean,
+): () => void {
+  storageErrorListener = listener
+  return () => {
+    if (storageErrorListener === listener) storageErrorListener = undefined
+  }
+}
+
 /** Called when an edit was refused because this device is not signed in (Q3a). */
 let signInRequiredListener: (() => void) | undefined
 
@@ -34,7 +46,8 @@ export function isStorageFull(error: unknown): boolean {
 /** Logs a failure and tells the user when the cause is a full device. */
 export function reportError(error: unknown, label?: string): void {
   console.error(...(label ? [label, error] : [error]))
-  if (isStorageFull(error)) storageFullListener?.()
+  const taken = storageErrorListener?.(error) ?? false
+  if (!taken && isStorageFull(error)) storageFullListener?.()
   if ((error as { name?: string } | null)?.name === 'SignInRequiredError')
     signInRequiredListener?.()
 }

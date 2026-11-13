@@ -25,6 +25,7 @@ import { esTags } from './tags'
 import { esToolbar } from './toolbar'
 import { esUpdates } from './updates'
 import { esUpdateV2 } from './updateV2'
+import { esStorageSafety } from './storageSafety'
 import { esLibraryV2 } from './libraryV2'
 import { esFlags } from './flags'
 import { esSlashMenu } from './slashMenu'
@@ -79,4 +80,5 @@ export const es: Record<string, string> = {
   ...esPanelV2,
   ...esLibraryV2,
   ...esV8Pen,
+  ...esStorageSafety,
 }

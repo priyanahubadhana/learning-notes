@@ -60,3 +60,23 @@ describe('BannerHost', () => {
     expect($('.fb-banner__text')?.textContent).toBe('Hello')
   })
 })
+
+describe('Banner kinds install and storage (storage safety)', () => {
+  it('draws each kind with an icon, its text, one button and a close', () => {
+    for (const kind of ['install', 'storage'] as const) {
+      const q = createBannerQueue()
+      q.push({
+        id: kind,
+        kind,
+        text: 'T',
+        action: { label: 'Go', run: vi.fn() },
+      })
+      mount(h(BannerHost, { queue: q }))
+      const b = $('[data-testid="fb-banner"]')
+      expect(b?.dataset.kind).toBe(kind)
+      expect(b?.querySelector('svg')).not.toBeNull()
+      expect($$('[data-testid="fb-banner-x"]').length).toBe(1)
+      cleanDom()
+    }
+  })
+})

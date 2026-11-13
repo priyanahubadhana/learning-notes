@@ -61,4 +61,7 @@ export const enLateFlags = {
   'flags.safety.v2.desc': 'The redesigned backups and undo history.',
   'flags.system.v2.name': 'New system parts',
   'flags.system.v2.desc': 'The redesigned behind-the-scenes parts of the app.',
+  'flags.storage.safety.name': 'Storage safety',
+  'flags.storage.safety.desc':
+    'Calm notices when notes may not save, and a one-tap backup.',
 }

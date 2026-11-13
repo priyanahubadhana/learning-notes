@@ -3,11 +3,14 @@ import { reportError } from '../errors'
 import { getSignals, setSignals } from './attentionSignals'
 import { startStorageSafety } from './storageSafetyWire'
 
-const quota = () => Object.assign(new Error('x'), { name: 'QuotaExceededError' })
+const quota = () =>
+  Object.assign(new Error('x'), { name: 'QuotaExceededError' })
 const closed = () =>
   Object.assign(new Error('x'), { name: 'DatabaseClosedError' })
 
-afterEach(() => setSignals({ storageFull: 0, storageLost: 0, homeScreen: false }))
+afterEach(() =>
+  setSignals({ storageFull: 0, storageLost: 0, homeScreen: false }),
+)
 
 describe('storage safety wiring', () => {
   it('counts full and lost saves into the alert signals (SS-04a, SS-05a)', () => {
@@ -27,12 +30,15 @@ describe('storage safety wiring', () => {
       userAgent: 'Mozilla/5.0 (Macintosh) Safari',
       maxTouchPoints: 5,
     }
-    startStorageSafety(ipad)()
-    expect(getSignals().homeScreen).toBe(true)
-    startStorageSafety({ ...ipad, standalone: true })()
-    expect(getSignals().homeScreen).toBe(false)
-    startStorageSafety({ userAgent: 'Chrome', maxTouchPoints: 0 })()
-    expect(getSignals().homeScreen).toBe(false)
+    const check = (b: typeof ipad & { standalone?: boolean }) => {
+      const stop = startStorageSafety(b)
+      const shown = getSignals().homeScreen
+      stop()
+      return shown
+    }
+    expect(check(ipad)).toBe(true)
+    expect(check({ ...ipad, standalone: true })).toBe(false)
+    expect(check({ userAgent: 'Chrome', maxTouchPoints: 0 })).toBe(false)
   })
   it('the old once-a-minute full message stays quiet while it runs (SS-06)', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})

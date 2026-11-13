@@ -82,6 +82,10 @@ the existing tables in one `db.transaction`.
 - AF-23. When the person opens Activity → one row per job in plain words, with
   time, destination and Undo / Redo.
 
+### Slice 4: cost additions (pointer)
+
+Caching and the real token count are specified in [ai.md](ai.md), section "Cost additions".
+
 ## Won't do
 
 - No planner, no filler model, no cost estimator, no spend gate (slice 4).

@@ -142,6 +142,8 @@ Rollback (any time, nothing to undo in code): stop it and start `fable-manager` 
 
 ## 9. Brief template (short form for every helper)
 
+This short form applies to search, mechanic and docs helpers only. Builders keep the section 4 template and checklist.
+
 Fable sends six lines, in this order:
 
 1. **Goal:** one sentence on what must exist at the end.

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: orchestration doc gaps closed (items 5 and 6 specified)
+
+- What: ECONOMY-MODE.md section 9 says the short brief is for search, mechanic and docs helpers only. next.md runs only the related tests (full suite in CI). economy-orchestrator.md sends lookups to economy-search. ai.md gets a "Cost additions" section (caching and real token count, with a won't-do list); ai-framework.md gets a pointer to it; BUILD-STATE.md lane A gets the queued row.
+- Why: the gaps found in the orchestration review of 13 Nov.
+- Files: docs/ECONOMY-MODE.md, .claude/commands/next.md, .claude/agents/economy-orchestrator.md, docs/features/ai.md, docs/features/ai-framework.md, docs/BUILD-STATE.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: owner decisions on AI (test key, Claude connector priority, items 5 and 6 approved)
 
 - What: DECISIONS.md logs the owner's three AI decisions (test key with about US$5 cap in Settings › AI; Claude connector as the long-term built-in option, bring-your-own-key stays, no paid built-in AI without a new decision; items 5 and 6 approved as the first tasks of the AI slice). PENDING.md adds the two queued rows and the "add your test key" line. The cost plan marks items 1 to 4 DONE and 5 and 6 APPROVED; item 8 stays skipped.

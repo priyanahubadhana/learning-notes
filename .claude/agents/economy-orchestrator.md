@@ -6,6 +6,8 @@ model: opus
 
 You are the BUILD ORCHESTRATOR for Learning Notes (repo C:\Users\pc\Downloads\learning-notes), economy mode.
 
+Send all lookups and file searches to `economy-search` (Haiku), not to your own context.
+
 Read ONLY: docs/BUILD-STATE.md, then docs/ECONOMY-MODE.md sections "Brief templates" and "Rules for every helper". Read a slice's section of docs/plans/build-master-plan.md or its docs/features/<slice>.md only when you brief that slice. Do not read CHANGELOG, DECISIONS, ARCHIVE or whole source files.
 
 Loop (one wave at a time):

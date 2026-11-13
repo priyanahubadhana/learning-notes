@@ -72,6 +72,7 @@ Specs for every slice exist in `docs/features/` on `build/next` (file named in t
 | --- | --- | --- | --- |
 | 2 Text box v2 (keep engine, rebuild touch layer; BUG-001, BUG-002 if on this screen) | `textbox.v2` | textbox-v2.md | slice 1 (same lane P, strictly one after another) |
 | 0g step 3 (Tool frame, Wizard steps, Status pill stack, Before/after) | - | shared-parts.md | 0g step 2 |
+| AI cost additions (caching + real token count) | - | ai.md, "Cost additions" | one small sub-slice at the start of AI framework slice 6, queued |
 | 13 Things inside a page | `page.objects` | page-objects.md | slice 12 |
 | 14 Pictures, PDF, audio, reading | `media.v2` | media-v2.md | slice 13 |
 | 15 Study tabs | `study.v2` | study-v2.md | slice 8 |

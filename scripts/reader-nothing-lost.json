@@ -618,11 +618,11 @@
       },
       {
         "file": "src/app/reading/ReadingRuler.tsx",
-        "needle": "sendFrameEvent"
+        "needle": "onFrameInput"
       },
       {
         "file": "src/reader/epub/EpubView.tsx",
-        "needle": "sendFrameEvent"
+        "needle": "sendFrameInput"
       }
     ],
     "R89": [

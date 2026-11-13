@@ -71,6 +71,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-13 · Reader v2 RD-P29 in an EPUB: the band follows taps and Alt+↑/↓ inside the book frame, not mouse moves.** Why: following the mouse inside the frame needs 2 new raw listeners, which the listener ratchet forbids (the input router cannot reach the frame). Taps and keys reuse the frame's existing click and keydown listeners. Alternative: raise the ratchet baseline by 2 for EpubView.
+
 - **2026-11-13 · check:dod reads table specs.** "When" lines now also count table rows starting with a spec ID (`| SP-40 |`, `| RV-B01 |`) and `- PM-01 When` bullets; flag `-` skips the flag check for shared parts; a numbered "### 8. Won't do" heading is accepted. Won't do, test counts and size checks are unchanged. Files: scripts/check-dod.mjs, scripts/dodSpec.mjs.
 
 - **2026-11-11 · Scroll-hint gutter stays.** Once a list has shown the scroll handle it keeps the 24 px end gutter until hints are switched off, even if it no longer overflows (like CSS scrollbar-gutter: stable). Chosen over dropping it, which shifted rows under the next tap. Cost: a short list that once scrolled keeps 24 px of empty space at its end.

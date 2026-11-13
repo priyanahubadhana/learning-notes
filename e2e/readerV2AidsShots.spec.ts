@@ -97,6 +97,8 @@ async function open(page: Page, kind: 'pdf' | 'epub') {
 }
 
 const press = async (page: Page, id: string) => {
+  await expect(page.getByTestId('reader-close')).toBeVisible()
+  await page.waitForTimeout(300)
   const b = page.getByTestId(id)
   if (await b.isVisible()) return b.click()
   await page.getByTestId('reader-more').click()
@@ -104,7 +106,7 @@ const press = async (page: Page, id: string) => {
 }
 
 async function aaMore(page: Page) {
-  await page.getByTestId('reader-aa').click()
+  await press(page, 'reader-aa')
   await page.getByTestId('aa-tab-more').click()
   await page.getByTestId('aa-aids').scrollIntoViewIfNeeded()
   await page.waitForTimeout(400)
@@ -143,7 +145,9 @@ for (const { theme, name, viewport } of shots) {
     await expect(page.getByTestId('book-daily-highlight')).toBeVisible()
     await page.waitForTimeout(400)
     await page.screenshot({ path: `${OUT}/7i-daily-${theme}-${name}.png` })
-    await page.keyboard.press('Escape')
+    // Back to the book alone (the panel covers a phone).
+    await page.reload()
+    await expect(page.getByTestId('book-reader')).toBeVisible()
     // Aa › More: Bar and screen, Reading aids.
     await aaMore(page)
     await page.screenshot({ path: `${OUT}/7i-aa-more-${theme}-${name}.png` })

@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: Reader v2 gate 2 fixes (slice 7i)
+
+- What: select pop-up measures itself and sits above only when it clears the reader bar and time-left line by 8 px; Beginner pop-up is 5 colours, Note, Sticky, Copy, Define, Pin, and `reader.selExtras` adds Look up, Save to, Make card, Ask AI, vocabulary, Pronounce; this book's daily highlight tops Annotations (RD-P17); `reader.gestures` gates only double-tap zoom; Aa › More gets "Bar and screen" (Keep the bar visible, screen direction, greyed Liquid mode) and "Reading aids" (Line focus/Ruler, Keep the screen awake); "Coming later" in Settings for `reader.liquid` and `reader.tapCounts`. Why: gate 2 failed twice. Files: src/reader/annotations/SelectionPopup.tsx, AnnotationsPanel.tsx, DailyHighlights.tsx, src/reader/AaSheet.tsx, BookReader.tsx, DictionarySheet.tsx, epub/EpubView.tsx, src/app/reading/ReadingRuler.tsx, frameInput.ts, src/settings/v3/ProFeatures.tsx, i18n readerV2 (en/es/hi), scripts/reader-nothing-lost.json, e2e/readerV2Aids*.spec.ts, readerV2Switches.spec.ts, readerV2LandShots.spec.ts.
+
 ### 13 Nov 2026: Reader v2 spec fixes after gate 3 (slice 7)
 
 - What: reader-v2.md corrected for RD-B09, B24, P13, P17, P25 to P32, P34; new "Later" section (tap counts, real Liquid mode); pop-up placement rule; tests must use real clicks.

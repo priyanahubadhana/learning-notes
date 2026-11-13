@@ -1,10 +1,13 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
+import { line, stroke, type Pt } from './inkHelpers.ts'
 import {
   createNotebook,
+  solidPng,
   startInMode,
   startInTheme,
+  hideSidebar,
   typeInEditor,
 } from './helpers.ts'
 
@@ -103,5 +106,128 @@ for (const [dev, size] of Object.entries(SIZES)) {
         await page.screenshot({ path: `${OUT}/selbar-more-${tag}.png` })
       })
     }
+  }
+}
+
+/**
+ * The pictures the eighth visit still needed: Eraser size with the ring,
+ * Lasso shape tiles, the bar on a lassoed drawing with its Colour and Resize
+ * cards, and Edit picture; Professional, on every size.
+ */
+for (const [dev, size] of Object.entries(SIZES)) {
+  for (const theme of ['day', 'night', 'sepia'] as const) {
+    test(`more ${dev} ${theme} professional`, async ({ page }) => {
+      // test-guard-reason: many pictures in one run need more time
+      test.setTimeout(150_000)
+      await page.addInitScript(() => {
+        localStorage.setItem(
+          'learning-notes:level',
+          JSON.stringify({
+            level: 'professional',
+            unlocked: [
+              'tb.eraserOptions',
+              'tb.lassoOptions',
+              'tb.selectionMenu',
+              'tb.pictureEdit',
+            ],
+          }),
+        )
+      })
+      await startInTheme(page, theme)
+      await page.setViewportSize(size)
+      await startInMode(page, 'touch')
+      await page.goto('/?flags=toolbar.v8')
+      await createNotebook(page, 'Biology', 'First')
+      // The sidebar stays closed on iPad portrait (repeat-fault list).
+      if (dev === 'ipad-portrait') await hideSidebar(page)
+      await typeInEditor(page, 'The nucleus holds the DNA')
+      const tag = `${dev}-${theme}-professional`
+      await shoot(page, `eraser-size-${tag}`, 'eraser', 'eraser.size')
+      await shoot(page, `lasso-shape-${tag}`, 'lasso', 'lasso.shape')
+      // A drawing, looped by the Lasso: the bar, then Colour and Resize.
+      await pickTool(page, 'pen')
+      await page.waitForTimeout(600)
+      const box = (await page
+        .locator('.bn-block-content')
+        .first()
+        .boundingBox())!
+      const y = box.y + 150
+      await stroke(page, line([box.x + 20, y], [box.x + 200, y]))
+      await pickTool(page, 'lasso')
+      await page.waitForTimeout(500)
+      const now = (await page
+        .locator('.bn-block-content')
+        .first()
+        .boundingBox())!
+      const at = y + (now.y - box.y)
+      const c: Pt[] = [
+        [box.x + 6, at + 18],
+        [box.x + 6, at - 10],
+        [box.x + 214, at - 10],
+        [box.x + 214, at + 18],
+        [box.x + 8, at + 16],
+      ]
+      await stroke(
+        page,
+        c.slice(1).flatMap((p, i) => line(c[i]!, p, 10)),
+      )
+      await expect(page.getByTestId('v8-selbar')).toBeVisible()
+      await settle(page)
+      await page.screenshot({ path: `${OUT}/selbar-ink-${tag}.png` })
+      await page.getByTestId('v8-sel-colour').click()
+      await settle(page)
+      await page.screenshot({ path: `${OUT}/selbar-colour-${tag}.png` })
+      await page.getByRole('button', { name: 'Close' }).click()
+      await page.getByTestId('v8-sel-resize').click()
+      await settle(page)
+      await page.screenshot({ path: `${OUT}/selbar-resize-${tag}.png` })
+      await page.getByRole('button', { name: 'Close' }).click()
+    })
+    test(`picture ${dev} ${theme} professional`, async ({ page }) => {
+      // test-guard-reason: many pictures in one run need more time
+      test.setTimeout(150_000)
+      await page.addInitScript(() => {
+        localStorage.setItem(
+          'learning-notes:level',
+          JSON.stringify({
+            level: 'professional',
+            unlocked: [
+              'tb.eraserOptions',
+              'tb.lassoOptions',
+              'tb.selectionMenu',
+              'tb.pictureEdit',
+            ],
+          }),
+        )
+      })
+      await startInTheme(page, theme)
+      await page.setViewportSize(size)
+      await startInMode(page, 'touch')
+      await page.goto('/?flags=toolbar.v8')
+      await createNotebook(page, 'Biology', 'First')
+      // The sidebar stays closed on iPad portrait (repeat-fault list).
+      if (dev === 'ipad-portrait') await hideSidebar(page)
+      await typeInEditor(page, 'The nucleus holds the DNA')
+      const tag = `${dev}-${theme}-professional`
+      // A picture: Edit picture.
+      await page.locator('.bn-editor').click({ force: true })
+      await page.keyboard.press('Enter')
+      await page.keyboard.type('/image')
+      await page.keyboard.press('Enter')
+      await page.getByTestId('picture-input-photos').setInputFiles({
+        name: 'p.png',
+        mimeType: 'image/png',
+        buffer: await solidPng(400, 200),
+      })
+      await page.getByRole('button', { name: 'Place picture' }).click()
+      const img = page.locator('.bn-editor img')
+      await expect(img).toBeVisible()
+      await img.scrollIntoViewIfNeeded()
+      await img.click({ force: true })
+      await expect(page.getByTestId('v8-selbar')).toBeVisible()
+      await page.getByTestId('v8-sel-picture').click()
+      await settle(page)
+      await page.screenshot({ path: `${OUT}/picture-edit-${tag}.png` })
+    })
   }
 }

@@ -126,4 +126,27 @@ describe('Card', () => {
     expect(document.activeElement).toBe(chip)
     chip.remove()
   })
+
+  // Why: during the 130 ms closing motion the card still trapped Tab, so a
+  // Tab from the chip was pulled back into the closing card and focus was lost
+  // when it went away (CI run 43505401817, toolbar v8 Actions chip ring test).
+  it('hands focus back to its chip at once on ✕ and stops trapping Tab while it fades', () => {
+    vi.useFakeTimers()
+    const chip = document.createElement('button')
+    document.body.append(chip)
+    mount(card({ placement: 'anchored', anchor: chip }))
+    click(byLabel('Close'))
+    expect(document.activeElement).toBe(chip)
+    const tab = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      cancelable: true,
+    })
+    act(() => void chip.dispatchEvent(tab))
+    expect(tab.defaultPrevented).toBe(false)
+    expect(document.activeElement).toBe(chip)
+    settle()
+    expect(document.activeElement).toBe(chip)
+    chip.remove()
+  })
 })

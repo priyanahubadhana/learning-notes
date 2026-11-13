@@ -80,6 +80,7 @@ export function Card(props: CardProps) {
   const closingRef = useRef(false)
   const reasonRef = useRef<CardCloseReason>('outside')
   const handleRef = useRef<OverlayHandle | null>(null)
+  const releaseRef = useRef<() => void>(() => {})
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const onCloseRef = useRef(onClose)
   const anchorRef = useRef(anchor)
@@ -94,16 +95,21 @@ export function Card(props: CardProps) {
     reasonRef.current = reason
     setClosing(true)
     handleRef.current?.close()
-    timerRef.current = setTimeout(() => {
-      // Why: a tap into the text during the closing motion must keep its
-      // focus; hand focus back only if it is still in the card or nowhere.
-      const now = document.activeElement
-      const free =
-        !now || now === document.body || !!rootRef.current?.contains(now)
-      onCloseRef.current(reason)
-      const a = anchorRef.current
-      if (reason !== 'outside' && free && a instanceof HTMLElement) a.focus()
-    }, motionMs(130))
+    // Why: the closing motion is only a picture. Keys pressed while it plays
+    // (CI run 43505401817) were pulled back into the fading card by its Tab
+    // trap, and a tap into the text (CI run 43478875272) was undone by a late
+    // focus hand-back. So the trap ends and focus goes back to the chip now,
+    // and only if it is still in the card or nowhere.
+    releaseRef.current()
+    const now = document.activeElement
+    const free =
+      !now || now === document.body || !!rootRef.current?.contains(now)
+    const a = anchorRef.current
+    if (reason !== 'outside' && free && a instanceof HTMLElement) a.focus()
+    timerRef.current = setTimeout(
+      () => onCloseRef.current(reason),
+      motionMs(130),
+    )
   }, [])
 
   // Overlay: one card at a time; Esc and a tap outside close it.
@@ -121,6 +127,7 @@ export function Card(props: CardProps) {
       inside: (t) => !!el && el.contains(t),
     })
     const release = el ? trapFocus(el, null) : () => {}
+    releaseRef.current = release
     if (el) focusTarget(el).focus()
     return () => {
       closingRef.current = true
@@ -146,7 +153,7 @@ export function Card(props: CardProps) {
   // take focus, so focus again once it is visible (SP-14).
   const placed = !!pos
   useEffect(() => {
-    if (isStatic || !placed) return
+    if (isStatic || !placed || closingRef.current) return
     const el = rootRef.current
     if (!el || el.contains(document.activeElement)) return
     focusTarget(el).focus()

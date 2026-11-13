@@ -19,13 +19,13 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 ## How Work Runs (agent hierarchy)
 
 - Non-build tasks (design, planning, mock-ups): main manager **Fable** (`.claude/agents/fable-manager.md`) → **Opus** sub-managers (`opus-submanager-ui/-build/-qa`) → **Sonnet/Haiku** executors. Parallel when files do not overlap. The manager verifies quality and delivers one final report.
-- Build (economy mode, from 13 Nov 2026, owner-approved; docs/ECONOMY-MODE.md): an **Opus** orchestrator (`economy-orchestrator`) reads docs/BUILD-STATE.md and briefs the **Sonnet** builders (`economy-builder`, number: Owner settings) directly; **Haiku** (`economy-mechanic`) does mechanical work and CI watching; **Opus** (`economy-gate2`) does gate 2. **Fable** plans, takes hard cases and checks every slice at least twice: the brief against the spec and mock-up before building, and the screenshots (gate 3) before merge. Same 3 gates, same tests. Rollback: `fable-manager`.
+- Build (simple system, from 13 Nov 2026 evening, owner request; docs/ECONOMY-MODE.md): **Opus and Sonnet only.** An **Opus** manager (`economy-orchestrator`) follows the build plan in the order of docs/BUILD-STATE.md, keeps that file current and never builds; **Sonnet** builders (`economy-builder`, number: Owner settings) each own one whole slice from the first test to merged, including the mechanical work; **Opus** (`economy-gate2`) reviews each finished slice once. **Fable** looks at every slice twice and no more: the design check of the brief before building, and the final look at the pictures (gate 3) before the owner is offered the part. A part merges into `build/next` switched OFF after gate 2. The usable preview for the owner comes before any new slice. Same 3 gates, same tests. Rollback: `fable-manager`.
 
 ## Core Operating Rules (owner, 13 Nov 2026; the default until the owner changes them)
 
 - **Hierarchy:** a manager plans and delegates; cheaper models do the work; nobody waits for the owner except as listed in Do it yourself.
-- **Escalate by yourself:** Sonnet → Opus → Fable. Move up when the same test is red twice, a builder stops twice, or a gate fails twice; Fable solves what Opus could not. Fix stalls at once (green build with nothing merging, idle lanes). Detail: docs/ECONOMY-MODE.md section 13.
-- **Token efficiency:** briefs use the 6-line template (goal, where, spec pointer, done when, do not touch, report) and never paste file text; lookups go to the cheap search helper (economy-search, Haiku); Fable reads short digests, not raw sources. Detail: docs/ECONOMY-MODE.md section 3 and docs/design/token-efficiency.md.
+- **Escalate by yourself:** Sonnet → Opus → Fable. Move up when the same test is red twice, a builder stops twice, or a gate fails twice; Fable solves what Opus could not. Fix stalls at once (green build with nothing merging, idle lanes). The main chat runs `bash scripts/build-pulse.sh` every hour and acts on `STALL`. Detail: docs/ECONOMY-MODE.md sections 4 and 5.
+- **Token efficiency:** briefs point to files and never paste them (templates: docs/ECONOMY-MODE.md section 6); the manager reads short reports, not sources or logs; Fable reads short digests. Detail: docs/design/token-efficiency.md.
 - **Continuity:** small commits pushed after every step; docs/BUILD-STATE.md and docs/PENDING.md always current; restart from the last commit; one worktree per slice (reused); the owner only needs to type "continue". Detail: docs/CONTINUITY.md.
 - **Quality:** never traded for speed or cost; same tests, same 3 gates. One design system and spec before code. Detail: rules/quality.md.
 - **Status line:** start every message to the owner with three lines: `Status: <what is happening>`, `Time left: <rough estimate for the whole build and for the current task, and how sure>` (take it from docs/BUILD-STATE.md), and `Needs you: no` or `Needs you: yes, <what>`.
@@ -37,15 +37,15 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 
 ### Owner settings (change only on the owner's word; log each change in docs/DECISIONS.md)
 
-| Setting                 | Current value                                                         |
-| ----------------------- | --------------------------------------------------------------------- |
-| Build manager           | Opus (`economy-orchestrator`), restart about every 6 waves            |
-| Builders                | Sonnet, up to 8 on non-overlapping files (6 if rework or flakes rise) |
-| Mechanical work, search | Haiku                                                                 |
-| Gate 2                  | Opus                                                                  |
-| Fable                   | brief check before building, gate 3, hard cases, reviews              |
-| Weekly quota            | 80% is a reference, not a cap                                         |
-| Priority                | first full build fast, then the remaining slices; quality first       |
+| Setting                 | Current value                                                           |
+| ----------------------- | ----------------------------------------------------------------------- |
+| Build manager           | Opus (`economy-orchestrator`); follows the plan, never builds           |
+| Builders                | Sonnet, up to 8, one whole slice each, on non-overlapping files         |
+| Mechanical work, search | the slice's own Sonnet builder; no Haiku in the build                   |
+| Gate 2                  | Opus, once per slice                                                    |
+| Fable                   | design check before building, final look (gate 3), hard cases           |
+| Weekly quota            | 80% is a reference, not a cap                                           |
+| Priority                | a usable preview on the iPad first, then the next slices; quality first |
 
 ## Always Apply (owner never repeats these)
 

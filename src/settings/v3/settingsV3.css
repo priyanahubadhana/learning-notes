@@ -312,7 +312,6 @@
 /* The Preview pill and its sheet (portalled to the page, fixed). */
 .sv3-dock {
   position: fixed;
-  z-index: 5;
   inset-inline: 0;
   bottom: calc(var(--sh-tabbar, 56px) + env(safe-area-inset-bottom, 0px));
   height: 60px;

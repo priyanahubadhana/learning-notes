@@ -80,6 +80,7 @@ export default defineConfig({
       testIgnore: /visual\//,
       testMatch: [
         /parts-gallery/,
+        /pageMenusPaste/,
         /pencilIsolation/,
         /updateV2/,
         /security-m1-/,

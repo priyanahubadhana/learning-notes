@@ -1,5 +1,5 @@
 import { centreEl } from '../app/centreEl'
-import { aboveTabBar } from '../app/ui'
+import { aboveTabBar } from '../app/aboveTabBar'
 import {
   useEffect,
   useRef,

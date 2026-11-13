@@ -15,6 +15,7 @@ import { t } from '../i18n/t'
 import { touchUi } from './touchUi'
 import { useKeyboardInset } from '../settings/deviceModeSettings'
 import type { ChoiceRequest, ToastAction } from './appUi'
+import { aboveTabBar } from './aboveTabBar'
 import { toastBottom } from './toastTiming'
 import { Glyph, Icon } from './tools/icons'
 
@@ -407,18 +408,6 @@ export function MenuPopover({
  * Short message at the bottom of the screen (render it only while shown).
  * An optional action (e.g. Undo) is a tap-sized button inside it.
  */
-/** Gate 3 v4 (slice 6, fix 5): on a phone the toast sits above the tab bar. */
-export function aboveTabBar(): number | undefined {
-  // The bar of spaces (old strip or new tab bar) when it sits at the bottom.
-  const bar = document.querySelector('[data-space]')?.closest('nav')
-  if (!bar) return undefined
-  const r = bar.getBoundingClientRect()
-  const h = window.innerHeight
-  return r.bottom >= h - 2 && r.top > h / 2
-    ? Math.round(h - r.top + 12)
-    : undefined
-}
-
 export function Toast({
   message,
   action,

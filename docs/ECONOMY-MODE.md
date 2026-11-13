@@ -210,3 +210,12 @@ Expected gain (an estimate, not measured): about 10 to 15 minutes per CI run fro
 - The Bash branch (file deletes) only works once settings.json has a Bash entry that runs this file; that settings change is not made yet (open owner decision).
 
 **Batch CI** (owner decision): one full CI run may cover up to 3 slices that have each passed gate 2 and gate 3. A red run is bisected one slice at a time (take the last merge out, run again). Tests are never skipped, and nothing reaches `main` without a green run.
+
+## 12. Automatic escalation and stall checks (owner, 13 Nov 2026; wanted from the start)
+
+The build escalates by itself; the owner never has to ask.
+
+- **Ladder:** Sonnet builder → Opus builder → Fable. Move up when the same test is red in 2 CI runs, a builder stops twice, or gate 2 or gate 3 fails twice on one slice. If the Opus attempt fails too, Fable works out the exact fix.
+- **Stall checks every wave:** act at once when build/next is green and nothing has merged for 30 minutes, when a slice that passed its gates is waiting, or when lanes are idle while free non-overlapping slices exist.
+- **Watchdog (hourly, main chat):** checks for stalls as well as whether the orchestrator is alive, and nudges it.
+- Log every escalation in docs/BUILD-STATE.md. Quality rules, tests and gates are unchanged.

@@ -16,6 +16,19 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 2. Budget: 80% of the week is a reference, not a cap. Speed matters more than saving quota; quality and design rules first, then the first full build fast.
 3. Top priority: FIRST FULL BUILD fast: build/next green, merge waiting slices, release the preview with new parts ON in the preview (Settings › Try new features), write the owner's iPad checklist (BUG-002, connector, key flows). Then the remaining slices.
 
+## Speed rules (13 Nov, from ECONOMY-MODE.md section 11; they win over older lines in this file and in the orchestrator's agent file)
+
+1. Up to **8** builders at once on files that do not overlap; hot files one at a time; at most 2 local ipad-webkit runs at the same moment. Back to 6 if rework reaches 2 rounds or local tests flake. Put a spare builder on toolbar 1d.
+2. Gate 2 and gate 3 run in parallel (different slices, or the same slice at the same commit). Merge only when both passed on the commit being merged. Gate 3 in visits of 2 to 4 slices.
+3. Flag-on pictures and gate 3 go ahead while CI runs.
+4. Batch CI: up to 3 slices that passed both gates, merged one after another with local targeted tests, tsc, lint and combined check:size, then one full run. Never a hot-file slice in a batch. Red: the failing test names the slice, else take the last merge out and run again. Never re-run until green.
+5. First job: merge `main` into `build/next` (DECISIONS.md: keep both sides) so pull request #5 runs CI by itself and publishes the preview. Build-time docs are written on `main` only; merge `main` into `build/next` before each batch.
+6. One run at a time per branch: no push to `build/next` and no new run while one is in progress.
+7. A hand-started run is green when every job except the weekly `webkit` job passed; judge it as soon as those jobs finish, do not wait for `webkit`. No workflow or test edits for this.
+8. Every screen brief points to the repeat-fault list (ECONOMY-MODE section 11, rule 8).
+9. A slice that failed gate 3 twice: Opus builder on its next fix round. Three fails: Fable-written brief (unchanged).
+10. Restart the orchestrator about every 6 waves, not 3; keep the tables in this file current after every merge.
+
 ## Fixed facts
 
 - **Live app:** `main` 9e2ec70d. App code last released at b5b0bc74 (CI run 43205383635), every new part switched OFF. A push of app code to `main` deploys by itself; docs-only pushes do not.
@@ -123,7 +136,7 @@ Full text: `docs/DECISIONS.md` "Decisions to review" on `build/next`. Build-nigh
 
 1. Run the refresh command. Read only the spec file of the slice you touch.
 2. First: `build/next` green (the red tests above).
-3. Then, 4 builders at once (up to 6 while rework stays under 2 rounds), in this order: finish and merge 3, 9 (5d), 4, 8, 7; 0g step 2 (SP-54); 1 (1d to 1f); 12; then 2, 0g step 3, 15, 16, 13, 14, 17; AI 6 to 8 beside them.
+3. Then, up to 8 builders at once (Speed rules above), in this order: finish and merge 3, 9 (5d), 4, 8, 7; 0g step 2 (SP-54); 1 (1d to 1f); 12; then 2, 0g step 3, 15, 16, 13, 14, 17; AI 6 to 8 beside them.
 4. After each merge: update this file and the Build board in `docs/PENDING.md`, add the CHANGELOG line, run the mirror copy (rules/sessions.md).
 5. Release to `main` only on a green `build/next`, flags off, as the master plan says.
 

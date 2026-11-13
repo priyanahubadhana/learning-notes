@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: AI framework slice 6, finish (A3 placement and Undo, A4 saved views), flag ai.framework off
+
+- What: Studio shows where each ticked tile's output goes (Notes tab, Mind map tab, Cards deck …) and has Undo and Redo for ticks, place and notebook name. Workflows get saved views (name the current filters, tap to apply, ✕ to delete with Undo). Stored on this device, no Dexie version.
+- Why: owner comments A3 and A4 were only partly built.
+- Files: src/aibuild/Studio.tsx, studioHistory.ts, studioPlan.ts, Workflows.tsx, workflowList.ts, AiBuild.tsx, src/i18n/*/aistudio.ts, e2e/aiStudio.spec.ts, playwright.config.ts (testMatch line), docs/features/ai-framework.md.
+
 ### 13 Nov 2026: AI framework slice 6 (cost additions, Studio, Workflows), flag ai.framework off
 
 - What: Claude's cache storage charge is part of every cost (never lower than real); Ask this book preview shows the true token count from Claude, or "(estimated)" offline or on failure, under all the rules of a real call. Build screen: stacked run bar (phone), Studio tab (tiles toggle, "Make selected" = one plan, combined cost), Workflows tab (shared Tag picker, chips, Clear all, live N of M, Save as workflow, Run, Remove with Undo). Owner comments A1 to A4 handled. Workflows are kept on this device (no new table).

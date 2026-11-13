@@ -186,9 +186,12 @@ Code: `src/ai/countTokens.ts`, `src/aibuild/Studio.tsx`, `studioPlan.ts`, `Workf
 - When a plan is ready → the "Plan ready" notice is placed clear of the plan title (A2, tested at every size in `e2e/aiGoal.spec.ts`).
 - When I tap "Save as workflow" → the plan is kept on this device and appears under Workflows; Run starts it as a new job and counts one use (SW-5).
 - When I filter Workflows → by tags (the shared Tag picker, Any or All), under More filters by what it is made for, minimum rating and times used, by the search box, and sorted by rating, most used, name or recently run; every filter shows as a chip with ✕, Clear all removes them, and "N of M" updates live (SW-1 to SW-4).
-- When the Tag picker is open and I press Esc → only the picker closes.
+- When tiles are ticked → a "Where it goes" list shows one row per tile with its own place, for example New notebook “Habits” › Notes tab, Mind map tab, Cards deck (A3).
+- When I tick a tile, untick it or change the place or the notebook name → Undo and Redo above the plan take it back and bring it again, a line says what was undone, and typing a name counts as one step (A3).
+- When I filter Workflows → "Save this view" keeps the filters and the sort under a name; it appears as a chip next to "All workflows"; tapping it applies it, its ✕ deletes it with Undo in the toast; a name already used is refused in words; views stay on this device (A4).
+- When the Tag picker is open and I press Esc → only the picker closes. In the view name field, Esc closes only that field.
 
-Won't do (slice 6): parts 7 and 8; any paid call; a database table for workflows (they are kept on this device until the main manager gives a Dexie version); saved views of Workflows filters (left for the next slice).
+Won't do (slice 6): parts 7 and 8; any paid call; a database table for workflows (workflows and saved views are kept on this device until the main manager gives a Dexie version).
 
 ### Slice 3: Build screen texts
 

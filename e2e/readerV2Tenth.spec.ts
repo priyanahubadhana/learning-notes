@@ -351,3 +351,33 @@ test('tenth final look, fix 1: the clear band holds the whole line it snaps to (
   await page.mouse.move(400, (ink.top + ink.bottom) / 2)
   await expect(check).toPass({ timeout: 5000 })
 })
+
+test('tenth final look, fix 2: on a phone no colour swatch reaches under the "Fountain ▾" pill', async ({
+  page,
+}) => {
+  // Why: the colours' scroll area ran right up to the pill, so the fifth
+  // swatch sat under its edge (pen-bar-*-phone.png).
+  await openBook(page, PHONE, ['reader.inkLook', 'reader.inkTools'])
+  await press(page, 'reader-ink')
+  const bar = page.getByTestId('reader-ink-bar')
+  const pill = await box(bar.getByTestId('reader-ink-options'))
+  const swatches = bar.locator(
+    '[data-testid^="reader-ink-colour-"], [data-testid="reader-ink-custom"]',
+  )
+  expect(await swatches.count()).toBeGreaterThan(4)
+  const area = await swatches.first().evaluate((el) => {
+    let p = el.parentElement
+    while (p && !/auto|scroll/.test(getComputedStyle(p).overflowX))
+      p = p.parentElement
+    return p!.getBoundingClientRect().toJSON() as DOMRect
+  })
+  // The scroll area ends 8 px before the pill.
+  expect(area.right).toBeLessThanOrEqual(pill.x - 8 + 0.5)
+  for (const s of await swatches.all()) {
+    const b = await box(s)
+    // What shows of each swatch is clipped to the scroll area: none crosses the pill.
+    const right = Math.min(b.x + b.width, area.right)
+    if (right <= b.x) continue
+    expect(right).toBeLessThanOrEqual(pill.x)
+  }
+})

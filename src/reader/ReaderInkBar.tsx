@@ -77,11 +77,12 @@ export function ReaderInkBar({
         ? PEN_COLOURS
         : []
   const current = tool === 'highlighter' ? hl.colour : pen.colour
-  // Phone: colours on a thin track, the named ▾ ends the second row.
+  // Phone: colours on a thin track, the named ▾ ends the second row. The
+  // track ends 8 px before the ▾, so no swatch sits under its edge.
   const row2 = (kids: ReactNode) =>
     compact ? (
       <div className="flex w-full items-center">
-        <ScrollTrack wrapClassName="min-w-0 flex-1" className="flex">
+        <ScrollTrack wrapClassName="me-2 min-w-0 flex-1" className="flex">
           {kids}
         </ScrollTrack>
         <InkOptions tool={tool} mode={mode} inkLook={inkLook} />

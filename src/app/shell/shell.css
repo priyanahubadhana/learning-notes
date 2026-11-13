@@ -189,6 +189,9 @@
 }
 
 @media (max-width: 39.999rem), (max-height: 31.999rem) {
+  :root {
+    --sh-bottom: var(--sh-tabbar);
+  }
   .sh-rail {
     display: none;
   }

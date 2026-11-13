@@ -12,6 +12,43 @@ const IPAD_P = { width: 820, height: 1180 }
 const PHONE = { width: 390, height: 844 }
 type Size = { width: number; height: number }
 
+/**
+ * A stand-in for the browser's visual viewport (the real one shrinks when the
+ * on-screen keyboard opens): same events, same fields. `__setKeyboard(px)`
+ * is the "keyboard opens" button.
+ */
+async function stubVisualViewport(page: Page) {
+  await page.addInitScript(() => {
+    const vv = new EventTarget() as EventTarget & Record<string, unknown>
+    let kb = 0
+    Object.defineProperties(vv, {
+      height: { get: () => window.innerHeight - kb },
+      width: { get: () => window.innerWidth },
+      offsetTop: { get: () => 0 },
+      offsetLeft: { get: () => 0 },
+      scale: { get: () => 1 },
+    })
+    Object.defineProperty(window, 'visualViewport', {
+      value: vv,
+      configurable: true,
+    })
+    ;(window as unknown as Record<string, unknown>).__setKeyboard = (
+      px: number,
+    ) => {
+      kb = px
+      vv.dispatchEvent(new Event('resize'))
+    }
+  })
+}
+const setKeyboard = (page: Page, px: number) =>
+  page.evaluate(
+    (n) =>
+      (window as unknown as { __setKeyboard(n: number): void }).__setKeyboard(
+        n,
+      ),
+    px,
+  )
+
 async function gallery(page: Page, size: Size) {
   await page.setViewportSize(size)
   await page.goto('about:blank')
@@ -304,7 +341,31 @@ test('S3-11 turning the iPad keeps the footer on screen and the work', async ({
   await expect(f.getByTestId('tf-undo')).toBeEnabled()
 })
 
-test('S3-12 Tab stays inside, in the order top bar, tools, ✕, ✓', async ({
+test('S3-11 the real visual viewport: the keyboard opens, the footer stays above it and the work is kept', async ({
+  page,
+}) => {
+  await stubVisualViewport(page)
+  const f = await openFrame(page, 'clean', PHONE)
+  await f.getByTestId('tf-tool-brighten').click()
+  await setKeyboard(page, 300)
+  await expect
+    .poll(async () => {
+      const foot = await box(f.locator('.tf-foot'))
+      return Math.round(foot.y + foot.height)
+    })
+    .toBe(PHONE.height - 300)
+  await expect(f.getByTestId('tfd-pic')).toHaveAttribute('data-look', '1')
+  await expect(f.getByTestId('tf-undo')).toBeEnabled()
+  await setKeyboard(page, 0)
+  await expect
+    .poll(async () => {
+      const foot = await box(f.locator('.tf-foot'))
+      return Math.round(foot.y + foot.height)
+    })
+    .toBe(PHONE.height)
+})
+
+test('S3-12 Tab stays inside, in the order top bar, preview, tools, ✕, ✓', async ({
   page,
 }) => {
   const f = await openFrame(page, 'clean')
@@ -325,7 +386,9 @@ test('S3-12 Tab stays inside, in the order top bar, tools, ✕, ✓', async ({
     await page.keyboard.press('Tab')
   }
   const at = (s: string) => seen.indexOf(s)
-  expect(at('tf-undo')).toBeLessThan(at('tf-tool-brighten'))
+  expect(at('tf-preview'), 'the preview is a tab stop').toBeGreaterThan(-1)
+  expect(at('tf-undo')).toBeLessThan(at('tf-preview'))
+  expect(at('tf-preview')).toBeLessThan(at('tf-tool-brighten'))
   expect(at('tf-tool-brighten')).toBeLessThan(at('tf-cancel'))
   expect(at('tf-cancel')).toBeLessThan(at('tf-done'))
   // after ✓ it wraps back to the top of the frame

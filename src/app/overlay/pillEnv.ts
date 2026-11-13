@@ -1,4 +1,5 @@
-import { useSyncExternalStore } from 'react'
+import { useEffect, useSyncExternalStore } from 'react'
+import { shellToasts, type ShellToasts } from '../shell/toastStore'
 
 /**
  * What the status pill stack must stay above (S3-23, S3-29). Owners set only
@@ -39,3 +40,43 @@ export const usePillEnv = (): PillEnv =>
     getPillEnv,
     () => EMPTY,
   )
+
+const pxVar = (name: string): number => {
+  const v = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue(name),
+  )
+  return Number.isFinite(v) ? v : 0
+}
+
+/**
+ * The shell owns the tab bar and the toast: this keeps the pill env in step
+ * with them (S3-23). Tab bar = `--sh-bottom` (56 on a phone, 0 elsewhere); the
+ * toast = how far its top edge is above the window bottom while one shows.
+ */
+export function useShellPillEnv(
+  active = true,
+  toasts: ShellToasts = shellToasts,
+): void {
+  useEffect(() => {
+    if (!active) return
+    const sync = () => {
+      const card = document.querySelector('[data-testid="shell-toast"]')
+      const toast =
+        toasts.current() && card
+          ? Math.max(
+              0,
+              Math.round(window.innerHeight - card.getBoundingClientRect().top),
+            )
+          : 0
+      setPillEnv({ tabBar: pxVar('--sh-bottom'), toast })
+    }
+    sync()
+    const off = toasts.subscribe(() => requestAnimationFrame(sync))
+    window.addEventListener('resize', sync)
+    return () => {
+      off()
+      window.removeEventListener('resize', sync)
+      setPillEnv({ tabBar: 0, toast: 0 })
+    }
+  }, [active, toasts])
+}

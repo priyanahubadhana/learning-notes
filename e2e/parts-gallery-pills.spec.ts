@@ -22,6 +22,42 @@ async function gallery(page: Page, size: Size = IPAD_L) {
   await expect(sec).toBeAttached()
   await sec.scrollIntoViewIfNeeded()
 }
+/**
+ * A stand-in for the browser's visual viewport (the real one shrinks when the
+ * on-screen keyboard opens): same events, same fields. `__setKeyboard(px)`
+ * is the "keyboard opens" button.
+ */
+async function stubVisualViewport(page: Page) {
+  await page.addInitScript(() => {
+    const vv = new EventTarget() as EventTarget & Record<string, unknown>
+    let kb = 0
+    Object.defineProperties(vv, {
+      height: { get: () => window.innerHeight - kb },
+      width: { get: () => window.innerWidth },
+      offsetTop: { get: () => 0 },
+      offsetLeft: { get: () => 0 },
+      scale: { get: () => 1 },
+    })
+    Object.defineProperty(window, 'visualViewport', {
+      value: vv,
+      configurable: true,
+    })
+    ;(window as unknown as Record<string, unknown>).__setKeyboard = (
+      px: number,
+    ) => {
+      kb = px
+      vv.dispatchEvent(new Event('resize'))
+    }
+  })
+}
+const setKeyboard = (page: Page, px: number) =>
+  page.evaluate(
+    (n) =>
+      (window as unknown as { __setKeyboard(n: number): void }).__setKeyboard(
+        n,
+      ),
+    px,
+  )
 const live = (page: Page) => page.locator('.pillstack[data-mode="fixed"]')
 const pill = (page: Page, id: string) => live(page).getByTestId(`pill-${id}`)
 const toggle = (page: Page, id: string) =>
@@ -125,6 +161,24 @@ test('S3-23 the stack rises above the tab bar, the keyboard and a toast', async 
   expect(await gap()).toBe(68)
 })
 
+test('S3-23 the real visual viewport: the keyboard opens and the stack rises with it', async ({
+  page,
+}) => {
+  await stubVisualViewport(page)
+  await gallery(page)
+  await toggle(page, 'update')
+  const gap = async () => {
+    await settle(page)
+    const b = await box(pill(page, 'update'))
+    return Math.round((await innerH(page)) - (b.y + b.height))
+  }
+  expect(await gap()).toBe(16)
+  await setKeyboard(page, 300)
+  await expect.poll(gap).toBe(16 + 300 + 44)
+  await setKeyboard(page, 0)
+  await expect.poll(gap).toBe(16)
+})
+
 test('S3-24 a pill opens its pop-up beside the stack; a tap in a gap goes to the page', async ({
   page,
 }) => {
@@ -171,6 +225,28 @@ test('S3-25 the zoom pill shows for about 2 s; touching it keeps it', async ({
   await page.waitForTimeout(2600)
   await expect(z).toBeVisible()
   await page.mouse.move(5, 5)
+  await expect(z).toBeHidden({ timeout: 4000 })
+})
+
+test('S3-25 touching the zoom pill keeps it until the finger lifts', async ({
+  page,
+}) => {
+  await gallery(page)
+  await toggle(page, 'zoom')
+  const z = pill(page, 'zoom')
+  await expect(z).toBeVisible()
+  await z.evaluate((el) =>
+    el.dispatchEvent(
+      new TouchEvent('touchstart', { bubbles: true, cancelable: true }),
+    ),
+  )
+  await page.waitForTimeout(2600)
+  await expect(z).toBeVisible()
+  await z.evaluate((el) =>
+    el.dispatchEvent(
+      new TouchEvent('touchend', { bubbles: true, cancelable: true }),
+    ),
+  )
   await expect(z).toBeHidden({ timeout: 4000 })
 })
 

@@ -459,6 +459,7 @@
   --sh-panel: 288px;
   --sh-top: 52px;
   --sh-tabbar: 56px;
+  --sh-bottom: 0px; /* what the bottom corner must clear: the tab bar on a phone */
   --sh-sheet: 440px;
   --sh-hit: 44px;
   --sh-gap: 12px;

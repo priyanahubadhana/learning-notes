@@ -259,7 +259,7 @@ function Live() {
           <p className="step3-said">{tap.title}</p>
         </Card>
       ) : null}
-      <PillStack mode="fixed" />
+      <PillStack mode="fixed" followShell={false} />
     </div>
   )
 }

@@ -13,7 +13,7 @@ import { motionMs } from '../../design/parts/motion'
 import { tp3 } from '../../design/parts/tp3'
 import { usePhone } from '../../design/parts/useAnchoredCard'
 import { pillStore } from './pillHooks'
-import { usePillEnv, type PillEnv } from './pillEnv'
+import { usePillEnv, useShellPillEnv, type PillEnv } from './pillEnv'
 import { arrangePills, iconOnly, pillBottom } from './pillLogic'
 import { type PillEntry, type PillSpec, type PillStore } from './pillStore'
 import { useVisualViewportBox } from './visualViewport'
@@ -34,6 +34,8 @@ export interface PillStackProps {
   env?: Partial<PillEnv>
   /** Force the phone look (gallery). */
   phone?: boolean
+  /** false = ignore the shell's tab bar and toast (gallery drives its own env). */
+  followShell?: boolean
   store?: PillStore
   'data-testid'?: string
 }
@@ -47,6 +49,7 @@ export function PillStack(props: PillStackProps) {
   const { mode = 'fixed', store = pillStore } = props
   const live = useEntries(store)
   const said = useSaid(store)
+  useShellPillEnv(mode === 'fixed' && props.followShell !== false)
   const appEnv = usePillEnv()
   const vv = useVisualViewportBox(mode === 'fixed')
   const phoneNow = usePhone()

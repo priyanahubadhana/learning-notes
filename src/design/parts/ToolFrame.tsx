@@ -408,6 +408,7 @@ export function ToolFrame(props: ToolFrameProps) {
         className="tf-preview"
         role="region"
         aria-label={tp3('parts.tool.preview')}
+        tabIndex={0}
         data-testid="tf-preview"
       >
         {preview}

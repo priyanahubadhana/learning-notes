@@ -3,6 +3,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import {
   contrastOf,
+  openPage,
   createNotebook,
   hideSidebar,
   startInMode,
@@ -32,6 +33,15 @@ async function open(
 
 const bar = (page: Page) => page.getByTestId('v8-bar')
 const pill = (page: Page) => page.getByTestId('show-tool-bar')
+
+/** After a reload: back to the page, and the bar is really drawn (not only "no pill"). */
+async function reopenAndExpectBar(page: Page) {
+  await page.goto('/?flags=toolbar.v8')
+  await openPage(page, 'First')
+  await hideSidebar(page)
+  await expect(bar(page)).toBeVisible()
+  await expect(pill(page)).toHaveCount(0)
+}
 
 /** Turns the bar off the way a person does: ⋯ then "Hide the tool bar" then Turn off. */
 async function turnOff(page: Page) {
@@ -183,6 +193,7 @@ test('TB-75 choosing On in Settings during a peek keeps the bar after a reload',
       .locator('[data-setting-id="toolbar.show"]')
       .getByRole('button', { name: 'On', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true')
+  await reopenAndExpectBar(page)
 })
 
 /** Why: changing the bar's place in Settings ends a peek too; the flag was left behind and a reload hid the bar. */
@@ -209,6 +220,9 @@ test('TB-75 changing the bar placement during a peek keeps the bar after a reloa
       .locator('[data-setting-id="advanced.barPlacement"]')
       .getByRole('button', { name: 'Bottom', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true')
+  await reopenAndExpectBar(page)
+  const box = (await bar(page).boundingBox())!
+  expect(box.y).toBeGreaterThan(page.viewportSize()!.height / 2)
 })
 
 test('TB-74 setting off (the default): typing leaves the bar alone and no pill shows', async ({

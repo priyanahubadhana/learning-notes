@@ -103,6 +103,7 @@ export default defineConfig({
         /magnifier/,
         /aiPicker/,
         /openNotebook/,
+        /startSpeed/,
         /tryNewFeatures/,
         /libraryV2/,
         /foundationInput/,

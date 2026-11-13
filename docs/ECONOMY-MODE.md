@@ -40,7 +40,7 @@ The old agent files are untouched (`fable-manager`, `opus-submanager-*`, `sonnet
 - **Briefs point to files, never paste them.** Under 250 words, every field of the section 4 template filled.
 - **Design + quality checklist:** builders tick the 17 lines in .claude/agents/economy-builder.md with proof; gate 2 and gate 3 reject a slice on any ✗.
 - **Worktrees:** one per slice (they exist: `../ln-s*`), reused by each new builder of that slice. A new worktree only for a new slice. Docs-only and read-only jobs need none.
-- **Tests:** locally run only the spec files of the sub-slice (chromium; ipad-webkit for touch code) plus lint, tsc and the size check. The full matrix runs once per merge in CI on the `build/next` pull request (free, public repo). A Haiku helper runs `gh run watch <id> --exit-status`, then lists the failed test names from `gh run view <id> --log-failed`. No local full suites.
+- **Tests:** locally run only the spec files of the sub-slice (chromium; ipad-webkit for touch code) plus lint, tsc and the size check. The full matrix runs once per merge in CI on the `build/next` pull request (free, public repo). A Haiku helper runs `gh run watch <id> --exit-status`, then lists the failed test names from `gh run view <id> --log-failed`. No local full suites. The push guard (section 12) runs the quick checks on every push.
 - **Output:** long command output goes to a file; read the tail or search the failures.
 - **Batching:** up to 8 builders at once on files that do not overlap (section 11; owner, 13 Nov: Sonnet builders are cheap on the Max plan); gate 3 in batches; one docs commit per wave for BUILD-STATE, the PENDING board and CHANGELOG; one CI run per batch of up to 3 gated slices (section 11), never per commit.
 - **Status messages:** helpers report in under 150 words (Haiku 80). The orchestrator writes state to docs/BUILD-STATE.md instead of long messages. The owner's "Status / Needs you" lines are written by Haiku from that file.
@@ -101,7 +101,7 @@ A "slice" = one master-plan area brought to merged on `build/next` after gate 2.
 
 How the share was worked out, and why it is rough: this week's measured helpers add up to about 250 units and the unmeasured build helpers to about 290 more; that, plus the main chat, roughly used up one weekly allowance, so one week is taken as about 550-650 units. That is an inference, not a reading. **Calibrate on day 1:** note `/usage` before and after the first economy slice; that weekly share x 18 is the real figure. If one slice uses more than 3% of the week, stop and review.
 
-### With up to 6 builders at once (owner's choice, 13 Nov)
+### With the builder count from Owner settings (CLAUDE.md, 13 Nov)
 
 The tables above assume 3 builders. With 6:
 
@@ -172,6 +172,7 @@ Once a week (owner or Fable):
 3. Lower the effort setting for mechanical jobs.
 4. Clear the chat between unrelated tasks, and avoid idle waiting loops. After a pause the saved context expires and is processed again in full.
 5. Keep Haiku prompts under 100,000 tokens. Above that, Haiku 5.5 charges more.
+6. Confirm Monday's `webkit` run happened and read its warnings (`gh run list --workflow ci.yml --event schedule --limit 1`).
 
 Unused connectors: switching off connectors the build never uses may cut overhead on every turn. How much that saves here is **unverified**; check `/usage` before switching anything off.
 
@@ -185,7 +186,7 @@ Goal: a little more speed with no loss of quality or design. Nothing here change
 4. **Batch CI** (owner approved): up to 3 slices that have each passed gate 2 and gate 3 are merged into `build/next` one after another, each with its own targeted tests, tsc, lint and the combined size check run locally, then ONE full CI run for the batch. Never batch a slice that touches a hot file: it gets its own run. If the run is red, the failing test names its slice; if that is unclear, bisect (take the last merge out and run again). Fix the cause; never re-run until green.
 5. **Automatic CI back on.** Merge `main` into `build/next` and resolve docs/DECISIONS.md by keeping both sides (docs only). To stop the conflict returning: build-time docs (DECISIONS, CHANGELOG, BUILD-STATE, PENDING) are written on `main` only, and `main` is merged into `build/next` before each CI batch. The pull-request run is the judge again, publishes the preview and does not start the weekly `webkit` job.
 6. **One run at a time per branch.** Do not push to `build/next` or start a run while one is in progress; queue the next batch. A run labelled "cancelled" is read job by job before anyone reacts.
-7. **Weekly `webkit` job on hand-started runs:** not skipped by editing anything (that would need a workflow edit; rule 5 removes the need). If a hand-started run is still needed, judge it as soon as every required job has finished (`gh run view <id> --json jobs`); do not wait for the warning-only `webkit` job. Green = every job except `webkit` passed.
+7. **Weekly `webkit` job on hand-started runs:** a hand-started run (Run workflow) skips the `webkit` job unless the `full_webkit` box is ticked. The Monday schedule still runs it. Judge a hand-started run as soon as every required job has finished (`gh run view <id> --json jobs`); do not wait for the warning-only `webkit` job. Green = every job except `webkit` passed.
 8. **Repeat-fault list in every builder brief** that makes or changes a screen (one line: "Check ECONOMY-MODE section 11 rule 8 before you shoot pictures"):
    - a thin scroll track under any row that is cut off;
    - a toast sits above the phone tab bar, never on it;
@@ -210,3 +211,20 @@ Expected gain (an estimate, not measured): about 10 to 15 minutes per CI run fro
 - The Bash branch (file deletes) only works once settings.json has a Bash entry that runs this file; that settings change is not made yet (open owner decision).
 
 **Batch CI** (owner decision): one full CI run may cover up to 3 slices that have each passed gate 2 and gate 3. A red run is bisected one slice at a time (take the last merge out, run again). Tests are never skipped, and nothing reaches `main` without a green run.
+
+**Push guard** (`scripts/push-guard.mjs`, run by `.githooks/pre-push` in every worktree; owner approved 13 Nov 2026). Before a `git push` it checks only the files the push changes, cheapest first, and stops at the first failure:
+
+- Every branch: Prettier on the changed files, `check:links`. About 3 seconds.
+- `build/next` and `slice/*` also: ESLint errors on changed code, `tsc -b`, `check:ratchet`, Vitest tests related to changed `src` files, Playwright chromium on changed e2e specs (at most 6; the rest are named and left to CI), plus the `foundationInput` smoke on `build/next`. About 20 to 40 seconds (measured 19 s and 35 s).
+- A block prints `PUSH BLOCKED by the push guard: <step>`, the last lines of output and the command to re-run. Fix the cause; never `--no-verify` (a Claude hook blocks it and hooks-path changes).
+- Escape only with an approved reason: a line `push-guard-skip: <at least 5 words>` in the tip commit message. It is loud and logged in `.git/push-guard-skips.log`; every run is logged in `.git/push-guard.log`.
+- It only runs existing commands: it never weakens or skips a test, and CI stays the judge.
+
+## 13. Automatic escalation and stall checks (owner, 13 Nov 2026; wanted from the start)
+
+The build escalates by itself; the owner never has to ask.
+
+- **Ladder:** Sonnet builder → Opus builder → Fable. Move up when the same test is red in 2 CI runs, a builder stops twice, or gate 2 or gate 3 fails twice on one slice. If the Opus attempt fails too, Fable works out the exact fix.
+- **Stall checks every wave:** act at once when build/next is green and nothing has merged for 30 minutes, when a slice that passed its gates is waiting, or when lanes are idle while free non-overlapping slices exist.
+- **Watchdog (hourly, main chat):** checks for stalls as well as whether the orchestrator is alive, and nudges it.
+- Log every escalation in docs/BUILD-STATE.md. Quality rules, tests and gates are unchanged.

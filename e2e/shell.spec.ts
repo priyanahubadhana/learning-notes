@@ -222,9 +222,15 @@ test('SH-08 on a phone the panel is an overlay and the top bar stays reachable',
 })
 
 test('works offline once loaded', async ({ page, context }) => {
+  // The app fetches the lazy Home chunk quietly 1 s after it starts, which
+  // can be after the network first goes quiet. Going offline before that
+  // makes the import fail and the app reloads itself, so "loaded" means the
+  // chunk has arrived (not just networkidle).
+  const homeChunk = page.waitForResponse((r) =>
+    /HomeScreen-.*.js/.test(r.url()),
+  )
   await start(page)
-  // "loaded" includes the lazy Home chunk; going offline before it arrives
-  // makes the import fail and the app reloads itself (seen on slow CI)
+  await homeChunk
   await page.waitForLoadState('networkidle')
   await context.setOffline(true)
   const html = page.locator('html')

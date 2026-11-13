@@ -31,8 +31,8 @@ Goal: Apple-level results, delivered with Toyota-level consistency: every featur
 ## 5. Three gates before the owner sees it
 
 1. The executor builds it and runs the tests.
-2. The QA sub-manager checks the Definition of Done and the spec.
-3. The main manager looks at the screenshots personally.
+2. The gate-2 reviewer (economy-gate2, Opus) checks the Definition of Done and the spec.
+3. Fable (gate 3) looks at the screenshots personally.
    Only then does it go to the owner for one iPad test.
 
 ## 6. Safe release

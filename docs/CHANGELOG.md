@@ -8,6 +8,48 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: the slice had helpers but only one PENDING line as its spec; a new visual pattern needs a spec and mock-up before the UI is built.
 - Files: docs/features/storage-safety.md, docs/mockups/storage-safety-mock.html, docs/mockups/storage-safety/, docs/PENDING.md, docs/CHANGELOG.md.
 
+### 13 Nov 2026: fast start (WebKit start 15 s -> 1.2 s)
+
+- What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.
+- Why: the app took about 15 s to start on WebKit because starters were written before the first screen.
+- Files: src/templates/templateService.ts, src/templates/NewPageStart.tsx, src/templates/seedBulk.test.ts, e2e/startSeeding.spec.ts, e2e/startSpeed.spec.ts, docs/features/perf-start.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: push guard hook narrowed (owner-approved)
+
+- What: the Claude hook that blocks bypasses now lets read-only commands through (`git config --get` with or without a trailing command, `git config` with no value, grep and cat). It still blocks push or commit with the skip flag, setting or unsetting the hooks path, `-c` hooks-path overrides, and commands that delete, move or overwrite `.githooks/` or `scripts/push-guard.mjs`.
+- Why: the old hook blocked harmless reads that only mentioned the setting, and did not block deleting the guard files.
+- Files: .claude/hooks/push-guard-noverify.mjs, docs/CHANGELOG.md. Trials: 10 blocked and 10 allowed cases, all as expected.
+
+### 13 Nov 2026: CLAUDE.md review applied (owner approved all of it)
+
+- What: project CLAUDE.md and global CLAUDE.md shortened and fixed (stale ₹0 budget, "stop and ask" for everything, duplicate sections, two builder counts); six Core Operating Rules added (status line, stop the line, never drop a feature, do it yourself, when you must ask, proof before done); ECONOMY-MODE section 5 heading points to Owner settings and the second section 12 is now section 13 (escalation); quality.md section 5 names the real gate roles; memory notes updated (builders 8, bugs-only rule expired, Phase L stop removed).
+- Why: the owner's rules were split over four places and some contradicted the build (memory is not read by helpers).
+- Files: CLAUDE.md, rules/quality.md, rules/building.md, docs/ECONOMY-MODE.md, docs/PENDING.md, docs/CHANGELOG.md, docs/DECISIONS.md; global CLAUDE.md and memory notes (outside the repo).
+
+### 13 Nov 2026: push guard (quick checks before every push)
+
+- What: a pre-push hook in every worktree (core.hooksPath points at main's `.githooks`) runs Prettier and check:links on every branch, plus ESLint, tsc, check:ratchet, related Vitest and touched e2e specs (chromium, max 6, foundationInput smoke on build/next) on build/next and slice branches. A Claude hook blocks `--no-verify` and hooks-path changes; the only escape is a logged `push-guard-skip:` line.
+- Why: most red CI runs were Prettier, check:links or one e2e spec, all catchable in seconds before pushing. No test, timeout or CI file changed.
+- Files: scripts/push-guard.mjs, .githooks/pre-push, .gitattributes, .claude/hooks/push-guard-noverify.mjs, .claude/settings.json, .claude/agents/economy-builder.md, docs/ECONOMY-MODE.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: CI speed-ups (three of four from the speed-up verdict)
+
+- What: e2e and pencil-webkit wait for checks; Playwright browsers cached (key = OS + browser + exact version); the weekly WebKit job is skipped on hand-started runs unless the `full_webkit` box is ticked. Monday schedule kept; ECONOMY-MODE section 10 gets the Monday check, section 11 rule 7 reworded.
+- Why: shorter CI runs; no test, shard or timeout changed. The merge-first perf slice (item 4) is not in this change.
+- Files: .github/workflows/ci.yml, docs/ECONOMY-MODE.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: gate 3 tenth visit (1d toolbar v8, 7 Reader v2) and the phone Preview pill decision
+
+- What: both slices FAIL again (1d: 5 fixes, most ninth-visit fixes done; 7: 6 fixes). Decision logged: the phone Preview pill in Settings stays at the bottom (SET-B02/B03 unchanged) and gets its own docked row so it cannot cover text.
+- Why: gate 3 before merge; the builder held one fix that conflicted with the spec.
+- Files: docs/plans/gate3-2026-11-13.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: gate 3 ninth visit (1d toolbar v8, 7 Reader v2) and two hard-case decisions
+
+- What: both slices FAIL (1d: 8 fixes, the first 90 pictures were not re-shot after the fix round; 7: 7 fixes). Decisions logged: Paste follows the page-menus path (Keep original by default); EPUB book frames get `allow-scripts` back only with three guards.
+- Why: gate 3 before merge; two open questions needed one answer each.
+- Files: docs/plans/gate3-2026-11-13.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: test guard hook strengthened; batch CI decision recorded
 
 - What: guard-tests.mjs also blocks longer timeouts, grepInvert/testIgnore, new skip/fixme and deleted test files unless a `test-guard-reason` comment (5+ words) is on the line; tried on scratch inputs (block without, allow with). ECONOMY-MODE section 12 and DECISIONS record the rules and the batch CI decision.

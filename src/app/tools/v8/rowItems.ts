@@ -97,6 +97,8 @@ export function cardInfo(id: string): {
   size: 'pick' | 'panel'
 } {
   if (id === 'insert') return { title: 'v8.tool.insert', size: 'panel' }
+  if (id === 'sel.more') return { title: 'v8.sel.more', size: 'pick' }
+  if (id === 'sel.picture') return { title: 'v8.sel.editPicture', size: 'pick' }
   if (id === 'fold.bar' || id === 'fold.row')
     return { title: 'v8.fold.title', size: 'pick' }
   for (const items of Object.values(ROW_ITEMS))

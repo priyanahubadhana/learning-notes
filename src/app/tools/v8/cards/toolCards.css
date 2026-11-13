@@ -1,0 +1,94 @@
+/* Toolbar v8, slice 1d: Eraser, Shapes and Lasso cards, selection bar. Tokens only. */
+.v8ring {
+  display: grid;
+  place-items: center;
+  min-height: 64px;
+  border-radius: var(--r-md);
+  background: var(--card-well);
+}
+.v8ring i {
+  display: block;
+  border: 2px solid var(--color-ink-soft);
+  border-radius: 50%;
+  background: transparent;
+}
+.v8list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.v8list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  font-size: 14px;
+}
+.v8list li + li {
+  border-top: 1px solid var(--color-line);
+}
+.v8list svg {
+  flex: none;
+  color: var(--color-ink-soft);
+}
+
+/* ---- selection bar: one wrapping row under the tool row ---- */
+.v8sel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 2px var(--space-2);
+  border-top: 1px solid var(--color-line);
+}
+.v8sel button {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.v8sel button:hover:not([data-coming]) {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+.v8sel button[data-coming] {
+  opacity: 0.55;
+}
+.v8sel button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.v8sel-more {
+  display: flex;
+  flex-direction: column;
+}
+.v8sel-more button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.v8sel-more button:hover:not([data-coming]) {
+  background: var(--card-well);
+}
+.v8sel-more button[data-coming] {
+  opacity: 0.55;
+}

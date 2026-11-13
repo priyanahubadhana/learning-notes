@@ -38,6 +38,7 @@ import { esNotebooksV2 } from './notebooksV2'
 import { esSearchV2 } from './searchV2'
 import { esPanelV2 } from './panelV2'
 import { esV8Pen } from './v8Pen'
+import { esV8Tools } from './v8Tools'
 
 export const es: Record<string, string> = {
   ...esAccounts,
@@ -79,4 +80,5 @@ export const es: Record<string, string> = {
   ...esPanelV2,
   ...esLibraryV2,
   ...esV8Pen,
+  ...esV8Tools,
 }

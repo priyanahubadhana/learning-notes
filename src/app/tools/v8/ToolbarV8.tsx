@@ -13,13 +13,23 @@ import {
 } from './barState'
 import { NEWLINE_CARD, ToolBar } from './ToolBar'
 import { ToolRow } from './ToolRow'
-import { cardAutoClose, isPenCard } from './cards/pen/penModel'
+import { isPenCard } from './cards/pen/penModel'
+import { cardAutoClose } from './cards/autoClose'
+import { isShapeDraw } from './cards/shapes/shapesModel'
+import { penSettings } from '../main/inkSettings'
 import { cardInfo } from './rowItems'
 import type { V8ToolId } from './registryV8'
 import './toolbarV8.css'
 
 // The Pen cards load when the first one opens (keeps the first load small).
 const PenCardBody = lazy(() => import('./cards/pen/PenCards'))
+const EraserCardBody = lazy(() => import('./cards/eraser/EraserCards'))
+const ShapesCardBody = lazy(() => import('./cards/shapes/ShapesCards'))
+const LassoCardBody = lazy(() => import('./cards/lasso/LassoCards'))
+const SelectionBarV8 = lazy(() => import('./SelectionBarV8'))
+const SelCardBody = lazy(() =>
+  import('./SelectionBarV8').then((m) => ({ default: m.SelCardBody })),
+)
 
 /**
  * The new tool bar (toolbar.v8). Slice 1b: the tool bar, the tool row and an
@@ -38,7 +48,12 @@ export default function ToolbarV8() {
     () =>
       activeTool.subscribe(() => {
         const next = modeToTool(activeTool.get())
-        if (next && next !== v8Tool.get()) {
+        // Shapes draws with the pen: that is not leaving Shapes.
+        const keep =
+          v8Tool.get() === 'shapes' &&
+          next === 'pen' &&
+          isShapeDraw(penSettings.get().drawAs)
+        if (next && next !== v8Tool.get() && !keep) {
           v8Tool.set(next)
           setCard(null)
         }
@@ -59,7 +74,7 @@ export default function ToolbarV8() {
     const next = tapTool({ tool, card: card?.id ?? null }, id)
     if (next.tool !== tool) {
       v8Tool.set(next.tool)
-      followMode(next.tool)
+      followMode(next.tool, tool)
     }
     setCard(
       next.card ? { id: next.card, anchor: anchorFor(next.card, el) } : null,
@@ -91,6 +106,16 @@ export default function ToolbarV8() {
         onToggleCard={onToggleCard}
         onCloseCard={onCloseCard}
       />
+      {tool === 'lasso' ? (
+        <Suspense fallback={null}>
+          <SelectionBarV8
+            moreOpen={card?.id === 'sel.more'}
+            onMore={(a) => onToggleCard('sel.more', a)}
+            pictureOpen={card?.id === 'sel.picture'}
+            onPicture={(a) => onToggleCard('sel.picture', a)}
+          />
+        </Suspense>
+      ) : null}
       {card &&
       info &&
       !card.id.startsWith('fold.') &&
@@ -104,14 +129,22 @@ export default function ToolbarV8() {
           testId={`v8-card-${card.id}`}
           onClose={() => onCloseCard(card.id)}
         >
-          {isPenCard(card.id) ? (
-            <Suspense fallback={null}>
+          <Suspense fallback={null}>
+            {isPenCard(card.id) ? (
               <PenCardBody id={card.id} />
-            </Suspense>
-          ) : (
-            /* 1d to 1f fill the other cards. */
-            <p className="v8note">{t('v8.card.empty')}</p>
-          )}
+            ) : card.id.startsWith('eraser.') ? (
+              <EraserCardBody id={card.id} />
+            ) : card.id.startsWith('shapes.') ? (
+              <ShapesCardBody id={card.id} />
+            ) : card.id.startsWith('lasso.') ? (
+              <LassoCardBody id={card.id} />
+            ) : card.id.startsWith('sel.') ? (
+              <SelCardBody id={card.id} onDone={() => onCloseCard(card.id)} />
+            ) : (
+              /* 1e and 1f fill the other cards. */
+              <p className="v8note">{t('v8.card.empty')}</p>
+            )}
+          </Suspense>
         </Card>
       ) : null}
     </div>

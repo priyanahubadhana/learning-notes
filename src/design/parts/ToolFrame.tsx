@@ -12,6 +12,8 @@ import { createPortal } from 'react-dom'
 import { Icon, type IconName } from '../../app/tools/icons'
 import { overlay } from '../../app/overlay'
 import { setPillEnv } from '../../app/overlay/pillEnv'
+import { useVisualViewportBox } from '../../app/overlay/visualViewport'
+import '../../app/overlay/stepLayers.css'
 import { Card } from './Card'
 import { CompareButton } from './CompareButton'
 import { ConfirmDialog } from './Dialogs'
@@ -111,7 +113,6 @@ export function ToolFrame(props: ToolFrameProps) {
   const [openTool, setOpenTool] = useState<string | null>(null)
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
   const [visible, setVisible] = useState<number | null>(null)
-  const [box, setBox] = useState<{ top: number; height: number } | null>(null)
   const [said, setSaid] = useState('')
   const lastMark = useRef(0)
   const openerRef = useRef<HTMLElement | null>(null)
@@ -199,30 +200,10 @@ export function ToolFrame(props: ToolFrameProps) {
   }, [mode])
 
   // The footer keeps above the on-screen keyboard (S3-11): follow the visual viewport.
+  const { box, keyboard } = useVisualViewportBox(mode === 'floating')
   useEffect(() => {
-    if (mode !== 'floating') return
-    const vv = window.visualViewport
-    if (!vv) return
-    const sync = () => {
-      const hidden = window.innerHeight - vv.height - vv.offsetTop
-      setBox(
-        Math.abs(vv.height - window.innerHeight) < 2 && vv.offsetTop < 1
-          ? null
-          : { top: vv.offsetTop, height: vv.height },
-      )
-      setPillEnv({
-        keyboard: hidden > 80 ? Math.round(hidden) : 0,
-        toolFooter: FOOTER_PX,
-      })
-    }
-    sync()
-    vv.addEventListener('resize', sync)
-    vv.addEventListener('scroll', sync)
-    return () => {
-      vv.removeEventListener('resize', sync)
-      vv.removeEventListener('scroll', sync)
-    }
-  }, [mode])
+    if (mode === 'floating') setPillEnv({ keyboard })
+  }, [mode, keyboard])
   useEffect(() => {
     if (mode !== 'floating') return
     setPillEnv({ toolFooter: FOOTER_PX })

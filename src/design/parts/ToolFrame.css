@@ -3,7 +3,6 @@
   box-sizing: border-box;
   position: fixed;
   inset: 0;
-  z-index: var(--z-tool);
   display: grid;
   grid-template-rows: 52px minmax(0, 1fr) auto 64px;
   padding: env(safe-area-inset-top) env(safe-area-inset-right)
@@ -20,7 +19,6 @@
 .tf[data-mode='inline'] {
   position: relative;
   inset: auto;
-  z-index: auto;
   height: 100%;
   min-height: 420px;
   border-radius: var(--r-lg);

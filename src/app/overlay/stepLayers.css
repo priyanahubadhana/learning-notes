@@ -1,0 +1,11 @@
+/* The two step 3 layers (D16): the Tool frame at --z-tool, the status pills at --z-pills.
+   Stacking numbers live here, in the overlay layer, so parts carry none of their own. */
+.tf {
+  z-index: var(--z-tool);
+}
+.tf[data-mode='inline'] {
+  z-index: auto;
+}
+.pillstack {
+  z-index: var(--z-pills);
+}

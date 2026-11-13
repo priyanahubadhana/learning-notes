@@ -76,6 +76,14 @@ export function TimeRangeBar({
     widthPx: 320,
     active: picking,
   })
+  // The card is placed in screen coordinates, so its offset inside the bar is
+  // taken once, when it is placed. Reading the bar's rect on every render made
+  // the card slide by the scroll distance and cover other cells.
+  const offset = useMemo(() => {
+    if (!pos || !bar) return null
+    const r = bar.getBoundingClientRect()
+    return { left: pos.left - r.left, top: pos.top - r.top }
+  }, [pos, bar])
 
   /** Which edge of the segment track still has hidden content. */
   const measureFade = useCallback(() => {
@@ -195,9 +203,9 @@ export function TimeRangeBar({
           ref={setPop}
           className="pm-pop"
           style={{
-            left: pos && bar ? pos.left - bar.getBoundingClientRect().left : 0,
-            top: pos && bar ? pos.top - bar.getBoundingClientRect().top : 0,
-            visibility: pos ? undefined : 'hidden',
+            left: offset?.left ?? 0,
+            top: offset?.top ?? 0,
+            visibility: offset ? undefined : 'hidden',
           }}
           role="group"
           aria-label={tp('parts.range.custom')}

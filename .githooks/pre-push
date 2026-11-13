@@ -1,0 +1,3 @@
+#!/bin/sh
+# Push guard: always runs main's copy, against the pushing worktree (cwd).
+exec node "C:/Users/pc/Downloads/learning-notes/scripts/push-guard.mjs" "$@"

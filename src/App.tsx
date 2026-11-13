@@ -39,6 +39,7 @@ import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { toggleFavourite } from './app/favourites'
 import { isOn, useFlag } from './app/flags'
+import { shellToasts } from './app/shell/toastStore'
 import { useFrameSize } from './app/shell/useFrameSize'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
 import { QuietCorner } from './app/spaces/QuietCorner'
@@ -913,6 +914,11 @@ function App() {
       new Promise((resolve) => setNameAsk({ title, initial, resolve })),
     openSettings,
     toast: (message, action) => {
+      // The new frame (flag foundation.shell) draws its own toast (SH-12).
+      if (shellOn) {
+        shellToasts.show(message, action)
+        return
+      }
       // Choosing the action also closes the toast.
       const closing = action && {
         ...action,

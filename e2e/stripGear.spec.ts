@@ -53,11 +53,18 @@ test('BUG-006 with the keyboard up (visual viewport shrinks) the gear stays reac
   const full = await gearBottom(page)
   expect(full).toBeGreaterThan(600)
   await fakeKeyboard(page, 300)
-  await expect.poll(() => gearBottom(page)).toBeLessThanOrEqual(300)
+  await expect.poll(() => gearBottom(page)).toBeLessThanOrEqual(300 - 44)
   const box = await gear(page).boundingBox()
   expect(box!.height).toBeGreaterThanOrEqual(44)
+  // The first tap may only close the open format bar (the outside-tap rule).
+  const panel = page.getByTestId('corner-panel')
   await gear(page).click()
-  await expect(page.getByTestId('corner-panel')).toBeVisible()
+  await page.waitForTimeout(500)
+  if (!(await panel.isVisible())) await gear(page).click({ timeout: 3000 })
+  await expect(panel).toBeVisible()
+  // The panel rises from the foot of the visible area, not from under it.
+  const bottom = await panel.evaluate((el) => el.getBoundingClientRect().bottom)
+  expect(bottom).toBeLessThanOrEqual(300 - 44)
 })
 
 test('BUG-006 the strip scrolls when its spaces do not fit above the gear', async ({

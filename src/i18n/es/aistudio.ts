@@ -61,6 +61,7 @@ export const esAiStudio = {
   'aifw.wf.runName': 'Ejecutar flujo: {name}',
   'aifw.wf.remove': 'Quitar flujo: {name}',
   'aifw.wf.removed': 'Se quitó «{name}».',
+  'aifw.wf.edited': 'Se actualizó «{name}».',
   'aifw.wf.used': 'Usado {n} veces',
   'aifw.wf.setTags': 'Etiquetas de {name}',
   'aifw.wf.setRating': 'Valoración de {name}',

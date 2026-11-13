@@ -1,4 +1,5 @@
 import { OnOffChoice } from '../design/parts/OnOff'
+import { MenuSelect } from './MenuSelect'
 import { t, type MessageKey } from '../i18n/t'
 import type { Destination } from './buildState'
 import type { DestinationLists } from './destinationLists'
@@ -65,44 +66,43 @@ export function DestinationPicker({
         />
       )}
       {dest.kind === 'notebook' && (
-        <select
+        <MenuSelect<string>
+          wide
           value={dest.id}
-          aria-label={t('aifw.dest.pickNotebook')}
-          data-testid="aifw-dest-notebook"
-          className={field}
-          onChange={(e) => onChange({ kind: 'notebook', id: e.target.value })}
-        >
-          <option value="">{t('aifw.dest.choose')}</option>
-          {lists.notebooks?.map((n) => (
-            <option key={n.id} value={n.id}>
-              {n.title}
-            </option>
-          ))}
-        </select>
+          label={t('aifw.dest.pickNotebook')}
+          testId="aifw-dest-notebook"
+          options={[
+            { value: '', label: t('aifw.dest.choose') },
+            ...(lists.notebooks ?? []).map((n) => ({
+              value: n.id,
+              label: n.title,
+            })),
+          ]}
+          onChange={(id) => onChange({ kind: 'notebook', id })}
+        />
       )}
       {dest.kind === 'page' && (
-        <select
+        <MenuSelect<string>
+          wide
           value={dest.id}
-          aria-label={t('aifw.dest.pickPage')}
-          data-testid="aifw-dest-page"
-          className={field}
-          onChange={(e) =>
+          label={t('aifw.dest.pickPage')}
+          testId="aifw-dest-page"
+          options={[
+            { value: '', label: t('aifw.dest.choose') },
+            ...(lists.pages ?? []).map((p) => ({
+              value: p.id,
+              label: p.title,
+            })),
+          ]}
+          onChange={(id) =>
             onChange({
               kind: 'page',
-              id: e.target.value,
+              id,
               notebookId:
-                lists.pages?.find((p) => p.id === e.target.value)?.notebookId ??
-                '',
+                lists.pages?.find((p) => p.id === id)?.notebookId ?? '',
             })
           }
-        >
-          <option value="">{t('aifw.dest.choose')}</option>
-          {lists.pages?.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.title}
-            </option>
-          ))}
-        </select>
+        />
       )}
     </>
   )

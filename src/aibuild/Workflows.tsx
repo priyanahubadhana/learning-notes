@@ -8,6 +8,7 @@ import { TagPickerLazy } from '../design/parts/TagPicker/TagPickerLazy'
 import type { TagItem } from '../design/parts/TagPicker/tagSearch'
 import { t, type MessageKey } from '../i18n/t'
 import { newJobId } from './buildState'
+import { MenuSelect } from './MenuSelect'
 import { findOrCreateTagPath, listTags } from '../tags/tagService'
 import { joinTagPath } from '../tags/tagNames'
 import {
@@ -28,6 +29,7 @@ import {
   type SavedView,
   type Sort,
   type WfFilter,
+  loadWorkflows,
   type Workflow,
 } from './workflowList'
 
@@ -109,8 +111,22 @@ export function Workflows({
   }
   const moreN = f.forTypes.length + (f.minRating ? 1 : 0) + (f.minUses ? 1 : 0)
   const patch = (p: Partial<WfFilter>) => setF({ ...f, ...p })
-  const edit = (id: string, p: Partial<Workflow>) =>
+  // Every change says so and can be undone (puts the old values back).
+  const edit = (id: string, p: Partial<Workflow>) => {
+    const was = items.find((w) => w.id === id)
+    if (!was) return
+    const before = Object.fromEntries(
+      Object.keys(p).map((k) => [k, was[k as keyof Workflow]]),
+    ) as Partial<Workflow>
     onChange(items.map((w) => (w.id === id ? { ...w, ...p } : w)))
+    onSay?.(t('aifw.wf.edited', { name: was.name }), {
+      label: t('aifw.undo'),
+      run: () =>
+        onChange(
+          loadWorkflows().map((w) => (w.id === id ? { ...w, ...before } : w)),
+        ),
+    })
+  }
   const forName = (v: string) => t(`aifw.wf.for.${v}` as MessageKey)
 
   const chipLabel = (c: Chip): string => {
@@ -184,21 +200,19 @@ export function Workflows({
           {moreN ? t('aifw.wf.moreN', { n: moreN }) : t('aifw.wf.more')}
           <ChevronDown size={16} strokeWidth={1.6} aria-hidden />
         </button>
-        <label className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-sm">
           <span className="text-muted">{t('aifw.wf.sort')}</span>
-          <select
+          <MenuSelect<Sort>
             value={f.sort}
-            data-testid="aifw-wf-sort"
-            className={field}
-            onChange={(e) => patch({ sort: e.target.value as Sort })}
-          >
-            {SORTS.map((s) => (
-              <option key={s} value={s}>
-                {t(`aifw.wf.sort.${s}` as MessageKey)}
-              </option>
-            ))}
-          </select>
-        </label>
+            label={t('aifw.wf.sort')}
+            testId="aifw-wf-sort"
+            options={SORTS.map((s) => ({
+              value: s,
+              label: t(`aifw.wf.sort.${s}` as MessageKey),
+            }))}
+            onChange={(sort) => patch({ sort })}
+          />
+        </div>
       </div>
 
       <ClearField
@@ -245,36 +259,32 @@ export function Workflows({
             })}
           </div>
           <div className="flex flex-wrap gap-3">
-            <label className="flex items-center gap-2 text-sm">
+            <div className="flex items-center gap-2 text-sm">
               {t('aifw.wf.minRating')}
-              <select
+              <MenuSelect<number>
                 value={f.minRating}
-                data-testid="aifw-wf-minrating"
-                className={field}
-                onChange={(e) => patch({ minRating: Number(e.target.value) })}
-              >
-                {[0, 1, 2, 3, 4, 5].map((n) => (
-                  <option key={n} value={n}>
-                    {n ? t('aifw.wf.stars', { n }) : t('aifw.wf.for.any')}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="flex items-center gap-2 text-sm">
+                label={t('aifw.wf.minRating')}
+                testId="aifw-wf-minrating"
+                options={[0, 1, 2, 3, 4, 5].map((n) => ({
+                  value: n,
+                  label: n ? t('aifw.wf.stars', { n }) : t('aifw.wf.for.any'),
+                }))}
+                onChange={(minRating) => patch({ minRating })}
+              />
+            </div>
+            <div className="flex items-center gap-2 text-sm">
               {t('aifw.wf.minUses')}
-              <select
+              <MenuSelect<number>
                 value={f.minUses}
-                data-testid="aifw-wf-minuses"
-                className={field}
-                onChange={(e) => patch({ minUses: Number(e.target.value) })}
-              >
-                {[0, 1, 2, 5, 10].map((n) => (
-                  <option key={n} value={n}>
-                    {n ? t('aifw.wf.times', { n }) : t('aifw.wf.for.any')}
-                  </option>
-                ))}
-              </select>
-            </label>
+                label={t('aifw.wf.minUses')}
+                testId="aifw-wf-minuses"
+                options={[0, 1, 2, 5, 10].map((n) => ({
+                  value: n,
+                  label: n ? t('aifw.wf.times', { n }) : t('aifw.wf.for.any'),
+                }))}
+                onChange={(minUses) => patch({ minUses })}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -477,37 +487,27 @@ export function Workflows({
                 </button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <select
+                <MenuSelect<string>
                   value={w.forType}
-                  aria-label={t('aifw.wf.setFor', { name: w.name })}
-                  className={field}
-                  onChange={(e) =>
-                    edit(w.id, { forType: e.target.value as ForType | '' })
-                  }
-                >
-                  <option value="">{t('aifw.wf.for.any')}</option>
-                  {FOR_TYPES.map((v) => (
-                    <option key={v} value={v}>
-                      {forName(v)}
-                    </option>
-                  ))}
-                </select>
-                <select
+                  label={t('aifw.wf.setFor', { name: w.name })}
+                  options={[
+                    { value: '', label: t('aifw.wf.for.any') },
+                    ...FOR_TYPES.map((v) => ({ value: v, label: forName(v) })),
+                  ]}
+                  onChange={(v) => edit(w.id, { forType: v as ForType | '' })}
+                />
+                <MenuSelect<number>
                   value={w.rating}
-                  aria-label={t('aifw.wf.setRating', { name: w.name })}
-                  data-testid="aifw-wf-rate"
-                  className={field}
-                  onChange={(e) =>
-                    edit(w.id, { rating: Number(e.target.value) })
-                  }
-                >
-                  <option value={0}>{t('aifw.wf.noRating')}</option>
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <option key={n} value={n}>
-                      {t('aifw.wf.stars', { n })}
-                    </option>
-                  ))}
-                </select>
+                  label={t('aifw.wf.setRating', { name: w.name })}
+                  testId="aifw-wf-rate"
+                  options={[0, 1, 2, 3, 4, 5].map((n) => ({
+                    value: n,
+                    label: n
+                      ? t('aifw.wf.stars', { n })
+                      : t('aifw.wf.noRating'),
+                  }))}
+                  onChange={(rating) => edit(w.id, { rating })}
+                />
                 <button
                   type="button"
                   className={btn}

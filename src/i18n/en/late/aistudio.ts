@@ -60,6 +60,7 @@ export const enLateAiStudio = {
   'aifw.wf.runName': 'Run workflow: {name}',
   'aifw.wf.remove': 'Remove workflow: {name}',
   'aifw.wf.removed': 'Removed “{name}”.',
+  'aifw.wf.edited': 'Updated “{name}”.',
   'aifw.wf.used': 'Used {n} times',
   'aifw.wf.setTags': 'Tags for {name}',
   'aifw.wf.setRating': 'Rating for {name}',

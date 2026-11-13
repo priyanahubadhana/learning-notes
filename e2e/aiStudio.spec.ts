@@ -21,6 +21,7 @@ async function openStudio(page: Page) {
 
 for (const [name, size, touch] of [
   ['PC', { width: 1200, height: 900 }, false],
+  ['iPad landscape, touch', { width: 1194, height: 834 }, true],
   ['iPad portrait, touch', { width: 820, height: 1180 }, true],
   ['phone', { width: 390, height: 780 }, true],
 ] as const) {
@@ -118,10 +119,12 @@ test.describe('AI framework: Workflows (A4)', () => {
 
     // Rate one, then filter on the rating under More filters.
     await page
-      .getByRole('combobox', { name: 'Rating for Studio: Book to cards' })
-      .selectOption('5')
+      .getByRole('button', { name: 'Rating for Studio: Book to cards' })
+      .click()
+    await page.getByRole('menuitemradio', { name: '5 stars' }).click()
     await page.getByTestId('aifw-wf-more').click()
-    await page.getByTestId('aifw-wf-minrating').selectOption('4')
+    await page.getByTestId('aifw-wf-minrating').click()
+    await page.getByRole('menuitemradio', { name: '4 stars' }).click()
     await expect(count).toHaveText('1 of 2')
     await expect(page.getByTestId('aifw-wf-row')).toHaveCount(1)
     await expect(page.getByTestId('aifw-wf-chip')).toContainText('Rating 4+')
@@ -163,6 +166,31 @@ test.describe('AI framework: Workflows (A4)', () => {
     await expect(page.getByTestId('aifw-run')).toBeVisible()
     await page.getByTestId('aifw-tab-workflows').click()
     await expect(page.getByTestId('aifw-wf-row')).toContainText('Used 1 times')
+  })
+  test('Rating and Made-for changes say so and Undo puts them back', async ({
+    page,
+  }) => {
+    await openStudio(page)
+    await save(page, 'Podcast to notes', 'notes')
+    await page.getByTestId('aifw-tab-workflows').click()
+    const rate = page.getByTestId('aifw-wf-rate')
+    await expect(rate).toContainText('Not rated')
+    await rate.click()
+    await page.getByRole('menuitemradio', { name: '4 stars' }).click()
+    await expect(rate).toContainText('4 stars')
+    await expect(page.getByTestId('aifw-toast')).toContainText('Updated')
+    await page.getByTestId('aifw-toast-action').click()
+    await expect(rate).toContainText('Not rated')
+
+    const forMenu = page.getByRole('button', {
+      name: 'Made for: Studio: Podcast to notes',
+    })
+    await forMenu.click()
+    await page.getByRole('menuitemradio').nth(1).click()
+    await expect(forMenu).not.toContainText('Anything')
+    await expect(page.getByTestId('aifw-toast')).toContainText('Updated')
+    await page.getByTestId('aifw-toast-action').click()
+    await expect(forMenu).toContainText('Anything')
   })
 })
 
@@ -248,10 +276,12 @@ test.describe('AI framework: Workflows saved views (A4)', () => {
     await page.getByTestId('aifw-tab-workflows').click()
     await expect(page.getByTestId('aifw-wf-view-save')).toHaveCount(0)
     await page
-      .getByRole('combobox', { name: 'Rating for Studio: Book to cards' })
-      .selectOption('5')
+      .getByRole('button', { name: 'Rating for Studio: Book to cards' })
+      .click()
+    await page.getByRole('menuitemradio', { name: '5 stars' }).click()
     await page.getByTestId('aifw-wf-more').click()
-    await page.getByTestId('aifw-wf-minrating').selectOption('4')
+    await page.getByTestId('aifw-wf-minrating').click()
+    await page.getByRole('menuitemradio', { name: '4 stars' }).click()
     await expect(page.getByTestId('aifw-wf-count')).toHaveText('1 of 2')
 
     await page.getByTestId('aifw-wf-view-save').click()

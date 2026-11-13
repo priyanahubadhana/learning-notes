@@ -211,6 +211,7 @@ export function MenuPopover({
   label,
   opener,
   onDone,
+  topLayer,
 }: {
   anchor: DOMRect
   items: MenuItem[]
@@ -221,6 +222,8 @@ export function MenuPopover({
   opener?: Element | null
   /** A submenu: closes the whole chain after a choice. */
   onDone?: () => void
+  /** Opened from inside a top-layer sheet: show this list in the top layer too. */
+  topLayer?: boolean
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const nested = !!opener
@@ -261,6 +264,17 @@ export function MenuPopover({
     el.style.top = y + 'px'
     el.style.maxHeight = room + 'px'
   })
+  // Inside a top-layer sheet a plain fixed list would sit behind it.
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!topLayer || !el) return
+    el.setAttribute('popover', 'manual')
+    try {
+      el.showPopover?.()
+    } catch {
+      // Already shown or not supported: the list stays where it is.
+    }
+  }, [topLayer])
   // Esc gives the focus back to the button that opened the menu.
   const [returnTo] = useState(
     () => document.activeElement as HTMLElement | null,
@@ -310,6 +324,8 @@ export function MenuPopover({
         top,
         // A long menu scrolls inside the screen instead of running off it.
         maxHeight: window.innerHeight - top - 8,
+        // The browser's own popover box (centred, bordered) is switched off.
+        ...(topLayer ? { right: 'auto', bottom: 'auto', margin: 0 } : {}),
       }}
       className={`fixed z-50 ${nested ? 'w-64' : 'w-52'} glass overflow-y-auto rounded-xl p-1 text-ink`}
     >

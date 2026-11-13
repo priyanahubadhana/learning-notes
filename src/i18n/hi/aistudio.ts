@@ -62,6 +62,7 @@ export const hiAiStudio = {
   'aifw.wf.runName': 'वर्कफ़्लो चलाएँ: {name}',
   'aifw.wf.remove': 'वर्कफ़्लो हटाएँ: {name}',
   'aifw.wf.removed': '“{name}” हटाया गया।',
+  'aifw.wf.edited': '“{name}” अपडेट किया गया।',
   'aifw.wf.used': '{n} बार उपयोग',
   'aifw.wf.setTags': '{name} के टैग',
   'aifw.wf.setRating': '{name} की रेटिंग',

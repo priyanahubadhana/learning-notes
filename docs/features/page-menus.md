@@ -51,18 +51,18 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 
 **Long-press = right-click strip (Context menu strip)**
 
-- PM-20 When I right-click (PC) or long-press 0.5 s (finger or Pencil) on text or a block → the strip opens above the selection: Paste ▾ · Copy · Cut · Duplicate · Turn into ▾ · Colour ▾ · Add to favourites · Comment · Delete (as menu-1.png); Beginner shows Cut, Copy, Paste ▾, Delete, ⋯.
+- PM-20 When I right-click (PC) or long-press 0.5 s (finger or Pencil) on text or a block → the strip opens above the selection: Paste ▾ · Copy · Cut · Duplicate · Turn into ▾ · Colour ▾ · Delete (as menu-1.png); Beginner shows Cut, Copy, Paste ▾, Delete, ⋯.
 - PM-21 The strip never covers the selection handles or the B/I/U bar (approval fix 1): strip above, format bar below.
 - PM-22 When I tap ⋯ on the strip → the full list opens as a Command list in the same place (Select, Select all, Insert picture, Insert line, Copy as ▾, Move to page, Make card, Key point) (Pro extras: `tb.miniToolbar`, `page.contextMore` new).
 - PM-23 When I long-press a page row, notebook row, library row or task row → the same strip opens at that point with that row's actions.
-- PM-24 The hold time follows Settings "Press-and-hold menu time" (`advanced.holdMenu`).
+- PM-24 The hold time follows Settings "Press-and-hold menu time" (`advanced.holdMenu`). A row long-press opens the strip after that time, default 1.5 s.
 - PM-25 When I drag after the long-press starts (more than the move distance) → the strip does not open and the gesture router hands the touch to select / drag.
 - PM-26 On a phone → the strip shows up to 4 items + ⋯; every item in ⋯ is tappable (approval fix 2).
 
 **Paste**
 
 - PM-40 When I paste (Ctrl/Cmd+V, strip Paste, ⋯ Paste) → the content appears at once with its original look; no question first.
-- PM-41 When I tap Paste ▾ → options: Keep original, Plain text, As text box (paper pages), As table (tab rows), As quote, Link / Embed (lone address), Clean up with AI (AI on with a key; cost shown first); the pick pastes in that form.
+- PM-41 When I tap Paste ▾ → options: Keep original, Plain text, As text box (paper pages), As table (tab rows), As quote, Link / Embed (lone address), Clean up with AI (AI on with a key; cost shown first); the pick pastes in that form. Only the forms this clipboard allows are listed (all of them while the browser has not allowed a look).
 - PM-42 When I press Ctrl/Cmd+Shift+V → plain text, as today.
 - PM-43 Settings › General › "Paste as" → Keep original (default), Plain text, Always ask; "Always ask" opens today's paste chooser before pasting.
 - PM-44 Professional switch "Show 'Pasted as' chip" (default off) → after a paste the chip "Pasted as <form> ▾" shows for 8 s; choosing another form re-pastes it (Pro: `page.pastedChip` new).

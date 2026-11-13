@@ -2,6 +2,18 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: push guard hook narrowed (owner-approved)
+
+- What: the Claude hook that blocks bypasses now lets read-only commands through (`git config --get` with or without a trailing command, `git config` with no value, grep and cat). It still blocks push or commit with the skip flag, setting or unsetting the hooks path, `-c` hooks-path overrides, and commands that delete, move or overwrite `.githooks/` or `scripts/push-guard.mjs`.
+- Why: the old hook blocked harmless reads that only mentioned the setting, and did not block deleting the guard files.
+- Files: .claude/hooks/push-guard-noverify.mjs, docs/CHANGELOG.md. Trials: 10 blocked and 10 allowed cases, all as expected.
+
+### 13 Nov 2026: CLAUDE.md review applied (owner approved all of it)
+
+- What: project CLAUDE.md and global CLAUDE.md shortened and fixed (stale ₹0 budget, "stop and ask" for everything, duplicate sections, two builder counts); six Core Operating Rules added (status line, stop the line, never drop a feature, do it yourself, when you must ask, proof before done); ECONOMY-MODE section 5 heading points to Owner settings and the second section 12 is now section 13 (escalation); quality.md section 5 names the real gate roles; memory notes updated (builders 8, bugs-only rule expired, Phase L stop removed).
+- Why: the owner's rules were split over four places and some contradicted the build (memory is not read by helpers).
+- Files: CLAUDE.md, rules/quality.md, rules/building.md, docs/ECONOMY-MODE.md, docs/PENDING.md, docs/CHANGELOG.md, docs/DECISIONS.md; global CLAUDE.md and memory notes (outside the repo).
+
 ### 13 Nov 2026: push guard (quick checks before every push)
 
 - What: a pre-push hook in every worktree (core.hooksPath points at main's `.githooks`) runs Prettier and check:links on every branch, plus ESLint, tsc, check:ratchet, related Vitest and touched e2e specs (chromium, max 6, foundationInput smoke on build/next) on build/next and slice branches. A Claude hook blocks `--no-verify` and hooks-path changes; the only escape is a logged `push-guard-skip:` line.

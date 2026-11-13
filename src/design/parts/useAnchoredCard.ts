@@ -35,6 +35,8 @@ export function placeCard(
   viewport: { width: number; height: number },
   /** Something the card must not cover (the selected picture), or null. */
   avoid: RectLike | null = null,
+  /** `above`: a tools row at the bottom of the screen opens its card above it (step 3). */
+  prefer?: 'above',
 ): CardPos {
   const width = Math.min(size.width, viewport.width - 2 * CARD_EDGE)
   const bottom = anchor.top + anchor.height
@@ -48,6 +50,23 @@ export function placeCard(
     left + width > avoid.left &&
     top < avoid.top + avoid.height &&
     top + size.height > avoid.top
+  if (prefer === 'above') {
+    const room = anchor.top - CARD_GAP - CARD_EDGE
+    if (size.height <= room) {
+      const left = clamp(
+        anchor.left,
+        CARD_EDGE,
+        Math.max(CARD_EDGE, viewport.width - CARD_EDGE - width),
+      )
+      return {
+        left,
+        top: anchor.top - CARD_GAP - size.height,
+        side: 'above',
+        arrowX: arrowAt(left),
+        width,
+      }
+    }
+  }
   const belowLeft = clamp(
     anchor.left,
     CARD_EDGE,
@@ -125,8 +144,9 @@ export function useAnchoredCard(opts: {
   active: boolean
   /** Rect of something the card must keep clear of, read at each placement. */
   avoid?: () => RectLike | null
+  prefer?: 'above'
 }): CardPos | null {
-  const { anchor, card, widthPx, active, avoid } = opts
+  const { anchor, card, widthPx, active, avoid, prefer } = opts
   const [pos, setPos] = useState<CardPos | null>(null)
   useLayoutEffect(() => {
     if (!active || !anchor || !card) {
@@ -139,6 +159,7 @@ export function useAnchoredCard(opts: {
         { width: widthPx, height: card.offsetHeight },
         { width: root.clientWidth, height: window.innerHeight },
         avoid?.() ?? null,
+        prefer,
       )
       setPos((prev) =>
         prev &&
@@ -156,6 +177,6 @@ export function useAnchoredCard(opts: {
     ro.observe(card)
     ro.observe(document.documentElement)
     return () => ro.disconnect()
-  }, [anchor, card, widthPx, active, avoid])
+  }, [anchor, card, widthPx, active, avoid, prefer])
   return active && anchor && card ? pos : null
 }

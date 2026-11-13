@@ -44,6 +44,8 @@ export type CardProps = {
   placement?: 'anchored' | 'static'
   /** Rect the card keeps clear of (the selected picture); read at each placement. */
   avoid?: () => RectLike | null
+  /** Open above the anchor when it fits (a tools row at the bottom). */
+  prefer?: 'above'
   /** Force the phone sheet look (gallery cell). */
   phone?: boolean
   testId?: string
@@ -131,6 +133,7 @@ export function Card(props: CardProps) {
     widthPx: WIDTH[size],
     active: !isStatic && !phone && !!anchor,
     avoid: props.avoid,
+    prefer: props.prefer,
   })
 
   // A floating card is hidden until positioned, and a hidden element cannot

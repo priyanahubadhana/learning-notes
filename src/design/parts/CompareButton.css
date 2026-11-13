@@ -1,0 +1,54 @@
+/* Before / after button, hold mode (S3-30 to S3-32): 44 pt, icon + word, icon only on a phone. */
+.cmpb {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--color-ink-soft);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+.cmpb:hover {
+  background: var(--color-hover);
+}
+.cmpb[data-on] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.cmpb:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.cmpb[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.cmpb-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .cmpb {
+    padding: 0;
+  }
+  .cmpb-word {
+    display: none;
+  }
+}

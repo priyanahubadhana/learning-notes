@@ -61,17 +61,15 @@ export function WizardSteps(props: WizardStepsProps) {
     const root = rootRef.current
     if (!root) return
     const fit = () => {
-      if (listRef.current)
-        fullW.current = listRef.current.scrollWidth + steps.length
+      if (listRef.current) fullW.current = listRef.current.scrollWidth
       const narrow = window.innerWidth <= PHONE
       const w = root.clientWidth
-      setAuto(narrow || (w > 0 && fullW.current > w))
+      setAuto(narrow || (w > 0 && fullW.current > w + 1))
     }
     fit()
     const ro = new ResizeObserver(fit)
     ro.observe(root)
     return () => ro.disconnect()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [compact, labelKey])
 
   // Announce a step change once (not on first show).

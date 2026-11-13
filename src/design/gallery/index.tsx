@@ -30,6 +30,8 @@ const SECTIONS = [
   lazy(() => import('./MenusSection')),
   lazy(() => import('./FeedbackSection')),
   lazy(() => import('./ShellSection')),
+  lazy(() => import('./WizardSection')),
+  lazy(() => import('./ToolFrameSection')),
 ]
 
 /** Tells the gallery that its section is on the page (it renders nothing). */

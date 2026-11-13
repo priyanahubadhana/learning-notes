@@ -1,3 +1,4 @@
+import { sendFrameEvent } from '../../app/reading/ReadingRuler'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import type { LearningNotesDB } from '../../core/db'
 import type { BookSurface } from '../../ink/layout'
@@ -290,7 +291,22 @@ export function EpubView(props: EpubViewProps) {
           doc.addEventListener('keydown', (k) => {
             if (k.key === 'ArrowLeft') void view?.goLeft()
             else if (k.key === 'ArrowRight') void view?.goRight()
+            if (k.altKey && (k.key === 'ArrowUp' || k.key === 'ArrowDown'))
+              sendFrameEvent({ key: k.key })
           })
+          // The reading ruler (RD-P29) follows moves and taps inside the
+          // book's frame too: they are passed up in screen terms.
+          const passUp = (p: PointerEvent) => {
+            const frame = doc.defaultView?.frameElement?.getBoundingClientRect()
+            if (frame)
+              sendFrameEvent({
+                y: p.clientY + frame.top,
+                pointerType: p.pointerType,
+                type: p.type,
+              })
+          }
+          doc.addEventListener('pointermove', passUp)
+          doc.addEventListener('pointerup', passUp)
         })
         propsRef.current.onOutline(
           flattenToc(book.toc as TocNode[] | undefined).map((t) => ({

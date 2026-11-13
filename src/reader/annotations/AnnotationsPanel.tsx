@@ -10,6 +10,8 @@ import {
   type HighlightColour,
 } from '../../core/types'
 import { t } from '../../i18n/t'
+import { useFlag } from '../../app/flags'
+import { DailyHighlights } from './DailyHighlights'
 import { useReaderSwitch } from '../v2/proSwitches'
 import {
   deleteAnnotation,
@@ -46,10 +48,13 @@ export function AnnotationsPanel({
   onMakeCards?: (list: Annotation[]) => void
 }) {
   const { toast } = useContext(AppUiContext)
+  const v2 = useFlag('reader.v2')
   // Reader v2: filters, Markdown export and bulk cards wait behind their switches.
   const filtersOn = useReaderSwitch('reader.noteFilters')
   const exportOn = useReaderSwitch('reader.exportMd')
   const bulkOn = useReaderSwitch('reader.bulkCards')
+  // RD-P17: an old highlight of this book at the top (reader v2 only).
+  const dailyOn = useReaderSwitch('reader.dailyHighlight') && v2
   const [filter, setFilter] = useState<AnnotationFilter>({})
   const [editing, setEditing] = useState<Annotation | null>(null)
   const all = useLiveQuery(() => listAnnotations(db, pageId), [db, pageId])
@@ -102,6 +107,9 @@ export function AnnotationsPanel({
       data-testid="annotations-panel"
       className="flex flex-col gap-3"
     >
+      {dailyOn && (
+        <DailyHighlights db={db} pageId={pageId} count={1} onOpen={onJump} />
+      )}
       {filtersOn && (
         <>
           <div

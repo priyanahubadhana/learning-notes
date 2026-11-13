@@ -29,20 +29,35 @@ export function DailyHighlights({
   db,
   onOpen,
   count,
+  pageId,
 }: {
   db: LearningNotesDB
   onOpen: (a: Annotation) => void
   /** How many a day (default 5). The Library chooses 3, 5 or 10. */
   count?: number
+  /**
+   * Reader v2 (RD-P17): only this book's highlights, inside the Annotations
+   * tab. Its own day list, so the Home card's list is not touched.
+   */
+  pageId?: string
 }) {
   const { toast } = useContext(AppUiContext)
-  const [state, setState] = usePref(
+  const [shared, setShared] = usePref(
     'highlights.daily',
     isDailyState,
     EMPTY_DAILY,
   )
+  const [own, setOwn] = useState(EMPTY_DAILY)
+  const state = pageId ? own : shared
+  const setState = pageId ? setOwn : setShared
   const [saving, setSaving] = useState<Annotation | null>(null)
-  const all = useLiveQuery(() => listAllHighlights(db), [db])
+  const all = useLiveQuery(
+    async () => {
+      const list = await listAllHighlights(db)
+      return pageId ? list.filter((a) => a.pageId === pageId) : list
+    },
+    [db, pageId],
+  )
 
   // Pick today's five once per day (adjusting state while rendering).
   const picked = useMemo(
@@ -102,12 +117,12 @@ export function DailyHighlights({
     } else await saveAnnotationTo(db, a, a.pageId, where, 'highlights')
   }
 
-  if (!all) return null
+  if (!all || (pageId && all.length === 0)) return null
   return (
     <section
       aria-label={t('recall.dailyTitle')}
-      data-testid="daily-highlights"
-      className="mb-8"
+      data-testid={pageId ? 'book-daily-highlight' : 'daily-highlights'}
+      className={pageId ? '' : 'mb-8'}
     >
       <h2 className="mb-3 text-[15px] font-semibold">
         {t('recall.dailyTitle')}

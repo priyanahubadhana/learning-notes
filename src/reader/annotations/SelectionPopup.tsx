@@ -1,5 +1,5 @@
 import { IconButton } from '../../app/ui'
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { HIGHLIGHT_COLOURS, type HighlightColour } from '../../core/types'
 import { COLOUR_FILL, lookupUrl, type PopupRect } from './colours'
 import { t } from '../../i18n/t'
@@ -22,6 +22,7 @@ export function SelectionPopup({
   onVocab,
   onDefine,
   onAsk,
+  extras = true,
 }: {
   rect: PopupRect
   selected: string
@@ -31,15 +32,24 @@ export function SelectionPopup({
   onSticky?: () => void
   onCopy: () => void
   onPin: () => void
-  onSaveTo: () => void
+  onSaveTo?: () => void
   onMakeCard?: () => void
   onVocab?: () => void
   /** Opens the Dictionary sheet (item 38). */
   onDefine?: () => void
   /** Ask AI about the words (only when AI is on). */
   onAsk?: () => void
+  /** Look up, Save to…, Make card, Ask AI (reader v2: reader.selExtras, RD-P13). */
+  extras?: boolean
 }) {
   const [lookup, setLookup] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const [height, setHeight] = useState(0)
+  // Measured before paint, so the first frame already sits in the right place.
+  useLayoutEffect(() => {
+    const h = ref.current?.offsetHeight ?? 0
+    if (h !== height) setHeight(h)
+  })
   // A selection scrolled out of view offers nothing.
   if (rect.y + rect.h < 0 || rect.y > window.innerHeight) return null
   const width = Math.min(window.innerWidth - 16, 440)
@@ -47,14 +57,24 @@ export function SelectionPopup({
     Math.max(8, rect.x + rect.w / 2 - width / 2),
     window.innerWidth - width - 8,
   )
-  // Above the selection when there is room, else below it.
-  const above = rect.y > 120
-  const top = above ? rect.y - 8 : rect.y + rect.h + 8
+  // Above the selection only when the whole pop-up clears the reader bar and
+  // the time-left line by 8 px; else below it. Always inside the window.
+  const aboveTop = rect.y - 8 - height
+  const above = height > 0 && aboveTop >= topChromeBottom() + 8
+  const top = Math.max(
+    8,
+    Math.min(
+      above ? aboveTop : rect.y + rect.h + 8,
+      window.innerHeight - height - 8,
+    ),
+  )
   const btn =
     'min-h-11 min-w-11 rounded-lg px-2 text-sm hover:bg-hover focus-visible:outline-2 focus-visible:outline-accent'
   return (
     <div
+      ref={ref}
       data-chrome
+      data-place={above ? 'above' : 'below'}
       role="toolbar"
       aria-label={t('annot.popup')}
       data-testid="selection-popup"
@@ -63,7 +83,6 @@ export function SelectionPopup({
         insetInlineStart: left,
         top,
         width,
-        transform: above ? 'translateY(-100%)' : undefined,
       }}
       // Keep the selection alive while a button is pressed.
       onPointerDown={(e) => e.preventDefault()}
@@ -114,21 +133,25 @@ export function SelectionPopup({
           {t('annot.define')}
         </button>
       )}
-      <button
-        type="button"
-        aria-expanded={lookup}
-        onClick={() => setLookup((v) => !v)}
-        className={btn}
-      >
-        {t('annot.lookUp')}
-      </button>
+      {extras && (
+        <button
+          type="button"
+          aria-expanded={lookup}
+          onClick={() => setLookup((v) => !v)}
+          className={btn}
+        >
+          {t('annot.lookUp')}
+        </button>
+      )}
       <button type="button" onClick={onPin} className={btn}>
         {t('annot.pin')}
       </button>
-      <button type="button" onClick={onSaveTo} className={btn}>
-        {t('annot.saveTo')}
-      </button>
-      {onMakeCard && (
+      {extras && onSaveTo && (
+        <button type="button" onClick={onSaveTo} className={btn}>
+          {t('annot.saveTo')}
+        </button>
+      )}
+      {extras && onMakeCard && (
         <button
           type="button"
           data-testid="popup-make-card"
@@ -138,7 +161,7 @@ export function SelectionPopup({
           {t('annot.makeCard')}
         </button>
       )}
-      {onAsk && (
+      {extras && onAsk && (
         <button
           type="button"
           data-testid="popup-ask"
@@ -148,7 +171,7 @@ export function SelectionPopup({
           {t('annot.askAi')}
         </button>
       )}
-      {lookup && (
+      {extras && lookup && (
         <div className="flex w-full flex-wrap items-center gap-1 border-t border-line pt-1">
           {(['dictionary', 'wikipedia', 'translate'] as const).map((k) => (
             <a
@@ -178,4 +201,17 @@ export function SelectionPopup({
       )}
     </div>
   )
+}
+
+/** Bottom edge of the reader bar and the time-left line (0 when none shows). */
+function topChromeBottom(): number {
+  let bottom = 0
+  for (const el of document.querySelectorAll(
+    '[data-testid="reader-bar"], [data-testid="reader-timeleft"]',
+  )) {
+    const r = el.getBoundingClientRect()
+    if (r.height > 0 && r.bottom > 0 && r.top < window.innerHeight / 2)
+      bottom = Math.max(bottom, r.bottom)
+  }
+  return bottom
 }

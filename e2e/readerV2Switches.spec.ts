@@ -249,29 +249,57 @@ async function selectText(page: Page) {
   }).toPass({ timeout: 15_000 })
 }
 
-test('RD-B24 selecting text in Everything works shows the pop-up with its actions', async ({
+test('RD-B24 selecting text in Everything works shows the Beginner pop-up', async ({
   page,
 }) => {
   await openBook(page, 'pdf')
   await selectText(page)
   const pop = page.getByTestId('selection-popup')
   await expect(pop.locator('[data-testid^="hl-"]')).toHaveCount(5)
-  for (const n of [
-    'Note',
-    'Copy',
-    'Define',
-    'Look up',
-    'Pin',
-    'Save to…',
-    'Make card',
-  ])
-    await expect(
-      pop
-        .getByRole('button', { name: n, exact: n === 'Pin' ? false : true })
-        .first(),
-    ).toBeVisible()
-  await pop.getByRole('button', { name: 'Look up' }).click()
+  for (const n of ['Note', 'Copy', 'Define'])
+    await expect(pop.getByRole('button', { name: n, exact: true })).toBeVisible()
+  await expect(pop.getByTestId('popup-sticky')).toBeVisible()
+  await expect(pop.getByRole('button', { name: /^Pin/ })).toBeVisible()
+  // The extras wait for reader.selExtras (RD-P13).
+  for (const n of ['Look up', 'Save to…', 'Make card'])
+    await expect(pop.getByRole('button', { name: n, exact: true })).toHaveCount(
+      0,
+    )
+})
+
+test('RD-P13 reader.selExtras: Look up, Save to…, Make card, vocabulary and Pronounce join', async ({
+  page,
+}) => {
+  await openBook(page, 'pdf', ['reader.selExtras'])
+  await selectText(page)
+  const pop = page.getByTestId('selection-popup')
+  for (const n of ['Look up', 'Save to…', 'Make card'])
+    await expect(pop.getByRole('button', { name: n, exact: true })).toBeVisible()
+  await pop.getByRole('button', { name: 'Look up', exact: true }).click()
   await expect(pop.getByTestId('popup-vocab')).toBeVisible()
+  await setOn(page, [])
+  await selectText(page)
+  await expect(
+    page.getByTestId('selection-popup').getByRole('button', { name: 'Look up' }),
+  ).toHaveCount(0)
+})
+
+test('RD-B24 a selection at the top of the page: the pop-up clears the bar and takes real clicks', async ({
+  page,
+}) => {
+  await openBook(page, 'pdf')
+  await selectText(page)
+  const pop = page.getByTestId('selection-popup')
+  const p = (await pop.boundingBox())!
+  const bar = (await page.getByTestId('reader-bar').boundingBox())!
+  const vp = page.viewportSize()!
+  // Never under the reader bar or the time-left line, always in the window.
+  expect(p.y).toBeGreaterThanOrEqual(bar.y + bar.height + 8 - 1)
+  expect(p.y + p.height).toBeLessThanOrEqual(vp.height)
+  expect(p.x).toBeGreaterThanOrEqual(0)
+  expect(p.x + p.width).toBeLessThanOrEqual(vp.width)
+  await page.getByTestId('hl-yellow').click()
+  await expect(page.getByTestId('pdf-highlight').first()).toBeAttached()
 })
 
 test('RD-B25 a colour marks the text itself (a real highlight in the text layer)', async ({
@@ -279,7 +307,7 @@ test('RD-B25 a colour marks the text itself (a real highlight in the text layer)
 }) => {
   await openBook(page, 'pdf')
   await selectText(page)
-  await page.getByTestId('hl-yellow').dispatchEvent('click')
+  await page.getByTestId('hl-yellow').click()
   await expect(page.getByTestId('pdf-highlight').first()).toBeAttached()
 })
 
@@ -305,7 +333,7 @@ async function openAnnotations(page: Page) {
 /** One highlight, then the Annotations panel is open. */
 async function withHighlight(page: Page) {
   await selectText(page)
-  await page.getByTestId('hl-yellow').dispatchEvent('click')
+  await page.getByTestId('hl-yellow').click()
   await expect(page.getByTestId('pdf-highlight').first()).toBeAttached()
   await page.getByTestId('reader-annotations').click()
   await expect(page.getByTestId('annotations-panel')).toBeVisible()

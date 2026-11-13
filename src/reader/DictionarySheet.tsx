@@ -39,9 +39,12 @@ function speakWord(word: string) {
 export default function DictionarySheet({
   word,
   onClose,
+  pronounce: canPronounce = true,
 }: {
   word: string
   onClose: () => void
+  /** Reader v2: Pronounce comes with reader.selExtras (RD-P13). */
+  pronounce?: boolean
 }) {
   const [result, setResult] = useState<Result>({ kind: 'loading' })
   useEffect(() => {
@@ -98,14 +101,16 @@ export default function DictionarySheet({
             </p>
           )}
         </div>
-        <button
-          type="button"
-          data-testid="dict-pronounce"
-          onClick={pronounce}
-          className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover"
-        >
-          {t('dict.pronounce')}
-        </button>
+        {canPronounce && (
+          <button
+            type="button"
+            data-testid="dict-pronounce"
+            onClick={pronounce}
+            className="min-h-11 rounded-lg border border-line px-3 text-sm hover:bg-hover"
+          >
+            {t('dict.pronounce')}
+          </button>
+        )}
         <button
           type="button"
           aria-label={t('dict.close')}

@@ -13,6 +13,14 @@ import {
 } from './readStyle'
 
 const TABS = ['font', 'layout', 'themes', 'more'] as const
+
+/** Reader v2: one setting row in Aa › More (RD-P26, P27, P29, P31). */
+export interface AaChoice<T> {
+  value: T
+  onChange: (v: T) => void
+}
+export type AaDirection = 'off' | 'portrait' | 'landscape'
+export type AaRuler = 'off' | 'focus' | 'ruler'
 type Tab = (typeof TABS)[number]
 
 const seg = (on: boolean) =>
@@ -35,6 +43,11 @@ export default function AaSheet({
   onFlow,
   format,
   landGlow,
+  keepBar,
+  direction,
+  liquid,
+  ruler,
+  awake,
   onClose,
 }: {
   look: ReadStyle
@@ -46,6 +59,14 @@ export default function AaSheet({
   format: 'pdf' | 'epub'
   /** Reader v2: the "Highlight where I land" switch. */
   landGlow?: { on: boolean; onChange: (on: boolean) => void }
+  /** Reader v2, Bar and screen: each given only with its switch. */
+  keepBar?: AaChoice<boolean>
+  direction?: AaChoice<AaDirection>
+  /** RD-P28: the greyed "Liquid mode (beta)" row (PDF only). */
+  liquid?: boolean
+  /** Reader v2, Reading aids. */
+  ruler?: AaChoice<AaRuler>
+  awake?: AaChoice<boolean>
   onClose: () => void
 }) {
   const epub = format === 'epub'
@@ -333,6 +354,104 @@ export default function AaSheet({
                 </label>
                 <p className="text-xs text-muted">{t('readerv2.glow.help')}</p>
               </>
+            )}
+            {(keepBar || direction || liquid) && (
+              <p
+                className="pt-1 text-xs font-semibold text-ink-soft"
+                data-testid="aa-bar-screen"
+              >
+                {t('readerv2.aa.barScreen')}
+              </p>
+            )}
+            {keepBar && (
+              <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
+                {t('readerv2.aa.keepBar')}
+                <input
+                  type="checkbox"
+                  checked={keepBar.value}
+                  data-testid="aa-keep-bar"
+                  onChange={(e) => keepBar.onChange(e.target.checked)}
+                  className="size-5"
+                />
+              </label>
+            )}
+            {direction && (
+              <>
+                <p className="text-xs text-muted">
+                  {t('readerv2.aa.direction')}
+                </p>
+                <div
+                  className="flex gap-2"
+                  role="group"
+                  aria-label={t('readerv2.aa.direction')}
+                >
+                  {(['off', 'portrait', 'landscape'] as const).map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      data-testid={`aa-dir-${d}`}
+                      aria-pressed={direction.value === d}
+                      className={seg(direction.value === d)}
+                      onClick={() => direction.onChange(d)}
+                    >
+                      {k(`readerv2.aa.dir.${d}`)}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            {liquid && (
+              <div
+                data-testid="aa-liquid"
+                aria-disabled="true"
+                className="flex min-h-11 items-center justify-between gap-3 text-sm text-muted opacity-60"
+              >
+                {t('readerv2.aa.liquid')}
+                <span className="text-xs">{t('readerv2.comingLater')}</span>
+              </div>
+            )}
+            {(ruler || awake) && (
+              <p
+                className="pt-1 text-xs font-semibold text-ink-soft"
+                data-testid="aa-aids"
+              >
+                {t('readerv2.aa.aids')}
+              </p>
+            )}
+            {ruler && (
+              <>
+                <p className="text-xs text-muted">{t('readerv2.aa.ruler')}</p>
+                <div
+                  className="flex gap-2"
+                  role="group"
+                  aria-label={t('readerv2.aa.ruler')}
+                >
+                  {(['off', 'focus', 'ruler'] as const).map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      data-testid={`aa-ruler-${r}`}
+                      aria-pressed={ruler.value === r}
+                      className={seg(ruler.value === r)}
+                      onClick={() => ruler.onChange(r)}
+                    >
+                      {k(`readerv2.aa.ruler.${r}`)}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            {awake && (
+              <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
+                {t('readerv2.aa.awake')}
+                <input
+                  type="checkbox"
+                  checked={awake.value}
+                  data-testid="aa-awake"
+                  onChange={(e) => awake.onChange(e.target.checked)}
+                  className="size-5"
+                />
+              </label>
             )}
             <p className="text-xs text-muted">{t('aa.readAloud.where')}</p>
           </>

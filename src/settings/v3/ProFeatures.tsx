@@ -20,9 +20,15 @@ import { proGroups, type ProGroup } from './proGroups'
 import { unlockId } from './virtualWrites'
 import { WhyLink } from './WhyLink'
 import { tv, type V3Key } from './tv'
+import { t } from '../../i18n/t'
 
 const nameOf = (id: string) => PRO_FEATURE_TEXT[id]?.[0] ?? id
 const doesOf = (id: string) => PRO_FEATURE_TEXT[id]?.[1] ?? ''
+/** Switches whose part is not built yet (reader-v2.md RD-P34). */
+const COMING_LATER: ReadonlySet<string> = new Set([
+  'reader.liquid',
+  'reader.tapCounts',
+])
 
 /**
  * Professional features (SET-B37 to B41, B43, B44): every unlock switch in
@@ -240,6 +246,11 @@ function GroupCard({
               <div className="sv3-prof-text">
                 <span className="sv3-row-name">{nameOf(id)}</span>
                 <span className="sv3-line-help">{doesOf(id)}</span>
+                {COMING_LATER.has(id) && (
+                  <span className="sv3-line-help" data-coming-later>
+                    {t('readerv2.comingLater')}
+                  </span>
+                )}
               </div>
               <OnOff
                 checked={checked}

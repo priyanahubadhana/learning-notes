@@ -98,9 +98,14 @@ import { useDeviceSetting } from '../settings/useSetting'
 import { useFlag } from '../app/flags'
 import { START_SCROLL, scrollStep, type ScrollHide } from './v2/barState'
 import {
+  readingAwakeSetting,
+  readingBarPinSetting,
   readingOrientSetting,
   readingPdfFlowSetting,
+  readingRulerSetting,
 } from '../settings/readingSettings'
+import { ReadingRuler } from '../app/reading/ReadingRuler'
+import { lockIdle } from '../app/reading/wakeLock'
 
 const PdfView = lazy(() =>
   import('./pdf/PdfView').then((m) => ({ default: m.PdfView })),
@@ -182,7 +187,8 @@ export function BookReader({
       r.s = { ...START_SCROLL, last: el.scrollTop, turn: el.scrollTop }
     }
     r.s = scrollStep(r.s, el.scrollTop)
-    setBarsAway(r.s.hidden)
+    // RD-P26: "Keep the bar visible" stops the hide on scroll.
+    setBarsAway(keepBar ? false : r.s.hidden)
   }
   const page = useLiveQuery(() => db.pages.get(pageId), [db, pageId])
   const [data, setData] = useState<ArrayBuffer | null | undefined>(undefined)
@@ -288,7 +294,20 @@ export function BookReader({
   }, [v2, placed])
   const lastTap = useRef<{ x: number; y: number; t: number } | null>(null)
   const tapTimer = useRef(0)
-  const [orient] = useDeviceSetting(readingOrientSetting)
+  const [orientPref, setOrient] = useDeviceSetting(readingOrientSetting)
+  // RD-P27: switch off, the screen turns freely; the choice is kept.
+  const orient = sw('reader.lockDirection') ? orientPref : 'off'
+  // Reader v2 (RD-P26, P29, P31): the existing Reading settings, each behind its switch.
+  const [barPin, setBarPin] = useDeviceSetting(readingBarPinSetting)
+  const keepBar = v2 && sw('reader.barScroll') && barPin === 'on'
+  const [rulerPref, setRuler] = useDeviceSetting(readingRulerSetting)
+  const ruler = v2 && sw('reader.lineFocus') ? rulerPref : 'off'
+  const [awakePref, setAwake] = useDeviceSetting(readingAwakeSetting)
+  const awake = v2 && sw('reader.keepAwake') && awakePref === 'on'
+  useEffect(() => lockIdle(awake), [awake])
+  useEffect(() => {
+    if (keepBar) setBarsAway(false)
+  }, [keepBar])
   const [outline, setOutline] = useState<OutlineItem[]>([])
   const [selection, setSelection] = useState<ReaderSelection | null>(null)
   const [noting, setNoting] = useState<ReaderSelection | null>(null)
@@ -882,6 +901,14 @@ export function BookReader({
     }, 160)
   }
   const pdfTap = (x: number, y: number) => {
+    // RD-P25: without reader.gestures a double tap does nothing, so a single
+    // tap answers at once (no 330 ms wait). Pinch and edge taps stay for all.
+    if (!sw('reader.gestures')) {
+      lastTap.current = null
+      const box = contentRef.current?.getBoundingClientRect()
+      if (edgeTaps && box) onEdgeTap(x - box.left, box.width)
+      return
+    }
     const now = Date.now()
     const prev = lastTap.current
     window.clearTimeout(tapTimer.current)
@@ -1724,6 +1751,21 @@ export function BookReader({
             onSwipe={turn}
           />
         )}
+        {ruler !== 'off' && (
+          <ReadingRuler
+            mode={ruler}
+            lineHeight={
+              format === 'epub'
+                ? (16 * epubSize * look.spacing) / 100
+                : 24 * zoom
+            }
+            colours={{
+              bg: pageSurface(look.page)?.bg ?? 'var(--color-bg)',
+              soft: 'var(--color-line)',
+              mark: 'var(--color-accent-soft)',
+            }}
+          />
+        )}
         {full && (
           <>
             <p
@@ -1927,13 +1969,44 @@ export function BookReader({
             }
             format={bridgeFormat}
             landGlow={v2 ? { on: landOn, onChange: setLandOn } : undefined}
+            keepBar={
+              v2 && sw('reader.barScroll')
+                ? {
+                    value: barPin === 'on',
+                    onChange: (on) => setBarPin(on ? 'on' : 'off'),
+                  }
+                : undefined
+            }
+            direction={
+              v2 && sw('reader.lockDirection')
+                ? { value: orientPref, onChange: setOrient }
+                : undefined
+            }
+            liquid={v2 && sw('reader.liquid') && bridgeFormat === 'pdf'}
+            ruler={
+              v2 && sw('reader.lineFocus')
+                ? { value: rulerPref, onChange: setRuler }
+                : undefined
+            }
+            awake={
+              v2 && sw('reader.keepAwake')
+                ? {
+                    value: awakePref === 'on',
+                    onChange: (on) => setAwake(on ? 'on' : 'off'),
+                  }
+                : undefined
+            }
             onClose={() => setAaOpen(false)}
           />
         </Suspense>
       )}
       {dict && (
         <Suspense fallback={null}>
-          <DictionarySheet word={dict} onClose={() => setDict(null)} />
+          <DictionarySheet
+            word={dict}
+            onClose={() => setDict(null)}
+            pronounce={sw('reader.selExtras')}
+          />
         </Suspense>
       )}
       {pdfMenuAt && format === 'pdf' && (
@@ -1991,6 +2064,7 @@ export function BookReader({
       )}
       {selection && !noting && !saving && look.menuOnSelect && (
         <SelectionPopup
+          extras={sw('reader.selExtras')}
           onDefine={
             dictionaryWord(selection.text)
               ? () => {

@@ -1,4 +1,5 @@
 # Pending: one list (11 Nov 2026)
+CI status 2026-11-13: lint (no-control-regex) in mcp/src/setup.ts:52 - a regular expression contains a raw escape-control character (\x1b), which the lint rule rejects; the build tests were not reached.
 
 ## Needs you
 

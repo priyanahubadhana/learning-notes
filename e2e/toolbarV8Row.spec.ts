@@ -49,13 +49,16 @@ test('TB-21 the Pen row reads Type, Size, Colour, Feel, then plus and list', asy
   expect(add.height).toBeGreaterThanOrEqual(43.5)
 })
 
-test('TB-40 the Text row reads Box, Format, B, I', async ({ page }) => {
+test('TB-40 the Text row reads settings, Box, Format, B, I (1e: the settings button sits in front, T3)', async ({
+  page,
+}) => {
   await open(page)
   await page.getByTestId('v8-tool-text').click()
   const ids = await row(page)
     .locator('[data-testid^="v8-chip-"]')
     .evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')))
   expect(ids).toEqual([
+    'v8-chip-text.boxset',
     'v8-chip-text.box',
     'v8-chip-text.format',
     'v8-chip-text.bold',

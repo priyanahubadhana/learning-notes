@@ -1275,6 +1275,8 @@ html[data-box-drag] {
 }
 :root[data-v8-picture] [data-main-frame],
 :root[data-v8-picture] [data-main-handles],
+:root[data-v8-picture] [data-box-grip],
+:root[data-v8-picture] [data-box-menu],
 :root[data-v8-picture] [data-resize-handle] {
   visibility: hidden;
 }

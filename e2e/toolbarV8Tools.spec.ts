@@ -542,3 +542,77 @@ test('selected words use the accent tint, not system blue', async ({
   expect(bg).not.toBe('rgb(0, 120, 215)')
   expect(bg).not.toBe('rgba(0, 0, 0, 0)')
 })
+
+const iconClass = (b: Locator) =>
+  b
+    .locator('svg')
+    .first()
+    .evaluate((s) => s.getAttribute('class') ?? '')
+
+test('1d gate fixes: Copy uses the Copy page icon, not the clipboard one, in the bar and the Lasso Actions card', async ({
+  page,
+}) => {
+  await open(page, 'lasso', 'professional', ['tb.lassoOptions'])
+  await openCard(page, 'lasso.actions')
+  const inCard = card(page, 'lasso.actions')
+    .getByTestId('v8-lasso-actions')
+    .getByRole('listitem')
+    .filter({ hasText: 'Copy' })
+  expect(await iconClass(inCard)).toContain('lucide-copy')
+  expect(await iconClass(inCard)).not.toContain('clipboard')
+  await page.getByRole('button', { name: 'Close' }).click()
+  await selectLine(page)
+  const bar = page.getByTestId('v8-selbar')
+  expect(await iconClass(bar.getByTestId('v8-sel-copy'))).toContain(
+    'lucide-copy',
+  )
+})
+
+test('1d gate fixes: Smaller, Half, Bigger and Double each have their own icon', async ({
+  page,
+}) => {
+  await lassoInk(page)
+  await page.getByTestId('v8-sel-resize').click()
+  const c = card(page, 'sel.resize')
+  const names = ['Smaller', 'Bigger', 'Half size', 'Double size']
+  const classes = new Set<string>()
+  for (const n of names)
+    classes.add(await iconClass(c.getByRole('button', { name: n })))
+  expect(classes.size).toBe(4)
+})
+
+test('1d gate fixes: a tap on the Actions chip leaves no focus ring; the keyboard still gets one', async ({
+  page,
+}) => {
+  await open(page, 'lasso', 'professional', ['tb.lassoOptions'])
+  const actions = chip(page, 'lasso.actions')
+  await actions.click()
+  await expect(card(page, 'lasso.actions')).toBeVisible()
+  await page.getByRole('button', { name: 'Close' }).click()
+  await expect(actions).toHaveCSS('outline-style', 'none')
+  await page.keyboard.press('Shift+Tab')
+  await actions.focus()
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Shift+Tab')
+  await expect(actions).toBeFocused()
+  await expect(actions).not.toHaveCSS('outline-style', 'none')
+})
+
+test('1d gate fixes: iPad portrait Edit picture card never covers the picture; the box tab and ⋯ step aside', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 820, height: 1180 })
+  await open(page, 'lasso', 'professional', PRO_ALL)
+  const img = await pickPicture(page)
+  await expect(page.locator('[data-box-grip]')).toBeHidden()
+  await expect(page.locator('[data-box-menu]')).toBeHidden()
+  await page.getByTestId('v8-sel-picture').click()
+  const c = (await card(page, 'sel.picture').boundingBox())!
+  const p = (await img.boundingBox())!
+  const apart =
+    c.x >= p.x + p.width ||
+    c.x + c.width <= p.x ||
+    c.y >= p.y + p.height ||
+    c.y + c.height <= p.y
+  expect(apart).toBe(true)
+})

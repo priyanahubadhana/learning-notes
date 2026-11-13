@@ -42,6 +42,8 @@ export type CardProps = {
   viewKey?: string | number
   /** `static` draws the frame in place (gallery cells); no overlay, no focus trap. */
   placement?: 'anchored' | 'static'
+  /** Rect the card keeps clear of (the selected picture); read at each placement. */
+  avoid?: () => RectLike | null
   /** Force the phone sheet look (gallery cell). */
   phone?: boolean
   testId?: string
@@ -128,6 +130,7 @@ export function Card(props: CardProps) {
     card: node,
     widthPx: WIDTH[size],
     active: !isStatic && !phone && !!anchor,
+    avoid: props.avoid,
   })
 
   // A floating card is hidden until positioned, and a hidden element cannot

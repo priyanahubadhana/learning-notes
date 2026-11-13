@@ -39,7 +39,7 @@ export interface BarItem {
 
 const ICON: Record<string, IconName> = {
   cut: 'scissors',
-  copy: 'copy',
+  copy: 'copyPage',
   paste: 'clipboard',
   duplicate: 'duplicate',
   colour: 'palette',

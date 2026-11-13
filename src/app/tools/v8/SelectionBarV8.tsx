@@ -224,8 +224,8 @@ export default function SelectionBarV8({
 
 const PICTURE_ACTIONS: readonly [PictureAction, MessageKey, IconName][] = [
   ['cropRotate', 'pic.s.crop', 'rotate'],
-  ['smaller', 'pic.s.smaller', 'minus'],
-  ['bigger', 'pic.s.bigger', 'plus'],
+  ['smaller', 'pic.s.smaller', 'zoomOut'],
+  ['bigger', 'pic.s.bigger', 'zoom'],
   ['fit', 'pic.s.fit', 'maximize'],
   ['fitPage', 'pic.fitPage', 'panel'],
   ['natural', 'pic.s.natural', 'image'],
@@ -234,10 +234,10 @@ const PICTURE_SIZES = PICTURE_ACTIONS.slice(1)
 
 /** One step each, one Undo step each: Smaller, Bigger, Half, Double. */
 const INK_SIZES: readonly [number, MessageKey, IconName][] = [
-  [0.8, 'pic.s.smaller', 'minus'],
-  [1.25, 'pic.s.bigger', 'plus'],
-  [0.5, 'v8.sel.half', 'minus'],
-  [2, 'v8.sel.double', 'plus'],
+  [0.8, 'pic.s.smaller', 'zoomOut'],
+  [1.25, 'pic.s.bigger', 'zoom'],
+  [0.5, 'v8.sel.half', 'shrink'],
+  [2, 'v8.sel.double', 'grow'],
 ]
 const NUDGE = 24
 const INK_MOVES: readonly [

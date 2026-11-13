@@ -317,3 +317,9 @@
 .bn-editor ::selection {
   background: color-mix(in srgb, var(--color-accent) 30%, transparent);
 }
+/* A tap or click that opens a card leaves no ring on its chip or tool: only the keyboard gets one. */
+:root[data-v8-pointer] .v8tool:focus-visible,
+:root[data-v8-pointer] .v8chip:focus-visible,
+:root[data-v8-pointer] .v8row .v8chip:focus-visible {
+  outline: none;
+}

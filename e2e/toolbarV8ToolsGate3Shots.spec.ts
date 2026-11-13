@@ -141,6 +141,8 @@ async function loopDrawing(page: Page) {
     c.slice(1).flatMap((p, i) => line(c[i]!, p, 10)),
   )
   await expect(page.getByTestId('v8-selbar')).toBeVisible()
+  // The lasso loop can raise the note again: wait it out so it never covers the ink.
+  await calm(page)
   await settle(page)
 }
 

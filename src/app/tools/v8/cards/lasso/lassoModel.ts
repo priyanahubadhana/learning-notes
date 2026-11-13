@@ -29,7 +29,7 @@ export const setLassoFilter = (key: LassoFilter, on: boolean): void =>
 /** What a selection can do, as the plain list in the card (Beginner too). */
 export const LASSO_ACTIONS: readonly { id: string; icon: IconName }[] = [
   { id: 'cut', icon: 'scissors' },
-  { id: 'copy', icon: 'copy' },
+  { id: 'copy', icon: 'copyPage' },
   { id: 'paste', icon: 'clipboard' },
   { id: 'duplicate', icon: 'duplicate' },
   { id: 'colour', icon: 'palette' },

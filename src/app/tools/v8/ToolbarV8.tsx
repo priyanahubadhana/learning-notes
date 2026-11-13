@@ -33,6 +33,12 @@ const SelCardBody = lazy(() =>
   import('./SelectionBarV8').then((m) => ({ default: m.SelCardBody })),
 )
 
+/** The picked picture's rect: the Edit picture card keeps clear of it. */
+const pickedPictureRect = () =>
+  document
+    .querySelector('.bn-file-block-content-wrapper[data-v8-picked]')
+    ?.getBoundingClientRect() ?? null
+
 /**
  * The new tool bar (toolbar.v8). Slice 1b: the tool bar, the tool row and an
  * empty card per ▾. Card contents come with 1c to 1f; Favourites with 1g.
@@ -143,6 +149,7 @@ export default function ToolbarV8() {
           anchor={card.anchor}
           size={info.size}
           autoClose={cardAutoClose(card.id)}
+          avoid={card.id === 'sel.picture' ? pickedPictureRect : undefined}
           title={t(info.title)}
           testId={`v8-card-${card.id}`}
           onClose={() => onCloseCard(card.id)}

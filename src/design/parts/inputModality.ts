@@ -1,3 +1,5 @@
+import { onRouted } from '../../app/input/eventRouter'
+
 /**
  * Was the last thing the person did a key press? The focus ring shows for the
  * keyboard only: a part that moves focus into itself (a strip opened by a
@@ -7,13 +9,16 @@
 let lastWasKey = false
 let listening = false
 
+/** Listens through the app's event router, first in line, never handling. */
 function listen() {
-  if (listening || typeof document === 'undefined') return
+  if (listening) return
   listening = true
-  document.addEventListener('keydown', () => (lastWasKey = true), true)
-  document.addEventListener('pointerdown', () => (lastWasKey = false), true)
-  document.addEventListener('contextmenu', () => (lastWasKey = false), true)
+  const first = { priority: 2000, name: 'inputModality' }
+  onRouted('keydown', () => void (lastWasKey = true), first)
+  onRouted('pointerdown', () => void (lastWasKey = false), first)
 }
-listen()
 
-export const lastInputWasKey = (): boolean => lastWasKey
+export const lastInputWasKey = (): boolean => {
+  listen()
+  return lastWasKey
+}

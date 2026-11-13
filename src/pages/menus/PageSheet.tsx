@@ -61,15 +61,10 @@ export default function PageSheet({
   }
   const livePins = cleanPins(pins, known)
 
-  // The Arrange list keeps one identity while the pins are unchanged (the
-  // actions object is rebuilt on every page render).
-  const pinKey = JSON.stringify(
-    livePins.flatMap((id) => {
-      const r = rows.find((x) => x.id === id)
-      return r ? [{ id, label: r.label, removable: true }] : []
-    }),
-  )
-  const pinRows = useMemo(() => JSON.parse(pinKey) as ArrangeRow[], [pinKey])
+  const pinRows: ArrangeRow[] = livePins.flatMap((id) => {
+    const r = rows.find((x) => x.id === id)
+    return r ? [{ id, label: r.label, removable: true }] : []
+  })
 
   /** Runs a row, then closes the sheet so a dialog it opens is not stacked on it. */
   const go = (fn?: () => void) => () => {

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { ContextStrip, type StripItem } from '../design/parts/ContextStrip'
 import type { MenuItem } from './ui'
-import { stripIcon, type RowPoint } from './RowStrip'
+import { stripIcon, type RowPoint } from './rowStripLogic'
 
 /** The press-and-hold strip of a page, notebook, library or task row (PM-23). */
 export default function RowStripView({

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { IconButton } from '../../app/ui'
-import { RowMenu, rowHoldMs, type RowPoint } from '../../app/RowStrip'
+import { RowMenu } from '../../app/RowStrip'
+import { rowHoldMs, type RowPoint } from '../../app/rowStripLogic'
 import { useLongPress } from '../../app/useLongPress'
 import type { Page } from '../../core/types'
 import { t } from '../../i18n/t'

@@ -1,6 +1,7 @@
 import { IconButton, type MenuItem } from '../app/ui'
 import { useFlag } from '../app/flags'
-import { RowMenu, rowHoldMs, type RowPoint } from '../app/RowStrip'
+import { RowMenu } from '../app/RowStrip'
+import { rowHoldMs, type RowPoint } from '../app/rowStripLogic'
 import { useState } from 'react'
 import { useLongPress } from '../app/useLongPress'
 import type { HTMLAttributes } from 'react'

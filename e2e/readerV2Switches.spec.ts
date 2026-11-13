@@ -262,7 +262,7 @@ test('RD-B24 selecting text in Everything works shows the Beginner pop-up', asyn
       pop.getByRole('button', { name: n, exact: true }),
     ).toBeVisible()
   await expect(pop.getByTestId('popup-sticky')).toBeVisible()
-  await expect(pop.getByRole('button', { name: /^Pin/ })).toBeVisible()
+  await expect(pop.getByRole('button', { name: /^Bookmark/ })).toBeVisible()
   // The extras wait for reader.selExtras (RD-P13).
   for (const n of ['Look up', 'Save to…', 'Make card'])
     await expect(pop.getByRole('button', { name: n, exact: true })).toHaveCount(
@@ -513,4 +513,22 @@ test('RD-P05 reader.askBook: the Ask row in the ⋯ card needs AI on and its swi
       await more(page)
     },
   )
+})
+
+test('gate 3 fix 7: Edit note, Make card and Delete in the notes panel are 44 x 44 targets in body-size text', async ({
+  page,
+}) => {
+  await openBook(page, 'pdf')
+  await withHighlight(page)
+  const row = page.getByTestId('annotation-row').first()
+  for (const name of ['Edit note', 'Make card', 'Delete']) {
+    const b = row.getByRole('button', { name, exact: true })
+    const box = (await b.boundingBox())!
+    expect(box.height).toBeGreaterThanOrEqual(44)
+    expect(box.width).toBeGreaterThanOrEqual(44)
+    const size = await b.evaluate((el) =>
+      parseFloat(getComputedStyle(el).fontSize),
+    )
+    expect(size).toBeGreaterThanOrEqual(14)
+  }
 })

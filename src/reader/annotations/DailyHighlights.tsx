@@ -176,7 +176,7 @@ export function DailyHighlights({
                   type="button"
                   data-testid="daily-seen"
                   onClick={() => finish(a.id)}
-                  className="min-h-11 rounded-lg px-3 text-sm text-muted hover:bg-hover"
+                  className="min-h-11 min-w-11 rounded-lg px-3 text-sm text-muted hover:bg-hover"
                 >
                   {t('recall.dailySeen')}
                 </button>

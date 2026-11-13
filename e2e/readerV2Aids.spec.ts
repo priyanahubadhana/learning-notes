@@ -468,3 +468,22 @@ test('gate 3 fixes 2 and 3: line focus and the ruler stay on the page, never ove
     expect(box.y).toBeGreaterThanOrEqual(reader.y - 1)
   }
 })
+
+test('gate 3 fix 7: Seen in the daily highlight is a 44 x 44 target in body-size text', async ({
+  page,
+}) => {
+  await openBook(page, 'pdf', ['reader.dailyHighlight'])
+  await selectText(page)
+  await page.getByTestId('hl-yellow').click()
+  await expect(page.getByTestId('pdf-highlight').first()).toBeAttached()
+  await openAnnotations(page)
+  const seen = page.getByTestId('daily-seen').first()
+  await expect(seen).toBeVisible()
+  const box = (await seen.boundingBox())!
+  expect(box.height).toBeGreaterThanOrEqual(44)
+  expect(box.width).toBeGreaterThanOrEqual(44)
+  const size = await seen.evaluate((el) =>
+    parseFloat(getComputedStyle(el).fontSize),
+  )
+  expect(size).toBeGreaterThanOrEqual(14)
+})

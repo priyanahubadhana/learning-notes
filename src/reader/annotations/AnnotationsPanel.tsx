@@ -225,7 +225,7 @@ export function AnnotationsPanel({
                 <button
                   type="button"
                   onClick={() => setEditing(a)}
-                  className="min-h-11 rounded-lg px-2 text-xs text-muted hover:bg-hover"
+                  className="min-h-11 min-w-11 rounded-lg px-3 text-sm text-ink-soft hover:bg-hover"
                 >
                   {t('annot.edit')}
                 </button>
@@ -233,7 +233,7 @@ export function AnnotationsPanel({
                   <button
                     type="button"
                     onClick={() => onMakeCard(a)}
-                    className="min-h-11 rounded-lg px-2 text-xs text-muted hover:bg-hover"
+                    className="min-h-11 min-w-11 rounded-lg px-3 text-sm text-ink-soft hover:bg-hover"
                   >
                     {t('annot.makeCard')}
                   </button>
@@ -241,7 +241,7 @@ export function AnnotationsPanel({
                 <button
                   type="button"
                   onClick={() => void remove(a)}
-                  className="min-h-11 rounded-lg px-2 text-xs text-muted hover:bg-hover"
+                  className="min-h-11 min-w-11 rounded-lg px-3 text-sm text-ink-soft hover:bg-hover"
                 >
                   {t('annot.delete')}
                 </button>

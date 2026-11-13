@@ -420,3 +420,34 @@ test.describe('phone and iPad touch', () => {
     await expect(lock(page)).toHaveAttribute('data-mode', 'view')
   })
 })
+
+test('gate 3 fix 7: padlock rows are even, at least 44 tall, with padding; icon centred on its row', async ({
+  page,
+}) => {
+  await openPdf(page)
+  await lock(page).click()
+  const rows = page.getByTestId('rv2-lock-menu').getByRole('menuitemradio')
+  await expect(rows.first()).toBeVisible()
+  const boxes = await rows.evaluateAll((els) =>
+    els.map((el) => {
+      const r = el.getBoundingClientRect()
+      const cs = getComputedStyle(el)
+      const icon = el.querySelector('svg')!.getBoundingClientRect()
+      const title = el.querySelector('b')!.getBoundingClientRect()
+      return {
+        h: r.height,
+        padTop: parseFloat(cs.paddingTop),
+        padBottom: parseFloat(cs.paddingBottom),
+        iconMid: icon.top + icon.height / 2 - (r.top + r.height / 2),
+        titleGap: title.top - r.top,
+      }
+    }),
+  )
+  for (const b of boxes) {
+    expect(b.h).toBeGreaterThanOrEqual(44)
+    expect(b.padTop).toBeGreaterThanOrEqual(8)
+    expect(b.padTop).toBe(b.padBottom)
+    expect(Math.abs(b.iconMid)).toBeLessThanOrEqual(1)
+    expect(b.titleGap).toBeGreaterThanOrEqual(8)
+  }
+})

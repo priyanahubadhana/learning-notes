@@ -522,9 +522,10 @@
   }
 }
 .rv2-lock-row {
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   min-height: 56px;
+  padding-block: 10px;
   text-align: start;
 }
 .rv2-lock-row__text {

@@ -1,6 +1,6 @@
 # Study v2 build pictures (slice 15)
 
-Flag study.v2 on, real data (one card, one Key point, one Summary line). Taken after the last source edit (src head c31924e6) with e2e/studyV2Shots.spec.ts. Name: level-theme-size-state.
+Flag study.v2 on, real data (one card, one Key point, one Summary line). Taken after the last source edit (src head 7ce326a6, which includes the token fix: slide themes and accent buttons use tokens, last source edit 23:40; all 144 pictures re-shot 23:44 to 23:46, after it) with e2e/studyV2Shots.spec.ts. Name: level-theme-size-state.
 
 Fix round proof: 5-summary on iPad portrait and phone shows no selection bar over the Summary header (PageView fix); the phone/iPad seeding uses the mini bar More twice in a row (MiniToolbar fix).
 

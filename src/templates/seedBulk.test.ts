@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { LearningNotesDB } from '../core/db'
 import { createTestDb } from '../core/testing'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
+import { STARTER_VERSION, starterTemplates } from './starterTemplates'
 import { ensureTemplates } from './templateService'
 
 let db: LearningNotesDB
@@ -93,4 +94,89 @@ describe('starter seeding is bulk (perf-start)', () => {
       seen.add(key)
     }
   })
+})
+
+/** Makes the Templates notebook look like one seeded by an older version. */
+async function rewindTo(version: number): Promise<string> {
+  const nb = await ensureTemplates(db, ws)
+  const roots = (
+    await db.pages.where('notebookId').equals(nb.id).toArray()
+  ).filter((p) => p.parentId === null)
+  const newer = new Set(
+    starterTemplates()
+      .filter((s) => (s.since ?? 1) > version)
+      .map((s) => s.title),
+  )
+  let drop = roots.filter((p) => newer.has(p.title)).map((p) => p.id)
+  const all = await db.pages.where('notebookId').equals(nb.id).toArray()
+  for (let grew = true; grew;) {
+    grew = false
+    for (const p of all) {
+      if (p.parentId && drop.includes(p.parentId) && !drop.includes(p.id)) {
+        drop = [...drop, p.id]
+        grew = true
+      }
+    }
+  }
+  await db.blocks.where('pageId').anyOf(drop).delete()
+  await db.pages.bulkDelete(drop)
+  await db.notebooks.update(nb.id, { starterVersion: version })
+  return nb.id
+}
+
+async function rootTitles(nbId: string): Promise<string[]> {
+  return (await db.pages.where('notebookId').equals(nbId).toArray())
+    .filter((p) => p.parentId === null)
+    .map((p) => p.title)
+    .sort()
+}
+
+describe('starter upgrade (perf-start gate 2)', () => {
+  const allTitles = starterTemplates()
+    .map((s) => s.title)
+    .sort()
+
+  it.each([1, 2])(
+    'a notebook seeded by starter version %i gets only the newer starters, no doubles',
+    async (version) => {
+      const nbId = await rewindTo(version)
+      const before = await rootTitles(nbId)
+      const newer = starterTemplates().filter((s) => (s.since ?? 1) > version)
+      expect(newer.length).toBeGreaterThan(0)
+      expect(before.length).toBe(allTitles.length - newer.length)
+      const pageBulk = vi.spyOn(db.pages, 'bulkAdd')
+      const nb = await ensureTemplates(db, ws)
+      expect(pageBulk).toHaveBeenCalledTimes(newer.length)
+      expect(nb.starterVersion).toBe(STARTER_VERSION)
+      expect(await rootTitles(nbId)).toEqual(allTitles)
+      await ensureTemplates(db, ws)
+      expect(await rootTitles(nbId)).toEqual(allTitles)
+    },
+  )
+
+  it.each([0, 2])(
+    'a starter the user trashed is never added again (notebook at version %i)',
+    async (version) => {
+      const nb = await ensureTemplates(db, ws)
+      const roots = (
+        await db.pages.where('notebookId').equals(nb.id).toArray()
+      ).filter((p) => p.parentId === null)
+      const trashed = [
+        starterTemplates()[0].title,
+        starterTemplates().find((s) => (s.since ?? 1) > 2)!.title,
+      ]
+      for (const p of roots.filter((r) => trashed.includes(r.title))) {
+        await db.pages.update(p.id, { deletedAt: Date.now() })
+      }
+      await db.notebooks.update(nb.id, { starterVersion: version })
+      const count = await db.pages.count()
+      await ensureTemplates(db, ws)
+      await ensureTemplates(db, ws)
+      expect(await db.pages.count()).toBe(count)
+      const live = (await db.pages.where('notebookId').equals(nb.id).toArray())
+        .filter((p) => p.parentId === null && p.deletedAt === null)
+        .map((p) => p.title)
+      for (const t of trashed) expect(live).not.toContain(t)
+    },
+  )
 })

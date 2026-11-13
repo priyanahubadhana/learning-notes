@@ -145,7 +145,7 @@ export default function PromptsDialog({
       role="dialog"
       aria-label={t('prompts.title')}
       data-testid="prompts-dialog"
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-auto bg-black/30 p-3"
+      className="prompts-overlay fixed inset-0 z-50 flex items-start justify-center overflow-auto bg-black/30 p-3"
       onKeyDown={(e) => e.key === 'Escape' && onClose()}
     >
       <div className="mt-6 w-full max-w-2xl rounded-xl border border-line bg-bg p-4 shadow-xl">
@@ -207,7 +207,7 @@ export default function PromptsDialog({
                   if (onPick) onPick(top, lib)
                   else setRunning(top)
                 }}
-                className={`${field} min-w-0 flex-1`}
+                className={`${field} min-w-0 flex-1 basis-full sm:basis-0`}
               />
               <button
                 type="button"

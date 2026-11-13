@@ -143,3 +143,33 @@ test('ST14: the first paid run says "Before you use AI" with the limit; Cancel s
   await expect(dialog.getByText('Before you use AI')).toHaveCount(0)
   expect(calls).toHaveLength(0)
 })
+
+test('ST12: on a phone the tile names wrap, search has its own row and the sheet ends above the tab bar', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await asLevel(page, 'professional')
+  await page.goto(FLAGGED)
+  await space(page, 'Library').click()
+  await page.getByTestId('ai-prompts').click()
+  const dialog = page.getByTestId('prompts-dialog')
+  const name = dialog
+    .getByTestId('starter-tile')
+    .filter({ hasText: 'Explain it like I am new' })
+    .locator('.starter-tile__name')
+  await expect(name).toBeVisible()
+  const cut = await name.evaluate(
+    (el) =>
+      el.scrollWidth > el.clientWidth + 1 ||
+      el.scrollHeight > el.clientHeight + 1,
+  )
+  expect(cut).toBe(false)
+  const search = (await dialog.getByTestId('prompt-search').boundingBox())!
+  const tiles = (await dialog.getByTestId('starter-tiles').boundingBox())!
+  expect(search.width).toBeGreaterThanOrEqual(tiles.width - 2)
+  const bar = (await page
+    .getByRole('navigation', { name: 'Spaces' })
+    .boundingBox())!
+  const sheet = (await dialog.boundingBox())!
+  expect(sheet.y + sheet.height).toBeLessThanOrEqual(bar.y + 1)
+})

@@ -197,3 +197,21 @@ test('read aloud: the Audio tab speaks the chapter and marks nothing broken', as
     )
     .toBeGreaterThan(0)
 })
+
+test('gate 3 fix 4: pen type is the shared ▾ menu, the custom colour a swatch; no browser select', async ({
+  page,
+}) => {
+  await openPdf(page)
+  await page.getByTestId('reader-ink').click()
+  await page.getByTestId('reader-more').click()
+  await page.getByRole('menuitem', { name: /Tool bar/ }).click()
+  await page.getByRole('menuitemradio', { name: 'Full' }).click()
+  const bar = page.getByTestId('reader-ink-bar')
+  await expect(bar.locator('select')).toHaveCount(0)
+  await expect(
+    page.getByTestId('reader-ink-custom').locator('.pcard-swatch'),
+  ).toBeVisible()
+  await page.getByTestId('reader-ink-type').click()
+  await page.getByTestId('reader-ink-type-fountain').click()
+  await expect(page.getByTestId('reader-ink-type')).toContainText('Fountain')
+})

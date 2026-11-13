@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { OnOff } from '../design/parts/OnOff'
 import { useReaderSwitch } from './v2/proSwitches'
 import { t } from '../i18n/t'
 import type { MessageKey } from '../i18n/t'
@@ -198,18 +199,12 @@ export default function AaSheet({
                 </button>
               ))}
             </div>
-            <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
-              {t('aa.continuous')}
-              <input
-                type="checkbox"
-                checked={flow === 'scrolled'}
-                data-testid="aa-continuous"
-                onChange={(e) =>
-                  onFlow(e.target.checked ? 'scrolled' : 'paginated')
-                }
-                className="size-5"
-              />
-            </label>
+            <SwitchLine
+              label={t('aa.continuous')}
+              checked={flow === 'scrolled'}
+              testId="aa-continuous"
+              onChange={(on) => onFlow(on ? 'scrolled' : 'paginated')}
+            />
             {epub && layoutOn && (
               <>
                 <div className="flex gap-2">
@@ -316,42 +311,30 @@ export default function AaSheet({
                     </button>
                   ))}
                 </div>
-                <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
-                  {t('aa.clock')}
-                  <input
-                    type="checkbox"
-                    checked={look.clock}
-                    data-testid="aa-clock"
-                    onChange={(e) => onLook({ clock: e.target.checked })}
-                    className="size-5"
-                  />
-                </label>
+                <SwitchLine
+                  label={t('aa.clock')}
+                  checked={look.clock}
+                  testId="aa-clock"
+                  onChange={(on) => onLook({ clock: on })}
+                />
               </>
             )}
             {selMenuOn && (
-              <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
-                {t('aa.menuOnSelect')}
-                <input
-                  type="checkbox"
-                  checked={look.menuOnSelect}
-                  data-testid="aa-menu"
-                  onChange={(e) => onLook({ menuOnSelect: e.target.checked })}
-                  className="size-5"
-                />
-              </label>
+              <SwitchLine
+                label={t('aa.menuOnSelect')}
+                checked={look.menuOnSelect}
+                testId="aa-menu"
+                onChange={(on) => onLook({ menuOnSelect: on })}
+              />
             )}
             {landGlow && (
               <>
-                <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
-                  {t('readerv2.glow.label')}
-                  <input
-                    type="checkbox"
-                    checked={landGlow.on}
-                    data-testid="aa-land-glow"
-                    onChange={(e) => landGlow.onChange(e.target.checked)}
-                    className="size-5"
-                  />
-                </label>
+                <SwitchLine
+                  label={t('readerv2.glow.label')}
+                  checked={landGlow.on}
+                  testId="aa-land-glow"
+                  onChange={(on) => landGlow.onChange(on)}
+                />
                 <p className="text-xs text-muted">{t('readerv2.glow.help')}</p>
               </>
             )}
@@ -364,16 +347,12 @@ export default function AaSheet({
               </p>
             )}
             {keepBar && (
-              <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
-                {t('readerv2.aa.keepBar')}
-                <input
-                  type="checkbox"
-                  checked={keepBar.value}
-                  data-testid="aa-keep-bar"
-                  onChange={(e) => keepBar.onChange(e.target.checked)}
-                  className="size-5"
-                />
-              </label>
+              <SwitchLine
+                label={t('readerv2.aa.keepBar')}
+                checked={keepBar.value}
+                testId="aa-keep-bar"
+                onChange={(on) => keepBar.onChange(on)}
+              />
             )}
             {direction && (
               <>
@@ -442,21 +421,42 @@ export default function AaSheet({
               </>
             )}
             {awake && (
-              <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
-                {t('readerv2.aa.awake')}
-                <input
-                  type="checkbox"
-                  checked={awake.value}
-                  data-testid="aa-awake"
-                  onChange={(e) => awake.onChange(e.target.checked)}
-                  className="size-5"
-                />
-              </label>
+              <SwitchLine
+                label={t('readerv2.aa.awake')}
+                checked={awake.value}
+                testId="aa-awake"
+                onChange={(on) => awake.onChange(on)}
+              />
             )}
             <p className="text-xs text-muted">{t('aa.readAloud.where')}</p>
           </>
         )}
       </div>
+    </div>
+  )
+}
+
+/** One Aa row with the shared switch (gate 3 fix 1: no browser checkboxes). */
+function SwitchLine({
+  label,
+  checked,
+  testId,
+  onChange,
+}: {
+  label: string
+  checked: boolean
+  testId: string
+  onChange: (on: boolean) => void
+}) {
+  return (
+    <div className="flex min-h-11 items-center justify-between gap-3 text-sm">
+      <span>{label}</span>
+      <OnOff
+        checked={checked}
+        label={label}
+        testId={testId}
+        onChange={onChange}
+      />
     </div>
   )
 }

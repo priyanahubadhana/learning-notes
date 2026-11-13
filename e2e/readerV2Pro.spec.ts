@@ -110,22 +110,22 @@ test('RD-B49 Finger draws is a switch with a one-line explanation that follows i
   await startPen(page)
   const finger = page.getByTestId('reader-ink-finger')
   const note = page.getByTestId('reader-ink-finger-note')
-  await expect(finger).toHaveAttribute('aria-pressed', 'false')
+  await expect(finger).toHaveAttribute('aria-checked', 'false')
   await expect(note).toContainText('Only the Pencil draws')
   await finger.click()
-  await expect(finger).toHaveAttribute('aria-pressed', 'true')
+  await expect(finger).toHaveAttribute('aria-checked', 'true')
   await expect(note).toContainText('Your finger draws')
   // It is the same setting the notes use: it stays after a reload.
   await page.reload()
   await expect(page.getByTestId('book-reader')).toBeVisible()
   await startPen(page)
   await expect(page.getByTestId('reader-ink-finger')).toHaveAttribute(
-    'aria-pressed',
+    'aria-checked',
     'true',
   )
   await page.getByTestId('reader-ink-finger').click()
   await expect(page.getByTestId('reader-ink-finger')).toHaveAttribute(
-    'aria-pressed',
+    'aria-checked',
     'false',
   )
 })

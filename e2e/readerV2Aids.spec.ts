@@ -419,16 +419,32 @@ test('RD-P34 reader.liquid and reader.tapCounts carry "Coming later" in Settings
 test('RD-P34 gate 3 fix 8: Coming later switches stay off and disabled, even when unlocked', async ({
   page,
 }) => {
-  await page.addInitScript((v) => {
-    if (!sessionStorage.getItem('seeded')) {
-      localStorage.setItem('learning-notes:level', v)
-      sessionStorage.setItem('seeded', '1')
-    }
-  }, BEGINNER(['reader.liquid', 'reader.tapCounts']))
+  await page.addInitScript(
+    (v) => {
+      if (!sessionStorage.getItem('seeded')) {
+        localStorage.setItem('learning-notes:level', v)
+        sessionStorage.setItem('seeded', '1')
+      }
+    },
+    BEGINNER(['reader.liquid', 'reader.tapCounts']),
+  )
   await page.goto('/?flags=settings.v3#/settings/pro')
   for (const id of ['reader.liquid', 'reader.tapCounts']) {
     const sw = page.locator(`[data-pro-feature="${id}"] [role="switch"]`)
     await expect(sw).toHaveAttribute('aria-checked', 'false')
     await expect(sw).toBeDisabled()
   }
+})
+
+test('gate 3 fix 1: the Aa More tab uses the shared switch, no browser checkbox', async ({
+  page,
+}) => {
+  await openBook(page, 'pdf', ['reader.barScroll', 'reader.keepAwake'])
+  await aaMore(page)
+  await expect(page.getByTestId('aa-keep-bar')).toHaveAttribute(
+    'role',
+    'switch',
+  )
+  await expect(page.getByTestId('aa-awake')).toHaveAttribute('role', 'switch')
+  await expect(page.locator('input[type="checkbox"]')).toHaveCount(0)
 })

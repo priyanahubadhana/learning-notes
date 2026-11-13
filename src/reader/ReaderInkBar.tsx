@@ -1,4 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { OnOff } from '../design/parts/OnOff'
+import { Card, CardTrigger } from '../design/parts/Card'
+import { Tile, TileGroup } from '../design/parts/CardParts'
 import { activeTool, type ModeTool } from '../app/tools/main/mainTools'
 import {
   HIGHLIGHT_COLOURS,
@@ -157,21 +160,10 @@ export function ReaderInkBar({
         </span>
       )}
       {mode === 'full' && inkLook && tool === 'pen' && (
-        <select
-          data-testid="reader-ink-type"
-          aria-label={t('reader.ink.type')}
+        <PenTypeMenu
           value={pen.type}
-          onChange={(e) =>
-            penSettings.update({ type: e.target.value as PenType })
-          }
-          className="min-h-11 rounded-lg border border-line bg-bg px-2 text-sm"
-        >
-          {PEN_TYPES.map((p) => (
-            <option key={p} value={p}>
-              {t(`ink.pen.${p}` as 'ink.pen.ball')}
-            </option>
-          ))}
-        </select>
+          onChange={(p) => penSettings.update({ type: p })}
+        />
       )}
       {mode === 'full' && inkLook && tool === 'highlighter' && (
         <label className="flex items-center gap-1 text-sm">
@@ -192,34 +184,45 @@ export function ReaderInkBar({
       {mode === 'full' &&
         inkLook &&
         (tool === 'pen' || tool === 'highlighter') && (
-          <label className="flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-hover">
+          <label
+            data-testid="reader-ink-custom"
+            className="relative flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg hover:bg-hover"
+          >
             <span className="sr-only">{t('reader.ink.customColour')}</span>
+            <i
+              aria-hidden
+              className="pcard-swatch"
+              style={{
+                background: /^#[0-9a-f]{6}$/i.test(current)
+                  ? current
+                  : 'var(--color-ink)',
+              }}
+            />
             <input
               type="color"
-              data-testid="reader-ink-custom"
               value={/^#[0-9a-f]{6}$/i.test(current) ? current : '#000000'}
               onChange={(e) =>
                 tool === 'highlighter'
                   ? highlighterSettings.update({ colour: e.target.value })
                   : penSettings.update({ colour: e.target.value })
               }
-              className="size-7 cursor-pointer rounded border border-line bg-transparent p-0"
+              className="absolute inset-0 cursor-pointer opacity-0"
             />
           </label>
         )}
       {v2 && (
         <>
-          <button
-            type="button"
-            aria-pressed={pen.finger === 'on'}
-            data-testid="reader-ink-finger"
-            className={btn(pen.finger === 'on')}
-            onClick={() =>
-              penSettings.update({ finger: pen.finger === 'on' ? 'off' : 'on' })
-            }
-          >
-            {t('readerv2.finger.label')}
-          </button>
+          <span className="flex min-h-11 items-center gap-2 px-2 text-sm">
+            <span aria-hidden>{t('readerv2.finger.label')}</span>
+            <OnOff
+              checked={pen.finger === 'on'}
+              label={t('readerv2.finger.label')}
+              testId="reader-ink-finger"
+              onChange={(on) =>
+                penSettings.update({ finger: on ? 'on' : 'off' })
+              }
+            />
+          </span>
           <span className="flex-1" />
         </>
       )}
@@ -243,5 +246,50 @@ export function ReaderInkBar({
         </p>
       )}
     </div>
+  )
+}
+
+/** Pen type as the shared ▾ menu (gate 3 fix 4: no browser select). */
+function PenTypeMenu({
+  value,
+  onChange,
+}: {
+  value: PenType
+  onChange: (p: PenType) => void
+}) {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  const label = t('reader.ink.type')
+  return (
+    <>
+      <CardTrigger
+        open={!!anchor}
+        label={label}
+        testId="reader-ink-type"
+        onClick={(el) => setAnchor(anchor ? null : el)}
+      >
+        {t(`ink.pen.${value}` as 'ink.pen.ball')}
+      </CardTrigger>
+      {anchor && (
+        <Card
+          anchor={anchor}
+          size="pick"
+          title={label}
+          autoClose
+          onClose={() => setAnchor(null)}
+        >
+          <TileGroup label={label} columns={3}>
+            {PEN_TYPES.map((p) => (
+              <Tile
+                key={p}
+                label={t(`ink.pen.${p}` as 'ink.pen.ball')}
+                selected={p === value}
+                testId={`reader-ink-type-${p}`}
+                onSelect={() => onChange(p)}
+              />
+            ))}
+          </TileGroup>
+        </Card>
+      )}
+    </>
   )
 }

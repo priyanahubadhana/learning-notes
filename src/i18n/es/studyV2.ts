@@ -68,4 +68,6 @@ export const esStudyV2 = {
   'st22.openNote': 'Abrir nota',
   'st22.paused': 'Tarjeta en pausa',
   'st22.resumed': 'Tarjeta reanudada',
+  'st23.changed': 'Etiquetas cambiadas',
+  'st23.redo': 'Rehacer',
 } as const

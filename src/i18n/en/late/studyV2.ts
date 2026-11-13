@@ -68,4 +68,6 @@ export const enLateStudyV2 = {
   'st22.openNote': 'Open note',
   'st22.paused': 'Card paused',
   'st22.resumed': 'Card resumed',
+  'st23.changed': 'Labels changed',
+  'st23.redo': 'Redo',
 } as const

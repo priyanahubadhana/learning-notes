@@ -334,7 +334,17 @@ test('ST23: Professional taps Labels in Revise and edits the labels', async ({
   await main(page).getByRole('button', { name: 'Labels', exact: true }).click()
   const sheet = page.getByTestId('revise-labels')
   await expect(sheet).toBeVisible()
-  await expect(sheet.getByRole('textbox').first()).toBeVisible()
+  const name = sheet.getByRole('textbox').first()
+  await expect(name).toBeVisible()
+  const before = await name.inputValue()
+  await name.fill('Core idea')
+  await name.blur()
+  await expect(name).toHaveValue('Core idea')
+  // Undo gives the old name back; Redo takes it again.
+  await sheet.getByRole('button', { name: 'Undo', exact: true }).click()
+  await expect(name).toHaveValue(before)
+  await sheet.getByRole('button', { name: 'Redo', exact: true }).click()
+  await expect(name).toHaveValue('Core idea')
 })
 
 test('ST24: Professional switches the Summary to Notebook and exports it', async ({

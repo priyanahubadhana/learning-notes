@@ -67,4 +67,6 @@ export const hiStudyV2 = {
   'st22.openNote': 'नोट खोलें',
   'st22.paused': 'कार्ड रोका गया',
   'st22.resumed': 'कार्ड फिर शुरू',
+  'st23.changed': 'लेबल बदले गए',
+  'st23.redo': 'फिर करें',
 } as const

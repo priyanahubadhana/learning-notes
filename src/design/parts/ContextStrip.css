@@ -16,8 +16,8 @@
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  height: 48px;
-  max-width: calc(100vw - 24px);
+  min-height: 48px;
+  max-width: var(--cs-max, calc(100vw - 24px));
   padding: 2px 4px;
   border-radius: 16px;
   background: var(--card-fill);
@@ -31,6 +31,46 @@
   font-size: 14px;
   transform-origin: var(--arrow-x) 100%;
   animation: cs-in 160ms var(--ease-out) both;
+}
+/* The buttons scroll sideways (with a thin track) when the room is short. */
+.cs__scroll {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--card-track, var(--color-line-strong)) transparent;
+}
+.cs__scroll::-webkit-scrollbar {
+  height: 5px;
+}
+.cs__scroll::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background: var(--card-track, var(--color-line-strong));
+}
+.cs[data-labels] .cs__btn {
+  flex-direction: column;
+  gap: 2px;
+  min-width: 52px;
+  min-height: 52px;
+  height: auto;
+  padding: 4px 6px;
+  font-size: 11px;
+}
+/* Never cut a label: it wraps to a second line instead. */
+.cs[data-labels] .cs__name {
+  max-width: 68px;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: center;
+  line-height: 1.2;
+}
+/* A phone strip is solid: the covers behind must not show through. */
+.cs[data-phone] .cs__bar {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .cs__bar[hidden] {
   display: none;
@@ -296,4 +336,7 @@
 .cs-pick[data-inline] {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+}
+.cs__slot {
+  flex-shrink: 0;
 }

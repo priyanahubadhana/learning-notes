@@ -34,6 +34,9 @@ import { esAiJobs } from './aijobs'
 import { esReviewV2 } from './reviewV2'
 import { esAiPlan } from './aiplan'
 import { esParts } from './parts'
+import { esNotebooksV2 } from './notebooksV2'
+import { esSearchV2 } from './searchV2'
+import { esPanelV2 } from './panelV2'
 import { esV8Pen } from './v8Pen'
 
 export const es: Record<string, string> = {
@@ -71,6 +74,9 @@ export const es: Record<string, string> = {
   ...esReviewV2,
   ...esAiPlan,
   ...esParts,
+  ...esNotebooksV2,
+  ...esSearchV2,
+  ...esPanelV2,
   ...esLibraryV2,
   ...esV8Pen,
 }

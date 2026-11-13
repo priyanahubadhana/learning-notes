@@ -44,6 +44,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: owner review of gate 2 and the Settings mock-up.
 - Files: docs/PENDING.md, docs/DECISIONS.md, docs/CHANGELOG.md.
 
+### 13 Nov 2026: slice 4 gate 3, the 7 fixes left
+
+- What: a drawn thin track under cut rows (Continue cards, search chips; touch screens hide the browser bar); phone-size search shows Close, never Esc; phone strip labels wrap to 2 lines and the phone strip is solid; search v2 is solid at every size (no cover bleed on iPad); Collapse all is an icon button (name on hover and on hold) so the Notebooks heading is never cut.
+- Why: gate 3 re-shoot, docs/plans/gate3-2026-11-13.md slice 4 items 1-7.
+- Files: src/design/parts/ScrollTrack.tsx (new), ContextStrip.css, index.css, notebooks/v2/{ContinueStrip,CollapseAllButton}.tsx, search/SearchPopup.tsx, e2e/notebooksSearchGate3{,Shots}.spec.ts, e2e/notebooksV2Sidebar.spec.ts, screenshots/gate3-4/.
+
 ### 13 Nov 2026: rules aligned with economy mode, 4 project hooks
 
 - What: rules/ and agent files now match economy mode (docs audit A4-A11, B1-B5, D2-D4); legacy Fable/Opus files kept for rollback and non-build tasks. Sepia joins light and dark in the Definition of Done and the gate checklists; checklist line 17 (bug fix = why-note + new test); builders read rules/global.md and security.md; "could delete or lose the owner's data" is a stop reason; gate 3 fails on a contrast ✗. rules/testing.md: related tests locally, full suite green in GitHub CI before any merge. Start with 4 builders, up to 6 only while rework stays under 2 rounds. INDEX gained the build files; HANDOFF has one NOW line; 3 old plans moved to docs/plans/archive/.
@@ -1692,3 +1698,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - Doc spacing for format:check (3d3e7fe).
 - CI: a manual run (workflow_dispatch) on main now runs checks, e2e and deploy too, so docs-only fixes can still be deployed.
 - Supabase: connector migrations applied, connector_devices renumbered to 20261113000002; mcp function prefix fix (ad3ec12).
+
+## 2026-11-13 · Slice 4 gate 3 fix list (13 items)
+
+Home strip shows every item at every level, stays inside the pane, labels on phone; Continue and chip rows show a thin track; header controls one height, Find full width on phone; Duplicate notebook; Search: scope switch, lilac chips, Tasks count, single scroll row, solid phone surface, "Close" on touch, strip with Open in new place; sidebar Today one line, group header 8 px gap; PanelV2 top-layer import fixed after the 0g merge. Files: src/design/parts/ContextStrip._, contextStripPlace.ts, src/notebooks/v2/_, src/search/SearchPopup.tsx, src/search/v2/*, src/app/SidebarGroup.tsx, src/index.css, docs/DECISIONS.md.

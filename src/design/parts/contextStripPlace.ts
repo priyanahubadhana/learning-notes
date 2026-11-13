@@ -45,18 +45,20 @@ export function unionRect(target: Rect, avoid: readonly Rect[] = []): Rect {
 export function placeStrip(
   target: Rect,
   size: { width: number; height: number },
-  viewport: { width: number; height: number },
+  viewport: { width: number; height: number; left?: number },
   avoid: readonly Rect[] = [],
 ): StripPlacement {
   const u = unionRect(target, avoid)
   const { width: w, height: h } = size
   const m = STRIP_MARGIN
-  const maxLeft = Math.max(m, viewport.width - w - m)
+  const minX = (viewport.left ?? 0) + m
+  const maxX = (viewport.left ?? 0) + viewport.width - m
+  const maxLeft = Math.max(minX, maxX - w)
   const maxTop = Math.max(m, viewport.height - h - m)
   const uRight = u.left + u.width
   const uBottom = u.top + u.height
   const pointX = target.left + target.width / 2
-  const centreLeft = clamp(u.left + u.width / 2 - w / 2, m, maxLeft)
+  const centreLeft = clamp(u.left + u.width / 2 - w / 2, minX, maxLeft)
   const arrow = (left: number) => clamp(pointX - left, 20, Math.max(20, w - 20))
 
   const aboveTop = u.top - STRIP_GAP - h
@@ -77,10 +79,10 @@ export function placeStrip(
     }
   const midTop = clamp(u.top + u.height / 2 - h / 2, m, maxTop)
   const rightLeft = uRight + STRIP_GAP
-  if (rightLeft + w <= viewport.width - m)
+  if (rightLeft + w <= maxX)
     return { left: rightLeft, top: midTop, side: 'right', arrowX: null }
   const leftLeft = u.left - STRIP_GAP - w
-  if (leftLeft >= m)
+  if (leftLeft >= minX)
     return { left: leftLeft, top: midTop, side: 'left', arrowX: null }
   return {
     left: centreLeft,

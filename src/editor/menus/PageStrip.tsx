@@ -193,6 +193,7 @@ export default function PageStrip({
       onAction={act}
       onClose={onClose}
       testId="page-strip"
+      phoneLabels
     />
   )
 }

@@ -502,9 +502,9 @@ export function ToolFrame(props: ToolFrameProps) {
                 {tp3('parts.tool.tryAgain')}
               </button>
             </div>
-          ) : hint ? (
+          ) : hint || compare?.disabledReason ? (
             <p className="tf-hint" data-testid="tf-hint">
-              {hint}
+              {hint ?? compare?.disabledReason}
             </p>
           ) : null}
         </div>

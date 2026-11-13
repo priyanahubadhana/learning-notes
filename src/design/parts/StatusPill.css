@@ -1,0 +1,278 @@
+/* Status pill and the stack (S3-20 to S3-29). Glass card fill, 36 px pill inside a 44 pt target, 8 px gaps. */
+.pillstack {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none; /* the gaps pass taps through to the page */
+  font-family: var(--font-sans);
+}
+.pillstack[data-mode='fixed'] {
+  position: fixed;
+  inset-inline-end: 16px;
+  bottom: calc(var(--pill-bottom, 16px) + env(safe-area-inset-bottom));
+  max-width: calc(100vw - 32px);
+}
+.pillstack[data-mode='inline'] {
+  position: relative;
+  padding: 16px;
+  min-height: 80px;
+  border-radius: var(--r-lg);
+  background: var(--color-surface-1);
+  box-shadow: inset 0 0 0 1px var(--card-hair);
+  max-width: 420px;
+  align-items: flex-end;
+}
+.pillstack[data-lift] {
+  transition: bottom var(--dur-2) var(--ease-out);
+}
+
+.pill-slot {
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+.pill {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  max-width: 240px;
+  border-radius: var(--r-pill);
+  background: var(--card-fill);
+  color: var(--color-ink);
+  box-shadow:
+    0 0 0 1px var(--card-hair),
+    var(--card-hi),
+    var(--elev-1);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
+  pointer-events: auto;
+  animation: pill-in 180ms var(--ease-out) both;
+}
+.pill[data-leaving] {
+  animation: pill-out 200ms var(--ease-in) both;
+  pointer-events: none;
+}
+/* the 44 pt target: 4 px above and below the 36 px pill */
+.pill-main::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block: -4px;
+}
+.pill-main {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+}
+.pill:has(.pill-act) .pill-main {
+  padding-inline-end: 4px;
+}
+.pill-main[aria-haspopup] {
+  cursor: pointer;
+}
+.pill-main:hover,
+.pill[data-force='hover'] .pill-main {
+  background: var(--color-hover);
+}
+.pill-main:active,
+.pill[data-force='pressed'] .pill-main {
+  background: var(--color-pressed);
+}
+.pill-main:focus-visible,
+.pill-act:focus-visible,
+.pill[data-force='focus'] .pill-main {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+.pill-icon {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  color: var(--color-ink-soft);
+}
+.pill-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-danger);
+}
+.pill[data-tone='active'] .pill-icon {
+  color: var(--color-accent);
+}
+.pill[data-tone='problem'] .pill-icon,
+.pill[data-tone='problem'] .pill-label {
+  color: var(--color-danger);
+}
+.pill-ring {
+  position: absolute;
+  inset: -4px;
+  width: 24px;
+  height: 24px;
+  transform: rotate(-90deg);
+}
+.pill-ring-track,
+.pill-ring-fill {
+  fill: none;
+  stroke-width: 2;
+}
+.pill-ring-track {
+  stroke: var(--card-track);
+}
+.pill-ring-fill {
+  stroke: var(--color-accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--dur-2) var(--ease-out);
+}
+.pill-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pill[data-icon-only] .pill-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.pill[data-icon-only] .pill-main::before {
+  inset-inline: -4px;
+}
+.pill[data-icon-only] .pill-main {
+  width: 36px;
+  padding: 0;
+  justify-content: center;
+}
+/* inline action and cross: a 28 px circle inside a 44 pt target */
+.pill-act {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.pill-act:last-child {
+  margin-inline-end: 4px;
+}
+.pill-act::before {
+  content: '';
+  position: absolute;
+  inset-block: -4px;
+  inset-inline: -4px;
+}
+.pill-act-ring {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--card-well);
+}
+.pill-act:hover .pill-act-ring {
+  background: var(--card-well-2);
+}
+.pill[data-kind='recording'] .pill-act-ring {
+  color: var(--color-danger);
+}
+.pill-more {
+  min-width: 44px;
+  justify-content: center;
+}
+
+.pill-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.pill-fold {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pill-fold-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: start;
+  cursor: pointer;
+}
+.pill-fold-item:hover {
+  background: var(--color-hover);
+}
+.pill-fold-item:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+@keyframes pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@keyframes pill-out {
+  to {
+    opacity: 0;
+  }
+}
+/* the glass blur stalls software-rendered WebKit when many pills sit on one page */
+.pillstack[data-mode='inline'] .pill {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pill,
+  .pill[data-leaving],
+  .pill-ring-fill,
+  .pillstack[data-lift] {
+    animation: none;
+    transition: none;
+  }
+}
+:root[data-motion='reduce'] .pill,
+:root[data-motion='reduce'] .pill[data-leaving],
+:root[data-motion='reduce'] .pill-ring-fill,
+:root[data-motion='reduce'] .pillstack[data-lift] {
+  animation: none;
+  transition: none;
+}

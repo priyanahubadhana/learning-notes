@@ -104,3 +104,8 @@
   flex-direction: column;
   gap: 4px;
 }
+.step3-live {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

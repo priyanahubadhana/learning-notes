@@ -76,7 +76,7 @@ export function CompareButton(props: CompareButtonProps) {
         aria-pressed={on}
         aria-disabled={disabledReason ? 'true' : undefined}
         aria-describedby={disabledReason ? 'cmpb-why' : undefined}
-        title={disabledReason}
+
         data-on={on ? '' : undefined}
         onPointerDown={pd}
         onPointerUp={end}

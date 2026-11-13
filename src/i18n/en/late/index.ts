@@ -14,6 +14,7 @@ import { enLateLibrary } from './library'
 import { enLateLibraryV2 } from './libraryV2'
 import { enLateLock } from './lock'
 import { enLateMedia } from './media'
+import { enLatePdf } from './pdf'
 import { enLateReading } from './reading'
 import { enLateRecall } from './recall'
 import { enLateSearch } from './search'
@@ -52,6 +53,7 @@ export const enLate = {
   ...enLateLibrary,
   ...enLateLock,
   ...enLateMedia,
+  ...enLatePdf,
   ...enLateReading,
   ...enLateRecall,
   ...enLateSearch,

@@ -5,7 +5,8 @@ import { input } from './lib.mjs'
 const cmd = String(input().tool_input?.command || '')
 
 // Setting the hooks path to the guard's own folder (the install step) is allowed.
-const install = /^git config core\.hooksPath "C:\/Users\/pc\/Downloads\/learning-notes\/\.githooks"$/i
+const install =
+  /^git config core\.hooksPath "C:\/Users\/pc\/Downloads\/learning-notes\/\.githooks"$/i
 if (install.test(cmd.trim())) process.exit(0)
 
 const GUARD = /\.githooks|push-guard\.mjs/i
@@ -37,7 +38,8 @@ const blocked = cmd.split(/[;&|\n]+/).some((seg) => {
   if (m && /core\.hooksPath/i.test(m[1])) {
     const rest = m[1]
     if (/--unset/i.test(rest)) return true
-    if (/(^|\s)(--get|--get-all|--get-regexp|--list|-l)(\s|$)/.test(rest)) return false
+    if (/(^|\s)(--get|--get-all|--get-regexp|--list|-l)(\s|$)/.test(rest))
+      return false
     const after = rest.replace(/^.*?core\.hooksPath/i, '')
     return after.trim() !== ''
   }

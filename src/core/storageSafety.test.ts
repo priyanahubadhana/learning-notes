@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  storageNearlyFull,
   isConnectionLost,
   isSafariTab,
   makeBackupDownload,
@@ -82,5 +83,25 @@ describe('makeBackupDownload', () => {
     expect(read).toHaveBeenCalledWith('learning-notes')
     expect(file.name).toBe('learning-notes-backup-v24-2026-11-13.json')
     expect(JSON.parse(await file.blob.text()).tables.notes[0].id).toBe('n1')
+  })
+})
+
+describe('storageNearlyFull', () => {
+  const sm = (usage: number, quota: number) =>
+    ({ estimate: async () => ({ usage, quota }) }) as unknown as StorageManager
+  it('is true at 90% or more of the quota', async () => {
+    expect(await storageNearlyFull(sm(90, 100))).toBe(true)
+  })
+  it('is false below 90%', async () => {
+    expect(await storageNearlyFull(sm(50, 100))).toBe(false)
+  })
+  it('is false when the estimate is missing or throws', async () => {
+    expect(await storageNearlyFull(undefined)).toBe(false)
+    const bad = {
+      estimate: async () => {
+        throw new Error('x')
+      },
+    } as unknown as StorageManager
+    expect(await storageNearlyFull(bad)).toBe(false)
   })
 })

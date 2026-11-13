@@ -88,3 +88,16 @@ export async function makeBackupDownload(
   const snapshot = await read(dbName)
   return { blob: backupFile(snapshot), name: backupFileName(snapshot) }
 }
+
+/** True when this app uses 90% or more of its storage quota. Read only; never throws. */
+export async function storageNearlyFull(
+  storage: StorageManager | undefined = globalThis.navigator?.storage,
+): Promise<boolean> {
+  try {
+    const est = await storage?.estimate?.()
+    if (!est?.usage || !est.quota) return false
+    return est.usage / est.quota >= 0.9
+  } catch {
+    return false
+  }
+}

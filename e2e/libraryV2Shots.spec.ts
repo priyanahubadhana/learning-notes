@@ -11,7 +11,11 @@ import { addHighlights } from './fixtures/highlights.ts'
  */
 const SHOTS = process.env.SHOTS
 /** Fourth-visit pictures go to v4/before or v4/after. */
-const DIR = SHOTS?.startsWith('v4') ? `v4/${SHOTS.slice(3)}` : 'after'
+const DIR = SHOTS?.startsWith('v4')
+  ? `v4/${SHOTS.slice(3)}`
+  : SHOTS === 'v6'
+    ? 'v6'
+    : 'after'
 const SIZES = {
   pc: { width: 1180, height: 820 },
   ipadP: { width: 820, height: 1180 },
@@ -68,7 +72,10 @@ async function openLibrary(page: Page, level: string) {
 
 for (const [size, vp] of Object.entries(SIZES)) {
   test.describe(`library shots ${size}`, () => {
-    test.skip(!SHOTS || SHOTS.startsWith('v4'), 'pictures only')
+    test.skip(
+      !SHOTS || SHOTS.startsWith('v4') || SHOTS === 'v6',
+      'pictures only',
+    )
 
     test('book panel and Knowledge with highlights', async ({ page }) => {
       test.setTimeout(180_000)
@@ -139,6 +146,54 @@ for (const [size, vp] of Object.entries(SIZES)) {
       await expect(page.getByTestId('left-panel')).toBeVisible()
       await page.waitForTimeout(600)
       await shot(page, `4-book-panel-${size}`)
+    })
+  })
+}
+
+/** Gate 3 fifth visit (slice 6): one picture set per fix, SHOTS=v6. No tip:
+ * the mouse rests on an empty spot before each picture. */
+const V6 = { ...SIZES, ipadL: { width: 1180, height: 820 } }
+for (const [size, vp] of Object.entries(V6)) {
+  test.describe(`library v6 shots ${size}`, () => {
+    test.skip(SHOTS !== 'v6', 'pictures only')
+
+    test('fifth-visit fixes 1-4', async ({ page }) => {
+      test.setTimeout(240_000)
+      await page.setViewportSize(vp)
+      await openLibrary(page, 'professional')
+      const rest = () => page.mouse.move(vp.width - 4, vp.height / 2)
+      await addBook(page, 'Alpha Book')
+      await addBook(page, 'Bravo Book')
+      await rest()
+      // Fix 4: the toast with no tip on it.
+      await shot(page, `4-toast-no-tip-${size}`)
+      await expect(page.locator('[data-toast]')).toBeHidden({ timeout: 15_000 })
+      await shot(page, `4-books-no-tip-${size}`)
+      await addHighlights(page)
+      await page.getByTestId('tab-knowledge').click()
+      await expect(page.getByTestId('highlight-row')).toHaveCount(5)
+      await rest()
+      // Fixes 1 and 2: full-width cards; filters with one Colour chip.
+      await shot(page, `1-2-knowledge-${size}`)
+      await page.getByTestId('know-colour').click()
+      await shot(page, `2-colour-menu-${size}`)
+      await page.getByRole('menuitemradio', { name: 'Yellow' }).click()
+      await expect(page.getByTestId('highlight-row')).toHaveCount(2)
+      await rest()
+      await shot(page, `2-colour-chosen-${size}`)
+      await page.getByTestId('highlight-row').first().click()
+      await expect(page.getByTestId('highlight-preview')).toBeVisible()
+      await rest()
+      await shot(page, `1-knowledge-preview-${size}`)
+      // Fix 3: the book panel with the whole window dimmed but the top bar.
+      await page.getByTestId('tab-books').click()
+      await page.getByTestId('source-start').first().click()
+      await expect(page.getByTestId('book-reader')).toBeVisible()
+      await page.getByTestId('panel-toggle').click()
+      await expect(page.getByTestId('left-panel')).toBeVisible()
+      await rest()
+      await page.waitForTimeout(600)
+      await shot(page, `3-book-panel-${size}`)
     })
   })
 }

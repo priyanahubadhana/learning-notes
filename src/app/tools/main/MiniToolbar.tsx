@@ -132,7 +132,11 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
     const off = s.start.y < 0 || s.start.y > window.innerHeight
     if (fresh || off || !anchor.current) {
       anchor.current = { left: s.left, top: s.top }
-      if (fresh) setDragPos(null)
+      if (fresh) {
+        setDragPos(null)
+        // A new selection starts with "More" closed (as a new bar does).
+        setMore(false)
+      }
     }
     setSpot({ ...s, ...anchor.current })
   }, [editor])

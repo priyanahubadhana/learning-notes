@@ -183,3 +183,33 @@ test('a new selection opens the mini bar with "More" closed', async ({
   await mini(page).getByRole('button', { name: 'More', exact: true }).click()
   await expect(more).toBeVisible()
 })
+
+test('selecting other words while the bar is open closes "More"', async ({
+  page,
+}) => {
+  await selectWord(page)
+  await mini(page).getByRole('button', { name: 'More', exact: true }).click()
+  const more = mini(page).getByRole('group', { name: 'More' })
+  await expect(more).toBeVisible()
+  const at = await page.evaluate(() => {
+    const walker = document.createTreeWalker(
+      document.querySelector('.bn-editor')!,
+      NodeFilter.SHOW_TEXT,
+    )
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const i = (n.textContent ?? '').indexOf('holds')
+      if (i < 0) continue
+      const r = document.createRange()
+      r.setStart(n, i)
+      r.setEnd(n, i + 5)
+      const b = r.getBoundingClientRect()
+      return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
+    }
+    throw new Error('no word')
+  })
+  await tap(page, at)
+  await page.waitForTimeout(60)
+  await tap(page, { x: at.x + 2, y: at.y + 1 })
+  await expect(mini(page)).toBeVisible()
+  await expect(more).toHaveCount(0)
+})

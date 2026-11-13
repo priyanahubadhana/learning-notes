@@ -91,7 +91,15 @@ export interface Target {
   ctx: CanvasRenderingContext2D
   top: number
   dpr: number
+  /** Night paper: the default black pen is drawn in the night ink colour. */
+  night?: boolean
 }
+
+/** The default black pen (day ink) shows as the night ink on a dark page. */
+const DAY_INK = '#1d1d1f'
+const NIGHT_INK = '#ececee'
+const colourOn = (colour: string, night?: boolean): string =>
+  night && colour.toLowerCase() === DAY_INK ? NIGHT_INK : colour
 
 /** Paints one stroke. `m` moves it first (lasso preview), in page px. */
 export function paintStroke(
@@ -109,20 +117,21 @@ export function paintStroke(
   ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f)
   ctx.transform(k, 0, 0, k, frame.x, frame.y)
   const s = stroke.style
+  const colour = colourOn(s.colour, t.night)
   const o = c.outline
   if (o.kind === 'fill') {
     ctx.globalAlpha = s.opacity
-    ctx.fillStyle = s.colour
+    ctx.fillStyle = colour
     ctx.fill(c.path)
   } else {
     if (stroke.fill && o.closed) {
       // Tape hides what is under it; other filled shapes only tint it.
       ctx.globalAlpha = stroke.kind === 'tape' ? s.opacity : s.opacity * 0.2
-      ctx.fillStyle = s.colour
+      ctx.fillStyle = colour
       ctx.fill(c.path)
     }
     ctx.globalAlpha = s.opacity
-    ctx.strokeStyle = s.colour
+    ctx.strokeStyle = colour
     ctx.lineWidth = o.width
     ctx.lineCap = o.cap
     ctx.lineJoin = 'round'
@@ -555,7 +564,7 @@ export class InkRenderer {
         pl.canvas.style.mixBlendMode = o.night ? 'normal' : 'multiply'
         pl.canvas.style.opacity = o.night ? '0.6' : '1'
       }
-      const target: Target = { ctx: pl.ctx, top: y0, dpr }
+      const target: Target = { ctx: pl.ctx, top: y0, dpr, night: o.night }
       for (const it of list) paintStroke(target, it.stroke, it.frame)
     }
   }

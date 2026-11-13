@@ -161,6 +161,7 @@ export default defineConfig({
         /textTool/,
         /textBoxFree/,
         /homeV2/,
+        /toolbarV8(Bar|Frame|Pen|Row|Tools|Paste).spec/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

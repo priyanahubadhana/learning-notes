@@ -63,7 +63,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 - TB-30 Beginner Eraser card → simple eraser: Standard / Whole stroke tiles and three sizes; Professional brings back today's eraser with Precise, highlights only, "go back after one erase" and the size preview ring (Pro: `tb.eraserOptions`).
 - TB-31 Shapes has its own top-bar slot; its card is grouped (Draw as, Shape help, Ruler, Magnifier, Colour picker) in sections, no single long scrolling strip (T1, T5) (Pro: `tb.shapesAids` for the aids).
 - TB-32 Lasso card → shape tiles (free / rectangle) and action list; Professional adds what it picks, which actions sit in the menu row, layers (Pro: `tb.lassoOptions`).
-- TB-33 When I lasso ink or text → the selection bar (Object bar) shows Cut, Copy, Paste, Duplicate, Colour, Resize, Delete, ⋯; Professional ⋯ adds Convert, Screenshot, Key point, Make card, Summary, Save, Move, Scale, Rotate (Pro: `tb.selectionMenu`).
+- TB-33 When I lasso ink or text → the selection bar (Object bar) shows Cut, Copy, Paste, Duplicate, Colour, Resize, Delete, ⋯; Professional ⋯ adds Convert, Screenshot, Key point, Make card, Summary, Save, Move, Scale, Rotate (Pro: `tb.selectionMenu`). Paste follows PM-40 to PM-46 (the paste planner and Settings › General › "Paste as"; plain text stays in Paste ▾ and Ctrl/Cmd+Shift+V). Resize on words opens the Text size card (90 to 150 %). While the bar owns a selected picture the old picture strip is hidden; Border sits in ⋯ and in Edit picture. The bar is one row; a row wider than the screen scrolls under the thin track.
 - TB-34 When a picture is selected → Edit picture: crop, turn, straighten, resize presets, shapes (Pro: `tb.pictureEdit`).
 
 **Text**

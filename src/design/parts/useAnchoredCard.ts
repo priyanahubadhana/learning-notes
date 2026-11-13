@@ -33,6 +33,8 @@ export function placeCard(
   anchor: RectLike,
   size: { width: number; height: number },
   viewport: { width: number; height: number },
+  /** Something the card must not cover (the selected picture), or null. */
+  avoid: RectLike | null = null,
 ): CardPos {
   const width = Math.min(size.width, viewport.width - 2 * CARD_EDGE)
   const bottom = anchor.top + anchor.height
@@ -40,7 +42,18 @@ export function placeCard(
     size.height <= viewport.height - bottom - CARD_GAP - CARD_EDGE
   const arrowAt = (left: number) =>
     clamp(anchor.left + anchor.width / 2 - left, 22, Math.max(22, width - 22))
-  if (fitsBelow) {
+  const hits = (left: number, top: number) =>
+    !!avoid &&
+    left < avoid.left + avoid.width &&
+    left + width > avoid.left &&
+    top < avoid.top + avoid.height &&
+    top + size.height > avoid.top
+  const belowLeft = clamp(
+    anchor.left,
+    CARD_EDGE,
+    Math.max(CARD_EDGE, viewport.width - CARD_EDGE - width),
+  )
+  if (fitsBelow && !hits(belowLeft, bottom + CARD_GAP)) {
     const left = clamp(
       anchor.left,
       CARD_EDGE,
@@ -53,6 +66,25 @@ export function placeCard(
       arrowX: arrowAt(left),
       width,
     }
+  }
+  if (avoid) {
+    const top = clamp(
+      bottom + CARD_GAP,
+      CARD_EDGE,
+      Math.max(CARD_EDGE, viewport.height - CARD_EDGE - size.height),
+    )
+    const gap = CARD_GAP
+    const tries: [Side, number, number][] = [
+      ['right', avoid.left + avoid.width + gap, top],
+      ['left', avoid.left - gap - width, top],
+    ]
+    for (const [side, left, t] of tries)
+      if (
+        left >= CARD_EDGE &&
+        left + width <= viewport.width - CARD_EDGE &&
+        !hits(left, t)
+      )
+        return { left, top: t, side, arrowX: null, width }
   }
   const p = placeBeside(
     anchor,
@@ -91,8 +123,10 @@ export function useAnchoredCard(opts: {
   card: HTMLElement | null
   widthPx: number
   active: boolean
+  /** Rect of something the card must keep clear of, read at each placement. */
+  avoid?: () => RectLike | null
 }): CardPos | null {
-  const { anchor, card, widthPx, active } = opts
+  const { anchor, card, widthPx, active, avoid } = opts
   const [pos, setPos] = useState<CardPos | null>(null)
   useLayoutEffect(() => {
     if (!active || !anchor || !card) {
@@ -104,6 +138,7 @@ export function useAnchoredCard(opts: {
         rectOf(anchor),
         { width: widthPx, height: card.offsetHeight },
         { width: root.clientWidth, height: window.innerHeight },
+        avoid?.() ?? null,
       )
       setPos((prev) =>
         prev &&
@@ -121,6 +156,6 @@ export function useAnchoredCard(opts: {
     ro.observe(card)
     ro.observe(document.documentElement)
     return () => ro.disconnect()
-  }, [anchor, card, widthPx, active])
+  }, [anchor, card, widthPx, active, avoid])
   return active && anchor && card ? pos : null
 }

@@ -1,6 +1,6 @@
 # Slice 12 rest pictures (strip, Paste menu, page sheet, Arrange, row strip)
 
-Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (source head 35b4842d (9e2fbb99 plus a move of aboveTabBar to its own file, no behaviour change); the pictures are in the commit after it). Made by shots.spec.ts (run with a config whose testDir is this folder).
+Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (source head c5e852d2); the pictures are in the commit after it). Made by shots.spec.ts (run with a config whose testDir is this folder).
 
 Pattern: `<screen>-<size>-<theme>-<level>.png`
 
@@ -37,3 +37,12 @@ Repeat-fault list (docs/ECONOMY-MODE.md section 7), ticked against these picture
 - [x] both levels; iPad landscape and portrait, phone, PC: yes
 
 Fixes this round and the picture that proves each: chip above the tab bar = chip-phone-*-professional; no key names on touch = chooser-ipadL/ipadP/phone-*; sidebar closed on iPad portrait = chooser-ipadP-*, chip-ipadP-*, settings-ipadP-*, strip-ipadP-*. iPad and phone pictures are shot with touch.
+
+Final-look fixes (source head c5e852d2), and the picture that proves each:
+
+1. Strip arrow points at the pressed spot: strip-pc-*, strip-ipadL-*, rowstrip-* (arrow under the press); e2e pageMenusPlace
+2. Strip inside the page area: strip-pc-*, strip-ipadL-*; the row strip may start at the sidebar (rowstrip-*)
+3. Paste card below the strip, left edges aligned, tall card scrolls: paste-ipadL-*, paste-pc-*
+4. Chooser: close button, shared switch, 1 heading, ends above the phone tab bar: chooser-*-beginner, chooser-phone-*
+5. One name: Keep original / Plain text / Always ask, row title Paste as: paste-*, chooser-*, chip-*, settings-*
+6. Icons: bin on Delete page, lock on Lock editing: rowstrip-*; Arrange tiles show the action icon: arrange-*

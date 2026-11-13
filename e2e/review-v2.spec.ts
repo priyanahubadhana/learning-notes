@@ -217,14 +217,17 @@ test.describe('Beginner home and session', () => {
     await openReview(page)
     await page.getByTestId('rv2-start').click()
     await expect(session(page)).toBeVisible()
+    // The card takes focus onto its Show answer button a moment after Start (late on
+    // a slow runner): wait for that, or it would take focus from the text box below.
+    await expect(page.getByTestId('rv2-show')).toBeFocused()
     // Esc inside a text box is for the box.
     await page.evaluate(() => {
       const input = document.createElement('input')
       input.id = 'probe'
       document.body.append(input)
-      input.focus()
     })
-    await page.keyboard.press('Escape')
+    // The locator press focuses the box and sends Esc in one step.
+    await page.locator('#probe').press('Escape')
     await expect(session(page)).toBeVisible()
     await page.evaluate(() => document.getElementById('probe')?.remove())
 

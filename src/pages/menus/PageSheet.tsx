@@ -6,6 +6,7 @@ import { readPref, writePref } from '../../app/uiPrefs'
 import type { LearningNotesDB } from '../../core/db'
 import { descendantIds } from '../../core/records'
 import type { Page } from '../../core/types'
+import { ArrangeSheet, type ArrangeRow } from '../../design/parts/ArrangeSheet'
 import { Sheet } from '../../design/parts/Sheet'
 import { sampleName } from '../../i18n/defaultNames'
 import { t, type MessageKey } from '../../i18n/t'
@@ -23,7 +24,7 @@ import { moveThisPage } from './pageSheetService'
 import './PageSheet.css'
 
 const PINS_KEY = 'page.sheetPins'
-type View = 'main' | 'move' | 'pins'
+type View = 'main' | 'move' | 'pins' | 'arrange'
 
 /**
  * The page more-menu on the shared Sheet (flag page.menus, PM-60..PM-64):
@@ -60,6 +61,16 @@ export default function PageSheet({
   }
   const livePins = cleanPins(pins, known)
 
+  // The Arrange list keeps one identity while the pins are unchanged (the
+  // actions object is rebuilt on every page render).
+  const pinKey = JSON.stringify(
+    livePins.flatMap((id) => {
+      const r = rows.find((x) => x.id === id)
+      return r ? [{ id, label: r.label, removable: true }] : []
+    }),
+  )
+  const pinRows = useMemo(() => JSON.parse(pinKey) as ArrangeRow[], [pinKey])
+
   /** Runs a row, then closes the sheet so a dialog it opens is not stacked on it. */
   const go = (fn?: () => void) => () => {
     onClose()
@@ -85,7 +96,7 @@ export default function PageSheet({
       opener={opener}
       data-testid="page-sheet"
     >
-      {view !== 'main' && (
+      {view !== 'main' && view !== 'arrange' && (
         <button
           type="button"
           className="ps-row"
@@ -163,6 +174,20 @@ export default function PageSheet({
                   </button>
                 )
               })}
+              {livePins.length > 1 && (
+                <button
+                  type="button"
+                  className="ps-tile ps-tile--add"
+                  data-testid="ps-arrange"
+                  aria-label={t('pageMenus.sheet.arrange')}
+                  onClick={() => setView('arrange')}
+                >
+                  <Icon name="sliders" size={20} />
+                  <span className="ps-tile__name">
+                    {t('pageMenus.sheet.arrange')}
+                  </span>
+                </button>
+              )}
               {livePins.length < PIN_MAX && (
                 <button
                   type="button"
@@ -233,6 +258,15 @@ export default function PageSheet({
             </section>
           ))}
         </>
+      )}
+      {view === 'arrange' && (
+        <ArrangeSheet
+          mode="inline"
+          title={t('pageMenus.sheet.arrange')}
+          rows={pinRows}
+          onChange={(next) => savePins(next.map((r) => r.id))}
+          onDone={() => setView('main')}
+        />
       )}
     </Sheet>
   )

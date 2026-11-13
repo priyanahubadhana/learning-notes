@@ -36,6 +36,7 @@ export const hiPageMenus = {
   'pageMenus.sheet.pinned': 'पिन किए',
   'pageMenus.sheet.pinAdd': '+ कोई क्रिया पिन करें',
   'pageMenus.sheet.pin': 'ऊपर पिन करें',
+  'pageMenus.sheet.arrange': 'पिन की गई क्रियाओं को क्रम में रखें',
   'pageMenus.sheet.unpin': 'पिन हटाएँ',
   'pageMenus.sheet.back': 'वापस',
   'pageMenus.sheet.rename': 'नाम बदलें',

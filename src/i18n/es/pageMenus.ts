@@ -36,6 +36,7 @@ export const esPageMenus = {
   'pageMenus.sheet.pinned': 'Fijadas',
   'pageMenus.sheet.pinAdd': '+ Fijar una acción',
   'pageMenus.sheet.pin': 'Fijar arriba',
+  'pageMenus.sheet.arrange': 'Ordenar las acciones fijadas',
   'pageMenus.sheet.unpin': 'Quitar de arriba',
   'pageMenus.sheet.back': 'Atrás',
   'pageMenus.sheet.rename': 'Renombrar',

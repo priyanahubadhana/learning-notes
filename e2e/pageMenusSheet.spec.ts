@@ -113,6 +113,46 @@ test('PM-63 Professional pins an action to the top row', async ({ page }) => {
   expect(Math.round(box.height)).toBe(64)
 })
 
+test('PM-63 the Arrange sheet reorders the pinned actions', async ({
+  page,
+}) => {
+  await openSheet(page, 'professional')
+  for (const id of ['history', 'review']) {
+    await sheet(page).getByTestId('ps-pin-add').click()
+    await sheet(page).getByTestId(`ps-pin-${id}`).click()
+    await sheet(page).getByTestId('ps-back').click()
+  }
+  const order = () =>
+    sheet(page)
+      .locator('[data-testid^="ps-tile-"]')
+      .evaluateAll((els) =>
+        els.map((el) => el.getAttribute('data-testid')!.slice(8)),
+      )
+  expect((await order()).filter((id) => id !== 'add')).toEqual([
+    'history',
+    'review',
+  ])
+  await sheet(page).getByTestId('ps-arrange').click()
+  const arrange = page.getByTestId('arrange-sheet')
+  await expect(arrange).toBeVisible()
+  await arrange.getByTestId('move-down').first().click()
+  await arrange.getByTestId('arrange-done').click()
+  await expect(arrange).toHaveCount(0)
+  expect((await order()).filter((id) => id !== 'add')).toEqual([
+    'review',
+    'history',
+  ])
+  // The order is kept after the sheet is closed and opened again.
+  await sheet(page).getByTestId('fb-sheet-close').click()
+  await expect(sheet(page)).toHaveCount(0)
+  await page.getByRole('button', { name: 'More options' }).click()
+  await expect(sheet(page).getByTestId('ps-tile-review')).toBeVisible()
+  expect((await order()).filter((id) => id !== 'add')).toEqual([
+    'review',
+    'history',
+  ])
+})
+
 test('PM-64 Delete sends the page to Trash with a 6 second Undo toast', async ({
   page,
 }) => {

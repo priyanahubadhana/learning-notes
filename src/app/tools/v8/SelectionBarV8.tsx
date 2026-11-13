@@ -30,6 +30,7 @@ import './cards/toolCards.css'
 /** Actions that only work on drawings or are still to come: shown dimmed. */
 const DIM = new Set(['resize', 'screenshot', 'move', 'scale', 'rotate'])
 const SOON = new Set(['convert'])
+const PICTURE_SAME = new Set(['cut', 'copy', 'duplicate', 'delete', 'deselect'])
 
 function useSelActions(editor: Editor) {
   const toast = (m: string) => currentRunner().app?.toast(m)
@@ -43,6 +44,9 @@ function useSelActions(editor: Editor) {
         else editor.insertInlineContent([])
         editor.focus()
       }
+      // A selected picture has its own actions (the picture strip's).
+      const pic = pictureControl.get()
+      if (pic && PICTURE_SAME.has(id)) return pic.run(id as PictureAction)
       switch (id) {
         case 'cut':
           void copyAs(editor, 'all', toast, undefined, true).then(remove)
@@ -95,10 +99,15 @@ function useSelActions(editor: Editor) {
 }
 
 /** True when the bar should show: words or a picture are selected. */
-function useHasSelection(editor: Editor): boolean {
+function useHasSelection(editor: Editor, lasso: boolean): boolean {
   useEditorRedraw(editor)
   const ink = useInk()
+  const picture = pictureControl.useValue()
   if (ink && ink.controller.selectionCount() > 0) return false
+  // A picture selected by a tap is not a text range: the picture control says so.
+  if (picture) return true
+  // Words and drawings are the Lasso's; other tools keep their own bars.
+  if (!lasso) return false
   const sel = selected(editor)
   // The mini toolbar covers a tap selection of words.
   return !!sel && !(sel.text && miniToolbarOpen.get())
@@ -107,11 +116,13 @@ function useHasSelection(editor: Editor): boolean {
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
 export default function SelectionBarV8({
+  lasso,
   moreOpen,
   onMore,
   pictureOpen,
   onPicture,
 }: {
+  lasso: boolean
   moreOpen: boolean
   onMore: (anchor: HTMLElement) => void
   pictureOpen: boolean
@@ -119,7 +130,7 @@ export default function SelectionBarV8({
 }) {
   const editor = useBlockNoteEditor() as unknown as Editor
   const run = useSelActions(editor)
-  const show = useHasSelection(editor)
+  const show = useHasSelection(editor, lasso)
   const pic = pictureControl.useValue()
   const canEdit = useUnlocked('tb.pictureEdit')
   if (!show) return null
@@ -128,6 +139,8 @@ export default function SelectionBarV8({
       role="toolbar"
       aria-label={t('v8.sel.label')}
       className="v8sel"
+      data-chrome
+      data-ctx-bar
       data-testid="v8-selbar"
     >
       {barItems().map((item) => (
@@ -192,7 +205,12 @@ export function SelCardBody({
   const unlocked = useUnlocked('tb.selectionMenu')
   if (id === 'sel.picture')
     return (
-      <div className="v8sel-more" data-testid="v8-sel-picture-list">
+      <div
+        className="v8sel-more"
+        data-chrome
+        data-ctx-bar
+        data-testid="v8-sel-picture-list"
+      >
         {PICTURE_ACTIONS.map(([action, key]) => (
           <button
             key={action}
@@ -209,7 +227,7 @@ export function SelCardBody({
       </div>
     )
   return (
-    <div className="v8sel-more">
+    <div className="v8sel-more" data-chrome data-ctx-bar>
       {moreItems(() => unlocked).map((item) => (
         <button
           key={item.id}

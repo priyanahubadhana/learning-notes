@@ -65,7 +65,6 @@ function ActionsCard() {
             </li>
           ))}
         </ul>
-        <CardNote>{t('main.lasso.note')}</CardNote>
       </CardGroup>
       {pro ? (
         <>

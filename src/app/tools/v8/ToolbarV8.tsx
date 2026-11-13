@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Card } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
 import { applyLayerVars } from '../../overlay'
+import { pictureControl } from '../../../editor/pictureControl'
 import { activeTool } from '../main/mainTools'
 import {
   followMode,
@@ -37,6 +38,7 @@ const SelCardBody = lazy(() =>
  */
 export default function ToolbarV8() {
   const tool = v8Tool.useValue()
+  const picture = pictureControl.useValue() !== null
   const [card, setCard] = useState<OpenCard | null>(null)
   const root = useRef<HTMLDivElement>(null)
 
@@ -106,9 +108,10 @@ export default function ToolbarV8() {
         onToggleCard={onToggleCard}
         onCloseCard={onCloseCard}
       />
-      {tool === 'lasso' ? (
+      {tool === 'lasso' || picture ? (
         <Suspense fallback={null}>
           <SelectionBarV8
+            lasso={tool === 'lasso'}
             moreOpen={card?.id === 'sel.more'}
             onMore={(a) => onToggleCard('sel.more', a)}
             pictureOpen={card?.id === 'sel.picture'}

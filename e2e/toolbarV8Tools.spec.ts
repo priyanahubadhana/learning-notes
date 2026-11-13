@@ -1,7 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  createNotebook,
+  solidPng,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 
 /** Toolbar v8, slice 1d: Eraser, Shapes, Lasso cards and the selection bar (TB-30 to TB-33). */
 test.use({ viewport: { width: 1180, height: 820 }, hasTouch: true })
@@ -229,4 +234,39 @@ test('TB-33 Professional More adds Convert, Screenshot, Key point, Make card, Su
   await expect(
     card(page, 'sel.more').locator('.v8sel-more button'),
   ).toHaveCount(10)
+})
+
+test('TB-34 a selected picture offers Edit picture (Professional): crop, resize presets', async ({
+  page,
+}) => {
+  await open(page, 'lasso', 'professional', [
+    'tb.pictureEdit',
+    'tb.selectionMenu',
+  ])
+  const png = await solidPng(400, 200)
+  await page.locator('.bn-editor').click({ force: true })
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('/image')
+  await page.keyboard.press('Enter')
+  await page
+    .getByTestId('picture-input-photos')
+    .setInputFiles({ name: 'p.png', mimeType: 'image/png', buffer: png })
+  await page.getByRole('button', { name: 'Place picture' }).click()
+  const img = page.locator('.bn-editor img')
+  await expect(img).toBeVisible()
+  // A tap in the Lasso only loops; a tap with the Text tool picks the picture.
+  await page.getByTestId('v8-tool-text').click()
+  await img.click({ force: true })
+  const edit = page.getByTestId('v8-sel-picture')
+  await expect(edit).toBeVisible()
+  await edit.click()
+  const list = card(page, 'sel.picture')
+  await expect(
+    list.getByRole('button', { name: 'Crop and rotate' }),
+  ).toBeVisible()
+  const before = (await img.boundingBox())!.width
+  await list.getByRole('button', { name: 'Smaller' }).click()
+  await expect
+    .poll(async () => (await img.boundingBox())!.width)
+    .toBeLessThan(before)
 })

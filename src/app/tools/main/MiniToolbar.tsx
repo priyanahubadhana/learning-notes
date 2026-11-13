@@ -134,7 +134,8 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       anchor.current = { left: s.left, top: s.top }
       if (fresh) {
         setDragPos(null)
-        // A new selection starts with "More" closed (as a new bar does).
+        // Why: "More" stayed open for the next selection (also after the
+        // bar closed), so a tap on it there closed it instead of opening it.
         setMore(false)
       }
     }
@@ -199,9 +200,6 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       placed.current = null
       anchor.current = null
       setDragPos(null)
-      // Why: "More" stayed open for the next selection, so a tap on it
-      // there closed it instead of opening it.
-      setMore(false)
     }
   }, [open])
 

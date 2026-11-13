@@ -75,3 +75,17 @@
 .v8scroll.v8scroll-box {
   max-height: min(calc(100dvh - 260px), 340px);
 }
+/* TB-41 line height: the sample is drawn with that spacing, two lines. */
+.v8line {
+  display: block;
+  max-width: 3.2em;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+.v8line-tight {
+  line-height: 1.1;
+}
+.v8line-loose {
+  line-height: 2;
+}

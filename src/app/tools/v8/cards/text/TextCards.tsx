@@ -1,6 +1,6 @@
 import { useActiveStyles, useBlockNoteEditor } from '@blocknote/react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { Fragment, useEffect, useState, useSyncExternalStore } from 'react'
 import {
   BORDER_WIDTHS,
   PADS,
@@ -25,10 +25,17 @@ import { boxesOf } from '../../../../../paper/boxes'
 import { updateBox } from '../../../../../paper/boxService'
 import {
   loadNewBoxStyle,
-  setNewBoxStyle,
+  changeNewBoxStyle,
 } from '../../../../../paper/boxPresets'
 import { openLayoutMode } from '../../../../../paper/layoutModeBus'
 import { useUnlocked } from '../../../../../settings/level'
+import { FontTiles } from '../../../../reading/FontTiles'
+import {
+  NOTE_LINES,
+  applyNoteStyle,
+  noteFont,
+  noteLine,
+} from '../../../main/textStyle'
 import { Icon } from '../../../icons'
 import { runTool, findTool, toolLabel } from '../../../toolRegistry'
 import { Glow } from '../../Glow'
@@ -52,6 +59,48 @@ function tileName(tile: FormatTile): string {
   return def ? toolLabel(def) : t(tile.label)
 }
 
+/** TB-41 Advanced: every font drawn in its own face. */
+function FontsGroup() {
+  const font = noteFont.useValue()
+  return (
+    <CardGroup label={t('main.card.text.font')}>
+      <FontTiles
+        value={font}
+        none="default"
+        onPick={(f) => {
+          noteFont.set(f)
+          applyNoteStyle()
+        }}
+      />
+    </CardGroup>
+  )
+}
+
+/** TB-41 Advanced: line height, each choice drawn with its own spacing. */
+function LineHeightGroup() {
+  const line = noteLine.useValue()
+  return (
+    <CardGroup label={t('main.text.lineHeight')}>
+      <TileGroup label={t('main.text.lineHeight')} columns={3}>
+        {NOTE_LINES.map((l) => (
+          <Tile
+            key={l}
+            label={t(k(`main.line.${l}`))}
+            selected={line === l}
+            testId={`v8-format-line-${l}`}
+            onSelect={() => {
+              noteLine.set(l)
+              applyNoteStyle()
+            }}
+          >
+            <span className={`v8look v8line v8line-${l}`}>Aa Aa</span>
+          </Tile>
+        ))}
+      </TileGroup>
+    </CardGroup>
+  )
+}
+
 /** TB-41: Text · Style · Paragraph (· Advanced), each style in its own look. */
 function FormatCard() {
   const editor = useBlockNoteEditor()
@@ -62,26 +111,31 @@ function FormatCard() {
   return (
     <div className="v8scroll v8thin" data-testid="v8-format">
       {sections.map((s) => (
-        <CardGroup key={s.id} label={t(s.title)}>
-          <TileGroup
-            label={t(s.title)}
-            multi
-            columns={s.id === 'paragraph' ? 4 : s.tiles.length > 3 ? 4 : 3}
-          >
-            {s.tiles.map((tile) => (
-              <Tile
-                key={tile.tool}
-                multi
-                label={tileName(tile)}
-                selected={!!tile.style && !!active[tile.style]}
-                testId={`v8-format-${tile.tool}`}
-                onSelect={() => runTool(tile.tool)}
-              >
-                <Face tile={tile} />
-              </Tile>
-            ))}
-          </TileGroup>
-        </CardGroup>
+        <Fragment key={s.id}>
+          <CardGroup label={t(s.title)}>
+            <TileGroup
+              label={t(s.title)}
+              multi
+              columns={s.id === 'paragraph' ? 4 : s.tiles.length > 3 ? 4 : 3}
+            >
+              {s.tiles.map((tile) => (
+                <Tile
+                  key={tile.tool}
+                  multi={!tile.action}
+                  action={tile.action}
+                  label={tileName(tile)}
+                  selected={!!tile.style && !!active[tile.style]}
+                  testId={`v8-format-${tile.tool}`}
+                  onSelect={() => runTool(tile.tool)}
+                >
+                  <Face tile={tile} />
+                </Tile>
+              ))}
+            </TileGroup>
+          </CardGroup>
+          {s.extras?.includes('fonts') ? <FontsGroup /> : null}
+          {s.extras?.includes('lineHeight') ? <LineHeightGroup /> : null}
+        </Fragment>
       ))}
     </div>
   )
@@ -103,10 +157,7 @@ function useActiveBoxStyle() {
   const write = (next: BoxStyle | undefined) => {
     const clean = cleanStyle(next)
     if (box && at) void updateBox(db, at.pageId, box.id, { style: clean })
-    else {
-      setDflt(clean)
-      void setNewBoxStyle(db, clean)
-    }
+    else void changeNewBoxStyle(db, dflt, clean, setDflt)
   }
   return { at, box, style, write }
 }
@@ -234,7 +285,9 @@ function BoxSettingsCard() {
         data-testid="v8-boxset-new"
         disabled={!box}
         onClick={() => {
-          void setNewBoxStyle(db, style)
+          void loadNewBoxStyle(db).then((before) =>
+            changeNewBoxStyle(db, before, style, () => {}),
+          )
           setSaved(true)
         }}
       >

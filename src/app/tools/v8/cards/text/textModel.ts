@@ -25,6 +25,8 @@ export interface FormatTile {
   /** The style draws itself in its own look; `icon` draws the icon instead. */
   look: FormatLook
   icon?: IconName
+  /** Does something once (a heading, indent, a divider): a button, not a switch. */
+  action?: boolean
   /** The editor style this tile shows as pressed. */
   style?: 'bold' | 'italic' | 'underline' | 'strike' | 'code'
 }
@@ -33,6 +35,8 @@ export interface FormatSection {
   id: 'text' | 'style' | 'paragraph' | 'advanced'
   title: MessageKey
   tiles: FormatTile[]
+  /** Extra groups drawn under the tiles: fonts in their own face, line height (TB-41). */
+  extras?: ('fonts' | 'lineHeight')[]
 }
 
 const tile = (
@@ -65,9 +69,9 @@ export function formatSections(u: FormatUnlocks): FormatSection[] {
       id: 'text',
       title: 'v8.format.text',
       tiles: [
-        tile('heading1', tl('heading1'), 'h1'),
-        tile('heading2', tl('heading2'), 'h2'),
-        tile('heading3', tl('heading3'), 'h3'),
+        tile('heading1', tl('heading1'), 'h1', { action: true }),
+        tile('heading2', tl('heading2'), 'h2', { action: true }),
+        tile('heading3', tl('heading3'), 'h3', { action: true }),
       ],
     },
     { id: 'style', title: 'v8.format.style', tiles: style },
@@ -79,13 +83,16 @@ export function formatSections(u: FormatUnlocks): FormatSection[] {
         tile('mark:key', 'v8.format.star', 'icon', { icon: 'star' }),
         tile('numberedList', tl('numberedList'), 'icon', { icon: 'numbered' }),
         tile('checklist', tl('checklist'), 'icon', { icon: 'checklist' }),
-        tile('indent', tl('indent'), 'icon', { icon: 'indent' }),
-        tile('outdent', tl('outdent'), 'icon', { icon: 'outdent' }),
+        tile('indent', tl('indent'), 'icon', { icon: 'indent', action: true }),
+        tile('outdent', tl('outdent'), 'icon', {
+          icon: 'outdent',
+          action: true,
+        }),
         tile('alignLeft', tl('alignLeft'), 'icon', { icon: 'alignLeft' }),
         tile('alignCenter', tl('alignCenter'), 'icon', { icon: 'alignCenter' }),
         tile('alignRight', tl('alignRight'), 'icon', { icon: 'alignRight' }),
         tile('callout', tl('callout'), 'icon', { icon: 'sparkles' }),
-        tile('divider', tl('divider'), 'icon', { icon: 'minus' }),
+        tile('divider', tl('divider'), 'icon', { icon: 'minus', action: true }),
       ],
     },
   ]
@@ -93,6 +100,7 @@ export function formatSections(u: FormatUnlocks): FormatSection[] {
     sections.push({
       id: 'advanced',
       title: 'v8.format.advanced',
+      extras: ['fonts', 'lineHeight'],
       tiles: [
         tile('font', tl('font'), 'icon', { icon: 'font' }),
         tile('textSize', tl('textSize'), 'icon', { icon: 'textSize' }),

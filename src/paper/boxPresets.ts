@@ -7,6 +7,8 @@ import {
   type BoxStyle,
   type OwnPreset,
 } from '../core/boxStyle'
+import { pushStep } from '../core/historySteps'
+import { t } from '../i18n/t'
 import type { JsonValue } from '../core/types'
 import type { SettingDefinition } from '../settings/registry'
 import { getSetting, setSetting } from '../settings/settingsService'
@@ -96,3 +98,28 @@ export const setNewBoxStyle = (
   db: LearningNotesDB,
   style: BoxStyle | undefined,
 ) => setSetting(db, newBoxStyleSetting, (cleanStyle(style) ?? {}) as JsonValue)
+
+/**
+ * Sets the new-box style as one Undo / Redo step (the Box card with no box
+ * selected, and "Use for new boxes"). `show` tells an open screen the value
+ * that is now in place. Why: a setting is not a page row, so the page history
+ * does not see it; without this step Undo skipped the change.
+ */
+export function changeNewBoxStyle(
+  db: LearningNotesDB,
+  before: BoxStyle | undefined,
+  after: BoxStyle | undefined,
+  show: (style: BoxStyle | undefined) => void,
+): Promise<void> {
+  const put = (s: BoxStyle | undefined) => {
+    show(cleanStyle(s))
+    return setNewBoxStyle(db, s)
+  }
+  pushStep({
+    label: t('boxStyle.useNew'),
+    kind: 'newBoxStyle',
+    undo: () => put(before),
+    redo: () => put(after),
+  })
+  return put(after)
+}

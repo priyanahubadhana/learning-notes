@@ -68,6 +68,14 @@ describe('Format card (TB-41)', () => {
       'code',
     )
   })
+  it('Advanced (tb.textFonts) adds fonts in their own face and line height (TB-41)', () => {
+    const adv = (f: boolean) =>
+      formatSections({ textFonts: f, textMarks: false }).find(
+        (x) => x.id === 'advanced',
+      )
+    expect(adv(true)?.extras).toEqual(['fonts', 'lineHeight'])
+    expect(adv(false)).toBeUndefined()
+  })
   it('no tile appears twice', () => {
     const all = ids(true)
     expect(new Set(all).size).toBe(all.length)

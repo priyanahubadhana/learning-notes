@@ -2,7 +2,7 @@
 
 Taken by e2e/aiStudioShots.spec.ts (SHOTS=1 PW_PORT=<port> npx playwright test --project=chromium e2e/aiStudioShots.spec.ts) after the last source edit; last source commit 27990f56. Sizes: phone 390x844, iPad landscape 1194x834, iPad portrait 820x1180, PC 1336x800. Themes light, dark, sepia. Levels beginner, professional. 120 pictures = 5 screens x 4 sizes x 3 themes x 2 levels.
 
-Fixes proven: A3 per-tile placement and Undo/Redo = studio-plan-*; A4 saved views = workflows-naming-*, workflows-view-*; run bar path no longer squeezed on iPad and PC = studio-plan-ipad-*, studio-plan-pc-*; A1 stacked bar = studio-plan-phone-*.
+Fixes proven: A3 per-tile placement and Undo/Redo = studio-plan-_; A4 saved views = workflows-naming-_, workflows-view-_; run bar path no longer squeezed on iPad and PC = studio-plan-ipad-_, studio-plan-pc-_; A1 stacked bar = studio-plan-phone-_.
 
 ## Screens
 

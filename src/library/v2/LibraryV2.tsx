@@ -12,13 +12,14 @@ import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
 import { onRouted } from '../../app/input/eventRouter'
 import { ConfirmDialog, MenuPopover, type MenuItem } from '../../app/ui'
-import { Icon } from '../../app/tools/icons'
+import { Icon, type IconName } from '../../app/tools/icons'
 import { isBigBook, megabytes } from '../../core/bookFormat'
 import type { LearningNotesDB } from '../../core/db'
 import type { Page } from '../../core/types'
 import { ClearField } from '../../design/parts/ClearField'
 import { EmptyState } from '../../design/parts/EmptyState'
 import { SheetBase } from '../../design/parts/SheetBase'
+import { ScrollTrack } from '../../design/parts/ScrollTrack'
 import { t } from '../../i18n/t'
 import { deletePage } from '../../pages/pageService'
 import { listAllHighlights } from '../../reader/annotations/annotationService'
@@ -328,7 +329,7 @@ export function LibraryV2({
   const proChip = (
     key: string,
     text: string,
-    icon: string,
+    icon: IconName,
     on: boolean,
     onClick: (el: HTMLButtonElement) => void,
   ) => (
@@ -340,10 +341,12 @@ export function LibraryV2({
       aria-pressed={on}
       aria-haspopup={key === 'view' || key === 'select' ? undefined : 'menu'}
       onClick={(e) => onClick(e.currentTarget)}
-      className={`min-h-11 shrink-0 whitespace-nowrap rounded-full px-3 text-sm ${on ? 'bg-accent/15 font-medium' : 'bg-soft'}`}
+      className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-sm ${on ? 'bg-accent/15 font-medium' : 'bg-soft'}`}
     >
-      {mode === 'full' || icon === '' ? text : icon}
-      {mode === 'full' && key !== 'view' && key !== 'select' ? ' ▾' : ''}
+      {/* Gate 3 v4 fix 1: words at every size (typed letters were unreadable). */}
+      <Icon name={icon} size={16} />
+      {text}
+      {key !== 'view' && key !== 'select' ? ' ▾' : ''}
     </button>
   )
 
@@ -442,10 +445,13 @@ export function LibraryV2({
             <Icon name="sliders" size={18} />
             {t('lib2.more')}
           </button>
-          <div
+          <ScrollTrack
             role="tablist"
             aria-label={t('library.title')}
-            className="flex min-w-0 flex-1 gap-1 overflow-x-auto"
+            data-testid="tab-row"
+            wrapClassName="relative min-w-0 flex-1"
+            barClassName="!absolute inset-x-0 -bottom-1"
+            className="flex gap-1"
           >
             {(pro
               ? (['books', 'knowledge', 'themes', 'journal', 'tags'] as const)
@@ -466,10 +472,11 @@ export function LibraryV2({
                 {t(`lib2.tab.${x}`)}
               </button>
             ))}
-          </div>
+          </ScrollTrack>
           <button
             type="button"
             data-testid="library-search-button"
+            // Gate 3 v4 fix 3: the tab row stops before this button.
             aria-label={t('lib2.search')}
             aria-pressed={searchOpen}
             onClick={() => setSearchOpen((o) => !o)}
@@ -497,17 +504,19 @@ export function LibraryV2({
           </div>
         )}
         {tab === 'books' && pro && (
-          <div
+          <ScrollTrack
             data-testid="pro-row"
             data-mode={mode}
-            className="mt-2.5 flex flex-nowrap items-center gap-1.5 overflow-x-auto"
+            wrapClassName="mt-2.5"
+            barClassName="mt-1"
+            className="flex flex-nowrap items-center gap-1.5"
           >
             {proChip(
               'type',
               typeLabel === t('library.filter.all')
                 ? t('lib2.pro.type')
                 : typeLabel,
-              'T',
+              'type',
               prefs.type !== 'all',
               (el) => setMenu({ kind: 'type', at: el.getBoundingClientRect() }),
             )}
@@ -517,7 +526,7 @@ export function LibraryV2({
                 prefs.status === 'any'
                   ? t('lib2.pro.status')
                   : t(`lib2.mark.${prefs.status}`),
-                'S',
+                'checklist',
                 prefs.status !== 'any',
                 (el) =>
                   setMenu({ kind: 'status', at: el.getBoundingClientRect() }),
@@ -525,25 +534,35 @@ export function LibraryV2({
             {proChip(
               'tag',
               tagNames.length ? `#${tagNames[0]}` : t('lib2.tag'),
-              '#',
+              'tag',
               tagNames.length > 0,
               (el) => setTagFilter(el),
             )}
-            {proChip('sort', t(`lib2.sort.${prefs.sort}`), '↕', false, (el) =>
-              setMenu({ kind: 'sort', at: el.getBoundingClientRect() }),
+            {proChip(
+              'sort',
+              t(`lib2.sort.${prefs.sort}`),
+              'swap',
+              false,
+              (el) => setMenu({ kind: 'sort', at: el.getBoundingClientRect() }),
             )}
             {proChip(
               'view',
               prefs.view === 'grid' ? t('lib2.view.list') : t('lib2.view.grid'),
-              prefs.view === 'grid' ? '☰' : '▦',
+              prefs.view === 'grid' ? 'list' : 'grid',
               false,
               () => setPrefs({ view: prefs.view === 'grid' ? 'list' : 'grid' }),
             )}
-            {proChip('select', t('lib2.select'), '☑', selecting, () => {
-              setSelecting((s) => !s)
-              setSelected([])
-            })}
-          </div>
+            {proChip(
+              'select',
+              t('lib2.select'),
+              'circleCheck',
+              selecting,
+              () => {
+                setSelecting((s) => !s)
+                setSelected([])
+              },
+            )}
+          </ScrollTrack>
         )}
         {tab === 'books' && filters.length > 0 && (
           <div

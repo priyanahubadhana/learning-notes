@@ -50,6 +50,17 @@ const TABS = ['pages', 'outline', 'audio'] as const
 type Tab = (typeof TABS)[number]
 const isTab = (v: unknown): v is Tab => TABS.includes(v as Tab)
 
+/** The overlay panel's layer; its dim layer shares it (drawn first, so under). */
+const PANEL_Z = 'z-[39]'
+
+/** Bottom edge of the top bar that holds the panel button (0 if none). */
+function topBarBottom(): number {
+  const bar = document
+    .querySelector('[data-testid="panel-toggle"]')
+    ?.closest('header')
+  return bar ? Math.round(bar.getBoundingClientRect().bottom) : 0
+}
+
 /** Screens at least this wide dock the panel; narrower ones overlay it. */
 const PANEL_DOCK_MIN = 1024
 export const PANEL_WIDTH = 280
@@ -437,16 +448,27 @@ export function LeftPanel({
     }
   }, [ask, setTab, book])
   const docked = dockedProp ?? window.innerWidth >= PANEL_DOCK_MIN
-  return (
+  // Gate 3 v4 (slice 6, fix 4): the book panel overlay starts below the top
+  // bar (its panel button stays reachable), is solid, full width on a phone,
+  // and has the dim layer behind it.
+  const sheet = !!book && !docked
+  const barBottom = sheet ? topBarBottom() : 0
+  const aside = (
     <aside
       data-chrome
       data-testid="left-panel"
-      style={docked && width ? { width } : undefined}
+      style={
+        sheet
+          ? { top: barBottom, paddingTop: 0 }
+          : docked && width
+            ? { width }
+            : undefined
+      }
       aria-label={t('lp.label')}
       className={
         docked
           ? 'flex w-[280px] shrink-0 flex-col border-e border-line bg-bg'
-          : 'fixed inset-y-0 start-0 z-[39] flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[calc(env(safe-area-inset-top)+3rem)] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14'
+          : `fixed inset-y-0 start-0 ${PANEL_Z} flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[calc(env(safe-area-inset-top)+3rem)] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14 ${sheet ? 'phone:w-full phone:max-w-none phone:border-e-0' : ''}`
       }
     >
       <div className="flex items-center gap-1 px-2 pt-2" role="tablist">
@@ -516,6 +538,19 @@ export function LeftPanel({
         )}
       </div>
     </aside>
+  )
+  if (!sheet) return aside
+  return (
+    <>
+      <div
+        data-testid="left-panel-dim"
+        aria-hidden
+        onClick={onClose}
+        style={{ top: barBottom }}
+        className={`fixed inset-x-0 bottom-0 ${PANEL_Z} bg-[var(--scrim)]`}
+      />
+      {aside}
+    </>
   )
 }
 

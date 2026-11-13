@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: Library v2 gate 3 fourth visit, 5 fixes (slice 6)
+
+- What: 1 Books filter chips keep their words with Lucide icons in one row with the thin track (no typed letters). 2 Knowledge filters are ▾ menu chips (MenuPopover) sized to their words, one row with the track, colour dots at the end. 3 Tab row stops before the search button and shows the track. 4 Book panel overlay (narrow screens) starts below the top bar, solid, full width on a phone, dim layer behind (same layer, no new z-index). 5 Toast sits above the bottom bar of spaces on a phone, so it no longer lands under the pointer and closes on time.
+- Why: docs/plans/gate3-2026-11-13.md "Fourth visit (5, 6)". ScrollTrack copied from slice/4 (build/next does not have it yet), plus a data-testid prop.
+- Files: src/design/parts/ScrollTrack.tsx, src/index.css, src/library/v2/{LibraryV2,Knowledge}.tsx, src/app/panel/LeftPanel.tsx, src/app/ui.tsx, e2e/libraryV2.spec.ts, e2e/libraryV2Shots.spec.ts, screenshots/gate3-6/v4/.
+
 ### 13 Nov 2026: rules aligned with economy mode, 4 project hooks
 
 - What: rules/ and agent files now match economy mode (docs audit A4-A11, B1-B5, D2-D4); legacy Fable/Opus files kept for rollback and non-build tasks. Sepia joins light and dark in the Definition of Done and the gate checklists; checklist line 17 (bug fix = why-note + new test); builders read rules/global.md and security.md; "could delete or lose the owner's data" is a stop reason; gate 3 fails on a contrast ✗. rules/testing.md: related tests locally, full suite green in GitHub CI before any merge. Start with 4 builders, up to 6 only while rework stays under 2 rounds. INDEX gained the build files; HANDOFF has one NOW line; 3 old plans moved to docs/plans/archive/.

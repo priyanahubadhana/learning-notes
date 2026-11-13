@@ -3,6 +3,7 @@ import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
 import { EmptyState } from '../../design/parts/EmptyState'
+import { ScrollTrack } from '../../design/parts/ScrollTrack'
 import { MenuPopover, NameDialog, type MenuItem } from '../../app/ui'
 import { isLive } from '../../core/records'
 import { listTags } from '../../tags/tagService'
@@ -12,7 +13,7 @@ import {
   type Annotation,
   type HighlightColour,
 } from '../../core/types'
-import { t } from '../../i18n/t'
+import { t, type MessageKey } from '../../i18n/t'
 import { DailyHighlights } from '../../reader/annotations/DailyHighlights'
 import {
   deleteAnnotation,
@@ -71,8 +72,6 @@ export function Knowledge({
   const setColour = (v: HighlightColour | '') => setF({ ...f, colour: v })
   const [sort, setSort] = useState<Sort>('newest')
   const [openId, setOpenId] = useState<string | null>(null)
-  const [menuAt, setMenuAt] = useState<DOMRect | null>(null)
-  const [savedAt, setSavedAt] = useState<DOMRect | null>(null)
   const [naming, setNaming] = useState(false)
   const all = useLiveQuery(
     async () =>
@@ -177,149 +176,103 @@ export function Knowledge({
     else onOpenPage(a.pageId)
   }
 
+  const tagText = (id: string) =>
+    id ? `#${tagList.find((x) => x.id === id)?.name ?? ''}` : t('lib2.allTags')
   const bookIds = [...new Set((all ?? []).map((a) => a.pageId))]
   return (
     <div data-testid="knowledge">
       <div
-        className="mt-2.5 mb-2 flex flex-wrap items-center gap-2"
+        className="mt-2.5 mb-2"
         role="group"
         aria-label={t('lib2.knowledge.filters')}
       >
-        <button
-          type="button"
-          data-testid="know-view"
-          aria-haspopup="menu"
-          onClick={(e) => setMenuAt(e.currentTarget.getBoundingClientRect())}
-          className="min-h-11 rounded-full bg-soft px-4 text-sm"
+        {/* Gate 3 v4 fix 2: every filter is the shared ▾ menu chip, sized to
+            its words, in one row that scrolls sideways with the thin track. */}
+        <ScrollTrack
+          data-testid="know-row"
+          barClassName="mt-1"
+          className="flex flex-nowrap items-center gap-2"
         >
-          {t('lib2.view.button')} ▾
-        </button>
-        {menuAt && (
-          <MenuPopover
-            anchor={menuAt}
-            onClose={() => setMenuAt(null)}
+          <MenuChip
+            testId="know-view"
+            text={t('lib2.view.button')}
+            value={view}
             items={viewItems}
           />
-        )}
-        {view === 'all' && (
-          <>
-            <select
-              aria-label={t('lib2.knowledge.book')}
-              value={book}
-              onChange={(e) => setBook(e.target.value)}
-              className="min-h-11 rounded-full bg-soft px-3 text-sm"
-            >
-              <option value="">{t('lib2.knowledge.allBooks')}</option>
-              {bookIds.map((id) => (
-                <option key={id} value={id}>
-                  {titles?.get(id) ?? id}
-                </option>
-              ))}
-            </select>
-            <div
-              role="group"
-              aria-label={t('lib2.knowledge.colour')}
-              className="flex items-center"
-            >
-              {HIGHLIGHT_COLOURS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  aria-pressed={colour === c}
-                  aria-label={c}
-                  data-testid={`know-colour-${c}`}
-                  onClick={() => setColour(colour === c ? '' : c)}
-                  className={`grid size-11 place-items-center rounded-full ${colour === c ? 'outline-2 outline-accent' : ''}`}
-                >
-                  <span
-                    className="size-4 rounded-full"
-                    style={{ background: COLOUR_FILL[c] }}
+          {view === 'all' && (
+            <>
+              <MenuChip
+                testId="know-book"
+                label={t('lib2.knowledge.book')}
+                text={
+                  book
+                    ? (titles?.get(book) ?? book)
+                    : t('lib2.knowledge.allBooks')
+                }
+                value={book}
+                items={radio(
+                  ['', ...bookIds],
+                  book,
+                  (x) =>
+                    x ? (titles?.get(x) ?? x) : t('lib2.knowledge.allBooks'),
+                  setBook,
+                )}
+              />
+              <MenuChip
+                testId="know-sort"
+                label={t('lib2.sortBy')}
+                text={t(SORT_LABEL[sort])}
+                value={sort}
+                items={radio(
+                  ['newest', 'book', 'colour'],
+                  sort,
+                  (x) => t(SORT_LABEL[x as Sort]),
+                  (x) => setSort(x as Sort),
+                )}
+              />
+              {pro && (
+                <div data-testid="know-pro-row" className="contents">
+                  <MenuChip
+                    testId="know-type"
+                    label={t('lib2.know.type')}
+                    text={t(`lib2.know.type.${f.type}`)}
+                    value={f.type}
+                    items={radio(
+                      ['all', 'highlight', 'note', 'bookmark'],
+                      f.type,
+                      (x) =>
+                        t(`lib2.know.type.${x as KnowledgeFilter['type']}`),
+                      (x) => setF({ ...f, type: x as KnowledgeFilter['type'] }),
+                    )}
                   />
-                </button>
-              ))}
-            </div>
-            <select
-              aria-label={t('lib2.sortBy')}
-              value={sort}
-              onChange={(e) => setSort(e.target.value as Sort)}
-              className="min-h-11 rounded-full bg-soft px-3 text-sm"
-            >
-              <option value="newest">{t('lib2.knowledge.newest')}</option>
-              <option value="book">{t('lib2.knowledge.bookOrder')}</option>
-              <option value="colour">{t('lib2.knowledge.byColour')}</option>
-            </select>
-            {pro && (
-              <div
-                data-testid="know-pro-row"
-                className="flex w-full flex-nowrap items-center gap-2 overflow-x-auto"
-              >
-                <select
-                  aria-label={t('lib2.know.type')}
-                  data-testid="know-type"
-                  value={f.type}
-                  onChange={(e) =>
-                    setF({
-                      ...f,
-                      type: e.target.value as KnowledgeFilter['type'],
-                    })
-                  }
-                  className="min-h-11 shrink-0 rounded-full bg-soft px-3 text-sm"
-                >
-                  {(['all', 'highlight', 'note', 'bookmark'] as const).map(
-                    (x) => (
-                      <option key={x} value={x}>
-                        {t(`lib2.know.type.${x}`)}
-                      </option>
-                    ),
-                  )}
-                </select>
-                <select
-                  aria-label={t('lib2.tag')}
-                  data-testid="know-tag"
-                  value={f.tagId}
-                  onChange={(e) => setF({ ...f, tagId: e.target.value })}
-                  className="min-h-11 shrink-0 rounded-full bg-soft px-3 text-sm"
-                >
-                  <option value="">{t('lib2.allTags')}</option>
-                  {tagList.map((x) => (
-                    <option key={x.id} value={x.id}>
-                      #{x.name}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  aria-label={t('lib2.know.date')}
-                  data-testid="know-date"
-                  value={f.date}
-                  onChange={(e) =>
-                    setF({
-                      ...f,
-                      date: e.target.value as KnowledgeFilter['date'],
-                    })
-                  }
-                  className="min-h-11 shrink-0 rounded-full bg-soft px-3 text-sm"
-                >
-                  {(['any', 'week', 'month'] as const).map((x) => (
-                    <option key={x} value={x}>
-                      {t(`lib2.know.date.${x}`)}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  data-testid="know-saved"
-                  aria-haspopup="menu"
-                  onClick={(e) =>
-                    setSavedAt(e.currentTarget.getBoundingClientRect())
-                  }
-                  className="min-h-11 shrink-0 rounded-full bg-soft px-3 text-sm"
-                >
-                  {t('lib2.saved.button')} ▾
-                </button>
-                {savedAt && (
-                  <MenuPopover
-                    anchor={savedAt}
-                    onClose={() => setSavedAt(null)}
+                  <MenuChip
+                    testId="know-tag"
+                    label={t('lib2.tag')}
+                    text={tagText(f.tagId)}
+                    value={f.tagId}
+                    items={radio(
+                      ['', ...tagList.map((x) => x.id)],
+                      f.tagId,
+                      tagText,
+                      (x) => setF({ ...f, tagId: x }),
+                    )}
+                  />
+                  <MenuChip
+                    testId="know-date"
+                    label={t('lib2.know.date')}
+                    text={t(`lib2.know.date.${f.date}`)}
+                    value={f.date}
+                    items={radio(
+                      ['any', 'week', 'month'],
+                      f.date,
+                      (x) =>
+                        t(`lib2.know.date.${x as KnowledgeFilter['date']}`),
+                      (x) => setF({ ...f, date: x as KnowledgeFilter['date'] }),
+                    )}
+                  />
+                  <MenuChip
+                    testId="know-saved"
+                    text={t('lib2.saved.button')}
                     items={[
                       {
                         label: t('lib2.saved.save'),
@@ -341,11 +294,33 @@ export function Knowledge({
                       })),
                     ]}
                   />
-                )}
+                </div>
+              )}
+              <div
+                role="group"
+                aria-label={t('lib2.knowledge.colour')}
+                className="flex shrink-0 items-center"
+              >
+                {HIGHLIGHT_COLOURS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    aria-pressed={colour === c}
+                    aria-label={c}
+                    data-testid={`know-colour-${c}`}
+                    onClick={() => setColour(colour === c ? '' : c)}
+                    className={`grid size-11 place-items-center rounded-full ${colour === c ? 'outline-2 outline-accent' : ''}`}
+                  >
+                    <span
+                      className="size-4 rounded-full"
+                      style={{ background: COLOUR_FILL[c] }}
+                    />
+                  </button>
+                ))}
               </div>
-            )}
-          </>
-        )}
+            </>
+          )}
+        </ScrollTrack>
       </div>
       {naming && (
         <NameDialog
@@ -498,5 +473,66 @@ export function Knowledge({
           </div>
         ))}
     </div>
+  )
+}
+
+const SORT_LABEL: Record<Sort, MessageKey> = {
+  newest: 'lib2.knowledge.newest',
+  book: 'lib2.knowledge.bookOrder',
+  colour: 'lib2.knowledge.byColour',
+}
+
+/** A list of choices with a tick on the current one. */
+function radio(
+  values: readonly string[],
+  cur: string,
+  label: (x: string) => string,
+  apply: (x: string) => void,
+): MenuItem[] {
+  return values.map((x) => ({
+    label: label(x),
+    icon: 'check',
+    checked: cur === x,
+    onSelect: () => apply(x),
+  }))
+}
+
+/** The shared ▾ menu chip: its words, then a ▾ list (MenuPopover). */
+function MenuChip({
+  testId,
+  text,
+  label,
+  value,
+  items,
+}: {
+  testId: string
+  text: string
+  label?: string
+  value?: string
+  items: MenuItem[]
+}) {
+  const [at, setAt] = useState<DOMRect | null>(null)
+  return (
+    <>
+      <button
+        type="button"
+        data-testid={testId}
+        data-value={value}
+        aria-haspopup="menu"
+        aria-label={label ? `${label}: ${text}` : undefined}
+        onClick={(e) => setAt(e.currentTarget.getBoundingClientRect())}
+        className="min-h-11 max-w-[14rem] shrink-0 truncate whitespace-nowrap rounded-full bg-soft px-4 text-sm"
+      >
+        {text} ▾
+      </button>
+      {at && (
+        <MenuPopover
+          anchor={at}
+          label={label ?? text}
+          onClose={() => setAt(null)}
+          items={items}
+        />
+      )}
+    </>
   )
 }

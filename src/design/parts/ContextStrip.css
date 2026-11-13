@@ -53,14 +53,24 @@
   flex-direction: column;
   gap: 2px;
   min-width: 52px;
-  height: 52px;
-  padding: 0 6px;
+  min-height: 52px;
+  height: auto;
+  padding: 4px 6px;
   font-size: 11px;
 }
+/* Never cut a label: it wraps to a second line instead. */
 .cs[data-labels] .cs__name {
-  max-width: 64px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 68px;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: center;
+  line-height: 1.2;
+}
+/* A phone strip is solid: the covers behind must not show through. */
+.cs[data-phone] .cs__bar {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 .cs__bar[hidden] {
   display: none;

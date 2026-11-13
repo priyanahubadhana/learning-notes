@@ -4,6 +4,7 @@ import { runTask } from '../../app/errors'
 import { requestSummaryField } from '../../app/studyOpen'
 import type { LearningNotesDB } from '../../core/db'
 import type { JsonValue } from '../../core/types'
+import { EmptyState } from '../../design/parts/EmptyState'
 import { Sheet } from '../../design/parts/Sheet'
 import { t } from '../../i18n/t'
 import { reviseLabelsSetting } from '../../settings/builtinSettings'
@@ -76,7 +77,7 @@ export function ReviseHeader({
           onClose={() => setOpen(false)}
           data-testid="revise-labels"
         >
-          <div className="mb-2 flex gap-2">
+          <div className="mb-4 flex gap-2">
             <button
               type="button"
               className="min-h-11 rounded-lg border border-line px-3 text-sm disabled:opacity-50"
@@ -126,5 +127,27 @@ export function EditInSummary({
         {t('st9.editInSummary')}
       </button>
     </p>
+  )
+}
+
+/** A lesson with no marks: the shared Empty state with one button (ST17). */
+export function ReviseEmpty({
+  lessonId,
+  onOpen,
+}: {
+  lessonId: string
+  onOpen: (pageId: string) => void
+}) {
+  return (
+    <EmptyState
+      variant="inline"
+      icon="highlighter"
+      title={t('st9.empty.title')}
+      text={t('st9.empty.text')}
+      action={t('st9.empty.action')}
+      onAction={() => onOpen(lessonId)}
+      testId="revise-empty"
+      className="mt-4"
+    />
   )
 }

@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useFlag } from '../flags'
 import { takeSummaryField } from '../studyOpen'
 import type { LearningNotesDB } from '../../core/db'
@@ -34,9 +34,12 @@ export function SummaryView({
   scope,
   onOpenPage,
   onOpenBlock,
+  empty,
 }: {
   db: LearningNotesDB
   scope: SummaryScope
+  /** Study v2: the shared Empty state in place of the grey line. */
+  empty?: ReactNode
   onOpenPage: (pageId: string) => void
   /** Opens a note line; unset = open its page and show the line. */
   onOpenBlock?: (pageId: string, blockId: string) => void
@@ -63,11 +66,12 @@ export function SummaryView({
   const rootId = scope.kind === 'page' ? scope.pageId : null
   return (
     <section aria-label={t('summary.seg.summary')} className="min-w-0">
-      {groups.every((g) => g.ownText.trim() === '' && g.lines.length === 0) && (
-        <p className="mb-3 text-sm text-muted">
-          {t(page ? 'summary.emptyPage' : 'summary.emptyAll')}
-        </p>
-      )}
+      {groups.every((g) => g.ownText.trim() === '' && g.lines.length === 0) &&
+        (empty ?? (
+          <p className="mb-3 text-sm text-muted">
+            {t(page ? 'summary.emptyPage' : 'summary.emptyAll')}
+          </p>
+        ))}
       {groups.map((group) => (
         <Group
           key={group.page.id}

@@ -67,6 +67,9 @@ const ReviseHeader = lazy(() =>
 const EditInSummary = lazy(() =>
   import('./study/ReviseParts').then((m) => ({ default: m.EditInSummary })),
 )
+const ReviseEmpty = lazy(() =>
+  import('./study/ReviseParts').then((m) => ({ default: m.ReviseEmpty })),
+)
 const CardsTabV2 = lazy(() =>
   import('./study/CardsTabV2').then((m) => ({ default: m.CardsTabV2 })),
 )
@@ -288,6 +291,10 @@ export function NotebookScreen({
                   notebookId={notebook.id}
                   pageId={null}
                   onOpenPage={onOpenPage}
+                  onGoToNotes={() => {
+                    const notes = tabs.find((x) => x.kind === 'notes')
+                    if (notes) openTab(notes.id)
+                  }}
                 />
               </Suspense>
             ) : (
@@ -330,6 +337,15 @@ export function NotebookScreen({
                           lessonId={lessonId}
                           onOpen={onOpenPage}
                         />
+                      </Suspense>
+                    )
+                  : undefined
+              }
+              emptySlot={
+                studyV2
+                  ? (lessonId) => (
+                      <Suspense fallback={null}>
+                        <ReviseEmpty lessonId={lessonId} onOpen={onOpenPage} />
                       </Suspense>
                     )
                   : undefined

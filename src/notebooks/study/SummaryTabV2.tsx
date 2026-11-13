@@ -2,6 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
 import { SummaryView } from '../../app/summary/SummaryView'
 import { downloadFile } from '../../app/download'
+import { EmptyState } from '../../design/parts/EmptyState'
 import type { LearningNotesDB } from '../../core/db'
 import { listSummary, type SummaryScope } from '../../core/summaryService'
 import { sampleName } from '../../i18n/defaultNames'
@@ -22,6 +23,7 @@ export function SummaryTabV2({
   pageId,
   onOpenPage,
   onOpenBlock,
+  onGoToNotes,
 }: {
   db: LearningNotesDB
   notebookId: string
@@ -29,6 +31,8 @@ export function SummaryTabV2({
   pageId: string | null
   onOpenPage: (pageId: string) => void
   onOpenBlock?: (pageId: string, blockId: string) => void
+  /** The Empty state's one button: back to the notes. */
+  onGoToNotes?: () => void
 }) {
   const scopes = useUnlocked('study.summaryScopes')
   const [level, setLevel] = useState<Level>(pageId ? 'page' : 'notebook')
@@ -91,6 +95,22 @@ export function SummaryTabV2({
           scope={scope}
           onOpenPage={onOpenPage}
           onOpenBlock={onOpenBlock}
+          empty={
+            <EmptyState
+              variant="inline"
+              icon="list"
+              title={t('st8.empty.title')}
+              text={t(
+                level === 'page' && pageId
+                  ? 'summary.emptyPage'
+                  : 'summary.emptyAll',
+              )}
+              action={onGoToNotes ? t('st8.empty.action') : undefined}
+              onAction={onGoToNotes}
+              testId="summary-empty"
+              className="mb-4"
+            />
+          }
         />
       </div>
     </section>

@@ -28,6 +28,7 @@ export function ReviseTab({
   onReview,
   header,
   summarySlot,
+  emptySlot,
 }: {
   db: LearningNotesDB
   notebookId: string
@@ -39,6 +40,8 @@ export function ReviseTab({
   header?: (count: number) => ReactNode
   /** Study v2: replaces the "My summary" box with a link to the Summary tab. */
   summarySlot?: (lessonId: string) => ReactNode
+  /** Study v2: the shared Empty state when the lesson has no marks. */
+  emptySlot?: (lessonId: string) => ReactNode
 }) {
   const lessons = useLiveQuery(
     () => listLessonMarks(db, notebookId),
@@ -124,45 +127,47 @@ export function ReviseTab({
               />
             )}
 
-            {groups.length === 0 ? (
-              <p className="mt-4 text-sm text-muted">{t('revise.noMarks')}</p>
-            ) : (
-              groups.map(({ label, marks }) => (
-                <section
-                  key={label}
-                  className="mt-4"
-                  aria-label={markName(label)}
-                >
-                  <h3 className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold">
-                    <span
-                      aria-hidden
-                      className="recall-mark inline-block size-3 rounded-sm"
-                      data-mark={label}
-                    />
-                    {markName(label)}
-                    <span className="font-normal text-muted">
-                      {marks.length}
-                    </span>
-                  </h3>
-                  <ul className="grid gap-1">
-                    {marks.map((mark, i) => (
-                      <li key={`${mark.blockId}:${i}`}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            onOpenPage(mark.pageId)
-                            revealBlock(mark.blockId)
-                          }}
-                          className="w-full rounded-lg border border-line px-3 py-1.5 text-start text-sm break-words hover:bg-hover"
-                        >
-                          {mark.text}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))
-            )}
+            {groups.length === 0
+              ? (emptySlot?.(current.lesson.id) ?? (
+                  <p className="mt-4 text-sm text-muted">
+                    {t('revise.noMarks')}
+                  </p>
+                ))
+              : groups.map(({ label, marks }) => (
+                  <section
+                    key={label}
+                    className="mt-4"
+                    aria-label={markName(label)}
+                  >
+                    <h3 className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold">
+                      <span
+                        aria-hidden
+                        className="recall-mark inline-block size-3 rounded-sm"
+                        data-mark={label}
+                      />
+                      {markName(label)}
+                      <span className="font-normal text-muted">
+                        {marks.length}
+                      </span>
+                    </h3>
+                    <ul className="grid gap-1">
+                      {marks.map((mark, i) => (
+                        <li key={`${mark.blockId}:${i}`}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onOpenPage(mark.pageId)
+                              revealBlock(mark.blockId)
+                            }}
+                            className="w-full rounded-lg border border-line px-3 py-1.5 text-start text-sm break-words hover:bg-hover"
+                          >
+                            {mark.text}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ))}
             <p className="mt-4 text-xs text-muted">
               {markLabels()
                 .map((l) => markName(l.id))

@@ -666,6 +666,7 @@ export function PageView({
                 notebookId={notebook.id}
                 pageId={page.id}
                 onOpenPage={onOpenPage}
+                onGoToNotes={() => setPageTab('notes')}
                 onOpenBlock={(pageId, blockId) => {
                   if (pageId === page.id) setPageTab('notes')
                   else onOpenPage(pageId)

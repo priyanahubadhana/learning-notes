@@ -117,6 +117,128 @@ test('TB-41 Professional: fonts and inline code show with their own switches', a
   await expect(c.getByTestId('v8-format-code')).toBeVisible()
 })
 
+test('TB-41 each Professional switch works alone: tb.textFonts, tb.textMarks', async ({
+  page,
+}) => {
+  await open(page, 'beginner', ['tb.textFonts'])
+  await chip(page, 'text.format').click()
+  let c = card(page, 'text.format')
+  await expect(c.locator('.pcard-glabel')).toHaveText([
+    'Text',
+    'Style',
+    'Paragraph',
+    'Advanced',
+  ])
+  await expect(c.getByTestId('v8-format-code')).toHaveCount(0)
+  // Each font is drawn in its own face.
+  const faces = await c
+    .locator('[data-card-chips="font"] [data-chip]')
+    .evaluateAll((els) =>
+      els.map(
+        (e) => getComputedStyle(e.querySelector('[aria-hidden]')!).fontFamily,
+      ),
+    )
+  expect(faces.length).toBeGreaterThan(2)
+  expect(new Set(faces).size).toBeGreaterThan(1)
+  // Line height changes the page's spacing and shows as chosen.
+  await c.getByTestId('v8-format-line-loose').click()
+  await expect(c.getByTestId('v8-format-line-loose')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  expect(
+    await page.evaluate(() =>
+      document.documentElement.style.getPropertyValue('--note-line'),
+    ),
+  ).toBe('1.95')
+  await c.getByTestId('v8-format-line-default').click()
+})
+
+test('TB-41 tb.textMarks alone adds inline code and no Advanced', async ({
+  page,
+}) => {
+  await open(page, 'beginner', ['tb.textMarks'])
+  await chip(page, 'text.format').click()
+  const c = card(page, 'text.format')
+  await expect(c.getByTestId('v8-format-code')).toBeVisible()
+  await expect(c.locator('.pcard-glabel')).toHaveText([
+    'Text',
+    'Style',
+    'Paragraph',
+  ])
+})
+
+test('TB-41 headings, indent and divider are buttons, not checkboxes', async ({
+  page,
+}) => {
+  await open(page)
+  await chip(page, 'text.format').click()
+  const c = card(page, 'text.format')
+  for (const id of ['heading1', 'indent', 'divider'])
+    expect(
+      await c.getByTestId('v8-format-' + id).getAttribute('role'),
+    ).toBeNull()
+  await expect(c.getByTestId('v8-format-bold')).toHaveAttribute(
+    'role',
+    'checkbox',
+  )
+})
+
+test('TB-42 tb.textBox alone adds fill, border, corners, padding and shadow; Beginner has none', async ({
+  page,
+}) => {
+  await open(page)
+  await page.locator('.bn-editor').first().click()
+  await chip(page, 'text.box').click()
+  await expect(
+    card(page, 'text.box').getByTestId('v8-box-bg-yellow'),
+  ).toHaveCount(0)
+})
+
+test('TB-42 with tb.textBox: fill, border, corners, padding and shadow each undo and redo', async ({
+  page,
+}) => {
+  await open(page, 'beginner', ['tb.textBox'])
+  await page.locator('.bn-editor').first().click()
+  const c = card(page, 'text.box')
+  const showCard = async () => {
+    await page.waitForTimeout(300)
+    if ((await c.count()) === 0) await chip(page, 'text.box').click()
+    await expect(c).toBeVisible()
+  }
+  // A tap on the bar closes the open card first, so the card is shut, the
+  // bar button pressed, and the card opened again to read the result.
+  const through = async (button: 'v8-undo' | 'v8-redo') => {
+    await c.getByTestId('pcard-close').click()
+    await page.getByTestId(button).click()
+    await page.locator('.bn-editor').first().click()
+    await showCard()
+  }
+  const pick = async (id: string, off: string) => {
+    await showCard()
+    await c.getByTestId(id).click()
+    await expect(c.getByTestId(id)).toHaveAttribute('aria-checked', 'true')
+    await through('v8-undo')
+    await expect(c.getByTestId(id)).toHaveAttribute('aria-checked', 'false')
+    await expect(c.getByTestId(off)).toHaveAttribute('aria-checked', 'true')
+    await through('v8-redo')
+    await expect(c.getByTestId(id)).toHaveAttribute('aria-checked', 'true')
+    await c.getByTestId('pcard-close').click()
+  }
+  await pick('v8-box-bg-yellow', 'v8-box-bg-none')
+  await pick('v8-box-border-2', 'v8-box-border-0')
+  await pick('v8-box-radius-12', 'v8-box-radius-0')
+  await pick('v8-box-pad-12', 'v8-box-pad-0')
+  const shadow = () => c.getByRole('switch', { name: 'Shadow' })
+  await showCard()
+  await shadow().click()
+  await expect(shadow()).toBeChecked()
+  await through('v8-undo')
+  await expect(shadow()).not.toBeChecked()
+  await through('v8-redo')
+  await expect(shadow()).toBeChecked()
+})
+
 for (const vp of [
   { width: 1180, height: 820 },
   { width: 820, height: 1180 },

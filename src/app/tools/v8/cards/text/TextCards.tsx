@@ -63,7 +63,7 @@ function tileName(tile: FormatTile): string {
 function FontsGroup() {
   const font = noteFont.useValue()
   return (
-    <CardGroup label={t('main.card.text.font')}>
+    <CardGroup>
       <FontTiles
         value={font}
         none="default"
@@ -80,7 +80,7 @@ function FontsGroup() {
 function LineHeightGroup() {
   const line = noteLine.useValue()
   return (
-    <CardGroup label={t('main.text.lineHeight')}>
+    <CardGroup>
       <TileGroup label={t('main.text.lineHeight')} columns={3}>
         {NOTE_LINES.map((l) => (
           <Tile

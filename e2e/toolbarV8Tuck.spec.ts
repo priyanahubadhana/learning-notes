@@ -61,7 +61,7 @@ test('TB-74 setting on: typing tucks the bar away within 200 ms; the pill brings
   await expect(bar(page)).toBeVisible()
   await expect(pill(page)).toHaveCount(0)
   await typeInEditor(page, 'The nucleus holds the DNA')
-  await expect(bar(page)).toBeHidden({ timeout: 1000 })
+  await expect(bar(page)).toBeHidden({ timeout: 200 })
   await expectPillOnScreen(page)
   await pill(page).click()
   await expect(bar(page)).toBeVisible()
@@ -70,8 +70,37 @@ test('TB-74 setting on: typing tucks the bar away within 200 ms; the pill brings
   await page.getByTestId('v8-tool-text').click()
   await page.locator('.bn-editor').first().click()
   await page.keyboard.type(' more')
-  await expect(bar(page)).toBeHidden({ timeout: 1000 })
+  await expect(bar(page)).toBeHidden({ timeout: 200 })
   await expectPillOnScreen(page)
+})
+
+test('TB-74 the Pencil down on the page tucks the bar away within 200 ms', async ({
+  page,
+}) => {
+  await open(page, { 'toolbar.hideWhileWriting': true })
+  await expect(bar(page)).toBeVisible()
+  await page.locator('.bn-editor').first().dispatchEvent('pointerdown', {
+    pointerType: 'pen',
+    pointerId: 7,
+    isPrimary: true,
+    bubbles: true,
+  })
+  await expect(bar(page)).toBeHidden({ timeout: 200 })
+  await expectPillOnScreen(page)
+})
+
+test('TB-75 a reload during a peek keeps the bar turned off in Settings', async ({
+  page,
+}) => {
+  await open(page)
+  await turnOff(page)
+  await pill(page).click()
+  await expect(bar(page)).toBeVisible()
+  await page.reload()
+  await expect(bar(page)).toHaveCount(0)
+  await expectPillOnScreen(page)
+  await page.reload()
+  await expect(bar(page)).toHaveCount(0)
 })
 
 test('TB-74 setting off (the default): typing leaves the bar alone and no pill shows', async ({
@@ -98,7 +127,7 @@ test('TB-75 bar turned off: the pill is always there; Show brings the bar; a too
   await page.getByTestId('v8-tool-text').click()
   await page.locator('.bn-editor').first().click()
   await page.keyboard.type(' more')
-  await expect(bar(page)).toBeHidden({ timeout: 1000 })
+  await expect(bar(page)).toBeHidden({ timeout: 200 })
   await expectPillOnScreen(page)
 })
 

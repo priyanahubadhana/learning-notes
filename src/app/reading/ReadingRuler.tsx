@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Ruler } from './readingPrefs'
 import { onFrameInput } from './frameInput'
+import { onRouted } from '../input/eventRouter'
 
 /** The page colours the band uses: Reading mode's by default. */
 export interface RulerColours {
@@ -50,13 +51,11 @@ export function ReadingRuler({
     const changed = new MutationObserver(again)
     changed.observe(el, { childList: true, subtree: true })
     el.addEventListener('scroll', again, true)
-    window.addEventListener('resize', again)
     return () => {
       cancelAnimationFrame(frame)
       grew.disconnect()
       changed.disconnect()
       el.removeEventListener('scroll', again, true)
-      window.removeEventListener('resize', again)
     }
   }, [within])
 
@@ -84,13 +83,14 @@ export function ReadingRuler({
       if (d.key) step(d.key)
       else if (d.y !== undefined) setY(d.y)
     })
-    document.addEventListener('pointermove', move)
-    document.addEventListener('pointerup', tap)
-    document.addEventListener('keydown', key)
+    const name = 'reading-ruler'
+    const off = [
+      onRouted('pointermove', move, { name }),
+      onRouted('pointerup', tap, { name }),
+      onRouted('keydown', key, { name }),
+    ]
     return () => {
-      document.removeEventListener('pointermove', move)
-      document.removeEventListener('pointerup', tap)
-      document.removeEventListener('keydown', key)
+      off.forEach((f) => f())
       offFrame()
     }
   }, [lineHeight])

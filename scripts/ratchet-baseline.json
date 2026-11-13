@@ -1,6 +1,6 @@
 {
   "totals": {
-    "listeners": 362,
+    "listeners": 360,
     "zIndex": 137
   },
   "files": {
@@ -24,7 +24,7 @@
       "src/app/penTap.ts": 6,
       "src/app/popups.ts": 8,
       "src/app/reading/ReadingFrame.tsx": 2,
-      "src/app/reading/ReadingRuler.tsx": 3,
+      "src/app/reading/ReadingRuler.tsx": 1,
       "src/app/reading/ReadingSelection.tsx": 1,
       "src/app/reading/glide.ts": 1,
       "src/app/reading/readAloud.ts": 1,

@@ -160,3 +160,15 @@ Leave out:
 - greetings and thanks.
 
 For Haiku, name every step. Sonnet needs less detail.
+
+## 10. Weekly housekeeping
+
+Once a week (owner or Fable):
+
+1. Run `/usage` and note which helper, skill or connector uses the most of the limit.
+2. Keep the 6-builder cap. Every parallel helper sends its own requests against the same limit.
+3. Lower the effort setting for mechanical jobs.
+4. Clear the chat between unrelated tasks, and avoid idle waiting loops. After a pause the saved context expires and is processed again in full.
+5. Keep Haiku prompts under 100,000 tokens. Above that, Haiku 5.5 charges more.
+
+Unused connectors: switching off connectors the build never uses may cut overhead on every turn. How much that saves here is **unverified**; check `/usage` before switching anything off.

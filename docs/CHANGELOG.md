@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: cost and quality additions 1 to 4
+
+- What: added the short brief template and leave-out list and the weekly housekeeping list to docs/ECONOMY-MODE.md; `/next` now reads docs/BUILD-STATE.md first and has a use-when line; new read-only Haiku search helper `economy-search` (replaces the Explore name in token-efficiency rule 6).
+- Why: fewer tokens per helper brief, faster restarts, and search pinned to Haiku. Owner approved items 1 to 4 (proposal in docs/plans/cost-quality-additions-2026-11-13.md).
+- Files: docs/ECONOMY-MODE.md, .claude/commands/next.md, .claude/agents/economy-search.md, docs/design/token-efficiency.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: gate 3, fourth visit (5, 6)
 
 - What: gate 3 verdicts for 5 Home v2 (FAIL, 4 small fixes) and 6 Library v2 (FAIL, 5 fixes) after gate 2 and the added pictures.

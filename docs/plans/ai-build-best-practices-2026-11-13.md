@@ -58,34 +58,34 @@ Source: [Claude Code best practices](https://code.claude.com/docs/en/best-practi
 Anthropic started evaluating with about 20 test queries (early changes have big effects) and still needed human testing for edge cases. Practitioners say "fire and forget" did not hold: one agent spent an hour on a wrong path. Expect a 3 to 4 times gain, not 10 times (one report, not verified).
 Sources: [research system](https://www.anthropic.com/engineering/multi-agent-research-system); [5 lessons](https://dev.to/battyterm/5-lessons-from-running-ai-coding-agents-in-parallel-53on); [4 months](https://tianpan.co/forum/t/4-months-running-multi-agent-coding-workflows-what-actually-works-and-what-does-not/742)
 
-**P12. Do not keep changing the rules mid-run.** *(My synthesis, not a quoted source.)* Anthropic's harness works because the rules, feature list and start-up routine are fixed at the start and agents only update status. Every source that describes a working system describes a stable one. No source I found measured the cost of mid-run rule changes, so that cost on our build is **not verified**.
+**P12. Do not keep changing the rules mid-run.** _(My synthesis, not a quoted source.)_ Anthropic's harness works because the rules, feature list and start-up routine are fixed at the start and agents only update status. Every source that describes a working system describes a stable one. No source I found measured the cost of mid-run rule changes, so that cost on our build is **not verified**.
 
 ### Where sources disagree or are thin
 
-| Topic | Disagreement or gap |
-| --- | --- |
-| Parallel writing agents | Anthropic's research setup uses them; Cognition says avoid them for code. Anthropic also says coding fits poorly. |
-| Specialised agents (tester, reviewer) vs one generalist | Anthropic calls it an open question. |
-| Number of agents | "3 to 5" is repeated by bloggers, with no controlled test found. |
-| CI as the judge | I found **no detailed first-hand report** on CI as the only judge for parallel agents. The sources favour fast local test gating (P2). |
-| Throughput gains | Claims range from 2.5 to 5 times; all anecdotal. A weaker team in one report had 35% more defects in month 1 and rolled back (secondhand, not verified). |
-| Product names/versions | Blog posts disagree on when features such as agent teams shipped. Use the official docs, not blogs, for features. |
+| Topic                                                   | Disagreement or gap                                                                                                                                      |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Parallel writing agents                                 | Anthropic's research setup uses them; Cognition says avoid them for code. Anthropic also says coding fits poorly.                                        |
+| Specialised agents (tester, reviewer) vs one generalist | Anthropic calls it an open question.                                                                                                                     |
+| Number of agents                                        | "3 to 5" is repeated by bloggers, with no controlled test found.                                                                                         |
+| CI as the judge                                         | I found **no detailed first-hand report** on CI as the only judge for parallel agents. The sources favour fast local test gating (P2).                   |
+| Throughput gains                                        | Claims range from 2.5 to 5 times; all anecdotal. A weaker team in one report had 35% more defects in month 1 and rolled back (secondhand, not verified). |
+| Product names/versions                                  | Blog posts disagree on when features such as agent teams shipped. Use the official docs, not blogs, for features.                                        |
 
 ## 2. Where we went wrong, mapped to the practices
 
 Our facts: one Opus orchestrator doing every brief, gate and merge in order, restarted 7 times in 19 h; Sonnet builders on 60-turn pieces; Haiku helpers; Fable screenshot gate holding merges, up to 10 visits per slice; CI as the only judge and red 9 of 15 runs; 24 rule changes during the build; output fell to a third of the day before, when an Opus sub-manager plus Sonnet executors worked well. Causes below are my reading of the facts and of docs/plans/orchestration-review-2026-11-13.md. The cause of the drop in output is **not proven**; no controlled comparison exists.
 
-| # | What went wrong | Practice broken | How sure |
-| --- | --- | --- | --- |
-| 1 | **CI was the only judge.** A 24 to 40+ minute remote run, red 9 of 15, mostly timing and formatting, not app bugs. The builder does not see the failure while it still has the code in mind. A conflicted pull request even made runs slow and mislabelled "cancelled". | P1, P2 | High. It is in our own review. |
-| 2 | **One orchestrator on the critical path.** Every brief, gate and merge went through one agent, one at a time (about 0.4 merges per hour against a plan of 1.3). Its context filled, so it restarted 7 times, and each restart re-learned a stale state file. | P5, P8, P9 | High on the facts; the link to the output drop is likely, not proven. |
-| 3 | **Review gate as a queue.** Up to 10 Fable visits per slice; the same faults (scroll track, toast, sidebar) failed again and again because builders were not told them up front. Review became the bottleneck, which practitioners warn about. | P3, P4, P7 | High. Gate 3 gave 14 FAIL against 7 PASS and repeated faults. |
-| 4 | **Pieces too big for cheap builders.** 60-turn Sonnet pieces drift and are hard to verify; the harness advice is one small feature per session with a start-up check. | P6, P3 | Medium. Turn counts are ours; I did not measure drift. |
-| 5 | **Stale and contradictory state file.** Top half from 00:05, truth appended at the bottom. | P8 | High. |
-| 6 | **24 rule changes during the build.** Each change reaches builders late and resets what they were told. | P12, P10 | Medium. Count is ours; the cost is a judgement. |
-| 7 | **Rules in documents, not enforced.** The test-guard hook missed the Reader change (a raised wait on all iPad tests); a CI job was re-run until green. | P10 | High (our review, section 4). |
-| 8 | **Haiku used for waiting jobs that stopped** (CI watching). Cheap model on a long wait is the wrong match. | P9 | Medium. |
-| 9 | **Speed estimate was a best case** ("2 to 4 hours"), so every red run looked like a failure of the plan. | P11 | High. |
+| #   | What went wrong                                                                                                                                                                                                                                                         | Practice broken | How sure                                                              |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | --------------------------------------------------------------------- |
+| 1   | **CI was the only judge.** A 24 to 40+ minute remote run, red 9 of 15, mostly timing and formatting, not app bugs. The builder does not see the failure while it still has the code in mind. A conflicted pull request even made runs slow and mislabelled "cancelled". | P1, P2          | High. It is in our own review.                                        |
+| 2   | **One orchestrator on the critical path.** Every brief, gate and merge went through one agent, one at a time (about 0.4 merges per hour against a plan of 1.3). Its context filled, so it restarted 7 times, and each restart re-learned a stale state file.            | P5, P8, P9      | High on the facts; the link to the output drop is likely, not proven. |
+| 3   | **Review gate as a queue.** Up to 10 Fable visits per slice; the same faults (scroll track, toast, sidebar) failed again and again because builders were not told them up front. Review became the bottleneck, which practitioners warn about.                          | P3, P4, P7      | High. Gate 3 gave 14 FAIL against 7 PASS and repeated faults.         |
+| 4   | **Pieces too big for cheap builders.** 60-turn Sonnet pieces drift and are hard to verify; the harness advice is one small feature per session with a start-up check.                                                                                                   | P6, P3          | Medium. Turn counts are ours; I did not measure drift.                |
+| 5   | **Stale and contradictory state file.** Top half from 00:05, truth appended at the bottom.                                                                                                                                                                              | P8              | High.                                                                 |
+| 6   | **24 rule changes during the build.** Each change reaches builders late and resets what they were told.                                                                                                                                                                 | P12, P10        | Medium. Count is ours; the cost is a judgement.                       |
+| 7   | **Rules in documents, not enforced.** The test-guard hook missed the Reader change (a raised wait on all iPad tests); a CI job was re-run until green.                                                                                                                  | P10             | High (our review, section 4).                                         |
+| 8   | **Haiku used for waiting jobs that stopped** (CI watching). Cheap model on a long wait is the wrong match.                                                                                                                                                              | P9              | Medium.                                                               |
+| 9   | **Speed estimate was a best case** ("2 to 4 hours"), so every red run looked like a failure of the plan.                                                                                                                                                                | P11             | High.                                                                 |
 
 What worked and should be kept: Opus sub-manager plus Sonnet executors with small tasks (the day before), the 3 gates catching real problems, worktree per slice, state in git and files, no skipped tests.
 
@@ -93,12 +93,12 @@ What worked and should be kept: Opus sub-manager plus Sonnet executors with smal
 
 Ranked by likely impact. "Conflict" means it touches an owner quality rule and needs the owner's OK first. No item removes a gate or a test.
 
-1. **Builders run the tests and the screenshots themselves before reporting, and fix what fails (P1, P2).** CI becomes the final confirmation, not the first feedback. Needs a short local command list per slice (targeted tests, lint, type check, screenshot script). *Conflict check:* ECONOMY-MODE says no local full suites. Targeted tests are already allowed; keep the full suite in CI. No conflict if limited to targeted tests.
+1. **Builders run the tests and the screenshots themselves before reporting, and fix what fails (P1, P2).** CI becomes the final confirmation, not the first feedback. Needs a short local command list per slice (targeted tests, lint, type check, screenshot script). _Conflict check:_ ECONOMY-MODE says no local full suites. Targeted tests are already allowed; keep the full suite in CI. No conflict if limited to targeted tests.
 2. **Put the known gate-3 faults into every builder brief, and write them into the shell once (P3, P4).** The 10-line pre-check list from the orchestration review (scroll track, toast position, sidebar default, no browser controls, Lucide icons, Light/Dark/Sepia, tips closed). Cheapest fix with the biggest cut in gate visits. No conflict.
 3. **Make the manager do less: manager plans and briefs; a separate cheap job merges and watches CI (P5, P9).** Manager reads one short state table, briefs, reviews reports; mechanics do merge, rebase and CI watching (use Sonnet, not Haiku, for waits). Target: manager context stays small so restarts become rare. No conflict.
 4. **Small pieces: one slice part per builder, finishable in about 20 to 30 turns, with tests written first (P3, P6).** Split anything bigger before briefing. No conflict.
 5. **Run 3 builders at the same time on separate files, not 6 (P7).** Review time is the limit. Keep the idle main lane (toolbar) busy first. No conflict.
-6. **Freeze the rules for the trial period (P12).** Collect rule ideas in one list and apply them once a day at a fixed time, not mid-slice. Exception: stop-the-line safety fixes. *Possible conflict:* CLAUDE.md says changes to the rules need the owner's OK anyway, so this fits; the owner decides the freeze.
+6. **Freeze the rules for the trial period (P12).** Collect rule ideas in one list and apply them once a day at a fixed time, not mid-slice. Exception: stop-the-line safety fixes. _Possible conflict:_ CLAUDE.md says changes to the rules need the owner's OK anyway, so this fits; the owner decides the freeze.
 7. **Turn the rules that must never break into hooks (P10).** Extend the test guard to catch `actionTimeout`, name-pattern exclusions, deleted test files and shell edits; add a Stop hook that runs the slice's targeted test and type check in the slice folder (the current one checks the wrong folder for builders).
 8. **Cut gate 3 to the minimum that the owner's quality bar needs, without lowering it (P3, P10).** Keep Fable for new visual patterns and for a slice's final pictures; let Opus gate 2 plus the builder's own screenshot script catch the repeat faults. Tell reviewers "report only what breaks the spec or the design rules, skip taste". **Conflict:** the owner's quality rules (3 gates, Apple-level bar, "bug-free over speed"). Do not do this without the owner's OK. A safer version: keep Fable on every merge, but cap visits at 2 per slice by sending all faults in one list.
 9. **Batch CI for up to 3 ready, switched-off slices (P2).** From the orchestration review, fix 2. **Conflict:** the written rule is one CI run per merge. Needs the owner's OK.
@@ -112,17 +112,17 @@ Reasonable to try later (not verified as helping us): a dedicated reviewer subag
 
 Check these each day and compare with the best day before:
 
-| Measure | Why | How |
-| --- | --- | --- |
-| Merges per hour (and slices merged per day) | The real output; our baseline is about 0.4 per hour against the plan's 1.3 | `git log` on `build/next` |
-| First-time CI pass rate | Shows if builders self-check (target above 60%; today 6 of 15 finished runs, about 40%) | `gh run list` |
-| Gate visits per slice (gate 2 and gate 3 separately) | Shows if briefs carry the known faults (today up to 10; target 2) | gate files |
-| Repeat faults per slice | Same fault twice means the brief or the shell is wrong | gate files |
-| Orchestrator restarts per day (target 2 or fewer) | Shows context pressure | session log |
-| Idle builder time | Shows if the manager is the bottleneck | time between merge and next brief |
-| Rule changes per day | Shows if the freeze holds | git log on `rules/` and CLAUDE.md |
-| Tokens or plan percent per merged slice | Shows cost against the weekly cap | `/usage` (Claude Code), Anthropic says it attributes use to subagents |
-| Defects found after merge (owner tests) | Quality must not fall while speed rises | owner bug list |
+| Measure                                              | Why                                                                                     | How                                                                   |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Merges per hour (and slices merged per day)          | The real output; our baseline is about 0.4 per hour against the plan's 1.3              | `git log` on `build/next`                                             |
+| First-time CI pass rate                              | Shows if builders self-check (target above 60%; today 6 of 15 finished runs, about 40%) | `gh run list`                                                         |
+| Gate visits per slice (gate 2 and gate 3 separately) | Shows if briefs carry the known faults (today up to 10; target 2)                       | gate files                                                            |
+| Repeat faults per slice                              | Same fault twice means the brief or the shell is wrong                                  | gate files                                                            |
+| Orchestrator restarts per day (target 2 or fewer)    | Shows context pressure                                                                  | session log                                                           |
+| Idle builder time                                    | Shows if the manager is the bottleneck                                                  | time between merge and next brief                                     |
+| Rule changes per day                                 | Shows if the freeze holds                                                               | git log on `rules/` and CLAUDE.md                                     |
+| Tokens or plan percent per merged slice              | Shows cost against the weekly cap                                                       | `/usage` (Claude Code), Anthropic says it attributes use to subagents |
+| Defects found after merge (owner tests)              | Quality must not fall while speed rises                                                 | owner bug list                                                        |
 
 Judge the trial on at least 6 merges, not 1 or 2, because slices differ in size (low confidence on any shorter comparison).
 

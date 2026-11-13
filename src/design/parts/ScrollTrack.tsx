@@ -31,6 +31,7 @@ export function ScrollTrack({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [thumb, setThumb] = useState<{ w: number; x: number } | null>(null)
+  const last = useRef(thumb)
 
   const measure = () => {
     const el = ref.current
@@ -38,7 +39,13 @@ export function ScrollTrack({
     const { scrollWidth: sw, clientWidth: cw, scrollLeft: sl } = el
     const next =
       sw > cw + 1 ? { w: (cw / sw) * 100, x: (Math.abs(sl) / sw) * 100 } : null
-    setThumb((p) => (p && next && p.w === next.w && p.x === next.x ? p : next))
+    // Only a real change sets state: the effect below runs after every render
+    // (new children each time), and a same-value setState there can still
+    // schedule a render, which looped (React #185) in the EPUB reader pop-up.
+    const p = last.current
+    if (p === next || (p && next && p.w === next.w && p.x === next.x)) return
+    last.current = next
+    setThumb(next)
   }
 
   useLayoutEffect(() => {

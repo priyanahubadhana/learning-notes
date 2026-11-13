@@ -1142,3 +1142,15 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Shell: phone = width under 640 or height under 512; a page shows two Undo/Redo pairs until the toolbar slice removes one; Device mode is hidden from the phone top bar (stays in the gear menu).
 - Settings v3: three columns need a Settings area of at least 980 px; Settings has its own Undo/Redo until the shell top bar is connected.
 - Toasts: a 4th toast waits when 3 are showing.
+
+## Decisions to review (Reader v2 gate 3, 13 Nov)
+
+Spec: docs/features/reader-v2.md (its own "Decisions to review" 11 to 16 and "Later"). Nothing was dropped.
+
+- **Select pop-up (RD-B24, RD-P13).** The spec said two different things. The approved mock wins: Beginner has 5 colours, Note, Sticky note, Copy, Define, Pin; Look up on the web, Save to…, Make card, Ask AI, Pronounce and Add to vocabulary come with `reader.selExtras`. Other choice: all buttons for everyone.
+- **Bar hides on scroll (RD-B09, RD-P26).** Hiding is for everyone. The switch `reader.barScroll` only adds "Keep the bar visible".
+- **Zoom gestures (RD-P25).** Pinch zoom and edge taps work for everyone; the switch `reader.gestures` only adds double-tap zoom. Other choice: pinch also behind the switch (as pro-features.md says).
+- **Hide blanks (RD-P30).** Books have no recall words, so it stays in Reading mode of a notebook page only.
+- **Line focus, ruler and Keep awake (RD-P29, RD-P31).** Now also in the book reader (Aa › Reading aids), built from the Reading-mode parts.
+- **Moved to Later, switch stays listed with "Coming later":** tap counts with a tool (RD-P32, owner answer A2; needs a Select tool in the reader, a rule for 2 taps against zoom, and a real-iPad check) and the real Liquid mode view (RD-P28; needs a text-reflow engine). The owner can ask for either sooner.
+- **Select pop-up placement.** It must never sit under the reader bar or the time-left line; tests must use real clicks.

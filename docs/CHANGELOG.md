@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: CI speed-ups (three of four from the speed-up verdict)
+
+- What: e2e and pencil-webkit wait for checks; Playwright browsers cached (key = OS + browser + exact version); the weekly WebKit job is skipped on hand-started runs unless the `full_webkit` box is ticked. Monday schedule kept; ECONOMY-MODE section 10 gets the Monday check, section 11 rule 7 reworded.
+- Why: shorter CI runs; no test, shard or timeout changed. The merge-first perf slice (item 4) is not in this change.
+- Files: .github/workflows/ci.yml, docs/ECONOMY-MODE.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: gate 3 tenth visit (1d toolbar v8, 7 Reader v2) and the phone Preview pill decision
 
 - What: both slices FAIL again (1d: 5 fixes, most ninth-visit fixes done; 7: 6 fixes). Decision logged: the phone Preview pill in Settings stays at the bottom (SET-B02/B03 unchanged) and gets its own docked row so it cannot cover text.

@@ -8,6 +8,11 @@ on:
   schedule:
     - cron: '0 3 * * 1' # WebKit, every Monday
   workflow_dispatch:
+    inputs:
+      full_webkit:
+        description: 'Also run the full WebKit suite (about 30 minutes, warning only)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -214,10 +219,11 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler pages deploy dist --project-name=learning-notes-app --branch=build-next
 
-  # Weekly and a warning only: it takes about 30 minutes, and the known
-  # WebKit differences are on the Phase 9 iPad list.
+  # Weekly (Monday schedule) and a warning only: it takes about 30 minutes, and
+  # the known WebKit differences are on the Phase 9 iPad list. A hand-started
+  # run skips it unless the full_webkit box is ticked.
   webkit:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.full_webkit)
     runs-on: ubuntu-latest
     timeout-minutes: 40
     continue-on-error: true

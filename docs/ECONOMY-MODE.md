@@ -172,6 +172,7 @@ Once a week (owner or Fable):
 3. Lower the effort setting for mechanical jobs.
 4. Clear the chat between unrelated tasks, and avoid idle waiting loops. After a pause the saved context expires and is processed again in full.
 5. Keep Haiku prompts under 100,000 tokens. Above that, Haiku 5.5 charges more.
+6. Confirm Monday's `webkit` run happened and read its warnings (`gh run list --workflow ci.yml --event schedule --limit 1`).
 
 Unused connectors: switching off connectors the build never uses may cut overhead on every turn. How much that saves here is **unverified**; check `/usage` before switching anything off.
 
@@ -185,7 +186,7 @@ Goal: a little more speed with no loss of quality or design. Nothing here change
 4. **Batch CI** (owner approved): up to 3 slices that have each passed gate 2 and gate 3 are merged into `build/next` one after another, each with its own targeted tests, tsc, lint and the combined size check run locally, then ONE full CI run for the batch. Never batch a slice that touches a hot file: it gets its own run. If the run is red, the failing test names its slice; if that is unclear, bisect (take the last merge out and run again). Fix the cause; never re-run until green.
 5. **Automatic CI back on.** Merge `main` into `build/next` and resolve docs/DECISIONS.md by keeping both sides (docs only). To stop the conflict returning: build-time docs (DECISIONS, CHANGELOG, BUILD-STATE, PENDING) are written on `main` only, and `main` is merged into `build/next` before each CI batch. The pull-request run is the judge again, publishes the preview and does not start the weekly `webkit` job.
 6. **One run at a time per branch.** Do not push to `build/next` or start a run while one is in progress; queue the next batch. A run labelled "cancelled" is read job by job before anyone reacts.
-7. **Weekly `webkit` job on hand-started runs:** not skipped by editing anything (that would need a workflow edit; rule 5 removes the need). If a hand-started run is still needed, judge it as soon as every required job has finished (`gh run view <id> --json jobs`); do not wait for the warning-only `webkit` job. Green = every job except `webkit` passed.
+7. **Weekly `webkit` job on hand-started runs:** a hand-started run (Run workflow) skips the `webkit` job unless the `full_webkit` box is ticked. The Monday schedule still runs it. Judge a hand-started run as soon as every required job has finished (`gh run view <id> --json jobs`); do not wait for the warning-only `webkit` job. Green = every job except `webkit` passed.
 8. **Repeat-fault list in every builder brief** that makes or changes a screen (one line: "Check ECONOMY-MODE section 11 rule 8 before you shoot pictures"):
    - a thin scroll track under any row that is cut off;
    - a toast sits above the phone tab bar, never on it;

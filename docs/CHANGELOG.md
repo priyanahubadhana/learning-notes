@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: gate 3 tenth visit (1d toolbar v8, 7 Reader v2) and the phone Preview pill decision
+
+- What: both slices FAIL again (1d: 5 fixes, most ninth-visit fixes done; 7: 6 fixes). Decision logged: the phone Preview pill in Settings stays at the bottom (SET-B02/B03 unchanged) and gets its own docked row so it cannot cover text.
+- Why: gate 3 before merge; the builder held one fix that conflicted with the spec.
+- Files: docs/plans/gate3-2026-11-13.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: gate 3 ninth visit (1d toolbar v8, 7 Reader v2) and two hard-case decisions
 
 - What: both slices FAIL (1d: 8 fixes, the first 90 pictures were not re-shot after the fix round; 7: 7 fixes). Decisions logged: Paste follows the page-menus path (Keep original by default); EPUB book frames get `allow-scripts` back only with three guards.

@@ -59,4 +59,12 @@ export const hiStudyV2 = {
   'st25.count': '{count} स्लाइड',
   'st26.helpers': 'याद रखने के सहायक',
   'st25.close': 'बंद करें',
+  'st21.save': 'फ़िल्टर सहेजें',
+  'st21.saved': 'फ़िल्टर सहेजा गया',
+  'st21.removed': 'सहेजा फ़िल्टर हटाया गया',
+  'st22.pause': 'रोकें',
+  'st22.resume': 'फिर शुरू करें',
+  'st22.openNote': 'नोट खोलें',
+  'st22.paused': 'कार्ड रोका गया',
+  'st22.resumed': 'कार्ड फिर शुरू',
 } as const

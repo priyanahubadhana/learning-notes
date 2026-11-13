@@ -60,4 +60,12 @@ export const esStudyV2 = {
   'st25.count': '{count} diapositivas',
   'st26.helpers': 'Ayudas de memoria',
   'st25.close': 'Cerrar',
+  'st21.save': 'Guardar filtro',
+  'st21.saved': 'Filtro guardado',
+  'st21.removed': 'Filtro guardado quitado',
+  'st22.pause': 'Pausar',
+  'st22.resume': 'Reanudar',
+  'st22.openNote': 'Abrir nota',
+  'st22.paused': 'Tarjeta en pausa',
+  'st22.resumed': 'Tarjeta reanudada',
 } as const

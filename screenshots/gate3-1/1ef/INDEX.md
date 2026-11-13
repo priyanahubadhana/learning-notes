@@ -1,19 +1,20 @@
 # Gate 3 pictures: toolbar.v8 slices 1e, 1f and BUG-003
 
-Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on the head commit 454b965b (flag ON, after the last source edit). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Professional on iPad landscape and PC only.
+Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on the head commit of the gate 2 fix round (see the last commit message; flag ON, after the last source edit). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Professional on iPad landscape and PC only.
 
 ## Screens
 
-| Screen prefix | What it shows                                       |
-| ------------- | --------------------------------------------------- |
-| `textrow-`    | Text row: settings, Box, Format, B, I (TB-40)       |
-| `format-`     | Format card (TB-41)                                 |
-| `box-`        | Box card beside the selected box (TB-42)            |
-| `boxset-`     | Box settings button card                            |
-| `insert-`     | Insert card (1f)                                    |
-| `more-`       | ⋯ card with its Tool bar group (1f)                 |
-| `alltools-`   | All tools card, Professional (TB-63)                |
-| `pill-`       | Bar turned off: the one Show toolbar pill (BUG-003) |
+| Screen prefix | What it shows                                                                                     |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| `textrow-`    | Text row: settings, Box, Format, B, I (TB-40)                                                     |
+| `format-`     | Format card (TB-41)                                                                               |
+| `formatadv-`  | Format card scrolled to Advanced: fonts in their own face, line height (TB-41), Professional only |
+| `box-`        | Box card beside the selected box (TB-42)                                                          |
+| `boxset-`     | Box settings button card                                                                          |
+| `insert-`     | Insert card (1f)                                                                                  |
+| `more-`       | ⋯ card with its Tool bar group (1f)                                                               |
+| `alltools-`   | All tools card, Professional (TB-63)                                                              |
+| `pill-`       | Bar turned off: the one Show toolbar pill (BUG-003)                                               |
 
 ## Repeat-fault list (docs/ECONOMY-MODE.md section 7)
 
@@ -164,3 +165,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - textrow-phone-day-beginner.png
 - textrow-phone-night-beginner.png
 - textrow-phone-sepia-beginner.png
+
+## Gate 2 fix round: which picture proves each fix
+
+| Fix                                                                           | Picture                                                                                  |
+| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| TB-41 fonts in own face + line height                                         | `formatadv-<size>-<theme>-professional.png` (iPad landscape, PC)                         |
+| Action tiles (headings, indent, divider)                                      | `format-*` look unchanged; role proved by e2e "headings, indent and divider are buttons" |
+| Box look Undo/Redo, tuck 200 ms, Pencil tuck, reload peek, Pro switches alone | e2e only (no picture change)                                                             |

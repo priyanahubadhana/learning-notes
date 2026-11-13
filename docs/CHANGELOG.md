@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: toolbar v8 gate 2 fix round (1e/1f/BUG-003)
+
+- What: Advanced in Format now shows fonts in their own face and line height (TB-41); headings, indent, outdent and divider are buttons; the new-box look is one Undo/Redo step; a reload during a peek keeps the bar Off (TB-75); tests for Box look Undo/Redo, 200 ms tuck, Pencil tuck, each Pro switch alone.
+- Why: gate 2 fail list. Bug fix notes: a setting is not a page row so Undo skipped it (changeNewBoxStyle); the peek lived only in memory so a reload kept the bar on (toolbar.peekWasOff).
+- Files: src/app/tools/v8/{cards/text,useTuck.ts}, src/paper/boxPresets.ts, e2e/toolbarV8{Text,Tuck,TextGate3Shots}.spec.ts, screenshots/gate3-1/1ef.
+
 ### 14 Nov 2026: toolbar v8 1e + 1f + BUG-003 (flag toolbar.v8, OFF)
 
 - What: Text row is settings, Box, Format, B, I (TB-40); Format card Text / Style / Paragraph (+ Advanced) with each style in its own look (TB-41); Box card hangs right, else left, under, above the box and never covers it, also on a phone (TB-42, new shared `placeAround`); Insert, ⋯ group and All tools as grouped 44 pt tiles with a thin scroll track; BUG-003: setting "Hide toolbar while writing" (default off), the bar tucks away when you write, and one "Show toolbar" pill (the shared minimise chip) replaces the two top-bar buttons.

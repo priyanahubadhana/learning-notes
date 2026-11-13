@@ -92,6 +92,14 @@ for (const [dev, size] of Object.entries(SIZES)) {
         await shot('textrow')
         await openChip(page, 'text.format')
         await shot('format')
+        if (level === 'professional') {
+          // Advanced: each font in its own face, and line height (TB-41).
+          await page
+            .getByTestId('v8-format')
+            .evaluate((e) => e.scrollTo(0, e.scrollHeight))
+          await settle(page)
+          await shot('formatadv')
+        }
         await closeCard(page)
         // The Box card beside the selected box.
         await page.locator('.bn-editor').first().click()

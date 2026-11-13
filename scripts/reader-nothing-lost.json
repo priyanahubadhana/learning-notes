@@ -1,0 +1,617 @@
+{
+  "note": "R-id (docs/plans/reader-inventory-2026-11-11.md) -> [file, text] pairs that must still exist (flag-off place or its reader.v2 place). Run: node scripts/check-reader-nothing-lost.mjs",
+  "items": {
+    "R01": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-close"
+      }
+    ],
+    "R02": [
+      {
+        "file": "src/reader/v2/ReaderBarRow.tsx",
+        "needle": "reader-page"
+      }
+    ],
+    "R03": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "HistoryButtons"
+      }
+    ],
+    "R04": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "bookreader.prev"
+      }
+    ],
+    "R05": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "pdf-flow"
+      },
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "epub-flow"
+      }
+    ],
+    "R06": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "bookreader.zoomIn"
+      },
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "bookreader.fitWidth"
+      }
+    ],
+    "R07": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "bookreader.epubSmaller"
+      },
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "bookreader.epubLarger"
+      }
+    ],
+    "R08": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-find"
+      },
+      {
+        "file": "src/reader/pdf/FindPanel.tsx",
+        "needle": "pdf-find-input"
+      }
+    ],
+    "R09": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-ink"
+      }
+    ],
+    "R10": [
+      {
+        "file": "src/reader/extras/PageFlip.tsx",
+        "needle": "page-flip-slider"
+      }
+    ],
+    "R11": [
+      {
+        "file": "src/reader/extras/PageFlip.tsx",
+        "needle": "page-flip-back"
+      }
+    ],
+    "R12": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-bookmark"
+      }
+    ],
+    "R13": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-ribbon"
+      }
+    ],
+    "R14": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-contents"
+      }
+    ],
+    "R15": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-annotations"
+      }
+    ],
+    "R16": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-ask"
+      }
+    ],
+    "R17": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-aa"
+      }
+    ],
+    "R18": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-lock"
+      }
+    ],
+    "R19": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-fullscreen"
+      },
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-fs-title"
+      }
+    ],
+    "R20": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-more"
+      }
+    ],
+    "R21": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader.toolBar"
+      }
+    ],
+    "R22": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader.goTo"
+      }
+    ],
+    "R23": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader.syncFurthest"
+      }
+    ],
+    "R24": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "reader-timeleft"
+      }
+    ],
+    "R25": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-progress"
+      }
+    ],
+    "R26": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-clock"
+      }
+    ],
+    "R27": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-dim"
+      }
+    ],
+    "R28": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-font"
+      }
+    ],
+    "R29": [
+      {
+        "file": "src/reader/epub/bookFont.ts",
+        "needle": "literata"
+      }
+    ],
+    "R30": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-size"
+      }
+    ],
+    "R31": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-spacing"
+      }
+    ],
+    "R32": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-page-"
+      }
+    ],
+    "R33": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-continuous"
+      }
+    ],
+    "R34": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-align"
+      }
+    ],
+    "R35": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-margin"
+      }
+    ],
+    "R36": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-theme-"
+      }
+    ],
+    "R37": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-theme-save"
+      }
+    ],
+    "R38": [
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-menu"
+      }
+    ],
+    "R39": [
+      {
+        "file": "src/reader/annotations/SelectionPopup.tsx",
+        "needle": "hl-"
+      }
+    ],
+    "R40": [
+      {
+        "file": "src/reader/annotations/SelectionPopup.tsx",
+        "needle": "annot.note"
+      }
+    ],
+    "R41": [
+      {
+        "file": "src/reader/annotations/SelectionPopup.tsx",
+        "needle": "annot.copy"
+      }
+    ],
+    "R42": [
+      {
+        "file": "src/reader/annotations/SelectionPopup.tsx",
+        "needle": "popup-define"
+      }
+    ],
+    "R43": [
+      {
+        "file": "src/reader/DictionarySheet.tsx",
+        "needle": "dict-pronounce"
+      }
+    ],
+    "R44": [
+      {
+        "file": "src/reader/annotations/SelectionPopup.tsx",
+        "needle": "annot.lookUp"
+      }
+    ],
+    "R45": [
+      {
+        "file": "src/reader/annotations/SelectionPopup.tsx",
+        "needle": "annot.pin"
+      }
+    ],
+    "R46": [
+      {
+        "file": "src/reader/annotations/SelectionPopup.tsx",
+        "needle": "annot.saveTo"
+      }
+    ],
+    "R47": [
+      {
+        "file": "src/reader/annotations/SelectionPopup.tsx",
+        "needle": "popup-make-card"
+      }
+    ],
+    "R48": [
+      {
+        "file": "src/reader/annotations/SelectionPopup.tsx",
+        "needle": "popup-ask"
+      }
+    ],
+    "R49": [
+      {
+        "file": "src/reader/annotations/SelectionPopup.tsx",
+        "needle": "popup-vocab"
+      }
+    ],
+    "R50": [
+      {
+        "file": "src/reader/annotations/AnnotationsPanel.tsx",
+        "needle": "annot.filter.type"
+      },
+      {
+        "file": "src/reader/annotations/AnnotationsPanel.tsx",
+        "needle": "annot.filter.colour"
+      },
+      {
+        "file": "src/reader/annotations/AnnotationsPanel.tsx",
+        "needle": "annot.filter.chapter"
+      }
+    ],
+    "R51": [
+      {
+        "file": "src/reader/annotations/AnnotationsPanel.tsx",
+        "needle": "annotation-row"
+      }
+    ],
+    "R52": [
+      {
+        "file": "src/reader/annotations/NoteSheet.tsx",
+        "needle": "note-save"
+      },
+      {
+        "file": "src/reader/annotations/AnnotationsPanel.tsx",
+        "needle": "annot.delete"
+      }
+    ],
+    "R53": [
+      {
+        "file": "src/reader/annotations/AnnotationsPanel.tsx",
+        "needle": "export-copy"
+      }
+    ],
+    "R54": [
+      {
+        "file": "src/reader/annotations/BulkCardsDialog.tsx",
+        "needle": "bulk-cards"
+      }
+    ],
+    "R55": [
+      {
+        "file": "src/reader/annotations/DailyHighlights.tsx",
+        "needle": "daily-highlights"
+      }
+    ],
+    "R56": [
+      {
+        "file": "src/reader/ReaderInkBar.tsx",
+        "needle": "'pen'"
+      }
+    ],
+    "R57": [
+      {
+        "file": "src/reader/ReaderInkBar.tsx",
+        "needle": "'highlighter'"
+      }
+    ],
+    "R58": [
+      {
+        "file": "src/reader/ReaderInkBar.tsx",
+        "needle": "'eraser'"
+      }
+    ],
+    "R59": [
+      {
+        "file": "src/reader/ReaderInkBar.tsx",
+        "needle": "'lasso'"
+      }
+    ],
+    "R60": [
+      {
+        "file": "src/reader/ReaderInkBar.tsx",
+        "needle": "reader-ink-colour"
+      }
+    ],
+    "R61": [
+      {
+        "file": "src/reader/ReaderInkBar.tsx",
+        "needle": "reader-ink-custom"
+      }
+    ],
+    "R62": [
+      {
+        "file": "src/reader/ReaderInkBar.tsx",
+        "needle": "reader-ink-size"
+      }
+    ],
+    "R63": [
+      {
+        "file": "src/reader/ReaderInkBar.tsx",
+        "needle": "reader-ink-type"
+      }
+    ],
+    "R64": [
+      {
+        "file": "src/reader/ReaderInkBar.tsx",
+        "needle": "reader-ink-opacity"
+      }
+    ],
+    "R65": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "HistoryButtons"
+      }
+    ],
+    "R66": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "HistoryButtons"
+      }
+    ],
+    "R67": [
+      {
+        "file": "src/reader/ReaderInkBar.tsx",
+        "needle": "reader-ink-done"
+      }
+    ],
+    "R68": [
+      {
+        "file": "src/reader/v2/PanelTabs.tsx",
+        "needle": "'pages'"
+      },
+      {
+        "file": "src/reader/BookPanel.tsx",
+        "needle": "book-thumbs"
+      }
+    ],
+    "R69": [
+      {
+        "file": "src/reader/BookPanel.tsx",
+        "needle": "book-outline"
+      }
+    ],
+    "R70": [
+      {
+        "file": "src/reader/annotations/AnnotationsPanel.tsx",
+        "needle": "annotations-panel"
+      }
+    ],
+    "R71": [
+      {
+        "file": "src/reader/v2/PanelTabs.tsx",
+        "needle": "'audio'"
+      },
+      {
+        "file": "src/reader/aloud/AloudPanel.tsx",
+        "needle": "book-aloud"
+      }
+    ],
+    "R72": [
+      {
+        "file": "src/reader/v2/ListenCard.tsx",
+        "needle": "rv2-listen-play"
+      }
+    ],
+    "R73": [
+      {
+        "file": "src/reader/v2/ListenCard.tsx",
+        "needle": "rv2-listen-back"
+      },
+      {
+        "file": "src/reader/v2/ListenCard.tsx",
+        "needle": "rv2-listen-fwd"
+      }
+    ],
+    "R74": [
+      {
+        "file": "src/reader/v2/ListenCard.tsx",
+        "needle": "rv2-listen-stop"
+      }
+    ],
+    "R75": [
+      {
+        "file": "src/reader/v2/ListenCard.tsx",
+        "needle": "rv2-listen-speed"
+      }
+    ],
+    "R76": [
+      {
+        "file": "src/reader/v2/ListenCard.tsx",
+        "needle": "rv2-voice"
+      }
+    ],
+    "R77": [
+      {
+        "file": "src/reader/aloud/bookAloud.ts",
+        "needle": "bookAloudState"
+      }
+    ],
+    "R78": [
+      {
+        "file": "src/reader/v2/ListenCard.tsx",
+        "needle": "rv2-listen-sleep"
+      }
+    ],
+    "R79": [
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "onEdgeTap"
+      },
+      {
+        "file": "src/app/reading/readingMath.ts",
+        "needle": "tapZone"
+      }
+    ],
+    "R80": [
+      {
+        "file": "src/reader/pdf/ZoomPreview.tsx",
+        "needle": "zoom-preview"
+      },
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "toggleZoom"
+      }
+    ],
+    "R81": [
+      {
+        "file": "src/reader/pdf/PdfView.tsx",
+        "needle": "Pinch zoom"
+      }
+    ],
+    "R82": [
+      {
+        "file": "src/reader/ReadingLock.tsx",
+        "needle": "reader-unlock"
+      },
+      {
+        "file": "src/reader/ReadingLock.tsx",
+        "needle": "reader-lock-layer"
+      }
+    ],
+    "R83": [
+      {
+        "file": "src/reader/v2/barState.ts",
+        "needle": "scrollStep"
+      },
+      {
+        "file": "src/app/reading/barMode.ts",
+        "needle": "hide"
+      }
+    ],
+    "R84": [
+      {
+        "file": "src/reader/extras/orientation.ts",
+        "needle": "applyOrientation"
+      }
+    ],
+    "R85": [
+      {
+        "file": "docs/features/reader-v2.md",
+        "needle": "Liquid mode"
+      }
+    ],
+    "R86": [
+      {
+        "file": "src/app/reading/ReadingRuler.tsx",
+        "needle": "ReadingRuler"
+      }
+    ],
+    "R87": [
+      {
+        "file": "src/app/reading/readingPrefs.ts",
+        "needle": "RULERS"
+      }
+    ],
+    "R88": [
+      {
+        "file": "src/app/reading/ReadingRuler.tsx",
+        "needle": "Alt"
+      }
+    ],
+    "R89": [
+      {
+        "file": "src/app/reading/ReaderControls.tsx",
+        "needle": "blank"
+      }
+    ],
+    "R90": [
+      {
+        "file": "src/app/reading/wakeLock.ts",
+        "needle": "export function"
+      }
+    ],
+    "R91": [
+      {
+        "file": "src/reader/v2/lockModes.ts",
+        "needle": "frozen"
+      }
+    ],
+    "R92": [
+      {
+        "file": "docs/features/reader-v2.md",
+        "needle": "reader.tapCounts"
+      }
+    ]
+  }
+}

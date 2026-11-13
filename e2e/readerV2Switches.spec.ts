@@ -461,3 +461,21 @@ test('RD-P34 Settings › Professional features › Reader lists all 32 switches
     page.locator('[data-pro-group="reader"] [data-pro-feature]'),
   ).toHaveCount(32)
 })
+
+test('RD-P05 reader.askBook: the Ask row in the ⋯ card needs AI on and its switch', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:ai.enabled', 'true'),
+  )
+  await openBook(page, 'pdf')
+  await cycle(
+    page,
+    'reader.askBook',
+    () => page.getByTestId('reader-ask'),
+    async () => {
+      await page.keyboard.press('Escape')
+      await more(page)
+    },
+  )
+})

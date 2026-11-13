@@ -175,7 +175,7 @@ test('RD-B44 voices come in groups, only on-device ones, and a pin keeps a voice
   ])
 })
 
-test('Beginner sees Play, Stop and voices; speed, skip and sleep need their switch', async ({
+test('RD-P22 RD-P23 RD-P24 Beginner sees Play, Stop and voices; speed, skip and sleep need their switch', async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -193,7 +193,9 @@ test('Beginner sees Play, Stop and voices; speed, skip and sleep need their swit
   await expect(page.getByTestId('rv2-listen-back')).toHaveCount(0)
 })
 
-test('Professional sees speed, skip and the sleep timer', async ({ page }) => {
+test('RD-P22 RD-P23 RD-P24 Professional sees speed, skip and the sleep timer', async ({
+  page,
+}) => {
   await page.addInitScript(() =>
     localStorage.setItem(
       'learning-notes:level',
@@ -300,3 +302,23 @@ test('RD-B44 with no on-device voice for the language Listen says so and never s
   await expect(listen(page)).toHaveAttribute('aria-pressed', 'false')
   expect(await spoken(page)).toHaveLength(0)
 })
+
+for (const [spec, id, shown] of [
+  ['RD-P22', 'reader.aloudSkip', 'rv2-listen-back'],
+  ['RD-P23', 'reader.aloudVoice', 'rv2-listen-speed'],
+  ['RD-P24', 'reader.sleepTimer', 'rv2-listen-sleep'],
+] as const) {
+  test(`${spec} ${id}: only its own control joins the Listen card`, async ({
+    page,
+  }) => {
+    await page.addInitScript(
+      (v) => localStorage.setItem('learning-notes:level', v),
+      JSON.stringify({ level: 'beginner', unlocked: [id] }),
+    )
+    await openPdf(page)
+    await holdListen(page)
+    const all = ['rv2-listen-back', 'rv2-listen-speed', 'rv2-listen-sleep']
+    for (const t of all)
+      await expect(page.getByTestId(t)).toHaveCount(t === shown ? 1 : 0)
+  })
+}

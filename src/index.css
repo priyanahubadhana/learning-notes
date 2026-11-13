@@ -1229,3 +1229,25 @@ html[data-box-drag] {
 [data-reorder-mark='below'] > * {
   box-shadow: inset 0 -2px 0 0 var(--color-accent);
 }
+
+/* Sideways rows that are wider than the screen: a drawn thin track shows
+   "there is more" (touch screens hide the browser's own bar). Part: ScrollTrack. */
+.h-track {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.h-track::-webkit-scrollbar {
+  display: none;
+}
+.h-track__bar {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-soft, var(--color-line));
+}
+.h-track__bar > span {
+  position: absolute;
+  inset-block: 0;
+  border-radius: 2px;
+  background: var(--card-track, var(--color-line-strong));
+}

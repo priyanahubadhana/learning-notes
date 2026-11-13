@@ -9,6 +9,8 @@ import { makePdf } from './fixtures/books.ts'
  * night and sepia. Run with SHOTS=after; without it the tests are skipped.
  */
 const SHOTS = process.env.SHOTS
+/** Fourth-visit pictures go to v4/before or v4/after. */
+const DIR = SHOTS?.startsWith('v4') ? `v4/${SHOTS.slice(3)}` : 'after'
 const SIZES = {
   pc: { width: 1180, height: 820 },
   ipadP: { width: 820, height: 1180 },
@@ -31,7 +33,7 @@ async function shot(page: Page, name: string) {
     )
     await page.waitForTimeout(150)
     await page.screenshot({
-      path: `screenshots/gate3-6/after/${name}-${th}.png`,
+      path: `screenshots/gate3-6/${DIR}/${name}-${th}.png`,
     })
   }
 }
@@ -117,7 +119,7 @@ async function openLibrary(page: Page, level: string) {
 
 for (const [size, vp] of Object.entries(SIZES)) {
   test.describe(`library shots ${size}`, () => {
-    test.skip(!SHOTS, 'pictures only')
+    test.skip(!SHOTS || SHOTS.startsWith('v4'), 'pictures only')
 
     test('book panel and Knowledge with highlights', async ({ page }) => {
       test.setTimeout(180_000)
@@ -155,6 +157,39 @@ for (const [size, vp] of Object.entries(SIZES)) {
       await page.getByTestId('highlight-row').first().click()
       await expect(page.getByTestId('highlight-preview')).toBeVisible()
       await shot(page, `8-knowledge-preview-${size}`)
+    })
+  })
+}
+
+/** Gate 3 fourth visit (slice 6): one picture per fix, SHOTS=v4-before|v4-after. */
+for (const [size, vp] of Object.entries(SIZES)) {
+  test.describe(`library v4 shots ${size}`, () => {
+    test.skip(!SHOTS?.startsWith('v4'), 'pictures only')
+
+    test('fixes 1-5', async ({ page }) => {
+      test.setTimeout(240_000)
+      await page.setViewportSize(vp)
+      await openLibrary(page, 'professional')
+      await addBook(page, 'Alpha Book')
+      // Fix 5: the toast right after adding, above the tab bar.
+      await addBook(page, 'Bravo Book')
+      await shot(page, `5-toast-${size}`)
+      await expect(page.locator('[data-toast]')).toBeHidden({ timeout: 15_000 })
+      await addHighlights(page)
+      // Fixes 1 and 3: Books filter row and tab row.
+      await shot(page, `1-3-books-filters-tabs-${size}`)
+      // Fix 2: Knowledge filters.
+      await page.getByTestId('tab-knowledge').click()
+      await expect(page.getByTestId('highlight-row')).toHaveCount(5)
+      await shot(page, `2-knowledge-filters-${size}`)
+      await page.getByTestId('tab-books').click()
+      // Fix 4: the book panel.
+      await page.getByTestId('source-start').first().click()
+      await expect(page.getByTestId('book-reader')).toBeVisible()
+      await page.getByTestId('panel-toggle').click()
+      await expect(page.getByTestId('left-panel')).toBeVisible()
+      await page.waitForTimeout(600)
+      await shot(page, `4-book-panel-${size}`)
     })
   })
 }

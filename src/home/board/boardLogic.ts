@@ -26,12 +26,12 @@ export interface Slot {
 export type Layout = Slot[]
 
 export const DEFAULT_LAYOUT: Layout = [
-  { id: 'cards', size: 'l' },
-  { id: 'briefing', size: 'l' },
+  { id: 'cards', size: 's' },
+  { id: 'record', size: 's' },
+  { id: 'briefing', size: 'm' },
   { id: 'top3', size: 'm' },
   { id: 'pending', size: 'm' },
-  { id: 'timer', size: 'l' },
-  { id: 'record', size: 'l' },
+  { id: 'timer', size: 'm' },
 ]
 
 const isId = (v: unknown): v is WidgetId => WIDGET_IDS.includes(v as WidgetId)
@@ -136,9 +136,10 @@ export function columnsFor(
   width: number,
   gap: number,
   minCell: number,
+  most: number = BOARD_COLS,
 ): number {
-  if (!(width > 0)) return BOARD_COLS
-  const cell = Math.max(minCell, width / BOARD_COLS - gap)
+  if (!(width > 0)) return most
+  const cell = Math.max(minCell, width / most - gap)
   const n = Math.floor((width + gap) / (cell + gap))
-  return Math.max(1, Math.min(BOARD_COLS, n))
+  return Math.max(1, Math.min(most, n))
 }

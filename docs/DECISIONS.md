@@ -73,6 +73,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 ## Decisions to review
 
 - **2026-11-13 · foundationInput e2e no longer checks the gesture router is absent at start.** Slice 4 (search v2 8, hold strip) uses it on purpose (`useRowHold`), so it loads with the app; the spec line "not in the first-load bundle" (foundation-input.md) is out of date for the gesture router. The event router check stays. Owner may prefer to lazy-load it behind the flag instead.
+- **2026-11-13 · Sidebar starts closed on iPad portrait (slice 5, flag home.v2).** src/App.tsx (~line 845): when `home.v2` is on and the screen is 40rem to 859.98px wide, the sidebar's first-run default is closed so the Home board keeps its width; an own choice is remembered. Review whether to make this the shell default for all slices (orchestration review fix 3).
+
 - **2026-11-13 · check:dod reads table specs.** "When" lines now also count table rows starting with a spec ID (`| SP-40 |`, `| RV-B01 |`) and `- PM-01 When` bullets; flag `-` skips the flag check for shared parts; a numbered "### 8. Won't do" heading is accepted. Won't do, test counts and size checks are unchanged. Files: scripts/check-dod.mjs, scripts/dodSpec.mjs.
 - **2026-11-13 · Build speed rules (decided by Fable, owner delegated; full text docs/ECONOMY-MODE.md section 11).** No test, gate, Definition of Done line, design rule or Fable check was changed. Each change and why quality is not affected:
   - Builder cap 6 to 8, on files that do not overlap, at most 2 local iPad test runs at once. Quality: every slice still passes the same 3 gates and CI; falls back to 6 if rework or flaky tests rise.
@@ -1164,3 +1166,6 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **"Open in new place" opens a new browser tab** until the side panel exists (SR-B10).
 - **"This page" search scope** keeps hits on the open page and shows the number of matches; the previous / next arrows ("3 of 12") wait for the editor find slice.
 - **Duplicate notebook** copies every page (sub-pages, text, drawings, cards) and the cover colour, using the page copy and move services; Undo sends the copy to Trash. Tabs and privacy settings are not copied.
+
+- Test guard hook (13 Nov 2026, owner approved): the hook also blocks longer timeouts (timeout, actionTimeout, expect, test), `grepInvert`, `testIgnore`, new `.skip(`/`.fixme(` and deleted test files. A weakening passes only with a comment `test-guard-reason: <5+ words>` on the same added line or the line above, repeated in the commit message. Deleting files via Bash is checked only after a Bash hook entry is added in settings.json (not done; owner to decide). Details: docs/ECONOMY-MODE.md section 12.
+- Batch CI (13 Nov 2026, owner decision): one CI run for up to 3 slices that passed gate 2 and gate 3. Red run: bisect one by one. Never skip tests, never merge to main without a green run.

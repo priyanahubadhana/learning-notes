@@ -80,18 +80,18 @@ test('flag on: six widgets, no top-bar Done, new wording', async ({ page }) => {
   await openHome(page)
   expect(await ids(page)).toEqual([
     'cards',
+    'record',
     'briefing',
     'top3',
     'pending',
     'timer',
-    'record',
   ])
   await expect(
     page.getByRole('button', { name: 'Done', exact: true }),
   ).toHaveCount(0)
   const text = (await page.getByTestId('home-board').innerText()) ?? ''
   expect(text).not.toMatch(/Period|Built from/)
-  await expect(page.getByTestId('source-top3').first()).toHaveText(
+  await expect(page.getByTestId('source-top3').first()).toHaveAccessibleName(
     'Where this comes from',
   )
 })
@@ -199,22 +199,22 @@ test('Done saves the layout, Cancel drops it, Reset restores the default', async
   await page.getByRole('button', { name: 'Cancel' }).click()
   await expect(page.getByTestId('widget-timer')).toHaveAttribute(
     'data-size',
-    'l',
+    'm',
   )
   await edit(page)
-  await page.getByTestId('size-timer-m').click()
+  await page.getByTestId('size-timer-l').click()
   await page.getByRole('button', { name: 'Done', exact: true }).click()
   await expect(page.getByTestId('home-edit-bar')).toHaveCount(0)
   await openHome(page)
   await expect(page.getByTestId('widget-timer')).toHaveAttribute(
     'data-size',
-    'm',
+    'l',
   )
   await edit(page)
   await page.getByRole('button', { name: 'Reset' }).click()
   await expect(page.getByTestId('widget-timer')).toHaveAttribute(
     'data-size',
-    'l',
+    'm',
   )
   await page.getByRole('button', { name: 'Done', exact: true }).click()
 })
@@ -260,16 +260,12 @@ test('Pending items lists open tasks and a tick finishes one', async ({
     await page.getByTestId('quick-add').press('Enter')
   }
   await page.getByRole('tab', { name: 'Today', exact: true }).click()
-  await expect(page.getByTestId('pending-title')).toHaveText(
-    'Pending items (2)',
-  )
+  await expect(page.getByTestId('pending-title')).toHaveText('2 open')
   await page
     .getByTestId('pending-card')
     .getByRole('checkbox', { name: /Write essay/ })
     .click()
-  await expect(page.getByTestId('pending-title')).toHaveText(
-    'Pending items (1)',
-  )
+  await expect(page.getByTestId('pending-title')).toHaveText('1 open')
   await expect(page.getByTestId('pending-card')).not.toContainText(
     'Write essay',
   )
@@ -334,9 +330,7 @@ test('Pending items shows at most 5 and says how many more', async ({
     await page.getByTestId('quick-add').press('Enter')
   }
   await page.getByRole('tab', { name: 'Today', exact: true }).click()
-  await expect(page.getByTestId('pending-title')).toHaveText(
-    'Pending items (7)',
-  )
+  await expect(page.getByTestId('pending-title')).toHaveText('7 open')
   await expect(
     page.getByTestId('pending-card').getByRole('checkbox'),
   ).toHaveCount(5)

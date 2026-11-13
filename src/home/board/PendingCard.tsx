@@ -25,8 +25,8 @@ export function PendingCard({
     )
   return (
     <div data-testid="pending-card">
-      <p className="mb-2 text-sm font-semibold" data-testid="pending-title">
-        {t('home.v2.pending.title', { count: total })}
+      <p className="mb-2 text-xs text-muted" data-testid="pending-title">
+        {t('home.v2.pending.count', { count: total })}
       </p>
       {total === 0 ? (
         <p className="text-sm text-muted">{t('home.v2.pending.empty')}</p>

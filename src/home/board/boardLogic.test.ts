@@ -155,3 +155,10 @@ describe('columnsFor', () => {
     expect(columnsFor(0, 12, 144)).toBe(4)
   })
 })
+
+describe('columnsFor with a most-columns cap (gate 3: 2 columns below 860 px)', () => {
+  it('never gives more columns than the cap, even on a wide list', () => {
+    expect(columnsFor(768, 12, 144, 2)).toBe(2)
+    expect(columnsFor(768, 12, 144, 4)).toBe(4)
+  })
+})

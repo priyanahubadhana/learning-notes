@@ -19,7 +19,13 @@ export interface ToastAction {
 
 export interface BuildToastsApi {
   push(message: string, action?: ToastAction): void
+  /** Closes every message (the screen moved on to its next state). */
+  clear(): void
 }
+
+/** A plain message closes by itself after 4 s; one with Undo stays 8 s. */
+const PLAIN_MS = 4000
+const ACTION_MS = 8000
 
 const TITLE = '[data-aifw-title]'
 
@@ -32,7 +38,7 @@ const TITLE = '[data-aifw-title]'
 export const BuildToasts = forwardRef<BuildToastsApi>(
   function BuildToasts(_props, ref) {
     const queue = useMemo(
-      () => createToastQueue({ max: 3, timeoutMs: 8000 }),
+      () => createToastQueue({ max: 3, timeoutMs: PLAIN_MS }),
       [],
     )
     const actions = useRef(new Map<number, ToastAction>())
@@ -42,8 +48,16 @@ export const BuildToasts = forwardRef<BuildToastsApi>(
       ref,
       () => ({
         push(message, action) {
-          const id = queue.push({ message })
+          // One message at a time: the new one replaces the old (no stacking).
+          for (const old of queue.visible()) queue.dismiss(old.id)
+          const id = queue.push({
+            message,
+            timeoutMs: action ? ACTION_MS : PLAIN_MS,
+          })
           if (action) actions.current.set(id, action)
+        },
+        clear() {
+          for (const old of queue.visible()) queue.dismiss(old.id)
         },
       }),
       [queue],

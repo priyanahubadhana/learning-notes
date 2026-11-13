@@ -196,6 +196,8 @@ export interface MenuItem {
   danger?: boolean
   /** Red but kept where it was put, not moved to the end. */
   inPlace?: boolean
+  /** A small colour dot before the label (a colour choice). */
+  swatch?: string
 }
 
 /**
@@ -357,6 +359,13 @@ export function MenuPopover({
               <Glyph icon={item.icon} />
             )}
           </span>
+          {item.swatch && (
+            <span
+              aria-hidden
+              className="size-3 shrink-0 rounded-full"
+              style={{ background: item.swatch }}
+            />
+          )}
           <span className="flex-1">
             {item.label}
             {item.description && (
@@ -398,6 +407,18 @@ export function MenuPopover({
  * Short message at the bottom of the screen (render it only while shown).
  * An optional action (e.g. Undo) is a tap-sized button inside it.
  */
+/** Gate 3 v4 (slice 6, fix 5): on a phone the toast sits above the tab bar. */
+function aboveTabBar(): number | undefined {
+  // The bar of spaces (old strip or new tab bar) when it sits at the bottom.
+  const bar = document.querySelector('[data-space]')?.closest('nav')
+  if (!bar) return undefined
+  const r = bar.getBoundingClientRect()
+  const h = window.innerHeight
+  return r.bottom >= h - 2 && r.top > h / 2
+    ? Math.round(h - r.top + 12)
+    : undefined
+}
+
 export function Toast({
   message,
   action,
@@ -453,7 +474,7 @@ export function Toast({
       // the pill's height (62 px) under the person's pen.
       data-popup-trigger
       data-toast
-      style={{ bottom: toastBottom(kb) }}
+      style={{ bottom: toastBottom(kb) ?? aboveTabBar() }}
       className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
     >
       <span>{message}</span>

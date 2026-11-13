@@ -53,6 +53,12 @@ async function importBook(page: Page, title: string) {
   ).toBeVisible()
 }
 
+/** Chooses one item from a ▾ menu chip. */
+async function pick(page: Page, id: string, name: string) {
+  await page.getByTestId(id).click()
+  await page.getByRole('menuitemradio', { name, exact: true }).click()
+}
+
 /** Puts a highlight straight into the local database (a fixture). */
 async function addHighlight(page: Page, bookTitle: string, quote: string) {
   await page.evaluate(
@@ -383,9 +389,12 @@ test.describe('Library v2 (Beginner)', () => {
     await row.click()
     const preview = page.getByTestId('highlight-preview')
     await expect(preview).toContainText('A line worth keeping forever')
-    await page.getByTestId('know-colour-blue').click()
+    // Gate 3 v5: the colours are one Colour ▾ chip.
+    await page.getByTestId('know-colour').click()
+    await page.getByRole('menuitemradio', { name: 'Blue' }).click()
     await expect(page.getByTestId('knowledge-empty')).toBeVisible()
-    await page.getByTestId('know-colour-blue').click()
+    await page.getByTestId('know-colour').click()
+    await page.getByRole('menuitemradio', { name: 'Any colour' }).click()
     await page.getByTestId('highlight-row').click()
     await page.getByTestId('highlight-card').click()
     await expect(
@@ -548,11 +557,11 @@ test.describe('Library v2: Knowledge filters, saved filters, Daily count', () =>
     await page.getByTestId('tab-knowledge').click()
     await expect(page.getByTestId('know-pro-row')).toBeVisible()
     await expect(page.getByTestId('highlight-row')).toHaveCount(1)
-    await page.getByTestId('know-type').selectOption('note')
+    await pick(page, 'know-type', 'Notes')
     await expect(page.getByTestId('knowledge-empty')).toBeVisible()
-    await page.getByTestId('know-type').selectOption('highlight')
+    await pick(page, 'know-type', 'Highlights')
     await expect(page.getByTestId('highlight-row')).toHaveCount(1)
-    await page.getByTestId('know-date').selectOption('week')
+    await pick(page, 'know-date', 'This week')
     await expect(page.getByTestId('highlight-row')).toHaveCount(1)
     await expect(page.getByTestId('know-tag')).toBeVisible()
     // Save the filter.
@@ -566,10 +575,13 @@ test.describe('Library v2: Knowledge filters, saved filters, Daily count', () =>
       panel.getByRole('button', { name: 'This week', exact: true }),
     ).toBeVisible()
     // Reset, then apply it from the side panel (opens Knowledge).
-    await page.getByTestId('know-date').selectOption('any')
+    await pick(page, 'know-date', 'Any date')
     await page.getByTestId('tab-books').click()
     await panel.getByRole('button', { name: 'This week', exact: true }).click()
-    await expect(page.getByTestId('know-date')).toHaveValue('week')
+    await expect(page.getByTestId('know-date')).toHaveAttribute(
+      'data-value',
+      'week',
+    )
     // Remove with Undo.
     await panel.getByRole('button', { name: /Remove saved filter/ }).click()
     await expect(page.getByTestId('panel-saved-empty')).toBeVisible()
@@ -777,5 +789,155 @@ test.describe('Library v2: 1,000 books', () => {
     await cards.last().scrollIntoViewIfNeeded()
     await expect.poll(() => cards.count()).toBeGreaterThan(first)
     expect(await cards.count()).toBeLessThan(1000)
+  })
+})
+
+/** Gate 3, fourth visit (slice 6): fixes 1 to 5. */
+test.describe('Library v2: gate 3 fourth visit fixes', () => {
+  const GLYPHS = /^[TS#↕☰▦☑]$/
+
+  for (const vp of [
+    { width: 400, height: 820 },
+    { width: 820, height: 1180 },
+  ])
+    test(`G4-1 Books filter chips keep words and a Lucide icon, one row with a track (${vp.width})`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(vp)
+      await openLibrary(page, { level: 'professional' })
+      await importBook(page, 'Alpha Book')
+      const row = page.getByTestId('pro-row')
+      for (const id of ['type', 'tag', 'sort', 'view', 'select']) {
+        const chip = row.getByTestId(`pro-${id}`)
+        const text = ((await chip.textContent()) ?? '').replace('▾', '').trim()
+        expect(text).not.toMatch(GLYPHS)
+        expect(text.length).toBeGreaterThan(2)
+        await expect(chip.locator('svg')).toHaveCount(1)
+      }
+      const tops = await row
+        .locator('> button')
+        .evaluateAll((els) =>
+          els.map((e) => Math.round(e.getBoundingClientRect().top)),
+        )
+      expect(new Set(tops).size).toBe(1)
+      if (vp.width < 500)
+        await expect(
+          page
+            .getByTestId('pro-row')
+            .locator('xpath=..')
+            .getByTestId('scroll-track'),
+        ).toBeVisible()
+    })
+
+  test('G4-2 Knowledge filters are shared ▾ menu chips; phone row has a track', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 400, height: 820 })
+    await openLibrary(page, { level: 'professional' })
+    await importBook(page, 'Alpha Book')
+    await addHighlight(page, 'Alpha Book', 'Chip me please')
+    await page.getByTestId('tab-knowledge').click()
+    await expect(page.getByTestId('highlight-row')).toHaveCount(1)
+    const k = page.getByTestId('knowledge')
+    await expect(k.locator('select')).toHaveCount(0)
+    for (const id of [
+      'know-book',
+      'know-sort',
+      'know-type',
+      'know-tag',
+      'know-date',
+    ])
+      await expect(k.getByTestId(id)).toHaveAttribute('aria-haspopup', 'menu')
+    await k.getByTestId('know-sort').click()
+    await page.getByRole('menuitemradio', { name: 'Book order' }).click()
+    await expect(k.getByTestId('know-sort')).toHaveAttribute(
+      'data-value',
+      'book',
+    )
+    await expect(
+      page
+        .getByTestId('know-row')
+        .locator('xpath=..')
+        .getByTestId('scroll-track'),
+    ).toBeVisible()
+  })
+
+  test('G4-2 PC: chips are sized to their words, one row', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 820 })
+    await openLibrary(page, { level: 'professional' })
+    await importBook(page, 'Alpha Book')
+    await addHighlight(page, 'Alpha Book', 'Chip me please')
+    await page.getByTestId('tab-knowledge').click()
+    const w = await page
+      .getByTestId('know-book')
+      .evaluate((e) => e.getBoundingClientRect().width)
+    expect(w).toBeLessThan(160)
+  })
+
+  test('G4-3 phone tab row stops before search and shows a track', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 400, height: 820 })
+    await openLibrary(page, { level: 'professional' })
+    await importBook(page, 'Alpha Book')
+    const list = page.getByRole('tablist', { name: 'Library' })
+    const right = await list.evaluate((e) => e.getBoundingClientRect().right)
+    const search = await page
+      .getByTestId('library-search-button')
+      .evaluate((e) => e.getBoundingClientRect().left)
+    expect(right).toBeLessThanOrEqual(search)
+    await expect(
+      page
+        .getByTestId('tab-row')
+        .locator('xpath=..')
+        .getByTestId('scroll-track'),
+    ).toBeVisible()
+  })
+
+  for (const vp of [
+    { width: 400, height: 820 },
+    { width: 820, height: 1180 },
+  ])
+    test(`G4-4 book panel is solid, below the top bar, with a dim layer (${vp.width})`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(vp)
+      await openLibrary(page, { level: 'professional' })
+      await importBook(page, 'Alpha Book')
+      await page.getByTestId('source-start').first().click()
+      await expect(page.getByTestId('book-reader')).toBeVisible()
+      const toggle = page.getByTestId('panel-toggle')
+      const bar = await toggle.evaluate(
+        (e) => e.closest('header')!.getBoundingClientRect().bottom,
+      )
+      await toggle.click()
+      const panel = page.getByTestId('left-panel')
+      await expect(panel).toBeVisible()
+      const box = (await panel.boundingBox())!
+      expect(box.y).toBeGreaterThanOrEqual(bar - 1)
+      await expect(page.getByTestId('left-panel-dim')).toBeVisible()
+      const bg = await panel.evaluate(
+        (e) => getComputedStyle(e).backgroundColor,
+      )
+      expect(bg).not.toMatch(/rgba\(.*,\s*0(\.\d+)?\)$/)
+      if (vp.width < 500) expect(box.width).toBeGreaterThanOrEqual(vp.width - 1)
+      // The top bar's panel button stays reachable and closes the panel.
+      await toggle.click()
+      await expect(panel).toBeHidden()
+    })
+
+  test('G4-5 toast closes by itself and sits above the phone tab bar', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 400, height: 820 })
+    await openLibrary(page, { level: 'professional' })
+    await importBook(page, 'Alpha Book')
+    const toast = page.locator('[data-toast]')
+    await expect(toast).toBeVisible()
+    const tb = page.locator('nav:has([data-space="library"])')
+    const top = (await tb.boundingBox())!.y
+    const tbox = (await toast.boundingBox())!
+    expect(tbox.y + tbox.height).toBeLessThanOrEqual(top)
+    await expect(toast).toBeHidden({ timeout: 6000 })
   })
 })

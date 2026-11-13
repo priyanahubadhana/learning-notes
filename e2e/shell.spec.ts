@@ -376,6 +376,21 @@ test('SH-08 iPad portrait 820: the sidebar sits on the rail and the panel opens 
   await expect(page.getByTestId('shell-scrim')).toBeVisible()
 })
 
+test('SH-08 iPad portrait 820 and 768: the sidebar is closed on first open, with and without Home v2', async ({
+  page,
+}) => {
+  for (const flags of ['foundation.shell', 'foundation.shell,home.v2']) {
+    for (const width of [820, 768]) {
+      await page.setViewportSize({ width, height: 1180 })
+      await page.goto(`/?flags=${flags}`)
+      await page.evaluate(() => localStorage.clear())
+      await page.goto(`/?flags=${flags}`)
+      await expect(page.locator('.sh-frame')).toBeVisible()
+      await expect(side(page)).toBeHidden()
+    }
+  }
+})
+
 test('SH-08 1366 wide still docks both and the page keeps 600 or more', async ({
   page,
 }) => {
@@ -399,4 +414,27 @@ test('SH-05 with the flag off Settings has no Undo and Redo row; on, it has', as
   await expect(
     page.locator('[data-setting-id="general.showUndoRedo"]'),
   ).toHaveCount(1)
+})
+
+test('SH-12 the app’s messages use the shell toast: Delete page shows one with Undo, and Undo restores', async ({
+  page,
+}) => {
+  await start(page)
+  await createNotebook(page, 'Delete NB', 'Parent')
+  await addPage(page, 'Parent', 'Child', 'sub-page')
+  await openPage(page, 'Parent')
+  await pageAction(page, 'Delete page')
+  const toast = page.getByTestId('shell-toast')
+  await expect(toast).toContainText('1 sub-page')
+  await expect(toast).toHaveAttribute('role', 'status')
+  // One toast only: the older one is not drawn.
+  await expect(page.getByRole('status')).toHaveCount(1)
+  await toast.getByRole('button', { name: 'Undo' }).click()
+  await expect(toast).toBeHidden()
+  await showSidebar(page)
+  await expect(
+    page
+      .locator('#sidebar')
+      .getByRole('button', { name: 'Parent', exact: true }),
+  ).toBeVisible()
 })

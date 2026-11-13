@@ -9,7 +9,8 @@ import {
 } from 'react'
 import { useFlag } from '../app/flags'
 import { AppUiContext } from '../app/appUi'
-import { ConfirmDialog, EmptyState, IconButton, MenuPopover } from '../app/ui'
+import { ConfirmDialog, EmptyState, IconButton } from '../app/ui'
+import { RowMenu, rowHoldMs, type RowPoint } from '../app/RowStrip'
 import { useLongPress } from '../app/useLongPress'
 import { deletePage } from '../pages/pageService'
 import { runTask } from '../app/errors'
@@ -247,10 +248,19 @@ function SourceCard({
 }) {
   // The ⋯ button or a press-and-hold (finger or Pencil) opens the actions.
   const [menuAt, setMenuAt] = useState<DOMRect | null>(null)
-  const hold = useLongPress((x, y) => {
-    const card = document.elementFromPoint(x, y)?.closest('article')
-    if (card) setMenuAt(card.getBoundingClientRect())
-  }, true)
+  // Flag page.menus: a long-press opens the strip at the press point (PM-23).
+  const [menuPt, setMenuPt] = useState<RowPoint | null>(null)
+  const hold = useLongPress(
+    (x, y) => {
+      const card = document.elementFromPoint(x, y)?.closest('article')
+      if (card) {
+        setMenuPt({ x, y })
+        setMenuAt(card.getBoundingClientRect())
+      }
+    },
+    true,
+    rowHoldMs,
+  )
   const source = page.source
   const cover = useImageUrl(
     source?.coverImageId ? imageRef(source.coverImageId) : null,
@@ -290,14 +300,18 @@ function SourceCard({
         data-testid="source-menu-button"
         aria-label={t('library.cardMenu')}
         aria-haspopup="menu"
-        onClick={(e) => setMenuAt(e.currentTarget.getBoundingClientRect())}
+        onClick={(e) => {
+          setMenuPt(null)
+          setMenuAt(e.currentTarget.getBoundingClientRect())
+        }}
         className="grid size-11 place-items-center rounded-full bg-bg/80 text-ink-soft hover:bg-hover"
       >
         ⋯
       </IconButton>
       {menuAt && (
-        <MenuPopover
+        <RowMenu
           anchor={menuAt}
+          at={menuPt}
           onClose={() => setMenuAt(null)}
           items={[
             {

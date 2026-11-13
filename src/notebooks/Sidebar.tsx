@@ -42,6 +42,7 @@ import { LazyNotebookMenu } from '../app/LazyNameSheet'
 import { useRowPalmGuard } from '../app/useRowPalmGuard'
 import { touchUi } from '../app/touchUi'
 import { useLongPress } from '../app/useLongPress'
+import { rowHoldMs } from '../app/RowStrip'
 import type { ReviewScope } from '../recall/reviewService'
 import { countDue, dueByNotebook } from '../recall/reviewLazy'
 import { notebookColour, shortLabel } from './notebookLook'
@@ -182,18 +183,24 @@ export function Sidebar({
   const [rowMenu, setRowMenu] = useState<{
     id: string
     anchor: DOMRect
+    at?: { x: number; y: number }
   } | null>(null)
-  const hold = useLongPress((x, y) => {
-    const row = document
-      .elementFromPoint(x, y)
-      ?.closest<HTMLElement>('[data-notebook-row]')
-    if (row) {
-      setRowMenu({
-        id: row.dataset.notebookRow!,
-        anchor: row.getBoundingClientRect(),
-      })
-    }
-  }, true)
+  const hold = useLongPress(
+    (x, y) => {
+      const row = document
+        .elementFromPoint(x, y)
+        ?.closest<HTMLElement>('[data-notebook-row]')
+      if (row) {
+        setRowMenu({
+          id: row.dataset.notebookRow!,
+          anchor: row.getBoundingClientRect(),
+          at: { x, y },
+        })
+      }
+    },
+    true,
+    rowHoldMs,
+  )
 
   // Due count for the Review button; re-checked every minute so cards
   // that come due (e.g. after Again) show up without other changes.
@@ -756,6 +763,7 @@ export function Sidebar({
               index={at}
               count={notebooks.length}
               anchor={rowMenu.anchor}
+              at={rowMenu.at}
               toast={toast}
               onAddPage={() => openAddMenu(rowMenu.anchor, notebook.id, null)}
               onReview={() =>

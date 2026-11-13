@@ -1,4 +1,7 @@
-import { IconButton } from '../app/ui'
+import { IconButton, type MenuItem } from '../app/ui'
+import { useFlag } from '../app/flags'
+import { RowMenu, rowHoldMs, type RowPoint } from '../app/RowStrip'
+import { useState } from 'react'
 import { useLongPress } from '../app/useLongPress'
 import type { HTMLAttributes } from 'react'
 import { useAnchoredMenu } from '../app/tools/useAnchoredMenu'
@@ -33,15 +36,48 @@ export function TaskRow({
   extra?: React.ReactNode
 }) {
   const menu = useAnchoredMenu()
+  // Flag page.menus: a long-press opens the strip at the press point (PM-23).
+  const stripOn = useFlag('page.menus')
+  const [strip, setStrip] = useState<{ at: RowPoint; rect: DOMRect } | null>(
+    null,
+  )
   // Press and hold the row (finger or Pencil) = the same as its ⋯ button.
-  const hold = useLongPress((x, y) => {
-    const row = document.elementFromPoint(x, y)?.closest('[data-task-id]')
-    const button = row?.querySelector<HTMLElement>(
-      '[data-testid="task-menu-button"]',
-    )
-    if (button) menu.openAt(button)
-  }, true)
+  const hold = useLongPress(
+    (x, y) => {
+      const row = document.elementFromPoint(x, y)?.closest('[data-task-id]')
+      const button = row?.querySelector<HTMLElement>(
+        '[data-testid="task-menu-button"]',
+      )
+      if (stripOn && row)
+        setStrip({ at: { x, y }, rect: row.getBoundingClientRect() })
+      else if (button) menu.openAt(button)
+    },
+    true,
+    rowHoldMs,
+  )
   const done = task.status === 'done'
+  const stripItems = (): MenuItem[] => {
+    const items: MenuItem[] = []
+    if (task.status === 'open')
+      items.push({
+        label: t('home.carry.tomorrow'),
+        icon: 'calendar',
+        onSelect: () => actions.tomorrow(task),
+      })
+    if (task.sourcePageId && actions.openSource)
+      items.push({
+        label: t('home.openNote'),
+        icon: 'fileText',
+        onSelect: () => actions.openSource?.(task),
+      })
+    items.push({
+      label: t('home.task.delete'),
+      icon: 'trash',
+      danger: true,
+      onSelect: () => actions.remove(task),
+    })
+    return items
+  }
   const project = projects.find((p) => p.id === task.projectId)
   return (
     <li
@@ -111,6 +147,23 @@ export function TaskRow({
       >
         ⋯
       </IconButton>
+      {strip && (
+        <RowMenu
+          anchor={strip.rect}
+          at={strip.at}
+          items={stripItems()}
+          onClose={() => setStrip(null)}
+          all={{
+            label: t('home.task.menu'),
+            open: () => {
+              const b = document.querySelector<HTMLElement>(
+                `[data-task-id="${task.id}"] [data-testid="task-menu-button"]`,
+              )
+              if (b) menu.openAt(b)
+            },
+          }}
+        />
+      )}
       {menu.open && (
         <TaskMenu
           menu={menu}

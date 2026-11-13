@@ -9,6 +9,7 @@ import { favourites, toggleFavourite } from '../app/favourites'
 import { RenameInput, RowMenuButton, IconButton } from '../app/ui'
 import { LazyPageMenu } from '../app/LazyNameSheet'
 import { useLongPress } from '../app/useLongPress'
+import { rowHoldMs } from '../app/RowStrip'
 import { touchUi } from '../app/touchUi'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
@@ -75,19 +76,25 @@ export function PageTree({
   const [rowMenu, setRowMenu] = useState<{
     id: string
     anchor: DOMRect
+    at?: { x: number; y: number }
   } | null>(null)
   const menuPage = rowMenu ? pages?.find((p) => p.id === rowMenu.id) : undefined
-  const hold = useLongPress((x, y) => {
-    const row = document
-      .elementFromPoint(x, y)
-      ?.closest<HTMLElement>('[data-page-id]')
-    if (row) {
-      setRowMenu({
-        id: row.dataset.pageId!,
-        anchor: row.getBoundingClientRect(),
-      })
-    }
-  }, true)
+  const hold = useLongPress(
+    (x, y) => {
+      const row = document
+        .elementFromPoint(x, y)
+        ?.closest<HTMLElement>('[data-page-id]')
+      if (row) {
+        setRowMenu({
+          id: row.dataset.pageId!,
+          anchor: row.getBoundingClientRect(),
+          at: { x, y },
+        })
+      }
+    },
+    true,
+    rowHoldMs,
+  )
   if (!pages) return null
 
   // A move with one Undo that puts the page back where it was.
@@ -323,6 +330,7 @@ export function PageTree({
           db={db}
           page={menuPage}
           anchor={rowMenu.anchor}
+          at={rowMenu.at}
           toast={toast}
           rootId={rootId}
           canMove={canMove}

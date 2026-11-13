@@ -1,7 +1,8 @@
 import { runTask } from '../app/errors'
 import { editLockItem } from '../app/lock/editLockMenu'
 import { toggleLock } from '../app/lock/lockMenu'
-import { MenuPopover, type MenuItem } from '../app/ui'
+import type { MenuItem } from '../app/ui'
+import { RowMenu, type RowPoint } from '../app/RowStrip'
 import type { LearningNotesDB } from '../core/db'
 import type { Notebook } from '../core/types'
 import { t } from '../i18n/t'
@@ -14,6 +15,7 @@ export default function NotebookRowMenu({
   index,
   count,
   anchor,
+  at,
   toast,
   onAddPage,
   onReview,
@@ -26,6 +28,8 @@ export default function NotebookRowMenu({
   index: number
   count: number
   anchor: DOMRect
+  /** Where the long-press was (flag page.menus: the strip opens there). */
+  at?: RowPoint | null
   toast: (message: string) => void
   onAddPage: () => void
   onReview: () => void
@@ -81,5 +85,5 @@ export default function NotebookRowMenu({
       hint: notebook.editLocked ? t('editLock.deleteHint') : undefined,
     },
   )
-  return <MenuPopover anchor={anchor} items={items} onClose={onClose} />
+  return <RowMenu anchor={anchor} at={at} items={items} onClose={onClose} />
 }

@@ -56,19 +56,25 @@ function outside(value: string | null | undefined): boolean {
 const BOX_STYLE =
   'display:inline-block;box-sizing:border-box;max-width:100%;padding:8px 12px;border:1px dashed color-mix(in srgb,currentColor 30%,transparent);border-radius:8px;font:13px/1.4 sans-serif;color:color-mix(in srgb,currentColor 60%,transparent)'
 
+/** True when any address in the attribute leaves the book (every srcset entry counts). */
+function attrOutside(el: Element, attr: string): boolean {
+  const v = el.getAttribute(attr)
+  if (!v) return false
+  const parts = attr === 'srcset' ? v.split(',') : [v]
+  return parts.some((x) => outside(x.trim().split(/\s+/)[0]))
+}
+
 /** Cuts every outside address out of one element; true when it was an img
  * that must be replaced (the caller decides between a quiet box and nothing). */
 function dropOutside(el: Element): boolean {
   const name = el.localName.toLowerCase()
   const hrefs = ['src', 'srcset', 'poster', 'href', 'xlink:href']
-  const hit = hrefs.some((a) => outside(el.getAttribute(a)?.split(/\s/)[0]))
+  const hit = hrefs.some((a) => attrOutside(el, a))
   if (!hit) return false
   if (name === 'img') return true
   if (name === 'image' || name === 'source' || name === 'video') {
     if (name === 'image') el.remove()
-    else
-      for (const a of hrefs)
-        if (outside(el.getAttribute(a))) el.removeAttribute(a)
+    else for (const a of hrefs) if (attrOutside(el, a)) el.removeAttribute(a)
   }
   return false
 }

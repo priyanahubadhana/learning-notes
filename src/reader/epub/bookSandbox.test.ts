@@ -172,3 +172,28 @@ describe('pictures from outside the book', () => {
     expect(html).not.toContain('t.example')
   })
 })
+
+describe('srcset entries', () => {
+  const out = (body: string) =>
+    hardenBookPage(
+      `<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>T</title></head><body>${body}</body></html>`,
+      XHTML,
+    )
+  it('replaces a picture whose second srcset entry is outside the book', () => {
+    const html = out(
+      '<img src="pic.png" srcset="pic.png 1x, https://t.example/pic2.png 2x" alt="Sun" width="50" height="50"/>',
+    )
+    expect(html).not.toContain('t.example')
+    expect(html).toContain('data-outside-picture')
+  })
+  it('keeps a picture whose srcset entries are all inside the book', () => {
+    const html = out('<img src="a.png" srcset="a.png 1x, b.png 2x" alt="x"/>')
+    expect(html).toContain('srcset="a.png 1x, b.png 2x"')
+  })
+  it('drops an outside entry from a source srcset', () => {
+    const html = out(
+      '<picture><source srcset="a.png 1x, //t.example/b.png 2x"/><img src="a.png" alt="x"/></picture>',
+    )
+    expect(html).not.toContain('t.example')
+  })
+})

@@ -1,4 +1,10 @@
-import { useEffect, useRef, type RefObject } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type RefObject,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { overlay } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
@@ -17,6 +23,32 @@ import { tv } from './tv'
  * The sheet is an overlay-manager entry (layer `sheet`): Esc and outside
  * taps are handled there. Where it shows is decided by CSS (`.sv3-pill`).
  */
+/**
+ * The content card's left and right edges (the Settings screen sits inside
+ * it), as CSS variables for the dock and the sheet: with the sidebar open the
+ * card starts further right than the rail alone says (settingsV3.css).
+ */
+function useCardEdges(area: RefObject<HTMLElement | null>): CSSProperties {
+  const [edges, setEdges] = useState<CSSProperties>({})
+  useEffect(() => {
+    const el = area.current
+    if (!el) return
+    const measure = () => {
+      const r = el.getBoundingClientRect()
+      if (r.width === 0) return
+      setEdges({
+        '--sv3-l': `${Math.round(r.left)}px`,
+        '--sv3-r': `${Math.round(window.innerWidth - r.right)}px`,
+      } as CSSProperties)
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [area])
+  return edges
+}
+
 export function PreviewPill({
   open,
   onToggle,
@@ -38,6 +70,7 @@ export function PreviewPill({
 }) {
   const pill = useRef<HTMLButtonElement>(null)
   const sheet = useRef<HTMLDivElement>(null)
+  const edges = useCardEdges(area)
   const toggle = useRef(onToggle)
   useEffect(() => {
     toggle.current = onToggle
@@ -75,6 +108,7 @@ export function PreviewPill({
           aria-label={tv('sv3.previewTitle')}
           data-preview-sheet
           className="sv3-sheet"
+          style={edges}
         >
           <div className="sv3-sheet-head">
             <h2 className="sv3-preview-title">{tv('sv3.previewTitle')}</h2>
@@ -90,7 +124,7 @@ export function PreviewPill({
           <PreviewBody last={last} db={db} section={section} />
         </div>
       )}
-      <div data-preview-dock className="sv3-dock">
+      <div data-preview-dock className="sv3-dock" style={edges}>
         <button
           ref={pill}
           type="button"

@@ -2,7 +2,7 @@
 
 Goal: the same features, speed, quality and design at a much lower usage cost. Quality is protected by keeping the same 3 gates, the same tests and the same Definition of Done (rules/quality.md). Only who does which job changes.
 
-Status: IN FORCE. CLAUDE.md "How Work Runs" carries the rule. Start with 4 parallel builders; go up to 6 only while rework stays under 2 rounds (owner, 13 Nov).
+Status: IN FORCE. CLAUDE.md "How Work Runs" carries the rule. Start with 4 parallel builders; go up to 6 only while rework stays under 2 rounds (owner, 13 Nov). Speed rules added 13 Nov (section 11) raise the cap to 8 and batch CI; where they differ from an older line, section 11 wins.
 
 ## 1. What the measurements say
 
@@ -22,16 +22,16 @@ Limits of the data: only about a third of the build night's helpers have transcr
 
 ## 2. Recommended setup
 
-| Role                 | Old                                | Economy                                                                                                      | Why                                                                               |
-| -------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| Top (main chat)      | Fable                              | Fable, but thin: starts the orchestrator, relays, nothing else                                               | owner rule: Fable at most half the plan                                           |
-| Orchestrator         | Fable, one long chat               | **Opus**, `economy-orchestrator`, small context, restarted every 3 waves; state lives in docs/BUILD-STATE.md | half the price per token and a quarter of the context: about 80% less per wake-up |
-| Sub-managers         | 3 Opus relays per slice round      | **removed as a relay**; the orchestrator briefs builders directly                                            | one less layer to pay and wait for                                                |
-| Builders             | Sonnet, whole slice, 100-170 turns | **Sonnet**, `economy-builder`, one sub-slice of about 60 turns, targeted tests only                          | cost follows turns                                                                |
-| Mechanical work      | mostly done by Sonnet builders     | **Haiku**, `economy-mechanic`: es/hi texts, formatting, docs lines, clean merges, watching CI                | about 20 times cheaper than Sonnet                                                |
-| Gate 2 (QA)          | Opus sub-manager                   | **Opus**, `economy-gate2`, read-only, once per finished slice                                                | same check, same model                                                            |
-| Gate 3 (screenshots) | Fable                              | **Fable**, `economy-gate3`, 2 to 4 slices per visit                                                          | same check, fewer cold starts                                                     |
-| Hard cases           | Opus then Fable                    | Sonnet twice, then an Opus builder, then Fable; a new visual pattern goes to Fable                           | unchanged rule                                                                    |
+| Role                 | Old                                | Economy                                                                                                                         | Why                                                                               |
+| -------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Top (main chat)      | Fable                              | Fable, but thin: starts the orchestrator, relays, nothing else                                                                  | owner rule: Fable at most half the plan                                           |
+| Orchestrator         | Fable, one long chat               | **Opus**, `economy-orchestrator`, small context, restarted about every 6 waves (section 11); state lives in docs/BUILD-STATE.md | half the price per token and a quarter of the context: about 80% less per wake-up |
+| Sub-managers         | 3 Opus relays per slice round      | **removed as a relay**; the orchestrator briefs builders directly                                                               | one less layer to pay and wait for                                                |
+| Builders             | Sonnet, whole slice, 100-170 turns | **Sonnet**, `economy-builder`, one sub-slice of about 60 turns, targeted tests only                                             | cost follows turns                                                                |
+| Mechanical work      | mostly done by Sonnet builders     | **Haiku**, `economy-mechanic`: es/hi texts, formatting, docs lines, clean merges, watching CI                                   | about 20 times cheaper than Sonnet                                                |
+| Gate 2 (QA)          | Opus sub-manager                   | **Opus**, `economy-gate2`, read-only, once per finished slice                                                                   | same check, same model                                                            |
+| Gate 3 (screenshots) | Fable                              | **Fable**, `economy-gate3`, 2 to 4 slices per visit                                                                             | same check, fewer cold starts                                                     |
+| Hard cases           | Opus then Fable                    | Sonnet twice, then an Opus builder, then Fable; a new visual pattern goes to Fable                                              | unchanged rule                                                                    |
 
 The old agent files are untouched (`fable-manager`, `opus-submanager-*`, `sonnet-executor`, `haiku-executor`), so rollback is just using them again.
 
@@ -42,7 +42,7 @@ The old agent files are untouched (`fable-manager`, `opus-submanager-*`, `sonnet
 - **Worktrees:** one per slice (they exist: `../ln-s*`), reused by each new builder of that slice. A new worktree only for a new slice. Docs-only and read-only jobs need none.
 - **Tests:** locally run only the spec files of the sub-slice (chromium; ipad-webkit for touch code) plus lint, tsc and the size check. The full matrix runs once per merge in CI on the `build/next` pull request (free, public repo). A Haiku helper runs `gh run watch <id> --exit-status`, then lists the failed test names from `gh run view <id> --log-failed`. No local full suites.
 - **Output:** long command output goes to a file; read the tail or search the failures.
-- **Batching:** up to 6 builders at once on files that do not overlap (owner, 13 Nov: Sonnet builders are cheap on the Max plan); gate 3 in batches; one docs commit per wave for BUILD-STATE, the PENDING board and CHANGELOG; one CI run per merge, not per commit.
+- **Batching:** up to 8 builders at once on files that do not overlap (section 11; owner, 13 Nov: Sonnet builders are cheap on the Max plan); gate 3 in batches; one docs commit per wave for BUILD-STATE, the PENDING board and CHANGELOG; one CI run per batch of up to 3 gated slices (section 11), never per commit.
 - **Status messages:** helpers report in under 150 words (Haiku 80). The orchestrator writes state to docs/BUILD-STATE.md instead of long messages. The owner's "Status / Needs you" lines are written by Haiku from that file.
 - **No polling.** Wait for reports; do not check on running helpers.
 - **Work in bursts.** A helper that waits more than 5 minutes pays for its context again, so builders do not wait for CI; they report and end.
@@ -74,7 +74,7 @@ Gate 3: `Gate 3 for slices <ids>: screenshots in <folders>; mock-ups docs/mockup
 
 Mechanic: `Job: <one job>. Worktree <absolute path>. Command: <exact>. Done when: <result>. Stop if it needs judgement.`
 
-Escalation: builder stops after 2 failed tries -> Opus builder (same brief + both logs) -> Fable (`economy-gate3` hard case) -> after 3 failures undo the slice and write docs/FAILED.md. A new visual pattern goes to Fable first.
+Escalation: builder stops after 2 failed tries -> Opus builder (same brief + both logs) -> Fable (`economy-gate3` hard case) -> after 3 failures undo the slice and write docs/FAILED.md. A new visual pattern goes to Fable first. Sooner for repeat gate-3 fails: a slice that has failed gate 3 twice gets an Opus builder on its very next fix round (section 11).
 
 ## 5. Estimates (honest ranges)
 
@@ -168,9 +168,33 @@ For Haiku, name every step. Sonnet needs less detail.
 Once a week (owner or Fable):
 
 1. Run `/usage` and note which helper, skill or connector uses the most of the limit.
-2. Keep the 6-builder cap. Every parallel helper sends its own requests against the same limit.
+2. Keep the 8-builder cap (section 11). Every parallel helper sends its own requests against the same limit.
 3. Lower the effort setting for mechanical jobs.
 4. Clear the chat between unrelated tasks, and avoid idle waiting loops. After a pause the saved context expires and is processed again in full.
 5. Keep Haiku prompts under 100,000 tokens. Above that, Haiku 5.5 charges more.
 
 Unused connectors: switching off connectors the build never uses may cut overhead on every turn. How much that saves here is **unverified**; check `/usage` before switching anything off.
+
+## 11. Speed rules (13 Nov 2026, decided by Fable for the owner)
+
+Goal: a little more speed with no loss of quality or design. Nothing here changes a test, the 3 gates, the Definition of Done, the design rules or Fable's two checks per slice (brief check before building, gate 3 before merge). Source: docs/plans/orchestration-review-2026-11-13.md.
+
+1. **Up to 8 builders at once** (was 6), only on files that do not overlap, hot files still one at a time. At most 2 builders run ipad-webkit tests locally at the same moment (this PC's WebKit tests get unreliable under load). Back to 6 if rework reaches 2 rounds per slice or local tests start to flake. Use the spare seats for the idle main lane (toolbar 1d onwards).
+2. **Gates in parallel.** Gate 2 and gate 3 may run at the same time, for different slices or for the same slice at the same commit. A slice merges only when both have passed on the commit being merged; a later commit re-opens the gates exactly as before. Gate 3 stays batched at 2 to 4 slices per visit.
+3. **Pictures while CI runs.** Builders shoot the flag-on gate-3 pictures, and gate 3 reviews them, while a CI run is in progress. Nobody waits for CI to start a gate.
+4. **Batch CI** (owner approved): up to 3 slices that have each passed gate 2 and gate 3 are merged into `build/next` one after another, each with its own targeted tests, tsc, lint and the combined size check run locally, then ONE full CI run for the batch. Never batch a slice that touches a hot file: it gets its own run. If the run is red, the failing test names its slice; if that is unclear, bisect (take the last merge out and run again). Fix the cause; never re-run until green.
+5. **Automatic CI back on.** Merge `main` into `build/next` and resolve docs/DECISIONS.md by keeping both sides (docs only). To stop the conflict returning: build-time docs (DECISIONS, CHANGELOG, BUILD-STATE, PENDING) are written on `main` only, and `main` is merged into `build/next` before each CI batch. The pull-request run is the judge again, publishes the preview and does not start the weekly `webkit` job.
+6. **One run at a time per branch.** Do not push to `build/next` or start a run while one is in progress; queue the next batch. A run labelled "cancelled" is read job by job before anyone reacts.
+7. **Weekly `webkit` job on hand-started runs:** not skipped by editing anything (that would need a workflow edit; rule 5 removes the need). If a hand-started run is still needed, judge it as soon as every required job has finished (`gh run view <id> --json jobs`); do not wait for the warning-only `webkit` job. Green = every job except `webkit` passed.
+8. **Repeat-fault list in every builder brief** that makes or changes a screen (one line: "Check ECONOMY-MODE section 11 rule 8 before you shoot pictures"):
+   - a thin scroll track under any row that is cut off;
+   - a toast sits above the phone tab bar, never on it;
+   - the sidebar is closed on iPad portrait;
+   - shared parts only: no browser drop-downs, radio dots or resize grips; Lucide icons only;
+   - no key names on touch screens;
+   - pictures in Light, Dark and Sepia, with real data (not only the empty screen), tips and toasts closed;
+   - both levels (Beginner, Professional); iPad landscape and portrait, phone, PC.
+9. **Opus sooner for repeat gate-3 fails.** A slice that has already failed gate 3 twice gets an Opus builder on its next fix round (after the first failed try, not the second), with the full fix history in the brief. Three gate-3 fails still means a Fable-written brief.
+10. **Fewer orchestrator restarts:** about every 6 waves (was 3), or sooner when its context is heavy. The tables of docs/BUILD-STATE.md are kept current after every merge, so a restart stays cheap.
+
+Expected gain (an estimate, not measured): about 10 to 15 minutes per CI run from rules 5 and 7, 1 to 2 hours per batch of 3 from rule 4, about one gate round (1 to 2 hours) per screen slice from rules 8 and 9. Roughly 25 to 35% less running time to the first full preview.

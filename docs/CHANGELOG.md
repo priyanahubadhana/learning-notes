@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: test guard hook strengthened; batch CI decision recorded
+
+- What: guard-tests.mjs also blocks longer timeouts, grepInvert/testIgnore, new skip/fixme and deleted test files unless a `test-guard-reason` comment (5+ words) is on the line; tried on scratch inputs (block without, allow with). ECONOMY-MODE section 12 and DECISIONS record the rules and the batch CI decision.
+- Why: owner approval 13 Nov: tests must not be weakened silently.
+- Files: .claude/hooks/guard-tests.mjs, docs/ECONOMY-MODE.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: economy orchestrator aligned with speed rules
 
 - What: .claude/agents/economy-orchestrator.md now uses the speed rules: up to 8 builders on non-overlapping files (fall back to 6 on rework or flakes), next Opus round after two gate-3 fails, restart about every 6 waves, batch CI up to 3 fully gated slices per run.

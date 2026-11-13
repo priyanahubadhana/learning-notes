@@ -31,6 +31,8 @@ import { usePaperBoxes } from '../paper/usePaperBoxes'
 import type { EditorApi } from '../editor/editorContext'
 import { revealBlock } from '../editor/revealBlock'
 import { HistoryDialog } from '../history/HistoryDialog'
+import { usePageSheetActions } from './menus/usePageSheetActions'
+import { useFlag } from '../app/flags'
 import { recordVersion } from '../history/versionService'
 import { dateKey } from '../journal/dates'
 import { t } from '../i18n/t'
@@ -97,6 +99,7 @@ const MindMapTab = lazy(() => import('./tabs/MindMapTab'))
 const SlidesTab = lazy(() => import('./tabs/SlidesTab'))
 const AudioTab = lazy(() => import('./tabs/AudioTab'))
 const DatabaseTab = lazy(() => import('./tabs/DatabaseTab'))
+const PageSheet = lazy(() => import('./menus/PageSheet'))
 const ExportDialog = lazy(() =>
   import('../share/export/ExportDialog').then((m) => ({
     default: m.ExportDialog,
@@ -291,6 +294,34 @@ export function PageView({
       })),
     },
   ]
+  const copyItem: MenuItem = {
+    label: t('copy.menu'),
+    icon: '⧉',
+    onSelect: () => {},
+    submenu: [
+      {
+        label: t('copy.pictures'),
+        icon: '⧉',
+        onSelect: () => editor.current?.copyPage('pictures'),
+      },
+      {
+        label: t('copy.pagePlain'),
+        icon: '⧉',
+        onSelect: () => editor.current?.copyPage('plain'),
+      },
+      {
+        label: t('copy.pageMarkdown'),
+        icon: '⧉',
+        onSelect: () => editor.current?.copyPage('markdown'),
+      },
+      {
+        label: t('paste.plain'),
+        icon: '⎘',
+        hint: isApple() ? '⌘⇧V' : 'Ctrl+Shift+V',
+        onSelect: () => editor.current?.pastePlain(),
+      },
+    ],
+  }
   const moreItems: MenuItem[] = [
     // Page actions first.
     ...(notebook && !isTemplate
@@ -357,34 +388,7 @@ export function PageView({
       onSelect: () => getAppActions()?.openControlPanel(),
     },
     // Copy and paste, grouped.
-    {
-      label: t('copy.menu'),
-      icon: '⧉',
-      onSelect: () => {},
-      submenu: [
-        {
-          label: t('copy.pictures'),
-          icon: '⧉',
-          onSelect: () => editor.current?.copyPage('pictures'),
-        },
-        {
-          label: t('copy.pagePlain'),
-          icon: '⧉',
-          onSelect: () => editor.current?.copyPage('plain'),
-        },
-        {
-          label: t('copy.pageMarkdown'),
-          icon: '⧉',
-          onSelect: () => editor.current?.copyPage('markdown'),
-        },
-        {
-          label: t('paste.plain'),
-          icon: '⎘',
-          hint: isApple() ? '⌘⇧V' : 'Ctrl+Shift+V',
-          onSelect: () => editor.current?.pastePlain(),
-        },
-      ],
-    },
+    copyItem,
     // Page address for this page (wins over its notebook and Settings).
     pageAddressItem(page.pathStyle, (style) =>
       runTask(setPagePathStyle(db, page.id, style)),
@@ -415,6 +419,61 @@ export function PageView({
       onSelect: onOpenBackup,
     },
   ]
+
+  // Flag page.menus: the page more-menu is the shared side Sheet.
+  const menusOn = useFlag('page.menus')
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const sheetActions = usePageSheetActions({
+    db,
+    page,
+    toast,
+    starred,
+    paperItems,
+    deviceMode: deviceModeItem(deviceMode),
+    copyItem,
+    lockItem,
+    extras: [
+      {
+        section: 'protect',
+        item:
+          editLockBy === 'notebook' || editLockBy === 'account'
+            ? null
+            : editLockItem(db, 'page', page.id, !!page.editLocked, toast),
+      },
+      {
+        section: 'protect',
+        item:
+          notebook && !isTemplate
+            ? pauseMenuItem(
+                db,
+                'page',
+                page.id,
+                page.title,
+                !!page.paused,
+                toast,
+              )
+            : null,
+      },
+      {
+        section: 'view',
+        item: pageAddressItem(page.pathStyle, (style) =>
+          runTask(setPagePathStyle(db, page.id, style)),
+        ),
+      },
+    ],
+    saveTemplate: notebook && !isTemplate ? saveTemplate : undefined,
+    onReview: notebook && !isTemplate ? () => onReview() : undefined,
+    openPrompts:
+      notebook && !isTemplate ? () => setPromptsOpen(true) : undefined,
+    openHistory,
+    openReader,
+    openExport,
+    onOpenBackup,
+    onOpenPage,
+    pastePlain: () => editor.current?.pastePlain(),
+    barShown: barPlacement === 'floating',
+    toggleBar: toggleToolBar,
+  })
 
   const boxes = usePaperBoxes(
     db,
@@ -476,16 +535,28 @@ export function PageView({
               aria-haspopup="menu"
               aria-expanded={!!moreAt}
               onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) =>
+              onClick={(e) => {
+                if (menusOn) return setSheetOpen(!sheetOpen)
                 setMoreAt(
                   moreAt ? null : e.currentTarget.getBoundingClientRect(),
                 )
-              }
+              }}
               className="flex size-11 shrink-0 items-center justify-center rounded-lg text-xl leading-none text-ink-soft hover:bg-hover hover:text-ink"
             >
               <span aria-hidden>⋯</span>
             </button>
-            {moreAt && (
+            {menusOn && sheetOpen && (
+              <Suspense fallback={null}>
+                <PageSheet
+                  db={db}
+                  page={page}
+                  actions={sheetActions}
+                  toast={toast}
+                  onClose={() => setSheetOpen(false)}
+                />
+              </Suspense>
+            )}
+            {!menusOn && moreAt && (
               <MenuPopover
                 anchor={moreAt}
                 items={moreItems}

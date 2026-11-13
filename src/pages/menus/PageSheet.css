@@ -1,0 +1,107 @@
+/* Page ⋯ sheet (slice 12e): rows and pinned tiles inside the shared Sheet. Tokens only. */
+.ps-group + .ps-group {
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-line);
+}
+.ps-head {
+  margin: 0;
+  padding: var(--space-2) var(--space-2) var(--space-1);
+  font-size: 12.5px;
+  line-height: 18px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.ps-row {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+.ps-row:hover {
+  background: var(--color-hover);
+}
+.ps-row:active {
+  background: var(--color-pressed);
+}
+.ps-row:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.ps-row[data-danger] {
+  color: var(--color-danger);
+}
+.ps-row__name {
+  flex: 1;
+  min-width: 0;
+}
+.ps-row__chev {
+  color: var(--color-muted);
+}
+.ps-sub {
+  padding-left: var(--space-6);
+}
+.ps-sub .ps-row[aria-checked='true'] {
+  font-weight: 600;
+}
+.ps-pinned {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.ps-tile {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 64px;
+  height: 64px;
+  padding: 0 2px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 11px;
+  line-height: 14px;
+  cursor: pointer;
+}
+.ps-tile:hover {
+  background: var(--color-hover);
+}
+.ps-tile:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.ps-tile[data-danger] {
+  color: var(--color-danger);
+}
+.ps-tile__name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ps-tile--add {
+  color: var(--color-muted);
+  border-style: dashed;
+}
+.ps-empty {
+  padding: var(--space-2);
+  color: var(--color-muted);
+  font-size: 13px;
+}

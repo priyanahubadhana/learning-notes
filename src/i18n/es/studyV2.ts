@@ -38,4 +38,16 @@ export const esStudyV2 = {
   'st5.blanksHint':
     'Los huecos se hacen en la nota: selecciona palabras y toca Hueco.',
   'st3.made': 'Tarjeta creada',
+  'st8.scope.page': 'Esta página',
+  'st8.scope.notebook': 'Cuaderno',
+  'st8.scope.all': 'Todas las notas',
+  'st8.show': 'Mostrar',
+  'st8.count': '{count} líneas',
+  'st8.export': 'Exportar',
+  'st8.saved': 'Guardado',
+  'st9.editInSummary': 'Editar en el Resumen',
+  'st9.labels': 'Etiquetas',
+  'st9.labelsTitle': 'Etiquetas',
+  'st9.title': 'Repasar',
+  'st9.count': '{count} marcas',
 } as const

@@ -1,11 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MenuPopover } from '../ui'
 import { EXTRA_TAB_LABEL, type ExtraTab } from '../../notebooks/pageTabs'
 import type { LearningNotesDB } from '../../core/db'
 import type { ReviewScope } from '../../recall/reviewService'
 import { scopeCounts } from '../../recall/reviewLazy'
 import { t } from '../../i18n/t'
+import './PageTabs.css'
 
 /** The three views of a page (Phase M): its notes, its Summary, its cards. */
 export type BaseTab = 'notes' | 'summary' | 'review'
@@ -28,6 +29,7 @@ export function Segments<T extends PageTab = PageTab>({
   extras = [],
   onToggleExtra,
   allExtras = [],
+  counts,
 }: {
   tab: T
   onTab: (tab: T) => void
@@ -38,6 +40,8 @@ export function Segments<T extends PageTab = PageTab>({
   onToggleExtra?: (tab: ExtraTab, on: boolean) => void
   /** Every optional tab (for the ⋯ menu). */
   allExtras?: readonly ExtraTab[]
+  /** A small count beside a tab (study v2). */
+  counts?: Partial<Record<PageTab, number>>
 }) {
   const [menu, setMenu] = useState<DOMRect | null>(null)
   const shown = [
@@ -62,6 +66,9 @@ export function Segments<T extends PageTab = PageTab>({
             className="min-h-9 any-pointer-coarse:min-h-11 shrink-0 whitespace-nowrap rounded-[10px] px-4 text-sm text-ink-soft hover:text-ink aria-pressed:bg-bg aria-pressed:font-semibold aria-pressed:text-ink aria-pressed:shadow-sm"
           >
             {t(label)}
+            {counts?.[id] !== undefined && (
+              <TabCount id={id} value={counts[id]} />
+            )}
           </button>
         ))}
       </div>
@@ -126,5 +133,29 @@ export function PageReview({
         </button>
       </div>
     </section>
+  )
+}
+
+/** The count beside a tab; it glows once (700 ms) when it grows (ST7). */
+function TabCount({ id, value }: { id: string; value: number }) {
+  const before = useRef(value)
+  const [glow, setGlow] = useState(false)
+  useEffect(() => {
+    if (value > before.current) {
+      setGlow(true)
+      const timer = window.setTimeout(() => setGlow(false), 700)
+      before.current = value
+      return () => window.clearTimeout(timer)
+    }
+    before.current = value
+  }, [value])
+  return (
+    <span
+      className="page-tab-count"
+      data-testid={`tab-count-${id}`}
+      data-glow={glow ? '' : undefined}
+    >
+      {value}
+    </span>
   )
 }

@@ -67,3 +67,12 @@
     flex-wrap: wrap;
   }
 }
+.study-header__action {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}

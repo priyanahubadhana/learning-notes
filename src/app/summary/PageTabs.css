@@ -1,0 +1,27 @@
+/* Count beside a page tab (slice 15, ST7): glows once when it grows. */
+.page-tab-count {
+  margin-inline-start: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--color-soft);
+  color: var(--color-muted);
+  font-size: 12px;
+}
+.page-tab-count[data-glow] {
+  animation: page-tab-glow 700ms ease-out 1;
+}
+@keyframes page-tab-glow {
+  0% {
+    background: color-mix(in srgb, var(--color-accent) 40%, transparent);
+    color: var(--color-ink);
+  }
+  100% {
+    background: var(--color-soft);
+    color: var(--color-muted);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page-tab-count[data-glow] {
+    animation: none;
+  }
+}

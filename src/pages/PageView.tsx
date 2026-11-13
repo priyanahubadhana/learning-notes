@@ -11,6 +11,9 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { AppUiContext, TopBarSlotContext } from '../app/appUi'
+import { useFlag } from '../app/flags'
+import { peekSummaryField } from '../app/studyOpen'
+import { listSummary } from '../core/summaryService'
 import { altShortcutLabel } from '../app/keys'
 import { runTask } from '../app/errors'
 import { PageReview, Segments, type PageTab } from '../app/summary/PageTabs'
@@ -95,6 +98,11 @@ const PromptsDialog = lazy(() => import('../prompts/PromptsDialog'))
 
 const MindMapTab = lazy(() => import('./tabs/MindMapTab'))
 const SlidesTab = lazy(() => import('./tabs/SlidesTab'))
+const SummaryTabV2 = lazy(() =>
+  import('../notebooks/study/SummaryTabV2').then((m) => ({
+    default: m.SummaryTabV2,
+  })),
+)
 const AudioTab = lazy(() => import('./tabs/AudioTab'))
 const DatabaseTab = lazy(() => import('./tabs/DatabaseTab'))
 const ExportDialog = lazy(() =>
@@ -205,11 +213,34 @@ export function PageView({
     tab: PageTab
   }>({ pageId: page.id, tab: 'notes' })
   const extraTabs = notebookPageTabs(notebook)
-  const rawTab = pageTabState.pageId === page.id ? pageTabState.tab : 'notes'
+  const studyV2 = useFlag('study.v2')
+  // Study v2: "Edit in Summary" (Revise) opens a page on its Summary tab.
+  const rawTab =
+    pageTabState.pageId === page.id
+      ? pageTabState.tab
+      : studyV2 && peekSummaryField(page.id)
+        ? 'summary'
+        : 'notes'
+  const summaryCount = useLiveQuery(
+    async () =>
+      studyV2
+        ? (await listSummary(db, { kind: 'page', pageId: page.id })).reduce(
+            (n, g) => n + g.lines.length,
+            0,
+          )
+        : undefined,
+    [db, page.id, studyV2],
+  )
   // A switched-off optional tab falls back to the notes.
   const pageTab: PageTab =
     isExtraTab(rawTab) && !extraTabs.includes(rawTab) ? 'notes' : rawTab
   const setPageTab = (tab: PageTab) => setPageTabState({ pageId: page.id, tab })
+  if (
+    studyV2 &&
+    peekSummaryField(page.id) &&
+    !(pageTabState.pageId === page.id && pageTabState.tab === 'summary')
+  )
+    setPageTabState({ pageId: page.id, tab: 'summary' })
   const saveTemplate = () => setNaming(true)
   // The prompt library on this page (opened from the ⋯ menu; lazy).
   const [promptsOpen, setPromptsOpen] = useState(false)
@@ -598,6 +629,11 @@ export function PageView({
               className="mb-3"
               extras={extraTabs}
               allExtras={EXTRA_TABS}
+              counts={
+                summaryCount === undefined
+                  ? undefined
+                  : { summary: summaryCount }
+              }
               onToggleExtra={
                 notebook
                   ? (tab, on) =>
@@ -606,7 +642,22 @@ export function PageView({
               }
             />
           )}
-          {withTabs && pageTab === 'summary' && (
+          {withTabs && pageTab === 'summary' && studyV2 && notebook && (
+            <Suspense fallback={null}>
+              <SummaryTabV2
+                db={db}
+                notebookId={notebook.id}
+                pageId={page.id}
+                onOpenPage={onOpenPage}
+                onOpenBlock={(pageId, blockId) => {
+                  if (pageId === page.id) setPageTab('notes')
+                  else onOpenPage(pageId)
+                  revealBlock(blockId)
+                }}
+              />
+            </Suspense>
+          )}
+          {withTabs && pageTab === 'summary' && !studyV2 && (
             <SummaryView
               db={db}
               scope={{ kind: 'page', pageId: page.id }}

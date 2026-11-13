@@ -38,4 +38,16 @@ export const enLateStudyV2 = {
   'st5.blanksHint':
     'Blanks are made in the note: select words, then tap Blank.',
   'st3.made': 'Card made',
+  'st8.scope.page': 'This page',
+  'st8.scope.notebook': 'Notebook',
+  'st8.scope.all': 'All notes',
+  'st8.show': 'Show',
+  'st8.count': '{count} lines',
+  'st8.export': 'Export',
+  'st8.saved': 'Saved',
+  'st9.editInSummary': 'Edit in Summary',
+  'st9.labels': 'Labels',
+  'st9.labelsTitle': 'Labels',
+  'st9.title': 'Revise',
+  'st9.count': '{count} marks',
 } as const

@@ -47,12 +47,3 @@ button.cards-v2__row.cards-v2__row {
   border-color: var(--color-accent);
   color: var(--color-accent);
 }
-.cards-v2__practise {
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 12px;
-  background: var(--color-accent);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-}

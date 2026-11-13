@@ -1,5 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useFlag } from '../flags'
+import { takeSummaryField } from '../studyOpen'
 import type { LearningNotesDB } from '../../core/db'
 import {
   addOwnLine,
@@ -244,9 +246,31 @@ function OwnParagraph({
 }) {
   const [text, setText] = useState(saved)
   const [seen, setSeen] = useState(saved)
+  // What this field itself wrote last: its echo must not overwrite typing.
+  const [wrote, setWrote] = useState<string | null>(null)
   if (seen !== saved) {
     setSeen(saved)
-    setText(saved)
+    if (saved !== wrote) setText(saved)
+  }
+  // Study v2: typing saves by itself, with "Saved"; "Edit in Summary" lands
+  // with the cursor in this field.
+  const v2 = useFlag('study.v2')
+  const [done, setDone] = useState(false)
+  const field = useRef<HTMLTextAreaElement>(null)
+  const timer = useRef<number | undefined>(undefined)
+  useEffect(() => {
+    if (v2 && takeSummaryField(pageId)) field.current?.focus()
+    return () => window.clearTimeout(timer.current)
+  }, [v2, pageId])
+  const change = (next: string) => {
+    setText(next)
+    if (!v2) return
+    setDone(false)
+    window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => {
+      setWrote(next)
+      runTask(setLessonSummary(db, pageId, next).then(() => setDone(true)))
+    }, 600)
   }
   return (
     <label className="mb-3 grid gap-1">
@@ -254,15 +278,21 @@ function OwnParagraph({
         {t('summary.ownLabel')}
       </span>
       <textarea
+        ref={field}
         value={text}
         rows={2}
         maxLength={MAX_SUMMARY_LENGTH}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => change(e.target.value)}
         onBlur={() => {
           if (text !== saved) runTask(setLessonSummary(db, pageId, text))
         }}
         className="field-sizing-content min-h-16 w-full resize-y rounded-lg border border-line bg-bg px-3 py-2 text-[15px] leading-relaxed"
       />
+      {v2 && (
+        <span role="status" className="text-xs text-muted">
+          {done ? t('st8.saved') : ''}
+        </span>
+      )}
     </label>
   )
 }

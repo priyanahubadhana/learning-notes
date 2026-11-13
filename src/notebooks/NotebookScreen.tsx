@@ -58,6 +58,15 @@ interface NotebookScreenProps {
   onClose: () => void
 }
 
+const SummaryTabV2 = lazy(() =>
+  import('./study/SummaryTabV2').then((m) => ({ default: m.SummaryTabV2 })),
+)
+const ReviseHeader = lazy(() =>
+  import('./study/ReviseParts').then((m) => ({ default: m.ReviseHeader })),
+)
+const EditInSummary = lazy(() =>
+  import('./study/ReviseParts').then((m) => ({ default: m.EditInSummary })),
+)
 const CardsTabV2 = lazy(() =>
   import('./study/CardsTabV2').then((m) => ({ default: m.CardsTabV2 })),
 )
@@ -271,13 +280,23 @@ export function NotebookScreen({
               onCreatePage={() => onCreatePage(notebook.id)}
             />
           )}
-          {active?.kind === 'summary' && (
-            <SummaryView
-              db={db}
-              scope={{ kind: 'notebook', notebookId: notebook.id }}
-              onOpenPage={onOpenPage}
-            />
-          )}
+          {active?.kind === 'summary' &&
+            (studyV2 ? (
+              <Suspense fallback={null}>
+                <SummaryTabV2
+                  db={db}
+                  notebookId={notebook.id}
+                  pageId={null}
+                  onOpenPage={onOpenPage}
+                />
+              </Suspense>
+            ) : (
+              <SummaryView
+                db={db}
+                scope={{ kind: 'notebook', notebookId: notebook.id }}
+                onOpenPage={onOpenPage}
+              />
+            ))}
           {active?.kind === 'database' && active.databaseId && (
             <DatabaseTab
               db={db}
@@ -294,6 +313,27 @@ export function NotebookScreen({
               tabId={active.id}
               onOpenPage={onOpenPage}
               onReview={onReview}
+              header={
+                studyV2
+                  ? (count) => (
+                      <Suspense fallback={null}>
+                        <ReviseHeader db={db} count={count} />
+                      </Suspense>
+                    )
+                  : undefined
+              }
+              summarySlot={
+                studyV2
+                  ? (lessonId) => (
+                      <Suspense fallback={null}>
+                        <EditInSummary
+                          lessonId={lessonId}
+                          onOpen={onOpenPage}
+                        />
+                      </Suspense>
+                    )
+                  : undefined
+              }
             />
           )}
           {active?.kind === 'cards' &&

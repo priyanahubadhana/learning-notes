@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { sampleName } from '../i18n/defaultNames'
 import type { LearningNotesDB } from '../core/db'
 import { pushRouteParts, useRouteParts } from '../app/router'
@@ -26,6 +26,8 @@ export function ReviseTab({
   tabId,
   onOpenPage,
   onReview,
+  header,
+  summarySlot,
 }: {
   db: LearningNotesDB
   notebookId: string
@@ -33,6 +35,10 @@ export function ReviseTab({
   tabId: string
   onOpenPage: (pageId: string) => void
   onReview: (scope: ReviewScope) => void
+  /** Study v2: the shared tab header (given the count of marks). */
+  header?: (count: number) => ReactNode
+  /** Study v2: replaces the "My summary" box with a link to the Summary tab. */
+  summarySlot?: (lessonId: string) => ReactNode
 }) {
   const lessons = useLiveQuery(
     () => listLessonMarks(db, notebookId),
@@ -50,6 +56,7 @@ export function ReviseTab({
 
   return (
     <section aria-label={t('notebook.tab.revise')}>
+      {header?.(current.marks.length)}
       <HelpLine id="revise.how" className="mb-3 text-xs text-muted" />
       <div className="grid gap-4 md:grid-cols-[14rem_minmax(0,1fr)]">
         <ul
@@ -106,11 +113,15 @@ export function ReviseTab({
             </Tip>
           </div>
 
-          <Summary
-            db={db}
-            lessonId={current.lesson.id}
-            saved={current.lesson.summary ?? ''}
-          />
+          {summarySlot ? (
+            summarySlot(current.lesson.id)
+          ) : (
+            <Summary
+              db={db}
+              lessonId={current.lesson.id}
+              saved={current.lesson.summary ?? ''}
+            />
+          )}
 
           {groups.length === 0 ? (
             <p className="mt-4 text-sm text-muted">{t('revise.noMarks')}</p>

@@ -6,6 +6,7 @@ import {
   selectText,
   slashCommand,
   typeInEditor,
+  waitForSaved,
 } from './helpers.ts'
 
 /**
@@ -241,4 +242,112 @@ test('ST19: Professional types "/card list" and gets the Card list block', async
   await typeInEditor(page, 'Intro')
   await slashCommand(page, 'card list')
   await expect(page.locator('[data-content-type="cardList"]')).toHaveCount(1)
+})
+
+// ---- 15c: Summary and Revise (ST7 to ST9, ST23, ST24) ----
+
+const pageTab = (page: Page, name: string) =>
+  page.locator(`[data-page-tab="${name}"]`)
+
+async function oneSummaryLine(page: Page) {
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await typeInEditor(page, 'The first heart sound is S1')
+  await selectText(page, 'first heart sound')
+  await page
+    .getByRole('button', { name: 'Add to Summary', exact: true })
+    .click()
+}
+
+test('ST7: Add to Summary makes the Summary tab count glow once', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await oneSummaryLine(page)
+  const count = page.getByTestId('tab-count-summary')
+  await expect(count).toHaveText('1')
+  await expect(count).toHaveAttribute('data-glow', '')
+  await expect(count).not.toHaveAttribute('data-glow', '', { timeout: 2500 })
+})
+
+test('ST8: the Summary tab shows lines and "In your own words"; typing saves with Saved', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await oneSummaryLine(page)
+  await page.waitForTimeout(800)
+  await pageTab(page, 'summary').click()
+  await expect(page.getByTestId('study-header')).toBeVisible()
+  await expect(main(page).locator('[data-summary-line]')).toHaveCount(1)
+  const own = main(page).getByLabel('In your own words')
+  await own.fill('S1 is the lub')
+  await expect(
+    main(page).getByRole('status').filter({ hasText: 'Saved' }),
+  ).toBeVisible()
+})
+
+test('ST9: Revise groups marks by label; "My summary" is one line that opens the Summary field', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await typeInEditor(page, 'The first heart sound is S1')
+  await selectText(page, 'first heart sound')
+  await page.getByRole('button', { name: 'Key point', exact: true }).click()
+  await waitForSaved(page)
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Cardiology', exact: true })
+    .click()
+  await tab(page, 'Revise').click()
+  const sheet = main(page).getByRole('region', { name: 'Revise' })
+  await expect(sheet.getByRole('region', { name: 'Key point' })).toContainText(
+    'first heart sound',
+  )
+  await expect(sheet.getByLabel('My summary')).toHaveCount(0)
+  await sheet.getByRole('button', { name: 'Edit in Summary' }).click()
+  await expect(pageTab(page, 'summary')).toHaveAttribute('aria-pressed', 'true')
+  await expect(main(page).getByLabel('In your own words')).toBeFocused()
+})
+
+test('ST23: Professional taps Labels in Revise and edits the labels', async ({
+  page,
+}) => {
+  await asLevel(page, 'professional')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await typeInEditor(page, 'The first heart sound is S1')
+  await selectText(page, 'first heart sound')
+  await page.getByRole('button', { name: 'Key point', exact: true }).click()
+  await waitForSaved(page)
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'Cardiology', exact: true })
+    .click()
+  await tab(page, 'Revise').click()
+  await main(page).getByRole('button', { name: 'Labels', exact: true }).click()
+  const sheet = page.getByTestId('revise-labels')
+  await expect(sheet).toBeVisible()
+  await expect(sheet.getByRole('textbox').first()).toBeVisible()
+})
+
+test('ST24: Professional switches the Summary to Notebook and exports it', async ({
+  page,
+}) => {
+  await asLevel(page, 'professional')
+  await page.goto(FLAGGED)
+  await oneSummaryLine(page)
+  await page.waitForTimeout(800)
+  await pageTab(page, 'summary').click()
+  await page.getByTestId('study-header-filter').click()
+  await page.getByRole('menuitemradio', { name: 'Notebook' }).click()
+  await expect(main(page).locator('[data-summary-line]')).toHaveCount(1)
+  await page.getByTestId('study-header-more').click()
+  const download = page.waitForEvent('download')
+  await page.getByRole('menuitem', { name: 'Export' }).click()
+  expect((await download).suggestedFilename()).toBe('summary.md')
 })

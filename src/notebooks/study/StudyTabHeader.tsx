@@ -23,6 +23,7 @@ export function StudyTabHeader({
   moreItems,
   chips = [],
   action,
+  filterLabel,
 }: {
   title: string
   count: number
@@ -34,6 +35,8 @@ export function StudyTabHeader({
   chips?: HeaderChip[]
   /** The tab's main button (Practise). */
   action?: ReactNode
+  /** Name of the first menu when it is not a filter ("Show"). */
+  filterLabel?: string
 }) {
   const [open, setOpen] = useState<{
     kind: 'filter' | 'sort' | 'more'
@@ -79,7 +82,12 @@ export function StudyTabHeader({
           {count}
         </span>
         <span className="study-header__gap" />
-        {menu('filter', t('st2.filter'), filterItems, `${t('st2.filter')} ▾`)}
+        {menu(
+          'filter',
+          filterLabel ?? t('st2.filter'),
+          filterItems,
+          `${filterLabel ?? t('st2.filter')} ▾`,
+        )}
         {menu('sort', t('st2.sort'), sortItems, `${t('st2.sort')} ▾`)}
         {menu('more', t('st2.more'), moreItems, '⋯')}
         {action}

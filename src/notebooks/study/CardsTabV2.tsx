@@ -143,7 +143,7 @@ export function CardsTabV2({
           hits.length > 0 && (
             <button
               type="button"
-              className="cards-v2__practise"
+              className="study-header__action"
               onClick={() => onReview(scope)}
             >
               {due ? t('cards.review', { count: due }) : t('cards.practice')}

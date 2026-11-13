@@ -28,11 +28,16 @@ import { esUpdates } from './updates'
 import { esUpdateV2 } from './updateV2'
 import { esLibraryV2 } from './libraryV2'
 import { esFlags } from './flags'
+import { esSlashMenu } from './slashMenu'
 import { esShell } from './shell'
 import { esAiBuild } from './aibuild'
 import { esAiJobs } from './aijobs'
+import { esReviewV2 } from './reviewV2'
 import { esAiPlan } from './aiplan'
 import { esParts } from './parts'
+import { esNotebooksV2 } from './notebooksV2'
+import { esSearchV2 } from './searchV2'
+import { esPanelV2 } from './panelV2'
 import { esV8Pen } from './v8Pen'
 
 export const es: Record<string, string> = {
@@ -63,12 +68,17 @@ export const es: Record<string, string> = {
   ...esUpdates,
   ...esUpdateV2,
   ...esFlags,
+  ...esSlashMenu,
   ...esShell,
   ...esAiBuild,
   ...esReaderV2,
   ...esAiJobs,
+  ...esReviewV2,
   ...esAiPlan,
   ...esParts,
+  ...esNotebooksV2,
+  ...esSearchV2,
+  ...esPanelV2,
   ...esLibraryV2,
   ...esV8Pen,
 }

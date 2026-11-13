@@ -154,7 +154,9 @@ function RowBody({
         <RowExtra definition={definition} value={value} onSave={commit} />
       </div>
       <RowPreview definition={definition} value={value} glowKey={glow} />
-      {isProFeatureId(definition.id) && <ShowInBeginner id={definition.id} />}
+      {isProFeatureId(definition.id) && (
+        <ShowInBeginner id={definition.id} descId={descId} />
+      )}
       {((definition.alsoIn && others.length > 0) || !isDefault) && (
         <div className="sv3-row-foot">
           {definition.alsoIn && others.length > 0 && (

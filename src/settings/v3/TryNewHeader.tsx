@@ -4,6 +4,7 @@ import type { JsonValue } from '../../core/types'
 import { settingsRegistry } from '../builtinSettings'
 import { readDeviceSetting } from '../settingsService'
 import { useSettingsHistory } from './historyCtx'
+import { rowsToTurnOff } from './tryNew'
 import { tv } from './tv'
 
 /**
@@ -14,12 +15,9 @@ export function TryNewHeader() {
   const history = useSettingsHistory()
   const { toast } = use(AppUiContext)
   const turnAllOff = () => {
-    const rows = settingsRegistry.list().filter(
-      (s) =>
-        s.category === 'tryNew' &&
-        // This screen stays on, so the list does not vanish under the finger.
-        s.id !== 'tryNew.settings.v3' &&
-        readDeviceSetting(s) === 'on',
+    const rows = rowsToTurnOff(
+      settingsRegistry.list(),
+      (s) => readDeviceSetting(s) === 'on',
     )
     if (rows.length === 0) {
       toast(tv('sv3.tryNew.noneOn'))
@@ -51,6 +49,9 @@ export function TryNewHeader() {
         >
           {tv('sv3.tryNew.turnAllOff')}
         </button>
+        <span className="sv3-line-help" data-try-new-keeps>
+          {tv('sv3.tryNew.keepsOn')}
+        </span>
       </div>
     </div>
   )

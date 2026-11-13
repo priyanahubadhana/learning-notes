@@ -22,6 +22,7 @@ export const enPartsMenus = {
   'parts.menus.listLabel': 'Commands',
   'parts.menus.search': 'Search commands',
   'parts.menus.searchPlaceholder': 'Type to search',
+  'parts.menus.clearSearch': 'Clear search',
   'parts.menus.recent': 'Recent',
   'parts.menus.actions': 'Actions',
   'parts.menus.showAll': 'Show all',

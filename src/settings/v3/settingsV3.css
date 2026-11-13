@@ -90,8 +90,9 @@
   cursor: pointer;
 }
 .sv3-section[aria-current='page'] {
-  border-color: var(--color-ink);
-  color: var(--color-ink);
+  border-color: transparent;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
   font-weight: 600;
 }
 .sv3-section:focus-visible {
@@ -311,8 +312,7 @@
 /* The Preview pill and its sheet (portalled to the page, fixed). */
 .sv3-pill {
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
+  right: var(--space-4);
   bottom: calc(
     var(--sh-tabbar, 56px) + env(safe-area-inset-bottom, 0px) + 12px
   );
@@ -405,9 +405,6 @@
     border-color: transparent;
     border-radius: var(--r-md);
     color: var(--color-ink);
-  }
-  .sv3-section[aria-current='page'] {
-    background: var(--color-hover);
   }
   .sv3-section-name {
     flex: 1;
@@ -577,7 +574,11 @@
   height: 104px;
   overflow: hidden;
   border-radius: var(--r-md);
-  background: linear-gradient(135deg, #6d5ce8, #e0709a 55%, #f3b45c);
+  background: linear-gradient(
+    135deg,
+    var(--color-accent),
+    color-mix(in srgb, var(--color-accent) 35%, var(--color-surface-0))
+  );
 }
 .sv3-glass-dot {
   position: absolute;
@@ -588,21 +589,21 @@
   top: -10px;
   width: 70px;
   height: 70px;
-  background: #3fd0c4;
+  background: color-mix(in srgb, var(--color-surface-0) 45%, transparent);
 }
 .sv3-glass-dot-2 {
   right: 12%;
   top: 30px;
   width: 54px;
   height: 54px;
-  background: #2b3a8c;
+  background: color-mix(in srgb, var(--color-ink) 30%, transparent);
 }
 .sv3-glass-dot-3 {
   left: 46%;
   top: 52px;
   width: 44px;
   height: 44px;
-  background: #fff6;
+  background: color-mix(in srgb, var(--color-surface-0) 30%, transparent);
 }
 .sv3-glass-line {
   position: absolute;
@@ -611,7 +612,7 @@
   left: 12px;
   height: 6px;
   border-radius: 3px;
-  background: #ffffffb0;
+  background: color-mix(in srgb, var(--color-surface-0) 70%, transparent);
 }
 .sv3-glass-line-s {
   top: 30px;
@@ -949,4 +950,13 @@
 .sv3-area {
   min-width: 0;
   margin-bottom: 16px;
+}
+
+/* A row with no real picture draws nothing: the control above already shows the value. */
+.sv3-rowprev[data-picture='none'] {
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
 }

@@ -124,7 +124,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 | Slash menu builder `src/editor/slashMenu.tsx:44`, aliases `:15`                                                                 | Command list PM-01–03            |
 | Slash items `src/editor/slashMenu.tsx:72-202`                                                                                   | PM-01/02 groups                  |
 | Slash mounted / close-on-select `src/editor/PageEditor.tsx:946-972`                                                             | Command list via overlay manager |
-| "[[" trigger `src/editor/tagActions.ts:28`                                                                                      | Command list (same part)         |
+| "[[" trigger `src/editor/linkActions.ts:13`                                                                                     | Command list (same part)         |
 | Hold menu `src/editor/HoldMenu.tsx:43-98`, watcher `holdMenuWatch.ts:204`                                                       | Strip PM-20/22                   |
 | Long-press hook `src/app/useLongPress.ts:19`                                                                                    | Gesture router long-press        |
 | Pen contextmenu `src/app/penTap.ts:200`                                                                                         | Gesture router                   |
@@ -144,13 +144,13 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 | Breadcrumb `src/pages/PagePath.tsx:178`, style `pathStyle.ts:2`                                                                 | PM-120/121                       |
 | Page tabs `src/notebooks/pageTabs.ts:13-41`, `app/summary/PageTabs.tsx:4`                                                       | PM-122                           |
 | Page tabs settings `src/settings/PageTabsSection.tsx:43`                                                                        | Kept                             |
-| Template picker `src/App.tsx:193-195`, `appUi.ts:25`                                                                            | PM-110                           |
+| Template picker `src/App.tsx:193-195`, `src/app/appUi.ts:25`                                                                    | PM-110                           |
 | New from template `src/App.tsx:1122-1127`, template service `templates/templateService.ts:28`                                   | PM-110/111                       |
 | Templates sidebar `src/templates/TemplatesSection.tsx:32`                                                                       | Kept (`nb.sideTemplates`)        |
 | Starter templates `src/templates/starterTemplates.ts:73`                                                                        | Picker                           |
 | New page start `src/templates/NewPageStart.tsx:31`, `PageView.tsx:685`                                                          | PM-100–102                       |
 | Page favourites `src/app/favourites.ts:43`                                                                                      | Page section "Favourite"         |
-| Toast `src/app/ui.tsx:401`, state `App.tsx:854-898`, `toastTiming.ts`                                                           | Toast queue                      |
+| Toast `src/app/ui.tsx:401`, state `src/App.tsx:854-898`, `toastTiming.ts`                                                       | Toast queue                      |
 | Undo trash `src/pages/pageTrash.ts:17`                                                                                          | PM-64/141                        |
 | Attention banner `src/app/attention/AttentionBanner.tsx:137`                                                                    | Banner                           |
 | Confirm `src/app/ui.tsx:486`, Choice `:635`, Name sheet `app/NameSheet.tsx:15`                                                  | Dialog set                       |

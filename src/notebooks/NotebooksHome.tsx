@@ -1,6 +1,15 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { Plus, Star } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
+import { useFlag } from '../app/flags'
 import { pageLines } from '../app/pageText'
 import { runTask } from '../app/errors'
 import { usePref } from '../app/usePref'
@@ -57,17 +66,31 @@ function openedLabel(ts: number): string {
 const nameOf = (n: Notebook): string =>
   displayName(sampleName(n)) || t('review.untitled')
 
-export function NotebooksHome({
-  db,
-  notebooks,
-  onOpen,
-  onCreate,
-}: {
+interface HomeProps {
   db: LearningNotesDB
   notebooks: Notebook[]
   onOpen: (id: string) => void
   onCreate: () => void
-}) {
+  /** Starts Review for one notebook (used by the new home, flag `notebooks.v2`). */
+  onReview?: (notebookId: string) => void
+}
+
+const HomeV2 = lazy(() =>
+  import('./v2/HomeV2').then((m) => ({ default: m.HomeV2 })),
+)
+
+/** The Notebooks home: today's screen, or the new one when `notebooks.v2` is on. */
+export function NotebooksHome(props: HomeProps) {
+  const v2 = useFlag('notebooks.v2')
+  if (!v2) return <NotebooksHomeToday {...props} />
+  return (
+    <Suspense fallback={null}>
+      <HomeV2 {...props} />
+    </Suspense>
+  )
+}
+
+function NotebooksHomeToday({ db, notebooks, onOpen, onCreate }: HomeProps) {
   const [layout, setLayout] = usePref<Layout>(
     'notebooksLayout',
     isLayout,
@@ -303,7 +326,7 @@ export function NotebooksHome({
   )
 }
 
-function StarButton({
+export function StarButton({
   notebook,
   db,
   className,
@@ -349,7 +372,13 @@ function Meta({ openedAt, due }: { openedAt: number; due: number }) {
   )
 }
 
-function Cover({ db, notebook }: { db: LearningNotesDB; notebook: Notebook }) {
+export function Cover({
+  db,
+  notebook,
+}: {
+  db: LearningNotesDB
+  notebook: Notebook
+}) {
   const colour = notebookColour(notebook)
   if (notebook.cover === 'page')
     return <PageCover db={db} notebook={notebook} />

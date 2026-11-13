@@ -49,27 +49,28 @@ const box = async (l: Locator) => {
   return b!
 }
 
-/** Nothing of `l` is outside the screen. */
+/** Nothing of `l` is outside the screen. Why-note: the page can still shift as
+ * lazy parts arrive between a check and a later measure (CI webkit saw the
+ * banner at y 3278 after a passing poll), so every edge is checked in the same
+ * poll that scrolls the target back into view. */
 async function onScreen(page: Page, l: Locator, what: string) {
-  // a scroll or slide may still be moving: wait for the box to stop, then assert
   await expect
     .poll(
       async () => {
-        // the page can still shift as lazy parts arrive: bring it back into view
         await l.scrollIntoViewIfNeeded()
-        const r = await l.boundingBox()
+        const b = await l.boundingBox()
         const v = page.viewportSize()!
-        return !!r && r.y >= -0.5 && r.y + r.height <= v.height + 0.5
+        if (!b) return `${what} has no box`
+        if (b.x < -0.5) return `${what} left ${b.x}`
+        if (b.y < -0.5) return `${what} top ${b.y}`
+        if (b.x + b.width > v.width + 0.5) return `${what} right`
+        if (b.y + b.height > v.height + 0.5)
+          return `${what} bottom ${b.y + b.height}`
+        return 'ok'
       },
       { message: what },
     )
-    .toBe(true)
-  const b = await box(l)
-  const v = page.viewportSize()!
-  expect(b.x, `${what} left`).toBeGreaterThanOrEqual(-0.5)
-  expect(b.y, `${what} top`).toBeGreaterThanOrEqual(-0.5)
-  expect(b.x + b.width, `${what} right`).toBeLessThanOrEqual(v.width + 0.5)
-  expect(b.y + b.height, `${what} bottom`).toBeLessThanOrEqual(v.height + 0.5)
+    .toBe('ok')
 }
 
 const noSideScroll = async (page: Page, what: string) => {
@@ -110,6 +111,22 @@ const intersects = (
   a.y + a.height > b.y
 
 test.describe('Feedback parts (SP-50 to SP-56)', () => {
+  test('0g follow-up: the Sheet footer buttons sit at the right', async ({
+    page,
+  }) => {
+    await open(page, IPAD_L)
+    await page.getByTestId('fb-open-sheet').click()
+    const sheet = page.getByTestId('fb-sheet')
+    await expect(sheet).toBeVisible()
+    await settled(sheet)
+    const sb = await box(sheet)
+    const btns = page.getByTestId('fb-sheet-foot').locator('button')
+    const last = await box(btns.last())
+    const first = await box(btns.first())
+    expect(sb.x + sb.width - (last.x + last.width)).toBeLessThan(24)
+    expect(first.x - sb.x).toBeGreaterThan(sb.width / 2)
+  })
+
   test('SP-50 a Sheet docks right at full height on iPad; the page beside still works', async ({
     page,
   }) => {

@@ -1128,6 +1128,34 @@ test.describe('Parts gallery', () => {
       await expect(c.getByTestId('range-apply')).toBeEnabled()
     })
 
+    test('0g follow-up: the custom pop is solid and the presets row has a visible track on a phone', async ({
+      page,
+    }) => {
+      await open(page, { width: 390, height: 844 })
+      const c = cell(page, 'range', 'editing')
+      await c.scrollIntoViewIfNeeded()
+      const pop = c.getByTestId('range-picker')
+      await expect(pop).toBeVisible()
+      const alpha = await pop.evaluate((e) => {
+        const m = getComputedStyle(e).backgroundColor.match(/[\d.]+/g) ?? []
+        return m.length > 3 ? Number(m[3]) : 1
+      })
+      expect(alpha).toBe(1)
+      // and it sits above what comes after it (a later pill must not show through)
+      expect(await pop.evaluate((e) => getComputedStyle(e).zIndex)).not.toBe(
+        'auto',
+      )
+      // the row is cut on a phone, so it scrolls and a thin track is drawn
+      const track = c.locator('.pm-range__track')
+      expect(await track.evaluate((e) => e.scrollWidth > e.clientWidth)).toBe(
+        true,
+      )
+      const rail = c.getByTestId('range-rail')
+      await expect(rail).toBeVisible()
+      expect((await box(rail)).height).toBeGreaterThanOrEqual(3)
+      await expect(rail.locator('span')).toBeVisible()
+    })
+
     test('SP-B06b Edit time range opens name, presets and ✓ ✕ Reset', async ({
       page,
     }) => {

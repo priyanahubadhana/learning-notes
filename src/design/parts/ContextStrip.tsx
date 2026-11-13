@@ -61,6 +61,15 @@ export type ContextStripProps = {
   onAction(id: string, sub?: string): void
   onClose(): void
   testId?: string
+  /**
+   * Keep the strip inside this box (a content pane) instead of the whole
+   * screen. A strip wider than the box scrolls sideways with a thin track.
+   */
+  bounds?: () => Rect | null
+  /** Show every item at every level (the caller already chose them). */
+  allLevels?: boolean
+  /** Phone shape: put the name under each icon, so no icon is a guess. */
+  phoneLabels?: boolean
 }
 
 const SEP = '\u0001'
@@ -77,10 +86,16 @@ export function ContextStrip(props: ContextStripProps) {
   const { commands, onAction, mode = 'floating' } = props
   const beginner = useLevel() === 'beginner'
   // The full set stays reachable: what Beginner does not show on the strip folds into "⋯".
-  const items = beginner
-    ? BEGINNER_STRIP_IDS.flatMap((id) => props.items.filter((i) => i.id === id))
-    : props.items
-  const hidden = beginner ? props.items.filter((i) => !items.includes(i)) : []
+  const items =
+    beginner && !props.allLevels
+      ? BEGINNER_STRIP_IDS.flatMap((id) =>
+          props.items.filter((i) => i.id === id),
+        )
+      : props.items
+  const hidden =
+    beginner && !props.allLevels
+      ? props.items.filter((i) => !items.includes(i))
+      : []
   const floating = mode === 'floating'
   const rootRef = useRef<HTMLDivElement>(null)
   const barRef = useRef<HTMLDivElement>(null)
@@ -98,6 +113,8 @@ export function ContextStrip(props: ContextStripProps) {
       : document.documentElement.clientWidth || window.innerWidth,
   )
   const [pos, setPos] = useState<StripPlacement | null>(null)
+  // The room the strip may use: the whole screen, or the `bounds` box.
+  const [room, setRoom] = useState<{ left: number; width: number } | null>(null)
   const [picker, setPicker] = useState<{
     id: string
     el: HTMLElement | null
@@ -115,7 +132,9 @@ export function ContextStrip(props: ContextStripProps) {
   const onCloseRef = useRef(props.onClose)
   const targetRef = useRef(props.target)
   const avoidRef = useRef(props.avoid)
+  const boundsRef = useRef(props.bounds)
   useLayoutEffect(() => {
+    boundsRef.current = props.bounds
     onCloseRef.current = props.onClose
     targetRef.current = props.target
     avoidRef.current = props.avoid
@@ -124,7 +143,7 @@ export function ContextStrip(props: ContextStripProps) {
   const phone = props.phone ?? vw < STRIP_PHONE_MAX
   const split = splitStripItems(items, {
     phone,
-    maxWidth: vw - 24,
+    maxWidth: (room ? room.width : vw) - 24,
     hasExtra: !!commands?.some((g) => g.items.length) || hidden.length > 0,
   })
   const { shown } = split
@@ -199,6 +218,14 @@ export function ContextStrip(props: ContextStripProps) {
     const run = () => {
       setVw(document.documentElement.clientWidth || window.innerWidth)
       if (!floating) return
+      const b = boundsRef.current?.() ?? null
+      setRoom((prev) =>
+        b
+          ? prev && prev.left === b.left && prev.width === b.width
+            ? prev
+            : { left: b.left, width: b.width }
+          : null,
+      )
       const bar = barRef.current
       if (!bar || !bar.offsetWidth) return
       const t = targetRef.current
@@ -207,10 +234,12 @@ export function ContextStrip(props: ContextStripProps) {
       const p = placeStrip(
         rect,
         { width: bar.offsetWidth, height: bar.offsetHeight },
-        {
-          width: document.documentElement.clientWidth || window.innerWidth,
-          height: window.innerHeight,
-        },
+        b
+          ? { left: b.left, width: b.width, height: window.innerHeight }
+          : {
+              width: document.documentElement.clientWidth || window.innerWidth,
+              height: window.innerHeight,
+            },
         avoidRef.current,
       )
       setPos((prev) =>
@@ -297,6 +326,7 @@ export function ContextStrip(props: ContextStripProps) {
         }
       : {}
   if (floating && pos?.arrowX != null) style['--arrow-x'] = `${pos.arrowX}px`
+  if (floating && room) style['--cs-max'] = `${room.width - 24}px`
 
   const bar = (
     <div
@@ -306,6 +336,7 @@ export function ContextStrip(props: ContextStripProps) {
       data-mode={mode}
       data-side={floating ? side : undefined}
       data-phone={phone || undefined}
+      data-labels={phone && props.phoneLabels ? '' : undefined}
       data-state={closing ? 'closing' : 'open'}
       data-view={view}
       style={style}
@@ -322,43 +353,49 @@ export function ContextStrip(props: ContextStripProps) {
         {floating && pos?.arrowX != null && (
           <span className="cs__arrow" aria-hidden="true" />
         )}
-        {buttons.map((b, i) => {
-          const it = b.item
-          const label = it ? it.label : tm('parts.menus.moreLabel')
-          const open = !!it && picker?.id === it.id
-          return (
-            <span key={b.key} className="cs__slot">
-              {(!it || it.danger) && i > 0 && (
-                <span className="cs__sep" aria-hidden="true" />
-              )}
-              <button
-                type="button"
-                role="menuitem"
-                data-strip-btn
-                data-testid={`cs-${b.key}`}
-                aria-label={label}
-                aria-haspopup={it ? (it.menu ? 'menu' : undefined) : 'listbox'}
-                aria-expanded={it?.menu ? open : undefined}
-                disabled={it?.disabled}
-                data-popup-trigger={it?.menu ? '' : undefined}
-                data-pressed={open || undefined}
-                tabIndex={i === focusIdx ? 0 : -1}
-                className={`cs__btn ${it?.danger ? 'cs__btn--danger' : ''}`}
-                onFocus={() => setFocusIdx(i)}
-                onClick={(e) => activate(b, e.currentTarget)}
-              >
-                <Icon name={it ? it.icon : 'more'} size={18} />
-                {!phone && it && <span className="cs__name">{it.label}</span>}
-                {!phone && !it && (
-                  <span className="cs__name">{tm('parts.menus.more')}</span>
+        <div className="cs__scroll">
+          {buttons.map((b, i) => {
+            const it = b.item
+            const label = it ? it.label : tm('parts.menus.moreLabel')
+            const open = !!it && picker?.id === it.id
+            return (
+              <span key={b.key} className="cs__slot">
+                {(!it || it.danger) && i > 0 && (
+                  <span className="cs__sep" aria-hidden="true" />
                 )}
-                {it?.menu && (
-                  <Icon name="chevronDown" size={14} className="cs__caret" />
-                )}
-              </button>
-            </span>
-          )
-        })}
+                <button
+                  type="button"
+                  role="menuitem"
+                  data-strip-btn
+                  data-testid={`cs-${b.key}`}
+                  aria-label={label}
+                  aria-haspopup={
+                    it ? (it.menu ? 'menu' : undefined) : 'listbox'
+                  }
+                  aria-expanded={it?.menu ? open : undefined}
+                  disabled={it?.disabled}
+                  data-popup-trigger={it?.menu ? '' : undefined}
+                  data-pressed={open || undefined}
+                  tabIndex={i === focusIdx ? 0 : -1}
+                  className={`cs__btn ${it?.danger ? 'cs__btn--danger' : ''}`}
+                  onFocus={() => setFocusIdx(i)}
+                  onClick={(e) => activate(b, e.currentTarget)}
+                >
+                  <Icon name={it ? it.icon : 'more'} size={18} />
+                  {(!phone || props.phoneLabels) && it && (
+                    <span className="cs__name">{it.label}</span>
+                  )}
+                  {(!phone || props.phoneLabels) && !it && (
+                    <span className="cs__name">{tm('parts.menus.more')}</span>
+                  )}
+                  {it?.menu && (
+                    <Icon name="chevronDown" size={14} className="cs__caret" />
+                  )}
+                </button>
+              </span>
+            )
+          })}
+        </div>
       </div>
       {!floating && pickerItem?.menu && (
         <PickerCard

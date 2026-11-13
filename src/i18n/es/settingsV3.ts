@@ -58,6 +58,9 @@ export const esSettingsV3 = {
   'sv3.templateSearch': 'Buscar plantillas',
   'sv3.templateBlank': 'Página en blanco',
   'sv3.templateNone': 'Ninguna plantilla coincide con “{query}”',
+  'sv3.templateWhyTitle': '¿Por qué todavía no?',
+  'sv3.templateWhy':
+    '“{name}” aún no puede ser la página de inicio. Este ajuste solo recuerda Página en blanco o Apuntes de estudio. Aun así puedes añadir “{name}” a una página desde la lista bajo el cursor de una página nueva.',
   'sv3.templateLater':
     'Aún no puede ser la página de inicio. Elígela en la lista bajo el cursor de una página nueva.',
   'sv3.experience.title': 'Tu experiencia',
@@ -157,7 +160,7 @@ export const esSettingsV3 = {
   'sv3.pro.resetWhy':
     'Esto apaga cada función profesional que activaste una por una, para que Principiante vuelva a estar tranquilo. Tus notas y otros ajustes no se tocan, y Deshacer los devuelve.',
   'sv3.pro.proNote':
-    'En Profesional todas las funciones están activas. Cambia a Principiante arriba para elegirlas una por una. Tus elecciones se conservan.',
+    'En Profesional todas las funciones empiezan activas. Puedes desactivar cualquiera con su propio interruptor; Deshacer la devuelve. Cambia a Principiante arriba para elegirlas una por una. Tus elecciones se conservan.',
   'sv3.group.home': 'Inicio',
   'sv3.group.notebooks': 'Cuadernos',
   'sv3.group.toolbar': 'Barra, texto y lápiz',
@@ -194,6 +197,7 @@ export const esSettingsV3 = {
   'sv3.version.name': 'Versión',
   'sv3.version.help': 'La versión de la app que estás usando.',
   'sv3.version.details': 'Versión {commit}, compilada el {date}.',
+  'sv3.tryNew.keepsOn': 'Mantiene encendidos los Ajustes nuevos',
   'sv3.tryNew.keepScreen':
     'Apagar todas deja encendida esta pantalla nueva de Ajustes, para que no pierdas esta página. Apágala con su propio interruptor.',
   'sv3.glassWhyTitle': 'Reducir cristal: Automático',

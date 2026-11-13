@@ -194,6 +194,7 @@ export const esParts = {
   'parts.menus.closePicker': 'Cerrar',
   'parts.menus.listLabel': 'Comandos',
   'parts.menus.search': 'Buscar comandos',
+  'parts.menus.clearSearch': 'Borrar búsqueda',
   'parts.menus.searchPlaceholder': 'Escribe para buscar',
   'parts.menus.recent': 'Recientes',
   'parts.menus.actions': 'Acciones',

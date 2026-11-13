@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 
 /** Settings v3 Professional features: SET-B37 to B44, B46 (Why pop-up) and SET-P01 to P29. */
 
@@ -18,6 +18,19 @@ const state = (page: Page) =>
 const feature = (page: Page, id: string) =>
   page.locator(`[data-pro-feature="${id}"]`)
 const sw = (page: Page, id: string) => feature(page, id).getByRole('switch')
+
+/** Waits until the box stops moving (the pattern of slice 0g's settled()), so a click or a size never lands mid-animation. */
+async function settled(l: Locator) {
+  let last = ''
+  await expect
+    .poll(async () => {
+      const now = JSON.stringify(await l.boundingBox())
+      const same = now === last
+      last = now
+      return same
+    })
+    .toBe(true)
+}
 
 async function open(page: Page, section: string, level = BEGINNER) {
   await page.addInitScript((v) => {
@@ -69,6 +82,7 @@ test('SET-B39 one switch on in Beginner: the feature shows at once with a glow, 
   page,
 }) => {
   await open(page, 'pro')
+  await settled(sw(page, 'general.reduceGlass'))
   await sw(page, 'general.reduceGlass').click()
   await expect(page.getByText('Reduce glass is on')).toBeVisible()
   await expect(feature(page, 'general.reduceGlass')).toHaveAttribute(
@@ -91,6 +105,7 @@ test('SET-B40 turn on / off all in a group is one Undo step', async ({
 }) => {
   await open(page, 'pro')
   const group = page.locator('[data-pro-group="home"]')
+  await settled(group.locator('[data-pro-all]'))
   await group.locator('[data-pro-all]').click()
   await expect(group.locator('[data-pro-count]')).toHaveText('2 of 2 on')
   await expect(group.locator('[data-pro-all]')).toContainText(
@@ -104,6 +119,7 @@ test('SET-B40 turn on / off all in a group is one Undo step', async ({
   await expect(group.locator('[data-pro-count]')).toHaveText('0 of 2 on')
   await page.getByTestId('sv3-redo').click()
   await expect(group.locator('[data-pro-count]')).toHaveText('2 of 2 on')
+  await settled(group.locator('[data-pro-all]'))
   await group.locator('[data-pro-all]').click()
   await expect(group.locator('[data-pro-count]')).toHaveText('0 of 2 on')
 })
@@ -156,7 +172,8 @@ test('SET-B43 Professional reads every switch as on and keeps the stored choices
     'aria-checked',
     'true',
   )
-  await expect(sw(page, 'home.cardSizes')).toBeDisabled()
+  // SET-B20: in Professional every switch can be turned off by itself.
+  await expect(sw(page, 'home.cardSizes')).toBeEnabled()
   expect((await state(page)).unlocked).toEqual(['home.builtFrom'])
   await level.getByRole('radio', { name: 'Beginner' }).click()
   await expect(page.locator('[data-pro-total]')).toHaveText('1 of 219 on')
@@ -164,6 +181,40 @@ test('SET-B43 Professional reads every switch as on and keeps the stored choices
     'aria-checked',
     'true',
   )
+})
+
+test('SET-B20 Professional: turn one switch off, it stays off, the others stay on, Undo brings it back', async ({
+  page,
+}) => {
+  await open(page, 'pro', JSON.stringify({ level: 'professional' }))
+  await expect(page.locator('[data-pro-total]')).toHaveText('219 of 219 on')
+  await expect(sw(page, 'home.cardSizes')).toBeEnabled()
+  await sw(page, 'home.cardSizes').click()
+  await expect(sw(page, 'home.cardSizes')).toHaveAttribute(
+    'aria-checked',
+    'false',
+  )
+  await expect(sw(page, 'home.builtFrom')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
+  await page.getByTestId('sv3-undo').click()
+  await expect(sw(page, 'home.cardSizes')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await expect(page.locator('[data-pro-total]')).toHaveText('219 of 219 on')
+  await page.getByTestId('sv3-redo').click()
+  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
+  // It stays off after a reload.
+  await page.reload()
+  await expect(page.locator('[data-settings-v3]')).toBeVisible()
+  await expect(sw(page, 'home.cardSizes')).toHaveAttribute(
+    'aria-checked',
+    'false',
+  )
+  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
 })
 
 test('SET-B44 the Beginner / Professional control is in Professional features and in Your experience', async ({

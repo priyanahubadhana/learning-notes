@@ -2,10 +2,11 @@ import { useState } from 'react'
 import type { JsonValue } from '../../core/types'
 import { t } from '../../i18n/t'
 import { ClearField } from '../../design/parts/ClearField'
-import { OnOffChoice } from '../../design/parts/OnOff'
+import { OnOff, OnOffChoice } from '../../design/parts/OnOff'
 import type { SettingDefinition } from '../registry'
 import { tv } from './tv'
 import { LabelsEditor } from './LabelsEditor'
+import { RowSelect } from './RowSelect'
 
 interface Props {
   definition: SettingDefinition
@@ -20,32 +21,34 @@ export function RowControl(props: Props) {
   const { definition, value, onSave, label, descId } = props
   const c = definition.control
   if (c.kind === 'segmented' || c.kind === 'select') {
+    const vals = c.options.map((o) => o.value)
+    if (vals.length === 2 && vals.includes('on') && vals.includes('off'))
+      return (
+        <OnOff
+          label={label}
+          describedBy={descId}
+          checked={value === 'on'}
+          onChange={(next) => onSave(next ? 'on' : 'off')}
+        />
+      )
     if (c.options.length <= 4)
       return (
         <OnOffChoice
           label={label}
+          describedBy={descId}
           value={value as string | number}
           options={c.options.map((o) => ({ value: o.value, label: o.label() }))}
           onChange={(v) => onSave(v)}
         />
       )
     return (
-      <select
-        aria-label={label}
-        aria-describedby={descId}
-        className="sv3-select"
-        value={String(value)}
-        onChange={(e) => {
-          const o = c.options.find((x) => String(x.value) === e.target.value)
-          if (o) onSave(o.value)
-        }}
-      >
-        {c.options.map((o) => (
-          <option key={o.value} value={String(o.value)}>
-            {o.label()}
-          </option>
-        ))}
-      </select>
+      <RowSelect
+        label={label}
+        describedBy={descId}
+        value={value as string | number}
+        options={c.options.map((o) => ({ value: o.value, label: o.label() }))}
+        onChange={onSave}
+      />
     )
   }
   if (c.kind === 'number')

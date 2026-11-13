@@ -24,7 +24,7 @@ for (const [name, viewport] of Object.entries(SIZES))
       'general',
       'review',
     ])
-      test(`${section}: no sideways scroll and 44 pt targets`, async ({
+      test(`SET-B36 ${section}: no sideways scroll and 44 pt targets`, async ({
         page,
       }) => {
         await page.goto(`/?flags=settings.v3#/settings/${section}`)

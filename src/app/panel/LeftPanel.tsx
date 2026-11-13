@@ -23,6 +23,7 @@ import { sampleName } from '../../i18n/defaultNames'
 import { t } from '../../i18n/t'
 import { listNotePages } from '../../pages/pageService'
 import { usePref } from '../usePref'
+import { useFlag } from '../flags'
 import { outlineRequest } from './outlineRequest'
 import {
   glideTo,
@@ -43,6 +44,8 @@ import { useFlag } from '../flags'
 import type { BookTab } from '../../reader/BookPanel'
 
 const PanelTabs = lazy(() => import('../../reader/v2/PanelTabs'))
+// The new panel (flag notebooks.v2): its own folder, loaded only when switched on.
+const PanelV2 = lazy(() => import('./v2/PanelV2'))
 const BookPanel = lazy(() => import('../../reader/BookPanel'))
 const AloudPanel = lazy(() => import('../../reader/aloud/AloudPanel'))
 const BOOK_TABS = ['pages', 'outline', 'audio', 'annotations'] as const
@@ -406,7 +409,7 @@ function AudioTab({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
  * Outline (the page's headings) and Audio (this page's recordings). Docked
  * beside the page on wide screens, an overlay on narrow ones.
  */
-export function LeftPanel({
+function LeftPanelToday({
   db,
   notebookId,
   pageId,
@@ -534,6 +537,27 @@ export function LeftPanel({
       </div>
     </aside>
   )
+}
+
+/** The left panel: today's, or the new Pages / Outline / Resources one when `notebooks.v2` is on. */
+export function LeftPanel(props: {
+  db: LearningNotesDB
+  notebookId: string
+  pageId: string
+  onOpenPage: (id: string) => void
+  onClose: () => void
+}) {
+  const v2 = useFlag('notebooks.v2')
+  // While a book is open the panel is about the book: that stays as it is.
+  const book = readerBridge.useValue()
+  if (v2 && !book) {
+    return (
+      <Suspense fallback={null}>
+        <PanelV2 {...props} />
+      </Suspense>
+    )
+  }
+  return <LeftPanelToday {...props} />
 }
 
 /** Thumbnails of the open page's sheets (long pages only); a tap jumps there. */

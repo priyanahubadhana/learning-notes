@@ -38,7 +38,8 @@ import { setGlassLite, startGlassProbe } from './design/glass'
 import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { toggleFavourite } from './app/favourites'
-import { useFlag } from './app/flags'
+import { isOn, useFlag } from './app/flags'
+import { useFrameSize } from './app/shell/useFrameSize'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
 import { QuietCorner } from './app/spaces/QuietCorner'
 import {
@@ -296,6 +297,9 @@ const DatabasesScreen = lazy(() =>
 const ReviewScreen = lazy(() =>
   import('./recall/ReviewScreen').then((m) => ({ default: m.ReviewScreen })),
 )
+const ReviewV2 = lazy(() =>
+  import('./review/v2/ReviewV2').then((m) => ({ default: m.ReviewV2 })),
+)
 // Flag `settings.v3`: the new Settings screen loads only when the flag is ON.
 const SettingsV3 = lazy(() =>
   import('./settings/v3/SettingsV3').then((m) => ({ default: m.SettingsV3 })),
@@ -420,6 +424,7 @@ function App() {
   const [studyTab, setStudyTab] = useState<'notes' | 'summary' | 'review'>(
     'review',
   )
+  const reviewV2 = useFlag('review.v2')
   // Review replaces the open page the same way (null = not reviewing).
   const [reviewScope, setReviewScope] = useState<ReviewScope | null>(() =>
     boot?.kind === 'review' && boot.scope.kind !== 'custom' ? boot.scope : null,
@@ -841,7 +846,7 @@ function App() {
     isSidebarWidth,
     SIDEBAR_DEFAULT,
   )
-  const [sidebarHidden, setSidebarHidden] = useState(() =>
+  const [sidebarHiddenPref, setSidebarHidden] = useState(() =>
     readPref('sidebarHidden', isBoolean, false),
   )
   const [panelOpen, setPanelOpen] = usePref('leftPanel.open', isBoolean, false)
@@ -849,9 +854,21 @@ function App() {
   useEffect(() => {
     if (outlineAsk.n > 0) setPanelOpen(true)
   }, [outlineAsk.n, setPanelOpen])
+  // Review v2 on a narrow tablet (portrait iPad): the session needs the room,
+  // so the sidebar starts closed (the toggle still opens it).
+  const frame = useFrameSize()
+  const narrowReview =
+    reviewV2 &&
+    space === 'review' &&
+    currentPage === null &&
+    frame.width >= 640 &&
+    frame.width < 1000
+  const [reviewSideOpen, setReviewSideOpen] = useState(false)
+  const sidebarHidden = narrowReview ? !reviewSideOpen : sidebarHiddenPref
   const toggleSidebar = () => {
-    setSidebarHidden(!sidebarHidden)
-    writePref('sidebarHidden', !sidebarHidden)
+    if (narrowReview) return setReviewSideOpen(!reviewSideOpen)
+    setSidebarHidden(!sidebarHiddenPref)
+    writePref('sidebarHidden', !sidebarHiddenPref)
   }
   const [barSlot, setBarSlot] = useState<HTMLElement | null>(null)
   const labPage = labPageId.useValue()
@@ -1232,7 +1249,8 @@ function App() {
       ) {
         e.preventDefault()
         e.stopPropagation()
-        setSearchChip('all')
+        // search.v2: this shortcut opens on the Features chip (SR-B01).
+        setSearchChip(isOn('search.v2') ? 'feature' : 'all')
         setSearchPopup(true)
       }
     }
@@ -1336,9 +1354,17 @@ function App() {
   useEffect(() => installDeepLinks(), [])
 
   // The top bar's name for the open screen (pages put their own path there).
+  const reviewHomeOpen =
+    reviewV2 &&
+    space === 'review' &&
+    currentPage === null &&
+    !reviewScope &&
+    !hub &&
+    !search &&
+    !showSettings
   const barTitle = showSettings
     ? t('settings.title')
-    : reviewScope
+    : reviewScope || reviewHomeOpen
       ? t('review.sidebar')
       : hub?.kind === 'cards'
         ? t('sidebar.allCards')
@@ -1381,6 +1407,25 @@ function App() {
 
   if (!workspace || !notebooks) return null // loading (a split second)
 
+  const reviewV2Screen = (scope: ReviewScope | null) => (
+    <ReviewV2
+      key={JSON.stringify(scope)}
+      db={db}
+      scope={scope}
+      keysPaused={drawerOpen}
+      onOpenNote={(pageId, blockId) => {
+        openPage(pageId)
+        revealBlock(blockId)
+      }}
+      onOpenAnnotation={(id) =>
+        runTask(db.annotations.get(id).then((a) => a && openAnnotation(a)))
+      }
+      onOpenNotebooks={() => chooseSpace('notebooks')}
+      onStart={(next) => openReview(next)}
+      onClose={() => setReviewScope(null)}
+    />
+  )
+
   const sidebarEl = (
     <Sidebar
       db={db}
@@ -1419,7 +1464,11 @@ function App() {
         runTask(createPageIn(notebookId, parentId, true, templateId))
       }
       onCreateTemplate={() => runTask(newTemplate())}
-      reviewOpen={reviewScope?.kind === 'all' || reviewScope?.kind === 'wrong'}
+      reviewOpen={
+        reviewScope?.kind === 'all' ||
+        reviewScope?.kind === 'wrong' ||
+        reviewHomeOpen
+      }
       onOpenReview={(scope) => choose(() => openReview(scope))}
       onOpenAllCards={() =>
         choose(() => {
@@ -1522,6 +1571,8 @@ function App() {
                   focusId={settingsFocus ?? undefined}
                 />
               )
+            ) : reviewV2 && reviewScope ? (
+              reviewV2Screen(reviewScope)
             ) : reviewScope ? (
               <ReviewScreen
                 key={JSON.stringify(reviewScope)}
@@ -1773,7 +1824,9 @@ function App() {
                   },
                 }}
               />
-            ) : notebooks.length === 0 && currentPage === null ? (
+            ) : notebooks.length === 0 &&
+              currentPage === null &&
+              !isOn('notebooks.v2') ? (
               <EmptyState
                 testId="no-notebooks"
                 className="mx-auto mt-[24vh] max-w-md"
@@ -1782,6 +1835,8 @@ function App() {
                 action={t('app.empty.create')}
                 onAction={() => runTask(createNotebookAndOpen())}
               />
+            ) : reviewV2 && space === 'review' && currentPage === null ? (
+              reviewV2Screen(null)
             ) : space === 'review' && currentPage === null ? (
               <ReviewHome
                 db={db}
@@ -1799,6 +1854,9 @@ function App() {
                 notebooks={notebooks}
                 onOpen={(id) => openNotebook(id)}
                 onCreate={() => runTask(createNotebookAndOpen())}
+                onReview={(notebookId) =>
+                  openReview({ kind: 'notebook', notebookId })
+                }
               />
             ) : null}
           </Suspense>
@@ -1989,6 +2047,8 @@ function App() {
                   }}
                   onSeeAll={openSearch}
                   initialChip={searchChip}
+                  pageId={currentPageId}
+                  notebookId={notebookId}
                 />
               </Suspense>
             )}

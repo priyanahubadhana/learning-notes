@@ -11,6 +11,8 @@ import {
   LEVEL_STORAGE_KEY,
   reloadLevel,
   setLevel,
+  setProOff,
+  proOffIds,
   setUnlocked,
   useLevel,
   useUnlocked,
@@ -90,5 +92,49 @@ describe('level', () => {
     act(() => setUnlocked('nb.move', true))
     expect(host.textContent).toBe('beginner true')
     act(() => root.unmount())
+  })
+})
+
+describe('Professional: each switch can be turned off by itself (SET-B20)', () => {
+  it('the level is the default, a switch is a stored override', () => {
+    expect(isUnlocked('nb.move')).toBe(true)
+    setProOff('nb.move', true)
+    expect(isUnlocked('nb.move')).toBe(false)
+    expect(isUnlocked('nb.find')).toBe(true)
+    expect(proOffIds()).toEqual(['nb.move'])
+    setProOff('nb.move', false)
+    expect(isUnlocked('nb.move')).toBe(true)
+  })
+
+  it('is remembered after a reload and does not touch the Beginner choices', () => {
+    setUnlocked('nb.find', true)
+    setProOff('nb.move', true)
+    reloadLevel()
+    expect(isUnlocked('nb.move')).toBe(false)
+    expect(isUnlocked('nb.find')).toBe(true)
+    setLevel('beginner')
+    expect(isUnlocked('nb.move')).toBe(false)
+    expect(isUnlocked('nb.find')).toBe(true)
+    setLevel('professional')
+    expect(isUnlocked('nb.move')).toBe(false)
+  })
+
+  it('every one of the 219 switches can be turned off alone', () => {
+    for (const f of PRO_FEATURES) {
+      setProOff(f.id, true)
+      expect(isUnlocked(f.id)).toBe(false)
+      expect(PRO_FEATURES.filter((g) => !isUnlocked(g.id))).toHaveLength(1)
+      setProOff(f.id, false)
+    }
+    expect(PRO_FEATURES.every((f) => isUnlocked(f.id))).toBe(true)
+  })
+
+  it('ignores unknown stored overrides', () => {
+    localStorage.setItem(
+      LEVEL_STORAGE_KEY,
+      '{"level":"professional","unlocked":[],"off":["nb.move","gone.x",3]}',
+    )
+    reloadLevel()
+    expect(proOffIds()).toEqual(['nb.move'])
   })
 })

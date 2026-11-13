@@ -57,6 +57,9 @@ export const enSettingsV3 = {
   'sv3.templateSearch': 'Search templates',
   'sv3.templateBlank': 'Blank page',
   'sv3.templateNone': 'No template matches “{query}”',
+  'sv3.templateWhyTitle': 'Why not yet?',
+  'sv3.templateWhy':
+    '“{name}” cannot be the start page yet. This setting remembers only Blank page or Study notes. You can still add “{name}” to a page from the list under the cursor of a new page.',
   'sv3.templateLater':
     'Cannot be the start page yet. Pick it from the list under the cursor of a new page.',
   'sv3.experience.title': 'Your experience',
@@ -156,7 +159,7 @@ export const enSettingsV3 = {
   'sv3.pro.resetWhy':
     'This turns off every single Professional feature you switched on, so Beginner is calm again. Your notes and other settings are not touched, and Undo brings them back.',
   'sv3.pro.proNote':
-    'In Professional every feature is on. Switch to Beginner above to choose them one by one. Your choices are kept.',
+    'In Professional every feature starts on. Turn any one off with its own switch; Undo brings it back. Switch to Beginner above to choose them one by one. Your choices are kept.',
   'sv3.group.home': 'Home',
   'sv3.group.notebooks': 'Notebooks',
   'sv3.group.toolbar': 'Tool bar, text and pen',
@@ -193,6 +196,7 @@ export const enSettingsV3 = {
   'sv3.version.name': 'Version',
   'sv3.version.help': 'The version of the app you are using.',
   'sv3.version.details': 'Version {commit}, built {date}.',
+  'sv3.tryNew.keepsOn': 'Keeps the new Settings on',
   'sv3.tryNew.keepScreen':
     'Turn all off leaves this new Settings screen on, so you do not lose this page. Turn it off in its own switch.',
   'sv3.glassWhyTitle': 'Reduce glass: Automatic',

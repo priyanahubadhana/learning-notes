@@ -52,6 +52,23 @@ The user's own API key calls the provider straight from the browser. No server o
 
 - **Prompt library and skills:** [prompt-library.md](prompt-library.md). `AiRequest.cachePrefix` / `AiCall.cachePrefix` puts a long text first and marks it for Claude prompt caching (cached tokens are counted in the usage); other companies get it in front of the prompt.
 
+## Cost additions (queued)
+
+Item 5 (prompt caching) and item 6 (real token count). One small sub-slice, at the start of AI framework slice 6.
+
+- When I send a long text with a cached prefix, the reusable part is marked for caching, and the cost shown includes any storage charge, so it is never lower than the real cost.
+- When I open the preview of a page, the true token count is asked from the provider, if the provider offers one; the preview then shows that count.
+- When I am offline, or the count call fails, the preview uses the 4-characters-per-token guess and says "estimated".
+- The count call sends note text, so it follows every rule of a real call: AI on, a key present, the notebook's Allow AI switch, locked pages never sent, and a row in the send log.
+- Providers without caching or counting work exactly as now.
+
+Won't do:
+
+- No count call when the notebook does not allow AI, even if the preview was opened.
+- No estimate lower than the real cost (a cheaper re-read price alone does not count).
+- No count call for locked pages, and no note text sent that the send log does not show.
+- No new provider or key handling.
+
 ## Tests
 
 Unit: `src/ai/picker.test.ts` (key storage and never in backup/sync code, model order, fallback on a refused key and on a cap, Test, per-notebook choice), `src/ai/keySync.test.ts` (keys reach the other device locked, the server holds no key text, off on one device is off everywhere and keys stay, turning on joins the lists), `src/ai/ai.test.ts`, `src/ai/vision.test.ts` (vision body for each provider, retry, image cost, cap blocks the call), `src/editor/writePad/pressure.test.ts`. Unit `src/ai/book.test.ts` (marks and cuts, citations, CFI and chapters, Claude and Gemini streams, Stop keeps the text and counts the cost, the cap blocks a streamed call, the log holds no content). E2E (mocked): `e2e/aiBook.spec.ts` (Ask on PDF pages with preview, stream, page link and the log; Story so far sends nothing ahead and Stop; the cap blocks with no request; EPUB chapter), `e2e/aiPicker.spec.ts` (keys, cards, keyboard and pointer order, notebook choice; chromium and ipad-webkit), `e2e/ai.spec.ts` (incl. cards from highlights), `e2e/aiLocked.spec.ts` (locked page blocked with no request, then allowed; unit block in `ai.test.ts`), `e2e/aiVision.spec.ts` (Convert to text Insert/Undo, Replace + maths, notebook without AI, Write pad AI engine, key never in a backup).

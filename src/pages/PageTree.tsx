@@ -13,6 +13,7 @@ import { touchUi } from '../app/touchUi'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
+import { useFlag } from '../app/flags'
 import { monthLabel, shortDayLabel } from '../journal/dates'
 import {
   currentPlace,
@@ -58,6 +59,7 @@ export function PageTree({
   onAddSubPage,
   onRequestDelete,
 }: PageTreeProps) {
+  const v2 = useFlag('notebooks.v2')
   const pages = useLiveQuery(
     () => listNotePages(db, notebookId),
     [db, notebookId],
@@ -217,7 +219,8 @@ export function PageTree({
                 type="button"
                 onClick={() => onOpen(page.id)}
                 onDoubleClick={() => startRename(page)}
-                className={`line-clamp-2 min-w-[5rem] flex-1 text-left break-words ${active ? '' : 'text-ink-soft'}`}
+                aria-current={v2 && active ? 'page' : undefined}
+                className={`line-clamp-2 min-w-[5rem] flex-1 text-left break-words ${active ? (v2 ? 'font-bold' : '') : 'text-ink-soft'}`}
               >
                 {page.locked && (
                   <Icon name="lock" size={13} className="me-1 inline" />

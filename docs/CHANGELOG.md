@@ -11,6 +11,65 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: reader-v2.md corrected for RD-B09, B24, P13, P17, P25 to P32, P34; new "Later" section (tap counts, real Liquid mode); pop-up placement rule; tests must use real clicks.
 - Why: the spec contradicted itself (Beginner and Pro showed the same parts) and some parts were not in the book reader. Nothing dropped.
 - Files: docs/features/reader-v2.md, docs/DECISIONS.md.
+### 13 Nov 2026: economy orchestrator aligned with speed rules
+
+- What: .claude/agents/economy-orchestrator.md now uses the speed rules: up to 8 builders on non-overlapping files (fall back to 6 on rework or flakes), next Opus round after two gate-3 fails, restart about every 6 waves, batch CI up to 3 fully gated slices per run.
+- Why: the orchestrator file still had the older limits (6 builders, 3 waves, Opus after two failed tries), which conflicted with ECONOMY-MODE section 11 and BUILD-STATE.
+- Files: .claude/agents/economy-orchestrator.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: build speed rules (no quality or design change)
+
+- What: ECONOMY-MODE.md gets section 11 "Speed rules" (builder cap 8, gates in parallel, pictures while CI runs, one CI run per batch of up to 3 gated slices, `main` merged into `build/next` to bring the automatic run back, one run at a time, repeat gate-3 fault list for builders, Opus sooner after repeat gate-3 fails, fewer orchestrator restarts). BUILD-STATE.md carries the same rules in short. DECISIONS.md lists each change and why quality is not affected.
+- Why: the build was slower than planned (orchestration review of 13 Nov); the owner asked for a little more speed with no loss of quality.
+- Files: docs/ECONOMY-MODE.md, docs/BUILD-STATE.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: orchestration doc gaps closed (items 5 and 6 specified)
+
+- What: ECONOMY-MODE.md section 9 says the short brief is for search, mechanic and docs helpers only. next.md runs only the related tests (full suite in CI). economy-orchestrator.md sends lookups to economy-search. ai.md gets a "Cost additions" section (caching and real token count, with a won't-do list); ai-framework.md gets a pointer to it; BUILD-STATE.md lane A gets the queued row.
+- Why: the gaps found in the orchestration review of 13 Nov.
+- Files: docs/ECONOMY-MODE.md, .claude/commands/next.md, .claude/agents/economy-orchestrator.md, docs/features/ai.md, docs/features/ai-framework.md, docs/BUILD-STATE.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: owner decisions on AI (test key, Claude connector priority, items 5 and 6 approved)
+
+- What: DECISIONS.md logs the owner's three AI decisions (test key with about US$5 cap in Settings › AI; Claude connector as the long-term built-in option, bring-your-own-key stays, no paid built-in AI without a new decision; items 5 and 6 approved as the first tasks of the AI slice). PENDING.md adds the two queued rows and the "add your test key" line. The cost plan marks items 1 to 4 DONE and 5 and 6 APPROVED; item 8 stays skipped.
+- Why: the owner's decisions of 13 Nov, so the AI slice starts from the approved list.
+- Files: docs/DECISIONS.md, docs/PENDING.md, docs/plans/cost-quality-additions-2026-11-13.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: cost and quality additions 1 to 4
+
+- What: added the short brief template and leave-out list and the weekly housekeeping list to docs/ECONOMY-MODE.md; `/next` now reads docs/BUILD-STATE.md first and has a use-when line; new read-only Haiku search helper `economy-search` (replaces the Explore name in token-efficiency rule 6).
+- Why: fewer tokens per helper brief, faster restarts, and search pinned to Haiku. Owner approved items 1 to 4 (proposal in docs/plans/cost-quality-additions-2026-11-13.md).
+- Files: docs/ECONOMY-MODE.md, .claude/commands/next.md, .claude/agents/economy-search.md, docs/design/token-efficiency.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: gate 3, fourth visit (5, 6)
+
+- What: gate 3 verdicts for 5 Home v2 (FAIL, 4 small fixes) and 6 Library v2 (FAIL, 5 fixes) after gate 2 and the added pictures.
+- Why: the design check before merge; the fix lists go to the builders.
+- Files: docs/plans/gate3-2026-11-13.md.
+
+### 13 Nov 2026: gate 3, third visit
+
+- What: gate 3 verdicts added for 5 Home v2, 6 Library v2, 9b AI Build (all FAIL), 12 Page menus re-shoot (FAIL, 2 small fixes), 0g follow-ups (PASS), 8 Review v2 re-shoot (PASS), 4 Notebooks + Search re-shoot (FAIL, 7 fixes).
+- Why: the fix lists and flag-on pictures were ready for the design check before merge.
+- Files: docs/plans/gate3-2026-11-13.md.
+
+### 13 Nov 2026: build/next green again
+
+- What: CI run 43310172930 on build/next is green. Test races fixed: shell offline, Pen 44 pt, SP-50, SP-56, gallery widths. Lint fix in mcp/src/setup.ts.
+- Why: build/next was red after the 0g merge; main must stay releasable before the next slice.
+- Files: test files under e2e/, src/ shell and gallery, mcp/src/setup.ts.
+
+### 13 Nov 2026: gate-2 rule proposed, Settings switch decision logged
+
+- What: proposed gate-2 rule "report only spec gaps and breakages, not style" added to PENDING "Needs you" (not applied, needs owner OK). Settings On/Off uses the switch from the approved mock-up, not the spec's two-part button; logged in DECISIONS "Decisions to review" for spec alignment.
+- Why: owner review of gate 2 and the Settings mock-up.
+- Files: docs/PENDING.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: slice 4 gate 3, the 7 fixes left
+
+- What: a drawn thin track under cut rows (Continue cards, search chips; touch screens hide the browser bar); phone-size search shows Close, never Esc; phone strip labels wrap to 2 lines and the phone strip is solid; search v2 is solid at every size (no cover bleed on iPad); Collapse all is an icon button (name on hover and on hold) so the Notebooks heading is never cut.
+- Why: gate 3 re-shoot, docs/plans/gate3-2026-11-13.md slice 4 items 1-7.
+- Files: src/design/parts/ScrollTrack.tsx (new), ContextStrip.css, index.css, notebooks/v2/{ContinueStrip,CollapseAllButton}.tsx, search/SearchPopup.tsx, e2e/notebooksSearchGate3{,Shots}.spec.ts, e2e/notebooksV2Sidebar.spec.ts, screenshots/gate3-4/.
 
 ### 13 Nov 2026: rules aligned with economy mode, 4 project hooks
 
@@ -1660,3 +1719,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - Doc spacing for format:check (3d3e7fe).
 - CI: a manual run (workflow_dispatch) on main now runs checks, e2e and deploy too, so docs-only fixes can still be deployed.
 - Supabase: connector migrations applied, connector_devices renumbered to 20261113000002; mcp function prefix fix (ad3ec12).
+
+## 2026-11-13 · Slice 4 gate 3 fix list (13 items)
+
+Home strip shows every item at every level, stays inside the pane, labels on phone; Continue and chip rows show a thin track; header controls one height, Find full width on phone; Duplicate notebook; Search: scope switch, lilac chips, Tasks count, single scroll row, solid phone surface, "Close" on touch, strip with Open in new place; sidebar Today one line, group header 8 px gap; PanelV2 top-layer import fixed after the 0g merge. Files: src/design/parts/ContextStrip._, contextStripPlace.ts, src/notebooks/v2/_, src/search/SearchPopup.tsx, src/search/v2/*, src/app/SidebarGroup.tsx, src/index.css, docs/DECISIONS.md.

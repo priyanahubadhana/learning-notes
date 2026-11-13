@@ -68,6 +68,9 @@ export function TimeRangeBar({
   const [building, setBuilding] = useState(false)
   const track = useRef<HTMLDivElement>(null)
   const [fade, setFade] = useState('none')
+  const [thumb, setThumb] = useState<{ left: number; width: number } | null>(
+    null,
+  )
   const [bar, setBar] = useState<HTMLDivElement | null>(null)
   const [pop, setPop] = useState<HTMLDivElement | null>(null)
   const pos = useAnchoredCard({
@@ -76,6 +79,14 @@ export function TimeRangeBar({
     widthPx: 320,
     active: picking,
   })
+  // The card is placed in screen coordinates, so its offset inside the bar is
+  // taken once, when it is placed. Reading the bar's rect on every render made
+  // the card slide by the scroll distance and cover other cells.
+  const offset = useMemo(() => {
+    if (!pos || !bar) return null
+    const r = bar.getBoundingClientRect()
+    return { left: pos.left - r.left, top: pos.top - r.top }
+  }, [pos, bar])
 
   /** Which edge of the segment track still has hidden content. */
   const measureFade = useCallback(() => {
@@ -86,6 +97,17 @@ export function TimeRangeBar({
     const end = el.scrollLeft < max - 1
     const next = start && end ? 'both' : start ? 'start' : end ? 'end' : 'none'
     setFade((prev) => (prev === next ? prev : next))
+    // our own thin track: native bars are hidden on touch screens
+    const t =
+      max > 1
+        ? {
+            left: Math.round((el.scrollLeft / el.scrollWidth) * 100),
+            width: Math.round((el.clientWidth / el.scrollWidth) * 100),
+          }
+        : null
+    setThumb((prev) =>
+      prev?.left === t?.left && prev?.width === t?.width ? prev : t,
+    )
   }, [])
   useLayoutEffect(() => {
     measureFade()
@@ -149,36 +171,50 @@ export function TimeRangeBar({
       <span className="pm-range__name" id="pm-range-name">
         {shownName}
       </span>
-      <div
-        ref={track}
-        className="pm-range__track"
-        role="radiogroup"
-        aria-label={tp('parts.range.label')}
-        data-fade={fade}
-        onScroll={measureFade}
-        onKeyDown={onKeyDown}
-      >
-        {visible.map((p) => {
-          const on = p.id === current?.id
-          return (
-            <button
-              key={p.id}
-              type="button"
-              role="radio"
-              aria-checked={on}
-              tabIndex={on ? 0 : -1}
-              className="pm-seg"
-              data-testid={`range-${p.id}`}
-              onClick={() => choose(p)}
-              ref={(el) => {
-                if (el && on)
-                  el.scrollIntoView?.({ inline: 'nearest', block: 'nearest' })
-              }}
-            >
-              {p.label}
-            </button>
-          )
-        })}
+      <div className="pm-range__scroll">
+        <div
+          ref={track}
+          className="pm-range__track"
+          role="radiogroup"
+          aria-label={tp('parts.range.label')}
+          data-fade={fade}
+          onScroll={measureFade}
+          onKeyDown={onKeyDown}
+        >
+          {visible.map((p) => {
+            const on = p.id === current?.id
+            return (
+              <button
+                key={p.id}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                tabIndex={on ? 0 : -1}
+                className="pm-seg"
+                data-testid={`range-${p.id}`}
+                onClick={() => choose(p)}
+                ref={(el) => {
+                  if (el && on)
+                    el.scrollIntoView?.({ inline: 'nearest', block: 'nearest' })
+                }}
+              >
+                {p.label}
+              </button>
+            )
+          })}
+        </div>
+        {thumb && (
+          <div
+            className="pm-range__rail"
+            data-testid="range-rail"
+            aria-hidden="true"
+          >
+            <span
+              className="pm-range__thumb"
+              style={{ left: `${thumb.left}%`, width: `${thumb.width}%` }}
+            />
+          </div>
+        )}
       </div>
       {editable && (
         <button
@@ -195,9 +231,9 @@ export function TimeRangeBar({
           ref={setPop}
           className="pm-pop"
           style={{
-            left: pos && bar ? pos.left - bar.getBoundingClientRect().left : 0,
-            top: pos && bar ? pos.top - bar.getBoundingClientRect().top : 0,
-            visibility: pos ? undefined : 'hidden',
+            left: offset?.left ?? 0,
+            top: offset?.top ?? 0,
+            visibility: offset ? undefined : 'hidden',
           }}
           role="group"
           aria-label={tp('parts.range.custom')}

@@ -8,7 +8,7 @@ import {
 } from '../level'
 import { markJustShown } from './experience'
 import { useSettingsHistory } from './historyCtx'
-import { PRO_FEATURE_TEXT } from './proFeatureText.gen'
+import { proFeatureText } from './proFeatureText'
 import { unlockId } from './virtualWrites'
 import { tv } from './tv'
 
@@ -17,17 +17,24 @@ import { tv } from './tv'
  * same stored switch as in the central list, so both stay in step. Off hides
  * the row in Beginner; Professional shows every row anyway.
  */
-export function ShowInBeginner({ id }: { id: string }) {
+export function ShowInBeginner({
+  id,
+  descId,
+}: {
+  id: string
+  descId?: string
+}) {
   useLevelVersion()
   const level = useLevel()
   const history = useSettingsHistory()
   if (!isProFeatureId(id)) return null
   const on = isStoredOn(id)
-  const name = PRO_FEATURE_TEXT[id]?.[0] ?? id
+  const name = proFeatureText(id)[0]
   return (
     <div data-show-in-beginner className="sv3-showbeg">
       <OnOff
         checked={on}
+        describedBy={descId}
         label={tv('sv3.showInBeginner', { name })}
         onChange={(next) => {
           history.record(

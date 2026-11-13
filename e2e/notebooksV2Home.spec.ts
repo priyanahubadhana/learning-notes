@@ -1,0 +1,480 @@
+import { expect, test, type Locator, type Page } from '@playwright/test'
+import { createNotebook, makeCard, sidebar } from './helpers.ts'
+
+/**
+ * Notebooks home v2 (slice 4, flag notebooks.v2): spec lines NB-B01..NB-B13
+ * and the Professional lines NB-P01, NB-P03, NB-P05. One test per line. The
+ * flag is forced with ?flags=notebooks.v2; Professional lines turn on only
+ * their own switch for a Beginner.
+ */
+const FLAG = '/?flags=notebooks.v2'
+
+async function start(
+  page: Page,
+  opts: { level?: 'beginner' | 'professional'; unlocked?: string[] } = {},
+) {
+  const level = opts.level ?? 'professional'
+  const unlocked = opts.unlocked ?? []
+  await page.addInitScript(
+    ([l, u]) => {
+      try {
+        // Only at the first load: a test may change the switches and reload.
+        if (!sessionStorage.getItem('nbv2-level-set')) {
+          sessionStorage.setItem('nbv2-level-set', '1')
+          localStorage.setItem(
+            'learning-notes:level',
+            JSON.stringify({ level: l, unlocked: u }),
+          )
+        }
+      } catch {
+        /* storage blocked */
+      }
+    },
+    [level, unlocked] as const,
+  )
+  await page.goto(FLAG)
+  await sidebar(page).waitFor({ state: 'attached' })
+}
+
+const home = (page: Page) => page.getByTestId('notebooks-home')
+const card = (page: Page, name: string) =>
+  home(page).locator('[data-notebook-card]').filter({ hasText: name })
+const strip = (page: Page) => page.getByTestId('nbv2-strip')
+
+/**
+ * The Home strip shows every item (gate 3 fix 2), at every level. What does
+ * not fit folds into "More actions"; this opens that list when it exists.
+ */
+async function openMoreList(page: Page) {
+  await strip(page).getByRole('menuitem', { name: 'More actions' }).click()
+  await page.getByRole('option', { name: 'Show all' }).click()
+}
+
+async function pickFromMore(page: Page, name: string | RegExp) {
+  const direct = strip(page).getByRole('menuitem', { name })
+  if (await direct.count()) {
+    await direct.first().click()
+    return
+  }
+  await openMoreList(page)
+  await page.getByRole('option', { name }).click()
+}
+
+async function openHome(page: Page) {
+  const rail = page.locator('[data-space="notebooks"]')
+  await rail.click()
+  if (!(await home(page).isVisible())) {
+    await page.keyboard.press('Escape')
+    await rail.click()
+  }
+  await expect(home(page)).toBeVisible()
+  await expect(home(page).getByTestId('nbh-scroll')).toBeVisible()
+}
+
+async function twoBooks(page: Page) {
+  await createNotebook(page, 'Alpha book', 'A page')
+  await createNotebook(page, 'Zeta book', 'Z page')
+  await openHome(page)
+}
+
+/** Switches on one Professional feature for a Beginner, then reloads. */
+async function unlock(page: Page, id: string) {
+  await page.evaluate(
+    (feature) =>
+      localStorage.setItem(
+        'learning-notes:level',
+        JSON.stringify({ level: 'beginner', unlocked: [feature] }),
+      ),
+    id,
+  )
+  await page.reload()
+  await openHome(page)
+}
+
+/** Holds the mouse on a locator for 0.65 s (the strip opens at 0.5 s). */
+async function hold(page: Page, target: Locator) {
+  const box = await target.boundingBox()
+  if (!box) throw new Error('nothing to hold')
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 3)
+  await page.mouse.down()
+  await page.waitForTimeout(650)
+  await page.mouse.up()
+}
+
+test('NB-B01 home shows title, New notebook, Shelf / List, tabs and covers; no space switcher', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooks(page)
+  await expect(home(page)).toHaveAttribute('data-v2', 'true')
+  await expect(
+    home(page).getByRole('heading', { name: 'Notebooks' }),
+  ).toBeVisible()
+  await expect(home(page).getByTestId('nbh-new')).toBeVisible()
+  await expect(home(page).locator('[data-layout="shelf"]')).toBeVisible()
+  await expect(home(page).locator('[data-layout="list"]')).toBeVisible()
+  await expect(home(page).getByRole('tab')).toHaveText([
+    'All',
+    'Starred',
+    'Recent',
+  ])
+  await expect(card(page, 'Alpha book')).toBeVisible()
+  await expect(page.locator('[data-space-switcher]')).toHaveCount(0)
+})
+
+test('NB-B02 Starred shows only pinned ones; none says how to pin', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooks(page)
+  await home(page).getByRole('tab', { name: 'Starred' }).click()
+  await expect(home(page).getByTestId('nbh-empty')).toContainText(
+    'Pin a notebook and it will show here',
+  )
+  await home(page).getByRole('tab', { name: 'All' }).click()
+  await home(page).getByRole('button', { name: 'Pin Zeta book' }).click()
+  await home(page).getByRole('tab', { name: 'Starred' }).click()
+  await expect(card(page, 'Zeta book')).toBeVisible()
+  await expect(card(page, 'Alpha book')).toHaveCount(0)
+})
+
+test('NB-B03 Recent lists opened notebooks with the day they were opened', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooks(page)
+  await home(page).getByRole('tab', { name: 'Recent' }).click()
+  await expect(card(page, 'Zeta book')).toContainText('Today')
+})
+
+test('NB-B04 tapping a cover opens the notebook and leaves the home', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooks(page)
+  await card(page, 'Alpha book').getByRole('button').first().click()
+  await expect(home(page)).toBeHidden()
+})
+
+test('NB-B06 New notebook asks for a name, creates it at the end and opens it', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooks(page)
+  await home(page).getByTestId('nbh-new').click()
+  const dialog = page.getByTestId('nbv2-new-dialog')
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByRole('button', { name: 'Cancel' })).toBeVisible()
+  await dialog.getByRole('textbox').fill('Chemistry')
+  await dialog.getByRole('button', { name: 'Create' }).click()
+  await expect(page.getByText('Notebook created')).toBeVisible()
+  await expect(home(page)).toBeHidden()
+  await expect(
+    sidebar(page).getByRole('button', { name: 'Chemistry', exact: true }),
+  ).toBeVisible()
+})
+
+test('NB-B07 the star pins at once and fills', async ({ page }) => {
+  await start(page)
+  await twoBooks(page)
+  await home(page).getByRole('button', { name: 'Pin Zeta book' }).click()
+  await expect(
+    home(page).locator('[data-notebook-card]').first(),
+  ).toContainText('Zeta book')
+  await expect(
+    home(page).getByRole('button', { name: 'Unpin Zeta book' }),
+  ).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('NB-B08 holding a cover opens the strip; right-click does too', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooks(page)
+  const cover = card(page, 'Alpha book')
+  await hold(page, cover)
+  await expect(strip(page)).toBeVisible()
+  for (const name of [
+    'Open',
+    'Pin to the top',
+    'Rename',
+    'Cover and settings',
+    'Delete',
+  ])
+    await expect(strip(page).getByRole('menuitem', { name })).toBeVisible()
+  await expect(home(page)).toBeVisible() // the hold did not open the notebook
+  await page.keyboard.press('Escape')
+  await expect(strip(page)).toBeHidden()
+  await cover.click({ button: 'right' })
+  await expect(strip(page)).toBeVisible()
+})
+
+test('NB-B08 Pin in the strip pins; the Undo toast unpins', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooks(page)
+  await card(page, 'Zeta book').click({ button: 'right' })
+  await strip(page).getByRole('menuitem', { name: 'Pin to the top' }).click()
+  await expect(
+    home(page).getByRole('button', { name: 'Unpin Zeta book' }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(
+    home(page).getByRole('button', { name: 'Pin Zeta book' }),
+  ).toBeVisible()
+})
+
+test('NB-B08 Rename in the strip renames the notebook', async ({ page }) => {
+  await start(page)
+  await twoBooks(page)
+  await card(page, 'Alpha book').click({ button: 'right' })
+  await strip(page).getByRole('menuitem', { name: 'Rename' }).click()
+  const dialog = page.getByTestId('nbv2-rename-dialog')
+  await dialog.getByRole('textbox').fill('Alpha renamed')
+  await dialog.getByRole('button', { name: 'Save' }).click()
+  await expect(card(page, 'Alpha renamed')).toBeVisible()
+})
+
+test('NB-B09 Delete asks with the page count, moves to Trash, Undo restores', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooks(page)
+  await card(page, 'Alpha book').click({ button: 'right' })
+  await strip(page).getByRole('menuitem', { name: 'Delete' }).click()
+  const dialog = page.getByTestId('nbv2-delete-dialog')
+  await expect(dialog).toContainText('You can undo this.')
+  await expect(dialog).toContainText('1 page')
+  await dialog.getByRole('button', { name: 'Move to Trash' }).click()
+  await expect(card(page, 'Alpha book')).toHaveCount(0)
+  await expect(page.getByText('Moved “Alpha book” to Trash')).toBeVisible()
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(card(page, 'Alpha book')).toBeVisible()
+})
+
+test('NB-B10 Shelf / List switch changes the layout and is remembered', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooks(page)
+  await home(page).locator('[data-layout="list"]').click()
+  await expect(home(page).locator('[data-layout="list"]')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await page.reload()
+  await openHome(page)
+  await expect(home(page).locator('[data-layout="list"]')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+})
+
+test('NB-B11 Continue where you stopped shows at most 4 notebooks', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooks(page)
+  await page.reload()
+  await openHome(page)
+  const cont = page.getByTestId('nbv2-continue')
+  await expect(cont).toBeVisible()
+  const cards = cont.getByTestId('nbv2-continue-card')
+  expect(await cards.count()).toBeLessThanOrEqual(4)
+  await cards.first().click()
+  await expect(home(page)).toBeHidden()
+})
+
+test('NB-B13 with no notebook left there is no blank screen, and Undo brings it back', async ({
+  page,
+}) => {
+  await start(page)
+  await createNotebook(page, 'Only book', 'A page')
+  await openHome(page)
+  await card(page, 'Only book').click({ button: 'right' })
+  await strip(page).getByRole('menuitem', { name: 'Delete' }).click()
+  await page
+    .getByTestId('nbv2-delete-dialog')
+    .getByRole('button', { name: 'Move to Trash' })
+    .click()
+  // The new home's own Empty state shows, not the old app-level one.
+  await expect(home(page).getByTestId('nbh-empty')).toContainText(
+    'No notebooks yet',
+  )
+  await expect(
+    home(page)
+      .getByTestId('nbh-empty')
+      .getByRole('button', { name: 'New notebook' }),
+  ).toBeVisible()
+  await expect(page.getByTestId('no-notebooks')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(card(page, 'Only book')).toBeVisible()
+})
+
+test('NB-B13 a first start with no notebook shows the new home Empty state', async ({
+  page,
+}) => {
+  await start(page)
+  await page.locator('[data-space="notebooks"]').click()
+  await expect(home(page).getByTestId('nbh-empty')).toContainText(
+    'No notebooks yet',
+  )
+  await expect(page.getByTestId('no-notebooks')).toHaveCount(0)
+})
+
+test('NB-P01 Find a notebook filters as I type; ✕ clears (needs nb.find)', async ({
+  page,
+}) => {
+  await start(page, { level: 'beginner' })
+  await twoBooks(page)
+  await expect(home(page).getByTestId('nbv2-find')).toHaveCount(0)
+  await unlock(page, 'nb.find')
+  const find = home(page).getByTestId('nbv2-find')
+  await find.fill('zeta')
+  await expect(card(page, 'Zeta book')).toBeVisible()
+  await expect(card(page, 'Alpha book')).toHaveCount(0)
+  await find.fill('nothing')
+  await expect(home(page).getByTestId('nbh-empty')).toContainText(
+    'No notebooks match.',
+  )
+  await home(page)
+    .getByRole('button', { name: /^Clear/ })
+    .click()
+  await expect(find).toHaveValue('')
+  await expect(card(page, 'Alpha book')).toBeVisible()
+})
+
+test('NB-P03 Move to top and Undo in the strip (needs nb.move)', async ({
+  page,
+}) => {
+  await start(page, { level: 'beginner' })
+  await twoBooks(page)
+  await unlock(page, 'nb.move')
+  await card(page, 'Zeta book').click({ button: 'right' })
+  await pickFromMore(page, 'Move to top')
+  await expect(
+    home(page).locator('[data-notebook-card]').first(),
+  ).toContainText('Zeta book')
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(
+    home(page).locator('[data-notebook-card]').first(),
+  ).toContainText('Alpha book')
+})
+
+test('NB-P05 Add empty page in the strip adds a page and opens it (needs nb.addEmptyPage)', async ({
+  page,
+}) => {
+  await start(page, { level: 'beginner' })
+  await twoBooks(page)
+  await unlock(page, 'nb.addEmptyPage')
+  await card(page, 'Alpha book').click({ button: 'right' })
+  await pickFromMore(page, 'Add empty page')
+  await expect(home(page)).toBeHidden()
+})
+
+test('A Beginner sees no Professional items in the strip', async ({ page }) => {
+  await start(page, { level: 'beginner' })
+  await twoBooks(page)
+  await card(page, 'Alpha book').click({ button: 'right' })
+  await expect(strip(page)).toBeVisible()
+  // Gate 3 fix 2: Open, Pin, Rename, Cover, Duplicate, Delete (last).
+  const names = await strip(page)
+    .getByRole('menuitem')
+    .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')))
+  expect(names[0]).toBe('Open')
+  expect(names.at(-1)).toBe('Delete')
+  for (const name of [
+    'Pin to the top',
+    'Rename',
+    'Cover and settings',
+    'Duplicate',
+  ])
+    expect(names).toContain(name)
+  for (const name of [
+    'Add empty page',
+    'Add from template…',
+    'Review this notebook',
+    'Move up',
+  ])
+    expect(names).not.toContain(name)
+})
+
+/** Two notebooks, each with one card (a new card is due at once). */
+async function twoBooksWithCards(page: Page) {
+  await createNotebook(page, 'Alpha book', 'A page')
+  await makeCard(page, 'Alpha question?', 1)
+  await createNotebook(page, 'Zeta book', 'Z page')
+  await makeCard(page, 'Zeta question?', 2)
+  await openHome(page)
+}
+
+test('NB-B05 the "N due" badge shows on a cover; tapping it reviews that notebook only', async ({
+  page,
+}) => {
+  await start(page)
+  await twoBooksWithCards(page)
+  const badge = card(page, 'Alpha book').getByTestId('nbv2-due')
+  await expect(badge).toContainText('1 due')
+  await badge.click()
+  await expect(home(page)).toBeHidden()
+  const main = page.getByRole('main')
+  await expect(main).toContainText('Alpha question?')
+  await expect(main).not.toContainText('Zeta question?')
+})
+
+test('NB-P07 Review this notebook in the strip reviews only its cards (needs nb.reviewNotebook)', async ({
+  page,
+}) => {
+  await start(page, { level: 'beginner' })
+  await twoBooksWithCards(page)
+  await unlock(page, 'nb.reviewNotebook')
+  await card(page, 'Zeta book').click({ button: 'right' })
+  await pickFromMore(page, 'Review this notebook')
+  await expect(home(page)).toBeHidden()
+  const main = page.getByRole('main')
+  await expect(main).toContainText('Zeta question?')
+  await expect(main).not.toContainText('Alpha question?')
+})
+
+test('NB-B12 scale: 2,000 notebooks keep only about a screenful of covers in the page, and scrolling shows later ones', async ({
+  page,
+}) => {
+  await start(page)
+  await createNotebook(page, 'Seed book', 'A page')
+  const COUNT = 2000
+  await page.evaluate(async (count) => {
+    const open = indexedDB.open('learning-notes')
+    const db: IDBDatabase = await new Promise((res) => {
+      open.onsuccess = () => res(open.result)
+    })
+    const all = await new Promise<Record<string, unknown>[]>((res) => {
+      const r = db.transaction('notebooks').objectStore('notebooks').getAll()
+      r.onsuccess = () => res(r.result)
+    })
+    const seed = all.find((n) => n.title === 'Seed book')!
+    await new Promise<void>((res) => {
+      const tx = db.transaction('notebooks', 'readwrite')
+      for (let i = 1; i <= count; i++) {
+        tx.objectStore('notebooks').put({
+          ...seed,
+          id: 'scale-nb-' + i,
+          title: 'Scale book ' + String(i).padStart(4, '0'),
+          order: String(seed.order) + String(i).padStart(5, '0'),
+        })
+      }
+      tx.oncomplete = () => res()
+    })
+    db.close()
+  }, COUNT)
+  await page.reload()
+  await openHome(page)
+  const cards = home(page).locator('[data-notebook-card]')
+  await expect(cards.first()).toBeVisible()
+  expect(await cards.count()).toBeLessThan(100)
+  const scroller = home(page).getByTestId('nbh-scroll')
+  await scroller.evaluate((el) => el.scrollTo(0, el.scrollHeight))
+  await expect(card(page, 'Scale book 2000')).toBeVisible()
+  expect(await cards.count()).toBeLessThan(100)
+  await expect(card(page, 'Seed book')).toHaveCount(0)
+})

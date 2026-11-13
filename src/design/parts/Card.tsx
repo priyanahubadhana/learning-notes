@@ -289,6 +289,7 @@ export function CardTrigger({
   glowKey,
   testId,
   className,
+  describedBy,
   children,
 }: {
   open: boolean
@@ -297,6 +298,8 @@ export function CardTrigger({
   glowKey?: number
   testId?: string
   className?: string
+  /** Id of the element that describes this button. */
+  describedBy?: string
   children?: ReactNode
 }) {
   return (
@@ -308,6 +311,7 @@ export function CardTrigger({
       aria-haspopup="dialog"
       aria-expanded={open}
       aria-label={label}
+      aria-describedby={describedBy}
       data-pressed={open || undefined}
       onClick={(e) => onClick(e.currentTarget)}
     >

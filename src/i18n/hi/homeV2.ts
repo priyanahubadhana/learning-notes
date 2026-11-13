@@ -27,7 +27,7 @@ export const hiHomeV2 = {
   'home.v2.w.pending': 'बाकी काम',
   'home.v2.w.record': 'आज अब तक',
   'home.v2.cards.none': 'कोई कार्ड देय नहीं है।',
-  'home.v2.pending.title': 'बाकी काम ({count})',
+  'home.v2.pending.count': '{count} खुले',
   'home.v2.pending.empty': 'कुछ बाकी नहीं है।',
   'home.v2.pending.more_one': '1 और',
   'home.v2.pending.more_other': '{count} और',

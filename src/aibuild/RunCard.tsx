@@ -71,7 +71,11 @@ export function RunCard({
         data-testid="aifw-run-title"
         className="text-base font-semibold"
       >
-        {t('aifw.run.title', { name })}
+        {state === 'preview'
+          ? t('aifw.run.check')
+          : state === 'applied' || state === 'undone'
+            ? t('aifw.run.finished')
+            : t('aifw.run.title', { name })}
       </h3>
 
       <ol className="flex flex-col gap-2" data-testid="aifw-run-steps">

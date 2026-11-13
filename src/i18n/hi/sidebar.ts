@@ -143,7 +143,9 @@ export const hiSidebar = {
   'space.home.soon':
     'आपका दिन यहाँ रहेगा: मुख्य काम, कार्य और फ़ोकस टाइमर। अभी आज की डायरी खोलें।',
   'space.home.title': 'आज',
+  'space.home.side': 'आपका दिन होम बोर्ड पर है।',
   'space.home.today': 'आज की डायरी खोलें ({date})',
+  'space.home.todayShort': 'आज की डायरी खोलें',
   'space.library': 'लाइब्रेरी',
   'space.library.import': 'आयात करें',
   'space.library.importSoon': 'किताबें आयात करना लाइब्रेरी के साथ आएगा।',

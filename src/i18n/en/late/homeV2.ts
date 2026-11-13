@@ -27,7 +27,7 @@ export const enLateHomeV2 = {
   'home.v2.w.pending': 'Pending items',
   'home.v2.w.record': 'Today so far',
   'home.v2.cards.none': 'No cards are due.',
-  'home.v2.pending.title': 'Pending items ({count})',
+  'home.v2.pending.count': '{count} open',
   'home.v2.pending.empty': 'Nothing pending.',
   'home.v2.pending.more_one': '1 more',
   'home.v2.pending.more_other': '{count} more',

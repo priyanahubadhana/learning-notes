@@ -27,7 +27,7 @@ export const esHomeV2 = {
   'home.v2.w.pending': 'Pendientes',
   'home.v2.w.record': 'Hoy hasta ahora',
   'home.v2.cards.none': 'No hay tarjetas pendientes.',
-  'home.v2.pending.title': 'Pendientes ({count})',
+  'home.v2.pending.count': '{count} abiertas',
   'home.v2.pending.empty': 'Nada pendiente.',
   'home.v2.pending.more_one': '1 más',
   'home.v2.pending.more_other': '{count} más',

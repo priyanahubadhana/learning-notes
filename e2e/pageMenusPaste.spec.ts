@@ -17,16 +17,17 @@ async function open(
   page: Page,
   level: 'beginner' | 'professional',
   mode: 'ask' | null,
+  unlocked: string[] = [],
 ) {
   await page.addInitScript(
-    ([l, m]) => {
+    ([l, m, u]) => {
       localStorage.setItem(
         'learning-notes:level',
-        JSON.stringify({ level: l, unlocked: [] }),
+        JSON.stringify({ level: l, unlocked: u }),
       )
       if (m) localStorage.setItem('learning-notes:general.pasteMode', `"${m}"`)
     },
-    [level, mode] as const,
+    [level, mode, unlocked] as const,
   )
   await page.goto('/?flags=page.menus')
   await createNotebook(page, 'Biology', 'First')
@@ -103,15 +104,52 @@ test('PM-44 the "Pasted as" chip is hidden for Beginner', async ({ page }) => {
   await expect(page.getByRole('group', { name: 'Pasted as' })).toHaveCount(0)
 })
 
-test('PM-44 the "Pasted as" chip shows in Professional', async ({ page }) => {
+test('PM-44 the chip is off by default, even in Professional', async ({
+  page,
+}) => {
   await open(page, 'professional', 'ask')
   await paste(page, RICH, PLAIN)
   await page.keyboard.press('Enter')
   await expect(editor(page).locator('h2')).toHaveCount(1)
-  await expect(page.getByRole('group', { name: 'Pasted as' })).toBeVisible()
+  await expect(page.getByRole('group', { name: 'Pasted as' })).toHaveCount(0)
 })
 
-test('PM-46 pasted HTML is cleaned: scripts, handlers and styles are gone', async ({
+test('PM-44 with the switch on the chip shows for 8 s and re-pastes another form', async ({
+  page,
+}) => {
+  await page.clock.install()
+  await open(page, 'professional', 'ask', ['page.pastedChip'])
+  await paste(page, RICH, PLAIN)
+  await page.keyboard.press('Enter')
+  await expect(editor(page).locator('h2')).toHaveCount(1)
+  const chip = page.getByRole('group', { name: 'Pasted as' })
+  await expect(chip).toBeVisible()
+  await page.clock.fastForward(7000)
+  await expect(chip).toBeVisible()
+  await page.clock.fastForward(1500)
+  await expect(chip).toHaveCount(0)
+  // A second paste: choosing another form re-pastes it.
+  await editor(page).click()
+  await paste(page, RICH, PLAIN)
+  await page.keyboard.press('Enter')
+  await expect(chip).toBeVisible()
+  await chip.getByRole('button', { name: 'Plain text' }).click()
+  await expect(editor(page).locator('h2')).toHaveCount(1)
+  await expect(editor(page)).toContainText('Cell heading')
+})
+
+const pasteGroup = (page: Page) => page.getByRole('group', { name: 'Paste' })
+
+test('PM-43 Settings shows Keep format as the choice with the flag on', async ({
+  page,
+}) => {
+  await page.goto('/?flags=page.menus#/settings/general')
+  await expect(
+    pasteGroup(page).getByRole('button', { name: 'Keep format' }),
+  ).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('PM-46 pasted HTML is cleaned: scripts, handlers and the style attribute are gone', async ({
   page,
 }) => {
   await open(page, 'beginner', null)
@@ -122,7 +160,9 @@ test('PM-46 pasted HTML is cleaned: scripts, handlers and styles are gone', asyn
   )
   await expect(editor(page)).toContainText('safe words')
   await expect(editor(page).locator('script')).toHaveCount(0)
-  await expect(editor(page).locator('[onclick], [onerror]')).toHaveCount(0)
+  await expect(
+    editor(page).locator('[onclick], [onerror], [style*="color:red"]'),
+  ).toHaveCount(0)
   expect(
     await page.evaluate(() => (window as never as { __z?: number }).__z),
   ).toBeUndefined()

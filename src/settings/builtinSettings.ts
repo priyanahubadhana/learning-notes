@@ -42,6 +42,8 @@ import {
   OPEN_NOTEBOOK_AT,
   type OpenNotebookAt,
 } from '../notebooks/lastPage'
+import { isFlagOn } from '../app/flags'
+import { readPref, writePref } from '../app/uiPrefs'
 import { writeDeviceSetting } from './settingsService'
 import {
   createSettingsRegistry,
@@ -768,6 +770,16 @@ export const pasteModeSetting: SettingDefinition<PasteMode> = {
   keywords: 'paste keep format plain text ask each time chooser clipboard',
   scope: 'device',
   defaultValue: 'ask',
+  // Flag page.menus (PM-43): until one is picked, Settings shows Keep original.
+  derived: {
+    read: () =>
+      readPref(
+        'general.pasteMode',
+        (v): v is PasteMode => PASTE_MODES.includes(v as PasteMode),
+        isFlagOn('page.menus') ? 'keep' : 'ask',
+      ),
+    write: (v) => writePref('general.pasteMode', v),
+  },
   isValid: (value): value is PasteMode =>
     PASTE_MODES.includes(value as PasteMode),
   control: {

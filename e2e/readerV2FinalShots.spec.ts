@@ -103,3 +103,7 @@ for (const { level, theme, name, viewport, kind } of shots)
     await page.screenshot({ path: `${OUT}/${kind}-${lv}-${theme}-${name}.png` })
     await context.close()
   })
+
+test('final-look pictures are made only with SHOTS=1', () => {
+  test.skip(!process.env.SHOTS, 'pictures only')
+})

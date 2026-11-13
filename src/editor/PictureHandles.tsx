@@ -240,6 +240,20 @@ export function PictureHandles({ editor }: { editor: Host }) {
     return () => cancelAnimationFrame(frame)
   }, [img, editor])
 
+  // The new bar: one set of handles (ours), the accent frame as on a drawing,
+  // and the text box frame quiet while the picture is picked (index.css).
+  useEffect(() => {
+    if (!barV8 || !img) return
+    const holder = img.closest<HTMLElement>('.bn-file-block-content-wrapper')
+    const paper = img.closest<HTMLElement>('[data-paper-box]')
+    holder?.setAttribute('data-v8-picked', '')
+    paper?.setAttribute('data-v8-picked', '')
+    return () => {
+      holder?.removeAttribute('data-v8-picked')
+      paper?.removeAttribute('data-v8-picked')
+    }
+  }, [barV8, img])
+
   if (!img || !box || box.width === 0) return null
 
   const holder = img.closest<HTMLElement>('.bn-file-block-content-wrapper')

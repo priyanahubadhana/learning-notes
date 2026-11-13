@@ -2,6 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Card } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
 import { applyLayerVars } from '../../overlay'
+import { onRouted, PRIORITY } from '../../input/eventRouter'
 import { pictureControl } from '../../../editor/pictureControl'
 import { activeTool } from '../main/mainTools'
 import {
@@ -44,6 +45,22 @@ export default function ToolbarV8() {
 
   // The shared stacking table as --z-* variables (the name tip uses --z-menu).
   useEffect(() => applyLayerVars(), [])
+  // Rings on keyboard focus only: a tap or click that opens a card marks the
+  // pointer as the last input, and any key clears it (toolCards.css).
+  useEffect(() => {
+    const root = document.documentElement
+    const pointer = () => root.setAttribute('data-v8-pointer', '')
+    const key = () => root.removeAttribute('data-v8-pointer')
+    // Watch only (never "handled"), ahead of everyone else.
+    const first = { priority: PRIORITY.gesture + 1, name: 'v8-ring-modality' }
+    const offPointer = onRouted('pointerdown', () => void pointer(), first)
+    const offKey = onRouted('keydown', () => void key(), first)
+    return () => {
+      offPointer()
+      offKey()
+      key()
+    }
+  }, [])
 
   // The page's own mode changed (the Pencil, a shortcut): the bar follows.
   useEffect(

@@ -21,6 +21,7 @@ import {
 } from '../../../../../ink/toolState'
 import { useUnlocked } from '../../../../../settings/level'
 import { Glow } from '../../Glow'
+import { Icon } from '../../../icons'
 import { SHAPE_CHOICES, chooseShape } from './shapesModel'
 import '../pen/penCards.css'
 import '../toolCards.css'
@@ -110,8 +111,19 @@ function ShapeCard() {
               checked={mag.on}
               onChange={() => toggleMagnifier()}
             />
-            <label className="pcard-row">
+            {/* The shared round swatch with ▾; the browser picker sits
+                invisible over the row and only opens the system dialog. */}
+            <label className="pcard-row v8swatchrow">
               <span>{t('v8.pen.pickColour')}</span>
+              <span className="v8swatchpick" aria-hidden>
+                <i
+                  className="pcard-swatch"
+                  style={{
+                    background: isHex(pen.colour) ? pen.colour : '#000000',
+                  }}
+                />
+                <Icon name="chevronDown" size={16} />
+              </span>
               <input
                 type="color"
                 className="v8swatchinput"

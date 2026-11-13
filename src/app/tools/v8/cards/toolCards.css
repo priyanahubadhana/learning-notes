@@ -127,18 +127,46 @@
   display: none;
 }
 
-/* The Colour picker row: the swatch sits where a switch would. */
-.v8swatchinput {
-  flex: none;
-  width: 40px;
-  height: 28px;
-  padding: 2px;
-  border: 1px solid var(--color-line-strong);
-  border-radius: var(--r-md);
-  background: var(--color-surface-1);
+/* The Colour picker row: the shared round swatch with ▾ where a switch would
+   be; the browser picker lies invisible over the whole row (opens the dialog). */
+.v8swatchrow {
+  position: relative;
   cursor: pointer;
 }
-.v8swatchinput:focus-visible {
+.v8swatchpick {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-ink-soft);
+}
+.v8swatchinput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.v8swatchrow:has(.v8swatchinput:focus-visible) {
   outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+  outline-offset: -2px;
+}
+
+/* Group labels keep the card-system group gap, as in the Shape card. */
+.v8scroll,
+.v8sel-more:has(> .pcard-group) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* A card opened by a tap or click shows no ring; the keyboard still gets one
+   (data-v8-pointer is set by a pointer and cleared by any key). */
+:root[data-v8-pointer] .pcard[data-testid^='v8-card-'] :focus-visible {
+  outline: none;
+}
+
+/* Text size: the five "%" labels on one line, however big the letter above. */
+.pcard[data-testid^='v8-card-'] .pcard-tile-label {
+  margin-top: auto;
 }

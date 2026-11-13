@@ -4,6 +4,7 @@ import { act } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Card } from './Card'
 import { focusTarget } from './cardPick'
+import { placeCard } from './useAnchoredCard'
 import { $, byLabel, click, cleanDom, key, mount } from './testHelpers'
 
 afterEach(() => {
@@ -97,5 +98,40 @@ describe('Card', () => {
     expect(focusTarget($('[role="dialog"]') as HTMLElement).textContent).toBe(
       'Pick me',
     )
+  })
+})
+
+describe('Card prefer="above" (a tools row at the bottom, S3-05)', () => {
+  const row = { left: 100, top: 700, width: 44, height: 44 }
+  const view = { width: 1000, height: 768 }
+  const size = { width: 300, height: 200 }
+
+  it('opens above the anchor with the card 8 px clear when there is room', () => {
+    const p = placeCard(row, size, view, null, 'above')
+    expect(p.side).toBe('above')
+    expect(p.top + size.height).toBe(row.top - 8)
+  })
+
+  it('without the preference the same card opens below when it fits there', () => {
+    const roomy = placeCard({ ...row, top: 100 }, size, view)
+    expect(roomy.side).toBe('below')
+    const edge = placeCard(row, size, view, null, 'above')
+    expect(edge.side).toBe('above')
+  })
+
+  it('falls back when there is no room above', () => {
+    const p = placeCard({ ...row, top: 20 }, size, view, null, 'above')
+    expect(p.side).toBe('below')
+  })
+
+  it('the Card passes the preference on: it is drawn on the "above" side', () => {
+    mount(
+      card({
+        placement: 'anchored',
+        anchor: row as unknown as HTMLElement,
+        prefer: 'above',
+      }),
+    )
+    expect($('[role="dialog"]')?.getAttribute('data-side')).toBe('above')
   })
 })

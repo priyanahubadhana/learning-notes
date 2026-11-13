@@ -1,6 +1,6 @@
 # Slice 12 rest pictures (strip, Paste menu, page sheet, Arrange, row strip)
 
-Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (source head 9e2fbb99; the pictures are in the commit after it). Made by shots.spec.ts (run with a config whose testDir is this folder).
+Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (source head 35b4842d (9e2fbb99 plus a move of aboveTabBar to its own file, no behaviour change); the pictures are in the commit after it). Made by shots.spec.ts (run with a config whose testDir is this folder).
 
 Pattern: `<screen>-<size>-<theme>-<level>.png`
 

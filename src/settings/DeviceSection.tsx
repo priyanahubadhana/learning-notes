@@ -20,6 +20,19 @@ function isInstalled(): boolean {
   )
 }
 
+/** Shows busy while `job` runs; always clears it, even if the job throws. */
+export async function whileBusy(
+  setBusy: (busy: boolean) => void,
+  job: () => Promise<void>,
+): Promise<void> {
+  setBusy(true)
+  try {
+    await job()
+  } finally {
+    setBusy(false)
+  }
+}
+
 /** How safe the notes on this device are, and how to install the app. */
 export function DeviceSection({ db }: { db: LearningNotesDB }) {
   const [isProtected, setProtected] = useState<boolean>()
@@ -29,10 +42,10 @@ export function DeviceSection({ db }: { db: LearningNotesDB }) {
   const safety = useFlag('storage.safety')
   const [busy, setBusy] = useState(false)
   const backUp = async () => {
-    setBusy(true)
-    const m = await import('../app/attention/storageSafetyBackup')
-    await m.backUpWithToast()
-    setBusy(false)
+    await whileBusy(setBusy, async () => {
+      const m = await import('../app/attention/storageSafetyBackup')
+      await m.backUpWithToast()
+    })
   }
   const backup = useLiveQuery(async () => (await lastBackupAt(db)) ?? 0, [db])
 

@@ -25,6 +25,30 @@ async function failSave(page: Page, name: string) {
   }, name)
 }
 
+/**
+ * The browser loses its database: every write now throws, like Safari does.
+ * (Dexie keeps its own handle on IDBDatabase.transaction, so the writes of
+ * the object stores are what a test can reach; the app sees the same error.)
+ */
+async function loseDatabase(page: Page) {
+  await page.evaluate(() => {
+    const lost = () => {
+      throw new DOMException(
+        'Connection to Indexed Database server lost. Refresh the page to try again',
+        'UnknownError',
+      )
+    }
+    for (const k of ['put', 'add', 'delete'] as const)
+      IDBObjectStore.prototype[k] = lost
+  })
+}
+
+/** Types without waiting for "saved" (a lost database never saves). */
+async function typeWhileLost(page: Page, text: string) {
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type(text)
+}
+
 /** Opens the Safari-tab notice and its "Show how" pop-up. */
 async function openHowTo(page: Page) {
   await page.goto(`${ON}#/`)
@@ -78,6 +102,17 @@ test.describe('Safari tab on iPad', () => {
       getComputedStyle(document.documentElement).getPropertyValue('--attn-h'),
     )
     expect(parseInt(h)).toBeGreaterThanOrEqual(44)
+  })
+
+  test('SS-01e: signed out, no notice', async ({ page }) => {
+    await page.goto('/')
+    await page.evaluate(() =>
+      localStorage.removeItem('learning-notes:accountGate.off'),
+    )
+    await page.goto(`${ON}#/`)
+    await page.reload()
+    await page.waitForTimeout(2500)
+    await expect(banner(page)).toHaveCount(0)
   })
 
   test('SS-01c: tap ✕, it stays away, also after a reload', async ({
@@ -316,27 +351,28 @@ test.describe('PC Chrome', () => {
     await expect(b.getByRole('button', { name: 'Reload' })).toBeVisible()
   })
 
-  test('SS-05a: a closed database shows Reload and keeps my words', async ({
+  test('SS-05a: a lost database shows Reload and keeps my words', async ({
     page,
   }) => {
     await page.goto(`${ON}#/`)
     await createNotebook(page, 'Lost', 'Page')
-    await typeInEditor(page, 'still here')
-    await failSave(page, 'DatabaseClosedError')
+    await loseDatabase(page)
+    await typeWhileLost(page, 'still here')
     const b = banner(page)
     await expect(b).toHaveAttribute('data-code', 'storageLost')
     await expect(b.getByTestId('fb-banner-x')).toBeVisible()
     await expect(page.locator('.bn-editor')).toContainText('still here')
   })
 
-  test('SS-05b: Reload keeps my words and the banner is gone', async ({
+  test('SS-05b: Reload brings my words back and the banner is gone', async ({
     page,
   }) => {
     await page.goto(`${ON}#/`)
     await createNotebook(page, 'Lost', 'Page')
-    await typeInEditor(page, 'still here')
-    await failSave(page, 'DatabaseClosedError')
+    await loseDatabase(page)
+    await typeWhileLost(page, 'still here')
     const b = banner(page)
+    await expect(b).toHaveAttribute('data-code', 'storageLost')
     await b.getByRole('button', { name: 'Reload' }).click()
     await page.waitForLoadState('load')
     await expect(page.locator('.bn-editor')).toContainText('still here')

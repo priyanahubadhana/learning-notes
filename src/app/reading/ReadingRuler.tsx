@@ -34,6 +34,31 @@ export function ReadingRuler({
   within?: { readonly current: HTMLElement | null }
 }) {
   const [y, setY] = useState(() => Math.round(window.innerHeight * 0.4))
+  // Re-measure when the page re-lays or rebuilds its text (gate 3 final
+  // look, fix 1): the snapped line can move after the pointer stops.
+  const [, setTick] = useState(0)
+  useEffect(() => {
+    const el = within?.current
+    if (!el) return
+    let frame = 0
+    const again = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(() => setTick((t) => t + 1))
+    }
+    const grew = new ResizeObserver(again)
+    grew.observe(el)
+    const changed = new MutationObserver(again)
+    changed.observe(el, { childList: true, subtree: true })
+    el.addEventListener('scroll', again, true)
+    window.addEventListener('resize', again)
+    return () => {
+      cancelAnimationFrame(frame)
+      grew.disconnect()
+      changed.disconnect()
+      el.removeEventListener('scroll', again, true)
+      window.removeEventListener('resize', again)
+    }
+  }, [within])
 
   useEffect(() => {
     const move = (e: PointerEvent) => {
@@ -90,10 +115,11 @@ export function ReadingRuler({
     )
       line = r
   }
+  // Band top = the line's top, band height = that line's height, both
+  // rounded out to whole pixels so no glyph edge is cut.
   if (line) {
-    const pad = lineHeight * 0.2
-    top = Math.max(0, line.top - area.top - pad)
-    band = Math.max(band, line.height + 2 * pad)
+    top = Math.max(0, Math.floor(line.top - area.top))
+    band = Math.ceil(line.bottom - area.top) - top
   }
 
   if (mode === 'focus') {

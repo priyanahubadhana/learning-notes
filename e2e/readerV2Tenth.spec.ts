@@ -263,3 +263,91 @@ test('fix 6: line focus clears whole lines (the band snaps to the line)', async 
     expect(below).toBeGreaterThanOrEqual(span.y + span.height - 0.5)
   }).toPass()
 })
+
+/** Rows of the first page's canvas that carry glyph ink, in page pixels. */
+async function inkLines(page: Page) {
+  return page.locator('[data-pdf-page="1"] canvas').evaluate((c) => {
+    const canvas = c as HTMLCanvasElement
+    const ctx = canvas.getContext('2d', { willReadFrequently: true })!
+    const { data, width, height } = ctx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    )
+    const r = canvas.getBoundingClientRect()
+    const k = r.height / height
+    const lines: { top: number; bottom: number }[] = []
+    let open = -1
+    for (let y = 0; y <= height; y++) {
+      let ink = false
+      if (y < height)
+        for (let x = 0; x < width; x += 1) {
+          const i = (y * width + x) * 4
+          if (data[i + 3] > 0 && data[i] + data[i + 1] + data[i + 2] < 300) {
+            ink = true
+            break
+          }
+        }
+      if (ink && open < 0) open = y
+      if (!ink && open >= 0) {
+        lines.push({ top: r.top + open * k, bottom: r.top + y * k })
+        open = -1
+      }
+    }
+    return lines
+  })
+}
+
+test('tenth final look, fix 1: the clear band holds the whole line it snaps to (canvas ink)', async ({
+  page,
+}) => {
+  // Why: the band was worked out once, when the pointer moved. Closing the
+  // Aa card re-lays the page and rebuilds its text layer, so the band kept
+  // its unsnapped place, one line low (line-focus-pro-night-ipad-land.png).
+  await openBook(page, IPAD_LAND, ['reader.lineFocus'])
+  await press(page, 'reader-aa')
+  await page.getByTestId('aa-tab-more').click()
+  await page.getByTestId('aa-ruler-focus').click()
+  await page.getByTestId('aa-close').click()
+  const ruler = page.getByTestId('reading-ruler')
+  await expect(ruler).toHaveAttribute('data-mode', 'focus')
+  // The page settles (ink drawn), then the pointer moves once.
+  await expect
+    .poll(async () => (await inkLines(page)).length)
+    .toBeGreaterThan(0)
+  const w = await page
+    .locator('[data-pdf-page="1"] .textLayer span')
+    .first()
+    .evaluate((el) => el.getBoundingClientRect().toJSON() as DOMRect)
+  await page.mouse.move(w.x + 10, w.y + w.height * 1.6)
+  const check = async () => {
+    const lines = await inkLines(page)
+    const ink = lines[0]
+    const h = ink.bottom - ink.top
+    const [above, below] = await ruler.evaluate((el) => {
+      const k = el.children
+      return [
+        (k[0] as HTMLElement).getBoundingClientRect().bottom,
+        (k[1] as HTMLElement).getBoundingClientRect().top,
+      ]
+    })
+    // Every ink row is inside the band: none is cut at either edge.
+    expect(above).toBeLessThanOrEqual(ink.top + 0.5)
+    expect(below).toBeGreaterThanOrEqual(ink.bottom - 0.5)
+    // Band top is the line top, band height is that line's height.
+    expect(ink.top - above).toBeLessThan(h * 0.4)
+    expect(below - above).toBeLessThan(h * 1.5)
+  }
+  await expect(check).toPass({ timeout: 5000 })
+  // The Aa card opens and shuts again (the page re-lays, the text layer is
+  // rebuilt) while the pointer stays put (clicks sent without moving it):
+  // the band snaps again.
+  await page.getByTestId('reader-aa').dispatchEvent('click')
+  await page.getByTestId('aa-close').dispatchEvent('click')
+  await expect(check).toPass({ timeout: 5000 })
+  // Pointer on the middle of the line: the same band.
+  const ink = (await inkLines(page))[0]
+  await page.mouse.move(400, (ink.top + ink.bottom) / 2)
+  await expect(check).toPass({ timeout: 5000 })
+})

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: toolbar v8 1e + 1f + BUG-003 (flag toolbar.v8, OFF)
+
+- What: Text row is settings, Box, Format, B, I (TB-40); Format card Text / Style / Paragraph (+ Advanced) with each style in its own look (TB-41); Box card hangs right, else left, under, above the box and never covers it, also on a phone (TB-42, new shared `placeAround`); Insert, ⋯ group and All tools as grouped 44 pt tiles with a thin scroll track; BUG-003: setting "Hide toolbar while writing" (default off), the bar tucks away when you write, and one "Show toolbar" pill (the shared minimise chip) replaces the two top-bar buttons.
+- Why: spec docs/features/toolbar-v8.md 1e/1f, TB-40..43, TB-74/75 and the BUG-003 owner answer.
+- Files: src/app/tools/v8/{cards/text,cards/insert,cards/more,cards/alltools,tuck.ts,useTuck.ts,useTuckWatcher.ts,ShowToolbarPill.tsx}, src/design/parts/{Card,CardParts,useAnchoredCard}, src/settings/toolbarSettings.ts, src/i18n/*/v8Text.ts, e2e/toolbarV8{Text,Insert,Tuck}.spec.ts, screenshots/gate3-1/1ef.
+
 ### 14 Nov 2026: toolbar v8 flaky tests fixed in the product
 
 - What: a card closed with ✕ hands focus back to its chip only if nothing else took it; the page's text box frame follows its text when a picture loads while an ink tool is on.

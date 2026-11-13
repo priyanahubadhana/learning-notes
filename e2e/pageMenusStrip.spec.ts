@@ -82,11 +82,15 @@ test('PM-22 ⋯ opens the full list; Professional adds Copy as', async ({
 
 test('PM-41 Paste ▾ shows the forms in one card and picking Plain pastes plain text', async ({
   page,
-  context,
 }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  // A stand-in clipboard: the same answer in every browser, no permission step.
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: { readText: async () => 'alpha beta' },
+      configurable: true,
+    })
+  })
   await openNote(page, 'beginner')
-  await page.evaluate(() => navigator.clipboard.writeText('alpha beta'))
   await page.keyboard.press('End')
   await rightClickWord(page)
   await strip(page).getByTestId('cs-paste').click()
@@ -97,32 +101,30 @@ test('PM-41 Paste ▾ shows the forms in one card and picking Plain pastes plain
   await expect(page.locator('.bn-editor')).toContainText('alpha beta')
   // PM-45: one Undo takes the whole paste back.
   await expect(page.getByTestId('page-strip')).toHaveCount(0)
-  await page.keyboard.press('Control+z')
+  await page.keyboard.press('ControlOrMeta+z')
   await expect(page.locator('.bn-editor')).not.toContainText('alpha beta')
 })
 
 test('PM-40 Ctrl+V pastes at once with no question (default Keep original)', async ({
   page,
-  context,
 }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await openNote(page, 'beginner')
-  await page.evaluate(() =>
-    navigator.clipboard.write([
-      new ClipboardItem({
-        'text/html': new Blob(
-          ['<p><b>bold</b> and <i>rich</i> words here</p>'],
-          {
-            type: 'text/html',
-          },
-        ),
-        'text/plain': new Blob(['bold and rich words here'], {
-          type: 'text/plain',
-        }),
+  // The browser's own paste event, with rich content on the clipboard.
+  await page.evaluate(() => {
+    const data = new DataTransfer()
+    data.setData(
+      'text/html',
+      '<p><b>bold</b> and <i>rich</i> words here</p><p>second paragraph</p>',
+    )
+    data.setData('text/plain', 'bold and rich words here\nsecond paragraph')
+    document.querySelector('.bn-editor')!.dispatchEvent(
+      new ClipboardEvent('paste', {
+        clipboardData: data,
+        bubbles: true,
+        cancelable: true,
       }),
-    ]),
-  )
-  await page.keyboard.press('Control+v')
+    )
+  })
   await expect(page.locator('.bn-editor')).toContainText('rich words here')
   await expect(page.getByRole('dialog')).toHaveCount(0)
 })

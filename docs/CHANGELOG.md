@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: gate 3 ninth visit (1d toolbar v8, 7 Reader v2) and two hard-case decisions
+
+- What: both slices FAIL (1d: 8 fixes, the first 90 pictures were not re-shot after the fix round; 7: 7 fixes). Decisions logged: Paste follows the page-menus path (Keep original by default); EPUB book frames get `allow-scripts` back only with three guards.
+- Why: gate 3 before merge; two open questions needed one answer each.
+- Files: docs/plans/gate3-2026-11-13.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: test guard hook strengthened; batch CI decision recorded
 
 - What: guard-tests.mjs also blocks longer timeouts, grepInvert/testIgnore, new skip/fixme and deleted test files unless a `test-guard-reason` comment (5+ words) is on the line; tried on scratch inputs (block without, allow with). ECONOMY-MODE section 12 and DECISIONS record the rules and the batch CI decision.

@@ -13,6 +13,7 @@ import {
   setLevel,
   setProOff,
   proOffIds,
+  isProOff,
   DEFAULT_OFF,
   setUnlocked,
   useLevel,
@@ -135,6 +136,19 @@ describe('Professional: each switch can be turned off by itself (SET-B20)', () =
     expect(
       PRO_FEATURES.every((f) => isUnlocked(f.id) !== DEFAULT_OFF.has(f.id)),
     ).toBe(true)
+  })
+
+  it('a default-off switch starts off; the Professional switch turns it on and off again (PM-44)', () => {
+    expect(isUnlocked('page.pastedChip')).toBe(false)
+    expect(isProOff('page.pastedChip')).toBe(true)
+    setProOff('page.pastedChip', false)
+    expect(isUnlocked('page.pastedChip')).toBe(true)
+    expect(isProOff('page.pastedChip')).toBe(false)
+    reloadLevel()
+    expect(isUnlocked('page.pastedChip')).toBe(true)
+    setProOff('page.pastedChip', true)
+    expect(isUnlocked('page.pastedChip')).toBe(false)
+    expect(isProOff('page.pastedChip')).toBe(true)
   })
 
   it('ignores unknown stored overrides', () => {

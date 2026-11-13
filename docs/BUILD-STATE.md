@@ -95,3 +95,14 @@ Lanes (master plan 4.1): P = 1 → 2 → 12 rest → 13 → 14; S = 15, 8b; R = 
 2. Deliver the next result for the owner (M1), then M2 and M3.
 3. Fill the lanes; follow ECONOMY-MODE section 3 for each slice.
 4. After every merge, gate result or CI result: rewrite the row here, one commit on `main`, push; CHANGELOG line; Build board in docs/PENDING.md; mirror copy (rules/sessions.md).
+
+## Handover (run 5, 13 Nov, orchestrator wound down on owner decision)
+
+- build/next head 87910c01, CI 43437478460 = **GREEN**. Contains perf-start (dbc1d78a, gate 2 PASS after spec + changelog), main merged (396c961b; PR #5 no longer conflicting), offline e2e fix 87910c01 (shell.spec.ts:224 waits for HomeScreen chunk before going offline; root cause: perf-start made networkidle fire before the 1 s lazy Home fetch. Decision to review: product offline-before-Home-chunk case not covered).
+- Escalations this run: toolbar 1d failed gate 3 twice -> Opus builder (round 2, fixed). Storage-safety needed a new visual pattern -> Fable spec + mock-up, then Opus builder.
+- slice/1-toolbar-v8 4d6a4006 (ln-s1): 1d gate 2 PASS + gate 3 PASS at 4d6a4006. Hot file playwright.config.ts touched: merge ALONE next. Size headroom ~1.8 KB.
+- slice/0h-shell a95fd16c (ln-s0h): toast avoids floating bars + iPad portrait sidebar guard test. Gate 2 PASS, gate 3 PASS. App.tsx touched (merge resolution): merge alone after toolbar. Stray local pw-flagon.local.config.ts moved to scratchpad (blocked lint).
+- slice/storage-safety 5bffea05 (ln-sstore): SS-01..09 built behind `storage.safety` (flags.ts one line), spec docs/features/storage-safety.md, mock docs/mockups/storage-safety-mock.html, shots screenshots/gate3-ss. Needs gate 2 + gate 3; ipad-webkit not run. D1-D4 in spec/DECISIONS. Not needed for first preview.
+- iPad checklist written in docs/PENDING.md "Needs you" (9bc2cd66); conflicts with old docs/IPAD-CHECKLIST.md (retire it). Mirror robocopy was denied for the helper: not run.
+- Nothing uncommitted known in worktrees.
+- Next 3 actions: (1) merge toolbar 1d alone, CI; (2) merge 0h-shell alone, CI, then "preview ready" with checklist; (3) gates 2+3 on storage-safety.

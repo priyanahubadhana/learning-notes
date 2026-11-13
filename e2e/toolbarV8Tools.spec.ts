@@ -11,6 +11,7 @@ import {
 } from './inkHelpers.ts'
 import {
   createNotebook,
+  hideSidebar,
   solidPng,
   startInMode,
   typeInEditor,
@@ -603,6 +604,7 @@ test('1d gate fixes: iPad portrait Edit picture card never covers the picture; t
 }) => {
   await page.setViewportSize({ width: 820, height: 1180 })
   await open(page, 'lasso', 'professional', PRO_ALL)
+  await hideSidebar(page)
   const img = await pickPicture(page)
   await expect(page.locator('[data-box-grip]')).toBeHidden()
   await expect(page.locator('[data-box-menu]')).toBeHidden()

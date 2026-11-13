@@ -53,6 +53,7 @@ jobs:
   # inside the time limit (the whole set takes over an hour on one machine).
   e2e:
     if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    needs: checks
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
@@ -79,11 +80,13 @@ jobs:
           retention-days: 7
 
   # The Pencil and keyboard specs again in WebKit with an iPad profile (the
-  # nearest stand-in for the owner's iPad). It runs beside `checks`, so it adds
-  # no waiting time, and the deploy needs it. The list is in
-  # playwright.config.ts (project ipad-webkit).
+  # nearest stand-in for the owner's iPad). It waits for `checks` to pass
+  # first (needs: checks), so a red `checks` run does not spend time here, and
+  # the deploy needs it. The list is in playwright.config.ts (project
+  # ipad-webkit).
   pencil-webkit:
     if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    needs: checks
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:

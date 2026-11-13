@@ -1,6 +1,6 @@
 # Gate 3 pictures: toolbar.v8 slices 1e, 1f and BUG-003
 
-Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on the head commit of the gate 2 fix round (see the last commit message; flag ON, after the last source edit). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Professional on iPad landscape and PC only.
+Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on the head commit of the round 4 fix (the commit that adds these pictures; flag ON; every picture re-shot after the last source edit 17f331ec, which changed peekFlag, toolbarVisibility and builtinSettings). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Professional on iPad landscape and PC only.
 
 ## Screens
 
@@ -30,6 +30,7 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 
 - Box card never covers the box: `box-*` (iPad portrait: card left of the box frame; phone: card above the box).
 - One Show toolbar pill, readable in all themes, inside the screen: `pill-*`.
+- Peek fix (17f331ec): a peek ended by Settings On or a placement change no longer hides the bar on reload: proved by e2e `TB-75 choosing On...` and `TB-75 changing the bar placement...` (toolbarV8Tuck.spec.ts), on chromium and ipad-webkit; the pictures show the bar (`textrow-*`) and the pill (`pill-*`) unchanged.
 
 ## Pictures
 

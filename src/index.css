@@ -1234,26 +1234,27 @@ html[data-box-drag] {
    "there is more" (also on touch screens, where bars hide by default). */
 .h-track {
   overflow-x: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--card-track, var(--color-line-strong)) transparent;
+  scrollbar-width: none;
 }
 .h-track::-webkit-scrollbar {
-  height: 6px;
+  display: none;
 }
-.h-track::-webkit-scrollbar-track {
-  border-radius: 3px;
-  background: var(--color-soft, transparent);
+.h-track__bar {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-soft, var(--color-line));
 }
-.h-track::-webkit-scrollbar-thumb {
-  border-radius: 3px;
+.h-track__bar > span {
+  position: absolute;
+  inset-block: 0;
+  border-radius: 2px;
   background: var(--card-track, var(--color-line-strong));
 }
 
-/* Search v2 on a phone: a solid surface (the covers behind must not show through). */
-@media (width < 40rem), (height < 32rem) {
-  .srv2-dialog {
-    background: var(--color-surface-2);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
+/* Search v2: a solid surface at every size (the covers behind must not show through). */
+.srv2-dialog {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }

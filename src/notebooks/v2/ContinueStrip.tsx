@@ -8,6 +8,7 @@ import { holdJustFired } from '../../app/rowHold'
 import { notebookColour, shortLabel } from '../notebookLook'
 import { displayName } from '../../i18n/defaultNames'
 import { t } from '../../i18n/t'
+import { ScrollTrack } from '../../design/parts/ScrollTrack'
 
 /**
  * NB-B11: "Continue where you stopped": up to 4 cards (cover + page title).
@@ -48,7 +49,7 @@ export function ContinueStrip({
       >
         {tn('nbv2.continue.title')}
       </h2>
-      <div className="h-track flex gap-2.5 pb-2" style={{ paddingInline: pad }}>
+      <ScrollTrack className="flex gap-2.5 pb-2" style={{ paddingInline: pad }}>
         {shown.map((c) => {
           const page = titles?.[c.pageId]
           const name = notebookName(c.notebook)
@@ -85,7 +86,7 @@ export function ContinueStrip({
             </button>
           )
         })}
-      </div>
+      </ScrollTrack>
     </section>
   )
 }

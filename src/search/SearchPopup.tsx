@@ -4,6 +4,7 @@ import { AppUiContext } from '../app/appUi'
 import { useFlag } from '../app/flags'
 import { toggleFavourite, isFavourite } from '../app/favourites'
 import { ClearField } from '../design/parts/ClearField'
+import { ScrollTrack } from '../design/parts/ScrollTrack'
 import { isUnlocked, useLevel } from '../settings/level'
 import { buildRows, rowMatches, type Row } from '../app/tools/controlRows'
 import { Icon } from '../app/tools/icons'
@@ -357,8 +358,8 @@ export function SearchPopup({
           aria-label={t('search.close')}
           className="min-h-8 rounded-md px-2 text-xs text-muted hover:bg-hover"
         >
-          <span className="any-pointer-coarse:hidden">Esc</span>
-          <span className="hidden any-pointer-coarse:inline">
+          <span className="any-pointer-coarse:hidden phone:hidden">Esc</span>
+          <span className="hidden any-pointer-coarse:inline phone:inline">
             {t('popup.close')}
           </span>
         </button>
@@ -409,12 +410,12 @@ export function SearchPopup({
           )}
         </div>
       )}
-      <div
+      <ScrollTrack
         role="group"
         aria-label={t('search.show')}
-        className={`flex gap-1.5 border-b border-line px-3.5 py-2 ${
-          v2 ? 'h-track flex-nowrap pb-3' : 'flex-wrap'
-        }`}
+        wrapClassName="border-b border-line"
+        barClassName="mx-3.5 mb-2"
+        className={`flex gap-1.5 px-3.5 py-2 ${v2 ? 'flex-nowrap' : 'flex-wrap'}`}
       >
         {chips.map((v) => (
           <button
@@ -447,7 +448,7 @@ export function SearchPopup({
             )}
           </button>
         ))}
-      </div>
+      </ScrollTrack>
       <p role="status" aria-live="polite" className="sr-only">
         {!typed && chip !== 'feature'
           ? ''

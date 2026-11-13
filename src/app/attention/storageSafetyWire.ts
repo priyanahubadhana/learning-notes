@@ -5,6 +5,7 @@ import {
   storageProblem,
   type BrowserInfo,
 } from '../../core/storageSafety'
+import { isReadOnlyGate, subscribeReadOnlyGate } from '../../core/readOnlyGate'
 import { getSignals, setSignals } from './attentionSignals'
 
 /**
@@ -15,7 +16,12 @@ import { getSignals, setSignals } from './attentionSignals'
 export function startStorageSafety(
   browser: BrowserInfo = currentBrowser(),
 ): () => void {
-  setSignals({ homeScreen: isSafariTab(browser) })
+  // SS-01: only for a signed-in person (the gate is on while signed out).
+  const safari = isSafariTab(browser)
+  const showNotice = () =>
+    setSignals({ homeScreen: safari && !isReadOnlyGate() })
+  showNotice()
+  const unwatch = subscribeReadOnlyGate(showNotice)
   const stop = onStorageError((error) => {
     const problem = storageProblem(error)
     if (!problem) return false
@@ -26,6 +32,7 @@ export function startStorageSafety(
   })
   return () => {
     stop()
+    unwatch()
     setSignals({ homeScreen: false })
   }
 }

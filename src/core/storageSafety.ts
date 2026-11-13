@@ -5,7 +5,7 @@
  * two storage failures (full, connection lost) and build a one-tap backup.
  * Everything here only reads; nothing deletes user data.
  */
-import { isStorageFull } from '../app/errors'
+import { isStorageFull } from './storageFull'
 import {
   backupFile,
   backupFileName,

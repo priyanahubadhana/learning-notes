@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { setReadOnlyGate } from '../../core/readOnlyGate'
 import { reportError } from '../errors'
 import { getSignals, setSignals } from './attentionSignals'
 import { startStorageSafety } from './storageSafetyWire'
@@ -52,5 +53,38 @@ describe('storage safety wiring', () => {
     reportError(quota())
     expect(old).toHaveBeenCalledTimes(1)
     off()
+  })
+
+  it('the Home Screen notice is absent while signed out (SS-01a)', () => {
+    const ipad = {
+      userAgent: 'Mozilla/5.0 (Macintosh) Safari',
+      maxTouchPoints: 5,
+    }
+    setReadOnlyGate(true)
+    const stop = startStorageSafety(ipad)
+    expect(getSignals().homeScreen).toBe(false)
+    setReadOnlyGate(false)
+    expect(getSignals().homeScreen).toBe(true)
+    setReadOnlyGate(true)
+    expect(getSignals().homeScreen).toBe(false)
+    stop()
+    setReadOnlyGate(false)
+  })
+})
+
+describe('90% used alert', () => {
+  it('checkStorage takes its signal from storageNearlyFull', async () => {
+    const { checkStorage } = await import('./attentionSignals')
+    const est = (usage: number) =>
+      vi.stubGlobal('navigator', {
+        storage: { estimate: async () => ({ usage, quota: 100 }) },
+      })
+    est(95)
+    await checkStorage()
+    expect(getSignals().storageHigh).toBe(true)
+    est(10)
+    await checkStorage()
+    expect(getSignals().storageHigh).toBe(false)
+    vi.unstubAllGlobals()
   })
 })

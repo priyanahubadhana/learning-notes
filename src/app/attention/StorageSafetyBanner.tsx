@@ -72,6 +72,18 @@ export function StorageSafetyBanner({
 }) {
   const wrap = useRef<HTMLDivElement>(null)
   const [help, setHelp] = useState(false)
+  // Safari does not focus a button on tap, so the pop-up cannot find where to
+  // return to: put focus back on "Show how" ourselves (SS-02b).
+  const closeHelp = () => {
+    setHelp(false)
+    window.setTimeout(
+      () =>
+        wrap.current
+          ?.querySelector<HTMLElement>('[data-testid="fb-banner-action"]')
+          ?.focus(),
+      0,
+    )
+  }
   useEffect(() => {
     const root = document.documentElement
     const el = wrap.current
@@ -130,7 +142,7 @@ export function StorageSafetyBanner({
           onDismissed()
         }}
       />
-      {help ? <HomeScreenHelp onClose={() => setHelp(false)} /> : null}
+      {help ? <HomeScreenHelp onClose={closeHelp} /> : null}
     </div>
   )
 }

@@ -81,6 +81,7 @@ export default defineConfig({
       testMatch: [
         /parts-gallery/,
         /pencilIsolation/,
+        /storageSafety.spec/,
         /updateV2/,
         /security-m1-/,
         /chromeIsolation/,

@@ -138,7 +138,8 @@ import { createPageSync } from './pageSync'
 import { isTracking } from '../sync/device'
 import { revealBlock } from './revealBlock'
 import { editorBlockTypes, schema } from './schema'
-import { buildSlashMenuItems } from './slashMenu'
+import { buildSlashMenuItems, type SlashMenuActions } from './slashMenu'
+import { useFlag } from '../app/flags'
 import { TAG_TRIGGER, tagMenuItems, tagMenuShouldOpen } from './tagActions'
 
 interface PageEditorProps {
@@ -178,6 +179,7 @@ export const LIVE_IDLE_MS = 1_500
 
 /** Loads a page's blocks, then shows the editor for that page. */
 const PictureChooser = lazy(() => import('../images/PictureChooser'))
+const SlashCommandList = lazy(() => import('./menus/SlashCommandList'))
 const PicturePlacement = lazy(() => import('../images/PicturePlacement'))
 
 export function PageEditor(props: PageEditorProps) {
@@ -876,6 +878,19 @@ function LoadedPageEditor({
     revealBlock(blockId)
   }
 
+  // Flag page.menus: the "/" menu on the shared Command list (same actions).
+  const menusOn = useFlag('page.menus')
+  const slashActions: SlashMenuActions = {
+    onNewSubPage: newSubPage,
+    onLinkPage: () => openLinkPicker(null),
+    onInsertTemplate: insertTemplate,
+    onInsertDatabase: insertDatabase,
+    onTakePhoto: takePhoto,
+    onChoosePicture: choosePicture,
+    onSaveAsTemplate: saveAsTemplate,
+    onPlaceNestedCard: placeNestedCard,
+  }
+
   return (
     <EditorContext
       value={{
@@ -943,24 +958,30 @@ function LoadedPageEditor({
               <SideMenu {...props} dragHandleMenu={AppDragHandleMenu} />
             )}
           />
-          <SuggestionMenuController
-            triggerCharacter="/"
-            getItems={async (query) =>
-              filterSuggestionItems(
-                buildSlashMenuItems(editor, {
-                  onNewSubPage: newSubPage,
-                  onLinkPage: () => openLinkPicker(null),
-                  onInsertTemplate: insertTemplate,
-                  onInsertDatabase: insertDatabase,
-                  onTakePhoto: takePhoto,
-                  onChoosePicture: choosePicture,
-                  onSaveAsTemplate: saveAsTemplate,
-                  onPlaceNestedCard: placeNestedCard,
-                }),
-                query,
-              )
-            }
-          />
+          {menusOn ? (
+            <Suspense fallback={null}>
+              <SlashCommandList editor={editor} actions={slashActions} />
+            </Suspense>
+          ) : (
+            <SuggestionMenuController
+              triggerCharacter="/"
+              getItems={async (query) =>
+                filterSuggestionItems(
+                  buildSlashMenuItems(editor, {
+                    onNewSubPage: newSubPage,
+                    onLinkPage: () => openLinkPicker(null),
+                    onInsertTemplate: insertTemplate,
+                    onInsertDatabase: insertDatabase,
+                    onTakePhoto: takePhoto,
+                    onChoosePicture: choosePicture,
+                    onSaveAsTemplate: saveAsTemplate,
+                    onPlaceNestedCard: placeNestedCard,
+                  }),
+                  query,
+                )
+              }
+            />
+          )}
           <SuggestionMenuController
             triggerCharacter={TAG_TRIGGER}
             shouldOpen={tagMenuShouldOpen}

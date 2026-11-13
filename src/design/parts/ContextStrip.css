@@ -177,6 +177,10 @@
   outline: 2px solid var(--color-accent);
   outline-offset: -2px;
 }
+/* The ring is for the keyboard only: not after a mouse or a finger. */
+.cs:not([data-keys]) :focus-visible {
+  outline: none;
+}
 .cs__btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;

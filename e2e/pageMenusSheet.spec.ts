@@ -200,3 +200,17 @@ test('Duplicate adds a copy and Move puts the page under another page', async ({
   await sheet(page).locator('[data-testid^="ps-move-"]').first().click()
   await expect(page.getByText('Page moved')).toBeVisible()
 })
+
+test('the focus ring shows for the keyboard only, not after a click', async ({
+  page,
+}) => {
+  await openSheet(page, 'professional')
+  const ring = () =>
+    page.evaluate(() => {
+      const el = document.activeElement
+      return el ? getComputedStyle(el).outlineStyle : 'none'
+    })
+  expect(await ring()).toBe('none')
+  await page.keyboard.press('Tab')
+  expect(await ring()).not.toBe('none')
+})

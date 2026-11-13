@@ -182,3 +182,21 @@ test('PM-40 Ctrl+V pastes at once with no question (default Keep original)', asy
   await expect(page.locator('.bn-editor')).toContainText('rich words here')
   await expect(page.getByRole('dialog')).toHaveCount(0)
 })
+
+const ring = (page: Page) =>
+  page.evaluate(() => {
+    const el = document.activeElement
+    return el ? getComputedStyle(el).outlineStyle : 'none'
+  })
+
+test('the focus ring shows for the keyboard only, not after a mouse right-click', async ({
+  page,
+}) => {
+  await openNote(page, 'beginner')
+  await rightClickWord(page)
+  await expect(strip(page)).toBeVisible()
+  await expect(strip(page).locator('[data-strip-btn]:focus')).toHaveCount(1)
+  expect(await ring(page)).toBe('none')
+  await page.keyboard.press('ArrowRight')
+  expect(await ring(page)).not.toBe('none')
+})

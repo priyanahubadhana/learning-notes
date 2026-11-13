@@ -19,6 +19,7 @@ import {
   type StripPlacement,
 } from './contextStripPlace'
 import { useLevel } from '../../settings/level'
+import { lastInputWasKey } from './inputModality'
 import { motionMs } from './motion'
 import { tm } from './textMenus'
 import { useAnchoredCard } from './useAnchoredCard'
@@ -125,6 +126,8 @@ export function ContextStrip(props: ContextStripProps) {
     props.initialList ? 'list' : 'strip',
   )
   const [focusIdx, setFocusIdx] = useState(0)
+  // The focus ring is for the keyboard: hidden until a key is pressed here.
+  const [keys, setKeys] = useState(() => lastInputWasKey())
   const [closing, setClosing] = useState(false)
   const closingRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -339,6 +342,8 @@ export function ContextStrip(props: ContextStripProps) {
       data-labels={phone && props.phoneLabels ? '' : undefined}
       data-state={closing ? 'closing' : 'open'}
       data-view={view}
+      data-keys={keys || undefined}
+      onKeyDownCapture={() => setKeys(true)}
       style={style}
     >
       <div

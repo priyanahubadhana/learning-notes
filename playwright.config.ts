@@ -115,7 +115,7 @@ export default defineConfig({
         /microBar/,
         /tableGap/,
         /holdMenu/,
-        /pageMenus(Strip|Sheet)/,
+        /pageMenus(Strip|Sheet|Rows)/,
         /boxTaps/,
         /paperPage/,
         /paperInk/,

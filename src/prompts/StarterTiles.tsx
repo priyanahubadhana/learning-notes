@@ -1,7 +1,7 @@
 import { Icon } from '../app/tools/icons'
 import { t } from '../i18n/t'
 import type { PromptItem } from './promptModel'
-import { STARTER_TILES } from './starterTiles'
+import { STARTER_TILES } from './starterList'
 import './StarterTiles.css'
 
 /**

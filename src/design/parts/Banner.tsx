@@ -6,6 +6,7 @@ import {
   type BannerQueue,
 } from './bannerQueue'
 import { tf } from './textFeedback'
+import './Sheet.css' // the shared close button (.fb-x)
 import './Banner.css'
 
 const ICONS: Record<BannerKind, IconName> = {

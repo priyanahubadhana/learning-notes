@@ -11,37 +11,37 @@ How to read this:
 
 ## Ranked list
 
-**1. One short brief template for every helper (build system)**
+**1. One short brief template for every helper (build system)** — DONE (13 Nov)
 
 - Purpose: Fable sends the same small message shape every time (template at the end).
 - Pros: fewer tokens per helper. Shorter context also gives better answers, because accuracy drops as context grows.
 - Cons: Fable must point to files instead of explaining, so the spec files must be right.
 - Cost: S. Saves quota on every brief.
 - Who: Haiku adds it to docs/ECONOMY-MODE.md.
-- Recommendation: **do now.**
+- Recommendation: **DONE (13 Nov).**
 - Source: Anthropic docs (context windows: curate what is in context; every turn re-sends history).
 
-**2. Fix the "continue" command (build system)**
+**2. Fix the "continue" command (build system)** — DONE (13 Nov)
 
 - Purpose: `/next` does four jobs (git status, npm audit, handoff, continue), has no clear "use when" line, and never reads docs/BUILD-STATE.md, where the build state lives in economy mode.
 - Pros: a restart finds its place from the state file instead of re-reading the project.
 - Cons: none found.
 - Cost: S. Saves quota on every restart.
 - Who: Haiku.
-- Recommendation: **do now.**
+- Recommendation: **DONE (13 Nov).**
 - Source: our setup (.claude/commands/next.md); Anthropic docs (keep state in files so a new session recovers fast; descriptions should say what and when).
 
-**3. Add the missing cheap search helper (build system)**
+**3. Add the missing cheap search helper (build system)** — DONE (13 Nov)
 
 - Purpose: docs/design/token-efficiency.md line 12 asks for a Haiku search agent file, .claude/agents/Explore.md. It does not exist.
 - Pros: helpers use the session's model unless one is set, so an Opus session runs Opus helpers. A file pins search to Haiku. Search results also stay out of the main chat.
 - Cons: Haiku needs more detailed instructions than Opus. Claude Code has a built-in search helper with the same name; which model it uses, and how our file would interact with it, is **unverified** and must be checked first.
 - Cost: S. Saves quota.
 - Who: Haiku writes it, after Fable checks the point above.
-- Recommendation: **do now.**
+- Recommendation: **DONE (13 Nov).**
 - Source: our setup; Anthropic docs (sub-agents: set model per agent).
 
-**4. Weekly usage check and housekeeping (build system)**
+**4. Weekly usage check and housekeeping (build system)** — DONE (13 Nov)
 
 - Purpose: five habits, no building.
   - Run `/usage` weekly to see which helper, skill or connector uses the most of the limit.
@@ -53,28 +53,28 @@ How to read this:
 - Cons: a few minutes a week. Today's restart rule (near 120,000 tokens or 3 waves) is a rule of thumb; nothing measures context size, and this item does not fix that.
 - Cost: S. Saves quota.
 - Who: Fable.
-- Recommendation: **do now.**
+- Recommendation: **DONE (13 Nov).**
 - Also worth a look: switching off connectors the build never uses (Anthropic docs say unused ones add overhead each turn). How much it would save here is **unverified**.
 - Source: Anthropic docs (costs page; sub-agents; context windows); our setup (economy-orchestrator.md line 21).
 
-**5. Switch on prompt caching (app AI)**
+**5. Switch on prompt caching (app AI)** — APPROVED (13 Nov)
 
 - Purpose: the app can already mark the fixed part of a prompt for reuse (src/ai/providers.ts lines 51-58, src/ai/provider.ts line 63), but no caller in the main code sets it. So caching is wired and unused.
 - Pros: Anthropic docs say caching lowers the price of the repeated part. Answers do not change.
 - Cons: the cache expires after a short time, so it only helps when the same fixed part is reused soon. The cached tokens still fill the context window. The exact discount, the lifetime and any minimum prompt size are **unverified**; measure before relying on it.
 - Cost: S. Lowers money per AI run.
 - Who: Sonnet.
-- Recommendation: **later**, as the first task of the AI slice (AI needs the owner's cost approval first).
+- Recommendation: **APPROVED (13 Nov)**, first task of the AI slice.
 - Source: our setup; Anthropic docs (context windows; costs page).
 
-**6. Real token count for the cost preview (app AI)**
+**6. Real token count for the cost preview (app AI)** — APPROVED (13 Nov)
 
 - Purpose: today the app guesses size as about 4 letters per token (src/ai/provider.ts line 126) and blocks prompts over 20,000 guessed tokens (src/ai/aiRun.ts line 109). The "Show what will be sent" preview (docs/features/ai.md line 27) uses that guess. The addition asks the provider for the true count before a run.
 - Pros: a more honest "most this can cost" figure. Likely fewer prompts blocked or allowed by mistake (**unverified**; depends on how far the guess is off, which nobody has measured).
 - Cons: one extra network call per preview. Needs today's guess as the fallback when offline. Whether the count call is free, and its limits, are **unverified**.
 - Cost: M. Small effect on money; raises trust.
 - Who: Sonnet.
-- Recommendation: **later**, with the AI slice.
+- Recommendation: **APPROVED (13 Nov)**, first task of the AI slice.
 - Source: our setup.
 
 **7. Scripts for repeat chores (build system)**
@@ -120,4 +120,4 @@ For Haiku, name every step. Sonnet needs less detail (Anthropic docs: Haiku need
 ## Needs the owner
 
 - OK to do items 1 to 4 now. Items 1 to 3 change rule, command or agent files, which need your approval.
-- Items 5, 6 and 8 wait for your AI cost decision.
+- Items 5 and 6 approved (13 Nov, see docs/DECISIONS.md). Item 8 stays skipped.

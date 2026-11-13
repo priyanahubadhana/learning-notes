@@ -2,6 +2,7 @@
 
 ## Needs you
 
+- Owner: when ready, add your test API key in Settings > AI (cap about $5); never paste it in chat.
 - Needs your OK (13 Nov, not applied): a proposed gate-2 rule, "report only spec gaps and breakages, not style". Until you say yes, gate 2 reports style as well.
 - DONE 13 Nov: Claude connector A tested by the owner on the PC (list, create notebook, append, revoke, reconnect all passed; safety switch passed in tests). It is registered with Claude Code (user scope), not Claude Desktop.
 - Needs you (Supabase, when free; nothing is blocked): turn on refresh-token rotation; confirm the email-code limits; restrict CORS on the `drive-token` function.
@@ -32,6 +33,8 @@
 | 4 Notebooks + Search v2, 7 Reader v2                                                                                  | starting                                                     | slice/4-notebooks-search, slice/7-reader-v2 | build from spec                                                                                                                            | builder                             |
 | 2 text box v2, 5 Home, 6 Library, 8 Review, 12-17                                                                     | spec ready, not built                                        | -                                           | after toolbar / shell                                                                                                                      | -                                   |
 | iPad storage safety                                                                                                   | not started                                                  | flag storage.safety                         | Safari-tab notice to Add to Home Screen; one-tap backup export; calm handling of IndexedDB connection-lost and quota errors (owner 13 Nov) | -                                   |
+| 5 Prompt caching (AI)                                                                                                 | queued (owner-approved 13 Nov)                               | -                                           | first tasks of the AI slice (docs/features/ai-framework.md); builder Sonnet                                                                | Opus review                         |
+| 6 Real token count for the cost preview (AI)                                                                          | queued (owner-approved 13 Nov)                               | -                                           | first tasks of the AI slice (docs/features/ai-framework.md); builder Sonnet                                                                | Opus review                         |
 
 nContinuity: see [CONTINUITY.md](CONTINUITY.md). Mock-ups: docs/mockups/.
 

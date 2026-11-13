@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: owner decisions on AI (test key, Claude connector priority, items 5 and 6 approved)
+
+- What: DECISIONS.md logs the owner's three AI decisions (test key with about US$5 cap in Settings › AI; Claude connector as the long-term built-in option, bring-your-own-key stays, no paid built-in AI without a new decision; items 5 and 6 approved as the first tasks of the AI slice). PENDING.md adds the two queued rows and the "add your test key" line. The cost plan marks items 1 to 4 DONE and 5 and 6 APPROVED; item 8 stays skipped.
+- Why: the owner's decisions of 13 Nov, so the AI slice starts from the approved list.
+- Files: docs/DECISIONS.md, docs/PENDING.md, docs/plans/cost-quality-additions-2026-11-13.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: cost and quality additions 1 to 4
 
 - What: added the short brief template and leave-out list and the weekly housekeeping list to docs/ECONOMY-MODE.md; `/next` now reads docs/BUILD-STATE.md first and has a use-when line; new read-only Haiku search helper `economy-search` (replaces the Explore name in token-efficiency rule 6).

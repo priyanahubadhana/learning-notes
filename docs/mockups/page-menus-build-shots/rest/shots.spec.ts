@@ -1,7 +1,7 @@
 // Takes the pictures for slice 12 rest. Not part of the test suite: run with
 // a config whose testDir is this folder (see index.md).
 import { test, type Page } from '@playwright/test'
-import { createNotebook } from '../../../../e2e/helpers.ts'
+import { createNotebook, openSidebar } from '../../../../e2e/helpers.ts'
 
 const OUT = 'docs/mockups/page-menus-build-shots/rest'
 const SIZES = {
@@ -53,6 +53,42 @@ for (const [size, viewport] of Object.entries(SIZES)) {
         await page.getByRole('button', { name: 'More options' }).click()
         await page.getByTestId('page-sheet').waitFor()
         await shot(page, `sheet-${tag}`)
+        if (level === 'professional') {
+          // Two pinned actions, then the Arrange sheet (PM-63).
+          const sheet = page.getByTestId('page-sheet')
+          for (const id of ['history', 'review']) {
+            await sheet.getByTestId('ps-pin-add').click()
+            await sheet.getByTestId(`ps-pin-${id}`).click()
+            await sheet.getByTestId('ps-back').click()
+          }
+          await sheet.getByTestId('ps-arrange').click()
+          await page.getByTestId('arrange-sheet').waitFor()
+          await shot(page, `arrange-${tag}`)
+          await page.getByTestId('arrange-done').click()
+          await sheet.getByTestId('fb-sheet-close').click()
+        } else {
+          await page.getByTestId('page-sheet').getByTestId('fb-sheet-close').click()
+        }
+        await page.getByTestId('page-sheet').waitFor({ state: 'detached' })
+        // A long-press on the page row opens the strip at that point (PM-23).
+        const side = await openSidebar(page)
+        const row = side.getByTestId('page-row').first().getByRole('button').first()
+        await page.waitForTimeout(600)
+        await row.evaluate(async (el) => {
+          const r = el.getBoundingClientRect()
+          const o = {
+            bubbles: true,
+            pointerType: 'touch',
+            isPrimary: true,
+            pointerId: 9,
+            clientX: r.left + r.width / 2,
+            clientY: r.top + r.height / 2,
+          }
+          el.dispatchEvent(new PointerEvent('pointerdown', o))
+          await new Promise((res) => setTimeout(res, 1700))
+        })
+        await page.getByTestId('row-strip').waitFor()
+        await shot(page, `rowstrip-${tag}`)
       })
     }
   }

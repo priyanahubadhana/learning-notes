@@ -255,13 +255,15 @@ export default function PageSheet({
         </>
       )}
       {view === 'arrange' && (
-        <ArrangeSheet
-          mode="inline"
-          title={t('pageMenus.sheet.arrange')}
-          rows={pinRows}
-          onChange={(next) => savePins(next.map((r) => r.id))}
-          onDone={() => setView('main')}
-        />
+        <div className="ps-arrange">
+          <ArrangeSheet
+            mode="inline"
+            title={t('pageMenus.sheet.arrange')}
+            rows={pinRows}
+            onChange={(next) => savePins(next.map((r) => r.id))}
+            onDone={() => setView('main')}
+          />
+        </div>
       )}
     </Sheet>
   )

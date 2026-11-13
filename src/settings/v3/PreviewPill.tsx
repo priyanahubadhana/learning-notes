@@ -11,6 +11,8 @@ import { tv } from './tv'
  * SET-B02 to B04: below 1180 px wide the preview is a pill (44 pt, accent)
  * above the tab bar. Tap it and the preview opens as a sheet (max 46 vh);
  * tap again, the ✕ or Esc closes it. Settings behind the sheet stay tappable.
+ * Gate 3, tenth visit: the pill sits in its own docked row (page background,
+ * 60 px), so the list never scrolls under it.
  * The pill pulses 3 times when a setting changed while the sheet is shut.
  * The sheet is an overlay-manager entry (layer `sheet`): Esc and outside
  * taps are handled there. Where it shows is decided by CSS (`.sv3-pill`).
@@ -88,19 +90,21 @@ export function PreviewPill({
           <PreviewBody last={last} db={db} section={section} />
         </div>
       )}
-      <button
-        ref={pill}
-        type="button"
-        data-popup-trigger
-        data-preview-pill
-        data-pulse={pulse > 0 && !open ? 'on' : undefined}
-        aria-expanded={open}
-        onClick={onToggle}
-        className="sv3-pill"
-      >
-        <Icon name="eye" />
-        {tv('sv3.preview')}
-      </button>
+      <div data-preview-dock className="sv3-dock">
+        <button
+          ref={pill}
+          type="button"
+          data-popup-trigger
+          data-preview-pill
+          data-pulse={pulse > 0 && !open ? 'on' : undefined}
+          aria-expanded={open}
+          onClick={onToggle}
+          className="sv3-pill"
+        >
+          <Icon name="eye" />
+          {tv('sv3.preview')}
+        </button>
+      </div>
       <span role="status" className="sr-only">
         {pulse > 0 && !open ? tv('sv3.previewChanged') : ''}
       </span>

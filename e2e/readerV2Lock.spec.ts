@@ -27,6 +27,10 @@ const pdf = (title: string) =>
 
 async function goLibrary(page: Page) {
   const menu = page.getByRole('button', { name: 'Open menu' })
+  // WebKit on a cold start can take ~15 s to show the app: wait for it first.
+  await expect(
+    page.getByRole('navigation', { name: 'Spaces' }).or(menu).first(),
+  ).toBeVisible({ timeout: 30_000 })
   if (await menu.isVisible()) await menu.click()
   await space(page, 'Library').click()
 }
@@ -150,21 +154,25 @@ test('RD-B18 View only: no pen, bookmark or Listen; a tap on a tool shakes the p
   await pickMode(page, 'view')
   // Record whether the padlock shakes.
   await page.evaluate(() => {
-    const el = document.querySelector('[data-testid="reader-lock"]')!
+    // The whole page is watched: WebKit may draw the padlock anew.
     ;(window as unknown as { __shook: boolean }).__shook = false
     new MutationObserver(() => {
-      if (el.hasAttribute('data-shake'))
+      if (document.querySelector('[data-testid="reader-lock"][data-shake]'))
         (window as unknown as { __shook: boolean }).__shook = true
-    }).observe(el, { attributes: true })
+    }).observe(document.body, {
+      attributes: true,
+      subtree: true,
+      childList: true,
+    })
   })
   await page.getByTestId('reader-ink').click()
   await expect(toastText(page, 'Unlock to use this.')).toBeVisible()
   await expect(page.getByTestId('reader-ink-bar')).toHaveCount(0)
-  expect(
-    await page.evaluate(
-      () => (window as unknown as { __shook: boolean }).__shook,
-    ),
-  ).toBe(true)
+  await expect
+    .poll(() =>
+      page.evaluate(() => (window as unknown as { __shook: boolean }).__shook),
+    )
+    .toBe(true)
   await page.getByTestId('reader-bookmark').click()
   await expect(page.getByTestId('reader-bookmark')).toHaveAttribute(
     'aria-pressed',
@@ -176,6 +184,9 @@ test('RD-B18 View only: no pen, bookmark or Listen; a tap on a tool shakes the p
     'false',
   )
   // Selecting text makes no pop-up.
+  await expect(page.locator('.textLayer span').first()).toBeAttached({
+    timeout: 15_000,
+  })
   await page.evaluate(() => {
     const span = document.querySelector('.textLayer span')!
     const range = document.createRange()

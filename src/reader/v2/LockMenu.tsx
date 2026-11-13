@@ -23,7 +23,11 @@ const modeLabel = (m: LockMode) => t(`readerv2.lock.${m}` as MessageKey)
 /** Hangs the menu under the padlock AND the whole bar, so it never covers the bar. */
 function anchorFor(el: Element): Rect {
   const r = el.getBoundingClientRect()
-  const bar = el.closest('.rv2-bar')?.getBoundingClientRect()
+  // Below the whole bar stack: the pen bar under the reader bar sits in the
+  // top layer, so a menu that opened over it could not be tapped (gate 2).
+  const bar = (
+    el.closest('.rv2-stack') ?? el.closest('.rv2-bar')
+  )?.getBoundingClientRect()
   return {
     left: r.left,
     top: r.top,

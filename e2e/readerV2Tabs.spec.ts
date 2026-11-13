@@ -42,7 +42,7 @@ test('RD-B34 the panel has Pages, Outline, Notes and a +; Audio waits under the 
 }) => {
   await openPdf(page)
   await openPanel(page)
-  expect(await tabNames(page)).toEqual(['Pages', 'Outline', 'Notes'])
+  await expect.poll(() => tabNames(page)).toEqual(['Pages', 'Outline', 'Notes'])
   await expect(page.getByTestId('tabrow-plus')).toBeVisible()
   // One line.
   const tops = await panel(page)
@@ -79,7 +79,9 @@ test('RD-B35 + opens Edit tabs: add Audio, rename, reorder, remove; every dialog
   await openPanel(page)
   await page.getByTestId('tabrow-plus').click()
   await page.getByRole('menuitem', { name: 'Add a tab: Audio' }).click()
-  expect(await tabNames(page)).toEqual(['Pages', 'Outline', 'Notes', 'Audio'])
+  await expect
+    .poll(() => tabNames(page))
+    .toEqual(['Pages', 'Outline', 'Notes', 'Audio'])
   await page.getByTestId('tabrow-plus').click()
   await page.getByTestId('tabrow-edit').click()
   const editor = page.getByTestId('tab-editor')
@@ -97,12 +99,16 @@ test('RD-B35 + opens Edit tabs: add Audio, rename, reorder, remove; every dialog
   await page.getByTestId('tabed-done').click()
   await expect(editor).toHaveCount(0)
   await expect(page.getByTestId('rv2-stack')).not.toHaveClass(/rv2-stack--away/)
-  expect(await tabNames(page)).toEqual(['Thumbnails', 'Audio', 'Notes'])
+  await expect
+    .poll(() => tabNames(page))
+    .toEqual(['Thumbnails', 'Audio', 'Notes'])
   // The choice is a setting: it stays after a reload.
   await page.reload()
   await expect(page.getByTestId('book-reader')).toBeVisible()
   if (!(await panel(page).isVisible())) await openPanel(page)
-  expect(await tabNames(page)).toEqual(['Thumbnails', 'Audio', 'Notes'])
+  await expect
+    .poll(() => tabNames(page))
+    .toEqual(['Thumbnails', 'Audio', 'Notes'])
   // The cross closes the dialog too.
   await page.getByTestId('tabrow-plus').click()
   await page.getByTestId('tabrow-edit').click()

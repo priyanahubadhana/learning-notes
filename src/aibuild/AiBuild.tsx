@@ -4,11 +4,13 @@ import { trapFocus } from '../app/overlay'
 import type { LearningNotesDB } from '../core/db'
 import type { AiJob } from '../aitools/jobs/jobTypes'
 import { t } from '../i18n/t'
+import './aibuild.css'
 import { Activity } from './Activity'
 import { BuildPlan } from './BuildPlan'
 import { BuildToasts, type BuildToastsApi } from './BuildToasts'
 import { getEngine, type Engine } from './engine'
 import { GoalBox } from './GoalBox'
+import { newDraft, type Destination } from './buildState'
 import { RunCard } from './RunCard'
 
 type Tab = 'build' | 'activity'
@@ -30,6 +32,7 @@ export default function AiBuild({
   const [tab, setTab] = useState<Tab>('build')
   const [run, setRun] = useState<{ id: string; name: string } | null>(null)
   const [fresh, setFresh] = useState(0)
+  const [place, setPlace] = useState<Destination>(() => newDraft().destination)
   const toasts = useRef<BuildToastsApi>(null)
   const sheet = useRef<HTMLDivElement>(null)
 
@@ -135,70 +138,80 @@ export default function AiBuild({
         margin: 0,
         padding: 0,
         border: 0,
-        overflow: 'auto',
+        overflow: 'hidden',
       }}
       className="bg-bg text-ink"
       onKeyDown={(e) => {
         if (e.key === 'Escape') onClose()
       }}
     >
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4 pb-24">
-        <div className="flex items-center gap-2">
-          <div
-            role="tablist"
-            aria-label={t('aifw.tabs.label')}
-            className="flex flex-1 gap-1"
-          >
-            {TABS.map(tabButton)}
+      <div className="h-full overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-4 pb-24">
+          <div className="flex items-center gap-2">
+            <div
+              role="tablist"
+              aria-label={t('aifw.tabs.label')}
+              className="flex flex-1 gap-1"
+            >
+              {TABS.map(tabButton)}
+            </div>
+            <button
+              type="button"
+              aria-label={t('aifw.close')}
+              data-testid="aifw-close"
+              className="inline-flex size-11 items-center justify-center rounded-lg text-muted hover:bg-hover"
+              onClick={onClose}
+            >
+              <X size={20} strokeWidth={1.6} aria-hidden />
+            </button>
           </div>
-          <button
-            type="button"
-            aria-label={t('aifw.close')}
-            data-testid="aifw-close"
-            className="inline-flex size-11 items-center justify-center rounded-lg text-muted hover:bg-hover"
-            onClick={onClose}
+          <div
+            role="tabpanel"
+            id="aifw-panel"
+            aria-labelledby={`aifw-tab-${tab}`}
+            className="flex flex-col gap-4"
           >
-            <X size={20} strokeWidth={1.6} aria-hidden />
-          </button>
-        </div>
-        <div
-          role="tabpanel"
-          id="aifw-panel"
-          aria-labelledby={`aifw-tab-${tab}`}
-        >
-          {!engine ? null : tab === 'activity' ? (
-            <Activity engine={engine} onUndo={undo} onRedo={redo} />
-          ) : run ? (
-            <RunCard
-              engine={engine}
-              jobId={run.id}
-              name={run.name}
-              onApplied={(job) =>
-                say(t('aifw.toast.done', { name: run.name }), {
-                  label: t('aifw.undo'),
-                  run: () => undo(job),
-                })
-              }
-              onUndo={undo}
-              onRedo={redo}
-              onBack={() => {
-                setRun(null)
-                setFresh((n) => n + 1)
-              }}
-            />
-          ) : (
-            <>
-              <GoalBox
-                key={`goal${fresh}`}
-                db={db}
-                onStart={start}
-                onReady={(title) => say(t('aifw.goal.toast', { name: title }))}
+            {!engine ? null : tab === 'activity' ? (
+              <Activity engine={engine} onUndo={undo} onRedo={redo} />
+            ) : run ? (
+              <RunCard
+                engine={engine}
+                jobId={run.id}
+                name={run.name}
+                onApplied={(job) =>
+                  say(t('aifw.toast.done', { name: run.name }), {
+                    label: t('aifw.undo'),
+                    run: () => undo(job),
+                  })
+                }
+                onUndo={undo}
+                onRedo={redo}
+                onBack={() => {
+                  setRun(null)
+                  setFresh((n) => n + 1)
+                }}
               />
-              <BuildPlan key={fresh} db={db} onStart={start} />
-            </>
-          )}
+            ) : (
+              <>
+                <GoalBox
+                  key={`goal${fresh}`}
+                  place={place}
+                  onStart={start}
+                  onReady={(title) =>
+                    say(t('aifw.goal.toast', { name: title }))
+                  }
+                />
+                <BuildPlan
+                  key={fresh}
+                  db={db}
+                  onStart={start}
+                  onDestination={setPlace}
+                />
+              </>
+            )}
+          </div>
+          <BuildToasts ref={toasts} />
         </div>
-        <BuildToasts ref={toasts} />
       </div>
     </div>
   )

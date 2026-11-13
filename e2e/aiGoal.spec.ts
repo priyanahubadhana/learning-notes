@@ -61,7 +61,7 @@ async function openGoal(page: Page) {
 
 async function ask(page: Page) {
   await page.getByTestId('aifw-goal-text').fill('Notes and cards on habits')
-  await page.getByTestId('aifw-goal-name').fill('Goal nb')
+  await page.getByTestId('aifw-dest-name').fill('Goal nb')
   await expect(page.getByTestId('aifw-goal-make')).toBeEnabled()
   await page.getByTestId('aifw-effort-deep').click()
   await expect(page.getByTestId('aifw-effort-deep')).toHaveAttribute(

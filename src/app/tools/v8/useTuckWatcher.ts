@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { onRouted, PRIORITY } from '../../input/eventRouter'
 import { v8Tool } from './barState'
 import { dispatchTuck } from './useTuck'
 
@@ -20,21 +21,27 @@ function typesIntoPage(e: KeyboardEvent): boolean {
  */
 export function useTuckWatcher(): void {
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (typesIntoPage(e)) dispatchTuck({ type: 'write' })
-    }
-    const onDown = (e: PointerEvent) => {
-      const target = e.target as Element | null
-      if (target?.closest?.(CHROME)) dispatchTuck({ type: 'tool' })
-      else if (e.pointerType === 'pen') dispatchTuck({ type: 'write' })
-    }
-    document.addEventListener('keydown', onKey, true)
-    document.addEventListener('pointerdown', onDown, true)
-    const off = v8Tool.subscribe(() => dispatchTuck({ type: 'tool' }))
+    // Watch only (never "handled"), ahead of everyone else, like the ring watcher.
+    const first = { priority: PRIORITY.gesture + 1, name: 'v8-tuck-watch' }
+    const offKey = onRouted(
+      'keydown',
+      (e) => void (typesIntoPage(e) && dispatchTuck({ type: 'write' })),
+      first,
+    )
+    const offDown = onRouted(
+      'pointerdown',
+      (e) => {
+        const target = e.target as Element | null
+        if (target?.closest?.(CHROME)) dispatchTuck({ type: 'tool' })
+        else if (e.pointerType === 'pen') dispatchTuck({ type: 'write' })
+      },
+      first,
+    )
+    const offTool = v8Tool.subscribe(() => dispatchTuck({ type: 'tool' }))
     return () => {
-      document.removeEventListener('keydown', onKey, true)
-      document.removeEventListener('pointerdown', onDown, true)
-      off()
+      offKey()
+      offDown()
+      offTool()
     }
   }, [])
 }

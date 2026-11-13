@@ -6,7 +6,7 @@ The file a build manager reads to continue. How the build runs: [ECONOMY-MODE.md
 
 **Switch (13 Nov, 19:45 IST, owner request):** the 13-section economy mode is replaced by the simple system: Opus manager, Sonnet builders that own a whole slice, Opus gate 2, Fable for the design check and the final look only, no Haiku. Handover of run 5 folded in (run 6).
 
-**Next result for the owner:** BUG-006 delivered (CI 43522929290 green on 1d7db514, main chat told 14 Nov). Now: storage safety merged cfebd3a4, CI 43528030714 running; first load 319,763 of 320,000 B, so storage safety goes lazy (fix/storage-lazy) before the next merge. Then one at a time, CI after each: 0g3 9840315e, 9-6 0d94407d, 15 c1180092 (ST11 App.tsx wiring), 8b bfb6298d, 9-cost 14b9e748 (drop its EpubView guard, keep slice 7 viewRef fix).
+**Next result for the owner:** BUG-006 delivered (CI 43522929290 green on 1d7db514, main chat told 14 Nov). Now: storage safety merged cfebd3a4, CI 43528030714 running; first load 310,509 B (earlier 319,763 was a stale dist; no lazy fix needed). Then one at a time, CI after each: 0g3 9840315e, 9-6 0d94407d, 15 c1180092 (ST11 App.tsx wiring), 8b bfb6298d, 9-cost 14b9e748 (drop its EpubView guard, keep slice 7 viewRef fix).
 
 ## Milestones (the main chat checks them with `bash scripts/build-pulse.sh` every hour)
 

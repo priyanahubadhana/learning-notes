@@ -1,4 +1,5 @@
 # How the build runs (simple system, in force from 13 Nov 2026, 20:00 IST)
+
 **TRIAL since 13 Nov 19:40 IST; benchmark: docs/plans/system-trial-2026-11-13.md**
 
 Owner, 13 Nov: "The way we are following the system, it is not working at all. Let Opus follow the plan and let the cheaper model do the work. This time it must work." This page replaces the 13-section economy mode of the same day (old text: `git show 780c28fe:docs/ECONOMY-MODE.md`). Quality rules and tests are unchanged (rules/quality.md).

@@ -1,4 +1,5 @@
 # Build state (one table; rewritten in place, never appended)
+
 **TRIAL since 13 Nov 19:40 IST; benchmark: docs/plans/system-trial-2026-11-13.md**
 
 The file a build manager reads to continue. How the build runs: [ECONOMY-MODE.md](ECONOMY-MODE.md) (simple system, 13 Nov 2026 evening). Plan: [plans/build-master-plan.md](plans/build-master-plan.md) (read only the section of the slice you brief). Keep this file under 100 lines; history goes to CHANGELOG.md.

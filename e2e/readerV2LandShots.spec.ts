@@ -44,7 +44,8 @@ for (const { level, theme, name, viewport } of shots)
               { name: 'learning-notes:theme', value: JSON.stringify(theme) },
               {
                 name: 'learning-notes:level',
-                value: JSON.stringify({ level, unlocked: [] }),
+                // The thumbnails (Pages tab) are Pro since 7h; the shot jumps with them.
+                value: JSON.stringify({ level, unlocked: ['reader.pagesTab'] }),
               },
             ],
           },
@@ -97,8 +98,7 @@ for (const { level, theme, name, viewport } of shots)
     await page
       .getByTestId('left-panel')
       .getByRole('tab', { name: 'Notes' })
-      // On a phone the reader bar floats over the panel tabs (leftover, reported).
-      .dispatchEvent('click')
+      .click()
     await page.getByTestId('annotation-row').getByRole('button').first().click()
     await expect(page.getByTestId('pdf-land-glow')).toBeAttached()
     await page.screenshot({

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { usePhoneScreen } from '../app/usePhoneScreen'
+import { PHONE_SCREEN } from '../app/appUi'
 import { OnOff } from '../design/parts/OnOff'
 import { Card, CardTrigger } from '../design/parts/Card'
 import { CardNote, SwitchRow, Tile, TileGroup } from '../design/parts/CardParts'
@@ -55,7 +55,7 @@ export function ReaderInkBar({
   const inkLook = !v2 || inkLookOn
   // Gate 3, ninth visit (fix 6): on a phone the bar is 2 rows; sizes, pen
   // type, opacity and Finger draws fold behind one ▾.
-  const compact = usePhoneScreen() && v2
+  const compact = v2 && matchMedia(PHONE_SCREEN).matches
   const tools = v2 && !inkTools ? TOOLS.filter((x) => x !== 'lasso') : TOOLS
   // Drawing starts with the Pen.
   useEffect(() => {

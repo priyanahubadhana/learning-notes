@@ -1173,6 +1173,7 @@ Spec: docs/features/reader-v2.md (its own "Decisions to review" 11 to 16 and "La
 - **Line focus, ruler and Keep awake (RD-P29, RD-P31).** Now also in the book reader (Aa › Reading aids), built from the Reading-mode parts.
 - **Moved to Later, switch stays listed with "Coming later":** tap counts with a tool (RD-P32, owner answer A2; needs a Select tool in the reader, a rule for 2 taps against zoom, and a real-iPad check) and the real Liquid mode view (RD-P28; needs a text-reflow engine). The owner can ask for either sooner.
 - **Select pop-up placement.** It must never sit under the reader bar or the time-left line; tests must use real clicks.
+
 ## Decisions to review (slice 4 gate 3 fixes, 13 Nov)
 
 - **Home v2 "More" button, count tiles and cover due badges are later.** Gate 3 item 12 (mock: sliders + "More" first in the filter row; tiles for notebooks, pages, cards due; "due" badge on the cover). The "More" button has nothing to open until the notebook More sheet is wired to Home, the tiles need a cross-notebook count query (cost to check at 500+ notebooks), and the due badge is today beside the name (not on the cover). Left out on purpose so this slice stays inside the bundle limit; re-plan with Home v2 (slice 5).

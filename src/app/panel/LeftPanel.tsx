@@ -476,6 +476,8 @@ function LeftPanelToday({
               top: v2Tabs
                 ? `max(${barBottom}px, var(--rv2-bar-bottom, 0px))`
                 : barBottom,
+              // Beside the rail, as the shell's own panel card (iPad portrait).
+              ...(v2Tabs && bar.left > 0 ? { left: bar.left } : {}),
               paddingTop: 0,
             }
           : docked && width
@@ -489,7 +491,7 @@ function LeftPanelToday({
             ? // Reader v2, docked in the classic frame: the shell card (gate 3, ninth visit, fix 2).
               'flex w-[300px] shrink-0 flex-col overflow-hidden rounded-[var(--r-lg)] border border-line bg-bg shadow-[var(--elev-1)]'
             : 'flex w-[280px] shrink-0 flex-col border-e border-line bg-bg'
-          : `fixed inset-y-0 start-0 ${PANEL_Z} flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[calc(env(safe-area-inset-top)+3rem)] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14 ${sheet ? 'phone:w-full phone:max-w-none phone:border-e-0' : ''}${v2Tabs ? ' phone:shadow-none' : ''}`
+          : `fixed inset-y-0 start-0 ${PANEL_Z} flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[calc(env(safe-area-inset-top)+3rem)] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14 ${sheet ? 'phone:w-full phone:max-w-none phone:border-e-0' : ''}${v2Tabs ? ' bottom-3 rounded-[var(--r-lg)] border phone:bottom-14 phone:rounded-none phone:border-0 phone:shadow-none' : ''}`
       }
     >
       <div

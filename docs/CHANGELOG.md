@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: Reader v2 gate 3 ninth-visit fixes (slice 7)
+
+- What: book panel sheet starts under the reader bar on iPad portrait; docked book panel is a rounded card (300 px, three tabs fit); a toast sits above an open bottom card; phone pen bar is 2 rows (sizes, pen type, opacity, custom colour and Finger draws behind one ▾ "Pen options"); custom swatch has the line ring; notes actions on one row, Delete in danger red; padlock note names only the modes shown. Fix 5 (Preview pill) held: it conflicts with SET-B02/B03.
+- Why: gate 3 ninth visit, fix list B.
+- Files: src/app/panel/LeftPanel.tsx, src/app/ui.tsx, src/reader/ReaderInkBar.tsx, src/reader/annotations/AnnotationsPanel.tsx, src/reader/v2/LockMenu.tsx, i18n readerV2 (en/es/hi), e2e/readerV2Ninth.spec.ts, e2e/readerV2NinthShots.spec.ts.
+
 ### 13 Nov 2026: test guard hook strengthened; batch CI decision recorded
 
 - What: guard-tests.mjs also blocks longer timeouts, grepInvert/testIgnore, new skip/fixme and deleted test files unless a `test-guard-reason` comment (5+ words) is on the line; tried on scratch inputs (block without, allow with). ECONOMY-MODE section 12 and DECISIONS record the rules and the batch CI decision.
@@ -17,6 +23,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: reader-v2.md corrected for RD-B09, B24, P13, P17, P25 to P32, P34; new "Later" section (tap counts, real Liquid mode); pop-up placement rule; tests must use real clicks.
 - Why: the spec contradicted itself (Beginner and Pro showed the same parts) and some parts were not in the book reader. Nothing dropped.
 - Files: docs/features/reader-v2.md, docs/DECISIONS.md.
+
 ### 13 Nov 2026: economy orchestrator aligned with speed rules
 
 - What: .claude/agents/economy-orchestrator.md now uses the speed rules: up to 8 builders on non-overlapping files (fall back to 6 on rework or flakes), next Opus round after two gate-3 fails, restart about every 6 waves, batch CI up to 3 fully gated slices per run.

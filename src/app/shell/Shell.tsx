@@ -17,6 +17,7 @@ import { type GearActions } from './GearMenu'
 import { Rail } from './Rail'
 import { ShellTopBar } from './ShellTopBar'
 import { TabBar } from './TabBar'
+import { ToastHost } from './Toast'
 import { ViewToggle } from './ViewToggle'
 import { modeOf } from './views'
 import { useLevel } from '../../settings/level'
@@ -169,7 +170,8 @@ export default function Shell(p: ShellProps) {
         <PanelSlot
           cols={cols}
           wrapRef={panelWrap}
-          left={panelLeft(cols.sidebar === 'docked' ? drawn : null)}
+          // Over the page it covers the docked sidebar, never the page (its ✕ and bars stay reachable).
+          left={panelLeft(null)}
           render={(o) => cloneElement(panel, o)}
         />
         <div className="sh-main">
@@ -233,6 +235,8 @@ export default function Shell(p: ShellProps) {
         )}
       </div>
       {cols.phone && <TabBar {...nav} />}
+      {/* SH-12: the one toast of the app (App routes its messages here while the frame is on). */}
+      <ToastHost />
     </div>
   )
 }

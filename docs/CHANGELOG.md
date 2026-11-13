@@ -14,11 +14,38 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: the slice had helpers but only one PENDING line as its spec; a new visual pattern needs a spec and mock-up before the UI is built.
 - Files: docs/features/storage-safety.md, docs/mockups/storage-safety-mock.html, docs/mockups/storage-safety/, docs/PENDING.md, docs/CHANGELOG.md.
 
+### 14 Nov 2026: build/next red fixed (test timing, CI 43515340927)
+
+- What: TB-33 waits for the Text size card to finish its pop before reading the label tops; TB-34 keeps polling while the picture block re-renders after Smaller. Asserts unchanged.
+- Why: TB-33 failed (a tile still mid-scale read one pixel off); TB-34 threw on a null box once.
+- Files: e2e/toolbarV8Tenth.spec.ts, e2e/toolbarV8Tools.spec.ts
+
+### 14 Nov 2026: toolbar v8 flaky tests fixed in the product
+
+- What: a card closed with ✕ hands focus back to its chip only if nothing else took it; the page's text box frame follows its text when a picture loads while an ink tool is on.
+- Why: a quick tap into the text after ✕ lost its focus 130 ms later (CI run 43478875272); a resize handle sat over a new picture until the next tool change.
+- Files: src/design/parts/Card.tsx, src/design/parts/Card.test.ts, src/paper/PaperFrame.tsx, e2e/toolbarV8Tools.spec.ts, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: fast start (WebKit start 15 s -> 1.2 s)
 
 - What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.
 - Why: the app took about 15 s to start on WebKit because starters were written before the first screen.
 - Files: src/templates/templateService.ts, src/templates/NewPageStart.tsx, src/templates/seedBulk.test.ts, e2e/startSeeding.spec.ts, e2e/startSpeed.spec.ts, docs/features/perf-start.md, docs/CHANGELOG.md.
+
+### 14 Nov 2026: build manager run 7 (gates)
+
+Card close focus-trap fix c17bd0d9 on build/next (src/design/parts/Card.tsx, Card.test.ts): the card drops its Tab trap and returns focus at once, not after the 130 ms closing motion; fixes red e2e/toolbarV8Tools.spec.ts:585 on ipad-webkit (CI 43505401817); after-the-fact gate 2 PASS. Gate 2: 8b PASS; Reader v2 PASS at 7d36cbdb (RD-P25 deterministic, book pages block outside pictures); toolbar 1e/1f round 3 FAIL (flaky 200 ms test); 12 rest FAIL then paste tests added (cb3eba9d). Gate 3: 8b PASS. Two decisions logged for the owner (iPad paste tests, EPUB scripts). Files: docs/BUILD-STATE.md, PENDING.md, DECISIONS.md, CHANGELOG.md.
+
+### 13 Nov 2026: build system trial benchmark
+
+The new build system is a TRIAL against the old one. Added docs/plans/system-trial-2026-11-13.md (metrics, how to measure, baseline from git and gh), pulse script now appends a CSV row to docs/metrics/build-pulse.csv, trial line in ECONOMY-MODE.md and BUILD-STATE.md. No rule changed.
+
+### 13 Nov 2026: build system replaced by the simple system (owner request)
+
+- What: docs/ECONOMY-MODE.md rewritten from 230 lines and 13 sections to 95 lines (causes with evidence, roles, the 4-step path of a slice, 8 rules, hourly pulse, briefs, guards). Opus manager follows the plan and never builds; each Sonnet builder owns one whole slice to merged; Opus gate 2 once; Fable only for the design check and the final look; no Haiku in the build. docs/BUILD-STATE.md rewritten as one table with milestones (200 lines to about 95). New read-only script scripts/build-pulse.sh prints PROGRESS or STALL for the hourly check.
+- Why: in 19 hours of economy mode the pace fell from 13 to 16 active slices per 3 hours to 4 to 6, 1 CI run in 12 was green, the same slices failed gate 3 up to 4 times, the manager restarted 7 times, and no usable preview reached the owner.
+- Unchanged: rules/quality.md, the Definition of Done, all tests, the test guard, the push guard.
+- Files: docs/ECONOMY-MODE.md, docs/BUILD-STATE.md, CLAUDE.md, rules/building.md, rules/sessions.md, docs/INDEX.md, docs/design/token-efficiency.md, docs/DECISIONS.md, docs/CHANGELOG.md, scripts/build-pulse.sh, .claude/agents/economy-orchestrator.md, economy-builder.md, economy-gate2.md, economy-gate3.md (rewritten), economy-mechanic.md and economy-search.md (removed). The comment in .claude/hooks/guard-tests.mjs still says "s.12"; the test guard text is now section 8.
 
 ### 13 Nov 2026: push guard hook narrowed (owner-approved)
 
@@ -1780,3 +1807,8 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 ## 2026-11-13 · Slice 4 gate 3 fix list (13 items)
 
 Home strip shows every item at every level, stays inside the pane, labels on phone; Continue and chip rows show a thin track; header controls one height, Find full width on phone; Duplicate notebook; Search: scope switch, lilac chips, Tasks count, single scroll row, solid phone surface, "Close" on touch, strip with Open in new place; sidebar Today one line, group header 8 px gap; PanelV2 top-layer import fixed after the 0g merge. Files: src/design/parts/ContextStrip._, contextStripPlace.ts, src/notebooks/v2/_, src/search/SearchPopup.tsx, src/search/v2/*, src/app/SidebarGroup.tsx, src/index.css, docs/DECISIONS.md.
+
+## 2026-11-13 - BUG-006: the gear stays reachable with the keyboard up
+
+- Why: the left strip was as tall as the layout, but the iPad keyboard (and the text bar above it) shrink only the visible area, so the gear fell off screen and the strip did not scroll. Now the strip is capped to the visible area (spaces scroll, gear pinned at the foot) and the gear panel rises above the keyboard and text bar.
+- Files: src/app/spaces/SpaceStrip.tsx, QuietCorner.tsx, footLift.ts; e2e/stripGear.spec.ts (chromium + ipad-webkit); pictures screenshots/bug006/INDEX.md.

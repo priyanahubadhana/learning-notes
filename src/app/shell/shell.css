@@ -61,6 +61,14 @@
   user-select: none;
   -webkit-user-select: none;
 }
+.sh-rail-spaces {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 0;
+  overflow-y: auto;
+}
 .sh-brand {
   width: 32px;
   height: 32px;
@@ -324,6 +332,15 @@
   .sh-crumbs {
     display: none;
   }
+}
+
+/* The reader's bars start after the top bar's menu buttons, never over them
+   (they are fixed across the whole window). useReaderInset sets the variable. */
+.reader-bar {
+  left: var(--sh-reader-left, 0px);
+}
+[data-testid='reader-mini-exit'] {
+  left: calc(var(--sh-reader-left, 0px) + 4px);
 }
 
 /* ---- sidebar + pages panel (SH-07, SH-08) ---- */

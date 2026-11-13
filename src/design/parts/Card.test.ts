@@ -98,4 +98,55 @@ describe('Card', () => {
       'Pick me',
     )
   })
+
+  // Why: a fast tap into the text right after ✕ was undone 130 ms later when
+  // the card handed focus back to its chip, so typed keys went to the chip
+  // (CI run 43478875272, the toolbar v8 Copy test).
+  it('gives focus back to its chip on ✕ only when the person has not moved on', () => {
+    vi.useFakeTimers()
+    const chip = document.createElement('button')
+    const other = document.createElement('textarea')
+    document.body.append(chip, other)
+    mount(card({ placement: 'anchored', anchor: chip }))
+    click(byLabel('Close'))
+    other.focus()
+    settle()
+    expect(document.activeElement).toBe(other)
+    chip.remove()
+    other.remove()
+  })
+
+  it('still gives focus back to its chip on ✕ when nothing else took it', () => {
+    vi.useFakeTimers()
+    const chip = document.createElement('button')
+    document.body.append(chip)
+    mount(card({ placement: 'anchored', anchor: chip }))
+    click(byLabel('Close'))
+    settle()
+    expect(document.activeElement).toBe(chip)
+    chip.remove()
+  })
+
+  // Why: during the 130 ms closing motion the card still trapped Tab, so a
+  // Tab from the chip was pulled back into the closing card and focus was lost
+  // when it went away (CI run 43505401817, toolbar v8 Actions chip ring test).
+  it('hands focus back to its chip at once on ✕ and stops trapping Tab while it fades', () => {
+    vi.useFakeTimers()
+    const chip = document.createElement('button')
+    document.body.append(chip)
+    mount(card({ placement: 'anchored', anchor: chip }))
+    click(byLabel('Close'))
+    expect(document.activeElement).toBe(chip)
+    const tab = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      bubbles: true,
+      cancelable: true,
+    })
+    act(() => void chip.dispatchEvent(tab))
+    expect(tab.defaultPrevented).toBe(false)
+    expect(document.activeElement).toBe(chip)
+    settle()
+    expect(document.activeElement).toBe(chip)
+    chip.remove()
+  })
 })

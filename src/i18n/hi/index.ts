@@ -39,6 +39,7 @@ import { hiNotebooksV2 } from './notebooksV2'
 import { hiSearchV2 } from './searchV2'
 import { hiPanelV2 } from './panelV2'
 import { hiV8Pen } from './v8Pen'
+import { hiV8Tools } from './v8Tools'
 
 export const hi: Record<string, string> = {
   ...hiAccounts,
@@ -81,4 +82,5 @@ export const hi: Record<string, string> = {
   ...hiLibraryV2,
   ...hiV8Pen,
   ...hiStorageSafety,
+  ...hiV8Tools,
 }

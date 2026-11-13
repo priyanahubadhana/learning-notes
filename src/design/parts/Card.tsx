@@ -16,6 +16,7 @@ import {
   type OverlayHandle,
 } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
+import { useFootLift } from '../../app/spaces/footLift'
 import { motionMs } from './motion'
 import { tp } from './tp'
 import { useAnchoredCard, usePhone } from './useAnchoredCard'
@@ -42,6 +43,8 @@ export type CardProps = {
   viewKey?: string | number
   /** `static` draws the frame in place (gallery cells); no overlay, no focus trap. */
   placement?: 'anchored' | 'static'
+  /** Rect the card keeps clear of (the selected picture); read at each placement. */
+  avoid?: () => RectLike | null
   /** Force the phone sheet look (gallery cell). */
   phone?: boolean
   testId?: string
@@ -77,6 +80,7 @@ export function Card(props: CardProps) {
   const closingRef = useRef(false)
   const reasonRef = useRef<CardCloseReason>('outside')
   const handleRef = useRef<OverlayHandle | null>(null)
+  const releaseRef = useRef<() => void>(() => {})
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const onCloseRef = useRef(onClose)
   const anchorRef = useRef(anchor)
@@ -91,11 +95,21 @@ export function Card(props: CardProps) {
     reasonRef.current = reason
     setClosing(true)
     handleRef.current?.close()
-    timerRef.current = setTimeout(() => {
-      onCloseRef.current(reason)
-      const a = anchorRef.current
-      if (reason !== 'outside' && a instanceof HTMLElement) a.focus()
-    }, motionMs(130))
+    // Why: the closing motion is only a picture. Keys pressed while it plays
+    // (CI run 43505401817) were pulled back into the fading card by its Tab
+    // trap, and a tap into the text (CI run 43478875272) was undone by a late
+    // focus hand-back. So the trap ends and focus goes back to the chip now,
+    // and only if it is still in the card or nowhere.
+    releaseRef.current()
+    const now = document.activeElement
+    const free =
+      !now || now === document.body || !!rootRef.current?.contains(now)
+    const a = anchorRef.current
+    if (reason !== 'outside' && free && a instanceof HTMLElement) a.focus()
+    timerRef.current = setTimeout(
+      () => onCloseRef.current(reason),
+      motionMs(130),
+    )
   }, [])
 
   // Overlay: one card at a time; Esc and a tap outside close it.
@@ -113,6 +127,7 @@ export function Card(props: CardProps) {
       inside: (t) => !!el && el.contains(t),
     })
     const release = el ? trapFocus(el, null) : () => {}
+    releaseRef.current = release
     if (el) focusTarget(el).focus()
     return () => {
       closingRef.current = true
@@ -123,18 +138,22 @@ export function Card(props: CardProps) {
     }
   }, [isStatic, phone, request])
 
+  // BUG-006: with the keyboard up the card stays inside what can be seen.
+  const footLift = useFootLift()
   const pos = useAnchoredCard({
+    footLift,
     anchor,
     card: node,
     widthPx: WIDTH[size],
     active: !isStatic && !phone && !!anchor,
+    avoid: props.avoid,
   })
 
   // A floating card is hidden until positioned, and a hidden element cannot
   // take focus, so focus again once it is visible (SP-14).
   const placed = !!pos
   useEffect(() => {
-    if (isStatic || !placed) return
+    if (isStatic || !placed || closingRef.current) return
     const el = rootRef.current
     if (!el || el.contains(document.activeElement)) return
     focusTarget(el).focus()
@@ -171,6 +190,9 @@ export function Card(props: CardProps) {
             top: pos?.top ?? 0,
             width: pos?.width,
             visibility: pos ? 'visible' : 'hidden',
+            maxHeight: footLift
+              ? Math.max(160, window.innerHeight - footLift - 24)
+              : undefined,
           }
   if (floating && pos?.arrowX != null) style['--arrow-x'] = `${pos.arrowX}px`
   const side = floating ? (pos?.side ?? 'below') : 'below'

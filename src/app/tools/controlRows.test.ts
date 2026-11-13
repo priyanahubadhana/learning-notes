@@ -1,17 +1,25 @@
 import { describe, expect, it } from 'vitest'
 import { settingsRegistry } from '../../settings/builtinSettings'
+import { shownByFlags } from '../../settings/flagGate'
 import { buildRows, rowMatches } from './controlRows'
 import { allTools } from './toolRegistry'
 
 describe('control panel rows', () => {
   const rows = buildRows()
 
-  it('has a row for every tool and every setting', () => {
+  it('has a row for every tool and every setting (but not one whose feature switch is off)', () => {
     expect(rows.filter((r) => r.key.startsWith('tool:'))).toHaveLength(
       allTools().length,
     )
     const settings = rows.filter((r) => r.key.startsWith('setting:'))
-    expect(settings).toHaveLength(settingsRegistry.list().length)
+    expect(settings).toHaveLength(
+      settingsRegistry.list().filter((s) => shownByFlags(s.id)).length,
+    )
+    // Show Undo and Redo belongs to the new frame: no row while it is off.
+    expect(shownByFlags('general.showUndoRedo')).toBe(false)
+    expect(settings.some((r) => r.key === 'setting:general.showUndoRedo')).toBe(
+      false,
+    )
   })
 
   it('the filter finds words in the name, the place and English', () => {

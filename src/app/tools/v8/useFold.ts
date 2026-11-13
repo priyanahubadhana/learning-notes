@@ -7,6 +7,8 @@ export interface FoldSpec {
   fixedW?: number
   /** Higher stays longer; Infinity is never folded. */
   priority: number
+  /** Keeps its name even when the others lose theirs (the chip whose card is open). */
+  keepName?: boolean
 }
 
 interface Measured {
@@ -70,7 +72,7 @@ export function useFold(
       return {
         id: s.id,
         full: s.fixedW ?? w?.full ?? 44,
-        short: s.fixedW ?? w?.short ?? 44,
+        short: s.fixedW ?? (s.keepName ? w?.full : w?.short) ?? 44,
         priority: s.priority,
       }
     })

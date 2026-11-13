@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useFootLift } from './footLift'
 import { Tip } from '../../help/Help'
 import { t, type MessageKey } from '../../i18n/t'
 import { SPACE_ICON, type Space } from './spaces'
@@ -19,16 +20,22 @@ export function SpaceStrip({
   onSelect: (space: Space) => void
   corner: ReactNode
 }) {
+  // BUG-006: with the keyboard up, cap the strip to what can be seen (above
+  // the text bar); the spaces scroll above the pinned gear.
+  const lift = useFootLift()
+  const max = lift
+    ? `calc(${innerHeight - lift}px - var(--attn-h, 0px) - var(--frame-gap) - 8px)`
+    : undefined
   return (
     <nav
       data-chrome
       aria-label={t('spaces.label')}
-      style={{ paddingTop: 'calc(10px + var(--top-clear))' }}
+      style={{ paddingTop: 'calc(10px + var(--top-clear))', maxHeight: max }}
       className="flex w-14 shrink-0 flex-col items-center gap-1 glass-flat rounded-[var(--r-lg)] px-1 pb-2 phone:fixed phone:inset-x-0 phone:bottom-0 phone:z-20 phone:h-14 phone:w-auto phone:flex-row phone:justify-around phone:gap-0 phone:rounded-none phone:border-x-0 phone:border-b-0 phone:px-1 phone:pt-0! phone:pb-[env(safe-area-inset-bottom)]"
     >
       <Tip
         id="sidebar.spaces"
-        className="flex flex-col gap-1 phone:w-full phone:flex-row phone:justify-around"
+        className="flex flex-col gap-1 overflow-y-auto phone:w-full phone:flex-row phone:justify-around"
         touchInfo={false}
       >
         {spaces.map((space) => {

@@ -1024,6 +1024,7 @@ export class InkController {
     r.clearLive()
     const g = this.gesture
     const target = r.liveTarget()
+    target.night = this.env.night()
     if (g?.kind === 'draw') {
       const stroke = this.liveStroke(g)
       if (stroke) {
@@ -3096,6 +3097,28 @@ export class InkController {
       },
     }
     return { layerId: p.layerId, blockId, stroke }
+  }
+
+  /**
+   * The selection bar's Resize, Rotate and Move (toolbar.v8, TB-33): the
+   * picked drawings change by one step, about the middle of the selection.
+   * One Undo step each; the drawings stay picked.
+   */
+  transformSelectionBy(step: {
+    scale?: number
+    turn?: number
+    dx?: number
+    dy?: number
+  }): void {
+    const box = this.selectionRect()
+    const before = this.selected()
+    if (!box || before.length === 0) return
+    const scale = Math.max(0.1, Math.min(10, step.scale ?? 1))
+    const centre = { x: box.x + box.w / 2, y: box.y + box.h / 2 }
+    const m = around(centre, scale, step.turn ?? 0, step.dx ?? 0, step.dy ?? 0)
+    const add = before.map((p) => this.transformed(p, m, scale))
+    this.commit({ del: before, add, layers: [] })
+    this.select(add.map((p) => p.stroke.id))
   }
 
   // ---- Undo and Redo (one history with the text) ----

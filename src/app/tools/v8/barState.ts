@@ -2,6 +2,7 @@ import { memStore, type Store } from '../store'
 import { activeTool, isModeTool } from '../main/mainTools'
 import { V8_TOOL_IDS, type V8ToolId } from './registryV8'
 import { firstCardOf } from './rowItems'
+import { enterShapes, leaveShapes } from './cards/shapes/shapesModel'
 
 const isV8Tool = (v: string): v is V8ToolId =>
   (V8_TOOL_IDS as readonly string[]).includes(v)
@@ -43,7 +44,10 @@ export const toggleCard = (state: BarState, card: string): BarState => ({
 })
 
 /** Makes the page follow the chosen tool (only the tools that are a mode). */
-export function followMode(id: V8ToolId): void {
+export function followMode(id: V8ToolId, from?: V8ToolId): void {
+  // Shapes is the Pen drawing a clean shape; leaving it draws freehand again.
+  if (from === 'shapes' && id !== 'shapes') leaveShapes()
+  if (id === 'shapes') return enterShapes()
   // The highlighter is a type of the Pen tool: keep it when Pen is chosen.
   if (id === 'pen' && activeTool.get() === 'highlighter') return
   if (isModeTool(id)) activeTool.set(id)

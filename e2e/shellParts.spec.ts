@@ -206,6 +206,31 @@ test('SH-12 a toast is 24 px above the bottom on a computer and above the tab ba
   )
 })
 
+test('SH-12 a toast sits clear of a visible floating bar, on a computer and on a phone', async ({
+  page,
+}) => {
+  for (const size of [
+    { width: 1366, height: 800 },
+    { width: 390, height: 844 },
+  ]) {
+    await open(page, size)
+    await page.getByTestId('open-bars').click()
+    await expect(page.getByTestId('floating-bar')).toHaveCount(2)
+    await page.getByTestId('toast-plain').click()
+    const toast = await page.getByTestId('shell-toast').boundingBox()
+    for (const bar of await page.getByTestId('floating-bar').all()) {
+      const b = await bar.boundingBox()
+      if (!b || !toast) throw new Error('missing box')
+      const apart =
+        toast.y + toast.height <= b.y + 0.5 ||
+        b.y + b.height <= toast.y + 0.5 ||
+        toast.x + toast.width <= b.x + 0.5 ||
+        b.x + b.width <= toast.x + 0.5
+      expect(apart).toBe(true)
+    }
+  }
+})
+
 test('SH-13 two bars minimise into two stacked chips; each restores only its own; they stay after reload', async ({
   page,
 }) => {

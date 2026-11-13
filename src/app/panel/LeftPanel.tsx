@@ -404,6 +404,13 @@ function AudioTab({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
 }
 
 /**
+ * Reader v2 on a phone: the book panel is a full-width sheet that hangs under
+ * the reader bar (gate 3, seventh visit, fix 5), as in Library.
+ */
+const PHONE_BOOK_SHEET =
+  'phone:top-[max(calc(env(safe-area-inset-top)+3rem),var(--rv2-bar-bottom,0px))] phone:pt-0 phone:w-full phone:max-w-none phone:border-e-0 phone:shadow-none'
+
+/**
  * The left panel (D1): Pages (the notebook's pages with their first lines),
  * Outline (the page's headings) and Audio (this page's recordings). Docked
  * beside the page on wide screens, an overlay on narrow ones.
@@ -451,7 +458,7 @@ function LeftPanelToday({
       className={
         docked
           ? 'flex w-[280px] shrink-0 flex-col border-e border-line bg-bg'
-          : 'fixed inset-y-0 start-0 z-[39] flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[max(calc(env(safe-area-inset-top)+3rem),var(--rv2-bar-bottom,0px))] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14'
+          : `fixed inset-y-0 start-0 z-[39] flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[max(calc(env(safe-area-inset-top)+3rem),var(--rv2-bar-bottom,0px))] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14${v2Tabs ? ' ' + PHONE_BOOK_SHEET : ''}`
       }
     >
       <div

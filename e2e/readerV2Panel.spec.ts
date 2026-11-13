@@ -95,3 +95,53 @@ for (const [name, w, h] of SIZES) {
     await expect(stack).not.toHaveClass(/rv2-stack--away/)
   })
 }
+
+test('gate 3 fix 5: on a phone the book panel is a full-width sheet with ✕, below the reader bar, never over the top bar', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await openBook(page)
+  const stack = page.getByTestId('rv2-stack')
+  await page.getByTestId('panel-toggle').click()
+  const panel = page.getByTestId('left-panel')
+  await expect(panel).toBeVisible()
+  const p = (await panel.boundingBox())!
+  const bar = (await stack.boundingBox())!
+  // Full width: no strip of page left beside it.
+  expect(p.x).toBeLessThanOrEqual(0.5)
+  expect(p.width).toBeGreaterThanOrEqual(389.5)
+  // Starts under the reader bar: the bar never lies on the sheet.
+  expect(p.y).toBeGreaterThanOrEqual(bar.y + bar.height - 0.5)
+  await expect(panel.getByRole('button', { name: 'Close panel' })).toBeVisible()
+  expect(await onTop(page.getByTestId('reader-close'))).toBe(true)
+})
+
+test('gate 3 small fix: a toast sits above an open card, so it never reads through the Aa card (iPad portrait)', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 820, height: 1180 })
+  await openBook(page)
+  await page.getByTestId('reader-aa').click()
+  const card = page.getByRole('dialog', { name: 'Reading settings' })
+  await expect(card).toBeVisible()
+  const z = (sel: string) =>
+    page.evaluate(
+      (s) => Number(getComputedStyle(document.querySelector(s)!).zIndex) || 0,
+      sel,
+    )
+  await page.evaluate(() => {
+    const t = document.querySelector('[data-toast]')
+    if (!t) throw new Error('no toast')
+  })
+  const cardZ = await card.evaluate((el) => {
+    // The layer that stacks: the card itself or its nearest positioned parent.
+    for (let n: Element | null = el; n; n = n.parentElement) {
+      const z = Number(getComputedStyle(n).zIndex)
+      if (z) return z
+    }
+    return 0
+  })
+  expect(await z('[data-toast]')).toBeGreaterThan(cardZ)
+})

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { whileBusy } from './DeviceSection'
+import { whileBusy } from './whileBusy'
 
 describe('Back up now button (SS-03)', () => {
   it('is busy while the job runs, then free', async () => {

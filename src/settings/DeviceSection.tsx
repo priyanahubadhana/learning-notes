@@ -10,6 +10,7 @@ import { shortcutShiftLabel } from '../app/keys'
 import { getAppActions } from '../app/tools/toolRuntime'
 import { touchUi } from '../app/touchUi'
 import { useFlag } from '../app/flags'
+import { whileBusy } from './whileBusy'
 
 /** Opened from the Home Screen or as an installed app, not a browser tab. */
 function isInstalled(): boolean {
@@ -18,19 +19,6 @@ function isInstalled(): boolean {
     ios.standalone === true ||
     window.matchMedia('(display-mode: standalone)').matches
   )
-}
-
-/** Shows busy while `job` runs; always clears it, even if the job throws. */
-export async function whileBusy(
-  setBusy: (busy: boolean) => void,
-  job: () => Promise<void>,
-): Promise<void> {
-  setBusy(true)
-  try {
-    await job()
-  } finally {
-    setBusy(false)
-  }
 }
 
 /** How safe the notes on this device are, and how to install the app. */

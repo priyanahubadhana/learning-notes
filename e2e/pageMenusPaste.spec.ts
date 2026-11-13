@@ -167,3 +167,44 @@ test('PM-46 pasted HTML is cleaned: scripts, handlers and the style attribute ar
     await page.evaluate(() => (window as never as { __z?: number }).__z),
   ).toBeUndefined()
 })
+
+test('the "Pasted as" chip sits above the phone tab bar, never on it', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await open(page, 'professional', 'ask', ['page.pastedChip'])
+  await paste(page, RICH, PLAIN)
+  await page.keyboard.press('Enter')
+  const chip = page.getByRole('group', { name: 'Pasted as' })
+  await expect(chip).toBeVisible()
+  const bar = await page
+    .locator('[data-space]')
+    .first()
+    .locator('xpath=ancestor::nav')
+    .boundingBox()
+  const box = (await chip.boundingBox())!
+  expect(bar).not.toBeNull()
+  expect(box.y + box.height).toBeLessThanOrEqual(bar!.y)
+})
+
+test('the chooser footer shows no key names on a phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await open(page, 'beginner', 'ask')
+  await paste(page, RICH, PLAIN)
+  const dialog = page.getByRole('dialog', { name: 'Paste as' })
+  await expect(dialog).toBeVisible()
+  await expect(dialog.getByText('Enter = default')).toBeHidden()
+})
+
+// A computer shows the key names; a touch screen (the iPad stand-in) does not.
+test('the chooser footer shows key names only without touch', async ({
+  page,
+}, info) => {
+  await open(page, 'beginner', 'ask')
+  await paste(page, RICH, PLAIN)
+  const keys = page
+    .getByRole('dialog', { name: 'Paste as' })
+    .getByText('Enter = default')
+  if (info.project.name === 'ipad-webkit') await expect(keys).toBeHidden()
+  else await expect(keys).toBeVisible()
+})

@@ -1,4 +1,5 @@
 import { centreEl } from '../app/centreEl'
+import { aboveTabBar } from '../app/ui'
 import {
   useEffect,
   useRef,
@@ -73,9 +74,10 @@ export function PasteChooser({ owner }: { owner: unknown }) {
       <div
         data-chrome
         ref={centreEl}
+        style={{ bottom: aboveTabBar() ?? 16 }}
         role="group"
         aria-label={t('pasteChooser.chip')}
-        className="pointer-events-auto fixed bottom-4 left-1/2 z-40 flex max-w-[calc(100vw-1.5rem)] flex-wrap items-center gap-1 rounded-full border border-line bg-bg px-2 py-1 text-[13px] shadow-lg"
+        className="pointer-events-auto fixed left-1/2 z-40 flex max-w-[calc(100vw-1.5rem)] flex-wrap items-center gap-1 rounded-full border border-line bg-bg px-2 py-1 text-[13px] shadow-lg"
       >
         <span className="px-2 text-ink-soft">{t('pasteChooser.chip')}</span>
         {chip.choices.map((choice) => (
@@ -171,7 +173,9 @@ function ChooserBox({ chooser }: { chooser: ChooserRequest }) {
           />
           {t('pasteChooser.always')}
         </label>
-        <p className="text-[12px] text-ink-soft">{t('pasteChooser.keys')}</p>
+        <p className="text-[12px] text-ink-soft any-pointer-coarse:hidden phone:hidden">
+          {t('pasteChooser.keys')}
+        </p>
       </div>
     </div>
   )

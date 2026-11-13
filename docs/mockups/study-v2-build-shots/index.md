@@ -165,3 +165,11 @@ Fix round proof (gate 3 thirteenth visit):
 | *-12-filter-chip.png | Active filter chip with ✕ (Professional) |
 | *-13-saved-chip.png | Saved-filter chip (Professional) |
 | *-14-pick-tiles.png | Prompt library Pick tiles |
+
+## Fix proofs (looked at after the final re-shot)
+
+1. Answer well line dark: professional-night-phone-3-card-editor.png
+2. Body 16 px aligned: professional-day-ipad-landscape-5-summary.png, professional-day-pc-1-revise.png
+3. Quiet Labels: professional-day-pc-1-revise.png, professional-day-phone-10-labels.png
+4. Centred arrow and close: professional-night-ipad-portrait-5-summary.png
+5. Type row wraps: professional-day-phone-3-card-editor.png

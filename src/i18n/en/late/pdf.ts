@@ -1,5 +1,5 @@
-/** English texts loaded in the first download (pdf). */
-export const enPdf = {
+/** English texts loaded after the first screen (pdf). */
+export const enLatePdf = {
   'pdftools.cancel': 'Cancel',
   'pdftools.close': 'Close',
   'pdftools.comb.add': 'Add PDF files…',

@@ -18,10 +18,10 @@ Plain words for the owner:
 
 ### 0. Flags and rollout
 
-| Flag               | Covers                           | Default                                                                         |
-| ------------------ | -------------------------------- | ------------------------------------------------------------------------------- |
-| `foundation.parts` | SP-01 to SP-12 (parts + gallery) | OFF (parts are only used by the gallery until an area slice flips its own flag) |
-| `foundation.shell` | SH-01 to SH-14 (new shell)       | OFF = today's shell, pixel for pixel                                            |
+| Flag               | Covers                         | Default                                                                         |
+| ------------------ | ------------------------------ | ------------------------------------------------------------------------------- |
+| `foundation.parts` | SP-01 to SP-12, S3-01 to S3-40 | OFF (parts are only used by the gallery until an area slice flips its own flag) |
+| `foundation.shell` | SH-01 to SH-14 (new shell)     | OFF = today's shell, pixel for pixel                                            |
 
 Both live in `src/app/flags.ts` (slice 0a). Parts are lazy-loaded; the shell chunk loads with the first screen (size budget in Tests).
 
@@ -361,7 +361,7 @@ B/P: Edit time range is visible to everyone (owner, round 2: "Edit period bar vi
 
 #### SP-11 Part list used by area slices (names to reuse in specs)
 
-tokens · Card ▾ frame 304/376 · Tab row · ✕ field · Tag picker · Drag (drop-line + ▲▼, live reflow) · Arrange sheet · Empty state · Object bar · Time range bar. Step 2 and 3 parts (Context menu strip, Command list, Sheet, Dialog set, Toast queue, Banner, Tool frame, Wizard steps, Status pill stack, Before/after) are **not** in this file; the shell versions of sheet, dialog, pop, toast are SH-09 to SH-12 and are the base those parts grow from.
+tokens · Card ▾ frame 304/376 · Tab row · ✕ field · Tag picker · Drag (drop-line + ▲▼, live reflow) · Arrange sheet · Empty state · Object bar · Time range bar. Step 2 parts (Context menu strip, Command list, Sheet, Dialog set, Toast queue, Banner) are specified in [page-menus](page-menus.md); step 3 parts (Tool frame, Wizard steps, Status pill stack, Before / after view) are in section 5 below; the shell versions of sheet, dialog, pop, toast are SH-09 to SH-12 and are the base those parts grow from.
 
 #### SP-12 "Parts" gallery page
 
@@ -550,6 +550,275 @@ Each line is one e2e test (chromium + ipad-webkit). B = Beginner, P = Profession
 | SH-27 | open a sheet over a floating bar                                        | layer order holds: sheet above scrim above bar                                             |
 | SH-28 | set reduced motion                                                      | every shell transition is instant and every state still changes                            |
 
+### 5. Step 3 parts (slice 0g step 3)
+
+Ids S3-01 to S3-40 (lines below). Four parts: **Tool frame**, **Wizard steps**, **Status pill stack**, **Before / after view**. Flag: `foundation.parts` (same as step 1; only the gallery uses them until an area slice flips its own flag). Sources: `docs/plans/app-audit-2026-11-12.md:210-218, 368, 396`, [media-v2](media-v2.md) lines 17-34, 115, 123, [system-v2](system-v2.md) Y-P1 and line 54, [safety-v2](safety-v2.md) SF12, SF19 and line 63, [page-objects](page-objects.md) PO-33, [update-v2](update-v2.md) line 81. Section 1 rules apply to all four (tokens only, 44 pt targets, same words in Beginner and Professional, overlay manager, routers, `t()`).
+
+Plain words for the owner:
+
+- **Tool frame** = the full-screen workbench for a job with a result (crop a picture, scan, combine files, import). Big preview, steps on top, ✕ and ✓ at the bottom.
+- **Wizard steps** = the row of numbered steps on top ("1 File · 2 Check · 3 Done") that you can tap to go back.
+- **Status pill stack** = the small pills in the bottom corner (recording, now playing, timer, sync, update, zoom %). One tidy stack, so they never sit on top of each other.
+- **Before / after view** = compare two versions: hold a button to see the original picture, or see two copies of a page side by side with the changes marked.
+
+#### Tool frame
+
+Path: `src/design/parts/ToolFrame.tsx`, `ToolFrame.css`. Grows from `src/reader/pdfTools/Shell.tsx` (audit line 210).
+
+```ts
+type ToolFrameProps = {
+  title: string // "Edit picture"
+  steps?: WizardStep[] // 2 to 6; omitted = a one-step tool, the title shows alone
+  step?: string
+  onStep?(id: string): void
+  preview: ReactNode // fills the middle
+  tools?: ToolAction[] // one row above the footer; options open as ▾ cards (SP-02)
+  compare?: { label?: string; onShow(on: boolean): void } // Before / after button (hold mode)
+  history?: { canUndo: boolean; canRedo: boolean; undo(): void; redo(): void }
+  dirty: boolean // ✕ asks "Discard changes?" only when true
+  canDone: boolean
+  doneLabel?: string // default t('ui.done'); "Next" on a step that is not the last
+  busy?: { label: string; progress?: number; onCancel?(): void } // "Reading the text… 40%"
+  hint?: string // one muted line in the footer
+  onDone(): void // the whole result = ONE history step on the page
+  onClose(reason: 'x' | 'esc'): void
+}
+```
+
+Layout (media-v2:31): **full screen**, over the shell and the phone tab bar (system-v2 Y-M1), page background `--surface-0`, safe-area padding on all four sides.
+
+- **Top bar 52 px:** title 15 px / 650 on the left (truncates with …) · Wizard steps in the centre (when `steps`) · on the right Undo, Redo (the SH-05 buttons, working on the tool's own history) and the Before / after button (when `compare`). All 44 pt targets, 8 px gaps, 12 px side padding.
+- **Preview:** fills the rest with 16 px margins on every side; content is centred and scaled to fit, never cropped by a bar; pinch zoom and two-finger pan stay inside the preview.
+- **Tools row (optional) 56 px:** icon + word buttons, 44 pt, centred, 4 px gaps. A tool with choices carries a ▾ and opens a 304 / 376 px card above the row. When the row would be wider than the screen the last items fold into "…" (pop menu); it never scrolls sideways.
+- **Footer 64 px:** ✕ left (quiet button, "Cancel"), ✓ right (accent button, "Done" / "Next"), 44 pt high each, 16 px side padding; the centre holds the hint (13 px muted) or, while busy, the label + a 6 px progress track. Icon + word at ≥ 641 px; icon only on phone (word stays in `aria-label`).
+- Hairline (`--card-hair`) under the top bar and above the footer. No shadows, no glass on the bars (calm, content first).
+- **Phone (≤ 640):** same frame; the steps collapse (see Wizard steps); the tools row keeps at most 5 buttons before "…".
+
+Rules:
+
+- One Tool frame at a time, placed by the overlay manager at `--z-tool` (D16). Cards, pop menus, dialogs and toasts open above it; the sidebar, panel, floating bars and minimise chips are covered and do not react.
+- **✕ / Esc:** closes at once when nothing changed; with changes it opens the small dialog "Discard changes?" (SH-10). **✓ / Enter** (not while typing in a field): runs `onDone`; the page gets one history step and a toast with Undo when the result is not on screen.
+- Every change inside the tool is one step of the tool's history (Undo / Redo in the top bar, Ctrl+Z / Ctrl+Y). The tool's history is dropped on close.
+- ✓ is disabled (with a one-line reason in the hint) until `canDone`. While `busy`: ✓ shows a spinner, tools are disabled, ✕ becomes "Stop" when `onCancel` exists; closing never leaves a half result.
+- Finger and Pencil never draw, type or select text in the frame; they move handles and press buttons only (media-v2:123). `user-select:none` on the frame except inside fields.
+- The work survives a rotate, a resize and the on-screen keyboard (the footer rides above the keyboard).
+
+States: opening; idle (clean); dirty; step change; ✓ disabled; busy (with / without %); error (inline line in the footer in `--danger` with an icon + "Try again"); offline (works; a tool that needs the network says so in the hint and disables ✓).
+
+Keyboard / SR: `role="dialog"` `aria-modal="true"` `aria-label=title`; focus goes to the first tool (or the first field), Tab stays inside, focus returns to the opener on close. Order: top bar → preview → tools → ✕ → ✓. Busy progress is `role="progressbar"` and announced at 25 / 50 / 75 / 100 %.
+
+Motion: opens 240 ms `--ease-out` (fade + scale .98 → 1), closes 180 ms; step change cross-fades the preview 180 ms. Reduced motion: instant.
+
+Beginner/Professional: same frame, same words. Professional adds tools to the same row and steps to the same strip, each behind the area's unlock id (`tb.pictureEdit`, `pdf.toolsPlus`, `db.csvPlus`…); a Beginner with one switch unlocked sees just that tool.
+
+#### Wizard steps
+
+Path: `src/design/parts/WizardSteps.tsx`.
+
+```ts
+type WizardStep = {
+  id: string
+  label: string // "Match columns"
+  state?: 'done' | 'error'
+  pro?: string // unlock id; the step is absent while locked
+}
+type WizardStepsProps = {
+  steps: WizardStep[] // 2 to 6
+  value: string
+  canGo?(id: string): boolean // default: any earlier step, and the next one when the current is valid
+  onChange(id: string): void
+  compact?: boolean | 'auto' // auto = compact when the strip does not fit, always at ≤ 640
+}
+```
+
+Sizes: strip 52 px high (fits the Tool frame top bar; also used at the top of a Sheet or dialog body for sign-in and restore). A step = 24 px circle (number 12.5 px / 650, or a 14 px check when done) + label 13 px / 600, 8 px between circle and label, whole step a 44 pt target; steps joined by a 1 px hairline, 16 px minimum, 40 px maximum. Strip is centred and never wider than its box.
+
+Looks: **current** = accent-filled circle, ink label, `aria-current="step"`; **done** = accent-soft circle with a check, label in soft ink; **upcoming** = `--card-well-2` circle, muted label; **error** = `--danger` ring + "!" in the circle and the words "needs a fix" in the name read aloud (never colour alone); **disabled** = 35 %.
+
+Rules:
+
+- **Clickable:** tapping a done step goes back and keeps everything typed in later steps; tapping the next step works only when the current step is valid (else nothing moves and the footer hint says what is missing); steps further ahead are not clickable.
+- **One line, always.** No wrap, no sideways scroll. When it does not fit (or ≤ 640) it becomes compact: ‹ · "Step 2 of 4 · Match columns" (13 px / 600, truncates) · ›, both arrows 44 pt, with a 3 px progress line under it (accent on `--card-track`).
+- The strip only shows where you are; the ✓ / "Next" button of the host (Tool frame footer, Sheet footer) stays the main way forward.
+- A step with a locked `pro` id is left out and the numbers close up ("File · Check · Done" for a Beginner, "File · Match columns · Check · Done" with `db.csvPlus`).
+
+States: per step default / hover (well) / pressed (scale .96) / focus-visible (2 px accent outline) / current / done / error / disabled; strip: full, compact.
+
+Keyboard / SR: `<nav aria-label="Steps">` with an ordered list of buttons; Left / Right move focus, Enter / Space goes; a step that cannot be opened has `aria-disabled` and stays focusable so its reason can be read. A change is announced once: "Step 2 of 4, Match columns".
+
+Motion: the accent fill and the progress line slide 180 ms `--ease-out`; the check draws 120 ms. Reduced: instant.
+
+Beginner/Professional: same strip; only the number of steps differs through `pro` ids.
+
+#### Status pill stack
+
+Path: `src/design/parts/StatusPill.tsx` (one pill) and `src/app/overlay/pillStack.tsx` (the host and the `usePill()` hook; path named by system-v2:100, D17).
+
+```ts
+type PillKind =
+  'recording' | 'playing' | 'timer' | 'sync' | 'update' | 'zoom' | 'custom'
+type PillSpec = {
+  id: string
+  kind: PillKind // fixes the place in the stack
+  icon: IconName
+  label: string // "Recording 02:14", "Update ready", "120%"
+  tone?: 'plain' | 'active' | 'problem' // problem = danger icon + words
+  progress?: number // 0..1 ring around the icon
+  onTap?(): void // opens the pill's own pop-up or screen
+  action?: { icon: IconName; label: string; run(): void } // one inline button, e.g. Stop
+  dismissable?: boolean // shows ✕ (update ready, updated)
+  ttl?: number // ms; zoom 2000, "Updated to x" 4000
+}
+// usePill(spec | null): shows, updates or removes one pill. Owners never position their pill.
+```
+
+Sizes (media-v2:34, system-v2:54): the stack sits in the **bottom corner at the end side** (right; left in RTL), 16 px from the side and bottom edges, pills stacked upward with **8 px gaps**, end-aligned. Pill: 36 px high inside a 44 pt target, radius pill, padding 0 12, icon 16, label 13 px / 600 with tabular numbers, max width 240 px (truncates with …), glass card fill (`--card-fill`, blur 28, hairline, `--elev-1`). Inline action and ✕: 28 px circle inside a 44 pt target. Layer `--z-pills` (D16).
+
+Place rules: the bottom offset follows `--sh-bottom`, so the stack is always above the phone tab bar, above the on-screen keyboard + its 44 px bar, above a floating bar or toast that reaches the corner (8 px gap), and above the Tool frame footer. It never covers a title, the toolbar, an Object bar or a sheet footer; when a docked sheet takes the corner the stack moves to the sheet's start edge.
+
+Order from the bottom (fixed, so a pill never jumps): recording · now playing · timer · sync · update · custom · zoom. **At most 4 pills show**; more fold into a "+n" pill on top that opens a pop menu listing the rest. On phone, with 3 or more pills, all but the recording pill shrink to icon only (36 x 36; the label stays in `aria-label`).
+
+Rules:
+
+- Tap a pill = `onTap` (recorder, player, timer card, sync details, update details) which opens as a pop-up beside the stack, never over it.
+- Sync shows only while it has something to say (syncing, offline, problem); a quiet "Saved" stays in the top bar (SH-04).
+- Recording uses `--danger` for its dot and always shows the running time; it can never be folded into "+n" or dismissed (it is the proof that the microphone is on).
+- A `ttl` pill fades after its time (200 ms); hover, focus or touch holds it.
+- A problem pill stays until fixed or dismissed and says the problem in words ("Sync problem").
+- Pills never take a tap meant for the page: only the pill's own 44 pt box reacts, the gaps pass through. A tap on a pill never draws, types or selects.
+
+States: empty (nothing rendered, no reserved space); 1 pill; many; overflow "+n"; pill plain / active / problem / progress / hover / pressed / focus-visible; lifted (keyboard, toast, tab bar, Tool frame); icon-only (phone).
+
+Keyboard / SR: the host is `role="region"` `aria-label="Status"`, reachable with F6 and in the Tab order after the page; pills are buttons with their full label; a new or changed pill is announced politely, a problem pill assertively; running times are not re-announced every second (the label is read on focus).
+
+Motion: a pill rises 8 px + fades in 180 ms; the others slide to their place 160 ms (FLIP); leaving 200 ms fade. Reduced: instant.
+
+Beginner/Professional: same stack. Which pills exist is decided by their features (for example `audio.plus`, `paper.furniture`); the stack has no switch of its own.
+
+#### Before / after view
+
+Path: `src/design/parts/BeforeAfter.tsx`, `compareBlocks.ts` (pure, unit-tested). Grows from the Claude Inbox compare (audit line 218).
+
+```ts
+type BeforeAfterProps =
+  | {
+      mode: 'hold' // pictures, scan looks: one preview, hold to see the original
+      before: ReactNode
+      after: ReactNode
+      beforeLabel?: string // default "Before"
+    }
+  | {
+      mode: 'side' // history, conflicts: two copies with the changes marked
+      before: CompareDoc
+      after: CompareDoc
+      beforeLabel: string // "Before" · "Mine" · "12 Nov, 09:40"
+      afterLabel: string // "After" · "Theirs" · "Now"
+      actions?: ReactNode // footer: Keep mine / Keep theirs / Keep both, Restore this version…
+      onCopy?(blocks: string[]): void // "Copy from this version" (area's unlock id)
+    }
+```
+
+**Hold mode** (media-v2:18, MD-04): a 44 pt button "Before / after" (icon + word; icon only on phone) in the Tool frame top bar. Press and hold = the preview shows the original with a "Before" tag (pill, 28 px high, 12.5 px / 600, 12 px inside the top-start corner of the preview); let go = back to the edit. A short tap (under 0.3 s) or Space / Enter switches it on until the next tap (`aria-pressed`), so nobody has to keep holding. The picture does not move or resize between the two; the swap cross-fades 120 ms. Handles hide while "Before" shows.
+
+**Side mode** (safety-v2 SF12, SF19): two equal columns with a 12 px gap; each has a 44 px header (label 13 px / 600 + a muted date line 12 px) and a read-only body on `--surface-1`, radius 16, padding 16. The two bodies scroll together. Above the columns one 44 px row: "n changes" (13 px muted) and ▲ ▼ "Previous change / Next change" (44 pt each). Marks, never colour alone: **added** = accent-soft background + a 3 px accent bar and "+" at the start edge; **removed** = `--danger` 14 % tint + strike-through + "−"; **changed** = both, word by word inside the block; unchanged runs longer than 6 blocks fold into "12 lines the same" (tap to open). Footer = the area's actions through the host's footer (Sheet or Tool frame). **Phone (≤ 640): the columns stack, Before on top, After below** (safety-v2:63), each half the height and scrolling together.
+
+Rules: read-only (no typing, no drawing; text can be selected only when `onCopy` is given); the current change is ringed (1.5 px accent) and centred when ▲ ▼ are used; choosing an action is one history step with an Undo toast; the copy not chosen is always kept in History by the area slice; a long page is compared in chunks so the screen never freezes (skeleton until the first screen is ready).
+
+States: hold: after (default), before (held or pressed on), no original (button disabled with reason). Side: loading (skeleton columns), no changes (EmptyState inline "These two are the same"), changes, one side missing ("This copy has no content"), error (Try again), stacked (phone).
+
+Keyboard / SR: hold: the button says "Before / after, show the original", `aria-pressed`; the swap is announced "Showing before" / "Showing after". Side: each column is a `region` named by its label; marks read as "added", "removed", "changed"; N / P or the ▲ ▼ buttons jump between changes; the count is `aria-live="polite"`.
+
+Motion: swap 120 ms; jump to a change scrolls 180 ms; fold opens 160 ms. Reduced: instant.
+
+Beginner/Professional: the part is the same. Where it appears is the area's choice (History compare = `safety.historyCompare`; conflicts and Edit picture = everyone).
+
+#### Gallery sections added (SP-12)
+
+| Section (testid)                | One demo per state                                                                                                     |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Tool frame (`gal-toolframe`)    | clean, dirty, with steps, tools row + "…" overflow, ✓ disabled with reason, busy with %, error, phone                  |
+| Wizard steps (`gal-wizard`)     | 3 steps, 6 steps, done / current / upcoming / error / disabled, compact, Pro step hidden / shown                       |
+| Status pill stack (`gal-pills`) | 1 pill, 4 pills, "+n" overflow, problem, progress, recording with Stop, lifted above keyboard / toast / tab bar, phone |
+| Before / after (`gal-compare`)  | hold: after, before, disabled; side: changes, no changes, loading, one side missing, phone stacked                     |
+
+The Tool frame demo opens from a button in its section (it is full screen) and closes with ✕.
+
+#### When I do X → Y (step 3)
+
+Each line is one e2e test (chromium + ipad-webkit), run on the gallery.
+
+| Id    | When I do X                                                        | Then Y                                                                                                         |
+| ----- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| S3-01 | open a Tool frame on 1366, 1180, 820 and 390 px                    | it fills the screen; top bar 52 px, footer 64 px, preview has 16 px margins; the shell and tab bar are covered |
+| S3-02 | look at the footer                                                 | ✕ is on the left, ✓ on the right, each at least 44 pt; phone shows icons with spoken names                     |
+| S3-03 | press ✕ or Esc with no change                                      | the frame closes at once, focus returns to the button that opened it, the page is unchanged                    |
+| S3-04 | change something, then press ✕ or Esc                              | "Discard changes?" opens; Cancel keeps my work, Discard closes with the page unchanged                         |
+| S3-05 | press ✓                                                            | the frame closes, the result is on the page as one history step; one Undo on the page removes it               |
+| S3-06 | make two changes, press Undo twice, Redo once (buttons and Ctrl+Z) | the preview steps back and forward one change at a time; the page behind is untouched                          |
+| S3-07 | the tool is not ready                                              | ✓ is disabled and the footer says why in one line                                                              |
+| S3-08 | start a long job                                                   | the footer shows the label and progress, tools are disabled, "Stop" ends it with no half result                |
+| S3-09 | give the tools row more buttons than fit                           | the last ones fold into "…"; the row never scrolls sideways; a ▾ tool opens its card above the row             |
+| S3-10 | drag a finger or the Pencil over the preview                       | nothing is drawn, typed or selected; only handles move                                                         |
+| S3-11 | open the keyboard or rotate the iPad with the frame open           | the footer stays visible above the keyboard and my work is kept                                                |
+| S3-12 | Tab through the frame                                              | focus stays inside, in the order top bar, preview, tools, ✕, ✓                                                 |
+| S3-13 | look at a 4-step strip on step 2                                   | step 1 has a check, step 2 is filled and `aria-current="step"`, steps 3 and 4 are muted                        |
+| S3-14 | tap a done step                                                    | I go back to it and what I entered in later steps is still there                                               |
+| S3-15 | tap the next step while the current one is not valid               | nothing moves and the hint says what is missing                                                                |
+| S3-16 | tap a step two ahead                                               | nothing moves; it reads as not available yet                                                                   |
+| S3-17 | view the strip on 390 px, or with 6 long names on 820 px           | it shows "Step 2 of 4 · name" with ‹ › and a progress line, on one line, no sideways scroll                    |
+| S3-18 | press Left / Right then Enter on the strip                         | focus moves between steps, Enter opens an allowed step, "Step 3 of 4, Check" is announced once                 |
+| S3-19 | a step has an error                                                | its circle shows "!" with a danger ring and the name reads "needs a fix"                                       |
+| S3-20 | show one pill                                                      | it sits 16 px from the bottom and the end edge, 36 px high with a 44 pt target                                 |
+| S3-21 | show recording, now playing, timer, sync and update together       | they stack 8 px apart in that order from the bottom, none overlapping; 4 show and "+1" lists the rest          |
+| S3-22 | remove the middle pill                                             | the others slide together in 160 ms; the order of the rest does not change                                     |
+| S3-23 | open the keyboard, show a toast, or use a phone with the tab bar   | the stack moves up and stays fully visible; it never covers a title or the toolbar                             |
+| S3-24 | tap a pill, then tap the gap between two pills                     | the pill opens its pop-up beside the stack; the gap tap goes to the page                                       |
+| S3-25 | change the zoom                                                    | the % pill shows for 2 s and fades in 200 ms; touching it keeps it                                             |
+| S3-26 | press Stop on the recording pill, press ✕ on "Update ready"        | recording stops; the update pill leaves; the recording pill has no ✕ and is never inside "+n"                  |
+| S3-27 | a sync problem happens                                             | the pill says it in words with a danger icon, is announced, and stays until fixed or dismissed                 |
+| S3-28 | show 3 pills on 390 px                                             | all but recording become icon only, still 44 pt, with their full names read aloud                              |
+| S3-29 | open a Tool frame while recording                                  | the recording pill sits above the frame's footer, still visible                                                |
+| S3-30 | hold the Before / after button                                     | the original shows with a "Before" tag; letting go shows my edit; the picture does not move                    |
+| S3-31 | tap the Before / after button briefly, or press Space on it        | it stays on "Before" until I tap again; "Showing before" is announced                                          |
+| S3-32 | open a tool with no original                                       | the Before / after button is disabled and says why                                                             |
+| S3-33 | open the side view with two versions                               | two equal columns named by their labels; added, removed and changed parts are marked with a sign and a tint    |
+| S3-34 | scroll one column                                                  | the other follows                                                                                              |
+| S3-35 | press ▼ "Next change", then ▲                                      | the next change is ringed and centred; the count reads "2 of 5"; ▲ goes back                                   |
+| S3-36 | open the side view on 390 px                                       | Before is on top, After below, scrolling together                                                              |
+| S3-37 | compare two identical versions                                     | "These two are the same" shows and the action buttons still work                                               |
+| S3-38 | choose an action in the side view (for example Keep mine)          | it applies as one history step with an Undo toast; Undo brings the earlier state back                          |
+| S3-39 | set reduced motion, then Night, Day and Sepia                      | every step 3 part changes state instantly; text contrast ≥ 4.5, marks and rings ≥ 3 in all three themes        |
+| S3-40 | (Beginner, one Pro tool or step unlocked)                          | only that tool or step is added to the same frame and strip; the level stays Beginner                          |
+
+#### Won't do (step 3)
+
+- No real tools in this step: crop, scan, OCR, combine, CSV import, sign-in, History and conflict screens are built by their own slices (14, 13, 16, 17) on these parts.
+- No second full-screen pattern: a tool with a result uses the Tool frame; no tool opens another Tool frame.
+- No wizard with more than 6 steps, no branching step maps, no vertical step list.
+- No dragging pills around, no pill on any other corner, no pill owner choosing its own position.
+- No slider-wipe compare, no three-way merge, no editing inside the side view, no compare for ink strokes or pictures inside pages (text blocks only; a changed picture is marked "picture changed").
+- No new colours, shadows or motion values; nothing a user can see while the flags are off.
+
+#### Tests (step 3)
+
+- **Unit:** `compareBlocks.ts` (added, removed, changed word by word, moved block counted once, folds over 6 same blocks, empty side, 2,000 blocks under the time budget); pill order and "+n" overflow (recording never folded); pill bottom-offset maths (tab bar, keyboard, toast, Tool frame footer); wizard `canGo` default rule and Pro step numbering; Tool frame close rule (clean / dirty / busy).
+- **e2e:** one per line S3-01 to S3-40 on `chromium` and `ipad-webkit`; S3-10 and S3-24 use real touch and pen pointer events.
+- **Screenshots:** the four gallery sections, Beginner / Professional x light / dark / sepia x iPad landscape (1180 x 820) / iPad portrait (820 x 1180) / phone (390 x 844) / PC (1366 x 768).
+- **Accessibility:** axe on each section per theme; keyboard walk (Tab trap in the frame, arrows on the strip, F6 to the stack, N / P in the side view); 44 pt target check; contrast check for marks and rings.
+- **Size budget:** all four are lazy chunks; first load stays ≤ 320,000 B (`npm run check:size`).
+- **Rule checks:** no raw listeners, no raw z-index (the two new layers are tokens); lint counts may only go down.
+
+#### Build order (step 3)
+
+| #   | Commit                                  | Files owned                                                                             |
+| --- | --------------------------------------- | --------------------------------------------------------------------------------------- |
+| 12  | Layers + Wizard steps                   | `src/design/tokens.css`, `layers.ts` (`--z-tool`, `--z-pills`), `parts/WizardSteps.tsx` |
+| 13  | Tool frame                              | `parts/ToolFrame.tsx`, `ToolFrame.css`, gallery `gal-toolframe`, `gal-wizard`           |
+| 14  | Status pill stack                       | `parts/StatusPill.tsx`, `src/app/overlay/pillStack.tsx`, gallery `gal-pills`            |
+| 15  | Before / after view + screenshot matrix | `parts/BeforeAfter.tsx`, `compareBlocks.ts`, gallery `gal-compare`, screenshot spec     |
+
+Commits 13, 14 and 15 touch separate files and can run side by side after 12.
+
 ## Edge cases
 
 - **Two overlays at once.** The overlay manager closes the first; the card, tag picker and pop menu never stack. A dialog may sit over a sheet (z 85 over 80).
@@ -626,7 +895,7 @@ Every row is probed by the "nothing lost" test. Paths are today's files in `src/
 - No second kind of card, no card opened from a card, no sideways-scrolling toolbar rows.
 - No ✕ in note text boxes.
 - No private copies of parts inside area slices; no raw document listeners, no raw z-index numbers.
-- No Context menu strip, Command list, Dialog set, Toast queue, Banner, Tool frame, Wizard steps, Status pill stack, Before/after view (steps 2 and 3).
+- No Context menu strip, Command list, Dialog set, Toast queue, Banner in this file (step 2, see [page-menus](page-menus.md)). Step 3 parts have their own list in section 5.
 - No Tag merge/rename UI beyond today's `tagTools` (picker only links to it).
 - No collaboration, no native apps.
 
@@ -698,3 +967,8 @@ Where sources disagree or are silent, I picked the safest option that drops noth
 - **D13 Shell state key.** `ln-shell-v1` in the mock is browser storage; in the app, level, theme, minimised bars and tab sets are saved through the synced settings (`useSyncedSetting`), not a new key.
 - **D14 Phone top bar.** Six 44 pt buttons do not fit with a title at 360 px. Pick: hide crumbs on phone (the space shows its own title), keep Back, Forward, Undo, Redo, panel/sidebar toggle and Search. If this is too tight on the owner's phone, Back/Forward move into the "…" menu (nothing removed).
 - **D15 Object bar naming.** No spec names its keys; pick the v8 bar recipe and ask each area slice to list its own actions in its spec ("new shared part needed" only if a bar shape beyond a row of icons is required).
+- **D16 Two new layers (step 3).** The layer scale has no place for a full-screen tool or the pills. Pick `--z-tool` 43 and `--z-pills` 45: both above the floating bar and chips (40, 41) so a tool covers them, and both below drawers, sheets, dialogs, pop menus and toasts (59 to 90) so "Discard changes?", ▾ cards and Undo toasts always show on top. Pills sit above the tool so the recording pill stays visible inside a Tool frame.
+- **D17 Who builds the pill stack.** system-v2 (slice 17a) names `src/app/overlay/pillStack.tsx` as new. Pick: step 3 builds the part and the host at that path with gallery demos only; slices 17a (sync, update, timer) and 14 (recording, now playing, zoom) only move their pills onto it.
+- **D18 Before / after has two modes.** media-v2 needs "hold to see the original"; the audit and safety-v2 need two columns with changes marked. Pick one part with `mode: 'hold' | 'side'` instead of two parts. A short tap also latches "Before" so people who cannot hold a button can still compare.
+- **D19 Undo inside a Tool frame.** The frame covers the top bar, so Undo / Redo would vanish. Pick: the same two buttons in the frame's top bar, working on the tool's own steps; ✓ puts the whole result on the page as one step.
+- **D20 Pill limit.** No source gives a number. Pick 4 visible pills, then "+n"; recording is never folded. Tool frame tools row 56 px and Wizard step sizes (24 px circle, 52 px strip) are also my picks, matched to the 52 px top bar in media-v2.

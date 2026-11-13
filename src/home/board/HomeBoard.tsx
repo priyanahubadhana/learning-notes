@@ -242,7 +242,7 @@ function WidgetFrame({
         </h3>
         {editing && moveButtons}
         {/* Stays in the header row while editing (gate 3 v4 item 3). */}
-        {builtFrom && slot.size !== 's' && (
+        {builtFrom && !(editing && slot.size === 's') && (
           <button
             ref={opener}
             type="button"

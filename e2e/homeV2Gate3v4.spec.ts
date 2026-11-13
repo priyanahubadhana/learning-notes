@@ -123,3 +123,15 @@ test('4: phone Edit mode keeps grip, icon, title and arrows on one header row', 
     expect(res, id!).toEqual({ oneRow: true, inside: true })
   }
 })
+
+test('gate 2 fix 1 (HM-P05): an unlocked S card shows Where this comes from outside Edit mode, hides it while editing', async ({
+  page,
+}) => {
+  await openHome(page, PC)
+  const w = page.getByTestId('widget-cards')
+  await expect(w).toBeVisible()
+  await expect(page.getByTestId('source-cards')).toBeVisible()
+  await page.getByTestId('home-edit').click()
+  await settle(page)
+  await expect(page.getByTestId('source-cards')).toHaveCount(0)
+})

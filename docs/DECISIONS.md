@@ -71,6 +71,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-13 · Sidebar starts closed on iPad portrait (slice 5, flag home.v2).** src/App.tsx (~line 845): when `home.v2` is on and the screen is 40rem to 859.98px wide, the sidebar's first-run default is closed so the Home board keeps its width; an own choice is remembered. Review whether to make this the shell default for all slices (orchestration review fix 3).
+
 - **2026-11-13 · check:dod reads table specs.** "When" lines now also count table rows starting with a spec ID (`| SP-40 |`, `| RV-B01 |`) and `- PM-01 When` bullets; flag `-` skips the flag check for shared parts; a numbered "### 8. Won't do" heading is accepted. Won't do, test counts and size checks are unchanged. Files: scripts/check-dod.mjs, scripts/dodSpec.mjs.
 
 - **2026-11-11 · Scroll-hint gutter stays.** Once a list has shown the scroll handle it keeps the 24 px end gutter until hints are switched off, even if it no longer overflows (like CSS scrollbar-gutter: stable). Chosen over dropping it, which shifted rows under the next tap. Cost: a short list that once scrolled keeps 24 px of empty space at its end.

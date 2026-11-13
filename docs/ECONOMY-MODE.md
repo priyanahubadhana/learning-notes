@@ -139,3 +139,38 @@ Applied 13 Nov; the live wording is CLAUDE.md "How Work Runs".
 Switch: let the Fable build orchestrator finish and merge its current slice (or stop it once its helpers have pushed), make sure docs/BUILD-STATE.md is current, then start the agent `economy-orchestrator` with the prompt: `Continue the build. Read docs/BUILD-STATE.md and follow your agent file.` When it ends with "RESTART economy-orchestrator", start it again with the same prompt.
 
 Rollback (any time, nothing to undo in code): stop it and start `fable-manager` with `Continue the build from docs/BUILD-STATE.md per docs/plans/build-master-plan.md`. Delete nothing.
+
+## 9. Brief template (short form for every helper)
+
+This short form applies to search, mechanic and docs helpers only. Builders keep the section 4 template and checklist.
+
+Fable sends six lines, in this order:
+
+1. **Goal:** one sentence on what must exist at the end.
+2. **Where:** the worktree and the exact file paths, with line numbers if known.
+3. **Spec:** a file path plus a heading. Point to it; never paste it.
+4. **Done when:** the exact targeted tests that must pass, and what to commit.
+5. **Do not touch:** files or behaviour that are off limits.
+6. **Report:** at most 5 lines: done or not, commit id, test result, open problems.
+
+Leave out:
+
+- the history of the task and the reasons behind it;
+- pasted file contents or pasted spec text;
+- rules the helper's own agent file already holds;
+- full test-suite runs (those belong to CI);
+- greetings and thanks.
+
+For Haiku, name every step. Sonnet needs less detail.
+
+## 10. Weekly housekeeping
+
+Once a week (owner or Fable):
+
+1. Run `/usage` and note which helper, skill or connector uses the most of the limit.
+2. Keep the 6-builder cap. Every parallel helper sends its own requests against the same limit.
+3. Lower the effort setting for mechanical jobs.
+4. Clear the chat between unrelated tasks, and avoid idle waiting loops. After a pause the saved context expires and is processed again in full.
+5. Keep Haiku prompts under 100,000 tokens. Above that, Haiku 5.5 charges more.
+
+Unused connectors: switching off connectors the build never uses may cut overhead on every turn. How much that saves here is **unverified**; check `/usage` before switching anything off.

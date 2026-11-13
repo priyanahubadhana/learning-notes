@@ -188,6 +188,10 @@ the shared files (`src/aitools/*`, generated copy for Deno), one save call
 per job, the Inbox `job` write, the per-step rate counting, and an audit line
 per job (ids and counts only). This slice builds only the app and `mcp/` side.
 
+### Slice 4: cost additions (pointer)
+
+Caching and the real token count are specified in [ai.md](ai.md), section "Cost additions".
+
 ## Won't do
 
 - Slices 1-3: no planner, filler model, cost estimator or spend gate (they arrive in slice 4, above).

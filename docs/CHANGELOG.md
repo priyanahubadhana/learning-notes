@@ -2,6 +2,48 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: orchestration doc gaps closed (items 5 and 6 specified)
+
+- What: ECONOMY-MODE.md section 9 says the short brief is for search, mechanic and docs helpers only. next.md runs only the related tests (full suite in CI). economy-orchestrator.md sends lookups to economy-search. ai.md gets a "Cost additions" section (caching and real token count, with a won't-do list); ai-framework.md gets a pointer to it; BUILD-STATE.md lane A gets the queued row.
+- Why: the gaps found in the orchestration review of 13 Nov.
+- Files: docs/ECONOMY-MODE.md, .claude/commands/next.md, .claude/agents/economy-orchestrator.md, docs/features/ai.md, docs/features/ai-framework.md, docs/BUILD-STATE.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: owner decisions on AI (test key, Claude connector priority, items 5 and 6 approved)
+
+- What: DECISIONS.md logs the owner's three AI decisions (test key with about US$5 cap in Settings › AI; Claude connector as the long-term built-in option, bring-your-own-key stays, no paid built-in AI without a new decision; items 5 and 6 approved as the first tasks of the AI slice). PENDING.md adds the two queued rows and the "add your test key" line. The cost plan marks items 1 to 4 DONE and 5 and 6 APPROVED; item 8 stays skipped.
+- Why: the owner's decisions of 13 Nov, so the AI slice starts from the approved list.
+- Files: docs/DECISIONS.md, docs/PENDING.md, docs/plans/cost-quality-additions-2026-11-13.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: cost and quality additions 1 to 4
+
+- What: added the short brief template and leave-out list and the weekly housekeeping list to docs/ECONOMY-MODE.md; `/next` now reads docs/BUILD-STATE.md first and has a use-when line; new read-only Haiku search helper `economy-search` (replaces the Explore name in token-efficiency rule 6).
+- Why: fewer tokens per helper brief, faster restarts, and search pinned to Haiku. Owner approved items 1 to 4 (proposal in docs/plans/cost-quality-additions-2026-11-13.md).
+- Files: docs/ECONOMY-MODE.md, .claude/commands/next.md, .claude/agents/economy-search.md, docs/design/token-efficiency.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: gate 3, fourth visit (5, 6)
+
+- What: gate 3 verdicts for 5 Home v2 (FAIL, 4 small fixes) and 6 Library v2 (FAIL, 5 fixes) after gate 2 and the added pictures.
+- Why: the design check before merge; the fix lists go to the builders.
+- Files: docs/plans/gate3-2026-11-13.md.
+
+### 13 Nov 2026: gate 3, third visit
+
+- What: gate 3 verdicts added for 5 Home v2, 6 Library v2, 9b AI Build (all FAIL), 12 Page menus re-shoot (FAIL, 2 small fixes), 0g follow-ups (PASS), 8 Review v2 re-shoot (PASS), 4 Notebooks + Search re-shoot (FAIL, 7 fixes).
+- Why: the fix lists and flag-on pictures were ready for the design check before merge.
+- Files: docs/plans/gate3-2026-11-13.md.
+
+### 13 Nov 2026: build/next green again
+
+- What: CI run 43310172930 on build/next is green. Test races fixed: shell offline, Pen 44 pt, SP-50, SP-56, gallery widths. Lint fix in mcp/src/setup.ts.
+- Why: build/next was red after the 0g merge; main must stay releasable before the next slice.
+- Files: test files under e2e/, src/ shell and gallery, mcp/src/setup.ts.
+
+### 13 Nov 2026: gate-2 rule proposed, Settings switch decision logged
+
+- What: proposed gate-2 rule "report only spec gaps and breakages, not style" added to PENDING "Needs you" (not applied, needs owner OK). Settings On/Off uses the switch from the approved mock-up, not the spec's two-part button; logged in DECISIONS "Decisions to review" for spec alignment.
+- Why: owner review of gate 2 and the Settings mock-up.
+- Files: docs/PENDING.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: rules aligned with economy mode, 4 project hooks
 
 - What: rules/ and agent files now match economy mode (docs audit A4-A11, B1-B5, D2-D4); legacy Fable/Opus files kept for rollback and non-build tasks. Sepia joins light and dark in the Definition of Done and the gate checklists; checklist line 17 (bug fix = why-note + new test); builders read rules/global.md and security.md; "could delete or lose the owner's data" is a stop reason; gate 3 fails on a contrast ✗. rules/testing.md: related tests locally, full suite green in GitHub CI before any merge. Start with 4 builders, up to 6 only while rework stays under 2 rounds. INDEX gained the build files; HANDOFF has one NOW line; 3 old plans moved to docs/plans/archive/.

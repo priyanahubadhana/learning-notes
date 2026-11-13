@@ -70,13 +70,31 @@ export function ReadingRuler({
     }
   }, [lineHeight])
 
-  const band = mode === 'focus' ? lineHeight * 2.4 : lineHeight * 1.3
+  let band = mode === 'focus' ? lineHeight * 2.4 : lineHeight * 1.3
   // Clipped to the page (gate 3 fixes 2 and 3): the app shell stays normal.
   const box = within?.current?.getBoundingClientRect()
   const area = box
     ? { left: box.left, top: box.top, width: box.width, height: box.height }
     : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight }
-  const top = Math.max(0, y - area.top - band / 2)
+  let top = Math.max(0, y - area.top - band / 2)
+  // Gate 3, tenth visit, fix 6: on a PDF the band starts on the nearest whole
+  // line, so no word is cut in half.
+  let line: DOMRect | null = null
+  for (const s of within?.current?.querySelectorAll('.textLayer span') ?? []) {
+    const r = s.getBoundingClientRect()
+    const d = Math.abs(r.top + r.height / 2 - y)
+    if (
+      r.height &&
+      d <= Math.max(lineHeight, r.height) * 1.5 &&
+      (!line || d < Math.abs(line.top + line.height / 2 - y))
+    )
+      line = r
+  }
+  if (line) {
+    const pad = lineHeight * 0.2
+    top = Math.max(0, line.top - area.top - pad)
+    band = Math.max(band, line.height + 2 * pad)
+  }
 
   if (mode === 'focus') {
     return (

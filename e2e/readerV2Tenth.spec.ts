@@ -240,8 +240,10 @@ test('fix 6: line focus clears whole lines (the band snaps to the line)', async 
   await page.getByTestId('aa-tab-more').click()
   await page.getByTestId('aa-ruler-focus').click()
   await page.getByTestId('aa-close').click()
-  const span = await box(
-    page.locator('[data-pdf-page="1"] .textLayer span').first(),
+  const words = page.locator('[data-pdf-page="1"] .textLayer span').first()
+  await expect(words).toBeVisible()
+  const span = await words.evaluate(
+    (el) => el.getBoundingClientRect().toJSON() as DOMRect,
   )
   const ruler = page.getByTestId('reading-ruler')
   await expect(ruler).toHaveAttribute('data-mode', 'focus')

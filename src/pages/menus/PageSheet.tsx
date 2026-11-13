@@ -63,7 +63,16 @@ export default function PageSheet({
 
   const pinRows: ArrangeRow[] = livePins.flatMap((id) => {
     const r = rows.find((x) => x.id === id)
-    return r ? [{ id, label: r.label, removable: true }] : []
+    return r
+      ? [
+          {
+            id,
+            label: r.label,
+            removable: true,
+            preview: <Icon name={r.icon} size={18} />,
+          },
+        ]
+      : []
   })
 
   /** Runs a row, then closes the sheet so a dialog it opens is not stacked on it. */

@@ -282,7 +282,12 @@ export function previewOf(plan: PastePlan, choice: PasteChoice): string {
   const h = count(plan.html ? /<h[1-6]\b/gi : /^#{1,6}\s/gm)
   const tb = count(plan.html ? /<table\b/gi : /^\s*\|?\s*:?-{3,}/gm)
   const li = count(plan.html ? /<li\b/gi : /^\s*([-*+]|\d+[.)])\s/gm)
-  if (h) bits.push(t('pasteChooser.preview.headings', { n: h }))
+  if (h)
+    bits.push(
+      h === 1
+        ? t('pasteChooser.preview.heading')
+        : t('pasteChooser.preview.headings', { n: h }),
+    )
   if (tb) bits.push(t('pasteChooser.preview.tables', { n: tb }))
   if (li) bits.push(t('pasteChooser.preview.items', { n: li }))
   return clip(bits.length ? bits.join(' · ') : plan.text)

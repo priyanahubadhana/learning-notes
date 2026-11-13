@@ -81,6 +81,7 @@ export default defineConfig({
       testMatch: [
         /parts-gallery/,
         /pageMenusPaste/,
+        /pageMenusPlace/,
         /pencilIsolation/,
         /updateV2/,
         /security-m1-/,

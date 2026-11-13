@@ -245,11 +245,11 @@ export const esSettings = {
   'settings.openNotebookAt.label': 'Abrir cuadernos en',
   'settings.openNotebookAt.last': 'Última página',
   'settings.openNotebookAt.tabs': 'Pestañas del cuaderno',
-  'settings.pasteMode.ask': 'Preguntar cada vez',
+  'settings.pasteMode.ask': 'Preguntar siempre',
   'settings.pasteMode.description':
     'Al pegar texto con formato: preguntar cada vez (un pequeño selector), mantener siempre el formato original o pegar siempre texto sin formato.',
-  'settings.pasteMode.keep': 'Mantener formato',
-  'settings.pasteMode.label': 'Pegar',
+  'settings.pasteMode.keep': 'Mantener el original',
+  'settings.pasteMode.label': 'Pegar como',
   'settings.pasteMode.plain': 'Texto sin formato',
   'settings.pathStyle.description':
     'Cómo se muestra la dirección (ruta) de la página abierta en la barra superior: corta, completa o solo el nombre. Un cuaderno o una página puede tener su propia elección (primero la página, luego el cuaderno, luego esta).',

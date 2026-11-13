@@ -22,7 +22,6 @@ import { useLevel } from '../../settings/level'
 import { lastInputWasKey } from './inputModality'
 import { motionMs } from './motion'
 import { tm } from './textMenus'
-import { useAnchoredCard } from './useAnchoredCard'
 import './ContextStrip.css'
 
 export type StripMenuItem = { id: string; label: string; hint?: string }
@@ -490,12 +489,43 @@ function FloatingPicker(props: {
       handle.close()
     }
   }, [node, anchor])
-  const pos = useAnchoredCard({
-    anchor,
-    card: node,
-    widthPx: 304,
-    active: !!anchor && !!node,
-  })
+  // Below the strip, left edges aligned, 8 px gap; a tall card shrinks (and
+  // scrolls) to the room left, or opens above the strip when below is too tight.
+  const [pos, setPos] = useState<{
+    left: number
+    top: number
+    maxHeight: number
+  } | null>(null)
+  useLayoutEffect(() => {
+    const strip = anchor?.closest<HTMLElement>('.cs__bar')
+    if (!node || !anchor) return
+    const run = () => {
+      const root = document.documentElement
+      const vw = root.clientWidth
+      const vh = window.innerHeight
+      const bar = (strip ?? anchor).getBoundingClientRect()
+      const w = node.offsetWidth
+      const left = Math.max(12, Math.min(bar.left, vw - 12 - w))
+      const below = vh - 12 - (bar.bottom + 8)
+      const above = bar.top - 8 - 12
+      const h = node.scrollHeight
+      const useAbove = below < Math.min(h, 220) && above > below
+      const room = useAbove ? above : below
+      const maxHeight = Math.max(120, room)
+      const used = Math.min(h, maxHeight)
+      const top = useAbove ? bar.top - 8 - used : bar.bottom + 8
+      setPos((p) =>
+        p && p.left === left && p.top === top && p.maxHeight === maxHeight
+          ? p
+          : { left, top, maxHeight },
+      )
+    }
+    run()
+    const ro = new ResizeObserver(run)
+    ro.observe(node)
+    ro.observe(document.documentElement)
+    return () => ro.disconnect()
+  }, [anchor, node])
   useEffect(() => {
     if (pos) node?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
     // Focus the first choice once the card is visible.
@@ -510,6 +540,7 @@ function FloatingPicker(props: {
       style={{
         left: pos?.left ?? 0,
         top: pos?.top ?? 0,
+        maxHeight: pos?.maxHeight,
         visibility: pos ? 'visible' : 'hidden',
       }}
     />,

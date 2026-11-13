@@ -57,6 +57,18 @@ function targetRect(at: HoldPoint): Rect {
  * Colour ▾, Delete, ⋯. Beginner shows Cut, Copy, Paste ▾, Delete, ⋯ (the
  * part decides); the rest stays in ⋯.
  */
+/**
+ * The page area: the strip stays inside it, not over the rail or sidebar.
+ * A page area too narrow for the whole Professional strip gives no box, so
+ * no action folds into "more" only to avoid the sidebar.
+ */
+const pageArea = () => {
+  const r = document
+    .querySelector('[data-page-scroller]')
+    ?.getBoundingClientRect()
+  return r && r.width >= 800 ? r : null
+}
+
 export default function PageStrip({
   editor,
   at,
@@ -220,6 +232,7 @@ export default function PageStrip({
       onClose={onClose}
       testId="page-strip"
       phoneLabels
+      bounds={pageArea}
     />
   )
 }

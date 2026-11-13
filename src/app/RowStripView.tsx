@@ -3,6 +3,19 @@ import { ContextStrip, type StripItem } from '../design/parts/ContextStrip'
 import type { MenuItem } from './ui'
 import { stripIcon, type RowPoint } from './rowStripLogic'
 
+/** The row strip may start at the sidebar's left edge, never over the rail. */
+const fromSidebar = () => {
+  const side = document.querySelector('aside')?.getBoundingClientRect()
+  if (!side || !side.width) return null
+  const w = document.documentElement.clientWidth
+  return {
+    left: side.left,
+    top: 0,
+    width: w - side.left,
+    height: window.innerHeight,
+  }
+}
+
 /** The press-and-hold strip of a page, notebook, library or task row (PM-23). */
 export default function RowStripView({
   at,
@@ -58,6 +71,7 @@ export default function RowStripView({
       }}
       onClose={onClose}
       testId="row-strip"
+      bounds={fromSidebar}
     />
   )
 }

@@ -244,11 +244,11 @@ export const hiSettings = {
   'settings.openNotebookAt.label': 'नोटबुक यहाँ खोलें',
   'settings.openNotebookAt.last': 'आख़िरी पेज',
   'settings.openNotebookAt.tabs': 'नोटबुक टैब',
-  'settings.pasteMode.ask': 'हर बार पूछें',
+  'settings.pasteMode.ask': 'हमेशा पूछें',
   'settings.pasteMode.description':
     'फ़ॉर्मैट वाला टेक्स्ट पेस्ट करते समय: हर बार पूछें (छोटा चयनकर्ता), हमेशा मूल फ़ॉर्मैट रखें, या हमेशा सादा टेक्स्ट पेस्ट करें।',
-  'settings.pasteMode.keep': 'फ़ॉर्मैट रखें',
-  'settings.pasteMode.label': 'पेस्ट',
+  'settings.pasteMode.keep': 'मूल रूप रखें',
+  'settings.pasteMode.label': 'इस रूप में चिपकाएँ',
   'settings.pasteMode.plain': 'सादा टेक्स्ट',
   'settings.pathStyle.description':
     'ऊपरी पट्टी में खुले पृष्ठ का पता (रास्ता) कैसे दिखे: छोटा, पूरा या सिर्फ़ नाम। नोटबुक या पृष्ठ की अपनी पसंद हो सकती है (पहले पृष्ठ, फिर नोटबुक, फिर यह)।',

@@ -24,7 +24,10 @@ const CHAR_ICONS: Record<string, IconName> = {
   '↑': 'chevronUp',
   '↓': 'chevronDown',
   '↰': 'arrowUpRight',
-  '×': 'close',
+  // A delete row: the bin (a cross means close everywhere else).
+  '×': 'trash',
+  '🔏': 'lock',
+  '🔓': 'lockOpen',
 }
 
 /** A menu row's icon as a strip icon (unknown ones become "more"). */

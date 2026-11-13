@@ -1,5 +1,8 @@
 import { centreEl } from '../app/centreEl'
 import { aboveTabBar } from '../app/aboveTabBar'
+import { Icon } from '../app/tools/icons'
+import { OnOff } from '../design/parts/OnOff'
+import '../design/parts/ContextStrip.css'
 import {
   useEffect,
   useRef,
@@ -121,6 +124,7 @@ function ChooserBox({ chooser }: { chooser: ChooserRequest }) {
     <div
       data-chrome
       className="pointer-events-auto fixed inset-0 z-50 flex items-end justify-center bg-black/20 p-3 sm:items-center"
+      style={{ paddingBottom: aboveTabBar() ?? undefined }}
       onPointerDown={(e) => {
         if (e.target === e.currentTarget) chooser.cancel()
       }}
@@ -133,7 +137,18 @@ function ChooserBox({ chooser }: { chooser: ChooserRequest }) {
         onKeyDown={onKey}
         className="w-full max-w-sm rounded-xl border border-line bg-bg p-3 shadow-xl outline-none"
       >
-        <p className="mb-2 text-sm font-medium">{t('pasteChooser.title')}</p>
+        <div className="cs-pick__head">
+          <h2 className="cs-pick__title">{t('pasteChooser.title')}</h2>
+          <button
+            type="button"
+            className="cs-pick__x"
+            aria-label={t('pasteChooser.close')}
+            data-testid="paste-chooser-close"
+            onClick={chooser.cancel}
+          >
+            <Icon name="close" size={16} />
+          </button>
+        </div>
         <ul
           role="listbox"
           aria-label={t('pasteChooser.title')}
@@ -164,15 +179,16 @@ function ChooserBox({ chooser }: { chooser: ChooserRequest }) {
             </li>
           ))}
         </ul>
-        <label className="mt-3 flex min-h-11 items-center gap-2 text-[13px]">
-          <input
-            type="checkbox"
+        <div className="mt-3 flex min-h-11 items-center text-[13px]">
+          <OnOff
             checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-            className="size-4"
-          />
-          {t('pasteChooser.always')}
-        </label>
+            onChange={setRemember}
+            label={t('pasteChooser.always')}
+            testId="paste-chooser-always"
+          >
+            {t('pasteChooser.always')}
+          </OnOff>
+        </div>
         <p className="text-[12px] text-ink-soft any-pointer-coarse:hidden phone:hidden">
           {t('pasteChooser.keys')}
         </p>

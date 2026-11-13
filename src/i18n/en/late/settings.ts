@@ -85,11 +85,11 @@ export const enLateSettings = {
   'settings.openNotebookAt.label': 'Open notebooks at',
   'settings.openNotebookAt.last': 'Last page',
   'settings.openNotebookAt.tabs': 'Notebook tabs',
-  'settings.pasteMode.ask': 'Ask each time',
+  'settings.pasteMode.ask': 'Always ask',
   'settings.pasteMode.description':
     'When you paste text with formatting: ask each time (a small chooser), always keep the original format, or always paste plain text.',
-  'settings.pasteMode.keep': 'Keep format',
-  'settings.pasteMode.label': 'Paste',
+  'settings.pasteMode.keep': 'Keep original',
+  'settings.pasteMode.label': 'Paste as',
   'settings.pasteMode.plain': 'Plain text',
   'settings.pathStyle.description':
     'How the address (path) of the open page shows in the top bar: Short, Full or Name only. A notebook or a page can have its own choice (page first, then notebook, then this).',

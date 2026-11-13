@@ -74,6 +74,10 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-13 · Storage safety D1: the three new alerts use the shared Banner part.** `storageLost`, `storageFull` and `homeScreen` are drawn with `src/design/parts/Banner.tsx` (new kinds `install`, `storage`); the older alerts keep `AttentionBanner`. Reason: new work uses shared parts; moving the old alerts is a separate slice. The banner sits in the top layer with a private overlay manager (like the toasts), so no new z-index.
+- **2026-11-13 · Storage safety D2: device full is a calm warm banner, not the bright level-2 bar.** Owner asked for calm; urgency order unchanged (`storageLost`, `storageFull` first). With the flag ON it replaces the once-a-minute "out of space" toast.
+- **2026-11-13 · Storage safety D3: one-tap backup records the time in the existing backup reminder (`meta.backupReminder`).** So Settings › This device shows the last backup time, as the spec asks. No note, setting or Undo step changes; no new table, no Dexie bump.
+- **2026-11-13 · Storage safety D4: "Back up first" sits in the pop-up body, Done is the only footer button.** The shared Dialog's second footer button always closes (Esc = Cancel), so a separate button keeps Esc/✕/outside = close.
 - **2026-11-13 · foundationInput e2e no longer checks the gesture router is absent at start.** Slice 4 (search v2 8, hold strip) uses it on purpose (`useRowHold`), so it loads with the app; the spec line "not in the first-load bundle" (foundation-input.md) is out of date for the gesture router. The event router check stays. Owner may prefer to lazy-load it behind the flag instead.
 - **2026-11-13 · Sidebar starts closed on iPad portrait (slice 5, flag home.v2).** src/App.tsx (~line 845): when `home.v2` is on and the screen is 40rem to 859.98px wide, the sidebar's first-run default is closed so the Home board keeps its width; an own choice is remembered. Review whether to make this the shell default for all slices (orchestration review fix 3).
 

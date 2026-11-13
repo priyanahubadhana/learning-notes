@@ -34,6 +34,7 @@ export const FLAG_IDS = [
   'study.v2',
   'safety.v2',
   'system.v2',
+  'storage.safety',
 ] as const
 
 export type FlagId = (typeof FLAG_IDS)[number]

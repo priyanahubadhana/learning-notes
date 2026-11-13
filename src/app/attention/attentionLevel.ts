@@ -8,6 +8,8 @@ import { isLocked } from '../../sync/lockedStatus'
  */
 export type AttentionCode =
   | 'locked'
+  | 'storageLost'
+  | 'storageFull'
   | 'driveTap'
   | 'driveFull'
   | 'notAllowed'
@@ -19,6 +21,7 @@ export type AttentionCode =
   | 'storage'
   | 'setup'
   | 'update'
+  | 'homeScreen'
 
 export interface Attention {
   code: AttentionCode
@@ -35,6 +38,11 @@ export interface AttentionInput {
   storageHigh: boolean
   updateReady: boolean
   updateNeeded: boolean
+  /** Saves refused: device full / Safari closed the database (flag storage.safety). */
+  storageFull?: number
+  storageLost?: number
+  /** Safari tab on iPhone/iPad: suggest the Home Screen app. */
+  homeScreen?: boolean
 }
 
 /** Every problem that applies now, most urgent first. */
@@ -44,6 +52,9 @@ export function attentionList(i: AttentionInput): Attention[] {
   const add = (code: AttentionCode, level: 1 | 2 | 3, worse = 0) =>
     out.push({ code, level, worse })
   if (isLocked(s)) add('locked', 1)
+  // A refused save counts up, so a dismissed banner returns on the next one.
+  if (i.storageLost) add('storageLost', 2, i.storageLost)
+  if (i.storageFull) add('storageFull', 2, i.storageFull)
   const ready = s.phase === 'ready' || s.phase === 'syncing'
   if (ready && s.needsDriveTap) add('driveTap', 2)
   if (ready && s.problem === 'driveFull') add('driveFull', 2)
@@ -58,6 +69,7 @@ export function attentionList(i: AttentionInput): Attention[] {
   if (i.storageHigh) add('storage', 3)
   if (s.phase === 'needsSetup') add('setup', 3)
   if (i.updateReady) add('update', 3)
+  if (i.homeScreen) add('homeScreen', 3)
   return out
 }
 

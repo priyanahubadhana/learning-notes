@@ -59,4 +59,7 @@ export const hiFlags = {
   'flags.system.v2.name': 'नए सिस्टम हिस्से',
   'flags.system.v2.desc':
     'ऐप के पर्दे के पीछे के हिस्से, फिर से डिज़ाइन किए गए।',
+  'flags.storage.safety.name': 'स्टोरेज सुरक्षा',
+  'flags.storage.safety.desc':
+    'नोट्स न सहेजे जाने पर शांत सूचना, और एक टैप में बैकअप।',
 }

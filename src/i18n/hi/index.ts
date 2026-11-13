@@ -25,6 +25,7 @@ import { hiTags } from './tags'
 import { hiToolbar } from './toolbar'
 import { hiUpdates } from './updates'
 import { hiUpdateV2 } from './updateV2'
+import { hiStorageSafety } from './storageSafety'
 import { hiLibraryV2 } from './libraryV2'
 import { hiFlags } from './flags'
 import { hiSlashMenu } from './slashMenu'
@@ -80,5 +81,6 @@ export const hi: Record<string, string> = {
   ...hiPanelV2,
   ...hiLibraryV2,
   ...hiV8Pen,
+  ...hiStorageSafety,
   ...hiV8Tools,
 }

@@ -2,6 +2,18 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: storage safety built (flag storage.safety, OFF)
+
+- What: SS-01 to SS-09. Home Screen notice in a Safari tab (Show how pop-up with 3 steps), one-tap backup (pop-up, banner, Settings › This device "Back up now"), calm banners for a full device and a lost database. Banner kinds `install` and `storage`; alert codes `storageLost`, `storageFull`, `homeScreen`; `reportError` hands storage errors to the watcher while the flag is ON. Fix: the shared Banner now loads its close-button style (it was 14 px tall on its own).
+- Why: Safari can clear notes kept in a tab; the two storage failures needed one calm line that says what to do.
+- Files: src/app/flags.ts, src/app/errors.ts, src/app/attention/ (attentionLevel, attentionSignals, AttentionGate, StorageSafetyBanner, storageSafetyWire, storageSafetyBackup + tests), src/design/parts/Banner.tsx/.css/.test.ts, bannerQueue.ts, src/settings/DeviceSection.tsx, src/i18n (en/late, es, hi storageSafety + flags), e2e/storageSafety.spec.ts, e2e/storageSafetyShots.spec.ts, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: storage safety spec and mock-up
+
+- What: spec docs/features/storage-safety.md (IDs SS-01 to SS-09, When lines, Won't do) and a static mock-up of the Safari tab notice, the Show how pop-up, one-tap backup, storage full and connection lost, using the shared Banner, Dialog and Toast.
+- Why: the slice had helpers but only one PENDING line as its spec; a new visual pattern needs a spec and mock-up before the UI is built.
+- Files: docs/features/storage-safety.md, docs/mockups/storage-safety-mock.html, docs/mockups/storage-safety/, docs/PENDING.md, docs/CHANGELOG.md.
+
 ### 14 Nov 2026: build/next red fixed (test timing, CI 43515340927)
 
 - What: TB-33 waits for the Text size card to finish its pop before reading the label tops; TB-34 keeps polling while the picture block re-renders after Smaller. Asserts unchanged.

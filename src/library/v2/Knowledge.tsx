@@ -1,5 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useMemo, useState } from 'react'
+import {
+  useContext,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject,
+} from 'react'
 import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
 import { EmptyState } from '../../design/parts/EmptyState'
@@ -73,6 +80,8 @@ export function Knowledge({
   const [sort, setSort] = useState<Sort>('newest')
   const [openId, setOpenId] = useState<string | null>(null)
   const [naming, setNaming] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const wide = useWide(rootRef)
   const all = useLiveQuery(
     async () =>
       (await db.annotations.toArray())
@@ -180,7 +189,7 @@ export function Knowledge({
     id ? `#${tagList.find((x) => x.id === id)?.name ?? ''}` : t('lib2.allTags')
   const bookIds = [...new Set((all ?? []).map((a) => a.pageId))]
   return (
-    <div data-testid="knowledge">
+    <div ref={rootRef} data-testid="knowledge">
       <div
         className="mt-2.5 mb-2"
         role="group"
@@ -296,28 +305,34 @@ export function Knowledge({
                   />
                 </div>
               )}
-              <div
-                role="group"
-                aria-label={t('lib2.knowledge.colour')}
-                className="flex shrink-0 items-center"
-              >
-                {HIGHLIGHT_COLOURS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    aria-pressed={colour === c}
-                    aria-label={c}
-                    data-testid={`know-colour-${c}`}
-                    onClick={() => setColour(colour === c ? '' : c)}
-                    className={`grid size-11 place-items-center rounded-full ${colour === c ? 'outline-2 outline-accent' : ''}`}
-                  >
-                    <span
-                      className="size-4 rounded-full"
-                      style={{ background: COLOUR_FILL[c] }}
-                    />
-                  </button>
-                ))}
-              </div>
+              {/* Gate 3 v5 fix 2: the five colours are one Colour ▾ chip
+                  that shows the chosen dot (owner pattern 3). */}
+              <MenuChip
+                testId="know-colour"
+                label={t('lib2.knowledge.colour')}
+                text={
+                  colour
+                    ? t(`annot.colour.${colour}`)
+                    : t('lib2.knowledge.colour')
+                }
+                value={colour}
+                dot={colour ? COLOUR_FILL[colour] : undefined}
+                items={[
+                  {
+                    label: t('lib2.knowledge.anyColour'),
+                    icon: 'check',
+                    checked: colour === '',
+                    onSelect: () => setColour(''),
+                  },
+                  ...HIGHLIGHT_COLOURS.map((c) => ({
+                    label: t(`annot.colour.${c}`),
+                    icon: 'check',
+                    swatch: COLOUR_FILL[c],
+                    checked: colour === c,
+                    onSelect: () => setColour(c),
+                  })),
+                ]}
+              />
             </>
           )}
         </ScrollTrack>
@@ -381,7 +396,9 @@ export function Knowledge({
             }}
           />
         ) : (
-          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,360px)]">
+          <div
+            className={`grid gap-4 ${wide ? 'grid-cols-[minmax(0,1fr)_minmax(0,360px)]' : ''}`}
+          >
             <ul data-testid="highlight-list" className="flex flex-col gap-2">
               {shown.map((a) => (
                 <li key={a.id}>
@@ -396,7 +413,7 @@ export function Knowledge({
                       className="mt-1 size-3 shrink-0 rounded-full"
                       style={{ background: COLOUR_FILL[a.colour ?? 'yellow'] }}
                     />
-                    <span className="min-w-0">
+                    <span className="min-w-0 flex-1">
                       <span className="line-clamp-2 text-sm">
                         {a.quote?.exact ||
                           a.note ||
@@ -407,7 +424,10 @@ export function Knowledge({
                           {a.note}
                         </span>
                       )}
-                      <span className="text-xs text-muted">
+                      <span
+                        data-testid="highlight-meta"
+                        className="block truncate text-xs text-muted"
+                      >
                         {titles?.get(a.pageId)}{' '}
                         {placeLabel(a) && `· ${placeLabel(a)}`}
                       </span>
@@ -420,7 +440,7 @@ export function Knowledge({
               <aside
                 data-testid="highlight-preview"
                 aria-label={t('lib2.knowledge.preview')}
-                className="rounded-[20px] border border-line p-4 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:z-(--z-sheet) max-md:rounded-b-none max-md:bg-bg max-md:shadow-lg"
+                className={`rounded-[20px] border border-line p-4 ${wide ? '' : 'fixed inset-x-0 bottom-0 z-(--z-sheet) rounded-b-none bg-bg shadow-lg'}`}
               >
                 <div className="mb-2 flex items-start gap-2">
                   <p className="flex-1 text-sm leading-relaxed">
@@ -476,6 +496,26 @@ export function Knowledge({
   )
 }
 
+/**
+ * Gate 3 v5 fix 1: the list and the preview sit side by side only when the
+ * Knowledge area itself is wide (not the window): with the side panel open
+ * on iPad portrait the area is about 410 wide, so the preview is a sheet.
+ */
+function useWide(ref: RefObject<HTMLDivElement | null>): boolean {
+  const [wide, setWide] = useState(false)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const check = () => setWide(el.clientWidth >= WIDE_MIN)
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [ref])
+  return wide
+}
+const WIDE_MIN = 720
+
 const SORT_LABEL: Record<Sort, MessageKey> = {
   newest: 'lib2.knowledge.newest',
   book: 'lib2.knowledge.bookOrder',
@@ -503,12 +543,15 @@ function MenuChip({
   text,
   label,
   value,
+  dot,
   items,
 }: {
   testId: string
   text: string
   label?: string
   value?: string
+  /** A colour dot before the words (the chosen colour). */
+  dot?: string
   items: MenuItem[]
 }) {
   const [at, setAt] = useState<DOMRect | null>(null)
@@ -521,8 +564,16 @@ function MenuChip({
         aria-haspopup="menu"
         aria-label={label ? `${label}: ${text}` : undefined}
         onClick={(e) => setAt(e.currentTarget.getBoundingClientRect())}
-        className="min-h-11 max-w-[14rem] shrink-0 truncate whitespace-nowrap rounded-full bg-soft px-4 text-sm"
+        className="inline-flex min-h-11 max-w-[14rem] shrink-0 items-center gap-1.5 truncate whitespace-nowrap rounded-full bg-soft px-3 text-sm"
       >
+        {dot && (
+          <span
+            aria-hidden
+            data-testid={`${testId}-dot`}
+            className="size-3 shrink-0 rounded-full"
+            style={{ background: dot }}
+          />
+        )}
         {text} ▾
       </button>
       {at && (

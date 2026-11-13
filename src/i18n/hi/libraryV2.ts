@@ -61,6 +61,7 @@ export const hiLibraryV2 = {
   'lib2.knowledge.bookOrder': 'किताब का क्रम',
   'lib2.knowledge.byColour': 'रंग',
   'lib2.knowledge.colour': 'रंग',
+  'lib2.knowledge.anyColour': 'कोई भी रंग',
   'lib2.knowledge.empty':
     'अभी कोई हाइलाइट नहीं। पढ़ते समय हाइलाइट करें और सब यहाँ दिखेगा।',
   'lib2.knowledge.filters': 'हाइलाइट फ़िल्टर',

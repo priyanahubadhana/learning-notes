@@ -389,9 +389,12 @@ test.describe('Library v2 (Beginner)', () => {
     await row.click()
     const preview = page.getByTestId('highlight-preview')
     await expect(preview).toContainText('A line worth keeping forever')
-    await page.getByTestId('know-colour-blue').click()
+    // Gate 3 v5: the colours are one Colour ▾ chip.
+    await page.getByTestId('know-colour').click()
+    await page.getByRole('menuitemradio', { name: 'Blue' }).click()
     await expect(page.getByTestId('knowledge-empty')).toBeVisible()
-    await page.getByTestId('know-colour-blue').click()
+    await page.getByTestId('know-colour').click()
+    await page.getByRole('menuitemradio', { name: 'Any colour' }).click()
     await page.getByTestId('highlight-row').click()
     await page.getByTestId('highlight-card').click()
     await expect(

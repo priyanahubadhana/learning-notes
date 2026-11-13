@@ -196,6 +196,8 @@ export interface MenuItem {
   danger?: boolean
   /** Red but kept where it was put, not moved to the end. */
   inPlace?: boolean
+  /** A small colour dot before the label (a colour choice). */
+  swatch?: string
 }
 
 /**
@@ -357,6 +359,13 @@ export function MenuPopover({
               <Glyph icon={item.icon} />
             )}
           </span>
+          {item.swatch && (
+            <span
+              aria-hidden
+              className="size-3 shrink-0 rounded-full"
+              style={{ background: item.swatch }}
+            />
+          )}
           <span className="flex-1">
             {item.label}
             {item.description && (

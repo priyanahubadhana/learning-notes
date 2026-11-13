@@ -62,6 +62,7 @@ export const enLateLibraryV2 = {
   'lib2.knowledge.bookOrder': 'Book order',
   'lib2.knowledge.byColour': 'Colour',
   'lib2.knowledge.colour': 'Colour',
+  'lib2.knowledge.anyColour': 'Any colour',
   'lib2.knowledge.empty':
     'No highlights yet. Highlight while reading and everything shows up here.',
   'lib2.knowledge.filters': 'Highlight filters',

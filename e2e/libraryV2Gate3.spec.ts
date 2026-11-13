@@ -1,6 +1,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { makePdf } from './fixtures/books.ts'
+import { addHighlights } from './fixtures/highlights.ts'
 
 /**
  * Slice 6 gate-3 fixes (third visit, items 1 to 6). Set SHOTS=before or
@@ -205,4 +206,121 @@ test.describe('Library v2 gate 3 (third visit)', () => {
       })
     }
   }
+})
+
+const overlap = (
+  a: { x: number; y: number; width: number; height: number },
+  b: { x: number; y: number; width: number; height: number },
+) =>
+  a.x < b.x + b.width &&
+  b.x < a.x + a.width &&
+  a.y < b.y + b.height &&
+  b.y < a.y + a.height
+
+async function knowledgeWithHighlights(page: Page) {
+  await addBook(page, 'Alpha Book')
+  await addBook(page, 'Bravo Book')
+  await addHighlights(page)
+  await page.getByTestId('tab-knowledge').click()
+  await expect(page.getByTestId('highlight-row')).toHaveCount(5)
+}
+
+test.describe('Library v2 gate 3 (fifth visit)', () => {
+  test('G6v5-1 iPad portrait, panel open: highlight cards are full width with the sentence and one book line', async ({
+    page,
+  }) => {
+    await page.setViewportSize(SIZES.ipadP)
+    await openSpace(page, 'library', 'Library', { level: 'professional' })
+    await expect(page.getByTestId('library-panel')).toBeVisible()
+    await knowledgeWithHighlights(page)
+    const list = (await page.getByTestId('highlight-list').boundingBox())!
+    const know = (await page.getByTestId('knowledge').boundingBox())!
+    expect(list.width).toBeGreaterThanOrEqual(know.width - 1)
+    const row = page.getByTestId('highlight-row').first()
+    await expect(row).toContainText('Memory is strengthened each time')
+    const meta = row.getByTestId('highlight-meta')
+    await expect(meta).toContainText('Alpha Book')
+    const h = (await meta.boundingBox())!.height
+    expect(h).toBeLessThan(24)
+    // The preview opens as a sheet here, not as a thin column.
+    await row.click()
+    const pv = (await page.getByTestId('highlight-preview').boundingBox())!
+    expect(pv.width).toBeGreaterThanOrEqual(know.width - 1)
+  })
+
+  test('G6v5-2 PC with the panel open: the Knowledge filters fit in one row; colour is one Colour ▾ chip', async ({
+    page,
+  }) => {
+    await page.setViewportSize(SIZES.pc)
+    await openSpace(page, 'library', 'Library', { level: 'professional' })
+    await expect(page.getByTestId('library-panel')).toBeVisible()
+    await knowledgeWithHighlights(page)
+    const fits = await page
+      .getByTestId('know-row')
+      .evaluate((e) => e.scrollWidth <= e.clientWidth + 1)
+    expect(fits).toBe(true)
+    const chip = page.getByTestId('know-colour')
+    await expect(chip).toContainText('Colour')
+    await expect(chip).toHaveAttribute('data-value', '')
+    await chip.click()
+    for (const name of ['Any colour', 'Yellow', 'Blue', 'Green', 'Pink'])
+      await expect(page.getByRole('menuitemradio', { name })).toBeVisible()
+    await page.getByRole('menuitemradio', { name: 'Blue' }).click()
+    await expect(chip).toHaveAttribute('data-value', 'blue')
+    await expect(chip.getByTestId('know-colour-dot')).toBeVisible()
+    await expect(page.getByTestId('highlight-row')).toHaveCount(1)
+    await chip.click()
+    await page.getByRole('menuitemradio', { name: 'Any colour' }).click()
+    await expect(page.getByTestId('highlight-row')).toHaveCount(5)
+  })
+
+  test('G6v5-3 iPad portrait book panel: the dim layer covers everything but the top bar', async ({
+    page,
+  }) => {
+    await page.setViewportSize(SIZES.ipadP)
+    await openSpace(page, 'library', 'Library')
+    await addBook(page, 'Alpha Book')
+    await page.getByTestId('source-start').first().click()
+    await expect(page.getByTestId('book-reader')).toBeVisible()
+    const toggle = page.getByTestId('panel-toggle')
+    const bar = await toggle.evaluate((e) => {
+      const r = e.closest('header')!.getBoundingClientRect()
+      return { left: r.left, right: r.right, bottom: r.bottom }
+    })
+    await toggle.click()
+    await expect(page.getByTestId('left-panel')).toBeVisible()
+    expect(bar.left).toBeGreaterThan(20)
+    const hit = (x: number, y: number) =>
+      page.evaluate(
+        ([x, y]) =>
+          document
+            .elementFromPoint(x, y)
+            ?.closest('[data-testid]')
+            ?.getAttribute('data-testid') ?? '',
+        [x, y] as const,
+      )
+    // Left of the top bar (rail, sidebar header): dimmed.
+    expect(await hit(bar.left / 2, bar.bottom / 2)).toMatch(/^left-panel-dim/)
+    // The top bar itself stays bright and its panel button works.
+    const tb = (await toggle.boundingBox())!
+    expect(await hit(tb.x + tb.width / 2, tb.y + tb.height / 2)).toBe(
+      'panel-toggle',
+    )
+  })
+
+  test('G6v5-4 a hover tip never sits on a toast', async ({ page }) => {
+    await page.setViewportSize(SIZES.phone)
+    await openSpace(page, 'library', 'Library')
+    await addBook(page, 'Alpha Book')
+    const toast = page.locator('[data-toast]')
+    await expect(toast).toBeVisible()
+    await page.locator('[data-space="library"]').hover()
+    await page.waitForTimeout(700)
+    const tip = page.getByRole('tooltip')
+    const tb = (await toast.boundingBox())!
+    for (const el of await tip.all()) {
+      if (!(await el.isVisible())) continue
+      expect(overlap((await el.boundingBox())!, tb)).toBe(false)
+    }
+  })
 })

@@ -7,6 +7,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.
 - Why: the app took about 15 s to start on WebKit because starters were written before the first screen.
 - Files: src/templates/templateService.ts, src/templates/NewPageStart.tsx, src/templates/seedBulk.test.ts, e2e/startSeeding.spec.ts, e2e/startSpeed.spec.ts, docs/features/perf-start.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: build system trial benchmark
 
 The new build system is a TRIAL against the old one. Added docs/plans/system-trial-2026-11-13.md (metrics, how to measure, baseline from git and gh), pulse script now appends a CSV row to docs/metrics/build-pulse.csv, trial line in ECONOMY-MODE.md and BUILD-STATE.md. No rule changed.

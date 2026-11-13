@@ -225,7 +225,9 @@ test('RV-P09: Done with no edits closes without a toast', async ({ page }) => {
   await page.getByTestId('rv2-more').click()
   await page.getByTestId('more-done').click()
   await expect(sheet(page)).toHaveCount(0)
-  await expect(page.getByRole('status').filter({ hasText: 'changed' })).toHaveCount(0)
+  await expect(
+    page.getByRole('status').filter({ hasText: 'changed' }),
+  ).toHaveCount(0)
 })
 
 test.describe('Phone', () => {
@@ -250,9 +252,8 @@ test.describe('Phone', () => {
 test('RV-B28: chips and the limits line keep readable contrast in dark', async ({
   page,
 }) => {
-  await startInTheme(page, 'dark', FLAGGED)
-  await createNotebook(page, 'Cardiology', 'Heart sounds')
-  await makeCard(page, 'Question 1', 1)
+  await startInTheme(page, 'night')
+  await seed(page, 1)
   await openReview(page)
   const line = page.getByTestId('rv2-limits')
   await expect(line).toBeVisible()

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { PickerRow } from '../../design/parts/PickerRow'
 import { TabRow, type TabDef } from '../../design/parts/TabRow'
 import { t } from '../../i18n/t'
 import { Dialog } from './Dialog'
@@ -11,6 +12,8 @@ export interface PickerTile {
   id: string
   label: string
   icon?: ReactNode
+  /** A colour dot (a deck's colour). */
+  dot?: string
 }
 
 export interface MoreSheetProps {
@@ -121,22 +124,13 @@ export function MoreSheet(props: MoreSheetProps) {
           </button>
         </header>
         {picker && (
-          <div
-            className="sh-sheet-pick"
-            role="group"
-            aria-label={t('shell.pick')}
-          >
-            {picker.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                aria-pressed={picked === p.id}
-                onClick={() => onPicked?.(p.id)}
-              >
-                {p.icon}
-                <span>{p.label}</span>
-              </button>
-            ))}
+          <div className="sh-sheet-pick">
+            <PickerRow
+              tiles={picker}
+              value={picked ?? ''}
+              onPick={(id) => onPicked?.(id)}
+              label={t('shell.pick')}
+            />
           </div>
         )}
         <div className="sh-sheet-tabs">

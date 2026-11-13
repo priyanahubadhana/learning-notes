@@ -23,9 +23,9 @@ describe('PickerRow (N3: pick on top)', () => {
   it('is a radiogroup; the picked tile is checked, the others are not', () => {
     mount(h(PickerRow, props()))
     expect($('[role="radiogroup"]')?.getAttribute('aria-label')).toBe('Decks')
-    expect($$('[role="radio"]').map((r) => r.getAttribute('aria-checked'))).toEqual(
-      ['true', 'false', 'false'],
-    )
+    expect(
+      $$('[role="radio"]').map((r) => r.getAttribute('aria-checked')),
+    ).toEqual(['true', 'false', 'false'])
   })
 
   it('a tap picks; the arrow keys move the pick (wrapping)', () => {

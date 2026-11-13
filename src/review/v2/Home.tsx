@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { useState } from 'react'
 import type { LearningNotesDB } from '../../core/db'
 import { t } from '../../i18n/t'
 import { EmptyState } from '../../design/parts/EmptyState'
@@ -7,11 +8,16 @@ import {
   scopeCounts,
   type ReviewScope,
 } from '../../recall/reviewService'
-import { useLevel } from '../../settings/level'
+import { useLevel, useUnlocked } from '../../settings/level'
+import { Chips } from './Chips'
+import { homeExtras } from './homeExtras'
+import { ReviewMoreSheet } from './MoreSheet'
 
 export interface HomeProps {
   db: LearningNotesDB
   scope: ReviewScope
+  /** Professional chips change the scope (Home counts and Start follow it). */
+  onScope?: (scope: ReviewScope) => void
   onStart: (scope: ReviewScope) => void
   onPractice: (scope: ReviewScope) => void
   onOpenNotebooks?: () => void
@@ -25,18 +31,23 @@ export interface HomeProps {
 export function Home({
   db,
   scope,
+  onScope,
   onStart,
   onPractice,
   onOpenNotebooks,
 }: HomeProps) {
   const pro = useLevel() === 'professional'
+  const moreOn = useUnlocked('rev.moreSheet')
+  const decksOn = useUnlocked('rev.decks')
+  const [more, setMore] = useState(false)
   const data = useLiveQuery(async () => {
     const [counts, any] = await Promise.all([
       scopeCounts(db, scope),
       getPracticeCards(db, scope, 1),
     ])
-    return { counts, hasCards: any.length > 0 }
-  }, [db, JSON.stringify(scope)])
+    const extra = pro ? await homeExtras(db) : null
+    return { counts, hasCards: any.length > 0, extra }
+  }, [db, JSON.stringify(scope), pro])
 
   if (!data) {
     return (
@@ -49,8 +60,16 @@ export function Home({
       </div>
     )
   }
-  const { counts, hasCards } = data
+  const { counts, hasCards, extra } = data
   const total = counts.new + counts.learning + counts.due
+  const eyebrow = !pro
+    ? t('rv2.today')
+    : scope.kind === 'wrong'
+      ? t('rv2.chip.wrongName')
+      : scope.kind === 'deck'
+        ? (extra?.decks.find((d) => d.id === scope.deckId)?.name ??
+          t('rv2.chip.all'))
+        : t('rv2.chip.all')
 
   return (
     <section
@@ -60,6 +79,15 @@ export function Home({
     >
       <div className="rv2-scroll">
         <div className="rv2-col">
+          {pro && extra && (
+            <Chips
+              decks={decksOn ? extra.decks : []}
+              wrongCount={extra.wrongCount}
+              scope={scope}
+              onScope={(s) => onScope?.(s)}
+              onMore={moreOn ? () => setMore(true) : undefined}
+            />
+          )}
           {!hasCards ? (
             <EmptyState
               testId="rv2-no-cards"
@@ -71,7 +99,7 @@ export function Home({
           ) : (
             <>
               <div className="rv2-hero" data-testid="rv2-hero">
-                <div className="rv2-hero__eb">{t('rv2.today')}</div>
+                <div className="rv2-hero__eb">{eyebrow}</div>
                 <div className="rv2-hero__num" data-testid="rv2-count">
                   {total}
                 </div>
@@ -103,7 +131,7 @@ export function Home({
                 >
                   {t('rv2.start')}
                 </button>
-                {pro && (
+                {pro && scope.kind !== 'wrong' && (
                   <div style={{ marginTop: 8 }}>
                     <button
                       type="button"
@@ -116,6 +144,15 @@ export function Home({
                   </div>
                 )}
               </div>
+              {pro && extra && (
+                <p className="rv2-limits" data-testid="rv2-limits">
+                  {t('rv2.limits', { count: extra.newLeft })}
+                  {extra.reviewsLeft !== null &&
+                    ` · ${t('rv2.limitsReviews', { count: extra.reviewsLeft })}`}
+                  {' · '}
+                  {t('rv2.paused', { count: extra.paused })}
+                </p>
+              )}
               {total === 0 && (
                 <EmptyState
                   variant="inline"
@@ -130,6 +167,7 @@ export function Home({
           )}
         </div>
       </div>
+      {more && <ReviewMoreSheet onClose={() => setMore(false)} />}
     </section>
   )
 }

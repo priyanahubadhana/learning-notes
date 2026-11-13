@@ -1,0 +1,49 @@
+/* PickerRow (N3): tiles 48 high, 4/12/4/10 padding, 1.5px border, 13/600, max 170 wide (review mock). */
+.pickrow__row {
+  display: flex;
+  gap: 6px;
+  padding: 2px 2px 4px;
+}
+.pickrow__tile {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  max-width: 170px;
+  padding: 4px 12px 4px 10px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--color-line);
+  background: var(--color-surface-1);
+  color: var(--color-ink-soft);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pickrow__tile[aria-checked='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  color: var(--color-ink);
+}
+.pickrow__tile:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.pickrow__ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--color-accent);
+}
+.pickrow__dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.pickrow__lbl {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

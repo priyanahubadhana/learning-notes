@@ -24,8 +24,6 @@ export interface ReviewV2Props {
   onStart?: (scope: ReviewScope) => void
 }
 
-const ALL: ReviewScope = { kind: 'all' }
-
 /**
  * Review v2 (flag `review.v2`): Home, Session, Waiting and Done in one place.
  * A session started from Home lives here; one that came from an address
@@ -33,6 +31,7 @@ const ALL: ReviewScope = { kind: 'all' }
  */
 export function ReviewV2(props: ReviewV2Props) {
   const { db, scope, onClose } = props
+  const [homeScope, setHomeScope] = useState<ReviewScope>({ kind: 'all' })
   const [local, setLocal] = useState<{
     scope: ReviewScope
     practice: boolean
@@ -54,7 +53,8 @@ export function ReviewV2(props: ReviewV2Props) {
     return (
       <Home
         db={db}
-        scope={ALL}
+        scope={homeScope}
+        onScope={setHomeScope}
         onStart={(s) =>
           props.onStart
             ? props.onStart(s)

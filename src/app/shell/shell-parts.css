@@ -200,30 +200,7 @@
 }
 .sh-sheet-pick {
   flex: none;
-  display: flex;
-  gap: 8px;
   padding: 4px 18px 10px;
-  overflow-x: auto;
-}
-.sh-sheet-pick button {
-  flex: none;
-  min-height: var(--sh-hit);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 14px;
-  border: 1px solid var(--color-line);
-  border-radius: var(--r-md);
-  background: var(--color-surface-2);
-  color: var(--color-ink-soft);
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
-}
-.sh-sheet-pick button[aria-pressed='true'] {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
-  color: var(--color-accent);
 }
 .sh-sheet-tabs {
   flex: none;

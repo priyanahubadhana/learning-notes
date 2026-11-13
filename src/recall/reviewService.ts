@@ -224,7 +224,7 @@ export async function reviewable(
 }
 
 /** Normal reviews done today, split into new cards and reviews. */
-async function doneToday(
+export async function doneToday(
   db: LearningNotesDB,
   now: number,
   hour: number,

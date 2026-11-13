@@ -1,5 +1,11 @@
 import type { JsonValue } from '../../core/types'
-import { isProFeatureId, setLevel, setUnlocked, type Level } from '../level'
+import {
+  isProFeatureId,
+  setLevel,
+  setProOff,
+  setUnlocked,
+  type Level,
+} from '../level'
 import { isExperience, setExperience, setExperienceOnTop } from './experience'
 
 /**
@@ -13,6 +19,9 @@ export const EXPERIENCE_TOP_ID = 'v3:experienceTop'
 export const UNLOCK_PREFIX = 'v3:unlock:'
 /** Many switches in one step: the value is the list of switches that are on. */
 export const unlockId = (id: string) => UNLOCK_PREFIX + id
+/** Professional: one switch turned off by hand (the value is true while it is off). */
+export const PRO_OFF_PREFIX = 'v3:proOff:'
+export const proOffId = (id: string) => PRO_OFF_PREFIX + id
 
 /** Writes one such value; false when the id is an ordinary setting. */
 export function writeVirtual(id: string, value: JsonValue): boolean {
@@ -26,6 +35,11 @@ export function writeVirtual(id: string, value: JsonValue): boolean {
   }
   if (id === EXPERIENCE_TOP_ID) {
     setExperienceOnTop(value !== false)
+    return true
+  }
+  if (id.startsWith(PRO_OFF_PREFIX)) {
+    const feature = id.slice(PRO_OFF_PREFIX.length)
+    if (isProFeatureId(feature)) setProOff(feature, value === true)
     return true
   }
   if (id.startsWith(UNLOCK_PREFIX)) {

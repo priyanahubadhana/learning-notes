@@ -1,30 +1,29 @@
 import { test } from '@playwright/test'
 
 /**
- * Pictures of the Settings v3 shell for review against the mock:
- * Beginner / Professional x Day / Night x iPad landscape / phone.
- * Only runs with SHOTS=1 (`SHOTS=1 npx playwright test settingsV3Shots`);
- * SHOT_ROW scrolls a row into view, SHOT_SECTION picks the section, SHOT_PREFIX names the files.
+ * Pictures of every Settings v3 section for review against the mock:
+ * Beginner / Professional x Day / Night x iPad (1024x768 touch) / phone (390x844).
+ * Files: docs/mockups/settings-v3-build-shots/<section>-<level>-<theme>-<device>.png
+ * Only runs with SHOTS=1 (`SHOTS=1 PW_PORT=... npx playwright test settingsV3Shots`);
+ * SHOT_SECTION limits it to one section.
  */
 const OUT = 'docs/mockups/settings-v3-build-shots'
 const SIZES = {
-  ipad: { width: 1194, height: 834 },
+  ipad: { width: 1024, height: 768 },
   phone: { width: 390, height: 844 },
 } as const
 
-const SECTION = process.env.SHOT_SECTION ?? 'general'
-const PREFIX = process.env.SHOT_PREFIX ? `${process.env.SHOT_PREFIX}-` : ''
-
 test.skip(!process.env.SHOTS, 'pictures only on request')
+test.setTimeout(240_000)
 
 for (const level of ['beginner', 'professional'] as const)
   for (const theme of ['day', 'night'] as const)
-    for (const [name, viewport] of Object.entries(SIZES))
-      test(`shot ${level} ${theme} ${name}`, async ({ browser }) => {
+    for (const [device, viewport] of Object.entries(SIZES))
+      test(`shots ${level} ${theme} ${device}`, async ({ browser }) => {
         const context = await browser.newContext({
           viewport,
           hasTouch: true,
-          isMobile: name === 'phone',
+          isMobile: device === 'phone',
           storageState: {
             cookies: [],
             origins: [
@@ -51,22 +50,34 @@ for (const level of ['beginner', 'professional'] as const)
           },
         })
         const page = await context.newPage()
-        await page.goto(`/?flags=settings.v3#/settings/${SECTION}`)
+        // The hidden Try new features list is open for the pictures.
+        await page.addInitScript(() =>
+          sessionStorage.setItem('learning-notes:v3.tryNew', '1'),
+        )
+        await page.goto('/?flags=settings.v3#/settings/general')
         await page.locator('[data-settings-v3]').waitFor()
-        if (name === 'ipad')
-          await page.getByRole('button', { name: 'Hide menu' }).click()
-        if (process.env.SHOT_ROW)
+        const hide = page.getByRole('button', { name: 'Hide menu' })
+        if (await hide.isVisible().catch(() => false)) await hide.click()
+        const ids = await page
+          .locator('[data-section]')
+          .evaluateAll((els) => els.map((e) => e.getAttribute('data-section')!))
+        for (const id of ids) {
+          if (process.env.SHOT_SECTION && process.env.SHOT_SECTION !== id)
+            continue
+          await page.locator(`[data-section="${id}"]`).first().click()
+          await page.locator('.sv3-main').waitFor()
+          // Rows and today's own screens load from the database a moment later.
           await page
-            .locator(`[data-setting-id="${process.env.SHOT_ROW}"]`)
+            .locator(
+              '.sv3-main .sv3-row, .sv3-main .sv3-area, .sv3-main .sv3-prof',
+            )
             .first()
-            .scrollIntoViewIfNeeded()
-        await page.waitForTimeout(600)
-        if (name === 'phone') {
-          await page.locator('[data-preview-pill]').tap()
-          await page.waitForTimeout(600)
+            .waitFor({ timeout: 3000 })
+            .catch(() => {})
+          await page.waitForTimeout(500)
+          await page.screenshot({
+            path: `${OUT}/${id}-${level}-${theme}-${device}.png`,
+          })
         }
-        await page.screenshot({
-          path: `${OUT}/${PREFIX}${level}-${theme}-${name}.png`,
-        })
         await context.close()
       })

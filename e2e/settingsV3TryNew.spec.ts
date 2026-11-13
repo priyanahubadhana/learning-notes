@@ -85,8 +85,8 @@ test('SET-B26 Turn all off switches every flag off in one Undo step', async ({
   for (let i = 0; i < 5; i++) await tap.click()
   const media = page.locator('[data-setting-id="tryNew.media.v2"]')
   const menus = page.locator('[data-setting-id="tryNew.page.menus"]')
-  await media.getByRole('radio', { name: 'On' }).click()
-  await menus.getByRole('radio', { name: 'On' }).click()
+  await media.getByRole('switch').check()
+  await menus.getByRole('switch').check()
   const stored = () =>
     page.evaluate(() =>
       JSON.parse(localStorage.getItem('learning-notes:flags') ?? '[]'),
@@ -94,11 +94,19 @@ test('SET-B26 Turn all off switches every flag off in one Undo step', async ({
   expect(await stored()).toEqual(
     expect.arrayContaining(['media.v2', 'page.menus']),
   )
+  // The new Settings has its own switch; Turn all off says it keeps it on.
+  await expect(page.locator('[data-try-new-keeps]')).toHaveText(
+    'Keeps the new Settings on',
+  )
+  const v3 = page.locator('[data-setting-id="tryNew.settings.v3"]')
+  await expect(v3.getByRole('switch')).toBeChecked()
   await page.locator('[data-try-new-off]').click()
   await expect(page.getByText('2 new features turned off')).toBeVisible()
-  await expect(media.getByRole('radio', { name: 'Off' })).toBeChecked()
+  await expect(v3.getByRole('switch')).toBeChecked()
+  await expect(page.locator('[data-settings-v3]')).toBeVisible()
+  await expect(media.getByRole('switch')).not.toBeChecked()
   expect(await stored()).not.toContain('media.v2')
   await page.getByTestId('sv3-undo').click()
-  await expect(media.getByRole('radio', { name: 'On' })).toBeChecked()
-  await expect(menus.getByRole('radio', { name: 'On' })).toBeChecked()
+  await expect(media.getByRole('switch')).toBeChecked()
+  await expect(menus.getByRole('switch')).toBeChecked()
 })

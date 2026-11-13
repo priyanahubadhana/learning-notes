@@ -27,7 +27,12 @@ import { SearchResults } from './SearchResults'
 import { searchSettings } from './settingsSearch'
 import { SectionList } from './SectionList'
 import { PageTabsEditor } from './PageTabsEditor'
-import { areasOf, buildSections } from './sections'
+import {
+  areasOf,
+  buildSections,
+  sectionBadge,
+  showsEmptyState,
+} from './sections'
 import { AreaSection } from './AreaSection'
 import { ExperienceSection } from './ExperienceSection'
 // Tours and the Professional list load as their own chunks, only when opened (SET-B47).
@@ -107,7 +112,10 @@ function SettingsV3Body({
   const items = sections.map((s) => ({
     id: s.id,
     label: s.label,
-    count: s.kind === 'rows' ? inSection(visible, s.id).length : undefined,
+    count:
+      s.kind === 'rows'
+        ? sectionBadge(s.id, inSection(visible, s.id).length)
+        : undefined,
   }))
   const section = sections.find((s) => s.id === current)
   const rows =
@@ -290,11 +298,13 @@ function SettingsV3Body({
           {!searching && rows.length > 0 && section && (
             <SectionReset db={db} sectionName={section.label} rows={rows} />
           )}
-          {!searching && section?.kind === 'rows' && rows.length === 0 && (
-            <p className="sv3-lead">
-              {section.empty ?? tv('sv3.sectionEmpty')}
-            </p>
-          )}
+          {!searching &&
+            section?.kind === 'rows' &&
+            showsEmptyState(current, rows.length) && (
+              <p className="sv3-lead">
+                {section.empty ?? tv('sv3.sectionEmpty')}
+              </p>
+            )}
         </section>
         <PreviewPane last={last} db={db} section={current} />
       </div>

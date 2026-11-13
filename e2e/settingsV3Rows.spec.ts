@@ -22,7 +22,7 @@ test.describe('iPad landscape rows', () => {
     await page.getByRole('button', { name: 'Hide menu' }).click()
   })
 
-  test('SET-B09 every row has a tiny live preview (about 56 px, never blank)', async ({
+  test('SET-B09 every row carries its value as words; no empty box is drawn (gate 3)', async ({
     page,
   }) => {
     const rows = page.locator('[data-setting-id]')
@@ -32,10 +32,20 @@ test.describe('iPad landscape rows', () => {
     )
     for (const r of await rows.all()) {
       const prev = r.locator('[data-row-preview]')
-      const b = (await prev.boundingBox())!
-      expect(b.height).toBeGreaterThanOrEqual(50)
-      expect(b.height).toBeLessThanOrEqual(64)
-      expect((await prev.innerText()).trim().length).toBeGreaterThan(0)
+      // Never blank: the value as words (read aloud when nothing is drawn).
+      expect((await prev.textContent())!.trim().length).toBeGreaterThan(0)
+      if ((await prev.getAttribute('data-picture')) === 'none') {
+        // No picture to show: no empty bordered box repeating the value.
+        const b = await prev.evaluate((el) => {
+          const s = getComputedStyle(el)
+          return {
+            h: el.getBoundingClientRect().height,
+            border: s.borderTopWidth,
+          }
+        })
+        expect(b.h).toBeLessThan(2)
+        expect(b.border).toBe('0px')
+      }
     }
   })
 

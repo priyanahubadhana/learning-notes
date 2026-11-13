@@ -49,9 +49,7 @@ test.describe('iPad landscape General previews', () => {
       .click()
     await expect(page.locator('.sv3-mini-date')).toHaveText('Oct 27, 2026')
     // Help tips
-    await row(page, 'general.showHelp')
-      .getByRole('radio', { name: 'Off' })
-      .click()
+    await row(page, 'general.showHelp').getByRole('switch').uncheck()
     await expect(page.locator('.sv3-mini-tip')).toHaveAttribute('data-off', '')
     // Paper
     await row(page, 'general.defaultPaper')
@@ -71,9 +69,7 @@ test.describe('iPad landscape General previews', () => {
   test('SET-B27 Show help off greys the tips line, glows and writes a before / after note', async ({
     page,
   }) => {
-    await row(page, 'general.showHelp')
-      .getByRole('radio', { name: 'Off' })
-      .click()
+    await row(page, 'general.showHelp').getByRole('switch').uncheck()
     const tip = page.locator('.sv3-mini-tip:visible')
     await expect(tip).toHaveAttribute('data-off', '')
     await expect(tip).toHaveAttribute('data-glow', 'on')
@@ -86,9 +82,7 @@ test.describe('iPad landscape General previews', () => {
     page,
   }) => {
     await expect(page.locator('[data-update]')).toHaveCount(0)
-    await row(page, 'general.autoUpdate')
-      .getByRole('radio', { name: 'Off' })
-      .click()
+    await row(page, 'general.autoUpdate').getByRole('switch').uncheck()
     await expect(page.locator('[data-update]')).toBeVisible()
     await row(page, 'general.space.home')
       .getByRole('radio', { name: 'Hide' })

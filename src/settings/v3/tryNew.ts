@@ -6,6 +6,8 @@ import { useSyncExternalStore } from 'react'
  * visit only: it is kept in session storage, not on the device for good.
  */
 export const TRY_NEW_KEY = 'learning-notes:v3.tryNew'
+/** The new Settings screen's own switch: Turn all off never touches it. */
+export const KEEP_ON_ID = 'tryNew.settings.v3'
 export const TAPS_NEEDED = 5
 /** The taps must come within this time of each other. */
 export const TAP_WINDOW_MS = 3000
@@ -54,6 +56,16 @@ export const useTryNewOpen = (): boolean =>
     tryNewOpen,
     () => false,
   )
+
+/** The Try new features rows that Turn all off switches off (everything on except the new Settings). */
+export function rowsToTurnOff<T extends { id: string; category: string }>(
+  rows: readonly T[],
+  isOn: (row: T) => boolean,
+): T[] {
+  return rows.filter(
+    (s) => s.category === 'tryNew' && s.id !== KEEP_ON_ID && isOn(s),
+  )
+}
 
 /** Does the search text ask for the hidden list? */
 export const asksForTryNew = (query: string): boolean =>

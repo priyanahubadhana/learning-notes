@@ -36,3 +36,14 @@ test('AI links move between v3 sections', async ({ page }) => {
     'page',
   )
 })
+
+test('a section with its own screen has no 0 badge and no empty text', async ({
+  page,
+}) => {
+  await page.goto('/?flags=settings.v3#/settings/account')
+  await expect(page.locator('[data-area="account"]')).toBeVisible()
+  await expect(page.getByText('Nothing to set here yet.')).toHaveCount(0)
+  await expect(
+    page.locator('.sv3-section-count').filter({ hasText: /^0$/ }),
+  ).toHaveCount(0)
+})

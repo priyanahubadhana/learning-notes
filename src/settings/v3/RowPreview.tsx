@@ -8,7 +8,7 @@ import { tv } from './tv'
 /**
  * SET-B09: the tiny live preview of a row (about 56 px tall). It follows the
  * stored value at once. Rows with no picture carry a plain text line, never
- * blank. Section previews (General and others) come in later steps.
+ * blank to screen readers (the words are there, but not drawn as an empty box). Section previews (General and others) come in later steps.
  */
 export function RowPreview({
   definition,
@@ -31,15 +31,18 @@ export function RowPreview({
     <div
       data-row-preview
       data-picture={
-        definition.id === 'general.reduceGlass' ? 'glass' : undefined
+        definition.id === 'general.reduceGlass'
+          ? 'glass'
+          : picture
+            ? 'card'
+            : 'none'
       }
       data-glow={glowKey > 0 ? 'on' : undefined}
       className="sv3-rowprev"
     >
       {picture}
-      <span className="sv3-rowprev-text">
-        {tv('sv3.rowNow', { value: now })}
-      </span>
+      {/* The value as words for screen readers; the picture (or the control above) already shows it. */}
+      <span className="sr-only">{tv('sv3.rowNow', { value: now })}</span>
     </div>
   )
 }

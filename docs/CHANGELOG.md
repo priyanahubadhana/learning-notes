@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: build speed rules (no quality or design change)
+
+- What: ECONOMY-MODE.md gets section 11 "Speed rules" (builder cap 8, gates in parallel, pictures while CI runs, one CI run per batch of up to 3 gated slices, `main` merged into `build/next` to bring the automatic run back, one run at a time, repeat gate-3 fault list for builders, Opus sooner after repeat gate-3 fails, fewer orchestrator restarts). BUILD-STATE.md carries the same rules in short. DECISIONS.md lists each change and why quality is not affected.
+- Why: the build was slower than planned (orchestration review of 13 Nov); the owner asked for a little more speed with no loss of quality.
+- Files: docs/ECONOMY-MODE.md, docs/BUILD-STATE.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: orchestration doc gaps closed (items 5 and 6 specified)
 
 - What: ECONOMY-MODE.md section 9 says the short brief is for search, mechanic and docs helpers only. next.md runs only the related tests (full suite in CI). economy-orchestrator.md sends lookups to economy-search. ai.md gets a "Cost additions" section (caching and real token count, with a won't-do list); ai-framework.md gets a pointer to it; BUILD-STATE.md lane A gets the queued row.

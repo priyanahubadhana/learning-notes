@@ -72,6 +72,19 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-13 · Build speed rules (decided by Fable, owner delegated; full text docs/ECONOMY-MODE.md section 11).** No test, gate, Definition of Done line, design rule or Fable check was changed. Each change and why quality is not affected:
+  - Builder cap 6 to 8, on files that do not overlap, at most 2 local iPad test runs at once. Quality: every slice still passes the same 3 gates and CI; falls back to 6 if rework or flaky tests rise.
+  - Gate 2 and gate 3 in parallel. Quality: both must still pass on the commit that is merged.
+  - Flag-on pictures and gate 3 while CI runs. Quality: only the order changes; CI still judges before a release.
+  - One CI run for up to 3 gated slices (owner approved), never a hot-file slice. Quality: the same full test matrix runs on the same code; a red run is traced to its slice or bisected, never re-run until green.
+  - `main` merged into `build/next` so the pull request tests itself again; build-time docs written on `main` only. Quality: docs-only conflict; brings back the automatic run and the preview.
+  - One run at a time per branch. Quality: fewer runs wrongly read as failed.
+  - Weekly `webkit` job: no edit made. A hand-started run is judged when its required jobs finish. Quality: the job was already warning-only; every required job still has to pass.
+  - Repeat gate-3 faults listed for builders up front. Quality: higher (faults are prevented, gate 3 checks the same things).
+  - Opus builder after the first failed fix for a slice that failed gate 3 twice. Quality: higher (stronger model sooner).
+  - Orchestrator restarted about every 6 waves, not 3. Quality: none; the state file is kept current after every merge.
+  - Not done: the orchestrator's agent file still says 6 builders and 3 waves (it was outside this change); docs/BUILD-STATE.md "Speed rules" wins until that file is aligned.
+
 - **2026-11-13 · Settings On/Off uses the switch.** The approved mock-up shows a switch for On/Off, not the two-part button in the spec. The build follows the mock-up. The spec is to be aligned to match.
 - **2026-11-11 · Scroll-hint gutter stays.** Once a list has shown the scroll handle it keeps the 24 px end gutter until hints are switched off, even if it no longer overflows (like CSS scrollbar-gutter: stable). Chosen over dropping it, which shifted rows under the next tap. Cost: a short list that once scrolled keeps 24 px of empty space at its end.
 

@@ -310,6 +310,39 @@ test.describe('AI framework: Workflows saved views (A4)', () => {
     await expect(page.getByTestId('aifw-wf-view')).toHaveCount(1)
   })
 
+  test('Esc with a ▾ list open closes only the list; names, plural, solid list', async ({
+    page,
+  }) => {
+    await openStudio(page)
+    await page.getByTestId('aifw-tile-notes').click()
+    await page.getByTestId('aifw-dest-name').fill('One')
+    await page.getByTestId('aifw-studio-save').click()
+    await page.getByTestId('aifw-tab-workflows').click()
+    // Visible names for the card's Made-for list and the filter groups.
+    await expect(page.getByTestId('aifw-wf-row')).toContainText('Made for')
+    await page.getByTestId('aifw-wf-more').click()
+    const panel = page.getByTestId('aifw-wf-morepanel')
+    await expect(panel).toContainText('Made for')
+    await expect(panel).toContainText('Times used')
+    // Plural rules: 1 star, 2 stars.
+    await page.getByTestId('aifw-wf-minrating').click()
+    await expect(
+      page.getByRole('menuitemradio', { name: '1 star', exact: true }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('menuitemradio', { name: '2 stars' }),
+    ).toBeVisible()
+    // The open list is solid (not see-through).
+    const bg = await page
+      .getByRole('menu')
+      .evaluate((el) => getComputedStyle(el).backgroundColor)
+    expect(bg).not.toMatch(/rgba(.*,s*0?.d+)$/)
+    // Esc closes only the list.
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('menu')).toHaveCount(0)
+    await expect(page.getByTestId('aifw-screen')).toBeVisible()
+  })
+
   test('Esc closes only the name field; a duplicate name is refused', async ({
     page,
   }) => {

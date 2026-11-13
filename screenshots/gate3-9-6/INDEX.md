@@ -1,6 +1,6 @@
 # Gate 3 pictures: AI framework slice 9, part 6 (flag ai.framework ON)
 
-Taken by e2e/aiStudioShots.spec.ts (SHOTS=1 PW_PORT=<port> npx playwright test --project=chromium e2e/aiStudioShots.spec.ts) after the last source edit; last source commit 571158ea (gate 2 fix round: the 60 workflows-_ pictures re-shot after it; studio-_ unchanged by it, kept). Sizes: phone 390x844, iPad landscape 1194x834, iPad portrait 820x1180, PC 1336x800. Themes light, dark, sepia. Levels beginner, professional. 120 pictures = 5 screens x 4 sizes x 3 themes x 2 levels.
+Taken by e2e/aiStudioShots.spec.ts (SHOTS=1 PW_PORT=<port> npx playwright test --project=chromium e2e/aiStudioShots.spec.ts) after the last source edit; all re-shot after the final-look fix round (open ▾ list solid, Esc closes only the list, "Made for" and "Times used" names, "1 star", More filters with sliders icon first); previous source commit 571158ea (gate 2 fix round: the 60 workflows-_ pictures re-shot after it; studio-_ unchanged by it, kept). Sizes: phone 390x844, iPad landscape 1194x834, iPad portrait 820x1180, PC 1336x800. Themes light, dark, sepia. Levels beginner, professional. 144 pictures = 6 screens x 4 sizes x 3 themes x 2 levels.
 
 Fixes proven: A3 per-tile placement and Undo/Redo = studio-plan-_; A4 saved views = workflows-naming-_, workflows-view-_; run bar path no longer squeezed on iPad and PC = studio-plan-ipad-_, studio-plan-pc-_; A1 stacked bar = studio-plan-phone-_.
 
@@ -10,6 +10,7 @@ Fixes proven: A3 per-tile placement and Undo/Redo = studio-plan-_; A4 saved view
 - studio-plan-<size>-<theme>-<level>.png: Studio: ticked tiles, Where it goes rows, Undo/Redo with status line (after one Undo)
 - workflows-list-<size>-<theme>-<level>.png: Workflows: three saved workflows, rated
 - workflows-naming-<size>-<theme>-<level>.png: Workflows: More filters, rating 4+, naming a saved view
+- workflows-openlist-<size>-<theme>-<level>.png: Workflows: the rating ▾ list open (solid surface)
 - workflows-view-<size>-<theme>-<level>.png: Workflows: saved view chip next to All workflows, filter chip, N of M
 
 ## Repeat-fault list (docs/ECONOMY-MODE.md section 7), checked against these pictures
@@ -143,3 +144,27 @@ Fixes proven: A3 per-tile placement and Undo/Redo = studio-plan-_; A4 saved view
 - workflows-view-phone-light-professional.png
 - workflows-view-phone-sepia-beginner.png
 - workflows-view-phone-sepia-professional.png
+- workflows-openlist-ipad-landscape-dark-beginner.png
+- workflows-openlist-ipad-landscape-dark-professional.png
+- workflows-openlist-ipad-landscape-light-beginner.png
+- workflows-openlist-ipad-landscape-light-professional.png
+- workflows-openlist-ipad-landscape-sepia-beginner.png
+- workflows-openlist-ipad-landscape-sepia-professional.png
+- workflows-openlist-ipad-portrait-dark-beginner.png
+- workflows-openlist-ipad-portrait-dark-professional.png
+- workflows-openlist-ipad-portrait-light-beginner.png
+- workflows-openlist-ipad-portrait-light-professional.png
+- workflows-openlist-ipad-portrait-sepia-beginner.png
+- workflows-openlist-ipad-portrait-sepia-professional.png
+- workflows-openlist-pc-dark-beginner.png
+- workflows-openlist-pc-dark-professional.png
+- workflows-openlist-pc-light-beginner.png
+- workflows-openlist-pc-light-professional.png
+- workflows-openlist-pc-sepia-beginner.png
+- workflows-openlist-pc-sepia-professional.png
+- workflows-openlist-phone-dark-beginner.png
+- workflows-openlist-phone-dark-professional.png
+- workflows-openlist-phone-light-beginner.png
+- workflows-openlist-phone-light-professional.png
+- workflows-openlist-phone-sepia-beginner.png
+- workflows-openlist-phone-sepia-professional.png

@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ChevronDown, Plus, Tags, X } from 'lucide-react'
+import { ChevronDown, Plus, SlidersHorizontal, Tags, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { runTask } from '../app/errors'
 import type { LearningNotesDB } from '../core/db'
@@ -179,6 +179,17 @@ export function Workflows({
         <button
           type="button"
           className={btn}
+          aria-expanded={more}
+          data-testid="aifw-wf-more"
+          onClick={() => setMore(!more)}
+        >
+          <SlidersHorizontal size={18} strokeWidth={1.6} aria-hidden />
+          {moreN ? t('aifw.wf.moreN', { n: moreN }) : t('aifw.wf.more')}
+          <ChevronDown size={16} strokeWidth={1.6} aria-hidden />
+        </button>
+        <button
+          type="button"
+          className={btn}
           aria-haspopup="dialog"
           data-testid="aifw-wf-tags"
           onClick={(e) => {
@@ -188,16 +199,6 @@ export function Workflows({
         >
           <Tags size={18} strokeWidth={1.6} aria-hidden />
           {t('aifw.wf.tags')}
-          <ChevronDown size={16} strokeWidth={1.6} aria-hidden />
-        </button>
-        <button
-          type="button"
-          className={btn}
-          aria-expanded={more}
-          data-testid="aifw-wf-more"
-          onClick={() => setMore(!more)}
-        >
-          {moreN ? t('aifw.wf.moreN', { n: moreN }) : t('aifw.wf.more')}
           <ChevronDown size={16} strokeWidth={1.6} aria-hidden />
         </button>
         <div className="flex items-center gap-2 text-sm">
@@ -231,6 +232,7 @@ export function Workflows({
           className="flex flex-col gap-3 rounded-lg border border-line p-3"
           data-testid="aifw-wf-morepanel"
         >
+          <span className="text-sm text-muted">{t('aifw.wf.for')}</span>
           <div
             role="group"
             aria-label={t('aifw.wf.for')}
@@ -267,7 +269,9 @@ export function Workflows({
                 testId="aifw-wf-minrating"
                 options={[0, 1, 2, 3, 4, 5].map((n) => ({
                   value: n,
-                  label: n ? t('aifw.wf.stars', { n }) : t('aifw.wf.for.any'),
+                  label: n
+                    ? t('aifw.wf.stars', { count: n })
+                    : t('aifw.wf.for.any'),
                 }))}
                 onChange={(minRating) => patch({ minRating })}
               />
@@ -487,6 +491,7 @@ export function Workflows({
                 </button>
               </div>
               <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm text-muted">{t('aifw.wf.for')}</span>
                 <MenuSelect<string>
                   value={w.forType}
                   label={t('aifw.wf.setFor', { name: w.name })}
@@ -503,7 +508,7 @@ export function Workflows({
                   options={[0, 1, 2, 3, 4, 5].map((n) => ({
                     value: n,
                     label: n
-                      ? t('aifw.wf.stars', { n })
+                      ? t('aifw.wf.stars', { count: n })
                       : t('aifw.wf.noRating'),
                   }))}
                   onChange={(rating) => edit(w.id, { rating })}

@@ -313,6 +313,8 @@ export function MenuPopover({
       ref={ref}
       role="menu"
       aria-label={label}
+      // Esc closes only this list: a sheet below it must not also close.
+      onKeyDown={(e) => e.key === 'Escape' && e.preventDefault()}
       style={{
         left: Math.max(
           8,
@@ -325,7 +327,17 @@ export function MenuPopover({
         // A long menu scrolls inside the screen instead of running off it.
         maxHeight: window.innerHeight - top - 8,
         // The browser's own popover box (centred, bordered) is switched off.
-        ...(topLayer ? { right: 'auto', bottom: 'auto', margin: 0 } : {}),
+        ...(topLayer
+          ? {
+              right: 'auto',
+              bottom: 'auto',
+              margin: 0,
+              // Over a sheet the list is solid, never see-through.
+              background: 'var(--color-surface-2)',
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
+            }
+          : {}),
       }}
       className={`fixed z-50 ${nested ? 'w-64' : 'w-52'} glass overflow-y-auto rounded-xl p-1 text-ink`}
     >

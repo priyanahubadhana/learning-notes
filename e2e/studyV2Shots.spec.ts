@@ -2,6 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import {
   closeCorner,
   createNotebook,
+  hideSidebar,
   makeCard,
   openSidebar,
   selectionAction,
@@ -44,6 +45,8 @@ async function seed(page: Page) {
   await selectionAction(page, 'first heart sound', 'Key point')
   await waitForSaved(page)
   await selectionAction(page, 'second heart sound', 'Add to Summary')
+  // The line is written before the reload.
+  await expect(page.getByTestId('tab-count-summary')).toHaveText('1')
   await waitForSaved(page)
 }
 
@@ -60,15 +63,27 @@ async function openNotebook(page: Page) {
       main(page).getByRole('tablist', { name: 'Notebook tabs' }),
     ).toBeVisible({ timeout: 2000 })
   }).toPass({ timeout: 15_000 })
+  await tidyMenu(page)
 }
 
 async function openPage(page: Page) {
+  const show = page.getByRole('button', { name: 'Show menu' })
+  if (await show.isVisible()) await show.click()
   await (
     await openSidebar(page)
   )
     .getByRole('button', { name: 'Heart sounds', exact: true })
     .click()
   await expect(page.locator('.bn-editor')).toContainText('second heart sound')
+  await tidyMenu(page)
+}
+
+/** The menu closes again where it covers the page (iPad portrait, phone). */
+async function tidyMenu(page: Page) {
+  if ((page.viewportSize()?.width ?? 0) >= 1000) return
+  await hideSidebar(page)
+  const hide = page.getByRole('button', { name: 'Hide menu' })
+  if (await hide.isVisible()) await hide.click()
 }
 
 for (const level of ['beginner', 'professional'] as const)
@@ -160,7 +175,6 @@ for (const level of ['beginner', 'professional'] as const)
         await expect(editor).toHaveCount(0)
 
         await openPage(page)
-        await page.keyboard.press('Escape')
         await shot('4-notes')
 
         await page.locator('[data-page-tab="summary"]').click()

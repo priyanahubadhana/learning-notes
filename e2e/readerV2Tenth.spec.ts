@@ -242,14 +242,16 @@ test('fix 6: line focus clears whole lines (the band snaps to the line)', async 
   await page.getByTestId('aa-close').click()
   const words = page.locator('[data-pdf-page="1"] .textLayer span').first()
   await expect(words).toBeVisible()
-  const span = await words.evaluate(
-    (el) => el.getBoundingClientRect().toJSON() as DOMRect,
-  )
   const ruler = page.getByTestId('reading-ruler')
   await expect(ruler).toHaveAttribute('data-mode', 'focus')
-  // Just under the line: a band centred here would cut through the words.
-  await page.mouse.move(span.x + 10, span.y + span.height * 1.6)
   await expect(async () => {
+    // Measured each try: the text layer can still settle or scroll.
+    const span = await words.evaluate(
+      (el) => el.getBoundingClientRect().toJSON() as DOMRect,
+    )
+    expect(span.y).toBeGreaterThan(20)
+    // Just under the line: a band centred here would cut through the words.
+    await page.mouse.move(span.x + 10, span.y + span.height * 1.6)
     const [above, below] = await ruler.evaluate((el) => {
       const k = el.children
       return [

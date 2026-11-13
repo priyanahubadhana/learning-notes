@@ -125,8 +125,10 @@ export function useAnchoredCard(opts: {
   active: boolean
   /** Rect of something the card must keep clear of, read at each placement. */
   avoid?: () => RectLike | null
+  /** Pixels at the foot the on-screen keyboard (and its text bar) cover. */
+  footLift?: number
 }): CardPos | null {
-  const { anchor, card, widthPx, active, avoid } = opts
+  const { anchor, card, widthPx, active, avoid, footLift = 0 } = opts
   const [pos, setPos] = useState<CardPos | null>(null)
   useLayoutEffect(() => {
     if (!active || !anchor || !card) {
@@ -137,7 +139,7 @@ export function useAnchoredCard(opts: {
       const next = placeCard(
         rectOf(anchor),
         { width: widthPx, height: card.offsetHeight },
-        { width: root.clientWidth, height: window.innerHeight },
+        { width: root.clientWidth, height: window.innerHeight - footLift },
         avoid?.() ?? null,
       )
       setPos((prev) =>
@@ -156,6 +158,6 @@ export function useAnchoredCard(opts: {
     ro.observe(card)
     ro.observe(document.documentElement)
     return () => ro.disconnect()
-  }, [anchor, card, widthPx, active, avoid])
+  }, [anchor, card, widthPx, active, avoid, footLift])
   return active && anchor && card ? pos : null
 }

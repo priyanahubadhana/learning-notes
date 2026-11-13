@@ -13,8 +13,8 @@ test.use({ viewport: { width: 820, height: 1180 }, hasTouch: true })
 
 const gear = (page: Page) => page.getByTestId('corner-button')
 
-async function start(page: Page) {
-  await page.goto('/')
+async function start(page: Page, flags = '') {
+  await page.goto(flags ? `/?flags=${flags}` : '/')
   await createNotebook(page, 'Biology', 'First')
   await typeInEditor(page, 'The nucleus holds the DNA')
 }
@@ -79,8 +79,57 @@ test('BUG-006 the strip scrolls when its spaces do not fit above the gear', asyn
         const scroller = [...el.querySelectorAll('*')].find(
           (n) => getComputedStyle(n).overflowY === 'auto',
         )
-        return !!scroller && scroller.scrollHeight >= scroller.clientHeight
+        return !!scroller && scroller.scrollHeight > scroller.clientHeight
       }),
     )
     .toBe(true)
+  // Scrolling brings the last space into view (above the pinned gear).
+  const last = nav.locator('[data-space]').last()
+  await last.scrollIntoViewIfNeeded()
+  const l = await last.evaluate((el) => el.getBoundingClientRect())
+  const g = await gear(page).evaluate((el) => el.getBoundingClientRect())
+  expect(l.bottom).toBeLessThanOrEqual(g.top)
+  expect(g.bottom).toBeLessThanOrEqual(200)
+})
+
+for (const flags of ['', 'foundation.shell']) {
+  const tag = flags ? 'new shell' : 'old shell'
+  test(`BUG-006 landscape 1180x820, keyboard up: the gear panel is not cut off at the top (${tag})`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1180, height: 820 })
+    await start(page, flags)
+    await fakeKeyboard(page, 330)
+    await expect.poll(() => gearBottom(page)).toBeLessThanOrEqual(330)
+    const panel = page.getByTestId('corner-panel')
+    await gear(page).click()
+    await page.waitForTimeout(500)
+    if (!(await panel.isVisible())) await gear(page).click({ timeout: 3000 })
+    await expect(panel).toBeVisible()
+    const r = await panel.evaluate((el) => el.getBoundingClientRect())
+    expect(r.top).toBeGreaterThanOrEqual(0)
+    expect(r.bottom).toBeLessThanOrEqual(330)
+    // The panel scrolls inside instead of overflowing; Settings is tappable.
+    const settings = panel.getByRole('button', { name: 'Settings' }).first()
+    await settings.scrollIntoViewIfNeeded()
+    const b = await settings.boundingBox()
+    expect(b!.y).toBeGreaterThanOrEqual(0)
+    expect(b!.y + b!.height).toBeLessThanOrEqual(330)
+    await settings.click()
+    await expect(panel).toBeHidden()
+  })
+}
+
+// Same checks on the new shell for the portrait cases above.
+test('BUG-006 new shell: the gear stays reachable with the keyboard up', async ({
+  page,
+}) => {
+  await start(page, 'foundation.shell')
+  await fakeKeyboard(page, 300)
+  await expect.poll(() => gearBottom(page)).toBeLessThanOrEqual(300 - 44)
+  const nav = page.getByRole('navigation', { name: 'Spaces' })
+  const g = await gear(page).evaluate((el) => el.getBoundingClientRect())
+  const n = await nav.evaluate((el) => el.getBoundingClientRect())
+  expect(n.bottom).toBeLessThanOrEqual(300)
+  expect(g.height).toBeGreaterThanOrEqual(44 - 4)
 })

@@ -111,7 +111,12 @@ export function QuietCorner({
           <div
             ref={panel}
             data-corner
-            style={{ marginBottom: lift }}
+            style={{
+              marginBottom: lift,
+              maxHeight: lift
+                ? `min(80vh, ${Math.max(160, innerHeight - lift - 16)}px)`
+                : undefined,
+            }}
             data-testid="corner-panel"
             role="region"
             aria-label={t('corner.label')}

@@ -161,7 +161,8 @@ export default defineConfig({
         /textTool/,
         /textBoxFree/,
         /homeV2/,
-        /toolbarV8(Bar|Frame|Pen|Row|Tools|Paste).spec/,
+        // Paste needs the clipboard-write permission, which WebKit does not have: chromium only.
+        /toolbarV8(Bar|Frame|Pen|Row|Tools).spec/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

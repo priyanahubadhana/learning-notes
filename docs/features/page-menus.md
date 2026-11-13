@@ -51,7 +51,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 
 **Long-press = right-click strip (Context menu strip)**
 
-- PM-20 When I right-click (PC) or long-press 0.5 s (finger or Pencil) on text or a block → the strip opens above the selection: Paste ▾ · Copy · Cut · Duplicate · Turn into ▾ · Colour ▾ · Delete (as menu-1.png); Beginner shows Cut, Copy, Paste ▾, Delete, ⋯.
+- PM-20 When I right-click (PC) or long-press 0.5 s (finger or Pencil) on text or a block → the strip opens above the selection: Paste ▾ · Copy · Cut · Duplicate · Turn into ▾ · Colour ▾ · Add to favourites · Comment · Delete (as menu-1.png); Beginner shows Cut, Copy, Paste ▾, Delete, ⋯ (the rest sits in ⋯). Add to favourites stars the open page (it reads Remove from favourites when starred). Comment opens the app's comment entry point; until comments exist in the app the item stays hidden (docs/DECISIONS.md) and this line stays.
 - PM-21 The strip never covers the selection handles or the B/I/U bar (approval fix 1): strip above, format bar below.
 - PM-22 When I tap ⋯ on the strip → the full list opens as a Command list in the same place (Select, Select all, Insert picture, Insert line, Copy as ▾, Move to page, Make card, Key point) (Pro extras: `tb.miniToolbar`, `page.contextMore` new).
 - PM-23 When I long-press a page row, notebook row, library row or task row → the same strip opens at that point with that row's actions.

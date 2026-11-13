@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
+import { makePdf } from './fixtures/books.ts'
 import { closeCorner, createNotebook, openSidebar } from './helpers.ts'
 
 /**
@@ -140,4 +141,53 @@ test('PM-25 a drag after the press starts opens no strip', async ({ page }) => {
   await hold(await pageButton(page), 900, 30)
   await expect(strip(page)).toHaveCount(0)
   await expect(page.getByRole('menu')).toHaveCount(0)
+})
+
+test('PM-23 a Library row long-press opens the strip with Open and Delete last', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'learning-notes:advanced.holdMenu',
+      JSON.stringify(600),
+    )
+  })
+  await page.goto('/?flags=page.menus')
+  await page
+    .getByRole('navigation', { name: 'Spaces' })
+    .getByRole('button', { name: 'Space: Library' })
+    .click()
+  await page.getByTestId('library-file').setInputFiles({
+    name: 'fixture.pdf',
+    mimeType: 'application/pdf',
+    buffer: makePdf(['Alpha page words here'], { title: 'Fixture Book' }),
+  })
+  const card = page.getByTestId('source-card')
+  await expect(card).toHaveCount(1)
+  await hold(card.getByRole('button').first(), 800)
+  await expect(strip(page)).toBeVisible()
+  const names = await strip(page).getByRole('menuitem').allInnerTexts()
+  expect(names[0]).toMatch(/Open/)
+  expect(names.at(-1)).toMatch(/Delete/)
+  await expect(page.getByRole('menu')).toHaveCount(0)
+})
+
+test.describe('phone width', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('PM-26 a row strip at 390 px stays inside the screen', async ({
+    page,
+  }) => {
+    await start(page, { 'advanced.holdMenu': 600 })
+    await hold(await pageButton(page), 800)
+    await expect(strip(page)).toBeVisible()
+    const bar = (await strip(page).boundingBox())!
+    expect(bar.x).toBeGreaterThanOrEqual(0)
+    expect(bar.x + bar.width).toBeLessThanOrEqual(390)
+    for (const b of await strip(page).getByRole('menuitem').all()) {
+      const r = (await b.boundingBox())!
+      expect(r.x).toBeGreaterThanOrEqual(bar.x - 1)
+      expect(r.x + r.width).toBeLessThanOrEqual(bar.x + bar.width + 1)
+    }
+  })
 })

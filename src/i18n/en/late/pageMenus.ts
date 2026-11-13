@@ -1,6 +1,7 @@
 /** Words for the page strip, Paste ▾ and the page ⋯ sheet (flag page.menus). */
 export const enLatePageMenus = {
   'pageMenus.turnInto': 'Turn into',
+  'pageMenus.comment': 'Comment',
   'pageMenus.colour': 'Colour',
   'pageMenus.colour.default': 'Default',
   'pageMenus.colour.red': 'Red',

@@ -200,3 +200,60 @@ test('the focus ring shows for the keyboard only, not after a mouse right-click'
   await page.keyboard.press('ArrowRight')
   expect(await ring(page)).not.toBe('none')
 })
+
+test('PM-20 Professional shows Add to favourites; it stars the open page and reads Remove after', async ({
+  page,
+}) => {
+  await openNote(page, 'professional')
+  await rightClickWord(page)
+  const fav = strip(page).getByTestId('cs-favourite')
+  await expect(fav).toBeVisible()
+  await expect(fav).toContainText('Add to favourites')
+  await fav.click()
+  await expect(page.getByText('Added to favourites')).toBeVisible()
+  await expect(strip(page)).toHaveCount(0)
+  // A fresh load: the sidebar now lists the favourite and the page moves.
+  await page.reload()
+  await expect(page.locator('.bn-editor p', { hasText: 'Cells' })).toBeVisible()
+  await rightClickWord(page)
+  await expect(strip(page)).toBeVisible()
+  await expect(strip(page).getByTestId('cs-favourite')).toContainText(
+    'Remove from favourites',
+  )
+})
+
+test('PM-20 Beginner keeps Add to favourites in ⋯, and Comment stays hidden until comments exist', async ({
+  page,
+}) => {
+  await openNote(page, 'beginner')
+  await rightClickWord(page)
+  await expect(strip(page).getByTestId('cs-favourite')).toHaveCount(0)
+  await expect(strip(page).getByTestId('cs-comment')).toHaveCount(0)
+  await strip(page).getByTestId('cs-more').click()
+  await page.getByRole('option', { name: 'Show all' }).click()
+  await expect(page.getByTestId('cl-item-favourite')).toBeVisible()
+  await expect(page.getByTestId('cl-item-comment')).toHaveCount(0)
+})
+
+test.describe('phone width', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
+  test('PM-26 at 390 px the strip shows 4 items + ⋯ and none is cut off', async ({
+    page,
+  }) => {
+    await openNote(page, 'professional')
+    await rightClickWord(page)
+    await expect(strip(page)).toBeVisible()
+    const buttons = strip(page).locator('[data-testid^="cs-"]')
+    expect(await buttons.count()).toBeLessThanOrEqual(5)
+    await expect(strip(page).getByTestId('cs-more')).toBeVisible()
+    const bar = (await strip(page).boundingBox())!
+    expect(bar.x).toBeGreaterThanOrEqual(0)
+    expect(bar.x + bar.width).toBeLessThanOrEqual(390)
+    for (const b of await buttons.all()) {
+      const r = (await b.boundingBox())!
+      expect(r.x).toBeGreaterThanOrEqual(bar.x - 1)
+      expect(r.x + r.width).toBeLessThanOrEqual(bar.x + bar.width + 1)
+    }
+  })
+})

@@ -947,6 +947,7 @@ function LoadedPageEditor({
               toast={(m, a) => toastRef.current(m, a)}
               onSelected={() => miniToolbarOpen.set(true)}
               choosePicture={choosePicture}
+              pageId={pageId}
             />
           )}
           {holdAt && !menusOn && (

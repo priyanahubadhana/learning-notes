@@ -49,10 +49,18 @@
   border-radius: 3px;
   background: var(--card-track, var(--color-line-strong));
 }
+/* Share the bar: five labelled items must fit a 390 px phone, none cut off. */
+.cs[data-labels] .cs__slot {
+  display: flex;
+  flex: 1 1 52px;
+  min-width: 0;
+  flex-shrink: 1;
+}
 .cs[data-labels] .cs__btn {
+  flex: 1 1 auto;
+  min-width: 0;
   flex-direction: column;
   gap: 2px;
-  min-width: 52px;
   min-height: 52px;
   height: auto;
   padding: 4px 6px;
@@ -60,9 +68,9 @@
 }
 /* Never cut a label: it wraps to a second line instead. */
 .cs[data-labels] .cs__name {
-  max-width: 68px;
+  max-width: 100%;
   white-space: normal;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
   text-align: center;
   line-height: 1.2;
 }

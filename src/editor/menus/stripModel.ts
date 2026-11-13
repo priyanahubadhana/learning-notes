@@ -26,7 +26,12 @@ export const COLOURS = [
 ] as const
 
 /** The strip over text (PM-20): Beginner shows Cut, Copy, Paste ▾, Delete, ⋯. */
-export function stripItems(): StripItem[] {
+export function stripItems(
+  o: { favourite?: boolean; comment?: boolean } = {},
+): StripItem[] {
+  const comment: StripItem[] = o.comment
+    ? [{ id: 'comment', icon: 'quote', label: t('pageMenus.comment') }]
+    : []
   return [
     {
       id: 'paste',
@@ -53,6 +58,12 @@ export function stripItems(): StripItem[] {
         label: t(`pageMenus.colour.${id}` as MessageKey),
       })),
     },
+    {
+      id: 'favourite',
+      icon: 'star',
+      label: t(o.favourite ? 'fav.remove' : 'fav.add'),
+    },
+    ...comment,
     {
       id: 'delete',
       icon: 'trash',

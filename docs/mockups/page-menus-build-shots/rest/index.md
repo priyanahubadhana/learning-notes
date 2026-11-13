@@ -17,4 +17,5 @@ Which picture proves which fix:
 - PM-63 Arrange: arrange-*-professional (the Arrange list inside the page sheet, full width, one Done)
 - Paste ▾ rows that apply: paste-* (plain text on the clipboard: Keep, Plain, Quote)
 - Focus ring for the keyboard only: strip-* (no ring on the first button after a mouse right-click)
-- No "Add to favourites" / "Comment" on the text strip: strip-*-professional
+- "Add to favourites" on the Professional text strip (Comment is hidden until comments exist, docs/DECISIONS.md): strip-*-professional
+- Phone strip fits 390 px, no item cut off: rowstrip-phone-*, strip-phone-*

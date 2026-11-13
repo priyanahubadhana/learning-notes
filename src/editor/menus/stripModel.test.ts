@@ -11,6 +11,7 @@ describe('page strip model (PM-20, PM-22, PM-41)', () => {
       'duplicate',
       'turn',
       'colour',
+      'favourite',
       'delete',
     ])
     expect(stripItems().at(-1)?.danger).toBe(true)
@@ -31,12 +32,16 @@ describe('page strip model (PM-20, PM-22, PM-41)', () => {
     ])
   })
 
-  it('PM-20 the strip has no Add to favourites and no Comment', () => {
-    const ids = stripItems().map((i) => i.id)
-    expect(ids).not.toContain('favourite')
-    expect(ids).not.toContain('comment')
-    const more = moreCommands({ pro: true })[0].items.map((i) => i.id)
-    expect(more.join(' ')).not.toMatch(/favourite|comment/i)
+  it('PM-20 Add to favourites is on the strip (Remove when starred); Comment shows only when comments exist', () => {
+    expect(stripItems().find((i) => i.id === 'favourite')?.label).toBe(
+      'Add to favourites',
+    )
+    expect(
+      stripItems({ favourite: true }).find((i) => i.id === 'favourite')?.label,
+    ).toBe('Remove from favourites')
+    expect(stripItems().map((i) => i.id)).not.toContain('comment')
+    const ids = stripItems({ comment: true }).map((i) => i.id)
+    expect(ids.slice(-3)).toEqual(['favourite', 'comment', 'delete'])
   })
 
   it('PM-41 Paste ▾ shows only the rows the clipboard allows', () => {

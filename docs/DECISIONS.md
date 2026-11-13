@@ -1188,3 +1188,8 @@ Short core lines for hierarchy, escalation, token efficiency, continuity and qua
 ### 13 Nov 2026 (owner): trial at 5 builders, rules frozen
 
 Research (docs/plans/ai-build-best-practices-2026-11-13.md) puts the useful limit at 3-5 parallel builders; cap set to 5. No rule changes during the trial so the benchmark is fair.
+
+## Decisions to review (slice 12 rest fixes, 14 Nov)
+
+- **PM-20 keeps "Add to favourites" and "Comment" (owner rule: never drop features).** Add to favourites is built on the text strip: it stars the open page (Remove from favourites when starred, with a toast); Beginner finds it in ⋯. **Comment is built but hidden** (`COMMENTS = false` in `src/editor/menus/PageStrip.tsx`) because the app has no comment entry point yet; turn it on and give `onAction('comment')` a handler when comments exist. The spec line stays.
+- **Phone strip with names under the icons:** the items now share the bar's width (names wrap), so 4 items + ⋯ fit 390 px with nothing cut off (`.cs[data-labels]` in ContextStrip.css).

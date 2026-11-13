@@ -1,6 +1,7 @@
 /** Textos en español (tira de la página, Pegar ▾ y hoja ⋯ de la página). */
 export const esPageMenus = {
   'pageMenus.turnInto': 'Convertir en',
+  'pageMenus.comment': 'Comentar',
   'pageMenus.colour': 'Color',
   'pageMenus.colour.default': 'Predeterminado',
   'pageMenus.colour.red': 'Rojo',

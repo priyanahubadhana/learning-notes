@@ -1,6 +1,7 @@
 /** हिंदी पाठ (पेज की पट्टी, चिपकाएँ ▾ और पेज ⋯ शीट)। */
 export const hiPageMenus = {
   'pageMenus.turnInto': 'बदलें',
+  'pageMenus.comment': 'टिप्पणी',
   'pageMenus.colour': 'रंग',
   'pageMenus.colour.default': 'डिफ़ॉल्ट',
   'pageMenus.colour.red': 'लाल',

@@ -14,6 +14,7 @@ import type { EditorBlock } from '../mapping'
 import { boxHost } from '../pasteBox'
 import type { AppSchema } from '../schema'
 import { posNear, rangeForTaps } from '../tapSelect'
+import { isFavourite, toggleFavourite } from '../../app/favourites'
 import { pasteIn, peekPasteForms } from './pasteMenu'
 import { moreCommands, pasteMenu, stripItems } from './stripModel'
 
@@ -22,6 +23,9 @@ type Toast = (
   message: string,
   action?: { label: string; onSelect: () => void },
 ) => void
+
+/** Comments are not in the app yet: the Comment item stays hidden (PM-20, docs/DECISIONS.md). */
+const COMMENTS = false
 
 const TURN: Record<string, { type: string; props?: Record<string, unknown> }> =
   {
@@ -60,6 +64,7 @@ export default function PageStrip({
   toast,
   onSelected,
   choosePicture,
+  pageId,
 }: {
   editor: Editor
   at: HoldPoint
@@ -67,6 +72,7 @@ export default function PageStrip({
   toast: Toast
   onSelected: () => void
   choosePicture: () => void
+  pageId: string
 }) {
   const view = editor.prosemirrorView
   const pro = useUnlocked('page.contextMore')
@@ -85,6 +91,7 @@ export default function PageStrip({
   }, [view, at.x, at.y])
 
   // What the clipboard allows (null until known: every row stays).
+  const [starred, setStarred] = useState(() => isFavourite(pageId))
   const [forms, setForms] = useState<string[] | null>(null)
   useEffect(() => {
     let live = true
@@ -101,8 +108,10 @@ export default function PageStrip({
       ai: ai.enabled && ai.candidates.length > 0,
       forms,
     })
-    return stripItems().map((i) => (i.id === 'paste' ? { ...i, menu } : i))
-  }, [editor, forms])
+    return stripItems({ favourite: starred, comment: COMMENTS }).map((i) =>
+      i.id === 'paste' ? { ...i, menu } : i,
+    )
+  }, [editor, forms, starred])
   const commands = useMemo(() => moreCommands({ pro }), [pro])
 
   const block = (): EditorBlock => editor.getTextCursorPosition().block
@@ -147,6 +156,12 @@ export default function PageStrip({
         if (hasSelection) editor.addStyles({ textColor: colour } as never)
         else
           editor.updateBlock(block(), { props: { textColor: colour } } as never)
+        return done()
+      }
+      case 'favourite': {
+        const on = toggleFavourite(pageId)
+        setStarred(on)
+        toast(t(on ? 'fav.added' : 'fav.removed'))
         return done()
       }
       case 'delete': {

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: toolbar v8 flaky tests fixed in the product
+
+- What: a card closed with ✕ hands focus back to its chip only if nothing else took it; the page's text box frame follows its text when a picture loads while an ink tool is on.
+- Why: a quick tap into the text after ✕ lost its focus 130 ms later (CI run 43478875272); a resize handle sat over a new picture until the next tool change.
+- Files: src/design/parts/Card.tsx, src/design/parts/Card.test.ts, src/paper/PaperFrame.tsx, e2e/toolbarV8Tools.spec.ts, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: fast start (WebKit start 15 s -> 1.2 s)
 
 - What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.

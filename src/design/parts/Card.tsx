@@ -94,9 +94,14 @@ export function Card(props: CardProps) {
     setClosing(true)
     handleRef.current?.close()
     timerRef.current = setTimeout(() => {
+      // Why: a tap into the text during the closing motion must keep its
+      // focus; hand focus back only if it is still in the card or nowhere.
+      const now = document.activeElement
+      const free =
+        !now || now === document.body || !!rootRef.current?.contains(now)
       onCloseRef.current(reason)
       const a = anchorRef.current
-      if (reason !== 'outside' && a instanceof HTMLElement) a.focus()
+      if (reason !== 'outside' && free && a instanceof HTMLElement) a.focus()
     }, motionMs(130))
   }, [])
 

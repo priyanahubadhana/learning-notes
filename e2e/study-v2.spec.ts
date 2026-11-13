@@ -456,7 +456,7 @@ test('ST25: Slides stays off until unlocked; then present full screen, swipe, th
   await page.mouse.up()
   await expect(present.getByRole('status')).toHaveText('Slide 2 of 2')
   await present.getByRole('button', { name: /^Theme/ }).click()
-  await page.getByRole('menuitemradio', { name: 'Sepia' }).click()
+  await present.getByRole('radio', { name: 'Sepia' }).click()
   await expect(present).toHaveAttribute('data-theme-slides', 'sepia')
   const download = page.waitForEvent('download')
   await present
@@ -505,4 +505,30 @@ test('ST26 + ST29: Beginner has no "⋯" with Memory helpers or Anki', async ({
   await makeCard(page, 'Which valves close in S1?', 1)
   await openCards(page)
   await expect(page.getByTestId('study-header-more')).toHaveCount(0)
+})
+
+// ---- 15g: Capture and journal stay as they are with the flag on (ST15, ST16, ST28) ----
+
+test('ST16: Today opens today’s journal page, with the flag on', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await page.getByRole('button', { name: 'Open today’s journal' }).click()
+  await expect(page.getByRole('textbox', { name: 'Page title' })).toHaveValue(
+    /\d{4}/,
+  )
+  await expect(page.locator('.bn-editor')).toContainText('Today I learned')
+})
+
+test('ST15: Capture takes a pasted link and keeps a YouTube start time', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto('/?flags=study.v2#/capture')
+  await expect(page.getByTestId('notes-panel')).toBeVisible()
+  await page
+    .getByTestId('capture-url')
+    .fill('https://youtu.be/dQw4w9WgXcQ?t=90')
+  await expect(page.getByTestId('capture-url')).toHaveValue(/t=90/)
 })

@@ -85,7 +85,7 @@ export function SlidesPresent({
         <div className="slides-present__menuwrap">
           <button
             type="button"
-            aria-haspopup="menu"
+            aria-haspopup="true"
             aria-expanded={menu}
             className="slides-present__btn"
             onClick={() => setMenu(!menu)}
@@ -94,7 +94,7 @@ export function SlidesPresent({
           </button>
           {menu && (
             <div
-              role="menu"
+              role="radiogroup"
               aria-label={t('st25.theme')}
               className="slides-present__menu"
             >
@@ -102,7 +102,7 @@ export function SlidesPresent({
                 <button
                   key={value}
                   type="button"
-                  role="menuitemradio"
+                  role="radio"
                   aria-checked={theme === value}
                   className="slides-present__item"
                   onClick={() => {

@@ -4,6 +4,7 @@ import { HIGHLIGHT_COLOURS, type HighlightColour } from '../../core/types'
 import { COLOUR_FILL, lookupUrl, type PopupRect } from './colours'
 import { t } from '../../i18n/t'
 import { Icon } from '../../app/tools/icons'
+import { ScrollTrack } from '../../design/parts/ScrollTrack'
 
 /**
  * The small bar over a text selection while reading (C4): five highlight
@@ -91,7 +92,8 @@ export function SelectionPopup({
       onPointerDown={(e) => e.preventDefault()}
       onMouseDown={(e) => e.preventDefault()}
     >
-      <div className="h-track flex flex-nowrap items-center gap-0.5">
+      {/* Gate 3, tenth visit, fix 4: the shared row with its thin track. */}
+      <ScrollTrack className="flex flex-nowrap items-center gap-0.5">
         {HIGHLIGHT_COLOURS.map((c) => (
           <IconButton
             tip="annot.highlightColour"
@@ -186,7 +188,7 @@ export function SelectionPopup({
             <span>{t('annot.askAi')}</span>
           </button>
         )}
-      </div>
+      </ScrollTrack>
       {extras && lookup && (
         <div className="flex w-full flex-wrap items-center gap-1 border-t border-line pt-1">
           {(['dictionary', 'wikipedia', 'translate'] as const).map((k) => (

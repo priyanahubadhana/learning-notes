@@ -69,9 +69,9 @@ export async function countPromptTokens(
   if (req.where && (await aiLockedBlock(req.where.db, req.where.pageId))) {
     return guess
   }
-  const timeout = new AbortController()
-  const timer = setTimeout(() => timeout.abort(), TIMEOUT_MS)
-  req.signal?.addEventListener('abort', () => timeout.abort())
+  const signal = req.signal
+    ? AbortSignal.any([req.signal, AbortSignal.timeout(TIMEOUT_MS)])
+    : AbortSignal.timeout(TIMEOUT_MS)
   try {
     const res = await (req.fetchImpl ?? fetch)(
       'https://api.anthropic.com/v1/messages/count_tokens',
@@ -87,7 +87,7 @@ export async function countPromptTokens(
           model: head.model,
           messages: [{ role: 'user', content: req.text }],
         }),
-        signal: timeout.signal,
+        signal,
         credentials: 'omit',
         referrerPolicy: 'no-referrer',
       },
@@ -109,7 +109,5 @@ export async function countPromptTokens(
     return { tokens: n, estimated: false }
   } catch {
     return guess
-  } finally {
-    clearTimeout(timer)
   }
 }

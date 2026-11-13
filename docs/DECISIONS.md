@@ -72,6 +72,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-13 · foundationInput e2e no longer checks the gesture router is absent at start.** Slice 4 (search v2 8, hold strip) uses it on purpose (`useRowHold`), so it loads with the app; the spec line "not in the first-load bundle" (foundation-input.md) is out of date for the gesture router. The event router check stays. Owner may prefer to lazy-load it behind the flag instead.
 - **2026-11-13 · check:dod reads table specs.** "When" lines now also count table rows starting with a spec ID (`| SP-40 |`, `| RV-B01 |`) and `- PM-01 When` bullets; flag `-` skips the flag check for shared parts; a numbered "### 8. Won't do" heading is accepted. Won't do, test counts and size checks are unchanged. Files: scripts/check-dod.mjs, scripts/dodSpec.mjs.
 - **2026-11-13 · Build speed rules (decided by Fable, owner delegated; full text docs/ECONOMY-MODE.md section 11).** No test, gate, Definition of Done line, design rule or Fable check was changed. Each change and why quality is not affected:
   - Builder cap 6 to 8, on files that do not overlap, at most 2 local iPad test runs at once. Quality: every slice still passes the same 3 gates and CI; falls back to 6 if rework or flaky tests rise.

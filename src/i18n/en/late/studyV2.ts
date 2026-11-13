@@ -50,4 +50,5 @@ export const enLateStudyV2 = {
   'st9.labelsTitle': 'Labels',
   'st9.title': 'Revise',
   'st9.count': '{count} marks',
+  'st11.browse': 'Browse',
 } as const

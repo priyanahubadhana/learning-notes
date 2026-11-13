@@ -51,6 +51,7 @@ export function CardsTabV2({
   onOpenHit,
   onReview,
   onMakeCard,
+  title,
 }: {
   db: LearningNotesDB
   /** null = the cards of every notebook ("All cards"). */
@@ -59,6 +60,8 @@ export function CardsTabV2({
   onReview: (scope: ReviewScope) => void
   /** The Empty state's one button: start a note to make a card in. */
   onMakeCard?: () => void
+  /** Header title when it is not "Cards" (Review › Browse). */
+  title?: string
 }) {
   const [sort, setSort] = usePref('cardsTabSort', isSort, 'best')
   const [status, setStatus] = useState<StatusFilter | null>(null)
@@ -106,7 +109,7 @@ export function CardsTabV2({
   return (
     <section aria-label={t('notebook.tab.cards')} className="cards-v2">
       <StudyTabHeader
-        title={t('st2.title.cards')}
+        title={title ?? t('st2.title.cards')}
         count={hits.length}
         countLabel={t('st2.cardsCount', { count: hits.length })}
         filterItems={

@@ -750,3 +750,27 @@ export async function dueByNotebook(
   }
   return counts
 }
+
+export interface PageCounts {
+  due: number
+  new: number
+  /** Cards with a review behind them and nothing due yet. */
+  learned: number
+}
+
+/** Due, New and Learned for a page (and its sub-pages): the page Review tab. */
+export async function pageCounts(
+  db: LearningNotesDB,
+  scope: Extract<ReviewScope, { kind: 'page' }>,
+  now: number = Date.now(),
+): Promise<PageCounts> {
+  const ids = await pageIdsInScope(db, scope)
+  const all = await db.cards.where('pageId').anyOf(ids).toArray()
+  const counts: PageCounts = { due: 0, new: 0, learned: 0 }
+  for (const card of await reviewable(db, all)) {
+    if (isNewCard(card)) counts.new++
+    else if (card.due <= now) counts.due++
+    else counts.learned++
+  }
+  return counts
+}

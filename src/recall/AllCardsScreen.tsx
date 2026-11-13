@@ -1,8 +1,16 @@
+import { lazy, Suspense } from 'react'
+import { useFlag } from '../app/flags'
 import type { LearningNotesDB } from '../core/db'
 import { Segments, type BaseTab } from '../app/summary/PageTabs'
 import { t } from '../i18n/t'
 import type { SearchHit } from '../search/searchQuery'
 import { CardsTab } from './CardsTab'
+
+const CardsTabV2 = lazy(() =>
+  import('../notebooks/study/CardsTabV2').then((m) => ({
+    default: m.CardsTabV2,
+  })),
+)
 import { ReviewHome } from './ReviewHome'
 import type { ReviewScope } from './reviewService'
 
@@ -35,6 +43,7 @@ export function AllCardsScreen({
   summary?: React.ReactNode
   notes?: React.ReactNode
 }) {
+  const studyV2 = useFlag('study.v2')
   return (
     <div>
       <div className="mx-auto max-w-[1040px] px-4 pt-8 pb-24 md:px-12 md:pt-12">
@@ -60,12 +69,24 @@ export function AllCardsScreen({
           <>
             {highlights}
             <ReviewHome db={db} onReview={onReview} />
-            <CardsTab
-              db={db}
-              notebookId={null}
-              onOpenHit={onOpenHit}
-              onReview={onReview}
-            />
+            {studyV2 ? (
+              <Suspense fallback={null}>
+                <CardsTabV2
+                  db={db}
+                  notebookId={null}
+                  title={t('st11.browse')}
+                  onOpenHit={onOpenHit}
+                  onReview={onReview}
+                />
+              </Suspense>
+            ) : (
+              <CardsTab
+                db={db}
+                notebookId={null}
+                onOpenHit={onOpenHit}
+                onReview={onReview}
+              />
+            )}
           </>
         )}
       </div>

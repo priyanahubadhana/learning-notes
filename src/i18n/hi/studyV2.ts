@@ -49,4 +49,5 @@ export const hiStudyV2 = {
   'st9.labelsTitle': 'लेबल',
   'st9.title': 'दोहराएँ',
   'st9.count': '{count} निशान',
+  'st11.browse': 'ब्राउज़ करें',
 } as const

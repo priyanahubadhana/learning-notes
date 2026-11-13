@@ -351,3 +351,45 @@ test('ST24: Professional switches the Summary to Notebook and exports it', async
   await page.getByRole('menuitem', { name: 'Export' }).click()
   expect((await download).suggestedFilename()).toBe('summary.md')
 })
+
+// ---- 15d: page Review tab and Review home (ST10, ST11) ----
+
+test('ST10: the page Review tab shows Due, New and Learned and one Practise button', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S1?', 1)
+  await waitForSaved(page)
+  await pageTab(page, 'review').click()
+  await expect(page.getByTestId('rv-due')).toContainText('Due')
+  await expect(page.getByTestId('rv-new')).toContainText('1')
+  await expect(page.getByTestId('rv-learned')).toContainText('Learned')
+  await expect(
+    main(page).getByRole('button', { name: 'Practise', exact: true }),
+  ).toHaveCount(1)
+})
+
+test('ST11: sidebar "All cards" opens the Review hub (Notes, Summary, Review) with Browse', async ({
+  page,
+}) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S1?', 1)
+  await (
+    await openSidebar(page)
+  )
+    .getByRole('button', { name: 'All cards', exact: true })
+    .click()
+  const segments = main(page).getByRole('group', { name: 'Page views' })
+  await expect(segments).toBeVisible()
+  await expect(
+    segments.getByRole('button', { name: 'Review' }),
+  ).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByTestId('study-header')).toContainText('Browse')
+  await expect(
+    main(page).getByRole('button', { name: /Which valves close/ }),
+  ).toBeVisible()
+})

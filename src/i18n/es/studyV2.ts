@@ -50,4 +50,5 @@ export const esStudyV2 = {
   'st9.labelsTitle': 'Etiquetas',
   'st9.title': 'Repasar',
   'st9.count': '{count} marcas',
+  'st11.browse': 'Explorar',
 } as const

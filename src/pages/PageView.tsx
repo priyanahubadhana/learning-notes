@@ -98,6 +98,7 @@ const PromptsDialog = lazy(() => import('../prompts/PromptsDialog'))
 
 const MindMapTab = lazy(() => import('./tabs/MindMapTab'))
 const SlidesTab = lazy(() => import('./tabs/SlidesTab'))
+const PageReviewV2 = lazy(() => import('../notebooks/study/PageReviewV2'))
 const SummaryTabV2 = lazy(() =>
   import('../notebooks/study/SummaryTabV2').then((m) => ({
     default: m.SummaryTabV2,
@@ -672,11 +673,21 @@ export function PageView({
           {withTabs && pageTab === 'review' && (
             <>
               <RowProperties db={db} page={page} where="review" />
-              <PageReview
-                db={db}
-                pageId={page.id}
-                onReview={() => onReview(true)}
-              />
+              {studyV2 ? (
+                <Suspense fallback={null}>
+                  <PageReviewV2
+                    db={db}
+                    pageId={page.id}
+                    onReview={() => onReview(true)}
+                  />
+                </Suspense>
+              ) : (
+                <PageReview
+                  db={db}
+                  pageId={page.id}
+                  onReview={() => onReview(true)}
+                />
+              )}
             </>
           )}
           {withTabs && notebook && isExtraTab(pageTab) && (

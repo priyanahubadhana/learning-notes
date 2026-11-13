@@ -1,0 +1,32 @@
+/* Page Review tab (slice 15): tokens only. */
+.page-review__tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.page-review__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 8px;
+  border-radius: 14px;
+  background: var(--color-soft);
+}
+.page-review__n {
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.page-review__label {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+.page-review__none {
+  margin: 12px 0 0;
+  color: var(--color-muted);
+  font-size: 14px;
+}

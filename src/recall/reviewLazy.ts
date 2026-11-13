@@ -21,3 +21,6 @@ export const wrongCardIds = (...a: Parameters<Review['wrongCardIds']>) =>
 
 export const dueByNotebook = (...a: Parameters<Review['dueByNotebook']>) =>
   review().then((m) => m.dueByNotebook(...a))
+
+export const pageCounts = (...a: Parameters<Review['pageCounts']>) =>
+  review().then((m) => m.pageCounts(...a))

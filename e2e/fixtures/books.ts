@@ -117,3 +117,27 @@ export function makeHostileEpub(): Buffer {
     }),
   )
 }
+
+/** An EPUB whose first chapter has a picture of its own and one from outside. */
+export function makePictureEpub(title = 'Picture Book'): Buffer {
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="160" viewBox="0 0 320 160"><rect width="320" height="160" fill="#7aa6d8"/><circle cx="90" cy="80" r="46" fill="#f2c94c"/><rect x="170" y="50" width="110" height="60" rx="10" fill="#3d6b4f"/></svg>'
+  const c1 =
+    '<?xml version="1.0" encoding="UTF-8"?><html xmlns="http://www.w3.org/1999/xhtml"><head><title>Chapter 1</title></head><body><h1>Chapter 1</h1><p>The quick brown fox jumps over the lazy dog.</p><p><img src="pic.svg" alt="A sun and a hill" width="320" height="160"/></p><p>A picture from another website follows and stays hidden.</p><p><img src="https://tracker.example/pixel.png" alt="Outside picture" width="120" height="60"/></p></body></html>'
+  return Buffer.from(
+    zipSync({
+      mimetype: [strToU8('application/epub+zip'), { level: 0 }],
+      'META-INF/container.xml': strToU8(
+        '<?xml version="1.0"?><container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>',
+      ),
+      'OEBPS/content.opf': strToU8(
+        `<?xml version="1.0"?><package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="id">picture-epub</dc:identifier><dc:title>${title}</dc:title><dc:language>en</dc:language></metadata><manifest><item id="c1" href="c1.xhtml" media-type="application/xhtml+xml"/><item id="pic" href="pic.svg" media-type="image/svg+xml"/><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/></manifest><spine><itemref idref="c1"/></spine></package>`,
+      ),
+      'OEBPS/nav.xhtml': strToU8(
+        '<?xml version="1.0"?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops"><head><title>Nav</title></head><body><nav epub:type="toc"><ol><li><a href="c1.xhtml">Chapter 1</a></li></ol></nav></body></html>',
+      ),
+      'OEBPS/c1.xhtml': strToU8(c1),
+      'OEBPS/pic.svg': strToU8(svg),
+    }),
+  )
+}

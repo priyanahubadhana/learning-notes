@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: build manager run 7 (gates)
+
+Card close focus-trap fix c17bd0d9 on build/next (src/design/parts/Card.tsx, Card.test.ts): the card drops its Tab trap and returns focus at once, not after the 130 ms closing motion; fixes red e2e/toolbarV8Tools.spec.ts:585 on ipad-webkit (CI 43505401817); after-the-fact gate 2 PASS. Gate 2: 8b PASS; Reader v2 PASS at 7d36cbdb (RD-P25 deterministic, book pages block outside pictures); toolbar 1e/1f round 3 FAIL (flaky 200 ms test); 12 rest FAIL then paste tests added (cb3eba9d). Gate 3: 8b PASS. Two decisions logged for the owner (iPad paste tests, EPUB scripts). Files: docs/BUILD-STATE.md, PENDING.md, DECISIONS.md, CHANGELOG.md.
+
 ### 13 Nov 2026: build system trial benchmark
 
 The new build system is a TRIAL against the old one. Added docs/plans/system-trial-2026-11-13.md (metrics, how to measure, baseline from git and gh), pulse script now appends a CSV row to docs/metrics/build-pulse.csv, trial line in ECONOMY-MODE.md and BUILD-STATE.md. No rule changed.

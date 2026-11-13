@@ -1258,3 +1258,25 @@ html[data-box-drag] {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
+
+/* Toolbar v8 (gate 3, tenth visit): a picked picture has one set of handles
+   (ours) and the accent frame of a drawing; BlockNote's side pills,
+   the orange outline and the text box frame stay quiet. */
+.bn-file-block-content-wrapper[data-v8-picked] .bn-resize-handle {
+  display: none !important;
+}
+.bn-editor .bn-file-block-content-wrapper[data-v8-picked] img.bn-visual-media {
+  outline: 1px dashed var(--color-accent) !important;
+  outline-offset: 2px !important;
+  border-radius: 2px;
+}
+:root[data-v8-picture] [data-box-frame] {
+  border-color: transparent !important;
+}
+:root[data-v8-picture] [data-main-frame],
+:root[data-v8-picture] [data-main-handles],
+:root[data-v8-picture] [data-box-grip],
+:root[data-v8-picture] [data-box-menu],
+:root[data-v8-picture] [data-resize-handle] {
+  visibility: hidden;
+}

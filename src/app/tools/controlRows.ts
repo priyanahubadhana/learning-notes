@@ -9,6 +9,7 @@ import '../../settings/lockSettings'
 import '../../settings/accountSettings'
 import { getAppActions } from './toolRuntime'
 import type { IconName } from './icons'
+import { shownByFlags } from '../../settings/flagGate'
 import {
   allTools,
   comingText,
@@ -60,6 +61,7 @@ export function buildRows(): Row[] {
     }
   })
   for (const setting of settingsRegistry.list()) {
+    if (!shownByFlags(setting.id)) continue
     const category = settingsRegistry
       .categories()
       .find((c) => c.id === setting.category)

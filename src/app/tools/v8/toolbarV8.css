@@ -79,6 +79,10 @@
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+/* The row clips what sticks out: the ring stays whole by sitting inside the chip. */
+.v8row .v8chip:focus-visible {
+  outline-offset: -2px;
+}
 .v8chev {
   transition: transform var(--dur-2) var(--ease-out);
 }
@@ -294,4 +298,28 @@
     transition: none;
     animation: none;
   }
+}
+
+/* Phone sheets of the new bar are solid: nothing shows through (the tab bar glow). */
+.pcard[data-phone][data-testid^='v8-card-'] {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+/* On touch a card opens without a ring on its cross (a ring means keyboard). */
+@media (hover: none) {
+  .pcard[data-testid^='v8-card-'] .pcard-x:focus-visible {
+    outline: none;
+  }
+}
+/* Chosen words wear the accent tint, not the system blue. */
+.bn-editor::selection,
+.bn-editor ::selection {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+/* A tap or click that opens a card leaves no ring on its chip or tool: only the keyboard gets one. */
+:root[data-v8-pointer] .v8tool:focus-visible,
+:root[data-v8-pointer] .v8chip:focus-visible,
+:root[data-v8-pointer] .v8row .v8chip:focus-visible {
+  outline: none;
 }

@@ -1,5 +1,12 @@
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, typeInEditor } from './helpers.ts'
+import {
+  addPage,
+  createNotebook,
+  openPage,
+  pageAction,
+  showSidebar,
+  typeInEditor,
+} from './helpers.ts'
 
 /**
  * Slice 0h: the new app frame (flag foundation.shell). One test per line of
@@ -222,9 +229,15 @@ test('SH-08 on a phone the panel is an overlay and the top bar stays reachable',
 })
 
 test('works offline once loaded', async ({ page, context }) => {
+  // The app fetches the lazy Home chunk quietly 1 s after it starts, which
+  // can be after the network first goes quiet. Going offline before that
+  // makes the import fail and the app reloads itself, so "loaded" means the
+  // chunk has arrived (not just networkidle).
+  const homeChunk = page.waitForResponse((r) =>
+    /HomeScreen-.*.js/.test(r.url()),
+  )
   await start(page)
-  // "loaded" includes the lazy Home chunk; going offline before it arrives
-  // makes the import fail and the app reloads itself (seen on slow CI)
+  await homeChunk
   await page.waitForLoadState('networkidle')
   await context.setOffline(true)
   const html = page.locator('html')
@@ -330,12 +343,15 @@ test('SH-08 iPad landscape 1180: the panel opens over the page and the page keep
   const panel = page.getByTestId('left-panel')
   await expect(panel).toBeVisible()
   await expect(side(page)).toBeVisible()
-  // Over the page: the page does not shrink, and the panel starts after the sidebar.
+  // Over the docked sidebar, never the page: the page does not shrink, and
+  // the panel ends where the page starts (the page's own ✕ stays reachable).
   expect(await mainWidth(page)).toBe(before)
   const sideBox = await side(page).boundingBox()
+  const mainBox = await page.locator('.sh-main').boundingBox()
   const box = await panel.boundingBox()
-  expect(box?.x ?? 0).toBeGreaterThanOrEqual(
-    (sideBox?.x ?? 0) + (sideBox?.width ?? 0),
+  expect(box?.x ?? 0).toBeLessThanOrEqual((sideBox?.x ?? 0) + 1)
+  expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(
+    (mainBox?.x ?? 0) + 1,
   )
   await page.keyboard.press('Escape')
   await expect(panel).toBeHidden()
@@ -365,6 +381,21 @@ test('SH-08 iPad portrait 820: the sidebar sits on the rail and the panel opens 
   await expect(page.getByTestId('shell-scrim')).toBeVisible()
 })
 
+test('SH-08 iPad portrait 820 and 768: the sidebar is closed on first open, with and without Home v2', async ({
+  page,
+}) => {
+  for (const flags of ['foundation.shell', 'foundation.shell,home.v2']) {
+    for (const width of [820, 768]) {
+      await page.setViewportSize({ width, height: 1180 })
+      await page.goto(`/?flags=${flags}`)
+      await page.evaluate(() => localStorage.clear())
+      await page.goto(`/?flags=${flags}`)
+      await expect(page.locator('.sh-frame')).toBeVisible()
+      await expect(side(page)).toBeHidden()
+    }
+  }
+})
+
 test('SH-08 1366 wide still docks both and the page keeps 600 or more', async ({
   page,
 }) => {
@@ -388,4 +419,27 @@ test('SH-05 with the flag off Settings has no Undo and Redo row; on, it has', as
   await expect(
     page.locator('[data-setting-id="general.showUndoRedo"]'),
   ).toHaveCount(1)
+})
+
+test('SH-12 the app’s messages use the shell toast: Delete page shows one with Undo, and Undo restores', async ({
+  page,
+}) => {
+  await start(page)
+  await createNotebook(page, 'Delete NB', 'Parent')
+  await addPage(page, 'Parent', 'Child', 'sub-page')
+  await openPage(page, 'Parent')
+  await pageAction(page, 'Delete page')
+  const toast = page.getByTestId('shell-toast')
+  await expect(toast).toContainText('1 sub-page')
+  await expect(toast).toHaveAttribute('role', 'status')
+  // One toast only: the older one is not drawn.
+  await expect(page.getByRole('status')).toHaveCount(1)
+  await toast.getByRole('button', { name: 'Undo' }).click()
+  await expect(toast).toBeHidden()
+  await showSidebar(page)
+  await expect(
+    page
+      .locator('#sidebar')
+      .getByRole('button', { name: 'Parent', exact: true }),
+  ).toBeVisible()
 })

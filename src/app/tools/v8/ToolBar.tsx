@@ -489,11 +489,13 @@ export function ToolBar({
             ? t('v8.row.moreN', { count: folded.length })
             : t('v8.bar.more')
         }
+        data-active={(!moreOpen && folded.includes(tool)) || undefined}
         data-pressed={moreOpen || undefined}
         onMouseDown={keepFocus}
         onClick={(e) => onToggleCard('fold.bar', e.currentTarget)}
       >
-        <Icon name="more" size={20} />
+        {/* The slot lit and showing the tool that sits behind it (TB-08). */}
+        <Icon name={folded.includes(tool) ? iconOf(tool) : 'more'} size={20} />
         {folded.length ? (
           <span className="v8badge">{folded.length}</span>
         ) : null}

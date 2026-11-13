@@ -39,6 +39,7 @@ import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { toggleFavourite } from './app/favourites'
 import { isOn, useFlag } from './app/flags'
+import { shellToasts } from './app/shell/toastStore'
 import { useFrameSize } from './app/shell/useFrameSize'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
 import { QuietCorner } from './app/spaces/QuietCorner'
@@ -756,7 +757,11 @@ function App() {
   useEffect(() => {
     workspacePromise ??= (async () => {
       const ws = await getOrCreateDefaultWorkspace(db)
-      await ensureTemplates(db, ws.id) // starter templates on first run
+      // Starter templates on first run: written in the background, a few at a
+      // time, so the app opens at once (it used to wait ~14 s on iPad Safari).
+      ensureTemplates(db, ws.id).catch((error: unknown) =>
+        console.error('Could not add the starter templates', error),
+      )
       await noteFirstUse(db) // the backup reminder counts from here
       // Indexes notes saved before search existed; runs in the background.
       ensureSearchIndex(db).catch((error: unknown) =>
@@ -909,6 +914,11 @@ function App() {
       new Promise((resolve) => setNameAsk({ title, initial, resolve })),
     openSettings,
     toast: (message, action) => {
+      // The new frame (flag foundation.shell) draws its own toast (SH-12).
+      if (shellOn) {
+        shellToasts.show(message, action)
+        return
+      }
       // Choosing the action also closes the toast.
       const closing = action && {
         ...action,
@@ -1090,7 +1100,11 @@ function App() {
       !templateId &&
       workspace &&
       (await getSetting(db, newPageStudySetting)) === 'on'
-        ? (await getStudyTemplate(db, workspace.id))?.id
+        ? (
+            await ensureTemplates(db, workspace.id).then(() =>
+              getStudyTemplate(db, workspace.id),
+            )
+          )?.id
         : undefined
     const fillId = templateId ?? studyId
     const page = fillId

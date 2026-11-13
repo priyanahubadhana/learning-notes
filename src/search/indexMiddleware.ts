@@ -112,8 +112,10 @@ async function replaceRows(
   blockIds: string[],
   rangeOf: (blockId: string) => [string, string],
   put: object[],
+  /** Brand-new blocks (an add): no old rows exist, so nothing to clear. */
+  fresh = false,
 ): Promise<void> {
-  for (const id of blockIds) {
+  for (const id of fresh ? [] : blockIds) {
     const [lower, upper] = rangeOf(id)
     await rows.mutate({
       type: 'deleteRange',
@@ -144,14 +146,18 @@ async function mutateBlocks(
   const saved = written<Block>(req, res)
   if (saved.length === 0) return res
   const ids = saved.map((b) => b.id)
-  await replaceRows(links, trans, ids, linkRowRange, saved.flatMap(linkRows))
-  await replaceRows(
-    blockTags,
-    trans,
-    ids,
-    blockTagRowRange,
-    saved.flatMap(blockTagRows),
-  )
+  // Brand-new blocks (an add) have no old rows to clear, so with no rows to
+  // write either, nothing is awaited (a bare await would also lose Dexie's
+  // transaction context for the steps after it).
+  const fresh = req.type === 'add'
+  const linkPut = saved.flatMap(linkRows)
+  if (!fresh || linkPut.length > 0) {
+    await replaceRows(links, trans, ids, linkRowRange, linkPut, fresh)
+  }
+  const tagPut = saved.flatMap(blockTagRows)
+  if (!fresh || tagPut.length > 0) {
+    await replaceRows(blockTags, trans, ids, blockTagRowRange, tagPut, fresh)
+  }
 
   // Blocks only know their page; the entry also stores the notebook. A page
   // not saved yet gets its notebook filled in when it is (mutatePages).

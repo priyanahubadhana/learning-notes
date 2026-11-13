@@ -19,7 +19,6 @@ import { enInk } from './ink'
 import { enLibrary } from './library'
 import { enLock } from './lock'
 import { enMedia } from './media'
-import { enPdf } from './pdf'
 import { enReading } from './reading'
 import { enRecall } from './recall'
 import { enSearch } from './search'
@@ -44,7 +43,6 @@ export const en = {
   ...enLibrary,
   ...enLock,
   ...enMedia,
-  ...enPdf,
   ...enReading,
   ...enRecall,
   ...enSearch,

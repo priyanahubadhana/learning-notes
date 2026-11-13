@@ -99,6 +99,7 @@ function Bar({
         className="sh-fbar"
         data-testid="floating-bar"
         data-bar={id}
+        data-toast-avoid=""
         data-pulse={pulse ? '' : undefined}
         style={
           lift ? ({ '--fbar-lift': `${lift}px` } as CSSProperties) : undefined

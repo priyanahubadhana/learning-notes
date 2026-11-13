@@ -103,6 +103,8 @@ export default defineConfig({
         /magnifier/,
         /aiPicker/,
         /openNotebook/,
+        /startSpeed/,
+        /startSeeding/,
         /tryNewFeatures/,
         /libraryV2/,
         /foundationInput/,
@@ -160,6 +162,8 @@ export default defineConfig({
         /textBoxFree/,
         /homeV2/,
         /readerV2(?!.*Shots)/,
+        // Paste needs the clipboard-write permission, which WebKit does not have: chromium only.
+        /toolbarV8(Bar|Frame|Pen|Row|Tools).spec/,
       ],
       // WebKit on Windows can take ~15 s to start the app on a cold page.
       use: {

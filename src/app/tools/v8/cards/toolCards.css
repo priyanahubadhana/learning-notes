@@ -1,0 +1,172 @@
+/* Toolbar v8, slice 1d: Eraser, Shapes and Lasso cards, selection bar. Tokens only. */
+.v8ring {
+  display: grid;
+  place-items: center;
+  min-height: 64px;
+  border-radius: var(--r-md);
+  background: var(--card-well);
+}
+.v8ring i {
+  display: block;
+  border: 2px solid var(--color-ink-soft);
+  border-radius: 50%;
+  background: transparent;
+}
+.v8list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.v8list li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  font-size: 14px;
+}
+.v8list li + li {
+  border-top: 1px solid var(--color-line);
+}
+.v8list svg {
+  flex: none;
+  color: var(--color-ink-soft);
+}
+
+/* ---- selection bar: one wrapping row under the tool row ---- */
+.v8sel {
+  min-width: 0;
+  border-top: 1px solid var(--color-line);
+}
+/* One row always; a row wider than the screen scrolls under a thin track. */
+.v8sel-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 2px;
+  padding: 2px var(--space-2);
+}
+.v8sel button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.v8sel button:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+/* A word beside each icon where there is room (PC, iPad landscape). */
+.v8sel-word {
+  display: none;
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+@media (min-width: 1000px) {
+  .v8sel button {
+    padding: 0 10px;
+  }
+  .v8sel-word {
+    display: inline;
+  }
+}
+.v8sel button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.v8sel-more {
+  display: flex;
+  flex-direction: column;
+}
+.v8sel-more button {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.v8sel-more button:hover {
+  background: var(--card-well);
+}
+/* The ring sits inside the row, so the card edge never cuts it. */
+.v8sel-more button:focus-visible {
+  outline-offset: -2px;
+}
+/* Colour tiles keep a clear edge on a dark card (black on night). */
+.pcard[data-testid^='v8-card-'] .pcard-swatch {
+  box-shadow: inset 0 0 0 1px var(--color-line-strong);
+}
+
+/* The Lasso Actions card scrolls inside the window instead of jumping above its chip. */
+.v8scroll {
+  max-height: calc(100dvh - 260px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.v8scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* The Colour picker row: the shared round swatch with ▾ where a switch would
+   be; the browser picker lies invisible over the whole row (opens the dialog). */
+.v8swatchrow {
+  position: relative;
+  cursor: pointer;
+}
+.v8swatchpick {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-ink-soft);
+}
+.v8swatchinput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.v8swatchrow:has(.v8swatchinput:focus-visible) {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+/* Group labels keep the card-system group gap, as in the Shape card. */
+.v8scroll,
+.v8sel-more:has(> .pcard-group) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* A card opened by a tap or click shows no ring; the keyboard still gets one
+   (data-v8-pointer is set by a pointer and cleared by any key). */
+:root[data-v8-pointer] .pcard[data-testid^='v8-card-'] :focus-visible {
+  outline: none;
+}
+
+/* Text size: the five "%" labels on one line, however big the letter above. */
+.pcard[data-testid^='v8-card-'] .pcard-tile-label {
+  margin-top: auto;
+}

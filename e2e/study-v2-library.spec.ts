@@ -86,8 +86,11 @@ test('ST12: Professional keeps the whole library under the tiles', async ({
 test('ST13: with AI off, copy the prompt, paste the answer, add to page, Undo', async ({
   page,
   context,
+  browserName,
 }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  // WebKit has no clipboard permission to grant; the copy button is still pressed.
+  if (browserName === 'chromium')
+    await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await asLevel(page, 'beginner')
   await bookPage(page)
   await page.getByTestId('ai-prompts').click()
@@ -95,8 +98,10 @@ test('ST13: with AI off, copy the prompt, paste the answer, add to page, Undo', 
   await dialog.getByRole('button', { name: 'Run Summarise' }).click()
   await expect(dialog.getByTestId('run-ai')).toHaveCount(0)
   await dialog.getByRole('button', { name: 'Copy prompt' }).click()
-  const copied = await page.evaluate(() => navigator.clipboard.readText())
-  expect(copied).toContain('Summarise the text')
+  if (browserName === 'chromium') {
+    const copied = await page.evaluate(() => navigator.clipboard.readText())
+    expect(copied).toContain('Summarise the text')
+  }
   await dialog.getByTestId('paste-answer').fill('Mitochondria make energy.')
   await dialog.getByTestId('paste-import').click()
   await expect(dialog.getByTestId('run-answer')).toHaveValue(

@@ -54,11 +54,17 @@ const isTab = (v: unknown): v is Tab => TABS.includes(v as Tab)
 const PANEL_Z = 'z-[39]'
 
 /** Bottom edge of the top bar that holds the panel button (0 if none). */
-function topBarBottom(): number {
+function topBarRect(): { left: number; right: number; bottom: number } {
   const bar = document
     .querySelector('[data-testid="panel-toggle"]')
     ?.closest('header')
-  return bar ? Math.round(bar.getBoundingClientRect().bottom) : 0
+  if (!bar) return { left: 0, right: 0, bottom: 0 }
+  const r = bar.getBoundingClientRect()
+  return {
+    left: Math.max(0, Math.round(r.left)),
+    right: Math.max(0, Math.round(window.innerWidth - r.right)),
+    bottom: Math.round(r.bottom),
+  }
 }
 
 /** Screens at least this wide dock the panel; narrower ones overlay it. */
@@ -452,7 +458,8 @@ export function LeftPanel({
   // bar (its panel button stays reachable), is solid, full width on a phone,
   // and has the dim layer behind it.
   const sheet = !!book && !docked
-  const barBottom = sheet ? topBarBottom() : 0
+  const bar = sheet ? topBarRect() : { left: 0, right: 0, bottom: 0 }
+  const barBottom = bar.bottom
   const aside = (
     <aside
       data-chrome
@@ -549,6 +556,26 @@ export function LeftPanel({
         style={{ top: barBottom }}
         className={`fixed inset-x-0 bottom-0 ${PANEL_Z} bg-[var(--scrim)]`}
       />
+      {/* Gate 3 v5 fix 3: also dim beside the top bar (rail and sidebar
+          header), so only the top bar stays bright. */}
+      {bar.left > 0 && (
+        <div
+          data-testid="left-panel-dim-side"
+          aria-hidden
+          onClick={onClose}
+          style={{ top: 0, height: barBottom, width: bar.left }}
+          className={`fixed left-0 ${PANEL_Z} bg-[var(--scrim)]`}
+        />
+      )}
+      {bar.right > 0 && (
+        <div
+          data-testid="left-panel-dim-side"
+          aria-hidden
+          onClick={onClose}
+          style={{ top: 0, height: barBottom, width: bar.right }}
+          className={`fixed right-0 ${PANEL_Z} bg-[var(--scrim)]`}
+        />
+      )}
       {aside}
     </>
   )

@@ -1,6 +1,6 @@
 # Gate 3 pictures: AI framework slice 9, part 6 (flag ai.framework ON)
 
-Taken by e2e/aiStudioShots.spec.ts (SHOTS=1 PW_PORT=<port> npx playwright test --project=chromium e2e/aiStudioShots.spec.ts) after the last source edit; last source commit 27990f56. Sizes: phone 390x844, iPad landscape 1194x834, iPad portrait 820x1180, PC 1336x800. Themes light, dark, sepia. Levels beginner, professional. 120 pictures = 5 screens x 4 sizes x 3 themes x 2 levels.
+Taken by e2e/aiStudioShots.spec.ts (SHOTS=1 PW_PORT=<port> npx playwright test --project=chromium e2e/aiStudioShots.spec.ts) after the last source edit; last source commit 571158ea (gate 2 fix round: the 60 workflows-_ pictures re-shot after it; studio-_ unchanged by it, kept). Sizes: phone 390x844, iPad landscape 1194x834, iPad portrait 820x1180, PC 1336x800. Themes light, dark, sepia. Levels beginner, professional. 120 pictures = 5 screens x 4 sizes x 3 themes x 2 levels.
 
 Fixes proven: A3 per-tile placement and Undo/Redo = studio-plan-_; A4 saved views = workflows-naming-_, workflows-view-_; run bar path no longer squeezed on iPad and PC = studio-plan-ipad-_, studio-plan-pc-_; A1 stacked bar = studio-plan-phone-_.
 
@@ -17,8 +17,7 @@ Fixes proven: A3 per-tile placement and Undo/Redo = studio-plan-_; A4 saved view
 - thin scroll track under a cut-off row: no row is cut off; the screen scrolls as a whole (ok)
 - toast above the phone tab bar: toasts are closed in every picture; unchanged BuildToasts part (ok)
 - sidebar closed on iPad portrait: the AI screen is a full-screen sheet; no sidebar shows (ok)
-- shared parts only: Lucide icons, ClearField, OnOffChoice, TagPicker, one button style per panel. NOT OK, already there before this part: Workflows uses native select boxes for Sort, rating, For and Used at least (see workflows-list-*). Reported to the manager; fixing needs a new shared select part.
-- no key names on touch screens: none shown (ok)
+- shared parts only: Lucide icons, ClearField, OnOffChoice, TagPicker, one button style per panel. ok: Sort, rating, Made for and Used at least are now the shared ▾ menu (MenuSelect over MenuPopover), no native select boxes (proof: workflows-list-_, workflows-naming-_).
 - pictures in Light, Dark, Sepia with real data: yes (workflows saved through Studio)
 - both levels, iPad landscape and portrait, phone, PC: yes
 

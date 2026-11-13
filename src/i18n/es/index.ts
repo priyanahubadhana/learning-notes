@@ -30,6 +30,7 @@ import { esFlags } from './flags'
 import { esShell } from './shell'
 import { esAiBuild } from './aibuild'
 import { esAiJobs } from './aijobs'
+import { esReviewV2 } from './reviewV2'
 import { esAiPlan } from './aiplan'
 import { esParts } from './parts'
 import { esV8Pen } from './v8Pen'
@@ -65,6 +66,7 @@ export const es: Record<string, string> = {
   ...esShell,
   ...esAiBuild,
   ...esAiJobs,
+  ...esReviewV2,
   ...esAiPlan,
   ...esParts,
   ...esLibraryV2,

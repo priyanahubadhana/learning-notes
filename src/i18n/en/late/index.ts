@@ -27,6 +27,7 @@ import { enLateFlags } from './flags'
 import { enLateShell } from './shell'
 import { enLateAiBuild } from './aibuild'
 import { enLateAiJobs } from './aijobs'
+import { enLateReviewV2 } from './reviewV2'
 import { enLateAiPlan } from './aiplan'
 import { enParts } from '../parts'
 import { enV8Pen } from '../v8Pen'
@@ -59,6 +60,7 @@ export const enLate = {
   ...enLateShell,
   ...enLateAiBuild,
   ...enLateAiJobs,
+  ...enLateReviewV2,
   ...enLateAiPlan,
   ...enParts,
   ...enLateLibraryV2,

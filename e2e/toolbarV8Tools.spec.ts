@@ -300,8 +300,10 @@ test('TB-34 a selected picture offers Edit picture (Professional): crop, turn, s
   ).toBeVisible()
   const before = (await img.boundingBox())!.width
   await list.getByRole('button', { name: 'Smaller' }).click()
+  // The picture block re-renders on resize, so for a moment it has no box:
+  // keep polling (Infinity) until the new, smaller one is on screen.
   await expect
-    .poll(async () => (await img.boundingBox())!.width)
+    .poll(async () => (await img.boundingBox())?.width ?? Infinity)
     .toBeLessThan(before)
   // The editor behind "Crop and rotate" has turn, straighten and crop shapes.
   await list.getByRole('button', { name: 'Crop and rotate' }).click()

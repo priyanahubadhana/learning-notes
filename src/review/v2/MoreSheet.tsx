@@ -1,4 +1,4 @@
-import { useContext, useMemo, useRef, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
 import { MoreSheet as ShellMoreSheet } from '../../app/shell/MoreSheet'
@@ -20,7 +20,7 @@ export interface ReviewMoreSheetProps {
  */
 export function ReviewMoreSheet({ onClose }: ReviewMoreSheetProps) {
   const ui = useContext(AppUiContext)
-  const draft = useRef(createDraft()).current
+  const [draft] = useState(createDraft)
   const tabs = useMemo(() => moreTabs(isUnlocked), [])
   const [tab, setTab] = useState<MoreTabId | string>(tabs[0]?.id ?? '')
   const [, bump] = useState(0)

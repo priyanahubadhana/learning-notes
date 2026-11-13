@@ -1,6 +1,6 @@
 import type { TabDef } from '../../design/parts/TabRow'
 import type { ProFeatureId } from '../../settings/proFeatures.gen'
-import { t } from '../../i18n/t'
+import { t, type MessageKey } from '../../i18n/t'
 
 /**
  * The draft model of the More sheet: edits are staged, nothing is saved until
@@ -40,7 +40,7 @@ export function createDraft() {
 export type MoreTabId =
   'decks' | 'browse' | 'editor' | 'make' | 'stats' | 'scheduler' | 'anki'
 
-const TABS: { id: MoreTabId; key: ProFeatureId; label: string }[] = [
+const TABS: { id: MoreTabId; key: ProFeatureId; label: MessageKey }[] = [
   { id: 'decks', key: 'rev.decks', label: 'rv2.tab.decks' },
   { id: 'browse', key: 'rev.browse', label: 'rv2.tab.browse' },
   { id: 'editor', key: 'rev.editor', label: 'rv2.tab.editor' },

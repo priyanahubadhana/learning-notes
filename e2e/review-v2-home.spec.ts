@@ -4,6 +4,7 @@ import {
   createNotebook,
   makeCard,
   contrastOf,
+  openSidebar,
   startInTheme,
 } from './helpers.ts'
 
@@ -17,7 +18,7 @@ const FLAGGED = '/?flags=review.v2'
 const home = (page: Page) => page.getByTestId('rv2-home')
 const sheet = (page: Page) => page.getByTestId('more-sheet')
 
-async function seed(page: Page, n: number, off: string[] = []) {
+async function seed(page: Page, n: number, off: string[] = [], url = FLAGGED) {
   if (off.length)
     await page.addInitScript((ids) => {
       localStorage.setItem(
@@ -25,7 +26,7 @@ async function seed(page: Page, n: number, off: string[] = []) {
         JSON.stringify({ level: 'professional', unlocked: [], off: ids }),
       )
     }, off)
-  await page.goto(FLAGGED)
+  await page.goto(url)
   await createNotebook(page, 'Cardiology', 'Heart sounds')
   for (let i = 1; i <= n; i++) {
     if (i > 1) await page.keyboard.press('Enter')
@@ -143,8 +144,18 @@ test('RV-P07: Got wrong shows (n), Start reviews them and there is no Practice f
   await seed(page, 1)
   await openReview(page)
   await page.getByTestId('rv2-start').click()
+  await expect(page.getByTestId('rv2-session')).toHaveAttribute(
+    'data-revealed',
+    '0',
+  )
+  await expect(page.locator('[data-side="front"]')).toContainText('Question 1')
   await page.keyboard.press('Space')
+  await expect(page.getByTestId('rv2-session')).toHaveAttribute(
+    'data-revealed',
+    '1',
+  )
   await page.keyboard.press('1') // Again
+  await expect(page.getByTestId('rv2-waiting')).toBeVisible()
   await page.keyboard.press('Escape')
   const wrong = page.getByTestId('rv2-chips').getByRole('radio', {
     name: /Got wrong/,
@@ -236,13 +247,21 @@ test.describe('Phone', () => {
     page,
   }) => {
     await seed(page, 1)
-    // The phone Review button opens the session; use the address for Home.
-    await page.goto('/?flags=review.v2#/review')
+    await (
+      await openSidebar(page)
+    )
+      .getByRole('button', { name: /^Review(?! this)/ })
+      .click()
+    await expect(page.getByTestId('rv2-show')).toBeVisible()
+    // Phone: the menu opens the session; the plain address is Review home.
+    await page.evaluate(() => (location.hash = '#/'))
     await expect(home(page)).toBeVisible()
     await page.getByTestId('rv2-more').tap()
+    await expect
+      .poll(async () => (await sheet(page).boundingBox())!.y)
+      .toBeLessThanOrEqual(10)
     const box = (await sheet(page).boundingBox())!
     expect(box.width).toBeGreaterThanOrEqual(388)
-    expect(box.y).toBeLessThanOrEqual(10)
     const done = (await page.getByTestId('more-done').boundingBox())!
     expect(done.y + done.height).toBeLessThanOrEqual(844)
     expect(done.height).toBeGreaterThanOrEqual(44)

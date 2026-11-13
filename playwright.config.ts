@@ -107,6 +107,7 @@ export default defineConfig({
         /startSeeding/,
         /tryNewFeatures/,
         /libraryV2/,
+        /review-v2-home.spec/,
         /foundationInput/,
         /foundationSelectionOverlay/,
         /barFixes/,

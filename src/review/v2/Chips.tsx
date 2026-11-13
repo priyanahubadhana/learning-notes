@@ -2,25 +2,13 @@ import { Icon } from '../../app/tools/icons'
 import { ScrollTrack } from '../../design/parts/ScrollTrack'
 import { t } from '../../i18n/t'
 import type { ReviewScope } from '../../recall/reviewService'
+import { chipKey, chipScope, type ChipKey } from './chipScope'
 
 export interface ChipDeck {
   id: string
   name: string
   colour?: string
 }
-
-/** Chip keys: "all", "wrong" or "deck:<id>". */
-export type ChipKey = string
-
-export const chipKey = (s: ReviewScope): ChipKey =>
-  s.kind === 'wrong' ? 'wrong' : s.kind === 'deck' ? `deck:${s.deckId}` : 'all'
-
-export const chipScope = (k: ChipKey): ReviewScope =>
-  k === 'wrong'
-    ? { kind: 'wrong' }
-    : k.startsWith('deck:')
-      ? { kind: 'deck', deckId: k.slice(5) }
-      : { kind: 'all' }
 
 export interface ChipsProps {
   decks: ChipDeck[]
@@ -61,7 +49,11 @@ export function Chips({
           className="rv2-btn rv2-btn--sm rv2-more"
           data-testid="rv2-more"
           aria-haspopup="dialog"
-          onClick={onMore}
+          onClick={(e) => {
+            // Safari does not focus a tapped button: focus it so the sheet can give focus back.
+            e.currentTarget.focus()
+            onMore()
+          }}
         >
           <Icon name="sliders" size={16} />
           {t('rv2.more')} <span aria-hidden>▾</span>

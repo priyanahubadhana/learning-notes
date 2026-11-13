@@ -46,7 +46,8 @@ export function Home({
       getPracticeCards(db, scope, 1),
     ])
     const extra = pro ? await homeExtras(db) : null
-    return { counts, hasCards: any.length > 0, extra }
+    // 'Got wrong' has no practice list, so it always shows its hero (Start is off at 0).
+    return { counts, hasCards: scope.kind === 'wrong' || any.length > 0, extra }
   }, [db, JSON.stringify(scope), pro])
 
   if (!data) {

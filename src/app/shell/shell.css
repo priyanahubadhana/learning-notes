@@ -326,6 +326,15 @@
   }
 }
 
+/* The reader's bars start after the top bar's menu buttons, never over them
+   (they are fixed across the whole window). useReaderInset sets the variable. */
+.reader-bar {
+  left: var(--sh-reader-left, 0px);
+}
+[data-testid='reader-mini-exit'] {
+  left: calc(var(--sh-reader-left, 0px) + 4px);
+}
+
 /* ---- sidebar + pages panel (SH-07, SH-08) ---- */
 .sh-main {
   /* Everything inside the page stays inside it: a column opened over the page

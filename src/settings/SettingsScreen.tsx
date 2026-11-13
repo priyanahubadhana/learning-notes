@@ -28,6 +28,7 @@ import './toolbarSettings'
 import './spaceSettings'
 import './labSettings'
 import './flagSettings'
+import { useShownByFlags } from './flagGate'
 import './readingSettings'
 import './lockSettings'
 import '../ai/aiSettings'
@@ -237,7 +238,10 @@ const inCategory = (visible: SettingDefinition[], category: string) => {
 
 /** All settings, minus those hidden by `shownWhen` (hidden while loading). */
 function useVisibleSettings(db: LearningNotesDB): SettingDefinition[] {
-  const all = settingsRegistry.list().filter((s) => !s.searchOnly)
+  const flagShown = useShownByFlags()
+  const all = settingsRegistry
+    .list()
+    .filter((s) => !s.searchOnly && flagShown(s.id))
   const controllers = useLiveQuery(async () => {
     const ids = [
       ...new Set(

@@ -60,4 +60,12 @@ export const enLateStudyV2 = {
   'st25.count': '{count} slides',
   'st26.helpers': 'Memory helpers',
   'st25.close': 'Close',
+  'st21.save': 'Save filter',
+  'st21.saved': 'Filter saved',
+  'st21.removed': 'Saved filter removed',
+  'st22.pause': 'Pause',
+  'st22.resume': 'Resume',
+  'st22.openNote': 'Open note',
+  'st22.paused': 'Card paused',
+  'st22.resumed': 'Card resumed',
 } as const

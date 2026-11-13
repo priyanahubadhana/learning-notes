@@ -7,6 +7,8 @@ export interface HeaderChip {
   id: string
   label: string
   onRemove: () => void
+  /** A saved filter: tapping the name applies it. */
+  onSelect?: () => void
 }
 
 /**
@@ -96,7 +98,17 @@ export function StudyTabHeader({
         <ul className="study-header__chips" aria-label={t('st2.filter')}>
           {chips.map((chip) => (
             <li key={chip.id} className="study-header__chip">
-              {chip.label}
+              {chip.onSelect ? (
+                <button
+                  type="button"
+                  onClick={chip.onSelect}
+                  className="study-header__chipname"
+                >
+                  {chip.label}
+                </button>
+              ) : (
+                chip.label
+              )}
               <button
                 type="button"
                 aria-label={t('st2.filter.remove', { name: chip.label })}

@@ -76,3 +76,7 @@
   font-size: 14px;
   font-weight: 500;
 }
+.study-header__chipname {
+  min-height: 44px;
+  font-size: 13px;
+}

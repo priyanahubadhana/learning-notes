@@ -532,3 +532,66 @@ test('ST15: Capture takes a pasted link and keeps a YouTube start time', async (
     .fill('https://youtu.be/dQw4w9WgXcQ?t=90')
   await expect(page.getByTestId('capture-url')).toHaveValue(/t=90/)
 })
+
+// ---- 15h: saved filters and the card strip (ST21, ST22) ----
+
+test('ST21: Save filter adds a chip in the header; ✕ removes it with Undo', async ({
+  page,
+}) => {
+  await asLevel(page, 'professional')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S1?', 1)
+  await openCards(page)
+  await page.getByTestId('study-header-filter').click()
+  await page.getByRole('menuitemradio', { name: 'New' }).click()
+  await page.getByTestId('study-header-filter').click()
+  await page.getByRole('menuitem', { name: 'Save filter' }).click()
+  // The active chip and the saved chip both show.
+  // The saved chip comes first; the live filter's chip is the last one.
+  await page.getByRole('button', { name: 'Remove filter New' }).last().click()
+  const saved = page.getByTestId('study-header').getByRole('button', {
+    name: 'New',
+    exact: true,
+  })
+  await expect(saved).toBeVisible()
+  await page.getByRole('button', { name: 'Remove filter New' }).click()
+  await expect(saved).toHaveCount(0)
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(saved).toBeVisible()
+})
+
+test('ST22: a long press on a card row offers Pause / Resume and Open note', async ({
+  page,
+}) => {
+  await asLevel(page, 'professional')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S1?', 1)
+  await openCards(page)
+  const row = main(page).getByRole('button', { name: /Which valves close/ })
+  await row.dispatchEvent('contextmenu')
+  const strip = page.getByTestId('card-strip')
+  await expect(strip).toBeVisible()
+  await expect(strip.getByRole('menuitem', { name: 'Open note' })).toBeVisible()
+  await strip.getByRole('menuitem', { name: 'Pause' }).click()
+  await expect(page.getByTestId('card-status')).toHaveText('Paused')
+  await row.dispatchEvent('contextmenu')
+  await page
+    .getByTestId('card-strip')
+    .getByRole('menuitem', { name: 'Resume' })
+    .click()
+  await expect(page.getByTestId('card-status')).toHaveText('New')
+})
+
+test('ST22: Beginner has no card strip', async ({ page }) => {
+  await asLevel(page, 'beginner')
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S1?', 1)
+  await openCards(page)
+  await main(page)
+    .getByRole('button', { name: /Which valves close/ })
+    .dispatchEvent('contextmenu')
+  await expect(page.getByTestId('card-strip')).toHaveCount(0)
+})

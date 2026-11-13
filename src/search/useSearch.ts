@@ -21,6 +21,8 @@ import {
 export function useSearch(
   db: LearningNotesDB,
   query: SearchQuery,
+  /** Bump to search again after a change the live query cannot see. */
+  refresh = 0,
 ): { outcome: SearchOutcome | undefined; now: number } {
   const settled = useDebounced(query, 120)
   const now = useMinuteClock()
@@ -28,7 +30,7 @@ export function useSearch(
   const open = unlockedIds.useValue().join(',')
   const outcome = useLiveQuery(
     () => runSearch(db, settled, now),
-    [db, JSON.stringify(settled), now, open],
+    [db, JSON.stringify(settled), now, open, refresh],
   )
   return { outcome, now }
 }

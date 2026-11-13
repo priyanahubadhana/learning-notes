@@ -40,3 +40,6 @@ playwright.*.config.ts
 
 # local Supabase CLI temp
 supabase/.temp/
+
+# local screenshots
+.shots/

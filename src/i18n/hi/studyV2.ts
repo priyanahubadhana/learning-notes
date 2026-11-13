@@ -46,6 +46,7 @@ export const hiStudyV2 = {
   'st8.saved': 'सहेजा गया',
   'st8.empty.title': 'अभी कोई सारांश नहीं',
   'st8.empty.action': 'नोट्स पर जाएँ',
+  'st8.empty.text': 'किसी नोट में एक पंक्ति चुनें और सारांश दबाएँ।',
   'st9.editInSummary': 'सारांश में बदलें',
   'st9.labels': 'लेबल',
   'st9.labelsTitle': 'लेबल',

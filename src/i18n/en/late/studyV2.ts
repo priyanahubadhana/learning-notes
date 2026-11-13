@@ -47,6 +47,7 @@ export const enLateStudyV2 = {
   'st8.saved': 'Saved',
   'st8.empty.title': 'No summary yet',
   'st8.empty.action': 'Go to notes',
+  'st8.empty.text': 'In a note, select a line and press Summary.',
   'st9.editInSummary': 'Edit in Summary',
   'st9.labels': 'Labels',
   'st9.labelsTitle': 'Labels',

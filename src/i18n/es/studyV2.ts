@@ -47,6 +47,7 @@ export const esStudyV2 = {
   'st8.saved': 'Guardado',
   'st8.empty.title': 'Aún no hay resumen',
   'st8.empty.action': 'Ir a las notas',
+  'st8.empty.text': 'En una nota, selecciona una línea y pulsa Resumen.',
   'st9.editInSummary': 'Editar en el Resumen',
   'st9.labels': 'Etiquetas',
   'st9.labelsTitle': 'Etiquetas',

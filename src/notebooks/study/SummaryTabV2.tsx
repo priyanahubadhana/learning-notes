@@ -100,11 +100,7 @@ export function SummaryTabV2({
               variant="inline"
               icon="list"
               title={t('st8.empty.title')}
-              text={t(
-                level === 'page' && pageId
-                  ? 'summary.emptyPage'
-                  : 'summary.emptyAll',
-              )}
+              text={t('st8.empty.text')}
               action={onGoToNotes ? t('st8.empty.action') : undefined}
               onAction={onGoToNotes}
               testId="summary-empty"

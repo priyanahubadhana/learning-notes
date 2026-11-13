@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { BeforeAfter } from '../parts/BeforeAfter'
 import { ToolFrame, type ToolAction } from '../parts/ToolFrame'
 import type { WizardStep } from '../parts/wizardLogic'
 import '../parts/Dialogs.css'
@@ -39,6 +40,10 @@ const T = {
   pageSteps: 'Page history steps',
   lastCloseLabel: 'Last close',
   noneYet: 'nothing yet',
+  original: 'The original picture',
+  noOriginal: 'There is no original to compare.',
+  openCompare: 'Open: Before / after',
+  openNoOriginal: 'Open: no original',
   pageUndo: 'Undo on the page',
   dragMe: 'Drag the dot. Nothing is drawn or selected here.',
   next: 'Next',
@@ -54,6 +59,8 @@ type Variant =
   | 'busy'
   | 'busyplain'
   | 'error'
+  | 'compare'
+  | 'nocompare'
 
 const STEPS: WizardStep[] = [
   { id: 'a', label: 'Pick' },
@@ -84,6 +91,7 @@ function Demo3({
     variant === 'busy' || variant === 'busyplain',
   )
   const [err, setErr] = useState(variant === 'error')
+  const [showBefore, setShowBefore] = useState(false)
   const drag = useRef<{ x: number; y: number } | null>(null)
   const cur: Look = done[done.length - 1] ?? { n: 0, x: 50, y: 50 }
   const push = (l: Look) => {
@@ -161,6 +169,21 @@ function Demo3({
     setLive(null)
   }
 
+  const withOriginal = (edit: React.ReactNode) =>
+    variant === 'compare' || variant === 'nocompare' ? (
+      <BeforeAfter
+        mode="hold"
+        showBefore={showBefore}
+        before={
+          <div className="tfd-pic" data-testid="tfd-original" data-look="2">
+            <p>{T.original}</p>
+          </div>
+        }
+        after={edit}
+      />
+    ) : (
+      edit
+    )
   const notReady = variant === 'notready'
   const hint = notReady ? T.pickFirst : undefined
   return (
@@ -171,7 +194,14 @@ function Demo3({
       steps={variant === 'steps' ? STEPS : undefined}
       step={variant === 'steps' ? step : undefined}
       onStep={setStep}
-      preview={
+      compare={
+        variant === 'compare'
+          ? { onShow: setShowBefore }
+          : variant === 'nocompare'
+            ? { onShow: setShowBefore, disabledReason: T.noOriginal }
+            : undefined
+      }
+      preview={withOriginal(
         <div className="tfd-pic" data-testid="tfd-pic" data-look={shown.n}>
           <p>{T.dragMe}</p>
           <i
@@ -183,8 +213,8 @@ function Demo3({
             onPointerUp={onUp}
             onPointerCancel={onUp}
           />
-        </div>
-      }
+        </div>,
+      )}
       tools={tools}
       history={{
         canUndo: done.length > 0,
@@ -238,6 +268,8 @@ const BUTTONS: [Variant, string][] = [
   ['busy', T.openBusy],
   ['busyplain', T.openBusyPlain],
   ['error', T.openError],
+  ['compare', T.openCompare],
+  ['nocompare', T.openNoOriginal],
 ]
 
 export default function ToolFrameSection() {

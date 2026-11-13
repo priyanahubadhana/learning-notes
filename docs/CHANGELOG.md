@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: shared parts step 3 (Tool frame, Wizard steps, Status pill stack, Before / after)
+
+- What: four new parts, shown only in the Parts gallery (no screen uses them yet): Tool frame (full screen, 52 px bar, 64 px footer, discard dialog, Undo / Redo, tools row that folds into "..."), Wizard steps (one-line strip, compact on phone), Status pill stack (fixed order, 4 + "+n", lifts above keyboard / tab bar / toast / Tool frame footer) and Before / after (hold and side modes). New layers --z-tool 43 and --z-pills 45.
+- Why: spec docs/features/shared-parts.md section 5 (S3-01 to S3-40, D16 to D20); later slices build crop, scan, import, History and conflicts on these parts.
+- Files: src/design/parts/{ToolFrame,WizardSteps,StatusPill,BeforeAfter,CompareButton}.*, wizardLogic.ts, toolFrameLogic.ts, compareBlocks.ts, tp3.ts, src/app/overlay/{pillStack.tsx,pillHooks.ts,pillStore.ts,pillLogic.ts,pillEnv.ts,visualViewport.ts,stepLayers.css}, Card prefer=above, gallery sections (Wizard, ToolFrame, Pills, Compare), texts en/es/hi, tokens.css, e2e/parts-gallery-{wizard,toolframe,pills,compare}.spec.ts, e2e/parts-gallery.spec.ts (13 -> 17 sections).
+
 ### 13 Nov 2026: fast start (WebKit start 15 s -> 1.2 s)
 
 - What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.

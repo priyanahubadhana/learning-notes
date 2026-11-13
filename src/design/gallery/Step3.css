@@ -109,3 +109,22 @@
   flex-direction: column;
   gap: 12px;
 }
+.step3-hold-frame {
+  box-sizing: border-box;
+  width: min(100%, 420px);
+  height: 220px;
+  margin-top: 8px;
+}
+.step3-side-frame {
+  box-sizing: border-box;
+  width: min(100%, 920px);
+  height: 440px;
+}
+.step3-side-frame.step3-short {
+  width: min(100%, 440px);
+  height: 320px;
+}
+.step3-side-frame.step3-phone {
+  width: min(100%, 390px);
+  height: 560px;
+}

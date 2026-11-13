@@ -37,7 +37,6 @@ export function CollapseAllButton({
         data-testid="nbv2-collapse-all"
         disabled={disabled}
         aria-label={label}
-        title={label}
         onPointerDown={() => {
           held.current = false
           timer.current = window.setTimeout(() => {

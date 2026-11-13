@@ -48,13 +48,13 @@ describe('resultStripItems (SR-B10)', () => {
   it('Open, Copy link, Pin as favourite', () => {
     expect(
       resultStripItems({ pinned: false, canPin: true }).map((i) => i.label),
-    ).toEqual(['Open', 'Copy link', 'Pin as favourite'])
+    ).toEqual(['Open', 'Open in new place', 'Copy link', 'Pin as favourite'])
   })
   it('reads Remove from favourites when pinned; no pin when it cannot', () => {
     expect(resultStripItems({ pinned: true, canPin: true }).at(-1)?.label).toBe(
       'Remove from favourites',
     )
-    expect(resultStripItems({ pinned: false, canPin: false })).toHaveLength(2)
+    expect(resultStripItems({ pinned: false, canPin: false })).toHaveLength(3)
   })
   it('builds the page address', () => {
     expect(

@@ -369,7 +369,6 @@ export function ContextStrip(props: ContextStripProps) {
                   data-strip-btn
                   data-testid={`cs-${b.key}`}
                   aria-label={label}
-                  title={label}
                   aria-haspopup={
                     it ? (it.menu ? 'menu' : undefined) : 'listbox'
                   }

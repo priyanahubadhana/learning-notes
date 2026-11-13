@@ -1,6 +1,12 @@
 # Study v2 build pictures (slice 15)
 
-Flag study.v2 on, real data (one card, one Key point, one Summary line). Taken after the last source edit (src head 2a323faf, gate 3 fix round; all pictures re-shot after it) with e2e/studyV2Shots.spec.ts and e2e/studyV2ExtraShots.spec.ts. Name: level-theme-size-state.
+Flag study.v2 on, real data (one card, one Key point, one Summary line). Taken after the last source edit (main pictures at src head 2a323faf; extra pictures 7 to 14 re-shot at src head 334b0456, gate 3 fourteenth-visit fix round) with e2e/studyV2Shots.spec.ts and e2e/studyV2ExtraShots.spec.ts. Name: level-theme-size-state.
+
+Fix round proof (gate 3 fourteenth visit, src head 334b0456):
+1. Labels sheet styled (colour dots, 44 pt swatches, bordered + Add label, 16 px under Undo / Redo, one custom label with its ✕): professional-*-10-labels.
+2. Shared Empty state in Summary and Revise (dashed card, icon, title, one line, one button): *-8-empty-summary, *-9-empty-revise.
+3. Saved chip has a bookmark, the live chip has none; phone: 8 px between Review 1 due and the chips: professional-*-13-saved-chip.
+4. Phone library: tile names wrap to two lines, search on its own full-width row, sheet ends above the tab bar: *-phone-14-pick-tiles.
 
 Fix round proof (gate 3 thirteenth visit):
 1. Answer well edge, dark: *-night-*-3-card-editor.

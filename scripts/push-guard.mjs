@@ -32,6 +32,13 @@ const log = (file, line) => {
 }
 const stamp = () => new Date().toISOString()
 const q = (f) => `"${f}"`
+// Own preview port for e2e unless one is set, so a push never collides with
+// a builder's test server on the default port.
+const env = {
+  ...process.env,
+  PW_PORT:
+    process.env.PW_PORT || String(5300 + Math.floor(Math.random() * 600)),
+}
 
 let stdin = ''
 try {
@@ -73,6 +80,7 @@ function run(name, cmd) {
   process.stdout.write(`push guard: ${name} ... `)
   const r = spawnSync(cmd, {
     cwd,
+    env,
     shell: true,
     encoding: 'utf8',
     maxBuffer: 256e6,

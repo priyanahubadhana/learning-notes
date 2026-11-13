@@ -77,4 +77,3 @@ The connector's full test runs on the PC. On the iPad you can only check the scr
     - You should see: nothing to see here; Claude will fix each one and tell you when to check again.
 25. [ ] Switch OFF any new parts you do not want, in Settings > Try new features.
     - You should see: the screens go back to how they looked before.
-

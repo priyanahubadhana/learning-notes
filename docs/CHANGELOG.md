@@ -7,6 +7,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.
 - Why: the app took about 15 s to start on WebKit because starters were written before the first screen.
 - Files: src/templates/templateService.ts, src/templates/NewPageStart.tsx, src/templates/seedBulk.test.ts, e2e/startSeeding.spec.ts, e2e/startSpeed.spec.ts, docs/features/perf-start.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: push guard hook narrowed (owner-approved)
 
 - What: the Claude hook that blocks bypasses now lets read-only commands through (`git config --get` with or without a trailing command, `git config` with no value, grep and cat). It still blocks push or commit with the skip flag, setting or unsetting the hooks path, `-c` hooks-path overrides, and commands that delete, move or overwrite `.githooks/` or `scripts/push-guard.mjs`.

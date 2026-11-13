@@ -1,6 +1,6 @@
 # Gate 3 pictures: toolbar.v8 slices 1e, 1f and BUG-003
 
-Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on the head commit of the round 4 fix (the commit that adds these pictures; flag ON; every picture re-shot after the last source edit 17f331ec, which changed peekFlag, toolbarVisibility and builtinSettings). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Professional on iPad landscape and PC only.
+Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on source head eca8da25 (flag ON; every picture shot after the last source edit 17f331ec; no source file changed after it). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Both levels on every size (192 pictures).
 
 ## Screens
 
@@ -24,7 +24,7 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - [x] shared parts only: Card, Tile, TileGroup, CardGroup, MinimiseChip; Lucide icons; no browser drop-downs.
 - [x] no key names on touch screens; the focus ring shows for the keyboard only (all pictures use taps).
 - [x] Light, Dark, Sepia with real data, tips and toasts closed, taken after the last source edit.
-- [x] both levels; iPad landscape and portrait, phone, PC.
+- [x] both levels (Beginner and Professional) on iPad landscape, iPad portrait, phone and PC: all 192 pictures, Professional included (alltools and formatadv on every size).
 
 ## Fix proof
 
@@ -32,14 +32,20 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - One Show toolbar pill, readable in all themes, inside the screen: `pill-*`.
 - Peek fix (17f331ec): a peek ended by Settings On or a placement change no longer hides the bar on reload: proved by e2e `TB-75 choosing On...` and `TB-75 changing the bar placement...` (toolbarV8Tuck.spec.ts), on chromium and ipad-webkit; the pictures show the bar (`textrow-*`) and the pill (`pill-*`) unchanged.
 
-## Pictures
+## Pictures (192, all taken at eca8da25)
 
 - alltools-ipad-landscape-day-professional.png
 - alltools-ipad-landscape-night-professional.png
 - alltools-ipad-landscape-sepia-professional.png
+- alltools-ipad-portrait-day-professional.png
+- alltools-ipad-portrait-night-professional.png
+- alltools-ipad-portrait-sepia-professional.png
 - alltools-pc-day-professional.png
 - alltools-pc-night-professional.png
 - alltools-pc-sepia-professional.png
+- alltools-phone-day-professional.png
+- alltools-phone-night-professional.png
+- alltools-phone-sepia-professional.png
 - box-ipad-landscape-day-beginner.png
 - box-ipad-landscape-day-professional.png
 - box-ipad-landscape-night-beginner.png
@@ -47,8 +53,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - box-ipad-landscape-sepia-beginner.png
 - box-ipad-landscape-sepia-professional.png
 - box-ipad-portrait-day-beginner.png
+- box-ipad-portrait-day-professional.png
 - box-ipad-portrait-night-beginner.png
+- box-ipad-portrait-night-professional.png
 - box-ipad-portrait-sepia-beginner.png
+- box-ipad-portrait-sepia-professional.png
 - box-pc-day-beginner.png
 - box-pc-day-professional.png
 - box-pc-night-beginner.png
@@ -56,8 +65,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - box-pc-sepia-beginner.png
 - box-pc-sepia-professional.png
 - box-phone-day-beginner.png
+- box-phone-day-professional.png
 - box-phone-night-beginner.png
+- box-phone-night-professional.png
 - box-phone-sepia-beginner.png
+- box-phone-sepia-professional.png
 - boxset-ipad-landscape-day-beginner.png
 - boxset-ipad-landscape-day-professional.png
 - boxset-ipad-landscape-night-beginner.png
@@ -65,8 +77,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - boxset-ipad-landscape-sepia-beginner.png
 - boxset-ipad-landscape-sepia-professional.png
 - boxset-ipad-portrait-day-beginner.png
+- boxset-ipad-portrait-day-professional.png
 - boxset-ipad-portrait-night-beginner.png
+- boxset-ipad-portrait-night-professional.png
 - boxset-ipad-portrait-sepia-beginner.png
+- boxset-ipad-portrait-sepia-professional.png
 - boxset-pc-day-beginner.png
 - boxset-pc-day-professional.png
 - boxset-pc-night-beginner.png
@@ -74,8 +89,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - boxset-pc-sepia-beginner.png
 - boxset-pc-sepia-professional.png
 - boxset-phone-day-beginner.png
+- boxset-phone-day-professional.png
 - boxset-phone-night-beginner.png
+- boxset-phone-night-professional.png
 - boxset-phone-sepia-beginner.png
+- boxset-phone-sepia-professional.png
 - format-ipad-landscape-day-beginner.png
 - format-ipad-landscape-day-professional.png
 - format-ipad-landscape-night-beginner.png
@@ -83,8 +101,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - format-ipad-landscape-sepia-beginner.png
 - format-ipad-landscape-sepia-professional.png
 - format-ipad-portrait-day-beginner.png
+- format-ipad-portrait-day-professional.png
 - format-ipad-portrait-night-beginner.png
+- format-ipad-portrait-night-professional.png
 - format-ipad-portrait-sepia-beginner.png
+- format-ipad-portrait-sepia-professional.png
 - format-pc-day-beginner.png
 - format-pc-day-professional.png
 - format-pc-night-beginner.png
@@ -92,8 +113,23 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - format-pc-sepia-beginner.png
 - format-pc-sepia-professional.png
 - format-phone-day-beginner.png
+- format-phone-day-professional.png
 - format-phone-night-beginner.png
+- format-phone-night-professional.png
 - format-phone-sepia-beginner.png
+- format-phone-sepia-professional.png
+- formatadv-ipad-landscape-day-professional.png
+- formatadv-ipad-landscape-night-professional.png
+- formatadv-ipad-landscape-sepia-professional.png
+- formatadv-ipad-portrait-day-professional.png
+- formatadv-ipad-portrait-night-professional.png
+- formatadv-ipad-portrait-sepia-professional.png
+- formatadv-pc-day-professional.png
+- formatadv-pc-night-professional.png
+- formatadv-pc-sepia-professional.png
+- formatadv-phone-day-professional.png
+- formatadv-phone-night-professional.png
+- formatadv-phone-sepia-professional.png
 - insert-ipad-landscape-day-beginner.png
 - insert-ipad-landscape-day-professional.png
 - insert-ipad-landscape-night-beginner.png
@@ -101,8 +137,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - insert-ipad-landscape-sepia-beginner.png
 - insert-ipad-landscape-sepia-professional.png
 - insert-ipad-portrait-day-beginner.png
+- insert-ipad-portrait-day-professional.png
 - insert-ipad-portrait-night-beginner.png
+- insert-ipad-portrait-night-professional.png
 - insert-ipad-portrait-sepia-beginner.png
+- insert-ipad-portrait-sepia-professional.png
 - insert-pc-day-beginner.png
 - insert-pc-day-professional.png
 - insert-pc-night-beginner.png
@@ -110,8 +149,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - insert-pc-sepia-beginner.png
 - insert-pc-sepia-professional.png
 - insert-phone-day-beginner.png
+- insert-phone-day-professional.png
 - insert-phone-night-beginner.png
+- insert-phone-night-professional.png
 - insert-phone-sepia-beginner.png
+- insert-phone-sepia-professional.png
 - more-ipad-landscape-day-beginner.png
 - more-ipad-landscape-day-professional.png
 - more-ipad-landscape-night-beginner.png
@@ -119,8 +161,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - more-ipad-landscape-sepia-beginner.png
 - more-ipad-landscape-sepia-professional.png
 - more-ipad-portrait-day-beginner.png
+- more-ipad-portrait-day-professional.png
 - more-ipad-portrait-night-beginner.png
+- more-ipad-portrait-night-professional.png
 - more-ipad-portrait-sepia-beginner.png
+- more-ipad-portrait-sepia-professional.png
 - more-pc-day-beginner.png
 - more-pc-day-professional.png
 - more-pc-night-beginner.png
@@ -128,8 +173,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - more-pc-sepia-beginner.png
 - more-pc-sepia-professional.png
 - more-phone-day-beginner.png
+- more-phone-day-professional.png
 - more-phone-night-beginner.png
+- more-phone-night-professional.png
 - more-phone-sepia-beginner.png
+- more-phone-sepia-professional.png
 - pill-ipad-landscape-day-beginner.png
 - pill-ipad-landscape-day-professional.png
 - pill-ipad-landscape-night-beginner.png
@@ -137,8 +185,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - pill-ipad-landscape-sepia-beginner.png
 - pill-ipad-landscape-sepia-professional.png
 - pill-ipad-portrait-day-beginner.png
+- pill-ipad-portrait-day-professional.png
 - pill-ipad-portrait-night-beginner.png
+- pill-ipad-portrait-night-professional.png
 - pill-ipad-portrait-sepia-beginner.png
+- pill-ipad-portrait-sepia-professional.png
 - pill-pc-day-beginner.png
 - pill-pc-day-professional.png
 - pill-pc-night-beginner.png
@@ -146,8 +197,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - pill-pc-sepia-beginner.png
 - pill-pc-sepia-professional.png
 - pill-phone-day-beginner.png
+- pill-phone-day-professional.png
 - pill-phone-night-beginner.png
+- pill-phone-night-professional.png
 - pill-phone-sepia-beginner.png
+- pill-phone-sepia-professional.png
 - textrow-ipad-landscape-day-beginner.png
 - textrow-ipad-landscape-day-professional.png
 - textrow-ipad-landscape-night-beginner.png
@@ -155,8 +209,11 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - textrow-ipad-landscape-sepia-beginner.png
 - textrow-ipad-landscape-sepia-professional.png
 - textrow-ipad-portrait-day-beginner.png
+- textrow-ipad-portrait-day-professional.png
 - textrow-ipad-portrait-night-beginner.png
+- textrow-ipad-portrait-night-professional.png
 - textrow-ipad-portrait-sepia-beginner.png
+- textrow-ipad-portrait-sepia-professional.png
 - textrow-pc-day-beginner.png
 - textrow-pc-day-professional.png
 - textrow-pc-night-beginner.png
@@ -164,13 +221,8 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 - textrow-pc-sepia-beginner.png
 - textrow-pc-sepia-professional.png
 - textrow-phone-day-beginner.png
+- textrow-phone-day-professional.png
 - textrow-phone-night-beginner.png
+- textrow-phone-night-professional.png
 - textrow-phone-sepia-beginner.png
-
-## Gate 2 fix round: which picture proves each fix
-
-| Fix                                                                           | Picture                                                                                  |
-| ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| TB-41 fonts in own face + line height                                         | `formatadv-<size>-<theme>-professional.png` (iPad landscape, PC)                         |
-| Action tiles (headings, indent, divider)                                      | `format-*` look unchanged; role proved by e2e "headings, indent and divider are buttons" |
-| Box look Undo/Redo, tuck 200 ms, Pencil tuck, reload peek, Pro switches alone | e2e only (no picture change)                                                             |
+- textrow-phone-sepia-professional.png

@@ -8,7 +8,9 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { lazy, Suspense } from 'react'
+import { useFlag } from '../app/flags'
 import { t } from '../i18n/t'
+import { useUnlocked } from '../settings/level'
 import {
   closePasteUi,
   pasteUiState,
@@ -31,7 +33,11 @@ const CleanupDialog = lazy(() =>
 export function PasteChooser({ owner }: { owner: unknown }) {
   const ui = useSyncExternalStore(pasteUiSubscribe, pasteUiState)
   const chooser = ui.chooser?.owner === owner ? ui.chooser : null
-  const chip = ui.chip?.owner === owner ? ui.chip : null
+  // Flag page.menus: the "Pasted as" chip is a Professional extra (PM-44).
+  const menusOn = useFlag('page.menus')
+  const chipAllowed = useUnlocked('page.pastedChip')
+  const chip =
+    ui.chip?.owner === owner && (!menusOn || chipAllowed) ? ui.chip : null
   const cleanup = ui.cleanup?.owner === owner ? ui.cleanup : null
   // Ctrl/Cmd+C of whole blocks: clean Markdown and rich HTML go with them.
   useEffect(() => {

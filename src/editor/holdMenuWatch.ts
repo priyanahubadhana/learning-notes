@@ -99,6 +99,8 @@ export function showRing(doc: Document, x: number, y: number, ms: number) {
 export function watchHoldMenu(
   editor: Editor,
   onOpen: (at: HoldPoint) => void,
+  /** `rightClick`: a mouse right-click opens it too (flag page.menus, PM-20). */
+  opts: { rightClick?: boolean } = {},
 ): () => void {
   const dom = editor.domElement
   if (!dom) return () => {}
@@ -193,9 +195,23 @@ export function watchHoldMenu(
   }
   // The press that opened our menu must not open the system's too.
   const onContext = (e: Event) => {
+    const inside = e.target instanceof Node && dom.contains(e.target)
     if (press || Date.now() - openedAt < 1500) {
-      if (e.target instanceof Node && dom.contains(e.target)) e.preventDefault()
+      if (inside) e.preventDefault()
+      return
     }
+    // A mouse right-click opens the same menu where it was pressed.
+    if (!opts.rightClick || !inside || !(e instanceof MouseEvent)) return
+    if (
+      e.target instanceof Element &&
+      e.target.closest(
+        'a, button, input, textarea, select, [data-no-hold-menu], [data-ui]',
+      )
+    )
+      return
+    e.preventDefault()
+    openedAt = Date.now()
+    onOpen({ x: e.clientX, y: e.clientY, pointerType: 'mouse' })
   }
   doc.addEventListener('pointerdown', onDown, true)
   doc.addEventListener('pointermove', onMove, true)

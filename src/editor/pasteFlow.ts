@@ -4,7 +4,9 @@ import {
   readDeviceSetting,
   writeDeviceSetting,
 } from '../settings/settingsService'
-import { pasteModeSetting } from '../settings/builtinSettings'
+import { isFlagOn } from '../app/flags'
+import { readPref } from '../app/uiPrefs'
+import { pasteModeSetting, type PasteMode } from '../settings/builtinSettings'
 import type { LearningNotesDB } from '../core/db'
 import type { AppSchema } from './schema'
 import {
@@ -538,7 +540,7 @@ export async function withLocalImages(plan: PastePlan): Promise<PastePlan> {
 }
 
 /** Does the work of a pick and shows the chip that can swap it. */
-async function run(
+export async function run(
   editor: Editor,
   plan: PastePlan,
   choices: PasteChoice[],
@@ -568,7 +570,7 @@ async function run(
 }
 
 /** Opens the clean-up step; its Insert runs the cleaned Markdown as a paste. */
-function openCleanup(editor: Editor, plan: PastePlan): void {
+export function openCleanup(editor: Editor, plan: PastePlan): void {
   setUi({
     cleanup: {
       owner: editor,
@@ -593,6 +595,21 @@ function openCleanup(editor: Editor, plan: PastePlan): void {
   })
 }
 
+/**
+ * The "Paste as" setting. With flag page.menus "Keep original" is the default
+ * until the owner picks one (PM-43); "Always ask" keeps today's chooser.
+ */
+function effectivePasteMode(): PasteMode {
+  const mode = readDeviceSetting(pasteModeSetting)
+  if (!isFlagOn('page.menus')) return mode
+  const stored = readPref<string>(
+    pasteModeSetting.id,
+    (v): v is string => typeof v === 'string',
+    '',
+  )
+  return stored ? mode : 'keep'
+}
+
 /** Ctrl/Cmd+Shift+V waits here (kept in clipboard.ts for its key note). */
 export function pasteWith(
   editor: Editor,
@@ -606,7 +623,7 @@ export function pasteWith(
   const plan = planPaste(data)
   if (!plan) return false
   const choices = choicesFor(plan, { box: !!boxHost(editor) })
-  const mode = readDeviceSetting(pasteModeSetting)
+  const mode = effectivePasteMode()
   setUi({ chip: null })
   if (
     (plan.rich || choices.includes('cleanup')) &&

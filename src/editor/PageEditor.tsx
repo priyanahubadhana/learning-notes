@@ -70,6 +70,7 @@ import { watchTapSelect } from './tapSelect'
 import { watchHoldSelect } from './holdSelect'
 import { watchHoldMenu, type HoldPoint } from './holdMenuWatch'
 import { HoldMenuLazy } from './HoldMenuLazy'
+import { PageStripLazy } from './menus/PageStripLazy'
 import { activeTool, miniToolbarOpen } from '../app/tools/main/mainTools'
 import { ToolsBoundary } from '../app/tools/ToolsBoundary'
 import { changeSet } from '../app/tools/toolbarState'
@@ -139,7 +140,7 @@ import { isTracking } from '../sync/device'
 import { revealBlock } from './revealBlock'
 import { editorBlockTypes, schema } from './schema'
 import { buildSlashMenuItems, type SlashMenuActions } from './slashMenu'
-import { useFlag } from '../app/flags'
+import { isFlagOn, useFlag } from '../app/flags'
 import { TAG_TRIGGER, tagMenuItems, tagMenuShouldOpen } from './tagActions'
 
 interface PageEditorProps {
@@ -787,6 +788,7 @@ function LoadedPageEditor({
   const [holdAt, setHoldAt] = useState<HoldPoint | null>(null)
   // The newest toast function, without restarting the pen watchers.
   const toastRef = useRef(toast)
+  const menusOnRef = useRef(isFlagOn('page.menus'))
   useEffect(() => {
     toastRef.current = toast
   })
@@ -811,7 +813,9 @@ function LoadedPageEditor({
       }
       const stopTap = watchTapSelect(editor, afterSelect)
       const stopHold = watchHoldSelect(editor, afterSelect)
-      const stopMenu = watchHoldMenu(editor, setHoldAt)
+      const stopMenu = watchHoldMenu(editor, setHoldAt, {
+        rightClick: menusOnRef.current,
+      })
       // The Pencil must never delete text by itself (iPadOS Scribble).
       const stopGuard = watchPenGuard(editor, () =>
         toastRef.current(t('pen.guard.removed'), {
@@ -935,7 +939,17 @@ function LoadedPageEditor({
           }
         >
           <PasteChooser owner={editor} />
-          {holdAt && (
+          {holdAt && menusOn && (
+            <PageStripLazy
+              editor={editor}
+              at={holdAt}
+              onClose={() => setHoldAt(null)}
+              toast={(m, a) => toastRef.current(m, a)}
+              onSelected={() => miniToolbarOpen.set(true)}
+              choosePicture={choosePicture}
+            />
+          )}
+          {holdAt && !menusOn && (
             <HoldMenuLazy
               editor={editor}
               at={holdAt}

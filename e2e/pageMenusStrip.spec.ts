@@ -1,0 +1,128 @@
+// Browser types for code that runs inside the page.
+/// <reference lib="dom" />
+import { expect, test, type Page } from '@playwright/test'
+import { createNotebook } from './helpers.ts'
+
+/**
+ * Slice 12c/12d (flag page.menus): the strip on text (PM-20, PM-21, PM-22,
+ * PM-26) and Paste ▾ (PM-40, PM-41, PM-45). docs/features/page-menus.md.
+ */
+test.use({ viewport: { width: 1024, height: 900 } })
+
+const strip = (page: Page) => page.getByTestId('page-strip')
+
+async function openNote(page: Page, level: 'beginner' | 'professional') {
+  await page.addInitScript((l) => {
+    localStorage.setItem(
+      'learning-notes:level',
+      JSON.stringify({ level: l, unlocked: [] }),
+    )
+  }, level)
+  await page.goto('/?flags=page.menus')
+  await createNotebook(page, 'Biology', 'First')
+  await page.locator('.bn-editor').click()
+  await page.keyboard.type('Cells divide by mitosis')
+}
+
+async function rightClickWord(page: Page) {
+  const box = await page
+    .locator('.bn-editor p', { hasText: 'Cells' })
+    .boundingBox()
+  await page.mouse.click(box!.x + 40, box!.y + box!.height / 2, {
+    button: 'right',
+  })
+}
+
+test('PM-20 right-click opens the strip above; Beginner shows Cut, Copy, Paste, Delete and more', async ({
+  page,
+}) => {
+  await openNote(page, 'beginner')
+  await rightClickWord(page)
+  await expect(strip(page)).toBeVisible()
+  for (const id of ['cut', 'copy', 'paste', 'delete', 'more'])
+    await expect(strip(page).getByTestId(`cs-${id}`)).toBeVisible()
+  await expect(strip(page).getByTestId('cs-duplicate')).toHaveCount(0)
+  const box = (await strip(page).boundingBox())!
+  expect(Math.round(box.height)).toBe(48)
+})
+
+test('PM-20 Professional shows Duplicate, Turn into and Colour; Delete is last', async ({
+  page,
+}) => {
+  await openNote(page, 'professional')
+  await rightClickWord(page)
+  for (const id of ['duplicate', 'turn', 'colour'])
+    await expect(strip(page).getByTestId(`cs-${id}`)).toBeVisible()
+  const last = strip(page).locator('[data-testid^="cs-"]').last()
+  await expect(last).toHaveAttribute('data-testid', /cs-(delete|more)/)
+  await expect(strip(page).getByTestId('cs-delete')).toBeVisible()
+})
+
+test('PM-21 the strip sits above the pressed text, not over it', async ({
+  page,
+}) => {
+  await openNote(page, 'beginner')
+  await rightClickWord(page)
+  const s = (await strip(page).boundingBox())!
+  const p = (await page
+    .locator('.bn-editor p', { hasText: 'Cells' })
+    .boundingBox())!
+  expect(s.y + s.height).toBeLessThanOrEqual(p.y)
+})
+
+test('PM-22 ⋯ opens the full list; Professional adds Copy as', async ({
+  page,
+}) => {
+  await openNote(page, 'professional')
+  await rightClickWord(page)
+  await strip(page).getByTestId('cs-more').click()
+  await expect(page.getByTestId('cl-item-selectAll')).toBeVisible()
+  await expect(page.getByTestId('cl-item-copyMarkdown')).toBeAttached()
+})
+
+test('PM-41 Paste ▾ shows the forms in one card and picking Plain pastes plain text', async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await openNote(page, 'beginner')
+  await page.evaluate(() => navigator.clipboard.writeText('alpha beta'))
+  await page.keyboard.press('End')
+  await rightClickWord(page)
+  await strip(page).getByTestId('cs-paste').click()
+  await expect(page.getByTestId('cs-picker')).toHaveCount(1)
+  for (const id of ['keep', 'plain', 'table', 'quote', 'link'])
+    await expect(page.getByTestId(`cs-pick-${id}`)).toBeVisible()
+  await page.getByTestId('cs-pick-plain').click()
+  await expect(page.locator('.bn-editor')).toContainText('alpha beta')
+  // PM-45: one Undo takes the whole paste back.
+  await expect(page.getByTestId('page-strip')).toHaveCount(0)
+  await page.keyboard.press('Control+z')
+  await expect(page.locator('.bn-editor')).not.toContainText('alpha beta')
+})
+
+test('PM-40 Ctrl+V pastes at once with no question (default Keep original)', async ({
+  page,
+  context,
+}) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await openNote(page, 'beginner')
+  await page.evaluate(() =>
+    navigator.clipboard.write([
+      new ClipboardItem({
+        'text/html': new Blob(
+          ['<p><b>bold</b> and <i>rich</i> words here</p>'],
+          {
+            type: 'text/html',
+          },
+        ),
+        'text/plain': new Blob(['bold and rich words here'], {
+          type: 'text/plain',
+        }),
+      }),
+    ]),
+  )
+  await page.keyboard.press('Control+v')
+  await expect(page.locator('.bn-editor')).toContainText('rich words here')
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+})

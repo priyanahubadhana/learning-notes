@@ -142,3 +142,6 @@ export function useFlag(id: FlagId): boolean {
     () => false,
   )
 }
+
+/** Non-React read: is this switch ON right now? */
+export const isFlagOn = (id: FlagId): boolean => snapshot.has(id)

@@ -28,6 +28,7 @@ import { hiUpdateV2 } from './updateV2'
 import { hiLibraryV2 } from './libraryV2'
 import { hiFlags } from './flags'
 import { hiSlashMenu } from './slashMenu'
+import { hiPageMenus } from './pageMenus'
 import { hiShell } from './shell'
 import { hiAiBuild } from './aibuild'
 import { hiAiJobs } from './aijobs'
@@ -69,6 +70,7 @@ export const hi: Record<string, string> = {
   ...hiUpdateV2,
   ...hiFlags,
   ...hiSlashMenu,
+  ...hiPageMenus,
   ...hiShell,
   ...hiAiBuild,
   ...hiAiJobs,

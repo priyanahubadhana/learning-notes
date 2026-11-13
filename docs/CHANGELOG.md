@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 13 Nov 2026: push guard (quick checks before every push)
+
+- What: a pre-push hook in every worktree (core.hooksPath points at main's `.githooks`) runs Prettier and check:links on every branch, plus ESLint, tsc, check:ratchet, related Vitest and touched e2e specs (chromium, max 6, foundationInput smoke on build/next) on build/next and slice branches. A Claude hook blocks `--no-verify` and hooks-path changes; the only escape is a logged `push-guard-skip:` line.
+- Why: most red CI runs were Prettier, check:links or one e2e spec, all catchable in seconds before pushing. No test, timeout or CI file changed.
+- Files: scripts/push-guard.mjs, .githooks/pre-push, .gitattributes, .claude/hooks/push-guard-noverify.mjs, .claude/settings.json, .claude/agents/economy-builder.md, docs/ECONOMY-MODE.md, docs/CHANGELOG.md.
+
 ### 13 Nov 2026: CI speed-ups (three of four from the speed-up verdict)
 
 - What: e2e and pencil-webkit wait for checks; Playwright browsers cached (key = OS + browser + exact version); the weekly WebKit job is skipped on hand-started runs unless the `full_webkit` box is ticked. Monday schedule kept; ECONOMY-MODE section 10 gets the Monday check, section 11 rule 7 reworded.

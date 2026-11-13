@@ -40,7 +40,7 @@ The old agent files are untouched (`fable-manager`, `opus-submanager-*`, `sonnet
 - **Briefs point to files, never paste them.** Under 250 words, every field of the section 4 template filled.
 - **Design + quality checklist:** builders tick the 17 lines in .claude/agents/economy-builder.md with proof; gate 2 and gate 3 reject a slice on any ✗.
 - **Worktrees:** one per slice (they exist: `../ln-s*`), reused by each new builder of that slice. A new worktree only for a new slice. Docs-only and read-only jobs need none.
-- **Tests:** locally run only the spec files of the sub-slice (chromium; ipad-webkit for touch code) plus lint, tsc and the size check. The full matrix runs once per merge in CI on the `build/next` pull request (free, public repo). A Haiku helper runs `gh run watch <id> --exit-status`, then lists the failed test names from `gh run view <id> --log-failed`. No local full suites.
+- **Tests:** locally run only the spec files of the sub-slice (chromium; ipad-webkit for touch code) plus lint, tsc and the size check. The full matrix runs once per merge in CI on the `build/next` pull request (free, public repo). A Haiku helper runs `gh run watch <id> --exit-status`, then lists the failed test names from `gh run view <id> --log-failed`. No local full suites. The push guard (section 12) runs the quick checks on every push.
 - **Output:** long command output goes to a file; read the tail or search the failures.
 - **Batching:** up to 8 builders at once on files that do not overlap (section 11; owner, 13 Nov: Sonnet builders are cheap on the Max plan); gate 3 in batches; one docs commit per wave for BUILD-STATE, the PENDING board and CHANGELOG; one CI run per batch of up to 3 gated slices (section 11), never per commit.
 - **Status messages:** helpers report in under 150 words (Haiku 80). The orchestrator writes state to docs/BUILD-STATE.md instead of long messages. The owner's "Status / Needs you" lines are written by Haiku from that file.
@@ -203,6 +203,7 @@ Expected gain (an estimate, not measured): about 10 to 15 minutes per CI run fro
 ## 12. Test guard and batch CI (13 Nov 2026, owner approved)
 
 **Test guard hook** (`.claude/hooks/guard-tests.mjs`). Nothing here loosens a test; the hook now blocks more:
+
 - Always blocked: new `.only`, fewer `expect()` calls, emptied test files.
 - Blocked unless a reason is given: raising `timeout`, `actionTimeout`, `navigationTimeout`, expect timeout, `test.setTimeout` or `retries`; adding `test.slow`, `grepInvert` or `testIgnore`; new `.skip(` / `.fixme(`; deleting a test file (`rm`, `git rm`, `Remove-Item`) in a Bash command.
 - Reason channel (the hook cannot see commit messages): the same added line, or the line just above it, carries a comment `test-guard-reason: <at least 5 words>`. For a Bash delete the comment goes inside the command. The commit message must repeat the reason. A builder only uses this when the owner or Fable has approved the exception; otherwise stop and report.
@@ -210,6 +211,14 @@ Expected gain (an estimate, not measured): about 10 to 15 minutes per CI run fro
 - The Bash branch (file deletes) only works once settings.json has a Bash entry that runs this file; that settings change is not made yet (open owner decision).
 
 **Batch CI** (owner decision): one full CI run may cover up to 3 slices that have each passed gate 2 and gate 3. A red run is bisected one slice at a time (take the last merge out, run again). Tests are never skipped, and nothing reaches `main` without a green run.
+
+**Push guard** (`scripts/push-guard.mjs`, run by `.githooks/pre-push` in every worktree; owner approved 13 Nov 2026). Before a `git push` it checks only the files the push changes, cheapest first, and stops at the first failure:
+
+- Every branch: Prettier on the changed files, `check:links`. About 3 seconds.
+- `build/next` and `slice/*` also: ESLint errors on changed code, `tsc -b`, `check:ratchet`, Vitest tests related to changed `src` files, Playwright chromium on changed e2e specs (at most 6; the rest are named and left to CI), plus the `foundationInput` smoke on `build/next`. About 20 to 40 seconds (measured 19 s and 35 s).
+- A block prints `PUSH BLOCKED by the push guard: <step>`, the last lines of output and the command to re-run. Fix the cause; never `--no-verify` (a Claude hook blocks it and hooks-path changes).
+- Escape only with an approved reason: a line `push-guard-skip: <at least 5 words>` in the tip commit message. It is loud and logged in `.git/push-guard-skips.log`; every run is logged in `.git/push-guard.log`.
+- It only runs existing commands: it never weakens or skips a test, and CI stays the judge.
 
 ## 12. Automatic escalation and stall checks (owner, 13 Nov 2026; wanted from the start)
 

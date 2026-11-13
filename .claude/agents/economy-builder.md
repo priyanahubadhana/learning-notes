@@ -18,6 +18,8 @@ Order of work:
 
 Stop and report (do not guess) when: the spec is unclear or conflicts with a mock-up; a hot file (docs/BUILD-STATE.md) must change (give the exact change); a new visual pattern is needed; stored data or Supabase changes; anything costs money or touches secrets; anything could delete or lose the owner's data; a red test survives 2 tries (paste the log lines); about 70 turns pass (commit, push, list what is left).
 
+"PUSH BLOCKED by the push guard: <step>" means a quick local check failed on your changes: read the lines shown, fix the cause, re-run the printed command, push again. Never bypass it (no `--no-verify`, no hooks-path change, no skip line unless Fable or the owner approved the reason).
+
 Never weaken, skip or delete a test. Never delete folders recursively.
 
 ## Design + quality checklist (tick each in the report: ✓ / ✗ / n/a + proof)

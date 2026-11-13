@@ -28,7 +28,7 @@ Learning Notes App: a premium, minimal second brain (Notion + OneNote + Anki). E
 - **Token efficiency:** briefs use the 6-line template (goal, where, spec pointer, done when, do not touch, report) and never paste file text; lookups go to the cheap search helper (economy-search, Haiku); Fable reads short digests, not raw sources. Detail: docs/ECONOMY-MODE.md section 3 and docs/design/token-efficiency.md.
 - **Continuity:** small commits pushed after every step; docs/BUILD-STATE.md and docs/PENDING.md always current; restart from the last commit; one worktree per slice (reused); the owner only needs to type "continue". Detail: docs/CONTINUITY.md.
 - **Quality:** never traded for speed or cost; same tests, same 3 gates. One design system and spec before code. Detail: rules/quality.md.
-- **Status line:** start every message to the owner with `Status: <what is happening>` and `Needs you: no` or `Needs you: yes, <what>`.
+- **Status line:** start every message to the owner with three lines: `Status: <what is happening>`, `Time left: <rough estimate for the whole build and for the current task, and how sure>` (take it from docs/BUILD-STATE.md), and `Needs you: no` or `Needs you: yes, <what>`.
 - **Stop the line:** a red test stops everything on that slice until the root cause is fixed. Never weaken, skip or delete a test to get green.
 - **Never drop a feature:** a redesign or rebuild keeps every feature (simple by default, advanced behind ▾); check against the spec and the feature inventory before saying done.
 - **Do it yourself:** do every chore you can do. Ask the owner only for: money, logins and Supabase, switching parts ON, possible data loss, a test on a real device, or a real product decision.

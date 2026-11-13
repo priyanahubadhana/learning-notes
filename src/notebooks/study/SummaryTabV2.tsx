@@ -85,12 +85,14 @@ export function SummaryTabV2({
             : undefined
         }
       />
-      <SummaryView
-        db={db}
-        scope={scope}
-        onOpenPage={onOpenPage}
-        onOpenBlock={onOpenBlock}
-      />
+      <div className="px-4">
+        <SummaryView
+          db={db}
+          scope={scope}
+          onOpenPage={onOpenPage}
+          onOpenBlock={onOpenBlock}
+        />
+      </div>
     </section>
   )
 }

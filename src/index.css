@@ -243,9 +243,10 @@ button.tag-chip:hover {
   background: color-mix(in srgb, var(--color-accent) 14%, transparent);
 }
 /* No nesting line inside a card: the "A" label marks the answer instead. */
+/* Why: the editor's own nesting line out-ranked this rule and showed as a thin upright line after "A". */
 .bn-block:has(> .node-card, > [data-content-type='card'])
-  > .bn-block-group
-  > .bn-block-outer::before {
+  > .bn-block-group.bn-block-group
+  > .bn-block-outer.bn-block-outer:not([data-prev-depth-changed])::before {
   content: none;
   border: none;
 }

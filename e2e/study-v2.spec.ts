@@ -615,3 +615,19 @@ test('ST28: Professional finds the bookmarklet, the iOS Shortcut and Notes from 
   await expect(page.getByTestId('capture-address')).toBeVisible()
   await expect(page.getByText('Send to Learning Notes')).toBeVisible()
 })
+
+test('card block: no nesting line shows after the "A" label', async ({
+  page,
+}) => {
+  await page.goto(FLAGGED)
+  await createNotebook(page, 'Cardiology', 'Heart sounds')
+  await makeCard(page, 'Which valves close in S1?', 1)
+  // test-guard-reason: the line is a ::before of the editor, only computed style shows it
+  const border = await page.evaluate(() => {
+    const outer = document.querySelector(
+      '.bn-block:has(> .node-card, > [data-content-type="card"]) > .bn-block-group > .bn-block-outer',
+    )
+    return outer ? getComputedStyle(outer, '::before').borderLeftWidth : 'none'
+  })
+  expect(border).toBe('0px')
+})

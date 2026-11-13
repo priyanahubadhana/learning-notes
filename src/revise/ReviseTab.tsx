@@ -57,114 +57,118 @@ export function ReviseTab({
   return (
     <section aria-label={t('notebook.tab.revise')}>
       {header?.(current.marks.length)}
-      <HelpLine id="revise.how" className="mb-3 text-xs text-muted" />
-      <div className="grid gap-4 md:grid-cols-[14rem_minmax(0,1fr)]">
-        <ul
-          aria-label={t('revise.lessons')}
-          className="flex gap-1.5 overflow-x-auto md:grid md:content-start md:gap-0.5 md:overflow-visible"
-        >
-          {lessons.map(({ lesson, marks }) => (
-            <li key={lesson.id}>
-              <button
-                type="button"
-                aria-pressed={lesson.id === current.lesson.id}
-                onClick={() =>
-                  pushRouteParts(1, lesson.id, [tabId, current.lesson.id])
-                }
-                className="flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-start text-sm whitespace-nowrap hover:bg-hover aria-pressed:bg-soft aria-pressed:font-semibold md:whitespace-normal"
-              >
-                <span className="min-w-0 flex-1 truncate">
-                  {sampleName(lesson) || t('review.untitled')}
-                </span>
-                <span className="text-xs text-muted tabular-nums">
-                  {marks.length}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+      <div className={header ? 'px-4' : undefined}>
+        <HelpLine id="revise.how" className="mb-3 text-xs text-muted" />
+        <div className="grid gap-4 md:grid-cols-[14rem_minmax(0,1fr)]">
+          <ul
+            aria-label={t('revise.lessons')}
+            className="flex gap-1.5 overflow-x-auto md:grid md:content-start md:gap-0.5 md:overflow-visible"
+          >
+            {lessons.map(({ lesson, marks }) => (
+              <li key={lesson.id}>
+                <button
+                  type="button"
+                  aria-pressed={lesson.id === current.lesson.id}
+                  onClick={() =>
+                    pushRouteParts(1, lesson.id, [tabId, current.lesson.id])
+                  }
+                  className="flex min-h-9 w-full items-center gap-2 rounded-lg px-2.5 text-start text-sm whitespace-nowrap hover:bg-hover aria-pressed:bg-soft aria-pressed:font-semibold md:whitespace-normal"
+                >
+                  <span className="min-w-0 flex-1 truncate">
+                    {sampleName(lesson) || t('review.untitled')}
+                  </span>
+                  <span className="text-xs text-muted tabular-nums">
+                    {marks.length}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
 
-        <div key={current.lesson.id} className="min-w-0">
-          <div className="mb-3 flex flex-wrap items-center gap-2">
-            <h2 className="me-auto min-w-0 text-[17px] font-semibold">
-              {sampleName(current.lesson) || t('review.untitled')}
-            </h2>
-            <button
-              type="button"
-              onClick={() => onOpenPage(current.lesson.id)}
-              className="min-h-9 rounded-lg border border-line px-3 text-[13px] hover:bg-hover"
-            >
-              {t('revise.openLesson')}
-            </button>
-            <Tip id="revise.practice" touchInfo={false}>
+          <div key={current.lesson.id} className="min-w-0">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <h2 className="me-auto min-w-0 text-[17px] font-semibold">
+                {sampleName(current.lesson) || t('review.untitled')}
+              </h2>
               <button
                 type="button"
-                onClick={() =>
-                  onReview({
-                    kind: 'page',
-                    pageId: current.lesson.id,
-                    includeSubpages: true,
-                  })
-                }
-                className="min-h-9 rounded-lg bg-accent px-3 text-[13px] font-medium text-white hover:opacity-90"
+                onClick={() => onOpenPage(current.lesson.id)}
+                className="min-h-9 rounded-lg border border-line px-3 text-[13px] hover:bg-hover"
               >
-                {t('revise.practice')}
+                {t('revise.openLesson')}
               </button>
-            </Tip>
+              <Tip id="revise.practice" touchInfo={false}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    onReview({
+                      kind: 'page',
+                      pageId: current.lesson.id,
+                      includeSubpages: true,
+                    })
+                  }
+                  className="min-h-9 rounded-lg bg-accent px-3 text-[13px] font-medium text-white hover:opacity-90"
+                >
+                  {t('revise.practice')}
+                </button>
+              </Tip>
+            </div>
+
+            {summarySlot ? (
+              summarySlot(current.lesson.id)
+            ) : (
+              <Summary
+                db={db}
+                lessonId={current.lesson.id}
+                saved={current.lesson.summary ?? ''}
+              />
+            )}
+
+            {groups.length === 0 ? (
+              <p className="mt-4 text-sm text-muted">{t('revise.noMarks')}</p>
+            ) : (
+              groups.map(({ label, marks }) => (
+                <section
+                  key={label}
+                  className="mt-4"
+                  aria-label={markName(label)}
+                >
+                  <h3 className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold">
+                    <span
+                      aria-hidden
+                      className="recall-mark inline-block size-3 rounded-sm"
+                      data-mark={label}
+                    />
+                    {markName(label)}
+                    <span className="font-normal text-muted">
+                      {marks.length}
+                    </span>
+                  </h3>
+                  <ul className="grid gap-1">
+                    {marks.map((mark, i) => (
+                      <li key={`${mark.blockId}:${i}`}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onOpenPage(mark.pageId)
+                            revealBlock(mark.blockId)
+                          }}
+                          className="w-full rounded-lg border border-line px-3 py-1.5 text-start text-sm break-words hover:bg-hover"
+                        >
+                          {mark.text}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))
+            )}
+            <p className="mt-4 text-xs text-muted">
+              {markLabels()
+                .map((l) => markName(l.id))
+                .join(' · ')}
+            </p>
           </div>
-
-          {summarySlot ? (
-            summarySlot(current.lesson.id)
-          ) : (
-            <Summary
-              db={db}
-              lessonId={current.lesson.id}
-              saved={current.lesson.summary ?? ''}
-            />
-          )}
-
-          {groups.length === 0 ? (
-            <p className="mt-4 text-sm text-muted">{t('revise.noMarks')}</p>
-          ) : (
-            groups.map(({ label, marks }) => (
-              <section
-                key={label}
-                className="mt-4"
-                aria-label={markName(label)}
-              >
-                <h3 className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold">
-                  <span
-                    aria-hidden
-                    className="recall-mark inline-block size-3 rounded-sm"
-                    data-mark={label}
-                  />
-                  {markName(label)}
-                  <span className="font-normal text-muted">{marks.length}</span>
-                </h3>
-                <ul className="grid gap-1">
-                  {marks.map((mark, i) => (
-                    <li key={`${mark.blockId}:${i}`}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onOpenPage(mark.pageId)
-                          revealBlock(mark.blockId)
-                        }}
-                        className="w-full rounded-lg border border-line px-3 py-1.5 text-start text-sm break-words hover:bg-hover"
-                      >
-                        {mark.text}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))
-          )}
-          <p className="mt-4 text-xs text-muted">
-            {markLabels()
-              .map((l) => markName(l.id))
-              .join(' · ')}
-          </p>
         </div>
       </div>
     </section>

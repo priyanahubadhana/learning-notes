@@ -214,7 +214,7 @@ function Line({
             type="button"
             onClick={onGoTo}
             aria-label={t('summary.goto')}
-            className="grid min-h-9 min-w-9 place-items-center rounded-md text-muted hover:bg-soft hover:text-ink"
+            className="-my-2.5 grid min-h-11 min-w-11 place-items-center rounded-md text-muted hover:bg-soft hover:text-ink"
           >
             ↗
           </button>
@@ -225,7 +225,7 @@ function Line({
           type="button"
           onClick={() => runTask(removeLine(db, item.id))}
           aria-label={t('summary.remove')}
-          className="grid min-h-9 min-w-9 place-items-center rounded-md text-muted hover:bg-soft hover:text-ink"
+          className="-my-2.5 grid min-h-11 min-w-11 place-items-center rounded-md text-muted hover:bg-soft hover:text-ink"
         >
           ×
         </button>

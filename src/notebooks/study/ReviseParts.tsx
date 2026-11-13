@@ -62,7 +62,7 @@ export function ReviseHeader({
           canLabels && (
             <button
               type="button"
-              className="study-header__action"
+              className="study-header__btn"
               onClick={() => setOpen(true)}
             >
               {t('st9.labels')}

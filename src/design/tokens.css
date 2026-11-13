@@ -547,3 +547,14 @@
   --fb-dur-toast-out: 0.01ms;
   --fb-dur-banner: 0.01ms;
 }
+
+/* Present mode (slide) themes: fixed palettes, independent of the app theme.
+   Night and sepia match the canvas values above. */
+:root {
+  --slide-night-bg: #0f0e13;
+  --slide-night-ink: #f2f1f5;
+  --slide-sepia-bg: #efe6d3;
+  --slide-sepia-ink: #3b2f1e;
+  --slide-day-bg: #ffffff;
+  --slide-day-ink: #18171c;
+}

@@ -36,7 +36,7 @@
   padding: 0 16px;
   border-radius: 12px;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
   font-size: 13px;
   font-weight: 500;
 }

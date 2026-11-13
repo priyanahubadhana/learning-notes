@@ -13,16 +13,16 @@
   color: var(--color-ink);
 }
 .slides-present[data-theme-slides='night'] {
-  background: #0f0e13;
-  color: #f2f1f5;
+  background: var(--slide-night-bg);
+  color: var(--slide-night-ink);
 }
 .slides-present[data-theme-slides='sepia'] {
-  background: #efe6d3;
-  color: #3b2f1e;
+  background: var(--slide-sepia-bg);
+  color: var(--slide-sepia-ink);
 }
 .slides-present[data-theme-slides='day'] {
-  background: #fff;
-  color: #111;
+  background: var(--slide-day-bg);
+  color: var(--slide-day-ink);
 }
 .slides-present__bar {
   display: flex;

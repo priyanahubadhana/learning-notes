@@ -1,16 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Ruler } from './readingPrefs'
-
-/** A move, tap or Alt+↑/↓ inside a book's frame (EPUB), in screen terms. */
-export interface FrameEventDetail {
-  y?: number
-  pointerType?: string
-  type?: string
-  key?: string
-}
-const FRAME_EVENT = 'ln:frame-input'
-export const sendFrameEvent = (detail: FrameEventDetail) =>
-  document.dispatchEvent(new CustomEvent(FRAME_EVENT, { detail }))
+import { onFrameInput } from './frameInput'
 
 /** The page colours the band uses: Reading mode's by default. */
 export interface RulerColours {
@@ -61,14 +51,11 @@ export function ReadingRuler({
       e.preventDefault()
       step(e.key)
     }
-    const frame = (e: Event) => {
-      const d = (e as CustomEvent<FrameEventDetail>).detail
-      if (d.key) return step(d.key)
-      if (d.y === undefined) return
-      const mouse = d.pointerType === 'mouse'
-      if (mouse ? d.type === 'pointermove' : d.type === 'pointerup') setY(d.y)
-    }
-    document.addEventListener(FRAME_EVENT, frame)
+    // Taps and Alt+↑/↓ inside an EPUB's frame.
+    const offFrame = onFrameInput((d) => {
+      if (d.key) step(d.key)
+      else if (d.y !== undefined) setY(d.y)
+    })
     document.addEventListener('pointermove', move)
     document.addEventListener('pointerup', tap)
     document.addEventListener('keydown', key)
@@ -76,7 +63,7 @@ export function ReadingRuler({
       document.removeEventListener('pointermove', move)
       document.removeEventListener('pointerup', tap)
       document.removeEventListener('keydown', key)
-      document.removeEventListener(FRAME_EVENT, frame)
+      offFrame()
     }
   }, [lineHeight])
 

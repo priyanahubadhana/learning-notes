@@ -537,6 +537,10 @@
       {
         "file": "src/reader/pdf/PdfView.tsx",
         "needle": "Pinch zoom"
+      },
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "Pinch and edge taps stay for all"
       }
     ],
     "R82": [
@@ -569,36 +573,80 @@
       {
         "file": "docs/features/reader-v2.md",
         "needle": "Liquid mode"
+      },
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "data-testid=\"aa-liquid\""
+      },
+      {
+        "file": "src/i18n/en/late/readerV2.ts",
+        "needle": "'readerv2.aa.liquid'"
+      },
+      {
+        "file": "src/settings/v3/ProFeatures.tsx",
+        "needle": "'reader.liquid'"
       }
     ],
     "R86": [
       {
         "file": "src/app/reading/ReadingRuler.tsx",
         "needle": "ReadingRuler"
+      },
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "<ReadingRuler"
+      },
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "aa-ruler-"
       }
     ],
     "R87": [
       {
         "file": "src/app/reading/readingPrefs.ts",
         "needle": "RULERS"
+      },
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "(['off', 'focus', 'ruler'] as const)"
       }
     ],
     "R88": [
       {
         "file": "src/app/reading/ReadingRuler.tsx",
         "needle": "Alt"
+      },
+      {
+        "file": "src/app/reading/ReadingRuler.tsx",
+        "needle": "sendFrameEvent"
+      },
+      {
+        "file": "src/reader/epub/EpubView.tsx",
+        "needle": "sendFrameEvent"
       }
     ],
     "R89": [
       {
         "file": "src/app/reading/ReaderControls.tsx",
         "needle": "blank"
+      },
+      {
+        "file": "docs/features/reader-v2.md",
+        "needle": "RD-P30"
       }
     ],
     "R90": [
       {
         "file": "src/app/reading/wakeLock.ts",
         "needle": "export function"
+      },
+      {
+        "file": "src/reader/BookReader.tsx",
+        "needle": "lockIdle(awake)"
+      },
+      {
+        "file": "src/reader/AaSheet.tsx",
+        "needle": "data-testid=\"aa-awake\""
       }
     ],
     "R91": [
@@ -611,6 +659,10 @@
       {
         "file": "docs/features/reader-v2.md",
         "needle": "reader.tapCounts"
+      },
+      {
+        "file": "src/settings/v3/ProFeatures.tsx",
+        "needle": "'reader.tapCounts'"
       }
     ]
   }

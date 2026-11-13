@@ -1,4 +1,4 @@
-import { sendFrameEvent } from '../../app/reading/ReadingRuler'
+import { sendFrameInput } from '../../app/reading/frameInput'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import type { LearningNotesDB } from '../../core/db'
 import type { BookSurface } from '../../ink/layout'
@@ -277,6 +277,9 @@ export function EpubView(props: EpubViewProps) {
             new ResizeObserver(pokeInk).observe(body)
           }
           doc.addEventListener('click', (c) => {
+            // The reading ruler (RD-P29) moves to a tap inside the frame too.
+            const at = doc.defaultView?.frameElement?.getBoundingClientRect()
+            if (at) sendFrameInput({ y: c.clientY + at.top })
             const target = c.target as Element | null
             if (target?.closest('a, button, input, select, textarea')) return
             if (!doc.getSelection()?.isCollapsed) return
@@ -292,21 +295,8 @@ export function EpubView(props: EpubViewProps) {
             if (k.key === 'ArrowLeft') void view?.goLeft()
             else if (k.key === 'ArrowRight') void view?.goRight()
             if (k.altKey && (k.key === 'ArrowUp' || k.key === 'ArrowDown'))
-              sendFrameEvent({ key: k.key })
+              sendFrameInput({ key: k.key })
           })
-          // The reading ruler (RD-P29) follows moves and taps inside the
-          // book's frame too: they are passed up in screen terms.
-          const passUp = (p: PointerEvent) => {
-            const frame = doc.defaultView?.frameElement?.getBoundingClientRect()
-            if (frame)
-              sendFrameEvent({
-                y: p.clientY + frame.top,
-                pointerType: p.pointerType,
-                type: p.type,
-              })
-          }
-          doc.addEventListener('pointermove', passUp)
-          doc.addEventListener('pointerup', passUp)
         })
         propsRef.current.onOutline(
           flattenToc(book.toc as TocNode[] | undefined).map((t) => ({

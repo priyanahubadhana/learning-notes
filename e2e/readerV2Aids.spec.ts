@@ -236,7 +236,9 @@ test('RD-P27 reader.lockDirection: Portrait or Landscape in Aa; a toast helps wh
   )
   await expect
     .poll(() =>
-      page.evaluate(() => (window as unknown as { lockAsks: string[] }).lockAsks),
+      page.evaluate(
+        () => (window as unknown as { lockAsks: string[] }).lockAsks,
+      ),
     )
     .toContain('portrait')
   await expect(page.getByText(/rotation lock/)).toBeVisible()
@@ -297,17 +299,17 @@ test('RD-P29 reader.lineFocus: Line focus or Ruler in Aa › Reading aids; follo
   await expect(page.getByTestId('reading-ruler')).toHaveCount(0)
 })
 
-test('RD-P29 reader.lineFocus: in an EPUB, moves inside the book frame move the band', async ({
+test('RD-P29 reader.lineFocus: in an EPUB, a tap inside the book frame moves the band', async ({
   page,
 }) => {
   await openBook(page, 'epub', ['reader.lineFocus'])
   await aaMore(page)
-  await page.getByTestId('aa-ruler-focus').click()
+  await page.getByTestId('aa-ruler-ruler').click()
   await page.getByTestId('aa-close').click()
   const ruler = page.getByTestId('reading-ruler')
-  await expect(ruler).toHaveAttribute('data-mode', 'focus')
+  await expect(ruler).toHaveAttribute('data-mode', 'ruler')
   // The book's frame (foliate keeps it in a shadow root).
-  let fb: { x: number; y: number; width: number } | null = null
+  let fb: { x: number; y: number; width: number; height: number } | null = null
   await expect
     .poll(
       async () => {
@@ -318,7 +320,7 @@ test('RD-P29 reader.lineFocus: in an EPUB, moves inside the book frame move the 
               if (!document.body?.innerText.includes('quick brown fox'))
                 return null
               const r = window.frameElement!.getBoundingClientRect()
-              return { x: r.x, y: r.y, width: r.width }
+              return { x: r.x, y: r.y, width: r.width, height: r.height }
             })
             .catch(() => null)
           if (box) fb = box
@@ -329,14 +331,19 @@ test('RD-P29 reader.lineFocus: in an EPUB, moves inside the book frame move the 
     )
     .toBe(true)
   const at = fb!
-  const band = () =>
-    ruler.locator(':scope > div').first().evaluate((d) => d.getBoundingClientRect().height)
-  await page.mouse.move(at.x + at.width / 2, at.y + 60)
-  await page.mouse.move(at.x + at.width / 2, at.y + 80)
-  const h1 = await band()
-  await page.mouse.move(at.x + at.width / 2, at.y + 300)
-  await page.mouse.move(at.x + at.width / 2, at.y + 320)
-  await expect.poll(band).toBeGreaterThan(h1 + 100)
+  const mid = async () => {
+    const b = (await ruler.boundingBox())!
+    return b.y + b.height / 2
+  }
+  const vh = page.viewportSize()!.height
+  const y1 = Math.max(at.y + 20, 200)
+  const y2 = Math.min(at.y + at.height - 20, vh - 120)
+  await page.mouse.click(at.x + at.width / 2, y1)
+  await expect.poll(mid).toBeLessThan(y1 + 10)
+  await page.mouse.click(at.x + at.width / 2, y2)
+  await expect.poll(mid).toBeGreaterThan(y2 - 10)
+  // A tap is passed through: the band never takes it.
+  await expect(ruler).toHaveCSS('pointer-events', 'none')
 })
 
 test('RD-P31 reader.keepAwake: "Keep the screen awake" asks for the wake lock only with the switch', async ({

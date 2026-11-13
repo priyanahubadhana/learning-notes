@@ -51,13 +51,10 @@ export function DailyHighlights({
   const state = pageId ? own : shared
   const setState = pageId ? setOwn : setShared
   const [saving, setSaving] = useState<Annotation | null>(null)
-  const all = useLiveQuery(
-    async () => {
-      const list = await listAllHighlights(db)
-      return pageId ? list.filter((a) => a.pageId === pageId) : list
-    },
-    [db, pageId],
-  )
+  const all = useLiveQuery(async () => {
+    const list = await listAllHighlights(db)
+    return pageId ? list.filter((a) => a.pageId === pageId) : list
+  }, [db, pageId])
 
   // Pick today's five once per day (adjusting state while rendering).
   const picked = useMemo(

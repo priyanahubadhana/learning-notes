@@ -168,6 +168,9 @@ export function BookReader({
   const v2 = useFlag('reader.v2')
   // Reader v2: each Professional part shows only with its switch (RD-P02 to RD-P32).
   const sw = useReaderSwitches(v2)
+  // RD-P26: "Keep the bar visible" (the existing Reading setting).
+  const [barPin, setBarPin] = useDeviceSetting(readingBarPinSetting)
+  const keepBar = v2 && sw('reader.barScroll') && barPin === 'on'
   // Reader v2 (RD-B42): a page turned from an edge slides in for 180 ms.
   const [slide, setSlide] = useState<1 | -1 | 0>(0)
   const slideTimer = useRef(0)
@@ -298,16 +301,11 @@ export function BookReader({
   // RD-P27: switch off, the screen turns freely; the choice is kept.
   const orient = sw('reader.lockDirection') ? orientPref : 'off'
   // Reader v2 (RD-P26, P29, P31): the existing Reading settings, each behind its switch.
-  const [barPin, setBarPin] = useDeviceSetting(readingBarPinSetting)
-  const keepBar = v2 && sw('reader.barScroll') && barPin === 'on'
   const [rulerPref, setRuler] = useDeviceSetting(readingRulerSetting)
   const ruler = v2 && sw('reader.lineFocus') ? rulerPref : 'off'
   const [awakePref, setAwake] = useDeviceSetting(readingAwakeSetting)
   const awake = v2 && sw('reader.keepAwake') && awakePref === 'on'
   useEffect(() => lockIdle(awake), [awake])
-  useEffect(() => {
-    if (keepBar) setBarsAway(false)
-  }, [keepBar])
   const [outline, setOutline] = useState<OutlineItem[]>([])
   const [selection, setSelection] = useState<ReaderSelection | null>(null)
   const [noting, setNoting] = useState<ReaderSelection | null>(null)
@@ -1676,7 +1674,7 @@ export function BookReader({
         <Suspense fallback={null}>
           <ReaderBarsV2
             hidden={locked}
-            away={barsAway}
+            away={barsAway && !keepBar}
             rootRef={rootRef}
             reader={readerBarV2}
             ink={inkBar}

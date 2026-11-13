@@ -257,7 +257,9 @@ test('RD-B24 selecting text in Everything works shows the Beginner pop-up', asyn
   const pop = page.getByTestId('selection-popup')
   await expect(pop.locator('[data-testid^="hl-"]')).toHaveCount(5)
   for (const n of ['Note', 'Copy', 'Define'])
-    await expect(pop.getByRole('button', { name: n, exact: true })).toBeVisible()
+    await expect(
+      pop.getByRole('button', { name: n, exact: true }),
+    ).toBeVisible()
   await expect(pop.getByTestId('popup-sticky')).toBeVisible()
   await expect(pop.getByRole('button', { name: /^Pin/ })).toBeVisible()
   // The extras wait for reader.selExtras (RD-P13).
@@ -274,13 +276,17 @@ test('RD-P13 reader.selExtras: Look up, Save to…, Make card, vocabulary and Pr
   await selectText(page)
   const pop = page.getByTestId('selection-popup')
   for (const n of ['Look up', 'Save to…', 'Make card'])
-    await expect(pop.getByRole('button', { name: n, exact: true })).toBeVisible()
+    await expect(
+      pop.getByRole('button', { name: n, exact: true }),
+    ).toBeVisible()
   await pop.getByRole('button', { name: 'Look up', exact: true }).click()
   await expect(pop.getByTestId('popup-vocab')).toBeVisible()
   await setOn(page, [])
   await selectText(page)
   await expect(
-    page.getByTestId('selection-popup').getByRole('button', { name: 'Look up' }),
+    page
+      .getByTestId('selection-popup')
+      .getByRole('button', { name: 'Look up' }),
   ).toHaveCount(0)
 })
 

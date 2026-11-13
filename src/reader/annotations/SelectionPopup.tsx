@@ -46,10 +46,10 @@ export function SelectionPopup({
   const ref = useRef<HTMLDivElement>(null)
   const [height, setHeight] = useState(0)
   // Measured before paint, so the first frame already sits in the right place.
+  // Re-measured when the content changes (Look up opens a second row).
   useLayoutEffect(() => {
-    const h = ref.current?.offsetHeight ?? 0
-    if (h !== height) setHeight(h)
-  })
+    setHeight(ref.current?.offsetHeight ?? 0)
+  }, [lookup, extras, selected])
   // A selection scrolled out of view offers nothing.
   if (rect.y + rect.h < 0 || rect.y > window.innerHeight) return null
   const width = Math.min(window.innerWidth - 16, 440)

@@ -122,7 +122,7 @@ test('TB-41 each Professional switch works alone: tb.textFonts, tb.textMarks', a
 }) => {
   await open(page, 'beginner', ['tb.textFonts'])
   await chip(page, 'text.format').click()
-  let c = card(page, 'text.format')
+  const c = card(page, 'text.format')
   await expect(c.locator('.pcard-glabel')).toHaveText([
     'Text',
     'Style',

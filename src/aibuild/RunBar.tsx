@@ -37,7 +37,7 @@ export function RunBar({
       data-testid="aifw-runbar"
     >
       <p
-        className="min-w-0 text-sm break-words sm:flex-1"
+        className="min-w-0 text-sm break-words sm:min-w-48 sm:flex-1"
         data-testid="aifw-runbar-path"
       >
         {path ? t('aifw.bar.path', { path }) : t('aifw.bar.pathNone')}

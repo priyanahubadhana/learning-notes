@@ -304,3 +304,100 @@ test.describe('AI framework: Workflows saved views (A4)', () => {
     await expect(page.getByTestId('aifw-wf-view')).toHaveCount(1)
   })
 })
+
+test.describe('AI framework: bottom row from a tablet up (why: the path was squeezed to a few letters)', () => {
+  for (const [name, w, h] of [
+    ['iPad portrait', 820, 1180],
+    ['iPad landscape', 1194, 834],
+    ['PC', 1336, 800],
+  ] as const)
+    test(`the path keeps a readable width on ${name}`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h })
+      await openStudio(page)
+      await page.getByTestId('aifw-tile-notes').click()
+      await page.getByTestId('aifw-dest-name').fill('Habits that stick')
+      const path = await page.getByTestId('aifw-runbar-path').boundingBox()
+      expect(path!.width).toBeGreaterThanOrEqual(190)
+      expect(path!.height).toBeLessThan(60)
+    })
+})
+
+for (const theme of ['day', 'night', 'sepia'] as const)
+  test.describe(`AI framework: Studio and Workflows in the ${theme} theme`, () => {
+    test.use({ viewport: { width: 390, height: 780 }, hasTouch: true })
+
+    test('both screens show, read clearly and do not run past the screen', async ({
+      page,
+    }) => {
+      await page.addInitScript((th) => {
+        localStorage.setItem('learning-notes:theme', JSON.stringify(th))
+      }, theme)
+      await openStudio(page)
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
+      const fill = (id: string) =>
+        page
+          .getByTestId(id)
+          .evaluate((el) => getComputedStyle(el).backgroundColor)
+      const text = (id: string) =>
+        page.getByTestId(id).evaluate((el) => getComputedStyle(el).color)
+      await page.getByTestId('aifw-tile-notes').click()
+      // The pressed tile has its own fill, different from the screen.
+      expect(await fill('aifw-tile-notes')).not.toBe(await fill('aifw-screen'))
+      // Text is not the colour of its background.
+      expect(await text('aifw-studio')).not.toBe(await fill('aifw-screen'))
+      await page.getByTestId('aifw-dest-name').fill('Themed')
+      await page.getByTestId('aifw-studio-save').click()
+      await page.getByTestId('aifw-tab-workflows').click()
+      await expect(page.getByTestId('aifw-wf-row')).toHaveCount(1)
+      const wide = await page.evaluate(
+        () => document.documentElement.scrollWidth > window.innerWidth,
+      )
+      expect(wide).toBe(false)
+    })
+  })
+
+test.describe('AI framework: Studio and Workflows offline on a phone', () => {
+  test.use({
+    viewport: { width: 390, height: 780 },
+    hasTouch: true,
+    serviceWorkers: 'allow',
+  })
+
+  test('make a plan, save it, filter and keep a view with the network off', async ({
+    page,
+    context,
+  }) => {
+    await page.goto(FLAGGED)
+    await page.evaluate(() => navigator.serviceWorker.ready)
+    await expect
+      .poll(() => page.evaluate(() => !!navigator.serviceWorker.controller))
+      .toBe(true)
+    await context.setOffline(true)
+    // The screen opens from the saved copy, with no network.
+    await page.reload()
+    await expect(page.getByTestId('aifw-entry')).toBeVisible()
+    await page.getByTestId('aifw-open').click()
+    await page.getByTestId('aifw-tab-studio').click()
+    await page.getByTestId('aifw-tile-notes').click()
+    await page.getByTestId('aifw-tile-cards').click()
+    await page.getByTestId('aifw-dest-name').fill('Offline nb')
+    await page.getByTestId('aifw-studio-undo').click()
+    await expect(page.getByTestId('aifw-studio-note')).toContainText('Undid')
+    await page.getByTestId('aifw-studio-redo').click()
+    await page.getByTestId('aifw-studio-save').click()
+    await expect(page.getByTestId('aifw-toast')).toContainText('Offline nb')
+    await page.getByTestId('aifw-tab-workflows').click()
+    await page.getByTestId('aifw-wf-search').fill('offline')
+    await page.getByTestId('aifw-wf-view-save').click()
+    await page.getByTestId('aifw-wf-view-name').fill('Mine')
+    await page.getByTestId('aifw-wf-view-ok').click()
+    await expect(page.getByTestId('aifw-wf-view')).toHaveCount(1)
+    await expect(page.getByTestId('aifw-wf-count')).toHaveText('1 of 1')
+    await page.getByTestId('aifw-tab-studio').click()
+    await page.getByTestId('aifw-tile-notes').click()
+    await page.getByTestId('aifw-dest-name').fill('Offline nb')
+    await page.getByTestId('aifw-studio-make').click()
+    await expect(page.getByTestId('aifw-run')).toBeVisible()
+    await context.setOffline(false)
+  })
+})

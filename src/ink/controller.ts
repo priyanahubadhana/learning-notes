@@ -1024,6 +1024,7 @@ export class InkController {
     r.clearLive()
     const g = this.gesture
     const target = r.liveTarget()
+    target.night = this.env.night()
     if (g?.kind === 'draw') {
       const stroke = this.liveStroke(g)
       if (stroke) {

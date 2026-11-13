@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { t } from '../i18n/t'
 import type { MessageKey } from '../i18n/t'
+import { useFlag } from '../app/flags'
 import { setContextActive } from '../app/tools/context/contextStore'
 import { db } from '../core/db'
 import { placePicture } from '../images/placePicture'
@@ -52,6 +53,8 @@ const LABEL: Record<Corner, MessageKey> = {
  * (`previewWidth`), so it is the same after a reload. The height follows.
  */
 export function PictureHandles({ editor }: { editor: Host }) {
+  // The new selection bar owns a selected picture's actions: one menu only.
+  const barV8 = useFlag('toolbar.v8')
   const [img, setImg] = useState<HTMLImageElement | null>(null)
   const [box, setBox] = useState<DOMRect | null>(null)
   // "Resize" in the action bar shows or hides the corner handles.
@@ -403,6 +406,7 @@ export function PictureHandles({ editor }: { editor: Host }) {
     )
       return sizeTo(a)
     if (a === 'handles') return setHandles((h) => !h)
+    if (a === 'border') return cycleBorder()
     if (a === 'deselect') return setImg(null)
     if (a === 'cropRotate') return openPictureEditor(editor as never, blockId)
     if (a === 'replace')
@@ -446,34 +450,36 @@ export function PictureHandles({ editor }: { editor: Host }) {
   })
   return createPortal(
     <div data-chrome data-picture-handles className="contents">
-      <div
-        role="toolbar"
-        data-picture-actions
-        aria-label={t('pic.act.label')}
-        onPointerDown={(e) => e.stopPropagation()}
-        className="fixed z-[var(--z-popup)] flex max-w-[calc(100vw-16px)] flex-wrap gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
-        style={{ left: barLeft, top: barTop }}
-      >
-        {actions.map(([id, key, onClick]) => (
-          <button
-            key={id}
-            type="button"
-            data-picture-action={id}
-            aria-pressed={
-              id === 'resize'
-                ? handles
-                : id === 'border'
-                  ? border !== ''
-                  : undefined
-            }
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={onClick}
-            className="min-h-11 rounded-xl px-2.5 text-[13px] text-ink hover:bg-hover aria-pressed:bg-hover aria-pressed:text-accent"
-          >
-            {t(key)}
-          </button>
-        ))}
-      </div>
+      {!barV8 && (
+        <div
+          role="toolbar"
+          data-picture-actions
+          aria-label={t('pic.act.label')}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="fixed z-[var(--z-popup)] flex max-w-[calc(100vw-16px)] flex-wrap gap-0.5 rounded-2xl border border-ink-soft bg-bg p-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
+          style={{ left: barLeft, top: barTop }}
+        >
+          {actions.map(([id, key, onClick]) => (
+            <button
+              key={id}
+              type="button"
+              data-picture-action={id}
+              aria-pressed={
+                id === 'resize'
+                  ? handles
+                  : id === 'border'
+                    ? border !== ''
+                    : undefined
+              }
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={onClick}
+              className="min-h-11 rounded-xl px-2.5 text-[13px] text-ink hover:bg-hover aria-pressed:bg-hover aria-pressed:text-accent"
+            >
+              {t(key)}
+            </button>
+          ))}
+        </div>
+      )}
       {ghost && (
         <div
           data-picture-ghost

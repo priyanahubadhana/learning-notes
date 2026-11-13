@@ -716,6 +716,8 @@ function SelectionBox({
   /** The new selection bar has the menu: only the handles stay. */
   bare?: boolean
 }) {
+  // The new bar owns the selection: no faint line to the text (it looked like a lasso trail).
+  const links = !useFlag('toolbar.v8')
   const { toast } = useContext(AppUiContext)
   const [colours, setColours] = useState(false)
   const [thickness, setThickness] = useState(false)
@@ -777,32 +779,36 @@ function SelectionBox({
         style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
       />
       {/* Phase Q rule 8: a faint line to the text line each stroke is linked to. */}
-      <svg
-        aria-hidden
-        data-ink-links
-        className="pointer-events-none absolute top-0 left-0 overflow-visible"
-        width="1"
-        height="1"
-      >
-        {[...new Set(controller.selected().map((p) => p.blockId))].map((id) => {
-          const r = id === null ? undefined : controller.layout.rectOf(id)
-          if (!r) return null
-          return (
-            <line
-              key={id}
-              data-ink-link={id}
-              x1={box.x}
-              y1={box.y + box.h / 2}
-              x2={r.x}
-              y2={r.y + r.h / 2}
-              stroke="var(--color-accent)"
-              strokeOpacity={0.35}
-              strokeWidth={1}
-              strokeDasharray="3 3"
-            />
-          )
-        })}
-      </svg>
+      {links && (
+        <svg
+          aria-hidden
+          data-ink-links
+          className="pointer-events-none absolute top-0 left-0 overflow-visible"
+          width="1"
+          height="1"
+        >
+          {[...new Set(controller.selected().map((p) => p.blockId))].map(
+            (id) => {
+              const r = id === null ? undefined : controller.layout.rectOf(id)
+              if (!r) return null
+              return (
+                <line
+                  key={id}
+                  data-ink-link={id}
+                  x1={box.x}
+                  y1={box.y + box.h / 2}
+                  x2={r.x}
+                  y2={r.y + r.h / 2}
+                  stroke="var(--color-accent)"
+                  strokeOpacity={0.35}
+                  strokeWidth={1}
+                  strokeDasharray="3 3"
+                />
+              )
+            },
+          )}
+        </svg>
+      )}
       {corners.map((c, i) => (
         <button
           key={i}

@@ -1,8 +1,15 @@
 import { useBlockNoteEditor } from '@blocknote/react'
 import { useCallback, useRef } from 'react'
-import { CardGroup, Swatch, TileGroup } from '../../../design/parts/CardParts'
+import {
+  CardGroup,
+  SizeTile,
+  Swatch,
+  TileGroup,
+} from '../../../design/parts/CardParts'
+import { ScrollTrack } from '../../../design/parts/ScrollTrack'
 import { t, type MessageKey } from '../../../i18n/t'
-import { copyAs, pastePlainFromClipboard } from '../../../editor/clipboard'
+import { copyAs } from '../../../editor/clipboard'
+import { pasteFromClipboard } from '../../../editor/pasteFromBar'
 import type { Editor } from '../../../editor/barActions'
 import {
   pictureControl,
@@ -12,9 +19,10 @@ import { deselect } from '../../../editor/ownSelection'
 import { inkFor, useInk } from '../../../ink/inkRuntime'
 import { inkSelControl } from '../../../ink/inkSelControl'
 import { PEN_COLOURS } from '../main/inkSettings'
+import { NOTE_SIZES, applyNoteStyle, noteSize } from '../main/textStyle'
 import { useUnlocked } from '../../../settings/level'
 import { runEditorCommand } from '../editorCommands'
-import { Icon } from '../icons'
+import { Icon, type IconName } from '../icons'
 import { miniToolbarOpen } from '../main/mainTools'
 import { selected, strip } from '../main/selectionOps'
 import { useEditorRedraw } from '../main/useEditorRedraw'
@@ -70,7 +78,12 @@ function useSelActions(editor: Editor, onCard: (id: string) => void) {
           void copyAs(editor, 'all', toast)
           break
         case 'paste':
-          void pastePlainFromClipboard(editor, toast)
+          // One paste path (PM-40 to PM-46): the planner and "Paste as".
+          void pasteFromClipboard(editor, toast)
+          break
+        case 'resize':
+          // Words have a size too: the text size card, not a dead button.
+          onCard('sel.size')
           break
         case 'duplicate': {
           const s = selected(editor)
@@ -160,69 +173,71 @@ export default function SelectionBarV8({
       data-ctx-bar
       data-testid="v8-selbar"
     >
-      {barItems().map((item) => (
+      <ScrollTrack className="v8sel-row">
+        {barItems().map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            aria-label={t(item.label)}
+            data-testid={`v8-sel-${item.id}`}
+            aria-expanded={
+              CARD_OF[item.id] ? openId === CARD_OF[item.id] : undefined
+            }
+            onMouseDown={keepFocus}
+            onClick={(e) => {
+              anchor.current = e.currentTarget
+              run(item.id)
+            }}
+          >
+            <Icon name={item.icon} />
+            <span className="v8sel-word">{t(item.label)}</span>
+          </button>
+        ))}
+        {pic && canEdit ? (
+          <button
+            type="button"
+            aria-label={t('v8.sel.editPicture')}
+            aria-expanded={openId === 'sel.picture'}
+            data-testid="v8-sel-picture"
+            onMouseDown={keepFocus}
+            onClick={(e) => onCard('sel.picture', e.currentTarget)}
+          >
+            <Icon name="image" />
+            <span className="v8sel-word">{t('v8.sel.editPicture')}</span>
+          </button>
+        ) : null}
         <button
-          key={item.id}
           type="button"
-          aria-label={t(item.label)}
-          data-testid={`v8-sel-${item.id}`}
-          aria-expanded={
-            CARD_OF[item.id] ? openId === CARD_OF[item.id] : undefined
-          }
+          aria-label={t('v8.sel.more')}
+          aria-expanded={openId === 'sel.more'}
+          data-testid="v8-sel-more"
           onMouseDown={keepFocus}
-          onClick={(e) => {
-            anchor.current = e.currentTarget
-            run(item.id)
-          }}
+          onClick={(e) => onCard('sel.more', e.currentTarget)}
         >
-          <Icon name={item.icon} />
-          <span className="v8sel-word">{t(item.label)}</span>
+          <Icon name="more" />
+          <span className="v8sel-word">{t('v8.sel.more')}</span>
         </button>
-      ))}
-      {pic && canEdit ? (
-        <button
-          type="button"
-          aria-label={t('v8.sel.editPicture')}
-          aria-expanded={openId === 'sel.picture'}
-          data-testid="v8-sel-picture"
-          onMouseDown={keepFocus}
-          onClick={(e) => onCard('sel.picture', e.currentTarget)}
-        >
-          <Icon name="image" />
-          <span className="v8sel-word">{t('v8.sel.editPicture')}</span>
-        </button>
-      ) : null}
-      <button
-        type="button"
-        aria-label={t('v8.sel.more')}
-        aria-expanded={openId === 'sel.more'}
-        data-testid="v8-sel-more"
-        onMouseDown={keepFocus}
-        onClick={(e) => onCard('sel.more', e.currentTarget)}
-      >
-        <Icon name="more" />
-        <span className="v8sel-word">{t('v8.sel.more')}</span>
-      </button>
+      </ScrollTrack>
     </div>
   )
 }
 
-const PICTURE_ACTIONS: readonly [PictureAction, MessageKey][] = [
-  ['cropRotate', 'pic.s.crop'],
-  ['smaller', 'pic.s.smaller'],
-  ['bigger', 'pic.s.bigger'],
-  ['fit', 'pic.s.fit'],
-  ['fitPage', 'pic.fitPage'],
-  ['natural', 'pic.s.natural'],
+const PICTURE_ACTIONS: readonly [PictureAction, MessageKey, IconName][] = [
+  ['cropRotate', 'pic.s.crop', 'rotate'],
+  ['smaller', 'pic.s.smaller', 'minus'],
+  ['bigger', 'pic.s.bigger', 'plus'],
+  ['fit', 'pic.s.fit', 'maximize'],
+  ['fitPage', 'pic.fitPage', 'panel'],
+  ['natural', 'pic.s.natural', 'image'],
 ]
 const PICTURE_SIZES = PICTURE_ACTIONS.slice(1)
 
 /** One step each, one Undo step each: Smaller, Bigger, Half, Double. */
-const INK_SIZES: readonly [number, MessageKey][] = [
-  [0.8, 'pic.s.smaller'],
-  [1.25, 'pic.s.bigger'],
-  [0.5, 'v8.sel.half'],
-  [2, 'v8.sel.double'],
+const INK_SIZES: readonly [number, MessageKey, IconName][] = [
+  [0.8, 'pic.s.smaller', 'minus'],
+  [1.25, 'pic.s.bigger', 'plus'],
+  [0.5, 'v8.sel.half', 'minus'],
+  [2, 'v8.sel.double', 'plus'],
 ]
 const NUDGE = 24
 const INK_MOVES: readonly [
@@ -237,7 +252,43 @@ const INK_MOVES: readonly [
   [0, NUDGE, 'v8.sel.moveDown', 'chevronDown'],
 ]
 
-/** The body of the selection cards: more, picture, resize, colour, move. */
+/** One row of a selection card: an icon and a word, like the Actions card. */
+function Row({
+  icon,
+  label,
+  onClick,
+  testId,
+}: {
+  icon: IconName
+  label: string
+  onClick: () => void
+  testId?: string
+}) {
+  return (
+    <button
+      type="button"
+      data-testid={testId}
+      onMouseDown={keepFocus}
+      onClick={onClick}
+    >
+      <Icon name={icon} size={18} />
+      {label}
+    </button>
+  )
+}
+
+/** The colour all the selected strokes share (lower case), or null. */
+function sharedColour(
+  strokes: readonly { stroke: { style: { colour: string } } }[] | undefined,
+): string | null {
+  const first = strokes?.[0]?.stroke.style.colour.toLowerCase()
+  if (!first) return null
+  return strokes!.every((s) => s.stroke.style.colour.toLowerCase() === first)
+    ? first
+    : null
+}
+
+/** The body of the selection cards: more, picture, resize, colour, move, text size. */
 export function SelCardBody({
   id,
   onDone,
@@ -253,7 +304,29 @@ export function SelCardBody({
   const pic = pictureControl.useValue()
   const ink = useInk()?.controller
   const unlocked = useUnlocked('tb.selectionMenu')
-  if (id === 'sel.colour')
+  const size = noteSize.useValue()
+  if (id === 'sel.size')
+    return (
+      <CardGroup>
+        <TileGroup label={t('v8.sel.textSize')} columns={5}>
+          {NOTE_SIZES.map((s) => (
+            <SizeTile
+              key={s}
+              px={Math.round(s * 0.16)}
+              label={`${s}%`}
+              selected={s === size}
+              testId={`v8-sel-size-${s}`}
+              onSelect={() => {
+                noteSize.set(s)
+                applyNoteStyle()
+              }}
+            />
+          ))}
+        </TileGroup>
+      </CardGroup>
+    )
+  if (id === 'sel.colour') {
+    const now = sharedColour(ink?.selected())
     return (
       <CardGroup>
         <TileGroup label={t('ink.sel.colour')} columns={3}>
@@ -261,7 +334,8 @@ export function SelCardBody({
             <Swatch
               key={c.id}
               colour={c.hex}
-              label={c.id}
+              label={t(`ink.colour.${c.id}` as MessageKey)}
+              selected={now === c.hex.toLowerCase()}
               testId={`v8-sel-colour-${c.id}`}
               onSelect={() => ink?.colourSelection(c.hex)}
             />
@@ -269,19 +343,17 @@ export function SelCardBody({
         </TileGroup>
       </CardGroup>
     )
+  }
   if (id === 'sel.move')
     return (
       <div className="v8sel-more" data-chrome data-ctx-bar>
         {INK_MOVES.map(([dx, dy, key, icon]) => (
-          <button
+          <Row
             key={key}
-            type="button"
-            onMouseDown={keepFocus}
+            icon={icon}
+            label={t(key)}
             onClick={() => ink?.transformSelectionBy({ dx, dy })}
-          >
-            <Icon name={icon} size={18} />
-            {t(key)}
-          </button>
+          />
         ))}
       </div>
     )
@@ -289,25 +361,21 @@ export function SelCardBody({
     return (
       <div className="v8sel-more" data-chrome data-ctx-bar>
         {pic
-          ? PICTURE_SIZES.map(([action, key]) => (
-              <button
+          ? PICTURE_SIZES.map(([action, key, icon]) => (
+              <Row
                 key={action}
-                type="button"
-                onMouseDown={keepFocus}
+                icon={icon}
+                label={t(key)}
                 onClick={() => pic.run(action)}
-              >
-                {t(key)}
-              </button>
+              />
             ))
-          : INK_SIZES.map(([scale, key]) => (
-              <button
+          : INK_SIZES.map(([scale, key, icon]) => (
+              <Row
                 key={key}
-                type="button"
-                onMouseDown={keepFocus}
+                icon={icon}
+                label={t(key)}
                 onClick={() => ink?.transformSelectionBy({ scale })}
-              >
-                {t(key)}
-              </button>
+              />
             ))}
       </div>
     )
@@ -319,23 +387,48 @@ export function SelCardBody({
         data-ctx-bar
         data-testid="v8-sel-picture-list"
       >
-        {PICTURE_ACTIONS.map(([action, key]) => (
-          <button
-            key={action}
-            type="button"
-            onMouseDown={keepFocus}
+        <CardGroup label={t('v8.sel.groupEdit')}>
+          <Row
+            icon="rotate"
+            label={t('pic.s.crop')}
             onClick={() => {
-              pic?.run(action)
-              if (action === 'cropRotate') onDone()
+              pic?.run('cropRotate')
+              onDone()
             }}
-          >
-            {t(key)}
-          </button>
-        ))}
+          />
+        </CardGroup>
+        <CardGroup label={t('v8.sel.groupSize')}>
+          {PICTURE_SIZES.map(([action, key, icon]) => (
+            <Row
+              key={action}
+              icon={icon}
+              label={t(key)}
+              onClick={() => pic?.run(action)}
+            />
+          ))}
+        </CardGroup>
+        <CardGroup label={t('v8.sel.groupLook')}>
+          <Row
+            icon="square"
+            label={t('pic.act.border')}
+            onClick={() => pic?.run('border')}
+          />
+        </CardGroup>
       </div>
     )
   return (
     <div className="v8sel-more" data-chrome data-ctx-bar>
+      {pic ? (
+        // The old picture strip is gone while the bar owns the selection.
+        <Row
+          icon="square"
+          label={t('pic.act.border')}
+          onClick={() => {
+            pic.run('border')
+            onDone()
+          }}
+        />
+      ) : null}
       {moreItems(() => unlocked).map((item) => (
         <button
           key={item.id}

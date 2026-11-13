@@ -37,15 +37,19 @@
 
 /* ---- selection bar: one wrapping row under the tool row ---- */
 .v8sel {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 2px;
   min-width: 0;
-  padding: 2px var(--space-2);
   border-top: 1px solid var(--color-line);
 }
+/* One row always; a row wider than the screen scrolls under a thin track. */
+.v8sel-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 2px;
+  padding: 2px var(--space-2);
+}
 .v8sel button {
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -102,6 +106,14 @@
 }
 .v8sel-more button:hover {
   background: var(--card-well);
+}
+/* The ring sits inside the row, so the card edge never cuts it. */
+.v8sel-more button:focus-visible {
+  outline-offset: -2px;
+}
+/* Colour tiles keep a clear edge on a dark card (black on night). */
+.pcard[data-testid^='v8-card-'] .pcard-swatch {
+  box-shadow: inset 0 0 0 1px var(--color-line-strong);
 }
 
 /* The Lasso Actions card scrolls inside the window instead of jumping above its chip. */

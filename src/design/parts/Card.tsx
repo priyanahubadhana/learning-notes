@@ -16,6 +16,7 @@ import {
   type OverlayHandle,
 } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
+import { useFootLift } from '../../app/spaces/footLift'
 import { motionMs } from './motion'
 import { tp } from './tp'
 import { useAnchoredCard, usePhone } from './useAnchoredCard'
@@ -130,7 +131,10 @@ export function Card(props: CardProps) {
     }
   }, [isStatic, phone, request])
 
+  // BUG-006: with the keyboard up the card stays inside what can be seen.
+  const footLift = useFootLift()
   const pos = useAnchoredCard({
+    footLift,
     anchor,
     card: node,
     widthPx: WIDTH[size],
@@ -179,6 +183,9 @@ export function Card(props: CardProps) {
             top: pos?.top ?? 0,
             width: pos?.width,
             visibility: pos ? 'visible' : 'hidden',
+            maxHeight: footLift
+              ? Math.max(160, window.innerHeight - footLift - 24)
+              : undefined,
           }
   if (floating && pos?.arrowX != null) style['--arrow-x'] = `${pos.arrowX}px`
   const side = floating ? (pos?.side ?? 'below') : 'below'

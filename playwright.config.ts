@@ -108,6 +108,7 @@ export default defineConfig({
         /tryNewFeatures/,
         /libraryV2/,
         /foundationInput/,
+        /stripGear/,
         /foundationSelectionOverlay/,
         /barFixes/,
         /pencilTaps/,

@@ -61,6 +61,14 @@
   user-select: none;
   -webkit-user-select: none;
 }
+.sh-rail-spaces {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 0;
+  overflow-y: auto;
+}
 .sh-brand {
   width: 32px;
   height: 32px;

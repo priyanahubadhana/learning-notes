@@ -383,6 +383,85 @@ export async function selectText(page: Page, text: string) {
   }, text)
 }
 
+/**
+ * Runs a selection action ("Make card", "Add to Summary", "Key point") on
+ * `text`. On a computer: the toolbar over the selected text. On touch (iPad,
+ * phone) that toolbar gives way to the docked bar, so the touch path is used: a
+ * Pencil hold on the first letter, a drag to the last, then the mini bar's
+ * "More" (MiniToolbar.tsx) and the action.
+ */
+export async function selectionAction(page: Page, text: string, name: string) {
+  await selectText(page, text)
+  const over = page
+    .locator('.bn-formatting-toolbar')
+    .getByRole('button', { name, exact: true })
+  // No toolbar over the text within a moment: touch.
+  try {
+    await over.waitFor({ state: 'visible', timeout: 1200 })
+    await over.click()
+    return
+  } catch {
+    // Touch path below.
+  }
+  const ends = await page.evaluate((wanted) => {
+    const root = document.querySelector('.bn-editor')!
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const at = node.textContent!.indexOf(wanted)
+      if (at < 0) continue
+      const range = document.createRange()
+      range.setStart(node, at)
+      range.setEnd(node, at + wanted.length)
+      // The words may wrap: start on the first line, end on the last.
+      const rects = [...range.getClientRects()].filter((r) => r.width > 0)
+      const f = rects[0]
+      const l = rects[rects.length - 1]
+      return {
+        a: { x: f.left + 1, y: f.top + f.height / 2 },
+        b: { x: l.right - 0.5, y: l.top + l.height / 2 },
+      }
+    }
+    throw new Error('Text not found: ' + wanted)
+  }, text)
+  const pen = async (type: string, at: { x: number; y: number }) =>
+    page.evaluate(
+      ({ type, at }) => {
+        const el = document.elementFromPoint(at.x, at.y)!
+        el.dispatchEvent(
+          new PointerEvent(type, {
+            pointerType: 'pen',
+            pointerId: 21,
+            clientX: at.x,
+            clientY: at.y,
+            bubbles: true,
+            cancelable: true,
+            isPrimary: true,
+            button: type === 'pointermove' ? -1 : 0,
+            buttons: type === 'pointerup' ? 0 : 1,
+          }),
+        )
+      },
+      { type, at },
+    )
+  // A Pencil hold selects under the Text tool (holdSelect.ts).
+  const textTool = page
+    .getByRole('toolbar', { name: 'Formatting' })
+    .getByRole('button', { name: 'Text', exact: true })
+  if (
+    (await textTool.isVisible()) &&
+    (await textTool.getAttribute('aria-pressed')) !== 'true'
+  )
+    await textTool.click()
+  await pen('pointerdown', ends.a)
+  await page.waitForTimeout(700) // past the hold time (up to 600 ms)
+  await pen('pointermove', ends.b)
+  await pen('pointerup', ends.b)
+  const mini = page.locator('[data-mini-toolbar]')
+  await expect(mini).toBeVisible()
+  await mini.getByRole('button', { name: 'More', exact: true }).click()
+  await mini.getByRole('button', { name, exact: true }).click()
+}
+
 /** Number of review records in the app database. */
 export const cardRecordCount = (page: Page) =>
   page.evaluate(

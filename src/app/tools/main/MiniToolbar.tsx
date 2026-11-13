@@ -195,6 +195,9 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       placed.current = null
       anchor.current = null
       setDragPos(null)
+      // Why: "More" stayed open for the next selection, so a tap on it
+      // there closed it instead of opening it.
+      setMore(false)
     }
   }, [open])
 

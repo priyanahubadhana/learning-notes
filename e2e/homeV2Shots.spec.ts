@@ -24,7 +24,7 @@ async function shoot(page: Page, name: string, size: string) {
     )
     await page.waitForTimeout(200)
     await page.screenshot({
-      path: `screenshots/gate3-5/after-${name}-${size}-${label}.png`,
+      path: `${process.env.SHOTS_DIR ?? 'screenshots/gate3-5'}/${process.env.SHOTS_TAG ?? 'after'}-${name}-${size}-${label}.png`,
     })
   }
 }

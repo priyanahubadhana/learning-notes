@@ -21,6 +21,7 @@ import { Top3 } from './Top3'
 import { useTasks, useToday } from './useHomeData'
 import { Icon } from '../app/tools/icons'
 import { useFlag } from '../app/flags'
+import { ScrollTrack } from '../design/parts/ScrollTrack'
 
 // Home v2 (flag home.v2) loads only when the flag is on: with it off the
 // first load stays as today (no drag part, no event router).
@@ -114,10 +115,12 @@ export function HomeScreen({
         <h2 className="text-xl font-semibold">{t('space.home')}</h2>
         <p className="text-sm text-muted">{dayMonthLabel(today)}</p>
       </header>
-      <div
+      <ScrollTrack
         role="tablist"
         data-testid="home-tabs"
-        className="mb-4 flex flex-nowrap gap-1.5 overflow-x-auto [scrollbar-width:thin]"
+        wrapClassName="mb-4"
+        barClassName="mt-1"
+        className="flex flex-nowrap gap-1.5"
       >
         {TABS.map((id) => (
           <button
@@ -135,7 +138,7 @@ export function HomeScreen({
             {t(`home.tab.${id}` as MessageKey)}
           </button>
         ))}
-      </div>
+      </ScrollTrack>
       {tab === 'today' && record && v2 && (
         <div className="flex flex-col gap-4" data-testid="home-today">
           <Suspense fallback={null}>

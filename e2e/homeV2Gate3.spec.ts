@@ -15,7 +15,16 @@ async function openHome(page: Page, size?: { width: number; height: number }) {
   await expect(
     page.getByTestId('home-widgets').locator('> li[data-reorder-id]'),
   ).not.toHaveCount(0)
+  await settle(page)
 }
+
+/** Let move/size animations finish before measuring. */
+const settle = (page: Page) =>
+  page.evaluate(() =>
+    Promise.all(
+      document.getAnimations().map((a) => a.finished.catch(() => {})),
+    ),
+  )
 
 const rect = (page: Page, id: string) =>
   page

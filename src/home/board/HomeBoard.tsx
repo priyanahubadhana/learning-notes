@@ -113,30 +113,33 @@ export function HomeBoard({ data }: { data: BoardData }) {
           data-testid="home-edit-bar"
           className="sticky top-0 order-first mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-accent bg-bg px-3 py-2"
         >
-          <span className="me-auto text-sm font-semibold">
+          {/* Phone: title on its own line, then one row of three equal buttons. */}
+          <span className="basis-full text-sm font-semibold sm:me-auto sm:basis-auto">
             {t('home.v2.editBar')}
           </span>
-          <button
-            type="button"
-            onClick={() => setDraft(null)}
-            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
-          >
-            {t('home.v2.cancel')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setDraft(normalizeLayout(null))}
-            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
-          >
-            {t('home.v2.reset')}
-          </button>
-          <button
-            type="button"
-            onClick={done}
-            className="min-h-11 rounded-lg bg-accent px-5 text-sm font-semibold text-on-accent"
-          >
-            {t('home.v2.done')}
-          </button>
+          <div className="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setDraft(null)}
+              className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+            >
+              {t('home.v2.cancel')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setDraft(normalizeLayout(null))}
+              className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+            >
+              {t('home.v2.reset')}
+            </button>
+            <button
+              type="button"
+              onClick={done}
+              className="min-h-11 rounded-lg bg-accent px-5 text-sm font-semibold text-on-accent"
+            >
+              {t('home.v2.done')}
+            </button>
+          </div>
         </div>
       ) : (
         <div className="order-first mb-3 flex justify-end">
@@ -221,43 +224,24 @@ function WidgetFrame({
       data-size={slot.size}
       className={`home-widget rounded-xl border border-line bg-bg p-3 ${editing ? 'select-none' : ''}`}
     >
-      <header className="mb-2 flex min-h-10 flex-wrap items-center gap-1">
+      {/* One header row. Editing: it reaches into the card padding so grip and arrows
+          fit an S card on a phone; the icon steps aside there (gate 3 v4 item 4). */}
+      <header
+        className={`mb-2 flex min-h-10 flex-nowrap items-center gap-1 ${editing ? '-mx-2' : ''}`}
+      >
         {editing && grip}
-        <Icon
-          name={WIDGET_ICON[slot.id]}
-          size={17}
-          className="shrink-0 text-ink-soft"
-        />
-        <h3 className="me-auto min-w-0 truncate text-[13px] font-semibold text-ink-soft">
+        {!(editing && slot.size === 's') && (
+          <Icon
+            name={WIDGET_ICON[slot.id]}
+            size={17}
+            className="shrink-0 text-ink-soft"
+          />
+        )}
+        <h3 className="me-auto min-w-0 flex-1 truncate text-[13px] font-semibold text-ink-soft">
           {name}
         </h3>
         {editing && moveButtons}
-        {editing && (
-          <div
-            role="radiogroup"
-            aria-label={t('home.v2.size', { name })}
-            className="flex w-full"
-          >
-            {SIZES.map((size) => (
-              <button
-                key={size}
-                type="button"
-                role="radio"
-                aria-checked={slot.size === size}
-                aria-label={t(`home.v2.size.${size}.name` as MessageKey)}
-                data-testid={`size-${slot.id}-${size}`}
-                onClick={() => onSize(size)}
-                className={`min-h-11 min-w-0 flex-1 rounded-lg text-sm ${
-                  slot.size === size
-                    ? 'bg-hover font-semibold text-accent'
-                    : 'text-ink-soft hover:bg-hover'
-                }`}
-              >
-                {t(`home.v2.size.${size}` as MessageKey)}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Stays in the header row while editing (gate 3 v4 item 3). */}
         {builtFrom && slot.size !== 's' && (
           <button
             ref={opener}
@@ -271,6 +255,32 @@ function WidgetFrame({
           </button>
         )}
       </header>
+      {editing && (
+        <div
+          role="radiogroup"
+          aria-label={t('home.v2.size', { name })}
+          className="mb-2 flex w-full"
+        >
+          {SIZES.map((size) => (
+            <button
+              key={size}
+              type="button"
+              role="radio"
+              aria-checked={slot.size === size}
+              aria-label={t(`home.v2.size.${size}.name` as MessageKey)}
+              data-testid={`size-${slot.id}-${size}`}
+              onClick={() => onSize(size)}
+              className={`min-h-11 min-w-0 flex-1 rounded-lg text-sm ${
+                slot.size === size
+                  ? 'bg-hover font-semibold text-accent'
+                  : 'text-ink-soft hover:bg-hover'
+              }`}
+            >
+              {t(`home.v2.size.${size}` as MessageKey)}
+            </button>
+          ))}
+        </div>
+      )}
       {/* key: a size change replays the short settle animation. */}
       <div
         key={slot.size}

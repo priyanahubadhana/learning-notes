@@ -27,8 +27,12 @@ const fail = (msg) => {
 
 if (d.tool_name === 'Bash') {
   const c = String(t.command || '')
-  const del = /(^|[\s;&|(])(rm|unlink|del|erase|rmdir|Remove-Item|ri)(\s|$)|git\s+rm\b/i.test(c)
-  if (del && testPathRe.test(c) && !hasReason(c)) fail('this command deletes a test file.')
+  const del =
+    /(^|[\s;&|(])(rm|unlink|del|erase|rmdir|Remove-Item|ri)(\s|$)|git\s+rm\b/i.test(
+      c,
+    )
+  if (del && testPathRe.test(c) && !hasReason(c))
+    fail('this command deletes a test file.')
   process.exit(0)
 }
 
@@ -59,7 +63,8 @@ const maxNum = (s, key) => {
 
 // Added lines (multiset difference), each with the line just above it in the new text.
 const seen = new Map()
-for (const l of before.split('\n')) seen.set(l.trim(), (seen.get(l.trim()) || 0) + 1)
+for (const l of before.split('\n'))
+  seen.set(l.trim(), (seen.get(l.trim()) || 0) + 1)
 const added = []
 const aLines = after.split('\n')
 aLines.forEach((l, i) => {
@@ -69,17 +74,30 @@ aLines.forEach((l, i) => {
 })
 // True when an added line matching `re` has no reason on it or just above it.
 const unreasoned = (re) =>
-  added.some((a) => re.test(a.line) && !hasReason(a.line) && !hasReason(a.above))
+  added.some(
+    (a) => re.test(a.line) && !hasReason(a.line) && !hasReason(a.above),
+  )
 
 const problems = []
 const onlyRe = /\.only\s*\(|\b(fit|fdescribe)\s*\(/g
 if (count(after, onlyRe) > count(before, onlyRe)) problems.push('adds .only')
 const skipRe = /\.(skip|fixme)\s*\(|\b(xit|xdescribe)\s*\(/
-if (count(after, new RegExp(skipRe, 'g')) > count(before, new RegExp(skipRe, 'g')) && unreasoned(skipRe))
+if (
+  count(after, new RegExp(skipRe, 'g')) >
+    count(before, new RegExp(skipRe, 'g')) &&
+  unreasoned(skipRe)
+)
   problems.push('adds .skip/.fixme')
 const expRe = /\bexpect\s*[.(]/g
-if (count(after, expRe) < count(before, expRe)) problems.push('removes assertions (expect)')
-for (const k of ['\\btimeout', 'actionTimeout', 'navigationTimeout', 'setTimeout', '\\bretries']) {
+if (count(after, expRe) < count(before, expRe))
+  problems.push('removes assertions (expect)')
+for (const k of [
+  '\\btimeout',
+  'actionTimeout',
+  'navigationTimeout',
+  'setTimeout',
+  '\\bretries',
+]) {
   const a = maxNum(after, k)
   const b = maxNum(before, k)
   if (a !== null && b !== null && a > b && unreasoned(new RegExp(k, 'i')))
@@ -87,16 +105,26 @@ for (const k of ['\\btimeout', 'actionTimeout', 'navigationTimeout', 'setTimeout
 }
 // A longer-timeout setting added where the old text had none to compare with.
 for (const k of ['actionTimeout', 'navigationTimeout', 'setTimeout']) {
-  if (maxNum(before, k) === null && unreasoned(new RegExp(`${k}\\s*[:(]`))) problems.push(`adds ${k}`)
+  if (maxNum(before, k) === null && unreasoned(new RegExp(`${k}\\s*[:(]`)))
+    problems.push(`adds ${k}`)
 }
-if (!/\.slow\s*\(/.test(before) && unreasoned(/\.slow\s*\(/)) problems.push('adds test.slow')
-if (/(playwright|vitest)\.config/.test(p) && maxNum(before, 'timeout') === null && unreasoned(/\btimeout\s*:\s*\d/i))
+if (!/\.slow\s*\(/.test(before) && unreasoned(/\.slow\s*\(/))
+  problems.push('adds test.slow')
+if (
+  /(playwright|vitest)\.config/.test(p) &&
+  maxNum(before, 'timeout') === null &&
+  unreasoned(/\btimeout\s*:\s*\d/i)
+)
   problems.push('adds timeout')
 for (const w of ['grepInvert', 'testIgnore']) {
   const g = new RegExp(`\\b${w}\\b`, 'g')
-  if (count(after, g) > count(before, g) && unreasoned(new RegExp(`\\b${w}\\b`)))
+  if (
+    count(after, g) > count(before, g) &&
+    unreasoned(new RegExp(`\\b${w}\\b`))
+  )
     problems.push(`adds ${w}`)
 }
-if (d.tool_name === 'Write' && before.trim() && !after.trim()) problems.push('empties a test file')
+if (d.tool_name === 'Write' && before.trim() && !after.trim())
+  problems.push('empties a test file')
 
 if (problems.length) fail(`this edit to ${p} ${problems.join(', ')}.`)

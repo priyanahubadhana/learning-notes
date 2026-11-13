@@ -202,6 +202,7 @@ Expected gain (an estimate, not measured): about 10 to 15 minutes per CI run fro
 ## 12. Test guard and batch CI (13 Nov 2026, owner approved)
 
 **Test guard hook** (`.claude/hooks/guard-tests.mjs`). Nothing here loosens a test; the hook now blocks more:
+
 - Always blocked: new `.only`, fewer `expect()` calls, emptied test files.
 - Blocked unless a reason is given: raising `timeout`, `actionTimeout`, `navigationTimeout`, expect timeout, `test.setTimeout` or `retries`; adding `test.slow`, `grepInvert` or `testIgnore`; new `.skip(` / `.fixme(`; deleting a test file (`rm`, `git rm`, `Remove-Item`) in a Bash command.
 - Reason channel (the hook cannot see commit messages): the same added line, or the line just above it, carries a comment `test-guard-reason: <at least 5 words>`. For a Bash delete the comment goes inside the command. The commit message must repeat the reason. A builder only uses this when the owner or Fable has approved the exception; otherwise stop and report.

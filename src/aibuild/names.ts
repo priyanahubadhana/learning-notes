@@ -16,7 +16,8 @@ export function previewLines(records: readonly StagedRecord[]): string[] {
     const title = r.value.title
     if (typeof title !== 'string' || !title) continue
     const kind = r.table === 'notebooks' ? 'Notebook' : 'Page'
-    const key = `aifw.preview.${r.baseRev ? 'edit' : 'new'}${kind}` as MessageKey
+    const key =
+      `aifw.preview.${r.baseRev ? 'edit' : 'new'}${kind}` as MessageKey
     const line = t(key, { title })
     if (!out.includes(line)) out.push(line)
   }

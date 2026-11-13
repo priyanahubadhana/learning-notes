@@ -89,7 +89,8 @@ export const enLateAiBuild = {
   'aifw.paste.bad': 'That answer does not fit this step:',
   'aifw.paste.repair': 'The last answer did not fit. Paste a corrected one.',
   'aifw.paste.empty': 'Paste the answer first.',
-  'aifw.paste.json': 'This is not the full answer. Copy the whole answer from the chat and paste it again.',
+  'aifw.paste.json':
+    'This is not the full answer. Copy the whole answer from the chat and paste it again.',
   'aifw.paste.object': 'The answer must be one JSON object.',
   'aifw.paste.missing': 'The answer needs a “{field}” part.',
   'aifw.paste.declined': 'You chose to answer later.',

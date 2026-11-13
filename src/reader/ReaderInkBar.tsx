@@ -1,8 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { PHONE_SCREEN } from '../app/appUi'
 import { OnOff } from '../design/parts/OnOff'
+import { ScrollTrack } from '../design/parts/ScrollTrack'
 import { Card, CardTrigger } from '../design/parts/Card'
-import { CardNote, SwitchRow, Tile, TileGroup } from '../design/parts/CardParts'
+import {
+  CardGroup,
+  CardNote,
+  SwitchRow,
+  Tile,
+  TileGroup,
+} from '../design/parts/CardParts'
 import { activeTool, type ModeTool } from '../app/tools/main/mainTools'
 import {
   HIGHLIGHT_COLOURS,
@@ -70,6 +77,18 @@ export function ReaderInkBar({
         ? PEN_COLOURS
         : []
   const current = tool === 'highlighter' ? hl.colour : pen.colour
+  // Phone: colours on a thin track, the named ▾ ends the second row.
+  const row2 = (kids: ReactNode) =>
+    compact ? (
+      <div className="flex w-full items-center">
+        <ScrollTrack wrapClassName="min-w-0 flex-1" className="flex">
+          {kids}
+        </ScrollTrack>
+        <InkOptions tool={tool} mode={mode} inkLook={inkLook} />
+      </div>
+    ) : (
+      kids
+    )
   return (
     <div
       data-chrome
@@ -82,7 +101,7 @@ export function ReaderInkBar({
           : 'flex flex-wrap items-center gap-1 border-b border-line bg-bg px-2 py-1'
       }
     >
-      {tools.map((id) => (
+      {(compact ? [] : tools).map((id) => (
         <button
           key={id}
           type="button"
@@ -94,7 +113,7 @@ export function ReaderInkBar({
           {t(`main.tool.${id}`)}
         </button>
       ))}
-      {sticky && (
+      {!compact && sticky && (
         <button
           type="button"
           aria-pressed={sticky.armed}
@@ -107,8 +126,34 @@ export function ReaderInkBar({
         </button>
       )}
       {compact && (
-        <>
-          <span className="flex-1" />
+        // Gate 3, tenth visit, fix 2: tools scroll on a thin track, Done ends the row.
+        <div className="flex w-full items-center">
+          <ScrollTrack wrapClassName="min-w-0 flex-1" className="flex">
+            {tools.map((id) => (
+              <button
+                key={id}
+                type="button"
+                aria-pressed={tool === id}
+                data-testid={`reader-ink-${id}`}
+                className={`shrink-0 ${btn(tool === id, true)}`}
+                onClick={() => activeTool.set(id)}
+              >
+                {t(`main.tool.${id}`)}
+              </button>
+            ))}
+            {sticky && (
+              <button
+                type="button"
+                aria-pressed={sticky.armed}
+                aria-label={t('readerv2.sticky.tool')}
+                data-testid="reader-ink-sticky"
+                className={`shrink-0 ${btn(sticky.armed, true)}`}
+                onClick={sticky.onToggle}
+              >
+                <Icon name="tape" size={18} />
+              </button>
+            )}
+          </ScrollTrack>
           <button
             type="button"
             data-testid="reader-ink-done"
@@ -117,37 +162,38 @@ export function ReaderInkBar({
           >
             {t('reader.ink.done')}
           </button>
-          <span className="basis-full" aria-hidden />
-        </>
+        </div>
       )}
-      {colours.map((c) => (
-        <button
-          key={c.id}
-          type="button"
-          aria-label={t(`ink.colour.${c.id}` as 'ink.colour.black')}
-          aria-pressed={current.toLowerCase() === c.hex.toLowerCase()}
-          data-testid={`reader-ink-colour-${c.id}`}
-          className="flex min-h-11 min-w-11 items-center justify-center rounded-lg hover:bg-hover"
-          onClick={() =>
-            tool === 'highlighter'
-              ? highlighterSettings.update({ colour: c.hex })
-              : penSettings.update({ colour: c.hex })
-          }
-        >
-          <span
-            aria-hidden
-            className="block size-5 rounded-full border border-line"
-            style={{
-              background: c.hex,
-              outline:
-                current.toLowerCase() === c.hex.toLowerCase()
-                  ? '2px solid currentColor'
-                  : undefined,
-              outlineOffset: 2,
-            }}
-          />
-        </button>
-      ))}
+      {row2(
+        colours.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            aria-label={t(`ink.colour.${c.id}` as 'ink.colour.black')}
+            aria-pressed={current.toLowerCase() === c.hex.toLowerCase()}
+            data-testid={`reader-ink-colour-${c.id}`}
+            className="flex min-h-11 shrink-0 min-w-11 items-center justify-center rounded-lg hover:bg-hover"
+            onClick={() =>
+              tool === 'highlighter'
+                ? highlighterSettings.update({ colour: c.hex })
+                : penSettings.update({ colour: c.hex })
+            }
+          >
+            <span
+              aria-hidden
+              className="block size-5 rounded-full border border-line"
+              style={{
+                background: c.hex,
+                outline:
+                  current.toLowerCase() === c.hex.toLowerCase()
+                    ? '2px solid currentColor'
+                    : undefined,
+                outlineOffset: 2,
+              }}
+            />
+          </button>
+        )),
+      )}
       {!compact &&
         mode !== 'simple' &&
         (tool === 'pen' || tool === 'highlighter') && (
@@ -231,7 +277,6 @@ export function ReaderInkBar({
             />
           </label>
         )}
-      {compact && <InkOptions tool={tool} mode={mode} inkLook={inkLook} />}
       {v2 && !compact && (
         <>
           <span className="flex min-h-11 items-center gap-2 px-2 text-sm">
@@ -346,7 +391,10 @@ function InkOptions({
         testId="reader-ink-options"
         onClick={(el) => setAnchor(anchor ? null : el)}
       >
-        {null}
+        {/* Gate 3, tenth visit, fix 2: a named ▾ (the pen type when shown). */}
+        {mode === 'full' && inkLook && tool === 'pen'
+          ? t(`ink.pen.${pen.type}` as 'ink.pen.ball')
+          : label}
       </CardTrigger>
       {anchor && (
         <Card
@@ -356,34 +404,54 @@ function InkOptions({
           onClose={() => setAnchor(null)}
         >
           {mode !== 'simple' && inking && (
-            <TileGroup label={t('reader.ink.size')} columns={3}>
-              {([0, 1, 2] as const).map((n) => (
-                <Tile
-                  key={n}
-                  label={t(`reader.ink.size.${n}` as 'reader.ink.size.0')}
-                  selected={size === n}
-                  testId={`reader-ink-size-${n}`}
-                  onSelect={() =>
-                    tool === 'pen'
-                      ? penSettings.update({ size: n, exact: null })
-                      : highlighterSettings.update({ size: n })
-                  }
-                />
-              ))}
-            </TileGroup>
+            <CardGroup label={t('reader.ink.size')}>
+              <TileGroup label={t('reader.ink.size')} columns={3}>
+                {([0, 1, 2] as const).map((n) => (
+                  <Tile
+                    key={n}
+                    label={t(`reader.ink.size.${n}` as 'reader.ink.size.0')}
+                    selected={size === n}
+                    testId={`reader-ink-size-${n}`}
+                    onSelect={() =>
+                      tool === 'pen'
+                        ? penSettings.update({ size: n, exact: null })
+                        : highlighterSettings.update({ size: n })
+                    }
+                  >
+                    <i
+                      className="block rounded-full bg-current"
+                      style={{ width: 6 + n * 4, height: 6 + n * 4 }}
+                    />
+                  </Tile>
+                ))}
+              </TileGroup>
+            </CardGroup>
           )}
           {mode === 'full' && inkLook && tool === 'pen' && (
-            <TileGroup label={t('reader.ink.type')} columns={3}>
-              {PEN_TYPES.map((p) => (
-                <Tile
-                  key={p}
-                  label={t(`ink.pen.${p}` as 'ink.pen.ball')}
-                  selected={p === pen.type}
-                  testId={`reader-ink-type-${p}`}
-                  onSelect={() => penSettings.update({ type: p })}
-                />
-              ))}
-            </TileGroup>
+            <CardGroup label={t('reader.ink.type')}>
+              <TileGroup label={t('reader.ink.type')} columns={3}>
+                {PEN_TYPES.map((p, i) => (
+                  <Tile
+                    key={p}
+                    label={t(`ink.pen.${p}` as 'ink.pen.ball')}
+                    selected={p === pen.type}
+                    testId={`reader-ink-type-${p}`}
+                    onSelect={() => penSettings.update({ type: p })}
+                  >
+                    <svg width="32" height="12" viewBox="0 0 32 12">
+                      <path
+                        d="M2 9C9 1 14 11 21 5s7 0 9-2"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeWidth={[2, 1.5, 3, 1, 4][i]}
+                        strokeDasharray={p === 'pencil' ? '2 1.5' : undefined}
+                      />
+                    </svg>
+                  </Tile>
+                ))}
+              </TileGroup>
+            </CardGroup>
           )}
           {mode === 'full' && inkLook && tool === 'highlighter' && (
             <label className="pcard-row">

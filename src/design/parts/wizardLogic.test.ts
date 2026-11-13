@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { defaultCanGo, visibleSteps, wizardProgress } from './wizardLogic'
+import {
+  defaultCanGo,
+  visibleSteps,
+  visibleTools,
+  wizardProgress,
+} from './wizardLogic'
 
 const S = [
   { id: 'file', label: 'File' },
@@ -27,5 +32,21 @@ describe('wizard steps logic', () => {
   it('gives progress as a fraction', () => {
     expect(wizardProgress(S, 'check')).toBe(0.75)
     expect(wizardProgress(S, 'x')).toBe(0)
+  })
+})
+
+describe('visibleTools (S3-40)', () => {
+  const tools = [{ id: 'a' }, { id: 'b', pro: 'media.curves' }, { id: 'c' }]
+  it('leaves a locked Pro tool out and keeps the order', () => {
+    expect(visibleTools(tools).map((t) => t.id)).toEqual(['a', 'c'])
+  })
+  it('adds only the unlocked one', () => {
+    expect(
+      visibleTools(tools, (id) => id === 'media.curves').map((t) => t.id),
+    ).toEqual(['a', 'b', 'c'])
+    expect(visibleTools(tools, () => false).map((t) => t.id)).toEqual([
+      'a',
+      'c',
+    ])
   })
 })

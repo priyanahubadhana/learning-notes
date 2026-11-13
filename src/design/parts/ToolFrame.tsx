@@ -39,6 +39,8 @@ export type ToolAction = {
   options?: ReactNode
   disabled?: boolean
   pressed?: boolean
+  /** Unlock id; the host leaves a locked Pro tool out with `visibleTools`. */
+  pro?: string
 }
 
 export type ToolFrameProps = {

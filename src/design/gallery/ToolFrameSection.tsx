@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
 import { BeforeAfter } from '../parts/BeforeAfter'
 import { ToolFrame, type ToolAction } from '../parts/ToolFrame'
-import type { WizardStep } from '../parts/wizardLogic'
+import { visibleTools, type WizardStep } from '../parts/wizardLogic'
+import { useLevel } from '../../settings/level'
 import '../parts/Dialogs.css'
 import { Demo, Section } from './Bits'
 import './Step3.css'
@@ -48,6 +49,10 @@ const T = {
   dragMe: 'Drag the dot. Nothing is drawn or selected here.',
   next: 'Next',
   stopped: 'stopped, nothing kept',
+  curves: 'Curves',
+  unlock: 'Unlock "Curves"',
+  lock: 'Lock "Curves"',
+  level: 'Level',
 } as const
 
 type Variant =
@@ -77,12 +82,14 @@ function Demo3({
   mode = 'floating',
   onLeave,
   onResult,
+  proOn = false,
 }: {
   variant: Variant
   opener?: HTMLElement | null
   mode?: 'floating' | 'inline'
   onLeave(how: string): void
   onResult(steps: number): void
+  proOn?: boolean
 }) {
   const [done, setDone] = useState<Look[]>([])
   const [redo, setRedo] = useState<Look[]>([])
@@ -100,7 +107,7 @@ function Demo3({
   }
   const bump = () => push({ ...cur, n: (cur.n + 1) % 3 })
 
-  const tools: ToolAction[] = [
+  const all: ToolAction[] = [
     { id: 'brighten', icon: 'sun', label: T.brighten, onPress: bump },
     { id: 'contrast', icon: 'circle', label: T.contrast, onPress: bump },
     {
@@ -131,7 +138,15 @@ function Demo3({
           { id: 'fade', icon: 'star', label: T.fade, onPress: bump },
         ] as ToolAction[])
       : []),
+    {
+      id: 'curves',
+      icon: 'sun',
+      label: T.curves,
+      onPress: bump,
+      pro: 'media.curves',
+    },
   ]
+  const tools = visibleTools(all, () => proOn)
 
   const onDown = (e: React.PointerEvent) => {
     try {
@@ -277,6 +292,8 @@ export default function ToolFrameSection() {
   const [openerEl, setOpenerEl] = useState<HTMLElement | null>(null)
   const [last, setLast] = useState<string>(T.noneYet)
   const [page, setPage] = useState(0)
+  const [proOn, setProOn] = useState(false)
+  const level = useLevel()
   return (
     <Section id="toolframe" title={T.title} help={T.help}>
       <div className="step3-row">
@@ -294,6 +311,20 @@ export default function ToolFrameSection() {
             {label}
           </button>
         ))}
+      </div>
+      <div className="step3-row">
+        <button
+          type="button"
+          className="fb-btn"
+          data-testid="tf-unlock"
+          aria-pressed={proOn}
+          onClick={() => setProOn((u) => !u)}
+        >
+          {proOn ? T.lock : T.unlock}
+        </button>
+        <p className="step3-said" data-testid="tf-level">
+          {T.level}: {level}
+        </p>
       </div>
       <p className="step3-said" data-testid="tf-last" aria-live="polite">
         {T.lastCloseLabel}: {last}
@@ -322,6 +353,7 @@ export default function ToolFrameSection() {
             setOpen(null)
           }}
           onResult={(n) => setPage((p) => p + n)}
+          proOn={proOn}
         />
       ) : null}
       <Demo state="tf-inline" label={T.inline}>

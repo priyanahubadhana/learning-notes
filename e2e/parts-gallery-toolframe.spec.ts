@@ -395,6 +395,38 @@ test('S3-12 Tab stays inside, in the order top bar, preview, tools, ✕, ✓', a
   expect(seen.slice(at('tf-done') + 1)[0]).toBe('tf-undo')
 })
 
+test('S3-40 a Pro tool is added to the same frame only when unlocked; the level stays Beginner', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem(
+      'learning-notes:level',
+      JSON.stringify({ level: 'beginner', unlocked: [], off: [] }),
+    ),
+  )
+  await gallery(page, IPAD_L)
+  await expect(page.getByTestId('tf-level')).toHaveText('Level: beginner')
+  const toolIds = async () => {
+    await page.getByTestId('tf-open-clean').click()
+    const f = page.getByTestId('tool-frame')
+    await expect(f).toBeVisible()
+    const ids = await f
+      .locator('.tf-tools [data-testid^="tf-tool-"]')
+      .evaluateAll((n) => n.map((x) => x.getAttribute('data-testid')))
+    await f.getByTestId('tf-cancel').click()
+    await expect(f).toBeHidden()
+    return ids
+  }
+  const before = await toolIds()
+  expect(before).not.toContain('tf-tool-curves')
+  await page.getByTestId('tf-unlock').click()
+  const after = await toolIds()
+  expect(after).toEqual([...before, 'tf-tool-curves'])
+  await expect(page.getByTestId('tf-level')).toHaveText('Level: beginner')
+  await page.getByTestId('tf-unlock').click()
+  expect(await toolIds()).toEqual(before)
+})
+
 test('S3-39 reduced motion: the frame shows with no animation', async ({
   page,
 }) => {

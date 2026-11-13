@@ -14,6 +14,14 @@ export function visibleSteps(
   return steps.filter((s) => !s.pro || unlocked(s.pro))
 }
 
+/** The same rule for the Tool frame's tools: a tool with a locked `pro` id is absent (S3-40). */
+export function visibleTools<T extends { pro?: string }>(
+  tools: readonly T[],
+  unlocked: (proId: string) => boolean = () => false,
+): T[] {
+  return tools.filter((t) => !t.pro || unlocked(t.pro))
+}
+
 /**
  * Default rule (WS): any earlier step, the current one, and the next one only
  * when the current step is valid. Steps further ahead are never allowed.

@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from './fixtures/readerReady.ts'
 import { makePdf } from './fixtures/books.ts'
 
 /**
@@ -262,20 +263,31 @@ test.describe('touch', () => {
     await page.getByTestId('reader-ink').tap()
     await page.getByTestId('reader-ink-sticky').tap()
     const b = (await pdfPage(page).boundingBox())!
-    const cdp = await page.context().newCDPSession(page)
+    // A swipe with touch events (no CDP, so WebKit runs it too).
     const x = b.x + b.width / 2
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
-      touchPoints: [{ x, y: b.y + 500 }],
-    })
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchMove',
-      touchPoints: [{ x, y: b.y + 380 }],
-    })
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchEnd',
-      touchPoints: [],
-    })
+    await page.evaluate(
+      ([px, py]) => {
+        const el = document.querySelector('[data-testid="rv2-sticky-catch"]')!
+        const at = (ty: string, y: number, buttons: number) =>
+          el.dispatchEvent(
+            new PointerEvent(ty, {
+              pointerId: 5,
+              pointerType: 'touch',
+              isPrimary: true,
+              bubbles: true,
+              cancelable: true,
+              clientX: px,
+              clientY: y,
+              buttons,
+            }),
+          )
+        at('pointerdown', py, 1)
+        at('pointermove', py - 60, 1)
+        at('pointermove', py - 120, 1)
+        at('pointerup', py - 120, 0)
+      },
+      [x, b.y + 500],
+    )
     await expect(editDialog(page)).toHaveCount(0)
     // A tap places one.
     const b2 = (await pdfPage(page).boundingBox())!

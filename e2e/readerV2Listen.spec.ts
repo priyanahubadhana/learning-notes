@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from './fixtures/readerReady.ts'
 import { makePdf } from './fixtures/books.ts'
 import { markedWord, mockSpeech, spoken } from './readingHelpers.ts'
 
@@ -254,19 +255,28 @@ test.describe('iPad portrait, touch', () => {
     page,
   }) => {
     await openPdf(page)
-    const b = await listen(page).boundingBox()
-    if (!b) throw new Error('Listen not visible')
-    const cdp = await page.context().newCDPSession(page)
-    const point = [{ x: b.x + b.width / 2, y: b.y + b.height / 2 }]
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
-      touchPoints: point,
-    })
+    // Touch pointer events, no CDP, so this runs on WebKit too: a finger
+    // goes down on Listen and stays until the card shows, then lifts and the
+    // browser's click follows.
+    const touch = (type: string) =>
+      listen(page).evaluate((el, ty) => {
+        const r = el.getBoundingClientRect()
+        const init = {
+          pointerId: 7,
+          pointerType: 'touch',
+          isPrimary: true,
+          bubbles: true,
+          cancelable: true,
+          clientX: r.x + r.width / 2,
+          clientY: r.y + r.height / 2,
+          buttons: ty === 'pointerup' ? 0 : 1,
+        }
+        el.dispatchEvent(new PointerEvent(ty, init))
+        if (ty === 'pointerup') el.dispatchEvent(new MouseEvent('click', init))
+      }, type)
+    await touch('pointerdown')
     await expect(card(page)).toBeVisible()
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchEnd',
-      touchPoints: [],
-    })
+    await touch('pointerup')
     await page.evaluate(
       () => new Promise((r) => requestAnimationFrame(() => r(null))),
     )

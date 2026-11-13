@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
+import { expect, test } from './fixtures/readerReady.ts'
 import { makeEpub, makePdf } from './fixtures/books.ts'
 
 /**

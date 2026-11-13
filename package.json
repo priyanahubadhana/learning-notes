@@ -18,6 +18,7 @@
     "check:size": "node scripts/check-size.mjs",
     "aitools:catalog": "node scripts/aitools-catalog.mjs",
     "check:ratchet": "node scripts/check-ratchet.mjs",
+    "check:reader-nothing-lost": "node scripts/check-reader-nothing-lost.mjs",
     "check:dod": "node scripts/check-dod.mjs",
     "probe:inventory": "node scripts/probe-inventory.mjs",
     "test:visual": "playwright test --project=visual",

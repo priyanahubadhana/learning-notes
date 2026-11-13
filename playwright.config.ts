@@ -77,11 +77,7 @@ export default defineConfig({
       // Stand-in for the owner's iPad: WebKit, touch, iPad size. Only the
       // Pencil/Scribble/keyboard specs of Phase A run here (CI time).
       name: 'ipad-webkit',
-      testIgnore: [/visual[/]/, /readerV2StickyEpub/],
-      // Chromium-only checks (they still run there): raw touch through CDP,
-      // EPUB frames and the screen-rotation lock that WebKit does not expose.
-      grepInvert:
-        /a finger hold on Listen opens settings only|a finger tap places a note only when armed|RD-P27 reader.lockDirection|RD-P29 reader.lineFocus: in an EPUB/,
+      testIgnore: [/visual[/]/],
       testMatch: [
         /parts-gallery/,
         /pencilIsolation/,
@@ -169,7 +165,6 @@ export default defineConfig({
       use: {
         ...devices['iPad Pro 11'],
         hasTouch: true,
-        actionTimeout: 30_000,
       },
       expect: { timeout: 15_000 },
       timeout: 60_000,

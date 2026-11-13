@@ -38,8 +38,14 @@ for (const [themeName, theme] of Object.entries(THEMES))
                   { name: 'learning-notes:devicePicker.done', value: 'true' },
                   { name: 'learning-notes:onboarding.done', value: 'true' },
                   { name: 'learning-notes:accountGate.off', value: '1' },
-                  { name: 'learning-notes:theme', value: JSON.stringify(theme) },
-                  { name: 'learning-notes:level', value: JSON.stringify(level) },
+                  {
+                    name: 'learning-notes:theme',
+                    value: JSON.stringify(theme),
+                  },
+                  {
+                    name: 'learning-notes:level',
+                    value: JSON.stringify(level),
+                  },
                 ],
               },
             ],
@@ -47,7 +53,9 @@ for (const [themeName, theme] of Object.entries(THEMES))
         })
         const page = await context.newPage()
         for (const id of SECTIONS) {
-          await page.goto(`/?flags=settings.v3,foundation.shell#/settings${id ? "/" + id : ""}`)
+          await page.goto(
+            `/?flags=settings.v3,foundation.shell#/settings${id ? '/' + id : ''}`,
+          )
           await page.locator('[data-settings-v3]').waitFor()
           await page.waitForTimeout(700)
           await page.screenshot({

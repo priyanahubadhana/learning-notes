@@ -27,7 +27,7 @@ Written 13 Nov 2026. Do it on the iPad in Safari, at the preview address. Tap ea
    - You should see: the app loads within a few seconds, with no error page.
 2. [ ] Go to Settings, then Try new features.
    - You should see: a list of switches, all OFF.
-3. [ ] Turn ON each of these: Shell, New Home, Storage safety (or do it in step 44), New Library, Notebooks and Search, New Settings, Page menus, Toolbar, AI framework, New updates. If a name differs a little, pick the closest one.
+3. [ ] Turn ON, in the order they appear: New app frame, New tool bar, New Settings, New Notebooks, New Search, New Home, New Library, New Review, AI framework, New updates, New page menus, Storage safety (once the preview has it). Leave the "Shared …", Tool list, New text box, New Reader and the other "New …" parts OFF.
    - You should see: each switch stays ON after you tap it.
 4. [ ] Close the app completely (swipe up from the bottom, then swipe it away) and open it again.
    - You should see: the switches are still ON and your notes are still there.

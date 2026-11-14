@@ -84,6 +84,7 @@ const config = defineConfig({
         /pencilIsolation/,
         /storageSafety.spec/,
         /updateV2/,
+        /updateFailureNote/,
         /security-m1-/,
         /chromeIsolation/,
         /penTapChrome/,

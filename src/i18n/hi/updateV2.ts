@@ -26,4 +26,6 @@ export const hiUpdateV2 = {
   'update.v2.updateNow': 'अभी अपडेट करें',
   'about.v2.level': 'अपडेट स्तर {level}',
   'about.v2.pretend': 'ज़रूरी अपडेट का नमूना दिखाएँ',
+  'update.v2.noteDownload': 'प्रीव्यू नोट: डाउनलोड {s} सेकंड बाद विफल हुआ',
+  'update.v2.noteRestart': 'प्रीव्यू नोट: {s} सेकंड बाद भी रीस्टार्ट नहीं हुआ',
 }

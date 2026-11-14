@@ -367,6 +367,70 @@ test('P1.3 the About test button reloads on the same page and keeps the offline 
   expect(await page.evaluate(() => caches.keys())).toContain('p13-offline-copy')
 })
 
+// The held request must reach the test's route, not the offline copy.
+test.describe('L13', () => {
+  test.use({ serviceWorkers: 'block' })
+  test('L13 a slow real restart (Safari revalidates everything) never shows "did not finish"', async ({
+    page,
+  }) => {
+    test.setTimeout(90_000)
+    await page.route('**/precache.json*', (r) =>
+      r.fulfill({ json: { files: [] } }),
+    )
+    await openAbout(page)
+    const url = page.url()
+    await page.evaluate(() => {
+      ;(window as never as { __same?: number }).__same = 1
+    })
+    // The restart (a plain reload) is held for 9 s, longer than the 6 s limit.
+    await page.route('**/*', async (r) => {
+      if (r.request().isNavigationRequest()) {
+        await new Promise((ok) => setTimeout(ok, 9_000))
+      }
+      await r.continue()
+    })
+    // A held page cannot be read, so the notice phases are written to
+    // sessionStorage (it survives the reload) and read afterwards.
+    await page.evaluate(() => {
+      new MutationObserver(() => {
+        const p = document
+          .querySelector('[data-mandatory-update]')
+          ?.getAttribute('data-phase')
+        if (p)
+          sessionStorage.setItem(
+            'l13',
+            (sessionStorage.getItem('l13') ?? '') + p + ',',
+          )
+      }).observe(document.body, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+      })
+    })
+    await page.locator('[data-about-pretend]').click()
+    await expect
+      .poll(() => applied(page).catch(() => true), { timeout: 30_000 })
+      .toBe(true)
+    await expect
+      .poll(
+        () =>
+          page
+            .evaluate(() => (window as never as { __same?: number }).__same)
+            .catch(() => 'reloading'),
+        { timeout: 30_000 },
+      )
+      .toBeUndefined()
+    expect(page.url()).toBe(url)
+    // (a) The restarted page starts clean: no saved notice comes back.
+    await page.waitForTimeout(1500)
+    await expect(notice(page)).toHaveCount(0)
+    // Through the 9 s hold the notice never said it failed.
+    const seen = await page.evaluate(() => sessionStorage.getItem('l13'))
+    expect(seen).toContain('installing')
+    expect(seen).not.toContain('failed')
+  })
+})
+
 test('P1.3 a file that never arrives ends in Try again, never stuck', async ({
   page,
 }) => {

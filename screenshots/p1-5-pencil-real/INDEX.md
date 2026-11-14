@@ -2,7 +2,7 @@
 
 Taken on ipad-webkit (WebKit, touch) with the switch `foundation.shell` ON, 15 Nov 2026.
 
-**To retake:** these were taken before the last source edit (commit 320649ba: a Pencil scroll drag no longer selects row text). The `panel-after-pen-drag-*` pictures still show two rows with selected (blue) text; that is the fault the edit fixed. ipad-webkit was in use by another builder; retake with `e2e/p15Shots.spec.ts` (kept uncommitted in the working copy) as soon as it is free.
+Retaken after the last source edit (commit 436e466c, merged with build/next at e3df975a). The first set showed two rows with selected (blue) text after a Pencil drag; that fault is fixed (commit 320649ba) and the pictures no longer show it.
 
 File names: `<screen>-<size>-<level>-<theme>.png`
 

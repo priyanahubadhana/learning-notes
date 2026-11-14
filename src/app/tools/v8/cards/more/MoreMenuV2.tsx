@@ -80,8 +80,8 @@ export default function MoreMenuV2({
       data-menu-v2
       role="group"
       aria-label={t('v8.fold.title')}
-      // First focus stop for the card: no ring round it (a ring is for Tab).
-      tabIndex={0}
+      // Not a keyboard stop (Tab goes to the first tile); no ring round it.
+      tabIndex={-1}
       className="grid gap-3 outline-none"
     >
       <CardGroup>
@@ -107,6 +107,7 @@ export default function MoreMenuV2({
                 key={e.id}
                 label={e.label}
                 action
+                pressed={e.pressed}
                 testId={`v8-fold-${e.id}`}
                 onSelect={e.onPick}
               >

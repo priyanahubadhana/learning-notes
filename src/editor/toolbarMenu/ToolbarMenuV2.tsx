@@ -216,7 +216,7 @@ export function ToolbarMenuV2({
           aria-label={t(
             more ? 'toolbarMenu.moreClose' : 'toolbarMenu.moreOpen',
           )}
-          className="flex min-h-[44px] items-center justify-between rounded-lg px-3 text-sm font-semibold hover:bg-hover"
+          className="flex min-h-[44px] items-center justify-between rounded-lg px-1 text-sm font-semibold hover:bg-hover"
         >
           <span>{t('toolbarMenu.more')}</span>
           <Icon name={more ? 'chevronUp' : 'chevronDown'} size={18} />

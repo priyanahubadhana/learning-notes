@@ -89,10 +89,13 @@ test('every tile is at least 44 px and there are no key names', async ({
   expect(await card(page).innerText()).not.toMatch(/⌘|Ctrl\+|Shift\+/)
 })
 
-test('a tap opens the card with no focus ring', async ({ page }) => {
+test('a tap opens the card with no focus ring; Tab rings the first tile', async ({
+  page,
+}) => {
   await open(page, 'toolbar.v8,toolbar.menu')
   await page.getByTestId('v8-more').click()
   await expect(card(page)).toBeVisible()
+  await expect(card(page).locator('.pcard-tile').first()).toBeVisible()
   const ringed = () =>
     page.evaluate(() => {
       const el = document.activeElement
@@ -100,8 +103,22 @@ test('a tap opens the card with no focus ring', async ({ page }) => {
       const css = getComputedStyle(el)
       return css.outlineStyle !== 'none' && parseFloat(css.outlineWidth) > 0
     })
-  await expect(card(page).locator('.pcard-tile').first()).toBeVisible()
   expect(await ringed()).toBe(false)
+  await page.keyboard.press('Tab')
+  await expect(card(page).locator('.pcard-tile').first()).toBeFocused()
+  expect(await ringed()).toBe(true)
+})
+
+test('a folded tile acts on the text: New line adds a line', async ({
+  page,
+}) => {
+  await open(page, 'toolbar.v8,toolbar.menu')
+  const blocks = page.locator('.bn-block')
+  const before = await blocks.count()
+  await page.getByTestId('v8-more').click()
+  await page.getByTestId('v8-fold-nl').click()
+  await expect(card(page)).toHaveCount(0)
+  await expect.poll(() => blocks.count()).toBeGreaterThan(before)
 })
 
 test('a tile runs its action: Hide the tool bar closes the card and the bar', async ({

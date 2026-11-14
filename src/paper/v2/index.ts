@@ -11,6 +11,14 @@ import './boxV2.css'
 
 export { rowUnder } from './boxSelection'
 export { HOLD_MS, floorFor, minWidthPx, nearestHandle } from './boxResize'
+export {
+  GLIDE_MS,
+  createDragClock,
+  glideFrom,
+  playGlide,
+  tabOnly,
+  toastMoved,
+} from './boxDrag'
 
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 /** Parts of a box with their own tap (the tab, the menu, dots, frame strips). */

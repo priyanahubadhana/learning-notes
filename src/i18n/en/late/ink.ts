@@ -382,6 +382,7 @@ export const enLateInk = {
   'paper.box.lock': 'Lock in place',
   'paper.box.menu': 'Box actions',
   'paper.box.move': 'Move box (drag)',
+  'paper.box.moved': 'Box moved.',
   'paper.box.movedMany': '{n} boxes moved.',
   'paper.box.noColour': 'No colour',
   'paper.box.resize': 'Change box width (drag)',

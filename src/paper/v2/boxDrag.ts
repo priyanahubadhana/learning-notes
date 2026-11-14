@@ -4,6 +4,9 @@
  * the planning of the drop (layoutDrop.ts, guides.ts, boxService.ts unchanged).
  * States picture, panels 2 and 3.
  */
+import { getAppActions } from '../../app/tools/toolRuntime'
+import { undoSince } from '../../core/historySteps'
+import { t } from '../../i18n/t'
 
 /** Hold the tab this long (ms) and the box lifts. */
 export const HOLD_MS = 120
@@ -106,3 +109,14 @@ export function playGlide(
 /** Only the ≡ tab (and the layout cover) moves a box; the border strips never do. */
 export const tabOnly = (from: Element): boolean =>
   !from.hasAttribute('data-box-band')
+
+/**
+ * After a drop there is no tick to press: a toast says "Box moved" and its
+ * Undo takes the page's newest step back (the drop is one step).
+ */
+export function toastMoved(since: number): void {
+  getAppActions()?.toast(t('paper.box.moved'), {
+    label: t('paper.box.undo'),
+    onSelect: () => void undoSince(since),
+  })
+}

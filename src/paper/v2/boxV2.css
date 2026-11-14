@@ -47,3 +47,36 @@
   /* The dots sit on the edge: the text keeps clear of them. */
   padding-inline: 10px;
 }
+
+/*
+ * Moving a box (task 2B.7). Hold the tab 120 ms: the box lifts (scale 1.02,
+ * elevation 3) and keeps the lift while it is dragged; the other things leave
+ * the stage (the bar's ⋯ list hides). After the drop it glides 200 ms and is
+ * not tappable until it has landed. States picture, panels 2 and 3.
+ */
+[data-paper-box][data-lifted] {
+  transform: scale(1.02);
+  box-shadow: var(--elev-3);
+  z-index: 5;
+  transition:
+    transform 120ms ease-out,
+    box-shadow 120ms ease-out;
+}
+[data-paper-box][data-dragging] {
+  opacity: 1;
+  box-shadow: var(--elev-3);
+  transition: none;
+}
+[data-paper-box][data-gliding] {
+  pointer-events: none;
+  z-index: 5;
+}
+html[data-box-drag] [data-box-menu],
+html[data-box-drag] [data-box-bar] {
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-paper-box][data-lifted] {
+    transition: none;
+  }
+}

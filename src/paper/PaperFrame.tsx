@@ -83,6 +83,7 @@ import { activeTool } from '../app/tools/main/mainTools'
 import { onGestureReset } from '../app/gestureReset'
 import type { Rect } from '../ink/geometry'
 import { startGripDrag } from '../app/tools/gripDrag'
+import type { DragClock } from './v2/boxDrag'
 import { adopterIn, lassoAcrossBoxes, setPaperDrop } from '../ink/inkTransfer'
 import { lassoSettings } from '../app/tools/main/inkSettings'
 import { sheetNav } from './sheetNav'
@@ -748,13 +749,33 @@ export function PaperFrame({
     /** The scroller and where it was, for edge auto-scroll. */
     scroller?: HTMLElement | null
     scroll0?: number
+    /** Text box v2 (2B.7): the 120 ms hold and the 4 s safety end, the lifted box, the last pointer. */
+    clock?: DragClock
+    held?: boolean
+    el?: HTMLElement | null
+    last?: { x: number; y: number }
   } | null>(null)
+  /** Where the dropped boxes were let go: the glide (v2) starts there. */
+  const glide = useRef<Map<string, DOMRect> | null>(null)
+  const endLift = (d: { clock?: DragClock; el?: HTMLElement | null }) => {
+    d.clock?.stop()
+    d.el?.removeAttribute('data-lifted')
+  }
   const [guides, setGuides] = useState<SnapResult | null>(null)
   const lastPt = useRef<{ clientX: number; clientY: number } | null>(null)
   const grab = (box: PaperBox, _how: GrabHow, e: ReactPointerEvent) => {
     if (e.button !== 0) return
     e.preventDefault()
     e.stopPropagation()
+    // Text box v2 (TB-11): only the ≡ tab moves a box; a press on a border
+    // strip just selects it.
+    const m = v2.current
+    if (m && !m.tabOnly(e.currentTarget as Element)) {
+      const live = document.activeElement
+      if (live?.closest('[data-paper-box="' + CSS.escape(box.id) + '"]'))
+        (live as HTMLElement).blur()
+      return selectBox(box.id, e.shiftKey)
+    }
     // The drag owns every pointer and key (item 25): the page leaves text
     // input (no "/" menu, no caret), the ink and Lasso ignore the touch.
     startGripDrag(e.currentTarget as Element, e.pointerId)
@@ -780,6 +801,32 @@ export function PaperFrame({
       scroll0:
         (paperEl.current ? scrollParent(paperEl.current) : null)?.scrollTop ??
         0,
+    }
+    if (m) {
+      const d = drag.current
+      d.last = { x: e.clientX, y: e.clientY }
+      d.clock = m.createDragClock({
+        // 120 ms: the box lifts; the drag counts from where the finger is now.
+        onHold: () => {
+          d.held = true
+          d.x0 = d.last!.x
+          d.y0 = d.last!.y
+          d.el = paperEl.current?.querySelector<HTMLElement>(
+            '[data-paper-box="' + CSS.escape(box.id) + '"]',
+          )
+          d.el?.setAttribute('data-lifted', '')
+        },
+        // The lift never came (a dropped pointerup): drop where it is now.
+        onSafety: () => {
+          if (drag.current !== d) return
+          dragEnd({
+            type: 'pointerup',
+            timeStamp: performance.now(),
+            clientX: d.last!.x,
+            clientY: d.last!.y,
+          } as unknown as ReactPointerEvent)
+        },
+      })
     }
   }
   /** The arrangement a drop at the pointer would give (pure, from the rows at drag start). */
@@ -875,6 +922,12 @@ export function PaperFrame({
   const frame = useRef(0)
   const dragMove = (e: ReactPointerEvent) => {
     if (!drag.current) return
+    const held = drag.current
+    if (held.clock) {
+      held.last = { x: e.clientX, y: e.clientY }
+      held.clock.touch()
+      if (!held.held) return
+    }
     pending.current = { clientX: e.clientX, clientY: e.clientY }
     if (frame.current) return
     frame.current = requestAnimationFrame(() => {
@@ -890,6 +943,7 @@ export function PaperFrame({
   ) => {
     const d = held
     if (!d || d.ids.length === 0) return
+    if (d.clock && !d.held) return
     if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < TAP_PX)
       return
     d.moved = true
@@ -970,13 +1024,17 @@ export function PaperFrame({
     if (!v) return
     const before = sc.scrollTop
     sc.scrollTop = before + Math.max(-24, Math.min(24, v))
-    if (sc.scrollTop !== before) applyMove(p, d)
+    if (sc.scrollTop !== before) {
+      d.clock?.touch()
+      applyMove(p, d)
+    }
   }
   // Esc while a box is dragged: nothing changes (the preview closes).
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || !drag.current?.moved) return
       document.documentElement.removeAttribute('data-box-drag')
+      if (drag.current) endLift(drag.current)
       drag.current = null
       setLiveBoxes(null)
       setDragOrigin(null)
@@ -994,6 +1052,7 @@ export function PaperFrame({
     pending.current = null
     const d = drag.current
     drag.current = null
+    if (d) endLift(d)
     if (d?.moved) lastDragEnd.current = e.timeStamp
     // The drop is planned from the lift itself, not from the last drawn
     // preview: moves that all land inside one frame (a fast flick, a quick
@@ -1023,9 +1082,39 @@ export function PaperFrame({
     if (JSON.stringify(rows) === JSON.stringify(d.rows0)) return
     // The places the new arrangement gives (for old clients and exports).
     const places: BoxPatch[] = placesOf(rows, heightsMm, geo)
+    // Text box v2 (TB-14): the boxes glide from where they were let go; the toast
+    // offers the one Undo.
+    const m = v2.current
+    if (m && d.clock) {
+      const from = new Map<string, DOMRect>()
+      for (const id of d.ids) {
+        const el = paperEl.current?.querySelector<HTMLElement>(
+          '[data-paper-box="' + CSS.escape(id) + '"]',
+        )
+        if (el) from.set(id, el.getBoundingClientRect())
+      }
+      glide.current = from
+    }
+    const since = Date.now()
     setHeldRows(rows)
     onGridChange?.(rows, places)
+    if (m && d.clock) m.toastMoved(since)
   }
+  // Text box v2 (TB-14): once the drop is drawn, one transform glides each box in.
+  useLayoutEffect(() => {
+    const from = glide.current
+    if (!from || liveBoxes) return
+    glide.current = null
+    const m = v2.current
+    if (!m) return
+    for (const [id, r0] of from) {
+      const el = paperEl.current?.querySelector<HTMLElement>(
+        '[data-paper-box="' + CSS.escape(id) + '"]',
+      )
+      const by = el && m.glideFrom(r0, el.getBoundingClientRect())
+      if (el && by) m.playGlide(el, by)
+    }
+  })
   // Eight round handles (B3-9). Sides and corners to the east or west move the
   // column divider beside the box; north, south and the corners set a minimum
   // height that never goes below what the box's text and pictures need.

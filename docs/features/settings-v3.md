@@ -371,3 +371,21 @@ None. The "nothing lost" unit test (`src/settings/v3/nothingLost.test.ts`) check
 - When the device already has a saved choice, the preview defaults are not applied (src/app/flags.test.ts "a switch the user turned ON is kept on the preview host").
 - When Settings opens on the preview host, the Try new features list is open from the start; on the live host it stays hidden until Version is tapped 5 times (src/settings/v3/tryNew.test.ts "F9 preview host opens the list").
 - When check-dod reads the flags file, a default is allowed only in the form `isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON)`; any other use, including the negated `!isPreviewHost()`, fails (scripts/check-dod.test.mjs).
+
+## Test a phase (task 0.6, 14 Nov 2026)
+
+Two rows at the top of Try new features: "Test a phase" (a ▾ list: Phase 1, Up to Phase 2A, 2B, 3 … 8, Everything) and "Test this phase" (one On/Off switch). The sets are the table in docs/plans/phases/phase-1.md (`PHASE_ADDS` in src/app/flags.ts).
+
+- SET-B26a: When I open Try new features, "Test a phase" and its switch are the first two rows; the switch reads Off and choosing a phase while Off changes nothing (e2e/presetPhases.spec.ts "SET-B26a", "SET-B26b to B26e").
+- SET-B26b: When I switch it On, exactly that phase's switches turn on and every other one off; choosing another phase while On applies the new set at once (src/app/flagsPreset.test.ts "turns exactly that set on", "replaces the set at once").
+- SET-B26c: When I reload or reopen the app, the switch still reads On with the same phase, because it only compares the device's switches with the phase's set; nothing extra is stored (src/app/flagsPreset.test.ts "stays after a reload").
+- SET-B26d: When I change one single switch below, the preset switch reads Off by itself (src/app/flagsPreset.test.ts "changing one single switch afterwards ends the match").
+- SET-B26e: When I switch it Off, every new part is off and the old screens come back (e2e/presetPhases.spec.ts "SET-B26b to B26e").
+- SET-B26f: When any one phase is On, the app loads and I can move between Home, Library, Notebooks and Settings and open a page with no error, on chromium and ipad-webkit (e2e/presetPhases.spec.ts "SET-B26f").
+- SET-B26h: When I tap Undo after the preset switch (On or Off) or after choosing a phase while On, the exact earlier list of switches comes back (e2e/presetPhases.spec.ts "SET-B26h", src/settings/v3/tryNew.test.ts "Undo of a Test a phase change").
+- SET-B26g: "Turn all off" does not count or touch the two preset rows (src/settings/v3/tryNew.test.ts "rowsToTurnOff").
+
+### Won't do (Test a phase)
+
+- No new flag and no new stored value; no change to the preview-host defaults of a device with no saved choice.
+- The "Shared …" and "Tool list" switches are in no preset except Everything.

@@ -440,7 +440,9 @@ test.describe('phone', () => {
     await page.addStyleTag({
       content: `@font-face { font-family: 'Test Inter'; font-weight: 100 900;
         src: url('/__test-inter.woff2') format('woff2-variations'); }
-        .fb-banner { font-family: 'Test Inter'; }`,
+        html body .fb-banner { font-family: 'Test Inter'; }`,
+      // (html body: Banner.css loads with the banner, after this tag, and
+      // would win a tie.)
     })
     expect(
       await page.evaluate(
@@ -453,6 +455,8 @@ test.describe('phone', () => {
       if (code === 'storageLost') await failSave(page, 'DatabaseClosedError')
       await expect(b).toHaveAttribute('data-code', code)
       const text = b.locator('.fb-banner__text')
+      // WebKit writes the name without quotes.
+      await expect(text).toHaveCSS('font-family', /^"?Test Inter"?$/)
       const lines = await text.evaluate((el) => {
         const cs = getComputedStyle(el)
         const inner =

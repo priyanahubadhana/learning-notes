@@ -2,6 +2,11 @@
 export const BAR_W = 20
 export const ARROW = 34
 const MIN_THUMB = 40
+/** The old page bar (flag foundation.shell off): 24 px wide, 40 px arrows. */
+export const OLD_BAR_W = 24
+export const OLD_ARROW = 40
+/** A list shorter than this shows the thumb only: two arrows and a usable thumb do not fit. */
+export const SHORT = ARROW * 2 + MIN_THUMB * 2
 
 export interface BarGeometry {
   thumbTop: number

@@ -14,6 +14,7 @@ import { PagesTabV2 } from './PagesTabV2'
 import { ResourcesTab } from './ResourcesTab'
 import { ScrollBarIn } from '../../../design/parts/ScrollBar'
 import { useFrameSize } from '../../shell/useFrameSize'
+import { useFlag } from '../../flags'
 import './panelV2.css'
 
 const TABS = ['pages', 'outline', 'resources'] as const
@@ -64,6 +65,8 @@ export default function PanelV2({
   onClose: () => void
 }) {
   const docked = useDocked()
+  // The shared bar is part of the new app frame; with it off the old hint handle stays.
+  const shell = useFlag('foundation.shell')
   const [body, setBody] = useState<HTMLElement | null>(null)
   const [stored, setTab] = usePref<Tab | 'audio'>(
     'leftPanel.tab',
@@ -159,7 +162,7 @@ export default function PanelV2({
         {tab === 'outline' && <OutlineTabV2 {...common} onOpenPage={open} />}
         {tab === 'resources' && <ResourcesTab {...common} onOpenPage={open} />}
       </div>
-      <ScrollBarIn root={body} selector=".lpv2-scroll" />
+      {shell && <ScrollBarIn root={body} selector=".lpv2-scroll" />}
     </aside>
   )
   if (docked) return panel

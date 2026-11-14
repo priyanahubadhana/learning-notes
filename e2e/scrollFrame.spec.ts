@@ -224,3 +224,147 @@ test.describe('a bar never shows over a panel that covers its list', () => {
     await expect(page.locator('[data-scrollbar-root]')).toHaveCount(0)
   })
 })
+
+test.describe('gate 2 + final look fixes', () => {
+  test.use({ viewport: { width: 1180, height: 560 } })
+
+  test('flag OFF: the page keeps the old 24 px bar and no list gets the shared bar', async ({
+    page,
+  }) => {
+    await page.goto('/?flags=toolbar.v8')
+    for (let i = 1; i <= 6; i++)
+      await createNotebook(page, `Book ${i}`, `Page ${i}`)
+    const bar = page.locator('[data-pagebar-root]')
+    await expect(bar).toBeVisible()
+    expect(Math.round((await bar.boundingBox())!.width)).toBe(24)
+    const arrow = (await page
+      .locator('[data-pagebar-arrow="up"]')
+      .boundingBox())!
+    // 40 px (a finger device may raise it to the 44 pt touch size, as before).
+    expect(Math.round(arrow.height)).toBeGreaterThanOrEqual(40)
+    await expect(page.locator('[data-pagebar-arrow="up"]')).not.toHaveClass(
+      /sbar/,
+    )
+    // The old gutter and classes, not the shared part's.
+    const main = page.locator('main[data-page-scroller]')
+    await expect(main).toHaveAttribute('data-pagebar', '')
+    expect(await main.getAttribute('data-scrollbar')).toBeNull()
+    expect(await main.evaluate((el) => getComputedStyle(el).paddingRight)).toBe(
+      '24px',
+    )
+    await expect(page.locator('[data-pagebar-track]')).toHaveClass(
+      /bg-hover\/60/,
+    )
+    // The sidebar overflows, yet no shared bar is drawn anywhere.
+    await page.waitForTimeout(800)
+    await expect(page.locator('[data-scrollbar-root]')).toHaveCount(0)
+    await expect(page.locator('[data-scrollbar]')).toHaveCount(0)
+  })
+
+  test('the Card "Scrolling" sample shows the shared bar at rest; capped short it shows the thumb only', async ({
+    page,
+  }) => {
+    await page.goto('/?flags=foundation.shell#/design-tokens')
+    const body = page.getByTestId('gal-scroll-card').getByTestId('pcard-body')
+    await body.scrollIntoViewIfNeeded()
+    /** The bar drawn at the body's right edge (there are other lists on the page). */
+    const barOf = () =>
+      body.evaluate((el) => {
+        const r = el.getBoundingClientRect()
+        const root = Array.from(
+          document.querySelectorAll<HTMLElement>('[data-scrollbar-root]'),
+        ).find((b) => {
+          const q = b.getBoundingClientRect()
+          return (
+            Math.abs(q.right - r.right) < 2 &&
+            q.top >= r.top - 1 &&
+            q.bottom <= r.bottom + 1
+          )
+        })
+        if (!root) return null
+        const q = root.getBoundingClientRect()
+        const thumb = root
+          .querySelector('[data-scrollbar-thumb]')!
+          .getBoundingClientRect()
+        return {
+          top: q.top - r.top,
+          bottom: r.bottom - q.bottom,
+          arrows: root.querySelectorAll('[data-scrollbar-arrow]').length,
+          thumbH: thumb.height,
+        }
+      })
+    await expect.poll(barOf).not.toBeNull()
+    expect((await barOf())!.arrows).toBe(2)
+    // Capped to 70 px: no arrows on the content, a real thumb, inside the body.
+    await body.evaluate((el) => {
+      el.style.maxHeight = '70px'
+      el.style.flex = 'none'
+    })
+    await expect.poll(async () => (await barOf())?.arrows).toBe(0)
+    const short = (await barOf())!
+    expect(short.thumbH).toBeGreaterThanOrEqual(20)
+    expect(short.top).toBeGreaterThanOrEqual(-1)
+    expect(short.bottom).toBeGreaterThanOrEqual(-1)
+  })
+
+  test('touch: the sidebar shows no keyboard shortcuts; a bar sits inside the rounded corners', async ({
+    page,
+  }) => {
+    await page.goto(ON)
+    for (let i = 1; i <= 6; i++)
+      await createNotebook(page, `Book ${i}`, `Page ${i}`)
+    const side = page.locator('aside#sidebar')
+    await expect(side).toBeVisible()
+    const coarse = await page.evaluate(
+      () => matchMedia('(any-pointer: coarse)').matches,
+    )
+    await expect(side.locator('kbd')).toHaveCount(coarse ? 0 : 2)
+    const bar = page.locator('[data-scrollbar-root]').first()
+    await expect(bar).toBeVisible()
+    const gap = await side.evaluate((el) => {
+      const r = el.getBoundingClientRect()
+      let top = 0
+      let bottom = 0
+      for (
+        let a: HTMLElement | null = el as HTMLElement;
+        a;
+        a = a.parentElement
+      ) {
+        if (Math.abs(a.getBoundingClientRect().right - r.right) > 2) break
+        const s = getComputedStyle(a)
+        top = Math.max(top, parseFloat(s.borderTopRightRadius) || 0)
+        bottom = Math.max(bottom, parseFloat(s.borderBottomRightRadius) || 0)
+      }
+      return { top, bottom }
+    })
+    const b = (await bar.boundingBox())!
+    const s = (await side.boundingBox())!
+    expect(b.y - s.y).toBeGreaterThanOrEqual(gap.top - 1)
+    expect(s.y + s.height - (b.y + b.height)).toBeGreaterThanOrEqual(
+      gap.bottom - 1,
+    )
+  })
+})
+
+test.describe('phone: a list moved off the screen draws nothing', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+  test('no bar pixels at the left edge while the sidebar drawer is closed', async ({
+    page,
+  }) => {
+    await page.goto(ON)
+    for (let i = 1; i <= 6; i++)
+      await createNotebook(page, `Book ${i}`, `Page ${i}`)
+    await expect(page.locator('main[data-page-scroller]')).toBeVisible()
+    await page.waitForTimeout(800)
+    const stray = await page.evaluate(
+      () =>
+        Array.from(
+          document.querySelectorAll<HTMLElement>('[data-scrollbar-root]'),
+        ).filter((b) => {
+          const q = b.getBoundingClientRect()
+          return q.left < 0 || q.right > window.innerWidth + 1
+        }).length,
+    )
+    expect(stray).toBe(0)
+  })
+})

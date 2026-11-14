@@ -10,6 +10,9 @@ import { t } from '../../i18n/t'
 import {
   ARROW,
   BAR_W,
+  OLD_ARROW,
+  OLD_BAR_W,
+  SHORT,
   barGeometry,
   dragTop,
   sheetTarget,
@@ -21,9 +24,14 @@ const reduced = () =>
   typeof matchMedia === 'function' &&
   matchMedia('(prefers-reduced-motion: reduce)').matches
 
-/** True when another box is drawn over the middle of the scroller (the pages panel over the sidebar). */
+/**
+ * True when the scroller cannot be seen: it is moved (partly) off the screen
+ * (a closed drawer) or another box is drawn over its middle (the pages panel
+ * over the sidebar). A hidden bar draws nothing.
+ */
 function coveredBy(el: HTMLElement, r: DOMRect): boolean {
   if (r.width === 0 || r.height === 0) return false
+  if (r.left < -1 || r.right > window.innerWidth + 1) return true
   const hit = document.elementFromPoint(
     r.left + r.width / 2,
     r.top + r.height / 2,
@@ -31,9 +39,35 @@ function coveredBy(el: HTMLElement, r: DOMRect): boolean {
   return !!hit && !el.contains(hit) && !hit.contains(el)
 }
 
+/**
+ * The rounded corners at the scroller's right edge (its own or a panel's that
+ * ends at the same edge), so the bar sits inside them, not over the curve.
+ */
+function cornersOf(el: HTMLElement, right: number) {
+  let top = 0
+  let bottom = 0
+  for (let a: HTMLElement | null = el; a && a !== document.body;) {
+    if (Math.abs(a.getBoundingClientRect().right - right) > 2) break
+    const s = getComputedStyle(a)
+    top = Math.max(top, parseFloat(s.borderTopRightRadius) || 0)
+    bottom = Math.max(bottom, parseFloat(s.borderBottomRightRadius) || 0)
+    a = a.parentElement
+  }
+  return { top, bottom }
+}
+
+/** The layer of the box the list lives in, so the bar is drawn above it. */
+function layerOf(el: HTMLElement): 'card' | 'sheet' | undefined {
+  const card = el.closest<HTMLElement>('.pcard:not([data-static])')
+  if (!card) return undefined
+  return card.hasAttribute('data-phone') ? 'sheet' : 'card'
+}
+
 type Read = {
   rect: { right: number; top: number; height: number; width: number }
-  /** Something else (a panel, a sheet) is drawn over the scroller. */
+  /** Rounded corners at the right edge (px): the bar keeps clear of them. */
+  inset: { top: number; bottom: number }
+  /** Something else (a panel, a sheet) is drawn over the scroller, or it is off the screen. */
   covered: boolean
   scrollTop: number
   scrollH: number
@@ -59,6 +93,7 @@ export function ScrollBar({
   attr = 'scrollbar',
   labels,
   auto = false,
+  legacy = false,
 }: {
   scroller: HTMLElement | null
   stops?: (el: HTMLElement) => number[]
@@ -66,6 +101,8 @@ export function ScrollBar({
   labels?: { up: string; down: string; bar: string }
   /** Found by the scroll hints (ScrollBarHost): the list stays in their care. */
   auto?: boolean
+  /** The page's bar with the new app frame off: the old 24 px look, exactly. */
+  legacy?: boolean
 }) {
   const [state, setState] = useState<Read | null>(null)
   const drag = useRef<{ y: number; top: number } | null>(null)
@@ -77,7 +114,8 @@ export function ScrollBar({
     const r = el.getBoundingClientRect()
     const next: Read = {
       rect: { right: r.right, top: r.top, height: r.height, width: r.width },
-      covered: coveredBy(el, r),
+      inset: legacy ? { top: 0, bottom: 0 } : cornersOf(el, r.right),
+      covered: !legacy && coveredBy(el, r),
       scrollTop: el.scrollTop,
       scrollH: el.scrollHeight,
       clientH: el.clientHeight,
@@ -88,6 +126,8 @@ export function ScrollBar({
       old.rect.top === next.rect.top &&
       old.rect.height === next.rect.height &&
       old.rect.width === next.rect.width &&
+      old.inset.top === next.inset.top &&
+      old.inset.bottom === next.inset.bottom &&
       old.covered === next.covered &&
       old.scrollTop === next.scrollTop &&
       old.scrollH === next.scrollH &&
@@ -95,15 +135,15 @@ export function ScrollBar({
         ? old
         : next,
     )
-  }, [scroller])
+  }, [scroller, legacy])
 
   useEffect(() => {
     const el = scroller
     if (!el) return
-    // A list found by the scroll hints (auto) gets no padding on the fly: no content jump.
-    if (!auto) el.setAttribute('data-scrollbar', '')
+    // The old page bar keeps its own gutter (index.css `[data-pagebar]`).
+    if (legacy) el.setAttribute('data-pagebar', '')
     // The shared bar replaces the fading hint handle on this list.
-    if (!auto) el.setAttribute('data-no-scroll-hint', '')
+    else if (!auto) el.setAttribute('data-no-scroll-hint', '')
     const first = requestAnimationFrame(read)
     el.addEventListener('scroll', read, { passive: true })
     const ro = new ResizeObserver(read)
@@ -117,14 +157,22 @@ export function ScrollBar({
       el.removeEventListener('scroll', read)
       ro.disconnect()
       mo.disconnect()
-      if (!auto) el.removeAttribute('data-scrollbar')
-      if (!auto) el.removeAttribute('data-no-scroll-hint')
+      if (legacy) el.removeAttribute('data-pagebar')
+      else if (!auto) el.removeAttribute('data-no-scroll-hint')
     }
-  }, [scroller, auto, read])
+  }, [scroller, auto, legacy, read])
 
   // Something drawn over the list (or taken away) leaves no trace inside it: look
   // again every 700 ms, but ONLY while the list overflows (the bar could show).
   const overflowing = !!state && state.scrollH - state.clientH > 1
+  // The gutter is reserved only while the list overflows (a short card keeps
+  // its full width); a list found by the scroll hints (auto) gets none: no jump.
+  const gutter = !!scroller && !auto && !legacy && overflowing
+  useEffect(() => {
+    if (!scroller || !gutter) return
+    scroller.setAttribute('data-scrollbar', '')
+    return () => scroller.removeAttribute('data-scrollbar')
+  }, [scroller, gutter])
   useEffect(() => {
     if (!scroller || !overflowing) return
     const poll = window.setInterval(read, 700)
@@ -150,7 +198,11 @@ export function ScrollBar({
 
   if (!scroller || !state || state.rect.width === 0 || state.covered)
     return null
-  const track = Math.max(0, state.rect.height - ARROW * 2)
+  const barW = legacy ? OLD_BAR_W : BAR_W
+  // Inside the rounded corners; a short list shows the thumb only (no arrows on its content).
+  const height = state.rect.height - state.inset.top - state.inset.bottom
+  const arrowH = legacy ? OLD_ARROW : height < SHORT ? 0 : ARROW
+  const track = Math.max(0, height - arrowH * 2)
   const g = barGeometry(state.scrollTop, state.scrollH, state.clientH, track)
   if (!g) return null
   const max = state.scrollH - state.clientH
@@ -211,39 +263,45 @@ export function ScrollBar({
     setDragging(true)
   }
 
-  const arrow = (dir: 1 | -1) => (
-    <button
-      type="button"
-      {...hook('arrow', dir === 1 ? 'down' : 'up')}
-      aria-label={dir === 1 ? text.down : text.up}
-      disabled={dir === 1 ? state.scrollTop >= max - 1 : state.scrollTop <= 1}
-      onClick={() => jump(dir)}
-      className="sbar__arrow"
-      style={{ height: ARROW }}
-    >
-      <svg width="12" height="8" viewBox="0 0 12 8" aria-hidden>
-        <path
-          d={dir === 1 ? 'M1 1.5l5 5 5-5' : 'M1 6.5l5-5 5 5'}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </button>
-  )
+  const arrow = (dir: 1 | -1) =>
+    arrowH > 0 && (
+      <button
+        type="button"
+        {...hook('arrow', dir === 1 ? 'down' : 'up')}
+        aria-label={dir === 1 ? text.down : text.up}
+        disabled={dir === 1 ? state.scrollTop >= max - 1 : state.scrollTop <= 1}
+        onClick={() => jump(dir)}
+        className={
+          legacy
+            ? 'flex w-full items-center justify-center text-muted hover:text-ink disabled:opacity-30'
+            : 'sbar__arrow'
+        }
+        style={{ height: arrowH, touchAction: 'manipulation' }}
+      >
+        <svg width="12" height="8" viewBox="0 0 12 8" aria-hidden>
+          <path
+            d={dir === 1 ? 'M1 1.5l5 5 5-5' : 'M1 6.5l5-5 5 5'}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+    )
 
   return createPortal(
     <div
       data-chrome
       {...hook('root')}
-      className="sbar"
+      className={legacy ? 'sbar sbar--old' : 'sbar'}
+      data-layer={legacy ? undefined : layerOf(scroller)}
       style={{
-        left: state.rect.right - BAR_W,
-        top: state.rect.top,
-        width: BAR_W,
-        height: state.rect.height,
+        left: state.rect.right - barW,
+        top: state.rect.top + state.inset.top,
+        width: barW,
+        height,
       }}
     >
       {arrow(-1)}
@@ -253,7 +311,12 @@ export function ScrollBar({
         onPointerMove={move}
         onPointerUp={up}
         onPointerCancel={up}
-        className="sbar__track"
+        className={
+          legacy
+            ? 'relative flex-1 rounded-full bg-hover/60'
+            : `sbar__track${arrowH ? '' : ' sbar__track--short'}`
+        }
+        style={legacy ? { margin: '0 7px' } : undefined}
       >
         <div
           role="scrollbar"
@@ -269,14 +332,20 @@ export function ScrollBar({
             if (e.key === 'ArrowDown') jump(1)
             if (e.key === 'ArrowUp') jump(-1)
           }}
-          className={`sbar__thumb${dragging ? ' sbar__thumb--drag' : ''}`}
-          style={{ top: g.thumbTop, height: g.thumbH }}
+          className={
+            legacy
+              ? 'absolute inset-x-[-5px] rounded-full ' +
+                (dragging ? 'bg-accent' : 'bg-muted/70')
+              : `sbar__thumb${dragging ? ' sbar__thumb--drag' : ''}`
+          }
+          style={{ top: g.thumbTop, height: g.thumbH, touchAction: 'none' }}
         />
       </div>
       {arrow(1)}
     </div>,
     // A pop-over sits in the top layer: the bar must be inside it to show.
-    scroller.closest<HTMLElement>('[popover], dialog[open]') ?? document.body,
+    (!legacy && scroller.closest<HTMLElement>('[popover], dialog[open]')) ||
+      document.body,
   )
 }
 

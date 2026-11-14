@@ -173,6 +173,8 @@ export function Sidebar({
   useRowPalmGuard()
   // Touch and Pencil: names are typed in the "Name it" sheet, rows show only ⋯.
   const touch = touchUi()
+  // New app frame: a finger or Pencil has no keys to press, so no shortcut labels.
+  const keys = !(shell && touch)
   const rename = (nb: Notebook) =>
     touch
       ? runTask(
@@ -410,9 +412,11 @@ export function Sidebar({
                   date: shortDayLabel(dateKey(new Date())),
                 })}
               </span>
-              <kbd className="shrink-0 rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
-                {altShortcutLabel('T')}
-              </kbd>
+              {keys && (
+                <kbd className="shrink-0 rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
+                  {altShortcutLabel('T')}
+                </kbd>
+              )}
             </button>
           </Tip>
         )}
@@ -429,9 +433,11 @@ export function Sidebar({
               <Icon name="search" size={18} />
             </span>
             <span className="flex-1">{t('search.sidebar')}</span>
-            <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
-              {shortcutLabel('K')}
-            </kbd>
+            {keys && (
+              <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
+                {shortcutLabel('K')}
+              </kbd>
+            )}
           </button>
         </Tip>
         <nav

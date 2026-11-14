@@ -17,10 +17,17 @@
 }
 .sbar {
   position: fixed;
-  z-index: var(--z-bar);
+  /* Above the box its list lives in: a floating card or a phone sheet. */
+  z-index: var(--sbar-layer, var(--z-bar));
   display: flex;
   flex-direction: column;
   touch-action: none;
+}
+.sbar[data-layer='card'] {
+  --sbar-layer: calc(var(--z-card) + 1);
+}
+.sbar[data-layer='sheet'] {
+  --sbar-layer: calc(var(--z-sheet) + 1);
 }
 .sbar__arrow {
   display: flex;
@@ -44,6 +51,10 @@
   margin: 0 8px;
   border-radius: 999px;
   background: var(--color-line);
+}
+/* A short list: the thumb only, with a little air at both ends. */
+.sbar__track--short {
+  margin-block: 4px;
 }
 /* The thumb is 4 px (6 px while dragged); its touch area is 44 pt wide. */
 .sbar__thumb {

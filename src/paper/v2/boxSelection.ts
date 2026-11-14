@@ -31,3 +31,20 @@ export function inputModeFor(pointerType: string): 'none' | 'text' {
 export function isTap(movedPx: number, heldMs: number): boolean {
   return movedPx <= 12 && heldMs <= 300
 }
+
+/**
+ * TB-06: a tap beside a box makes the new box in its own row under that box,
+ * never beside it. `y` and the spans are in the same unit (mm); the answer is
+ * the lowest bottom edge of the boxes the tap's height cuts through, plus the
+ * gap, or `y` itself when no box is level with the tap.
+ */
+export function rowUnder(
+  y: number,
+  spans: readonly { top: number; bottom: number }[],
+  gap: number,
+): number {
+  let at = y
+  for (const s of spans)
+    if (y >= s.top && y <= s.bottom) at = Math.max(at, s.bottom + gap)
+  return at
+}

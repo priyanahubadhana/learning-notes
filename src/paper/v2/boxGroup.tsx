@@ -45,7 +45,7 @@ export default function GroupPill({
       data-ui
       role="toolbar"
       aria-label={t('paper.group.bar')}
-      className="absolute z-30 flex items-center gap-1 rounded-2xl border border-line bg-surface p-1 shadow-md"
+      className="absolute z-(--z-pill) flex items-center gap-1 rounded-2xl border border-line bg-surface p-1 shadow-md"
       style={{ left: x * k, top }}
     >
       <span

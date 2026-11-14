@@ -220,12 +220,6 @@ export function usePaperBoxes(
     if (window.innerWidth < NARROW_PX) return toast(t('layout.assist.phone'))
     setAssist(true)
   }
-  useEffect(() => {
-    if (!assist) return
-    const key = (e: KeyboardEvent) => e.key === 'Escape' && setAssist(false)
-    document.addEventListener('keydown', key)
-    return () => document.removeEventListener('keydown', key)
-  }, [assist])
   // The Text strip's, the toolbar's and the box menu's Layout button.
   useEffect(() => {
     const on = (e: Event) => {

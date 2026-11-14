@@ -144,7 +144,7 @@ export default function LayoutAssist({
       </div>
       <p
         data-layout-coach
-        className="pointer-events-none fixed bottom-3 left-1/2 z-30 w-[min(560px,calc(100%-32px))] -translate-x-1/2 rounded-2xl border border-line bg-surface px-4 py-3 text-center text-[13.5px] leading-snug text-ink shadow-md"
+        className="pointer-events-none fixed bottom-3 left-1/2 z-(--z-pill) w-[min(560px,calc(100%-32px))] -translate-x-1/2 rounded-2xl border border-line bg-surface px-4 py-3 text-center text-[13.5px] leading-snug text-ink shadow-md"
       >
         {t('layout.mode.coachV2')}
       </p>

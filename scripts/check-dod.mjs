@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { behaviourLineCount } from './dodSpec.mjs'
+import { behaviourLineCount, defaultsOn } from './dodSpec.mjs'
 
 const root =
   process.env.DOD_ROOT ?? fileURLToPath(new URL('../', import.meta.url))
@@ -33,10 +33,7 @@ if (flagId === '-') {
 } else if (ids.includes(flagId)) {
   add('ok', `flag ${flagId} is in src/app/flags.ts`)
   // The list holds only ids: a switch is on only if someone turns it on.
-  const defaultsOn = /defaultOn|DEFAULT_ON|defaultValue:\s*true/.test(
-    flagsSource,
-  )
-  add(defaultsOn ? 'missing' : 'ok', 'flags are OFF by default')
+  add(defaultsOn(flagsSource) ? 'missing' : 'ok', 'flags are OFF by default')
 } else {
   add('missing', `flag ${flagId} is not in src/app/flags.ts`)
 }

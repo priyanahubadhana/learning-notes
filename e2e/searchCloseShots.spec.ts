@@ -61,5 +61,14 @@ for (const level of ['beginner', 'professional'] as const)
         await page.screenshot({
           path: `${OUT}/settings-search-${level}-${theme}-${size}.png`,
         })
+        await page.getByRole('searchbox', { name: 'Search settings' }).fill('')
+        await page.evaluate(() => {
+          for (const e of document.querySelectorAll('*'))
+            if (e.scrollHeight > e.clientHeight + 50) e.scrollTop = 99999
+        })
+        await page.waitForTimeout(400)
+        await page.screenshot({
+          path: `${OUT}/settings-scrolled-${level}-${theme}-${size}.png`,
+        })
       })
     }

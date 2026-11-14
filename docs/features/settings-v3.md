@@ -352,3 +352,13 @@ See section 10. Files: `src/settings/v3/*.test.ts`, `e2e/settings-v3.spec.ts` (+
 ## Deliberate exceptions
 
 None. The "nothing lost" unit test (`src/settings/v3/nothingLost.test.ts`) checks that every registry setting and category, and every custom screen today's Settings renders (This device, About, Page tabs, Lock, AI, Connections, Permissions, Claude, Account, Sync), has a home in a v3 section.
+
+## Search in reach (F9, 14 Nov 2026)
+
+- When I scroll a long Settings section, the "Search settings" box stays at the top, on every section (e2e/settingsV3SearchF9.spec.ts).
+- When I type a name or plain words, search finds Try new features switches (when that list is open; on the preview host it is open from the start) and advanced options (e2e/settingsV3SearchF9.spec.ts, src/settings/v3/tryNew.test.ts).
+
+### Won't do (F9)
+
+- No second search box: the existing "Search settings" is extended.
+- Try new features stays hidden until opened on the live host (SET-B26).

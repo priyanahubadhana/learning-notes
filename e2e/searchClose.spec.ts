@@ -25,6 +25,23 @@ test('F5 the ✕ in the field clears the typed text and keeps the pop-up open', 
   await expect(popup).toBeVisible()
 })
 
+test('F5 the ✕ in the field is hidden while the field is empty, and the field fills the row', async ({
+  page,
+}) => {
+  const popup = await openSearchPopup(page)
+  const box = popup.getByRole('combobox')
+  const clear = popup.getByRole('button', { name: /^Clear/ })
+  await expect(clear).toHaveCSS('opacity', '0')
+  await box.fill('nucleus')
+  await expect(clear).toHaveCSS('opacity', '1')
+  await clear.click()
+  await expect(clear).toHaveCSS('opacity', '0')
+  // The close ✕ sits at the right edge of the header row.
+  const row = await popup.getByTestId('search-close').boundingBox()
+  const dlg = await popup.boundingBox()
+  expect(dlg!.x + dlg!.width - (row!.x + row!.width)).toBeLessThan(24)
+})
+
 test('F5 a visible ✕ beside the field closes the pop-up, 44 pt, no "Esc" text', async ({
   page,
 }) => {

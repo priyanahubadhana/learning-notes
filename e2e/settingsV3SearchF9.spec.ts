@@ -22,7 +22,25 @@ async function open(page: Page, section: string, tryNew = false) {
 test.describe('iPad landscape', () => {
   test.use({ viewport: { width: 1194, height: 834 }, hasTouch: true })
 
-  for (const section of ['general', 'toolbar', 'help']) {
+  for (const section of [
+    'experience',
+    'general',
+    'account',
+    'sync',
+    'lock',
+    'ai',
+    'connections',
+    'permissions',
+    'claude',
+    'toolbar',
+    'pencil',
+    'reading',
+    'review',
+    'journal',
+    'advanced',
+    'help',
+    'pro',
+  ]) {
     test(`F9 the search box stays at the top after scrolling ${section}`, async ({
       page,
     }) => {
@@ -41,6 +59,24 @@ test.describe('iPad landscape', () => {
       expect(b!.y + b!.height).toBeLessThan(200)
     })
   }
+
+  test('F9 search finds the advanced options by name', async ({ page }) => {
+    await open(page, 'general')
+    await box(page).fill('Tool state')
+    const hit = page.locator('[data-hit]').first()
+    await expect(hit).toContainText('Tool state')
+    await expect(hit.locator('.sv3-hit-section')).toHaveText('Advanced')
+  })
+
+  test('F9 the sticky search bar is as wide as the content and the field stops at 560', async ({
+    page,
+  }) => {
+    await open(page, 'general')
+    const bar = await page.locator('.sv3-search').boundingBox()
+    const field = await page.locator('.sv3-search .clr-wrap').boundingBox()
+    expect(field!.width).toBeLessThanOrEqual(561)
+    expect(bar!.width).toBeGreaterThan(field!.width)
+  })
 
   test('F9 search finds a Try new features switch by name and plain words', async ({
     page,

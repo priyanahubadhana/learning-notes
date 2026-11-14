@@ -76,3 +76,4 @@ Branches and commit ids of every parked part: docs/BUILD-STATE.md.
 - Study modes (summary layers, theme pages, links between notes, quiz and teach-back).
 - Custom Views (parked 12 Nov). Layers, rotation, shrink a box to scale its text, snapshot Lasso (with Phase 9's artifact).
 - Old carried-over items from HANDOFF (archived 14 Nov): looked at when the phase they belong to is planned.
+- Voice replies (the "voicemode" add-on): switched off on 14 Nov because it fails to start on this PC. The owner wants it working, with its on/off switch, as a small job after Phase 1 on a day when no build runs. Likely cause to check first: Windows blocks the unsigned Python it needs.

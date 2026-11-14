@@ -1223,3 +1223,9 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 - A list of known shaky tests: not now; decided after one phase of real numbers.
 - The owner's iPad test becomes a tappable checklist page.
 - The owner asked for a one-by-one review of every setting that differs from the Claude Code defaults; nothing is changed without the owner's answer.
+
+### 14 Nov 2026 (owner): settings review, answers so far
+
+- Voice add-on: switched off for now (user setting enabledPlugins); to be fixed as its own small job after Phase 1.
+- Connectors in this project: the owner keeps Supabase, Claude Docs and Google Drive and drops Gmail, Calendar, Notion, Spotify, Adobe and Goodnotes here; waiting for the owner's yes on "ask first" for the three kept ones before anything is applied.
+- Time left in every status line: this phase and the whole project, each marked measured, estimate or not known yet.

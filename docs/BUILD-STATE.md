@@ -4,8 +4,6 @@
 
 The file a build manager reads to continue. How the build runs: [ECONOMY-MODE.md](ECONOMY-MODE.md) (simple system, 13 Nov 2026 evening). Plan: [plans/build-master-plan.md](plans/build-master-plan.md) (read only the section of the slice you brief). Keep this file under 100 lines; history goes to CHANGELOG.md.
 
-**Switch (13 Nov, 19:45 IST, owner request):** the 13-section economy mode is replaced by the simple system: Opus manager, Sonnet builders that own a whole slice, Opus gate 2, Fable for the design check and the final look only, no Haiku. Handover of run 5 folded in (run 6).
-
 **Next result for the owner:** OWNER PRIORITY 14 Nov: fixes F1 to F9 of docs/plans/ipad-test-findings-2026-11-14.md, merged with CI green, then the main chat tells the owner "fixes ready for re-test". build/next is red (CI 43535450445), job one. Then the queue one at a time: 0g3, 9-6, 15, 8b, 9-cost, toolbar, 12 rest, Reader.
 
 ## Milestones (the main chat checks them with `bash scripts/build-pulse.sh` every hour)
@@ -79,10 +77,8 @@ Lanes (master plan 4.1): P = 1 → 2 → 12 rest → 13 → 14; S = 15, 8b; R = 
 ## Open faults and notes
 
 - `e2e/shell.spec.ts:224` offline test fixed in 87910c01. Decision to review: going offline before the Home chunk loads is not covered.
-- docs/IPAD-CHECKLIST.md retired; the iPad checklist lives in docs/PENDING.md.
 - Follow-ups from final looks (not blocking): gate3 file, "follow-ups" lines of 3, 4, 5, 6, 9b and the shell.
 - The test guard's Bash delete check still needs a settings.json hook entry (owner decision, in PENDING).
-- ln-s3 has an old popped stash with conflicts; leave it (slice 3 worked in ln-s3b).
 
 ## Waiting for the owner (nothing here blocks the build)
 

@@ -14,6 +14,18 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: spec docs/features/toolbar-v8.md 1e/1f, TB-40..43, TB-74/75 and the BUG-003 owner answer.
 - Files: src/app/tools/v8/{cards/text,cards/insert,cards/more,cards/alltools,tuck.ts,useTuck.ts,useTuckWatcher.ts,ShowToolbarPill.tsx}, src/design/parts/{Card,CardParts,useAnchoredCard}, src/settings/toolbarSettings.ts, src/i18n/*/v8Text.ts, e2e/toolbarV8{Text,Insert,Tuck}.spec.ts, screenshots/gate3-1/1ef.
 
+### 14 Nov 2026 (night): R6 update-v2 lines counted
+
+- What: the 17 lines U1 to U17 of docs/features/update-v2.md are now written as "- UV-1 When ..." to "- UV-17 When ..." (same words; the Professional unlock note moved after the When part), so npm run check:dod counts 20 lines. Missing tests added: src/app/UpdatePill.test.ts (UV-1 pill text, UV-12 Updated pill for 4 s).
+- Why: R6, the lines were never checked for tests.
+- Files: docs/features/update-v2.md, src/app/UpdatePill.test.ts.
+
+### 14 Nov 2026 (night): P1.6 name box, P1.7 pretend restart
+
+- What: P1.6: the new-notebook name box opens empty with a gray "Untitled notebook" (empty Done keeps it); rename shows the name with the caret at the end, nothing selected, and a ✕ that clears it (L12). P1.7: the About "Pretend a must-have update" restart gets 30 s (not 6 s) before "did not finish"; on the preview host that screen adds one line with the failing step (download or restart) and the seconds waited (L13).
+- Why: owner 14 Nov, notes L12, L13 (Pencil handwriting fought selected text; the pretend ended on Try again). The L13 cause is not proven on the iPad: the note shows it on the next try.
+- Files: src/app/NameSheet.tsx, nameSheetLogic.ts, appUi.ts, App.tsx, mandatoryFlow.ts, mandatoryState.ts, MandatoryNotice.tsx, failureNote.ts, main.tsx, texts en/es/hi, e2e/nameSheet.spec.ts, updateV2.spec.ts, updateFailureNote.spec.ts.
+
 ### 14 Nov 2026 (night): P1.4 scroll bar look
 
 - What: the shared scroll bar looks premium: pill thumb with a hairline halo, quiet hairline track, Lucide chevrons with a soft hover well, calm 180 ms states; Dark thumb is the soft ink (clearly visible). SC-04 now measures the colour the bar uses on every surface and the track (the old check read one token against two surfaces). New tokens `--sbar-thumb`, `--sbar-thumb-hover`, `--sbar-track`. Sizes and behaviour unchanged; flag-off bar unchanged.

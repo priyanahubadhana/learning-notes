@@ -8,7 +8,11 @@ import {
   startMandatoryUpdate,
   type MandatoryDeps,
 } from './mandatoryFlow'
-import { mandatoryMeta, mandatoryUpdate } from './mandatoryState'
+import {
+  mandatoryFailure,
+  mandatoryMeta,
+  mandatoryUpdate,
+} from './mandatoryState'
 import { resetUpdates } from './updates'
 
 afterEach(() => {
@@ -179,5 +183,38 @@ describe('install', () => {
     await vi.advanceTimersByTimeAsync(FORCE_RESTART_MS + 10)
     expect(hardRestart).toHaveBeenCalledTimes(1)
     expect(phase()).toBe('installing')
+  })
+})
+
+describe('L13 failure note for the preview host', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    resetMandatoryUpdate()
+  })
+  it('a restart that did not come records the step and the time waited', async () => {
+    vi.useFakeTimers()
+    startMandatoryUpdate(deps({ restartMs: 30_000 }))
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    // Still waiting at 6 s: no failure yet (the longer limit).
+    await vi.advanceTimersByTimeAsync(FORCE_RESTART_MS + 10)
+    expect(phase()).toBe('installing')
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(phase()).toBe('failed')
+    expect(mandatoryFailure.get()).toEqual({
+      what: 'restart',
+      waitedMs: 30_000,
+    })
+  })
+  it('a download that failed records the download step', async () => {
+    vi.useFakeTimers()
+    startMandatoryUpdate(
+      deps({
+        download: async () => {
+          throw new Error('x')
+        },
+      }),
+    )
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    expect(mandatoryFailure.get()?.what).toBe('download')
   })
 })

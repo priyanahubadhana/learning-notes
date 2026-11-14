@@ -5,6 +5,7 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { touchUi } from '../../app/touchUi'
 import { t } from '../../i18n/t'
@@ -310,16 +311,22 @@ export function ScrollBar({
         }
         style={{ height: arrowH, touchAction: 'manipulation' }}
       >
-        <svg width="12" height="8" viewBox="0 0 12 8" aria-hidden>
-          <path
-            d={dir === 1 ? 'M1 1.5l5 5 5-5' : 'M1 6.5l5-5 5 5'}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        {legacy ? (
+          <svg width="12" height="8" viewBox="0 0 12 8" aria-hidden>
+            <path
+              d={dir === 1 ? 'M1 1.5l5 5 5-5' : 'M1 6.5l5-5 5 5'}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : dir === 1 ? (
+          <ChevronDown size={16} strokeWidth={1.6} aria-hidden />
+        ) : (
+          <ChevronUp size={16} strokeWidth={1.6} aria-hidden />
+        )}
       </button>
     )
 

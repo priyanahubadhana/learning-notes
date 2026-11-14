@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026 (night): P1.4 scroll bar look
+
+- What: the shared scroll bar looks premium: pill thumb with a hairline halo, quiet hairline track, Lucide chevrons with a soft hover well, calm 180 ms states; Dark thumb is the soft ink (clearly visible). SC-04 now measures the colour the bar uses on every surface and the track (the old check read one token against two surfaces). New tokens `--sbar-thumb`, `--sbar-thumb-hover`, `--sbar-track`. Sizes and behaviour unchanged; flag-off bar unchanged.
+- Why: owner 14 Nov, notes L1 and the re-check ("in dark colour mode it is not visible").
+- Files: src/design/tokens.css, src/design/parts/ScrollBar.css, ScrollBar.tsx, scrollBarContrast.test.ts, e2e/scrollBarLook.spec.ts, playwright.config.ts (one test-list line), docs/features/shell.md.
+
 ### 14 Nov 2026 (evening): task 0.6 Test a phase
 
 - What: Settings › Try new features gets "Test a phase" (a list of phases) and one On/Off switch that sets every switch up to that phase.

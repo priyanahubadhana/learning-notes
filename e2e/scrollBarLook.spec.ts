@@ -118,69 +118,75 @@ const style = (page: Page, sel: string, prop: string) =>
     .locator(sel)
     .evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), prop)
 
-test('SC-14 thumb: rest 8 px, hover stronger, drag 12 px in the accent colour', async ({
-  page,
-}) => {
-  await longPage(page, 'night')
-  const thumb = page.locator('[data-pagebar-thumb]')
-  const bg = () => style(page, '[data-pagebar-thumb]', 'background-color')
-  const width = () => thumb.evaluate((el) => el.getBoundingClientRect().width)
-  const rest = await bg()
-  expect(await width()).toBeCloseTo(8, 0)
-  const box = (await thumb.boundingBox())!
-  const at = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
-  await page.mouse.move(at.x, at.y)
-  await expect.poll(bg).not.toBe(rest)
-  const hover = await bg()
-  // Hover is the stronger ink: brighter than rest on a dark page.
-  const light = (c: string) =>
-    c
-      .match(/\d+/g)!
-      .slice(0, 3)
-      .reduce((a, b) => a + +b, 0)
-  expect(light(hover)).toBeGreaterThan(light(rest))
-  await page.mouse.down()
-  await page.mouse.move(at.x, at.y + 80, { steps: 4 })
-  await expect.poll(width).toBeCloseTo(12, 0)
-  const accent = await page.evaluate(() => {
-    const p = document.createElement('i')
-    p.style.color = 'var(--color-accent)'
-    document.body.appendChild(p)
-    const c = getComputedStyle(p).color
-    p.remove()
-    return c
-  })
-  await expect.poll(bg).toBe(accent)
-  await page.mouse.up()
-  await expect.poll(width).toBeCloseTo(8, 0)
-})
-
-test('SC-15 arrows are Lucide chevrons (stroke 1.6), dimmed at their end, with a round hover well', async ({
-  page,
-}) => {
-  await longPage(page, 'day')
-  for (const dir of ['up', 'down']) {
-    const svg = page.locator(`[data-pagebar-arrow="${dir}"] svg`)
-    await expect(svg).toHaveClass(new RegExp(`lucide-chevron-${dir}`))
-    await expect(svg).toHaveAttribute('stroke-width', '1.6')
-  }
-  // At the top the up arrow is dimmed, the down arrow is not.
-  const dim = (d: string) =>
-    style(page, `[data-pagebar-arrow="${d}"]`, 'opacity')
-  expect(Number(await dim('up'))).toBeLessThan(0.5)
-  expect(Number(await dim('down'))).toBe(1)
-  // Hover: a quiet round well (the ::before) in the app's hover colour.
-  const down = (await page
-    .locator('[data-pagebar-arrow="down"]')
-    .boundingBox())!
-  await page.mouse.move(down.x + down.width / 2, down.y + down.height / 2)
-  const well = () =>
-    page.locator('[data-pagebar-arrow="down"]').evaluate((el) => {
-      const s = getComputedStyle(el, '::before')
-      return { bg: s.backgroundColor, r: s.borderTopLeftRadius }
+// Hover states exist where a pointer hovers (a mouse or trackpad; `(hover: hover)`), so these two run without touch.
+test.describe('pointer states', () => {
+  test.use({ hasTouch: false })
+  test('SC-14 thumb: rest 8 px, hover stronger, drag 12 px in the accent colour', async ({
+    page,
+  }) => {
+    await longPage(page, 'night')
+    const thumb = page.locator('[data-pagebar-thumb]')
+    const bg = () => style(page, '[data-pagebar-thumb]', 'background-color')
+    const width = () => thumb.evaluate((el) => el.getBoundingClientRect().width)
+    const rest = await bg()
+    expect(await width()).toBeCloseTo(8, 0)
+    const box = (await thumb.boundingBox())!
+    const at = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+    await page.mouse.move(at.x, at.y)
+    await expect.poll(bg).not.toBe(rest)
+    const hover = await bg()
+    // Hover is the stronger ink: brighter than rest on a dark page.
+    const light = (c: string) =>
+      c
+        .match(/\d+/g)!
+        .slice(0, 3)
+        .reduce((a, b) => a + +b, 0)
+    expect(light(hover)).toBeGreaterThan(light(rest))
+    await page.mouse.down()
+    await page.mouse.move(at.x, at.y + 80, { steps: 4 })
+    await expect.poll(width).toBeCloseTo(12, 0)
+    const accent = await page.evaluate(() => {
+      const p = document.createElement('i')
+      p.style.color = 'var(--color-accent)'
+      document.body.appendChild(p)
+      const c = getComputedStyle(p).color
+      p.remove()
+      return c
     })
-  await expect.poll(async () => (await well()).bg).not.toBe('rgba(0, 0, 0, 0)')
-  expect(parseFloat((await well()).r)).toBeGreaterThanOrEqual(8)
+    await expect.poll(bg).toBe(accent)
+    await page.mouse.up()
+    await expect.poll(width).toBeCloseTo(8, 0)
+  })
+
+  test('SC-15 arrows are Lucide chevrons (stroke 1.6), dimmed at their end, with a round hover well', async ({
+    page,
+  }) => {
+    await longPage(page, 'day')
+    for (const dir of ['up', 'down']) {
+      const svg = page.locator(`[data-pagebar-arrow="${dir}"] svg`)
+      await expect(svg).toHaveClass(new RegExp(`lucide-chevron-${dir}`))
+      await expect(svg).toHaveAttribute('stroke-width', '1.6')
+    }
+    // At the top the up arrow is dimmed, the down arrow is not.
+    const dim = (d: string) =>
+      style(page, `[data-pagebar-arrow="${d}"]`, 'opacity')
+    expect(Number(await dim('up'))).toBeLessThan(0.5)
+    expect(Number(await dim('down'))).toBe(1)
+    // Hover: a quiet round well (the ::before) in the app's hover colour.
+    const down = (await page
+      .locator('[data-pagebar-arrow="down"]')
+      .boundingBox())!
+    await page.mouse.move(down.x + down.width / 2, down.y + down.height / 2)
+    const well = () =>
+      page.locator('[data-pagebar-arrow="down"]').evaluate((el) => {
+        const s = getComputedStyle(el, '::before')
+        return { bg: s.backgroundColor, r: s.borderTopLeftRadius }
+      })
+    await expect
+      .poll(async () => (await well()).bg)
+      .not.toBe('rgba(0, 0, 0, 0)')
+    expect(parseFloat((await well()).r)).toBeGreaterThanOrEqual(8)
+  })
 })
 
 test('SC-16 the track is a quiet pill with a hairline; the thumb a pill with a halo', async ({

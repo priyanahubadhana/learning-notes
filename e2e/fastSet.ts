@@ -9,8 +9,11 @@
  * `ipad-webkit` list. scripts/fastSet.test.mjs fails when a file here is
  * missing or the list drops below 25 files, so the set cannot shrink
  * silently. Seconds are from the full run of 14 Nov 2026 (2 workers): about
- * 890 s on Chrome and 775 s on the iPad stand-in. Keep the total near that
+ * 860 s on Chrome and 735 s on the iPad stand-in. Keep the total near that
  * when adding a file.
+ *
+ * Not here on purpose: tests that measure real time (freezeWatch), because
+ * a busy computer makes them fail without a fault; they run every night.
  *
  * `file` is a name inside e2e/ (no folders); `why` is the flow it guards.
  */
@@ -34,10 +37,6 @@ export const FAST_SET: readonly { file: string; why: string }[] = [
     why: 'a database that will not open is never shown as an empty app',
   },
   { file: 'welcome.spec.ts', why: 'a first visit shows the welcome once' },
-  {
-    file: 'freezeWatch.spec.ts',
-    why: 'the checklist flows never block the screen for half a second',
-  },
 
   // Signing in.
   {

@@ -39,6 +39,7 @@ import { blocksOfBox, tagDrafts } from './boxScope'
 import { activeBox, boxEditors, useOwnsBar } from '../paper/activeBox'
 import { MAIN_BOX } from '../paper/boxes'
 import { NARROW_PX } from '../paper/sheets'
+import { useFrameSize } from '../app/shell/useFrameSize'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import { pageEditLock } from '../core/editLock'
@@ -884,6 +885,8 @@ function LoadedPageEditor({
 
   // Flag page.menus: the "/" menu on the shared Command list (same actions).
   const menusOn = useFlag('page.menus')
+  // Follows a screen turn (TB-42: the one hint is on the paper or the line below).
+  const frame = useFrameSize()
   const slashActions: SlashMenuActions = {
     onNewSubPage: newSubPage,
     onLinkPage: () => openLinkPicker(null),
@@ -1036,7 +1039,7 @@ function LoadedPageEditor({
       {bar.mode !== 'computer' &&
         !frozen &&
         !extraBox &&
-        (!waitForText || window.innerWidth < NARROW_PX) && (
+        (!waitForText || frame.width < NARROW_PX) && (
           <button
             type="button"
             onClick={() => focusEndLine(editor)}

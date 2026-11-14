@@ -100,7 +100,7 @@ async function wordShots(
   const sheet = (await sheetBox.count()) ? await sheetBox.boundingBox() : null
   await page.mouse.click(
     sheet ? sheet.x + sheet.width * 0.3 : 195,
-    main.y + main.height + (sheet ? 60 : 40),
+    main.y + main.height + (sheet ? 220 : 40),
   )
   await expect(page.locator(EXTRA)).toHaveCount(1)
   await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
@@ -113,7 +113,7 @@ async function wordShots(
     await theme(page, th)
     await page.keyboard.press('Escape')
     await expect(box).not.toHaveAttribute('data-picked', '')
-    await box.evaluate((e) => e.scrollIntoView({ block: 'center' }))
+    await box.evaluate((e) => e.scrollIntoView({ block: 'end' }))
     await page.waitForTimeout(600)
     // The word "Photosynthesis": find it on screen.
     const at = await page.evaluate(() => {

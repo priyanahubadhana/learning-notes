@@ -7,3 +7,5 @@ Theme set on the page and checked before each shot.
 - word-<ipad-upright|ipad-sideways|phone>-<light|dark|sepia>.png: first tap selected the box, a double-tap selected the word "Photosynthesis" (box frame and dots, word highlight, mini bar).
 
 Seen: the new-page "Start with a template, or just begin typing" panel under the paper is a separate part (not a writing hint).
+
+Known until 2B.8 lands: the box bar is drawn over the selected word in the word-* pictures (phone, iPad). I tried a lower box and scrolling the box to the bottom: the bar follows the box, so the word stays hidden. The word selection itself is proven by the e2e (selection text equals the word); retake these pictures after 2B.8.

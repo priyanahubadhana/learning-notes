@@ -294,3 +294,24 @@ test('TB-42: drawing on an empty page removes the hint at once', async ({
   await stroke(page, line([main.x + 40, y], [main.x + 220, y + 10]))
   await expect(hint).toHaveCount(0)
 })
+
+test('TB-42: turning the screen moves the one hint between the paper and the line below', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+  )
+  await startInMode(page, 'touch')
+  await page.setViewportSize({ width: 820, height: 1180 })
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'TB42turn')
+  const one = page.locator('[data-paper-hint], .ln-tap-below')
+  await expect(one).toHaveCount(1)
+  await expect(page.locator('[data-paper-hint]')).toHaveCount(1)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.locator('.ln-tap-below')).toHaveCount(1)
+  await expect(one).toHaveCount(1)
+  await page.setViewportSize({ width: 1180, height: 820 })
+  await expect(page.locator('[data-paper-hint]')).toHaveCount(1)
+  await expect(one).toHaveCount(1)
+})

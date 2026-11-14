@@ -208,21 +208,25 @@ export function cardAnchor(
   const width = Math.min(CARD_WIDTH, screen.width - 2 * EDGE_GAP)
   const clampX = (x: number) =>
     Math.min(screen.width - width - EDGE_GAP, Math.max(EDGE_GAP, x))
+  // Never less than minH of room, and never off the screen: when the pill
+  // sits too close to an edge, the card slides along it (BUG-002).
+  const minH = Math.min(160, screen.height - 2 * EDGE_GAP)
+  const lowest = screen.height - EDGE_GAP - minH
   switch (edge) {
     case 'top': {
-      const top = pos.y + size.height + GAP
+      const top = Math.min(pos.y + size.height + GAP, lowest)
       return {
         left: clampX(pos.x),
         top,
-        maxHeight: Math.max(160, screen.height - top - EDGE_GAP),
+        maxHeight: screen.height - top - EDGE_GAP,
       }
     }
     case 'bottom': {
-      const bottom = screen.height - pos.y + GAP
+      const bottom = Math.min(screen.height - pos.y + GAP, lowest)
       return {
         left: clampX(pos.x),
         bottom,
-        maxHeight: Math.max(160, pos.y - GAP - EDGE_GAP),
+        maxHeight: screen.height - bottom - EDGE_GAP,
       }
     }
     default: {
@@ -236,7 +240,7 @@ export function cardAnchor(
             ? clampX(pos.x + size.width + GAP)
             : clampX(pos.x - width - GAP),
         top,
-        maxHeight: Math.max(160, screen.height - top - EDGE_GAP),
+        maxHeight: Math.max(minH, screen.height - top - EDGE_GAP),
       }
     }
   }

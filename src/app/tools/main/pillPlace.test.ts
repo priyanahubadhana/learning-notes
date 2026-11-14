@@ -116,4 +116,18 @@ describe('where the options pill sits', () => {
     const left = cardAnchor({ x: 8, y: 200 }, tall, 'left', screen)
     expect(left.left).toBe(8 + 52 + 6)
   })
+
+  // BUG-002 (why): a short screen left a card of the 160 px floor hanging off
+  // the bottom (or top) of the screen. The card now shifts to stay inside.
+  it('keeps the card inside a short screen, whatever the pill place', () => {
+    const screen = { width: 844, height: 390 }
+    const inside = (a: ReturnType<typeof cardAnchor>) => {
+      const top = a.top ?? screen.height - (a.bottom ?? 0) - a.maxHeight
+      expect(top).toBeGreaterThanOrEqual(8)
+      expect(top + a.maxHeight).toBeLessThanOrEqual(screen.height - 8)
+    }
+    inside(cardAnchor({ x: 300, y: 300 }, pill, 'top', screen))
+    inside(cardAnchor({ x: 300, y: 40 }, pill, 'bottom', screen))
+    inside(cardAnchor({ x: 8, y: 380 }, tall, 'left', screen))
+  })
 })

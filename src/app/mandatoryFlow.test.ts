@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   COUNTDOWN_S,
   downloadNewFiles,
-  FILE_MAX_MS,
   STALL_MS,
   flow,
   resetMandatoryUpdate,
@@ -251,7 +250,7 @@ describe('downloadNewFiles', () => {
     await vi.advanceTimersByTimeAsync(STALL_MS + 1)
     await out
   })
-  it('a slow file that keeps sending stops at the per-file limit', async () => {
+  it('a slow file that keeps sending is NOT stopped (each byte resets the watchdog)', async () => {
     vi.useFakeTimers()
     let ctl!: ReadableStreamDefaultController<Uint8Array>
     const body = new ReadableStream<Uint8Array>({
@@ -260,13 +259,20 @@ describe('downloadNewFiles', () => {
       },
     })
     const p = run((async () => new Response(body)) as unknown as typeof fetch)
-    const out = expect(p).rejects.toThrow('too slow')
-    for (let t = 0; t < FILE_MAX_MS; t += 10_000) {
+    let state = 'pending'
+    p.then(
+      () => (state = 'done'),
+      () => (state = 'failed'),
+    )
+    // 6 minutes of one byte every 10 s: far past any whole-file limit.
+    for (let t = 0; t < 360_000; t += 10_000) {
       ctl.enqueue(new Uint8Array(1))
       await vi.advanceTimersByTimeAsync(10_000)
     }
+    expect(state).toBe('pending')
+    ctl.close()
     await vi.advanceTimersByTimeAsync(1)
-    await out
+    expect(state).toBe('done')
   })
   it('the flow shows Try again when the download stalls', async () => {
     vi.useFakeTimers()

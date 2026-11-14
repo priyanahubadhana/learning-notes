@@ -338,7 +338,7 @@ test('U2 the About test button pretends a must-have update', async ({
   await expect(notice(page)).toContainText('Downloading starts in')
 })
 
-test('P1.3 the About test button runs the real ending: restart on the same page', async ({
+test('P1.3 the About test button reloads on the same page and keeps the offline copy', async ({
   page,
 }) => {
   await page.route('**/precache.json*', (r) =>
@@ -346,8 +346,9 @@ test('P1.3 the About test button runs the real ending: restart on the same page'
   )
   await openAbout(page)
   const url = page.url()
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
     ;(window as never as { __same?: number }).__same = 1
+    await caches.open('p13-offline-copy')
   })
   await page.locator('[data-about-pretend]').click()
   await expect(notice(page)).toBeVisible()
@@ -362,6 +363,8 @@ test('P1.3 the About test button runs the real ending: restart on the same page'
     )
     .toBeUndefined()
   expect(page.url()).toBe(url)
+  // The offline copy is not dropped.
+  expect(await page.evaluate(() => caches.keys())).toContain('p13-offline-copy')
 })
 
 test('P1.3 a file that never arrives ends in Try again, never stuck', async ({

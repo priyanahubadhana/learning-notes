@@ -222,7 +222,7 @@ if (isOn('update.v2'))
   void import('./app/otherTab').then((m) =>
     m.watchOtherTabUpgrade(db, () => triggerMustHave('storage')),
   )
-// The About button ("real") runs the true ending: restart into the same page.
+// The About button ("real") reloads into the same page (keeps the offline copy).
 // Tests without it only set a marker (the page must stay).
 window.addEventListener('learning-notes:test-required-update', (e) => {
   const detail =
@@ -236,7 +236,11 @@ window.addEventListener('learning-notes:test-required-update', (e) => {
   startRequired(() => {
     ;(window as unknown as { __requiredApplied?: boolean }).__requiredApplied =
       true
-    if (detail?.real) void restartIntoNewFiles()
+    if (detail?.real) {
+      // Only a restart into the same page; the offline copy stays.
+      rememberPlace()
+      location.reload()
+    }
   }, detail)
 })
 subscribeDeviceSettings(() => {

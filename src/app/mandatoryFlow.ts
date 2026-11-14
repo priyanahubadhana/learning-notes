@@ -21,8 +21,6 @@ export const INSTALL_MAX_MS = 30_000
 /** The restart is forced if the service worker has not done it by now. */
 export const FORCE_RESTART_MS = 6_000
 const PARALLEL = 4
-/** One file may take at most this long (P1.3: a hung request froze the screen). */
-export const FILE_MAX_MS = 60_000
 /** No byte from any file for this long: the download is stopped (Try again). */
 export const STALL_MS = 20_000
 /** update.v2: how long a change that is not saved yet may delay the install. */
@@ -100,27 +98,22 @@ export async function downloadNewFiles(
   }
   const worker = async () => {
     for (let f = queue.shift(); f; f = queue.shift()) {
-      const limit = setTimeout(() => fail(`${f!.u}: too slow`), FILE_MAX_MS)
-      try {
-        const res = await get(f.u, { cache: 'reload', signal: stop.signal })
+      const res = await get(f.u, { cache: 'reload', signal: stop.signal })
+      alive()
+      if (!res.ok) throw new Error(`${f.u}: ${res.status}`)
+      const reader = res.body?.getReader()
+      if (!reader) {
+        loaded += (await res.arrayBuffer()).byteLength
         alive()
-        if (!res.ok) throw new Error(`${f.u}: ${res.status}`)
-        const reader = res.body?.getReader()
-        if (!reader) {
-          loaded += (await res.arrayBuffer()).byteLength
-          alive()
-          onProgress(loaded, total)
-          continue
-        }
-        for (;;) {
-          const { done, value } = await reader.read()
-          alive()
-          if (done) break
-          loaded += value.byteLength
-          onProgress(loaded, total)
-        }
-      } finally {
-        clearTimeout(limit)
+        onProgress(loaded, total)
+        continue
+      }
+      for (;;) {
+        const { done, value } = await reader.read()
+        alive()
+        if (done) break
+        loaded += value.byteLength
+        onProgress(loaded, total)
       }
     }
   }

@@ -13,6 +13,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: Text row is settings, Box, Format, B, I (TB-40); Format card Text / Style / Paragraph (+ Advanced) with each style in its own look (TB-41); Box card hangs right, else left, under, above the box and never covers it, also on a phone (TB-42, new shared `placeAround`); Insert, ⋯ group and All tools as grouped 44 pt tiles with a thin scroll track; BUG-003: setting "Hide toolbar while writing" (default off), the bar tucks away when you write, and one "Show toolbar" pill (the shared minimise chip) replaces the two top-bar buttons.
 - Why: spec docs/features/toolbar-v8.md 1e/1f, TB-40..43, TB-74/75 and the BUG-003 owner answer.
 - Files: src/app/tools/v8/{cards/text,cards/insert,cards/more,cards/alltools,tuck.ts,useTuck.ts,useTuckWatcher.ts,ShowToolbarPill.tsx}, src/design/parts/{Card,CardParts,useAnchoredCard}, src/settings/toolbarSettings.ts, src/i18n/*/v8Text.ts, e2e/toolbarV8{Text,Insert,Tuck}.spec.ts, screenshots/gate3-1/1ef.
+
 ### 14 Nov 2026 (night): P1.4 scroll bar look
 
 - What: the shared scroll bar looks premium: pill thumb with a hairline halo, quiet hairline track, Lucide chevrons with a soft hover well, calm 180 ms states; Dark thumb is the soft ink (clearly visible). SC-04 now measures the colour the bar uses on every surface and the track (the old check read one token against two surfaces). New tokens `--sbar-thumb`, `--sbar-thumb-hover`, `--sbar-track`. Sizes and behaviour unchanged; flag-off bar unchanged.

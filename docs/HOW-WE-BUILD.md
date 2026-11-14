@@ -79,6 +79,7 @@ Done when: <tests>. Follow .claude/agents/builder.md.
 - **Push guard** (`scripts/push-guard.mjs`, run by `.githooks/pre-push`): Prettier and `check:links` on every branch; on every branch that changes code also ESLint, `tsc -b` and the related unit tests; on `build/next` and `slice/` branches also `check:ratchet` and the changed e2e files. Fix the cause; never `--no-verify`.
 - **Failure sorter** (`npm run ci:sort`, or `node scripts/ci-sort.mjs --run <id>`): a fixed program, no AI, that says in plain lines what kind of failure a red run is (simple check, new, repeat, shaky, test file changed). Run it before anyone reads a log.
 - **Windows note:** run git and test commands from a path with a capital drive letter (`C:\...`). With a small `c:` Vitest loads itself twice and reports "no tests" (seen 14 Nov in the main working copy).
+- **Packages link:** many working copies hold `node_modules` as a Windows link (junction) to the main project's packages. Never delete a working copy recursively: a recursive delete can go through the link and delete the main packages. Use `git worktree remove`; if it leaves a folder that holds only that link, delete the link by itself (not recursively), then the empty folder.
 - **Pushes:** helpers may push normally; force pushes are denied (owner, 14 Nov).
 - **Secret scan** on every shell command.
 

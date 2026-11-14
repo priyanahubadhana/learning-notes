@@ -1835,3 +1835,7 @@ What: rules/phase-end.md, the rule check became a rule and memory tidy-up at eve
 ## 14 Nov 2026: reviewer locked; thinking effort back to the defaults
 
 What: .claude/agents/reviewer.md gets `disallowedTools: Edit, Write, NotebookEdit` (the same in the owner's global reviewer file); the custom `modelSettings` block removed from the user settings. Why: the owner said yes to the lock (a setting instead of a promise, from the agents research); the effort change was decided in the settings review and waited for the end of the planning session.
+
+## 14 Nov 2026: 47 unused working copies removed (settings review question 11)
+
+What: `git worktree remove` on 47 clean, merged copies; 19 remain. Six folders were left half-deleted by Windows and wait for the owner's word, with two other groups (list in docs/DECISIONS.md). Docs: a packages-link warning in docs/HOW-WE-BUILD.md section 8; BUILD-STATE row 0.11; PENDING (three open questions); the Phase 1 page (the switch-name point is decided, the scroll fix id is current). Why: the owner chose option A. Finding: many copies hold `node_modules` as a link to the main packages, so no folder is ever deleted recursively.

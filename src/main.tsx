@@ -222,17 +222,23 @@ if (isOn('update.v2'))
   void import('./app/otherTab').then((m) =>
     m.watchOtherTabUpgrade(db, () => triggerMustHave('storage')),
   )
-window.addEventListener('learning-notes:test-required-update', (e) =>
-  startRequired(
-    () => {
-      ;(
-        window as unknown as { __requiredApplied?: boolean }
-      ).__requiredApplied = true
-    },
-    (e as CustomEvent<{ reason?: UpdateReason; unsaved?: boolean } | null>)
-      .detail ?? undefined,
-  ),
-)
+// The About button ("real") runs the true ending: restart into the same page.
+// Tests without it only set a marker (the page must stay).
+window.addEventListener('learning-notes:test-required-update', (e) => {
+  const detail =
+    (
+      e as CustomEvent<{
+        reason?: UpdateReason
+        unsaved?: boolean
+        real?: boolean
+      } | null>
+    ).detail ?? undefined
+  startRequired(() => {
+    ;(window as unknown as { __requiredApplied?: boolean }).__requiredApplied =
+      true
+    if (detail?.real) void restartIntoNewFiles()
+  }, detail)
+})
 subscribeDeviceSettings(() => {
   if (updateWaiting()) repeatUpdateOffer()
 })

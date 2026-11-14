@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   COUNTDOWN_S,
   downloadNewFiles,
+  FILE_MAX_MS,
+  STALL_MS,
   flow,
   resetMandatoryUpdate,
   startMandatoryUpdate,
@@ -203,5 +205,86 @@ describe('downloadNewFiles', () => {
         get,
       ),
     ).rejects.toThrow()
+  })
+  it('every file already cached: 0 files, ends at once, no request', async () => {
+    const get = vi.fn() as unknown as typeof fetch
+    const seen: Array<[number, number]> = []
+    await downloadNewFiles(
+      (l, t) => seen.push([l, t]),
+      new AbortController().signal,
+      async () => [
+        { u: '/a.js', s: 100 },
+        { u: '/b.js', s: 100 },
+      ],
+      async () => new Set(['/a.js', '/b.js']),
+      get,
+    )
+    expect(get).not.toHaveBeenCalled()
+    expect(seen).toEqual([[0, 0]])
+  })
+  // A request that never answers (and ignores the abort, like a stuck network).
+  const hung = (() => new Promise(() => {})) as unknown as typeof fetch
+  const run = (get: typeof fetch) =>
+    downloadNewFiles(
+      () => {},
+      new AbortController().signal,
+      async () => [{ u: '/a.js', s: 1 }],
+      async () => new Set(),
+      get,
+    )
+  it('watchdog: no byte for ${STALL_MS} ms rejects (never stuck)', async () => {
+    vi.useFakeTimers()
+    const p = run(hung)
+    const out = expect(p).rejects.toThrow('stalled')
+    await vi.advanceTimersByTimeAsync(STALL_MS + 1)
+    await out
+  })
+  it('watchdog: a stream that stops mid-file rejects', async () => {
+    vi.useFakeTimers()
+    const body = new ReadableStream({
+      start(c) {
+        c.enqueue(new Uint8Array(5))
+      },
+    })
+    const p = run((async () => new Response(body)) as unknown as typeof fetch)
+    const out = expect(p).rejects.toThrow('stalled')
+    await vi.advanceTimersByTimeAsync(STALL_MS + 1)
+    await out
+  })
+  it('a slow file that keeps sending stops at the per-file limit', async () => {
+    vi.useFakeTimers()
+    let ctl!: ReadableStreamDefaultController<Uint8Array>
+    const body = new ReadableStream<Uint8Array>({
+      start(c) {
+        ctl = c
+      },
+    })
+    const p = run((async () => new Response(body)) as unknown as typeof fetch)
+    const out = expect(p).rejects.toThrow('too slow')
+    for (let t = 0; t < FILE_MAX_MS; t += 10_000) {
+      ctl.enqueue(new Uint8Array(1))
+      await vi.advanceTimersByTimeAsync(10_000)
+    }
+    await vi.advanceTimersByTimeAsync(1)
+    await out
+  })
+  it('the flow shows Try again when the download stalls', async () => {
+    vi.useFakeTimers()
+    startMandatoryUpdate(
+      deps({
+        download: (p, s) =>
+          downloadNewFiles(
+            p,
+            s,
+            async () => [{ u: '/a.js', s: 1 }],
+            async () => new Set(),
+            hung,
+          ),
+      }),
+    )
+    await vi.advanceTimersByTimeAsync((COUNTDOWN_S + 1) * 1000)
+    expect(phase()).toBe('downloading')
+    await vi.advanceTimersByTimeAsync(STALL_MS + 1)
+    expect(phase()).toBe('failed')
   })
 })

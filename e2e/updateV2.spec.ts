@@ -337,3 +337,47 @@ test('U2 the About test button pretends a must-have update', async ({
   await page.locator('[data-about-pretend]').click()
   await expect(notice(page)).toContainText('Downloading starts in')
 })
+
+test('P1.3 the About test button runs the real ending: restart on the same page', async ({
+  page,
+}) => {
+  await page.route('**/precache.json*', (r) =>
+    r.fulfill({ json: { files: [] } }),
+  )
+  await openAbout(page)
+  const url = page.url()
+  await page.evaluate(() => {
+    ;(window as never as { __same?: number }).__same = 1
+  })
+  await page.locator('[data-about-pretend]').click()
+  await expect(notice(page)).toBeVisible()
+  // The page restarts by itself: the marker set before is gone.
+  await expect
+    .poll(
+      () =>
+        page
+          .evaluate(() => (window as never as { __same?: number }).__same)
+          .catch(() => 'reloading'),
+      { timeout: 30_000 },
+    )
+    .toBeUndefined()
+  expect(page.url()).toBe(url)
+})
+
+test('P1.3 a file that never arrives ends in Try again, never stuck', async ({
+  page,
+}) => {
+  test.setTimeout(90_000)
+  await start(page)
+  await slowDownload(page) // the file is never let go
+  await pretend(page)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'downloading', {
+    timeout: 10_000,
+  })
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
+    timeout: 40_000,
+  })
+  await expect(
+    notice(page).getByRole('button', { name: /Try again|Retry/ }),
+  ).toBeVisible()
+})

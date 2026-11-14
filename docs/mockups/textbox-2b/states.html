@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Text box states</title>
+<style>
+  /* Tokens: the same names and values as toolbar mock v8 (shell + v7 card system). Light is the default. */
+  :root {
+    --canvas: #f4f3f8; --surface-0: #ffffff; --surface-1: #fafafc; --surface-2: #ffffff; --surface-3: #ffffff;
+    --ink: #18171c; --ink-soft: #4d4b55; --muted: #6b6976;
+    --line: #eceaf1; --line-strong: #8a8796;
+    --hover: rgba(24,23,28,.05); --pressed: rgba(24,23,28,.09);
+    --accent: #6941e0; --on-accent: #ffffff; --accent-soft: rgba(105,65,224,.1);
+    --danger: #c0352b; --success: #1a7248;
+    --glass-line: rgba(255,255,255,.6);
+    --elev-1: 0 1px 2px rgba(24,23,28,.06);
+    --elev-2: 0 4px 16px rgba(24,23,28,.08), 0 1px 2px rgba(24,23,28,.06);
+    --elev-3: 0 16px 48px rgba(24,23,28,.14);
+    --scrim: rgba(0,0,0,.24);
+    --pv-fill: rgba(255,255,255,.92); --pv-well: rgba(24,23,28,.045); --pv-well-2: rgba(24,23,28,.08);
+    --pv-thumb: #fff; --pv-hair: rgba(24,23,28,.08); --pv-track: rgba(24,23,28,.14);
+    --pv-shadow: 0 0 0 .5px rgba(24,23,28,.12), 0 28px 64px -14px rgba(24,23,28,.24), 0 8px 20px rgba(24,23,28,.08);
+    --pv-hi: inset 0 1px 0 rgba(255,255,255,.9);
+    --pv-knob: 0 1px 3px rgba(24,23,28,.18), 0 0 0 .5px rgba(24,23,28,.08);
+    --pv-spring: cubic-bezier(.34,1.45,.64,1); --pv-out: cubic-bezier(.2,.8,.2,1);
+    --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter Variable', Inter, system-ui, sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --canvas: #0f0e13; --surface-0: #16151b; --surface-1: #1d1c23; --surface-2: #25242c; --surface-3: #2e2d36;
+      --ink: #ecebf2; --ink-soft: #b8b6c3; --muted: #9a98a6; --line: #2a2931; --line-strong: #7f7d8c;
+      --hover: rgba(255,255,255,.06); --pressed: rgba(255,255,255,.1);
+      --accent: #a08cff; --on-accent: #16112e; --accent-soft: rgba(160,140,255,.16); --danger: #ff7a6b; --success: #5fd39a;
+      --glass-line: rgba(255,255,255,.08);
+      --elev-1: 0 0 0 1px rgba(255,255,255,.06); --elev-2: 0 8px 24px rgba(0,0,0,.4); --elev-3: 0 16px 48px rgba(0,0,0,.55);
+      --scrim: rgba(0,0,0,.48);
+      --pv-fill: rgba(31,30,38,.88); --pv-well: rgba(255,255,255,.055); --pv-well-2: rgba(255,255,255,.1);
+      --pv-thumb: rgba(255,255,255,.15); --pv-hair: rgba(255,255,255,.07); --pv-track: rgba(255,255,255,.16);
+      --pv-shadow: 0 0 0 .5px rgba(0,0,0,.55), 0 28px 64px -14px rgba(0,0,0,.66), 0 8px 20px rgba(0,0,0,.3);
+      --pv-hi: inset 0 1px 0 rgba(255,255,255,.09);
+      --pv-knob: 0 1px 3px rgba(0,0,0,.3), 0 0 0 .5px rgba(0,0,0,.2);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme='light'] { color-scheme: light; }
+  :root[data-theme='dark'] {
+    --canvas: #0f0e13; --surface-0: #16151b; --surface-1: #1d1c23; --surface-2: #25242c; --surface-3: #2e2d36;
+    --ink: #ecebf2; --ink-soft: #b8b6c3; --muted: #9a98a6; --line: #2a2931; --line-strong: #7f7d8c;
+    --hover: rgba(255,255,255,.06); --pressed: rgba(255,255,255,.1);
+    --accent: #a08cff; --on-accent: #16112e; --accent-soft: rgba(160,140,255,.16); --danger: #ff7a6b; --success: #5fd39a;
+    --glass-line: rgba(255,255,255,.08);
+    --elev-1: 0 0 0 1px rgba(255,255,255,.06); --elev-2: 0 8px 24px rgba(0,0,0,.4); --elev-3: 0 16px 48px rgba(0,0,0,.55);
+    --scrim: rgba(0,0,0,.48);
+    --pv-fill: rgba(31,30,38,.88); --pv-well: rgba(255,255,255,.055); --pv-well-2: rgba(255,255,255,.1);
+    --pv-thumb: rgba(255,255,255,.15); --pv-hair: rgba(255,255,255,.07); --pv-track: rgba(255,255,255,.16);
+    --pv-shadow: 0 0 0 .5px rgba(0,0,0,.55), 0 28px 64px -14px rgba(0,0,0,.66), 0 8px 20px rgba(0,0,0,.3);
+    --pv-hi: inset 0 1px 0 rgba(255,255,255,.09);
+    --pv-knob: 0 1px 3px rgba(0,0,0,.3), 0 0 0 .5px rgba(0,0,0,.2);
+    color-scheme: dark;
+  }
+  :root[data-theme='sepia'] {
+    --canvas: #efe4c8; --surface-0: #fbf3e0; --surface-1: #f7eed8; --surface-2: #fbf3e0; --surface-3: #fbf3e0;
+    --ink: #3b2f1e; --ink-soft: #5c4b33; --muted: #74644a; --line: #e6d8b8; --line-strong: #8e7d5e;
+    --hover: rgba(59,47,30,.06); --pressed: rgba(59,47,30,.1);
+    --accent: #8a4b1f; --on-accent: #fff; --accent-soft: rgba(138,75,31,.12); --danger: #b3341f; --success: #2f6b3f;
+    --glass-line: rgba(255,255,255,.5);
+    --elev-1: 0 1px 2px rgba(59,47,30,.08); --elev-2: 0 4px 16px rgba(59,47,30,.1); --elev-3: 0 16px 48px rgba(59,47,30,.18);
+    --scrim: rgba(30,22,8,.34);
+    --pv-fill: rgba(251,243,224,.94); --pv-well: rgba(59,47,30,.055); --pv-well-2: rgba(59,47,30,.1);
+    --pv-thumb: #fffaf0; --pv-hair: rgba(59,47,30,.1); --pv-track: rgba(59,47,30,.16);
+    --pv-shadow: 0 0 0 .5px rgba(59,47,30,.14), 0 28px 64px -14px rgba(59,47,30,.28), 0 8px 20px rgba(59,47,30,.1);
+    --pv-hi: inset 0 1px 0 rgba(255,255,255,.6);
+    --pv-knob: 0 1px 3px rgba(59,47,30,.2), 0 0 0 .5px rgba(59,47,30,.1);
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--canvas); color: var(--ink); font: 15px/1.5 var(--sans); overflow-x: hidden; }
+  button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: default; -webkit-tap-highlight-color: transparent; }
+  svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  svg.i.s { width: 14px; height: 14px; }
+
+  /* ---- page header + theme toggle ---- */
+  .top { position: sticky; top: 0; z-index: 20; padding: 10px 16px; background: color-mix(in srgb, var(--canvas) 86%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%); border-bottom: 1px solid var(--pv-hair); }
+  .top-in { max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+  .top h1 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.01em; }
+  .top p { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: 12px; background: var(--pv-well-2); }
+  .seg button { min-height: 38px; min-width: 44px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; border-radius: 9px; font-size: 13px; font-weight: 550; color: var(--ink-soft); transition: background 160ms var(--pv-out), color 160ms; }
+  .seg button[aria-pressed='true'] { background: var(--pv-thumb); color: var(--ink); box-shadow: var(--pv-knob); }
+  main { max-width: 800px; margin: 0 auto; padding: 16px 16px 48px; display: grid; gap: 20px; }
+
+  /* ---- a labelled panel ---- */
+  .panel { background: var(--surface-1); border: 1px solid var(--line); border-radius: 20px; padding: 14px; box-shadow: var(--elev-1); min-width: 0; }
+  .ph { display: flex; gap: 10px; align-items: flex-start; margin: 0 2px 12px; }
+  .num { flex: none; min-width: 28px; height: 28px; padding: 0 8px; border-radius: 99px; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); font-size: 13px; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .ph h2 { margin: 0; font-size: 15px; font-weight: 650; letter-spacing: -.01em; line-height: 28px; }
+  .ph p { margin: 2px 0 0; font-size: 14px; color: var(--ink-soft); line-height: 1.4; }
+  .fit { width: 100%; overflow: hidden; border-radius: 14px; }
+  .stage { position: relative; width: 760px; height: 480px; background: var(--canvas); overflow: hidden; border-radius: 14px; border: 1px solid var(--line); }
+  .stage.ph8 { width: 380px; height: 660px; display: grid; place-items: center; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 12px 2px 0; padding: 0; list-style: none; font-size: 12.5px; color: var(--muted); }
+  .legend li { display: inline-flex; align-items: center; gap: 6px; }
+  .key { display: inline-block; width: 14px; height: 14px; border-radius: 4px; flex: none; }
+  .k-line { border: 1.5px solid var(--accent); }
+  .k-dot { border-radius: 50%; background: #fff; border: 1.5px solid var(--accent); width: 12px; height: 12px; }
+  .k-pill { background: var(--accent); width: 20px; height: 12px; border-radius: 6px; }
+  .k-touch { border: 1.5px dashed var(--accent); border-radius: 50%; }
+  .k-land { border: 2px solid var(--accent); background: var(--accent-soft); }
+  .k-ghost { border: 1.5px dashed var(--line-strong); }
+
+  /* ---- the app shell inside a stage ---- */
+  .tabbar { position: absolute; left: 0; right: 0; top: 0; height: 36px; display: flex; align-items: center; gap: 6px; padding: 0 60px; transition: opacity 200ms; }
+  .tabbar span { height: 26px; padding: 0 12px; border-radius: 99px; display: inline-flex; align-items: center; font-size: 12.5px; font-weight: 550; color: var(--muted); }
+  .tabbar span.on { background: var(--surface-0); color: var(--ink); box-shadow: var(--elev-1); }
+  .tabbar .sp { flex: 1; padding: 0; }
+  .tabbar.dim { opacity: .35; }
+  .paper { position: absolute; left: 60px; top: 48px; width: 640px; height: 420px; background: var(--surface-0); border-radius: 14px; border: 1px solid var(--line); box-shadow: var(--elev-2); }
+
+  /* ---- boxes ---- */
+  .bx { position: absolute; padding: 10px 12px; border: 1.5px solid transparent; border-radius: 6px; font-size: 12.5px; line-height: 1.5; color: var(--ink); background: var(--surface-0); }
+  .bx h4 { margin: 0 0 3px; font-size: 14px; font-weight: 650; letter-spacing: -.01em; }
+  .bx p { margin: 0; color: var(--ink-soft); }
+  .bx.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--surface-0); }
+  .bx.pick { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 5%, var(--surface-0)); }
+  .bx.lift { transform: scale(1.02); box-shadow: 0 0 0 1px var(--surface-0), var(--elev-3); z-index: 5; }
+  .bx.sticky { background: #fdf0b4; color: #3b2f1e; } .bx.sticky p { color: #5c4b33; } .bx.sticky h4 { color: #3b2f1e; }
+  .hd { position: absolute; inset: -.75px; pointer-events: none; }
+  .d { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 1.5px solid var(--accent); transform: translate(-50%, -50%); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+  .d1 { left: 0; top: 0 } .d2 { left: 50%; top: 0 } .d3 { left: 100%; top: 0 } .d4 { left: 0; top: 50% }
+  .d5 { left: 100%; top: 50% } .d6 { left: 0; top: 100% } .d7 { left: 50%; top: 100% } .d8 { left: 100%; top: 100% }
+  .d.t::after { content: ''; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border: 1.5px dashed var(--accent); border-radius: 50%; }
+  .tab, .more { position: absolute; bottom: calc(100% + 8px); width: 36px; height: 20px; border-radius: 10px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+  .tab { left: 50%; margin-left: -18px; }
+  .more { right: 0; }
+  .tab.hit::after, .more.hit::after { content: ''; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border: 1.5px dashed var(--accent); border-radius: 12px; }
+  .tab.lifted { transform: scale(1.1); }
+  .more.pressed { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .small .tab { left: 0; margin-left: 0; } .small .more { right: auto; left: 42px; }
+  .tab.lock { width: 44px; margin-left: -22px; gap: 3px; display: flex; align-items: center; justify-content: center; }
+  .note { position: absolute; font-size: 12px; line-height: 1.35; color: var(--ink-soft); background: var(--surface-1); border: 1px dashed var(--line-strong); border-radius: 10px; padding: 6px 10px; }
+  .touch { position: absolute; width: 30px; height: 30px; border-radius: 50%; background: color-mix(in srgb, var(--ink) 16%, transparent); border: 1.5px solid color-mix(in srgb, var(--ink) 40%, transparent); z-index: 9; }
+  .land { position: absolute; border: 2px solid var(--accent); background: var(--accent-soft); border-radius: 8px; }
+  .ghost { position: absolute; border: 1.5px dashed var(--line-strong); border-radius: 8px; }
+  .slide { position: absolute; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); z-index: 6; }
+  .trail { position: absolute; border-radius: 6px; border: 1.5px solid var(--accent); }
+
+  /* ---- floating glass: object bar, cards, toast, pills ---- */
+  .glass { background: var(--pv-fill); border: 1px solid var(--glass-line); box-shadow: var(--pv-shadow), var(--pv-hi); -webkit-backdrop-filter: blur(28px) saturate(170%); backdrop-filter: blur(28px) saturate(170%); }
+  .obar { position: absolute; display: flex; align-items: center; gap: 2px; padding: 4px; border-radius: 16px; z-index: 8; }
+  .obar button { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: var(--ink-soft); }
+  .obar button.del { color: var(--danger); }
+  .obar button.on { background: var(--pv-well-2); color: var(--ink); }
+  .obar .vs { width: 1px; height: 20px; background: var(--pv-hair); margin: 0 4px; }
+  .lcard { position: absolute; width: 248px; padding: 6px; border-radius: 20px; z-index: 9; }
+  .lcard .row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 0 12px; border-radius: 12px; font-size: 14.5px; font-weight: 500; color: var(--ink); text-align: left; }
+  .lcard .row svg { color: var(--ink-soft); }
+  .lcard .row small { margin-left: auto; font-size: 11.5px; color: var(--muted); font-weight: 450; }
+  .lcard .row.off { color: var(--muted); } .lcard .row.off svg { color: var(--muted); opacity: .7; }
+  .lcard .row.del, .lcard .row.del svg { color: var(--danger); }
+  .lcard .row.hot { background: var(--pv-well-2); }
+  .lcard hr { border: 0; height: 1px; background: var(--pv-hair); margin: 4px 8px; }
+  .toast { position: absolute; display: flex; align-items: center; gap: 14px; padding: 6px 6px 6px 18px; border-radius: 99px; font-size: 14px; font-weight: 500; z-index: 9; }
+  .toast button { min-height: 44px; padding: 0 16px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); font-weight: 650; display: inline-flex; align-items: center; gap: 6px; }
+  .gpill { position: absolute; display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 16px; z-index: 8; }
+  .gpill .cnt { padding: 5px 12px; margin: 0 4px 0 6px; border-radius: 99px; background: var(--pv-well-2); font-size: 12.5px; font-weight: 600; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .gpill button { min-height: 44px; padding: 0 14px; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 550; color: var(--ink); }
+  .gpill button.on { background: var(--accent-soft); color: var(--accent); }
+  .gpill button.off { color: var(--muted); }
+  .chip { position: absolute; padding: 4px 10px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; z-index: 9; }
+
+  /* ---- layout assist ---- */
+  .strip { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; padding: 5px; border-radius: 18px; z-index: 9; white-space: nowrap; }
+  .strip .lbl { font-size: 12.5px; font-weight: 600; color: var(--ink-soft); padding: 0 8px 0 10px; }
+  .lt { width: 76px; min-height: 52px; padding: 6px 4px 4px; border-radius: 12px; background: var(--pv-well); display: grid; justify-items: center; gap: 4px; font-size: 11.5px; font-weight: 500; color: var(--ink-soft); }
+  .lt.on { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .mini { width: 30px; height: 20px; display: grid; gap: 2px; }
+  .mini i { background: currentColor; opacity: .55; border-radius: 2px; }
+  .m1 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr 1fr; } .m2 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+  .m6 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; } .m4 { grid-template-columns: 1fr 2fr; grid-template-rows: 1fr 1fr; } .m4 i:first-child { grid-row: 1 / 3; }
+  .done { min-height: 44px; padding: 0 18px; border-radius: 12px; background: var(--accent); color: var(--on-accent); font-weight: 650; font-size: 14px; }
+  .coach { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); width: 560px; padding: 12px 16px; border-radius: 16px; z-index: 9; font-size: 13.5px; line-height: 1.4; color: var(--ink); text-align: center; }
+  @keyframes wig { 0%,100% { transform: rotate(-.5deg); } 50% { transform: rotate(.5deg); } }
+  .wig { animation: wig 280ms ease-in-out infinite; }
+  .wig:nth-child(2n) { animation-delay: -140ms; animation-direction: reverse; }
+  .paper.assist { left: 90px; top: 88px; width: 580px; height: 330px; }
+
+  /* ---- hint ---- */
+  .hint { color: var(--muted); font-size: 13px; }
+  .before { position: absolute; right: 14px; bottom: 14px; width: 196px; height: 92px; border-radius: 12px; border: 1px dashed var(--line-strong); background: var(--surface-1); padding: 8px 10px; opacity: .85; }
+  .before b { font-size: 11px; color: var(--danger); letter-spacing: 0; font-weight: 650; display: flex; align-items: center; gap: 4px; }
+  .before .x1, .before .x2 { position: absolute; left: 10px; font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .before .x1 { top: 40px; } .before .x2 { top: 48px; margin-left: 14px; }
+
+  /* ---- phone ---- */
+  .phone { position: relative; width: 340px; height: 640px; border-radius: 44px; border: 8px solid #14131a; background: var(--surface-0); box-shadow: 0 0 0 1px var(--line-strong), var(--elev-3); overflow: hidden; }
+  .phone .sb { height: 34px; display: flex; justify-content: space-between; align-items: center; padding: 6px 24px 0; font-size: 12px; font-weight: 650; }
+  .phone .bx { left: 18px; right: 18px; }
+  .scrim { position: absolute; inset: 0; background: var(--scrim); }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 14px 22px; border-radius: 22px 22px 0 0; z-index: 9; }
+  .sheet .grab { width: 36px; height: 5px; border-radius: 3px; background: var(--pv-track); margin: 0 auto 8px; }
+  .sheet .hdr { display: flex; align-items: center; justify-content: space-between; min-height: 40px; }
+  .sheet .hdr strong { font-size: 15px; font-weight: 650; letter-spacing: -.01em; padding-left: 4px; }
+  .x { width: 44px; height: 44px; margin-right: -8px; display: grid; place-items: center; }
+  .x span { width: 30px; height: 30px; border-radius: 50%; background: var(--pv-well-2); display: grid; place-items: center; color: var(--ink-soft); }
+  .seg.full { display: flex; width: 100%; } .seg.full button { flex: 1; justify-content: center; }
+  .lab { margin: 12px 4px 6px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
+  .well { padding: 8px; border-radius: 14px; background: var(--pv-well); }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .tile { padding: 6px 4px 6px; border-radius: 12px; display: grid; gap: 5px; justify-items: center; font-size: 12px; font-weight: 500; color: var(--ink-soft); }
+  .tile .pv { width: 100%; height: 30px; border-radius: 6px; background: var(--surface-0); border: 1px solid var(--pv-hair); }
+  .tile .pv.stk { background: #fdf0b4; border-color: transparent; }
+  .tile .pv.cal { background: var(--accent-soft); border-color: transparent; border-left: 4px solid var(--accent); }
+  .tile .pv.mine { border-style: dashed; display: grid; place-items: center; color: var(--muted); }
+  .tile.on { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .sws { display: flex; justify-content: space-between; padding: 0 2px; }
+  .sw { width: 44px; height: 44px; display: grid; place-items: center; }
+  .sw i { width: 30px; height: 30px; border-radius: 50%; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 22%, transparent); }
+  .sw.on i { box-shadow: 0 0 0 2px var(--surface-0), 0 0 0 3.5px var(--accent), inset 0 0 0 1px color-mix(in srgb, var(--ink) 22%, transparent); }
+  .sw.none i { background: linear-gradient(135deg, transparent 46%, var(--danger) 46% 54%, transparent 54%), var(--surface-0); }
+
+  @media (prefers-reduced-motion: reduce) { .wig { animation: none; } * { transition: none !important; } }
+  @media (max-width: 480px) { .legend { font-size: 12px; } }
+</style>
+</head>
+<body>
+
+<!-- Lucide icons, inline -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.2-.8-.4-1-.3-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-4.9-4.5-9-10-9z"/></symbol>
+    <symbol id="i-group" viewBox="0 0 24 24"><path d="M3 7V5c0-1.1.9-2 2-2h2M17 3h2c1.1 0 2 .9 2 2v2M21 17v2c0 1.1-.9 2-2 2h-2M7 21H5c-1.1 0-2-.9-2-2v-2"/><rect x="7" y="7" width="7" height="5" rx="1"/><rect x="10" y="12" width="7" height="5" rx="1"/></symbol>
+    <symbol id="i-ungroup" viewBox="0 0 24 24"><rect x="5" y="4" width="8" height="6" rx="1"/><rect x="11" y="14" width="8" height="6" rx="1"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="top-in">
+    <div>
+      <h1>Text box states</h1>
+      <p>Phase 2B mock-up: what toolbar mock v8 does not show</p>
+    </div>
+    <div class="seg" role="group" aria-label="Paper theme" id="themes">
+      <button type="button" data-t="light" aria-pressed="true"><svg class="i s"><use href="#i-sun"/></svg>Light</button>
+      <button type="button" data-t="dark" aria-pressed="false"><svg class="i s"><use href="#i-moon"/></svg>Dark</button>
+      <button type="button" data-t="sepia" aria-pressed="false"><svg class="i s"><use href="#i-book"/></svg>Sepia</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- 1 selected box -->
+<section class="panel" aria-labelledby="p1">
+  <div class="ph"><span class="num">1</span><div><h2 id="p1">A selected box</h2><p>Tap a box and you get one clear line, eight dots, a grab tab and a ⋯ button.</p></div></div>
+  <div class="fit"><div class="stage" data-w="760">
+    <div class="tabbar"><span class="on">Biology · Page 1</span><span>Page 2</span><span class="sp"></span><span>Read</span></div>
+    <div class="paper">
+      <div class="obar glass" style="left:62px;top:2px">
+        <button aria-label="Cut"><svg class="i"><use href="#i-scissors"/></svg></button>
+        <button aria-label="Copy"><svg class="i"><use href="#i-copy"/></svg></button>
+        <button aria-label="Duplicate"><svg class="i"><use href="#i-copy"/></svg></button>
+        <button class="del" aria-label="Delete"><svg class="i"><use href="#i-trash"/></svg></button>
+        <span class="vs"></span>
+        <button aria-label="Box style"><svg class="i"><use href="#i-palette"/></svg></button>
+        <button aria-label="More"><svg class="i"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="bx sel" style="left:40px;top:96px;width:330px;height:150px">
+        <h4>Photosynthesis</h4>
+        <p>Plants turn light, water and carbon dioxide into sugar and oxygen. It happens in the chloroplasts.</p>
+        <span class="hd"><i class="d d1"></i><i class="d d2"></i><i class="d d3"></i><i class="d d4"></i><i class="d d5"></i><i class="d d6"></i><i class="d d7"></i><i class="d d8 t"></i>
+          <span class="tab hit"><svg class="i s"><use href="#i-menu"/></svg></span>
+          <span class="more hit"><svg class="i s"><use href="#i-more"/></svg></span></span>
+      </div>
+      <div class="bx" style="left:392px;top:96px;width:208px;height:150px"><h4>Key words</h4><p>Chlorophyll<br>Stomata<br>Glucose</p></div>
+      <div class="bx" style="left:40px;top:268px;width:560px;height:100px"><h4>Why it matters</h4><p>Almost every food chain starts here, and it gives us the oxygen we breathe.</p></div>
+    </div>
+  </div></div>
+  <ul class="legend">
+    <li><i class="key k-line"></i>1.5 px line, with a 1 px paper halo</li>
+    <li><i class="key k-dot"></i>8 dots, just outside the text</li>
+    <li><i class="key k-pill"></i>≡ tab and ⋯, 36 × 20 to see</li>
+    <li><i class="key k-touch"></i>dashed ring = 44 pt touch area</li>
+  </ul>
+</section>
+
+<!-- 2 drag -->
+<section class="panel" aria-labelledby="p2">
+  <div class="ph"><span class="num">2</span><div><h2 id="p2">Dragging a box</h2><p>Hold the tab and the box lifts; the others slide aside and an outline shows where it will land.</p></div></div>
+  <div class="fit"><div class="stage" data-w="760">
+    <div class="tabbar dim"><span class="on">Biology · Page 1</span><span>Page 2</span><span class="sp"></span><span>Read</span></div>
+    <div class="chip" style="right:60px;top:5px">Everything else waits until you drop</div>
+    <div class="paper">
+      <div class="land" style="left:40px;top:60px;width:270px;height:120px"></div>
+      <div class="ghost" style="left:40px;top:200px;width:270px;height:120px"></div>
+      <div class="bx" style="left:40px;top:200px;width:270px;height:120px;transform:translateY(0)"><h4>Cell parts</h4><p>Nucleus, membrane, cytoplasm.</p></div>
+      <span class="slide" style="left:274px;top:204px"><svg class="i s"><use href="#i-down"/></svg></span>
+      <div class="bx" style="left:330px;top:60px;width:270px;height:260px"><h4>Summary</h4><p>Every living thing is made of cells. Cells make more cells by dividing.</p></div>
+      <div class="bx sel lift" style="left:76px;top:156px;width:270px;height:120px;background:var(--surface-0)"><h4>Quiz me</h4><p>What does the nucleus do? Where does photosynthesis happen?</p>
+        <span class="hd"><span class="tab lifted"><svg class="i s"><use href="#i-menu"/></svg></span></span></div>
+      <div class="touch" style="left:196px;top:116px"></div>
+    </div>
+  </div></div>
+  <ul class="legend">
+    <li><i class="key k-land"></i>landing outline</li>
+    <li><i class="key k-ghost"></i>where "Cell parts" was; it slides down</li>
+    <li>Box grows to 1.02 and its shadow lifts in 120 ms</li>
+  </ul>
+</section>
+
+<!-- 3 after drop -->
+<section class="panel" aria-labelledby="p3">
+  <div class="ph"><span class="num">3</span><div><h2 id="p3">After the drop</h2><p>The box glides into place in 200 ms; there is no ✓ to press, just Undo if you change your mind.</p></div></div>
+  <div class="fit"><div class="stage" data-w="760">
+    <div class="tabbar"><span class="on">Biology · Page 1</span><span>Page 2</span><span class="sp"></span><span>Read</span></div>
+    <div class="paper">
+      <div class="trail" style="left:58px;top:76px;width:270px;height:120px;opacity:.14"></div>
+      <div class="trail" style="left:49px;top:68px;width:270px;height:120px;opacity:.28"></div>
+      <div class="bx sel" style="left:40px;top:60px;width:270px;height:120px"><h4>Quiz me</h4><p>What does the nucleus do? Where does photosynthesis happen?</p>
+        <span class="hd"><span class="tab"><svg class="i s"><use href="#i-menu"/></svg></span></span></div>
+      <div class="bx" style="left:40px;top:200px;width:270px;height:120px"><h4>Cell parts</h4><p>Nucleus, membrane, cytoplasm.</p></div>
+      <div class="bx" style="left:330px;top:60px;width:270px;height:260px"><h4>Summary</h4><p>Every living thing is made of cells. Cells make more cells by dividing.</p></div>
+      <div class="chip" style="left:330px;top:336px">Glide 200 ms · tappable once it lands</div>
+    </div>
+    <div class="toast glass" style="left:50%;bottom:10px;transform:translateX(-50%)">Box moved <button><svg class="i s"><use href="#i-undo"/></svg>Undo</button></div>
+  </div></div>
+  <ul class="legend">
+    <li><i class="key k-line" style="opacity:.4"></i>fading trail = the glide</li>
+    <li>One Undo puts the box back exactly where it was</li>
+  </ul>
+</section>
+
+<!-- 4 tiny + locked -->
+<section class="panel" aria-labelledby="p4">
+  <div class="ph"><span class="num">4</span><div><h2 id="p4">A tiny box and a locked box</h2><p>A box under 120 px puts its tab and ⋯ side by side; a locked box shows a lock and no dots.</p></div></div>
+  <div class="fit"><div class="stage" data-w="760">
+    <div class="tabbar"><span class="on">Biology · Page 1</span><span>Page 2</span><span class="sp"></span><span>Read</span></div>
+    <div class="paper">
+      <div class="bx sel small" style="left:60px;top:130px;width:100px;height:56px;padding:8px 10px"><h4 style="margin:0">Mitosis</h4>
+        <span class="hd"><i class="d d1"></i><i class="d d2"></i><i class="d d3"></i><i class="d d4"></i><i class="d d5"></i><i class="d d6"></i><i class="d d7"></i><i class="d d8"></i>
+          <span class="tab"><svg class="i s"><use href="#i-menu"/></svg></span>
+          <span class="more"><svg class="i s"><use href="#i-more"/></svg></span></span></div>
+      <div class="note" style="left:40px;top:214px;width:170px">Under 120 px wide: tab and ⋯ sit side by side above the left edge.</div>
+      <div class="bx sel" style="left:300px;top:130px;width:290px;height:110px"><h4>Exam dates</h4><p>Unit test 12 Dec. Final 20 Jan. These must not shift by accident.</p>
+        <span class="hd"><span class="tab lock"><svg class="i s"><use href="#i-lock"/></svg><svg class="i s"><use href="#i-menu"/></svg></span>
+          <span class="more"><svg class="i s"><use href="#i-more"/></svg></span></span></div>
+      <div class="note" style="left:300px;top:264px;width:290px">Locked: it cannot be moved or resized, so there are no dots. Tapping the text still lets you edit it.</div>
+    </div>
+  </div></div>
+  <ul class="legend">
+    <li><i class="key k-pill"></i>lock sits on the tab</li>
+    <li>Phone: tab and ⋯ keep a 44 pt touch area</li>
+  </ul>
+</section>
+
+<!-- 5 box ⋯ list -->
+<section class="panel" aria-labelledby="p5">
+  <div class="ph"><span class="num">5</span><div><h2 id="p5">The ⋯ list</h2><p>Tap ⋯ to lock the box, copy it, or move it up or down without dragging.</p></div></div>
+  <div class="fit"><div class="stage" data-w="760">
+    <div class="tabbar"><span class="on">Biology · Page 1</span><span>Page 2</span><span class="sp"></span><span>Read</span></div>
+    <div class="paper">
+      <div class="obar glass" style="left:62px;top:2px">
+        <button aria-label="Cut"><svg class="i"><use href="#i-scissors"/></svg></button>
+        <button aria-label="Copy"><svg class="i"><use href="#i-copy"/></svg></button>
+        <button aria-label="Duplicate"><svg class="i"><use href="#i-copy"/></svg></button>
+        <button class="del" aria-label="Delete"><svg class="i"><use href="#i-trash"/></svg></button>
+        <span class="vs"></span>
+        <button aria-label="Box style"><svg class="i"><use href="#i-palette"/></svg></button>
+        <button class="on" aria-label="More"><svg class="i"><use href="#i-more"/></svg></button>
+      </div>
+      <div class="bx sel" style="left:40px;top:96px;width:300px;height:140px"><h4>Photosynthesis</h4><p>Plants turn light, water and carbon dioxide into sugar and oxygen.</p>
+        <span class="hd"><i class="d d1"></i><i class="d d2"></i><i class="d d3"></i><i class="d d4"></i><i class="d d5"></i><i class="d d6"></i><i class="d d7"></i><i class="d d8"></i>
+          <span class="tab"><svg class="i s"><use href="#i-menu"/></svg></span>
+          <span class="more pressed"><svg class="i s"><use href="#i-more"/></svg></span></span></div>
+      <div class="bx" style="left:40px;top:262px;width:300px;height:100px"><h4>Why it matters</h4><p>Almost every food chain starts here.</p></div>
+      <div class="lcard glass" style="left:362px;top:78px">
+        <button class="row hot"><svg class="i"><use href="#i-lock"/></svg>Lock in place</button>
+        <button class="row"><svg class="i"><use href="#i-copy"/></svg>Duplicate</button>
+        <button class="row"><svg class="i"><use href="#i-up"/></svg>Move up</button>
+        <button class="row"><svg class="i"><use href="#i-down"/></svg>Move down</button>
+        <hr>
+        <button class="row off"><svg class="i"><use href="#i-group"/></svg>Group<small>pick 2 or more</small></button>
+        <hr>
+        <button class="row del"><svg class="i"><use href="#i-trash"/></svg>Delete</button>
+      </div>
+    </div>
+  </div></div>
+  <ul class="legend">
+    <li>Move up / down swaps places with the next box: the no-drag way</li>
+    <li>Group appears when 2 or more boxes are picked (next panel)</li>
+  </ul>
+</section>
+
+<!-- 6a several picked -->
+<section class="panel" aria-labelledby="p6a">
+  <div class="ph"><span class="num">6a</span><div><h2 id="p6a">Several boxes picked</h2><p>Circle empty paper with Lasso and the boxes inside are picked, with one small pill to group them.</p></div></div>
+  <div class="fit"><div class="stage" data-w="760">
+    <div class="tabbar"><span class="on">Biology · Page 1</span><span>Page 2</span><span class="sp"></span><span>Read</span></div>
+    <div class="paper">
+      <div class="gpill glass" style="left:190px;top:8px">
+        <span class="cnt">2 boxes</span>
+        <button class="on"><svg class="i s"><use href="#i-group"/></svg>Group</button>
+        <button class="off"><svg class="i s"><use href="#i-ungroup"/></svg>Ungroup</button>
+      </div>
+      <div class="bx pick" style="left:40px;top:96px;width:270px;height:120px"><h4>Photosynthesis</h4><p>Light, water and carbon dioxide make sugar and oxygen.</p></div>
+      <div class="bx pick" style="left:330px;top:96px;width:270px;height:120px"><h4>Key words</h4><p>Chlorophyll · Stomata · Glucose</p></div>
+      <div class="bx" style="left:40px;top:240px;width:560px;height:100px"><h4>Why it matters</h4><p>Almost every food chain starts here.</p></div>
+      <svg width="640" height="420" viewBox="0 0 640 420" style="position:absolute;left:0;top:0;pointer-events:none"><path d="M26 118 C 20 70 120 70 330 74 C 520 72 626 78 622 140 C 626 214 560 238 330 232 C 130 238 30 224 26 118 Z" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="6 6" stroke-linecap="round"/></svg>
+    </div>
+  </div></div>
+  <ul class="legend">
+    <li><i class="key k-line" style="border-style:dashed"></i>dashed loop = your Lasso</li>
+    <li>Drag one picked box and all of them move; one Undo</li>
+  </ul>
+</section>
+
+<!-- 6b layout assist -->
+<section class="panel" aria-labelledby="p6b">
+  <div class="ph"><span class="num">6b</span><div><h2 id="p6b">Layout Assist</h2><p>The page steps back, boxes wiggle, and you tap a layout to try it; Done when happy.</p></div></div>
+  <div class="fit"><div class="stage" data-w="760">
+    <div class="strip glass">
+      <span class="lbl">Layouts</span>
+      <button class="lt"><span class="mini m1"><i></i><i></i><i></i></span>One column</button>
+      <button class="lt on"><span class="mini m2"><i></i><i></i><i></i><i></i></span>Two columns</button>
+      <button class="lt"><span class="mini m6"><i></i><i></i><i></i><i></i><i></i><i></i></span>Six boxes</button>
+      <button class="lt"><span class="mini m4"><i></i><i></i><i></i></span>Side + two</button>
+      <button class="done">Done</button>
+    </div>
+    <div class="paper assist">
+      <div class="bx wig" style="left:24px;top:24px;width:262px;height:130px;border:1.5px dashed var(--line-strong)"><h4>Photosynthesis</h4><p>Light, water and carbon dioxide make sugar and oxygen.</p></div>
+      <div class="bx wig" style="left:296px;top:24px;width:262px;height:130px;border:1.5px dashed var(--line-strong)"><h4>Key words</h4><p>Chlorophyll · Stomata</p></div>
+      <div class="bx wig" style="left:24px;top:170px;width:262px;height:90px;border:1.5px dashed var(--line-strong)"><h4>Why it matters</h4><p>Food chains start here.</p></div>
+      <div class="bx wig" style="left:296px;top:170px;width:262px;height:90px;border:1.5px dashed var(--line-strong)"><h4>Quiz me</h4><p>Where does it happen?</p></div>
+    </div>
+    <div class="coach glass">This is how your page will look. Drag any box to move it, pull an edge to resize. Tap Done when happy.</div>
+  </div></div>
+  <ul class="legend">
+    <li>Page zoomed out a little so you see all of it</li>
+    <li>Tapping a layout shows it at once; Undo brings the old one back</li>
+  </ul>
+</section>
+
+<!-- 7 hint -->
+<section class="panel" aria-labelledby="p7">
+  <div class="ph"><span class="num">7</span><div><h2 id="p7">One writing hint at a time</h2><p>An empty page shows a single hint, so two messages never sit on top of each other.</p></div></div>
+  <div class="fit"><div class="stage" data-w="760">
+    <div class="tabbar"><span class="on">Biology · Page 3</span><span>Page 2</span><span class="sp"></span><span>Read</span></div>
+    <div class="paper">
+      <div class="bx" style="left:40px;top:40px;width:560px;height:90px;border:1.5px dashed var(--line-strong)"><p class="hint" style="font-size:14px">Type, or tap anywhere to start writing</p></div>
+      <div class="before"><b><svg class="i s"><use href="#i-x"/></svg>Before (fixed)</b>
+        <span class="x1">Tap here to keep writing</span><span class="x2">Type, or tap anywhere…</span></div>
+    </div>
+  </div></div>
+  <ul class="legend">
+    <li>The hint disappears the moment you type or draw</li>
+    <li>"Tap here to keep writing" waits until there is something to continue</li>
+  </ul>
+</section>
+
+<!-- 8 phone sheet -->
+<section class="panel" aria-labelledby="p8">
+  <div class="ph"><span class="num">8</span><div><h2 id="p8">On a phone</h2><p>The Box card slides up from the bottom as a sheet, so your thumb can reach it.</p></div></div>
+  <div class="fit"><div class="stage ph8" data-w="380" style="border:0;background:transparent">
+    <div class="phone">
+      <div class="sb"><span>9:41</span><span>●●● ▮</span></div>
+      <div class="bx" style="top:46px;height:76px"><h4>Photosynthesis</h4><p>Light, water and carbon dioxide make sugar.</p></div>
+      <div class="bx sel" style="top:150px;height:92px"><h4>Key words</h4><p>Chlorophyll · Stomata · Glucose</p>
+        <span class="hd"><i class="d d1"></i><i class="d d2"></i><i class="d d3"></i><i class="d d4"></i><i class="d d5"></i><i class="d d6"></i><i class="d d7"></i><i class="d d8"></i>
+          <span class="tab"><svg class="i s"><use href="#i-menu"/></svg></span>
+          <span class="more"><svg class="i s"><use href="#i-more"/></svg></span></span></div>
+      <div class="bx" style="top:268px;height:70px"><h4>Why it matters</h4><p>Food chains start here.</p></div>
+      <div class="scrim"></div>
+      <div class="sheet glass">
+        <div class="grab"></div>
+        <div class="hdr"><strong>Box style</strong><span class="x"><span><svg class="i s"><use href="#i-x"/></svg></span></span></div>
+        <div class="seg full"><button type="button" aria-pressed="true">Box</button><button type="button" aria-pressed="false">Layout</button></div>
+        <div class="lab">Look</div>
+        <div class="well"><div class="tiles">
+          <div class="tile on"><span class="pv"></span>Plain</div>
+          <div class="tile"><span class="pv stk"></span>Sticky</div>
+          <div class="tile"><span class="pv cal"></span>Callout</div>
+          <div class="tile"><span class="pv mine"><svg class="i s"><use href="#i-plus"/></svg></span>Mine</div>
+        </div></div>
+        <div class="lab">Fill</div>
+        <div class="sws">
+          <span class="sw none on"><i></i></span><span class="sw"><i style="background:#fde68a"></i></span><span class="sw"><i style="background:#bbf7d0"></i></span>
+          <span class="sw"><i style="background:#bae6fd"></i></span><span class="sw"><i style="background:#fbcfe8"></i></span><span class="sw"><i style="background:#ddd6fe"></i></span>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <ul class="legend">
+    <li>Same Box card, Box and Layout sections, as a bottom sheet</li>
+    <li>No dragging between columns on a phone: use ▲▼ in ⋯</li>
+    <li>Tap the gap under a box with the Text tool to add a new box</li>
+  </ul>
+</section>
+
+</main>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    document.getElementById('themes').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-t]');
+      if (!b) return;
+      root.setAttribute('data-theme', b.getAttribute('data-t'));
+      var all = this.querySelectorAll('button');
+      for (var i = 0; i < all.length; i++) all[i].setAttribute('aria-pressed', all[i] === b ? 'true' : 'false');
+    });
+    function fit() {
+      var s = document.querySelectorAll('.fit');
+      for (var i = 0; i < s.length; i++) {
+        var st = s[i].firstElementChild, w = +st.getAttribute('data-w');
+        var z = Math.min(1, s[i].clientWidth / w);
+        st.style.zoom = z;
+      }
+    }
+    fit(); window.addEventListener('resize', fit); window.addEventListener('load', fit);
+  })();
+</script>
+</body>
+</html>

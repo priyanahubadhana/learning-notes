@@ -380,6 +380,7 @@ export const hiInk = {
   'layout.v2.tidy': 'व्यवस्थित करें',
   'nameSheet.newNotebook': 'अपनी नोटबुक का नाम रखें',
   'nameSheet.newPage': 'अपने पेज का नाम रखें',
+  'nameSheet.clear': 'नाम मिटाएँ',
   'paper.addBox': '+ बॉक्स',
   'paper.addBoxEnd': 'यहाँ बॉक्स जोड़ें',
   'paper.bar.label': 'बॉक्स का फ़ॉर्मैट',

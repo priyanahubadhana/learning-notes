@@ -1,6 +1,11 @@
-import { useFlag } from '../../app/flags'
+import { lazy, Suspense } from 'react'
+import { isPreviewHost, useFlag } from '../../app/flags'
+import { pencilCheckShown } from './pencilCheckLogic'
 import { ScrollBar } from './ScrollBar'
 import { useScrollTarget } from './scrollTarget'
+
+// P1.5a: hidden recorder, preview host + ?pencilcheck=1 only (its own chunk).
+const PencilCheck = lazy(() => import('./PencilCheck'))
 
 /**
  * Mounted once (new app frame, flag foundation.shell): the shared scroll bar on
@@ -10,5 +15,15 @@ import { useScrollTarget } from './scrollTarget'
 export function ScrollBarHost() {
   const on = useFlag('foundation.shell')
   const target = useScrollTarget()
-  return on ? <ScrollBar scroller={target} auto /> : null
+  const check = pencilCheckShown(isPreviewHost(), location.search)
+  return (
+    <>
+      {on ? <ScrollBar scroller={target} auto /> : null}
+      {check ? (
+        <Suspense fallback={null}>
+          <PencilCheck />
+        </Suspense>
+      ) : null}
+    </>
+  )
 }

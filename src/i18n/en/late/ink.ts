@@ -370,6 +370,7 @@ export const enLateInk = {
   'layout.v2.tidy': 'Tidy',
   'nameSheet.newNotebook': 'Name your notebook',
   'nameSheet.newPage': 'Name your page',
+  'nameSheet.clear': 'Clear name',
   'paper.addBox': '+ box',
   'paper.addBoxEnd': 'Add a box here',
   'paper.bar.label': 'Box format',

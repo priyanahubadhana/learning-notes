@@ -163,3 +163,82 @@ test('Delete asks first, and Cancel has the focus on touch', async ({
     side.getByRole('button', { name: 'Keep me', exact: true }),
   ).toBeVisible()
 })
+
+test('L12: a new notebook box opens empty with a gray placeholder; empty Done keeps the default', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Base', 'First')
+  const side = await openSidebar(page)
+  await side.getByLabel('New notebook').click()
+  const sheet = sheetOf(page)
+  const field = sheet.getByRole('textbox', { name: 'Name' })
+  await expect(field).toBeVisible()
+  await expect(field).toHaveValue('')
+  await expect(field).toHaveAttribute('placeholder', 'Untitled notebook')
+  // Nothing is selected (no handles for the Pencil to fight with).
+  expect(
+    await field.evaluate((el: HTMLInputElement) => [
+      el.selectionStart,
+      el.selectionEnd,
+    ]),
+  ).toEqual([0, 0])
+  // Done with an empty box keeps "Untitled notebook".
+  await sheet.getByRole('button', { name: 'Done' }).click()
+  await expect(sheet).toHaveCount(0)
+  await expect(nbRow(side, 'Untitled notebook')).toBeVisible()
+})
+
+test('L12: a name written in a new notebook box sticks', async ({ page }) => {
+  await page.goto('/')
+  await createNotebook(page, 'Base2', 'First')
+  const side = await openSidebar(page)
+  await side.getByLabel('New notebook').click()
+  expect(await sheetFill(page, 'Chemistry')).toBe(true)
+  await expect(nbRow(side, 'Chemistry')).toBeVisible()
+  await expect(nbRow(side, 'Untitled notebook')).toHaveCount(0)
+})
+
+test('L12: rename shows the name, caret at the end, nothing selected; the clear button empties it', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Geology', 'First')
+  await rowAction(page, 'Geology', 'Rename')
+  const sheet = sheetOf(page)
+  const field = sheet.getByRole('textbox', { name: 'Name' })
+  await expect(field).toHaveValue('Geology')
+  await expect(field).toBeFocused()
+  expect(
+    await field.evaluate((el: HTMLInputElement) => [
+      el.selectionStart,
+      el.selectionEnd,
+    ]),
+  ).toEqual([7, 7])
+  const clear = sheet.getByRole('button', { name: 'Clear name' })
+  const box = (await clear.boundingBox())!
+  expect(box.width).toBeGreaterThanOrEqual(44)
+  expect(box.height).toBeGreaterThanOrEqual(44)
+  await clear.click()
+  await expect(field).toHaveValue('')
+  await expect(field).toBeFocused()
+  // The clear button is hidden when the box is empty.
+  await expect(clear).toHaveCount(0)
+  // Cancel keeps the old name.
+  await sheet.getByRole('button', { name: 'Cancel' }).click()
+  await expect(nbRow(await openSidebar(page), 'Geology')).toBeVisible()
+})
+
+test('R11: a new notebook keeps the name written in the box (repeated)', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await createNotebook(page, 'Seed', 'First')
+  const side = await openSidebar(page)
+  for (const name of ['Alpha', 'Beta', 'Gamma']) {
+    await side.getByLabel('New notebook').click()
+    expect(await sheetFill(page, name)).toBe(true)
+    await expect(nbRow(side, name)).toBeVisible()
+  }
+  await expect(nbRow(side, 'Untitled notebook')).toHaveCount(0)
+})

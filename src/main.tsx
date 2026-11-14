@@ -191,12 +191,14 @@ onUpdateOffer((apply) => void autoUpdate(apply))
 // A REQUIRED update (storage change or data fix) uses the full-screen flow.
 const startRequired = (
   apply: () => void,
-  test?: { reason?: UpdateReason; unsaved?: boolean },
+  test?: { reason?: UpdateReason; unsaved?: boolean; real?: boolean },
 ) =>
   void import('./app/mandatoryFlow').then((m) =>
     m.startMandatoryUpdate({
       v2: isOn('update.v2'),
       reason: test?.reason ?? updateReason(),
+      // A real reload (About test button) is slow on Safari: give it 30 s.
+      restartMs: test?.real ? m.INSTALL_MAX_MS : undefined,
       apply: () => {
         resetGestures('manual')
         rememberPlace()

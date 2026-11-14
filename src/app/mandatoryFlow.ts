@@ -44,6 +44,12 @@ export function etaSeconds(
 export interface MandatoryDeps {
   /** Restarts into the new version. */
   apply: () => void
+  /**
+   * update.v2: how long the restart may take before Try again shows. A plain
+   * reload (the About test button) can take longer than the 6 s default on a
+   * real Safari, which revalidates every file on reload (L13).
+   */
+  restartMs?: number
   /** Flushes saves and takes the backup; a risk blocks the update. */
   prepare: () => Promise<UpdateRisk | null>
   /** Last resort restart (drops old files, reloads). */
@@ -230,7 +236,7 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
     }
     if (v2) {
       // No restart within 6 s: say so, with Try again (nothing is lost).
-      installTimer = after(failIfStuck, FORCE_RESTART_MS)
+      installTimer = after(failIfStuck, deps.restartMs ?? FORCE_RESTART_MS)
       return
     }
     after(() => deps.hardRestart?.(), FORCE_RESTART_MS)

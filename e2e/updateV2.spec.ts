@@ -383,18 +383,34 @@ test.describe('L13', () => {
       ;(window as never as { __same?: number }).__same = 1
     })
     // The restart (a plain reload) is held for 9 s, longer than the 6 s limit.
-    await page.route(url.split('#')[0], async (r) => {
-      if (r.request().resourceType() === 'document')
+    await page.route('**/*', async (r) => {
+      if (r.request().isNavigationRequest()) {
         await new Promise((ok) => setTimeout(ok, 9_000))
+      }
       await r.continue()
+    })
+    // A held page cannot be read, so the notice phases are written to
+    // sessionStorage (it survives the reload) and read afterwards.
+    await page.evaluate(() => {
+      new MutationObserver(() => {
+        const p = document
+          .querySelector('[data-mandatory-update]')
+          ?.getAttribute('data-phase')
+        if (p)
+          sessionStorage.setItem(
+            'l13',
+            (sessionStorage.getItem('l13') ?? '') + p + ',',
+          )
+      }).observe(document.body, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+      })
     })
     await page.locator('[data-about-pretend]').click()
     await expect
       .poll(() => applied(page).catch(() => true), { timeout: 30_000 })
       .toBe(true)
-    // Past the 6 s limit the notice must still not say it failed.
-    await page.waitForTimeout(7_500)
-    await expect(notice(page)).not.toContainText('did not finish')
     await expect
       .poll(
         () =>
@@ -405,6 +421,10 @@ test.describe('L13', () => {
       )
       .toBeUndefined()
     expect(page.url()).toBe(url)
+    // Through the 9 s hold the notice never said it failed.
+    const seen = await page.evaluate(() => sessionStorage.getItem('l13'))
+    expect(seen).toContain('installing')
+    expect(seen).not.toContain('failed')
   })
 })
 

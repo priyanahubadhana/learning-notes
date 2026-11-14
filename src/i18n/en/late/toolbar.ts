@@ -67,6 +67,7 @@ export const enLateToolbar = {
   'bar.position': 'Position',
   'bar.reset': 'Reset',
   'bar.resetPos': 'Reset bar position',
+  'toolbarMenu.groupFolded': 'More tools',
   'toolbarMenu.groupBar': 'Toolbar',
   'toolbarMenu.groupStyle': 'Text style',
   'toolbarMenu.groupCopy': 'Copy and paste',

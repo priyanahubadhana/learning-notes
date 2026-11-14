@@ -70,6 +70,7 @@ export const esToolbar = {
   'bar.position': 'Posición',
   'bar.reset': 'Restablecer',
   'bar.resetPos': 'Restablecer la posición de la barra',
+  'toolbarMenu.groupFolded': 'Más herramientas',
   'toolbarMenu.groupBar': 'Barra',
   'toolbarMenu.groupStyle': 'Estilo de texto',
   'toolbarMenu.groupCopy': 'Copiar y pegar',

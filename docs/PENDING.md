@@ -21,7 +21,7 @@ Preview address: https://build-next.learning-notes-app.pages.dev (the parts you 
 
 | Phase | What                                                    | State                                                       |
 | ----- | ------------------------------------------------------- | ----------------------------------------------------------- |
-| 0     | Reset: clean rules, the real app check, the test preset | rules cleaned 14 Nov; tasks 0.3 to 0.8 wait for the restart |
+| 0     | Reset: clean rules, the real app check, the test preset | rules cleaned 14 Nov; tasks 0.4 to 0.6 wait for the restart |
 | 1     | The frame and Settings                                  | built; owner's first look started 14 Nov (F1 to F9)         |
 | 2A    | Writing tools: tool bar, page menus                     | built; two parts parked                                     |
 | 2B    | Text box and Pencil                                     | not built                                                   |
@@ -41,7 +41,7 @@ Branches and commit ids of every parked part: docs/BUILD-STATE.md.
 | ID      | Problem                                                                                                                                     | Phase | State                                                                                       |
 | ------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------- |
 | F1      | Sign-in asked again after every reopen in Safari                                                                                            | 1     | fixed, in the preview; owner to re-check                                                    |
-| F2      | Sidebar list hard to scroll from empty space                                                                                                | 1     | fixed and reviewed; merge is Phase 0 task 0.3                                               |
+| F2      | Sidebar list hard to scroll from empty space                                                                                                | 1     | fixed and reviewed; merge is Phase 0 task 0.5                                               |
 | F3      | Scroll bar too faint; show position and ends                                                                                                | 1     | same fix                                                                                    |
 | F4      | Remove Review, All cards, All summaries rows from the Notebooks sidebar                                                                     | 3     | same fix                                                                                    |
 | F5      | Search pop-up: ✕ to clear and ✕ to close, no "Esc"                                                                                          | 4     | fixed, in the preview; owner to re-check                                                    |
@@ -56,7 +56,7 @@ Branches and commit ids of every parked part: docs/BUILD-STATE.md.
 | BUG-005 | Settings previews, guided tour, first-launch welcome                                                                                        | 10    | not built; needs its artifact                                                               |
 | BUG-006 | ⚙ gear not reachable on iPad upright                                                                                                        | 1     | fixed, in the preview; owner to re-check                                                    |
 | TB      | Text box and Pencil list (cursor jumps, double-tap select, whole-box selection look, handles, drag, wrapping, glide, two hints overlapping) | 2B    | not built; full list in the phase plan and owner-decisions.md                               |
-| T3      | Three iPad tests fail on this PC every time (textBoxFree:461, toolsRefresh:60, undoHistory:210)                                             | 0     | cause unknown; task 0.5                                                                     |
+| T3      | Three iPad tests fail on this PC every time (textBoxFree:461, toolsRefresh:60, undoHistory:210)                                             | 0     | cause unknown; task 0.9                                                                     |
 | RD      | Reader: sidebar covers the ✕, blurry top bar, bars hide on their own, Listen long-press                                                     | 7     | in the parked Reader part or its 8 follow-ups                                               |
 | S1      | Settings preview picture too loud (mock condition)                                                                                          | 1     | to do                                                                                       |
 | TA      | "More tools" arrow sits over Backspace                                                                                                      | 2A    | to check in the new tool bar                                                                |

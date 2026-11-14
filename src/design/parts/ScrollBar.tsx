@@ -21,8 +21,20 @@ const reduced = () =>
   typeof matchMedia === 'function' &&
   matchMedia('(prefers-reduced-motion: reduce)').matches
 
+/** True when another box is drawn over the middle of the scroller (the pages panel over the sidebar). */
+function coveredBy(el: HTMLElement, r: DOMRect): boolean {
+  if (r.width === 0 || r.height === 0) return false
+  const hit = document.elementFromPoint(
+    r.left + r.width / 2,
+    r.top + r.height / 2,
+  )
+  return !!hit && !el.contains(hit) && !hit.contains(el)
+}
+
 type Read = {
   rect: { right: number; top: number; height: number; width: number }
+  /** Something else (a panel, a sheet) is drawn over the scroller. */
+  covered: boolean
   scrollTop: number
   scrollH: number
   clientH: number
@@ -66,6 +78,7 @@ export function ScrollBar({
       const r = el.getBoundingClientRect()
       const next: Read = {
         rect: { right: r.right, top: r.top, height: r.height, width: r.width },
+        covered: coveredBy(el, r),
         scrollTop: el.scrollTop,
         scrollH: el.scrollHeight,
         clientH: el.clientHeight,
@@ -76,6 +89,7 @@ export function ScrollBar({
         old.rect.top === next.rect.top &&
         old.rect.height === next.rect.height &&
         old.rect.width === next.rect.width &&
+        old.covered === next.covered &&
         old.scrollTop === next.scrollTop &&
         old.scrollH === next.scrollH &&
         old.clientH === next.clientH
@@ -116,7 +130,8 @@ export function ScrollBar({
     [scroller, stops],
   )
 
-  if (!scroller || !state || state.rect.width === 0) return null
+  if (!scroller || !state || state.rect.width === 0 || state.covered)
+    return null
   const track = Math.max(0, state.rect.height - ARROW * 2)
   const g = barGeometry(state.scrollTop, state.scrollH, state.clientH, track)
   if (!g) return null

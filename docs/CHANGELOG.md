@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: fix-scroll slice (iPad findings F2, F3, F4, F6, F8; flag foundation.shell)
+
+- What: ONE shared scroll bar part (src/design/parts/ScrollBar.tsx, scrollBarLogic.ts, ScrollBar.css, useScroller.ts): visible track, a thumb at full muted ink, an arrow at each end that dims at its end, tokens only, 20 px wide (the page bar was 24, arrows 34 not 40). Used by the Notebooks sidebar, the pages panel (classic and V2) and the page (PageScrollBar is now a thin user with sheet stops). The sidebar is one scroller, so rows and empty space scroll alike. The Notebooks sidebar no longer lists Review / All cards / All summaries (the Review space keeps them). useFrameSize re-reads the window size after a resize because iPad Safari reports the old size for a moment after a turn.
+- Why: owner iPad test 14 Nov (F2 empty space did not scroll, F3 bar too faint, F4 duplicate rows, F6 one behaviour everywhere, F8 layout broke after turning the iPad). Other lists keep the fading hint handle (scrollHints.ts); moving them to the shared bar is left for a later slice.
+- Files: src/design/parts/ScrollBar._, src/design/parts/scrollBarLogic._, src/design/parts/useScroller.ts, src/paper/PageScrollBar.tsx, src/notebooks/Sidebar.tsx, src/app/panel/LeftPanel.tsx, src/app/panel/v2/PanelV2.tsx, src/app/shell/useFrameSize.ts, src/index.css, src/i18n parts texts (en, es, hi), e2e/scrollFrame.spec.ts
+
 ### 14 Nov 2026: build/next red fixed after storage safety (CI 43528030714)
 
 - What: a failed chunk download no longer reloads the app when offline, and waits 1 s so a page being left is not reloaded; Try new features expects 26 switches (storage.safety added); SS-07 measures the phone banner in the bundled Inter font, not the test machine's fallback.

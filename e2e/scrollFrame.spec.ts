@@ -208,3 +208,19 @@ test.describe('F2 / F3 / F6 one scroll bar, scroll from anywhere', () => {
     ).toBeDisabled()
   })
 })
+
+test.describe('a bar never shows over a panel that covers its list', () => {
+  test.use({ viewport: { width: 1180, height: 560 } })
+  test('the sidebar bar hides while the pages panel is open over the sidebar', async ({
+    page,
+  }) => {
+    await page.goto(ON)
+    for (let i = 1; i <= 6; i++)
+      await createNotebook(page, `Book ${i}`, `Page ${i}`)
+    await expect(page.locator('[data-scrollbar-root]').first()).toBeVisible()
+    await page.getByTestId('panel-toggle').click()
+    await expect(page.getByTestId('left-panel')).toBeVisible()
+    // The panel is short (one page): no bar of its own, and the covered sidebar shows none.
+    await expect(page.locator('[data-scrollbar-root]')).toHaveCount(0)
+  })
+})

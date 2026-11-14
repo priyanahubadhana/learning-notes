@@ -1,5 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
+import { fileURLToPath } from 'node:url'
 import { expect, test, type Page } from '@playwright/test'
 import { createNotebook, typeInEditor } from './helpers.ts'
 
@@ -17,6 +18,12 @@ const CHROME_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 const OLD_FULL = 'This device is out of space'
 const banner = (page: Page) => page.getByTestId('attention-banner')
+const INTER_WOFF2 = fileURLToPath(
+  new URL(
+    '../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2',
+    import.meta.url,
+  ),
+)
 
 /** A save refused by the browser (reaches reportError like a real one). */
 async function failSave(page: Page, name: string) {
@@ -422,7 +429,24 @@ test.describe('phone', () => {
   test('SS-07: text wraps, nothing clipped, buttons 44 pt', async ({
     page,
   }) => {
+    // An Apple device shows this in SF and the app loads no font for it.
+    // The test machine has no SF, so its own fallback (DejaVu Sans on the
+    // Linux CI, much wider) would decide the line count. Measure in Inter,
+    // the app's bundled font and the next one in --font-sans after SF.
+    await page.route('**/__test-inter.woff2', (r) =>
+      r.fulfill({ path: INTER_WOFF2, contentType: 'font/woff2' }),
+    )
     await page.goto(`${ON}#/`)
+    await page.addStyleTag({
+      content: `@font-face { font-family: 'Test Inter'; font-weight: 100 900;
+        src: url('/__test-inter.woff2') format('woff2-variations'); }
+        .fb-banner { font-family: 'Test Inter'; }`,
+    })
+    expect(
+      await page.evaluate(
+        async () => (await document.fonts.load('14px "Test Inter"')).length,
+      ),
+    ).toBe(1)
     const b = banner(page)
     for (const code of ['homeScreen', 'storageFull', 'storageLost']) {
       if (code === 'storageFull') await failSave(page, 'QuotaExceededError')

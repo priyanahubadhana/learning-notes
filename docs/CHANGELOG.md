@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: build/next red fixed after storage safety (CI 43528030714)
+
+- What: a failed chunk download no longer reloads the app when offline or while the page is being left; Try new features expects 26 switches (storage.safety added); SS-07 measures the phone banner in the bundled Inter font, not the test machine's fallback.
+- Why: U10 (iPad): offline, an idle prefetch failed and the reload dropped the open notes and update notice. SS-01e (iPad): a download aborted by leaving the page reloaded the old address and cancelled the navigation. SS-07: an iPad UA loads no Inter and the Linux CI has no SF, so wide DejaVu gave 4 lines.
+- Files: src/app/chunkReload.ts, src/app/chunkReload.test.ts, e2e/storageSafety.spec.ts, e2e/tryNewFeatures.spec.ts
+
 ### 13 Nov 2026: storage safety built (flag storage.safety, OFF)
 
 - What: SS-01 to SS-09. Home Screen notice in a Safari tab (Show how pop-up with 3 steps), one-tap backup (pop-up, banner, Settings › This device "Back up now"), calm banners for a full device and a lost database. Banner kinds `install` and `storage`; alert codes `storageLost`, `storageFull`, `homeScreen`; `reportError` hands storage errors to the watcher while the flag is ON. Fix: the shared Banner now loads its close-button style (it was 14 px tall on its own).

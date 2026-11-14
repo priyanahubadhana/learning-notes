@@ -26,6 +26,12 @@ const WATCH_FIRST = PRIORITY.gesture + 1000
 const KEY = 'learning-notes:perf.slow'
 export const KEEP = 50
 const TICK_MS = 500
+/**
+ * The freeze recorder ticks faster: a late tick shows the block minus the
+ * part of the wait that had passed, so a 500 ms tick could report a 900 ms
+ * block as 400 ms (seen on iPad WebKit, which has no long-task API).
+ */
+const FREEZE_TICK_MS = 100
 const STALL_MS = 250
 const LONG_TASK_MS = 50
 
@@ -220,6 +226,7 @@ export function startSlowMoments(opts: { minMs?: number } = {}): () => void {
   const stops: (() => void)[] = [watchActions()]
   const longMs = Math.max(LONG_TASK_MS, opts.minMs ?? 0)
   const stallMs = Math.max(STALL_MS, opts.minMs ?? 0)
+  const tick = opts.minMs ? FREEZE_TICK_MS : TICK_MS
   const visible = () => document.visibilityState === 'visible'
   if (typeof PerformanceObserver !== 'undefined') {
     try {
@@ -250,10 +257,10 @@ export function startSlowMoments(opts: { minMs?: number } = {}): () => void {
     last = performance.now()
     timer = setInterval(() => {
       const now = performance.now()
-      const late = now - last - TICK_MS
+      const late = now - last - tick
       last = now
       if (late >= stallMs && visible()) noteSlowMoment('stall', late)
-    }, TICK_MS)
+    }, tick)
   }
   if (visible()) startTimer()
   const onVisibility = () => {

@@ -47,10 +47,10 @@ describe('F7 freeze recorder: blocks over 500 ms with what was going on', () => 
     document
       .querySelector('button')!
       .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
-    now += 800 // 300 ms late: below the freeze line
-    vi.advanceTimersByTime(500)
-    now += 1200 // 700 ms late
-    vi.advanceTimersByTime(500)
+    now += 400 // 300 ms late: below the freeze line
+    vi.advanceTimersByTime(100)
+    now += 800 // 700 ms late
+    vi.advanceTimersByTime(100)
     stop()
     const list = readSlowMoments()
     expect(list).toHaveLength(1)

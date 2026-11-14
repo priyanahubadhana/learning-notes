@@ -424,6 +424,9 @@ export function PageView({
   )
   const hintPage = useMemo(() => hintPageOk(page.id), [page.id])
   const blankPage = useLiveQuery(() => isPageBlank(db, page.id), [db, page.id])
+  /** The "tap to add a box" hint shows on this page (the one hint of TB-42). */
+  const showHint =
+    hintPage && !!blankPage && !!boxes.onAddBox && !page.boxes?.length
   /** The page editor of one box (unset = the default box, as before). */
   const editorOf = (boxId?: string) => (
     <PageEditor
@@ -441,7 +444,7 @@ export function PageView({
       reading={view === 'off' ? undefined : { view }}
       boxId={boxId}
       autoFocus={boxId ? boxId === boxes.fresh : autoFocusTitle && !reader}
-      waitForText={!boxId && isOn('textbox.v2') && !!blankPage}
+      waitForText={!boxId && isOn('textbox.v2') && showHint}
       key={boxId ?? 'main'}
     />
   )
@@ -676,9 +679,7 @@ export function PageView({
             onDeleteBox={editLockBy ? undefined : boxes.onDeleteBox}
             renderBar={boxes.renderBar}
             onInkOnPaper={boxes.onInkOnPaper}
-            showHint={
-              hintPage && !!blankPage && !!boxes.onAddBox && !page.boxes?.length
-            }
+            showHint={showHint}
           >
             {editorOf()}
           </PaperFrame>

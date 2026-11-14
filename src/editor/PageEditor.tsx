@@ -38,6 +38,7 @@ import { listBlocks } from '../core/blockService'
 import { blocksOfBox, tagDrafts } from './boxScope'
 import { activeBox, boxEditors, useOwnsBar } from '../paper/activeBox'
 import { MAIN_BOX } from '../paper/boxes'
+import { NARROW_PX } from '../paper/sheets'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import { pageEditLock } from '../core/editLock'
@@ -1032,15 +1033,19 @@ function LoadedPageEditor({
           />
         </ToolsBoundary>
       </div>
-      {bar.mode !== 'computer' && !frozen && !extraBox && !waitForText && (
-        <button
-          type="button"
-          onClick={() => focusEndLine(editor)}
-          className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
-        >
-          {t('bar.tapBelow')}
-        </button>
-      )}
+      {bar.mode !== 'computer' &&
+        !frozen &&
+        !extraBox &&
+        (!waitForText || window.innerWidth < NARROW_PX) && (
+          <button
+            type="button"
+            onClick={() => focusEndLine(editor)}
+            className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
+          >
+            {/* Empty page (TB-42): the line below is the one hint, in its own words. */}
+            {t(waitForText ? 'textTool.hintV2' : 'bar.tapBelow')}
+          </button>
+        )}
       {docked && (layout.short === 'bottom' || layout.ribbon === 'bottom') && (
         // Room under the last line, so the fixed bars never cover text.
         <div

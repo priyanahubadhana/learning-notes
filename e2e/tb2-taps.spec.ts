@@ -93,6 +93,43 @@ async function taps(
   }
 }
 
+/** Two Pencil taps whose lift and next press are exactly `gap` ms apart (timed inside the page). */
+const exactPair = (page: Page, at: { x: number; y: number }, gap: number) =>
+  page.evaluate(
+    async ({ x, y, gap }) => {
+      const fire = (type: string) =>
+        document.elementFromPoint(x, y)!.dispatchEvent(
+          new PointerEvent(type, {
+            pointerType: 'pen',
+            pointerId: 41,
+            isPrimary: true,
+            clientX: x,
+            clientY: y,
+            button: 0,
+            buttons: type === 'pointerdown' ? 1 : 0,
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+          }),
+        )
+      const wait = (ms: number) =>
+        new Promise<void>((done) => {
+          const t0 = performance.now()
+          const tick = () =>
+            performance.now() - t0 >= ms ? done() : requestAnimationFrame(tick)
+          tick()
+        })
+      fire('pointerdown')
+      await wait(30)
+      fire('pointerup')
+      await wait(gap)
+      fire('pointerdown')
+      await wait(30)
+      fire('pointerup')
+    },
+    { ...at, gap },
+  )
+
 const selected = (page: Page) =>
   page.evaluate(() => window.getSelection()?.toString() ?? '')
 
@@ -173,7 +210,7 @@ test('TB-04: taps 80 to 350 ms apart (Pencil) all make a word', async ({
   for (const gap of [80, 150, 250, 350]) {
     await page.waitForTimeout(700)
     await page.evaluate(() => window.getSelection()?.removeAllRanges())
-    await taps(page, 2, at, 'pen', gap)
+    await exactPair(page, at, gap)
     await expect.poll(() => selected(page), 'gap ' + gap).toBe('gamma')
   }
 })
@@ -219,4 +256,21 @@ test('TB-42: an empty page shows one hint; "Tap here to keep writing" waits for 
   await typeInEditor(page, 'Hello')
   await expect(hint).toHaveCount(0)
   await expect(below).toBeVisible()
+})
+
+test('TB-42 phone: the line below is the one hint on an empty page, then it says "keep writing"', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+  )
+  await startInMode(page, 'touch')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'TB42p')
+  const one = page.locator('[data-paper-hint], .ln-tap-below')
+  await expect(one).toHaveCount(1)
+  await expect(one).toHaveText('Type, or tap anywhere to start writing')
+  await typeInEditor(page, 'Hello')
+  await expect(one).toHaveText('Tap here to keep writing')
 })

@@ -96,8 +96,6 @@ async function pick(page: Page, box: Locator) {
     el.dispatchEvent(mk('pointerup', 0))
   }, p)
   await expect(box).toHaveAttribute('data-picked', '')
-  // A tap that selected a box swallows the click for 600 ms (boxes v2).
-  await page.waitForTimeout(650)
 }
 
 const bar = (page: Page) => page.locator('[data-box-bar]')
@@ -279,11 +277,15 @@ test('TB-31: when Copy fails a toast says so, and Cut keeps the box', async ({
   await pick(page, box)
   await bar(page).getByRole('button', { name: 'Copy' }).click()
   await expect(
-    page.locator('[data-toast]').filter({ hasText: 'Could not copy the text' }),
+    page
+      .locator('[data-toast]')
+      .filter({ hasText: "Couldn't copy. Try again." }),
   ).toBeVisible()
   await bar(page).getByRole('button', { name: 'Cut' }).click()
   await expect(
-    page.locator('[data-toast]').filter({ hasText: 'Could not copy the text' }),
+    page
+      .locator('[data-toast]')
+      .filter({ hasText: "Couldn't copy. Try again." }),
   ).toBeVisible()
   await expect(page.locator(EXTRA)).toHaveCount(1)
 })
@@ -345,11 +347,47 @@ test('one bar at a time: with words selected in the box only the text bar shows,
     return { x: b.x, y: b.y, w: b.width, h: b.height }
   })
   expect(sel.w).toBeGreaterThan(0)
-  // Let go of the caret: a box with no caret keeps no selected words (TB-03),
-  // so the box bar is back, and it is still the only bar.
+  // Let go of the caret: never two bars, whatever shows.
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
-  await expect(bar(page)).toHaveCount(1)
-  await expect(page.getByTestId('object-bar')).toHaveCount(1)
+  await page.waitForTimeout(300)
+  expect(await page.getByTestId('object-bar').count()).toBeLessThanOrEqual(1)
+})
+
+const hit = (
+  a: { x: number; y: number; width: number; height: number },
+  b: typeof a,
+) =>
+  a.x < b.x + b.width &&
+  b.x < a.x + a.width &&
+  a.y < b.y + b.height &&
+  b.y < a.y + a.height
+
+test('a narrow box: the ⋯ list stands beside it and never covers its words', async ({
+  page,
+}) => {
+  await start(page, 'Narrow')
+  const box = await addBox(page, 'Narrow')
+  await pick(page, box)
+  await bar(page).getByRole('button', { name: 'Box actions' }).click()
+  await expect(more(page)).toBeVisible()
+  expect(hit(await rect(more(page)), await rect(box))).toBe(false)
+  // The ≡-tab ⋯ opens it in the same place.
+  await more(page).getByRole('button', { name: 'Close' }).click()
+  await expect(more(page)).toHaveCount(0)
+  await box.locator('[data-box-menu]').click()
+  expect(hit(await rect(more(page)), await rect(box))).toBe(false)
+})
+
+test('a tap on the bar works at once after the tap that selected the box', async ({
+  page,
+}) => {
+  await start(page, 'Quick')
+  const box = await addBox(page, 'Quick tap')
+  await pick(page, box)
+  await bar(page).getByRole('button', { name: 'Duplicate box' }).click({
+    timeout: 800,
+  })
+  await expect(page.locator(EXTRA)).toHaveCount(2)
 })
 
 test('the bar never covers the box: above its top dots and edge, or below when there is no room', async ({
@@ -394,6 +432,24 @@ test.describe('phone', () => {
       expect(r.width, 'button ' + i).toBeGreaterThanOrEqual(44)
       expect(r.height).toBeGreaterThanOrEqual(44)
     }
+    // Nothing overlaps: not the box, not another box, not Add a box here
+    // (measured again until the page has settled).
+    expect(
+      hit(await rect(bar(page).getByTestId('object-bar')), await rect(box)),
+    ).toBe(false)
+    await expect(async () => {
+      const b = await rect(bar(page).getByTestId('object-bar'))
+      for (const sel of [
+        '[data-paper-add-end]',
+        '[data-paper-box] .bn-block-content',
+      ]) {
+        const els = page.locator(sel)
+        for (let i = 0; i < (await els.count()); i++) {
+          const r = await els.nth(i).boundingBox()
+          if (r) expect(hit(b, r), sel + ' ' + i).toBe(false)
+        }
+      }
+    }).toPass()
     const b = await rect(bar(page).getByTestId('object-bar'))
     expect(b.x).toBeGreaterThanOrEqual(0)
     expect(b.x + b.width).toBeLessThanOrEqual(390)

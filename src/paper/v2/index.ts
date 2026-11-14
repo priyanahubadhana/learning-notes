@@ -52,6 +52,9 @@ export function installBoxV2(): () => void {
   /** The tap that only selected a box makes no click on the text under it. */
   const stopClick = (e: Event) => {
     if (Date.now() >= swallowUntil) return
+    // Only the words of that tap: a bar, a menu or any button answers at once.
+    const t = e.target instanceof Element ? e.target : null
+    if (!t?.closest('.ProseMirror') || t.closest(OWN_TAP)) return
     e.preventDefault()
     e.stopImmediatePropagation()
   }

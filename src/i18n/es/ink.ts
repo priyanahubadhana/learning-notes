@@ -390,7 +390,7 @@ export const esInk = {
   'paper.addBoxEnd': 'Añadir un cuadro aquí',
   'paper.bar.label': 'Formato del cuadro',
   'paper.box.colour': 'Color',
-  'paper.box.copyFailed': 'No se pudo copiar el texto',
+  'paper.box.copyFailed': 'No se pudo copiar. Inténtalo de nuevo.',
   'paper.box.delete': 'Eliminar el cuadro',
   'paper.box.deleted': 'Cuadro eliminado.',
   'paper.box.duplicate': 'Duplicar el cuadro',

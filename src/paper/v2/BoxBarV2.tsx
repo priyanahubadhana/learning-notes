@@ -19,6 +19,18 @@ function boxText(pageId: string, boxId: string): string {
 const SAFE_TOP = 12
 /** Under a box the bar clears the 8 dots, which sit 16 px outside the edge. */
 const BELOW_GAP = 24
+/** Above a box the bar clears the tab row (44 pt + its 28 px margin). */
+const ABOVE_GAP = 72
+
+/** The element that scrolls the page this bar sits in. */
+function scrollerOf(from: Element): HTMLElement | null {
+  for (let n = from.parentElement; n; n = n.parentElement) {
+    const o = getComputedStyle(n).overflowY
+    if ((o === 'auto' || o === 'scroll') && n.scrollHeight > n.clientHeight)
+      return n
+  }
+  return null
+}
 
 /** Is the caret in this box, or any of its words selected? */
 function textActiveIn(boxId: string): boolean {
@@ -54,6 +66,10 @@ export default function BoxBarV2({
 }) {
   const { toast } = useContext(AppUiContext)
   const wrap = useRef<HTMLDivElement>(null)
+  // The ⋯ list is a lazy piece: fetch it now, so the first ⋯ tap shows it at once.
+  useEffect(() => {
+    void import('./BoxMoreHost')
+  }, [])
   // One bar at a time: while the caret or selected words are in the box, the
   // text bar is the one that shows (spec: the box bar shows when you are NOT
   // typing), so this one steps aside.
@@ -73,19 +89,57 @@ export default function BoxBarV2({
   useEffect(() => {
     const el = wrap.current
     if (!el || typeof IntersectionObserver === 'undefined') return
+    let moved = false
     const fit = () => {
       el.style.translate = '0 0'
       const r = el.getBoundingClientRect()
-      if (r.top >= SAFE_TOP) return
-      // No room above: go under the box (never over its top dots or text);
-      // only when that does not fit either, stay at the top of the screen.
-      const box = el.closest('[data-paper-box]')?.getBoundingClientRect()
-      const under = box ? box.bottom + BELOW_GAP : null
-      const fits =
-        under !== null &&
-        under >= SAFE_TOP &&
-        under + r.height <= innerHeight - SAFE_TOP
-      const to = fits ? under : SAFE_TOP
+      const frame = el.closest('[data-paper-box]')
+      const box = frame?.getBoundingClientRect()
+      if (!frame || !box) return
+      // Above the box (clear of its tab row), else under it (clear of its dots),
+      // always off other text and off the Add-a-box button; the top 12 px of
+      // the screen stay free. Nothing fits: the top of the screen.
+      const others = [
+        ...document.querySelectorAll(
+          '[data-paper-box] .bn-block-content, [data-paper-add-end]',
+        ),
+      ]
+        .filter((n) => !frame.contains(n))
+        .map((n) => n.getBoundingClientRect())
+        .filter((o) => o.height > 0)
+      // The room is what the page shows (a bottom bar is not room).
+      const scroller = scrollerOf(el)
+      const room = scroller
+        ? scroller.getBoundingClientRect().bottom
+        : innerHeight
+      const free = (top: number) =>
+        top >= SAFE_TOP &&
+        top + r.height <= room - SAFE_TOP &&
+        !others.some((o) => o.top < top + r.height && o.bottom > top)
+      const above = box.top - ABOVE_GAP - r.height
+      const below = box.bottom + BELOW_GAP
+      const add = document
+        .querySelector('[data-paper-add-end]')
+        ?.getBoundingClientRect()
+      const beyond = add ? add.bottom + 8 : below
+      const to = free(above)
+        ? above
+        : free(below)
+          ? below
+          : free(beyond)
+            ? beyond
+            : null
+      if (to === null) {
+        // Nothing is free: the page moves up (once) to make room under the box.
+        const need = beyond + r.height + SAFE_TOP - room
+        if (scroller && need > 0 && !moved) {
+          moved = true
+          scroller.scrollBy(0, need)
+          requestAnimationFrame(fit)
+        }
+        el.style.translate = `0 ${Math.min(beyond, room - SAFE_TOP - r.height) - r.top}px`
+        return
+      }
       el.style.translate = `0 ${to - r.top}px`
     }
     fit()

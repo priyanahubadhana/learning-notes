@@ -225,6 +225,11 @@ const isPicked = (dom: HTMLElement): boolean =>
 /** The browser's own mouse events of a box-selecting tap are cancelled. */
 function swallowCaret(doc: Document) {
   const stop = (ev: Event) => {
+    // Why: only the words under the tap are held back. A button, a bar or a
+    // menu tapped right after (the box bar, its ⋯ list) answers at once.
+    const to = ev.target instanceof Element ? ev.target : null
+    if (to?.closest('button, a, [role="menu"], [data-box-bar], [data-ui]'))
+      return
     ev.preventDefault()
     ev.stopPropagation()
   }

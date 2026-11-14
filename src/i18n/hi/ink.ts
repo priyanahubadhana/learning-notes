@@ -385,7 +385,7 @@ export const hiInk = {
   'paper.addBoxEnd': 'यहाँ बॉक्स जोड़ें',
   'paper.bar.label': 'बॉक्स का फ़ॉर्मैट',
   'paper.box.colour': 'रंग',
-  'paper.box.copyFailed': 'टेक्स्ट कॉपी नहीं हो सका',
+  'paper.box.copyFailed': 'कॉपी नहीं हो सकी। फिर से कोशिश करें।',
   'paper.box.delete': 'बॉक्स हटाएँ',
   'paper.box.deleted': 'बॉक्स हटाया गया।',
   'paper.box.duplicate': 'बॉक्स की कॉपी बनाएँ',

@@ -7,6 +7,8 @@ import { t } from '../../i18n/t'
 import type { GridInfo } from '../layoutPlan'
 import { BoxMoreList, type MoreRow } from './BoxMoreList'
 import { moveStep, neighbourOf } from './boxOrder'
+import { placeList } from './listPlace'
+import { MORE_LIST_W } from './BoxMoreList'
 
 /**
  * TB-30 (switch textbox.v2): the ⋯ list of one box. Both ⋯ buttons open it:
@@ -38,8 +40,18 @@ export default function BoxMoreHost({
   onLock: (locked: boolean) => void
 }) {
   const id = useId()
+  // Beside or under the box, never over its words.
+  const boxEl = document.querySelector(
+    '[data-paper-box="' + CSS.escape(box.id) + '"]',
+  )
+  const spot = boxEl
+    ? placeList(boxEl.getBoundingClientRect(), MORE_LIST_W, {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      })
+    : null
   const menu: AnchoredMenuState = {
-    at,
+    at: spot ? new DOMRect(spot.right - 1, 0, 1, spot.bottom) : at,
     opener: null,
     id,
     open: true,

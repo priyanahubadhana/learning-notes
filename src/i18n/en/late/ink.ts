@@ -375,7 +375,7 @@ export const enLateInk = {
   'paper.addBoxEnd': 'Add a box here',
   'paper.bar.label': 'Box format',
   'paper.box.colour': 'Colour',
-  'paper.box.copyFailed': 'Could not copy the text',
+  'paper.box.copyFailed': "Couldn't copy. Try again.",
   'paper.box.delete': 'Delete box',
   'paper.box.deleted': 'Box deleted.',
   'paper.box.duplicate': 'Duplicate box',

@@ -1,3 +1,4 @@
+import { pressHome } from '../input/pressHome'
 import { domOverlayEvents, type OverlayEvents } from './events'
 import { LAYERS, type Layer } from './layers'
 
@@ -106,7 +107,9 @@ export function createOverlayManager(
   }
 
   /** True when the tap closed an overlay that swallows its outside tap. */
-  function onPointerDown(target: Element): boolean {
+  function onPointerDown(pressed: Element): boolean {
+    // A press on a list's scroll bar counts for that list's box (pressHome, L11).
+    const target = pressHome(pressed)
     if (target.closest('[data-popup-trigger]')) return false
     let swallow = false
     for (const e of [...entries]) {

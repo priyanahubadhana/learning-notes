@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { createNotebook, startInMode } from './helpers.ts'
+import { installRealPen, realPen } from './realPen.ts'
 
 /**
  * P1.1 (first look L4 + L1), all behind the new app frame (foundation.shell).
@@ -18,6 +19,7 @@ test.use({ viewport: { width: 820, height: 1180 }, hasTouch: true })
 
 /** Makes the page long, so its bar shows. */
 async function longPage(page: Page, url = ON, bar = true) {
+  await installRealPen(page)
   await startInMode(page, 'pencil')
   await page.goto(url)
   await createNotebook(page, 'Heart', 'Cardiology')
@@ -33,29 +35,18 @@ async function longPage(page: Page, url = ON, bar = true) {
   return main
 }
 
-/** What a Pencil sends: pointer events with pointerType pen, at a point. */
+/**
+ * A Pencil press as real Safari sends it (realPen.ts, P1.5): the browser's own
+ * events along the steps, not events made up in the page (those hid L11).
+ */
 async function pen(
   page: Page,
   steps: { type: 'down' | 'move' | 'up'; x: number; y: number }[],
 ) {
-  await page.evaluate((list) => {
-    for (const s of list) {
-      const el = document.elementFromPoint(s.x, s.y) ?? document.body
-      el.dispatchEvent(
-        new PointerEvent('pointer' + s.type, {
-          pointerType: 'pen',
-          pointerId: 41,
-          clientX: s.x,
-          clientY: s.y,
-          bubbles: true,
-          cancelable: true,
-          isPrimary: true,
-          button: 0,
-          buttons: s.type === 'up' ? 0 : 1,
-        }),
-      )
-    }
-  }, steps)
+  await realPen(
+    page,
+    steps.filter((s) => s.type !== 'up').map(({ x, y }) => ({ x, y })),
+  )
 }
 
 const centre = async (page: Page, sel: string) => {

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { pressHome } from './input/pressHome'
 
 /**
  * One rule for every pop-up, menu and tray (More, the ⋯ menus, the colour
@@ -112,9 +113,12 @@ export function usePopup(
     }
     open.push(entry)
 
-    const isInside = (target: EventTarget | null) =>
-      target instanceof Element &&
-      (owns(entry, target) || target.closest('[data-popup-trigger]'))
+    // A press on a list's scroll bar counts for that list (pressHome, L11).
+    const isInside = (pressed: EventTarget | null) => {
+      if (!(pressed instanceof Element)) return false
+      const target = pressHome(pressed)
+      return owns(entry, target) || !!target.closest('[data-popup-trigger]')
+    }
     const onDown = (e: Event) => {
       if (!isInside(e.target)) entry.close()
     }

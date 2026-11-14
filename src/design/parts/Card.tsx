@@ -234,11 +234,13 @@ export function Card(props: CardProps) {
             left: pos?.left ?? 0,
             top: pos?.top ?? 0,
             width: pos?.width,
-            maxHeight: pos?.maxHeight,
             visibility: pos ? 'visible' : 'hidden',
             maxHeight: footLift
-              ? Math.max(160, window.innerHeight - footLift - 24)
-              : undefined,
+              ? Math.min(
+                  pos?.maxHeight ?? Infinity,
+                  Math.max(160, window.innerHeight - footLift - 24),
+                )
+              : pos?.maxHeight,
           }
   if (floating && pos?.arrowX != null) style['--arrow-x'] = `${pos.arrowX}px`
   const side = floating ? (pos?.side ?? 'below') : 'below'

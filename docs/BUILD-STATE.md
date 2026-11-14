@@ -14,7 +14,7 @@ Plan: [plans/phase-plan.md](plans/phase-plan.md). How helpers work: [HOW-WE-BUIL
 - **Preview address:** https://build-next.learning-notes-app.pages.dev . The parts the owner tests start ON there (build-next host only); the live address keeps them OFF.
 - **Dexie:** highest version on `build/next` is 24; the manager (the main chat in lean mode, `phase-manager` in the full team) gives out the next number, one task at a time.
 - **Hot files** (one builder at a time, merged alone): `src/App.tsx`, `src/core/db.ts`, `src/core/types.ts`, `src/settings/builtinSettings.ts`, `src/app/flags.ts`, `package.json`, `playwright.config.ts`.
-- **Local tests:** set `PW_PORT` to a free port for a hand-run Playwright; at most 2 iPad runs at once on this PC.
+- **Local tests:** set `PW_PORT` to a free port for a hand-run Playwright; **one** ipad-webkit suite at a time on this PC (measured 14 Nov: with two at once, 9 of 20 repeats of one test failed; alone 20/20); the manager hands the turn out ("webkit free").
 - **Always waits for the owner:** money, logins and Supabase, switching a part ON in the live app, possible data loss, a test on a real device, a real product decision.
 
 ## Refresh command

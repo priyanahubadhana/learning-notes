@@ -10,7 +10,7 @@
 - **Two test sets (owner, 14 Nov 2026):**
   - **Fast set, on every merge:** the unit tests and the key flows (about 10 minutes). A red fast set blocks the merge.
   - **Full set, every night and before each release:** every end-to-end test on Chromium and iPad WebKit. A red full set blocks the release (a phase being switched ON in the live app) and is the first job the next morning.
-  - Until Phase 0 task 0.4 is built, the full set still runs on every push to the code line.
+  - Built 14 Nov (Phase 0 task 0.8): a push to `build/next` (pull request #5) runs the checks and the fast set (the list is `e2e/fastSet.ts`) and publishes the preview; a push to `main` runs the checks, the full set and the deploy; the full set also runs every night at 02:00 IST on `build/next`. A test left out of the fast list still runs in the full set.
 - Related tests (that feature's spec files) run locally before any push. If a test fails, fix the cause before moving on. Never weaken, skip or delete a test. Never push failing code.
 - Owner checks (collected for the phase's first look and its phase-end check-in): only for what tests cannot check (look, feel, layout, ease of use). No fixed number: as many as genuinely needed. Say briefly why each needs human eyes and explain any term the owner may not know.
 - **End of a step:** write a short summary and self-review into docs/CHANGELOG.md and add owner checks to the phase page; then go on to the next step.

@@ -1884,3 +1884,27 @@ What: docs/plans/phase-plan.md and docs/HOW-WE-BUILD.md rewritten with the roles
 ## 14 Nov 2026: Phase 1 page and results record (Fable)
 
 What: docs/plans/phases/phase-1.md; docs/metrics/phase-results.md and tasks.csv; small lines in phase-plan.md, HOW-WE-BUILD.md, rules/phase-end.md and PENDING.md; three old docs files formatted so the format check on main passes. Global: ~/.claude/playbook-results.md and one line each in the global CLAUDE.md and playbook. Why: the owner asked for the numbers to be recorded so a way that works becomes the standard for every project.
+
+## 14 Nov 2026: task 0.12, two safety programs (Sonnet builder, Opus review)
+
+What: scripts/push-guard.mjs now runs ESLint, tsc and the related unit tests on every branch whenever a push changes code (decision in scripts/push-guard-plan.mjs, unit-tested); new read-only scripts/ci-sort.mjs and ci-sort-lib.mjs with `npm run ci:sort`, which sorts a failed test run into plain lines; fixtures from four real runs. Why: 8 of the 19 failed runs of 13 to 14 Nov were simple checks a local run catches, and a lint error reached main unnoticed. Review: FAIL once (test samples not saved to git, one check too narrow, a wrong answer without gh, a missing test), then PASS. Merged f4e90a93. Also: .claude/hooks/on-stop.mjs and mark-mirror.mjs removed and settings changed in the settings review (see DECISIONS).
+
+## 14 Nov 2026: agents research report (owner's request)
+
+What: docs/plans/agents-research-2026-11-14.md added (four Sonnet fact-gatherers, one Opus writer; official Claude Code pages and outside reports read on 14 Nov); a row in docs/INDEX.md; three proposals listed in docs/PENDING.md "Needs you". Why: the owner asked what agents are, whether we use them fully and whether more would help. Finding: more agents would hurt this build; the lean setup matches the official advice. No rule, setting or code was changed.
+
+## 14 Nov 2026: tasks 0.4 and 0.8 done (Fable helper, Opus review PASS); daily cloud check off
+
+What: `main` merged into `build/next` (4d2b12cb), pull request #5 mergeable again. Fast test set: `e2e/fastSet.ts` (36 files, 16 also on iPad), its unit test `scripts/fastSet.test.mjs`, two fast Playwright projects, and a new `.github/workflows/ci.yml` (the same file on `main` c0acc5a5 and `build/next` 42c35e2c): pull requests run checks, fast set and preview; pushes to `main` run checks, full set and deploy; the full set runs nightly at 02:00 IST on `build/next`. Measured: checks plus fast set 9.5 minutes, against 33 to 43 for the full set. Docs: rules/testing.md, docs/HOW-WE-BUILD.md section 5, BUILD-STATE, PENDING, HANDOFF, DECISIONS, the task record. Settings review question 10: the daily cloud check switched off and pull request #6 closed. Why: the owner asked for the fast set now; nobody read the cloud check's note.
+
+## 14 Nov 2026: agents research recommendations applied (owner's word)
+
+What: rules/phase-end.md, the rule check became a rule and memory tidy-up at every phase end; task 0.13 added to docs/plans/phase-plan.md and docs/BUILD-STATE.md (trial of the builder's own-copy setting after 0.7 and 0.11); docs/PENDING.md and docs/DECISIONS.md updated; one line added to the owner's global playbook. Why: the owner asked to add the research recommendations. The stop check was left out because the push guard already does that job.
+
+## 14 Nov 2026: reviewer locked; thinking effort back to the defaults
+
+What: .claude/agents/reviewer.md gets `disallowedTools: Edit, Write, NotebookEdit` (the same in the owner's global reviewer file); the custom `modelSettings` block removed from the user settings. Why: the owner said yes to the lock (a setting instead of a promise, from the agents research); the effort change was decided in the settings review and waited for the end of the planning session.
+
+## 14 Nov 2026: 47 unused working copies removed (settings review question 11)
+
+What: `git worktree remove` on 47 clean, merged copies; 19 remain. Six folders were left half-deleted by Windows and wait for the owner's word, with two other groups (list in docs/DECISIONS.md). Docs: a packages-link warning in docs/HOW-WE-BUILD.md section 8; BUILD-STATE row 0.11; PENDING (three open questions); the Phase 1 page (the switch-name point is decided, the scroll fix id is current). Why: the owner chose option A. Finding: many copies hold `node_modules` as a link to the main packages, so no folder is ever deleted recursively.

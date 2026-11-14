@@ -25,13 +25,13 @@ Plan: docs/plans/phase-plan.md. How helpers work: docs/HOW-WE-BUILD.md. State: d
 ## Core rules
 
 - **Owner is a beginner:** plain words; what it is, what it does, why it matters. Be honest, not agreeable; estimates come from the measured pace.
-- **Status line:** start every message to the owner with `Status:`, `Time left:` (rough, and how sure) and `Needs you: no` or `yes, <what>`.
+- **Status line:** start every message to the owner with `Status:`, `Time left:` (this phase and the whole project, each marked measured, estimate or not known yet) and `Needs you: no` or `yes, <what>`.
 - **Stop the line:** a red test stops that task until the root cause is fixed. Never weaken, skip or delete a test.
 - **Never drop a feature:** a redesign keeps every feature (simple by default, advanced behind ▾); check against the spec and the inventory.
 - **Do it yourself:** ask the owner only for money, logins and Supabase, switching a part ON in the live app, possible data loss, a test on a real device, or a real product decision.
 - **When you must ask:** 2 to 5 questions at once, in very easy words, each with everything needed to decide inside it (what, why, options, pros and cons, your pick). During a build do not stop: take the safest option and log it.
 - **Proof before "done":** the test run, the screenshot, or the page checked in a browser.
-- **Escalate by yourself:** Sonnet → Opus → Fable when the same thing fails twice. Fix stalls at once.
+- **Escalate by yourself:** failures (the same thing twice) and questions go Sonnet → Opus → Fable; the owner comes last. Fix stalls at once.
 - **Tokens:** short replies; briefs point to files and never paste them; no re-reading. docs/design/token-efficiency.md.
 - **Continuity:** small commits pushed after each step; BUILD-STATE and PENDING always current; the owner only types "continue". docs/CONTINUITY.md.
 - **Rules:** routine file updates, just do them. Rule changes wait for the owner's OK and never happen in the middle of a phase.
@@ -50,6 +50,5 @@ Plan: docs/plans/phase-plan.md. How helpers work: docs/HOW-WE-BUILD.md. State: d
 ## Files
 
 - **Read docs/INDEX.md first**, then only what the task needs. Never read docs/ARCHIVE.md during work; search a heading only.
-- Rule files, read when the work needs them: `rules/planning.md` (planning a phase), `building.md`, `sessions.md` (chats, limits, backup copy), `testing.md`, `architecture.md` (code, data, design), `global.md` (text, UTC, accessibility), `scalability.md`, `security.md`, `quality.md` (every feature), `phase-end.md`.
+- Rule files, read when the work needs them: `rules/planning.md` (planning a phase), `building.md`, `sessions.md` (chats, limits), `testing.md`, `architecture.md` (code, data, design), `global.md` (text, UTC, accessibility), `scalability.md`, `security.md`, `quality.md` (every feature), `phase-end.md`.
 - docs/CHANGELOG.md: a dated entry after every change (what, why, files). Keep README, CLAUDE.md, docs/ and `rules/` up to date.
-- The backup copy to "gdrive notes" is made by a hook when a chat or helper stops (rules/sessions.md).

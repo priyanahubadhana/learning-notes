@@ -1,0 +1,34 @@
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	﻿2026-11-13T23:39:55.4374905Z ##[group]Run npx playwright test --project=ipad-webkit --shard=2/2
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-13T23:39:55.4375316Z ^[[36;1mnpx playwright test --project=ipad-webkit --shard=2/2^[[0m
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-13T23:47:04.1917511Z   ✘   98 [ipad-webkit] › e2e/storageSafety.spec.ts:107:3 › Safari tab on iPad › SS-01e: signed out, no notice (1.2s)
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-13T23:47:06.0165738Z   ✘  100 [ipad-webkit] › e2e/storageSafety.spec.ts:107:3 › Safari tab on iPad › SS-01e: signed out, no notice (retry #1) (1.2s)
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-13T23:47:57.0102349Z   ✘  122 [ipad-webkit] › e2e/storageSafety.spec.ts:422:3 › phone › SS-07: text wraps, nothing clipped, buttons 44 pt (1.8s)
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-13T23:47:59.7524386Z   ✘  124 [ipad-webkit] › e2e/storageSafety.spec.ts:422:3 › phone › SS-07: text wraps, nothing clipped, buttons 44 pt (retry #1) (1.9s)
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-13T23:57:25.8943148Z   ✘  257 [ipad-webkit] › e2e/tryNewFeatures.spec.ts:26:1 › Try new features: every switch starts off, one can be turned on and stays on (17.2s)
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-13T23:57:43.1182590Z   ✘  261 [ipad-webkit] › e2e/tryNewFeatures.spec.ts:26:1 › Try new features: every switch starts off, one can be turned on and stays on (retry #1) (16.7s)
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:00:23.4005732Z   ✘  278 [ipad-webkit] › e2e/updateV2.spec.ts:176:1 › U10 offline: the notes stay open, the countdown starts when back online (19.9s)
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:00:44.6850203Z   ✘  282 [ipad-webkit] › e2e/updateV2.spec.ts:176:1 › U10 offline: the notes stay open, the countdown starts when back online (retry #1) (20.4s)
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3018548Z   1) [ipad-webkit] › e2e/storageSafety.spec.ts:107:3 › Safari tab on iPad › SS-01e: signed out, no notice 
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3036141Z   2) [ipad-webkit] › e2e/storageSafety.spec.ts:422:3 › phone › SS-07: text wraps, nothing clipped, buttons 44 pt 
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3051264Z   3) [ipad-webkit] › e2e/tryNewFeatures.spec.ts:26:1 › Try new features: every switch starts off, one can be turned on and stays on 
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3070019Z   4) [ipad-webkit] › e2e/updateV2.spec.ts:176:1 › U10 offline: the notes stay open, the countdown starts when back online 
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3088249Z   4 failed
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3088641Z     [ipad-webkit] › e2e/storageSafety.spec.ts:107:3 › Safari tab on iPad › SS-01e: signed out, no notice 
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3089344Z     [ipad-webkit] › e2e/storageSafety.spec.ts:422:3 › phone › SS-07: text wraps, nothing clipped, buttons 44 pt 
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3090008Z     [ipad-webkit] › e2e/tryNewFeatures.spec.ts:26:1 › Try new features: every switch starts off, one can be turned on and stays on 
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3090664Z     [ipad-webkit] › e2e/updateV2.spec.ts:176:1 › U10 offline: the notes stay open, the countdown starts when back online 
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3091035Z   14 skipped
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3091198Z   288 passed (22.4m)
+pencil-webkit (2)	Run npx playwright test --project=ipad-webkit --shard=2/2	2026-11-14T00:02:17.3238223Z ##[error]Process completed with exit code 1.
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-13T23:45:53.1867818Z   ✘  171 [chromium] › e2e/storageSafety.spec.ts:422:3 › phone › SS-07: text wraps, nothing clipped, buttons 44 pt (1.7s)
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-13T23:45:56.6692195Z   ✘  177 [chromium] › e2e/storageSafety.spec.ts:422:3 › phone › SS-07: text wraps, nothing clipped, buttons 44 pt (retry #1) (2.1s)
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-14T00:02:02.6317539Z   ✘  534 [chromium] › e2e/tryNewFeatures.spec.ts:26:1 › Try new features: every switch starts off, one can be turned on and stays on (12.2s)
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-14T00:02:16.4901745Z   ✘  538 [chromium] › e2e/tryNewFeatures.spec.ts:26:1 › Try new features: every switch starts off, one can be turned on and stays on (retry #1) (11.8s)
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-14T00:06:13.3926553Z   1) [chromium] › e2e/storageSafety.spec.ts:422:3 › phone › SS-07: text wraps, nothing clipped, buttons 44 pt 
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-14T00:06:13.3963993Z   2) [chromium] › e2e/tryNewFeatures.spec.ts:26:1 › Try new features: every switch starts off, one can be turned on and stays on 
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-14T00:06:13.3997220Z   2 failed
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-14T00:06:13.3998121Z     [chromium] › e2e/storageSafety.spec.ts:422:3 › phone › SS-07: text wraps, nothing clipped, buttons 44 pt 
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-14T00:06:13.3999592Z     [chromium] › e2e/tryNewFeatures.spec.ts:26:1 › Try new features: every switch starts off, one can be turned on and stays on 
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-14T00:06:13.4000511Z   93 skipped
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-14T00:06:13.4000868Z   499 passed (26.7m)
+e2e (4)	Run npx playwright test --project=chromium --shard=4/4	2026-11-14T00:06:13.4512975Z ##[error]Process completed with exit code 1.

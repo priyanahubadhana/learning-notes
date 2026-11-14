@@ -1,0 +1,16 @@
+checks	Run npm test	﻿2026-11-13T19:34:50.2771261Z ##[group]Run npm test
+checks	Run npm test	2026-11-13T19:34:50.2771752Z ^[[36;1mnpm test^[[0m
+checks	Run npm test	2026-11-13T19:34:50.2801479Z shell: /usr/bin/bash -e {0}
+checks	Run npm test	2026-11-13T19:34:50.2801937Z ##[endgroup]
+checks	Run npm test	2026-11-13T19:34:50.3849981Z 
+checks	Run npm test	2026-11-13T19:34:50.3850753Z > learning-notes@0.0.0 test
+checks	Run npm test	2026-11-13T19:35:34.8073833Z  ^[[31m❯^[[39m src/core/lock/lock.test.ts ^[[2m(^[[22m^[[2m18 tests^[[22m^[[2m | ^[[22m^[[31m1 failed^[[39m^[[2m)^[[22m^[[33m 680^[[2mms^[[22m^[[39m
+checks	Run npm test	2026-11-13T19:35:34.8083768Z    ^[[31m❯^[[39m config ^[[2m(3)^[[22m
+checks	Run npm test	2026-11-13T19:37:51.1481737Z ^[[41m^[[1m FAIL ^[[22m^[[49m src/core/lock/lock.test.ts^[[2m > ^[[22mconfig^[[2m > ^[[22mlives in the settings table, so backups carry it (hash only)
+checks	Run npm test	2026-11-13T19:37:51.1494717Z ^[[36m ^[[2m❯^[[22m src/core/lock/lock.test.ts:^[[2m101:37^[[22m^[[39m
+checks	Run npm test	2026-11-13T19:37:51.1613304Z ^[[2m Test Files ^[[22m ^[[1m^[[31m1 failed^[[39m^[[22m^[[2m | ^[[22m^[[1m^[[32m449 passed^[[39m^[[22m^[[90m (450)^[[39m
+checks	Run npm test	2026-11-13T19:37:51.1754009Z ##[error]AssertionError: expected '{"id":"lock.config","value":{"pin":{"…' not to contain '4321'
+checks	Run npm test	 ❯ src/core/lock/lock.test.ts:101:37
+checks	Run npm test	2026-11-13T19:37:51.2372863Z ##[error]Process completed with exit code 1.
+checks	Run npm test	
+checks	Run npm test	2026-11-13T19:37:51.2372863Z ##[error]Process completed with exit code 1.

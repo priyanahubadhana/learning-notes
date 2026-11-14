@@ -104,12 +104,13 @@ In the order they run after the restart.
 
 Waiting until the owner moves to the full team (they cost builder time and are not needed for the lean start):
 
-| #    | Task                                                                                                                                                                                                       |
-| ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0.8  | Fast test set for each merge; full set nightly and before a release; docs formatting checked apart from the app                                                                                            |
-| 0.9  | Find the cause of the three iPad tests that fail on this PC every time (textBoxFree:461, toolsRefresh:60, undoHistory:210); at the latest with Phase 2B, where they belong                                 |
-| 0.10 | The hourly pulse script reads the phase board                                                                                                                                                              |
-| 0.11 | List the unused working copies for removal, one by one (the owner approves removals); find out why the full lint in the main working copy reports thousands of errors while the test computer reports none |
+| #    | Task                                                                                                                                                                                                                                                     |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.8  | Fast test set for each merge; full set nightly and before a release; docs formatting checked apart from the app                                                                                                                                          |
+| 0.9  | Find the cause of the three iPad tests that fail on this PC every time (textBoxFree:461, toolsRefresh:60, undoHistory:210); at the latest with Phase 2B, where they belong                                                                               |
+| 0.10 | The hourly pulse script reads the phase board                                                                                                                                                                                                            |
+| 0.11 | List the unused working copies for removal, one by one (the owner approves removals); find out why the full lint in the main working copy reports thousands of errors while the test computer reports none                                               |
+| 0.13 | After 0.7 and 0.11: try Claude Code's own "separate copy" setting for the builder (`isolation: worktree` in the builder file) on one task; keep it only if that task went as well as with a named working copy (owner, 14 Nov, from the agents research) |
 
 ## 7. The phases in detail
 

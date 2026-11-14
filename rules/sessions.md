@@ -19,16 +19,3 @@
 ## Storage
 
 - PC: main working copy. Private GitHub repo: full backup with history.
-- Drive copy: context files for voice chats, plus `src/` (see docs/DECISIONS.md). Never `node_modules`, `dist`, `test-results`, secrets, `.env` or docs/ARCHIVE.md.
-- Voice chats read CLAUDE.md and docs/HANDOFF.md first.
-
-## Mirror copy (gdrive notes)
-
-- **A hook does it by itself** when a chat or helper stops, after any change to CLAUDE.md, README.md, package.json, `docs/`, `rules/` or `src/`. Helpers never run it by hand.
-- Only if the hook reports a failure, the main chat runs it by hand (PowerShell, one line). Extra files in the mirrored folders are deleted to match:
-
-  ```powershell
-  $s='C:\Users\pc\Downloads\learning-notes'; $d='C:\Users\pc\Downloads\gdrive notes'; robocopy $s $d CLAUDE.md README.md package.json /NJH /NJS /NDL /NP; robocopy "$s\docs" "$d\docs" /MIR /XF ARCHIVE.md /XD prototypes /NJH /NJS /NDL /NP; robocopy "$s\rules" "$d\rules" /MIR /NJH /NJS /NDL /NP; robocopy "$s\src" "$d\src" /MIR /XD node_modules dist test-results /NJH /NJS /NDL /NP
-  ```
-
-- Robocopy exit codes 0–7 mean success; 8 or more means a failure — report it.

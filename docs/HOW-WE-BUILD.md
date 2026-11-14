@@ -36,7 +36,8 @@ At the end of a phase: the owner's first look on the iPad, fixes, polish to the 
 5. **No queue.** Merge a task as soon as it is reviewed. Do not add builders while a reviewed task has waited more than an hour to merge.
 6. **One state file.** BUILD-STATE.md is one table, rewritten in place, under 100 lines. History goes to docs/CHANGELOG.md.
 7. **Never go quiet.** A phase manager ends every run with `RESTART phase-manager` or `STOPPED: <reason>`. Estimates use the measured pace and say "likely".
-8. **Ask the owner only for:** money, logins and Supabase, switching a part ON in the live app, possible data loss, a test on a real device, a real product decision. Otherwise take the safest option and log it in docs/DECISIONS.md "Decisions to review".
+8. **Questions go up a ladder, and the owner is last (owner, 14 Nov).** First the plan and the approved picture answer. If they do not, the manager (Opus) decides. If Opus is unsure, Fable decides. Each decision taken this way is logged in docs/DECISIONS.md "Decisions to review" and the work goes on. The owner is asked only for: money; logins and Supabase; switching a part ON in the live app; possible data loss; a test on a real device; and a real product or design decision, meaning one that changes an approved picture, changes or drops a feature, or changes a rule.
+9. **When the safety check blocks a planned action,** no helper can overrule it. The manager notes the kind of action and asks the owner once to allow that kind for good, so the same stop does not come back.
 
 ## 4. Where code goes
 
@@ -50,7 +51,7 @@ At the end of a phase: the owner's first look on the iPad, fixes, polish to the 
 
 - **Before a push:** `npm run format:check`, `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run check:links`, `npm run check:size`, and the task's own e2e files on chromium and ipad-webkit. Run them in the task's own working copy, not in the main one.
 - **Running Playwright by hand:** set `PW_PORT` to a free port first; every working copy uses port 5199 otherwise, and a second run cannot start. At most 2 iPad runs at once on this PC.
-- **On the code line:** today the full set runs on every push (33 to 43 minutes). After Phase 0 task 0.8: a fast set on every merge, the full set every night and before each release.
+- **On the code line:** a push to `build/next` (pull request #5) runs the checks and the fast set, 9.5 minutes measured on 14 Nov, and publishes the preview. The full set (33 to 43 minutes) runs on every push to `main`, every night at 02:00 IST on `build/next`, and by hand before a release: `gh workflow run ci.yml --ref <branch> -f full=true`. The fast list is `e2e/fastSet.ts` (36 files, 16 of them also on iPad); a unit test keeps it from shrinking. Until task 0.7, do not start a run by hand on `main` without `full`: main has no fast list yet.
 
 ## 6. Brief for a builder (under 200 words; point to files, never paste them)
 
@@ -75,10 +76,12 @@ Done when: <tests>. Follow .claude/agents/builder.md.
 ## 8. Guards
 
 - **Test guard** (`.claude/hooks/guard-tests.mjs`): blocks `.only`, fewer `expect()` calls and emptied test files; a higher timeout, a skip or a deleted test file needs a `test-guard-reason:` line that the owner or Fable approved.
-- **Push guard** (`scripts/push-guard.mjs`, run by `.githooks/pre-push`): Prettier and `check:links` on every branch; ESLint, `tsc -b`, `check:ratchet`, related unit tests and the changed e2e files on `build/next` and `slice/` branches. Fix the cause; never `--no-verify`.
+- **Push guard** (`scripts/push-guard.mjs`, run by `.githooks/pre-push`): Prettier and `check:links` on every branch; on every branch that changes code also ESLint, `tsc -b` and the related unit tests; on `build/next` and `slice/` branches also `check:ratchet` and the changed e2e files. Fix the cause; never `--no-verify`.
+- **Failure sorter** (`npm run ci:sort`, or `node scripts/ci-sort.mjs --run <id>`): a fixed program, no AI, that says in plain lines what kind of failure a red run is (simple check, new, repeat, shaky, test file changed). Run it before anyone reads a log.
+- **Windows note:** run git and test commands from a path with a capital drive letter (`C:\...`). With a small `c:` Vitest loads itself twice and reports "no tests" (seen 14 Nov in the main working copy).
+- **Packages link:** many working copies hold `node_modules` as a Windows link (junction) to the main project's packages. Never delete a working copy recursively: a recursive delete can go through the link and delete the main packages. Use `git worktree remove`; if it leaves a folder that holds only that link, delete the link by itself (not recursively), then the empty folder.
 - **Pushes:** helpers may push normally; force pushes are denied (owner, 14 Nov).
 - **Secret scan** on every shell command.
-- **Backup copy** to "gdrive notes": a hook does it by itself when a helper stops. Do not run it by hand.
 
 ## 9. Hourly pulse (full team only)
 

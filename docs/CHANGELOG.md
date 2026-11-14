@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026 (night): R6 update-v2 lines counted
+
+- What: the 17 lines U1 to U17 of docs/features/update-v2.md are now written as "- UV-1 When ..." to "- UV-17 When ..." (same words; the Professional unlock note moved after the When part), so npm run check:dod counts 20 lines. Missing tests added: src/app/UpdatePill.test.ts (UV-1 pill text, UV-12 Updated pill for 4 s).
+- Why: R6, the lines were never checked for tests.
+- Files: docs/features/update-v2.md, src/app/UpdatePill.test.ts.
+
 ### 14 Nov 2026 (night): P1.6 name box, P1.7 pretend restart
 
 - What: P1.6: the new-notebook name box opens empty with a gray "Untitled notebook" (empty Done keeps it); rename shows the name with the caret at the end, nothing selected, and a ✕ that clears it (L12). P1.7: the About "Pretend a must-have update" restart gets 30 s (not 6 s) before "did not finish"; on the preview host that screen adds one line with the failing step (download or restart) and the seconds waited (L13).

@@ -39,6 +39,7 @@ The "Shared …" and "Tool list" switches are not in the table; the builder turn
 
 Address: https://build-next.learning-notes-app.pages.dev . Write down the step number and what you saw for anything that does not match.
 
+0. **Make sure the iPad runs the newest version** (the app keeps a saved copy for offline use, and a new version waits for your OK). Open Settings, then About, and read "Version …". It must match the one Claude names when it says the preview is ready (14 Nov: `9439c2b`). If it does not: tap "Update" when the notice shows, or tap "Check for updates now" in About and then the pill; if nothing shows, close the tab completely and open the address again. Never clear the website's data: notes not yet synced live there. After signing in, also check the address bar still starts with `build-next.`.
 1. Open the address. **You should see:** the app loads in a few seconds, no error page.
 2. Go to Settings, then Try new features. Choose "Phase 1" in "Test a phase" and switch it On. **You should see:** the new frame and the new Settings at once.
 3. Close Safari completely and open the address again. **You should see:** you are still signed in (F1), the preset is still On, your notes are there.
@@ -50,9 +51,9 @@ Address: https://build-next.learning-notes-app.pages.dev . Write down the step n
 9. Tap the three dots at the top of a page. **You should see:** a sheet docked on the right at full height. Tell Claude if you like it there.
 10. Open Settings and tap each section. **You should see:** the new layout; the search box stays at the top of every page while you scroll (F9).
 11. In the Settings search, type "frame", then "dark". **You should see:** matching settings, including switches from Try new features.
-12. Open Settings, then Claude; tap Inbox, then Activity. **You should see:** three tabs; Inbox says "Nothing is waiting"; nothing breaks.
-13. Open Settings, then About; tap Check for updates now. **You should see:** only a small pill; nothing downloads by itself.
-14. Open Settings, then Advanced; tap "Pretend a must-have update". **You should see:** a full-screen notice counts down 5 seconds, downloads, and the app reopens on the same page.
+12. Open Settings, then **Let AI use my notebooks** (the new name of the Claude section; searching "Claude" also finds it); tap Inbox, then Activity. **You should see:** three tabs; Inbox says "Nothing is waiting"; nothing breaks.
+13. Open Settings, then **Help & tour** (block "About this app"); tap Check for updates now. **You should see:** only a small pill; nothing downloads by itself.
+14. In the same block (Settings › Help & tour › About this app), tap "Pretend a must-have update". **You should see:** a full-screen notice counts down 5 seconds, downloads, and the app reopens on the same page.
 15. Reload the page. **You should see:** a calm notice "Keep your notes safe: add this app to your Home Screen" with Show how and Back up first. Tap both. **You should see:** three short steps; then "Backup saved." and a file in Downloads. Tell Claude if the notice looks right.
 16. Use the app for ten minutes as you normally would. **You should see:** no freeze (F7). If it freezes, note what you had just tapped.
 17. In "Test a phase", switch Off. **You should see:** the old screens come back at once.

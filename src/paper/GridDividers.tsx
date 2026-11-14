@@ -1,4 +1,5 @@
 import { useRef, type RefObject } from 'react'
+import { isOn } from '../app/flags'
 import type { GridRow } from '../core/types'
 import { t } from '../i18n/t'
 import { equalRow, resizeCols, type Rect } from './grid'
@@ -41,6 +42,7 @@ export function GridDividers({
     i: number
     rows: GridRow[]
     moved: boolean
+    x0: number
   } | null>(null)
   const lastTap = useRef(0)
   if (!enabled) return null
@@ -49,6 +51,8 @@ export function GridDividers({
     const d = drag.current
     const r = paperEl.current?.getBoundingClientRect()
     if (!d || !r) return
+    // Text box v2: a move under 4 px is a tap, not a resize.
+    if (!d.moved && isOn('textbox.v2') && Math.abs(e.clientX - d.x0) < 4) return
     const at = ((e.clientX - r.left) / k - left) / Math.max(1, width)
     const next = d.rows.map((row) =>
       row.id === d.rowId ? resizeCols(row, d.i, at) : row,
@@ -82,7 +86,7 @@ export function GridDividers({
       return
     }
     lastTap.current = now
-    drag.current = { rowId: row.id, i, rows, moved: false }
+    drag.current = { rowId: row.id, i, rows, moved: false, x0: e.clientX }
   }
   // Item 46: the lone selected box gets a pill on each side that has a neighbour.
   const pills = (() => {
@@ -146,7 +150,13 @@ export function GridDividers({
               return
             }
             lastTap.current = now
-            drag.current = { rowId: row.id, i, rows, moved: false }
+            drag.current = {
+              rowId: row.id,
+              i,
+              rows,
+              moved: false,
+              x0: e.clientX,
+            }
           }}
           onPointerMove={move}
           onPointerUp={end}

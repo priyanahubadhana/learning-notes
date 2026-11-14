@@ -11,6 +11,7 @@ import type { PaperBox } from '../core/types'
 import { frameCss, padOf } from '../core/boxStyle'
 import { BOX_COLOURS, sheetSegments } from './boxes'
 import { activeTool } from '../app/tools/main/mainTools'
+import { isOn } from '../app/flags'
 import { TOUCH_PX, TOUCH_STYLE } from './safeGap'
 import { FREE_MIN_W } from './grid'
 import {
@@ -111,6 +112,7 @@ export function BoxFrame({
   bar?: ReactNode
   children: ReactNode
 }) {
+  const v2On = isOn('textbox.v2')
   const el = useRef<HTMLDivElement>(null)
   const [h, setH] = useState(0)
   // A box narrower than the grip and ⋯ side by side (a new, small box): they
@@ -211,7 +213,10 @@ export function BoxFrame({
                       minWidth: FREE_MIN_W * k,
                     }
                   : { width: shown.w * k }),
-                ...(box.h ? { minHeight: box.h * k } : {}),
+                // Text box v2 (TB-21): the height follows the dot live, not at the lift.
+                ...((v2On ? shown.h : box.h)
+                  ? { minHeight: (v2On ? shown.h! : box.h!) * k }
+                  : {}),
               }
       }
       onClick={(e) => {
@@ -411,6 +416,9 @@ export function ResizeDots({
     end: (e: ReactPointerEvent) => void
   }
 }) {
+  // Text box v2 (2B.5): the whole 44 pt target lies outside the edge (text wins
+  // inside), and the dot is a plain 10 px ring on the edge.
+  const v2 = isOn('textbox.v2')
   return (
     <>
       {RESIZE_HANDLES.map((how) => {
@@ -418,8 +426,10 @@ export function ResizeDots({
         const side = how === 'e' || how === 'w'
         // The 44 pt target sits just outside the edge, so a tap on the text
         // inside never lands on a handle; the dot is drawn back on the edge.
-        const dx = how.includes('e') ? OUT : how.includes('w') ? -OUT : 0
-        const dy = how.includes('s') ? OUT_Y : how.includes('n') ? -OUT_Y : 0
+        const ox = v2 ? TOUCH_PX / 2 : OUT
+        const oy = v2 ? TOUCH_PX / 2 : OUT_Y
+        const dx = how.includes('e') ? ox : how.includes('w') ? -ox : 0
+        const dy = how.includes('s') ? oy : how.includes('n') ? -oy : 0
         return (
           <div
             key={how}
@@ -452,12 +462,14 @@ export function ResizeDots({
               style={{ transform: `translate(${-dx}px, ${-dy}px)` }}
               data-handle-dot={corner ? 'corner' : 'side'}
               className={
-                'border-2 border-accent bg-bg shadow-md ' +
-                (corner
-                  ? 'size-4 rounded-full'
-                  : side
-                    ? 'h-8 w-2.5 rounded-full'
-                    : 'h-2.5 w-8 rounded-full')
+                v2
+                  ? 'size-2.5 rounded-full border-[1.5px] border-accent bg-white'
+                  : 'border-2 border-accent bg-bg shadow-md ' +
+                    (corner
+                      ? 'size-4 rounded-full'
+                      : side
+                        ? 'h-8 w-2.5 rounded-full'
+                        : 'h-2.5 w-8 rounded-full')
               }
             />
           </div>

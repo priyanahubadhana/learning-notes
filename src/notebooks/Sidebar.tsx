@@ -165,6 +165,8 @@ export function Sidebar({
 }: SidebarProps) {
   const { chooseTemplate, toast, askName } = useContext(AppUiContext)
   const v2 = useFlag('notebooks.v2')
+  // New app frame (14 Nov F4): Review, All cards and All summaries live in the Review space only.
+  const shell = useFlag('foundation.shell')
   useRowPalmGuard()
   // Touch and Pencil: names are typed in the "Name it" sheet, rows show only ⋯.
   const touch = touchUi()
@@ -432,7 +434,8 @@ export function Sidebar({
         className="min-h-32 flex-1 overflow-auto pt-2"
         {...hold}
       >
-        {(space === 'notebooks' || space === 'review') && studyGroup}
+        {(space === 'review' || (space === 'notebooks' && !shell)) &&
+          studyGroup}
         {space === 'notebooks' && (
           <>
             <SidebarGroup

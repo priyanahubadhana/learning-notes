@@ -116,3 +116,20 @@ test('F8 a late-reporting window size (iPad Safari right after a turn) is correc
   await page.waitForTimeout(1500)
   expect(rotated).toEqual(await frameOf(page))
 })
+
+test('F4 the Notebooks sidebar has no Review / All cards / All summaries rows; the Review space keeps them', async ({
+  page,
+}) => {
+  await page.goto(ON)
+  await createNotebook(page, 'Heart', 'Cardiology')
+  const rail = page.getByRole('navigation', { name: 'Spaces' })
+  await rail.locator('[data-space="notebooks"]').click()
+  const side = page.locator('aside#sidebar')
+  await expect(side.locator('[data-notebook-row]').first()).toBeVisible()
+  for (const name of [/^Review/, 'All cards', /^All summaries/])
+    await expect(side.getByRole('button', { name })).toHaveCount(0)
+  // Never dropped: the Review space lists them.
+  await rail.locator('[data-space="review"]').click()
+  for (const name of [/^Review/, 'All cards', /^All summaries/])
+    await expect(side.getByRole('button', { name }).first()).toBeVisible()
+})

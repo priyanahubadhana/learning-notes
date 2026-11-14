@@ -5,7 +5,7 @@ The one short list of open work. The plan: [plans/phase-plan.md](plans/phase-pla
 ## Needs you
 
 - **Supabase fixed (14 Nov, owner):** `https://build-next.learning-notes-app.pages.dev/**` added to Redirect URLs; the two live-app entries stay (deleting them would break sign-in on the live app). Next for you: sign in on the test address, check the address bar starts with `build-next.` and Settings › About shows `9439c2b`, then the first look.
-- **Re-check round READY (14 Nov, about 18:20 IST; 10 minutes, 8 steps in docs/plans/phases/phase-1.md "Re-check round").** Settings › Help & tour › About this app must show version **5d50acd**. Both fixes are in: P1.1 scroll bar (Pencil, one bar per edge, a bit bigger) and P1.2 phone search bar. The preview does not change until you are done.
+- **Re-check part 2 READY (14 Nov, about 20:50 IST):** version **c7673b1** (Settings › Help & tour › About this app). In: P1.3 update screen never stalls, P1.4 premium scroll bar visible in dark, the sidebar "+" fix. Steps: re-check 1, 2, 3, 5, 6, 7, 8 (docs/plans/phases/phase-1.md "Re-check round"). Question: has a new notebook ever kept "Untitled" after you named it (R11)?
 - **Small, not urgent:**
   - Answered on 14 Nov: (1) leftover folders: all gone (the owner ran the clean-up script in the evening; task 0.11 done); (2) yes, the text box phase (2B) is planned early: after the first look at Phase 1, a second chat with Fable does the planning talk, no building; (3) the day of the iPad look: see above. Fable's audit questions (evening): folders deleted, Fable's `xhigh` effort entry removed from the user settings, security updates as task 0.14 after 0.6.
   - Decisions to review: docs/DECISIONS.md "Decisions to review" (items from 12 to 14 Nov).

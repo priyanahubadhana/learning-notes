@@ -421,6 +421,9 @@ test.describe('L13', () => {
       )
       .toBeUndefined()
     expect(page.url()).toBe(url)
+    // (a) The restarted page starts clean: no saved notice comes back.
+    await page.waitForTimeout(1500)
+    await expect(notice(page)).toHaveCount(0)
     // Through the 9 s hold the notice never said it failed.
     const seen = await page.evaluate(() => sessionStorage.getItem('l13'))
     expect(seen).toContain('installing')

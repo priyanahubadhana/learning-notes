@@ -49,6 +49,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.
 - Why: the app took about 15 s to start on WebKit because starters were written before the first screen.
 - Files: src/templates/templateService.ts, src/templates/NewPageStart.tsx, src/templates/seedBulk.test.ts, e2e/startSeeding.spec.ts, e2e/startSpeed.spec.ts, docs/features/perf-start.md, docs/CHANGELOG.md.
+
 ### 14 Nov 2026: owner fix F1+F7 merged into build/next
 
 - What: sign-in freeze fix (F1) and the freeze recorder (F7, build-next host only) merged OFF as b1aad3f8; CI 43553398541 green.

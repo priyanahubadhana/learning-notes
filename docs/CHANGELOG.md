@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026 (evening): Fable audit after the restart; docs made to agree
+
+- What: HANDOFF no longer says PAUSED (only BUILD-STATE says whether the build is paused); the duplicated "slice 12 rest" entry below was removed once; BUILD-STATE rows 0.3 (both runs green), 0.5 (pushed, 0db04220), 0.8 (the fast set exists on `build/next` only; `main` has the CI file but not the test list, so a hand-started run on `main` must tick "full" until task 0.7) and 0.11 (36 dead folders and 67 loose `ln-*` files remain in Downloads, not 8) corrected; "phase manager" wording for Dexie numbers changed to "the manager (the main chat in lean mode)". Full report: docs/plans/audit-2026-11-14.md.
+- Why: the owner asked for a true audit so the next chat starts from files that do not contradict each other.
+- Files: docs/HANDOFF.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/DECISIONS.md, docs/CHANGELOG.md, docs/plans/audit-2026-11-14.md.
+
 ### 14 Nov 2026: F7 freeze recorder on the preview
 
 - What: the slow-moments recorder (R6-11) now runs by itself on the preview address build-next.learning-notes-app.pages.dev only (never on the live host or a deploy hash address, which can be a production build; the test machine only with the switch `learning-notes:perf.freezeWatch`) and notes main-thread blocks of 500 ms or more. Every entry now also names the top open panel and the last tap or key kind (never typed text; the label clean-up and key names were fixed after gate 2). Settings › Advanced › Copy report shows them.
@@ -49,12 +55,6 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.
 - Why: the app took about 15 s to start on WebKit because starters were written before the first screen.
 - Files: src/templates/templateService.ts, src/templates/NewPageStart.tsx, src/templates/seedBulk.test.ts, e2e/startSeeding.spec.ts, e2e/startSpeed.spec.ts, docs/features/perf-start.md, docs/CHANGELOG.md.
-
-### 14 Nov 2026: slice 12 rest - page strip, Paste menu, page more-menu sheet (flag page.menus, OFF)
-
-- What: right-click and press-and-hold open the shared Context strip (Beginner: Cut, Copy, Paste menu, Delete, more; Professional adds Duplicate, Turn into, Colour); Paste menu pastes in the chosen form in one Undo step; with the flag ON "Keep original" is the Paste default until Settings stores a choice and the "Pasted as" chip needs `page.pastedChip`; the page more-menu is a side Sheet (Beginner 8 rows, Professional sections and pinned tiles via `page.menuAll`, Move, Duplicate). Spec: docs/features/page-menus.md PM-20..22, 40..45, 60..64.
-- Why: the menus you use while writing, on the shared parts, nothing dropped.
-- Files: src/editor/menus/_, src/pages/menus/_, src/editor/{PageEditor,PasteChooser,pasteFlow,holdMenuWatch}.ts(x), src/pages/PageView.tsx, src/app/flags.ts, src/i18n/*/pageMenus.ts, e2e/pageMenusStrip.spec.ts, e2e/pageMenusSheet.spec.ts, playwright.config.ts (one ipad-webkit line), scripts/feature-links.json, docs/CHANGELOG.md.
 
 ### 14 Nov 2026: slice 12 rest - page strip, Paste menu, page more-menu sheet (flag page.menus, OFF)
 
@@ -1908,3 +1908,7 @@ What: .claude/agents/reviewer.md gets `disallowedTools: Edit, Write, NotebookEdi
 ## 14 Nov 2026: 47 unused working copies removed (settings review question 11)
 
 What: `git worktree remove` on 47 clean, merged copies; 19 remain. Six folders were left half-deleted by Windows and wait for the owner's word, with two other groups (list in docs/DECISIONS.md). Docs: a packages-link warning in docs/HOW-WE-BUILD.md section 8; BUILD-STATE row 0.11; PENDING (three open questions); the Phase 1 page (the switch-name point is decided, the scroll fix id is current). Why: the owner chose option A. Finding: many copies hold `node_modules` as a link to the main packages, so no folder is ever deleted recursively.
+
+## 14 Nov 2026: restart approved; leftover folders cleaned
+
+What: 6 scratch working copies removed with git and 9 folders in `.claude/worktrees` deleted (owner's one-time yes; links removed first; main packages untouched); 8 half-deleted folders in Downloads remain for task 0.11. docs/BUILD-STATE.md now says RESTART APPROVED (lean mode, the order of the first tasks); docs/PENDING.md "Needs you" rewritten; the owner's answers logged in docs/DECISIONS.md. Why: the owner answered the last three questions and asked to speed up.

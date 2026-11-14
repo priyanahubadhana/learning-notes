@@ -1,6 +1,6 @@
 # Gate 3 pictures: toolbar.v8 slices 1e, 1f and BUG-003
 
-Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on head e6b0f329 (flag ON; all 192 pictures re-shot after the last source edit, ec01896a; e6b0f329 only changes the picture spec, and only pictures and this index follow it). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Both levels on every size (192 pictures).
+Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on head 6512a1f1 (flag ON; all 192 pictures re-shot after the last source edit, 6512a1f1; only pictures and this index follow it). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Both levels on every size (192 pictures).
 
 ## Screens
 
@@ -36,7 +36,9 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 
 - Twenty-fifth visit fix 1: `formatadv-*` (all 12) now scroll the card body (`.pcard-body`) and the spec asserts scrollTop > 0 before the shot (e2e/toolbarV8TextGate3Shots.spec.ts:106-112); none is byte-identical to its `format-*` picture any more. They show the font list, Import font and the line-height tiles (Normal, Tight, Loose) at the card bottom. Gate 2: `Aa Aa` is a plain string (TextCards.tsx:96), allowed in src/i18n/hardcodedText.test.ts.
 
-## Pictures (192, all taken at e6b0f329)
+- Final-look fix (main 5051497a): the line-height group has its own "Line height" heading (TextCards.tsx:83) and each sample is 2em wide and 48 px high, so "Aa Aa" shows as two lines spaced Normal, Tight or Loose (textCards.css:72-75): `formatadv-*` (all 12).
+
+## Pictures (192, all taken at 6512a1f1)
 
 - alltools-ipad-landscape-day-professional.png
 - alltools-ipad-landscape-night-professional.png

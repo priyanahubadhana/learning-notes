@@ -49,7 +49,9 @@ function coveredBy(el: HTMLElement, r: DOMRect): boolean {
     if (n.dataset.state === 'closed') continue
     const q = n.getBoundingClientRect()
     if (q.width === 0 || q.height === 0) continue
-    if (getComputedStyle(n).visibility === 'hidden') continue
+    const cs = getComputedStyle(n)
+    // Hidden, or let touches through (the toast layer): it covers nothing.
+    if (cs.visibility === 'hidden' || cs.pointerEvents === 'none') continue
     if (q.left < col.r && q.right > col.l && q.top < col.b && q.bottom > col.t)
       return true
   }

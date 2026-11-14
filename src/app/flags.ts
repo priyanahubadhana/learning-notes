@@ -55,6 +55,15 @@ function clean(ids: Iterable<unknown>): Set<FlagId> {
 /** The test host (build-next preview); the live host is never listed. */
 const PREVIEW_HOST = 'build-next.learning-notes-app.pages.dev'
 
+/** Is this the build-next preview (not the live site)? */
+export function isPreviewHost(): boolean {
+  try {
+    return globalThis.location?.hostname === PREVIEW_HOST
+  } catch {
+    return false
+  }
+}
+
 /** Parts under test that start ON on the preview host, until the user chooses. */
 export const PREVIEW_DEFAULT_ON: readonly FlagId[] = [
   'foundation.shell',
@@ -77,13 +86,7 @@ export const PREVIEW_DEFAULT_ON: readonly FlagId[] = [
  * list is saved, so their own choice always wins.
  */
 function defaults(): Set<FlagId> {
-  try {
-    return globalThis.location?.hostname === PREVIEW_HOST
-      ? new Set(PREVIEW_DEFAULT_ON)
-      : new Set()
-  } catch {
-    return new Set()
-  }
+  return isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON) : new Set()
 }
 
 function readStored(): Set<FlagId> {

@@ -8,3 +8,12 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 2026-11-14T18:19+05:30,1,P1.1 scroll bar Pencil + one bar per edge + size,sonnet then opus,141834+156984+151655,3,1,0,1.0,"Sonnet: review 1 FAIL (menu lost its own bar, empty test title, arrow touch over rows), review 2 FAIL (arrow 38 tall on touch); Opus builder took over (rule: two FAILs) and found the touch-minimum bug (thumb ran 12 px into the down arrow); review 3 PASS; reviewer (Opus medium) 99551; run 43595614400 green 14 min, about 4 queued"
 2026-11-14T19:33+05:30,1,P1.3 must-have update never stalls,sonnet,109856,2,1,0,1.2,"sent back once before review (tests after code, no pictures); review PASS; two manager decisions after review (no per-file limit; Pretend keeps the offline copy), quick PASS; reviewer (Opus medium) 77959; run 43602826873 green 12 min (1 queued); new e2e flaked once on ipad-webkit, cause being found"
 2026-11-14T20:46+05:30,1,P1.4 scroll bar premium + dark + R7,sonnet,434083,2,1,0,1.9,"most expensive task so far: many test reruns under double ipad-webkit load (measured: 9/20 failures with two suites); manager rejected the 33 px gutter (lane rule instead); review 1 FAIL on 3 test/spec items, review 2 PASS; reviewer 90906; merged by the manager; run 43608331726 green 10 min"
+2026-11-14T23:20+05:30,1,P1.6,sonnet,166000,1,2,0,1.0,name box L12; R11 not reproduced
+2026-11-15T00:10+05:30,1,P1.5a,sonnet,180000,2,2,0,1.3,Pencil check recorder; owner's data found the L11 cause
+2026-11-15T01:30+05:30,1,P1.7,sonnet,130000,2,2,0,2.0,pretend restart 30 s + preview reason line; cause unproven
+2026-11-15T01:45+05:30,1,R6,sonnet,20000,1,1,0,0.4,update-v2 lines counted; two tests added
+2026-11-15T02:00+05:30,2B,2B.2,sonnet,240000,2,2,0,2.0,box and save recorders
+2026-11-15T02:10+05:30,2A,2A.1,sonnet,200000,2,2,0,3.0,parked tool bar merged; one-bar card fix
+2026-11-15T02:30+05:30,1,R5,sonnet,20000,1,1,0,0.5,phone tray above the tab bar
+2026-11-15T03:30+05:30,2B,2B.3,sonnet,300000,1,2,1,4.5,select and cursor; webkit queue waits
+2026-11-15T04:30+05:30,1,R8,sonnet,60000,2,2,0,2.0,first load 318.2 to 302.8 KB

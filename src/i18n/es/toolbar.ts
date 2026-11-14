@@ -70,6 +70,12 @@ export const esToolbar = {
   'bar.position': 'Posición',
   'bar.reset': 'Restablecer',
   'bar.resetPos': 'Restablecer la posición de la barra',
+  'toolbarMenu.groupBar': 'Barra',
+  'toolbarMenu.groupStyle': 'Estilo de texto',
+  'toolbarMenu.groupCopy': 'Copiar y pegar',
+  'toolbarMenu.more': 'Más',
+  'toolbarMenu.moreOpen': 'Mostrar más elementos',
+  'toolbarMenu.moreClose': 'Ocultar más elementos',
   'bar.scrollBack': 'Deslizar la barra hacia atrás',
   'bar.scrollHandle': 'Deslizar la barra de lado (arrastra)',
   'bar.scrollMore':

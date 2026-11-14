@@ -69,6 +69,12 @@ export const hiToolbar = {
   'bar.position': 'जगह',
   'bar.reset': 'रीसेट',
   'bar.resetPos': 'बार की जगह रीसेट करें',
+  'toolbarMenu.groupBar': 'टूलबार',
+  'toolbarMenu.groupStyle': 'टेक्स्ट स्टाइल',
+  'toolbarMenu.groupCopy': 'कॉपी और पेस्ट',
+  'toolbarMenu.more': 'और',
+  'toolbarMenu.moreOpen': 'और विकल्प दिखाएँ',
+  'toolbarMenu.moreClose': 'और विकल्प छिपाएँ',
   'bar.scrollBack': 'बार को पीछे खिसकाएँ',
   'bar.scrollHandle': 'बार को बगल में खिसकाएँ (खींचें)',
   'bar.scrollMore':

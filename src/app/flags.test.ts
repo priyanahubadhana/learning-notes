@@ -114,6 +114,7 @@ describe('preview defaults (F5)', () => {
   const PREVIEW_ON = [
     'foundation.shell',
     'toolbar.v8',
+    'toolbar.menu',
     'settings.v3',
     'notebooks.v2',
     'search.v2',

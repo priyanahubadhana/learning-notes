@@ -49,6 +49,9 @@ interface Spot {
   left: number
   top: number
   below: boolean
+  /** The top of the first line and the bottom of the last (the words' own box). */
+  lineTop: number
+  lineBottom: number
   start: { x: number; y: number }
   end: { x: number; y: number }
 }
@@ -72,6 +75,8 @@ function spotOf(editor: Editor): Spot | null {
       ),
       top: edge(above < 8 ? b.bottom + 28 : above),
       below: above < 8,
+      lineTop: a.top,
+      lineBottom: b.bottom,
       // iOS style: the start handle above-left of the first letter, the end
       // handle below-right of the last.
       start: { x: a.left, y: a.top },
@@ -113,39 +118,59 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
     doc: unknown
     text: string
   } | null>(null)
-  const anchor = useRef<{ left: number; top: number } | null>(null)
+  const anchor = useRef<{
+    left: number
+    lineTop: number
+    lineBottom: number
+  } | null>(null)
   // The handles always follow the words; the bar moves only for a new
   // selection, or when its target has scrolled off the screen (R5-7).
-  const measure = useCallback(() => {
-    const s = spotOf(editor)
-    const v = editor.prosemirrorView
-    if (!s || !v) return setSpot(null)
-    const sel = v.state.selection
-    const now = {
-      from: sel.from,
-      to: sel.to,
-      doc: v.state.doc as unknown,
-      text: v.state.doc.textBetween(sel.from, sel.to, ' '),
-    }
-    const fresh = isNewSelection(placed.current, now)
-    placed.current = now
-    const off = s.start.y < 0 || s.start.y > window.innerHeight
-    if (fresh || off || !anchor.current) {
-      anchor.current = { left: s.left, top: s.top }
-      if (fresh) setDragPos(null)
-    }
-    setSpot({ ...s, ...anchor.current })
-  }, [editor])
+  const measure = useCallback(
+    (replace?: unknown) => {
+      const s = spotOf(editor)
+      const v = editor.prosemirrorView
+      if (!s || !v) return setSpot(null)
+      const sel = v.state.selection
+      const now = {
+        from: sel.from,
+        to: sel.to,
+        doc: v.state.doc as unknown,
+        text: v.state.doc.textBetween(sel.from, sel.to, ' '),
+      }
+      const fresh = isNewSelection(placed.current, now)
+      placed.current = now
+      const off = s.start.y < 0 || s.start.y > window.innerHeight
+      // A turn or the keyboard reflows the page: the bar comes back next to its
+      // words, so it is where it was when the screen is back (BUG-002).
+      if (fresh || off || replace === 'resize' || !anchor.current) {
+        anchor.current = {
+          left: s.left,
+          lineTop: s.lineTop,
+          lineBottom: s.lineBottom,
+        }
+        if (fresh) setDragPos(null)
+      }
+      setSpot({ ...s, ...anchor.current })
+    },
+    [editor],
+  )
   useLayoutEffect(() => {
     if (open && hasSelection) measure()
   }, [open, hasSelection, measure, view?.state.selection])
   useEffect(() => {
     if (!open) return
     document.addEventListener('scroll', measure, true)
-    window.addEventListener('resize', measure)
+    // The page reflows after the resize event: measure again once it has.
+    const resized = () => {
+      measure('resize')
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => measure('resize')),
+      )
+    }
+    window.addEventListener('resize', resized)
     return () => {
       document.removeEventListener('scroll', measure, true)
-      window.removeEventListener('resize', measure)
+      window.removeEventListener('resize', resized)
     }
   }, [open, measure])
   // A tap on the page away from the selection, or Esc, dismisses it (the
@@ -405,8 +430,15 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
 
   const area = pageArea()
   const size = measured
+  // Above the words by the bar's own measured height (two rows are taller
+  // than one), else below them: it never covers the words it formats.
+  const above = spot.lineTop - size.height - 8
+  const wanted = {
+    left: spot.left,
+    top: above >= area.top + 8 ? above : spot.lineBottom + 28,
+  }
   const at: FreePos = clampInArea(
-    (pinned && savedPos) || dragPos || { left: spot.left, top: spot.top },
+    (pinned && savedPos) || dragPos || wanted,
     size,
     area,
   )

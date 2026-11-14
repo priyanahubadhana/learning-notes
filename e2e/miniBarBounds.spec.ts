@@ -83,23 +83,38 @@ async function expectOnScreen(page: Page) {
   expect(m.width).toBeLessThanOrEqual(v.width)
 }
 
+type Box = { x: number; y: number; width: number; height: number }
+const box = async (page: Page, sel = '[data-mini-toolbar]') => {
+  const b = await page.locator(sel).first().boundingBox()
+  expect(b, `${sel} is on the page`).not.toBeNull()
+  return b as Box
+}
+const apart = (a: Box, b: Box) =>
+  a.x + a.width <= b.x ||
+  b.x + b.width <= a.x ||
+  a.y + a.height <= b.y ||
+  b.y + b.height <= a.y
+
+async function prepare(page: Page, size: { width: number; height: number }) {
+  await page.setViewportSize(size)
+  await openNote(page)
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(650)
+}
+
 for (const size of SIZES) {
   for (const align of ['left', 'right'] as const) {
-    test(`BUG-002: ${size.width}x${size.height}, word at the ${align} edge: the format bar stays on the screen`, async ({
+    test(`BUG-002: ${size.width}x${size.height}, word at the ${align} edge: the format bar stays on the screen, also with ⋯ open`, async ({
       page,
     }) => {
-      await page.setViewportSize(size)
-      await openNote(page)
-      await page.keyboard.press('Escape')
-      await page.waitForTimeout(650)
+      await prepare(page, size)
       await selectWordAt(page, align)
       await expectOnScreen(page)
-      // The Aa pop-up and the ⋯ row open: still on the screen.
-      const more = mini(page).getByRole('button', { name: /more/i }).last()
-      if (await more.count()) {
-        await more.click().catch(() => undefined)
-        await expectOnScreen(page)
-      }
+      const more = mini(page).locator('[data-mini="more"]')
+      await expect(more).toBeVisible()
+      await more.click()
+      await expect(mini(page).getByRole('group')).toBeVisible()
+      await expectOnScreen(page)
     })
   }
 }
@@ -107,10 +122,7 @@ for (const size of SIZES) {
 test('BUG-002: turning the screen with the bar open keeps it on the screen', async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 1180, height: 820 })
-  await openNote(page)
-  await page.keyboard.press('Escape')
-  await page.waitForTimeout(650)
+  await prepare(page, { width: 1180, height: 820 })
   await selectWordAt(page, 'right')
   await expectOnScreen(page)
   for (const s of [
@@ -125,33 +137,99 @@ test('BUG-002: turning the screen with the bar open keeps it on the screen', asy
   }
 })
 
-for (const size of SIZES) {
-  test(`BUG-002: ${size.width}x${size.height}, pinned bar and its pop-ups stay on the screen after turning`, async ({
+// Owner (owner-decisions.md:69): the bar must keep its size and its place. It
+// may not grow or jump when its pop-ups open, when the format changes, when
+// another word is picked, when the screen turns or when the keyboard shows.
+for (const size of [
+  { width: 820, height: 1180 },
+  { width: 1180, height: 820 },
+  { width: 390, height: 844 },
+]) {
+  test(`BUG-002: ${size.width}x${size.height}, the bar keeps its size and place through pop-ups, formatting, a new word, a turn and the keyboard`, async ({
     page,
   }) => {
-    await page.setViewportSize(size)
-    await openNote(page)
-    await page.keyboard.press('Escape')
-    await page.waitForTimeout(650)
-    await selectWordAt(page, 'right')
-    await mini(page).locator('[data-mini="pin"]').click()
-    for (const id of ['textColor', 'size', 'style']) {
-      const b = mini(page).locator(`[data-mini="${id}"]`)
-      if (!(await b.count())) continue
-      await b.click()
-      const card = page.locator('[data-pill-card]').first()
-      if (await card.count()) {
-        const c = (await card.boundingBox())!
-        const v = page.viewportSize()!
-        expect(c.x).toBeGreaterThanOrEqual(-0.5)
-        expect(c.y).toBeGreaterThanOrEqual(-0.5)
-        expect(c.x + c.width).toBeLessThanOrEqual(v.width + 0.5)
-        expect(c.y + c.height).toBeLessThanOrEqual(v.height + 0.5)
-      }
-      await expectOnScreen(page)
+    await prepare(page, size)
+    await selectWordAt(page, 'left')
+    const first = await box(page)
+    const same = async (what: string) => {
+      await page.waitForTimeout(200)
+      const now = await box(page)
+      expect(now.width, `${what}: width`).toBeCloseTo(first.width, 0)
+      expect(now.height, `${what}: height`).toBeCloseTo(first.height, 0)
+      expect(now.x, `${what}: x`).toBeCloseTo(first.x, 0)
+      expect(now.y, `${what}: y`).toBeCloseTo(first.y, 0)
     }
-    await page.setViewportSize({ width: size.height, height: size.width })
+    // Its three pop-ups: the card never covers the bar, the bar does not move.
+    for (const id of ['colour', 'size', 'style']) {
+      const b = mini(page).locator(`[data-mini="${id}"]`)
+      await expect(b).toBeVisible()
+      await b.click()
+      const card = page.locator('[data-pill-card]')
+      await expect(card).toBeVisible()
+      const c = await box(page, '[data-pill-card]')
+      const v = page.viewportSize()!
+      expect(c.x).toBeGreaterThanOrEqual(-0.5)
+      expect(c.y).toBeGreaterThanOrEqual(-0.5)
+      expect(c.x + c.width).toBeLessThanOrEqual(v.width + 0.5)
+      expect(c.y + c.height).toBeLessThanOrEqual(v.height + 0.5)
+      expect(apart(c, await box(page)), `${id} card covers the bar`).toBe(true)
+      expect(
+        apart(c, await box(page, '[data-options-pill]')),
+        `${id} card covers its pill`,
+      ).toBe(true)
+      await same(`${id} pop-up`)
+    }
+    // Formatting: the selected word changes width, the bar does not.
+    for (const id of ['bold', 'italic']) {
+      await mini(page).locator(`[data-mini="${id}"]`).click()
+      await same(id)
+    }
+    // ⋯ opens a second row: the bar may grow only downward, never move up or sideways.
+    await mini(page).locator('[data-mini="more"]').click()
+    const grown = await box(page)
+    expect(grown.x).toBeCloseTo(first.x, 0)
+    expect(grown.y + grown.height).toBeLessThanOrEqual(
+      page.viewportSize()!.height,
+    )
+    await mini(page).locator('[data-mini="more"]').click()
+    await same('⋯ closed again')
+    // The keyboard: a short window. Same size; it moves only if it no longer fits.
+    const v = page.viewportSize()!
+    await page.setViewportSize({
+      width: v.width,
+      height: Math.round(v.height * 0.6),
+    })
+    await page.waitForTimeout(250)
+    const kb = await box(page)
+    expect(kb.width).toBeCloseTo(first.width, 0)
+    expect(kb.height).toBeCloseTo(first.height, 0)
+    expect(kb.y + kb.height).toBeLessThanOrEqual(
+      Math.round(v.height * 0.6) + 0.5,
+    )
+    await page.setViewportSize(v)
+    await page.waitForTimeout(250)
+    // A turn: the bar wraps to the new width (rows may change), stays on the
+    // screen, and comes back to the same size and place when turned back.
+    await page.setViewportSize({ width: v.height, height: v.width })
     await page.waitForTimeout(250)
     await expectOnScreen(page)
+    await page.setViewportSize(v)
+    await page.waitForTimeout(250)
+    // The page may have scrolled meanwhile, so the place is checked against the
+    // words: the bar is next to them, never over them, and has its own size.
+    const back = await box(page)
+    expect(back.width).toBeCloseTo(first.width, 0)
+    expect(back.height).toBeCloseTo(first.height, 0)
+    const word = await page.evaluate(() => {
+      const r = getSelection()!.getRangeAt(0).getBoundingClientRect()
+      return { x: r.x, y: r.y, width: r.width, height: r.height }
+    })
+    expect(
+      apart(back, word),
+      `the bar covers its words: ${JSON.stringify({ back, word })}`,
+    ).toBe(true)
+    expect(
+      Math.abs(back.y + back.height / 2 - (word.y + word.height / 2)),
+    ).toBeLessThan(160)
   })
 }

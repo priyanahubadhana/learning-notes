@@ -160,7 +160,6 @@ test('SET-B42 a Professional row has "Show in Beginner", in step with the centra
   )
 })
 
-// page.pastedChip starts off in Professional (PM-44), so Professional reads 218 of 219 on.
 test('SET-B43 Professional reads every switch as on and keeps the stored choices for Beginner', async ({
   page,
 }) => {
@@ -168,7 +167,7 @@ test('SET-B43 Professional reads every switch as on and keeps the stored choices
   await sw(page, 'home.builtFrom').click()
   const level = page.locator('[data-level-control]')
   await level.getByRole('radio', { name: 'Professional' }).click()
-  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
+  await expect(page.locator('[data-pro-total]')).toHaveText('219 of 219 on')
   await expect(sw(page, 'home.cardSizes')).toHaveAttribute(
     'aria-checked',
     'true',
@@ -188,7 +187,7 @@ test('SET-B20 Professional: turn one switch off, it stays off, the others stay o
   page,
 }) => {
   await open(page, 'pro', JSON.stringify({ level: 'professional' }))
-  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
+  await expect(page.locator('[data-pro-total]')).toHaveText('219 of 219 on')
   await expect(sw(page, 'home.cardSizes')).toBeEnabled()
   await sw(page, 'home.cardSizes').click()
   await expect(sw(page, 'home.cardSizes')).toHaveAttribute(
@@ -199,15 +198,15 @@ test('SET-B20 Professional: turn one switch off, it stays off, the others stay o
     'aria-checked',
     'true',
   )
-  await expect(page.locator('[data-pro-total]')).toHaveText('217 of 219 on')
+  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
   await page.getByTestId('sv3-undo').click()
   await expect(sw(page, 'home.cardSizes')).toHaveAttribute(
     'aria-checked',
     'true',
   )
-  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
+  await expect(page.locator('[data-pro-total]')).toHaveText('219 of 219 on')
   await page.getByTestId('sv3-redo').click()
-  await expect(page.locator('[data-pro-total]')).toHaveText('217 of 219 on')
+  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
   // It stays off after a reload.
   await page.reload()
   await expect(page.locator('[data-settings-v3]')).toBeVisible()
@@ -215,7 +214,7 @@ test('SET-B20 Professional: turn one switch off, it stays off, the others stay o
     'aria-checked',
     'false',
   )
-  await expect(page.locator('[data-pro-total]')).toHaveText('217 of 219 on')
+  await expect(page.locator('[data-pro-total]')).toHaveText('218 of 219 on')
 })
 
 test('SET-B44 the Beginner / Professional control is in Professional features and in Your experience', async ({

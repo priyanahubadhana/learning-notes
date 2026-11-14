@@ -18,16 +18,17 @@ async function open(
   level: 'beginner' | 'professional',
   mode: 'ask' | null,
   unlocked: string[] = [],
+  off: string[] = [],
 ) {
   await page.addInitScript(
-    ([l, m, u]) => {
+    ([l, m, u, o]) => {
       localStorage.setItem(
         'learning-notes:level',
-        JSON.stringify({ level: l, unlocked: u }),
+        JSON.stringify({ level: l, unlocked: u, off: o }),
       )
       if (m) localStorage.setItem('learning-notes:general.pasteMode', `"${m}"`)
     },
-    [level, mode, unlocked] as const,
+    [level, mode, unlocked, off] as const,
   )
   await page.goto('/?flags=page.menus')
   await createNotebook(page, 'Biology', 'First')
@@ -104,10 +105,22 @@ test('PM-44 the "Pasted as" chip is hidden for Beginner', async ({ page }) => {
   await expect(page.getByRole('group', { name: 'Pasted as' })).toHaveCount(0)
 })
 
-test('PM-44 the chip is off by default, even in Professional', async ({
+// PM-44 "default off" is the Beginner default; Professional reads every
+// switch as on (SET-B43), so the chip shows there until its switch is off.
+test('PM-44 Professional shows the chip (SET-B43: every switch on)', async ({
   page,
 }) => {
   await open(page, 'professional', 'ask')
+  await paste(page, RICH, PLAIN)
+  await page.keyboard.press('Enter')
+  await expect(editor(page).locator('h2')).toHaveCount(1)
+  await expect(page.getByRole('group', { name: 'Pasted as' })).toBeVisible()
+})
+
+test('PM-44 Professional with the chip switch turned off shows no chip', async ({
+  page,
+}) => {
+  await open(page, 'professional', 'ask', [], ['page.pastedChip'])
   await paste(page, RICH, PLAIN)
   await page.keyboard.press('Enter')
   await expect(editor(page).locator('h2')).toHaveCount(1)

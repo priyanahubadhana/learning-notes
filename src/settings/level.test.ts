@@ -13,8 +13,6 @@ import {
   setLevel,
   setProOff,
   proOffIds,
-  isProOff,
-  DEFAULT_OFF,
   setUnlocked,
   useLevel,
   useUnlocked,
@@ -122,33 +120,22 @@ describe('Professional: each switch can be turned off by itself (SET-B20)', () =
   })
 
   it('every one of the 219 switches can be turned off alone', () => {
-    // Switches that start off (DEFAULT_OFF, PM-44) are off before and after.
-    const startOff = PRO_FEATURES.filter((g) => !isUnlocked(g.id)).length
-    expect(startOff).toBe(DEFAULT_OFF.size)
     for (const f of PRO_FEATURES) {
       setProOff(f.id, true)
       expect(isUnlocked(f.id)).toBe(false)
-      expect(PRO_FEATURES.filter((g) => !isUnlocked(g.id))).toHaveLength(
-        DEFAULT_OFF.has(f.id) ? startOff : startOff + 1,
-      )
-      setProOff(f.id, DEFAULT_OFF.has(f.id))
+      expect(PRO_FEATURES.filter((g) => !isUnlocked(g.id))).toHaveLength(1)
+      setProOff(f.id, false)
     }
-    expect(
-      PRO_FEATURES.every((f) => isUnlocked(f.id) !== DEFAULT_OFF.has(f.id)),
-    ).toBe(true)
+    expect(PRO_FEATURES.every((f) => isUnlocked(f.id))).toBe(true)
   })
 
-  it('a default-off switch starts off; the Professional switch turns it on and off again (PM-44)', () => {
-    expect(isUnlocked('page.pastedChip')).toBe(false)
-    expect(isProOff('page.pastedChip')).toBe(true)
-    setProOff('page.pastedChip', false)
-    expect(isUnlocked('page.pastedChip')).toBe(true)
-    expect(isProOff('page.pastedChip')).toBe(false)
-    reloadLevel()
+  it('the Pasted-as chip reads as on in Professional like every switch (SET-B43, PM-44)', () => {
+    setLevel('professional')
     expect(isUnlocked('page.pastedChip')).toBe(true)
     setProOff('page.pastedChip', true)
     expect(isUnlocked('page.pastedChip')).toBe(false)
-    expect(isProOff('page.pastedChip')).toBe(true)
+    setLevel('beginner')
+    expect(isUnlocked('page.pastedChip')).toBe(false)
   })
 
   it('ignores unknown stored overrides', () => {

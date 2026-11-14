@@ -80,25 +80,15 @@ export function setLevel(level: Level): void {
 }
 
 /**
- * Professional switches that start OFF (page menus spec PM-44): they follow the
- * stored switch in both levels instead of the level's default.
- */
-export const DEFAULT_OFF = new Set<ProFeatureId>(['page.pastedChip'])
-
-/**
  * Professional: on, unless that switch was turned off one by one.
  * Beginner: only if that feature was unlocked.
  */
 export const isUnlocked = (id: ProFeatureId): boolean =>
-  state.level === 'professional' && !DEFAULT_OFF.has(id)
-    ? !state.off.has(id)
-    : state.unlocked.has(id)
+  state.level === 'professional' ? !state.off.has(id) : state.unlocked.has(id)
 
 /** Professional: turn one switch off (true) or back to the level's default, on (false). */
 export function setProOff(id: ProFeatureId, off: boolean): void {
-  if (!isProFeatureId(id)) return
-  if (DEFAULT_OFF.has(id)) return setUnlocked(id, !off)
-  if (state.off.has(id) === off) return
+  if (!isProFeatureId(id) || state.off.has(id) === off) return
   const next = new Set(state.off)
   if (off) next.add(id)
   else next.delete(id)
@@ -110,8 +100,7 @@ export const proOffIds = (): ProFeatureId[] =>
   PRO_FEATURES.map((f) => f.id).filter((id) => state.off.has(id))
 
 /** True when this switch has a Professional override (it was turned off). */
-export const isProOff = (id: ProFeatureId): boolean =>
-  DEFAULT_OFF.has(id) ? !state.unlocked.has(id) : state.off.has(id)
+export const isProOff = (id: ProFeatureId): boolean => state.off.has(id)
 
 export function setUnlocked(id: ProFeatureId, on: boolean): void {
   if (!isProFeatureId(id) || state.unlocked.has(id) === on) return

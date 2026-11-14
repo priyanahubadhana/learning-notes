@@ -4,10 +4,12 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { createPortal } from 'react-dom'
+import { setPressHome } from '../../app/input/pressHome'
 import { touchUi } from '../../app/touchUi'
 import { t } from '../../i18n/t'
 import {
@@ -91,12 +93,33 @@ function layerOf(el: HTMLElement): 'card' | 'sheet' | 'tray' | undefined {
   return card.hasAttribute('data-phone') ? 'sheet' : 'card'
 }
 
+/** The bars' own layer (--z-bar, index.css). */
+const BAR_Z = 20
+
+/**
+ * The layer of a box that floats above the bars and has no name in `layerOf`
+ * (the pages panel opened over the page): the outermost box around the list
+ * that sets a layer. The bar is drawn one above it, or the box hides its own
+ * bar (first look L11: the pages panel showed no bar at all).
+ */
+function boxLayer(el: HTMLElement): number | undefined {
+  let z: number | undefined
+  for (let a: HTMLElement | null = el; a && a !== document.body;) {
+    const v = parseInt(getComputedStyle(a).zIndex, 10)
+    if (!Number.isNaN(v)) z = v
+    a = a.parentElement
+  }
+  return z !== undefined && z >= BAR_Z ? z + 1 : undefined
+}
+
 type Read = {
   rect: { right: number; top: number; height: number; width: number }
   /** Rounded corners at the right edge (px): the bar keeps clear of them. */
   inset: { top: number; bottom: number }
   /** Something else (a panel, a sheet) is drawn over the scroller, or it is off the screen. */
   covered: boolean
+  /** Set when the list's box floats above the bars without a named layer. */
+  z: number | undefined
   scrollTop: number
   scrollH: number
   clientH: number
@@ -147,6 +170,8 @@ export function ScrollBar({
 }) {
   const [state, setState] = useState<Read | null>(null)
   const drag = useRef<{ y: number; top: number } | null>(null)
+  /** The arrow a pointer went down on: it acts when that pointer lifts on it. */
+  const pressed = useRef<{ id: number; dir: 1 | -1 } | null>(null)
   const [dragging, setDragging] = useState(false)
 
   const read = useCallback(() => {
@@ -157,6 +182,7 @@ export function ScrollBar({
       rect: { right: r.right, top: r.top, height: r.height, width: r.width },
       inset: legacy ? { top: 0, bottom: 0 } : cornersOf(el, r.right),
       covered: !legacy && coveredBy(el, r),
+      z: legacy || layerOf(el) ? undefined : boxLayer(el),
       scrollTop: el.scrollTop,
       scrollH: el.scrollHeight,
       clientH: el.clientHeight,
@@ -170,6 +196,7 @@ export function ScrollBar({
       old.inset.top === next.inset.top &&
       old.inset.bottom === next.inset.bottom &&
       old.covered === next.covered &&
+      old.z === next.z &&
       old.scrollTop === next.scrollTop &&
       old.scrollH === next.scrollH &&
       old.clientH === next.clientH
@@ -235,6 +262,30 @@ export function ScrollBar({
       })
     },
     [scroller, stops],
+  )
+
+  /**
+   * The bar is drawn on the page body, outside the box of its list (P1.5, L11):
+   *  - it names the list as its home, so "a tap outside closes the menu" rules
+   *    count a press on the bar as a press in the list's own menu or panel;
+   *  - it cancels its own touches. The bar works from pointer events alone, so
+   *    Safari never starts handwriting (Scribble) on a Pencil press here, never
+   *    pans, and never adds a late click that could land on the page behind.
+   */
+  const home = useCallback(
+    (root: HTMLDivElement | null) => {
+      if (!root || !scroller || legacy) return
+      const forget = setPressHome(root, scroller)
+      const cancel = (e: TouchEvent) => {
+        if (e.cancelable) e.preventDefault()
+      }
+      root.addEventListener('touchstart', cancel, { passive: false })
+      return () => {
+        forget()
+        root.removeEventListener('touchstart', cancel)
+      }
+    },
+    [scroller, legacy],
   )
 
   if (!scroller || !state || state.rect.width === 0 || state.covered)
@@ -310,6 +361,40 @@ export function ScrollBar({
     setDragging(true)
   }
 
+  /**
+   * An arrow acts when the pointer that pressed it lifts on it (finger, Pencil
+   * and mouse alike). It does not wait for the browser's click: the bar cancels
+   * its touches, and Safari can drop the click of a Pencil tap near an edge.
+   * A click with no pointer (keyboard, a screen reader) still works.
+   * `data-pen-own`: penTap.ts does not click it a second time.
+   */
+  const arrowPress = (dir: 1 | -1) => ({
+    'data-pen-own': '',
+    onPointerDown: (e: ReactPointerEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+      pressed.current = e.button === 0 ? { id: e.pointerId, dir } : null
+    },
+    onPointerUp: (e: ReactPointerEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+      const p = pressed.current
+      pressed.current = null
+      if (!p || p.id !== e.pointerId || p.dir !== dir) return
+      const r = e.currentTarget.getBoundingClientRect()
+      const inside =
+        e.clientX >= r.left &&
+        e.clientX <= r.right &&
+        e.clientY >= r.top &&
+        e.clientY <= r.bottom
+      if (inside) jump(dir)
+    },
+    onPointerCancel: () => {
+      pressed.current = null
+    },
+    onClick: (e: ReactMouseEvent<HTMLButtonElement>) => {
+      if (e.detail === 0) jump(dir)
+    },
+  })
+
   const arrow = (dir: 1 | -1) =>
     arrowH > 0 && (
       <button
@@ -317,7 +402,7 @@ export function ScrollBar({
         {...hook('arrow', dir === 1 ? 'down' : 'up')}
         aria-label={dir === 1 ? text.down : text.up}
         disabled={dir === 1 ? state.scrollTop >= max - 1 : state.scrollTop <= 1}
-        onClick={() => jump(dir)}
+        {...(legacy ? { onClick: () => jump(dir) } : arrowPress(dir))}
         className={
           legacy
             ? 'flex w-full items-center justify-center text-muted hover:text-ink disabled:opacity-30'
@@ -346,7 +431,10 @@ export function ScrollBar({
 
   return createPortal(
     <div
+      ref={home}
       data-chrome
+      // A press on the bar is the bar's own: no box around it reacts.
+      onPointerDown={legacy ? undefined : (e) => e.stopPropagation()}
       {...hook('root')}
       className={legacy ? 'sbar sbar--old' : 'sbar'}
       data-layer={legacy ? undefined : layerOf(scroller)}
@@ -355,6 +443,7 @@ export function ScrollBar({
         top: state.rect.top + state.inset.top,
         width: barW,
         height,
+        zIndex: state.z,
       }}
     >
       {arrow(-1)}

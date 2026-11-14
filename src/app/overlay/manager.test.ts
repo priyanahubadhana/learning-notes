@@ -2,6 +2,7 @@
  * @vitest-environment jsdom
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { setPressHome } from '../input/pressHome'
 import { domOverlayEvents, type OverlayEvents } from './events'
 import { createOverlayManager, overlay } from './manager'
 import type { Layer } from './layers'
@@ -218,5 +219,27 @@ describe('overlay manager: persistent bars and pills', () => {
     f.esc()
     expect(bar.close).not.toHaveBeenCalled()
     expect(m.count()).toBe(1)
+  })
+})
+
+// P1.5 (first look L11): a list's scroll bar is drawn on the page body, outside
+// the card or panel of its list. Pressing it closed the card ("a tap outside").
+describe('a part drawn outside its box (its scroll bar)', () => {
+  it('a press on it is a press inside the box; without a home it is outside', () => {
+    const { f, m, mk } = setup()
+    const card = mk('card', 'card')
+    const list = document.createElement('div')
+    card.el.append(list)
+    const bar = document.createElement('div')
+    const thumb = document.createElement('div')
+    bar.append(thumb)
+    document.body.append(bar)
+    const forget = setPressHome(bar, list)
+    f.pd(thumb)
+    expect(card.close).not.toHaveBeenCalled()
+    expect(m.count()).toBe(1)
+    forget()
+    f.pd(thumb)
+    expect(card.close).toHaveBeenCalledTimes(1)
   })
 })

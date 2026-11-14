@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useId, useRef, useState } from 'react'
 import { runTask } from '../app/errors'
+import { pressHome } from '../app/input/pressHome'
 import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import { TagLabel } from './TagChip'
@@ -75,7 +76,8 @@ export function TagPicker({
 
   useEffect(() => {
     const onDown = (e: PointerEvent) => {
-      if (!ref.current?.contains(e.target as Node)) onClose()
+      // Its own scroll bar is drawn outside it and still belongs to it (L11).
+      if (!ref.current?.contains(pressHome(e.target as Element))) onClose()
     }
     document.addEventListener('pointerdown', onDown, true)
     return () => document.removeEventListener('pointerdown', onDown, true)

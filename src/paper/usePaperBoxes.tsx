@@ -34,6 +34,8 @@ import {
 } from './boxService'
 import type { BoxChange } from './PaperFrame'
 import { BoxBar } from './BoxBar'
+import { BoxBarV2Lazy } from './v2/BoxBarV2Lazy'
+import { isOn } from '../app/flags'
 import { clearPageWide, pageWideClip, pageWideRange } from './pageWide'
 
 const DOTS: Record<string, string> = {
@@ -377,17 +379,32 @@ export function usePaperBoxes(
     onBoxMenu: (box, at) => setMenuFor({ box, at }),
     onGroup: (ids, group) => runTask(setGroup(db, pageId, ids, group)),
     onDeleteBox: remove,
-    renderBar: (box) => (
-      <BoxBar
-        pageId={pageId}
-        boxId={box.id}
-        canEdit={editable}
-        onDuplicate={() => editable && duplicate(box)}
-        onDelete={() => remove(box)}
-        onMenu={(at) => setMenuFor({ box, at })}
-        onLayout={openLayoutHere}
-      />
-    ),
+    renderBar: (box) =>
+      // Text box v2 (switch textbox.v2, task 2B.8): the Object bar and the ⋯ list.
+      isOn('textbox.v2') ? (
+        <BoxBarV2Lazy
+          db={db}
+          pageId={pageId}
+          box={box}
+          canEdit={editable}
+          getGrid={() => gridView.current}
+          onDuplicate={() => editable && duplicate(box)}
+          onDelete={() => remove(box)}
+          onLock={(locked) =>
+            onBoxChange(box.id, { locked: locked ? true : undefined })
+          }
+        />
+      ) : (
+        <BoxBar
+          pageId={pageId}
+          boxId={box.id}
+          canEdit={editable}
+          onDuplicate={() => editable && duplicate(box)}
+          onDelete={() => remove(box)}
+          onMenu={(at) => setMenuFor({ box, at })}
+          onLayout={openLayoutHere}
+        />
+      ),
     onInkOnPaper: editable
       ? (at, lines) =>
           addBoxWithLines(db, pageId, at, lines).catch((error: unknown) => {

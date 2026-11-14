@@ -50,7 +50,7 @@ Beginner and Professional behave the same unless marked.
 - UV-11 When a second tab has already upgraded the stored notes → this tab shows the full-screen notice with the storage reason, without a network check, and does not write to the database.
 - UV-12 When the update has installed → the pill says "Updated to <version>" for 4 s (the "What's new" card belongs to [system-v2](system-v2.md) Y-W1).
 - UV-13 When the flag is off → behaviour is exactly today's (marker-only rule), pixel for pixel.
-- UV-14 When I open Settings › About (Professional, unlock `about.version`) → I see my version, its `level`, "Check for updates now" and the last check time; a check that finds a must-have version starts U2.
+- UV-14 When I open Settings › About (Professional, unlock `about.version`) → I see my version, its `level`, "Check for updates now" and the last check time; a check that finds a must-have version starts UV-2.
 - UV-15 When I tap the reason line on the notice (Professional, proposed unlock `about.updateDetails`) → a pop-up explains what changed in storage or which data is repaired, in plain words.
 - UV-16 When reduced motion is on → the countdown ring and progress do not animate; the numbers still change each second.
 - UV-17 When I use a screen reader → the notice is an `alertdialog`, the countdown is announced once at 5 and once at "Downloading", not every second.

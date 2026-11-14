@@ -382,6 +382,7 @@ Two rows at the top of Try new features: "Test a phase" (a ▾ list: Phase 1, Up
 - SET-B26d: When I change one single switch below, the preset switch reads Off by itself (src/app/flagsPreset.test.ts "changing one single switch afterwards ends the match").
 - SET-B26e: When I switch it Off, every new part is off and the old screens come back (e2e/presetPhases.spec.ts "SET-B26b to B26e").
 - SET-B26f: When any one phase is On, the app loads and I can move between Home, Library, Notebooks and Settings and open a page with no error, on chromium and ipad-webkit (e2e/presetPhases.spec.ts "SET-B26f").
+- SET-B26h: When I tap Undo after the preset switch (On or Off) or after choosing a phase while On, the exact earlier list of switches comes back (e2e/presetPhases.spec.ts "SET-B26h", src/settings/v3/tryNew.test.ts "Undo of a Test a phase change").
 - SET-B26g: "Turn all off" does not count or touch the two preset rows (src/settings/v3/tryNew.test.ts "rowsToTurnOff").
 
 ### Won't do (Test a phase)

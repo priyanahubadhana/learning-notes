@@ -136,6 +136,9 @@ function save(): void {
 /** Is this switch ON? Answers at once from memory. */
 export const isOn = (id: FlagId): boolean => snapshot.has(id)
 
+/** The ids of every switch that is ON right now (a copy). */
+export const onFlags = (): ReadonlySet<FlagId> => new Set(snapshot)
+
 /** Turns a switch on or off and remembers it on this device. */
 export function setFlag(id: FlagId, on: boolean): void {
   if (!isFlagId(id)) return

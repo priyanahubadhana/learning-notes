@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import { createNotebook } from './helpers.ts'
 
 /**
@@ -138,6 +138,43 @@ test('SET-B26b to B26e the new Settings: shared ▾ list and one switch; reload 
   await expect.poll(() => storedFlags(page)).toEqual([])
 })
 
+test('SET-B26h Undo of the preset switch gives back the exact earlier list of switches', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    if (!sessionStorage.getItem('seeded')) {
+      localStorage.setItem(
+        'learning-notes:level',
+        JSON.stringify({ level: 'beginner', unlocked: [] }),
+      )
+      localStorage.setItem(
+        'learning-notes:flags',
+        JSON.stringify(['settings.v3', 'reader.v2', 'media.v2']),
+      )
+      sessionStorage.setItem('seeded', '1')
+    }
+  })
+  await page.goto('/#/settings/help')
+  await page.getByRole('button', { name: 'Hide menu' }).click()
+  await expect(page.locator('[data-settings-v3]')).toBeVisible()
+  const tap = page.locator('[data-version-tap]')
+  for (let i = 0; i < 5; i++) await tap.click()
+  const rows = page.locator('[data-setting-id^="tryNewPreset."]')
+  const sw = rows.nth(1).getByRole('switch')
+  await sw.click()
+  await expect(sw).toBeChecked()
+  expect((await storedFlags(page))!.sort()).toEqual(
+    PHASES[0].ids.slice().sort(),
+  )
+  await page.getByRole('button', { name: 'Undo', exact: true }).last().click()
+  await expect(sw).not.toBeChecked()
+  expect((await storedFlags(page))!.sort()).toEqual([
+    'media.v2',
+    'reader.v2',
+    'settings.v3',
+  ])
+})
+
 /** B26f: every preset loads the app and the main screens open without an error. */
 test.describe('SET-B26f each preset loads and moves between the screens', () => {
   test.describe.configure({ timeout: 180_000 })
@@ -168,15 +205,22 @@ test.describe('SET-B26f each preset loads and moves between the screens', () => 
         )
 
       await page.reload()
-      const go = async (hash: string) => {
+      // Each screen is proven by its own heading or landmark, not by a pause.
+      const main = page.locator('main')
+      const heading = (name: string) =>
+        main.getByRole('heading', { name, level: 1 })
+      const titleBox = page.getByRole('textbox', { name: 'Page title' })
+      const go = async (hash: string, shown: () => Locator) => {
         await page.evaluate((h) => (location.hash = h), hash)
-        await expect(page.locator('main')).toBeVisible({ timeout: 45_000 })
-        await page.waitForTimeout(500)
+        await expect(shown()).toBeVisible({ timeout: 45_000 })
       }
-      for (const hash of ['#/', '#/library', '#/notebooks', '#/settings'])
-        await go(hash)
-      await go(new URL(pageUrl).hash)
-      await expect(page.locator('body')).toContainText('Preset page')
+      // Home opens the notebooks list or the page you were last on.
+      await go('#/', () => heading('Notebooks').or(titleBox))
+      await go('#/library', () => heading('Notebooks'))
+      await go('#/notebooks', () => heading('Notebooks'))
+      await go('#/settings', () => heading('Settings'))
+      await go(new URL(pageUrl).hash, () => titleBox)
+      await expect(titleBox).toHaveValue('Preset page')
       expect(errors).toEqual([])
     })
   }

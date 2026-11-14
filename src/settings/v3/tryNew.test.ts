@@ -7,6 +7,7 @@ import {
   KEEP_ON_ID,
   rowsToTurnOff,
   openTryNew,
+  presetChangeItems,
   tryNewOpen,
 } from './tryNew'
 
@@ -94,5 +95,23 @@ describe('rowsToTurnOff leaves the Test a phase rows alone (SET-B26g)', () => {
     expect(rowsToTurnOff(rows, () => true).map((r) => r.id)).toEqual([
       'tryNew.home.v2',
     ])
+  })
+})
+
+describe('Undo of a Test a phase change (SET-B26h)', () => {
+  const own = { id: 'tryNewPreset.on', before: 'off', after: 'on' }
+  it('gives one item per switch that changed, with the exact earlier state', () => {
+    const items = presetChangeItems(
+      new Set(['home.v2', 'reader.v2']),
+      new Set(['reader.v2', 'settings.v3']),
+      own,
+    )
+    expect(items).toEqual([
+      { id: 'tryNew.home.v2', before: 'on', after: 'off' },
+      { id: 'tryNew.settings.v3', before: 'off', after: 'on' },
+    ])
+  })
+  it('keeps its own item when no switch moved', () => {
+    expect(presetChangeItems(new Set(), new Set(), own)).toEqual([own])
   })
 })

@@ -58,11 +58,14 @@ export function ScrollBar({
   stops,
   attr = 'scrollbar',
   labels,
+  auto = false,
 }: {
   scroller: HTMLElement | null
   stops?: (el: HTMLElement) => number[]
   attr?: string
   labels?: { up: string; down: string; bar: string }
+  /** Found by the scroll hints (ScrollBarHost): the list stays in their care. */
+  auto?: boolean
 }) {
   const [state, setState] = useState<Read | null>(null)
   const drag = useRef<{ y: number; top: number } | null>(null)
@@ -73,7 +76,7 @@ export function ScrollBar({
     if (!el) return
     el.setAttribute('data-scrollbar', '')
     // The shared bar replaces the fading hint handle on this list.
-    el.setAttribute('data-no-scroll-hint', '')
+    if (!auto) el.setAttribute('data-no-scroll-hint', '')
     const read = () => {
       const r = el.getBoundingClientRect()
       const next: Read = {
@@ -109,9 +112,9 @@ export function ScrollBar({
       ro.disconnect()
       window.clearInterval(poll)
       el.removeAttribute('data-scrollbar')
-      el.removeAttribute('data-no-scroll-hint')
+      if (!auto) el.removeAttribute('data-no-scroll-hint')
     }
-  }, [scroller])
+  }, [scroller, auto])
 
   const jump = useCallback(
     (dir: 1 | -1) => {
@@ -258,7 +261,7 @@ export function ScrollBar({
       {arrow(1)}
     </div>,
     // A pop-over sits in the top layer: the bar must be inside it to show.
-    scroller.closest<HTMLElement>('[popover]') ?? document.body,
+    scroller.closest<HTMLElement>('[popover], dialog[open]') ?? document.body,
   )
 }
 

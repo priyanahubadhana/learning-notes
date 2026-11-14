@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: fix-scroll slice, round 2 (one bar everywhere)
+
+- What: the old fading handle (.scroll-hint-thumb) is gone. app/scrollHints.ts now only marks lists and tells design/parts/ScrollBarHost which list is being scrolled; ScrollBarHost draws the shared ScrollBar on it, so Card, CommandList and every other list have the same bar with end arrows. Thumb 4 px (6 dragged), 44 pt touch area, 150 ms. Contrast test (3:1) in Light, Dark, Sepia. docs/features/shell.md added (check:dod runs).
+- Files: src/design/parts/ScrollBar*.tsx, scrollTarget.ts, scrollBarContrast.test.ts, src/app/scrollHints.ts, src/index.css, src/main.tsx, e2e/scrollHints.spec.ts, docs/features/shell.md
+
 ### 14 Nov 2026: fix-scroll slice (iPad findings F2, F3, F4, F6, F8; flag foundation.shell)
 
 - What: ONE shared scroll bar part (src/design/parts/ScrollBar.tsx, scrollBarLogic.ts, ScrollBar.css, useScroller.ts): visible track, a thumb at full muted ink, an arrow at each end that dims at its end, tokens only, 20 px wide (the page bar was 24, arrows 34 not 40). Used by the Notebooks sidebar, the pages panel (classic and V2) and the page (PageScrollBar is now a thin user with sheet stops). The sidebar is one scroller, so rows and empty space scroll alike. The Notebooks sidebar no longer lists Review / All cards / All summaries (the Review space keeps them). useFrameSize re-reads the window size after a resize because iPad Safari reports the old size for a moment after a turn.

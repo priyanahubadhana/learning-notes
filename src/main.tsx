@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.tsx'
 import { reloadOnFailedChunk } from './app/chunkReload'
 import { ErrorBoundary } from './app/ErrorBoundary'
+import { ScrollBarHost } from './design/parts/ScrollBarHost'
 import { startNavHistory } from './app/navHistory'
 import { installPenTap, penTapOptions } from './app/penTap'
 import { fingerOnlyBars } from './app/tools/main/mainTools'
@@ -353,6 +354,7 @@ if (isConnectRoute(location.hash)) {
       <ErrorBoundary onHome={goHome} onSaveAll={saveEverything} fullScreen>
         <UpgradeGate>
           <App />
+          <ScrollBarHost />
         </UpgradeGate>
       </ErrorBoundary>
     </StrictMode>,

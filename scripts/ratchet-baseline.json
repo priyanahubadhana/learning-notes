@@ -1,7 +1,7 @@
 {
   "totals": {
     "listeners": 362,
-    "zIndex": 137
+    "zIndex": 138
   },
   "files": {
     "listeners": {
@@ -209,6 +209,7 @@
       "src/reader/pdfTools/Shell.tsx": 1,
       "src/settings/PencilOffer.tsx": 1,
       "src/settings/settingsNotice.tsx": 1,
+      "src/settings/v3/settingsV3.css": 1,
       "src/share/DataScreen.tsx": 2,
       "src/share/ReminderBar.tsx": 1,
       "src/share/export/ExportDialog.tsx": 1,

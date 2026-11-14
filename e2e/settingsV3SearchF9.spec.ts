@@ -60,6 +60,48 @@ test.describe('iPad landscape', () => {
     })
   }
 
+  for (const section of ['experience', 'general', 'advanced']) {
+    test(`F9 nothing paints over the sticky search bar after scrolling ${section}`, async ({
+      page,
+    }) => {
+      await open(page, section, true)
+      // Walk down to the bottom; at every step nothing in the list (a
+      // switch, a why mark, a card) may paint over the bar.
+      const hits = await page.evaluate(() => {
+        const bar = document.querySelector('.sv3-search')!
+        const input = bar.querySelector('input')!
+        let sc: Element | null = bar.parentElement
+        while (sc && !(sc.scrollHeight > sc.clientHeight + 50))
+          sc = sc.parentElement
+        const mid: string[] = []
+        const edge: string[] = []
+        const name = (el: Element | null) => el?.outerHTML.slice(0, 80) ?? ''
+        const max = sc ? sc.scrollHeight - sc.clientHeight : 0
+        // Steps smaller than the bar, so anything sliding under it is caught;
+        // elementFromPoint lays the page out, so no frame wait is needed.
+        for (let t = 0; t <= max + 20; t += 20) {
+          if (sc) sc.scrollTop = t
+          const r = input.getBoundingClientRect()
+          const b = bar.getBoundingClientRect()
+          const c = document.elementFromPoint(
+            r.left + r.width / 2,
+            r.top + r.height / 2,
+          )
+          if (c !== input) mid.push(name(c))
+          for (let x = b.left + 4; x < b.right - 2; x += 16)
+            for (const y of [b.top + 2, r.top + r.height / 2]) {
+              const el = document.elementFromPoint(x, y)
+              if (el && !bar.contains(el)) edge.push(`${t}: ${name(el)}`)
+            }
+          if (mid.length || edge.length) break
+        }
+        return { mid, edge }
+      })
+      expect(hits.mid).toEqual([])
+      expect(hits.edge).toEqual([])
+    })
+  }
+
   test('F9 search finds the advanced options by name', async ({ page }) => {
     await open(page, 'general')
     await box(page).fill('Tool state')

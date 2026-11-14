@@ -62,6 +62,13 @@ describe('switches on by default', () => {
     ].join('\n')
     expect(defaultsOn(bad)).toBe(true)
   })
+  it('fails the negated form that gives the list to every host but the preview', () => {
+    const bad = [
+      "export const PREVIEW_DEFAULT_ON = ['a.v1']",
+      'const defaults = () => !isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON) : new Set()',
+    ].join('\n')
+    expect(defaultsOn(bad)).toBe(true)
+  })
 })
 
 describe('the check-dod script', () => {

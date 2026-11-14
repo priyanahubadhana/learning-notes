@@ -16,7 +16,8 @@ export function behaviourLineCount(text) {
  * `isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON)` (the test host, never live).
  */
 export function defaultsOn(source) {
-  const gated = /isPreviewHost\(\)\s*\?\s*new Set\(\s*PREVIEW_DEFAULT_ON\s*\)/g
+  const gated =
+    /(?<!!\s*)isPreviewHost\(\)\s*\?\s*new Set\(\s*PREVIEW_DEFAULT_ON\s*\)/g
   const declared = /export const PREVIEW_DEFAULT_ON[^=]*=\s*\[[^\]]*\]/
   let rest = source
   if (declared.test(rest) && gated.test(rest)) {

@@ -115,37 +115,41 @@ async function wordShots(
     await expect(box).not.toHaveAttribute('data-picked', '')
     await box.evaluate((e) => e.scrollIntoView({ block: 'end' }))
     await page.waitForTimeout(600)
-    // The word "Photosynthesis": find it on screen.
-    const at = await page.evaluate(() => {
-      const ed = document.querySelector(
-        '[data-paper-box]:not([data-paper-box="main"]) .bn-editor',
-      )!
-      const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT)
-      for (let n = w.nextNode(); n; n = w.nextNode()) {
-        const i = (n.textContent ?? '').indexOf('Photosynthesis')
-        if (i < 0) continue
-        const r = document.createRange()
-        r.setStart(n, i + 1)
-        r.setEnd(n, i + 2)
-        const b = r.getBoundingClientRect()
-        return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
-      }
-      return null
-    })
+    // The last word, "dioxide" (the bar sits over the first line): find it on screen.
+    const where = () =>
+      page.evaluate(() => {
+        const ed = document.querySelector(
+          '[data-paper-box]:not([data-paper-box="main"]) .bn-editor',
+        )!
+        const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT)
+        for (let n = w.nextNode(); n; n = w.nextNode()) {
+          const i = (n.textContent ?? '').indexOf('dioxide')
+          if (i < 0) continue
+          const r = document.createRange()
+          r.setStart(n, i + 1)
+          r.setEnd(n, i + 2)
+          const b = r.getBoundingClientRect()
+          return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
+        }
+        return null
+      })
+    const at = await where()
     expect(at).not.toBeNull()
     // First tap selects the box; then a double-tap selects the word.
     await send(page, 'pointerdown', at!.x, at!.y)
     await send(page, 'pointerup', at!.x, at!.y)
     await expect(box).toHaveAttribute('data-picked', '')
     await page.waitForTimeout(700)
+    // The box may have moved when it was selected: measure the word again.
+    const at2 = (await where())!
     for (let i = 0; i < 2; i++) {
       if (i) await page.waitForTimeout(120)
-      await send(page, 'pointerdown', at!.x, at!.y)
-      await send(page, 'pointerup', at!.x, at!.y)
+      await send(page, 'pointerdown', at2.x, at2.y)
+      await send(page, 'pointerup', at2.x, at2.y)
     }
     await expect
       .poll(() => page.evaluate(() => window.getSelection()?.toString()))
-      .toBe('Photosynthesis')
+      .toBe('dioxide')
     await page.waitForTimeout(300)
     await page.screenshot({ path: `${OUT()}/word-${name}-${label}.png` })
   }

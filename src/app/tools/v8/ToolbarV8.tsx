@@ -18,8 +18,10 @@ import { ToolRow } from './ToolRow'
 import { isPenCard } from './cards/pen/penModel'
 import { cardAutoClose } from './cards/autoClose'
 import { isShapeDraw } from './cards/shapes/shapesModel'
+import { activeBox } from '../../../paper/activeBox'
 import { penSettings } from '../main/inkSettings'
 import { cardInfo } from './rowItems'
+import { useTuckWatcher } from './useTuckWatcher'
 import type { V8ToolId } from './registryV8'
 import './toolbarV8.css'
 
@@ -28,10 +30,32 @@ const PenCardBody = lazy(() => import('./cards/pen/PenCards'))
 const EraserCardBody = lazy(() => import('./cards/eraser/EraserCards'))
 const ShapesCardBody = lazy(() => import('./cards/shapes/ShapesCards'))
 const LassoCardBody = lazy(() => import('./cards/lasso/LassoCards'))
+const TextCardBody = lazy(() => import('./cards/text/TextCards'))
+const InsertCardBody = lazy(() => import('./cards/insert/InsertCards'))
+const AllToolsCardBody = lazy(() => import('./cards/alltools/AllToolsCard'))
 const SelectionBarV8 = lazy(() => import('./SelectionBarV8'))
 const SelCardBody = lazy(() =>
   import('./SelectionBarV8').then((m) => ({ default: m.SelCardBody })),
 )
+
+/** The selected text box's rect: the Box card hangs around it, never over it. */
+const activeBoxRect = () => {
+  const at = activeBox.get()
+  const r = at
+    ? document
+        .querySelector(`[data-paper-box="${at.boxId}"]`)
+        ?.getBoundingClientRect()
+    : null
+  if (!r) return null
+  // The frame and the handles sit just outside the box: keep clear of them too.
+  const pad = 24
+  return {
+    left: r.left - pad,
+    top: r.top - pad,
+    width: r.width + 2 * pad,
+    height: r.height + 2 * pad,
+  }
+}
 
 /** The picked picture's rect: the Edit picture card keeps clear of it. */
 const pickedPictureRect = () =>
@@ -48,6 +72,7 @@ export default function ToolbarV8() {
   const picture = pictureControl.useValue() !== null
   const [card, setCard] = useState<OpenCard | null>(null)
   const root = useRef<HTMLDivElement>(null)
+  useTuckWatcher()
 
   // The shared stacking table as --z-* variables (the name tip uses --z-menu).
   useEffect(() => applyLayerVars(), [])
@@ -122,6 +147,9 @@ export default function ToolbarV8() {
     setCard((c) => (c && c.id === id ? null : c))
 
   const info = card ? cardInfo(card.id) : null
+  /** The Box card stays 8 px under the bar (its tool line and Text row). */
+  const barBottom = () =>
+    (root.current?.getBoundingClientRect().bottom ?? 0) + 8
 
   return (
     <div ref={root} className="v8" data-testid="toolbar-v8" data-tool={tool}>
@@ -157,6 +185,8 @@ export default function ToolbarV8() {
           size={info.size}
           autoClose={cardAutoClose(card.id)}
           avoid={card.id === 'sel.picture' ? pickedPictureRect : undefined}
+          around={card.id === 'text.box' ? activeBoxRect : undefined}
+          clearTop={card.id === 'text.box' ? barBottom : undefined}
           title={t(info.title)}
           testId={`v8-card-${card.id}`}
           onClose={() => onCloseCard(card.id)}
@@ -176,10 +206,13 @@ export default function ToolbarV8() {
                 onDone={() => onCloseCard(card.id)}
                 onSwap={(id) => setCard((c) => (c ? { ...c, id } : c))}
               />
-            ) : (
-              /* 1e and 1f fill the other cards. */
-              <p className="v8note">{t('v8.card.empty')}</p>
-            )}
+            ) : card.id.startsWith('text.') ? (
+              <TextCardBody id={card.id} />
+            ) : card.id === 'insert' ? (
+              <InsertCardBody />
+            ) : card.id === 'more.alltools' ? (
+              <AllToolsCardBody />
+            ) : null}
           </Suspense>
         </Card>
       ) : null}

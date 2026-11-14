@@ -1,4 +1,5 @@
 import { isOnOff, type OnOff } from '../app/deviceMode'
+import { hideWhileWriting } from '../app/tools/v8/tuck'
 import { freeTip, resetFreePos } from '../app/tools/freeBar'
 import { resetRibbonOptions } from '../app/tools/ribbonDefaults'
 import {
@@ -320,6 +321,23 @@ const showNamesSetting: SettingDefinition<OnOff> = {
   },
 }
 
+/** BUG-003, TB-74: tuck the bar away while writing; the Show toolbar pill brings it back. */
+const hideWhileWritingSetting: SettingDefinition<OnOff> = {
+  id: 'toolbar.hideWhileWriting',
+  labelKey: 'settings.hideWhileWriting.label',
+  descriptionKey: 'settings.hideWhileWriting.description',
+  category: 'toolbar',
+  keywords: KEYWORDS + ' hide tuck away writing typing pill minimise',
+  scope: 'device',
+  defaultValue: 'off',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOff() },
+  derived: {
+    read: () => (hideWhileWriting.get() ? 'on' : 'off'),
+    write: (value) => hideWhileWriting.set(value === 'on'),
+  },
+}
+
 const pillPlaceSetting: SettingDefinition<'idle'> = {
   id: 'toolbar.pillReset',
   labelKey: 'settings.pillReset.label',
@@ -391,6 +409,7 @@ for (const definition of [
   penPicksPenSetting,
   fingerOnlySetting,
   showNamesSetting,
+  hideWhileWritingSetting,
   pillPlaceSetting,
   resetToolBarSetting,
 ]) {

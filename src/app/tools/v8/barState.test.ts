@@ -73,6 +73,7 @@ describe('rowItems', () => {
       'feel',
     ])
     expect(ROW_ITEMS.text.map((i) => i.id)).toEqual([
+      'boxset', // the settings button in front of Box (TB-40, T3)
       'box',
       'format',
       'bold',

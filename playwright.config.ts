@@ -84,6 +84,7 @@ const config = defineConfig({
         /pencilIsolation/,
         /storageSafety.spec/,
         /updateV2/,
+        /updateFailureNote/,
         /security-m1-/,
         /chromeIsolation/,
         /penTapChrome/,
@@ -132,6 +133,8 @@ const config = defineConfig({
         /toolBand/,
         /pencilOffer/,
         /lassoWords/,
+        /penTools/,
+        /pictureSelect/,
         /gestureWatchdog/,
         /lockToastStill/,
         /editToolbar/,
@@ -174,8 +177,9 @@ const config = defineConfig({
         /freezeWatch/,
         /searchClose/,
         /settingsV3SearchF9/,
-        // Paste needs the clipboard-write permission, which WebKit does not have: chromium only.
-        /toolbarV8(Bar|Frame|Pen|Row|Tools).spec/,
+        // Toolbar v8 files. toolbarV8Paste needs the real clipboard permission, which WebKit lacks, so it
+        // stays chromium only; toolbarV8PasteIpad covers the same behaviour here with a stubbed clipboard.
+        /toolbarV8(Bar|Frame|Pen|Row|Tools|Text|Insert|Tuck|PasteIpad|Round5).spec/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

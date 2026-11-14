@@ -1233,3 +1233,5 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 - Settings review, questions 1 and 3 (owner yes, 14 Nov): in this project Gmail, Calendar, Notion, Spotify, Adobe and Goodnotes are blocked; Supabase asks before every action; Google Drive asks before it creates, copies, changes, shares or trashes a file; Claude Docs asks before deleting; the Learning Notes connector asks before every action (.claude/settings.json, permissions deny and ask).
 
 - Settings review, question 4 (owner, 14 Nov): the permission mode stays Auto. Questions go up a ladder (plan and approved picture, then Opus, then Fable) and reach the owner only for money, logins and Supabase, switching a part on in the live app, possible data loss, a real-device test, or a real product or design decision. When the safety check blocks a planned action, the owner is asked once to allow that kind of action for good.
+
+- Settings review, questions 5 and 6 (owner, 14 Nov): the test guard stays. The lint and type check that ran at every stop is removed (the push guard runs the same checks before every push); the stop hook now only makes the backup copy.

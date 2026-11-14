@@ -130,3 +130,27 @@ test.describe('iPad landscape', () => {
     await expect(page.locator('[data-hit^="tryNew."]').first()).toBeVisible()
   })
 })
+
+/**
+ * F10 (docs/PENDING.md): on a phone the dim layer behind a ▾ sheet must cover
+ * the sticky search bar too. Why: the dim layer had no layer number, so the
+ * bar (--z-sticky: 1) painted above it.
+ */
+test.describe('phone', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true })
+
+  test('SET-B02 F10 a ▾ sheet dims the sticky search bar', async ({ page }) => {
+    await open(page, 'general')
+    const row = page.locator('[data-setting-id="general.dayStartHour"]')
+    await row.scrollIntoViewIfNeeded()
+    await row.locator('[data-popup-trigger]').click()
+    await expect(page.locator('.pcard-scrim')).toBeVisible()
+    await page.waitForTimeout(400)
+    const top = await page.evaluate(() => {
+      const bar = document.querySelector('.sv3-search')!.getBoundingClientRect()
+      const el = document.elementFromPoint(bar.left + 4, bar.top + 4)
+      return el?.className ?? null
+    })
+    expect(String(top)).toContain('pcard-scrim')
+  })
+})

@@ -1941,3 +1941,9 @@ What: `git worktree remove` on 47 clean, merged copies; 19 remain. Six folders w
 ## 14 Nov 2026: restart approved; leftover folders cleaned
 
 What: 6 scratch working copies removed with git and 9 folders in `.claude/worktrees` deleted (owner's one-time yes; links removed first; main packages untouched); 8 half-deleted folders in Downloads remain for task 0.11. docs/BUILD-STATE.md now says RESTART APPROVED (lean mode, the order of the first tasks); docs/PENDING.md "Needs you" rewritten; the owner's answers logged in docs/DECISIONS.md. Why: the owner answered the last three questions and asked to speed up.
+
+## 2026-11-14 · F10 dim layer covers the sticky Settings search bar (slice/p1-f10)
+
+- What: on a phone the dim layer behind a ▾ sheet now covers the sticky "Search settings" bar.
+- Why: the dim layer (`.pcard-scrim`) had no layer number, so the bar (`--z-sticky: 1`) painted above it. The scrim now takes the sheet's layer number (`LAYERS.sheet`), reusing the sheet's one `zIndex` use: the ratchet stays 137.
+- Files: src/design/parts/Card.tsx, e2e/settingsV3SearchF9.spec.ts (SET-B04a), docs/features/settings-v3.md, docs/PENDING.md.

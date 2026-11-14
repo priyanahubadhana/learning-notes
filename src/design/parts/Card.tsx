@@ -185,11 +185,14 @@ export function Card(props: CardProps) {
   }, [autoClose, picked, request])
 
   const floating = !isStatic && !phone
+  // F10: the phone dim layer takes the sheet layer number, so it also covers
+  // a sticky bar (--z-sticky) in the page behind.
+  const sheetLayer = { zIndex: LAYERS.sheet }
   const style: CSSProperties & Record<string, string | number | undefined> =
     isStatic
       ? { position: 'relative' }
       : phone
-        ? { zIndex: LAYERS.sheet }
+        ? sheetLayer
         : {
             zIndex: LAYERS.card,
             left: pos?.left ?? 0,
@@ -283,7 +286,7 @@ export function Card(props: CardProps) {
   if (isStatic) return card
   return createPortal(
     <>
-      {phone && <div className="pcard-scrim" aria-hidden />}
+      {phone && <div className="pcard-scrim" style={sheetLayer} aria-hidden />}
       {card}
     </>,
     document.body,

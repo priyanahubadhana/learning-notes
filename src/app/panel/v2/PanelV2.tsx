@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { onRouted } from '../../input/eventRouter'
 import { overlay } from '../../overlay'
 import { usePref } from '../../usePref'
@@ -12,6 +12,7 @@ import { outlineRequest } from '../outlineRequest'
 import { OutlineTabV2 } from './OutlineTabV2'
 import { PagesTabV2 } from './PagesTabV2'
 import { ResourcesTab } from './ResourcesTab'
+import { useFrameSize } from '../../shell/useFrameSize'
 import './panelV2.css'
 
 const TABS = ['pages', 'outline', 'resources'] as const
@@ -39,15 +40,7 @@ const isTab = (v: unknown): v is Tab | 'audio' =>
 const DOCK_MIN = 1024
 
 function useDocked(): boolean {
-  const [docked, setDocked] = useState(() => window.innerWidth >= DOCK_MIN)
-  useEffect(() => {
-    const ro = new ResizeObserver(() =>
-      setDocked(window.innerWidth >= DOCK_MIN),
-    )
-    ro.observe(document.documentElement)
-    return () => ro.disconnect()
-  }, [])
-  return docked
+  return useFrameSize().width >= DOCK_MIN
 }
 
 /**

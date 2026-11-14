@@ -50,6 +50,16 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: the app took about 15 s to start on WebKit because starters were written before the first screen.
 - Files: src/templates/templateService.ts, src/templates/NewPageStart.tsx, src/templates/seedBulk.test.ts, e2e/startSeeding.spec.ts, e2e/startSpeed.spec.ts, docs/features/perf-start.md, docs/CHANGELOG.md.
 
+### 14 Nov 2026: search pop-up touch close, Settings search in reach, preview defaults (slice fix-search, F5/F9)
+
+- What: the search pop-up has a ✕ close beside the field and no Esc text; the keyboard footer is hidden on touch; the Settings search stays at the top of every section and finds Try new features switches; on the build-next preview host 12 tested parts start ON (live stays OFF); check-dod allows a default only when gated by isPreviewHost.
+- Why: iPad test findings F5 and F9; testers had to switch each part on by hand.
+- Files: src/search/SearchPopup.tsx, src/app/flags.ts, src/settings/v3/tryNew.ts, src/settings/v3/settingsV3.css, src/design/parts/ClearField.css, scripts/dodSpec.mjs, e2e/searchClose.spec.ts, e2e/settingsV3SearchF9.spec.ts
+
+### 14 Nov 2026: build manager run 8
+
+Toolbar 1e/1f gate 2 PASS on 19e158cf. Reader v2 pictures re-shot (2f78926f), final look PASS: ready for the owner. docs/features/page-menus.md PM-44 now says the chip is off in Beginner and on in Professional (SET-B43), matching the code and DECISIONS. CI 43542651882 red on e2e/bigPageBudget.spec.ts:576 (runner frame timing); Fable ruling: count late frames that are also app work. Fix lists out for the scroll and search owner fixes. Files: docs/features/page-menus.md, docs/BUILD-STATE.md, docs/PENDING.md.
+
 ### 14 Nov 2026: storage safety merged; BUG-006 in the preview
 
 build/next: TB-33/TB-34 test timing fixed (a376f39d, merged 4579cdb4), CI 43522929290 green on 1d7db514, so BUG-006 is in the preview. iPad storage safety merged cfebd3a4 (flag OFF, gates 2+3 passed); first load 319,763 B, lazy-load follow-up queued. Gate 3: AI cost additions PASS, toolbar 1e/1f FAIL (7), 12 rest FAIL (6), Reader fixes in gate 2. Files: docs/BUILD-STATE.md, PENDING.md, CHANGELOG.md.

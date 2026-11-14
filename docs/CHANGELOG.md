@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: P1.5 the real Pencil on scroll bars, menus and lists (L11; flag foundation.shell)
+
+- What: pressing a menu's or panel's own scroll bar (track, thumb, arrow) scrolls its list and the menu stays open (SC-19); the pages panel opened over the page shows its bar (SC-20); a Pencil drag scrolls lists, menus and panels like a finger, and on the note page the Pencil still writes (SC-21). The tests now use a Pencil sent by the browser itself (`e2e/realPen.ts`).
+- Why it happened (bug note): the shared bar is drawn on the page body, outside the box of its list, and the "tap outside closes it" rules were never told. So a press on the bar closed the menu at pointerdown, the bar went with it, and the rest of the press (move, lift, click) landed on the page behind. It was never Pencil-only: a finger and a mouse did the same, but a finger scrolls the list itself and rarely touches the bar. The tests missed it because they built pen events inside the page (always delivered to the named element, never followed by anything) and never pressed a menu's own bar. The pages panel over the page also drew its bar under itself (bar layer 20, panel 39). The Pencil could not scroll lists because the app cancels the Pencil's touch on its own bars and menus (against Scribble), and a cancelled touch does not pan.
+- Files: src/app/input/{pressHome,penScroll,ownTouches}.ts, src/app/overlay/{boxLayer,manager}.ts, src/app/popups.ts, src/design/parts/ScrollBar.tsx, src/tags/TagPicker.tsx, src/links/LinkPicker.tsx, src/main.tsx, e2e/{realPen.ts,pencilReal.spec.ts,scrollBarPen.spec.ts}, playwright.config.ts, docs/features/shell.md.
+
 ### 14 Nov 2026: toolbar v8 gate 2 fix round (1e/1f/BUG-003)
 
 - What: Advanced in Format now shows fonts in their own face and line height (TB-41); headings, indent, outdent and divider are buttons; the new-box look is one Undo/Redo step; a reload during a peek keeps the bar Off (TB-75); tests for Box look Undo/Redo, 200 ms tuck, Pencil tuck, each Pro switch alone.

@@ -9,7 +9,9 @@ import {
 } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { createPortal } from 'react-dom'
+import { ownTouches } from '../../app/input/ownTouches'
 import { setPressHome } from '../../app/input/pressHome'
+import { layerAbove } from '../../app/overlay/boxLayer'
 import { touchUi } from '../../app/touchUi'
 import { t } from '../../i18n/t'
 import {
@@ -93,32 +95,13 @@ function layerOf(el: HTMLElement): 'card' | 'sheet' | 'tray' | undefined {
   return card.hasAttribute('data-phone') ? 'sheet' : 'card'
 }
 
-/** The bars' own layer (--z-bar, index.css). */
-const BAR_Z = 20
-
-/**
- * The layer of a box that floats above the bars and has no name in `layerOf`
- * (the pages panel opened over the page): the outermost box around the list
- * that sets a layer. The bar is drawn one above it, or the box hides its own
- * bar (first look L11: the pages panel showed no bar at all).
- */
-function boxLayer(el: HTMLElement): number | undefined {
-  let z: number | undefined
-  for (let a: HTMLElement | null = el; a && a !== document.body;) {
-    const v = parseInt(getComputedStyle(a).zIndex, 10)
-    if (!Number.isNaN(v)) z = v
-    a = a.parentElement
-  }
-  return z !== undefined && z >= BAR_Z ? z + 1 : undefined
-}
-
 type Read = {
   rect: { right: number; top: number; height: number; width: number }
   /** Rounded corners at the right edge (px): the bar keeps clear of them. */
   inset: { top: number; bottom: number }
   /** Something else (a panel, a sheet) is drawn over the scroller, or it is off the screen. */
   covered: boolean
-  /** Set when the list's box floats above the bars without a named layer. */
+  /** The layer just above the list's floating box, when that box has no named layer (the pages panel over the page). */
   z: number | undefined
   scrollTop: number
   scrollH: number
@@ -182,7 +165,7 @@ export function ScrollBar({
       rect: { right: r.right, top: r.top, height: r.height, width: r.width },
       inset: legacy ? { top: 0, bottom: 0 } : cornersOf(el, r.right),
       covered: !legacy && coveredBy(el, r),
-      z: legacy || layerOf(el) ? undefined : boxLayer(el),
+      z: legacy || layerOf(el) ? undefined : layerAbove(el),
       scrollTop: el.scrollTop,
       scrollH: el.scrollHeight,
       clientH: el.clientHeight,
@@ -276,13 +259,10 @@ export function ScrollBar({
     (root: HTMLDivElement | null) => {
       if (!root || !scroller || legacy) return
       const forget = setPressHome(root, scroller)
-      const cancel = (e: TouchEvent) => {
-        if (e.cancelable) e.preventDefault()
-      }
-      root.addEventListener('touchstart', cancel, { passive: false })
+      const release = ownTouches(root)
       return () => {
         forget()
-        root.removeEventListener('touchstart', cancel)
+        release()
       }
     },
     [scroller, legacy],
@@ -443,7 +423,9 @@ export function ScrollBar({
         top: state.rect.top + state.inset.top,
         width: barW,
         height,
-        zIndex: state.z,
+        ...(state.z === undefined
+          ? {}
+          : ({ '--sbar-layer': state.z } as CSSProperties)),
       }}
     >
       {arrow(-1)}

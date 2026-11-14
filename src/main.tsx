@@ -7,7 +7,6 @@ import { reloadOnFailedChunk } from './app/chunkReload'
 import { ErrorBoundary } from './app/ErrorBoundary'
 import { ScrollBarHost } from './design/parts/ScrollBarHost'
 import { startNavHistory } from './app/navHistory'
-import { installPenScroll } from './app/input/penScroll'
 import { installPenTap, penTapOptions } from './app/penTap'
 import { fingerOnlyBars } from './app/tools/main/mainTools'
 import { UpgradeGate } from './app/UpgradeGate'
@@ -83,7 +82,10 @@ inputMachine.setTool(activeTool.get())
 activeTool.subscribe(() => inputMachine.setTool(activeTool.get()))
 installPenTap()
 // P1.5: a Pencil drag scrolls lists, menus and panels (new app frame only).
-installPenScroll(() => isOn('foundation.shell'))
+// Loaded after the start, so the first load stays inside its size budget.
+void import('./app/input/penScroll').then((m) =>
+  m.installPenScroll(() => isOn('foundation.shell')),
+)
 penTapOptions.fingerOnly = fingerOnlyBars.get()
 fingerOnlyBars.subscribe(() => {
   penTapOptions.fingerOnly = fingerOnlyBars.get()

@@ -1,3 +1,8 @@
+import {
+  createEventRouter,
+  PRIORITY,
+  type RouterTargets,
+} from '../../app/input/eventRouter'
 import { PICK_BOX } from '../../editor/tapSelect'
 import { activeTool } from '../../app/tools/main/mainTools'
 import { selection } from '../../app/selection/store'
@@ -43,13 +48,12 @@ export function installBoxV2(): () => void {
   let mode: 'none' | 'text' = 'text'
   let tap: Tap | null = null
   let swallowUntil = 0
-
-  const stopMouse = (e: Event) => {
+  /** The tap that only selected a box makes no click on the text under it. */
+  const stopClick = (e: Event) => {
     if (Date.now() >= swallowUntil) return
     e.preventDefault()
     e.stopImmediatePropagation()
   }
-  const mouseNames = ['mousedown', 'mouseup', 'click']
 
   const onDown = (e: PointerEvent) => {
     mode = inputModeFor(e.pointerType)
@@ -102,10 +106,6 @@ export function installBoxV2(): () => void {
   const onCancel = (e: PointerEvent) => {
     if (tap && e.pointerId === tap.id) tap = null
   }
-  /** A stylus touch of a first tap must not start Scribble's dot. */
-  const onTouch = (e: TouchEvent) => {
-    if (tap?.pen && e.cancelable) e.preventDefault()
-  }
   /** A new editor (a new box) starts with the keyboard rule already set. */
   const watch = new MutationObserver((list) => {
     if (mode !== 'none') return
@@ -122,14 +122,19 @@ export function installBoxV2(): () => void {
     else clearBoxes(selection)
   })
 
-  window.addEventListener('pointerdown', onDown, true)
-  window.addEventListener('pointerup', onUp, true)
-  window.addEventListener('pointercancel', onCancel, true)
-  window.addEventListener('touchstart', onTouch, {
-    capture: true,
-    passive: false,
+  // Window level, before the editors (the router is bound to the window, so
+  // it hears an event before the document listeners do).
+  const router = createEventRouter({
+    doc: window as unknown as RouterTargets['doc'],
+    win: window,
   })
-  for (const n of mouseNames) window.addEventListener(n, stopMouse, true)
+  const first = { priority: PRIORITY.gesture, name: 'textbox.v2' }
+  const offs = [
+    router.subscribe('pointerdown', (e) => void onDown(e), first),
+    router.subscribe('pointerup', (e) => void onUp(e), first),
+    router.subscribe('pointercancel', (e) => void onCancel(e), first),
+    router.subscribe('click', (e) => void stopClick(e), first),
+  ]
   watch.observe(document.body, { childList: true, subtree: true })
   mirror.observe(document.body, {
     attributes: true,
@@ -138,11 +143,8 @@ export function installBoxV2(): () => void {
     childList: true,
   })
   return () => {
-    window.removeEventListener('pointerdown', onDown, true)
-    window.removeEventListener('pointerup', onUp, true)
-    window.removeEventListener('pointercancel', onCancel, true)
-    window.removeEventListener('touchstart', onTouch, true)
-    for (const n of mouseNames) window.removeEventListener(n, stopMouse, true)
+    for (const off of offs) off()
+    router.destroy()
     watch.disconnect()
     mirror.disconnect()
     clearBoxes(selection)

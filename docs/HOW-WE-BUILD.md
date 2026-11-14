@@ -36,7 +36,8 @@ At the end of a phase: the owner's first look on the iPad, fixes, polish to the 
 5. **No queue.** Merge a task as soon as it is reviewed. Do not add builders while a reviewed task has waited more than an hour to merge.
 6. **One state file.** BUILD-STATE.md is one table, rewritten in place, under 100 lines. History goes to docs/CHANGELOG.md.
 7. **Never go quiet.** A phase manager ends every run with `RESTART phase-manager` or `STOPPED: <reason>`. Estimates use the measured pace and say "likely".
-8. **Ask the owner only for:** money, logins and Supabase, switching a part ON in the live app, possible data loss, a test on a real device, a real product decision. Otherwise take the safest option and log it in docs/DECISIONS.md "Decisions to review".
+8. **Questions go up a ladder, and the owner is last (owner, 14 Nov).** First the plan and the approved picture answer. If they do not, the manager (Opus) decides. If Opus is unsure, Fable decides. Each decision taken this way is logged in docs/DECISIONS.md "Decisions to review" and the work goes on. The owner is asked only for: money; logins and Supabase; switching a part ON in the live app; possible data loss; a test on a real device; and a real product or design decision, meaning one that changes an approved picture, changes or drops a feature, or changes a rule.
+9. **When the safety check blocks a planned action,** no helper can overrule it. The manager notes the kind of action and asks the owner once to allow that kind for good, so the same stop does not come back.
 
 ## 4. Where code goes
 

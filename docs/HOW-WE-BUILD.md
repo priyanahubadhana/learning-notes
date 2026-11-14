@@ -23,7 +23,7 @@ Opus helpers are started with medium effort (the start call sets it). No Haiku i
 2. The builder writes the tests first, builds until they pass, uses it for real on an iPad size, runs the local checks (section 5) and pushes its branch.
 3. The reviewer checks it once: the code against the task's spec lines, and the pictures against the approved picture. A fix list goes back to the **same** builder.
 4. After the reviewer's pass the builder merges, with the part switched OFF. One merge at a time on hot files.
-5. The manager rewrites the task's row in BUILD-STATE.md.
+5. The manager rewrites the task's row in BUILD-STATE.md and adds one row to docs/metrics/tasks.csv (when merged, phase, task, builder model, helper tokens, review rounds, test runs green and red, hours from start to merged).
 
 At the end of a phase: the owner's first look on the iPad, fixes, polish to the release bar, the reviewer's check of the full picture set against the approved pictures, the full test set green, the owner's yes, then the switch ON in the live app.
 

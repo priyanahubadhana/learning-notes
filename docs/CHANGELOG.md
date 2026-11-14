@@ -1811,3 +1811,7 @@ What: new docs/plans/phase-plan.md (the plan) and docs/HOW-WE-BUILD.md (how help
 ## 14 Nov 2026: final plan pass (Fable, owner decisions)
 
 What: docs/plans/phase-plan.md and docs/HOW-WE-BUILD.md rewritten with the roles (Sonnet builds, Opus reviews code and look, Fable plans and is the last resort), the lean and full ways to run, the test preset (task 0.6) and the one code line at the end of Phase 1 (task 0.7); .claude/agents/reviewer.md does the look check; CLAUDE.md owner settings, rules/quality.md gates, rules/building.md roles line, docs/PENDING.md "Needs you", docs/BUILD-STATE.md Phase 0 table; .claude/settings.json lets helpers push (force pushes denied); mcp/src/setup.ts lint line so the checks on main pass. Global: ~/.claude/CLAUDE.md, playbook.md, agents/. Why: the owner's answers of 14 Nov and the two audits. No app behaviour changed.
+
+## 14 Nov 2026: Phase 1 page and results record (Fable)
+
+What: docs/plans/phases/phase-1.md; docs/metrics/phase-results.md and tasks.csv; small lines in phase-plan.md, HOW-WE-BUILD.md, rules/phase-end.md and PENDING.md; three old docs files formatted so the format check on main passes. Global: ~/.claude/playbook-results.md and one line each in the global CLAUDE.md and playbook. Why: the owner asked for the numbers to be recorded so a way that works becomes the standard for every project.

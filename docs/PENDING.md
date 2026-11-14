@@ -64,7 +64,7 @@ Branches and commit ids of every parked part: docs/BUILD-STATE.md.
 ## Your tests waiting
 
 - **First preview checklist:** [plans/ipad-checklist-first-preview.md](plans/ipad-checklist-first-preview.md). Parts 1 and 2 done on 14 Nov. Each phase page will carry only its own steps.
-- **Older tests (9 to 12 Nov):** [plans/owner-checks-pending.md](plans/owner-checks-pending.md). They are folded into the test list of the phase they belong to (most are text box and Pencil, so Phase 2B).
+- **Older tests (9 to 12 Nov):** [plans/owner-checks-pending.md](plans/owner-checks-pending.md). Owner, 14 Nov: tests for screens the redesign replaces are dropped when that phase is planned; tests for things that stay are folded into the test list of their phase (most are text box and Pencil, so Phase 2B).
 
 ## Decide before public launch
 

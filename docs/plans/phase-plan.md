@@ -34,7 +34,7 @@ Fable does no routine reviews. A look check compares the screen with the approve
 **Two ways to run the build:**
 
 - **Lean (the default, and the way the build restarts).** The main chat runs on Opus at medium effort and manages directly: no manager helper, one or two builders, each task reviewed once. The owner tests; builders fix only what the owner found, plus the reset tasks in section 6.
-- **Full team (only when the owner says so).** An Opus `phase-manager` helper runs the phase with as many builders as the phase has separate tasks, and the main chat checks the hourly pulse. Used for a large new piece such as Phase 2B.
+- **Full team (only when the owner says so; approved by the owner on 14 Nov for Phase 2B, the text box, because it is the foundation of the app).** An Opus `phase-manager` helper runs the phase with as many builders as the phase has separate tasks, and the main chat checks the hourly pulse. Used for a large new piece such as Phase 2B.
 
 How the helpers work day to day: [docs/HOW-WE-BUILD.md](../HOW-WE-BUILD.md).
 
@@ -50,7 +50,7 @@ The diagnosis showed that building was never the slow part; getting work merged,
 6. **A fast test set per merge** (about 10 minutes; today 33 to 43), with the full set nightly and before each release. This is built when the owner moves to the full team.
 7. **Preparing ahead by one phase only.** While the owner tests phase N, builders may fix the known problems of phase N+1. Nothing further ahead.
 
-Pace is measured, not promised. Each phase ends with its real numbers.
+Pace is measured, not promised. Each merged task adds a row to docs/metrics/tasks.csv, and each phase ends with its real numbers in docs/metrics/phase-results.md, next to the numbers of the two ways that failed. If the phased way proves better, it stays the standard in the owner's global playbook for every project.
 
 ## 4. Quality: two bars, the second one unchanged
 
@@ -136,7 +136,7 @@ Each phase gets its own page (`docs/plans/phases/phase-<n>.md`) in step 2, writt
 - **Decided (12 Nov):** keep the layout engine and the saved pages; rebuild only the touch, select and drag layer on the new foundation (`textbox.v2`).
 - **Open problems to solve here:** the cursor lands in the wrong place or jumps; Pencil double-tap does not select; only the whole box shows as selected (solid 1.5 px border, corner dots); the ≡ grab tab; drag is exclusive; handles (44 pt, nearest handle wins, dots outside the box, a short hold before the drag); never wrap letter by letter; minimum width is the longest word; the glide into place after a drop; two writing hints overlapping; BUG-001 (checklist shows "Not saved yet"); Scribble on a real iPad; the three iPad tests of task 0.9.
 - **Open questions for step 2:** boxes side by side at the same height; rotation (parked with layers).
-- **Way to run:** the owner decides at step 2 whether this phase uses the full team.
+- **Way to run:** the full team (owner, 14 Nov). At step 2 Fable gives the owner a rough size before it starts. Any other phase asks the owner first.
 
 ### Phase 3: Notebooks
 

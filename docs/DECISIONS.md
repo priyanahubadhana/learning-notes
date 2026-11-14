@@ -1208,3 +1208,10 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 - One code line at the end of Phase 1, after the owner's test. A one-tap test preset in Settings, removed when the redesign is done.
 - The real app's check on main was red since 13 Nov because of a lint line added by Claude in mcp/src/setup.ts; fixed (f6342473).
 - The method, the roles and three generic helper files are saved in the owner's global files (~/.claude/CLAUDE.md, playbook.md, agents/) for all projects.
+
+### 14 Nov 2026 (owner): last two plan answers and the results record
+
+- Old waiting tests (9 to 12 Nov): dropped for screens the redesign replaces, kept for things that stay.
+- Full team: approved for Phase 2B (the text box is the foundation); any other phase asks the owner first.
+- Results are recorded: docs/metrics/tasks.csv (one row per merged task), docs/metrics/phase-results.md (one row per phase, next to the two ways that failed) and the cross-project log ~/.claude/playbook-results.md. If the phased way proves better it stays the standard in the global playbook.
+- Phase 1 page written: docs/plans/phases/phase-1.md (tasks 0.4 to 0.6, the 17-step first look, the release steps).

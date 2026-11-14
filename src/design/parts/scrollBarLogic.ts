@@ -1,12 +1,14 @@
-/** Width of the shared scroll bar and height of each arrow (px); a little smaller than 24 / 40 (14 Nov F6). */
-export const BAR_W = 20
-export const ARROW = 34
+/** Width of the shared scroll bar and height of each arrow (px): between the old page bar (24 / 40, too big) and 14 Nov's 20 / 34 (too small); P1.1. */
+export const BAR_W = 22
+export const ARROW = 38
+/** On a touch or Pencil device each arrow is 44 pt tall (rules/quality.md: hit areas ≥ 44 pt), inside the 22 px gutter; P1.1. */
+export const ARROW_TOUCH = 44
 const MIN_THUMB = 40
 /** The old page bar (flag foundation.shell off): 24 px wide, 40 px arrows. */
 export const OLD_BAR_W = 24
 export const OLD_ARROW = 40
-/** A list shorter than this shows the thumb only: two arrows and a usable thumb do not fit. */
-export const SHORT = ARROW * 2 + MIN_THUMB * 2
+/** A list shorter than this shows the thumb only: two `arrow` px arrows and a usable thumb do not fit (156 px; 168 on touch). */
+export const shortFor = (arrow: number) => arrow * 2 + MIN_THUMB * 2
 
 export interface BarGeometry {
   thumbTop: number

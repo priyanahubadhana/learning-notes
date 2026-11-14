@@ -6,16 +6,18 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { touchUi } from '../../app/touchUi'
 import { t } from '../../i18n/t'
 import {
   ARROW,
+  ARROW_TOUCH,
   BAR_W,
   OLD_ARROW,
   OLD_BAR_W,
-  SHORT,
   barGeometry,
   dragTop,
   sheetTarget,
+  shortFor,
   trackJumpTop,
 } from './scrollBarLogic'
 import './ScrollBar.css'
@@ -36,8 +38,31 @@ function coveredBy(el: HTMLElement, r: DOMRect): boolean {
     r.left + r.width / 2,
     r.top + r.height / 2,
   )
-  return !!hit && !el.contains(hit) && !hit.contains(el)
+  if (!!hit && !el.contains(hit) && !hit.contains(el)) return true
+  // A panel, card or sheet drawn over any part of the bar's own column (the
+  // tool bar's ⋯ tray or More card over the page's right edge) hides the
+  // covered list's bar: one bar per edge (P1.1). Bars themselves are skipped.
+  const col = { l: r.right - BAR_W, r: r.right, t: r.top, b: r.bottom }
+  for (const n of Array.from(
+    document.querySelectorAll<HTMLElement>(PANEL_OVER),
+  )) {
+    if (n.contains(el) || el.contains(n) || n.closest('.sbar, [data-static]'))
+      continue
+    if (n.dataset.state === 'closed') continue
+    const q = n.getBoundingClientRect()
+    if (q.width === 0 || q.height === 0) continue
+    const cs = getComputedStyle(n)
+    // Hidden, or let touches through (the toast layer): it covers nothing.
+    if (cs.visibility === 'hidden' || cs.pointerEvents === 'none') continue
+    if (q.left < col.r && q.right > col.l && q.top < col.b && q.bottom > col.t)
+      return true
+  }
+  return false
 }
+
+/** Boxes that, drawn over a list's bar column, cover that list (cards, sheets, trays, pop-ups). */
+const PANEL_OVER =
+  '.pcard, [popover], dialog, [role="dialog"], [data-bar="tray"], [data-popup]'
 
 /**
  * The rounded corners at the scroller's right edge (its own or a panel's that
@@ -57,7 +82,8 @@ function cornersOf(el: HTMLElement, right: number) {
 }
 
 /** The layer of the box the list lives in, so the bar is drawn above it. */
-function layerOf(el: HTMLElement): 'card' | 'sheet' | undefined {
+function layerOf(el: HTMLElement): 'card' | 'sheet' | 'tray' | undefined {
+  if (el.closest('[data-bar="tray"]')) return 'tray'
   const card = el.closest<HTMLElement>('.pcard:not([data-static])')
   if (!card) return undefined
   return card.hasAttribute('data-phone') ? 'sheet' : 'card'
@@ -201,7 +227,13 @@ export function ScrollBar({
   const barW = legacy ? OLD_BAR_W : BAR_W
   // Inside the rounded corners; a short list shows the thumb only (no arrows on its content).
   const height = state.rect.height - state.inset.top - state.inset.bottom
-  const arrowH = legacy ? OLD_ARROW : height < SHORT ? 0 : ARROW
+  // 44 pt tall on a touch or Pencil device (SC-13); the track below uses the same size.
+  const arrowSize = touchUi() ? ARROW_TOUCH : ARROW
+  const arrowH = legacy
+    ? OLD_ARROW
+    : height < shortFor(arrowSize)
+      ? 0
+      : arrowSize
   const track = Math.max(0, height - arrowH * 2)
   const g = barGeometry(state.scrollTop, state.scrollH, state.clientH, track)
   if (!g) return null
@@ -307,6 +339,7 @@ export function ScrollBar({
       {arrow(-1)}
       <div
         {...hook('track')}
+        {...(legacy ? {} : { 'data-pen-native': '' })}
         onPointerDown={trackTap}
         onPointerMove={move}
         onPointerUp={up}
@@ -327,6 +360,7 @@ export function ScrollBar({
           aria-valuenow={Math.round(state.scrollTop)}
           tabIndex={0}
           {...hook('thumb')}
+          {...(legacy ? {} : { 'data-pen-native': '' })}
           onPointerDown={down}
           onKeyDown={(e) => {
             if (e.key === 'ArrowDown') jump(1)

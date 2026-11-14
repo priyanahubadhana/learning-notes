@@ -1942,6 +1942,15 @@ What: `git worktree remove` on 47 clean, merged copies; 19 remain. Six folders w
 
 What: 6 scratch working copies removed with git and 9 folders in `.claude/worktrees` deleted (owner's one-time yes; links removed first; main packages untouched); 8 half-deleted folders in Downloads remain for task 0.11. docs/BUILD-STATE.md now says RESTART APPROVED (lean mode, the order of the first tasks); docs/PENDING.md "Needs you" rewritten; the owner's answers logged in docs/DECISIONS.md. Why: the owner answered the last three questions and asked to speed up.
 
+## 2026-11-14 P1.1 scroll bar: Pencil, one bar per edge, a bit bigger
+
+- Why: owner's first look L4 + L1 (Pencil missed the bar; two bars side by side; bar felt too small).
+- Cause of the Pencil miss: only the 6 px track line took a tap (the rest of the 20 px bar was dead for a precise tip; a finger's touch fuzz hid it), and the Pencil-tap guard cancelled the touch on the bar. Fix: the whole bar width is the track; thumb and track are `data-pen-native`.
+- SC-03 for cards and sheets: a bar hides when any card, sheet or tray is drawn over its column (it only looked at the list centre before).
+- Size: bar 22 px (was 20), thumb 8 / 12 dragged (was 4 / 6), arrows 38 (was 34). Flag off: old 24 px bar unchanged.
+- Files: src/design/parts/ScrollBar.tsx, ScrollBar.css, scrollBarLogic.ts, e2e/scrollBarPen.spec.ts, playwright.config.ts (one test-list line), docs/features/shell.md.
+- Review 2 (Opus took over): on a touch or Pencil device each end arrow is 22 x 44 (38 with a mouse; the chevron is unchanged), inside the gutter. Cause: the app's touch minimum for buttons (index.css, 32 x 44) silently made the arrow 32 wide (10 px past the gutter) and 44 tall while the bar still counted 38, so the thumb ran 12 px into the down arrow at the end. The bar now sets the arrow box itself (`ARROW_TOUCH`, `shortFor`: a list keeps its arrows from 168 px on touch). Test: `SC-13 on touch each end arrow is 44 pt tall ...` (chromium + ipad-webkit) and a unit test in scrollBarLogic.test.ts.
+
 ## 2026-11-14 · F10 dim layer covers the sticky Settings search bar (slice/p1-f10)
 
 - What: on a phone the dim layer behind a ▾ sheet now covers the sticky "Search settings" bar.

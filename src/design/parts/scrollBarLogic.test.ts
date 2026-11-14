@@ -1,11 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import { ARROW, BAR_W, barGeometry, sheetTarget } from './scrollBarLogic'
+import {
+  ARROW,
+  ARROW_TOUCH,
+  BAR_W,
+  barGeometry,
+  sheetTarget,
+  shortFor,
+} from './scrollBarLogic'
 
 describe('the shared scroll bar sizes (F6)', () => {
   it('is a little smaller than the old page bar (24 wide, 40 arrows)', () => {
     expect(BAR_W).toBeLessThan(24)
     expect(BAR_W).toBeGreaterThanOrEqual(16)
     expect(ARROW).toBeLessThan(40)
+  })
+  it('SC-13 SC-07 on touch each arrow is 44 pt tall; a list keeps its arrows only with room for both and a usable thumb', () => {
+    expect(ARROW_TOUCH).toBeGreaterThanOrEqual(44)
+    expect(shortFor(ARROW)).toBe(156)
+    expect(shortFor(ARROW_TOUCH)).toBe(168)
   })
   it('has no thumb when nothing scrolls, and a thumb that reaches both ends', () => {
     expect(barGeometry(0, 500, 500, 400)).toBeNull()

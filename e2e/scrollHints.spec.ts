@@ -137,14 +137,18 @@ test('pulling past the top gives a small stretch that springs back', async ({
 test.describe('new frame: the shared bar replaces the handle', () => {
   const ON = '/?flags=foundation.shell'
 
-  test('a scrolled list gets the shared bar (4 px thumb, 6 dragged, 44 pt touch area, end arrows) and the old handle never shows; the thumb drags 1:1', async ({
+  test('a scrolled list gets the shared bar (8 px thumb, 12 dragged, 44 pt touch area, end arrows) and the old handle never shows; the thumb drags 1:1', async ({
     page,
   }) => {
     await page.goto(ON)
     await page.locator('aside').waitFor({ state: 'attached' })
     await addList(page)
     const list = page.locator('#hint-list')
-    await list.evaluate((el) => (el.scrollTop = 100))
+    // 170 px: room for two 38 px arrows and a usable thumb (P1.1: arrows grew from 34 px).
+    await list.evaluate((el) => {
+      el.style.height = '170px'
+      el.scrollTop = 100
+    })
     const thumb = page.locator('[data-scrollbar-thumb]')
     await expect(thumb).toBeVisible()
     await expect(page.locator('.scroll-hint-thumb')).not.toHaveClass(/is-on/)
@@ -156,7 +160,7 @@ test.describe('new frame: the shared bar replaces the handle', () => {
     )
 
     const box = (await thumb.boundingBox())!
-    expect(box.width).toBeLessThanOrEqual(4.5)
+    expect(box.width).toBeLessThanOrEqual(8.5)
     const hit = await thumb.evaluate((el) => {
       const r = getComputedStyle(el, '::before')
       return parseFloat(r.left) < 0 && parseFloat(r.width) >= 40
@@ -172,12 +176,12 @@ test.describe('new frame: the shared bar replaces the handle', () => {
     await page.mouse.move(x, y + 30, { steps: 6 })
     await expect
       .poll(async () => (await thumb.boundingBox())!.width)
-      .toBeGreaterThanOrEqual(5.9)
+      .toBeGreaterThanOrEqual(11.9)
     await page.mouse.up()
     const after = await list.evaluate((el) => el.scrollTop)
-    const range = 900 - 150
-    // The track is the list height minus an arrow (34 px) at each end.
-    const travel = 150 - 2 * 34 - box.height
+    const range = 900 - 170
+    // The track is the list height minus an arrow (38 px) at each end.
+    const travel = 170 - 2 * 38 - box.height
     expect(after - before).toBeCloseTo((30 * range) / travel, 0)
     expect(after).toBeLessThan(range)
     const moved = (await thumb.boundingBox())!

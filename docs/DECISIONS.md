@@ -1192,3 +1192,9 @@ Research (docs/plans/ai-build-best-practices-2026-11-13.md) puts the useful limi
 ### 14 Nov 2026 (owner, option A): big-page smoothness test on CI
 
 On CI, e2e/bigPageBudget.spec.ts counts a late frame against the app only when one of the app's long tasks overlaps it, and a new check keeps the median frame under 25 ms. Locally the old strict check stays. The app script budget is unchanged. Why: the CI runner stalls to 30 fps (5-35% late frames on unchanged code, script work 0.5-0.9 ms per frame). Fable ruled; the owner approved in the main chat; build/next b3f576b9. Drive function drive-token was also redeployed with the strict CORS list (owner said "deploy it").
+
+### 14 Nov 2026 (owner): build reset into phases
+
+The owner paused the build and decided: (1) work in phases, one at a time (artifact, plan with Fable, build, early iPad test, polish, release); (2) roles: Fable top manager, Opus at medium effort as phase manager and reviewer, Sonnet builders, as many as the phase has separate tasks; (3) tests: a fast set per merge, the full set nightly and before each release; (4) the owner tests early, before the polish; (5) a complete clean-up of rules and files before the restart. Phase order (Fable, on the owner's request to compare and choose): frame and Settings, writing tools, text box and Pencil, Notebooks, Search, Home and Library, Review and Study, Reader, AI and connector, then the two areas that still need an artifact. Plan: docs/plans/phase-plan.md. Reasons: docs/plans/build-diagnosis-2026-11-14.md.
+
+Decisions to review from the clean-up: Settings moved next to the frame (the owner had it later); the Definition of Done gained a "real use on an iPad" line; the user setting for Opus effort went from low to medium; three stale memory notes were retired (kept in a "retired" folder).

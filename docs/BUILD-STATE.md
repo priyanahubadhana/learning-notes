@@ -1,100 +1,76 @@
-# Build state (one table; rewritten in place, never appended)
+# Build state (rewritten in place, never appended)
 
-**PAUSED by the owner, 14 Nov 2026, 11:10 IST. Do not start a build manager or builders. Do not merge. Wait for the owner's new phased plan (docs/plans/build-diagnosis-2026-11-14.md).**
+**PAUSED by the owner, 14 Nov 2026, 11:10 IST. Do not start a phase manager or builders. Do not merge. Only the owner restarts the build.**
 
-**TRIAL since 13 Nov 19:40 IST; benchmark: docs/plans/system-trial-2026-11-13.md**
+Plan: [plans/phase-plan.md](plans/phase-plan.md). How helpers work: [HOW-WE-BUILD.md](HOW-WE-BUILD.md). Why the build was reset: [plans/build-diagnosis-2026-11-14.md](plans/build-diagnosis-2026-11-14.md). Numbers of the two old systems: plans/system-trial-2026-11-13.md.
 
-The file a build manager reads to continue. How the build runs: [ECONOMY-MODE.md](ECONOMY-MODE.md) (simple system, 13 Nov 2026 evening). Plan: [plans/build-master-plan.md](plans/build-master-plan.md) (read only the section of the slice you brief). Keep this file under 100 lines; history goes to CHANGELOG.md.
+**Next result for the owner:** after the restart, Phase 0 tasks 0.3 to 0.8; then the Phase 1 first look (the frame and Settings) with F1 to F9 re-checked.
 
-**Next result for the owner:** OWNER PRIORITY 14 Nov: fixes F1 to F9 of docs/plans/ipad-test-findings-2026-11-14.md, merged with CI green, then the main chat tells the owner "fixes ready for re-test". F1+F7 merged b1aad3f8 (CI green); F5/F9 merged 1a8e0c66, CI 43557319251 RED, fixing; scroll fix passed both gates, merges next. Then the queue one at a time: 0g3, 9-6, 15, 8b, 9-cost, toolbar, 12 rest, Reader.
+## Fixed facts
 
-## Milestones (the main chat checks them with `bash scripts/build-pulse.sh` every hour)
-
-| #   | By (IST)      | What must be true                                                                                                                          | State                                                                                         |
-| --- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
-| M1  | 13 Nov, 21:00 | CI green on `build/next` (run 43437478460 on 87910c01, or one root-cause fix and a new run); owner told "preview ready" with the checklist | done: CI 43437478460 green on 87910c01; preview ready told                                    |
-| M2  | 13 Nov, 23:30 | toolbar 1d and the shell fixes merged (OFF), CI green, preview updated                                                                     | done: 1d merged ffbb7982 (CI 43444635765 green), shell merged 413c96cd (CI 43460803397 green) |
-| M3  | 14 Nov, 02:00 | storage safety merged (OFF); final looks done for 1d, shell and storage safety                                                             | open                                                                                          |
-| M4+ | every 2 hours | at least 1 slice merged and at least 4 builders with new commits                                                                           | open                                                                                          |
-
-Times are "likely" at the measured pace (one merge + CI = about 1 to 2.5 hours). If one passes, write the new time and the reason here.
+- **Live app:** `main`. No new app code since 12 Nov (b5b0bc74); every new part is OFF. A push of app code to `main` deploys by itself; docs-only pushes do not.
+- **Code line until Phase 0 task 0.6:** `build/next` 87969361, pull request #5 (never merge it by hand), working copy `C:\Users\pc\Downloads\ln-buildnext`. It runs the tests and publishes the preview. The test run on 87969361 (43562438919) was still going at the pause; check it with the refresh command.
+- **Bookkeeping files** (this file, PENDING, CHANGELOG, DECISIONS) are written on `main`. Until task 0.6, merge `main` into `build/next` right after any such push, or the pull request clashes and no test run starts.
+- **Preview address:** https://build-next.learning-notes-app.pages.dev . The parts the owner tests start ON there (build-next host only); the live address keeps them OFF.
+- **Dexie:** highest version on `build/next` is 24; the phase manager gives out the next number, one task at a time.
+- **Hot files** (one builder at a time, merged alone): `src/App.tsx`, `src/core/db.ts`, `src/core/types.ts`, `src/settings/builtinSettings.ts`, `src/app/flags.ts`, `package.json`, `playwright.config.ts`.
+- **Local tests:** set `PW_PORT` to a free port for a hand-run Playwright; at most 2 iPad runs at once on this PC.
+- **Always waits for the owner:** money, logins and Supabase, switching a part ON in the live app, possible data loss, a test on a real device, a real product decision.
 
 ## Refresh command
 
 ```bash
-git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/slice); do echo "$b $(git rev-parse --short $b) ahead $(git rev-list --count origin/build/next..$b) behind $(git rev-list --count $b..origin/build/next)"; done; gh run list --branch build/next --limit 3 --json databaseId,status,conclusion,headSha
+git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/slice); do echo "$b $(git rev-parse --short $b) ahead $(git rev-list --count origin/build/next..$b) behind $(git rev-list --count $b..origin/build/next)"; done; gh run list --branch build/next --limit 3
 ```
 
 "ahead 0" = fully merged into `build/next`.
 
-## Fixed facts
+## Phase 0 (reset)
 
-- **Live app:** `main`; every new part is switched OFF. A push of app code to `main` deploys by itself; docs-only pushes do not. Release to `main` only from a green `build/next`, by the release flow in the master plan.
-- **Integration branch:** `build/next` cfebd3a4 (CI 43528030714 red, Opus builder fixing; 43522929290 on 1d7db514 green; 43515340927 on 8c3b102e red on TB-33/TB-34 timing, fixed 4579cdb4; 826072cf BUG-006 merge was red on toolbarV8Tools.spec.ts:585 ipad-webkit, root cause Card close focus trap, fixed c17bd0d9 by Opus builder, after-the-fact gate 2 PASS 14 Nov), worktree `C:\Users\pc\Downloads\ln-buildnext`, draft pull request #5 (never merge by hand). Its CI run is the judge and publishes the preview: https://build-next.learning-notes-app.pages.dev (new parts under Settings › Try new features). Last green: 43412535492 on ff92ce2f.
-- **Docs** (this file, PENDING, CHANGELOG, DECISIONS) are written on `main` only; merge `main` into `build/next` before a CI batch.
-- **Dexie:** highest version on `build/next` is 24; the manager gives out the next number, one lane at a time.
-- **Hot files** (one builder at a time, merged alone): `src/App.tsx`, `src/core/db.ts`, `src/core/types.ts`, `src/settings/builtinSettings.ts`, `src/app/flags.ts`, `package.json`, `playwright.config.ts`.
-- **Worktrees:** `C:\Users\pc\Downloads\ln-s<slice>`, one per slice, reused. Never delete folders. Old helper branches are already in `main`; leave them.
-- **iPad WebKit tests** get unreliable on this PC under load: at most 2 builders run them at once.
-- **Always waits for the owner:** money, Supabase changes, switching a part ON for daily use, anything that could delete or lose the owner's data. Everything else: safest choice, log in DECISIONS "Decisions to review", continue.
+| Task                                                                                                        | State                                                                                    | Next step                                               |
+| ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| 0.1 Rules, helper files, memory, PENDING, HANDOFF, this file                                                | done 14 Nov (Fable)                                                                      | none                                                    |
+| 0.2 Opus effort low to medium                                                                               | see docs/CHANGELOG.md 14 Nov                                                             | none                                                    |
+| 0.3 Merge the scrolling fix (F2, F3, F4, F6, F8)                                                            | parked: `slice/fix-scroll-frame` 5e2c80f7 (ln-sfix-scroll), review PASS, final look PASS | merge `main` and `build/next` into it, then merge alone |
+| 0.4 Fast test set per merge; full set nightly and before a release; docs formatting apart                   | not started                                                                              | builder + reviewer                                      |
+| 0.5 Cause of the three iPad tests that always fail here (textBoxFree:461, toolsRefresh:60, undoHistory:210) | not started                                                                              | Opus builder                                            |
+| 0.6 One code line: release `build/next` to `main`, parts OFF; retire `build/next`                           | waits for the owner's yes and a green full set                                           | builder + reviewer                                      |
+| 0.7 Pulse script reads the phase board                                                                      | not started                                                                              | builder                                                 |
+| 0.8 List unused working copies                                                                              | not started                                                                              | builder; the owner approves removals                    |
 
-## Slices
+## In the code line (`build/next`), by phase
 
-Specs: `docs/features/<file>.md` on `build/next`. Gate 3 notes so far: docs/plans/gate3-2026-11-13.md (read only the last entry of a slice).
+| Phase | Parts already merged                                                                                                                                                                                                                                                                                          |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | foundation 0a to 0f, tool list 0i, update flow, security upgrade (these are also in the live app, OFF); shared parts steps 1 and 2; the frame with the BUG-006 fix; Settings v3; storage safety (cfebd3a4); owner fixes F1 + F7 recorder (b1aad3f8), F5 + F9 + preview defaults (1a8e0c66, test fix fe43d3dc) |
+| 2A    | tool bar steps 1a to 1d; page menus 12a, 12b                                                                                                                                                                                                                                                                  |
+| 3, 4  | Notebooks and Search v2                                                                                                                                                                                                                                                                                       |
+| 5     | Home v2, Library v2                                                                                                                                                                                                                                                                                           |
+| 6     | Review v2 (8a, 8c)                                                                                                                                                                                                                                                                                            |
+| 8     | AI framework steps 1 to 5c and the Build screen                                                                                                                                                                                                                                                               |
 
-### In `build/next`, final look passed (ready for the owner in the first preview)
+## Parked: finished and reviewed, saved on GitHub, merged in their phase
 
-0a to 0f foundation, 0i tool registry, 10 update flow, 11 security mediums (all live on `main`, OFF); 0g shared parts steps 1 and 2; 3 Settings v3; 4 Notebooks + Search v2; 5 Home v2; 6 Library v2; 8 Review v2 (8a, 8c); 9 AI framework 1 to 5c and Build screen; 12 Page menus (12b); 1 Toolbar v8 1a to 1c; perf-start (WebKit start 15 s to 1.2 s). 0h shell is merged, but its final look was never recorded: it goes with the shell fixes below.
+| Part                     | Phase | Branch @ commit (working copy)                     | At the merge                                                                  |
+| ------------------------ | ----- | -------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Scrolling fix            | 0     | `slice/fix-scroll-frame` 5e2c80f7 (ln-sfix-scroll) | four small follow-ups                                                         |
+| Shared parts step 3      | 1     | `slice/0g-parts-3` 9840315e (ln-s0g3)              | two gallery follow-ups                                                        |
+| Tool bar 1e, 1f, BUG-003 | 2A    | `slice/1-toolbar-v8` 19e158cf (ln-s1)              | hot files: alone                                                              |
+| Page menus rest          | 2A    | `slice/12-page-menus-rest` 627f07cf (ln-s12)       | hot files: alone                                                              |
+| Review rest (8b)         | 6     | `slice/8b-review-rest` bfb6298d (ln-s8b)           | four follow-ups                                                               |
+| Study tabs (15)          | 6     | `slice/15-study-v2` c1180092 (ln-s15)              | ST27 + ST11 wiring in App.tsx: alone                                          |
+| Reader v2                | 7     | `slice/7-reader-v2` 2f78926f (ln-s7)               | eight follow-ups; touches playwright.config.ts: alone                         |
+| AI framework step 6      | 8     | `slice/9-ai-framework-6` 0d94407d (ln-s9)          | hot test list                                                                 |
+| AI cost additions        | 8     | `slice/9-ai-cost` 14b9e748 (ln-s9cost)             | after step 6; drop its EpubView guard (the Reader's ada7d1c5 fixes the cause) |
 
-### In work (one Sonnet builder owns each until merged)
+Parked parts fall behind the code line: merge the code line into each before merging it. They were reviewed under the old bar; each still gets the owner's first look in its phase.
 
-| Slice                                       | Branch @ SHA (folder)                            | State (?)                                                                                                                               | Next step                               |
-| ------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| 1e, 1f, BUG-003                             | slice/1-toolbar-v8 19e158cf (ln-s1)              | Opus builder; gate 2 PASS 19e158cf (delta re-checked 14 Nov); final look PASS 19e158cf: ready for the owner                             | merge alone (hot) after the owner fixes |
-| iPad storage safety (`storage.safety`)      | merged cfebd3a4                                  | CI 43549430501 on af75ee57 GREEN (SS-07 fix f139324c; bigPageBudget owner-approved change b3f576b9)                                     | done                                    |
-| 0g step 3 parts                             | slice/0g-parts-3 9840315e (ln-s0g3)              | gate 2 PASS, gate 3 PASS (2 gallery follow-ups)                                                                                         | merge                                   |
-| 9 AI framework 6                            | slice/9-ai-framework-6 0d94407d (ln-s9)          | gate 2 PASS, gate 3 PASS                                                                                                                | merge (hot testMatch)                   |
-| 15 Study tabs                               | slice/15-study-v2 c1180092 (ln-s15)              | gate 2 PASS; gate 3 PASS (fifteenth visit, re-confirmed 14 Nov): ready for the owner; 4 follow-ups; ST27 + ST11 App.tsx wiring at merge | merge alone (hot App.tsx) after 9-6     |
-| 8b Review rest                              | slice/8b-review-rest bfb6298d (ln-s8b)           | gate 2 PASS, gate 3 PASS (4 follow-ups) 14 Nov: ready for the owner                                                                     | merge after the queue                   |
-| 12 rest page menus                          | slice/12-page-menus-rest 627f07cf (ln-s12)       | Opus builder; gate 2 PASS 99a0ef5f; final look PASS (25th visit): ready for the owner; +1 e2e 627f07cf                                  | merge alone (hot) after toolbar         |
-| 7 Reader v2                                 | slice/7-reader-v2 2f78926f (ln-s7)               | gate 2 PASS 6a1bce66; pictures re-shot 2f78926f; final look PASS (8 follow-ups): ready for the owner                                    | merge after 9-cost                      |
-| 9 AI cost additions (items 5, 6)            | slice/9-ai-cost 14b9e748 (ln-s9cost)             | gate 2 PASS, gate 3 PASS 14 Nov: ready for the owner                                                                                    | merge alone after 9-6                   |
-| Owner fix F1+F7 (sign-in, freeze)           | merged b1aad3f8 (ln-sfix-auth)                   | F1 root cause fixed; F7 recorder (build-next host only); gate 2 PASS c1084e5f (no UI); CI 43553398541 on b1aad3f8 GREEN                 | done                                    |
-| Owner fix F2 F3 F4 F6 F8 (scroll, rotation) | slice/fix-scroll-frame 5e2c80f7 (ln-sfix-scroll) | Opus builder after 2nd gate 2 FAIL; gate 2 PASS 5e2c80f7; final look PASS (4 follow-ups): ready for the owner                           | merge after build/next is green         |
-| Owner fix F5 + F9 + preview ON              | merged 1a8e0c66 (ln-sfix-search)                 | gate 2 + final look PASS 4c9735ed; CI 43557319251 on 1a8e0c66 RED (e2e (2)); merge builder fixing                                       | green build/next                        |
+## Not built
 
-### Not started (spec ready)
+Text box v2 (`textbox.v2`, Phase 2B); things inside a page and media (`page.objects`, `media.v2`, Phase 9); safety and system layer (`safety.v2`, `system.v2`, Phase 10); AI framework steps 7 and 8 (Phase 8).
 
-| Slice                                                                      | Flag           | Spec                   | Starts after                        |
-| -------------------------------------------------------------------------- | -------------- | ---------------------- | ----------------------------------- |
-| 2 Text box v2 (BUG-001, BUG-002 if on this screen)                         | `textbox.v2`   | textbox-v2.md          | slice 1 (lane P, one after another) |
-| 9 AI framework 7, 8; AI cost additions first (5d: check that it is merged) | `ai.framework` | ai-framework.md, ai.md | free now                            |
-| 13 Things inside a page                                                    | `page.objects` | page-objects.md        | slice 12 rest (lane P)              |
-| 14 Pictures, PDF, audio, reading                                           | `media.v2`     | media-v2.md            | slice 13                            |
-| 16 Safety and data                                                         | `safety.v2`    | safety-v2.md           | slice 7                             |
-| 17 System layer                                                            | `system.v2`    | system-v2.md           | 0g step 3, slice 16                 |
+## Tests to know about
 
-Lanes (master plan 4.1): P = 1 → 2 → 12 rest → 13 → 14; S = 15, 8b; R = 7 → 16 → 17; A = AI 6 → 7 → 8; parts = 0g step 3. After M1, fill every lane whose files do not overlap (up to 8 builders).
-
-## Open faults and notes
-
-- `e2e/shell.spec.ts:224` offline test fixed in 87910c01. Decision to review: going offline before the Home chunk loads is not covered.
-- Follow-ups from final looks (not blocking): gate3 file, "follow-ups" lines of 3, 4, 5, 6, 9b and the shell.
-- The test guard's Bash delete check still needs a settings.json hook entry (owner decision, in PENDING).
-
-## Waiting for the owner (nothing here blocks the build)
-
-1. **Supabase sync for device-only data.** Library v2 and AI v4 data added by the build (for example saved filters, the `aiJobs` table) are stored on the device only. Syncing them needs an online database change, so the code stays behind its interface until the owner says yes. Exact schema needs are in the slice reports and `docs/features/library-v2.md`, `ai-framework.md` ("Needs the owner"). Not verified line by line in this snapshot.
-2. **Claude connector setup.** Connector A: run `supabase/migrations/20261113000002_connector_devices.sql`, then on the PC `git pull`, `npm run mcp:build`, `node mcp/dist/index.js setup`. Connector B: two SQL files, the secret `CLAUDE_ESCROW_SECRET`, deploy the `mcp` function with `--no-verify-jwt`, publish, add the custom connector in claude.ai. The new AI job tools also need deploying. Steps: `docs/features/claude-connector.md`, top of `docs/plans/owner-checks-pending.md`.
-3. **Supabase settings:** refresh-token rotation on; confirm email-code limits; restrict CORS on `drive-token`; redeploy `drive-token` once.
-4. **One check before the strict security header blocks:** Google sign-in, Drive and fonts still work.
-5. **iPad checklist** (docs/PENDING.md "Needs you", one pass): text box v2 steps 1 to 7, Text tool + Pencil (real Scribble), paper pages and ink rules, Write pad round 7, auto-update, Q7a Calendar drag, PDF menu, connector screens, plus every new part switched on in the preview (shell, Home v2, Library v2, Settings v3, toolbar v8 Pen cards, AI Build screen).
-6. **BUG-002** (floating format toolbar grows or moves out of bounds): the owner still owes the screenshot; without it the bug cannot be reproduced. BUG-001 (checklist shows "Not saved yet") also needs a repro. Both are fixed inside the slice that owns the screen (text box v2 / page menus), each with a test.
-7. Friday 13 Nov review of the HANDOFF carry-overs (owner asked for it).
-
-## How to continue
-
-1. Run the refresh command; fold in the old manager's Handover block if one is below; fix the (?) rows.
-2. Deliver the next result for the owner (M1), then M2 and M3.
-3. Fill the lanes; follow ECONOMY-MODE section 3 for each slice.
-4. After every merge, gate result or CI result: rewrite the row here, one commit on `main`, push; CHANGELOG line; Build board in docs/PENDING.md; mirror copy (rules/sessions.md).
+- Three iPad tests fail on this PC every time (task 0.5).
+- `e2e/bigPageBudget.spec.ts` on CI counts only late frames caused by the app's own work, plus a median-frame check (owner-approved 14 Nov, b3f576b9).
+- `paperBoxes:173` passed only on retry on 14 Nov.

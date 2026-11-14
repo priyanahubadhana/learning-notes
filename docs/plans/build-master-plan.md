@@ -1,5 +1,7 @@
 # Build master plan (12 Nov 2026)
 
+**Replaced in part on 14 Nov 2026.** The order of work, the roles and the way of testing are now in [phase-plan.md](phase-plan.md). This file stays as the catalogue of what each part (slice) contains and of the owner answers of 12 Nov.
+
 Author: Fable (lead architect and build orchestrator). Status: PLAN ONLY. Nothing here is built yet. Execution starts when the owner says "start the build".
 
 ## In plain words (for the owner)

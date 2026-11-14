@@ -383,12 +383,15 @@ if (isConnectRoute(location.hash)) {
 
   // The first draw waits for the app's language texts (the late English pack):
   // a screen restored from the address (Settings, a locked page) would
-  // otherwise show raw text keys. A failed load still draws.
-  void applyLanguage(readDeviceSetting(languageSetting))
-    .catch((error: unknown) =>
-      console.error('Could not load the language', error),
-    )
-    .finally(draw)
+  // otherwise show raw text keys. It waits at most 3 s (a hanging request on
+  // weak Wi-Fi must not leave a blank screen); the texts then fill in by
+  // themselves, because App asks for the same pack again and redraws when it
+  // is in. A failed load still draws.
+  const waitForTexts = applyLanguage(readDeviceSetting(languageSetting)).catch(
+    (error: unknown) => console.error('Could not load the language', error),
+  )
+  const giveUp = new Promise<void>((resolve) => setTimeout(resolve, 3000))
+  void Promise.race([waitForTexts, giveUp]).then(draw)
 }
 
 // Inter comes after the first paint (never in the critical path).

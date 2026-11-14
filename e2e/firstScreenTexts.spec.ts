@@ -169,3 +169,29 @@ test.describe('reload with the late texts held back', () => {
     expect(await visibleKeys(page)).toEqual([])
   })
 })
+
+test('R8 a late pack that never answers does not leave a blank screen; the texts fill in once it comes', async ({
+  page,
+}) => {
+  await startInMode(page, 'touch')
+  let release: () => void = () => {}
+  const released = new Promise<void>((r) => (release = r))
+  await page.route('**/assets/*.js', async (route) => {
+    const response = await route.fetch()
+    const body = await response.text()
+    if (body.includes('shell.notSaved') && !body.includes('react-dom'))
+      await released
+    await route.fulfill({ response, body })
+  })
+  const started = Date.now()
+  void page.goto('/', { waitUntil: 'commit' })
+  await page
+    .locator('aside')
+    .waitFor({ state: 'attached', timeout: 3500 + 1500 })
+  expect(Date.now() - started).toBeLessThan(3500 + 1500) // 3 s cap + load time
+  release()
+  // The texts update in place, with no reload.
+  await expect
+    .poll(async () => (await visibleKeys(page)).length, { timeout: 8000 })
+    .toBe(0)
+})

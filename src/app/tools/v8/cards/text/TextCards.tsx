@@ -80,7 +80,7 @@ function FontsGroup() {
 function LineHeightGroup() {
   const line = noteLine.useValue()
   return (
-    <CardGroup>
+    <CardGroup label={t('main.text.lineHeight')}>
       <TileGroup label={t('main.text.lineHeight')} columns={3}>
         {NOTE_LINES.map((l) => (
           <Tile

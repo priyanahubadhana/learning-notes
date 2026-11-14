@@ -71,7 +71,8 @@
 /* TB-41 line height: the sample is drawn with that spacing, two lines. */
 .v8line {
   display: block;
-  max-width: 3.2em;
+  max-width: 2em;
+  height: 48px;
   font-size: 12px;
   line-height: 1.6;
   text-align: center;

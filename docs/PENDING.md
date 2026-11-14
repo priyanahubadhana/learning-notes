@@ -6,7 +6,7 @@
 - Owner: when ready, add your test API key in Settings > AI (cap about $5); never paste it in chat.
 - Needs your OK (13 Nov, not applied): a proposed gate-2 rule, "report only spec gaps and breakages, not style". Until you say yes, gate 2 reports style as well.
 - DONE 13 Nov: Claude connector A tested by the owner on the PC (list, create notebook, append, revoke, reconnect all passed; safety switch passed in tests). It is registered with Claude Code (user scope), not Claude Desktop.
-- Needs you (Supabase, when free; nothing is blocked): turn on refresh-token rotation; confirm the email-code limits; restrict CORS on the `drive-token` function.
+- Needs you (Supabase, when free; nothing is blocked): turn on refresh-token rotation (also closes the last F1 gap: closing the app during a token renewal can leave a used token); confirm the email-code limits; restrict CORS on the `drive-token` function.
 - Needs you (one check before the strict security header is switched on): Google sign-in, Drive and fonts still work. Until then the strict rule only reports, it blocks nothing.
 - Preview (free, new parts can be switched on there): https://build-next.learning-notes-app.pages.dev . New parts are under Settings › Try new features, all OFF. The live app got the same code on 12 Nov with everything off.
 - Needs you (Supabase, when free): the online part of the Claude connector needs the new job tools deployed (list in docs/features/ai-framework.md "Needs the owner"); the app side is built and waits.

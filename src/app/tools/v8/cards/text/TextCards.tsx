@@ -93,7 +93,7 @@ function LineHeightGroup() {
               applyNoteStyle()
             }}
           >
-            <span className={`v8look v8line v8line-${l}`}>{'Aa Aa'}</span>
+            <span className={`v8look v8line v8line-${l}`}>Aa Aa</span>
           </Tile>
         ))}
       </TileGroup>

@@ -29,6 +29,7 @@ const ALLOWED = new Set([
   'OK',
   'A',
   'B',
+  'Aa Aa', // the line-height sample tiles
   'Aa',
   'A+',
   'A−',

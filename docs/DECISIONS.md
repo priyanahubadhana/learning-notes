@@ -1237,3 +1237,6 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 - Settings review, questions 5 and 6 (owner, 14 Nov): the test guard stays. The lint and type check that ran at every stop is removed (the push guard runs the same checks before every push); the stop hook now only makes the backup copy.
 
 - Settings review, question 7 (owner, 14 Nov): the automatic copy to "Downloads\gdrive notes" is stopped (the owner does not use that folder; GitHub is the backup). Removed: the two hook programs, their settings entries and the rule lines. The folder itself was left untouched.
+
+- Settings review, questions 8 and 9 (owner, 14 Nov): the secret scan, the push guard and its protector stay. Thinking effort goes back to the Claude Code defaults (medium for Fable, Opus and Sonnet; the official model page lists medium as their default); Fable is called at high effort for planning a phase or a hard case, extra high only on the owner's word. Applied at the end of the planning session. Before the restart the owner updates VS Code and Claude Code and opens a new chat.
+- Task 0.12 (safety programs) built by a Sonnet builder on slice/p0-guard 86f36120 (about 75,000 helper tokens, 4 minutes); Opus review started.

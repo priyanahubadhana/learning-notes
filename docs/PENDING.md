@@ -5,6 +5,7 @@ The one short list of open work. The plan: [plans/phase-plan.md](plans/phase-pla
 ## Needs you
 
 - **BUILD PAUSED (owner, 14 Nov 11:10 IST).** After the two final audits, say "restart" and switch this chat to Opus with `/model` (medium effort). Nothing restarts before that.
+- **Before the restart (owner, 14 Nov):** the owner updates VS Code and Claude Code, opens a NEW chat and types "continue". Do the update only after Claude says no helper is running, because an update or a reload stops running helpers. The new chat runs on Opus at medium effort and reads docs/BUILD-STATE.md first.
 - **When you have the iPad:** re-check F1 (stays signed in), F5 (✕ in search), F9 (Settings search on every page) and BUG-006 (the ⚙ gear) at the preview address. They are in the preview now.
 - **Small, not urgent:**
   - Unlock switch "about.updateDetails" (open since 13 Nov): keep it, or keep using "about.version". Asked again in the Phase 1 page.

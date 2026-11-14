@@ -57,7 +57,6 @@
 [data-paper-box][data-lifted] {
   transform: scale(1.02);
   box-shadow: var(--elev-3);
-  z-index: 5;
   transition:
     transform 120ms ease-out,
     box-shadow 120ms ease-out;
@@ -69,7 +68,6 @@
 }
 [data-paper-box][data-gliding] {
   pointer-events: none;
-  z-index: 5;
 }
 html[data-box-drag] [data-box-menu],
 html[data-box-drag] [data-box-bar] {

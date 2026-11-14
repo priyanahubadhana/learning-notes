@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import { mkdirSync } from 'node:fs'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 import { lassoAround } from './groupHelpers.ts'
@@ -9,8 +9,8 @@ import { lassoAround } from './groupHelpers.ts'
  * Task 2B.10 first-look pictures (switch textbox.v2 ON): several boxes picked
  * with the group pill (states panel 6a) and Layout Assist (panel 6b). Light,
  * dark and sepia on an iPad upright, an iPad sideways and a phone (a phone has
- * no sheets, so no Lasso loop and no on-page Layout Assist: it shows the
- * "Layouts appear on larger screens" note). Written to
+ * no sheets, so no Lasso loop, no group pill and no Layout button: its picture
+ * only shows the page). Written to
  * screenshots/phase-2b/2b10-group/<project>/ (see its index.md). The theme is
  * set on the page and checked before each shot.
  */
@@ -42,29 +42,31 @@ async function theme(page: Page, th: string) {
   await page.waitForTimeout(1000)
 }
 
-async function addBox(page: Page, text: string, fx: number, beside: boolean) {
-  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+/** A box clicked into the paper: `fx` across the sheet, `down` under `under` (the page text when none). */
+async function addBox(
+  page: Page,
+  text: string,
+  fx: number,
+  down: number,
+  under?: Locator,
+) {
+  const main = (await (
+    under ?? page.locator('[data-paper-box="main"]')
+  ).boundingBox())!
   const sheetBox = page.locator('[data-paper-sheet="1"]')
   const sheet = (await sheetBox.count()) ? await sheetBox.boundingBox() : null
   const n = await page.locator(EXTRA).count()
-  const last = n
-    ? (await page
-        .locator(EXTRA)
-        .nth(n - 1)
-        .boundingBox())!
-    : null
-  const y = !last
-    ? main.y + main.height + 70
-    : beside
-      ? last.y + 10
-      : last.y + last.height + 60
-  await page.mouse.click(sheet ? sheet.x + sheet.width * fx : 150, y)
+  await page.mouse.click(
+    sheet ? sheet.x + sheet.width * fx : 150,
+    main.y + main.height + down,
+  )
   await expect(page.locator(EXTRA)).toHaveCount(n + 1)
   await expect(page.locator(EXTRA).nth(n).locator('.bn-editor')).toBeFocused()
   await page.keyboard.type(text)
   await page.waitForTimeout(800)
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   await page.waitForTimeout(900)
+  return page.locator(EXTRA).nth(n)
 }
 
 for (const [name, vp, mode] of SIZES) {
@@ -80,36 +82,18 @@ for (const [name, vp, mode] of SIZES) {
       await page.goto('/')
       await createNotebook(page, 'Shots', 'Layout')
       await typeInEditor(page, 'Biology')
-      await addBox(
-        page,
-        'Photosynthesis: light, water and CO2 make sugar',
-        0.08,
-        false,
-      )
-      await addBox(
-        page,
-        'Key words: chlorophyll, stomata, glucose',
-        0.55,
-        name === 'phone' ? false : true,
-      )
-      await addBox(page, 'Why it matters: food chains start here', 0.12, false)
-      await addBox(
-        page,
-        'Quiz me: where does it happen?',
-        0.55,
-        name === 'phone' ? false : true,
-      )
+      const a = await addBox(page, 'Photosynthesis', 0.12, 40)
       if (name === 'phone') {
-        await page.getByTestId('main-layout').click()
-        await expect(
-          page.getByText('Layouts appear on larger screens'),
-        ).toBeVisible()
+        // A phone has no sheets: no Lasso loop, no group pill, no on-page Layout Assist.
         for (const [label, th] of THEMES) {
           await theme(page, th)
-          await page.screenshot({ path: `${OUT()}/assist-phone-${label}.png` })
+          await page.screenshot({ path: `${OUT()}/page-phone-${label}.png` })
         }
         return
       }
+      const b = await addBox(page, 'Key words', 0.55, 40)
+      await addBox(page, 'Why it matters', 0.12, 40, a)
+      await addBox(page, 'Quiz me', 0.55, 40, b)
       await lassoAround(page, [0, 1])
       await expect(page.locator('[data-group-pill]')).toContainText('2 boxes')
       for (const [label, th] of THEMES) {

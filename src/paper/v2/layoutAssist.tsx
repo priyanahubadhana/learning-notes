@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { LearningNotesDB } from '../../core/db'
 import { isGridRows } from '../../core/gridRows'
 import { group as historyGroup } from '../../core/historySteps'
@@ -87,6 +87,22 @@ export default function LayoutAssist({
   onDone: () => void
 }) {
   const [chosen, setChosen] = useState<string | null>(null)
+  const coach = useRef<HTMLParagraphElement>(null)
+  // The coach line sits over the page column, not over the sidebar.
+  useEffect(() => {
+    const wrap = document.querySelector('[data-paper-wrap]')
+    const el = coach.current
+    if (!wrap || !el) return
+    const place = () => {
+      const r = wrap.getBoundingClientRect()
+      el.style.left = r.left + r.width / 2 + 'px'
+      el.style.width = Math.min(560, r.width - 32) + 'px'
+    }
+    place()
+    const ro = new ResizeObserver(place)
+    ro.observe(wrap)
+    return () => ro.disconnect()
+  }, [])
   const choose = async (id: string) => {
     const info = getInfo()
     const rows =
@@ -99,12 +115,12 @@ export default function LayoutAssist({
     )
   }
   return (
-    <div data-layout-assist>
+    <div data-layout-assist className="pb-6">
       <div
         data-layout-strip
         role="toolbar"
         aria-label={t('layout.tile.strip')}
-        className="mx-auto flex w-max max-w-full items-center gap-1.5 overflow-x-auto rounded-2xl border border-line bg-surface p-1.5 shadow-md"
+        className="mx-auto flex w-max max-w-full flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface p-1.5 shadow-md"
       >
         <span className="px-2.5 text-xs font-semibold text-muted">
           {t('layout.tile.strip')}
@@ -116,7 +132,7 @@ export default function LayoutAssist({
             aria-pressed={chosen === tile.id}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => void choose(tile.id)}
-            className="grid min-h-13 w-19 shrink-0 justify-items-center gap-1 rounded-xl bg-hover px-1 pt-1.5 pb-1 text-[11.5px] font-medium text-muted outline-none focus-visible:outline-2 focus-visible:outline-accent aria-pressed:bg-accent/15 aria-pressed:text-accent aria-pressed:ring-[1.5px] aria-pressed:ring-accent"
+            className="grid min-h-13 min-w-19 shrink-0 justify-items-center gap-1 rounded-xl bg-hover px-2 pt-1.5 pb-1 text-[11.5px] font-medium whitespace-nowrap text-muted outline-none focus-visible:outline-2 focus-visible:outline-accent aria-pressed:bg-accent/15 aria-pressed:text-accent aria-pressed:ring-[1.5px] aria-pressed:ring-accent"
           >
             <span aria-hidden className={'grid h-5 w-7.5 gap-0.5 ' + tile.cls}>
               {Array.from({ length: tile.cells }, (_, i) => (
@@ -143,8 +159,9 @@ export default function LayoutAssist({
         </button>
       </div>
       <p
+        ref={coach}
         data-layout-coach
-        className="pointer-events-none fixed bottom-3 left-1/2 z-(--z-pill) w-[min(560px,calc(100%-32px))] -translate-x-1/2 rounded-2xl border border-line bg-surface px-4 py-3 text-center text-[13.5px] leading-snug text-ink shadow-md"
+        className="pointer-events-none fixed bottom-3 z-(--z-pill) -translate-x-1/2 rounded-2xl border border-line bg-surface px-4 py-3 text-center text-[13.5px] leading-snug text-ink shadow-md"
       >
         {t('layout.mode.coachV2')}
       </p>

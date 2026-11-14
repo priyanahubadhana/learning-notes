@@ -77,6 +77,8 @@ test('TB-32 a Lasso loop picks the boxes inside; one group pill shows the count,
   await expect(c).not.toHaveAttribute('data-picked', '')
   await expect(pill(page)).toHaveCount(1)
   await expect(pill(page)).toContainText('2 boxes')
+  // Several picked: no single-box bar or ⋯ list (the pill is the one control).
+  await expect(page.locator('[data-box-bar-holder]')).toHaveCount(0)
   const group = pill(page).locator('[data-group-action="group"]')
   const ungroup = pill(page).locator('[data-group-action="ungroup"]')
   await expect(group).toBeEnabled()

@@ -30,12 +30,8 @@ const EVERY_ITEM = [
   'Copy as Markdown',
   'Paste as plain text',
   'Copy page with pictures',
-  'Bold',
-  'Italic',
-  'Underline',
-  'Strike',
-  'Code',
 ]
+const STYLES = ['Bold', 'Italic', 'Underline', 'Strike', 'Code']
 
 test('switch OFF: the old flat menu stays', async ({ page }) => {
   await flagOn(page, false)
@@ -88,9 +84,9 @@ test('rare items are behind More, and nothing of the old menu is lost', async ({
       name,
     ).toBeVisible()
   }
-  for (const name of ['Align left', 'Align center', 'Align right', 'Indent']) {
+  for (const name of STYLES) {
     await expect(
-      tray(page).getByRole('button', { name }).first(),
+      tray(page).getByRole('checkbox', { name, exact: true }),
       name,
     ).toBeVisible()
   }
@@ -141,4 +137,41 @@ test('Done closes the menu; the ✕ closes it too', async ({ page }) => {
   await barMenu(page).click()
   await tray(page).locator('button[data-popup-close]').click()
   await expect(tray(page)).toHaveCount(0)
+})
+
+test('every item of the old menu is in the new one (by name)', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem('menu-on') === null)
+      localStorage.setItem('learning-notes:flags', '[]')
+  })
+  await openNote(page)
+  const names = () =>
+    tray(page)
+      .locator('button:not([data-popup-close])')
+      .evaluateAll((els) =>
+        els
+          .map(
+            (e) =>
+              e.getAttribute('aria-label') ??
+              (e as HTMLElement).innerText.split('\n')[0].trim(),
+          )
+          .filter(Boolean),
+      )
+  await barMenu(page).click()
+  const old = await names()
+  expect(old.length).toBeGreaterThan(15)
+  await page.evaluate(() => {
+    sessionStorage.setItem('menu-on', '1')
+    localStorage.setItem(
+      'learning-notes:flags',
+      JSON.stringify(['toolbar.menu']),
+    )
+  })
+  await page.reload()
+  await barMenu(page).click()
+  await tray(page).getByRole('button', { name: 'Show more items' }).click()
+  const now = await names()
+  for (const name of old) expect(now, name).toContain(name)
 })

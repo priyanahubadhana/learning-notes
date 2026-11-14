@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: toolbar ⋯ menu redesign 2A.2 (flag toolbar.menu, OFF live)
+
+- What: the ⋯ toolbar menu is a short top row of four icon buttons, groups "Text style" and "Copy and paste", the rare items under More ▾; no key names on touch screens. Flag added (ON on preview host and in the phase2a preset).
+- Why: owner findings L3 and R3 (one long flat list; "⌘⇧V" on an iPad).
+- Files: src/editor/toolbarMenu/_, src/editor/DockedBar.tsx, src/app/flags.ts (hot), src/i18n/_, e2e/toolbarMenuV2.spec.ts, docs/features/toolbar-menu.md.
+
 ### 14 Nov 2026: toolbar v8 gate 2 fix round (1e/1f/BUG-003)
 
 - What: Advanced in Format now shows fonts in their own face and line height (TB-41); headings, indent, outdent and divider are buttons; the new-box look is one Undo/Redo step; a reload during a peek keeps the bar Off (TB-75); tests for Box look Undo/Redo, 200 ms tuck, Pencil tuck, each Pro switch alone.

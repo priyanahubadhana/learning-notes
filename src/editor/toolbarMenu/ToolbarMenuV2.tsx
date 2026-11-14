@@ -1,11 +1,18 @@
-import { useContext, useState, type ReactNode } from 'react'
+import { useContext, type ReactNode } from 'react'
 import { CreateLinkButton } from '@blocknote/react'
 import { AppUiContext } from '../../app/appUi'
 import { CardGroup, Tile, TileGroup } from '../../design/parts/CardParts'
+import { FoldGroup } from '../../design/parts/FoldGroup'
 import '../../design/parts/Card.css'
 import { Icon, type IconName } from '../../app/tools/icons'
 import { isApple } from '../../app/keys'
 import { touchUi } from '../../app/touchUi'
+import {
+  extraTools,
+  mainList,
+  pillLists,
+  pillOptionsOf,
+} from '../../app/tools/main/mainTools'
 import { t, type MessageKey } from '../../i18n/t'
 import type { BarAction, Editor } from '../barActions'
 import {
@@ -13,7 +20,14 @@ import {
   copyPageWithPictures,
   pastePlainFromClipboard,
 } from '../clipboard'
-import { hintFor, menuLayout, type MenuItemId } from './menuModel'
+import {
+  hintFor,
+  menuLayout,
+  onBarIds,
+  STYLE_TILES,
+  type GroupId,
+  type MenuItemId,
+} from './menuModel'
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
@@ -24,6 +38,14 @@ const TOP: Record<string, [IconName, MessageKey]> = {
   done: ['check', 'bar.done'],
 }
 
+const GROUP_LABEL: Record<GroupId, MessageKey> = {
+  style: 'toolbarMenu.groupStyle',
+  arrange: 'toolbarMenu.groupArrange',
+  study: 'toolbarMenu.groupStudy',
+  copy: 'toolbarMenu.groupCopy',
+  bar: 'toolbarMenu.groupBar',
+}
+
 const STYLE_ICON: Record<string, IconName> = {
   bold: 'bold',
   italic: 'italic',
@@ -32,8 +54,8 @@ const STYLE_ICON: Record<string, IconName> = {
   code: 'code',
 }
 
-/** One icon for every row under More (none is left without). */
-const ACTION_ICON: Record<string, IconName> = {
+/** One icon for every row (none is left without). */
+const ROW_ICON: Record<string, IconName> = {
   blank: 'input',
   card: 'cards',
   newLine: 'newLine',
@@ -44,15 +66,23 @@ const ACTION_ICON: Record<string, IconName> = {
   indent: 'indent',
   outdent: 'outdent',
   link: 'link',
+  copyPlain: 'copy',
+  copyMarkdown: 'fileText',
+  pastePlain: 'paste',
+  copyPictures: 'copyPage',
+  barSettings: 'settings',
+  resetPos: 'rotate',
 }
 const iconOf = (id: string): IconName =>
-  ACTION_ICON[id] ?? (id.startsWith('mark:') ? 'highlighter' : 'tag')
+  ROW_ICON[id] ?? (id.startsWith('mark:') ? 'highlighter' : 'tag')
 
-const COPY: Record<string, [IconName, MessageKey]> = {
-  copyPlain: ['copy', 'copy.plain'],
-  copyMarkdown: ['fileText', 'copy.markdown'],
-  pastePlain: ['paste', 'paste.plain'],
-  copyPictures: ['copyPage', 'copy.pictures'],
+const COPY_LABEL: Record<string, MessageKey> = {
+  copyPlain: 'copy.plain',
+  copyMarkdown: 'copy.markdown',
+  pastePlain: 'paste.plain',
+  copyPictures: 'copy.pictures',
+  barSettings: 'bar.edit',
+  resetPos: 'bar.resetPos',
 }
 
 function Row({
@@ -63,7 +93,7 @@ function Row({
   onClick,
   children,
 }: {
-  icon?: IconName
+  icon: IconName
   hint?: string
   active?: boolean
   disabled?: boolean
@@ -77,21 +107,35 @@ function Row({
       aria-disabled={disabled || undefined}
       onMouseDown={keepFocus}
       onClick={() => !disabled && onClick()}
-      className={`flex min-h-[44px] items-center gap-3 rounded-lg px-3 text-left text-sm hover:bg-hover aria-disabled:opacity-40 ${
+      className={`flex min-h-[44px] items-center gap-3 rounded-lg px-1 text-left text-sm hover:bg-hover aria-disabled:opacity-40 ${
         active ? 'bg-hover text-accent' : ''
       }`}
     >
-      {icon && <Icon name={icon} size={18} />}
+      <Icon name={icon} size={18} />
       <span className="flex-1">{children}</span>
       {hint && <span className="text-xs text-muted">{hint}</span>}
     </button>
   )
 }
 
+/** The items the bar already shows; re-read live when the bar changes. */
+function useOnBar(): Set<string> {
+  const main = mainList.useValue()
+  const extras = extraTools.useValue()
+  const pills = pillLists.useValue()
+  return onBarIds({
+    main,
+    extras,
+    textOptions: pillOptionsOf('text', pills),
+    insertOptions: pillOptionsOf('insert', pills),
+  })
+}
+
 /**
- * The ⋯ toolbar menu (flag `toolbar.menu`): a short top row, a few groups, and
- * the rare items under "More". Same items as the old flat list; no key names
- * on touch screens. Drawn inside the bar's Tray (✕, shared scroll bar).
+ * The ⋯ toolbar menu (flag `toolbar.menu`): four tiles on top, then a few
+ * folded groups (▾). What the bar already shows is left out (it stays on the
+ * bar, in All tools and in search). No key names on touch screens. Drawn
+ * inside the bar's Tray (✕, shared scroll bar).
  */
 export function ToolbarMenuV2({
   editor,
@@ -124,12 +168,13 @@ export function ToolbarMenuV2({
   onClose: () => void
 }) {
   const { toast } = useContext(AppUiContext)
-  const [more, setMore] = useState(false)
+  const onBar = useOnBar()
   const touch = touchUi()
   const layout = menuLayout({
     ribbon,
     freePos,
     actionIds: actions.map((a) => a.id),
+    onBar,
   })
   const byId = new Map(actions.map((a) => [a.id, a]))
   const hint = (h?: string) => hintFor({ touch, enabled: hints }, h)
@@ -147,14 +192,99 @@ export function ToolbarMenuV2({
     resetPos: onResetPos,
     copyPlain: close(() => void copyAs(editor, 'plain', toast)),
     copyMarkdown: close(() => void copyAs(editor, 'markdown', toast)),
-    pastePlain: close(() => void pastePlainFromClipboard(editor, toast)),
+    pastePlain: close(() => void pastePlain()),
     copyPictures: close(() => void copyPageWithPictures(editor, toast)),
   }
+  const pastePlain = () => pastePlainFromClipboard(editor, toast)
+
+  const actionRow = (id: string) => {
+    const a = byId.get(id)
+    if (!a) return null
+    if (a.special === 'link') {
+      return (
+        <div
+          key={id}
+          data-action={id}
+          className="flex min-h-[44px] items-center gap-3 px-1 text-sm"
+        >
+          <Icon name={iconOf(id)} size={18} />
+          <span className="flex-1 text-left">{a.label}</span>
+          <CreateLinkButton />
+        </div>
+      )
+    }
+    return (
+      <Row
+        key={id}
+        icon={iconOf(id)}
+        active={a.active}
+        disabled={a.disabled}
+        hint={hint(a.hint)}
+        onClick={a.special === 'color' ? onColor : () => a.run?.()}
+      >
+        {a.label}
+      </Row>
+    )
+  }
+
+  const body = (id: GroupId, items: string[]) => {
+    if (id === 'style') {
+      const tiles = items.filter((i) => STYLE_TILES.includes(i))
+      return (
+        <>
+          {tiles.length > 0 && (
+            <TileGroup
+              label={t(GROUP_LABEL.style)}
+              multi
+              columns={Math.min(tiles.length, 5)}
+            >
+              {tiles.map((i) => {
+                const a = byId.get(i)
+                if (!a) return null
+                return (
+                  <Tile
+                    key={i}
+                    label={a.label}
+                    multi
+                    selected={!!a.active}
+                    onSelect={() => a.run?.()}
+                  >
+                    <Icon name={STYLE_ICON[i] ?? 'type'} size={20} />
+                    {hint(a.hint) && (
+                      <span className="text-[10px] text-muted">
+                        {hint(a.hint)}
+                      </span>
+                    )}
+                  </Tile>
+                )
+              })}
+            </TileGroup>
+          )}
+          {items.filter((i) => !STYLE_TILES.includes(i)).map(actionRow)}
+        </>
+      )
+    }
+    return items.map((i) =>
+      i in COPY_LABEL ? (
+        <Row
+          key={i}
+          icon={iconOf(i)}
+          hint={i === 'pastePlain' ? pasteHint : undefined}
+          onClick={run[i as MenuItemId]}
+        >
+          {t(COPY_LABEL[i])}
+        </Row>
+      ) : (
+        actionRow(i)
+      ),
+    )
+  }
+
   return (
-    <div data-menu-v2 className="grid gap-3 px-1 pb-1">
+    <div data-menu-v2 className="grid gap-2 px-1 pb-1">
       <CardGroup>
         <TileGroup
-          label={t('toolbarMenu.groupBar')}
+          label={t('toolbarMenu.groupTop')}
           action
           columns={layout.top.length}
         >
@@ -165,105 +295,17 @@ export function ToolbarMenuV2({
           ))}
         </TileGroup>
       </CardGroup>
-      {layout.styles.length > 0 && (
-        <CardGroup label={t('toolbarMenu.groupStyle')}>
-          <TileGroup
-            label={t('toolbarMenu.groupStyle')}
-            multi
-            columns={layout.styles.length}
+      <div className="grid">
+        {layout.groups.map((g) => (
+          <FoldGroup
+            key={g.id}
+            label={t(GROUP_LABEL[g.id])}
+            testId={`menu-group-${g.id}`}
           >
-            {layout.styles.map((id) => {
-              const a = byId.get(id)
-              if (!a) return null
-              return (
-                <Tile
-                  key={id}
-                  label={a.label}
-                  multi
-                  selected={!!a.active}
-                  onSelect={() => a.run?.()}
-                >
-                  <Icon name={STYLE_ICON[id] ?? 'type'} size={20} />
-                  {hint(a.hint) && (
-                    <span className="text-[10px] text-muted">
-                      {hint(a.hint)}
-                    </span>
-                  )}
-                </Tile>
-              )
-            })}
-          </TileGroup>
-        </CardGroup>
-      )}
-      <CardGroup label={t('toolbarMenu.groupCopy')}>
-        {layout.copy.map((id) => (
-          <Row
-            key={id}
-            icon={COPY[id][0]}
-            hint={id === 'pastePlain' ? pasteHint : undefined}
-            onClick={run[id]}
-          >
-            {t(COPY[id][1])}
-          </Row>
+            {body(g.id, g.items)}
+          </FoldGroup>
         ))}
-      </CardGroup>
-      <CardGroup>
-        <button
-          type="button"
-          onMouseDown={keepFocus}
-          onClick={() => setMore(!more)}
-          aria-expanded={more}
-          aria-label={t(
-            more ? 'toolbarMenu.moreClose' : 'toolbarMenu.moreOpen',
-          )}
-          className="flex min-h-[44px] items-center justify-between rounded-lg px-1 text-sm font-semibold hover:bg-hover"
-        >
-          <span>{t('toolbarMenu.more')}</span>
-          <Icon name={more ? 'chevronUp' : 'chevronDown'} size={18} />
-        </button>
-        {more && (
-          <div className="grid gap-0.5" data-menu-more>
-            {layout.more.fixed.map((id) => (
-              <Row
-                key={id}
-                icon={id === 'resetPos' ? 'rotate' : 'settings'}
-                onClick={run[id]}
-              >
-                {t(id === 'resetPos' ? 'bar.resetPos' : 'bar.edit')}
-              </Row>
-            ))}
-            {layout.more.actions.map((id) => {
-              const a = byId.get(id)
-              if (!a) return null
-              if (a.special === 'link') {
-                return (
-                  <div
-                    key={id}
-                    data-action={id}
-                    className="flex min-h-[44px] items-center gap-3 px-3 text-sm"
-                  >
-                    <Icon name={iconOf(id)} size={18} />
-                    <span className="flex-1 text-left">{a.label}</span>
-                    <CreateLinkButton />
-                  </div>
-                )
-              }
-              return (
-                <Row
-                  key={id}
-                  icon={iconOf(id)}
-                  active={a.active}
-                  disabled={a.disabled}
-                  hint={hint(a.hint)}
-                  onClick={a.special === 'color' ? onColor : () => a.run?.()}
-                >
-                  {a.label}
-                </Row>
-              )
-            })}
-          </div>
-        )}
-      </CardGroup>
+      </div>
     </div>
   )
 }

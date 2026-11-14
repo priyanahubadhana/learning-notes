@@ -3,6 +3,7 @@ import {
   Tile,
   TileGroup,
 } from '../../../../../design/parts/CardParts'
+import { FoldGroup } from '../../../../../design/parts/FoldGroup'
 import '../../../../../design/parts/Card.css'
 import { t } from '../../../../../i18n/t'
 import { useUnlocked } from '../../../../../settings/level'
@@ -100,7 +101,7 @@ export default function MoreMenuV2({
         </TileGroup>
       </CardGroup>
       {entries.length > 0 && (
-        <CardGroup label={t('toolbarMenu.groupFolded')}>
+        <FoldGroup label={t('toolbarMenu.groupFolded')} defaultOpen>
           <TileGroup label={t('toolbarMenu.groupFolded')} action columns={4}>
             {entries.map((e) => (
               <Tile
@@ -115,7 +116,7 @@ export default function MoreMenuV2({
               </Tile>
             ))}
           </TileGroup>
-        </CardGroup>
+        </FoldGroup>
       )}
     </div>
   )

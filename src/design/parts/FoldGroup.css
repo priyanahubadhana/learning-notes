@@ -1,0 +1,52 @@
+/* A folded group with a ▾ (shared part). Tokens only. */
+.fgroup {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--card-hair);
+}
+.fgroup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-out);
+}
+.fgroup-head:hover {
+  background: var(--card-well);
+}
+.fgroup-head:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.fgroup-chev {
+  display: grid;
+  place-items: center;
+  color: var(--color-ink-soft);
+  transition: transform var(--dur-1) var(--ease-out);
+}
+.fgroup-head[aria-expanded='true'] .fgroup-chev {
+  transform: rotate(180deg);
+}
+.fgroup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: var(--space-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .fgroup-head,
+  .fgroup-chev {
+    transition: none;
+  }
+}

@@ -65,7 +65,7 @@ test('ON: app actions as one row of icon tiles, folded tools as a tile grid, not
   await expect(top.getByRole('button')).toHaveCount(4)
   await expect(top.locator('svg')).toHaveCount(4)
   await expect(
-    card(page).getByRole('heading', { name: 'More tools' }),
+    card(page).getByRole('button', { name: 'More tools' }),
   ).toBeVisible()
   await expect(card(page).getByTestId('pcard-close')).toBeVisible()
 })

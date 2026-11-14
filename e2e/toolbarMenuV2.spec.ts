@@ -1,21 +1,18 @@
-import { expect, test } from '@playwright/test'
-import { barMenu, openNote } from './mainBarHelpers.ts'
+import { expect, test, type Page } from '@playwright/test'
+import { barMenu, mainBar, openNote, openPill, pill } from './mainBarHelpers.ts'
 
 /**
- * 2A.2: the ⋯ toolbar menu redesigned (flag `toolbar.menu`): a short top row,
- * a few groups, the rare items under More, no key names on touch screens.
+ * 2A.2: the ⋯ toolbar menu redesigned (flag `toolbar.menu`): four tiles on
+ * top, then folded groups (▾); what the bar already shows is left out and
+ * comes back when the bar changes; no key names on touch screens; Indent and
+ * Outdent named plainly.
  */
 
 test.use({ viewport: { width: 1024, height: 900 }, hasTouch: true })
 
-const tray = (page: import('@playwright/test').Page) =>
-  page.locator('[data-bar="tray"]')
+const tray = (page: Page) => page.locator('[data-bar="tray"]')
 
-async function flagOn(
-  page: import('@playwright/test').Page,
-  on: boolean,
-  extra: string[] = [],
-) {
+async function flagOn(page: Page, on: boolean, extra: string[] = []) {
   await page.addInitScript(
     ([value, more]) => {
       localStorage.setItem(
@@ -27,18 +24,24 @@ async function flagOn(
   )
 }
 
-const EVERY_ITEM = [
-  'Edit toolbar…',
-  'All tools',
-  'Search all features',
-  'Done',
-  'Bar settings…',
-  'Copy as plain text',
-  'Copy as Markdown',
-  'Paste as plain text',
-  'Copy page with pictures',
-]
-const STYLES = ['Bold', 'Italic', 'Underline', 'Strike', 'Code']
+/** Opens every folded group (names of the items are then all on screen). */
+async function unfold(page: Page) {
+  const heads = tray(page).locator('.fgroup-head[aria-expanded="false"]')
+  while ((await heads.count()) > 0) await heads.first().click()
+}
+
+const names = (page: Page) =>
+  tray(page)
+    .locator('button:not([data-popup-close]):not(.fgroup-head)')
+    .evaluateAll((els) =>
+      els
+        .map(
+          (e) =>
+            e.getAttribute('aria-label') ??
+            (e as HTMLElement).innerText.split('\n')[0].trim(),
+        )
+        .filter(Boolean),
+    )
 
 test('switch OFF: the old flat menu stays', async ({ page }) => {
   await flagOn(page, false)
@@ -50,7 +53,7 @@ test('switch OFF: the old flat menu stays', async ({ page }) => {
   ).toBeVisible()
 })
 
-test('top row: four icon buttons with labels, then the groups with headings', async ({
+test('2: four tiles on top, then five folded groups with a ▾', async ({
   page,
 }) => {
   await flagOn(page, true)
@@ -64,48 +67,176 @@ test('top row: four icon buttons with labels, then the groups with headings', as
     'Done',
   ])
   await expect(top.locator('svg')).toHaveCount(4)
+  const heads = tray(page).locator('.fgroup-head')
+  await expect(heads).toHaveText([
+    'Text style',
+    'Arrange',
+    'Mark for review',
+    'Copy and paste',
+    'Toolbar settings',
+  ])
+  for (let i = 0; i < 5; i++)
+    await expect(heads.nth(i)).toHaveAttribute('aria-expanded', 'false')
+  // Folded: the items inside are not on screen, and the list is short.
   await expect(
-    tray(page).getByRole('heading', { name: 'Text style' }),
-  ).toBeVisible()
-  await expect(
-    tray(page).getByRole('heading', { name: 'Copy and paste' }),
-  ).toBeVisible()
+    tray(page).getByRole('button', { name: 'Copy as plain text' }),
+  ).toHaveCount(0)
+  const box = (await tray(page).boundingBox())!
+  expect(box.height).toBeLessThan(420)
   await expect(tray(page).locator('button[data-popup-close]')).toBeVisible()
 })
 
-test('rare items are behind More, and nothing of the old menu is lost', async ({
+test('1: what the bar already shows is not in the menu; the rest is', async ({
   page,
 }) => {
   await flagOn(page, true)
   await openNote(page)
   await barMenu(page).click()
-  const more = tray(page).getByRole('button', { name: 'Show more items' })
-  await expect(more).toHaveAttribute('aria-expanded', 'false')
-  await expect(
-    tray(page).getByRole('button', { name: 'Bar settings…' }),
-  ).toHaveCount(0)
-  await more.click()
-  for (const name of EVERY_ITEM) {
-    await expect(
-      tray(page).getByRole('button', { name, exact: true }).first(),
-      name,
-    ).toBeVisible()
-  }
-  for (const name of STYLES) {
+  await unfold(page)
+  // On the default bar: New line (a bar tool) and Bold, Italic, Underline,
+  // Colours, Align (options of the Text tool).
+  for (const name of ['Bold', 'Italic', 'Underline']) {
     await expect(
       tray(page).getByRole('checkbox', { name, exact: true }),
-      name,
+    ).toHaveCount(0)
+  }
+  await expect(
+    tray(page).getByRole('button', { name: 'New line', exact: true }),
+  ).toHaveCount(0)
+  // Still here.
+  for (const name of ['Strike', 'Code']) {
+    await expect(
+      tray(page).getByRole('checkbox', { name, exact: true }),
     ).toBeVisible()
   }
+  for (const name of [
+    'Indent',
+    'Outdent',
+    'Copy as plain text',
+    'Copy as Markdown',
+    'Paste as plain text',
+    'Copy page with pictures',
+    'Bar settings…',
+  ]) {
+    await expect(
+      tray(page).getByRole('button', { name, exact: true }),
+    ).toBeVisible()
+  }
+})
+
+test('1: it updates live when the bar changes (New line and Italic come back)', async ({
+  page,
+}) => {
+  await flagOn(page, true)
+  await openNote(page)
+  await barMenu(page).click()
+  await unfold(page)
+  await tray(page).getByRole('button', { name: 'Bar settings…' }).click()
+  const panel = page.getByRole('group', { name: 'Edit bar' })
+  await panel
+    .locator('[data-edit-list="main"]')
+    .getByRole('checkbox', { name: 'New line' })
+    .uncheck()
+  await panel
+    .locator('[data-edit-list="pill-text"]')
+    .getByRole('checkbox', { name: 'Italic' })
+    .uncheck()
+  await page.keyboard.press('Escape')
+  await barMenu(page).click()
+  await unfold(page)
+  await expect(
+    tray(page).getByRole('button', { name: 'New line', exact: true }),
+  ).toBeVisible()
+  await expect(
+    tray(page).getByRole('checkbox', { name: 'Italic', exact: true }),
+  ).toBeVisible()
+})
+
+test('1: nothing is dropped: every old item is on the bar, in the menu or in All tools', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem('menu-on') === null)
+      localStorage.setItem('learning-notes:flags', '[]')
+  })
+  await openNote(page)
+  await barMenu(page).click()
+  const old = (await names(page)).map((n) => n.toLowerCase())
+  expect(old.length).toBeGreaterThan(15)
+  await page.evaluate(() => {
+    sessionStorage.setItem('menu-on', '1')
+    localStorage.setItem(
+      'learning-notes:flags',
+      JSON.stringify(['toolbar.menu']),
+    )
+  })
+  await page.reload()
+  await barMenu(page).click()
+  await unfold(page)
+  const inMenu = new Set((await names(page)).map((n) => n.toLowerCase()))
+  const missing = old.filter((n) => !inMenu.has(n))
+  expect(missing.length).toBeGreaterThan(0)
+  // The rest is on the bar (the Text tool's options) or in All tools.
+  await tray(page).getByRole('button', { name: 'Done', exact: true }).click()
+  await openPill(page, 'Text', 'text')
+  const onBar = await pill(page, 'text')
+    .locator('button')
+    .evaluateAll((els) =>
+      els.map((e) =>
+        (
+          e.getAttribute('aria-label') ?? (e as HTMLElement).innerText
+        ).toLowerCase(),
+      ),
+    )
+  await barMenu(page).click()
+  await tray(page).getByRole('button', { name: 'All tools' }).click()
+  const ribbon = page.getByRole('tablist', { name: 'Tool tabs' })
+  await expect(ribbon).toBeVisible()
+  const found = new Set<string>(onBar)
+  const tabs = ribbon.getByRole('tab')
+  for (let i = 0; i < (await tabs.count()); i++) {
+    await tabs.nth(i).click()
+    const labels = await page
+      .locator('[data-pill="ribbon"] button')
+      .evaluateAll((els) =>
+        els.map((e) =>
+          (
+            e.getAttribute('aria-label') ??
+            (e as HTMLElement).innerText ??
+            ''
+          ).toLowerCase(),
+        ),
+      )
+    for (const l of labels) found.add(l)
+  }
+  const loose = (n: string) => n.replace(/ text| block/g, '')
+  const all = [...found].join('|')
+  const lost = missing.filter(
+    (n) => !all.includes(n) && !all.includes(loose(n)),
+  )
+  expect(lost).toEqual([])
+})
+
+test('3: Indent and Outdent are named plainly, with their icons', async ({
+  page,
+}) => {
+  await flagOn(page, true)
+  await openNote(page)
+  await barMenu(page).click()
+  await unfold(page)
+  for (const name of ['Indent', 'Outdent']) {
+    const row = tray(page).getByRole('button', { name, exact: true })
+    await expect(row.locator('svg')).toBeVisible()
+  }
+  expect(await tray(page).innerText()).not.toMatch(/Nest|Unnest/)
 })
 
 test('no key names on a touch screen', async ({ page }) => {
   await flagOn(page, true)
   await openNote(page, 'touch', { 'advanced.shortcutHints': 'on' })
   await barMenu(page).click()
-  await tray(page).getByRole('button', { name: 'Show more items' }).click()
-  const text = await tray(page).innerText()
-  expect(text).not.toMatch(/⌘|Ctrl\+|Shift\+/)
+  await unfold(page)
+  expect(await tray(page).innerText()).not.toMatch(/⌘|Ctrl\+|Shift\+|Tab/)
 })
 
 test('every item is at least 44 px and the menu fits the screen', async ({
@@ -114,7 +245,7 @@ test('every item is at least 44 px and the menu fits the screen', async ({
   await flagOn(page, true)
   await openNote(page)
   await barMenu(page).click()
-  await tray(page).getByRole('button', { name: 'Show more items' }).click()
+  await unfold(page)
   const boxes = await tray(page)
     .locator('button')
     .evaluateAll((els) =>
@@ -133,61 +264,20 @@ test('a text style tile works and shows it is on', async ({ page }) => {
   await openNote(page)
   await page.keyboard.press('Control+A')
   await barMenu(page).click()
-  const bold = tray(page).getByRole('checkbox', { name: 'Bold' })
-  await bold.click()
-  await expect(bold).toHaveAttribute('aria-checked', 'true')
+  await unfold(page)
+  const strike = tray(page).getByRole('checkbox', { name: 'Strike' })
+  await strike.click()
+  await expect(strike).toHaveAttribute('aria-checked', 'true')
 })
 
-test('Done closes the menu; the ✕ closes it too', async ({ page }) => {
-  await flagOn(page, true)
-  await openNote(page)
-  await barMenu(page).click()
-  await tray(page).locator('button[data-popup-close]').click()
-  await expect(tray(page)).toHaveCount(0)
-})
-
-test('every item of the old menu is in the new one (by name)', async ({
-  page,
-}) => {
-  await page.addInitScript(() => {
-    if (sessionStorage.getItem('menu-on') === null)
-      localStorage.setItem('learning-notes:flags', '[]')
-  })
-  await openNote(page)
-  const names = () =>
-    tray(page)
-      .locator('button:not([data-popup-close])')
-      .evaluateAll((els) =>
-        els
-          .map(
-            (e) =>
-              e.getAttribute('aria-label') ??
-              (e as HTMLElement).innerText.split('\n')[0].trim(),
-          )
-          .filter(Boolean),
-      )
-  await barMenu(page).click()
-  const old = await names()
-  expect(old.length).toBeGreaterThan(15)
-  await page.evaluate(() => {
-    sessionStorage.setItem('menu-on', '1')
-    localStorage.setItem(
-      'learning-notes:flags',
-      JSON.stringify(['toolbar.menu']),
-    )
-  })
-  await page.reload()
-  await barMenu(page).click()
-  await tray(page).getByRole('button', { name: 'Show more items' }).click()
-  const now = await names()
-  for (const name of old) expect(now, name).toContain(name)
-})
-
-test('TM-05 the Done tile closes the menu', async ({ page }) => {
+test('Done and the ✕ close the menu', async ({ page }) => {
   await flagOn(page, true)
   await openNote(page)
   await barMenu(page).click()
   await tray(page).getByRole('button', { name: 'Done', exact: true }).click()
+  await expect(tray(page)).toHaveCount(0)
+  await barMenu(page).click()
+  await tray(page).locator('button[data-popup-close]').click()
   await expect(tray(page)).toHaveCount(0)
 })
 
@@ -213,14 +303,14 @@ test('a tap opens the menu with no focus ring; an arrow key shows the ring on th
   expect(await ringed()).toBe(true)
 })
 
-test('every row under More has an icon', async ({ page }) => {
+test('every row in the groups has an icon', async ({ page }) => {
   await flagOn(page, true)
   await openNote(page)
   await barMenu(page).click()
-  await tray(page).getByRole('button', { name: 'Show more items' }).click()
-  const rows = tray(page).locator('[data-menu-more] > *')
+  await unfold(page)
+  const rows = tray(page).locator('.fgroup-body > *:not([role="group"])')
   const n = await rows.count()
-  expect(n).toBeGreaterThan(10)
+  expect(n).toBeGreaterThan(8)
   for (let i = 0; i < n; i++) {
     await expect(rows.nth(i).locator('svg').first()).toBeVisible()
   }
@@ -232,21 +322,27 @@ test('with the new shell on, the long list has the shared scroll bar', async ({
   await flagOn(page, true, ['foundation.shell'])
   await openNote(page)
   await barMenu(page).click()
-  await tray(page).getByRole('button', { name: 'Show more items' }).click()
+  await unfold(page)
   await expect(page.locator('.sbar[data-layer="tray"]')).toHaveCount(1)
 })
 
 test.describe('mouse and keyboard', () => {
   test.use({ hasTouch: false })
-  test('TM-04 Bold to Code show their shortcut hints', async ({ page }) => {
+  test('TM-04 the style tiles show their shortcut hints', async ({ page }) => {
     await flagOn(page, true)
     await openNote(page, 'computer', { 'advanced.shortcutHints': 'on' })
     await barMenu(page).click()
+    await unfold(page)
     await expect(
-      tray(page).getByRole('checkbox', { name: 'Bold', exact: true }),
-    ).toContainText('Ctrl+B')
-    await expect(
-      tray(page).getByRole('checkbox', { name: 'Italic', exact: true }),
-    ).toContainText('Ctrl+I')
+      tray(page).getByRole('checkbox', { name: 'Strike', exact: true }),
+    ).toContainText('Ctrl+Shift+S')
   })
+})
+
+test('the bar still shows its tools (the menu does not take them away)', async ({
+  page,
+}) => {
+  await flagOn(page, true)
+  await openNote(page)
+  await expect(mainBar(page)).toBeVisible()
 })

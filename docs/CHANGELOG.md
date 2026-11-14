@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: toolbar menu 2A.2 owner decisions (flag toolbar.menu)
+
+- What: the ⋯ menu hides what the bar already shows (live), is four tiles plus five folded groups with ▾ (new shared part FoldGroup), and the v8 ⋯ card has its tools in a folded group. Nest block / Unnest block are now Indent / Outdent with the indent icons (en, es, hi).
+- Why: owner decisions 15 Nov about 00:15 IST; the menus looked long and complicated.
+- Files: src/editor/toolbarMenu/_, src/design/parts/FoldGroup._, src/editor/barActions.tsx, src/app/tools/v8/cards/more/MoreMenuV2.tsx, e2e/toolbarMenuV2.spec.ts, e2e/dockedBar.spec.ts (the two renamed labels).
+
 ### 14 Nov 2026: toolbar menu redesign 2A.2, v8 ⋯ card (flag toolbar.menu)
 
 - What: the new tool bar's ⋯ card shows its four app actions as icon tiles and the tools that did not fit as a tile grid (same items). Review fixes: quiet focus, Done test, shortcut hints on Bold to Code for mouse only, icons on every More row.

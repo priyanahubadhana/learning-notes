@@ -3,8 +3,10 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { touchUi } from '../../app/touchUi'
 import { t } from '../../i18n/t'
@@ -98,6 +100,19 @@ type Read = {
   scrollTop: number
   scrollH: number
   clientH: number
+}
+
+/**
+ * A thumb shorter than 44 pt gets a 44 pt tall touch box centred on it, clamped
+ * inside the track so it never covers an arrow (rules/quality.md; P1.4). The
+ * extra reach above and below goes to the CSS as two custom properties.
+ */
+function touchPad(top: number, h: number, track: number) {
+  const want = Math.max(0, (44 - h) / 2)
+  return {
+    '--sbar-pad-top': `${Math.min(want, top)}px`,
+    '--sbar-pad-bottom': `${Math.min(want, Math.max(0, track - top - h))}px`,
+  } as CSSProperties
 }
 
 /**
@@ -310,16 +325,22 @@ export function ScrollBar({
         }
         style={{ height: arrowH, touchAction: 'manipulation' }}
       >
-        <svg width="12" height="8" viewBox="0 0 12 8" aria-hidden>
-          <path
-            d={dir === 1 ? 'M1 1.5l5 5 5-5' : 'M1 6.5l5-5 5 5'}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        {legacy ? (
+          <svg width="12" height="8" viewBox="0 0 12 8" aria-hidden>
+            <path
+              d={dir === 1 ? 'M1 1.5l5 5 5-5' : 'M1 6.5l5-5 5 5'}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : dir === 1 ? (
+          <ChevronDown size={16} strokeWidth={1.6} aria-hidden />
+        ) : (
+          <ChevronUp size={16} strokeWidth={1.6} aria-hidden />
+        )}
       </button>
     )
 
@@ -372,7 +393,12 @@ export function ScrollBar({
                 (dragging ? 'bg-accent' : 'bg-muted/70')
               : `sbar__thumb${dragging ? ' sbar__thumb--drag' : ''}`
           }
-          style={{ top: g.thumbTop, height: g.thumbH, touchAction: 'none' }}
+          style={{
+            top: g.thumbTop,
+            height: g.thumbH,
+            touchAction: 'none',
+            ...touchPad(g.thumbTop, g.thumbH, track),
+          }}
         />
       </div>
       {arrow(1)}

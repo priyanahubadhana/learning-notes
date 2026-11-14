@@ -201,15 +201,16 @@ test('SC-13 the bar is a bit bigger: thumb 8 px (12 dragged), bar 22 px, arrows 
       .some((e) => e.closest('[data-pagebar-arrow]'))
   }, bar.x)
   expect(edge).toBe(false)
-  // The thumb's touch area (its ::before) is 44 pt wide: hit-test 22 px each side of its centre.
+  // The thumb's touch area (its ::before) is exactly the bar's 22 px wide (a touch box stays in its own lane, P1.4):
+  // it reaches the bar's two edges (10 px each side of the thumb's centre) and not one pixel past the left edge.
   const hit = await thumb.evaluate((el) => {
     const r = el.getBoundingClientRect()
     const y = r.top + r.height / 2
     const cx = r.left + r.width / 2
     const probe = (dx: number) => document.elementFromPoint(cx + dx, y) === el
-    return { l: probe(-21), r: probe(10) }
+    return { l: probe(-10), r: probe(10), past: probe(-13) }
   })
-  expect(hit).toEqual({ l: true, r: true })
+  expect(hit).toEqual({ l: true, r: true, past: false })
 })
 
 test('SC-13 on touch each end arrow is 44 pt tall inside the gutter, the thumb travels between them, and a tap at its top or bottom edge scrolls', async ({
@@ -301,3 +302,84 @@ for (const [name, size] of [
     await expect(page.locator('[data-pagebar-root]')).toHaveCount(0)
     await expect(page.locator('[data-scrollbar-root]')).toHaveCount(1)
   })
+
+test('SC-13 the thumb touch box is at least 44 tall (a 40 px thumb gets 44, centred) and never covers an arrow', async ({
+  page,
+}) => {
+  await longPage(page)
+  const main = page.locator('main[data-page-scroller]')
+  // A very long page, so the thumb is at its 40 px minimum.
+  await main.evaluate((el) => {
+    const f = document.createElement('div')
+    f.style.height = '60000px'
+    el.appendChild(f)
+  })
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document
+            .querySelector('[data-pagebar-thumb]')!
+            .getBoundingClientRect().height,
+      ),
+    )
+    .toBeLessThan(44)
+  const box = () =>
+    page.evaluate(() => {
+      const t = document.querySelector('[data-pagebar-thumb]')!
+      const r = t.getBoundingClientRect()
+      const q = getComputedStyle(t, '::before')
+      const a = document
+        .querySelector('[data-pagebar-arrow="up"]')!
+        .getBoundingClientRect()
+      const b = document
+        .querySelector('[data-pagebar-arrow="down"]')!
+        .getBoundingClientRect()
+      // The ::before is absolutely placed at inset; read its reach from the custom properties.
+      const top = parseFloat(
+        getComputedStyle(t).getPropertyValue('--sbar-pad-top'),
+      )
+      const bot = parseFloat(
+        getComputedStyle(t).getPropertyValue('--sbar-pad-bottom'),
+      )
+      return {
+        h: r.height,
+        thumbTop: r.top,
+        thumbBottom: r.bottom,
+        reach: r.height + top + bot,
+        top: r.top - top,
+        bottom: r.bottom + bot,
+        arrowBottom: a.bottom,
+        arrowTop: b.top,
+        w: parseFloat(q.width),
+      }
+    })
+  // In the middle: a short thumb (a very long page) gets the full 44.
+  await main.evaluate((el) => (el.scrollTop = 30000))
+  // The bar follows the scroll on its next frame.
+  await expect.poll(async () => (await box()).reach).toBeGreaterThanOrEqual(44)
+  const mid = await box()
+  expect(mid.h).toBeLessThan(44)
+  expect(mid.reach).toBeGreaterThanOrEqual(44)
+  // At both ends the box is clamped inside the track.
+  await main.evaluate((el) => (el.scrollTop = 0))
+  // Wait until the thumb is really at the top: flush with the track start.
+  await expect
+    .poll(async () => {
+      const b = await box()
+      return b.thumbTop - b.arrowBottom
+    })
+    .toBeLessThanOrEqual(0.5)
+  const first = await box()
+  expect(first.top).toBeGreaterThanOrEqual(first.arrowBottom - 0.5)
+  await main.evaluate((el) => (el.scrollTop = el.scrollHeight))
+  await expect
+    .poll(async () => {
+      const b = await box()
+      return b.arrowTop - b.thumbBottom
+    })
+    .toBeLessThanOrEqual(0.5)
+  const last = await box()
+  expect(last.bottom).toBeLessThanOrEqual(last.arrowTop + 0.5)
+  expect(mid.w).toBeCloseTo(22, 0)
+})

@@ -1,6 +1,6 @@
 # Gate 3 pictures: toolbar.v8 slices 1e, 1f and BUG-003
 
-Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on source head 9e0b56f0 (flag ON; all 192 pictures re-shot after the last source edit (9e0b56f0 is that edit; only pictures and this index follow it)). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Both levels on every size (192 pictures).
+Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on head e6b0f329 (flag ON; all 192 pictures re-shot after the last source edit, ec01896a; e6b0f329 only changes the picture spec, and only pictures and this index follow it). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Both levels on every size (192 pictures).
 
 ## Screens
 
@@ -34,7 +34,9 @@ Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on 
 
 - Nineteenth visit fixes: (1) Format icon upright: `format-pc-*`, `format-ipad-landscape-*`; (2) Format stays on the phone row while its card is open: `format-phone-*`, `box-phone-*`; (3) no placeholder line in the More card: `more-pc-*`, `more-ipad-landscape-*`; (4) Box card under the bar on phone: `box-phone-*-professional`; (5) sidebar closed on iPad portrait: all `*-ipad-portrait-*`; (6) thin track only where the card is cut, grid fills the card: `format-*-professional`, `insert-*`, `box-*`, `boxset-*` (no track); (7) Box settings row with icon, look name and hint: `boxset-*`.
 
-## Pictures (192, all taken at 9e0b56f0)
+- Twenty-fifth visit fix 1: `formatadv-*` (all 12) now scroll the card body (`.pcard-body`) and the spec asserts scrollTop > 0 before the shot (e2e/toolbarV8TextGate3Shots.spec.ts:106-112); none is byte-identical to its `format-*` picture any more. They show the font list, Import font and the line-height tiles (Normal, Tight, Loose) at the card bottom. Gate 2: `Aa Aa` is a plain string (TextCards.tsx:96), allowed in src/i18n/hardcodedText.test.ts.
+
+## Pictures (192, all taken at e6b0f329)
 
 - alltools-ipad-landscape-day-professional.png
 - alltools-ipad-landscape-night-professional.png

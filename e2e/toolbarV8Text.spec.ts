@@ -113,6 +113,7 @@ test('TB-41 Professional: fonts and inline code show with their own switches', a
     'Style',
     'Paragraph',
     'Advanced',
+    'Line height',
   ])
   await expect(c.getByTestId('v8-format-code')).toBeVisible()
 })
@@ -128,6 +129,7 @@ test('TB-41 each Professional switch works alone: tb.textFonts, tb.textMarks', a
     'Style',
     'Paragraph',
     'Advanced',
+    'Line height',
   ])
   await expect(c.getByTestId('v8-format-code')).toHaveCount(0)
   // Each font is drawn in its own face.

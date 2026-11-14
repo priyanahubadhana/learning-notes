@@ -19,3 +19,4 @@ Owner is running the iPad checklist (docs/PENDING.md "iPad checklist (first prev
 ## Part 2: done
 
 - Frame works apart from F2, F3, F6 and F7.
+- **F8. Layout breaks after turning the iPad sideways and back upright.** After a landscape → portrait turn, the open page does not hold its frame: the page outline sidebar keeps a wide landscape width and squeezes the page into a narrow column; the top bar (notebook / page title row) is gone and the tool bar is cut to a few tools with a stray scroll indicator; page blocks sit narrow with wide empty margins. Expected: after any rotation the layout is exactly what a fresh load in that orientation gives (sidebar width, top bar, full tool bar, page width). Add an e2e that rotates landscape → portrait → landscape on ipad-webkit and compares with a fresh load. Screenshot: owner upload 14 Nov 06:18. Related to step 6 of the checklist.

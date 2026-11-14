@@ -1799,3 +1799,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - Doc spacing for format:check (3d3e7fe).
 - CI: a manual run (workflow_dispatch) on main now runs checks, e2e and deploy too, so docs-only fixes can still be deployed.
 - Supabase: connector migrations applied, connector_devices renumbered to 20261113000002; mcp function prefix fix (ad3ec12).
+
+## 14 Nov 2026: build paused, diagnosis written
+
+The owner paused the build at 11:10 IST. All helpers and the hourly check were stopped. Fable wrote docs/plans/build-diagnosis-2026-11-14.md (causes, score for the trial, proposal for a phased build). Files: docs/BUILD-STATE.md, docs/PENDING.md (pause lines), the new plan file. No app code changed.

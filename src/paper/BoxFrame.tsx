@@ -6,6 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
+import { Lock } from 'lucide-react'
 import { t } from '../i18n/t'
 import type { PaperBox } from '../core/types'
 import { frameCss, padOf } from '../core/boxStyle'
@@ -264,7 +265,7 @@ export function BoxFrame({
       >
         {box.locked || stacked ? (
           <span aria-hidden className="px-1 text-xs text-muted">
-            🔒
+            {v2On ? <Lock size={16} /> : '🔒'}
           </span>
         ) : (
           <button

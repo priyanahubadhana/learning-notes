@@ -383,6 +383,11 @@
   font-weight: 600;
   cursor: pointer;
 }
+.sh-toast-act[data-icon] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
 .sh-toast-act:hover {
   background: var(--color-accent-soft);
 }

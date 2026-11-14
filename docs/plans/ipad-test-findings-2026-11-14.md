@@ -50,3 +50,12 @@ Running list, in the order the owner reports. The owner asked to note everything
 | #   | What                                                                                                                                        | Owner's call            | Where it is now                                |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- | ---------------------------------------------- |
 | L8  | Steps 13 and 14 named the old places ("About", "Advanced"); in the new Settings both buttons are in **Help & tour**, block "About this app" | our mistake, text fixed | re-check 13, 14 (and 15) in the re-check round |
+
+### Decisions after the first look (owner, 14 Nov about 17:10 IST)
+
+- **L4 + L1 → one Phase 1 task now (P1.1):** the scroll bar works with the Apple Pencil exactly as with a finger (a tap or drag never lands on the tool bar or the rows behind); only one bar per edge (when a sheet docks over the page's right edge, the two bars must not sit side by side); and the bar is **a bit bigger**: the old page bar from before the phases (24 px) was premium but too big, today's (4 px thumb, 20 px wide) is too small; aim in between, calm and in line with the app's design. The owner approves the look on the iPad (this is also the L1 polish, done before Phase 1 goes live).
+- **L6 → pass, no change.** The text-only Live preview is as planned; real preview pictures come in Phase 10.
+- **L3 + L5 → Phase 2A, picture first.** The ⋯ menus get a picture the owner approves before Phase 2A builds them.
+- **L2 → stays parked** (likely the iPad's window mode; tip given: pinch outward on the floating keyboard).
+- **F10** (phone search bar not dimmed) → fix before Phase 1 goes live (P1.2).
+- **Re-check round:** steps 5, 6 and 9 (scroll bar, finger and Pencil), 13, 14, 15.

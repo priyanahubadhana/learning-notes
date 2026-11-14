@@ -5,6 +5,7 @@ import { CardGroup, Tile, TileGroup } from '../../design/parts/CardParts'
 import { FoldGroup } from '../../design/parts/FoldGroup'
 import '../../design/parts/Card.css'
 import { Icon, type IconName } from '../../app/tools/icons'
+import { markLabels } from '../../revise/reviseMarks'
 import { isApple } from '../../app/keys'
 import { touchUi } from '../../app/touchUi'
 import {
@@ -76,6 +77,12 @@ const ROW_ICON: Record<string, IconName> = {
 const iconOf = (id: string): IconName =>
   ROW_ICON[id] ?? (id.startsWith('mark:') ? 'highlighter' : 'tag')
 
+/** The colour of a mark's label (Key point, Keyword, Must know, Formula). */
+const markDot = (id: string): string | undefined =>
+  id.startsWith('mark:')
+    ? markLabels().find((l) => l.id === id.slice(5))?.color
+    : undefined
+
 const COPY_LABEL: Record<string, MessageKey> = {
   copyPlain: 'copy.plain',
   copyMarkdown: 'copy.markdown',
@@ -87,6 +94,7 @@ const COPY_LABEL: Record<string, MessageKey> = {
 
 function Row({
   icon,
+  dot,
   hint,
   active,
   disabled,
@@ -94,6 +102,8 @@ function Row({
   children,
 }: {
   icon: IconName
+  /** A colour dot on the icon (the mark's colour). */
+  dot?: string
   hint?: string
   active?: boolean
   disabled?: boolean
@@ -107,11 +117,22 @@ function Row({
       aria-disabled={disabled || undefined}
       onMouseDown={keepFocus}
       onClick={() => !disabled && onClick()}
-      className={`flex min-h-[44px] items-center gap-3 rounded-lg px-1 text-left text-sm hover:bg-hover aria-disabled:opacity-40 ${
+      style={{ minHeight: 'var(--menu-row, 44px)' }}
+      className={`flex items-center gap-3 rounded-lg px-1 text-left text-sm hover:bg-hover aria-disabled:opacity-40 ${
         active ? 'bg-hover text-accent' : ''
       }`}
     >
-      <Icon name={icon} size={18} />
+      <span className="relative grid place-items-center">
+        <Icon name={icon} size={18} />
+        {dot && (
+          <i
+            aria-hidden
+            data-dot={dot}
+            className="absolute -bottom-0.5 -right-1 size-2 rounded-full border border-bg"
+            style={{ background: dot }}
+          />
+        )}
+      </span>
       <span className="flex-1">{children}</span>
       {hint && <span className="text-xs text-muted">{hint}</span>}
     </button>
@@ -143,6 +164,7 @@ export function ToolbarMenuV2({
   ribbon,
   freePos,
   hints,
+  rowPx,
   onEdit,
   onAllTools,
   onSearch,
@@ -158,6 +180,8 @@ export function ToolbarMenuV2({
   freePos: boolean
   /** The "show shortcut hints" setting. */
   hints: boolean
+  /** The bar's button size in px: rows are at least this tall (44 at the least). */
+  rowPx: number
   onEdit: () => void
   onAllTools: () => void
   onSearch: () => void
@@ -205,7 +229,8 @@ export function ToolbarMenuV2({
         <div
           key={id}
           data-action={id}
-          className="flex min-h-[44px] items-center gap-3 px-1 text-sm"
+          style={{ minHeight: 'var(--menu-row, 44px)' }}
+          className="flex items-center gap-3 px-1 text-sm"
         >
           <Icon name={iconOf(id)} size={18} />
           <span className="flex-1 text-left">{a.label}</span>
@@ -217,6 +242,7 @@ export function ToolbarMenuV2({
       <Row
         key={id}
         icon={iconOf(id)}
+        dot={markDot(id)}
         active={a.active}
         disabled={a.disabled}
         hint={hint(a.hint)}
@@ -281,7 +307,16 @@ export function ToolbarMenuV2({
   }
 
   return (
-    <div data-menu-v2 className="grid gap-2 px-1 pb-1">
+    <div
+      data-menu-v2
+      className="grid gap-2 px-1 pb-1"
+      style={
+        {
+          '--menu-row': `${Math.max(rowPx, 44)}px`,
+          '--fold-head-min': `${Math.max(rowPx, 44)}px`,
+        } as React.CSSProperties
+      }
+    >
       <CardGroup>
         <TileGroup
           label={t('toolbarMenu.groupTop')}

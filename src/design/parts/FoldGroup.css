@@ -4,12 +4,13 @@
   flex-direction: column;
   border-top: 1px solid var(--card-hair);
 }
-.fgroup-head {
+.fgroup .fgroup-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  min-height: 44px;
+  /* The bar's button size can make it taller; 44 px is the least. */
+  min-height: var(--fold-head-min, 44px);
   padding: 0 4px;
   border: 0;
   border-radius: var(--r-md);

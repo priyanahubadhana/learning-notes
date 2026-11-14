@@ -209,11 +209,14 @@ test('1: nothing is dropped: every old item is on the bar, in the menu or in All
       )
     for (const l of labels) found.add(l)
   }
-  const loose = (n: string) => n.replace(/ text| block/g, '')
-  const all = [...found].join('|')
-  const lost = missing.filter(
-    (n) => !all.includes(n) && !all.includes(loose(n)),
-  )
+  // Exact names, one by one: each item missing from the menu is on the bar or in All tools.
+  // The same tool, named by the app (the old menu used the editor's own words).
+  const sameAs: Record<string, string> = {
+    'align text left': 'align left',
+    'align text center': 'align center',
+    'align text right': 'align right',
+  }
+  const lost = missing.filter((n) => !found.has(sameAs[n] ?? n))
   expect(lost).toEqual([])
 })
 
@@ -345,4 +348,44 @@ test('the bar still shows its tools (the menu does not take them away)', async (
   await flagOn(page, true)
   await openNote(page)
   await expect(mainBar(page)).toBeVisible()
+})
+
+test('1 (polish): the button size setting still sets the row height; 44 px is the least', async ({
+  page,
+}) => {
+  await flagOn(page, true)
+  await openNote(page, 'touch', { 'advanced.barSize': 'large' })
+  await barMenu(page).click()
+  await unfold(page)
+  const h = async (sel: string) =>
+    (await tray(page).locator(sel).first().boundingBox())!.height
+  expect(await h('.fgroup-head')).toBeGreaterThanOrEqual(53.5)
+  expect(
+    await h('.fgroup-body button[aria-disabled], .fgroup-body > button'),
+  ).toBeGreaterThanOrEqual(53.5)
+})
+
+test('1 (polish): at the normal size rows are 44 px', async ({ page }) => {
+  await flagOn(page, true)
+  await openNote(page, 'touch', { 'advanced.barSize': 'compact' })
+  await barMenu(page).click()
+  await unfold(page)
+  const box = (await tray(page).locator('.fgroup-head').first().boundingBox())!
+  expect(box.height).toBeGreaterThanOrEqual(43.5)
+  expect(box.height).toBeLessThan(46)
+})
+
+test('3 (polish): Key point, Keyword, Must know and Formula each show their own colour dot', async ({
+  page,
+}) => {
+  await flagOn(page, true)
+  await openNote(page)
+  // The Text tool's options hold Key point; take it off the bar so it shows here.
+  await barMenu(page).click()
+  await unfold(page)
+  const dots = await tray(page)
+    .locator('[data-dot]')
+    .evaluateAll((els) => els.map((e) => e.getAttribute('data-dot')))
+  expect(dots.length).toBeGreaterThanOrEqual(3)
+  expect(new Set(dots).size).toBe(dots.length)
 })

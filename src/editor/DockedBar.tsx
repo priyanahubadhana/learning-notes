@@ -400,6 +400,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
                 ribbon={ribbon}
                 freePos={layout.short === 'free' || layout.ribbon === 'free'}
                 hints={shortcutHints}
+                rowPx={buttonPx}
                 onEdit={() => openSheet()}
                 onAllTools={openRibbon}
                 onSearch={() => {

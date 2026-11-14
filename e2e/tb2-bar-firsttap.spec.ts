@@ -184,6 +184,57 @@ test('textbox.v2 ON: a bar tap within the selecting tap’s 350 ms works', async
   }, ED)
   expect(ms).toBeGreaterThan(0)
   expect(ms).toBeLessThan(350)
-  await expect(box).toHaveAttribute('data-picked', '')
+  // The copy is made; one box is picked (the duplicate step may move the pick).
   await expect(page.locator(EXTRA)).toHaveCount(2)
+  await expect(page.locator(EXTRA + '[data-picked]')).toHaveCount(1)
+})
+
+test('textbox.v2 ON: the first selecting tap on a page shows the bar at once, fading in place', async ({
+  page,
+}) => {
+  // Why: the bar waited about 300 ms (a lazy part held back by React's
+  // Suspense), then slid 5 px down while the finger reached for it.
+  const box = await start(page, true)
+  const ms = await page.evaluate(async (sel) => {
+    const ed = document.querySelector(sel)!
+    const n = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT).nextNode()!
+    const r = document.createRange()
+    r.setStart(n, 1)
+    r.setEnd(n, 2)
+    const b = r.getBoundingClientRect()
+    const x = b.x + 1
+    const y = b.y + b.height / 2
+    const t0 = performance.now()
+    for (const type of ['pointerdown', 'pointerup'])
+      document.elementFromPoint(x, y)!.dispatchEvent(
+        new PointerEvent(type, {
+          pointerType: 'touch',
+          pointerId: 43,
+          isPrimary: true,
+          clientX: x,
+          clientY: y,
+          button: 0,
+          buttons: type === 'pointerdown' ? 1 : 0,
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+        }),
+      )
+    while (!document.querySelector('[data-box-bar]')) {
+      if (performance.now() - t0 > 1000) return -1
+      await new Promise((f) => requestAnimationFrame(f))
+    }
+    return performance.now() - t0
+  }, ED)
+  await expect(box).toHaveAttribute('data-picked', '')
+  expect(ms).toBeGreaterThanOrEqual(0)
+  expect(ms).toBeLessThan(150)
+  const bar = page.locator('[data-box-bar] .pm-ob')
+  expect(await bar.evaluate((el) => getComputedStyle(el).animationName)).toBe(
+    'pm-fade',
+  )
+  // It stands still from its first frame on.
+  const y0 = (await bar.boundingBox())!.y
+  await page.waitForTimeout(300)
+  expect((await bar.boundingBox())!.y).toBe(y0)
 })

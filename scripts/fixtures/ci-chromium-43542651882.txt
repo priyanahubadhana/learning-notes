@@ -1,0 +1,14 @@
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	﻿2026-11-14T01:54:10.1729845Z ##[group]Run npx playwright test --project=chromium --shard=1/4
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T01:54:10.1730327Z ^[[36;1mnpx playwright test --project=chromium --shard=1/4^[[0m
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:00:29.1999622Z   ✘  139 [chromium] › e2e/bigPageBudget.spec.ts:576:3 › a mixed paper page scrolls within the budget at zoom 0.73 (38.3s)
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:00:30.6512241Z   ✘  138 [chromium] › e2e/bigPageBudget.spec.ts:576:3 › a mixed paper page scrolls within the budget at zoom 1 (43.4s)
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:01:09.3667438Z   ✘  140 [chromium] › e2e/bigPageBudget.spec.ts:576:3 › a mixed paper page scrolls within the budget at zoom 0.73 (retry #1) (38.7s)
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:01:15.3673100Z   ✘  141 [chromium] › e2e/bigPageBudget.spec.ts:576:3 › a mixed paper page scrolls within the budget at zoom 1 (retry #1) (43.3s)
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:16:35.9114391Z   1) [chromium] › e2e/bigPageBudget.spec.ts:576:3 › a mixed paper page scrolls within the budget at zoom 1 
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:16:35.9132609Z   2) [chromium] › e2e/bigPageBudget.spec.ts:576:3 › a mixed paper page scrolls within the budget at zoom 0.73 
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:16:35.9150114Z   2 failed
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:16:35.9150551Z     [chromium] › e2e/bigPageBudget.spec.ts:576:3 › a mixed paper page scrolls within the budget at zoom 1 
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:16:35.9151477Z     [chromium] › e2e/bigPageBudget.spec.ts:576:3 › a mixed paper page scrolls within the budget at zoom 0.73 
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:16:35.9151854Z   15 skipped
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:16:35.9152024Z   503 passed (22.4m)
+e2e (1)	Run npx playwright test --project=chromium --shard=1/4	2026-11-14T02:16:35.9465258Z ##[error]Process completed with exit code 1.

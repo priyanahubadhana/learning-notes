@@ -16,7 +16,7 @@ export function toastDuration(message: string, hasAction: boolean): number {
 }
 
 /** Height of the on-screen keyboard's own bar that sits above the keys. */
-const KEYBOARD_BAR_PX = 44
+export const KEYBOARD_BAR_PX = 44
 /** B3-11: where a toast's bottom edge goes: above the keyboard and its bar. */
 export function toastBottom(keyboardInset: number): number | undefined {
   return keyboardInset > 40 ? keyboardInset + KEYBOARD_BAR_PX + 12 : undefined

@@ -8,6 +8,8 @@ import type { SettingDefinition } from '../registry'
 import { SettingSyncBadge } from '../SettingSyncBadge'
 import { setSetting } from '../settingsService'
 import { useDeviceSetting, useSyncedSetting } from '../useSetting'
+import { onFlags } from '../../app/flags'
+import { presetChangeItems } from './tryNew'
 import { useSettingsHistory } from './historyCtx'
 import { RowControl } from './RowControl'
 import { RowExtra } from './RowExtra'
@@ -73,11 +75,19 @@ function RowBody({
   const name = t(definition.labelKey)
   // Every change is one Undo step with a toast (SET-B10).
   const commit = (next: JsonValue) => {
+    const own = { id: definition.id, before: value, after: next }
+    if (!definition.id.startsWith('tryNewPreset.')) {
+      history.record({ label: name, items: [own] })
+      onSave(next)
+      return
+    }
+    // Test a phase: Undo gives back the exact earlier list of switches.
+    const before = onFlags()
+    onSave(next)
     history.record({
       label: name,
-      items: [{ id: definition.id, before: value, after: next }],
+      items: presetChangeItems(before, onFlags(), own),
     })
-    onSave(next)
   }
   const isDefault =
     JSON.stringify(value) === JSON.stringify(definition.defaultValue)

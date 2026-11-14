@@ -19,4 +19,7 @@ export const enPartsFeedback = {
   'parts.fb.bannerRegion': 'Notice',
   'parts.fb.bannerClose': 'Dismiss notice',
   'parts.fb.bannerNext': '{count} more notices waiting',
+  'parts.scroll.up': 'Scroll up',
+  'parts.scroll.down': 'Scroll down',
+  'parts.scroll.bar': 'Scroll bar',
 } as const

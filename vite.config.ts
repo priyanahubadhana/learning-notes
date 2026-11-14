@@ -5,6 +5,12 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Connect, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import {
+  isPrecached,
+  PRECACHE_GLOB,
+  PRECACHE_IGNORES,
+  PRECACHE_MAX_BYTES,
+} from './src/app/precacheRules.ts'
 import { buildSkillZip, SKILL_ZIP_NAME } from './scripts/skillZip.ts'
 
 /** The live site's `/*` headers, so the preview runs under the same rules. */
@@ -93,17 +99,12 @@ const precacheList = (): Plugin => ({
   name: 'precache-list',
   apply: 'build',
   generateBundle(_o, bundle) {
+    const size = (f: (typeof bundle)[string]) =>
+      f.type === 'chunk' ? Buffer.byteLength(f.code) : f.source.length
+    // Exactly what the offline copy saves (same patterns, ignores, size limit).
     const files = Object.values(bundle)
-      // The on-device text reader (about 4 MB) loads on first use, not at install.
-      .filter(
-        (f) =>
-          /.(js|css|html|svg|png|wasm|woff2)$/.test(f.fileName) &&
-          !/tesseract-core/.test(f.fileName),
-      )
-      .map((f) => ({
-        u: '/' + f.fileName,
-        s: f.type === 'chunk' ? Buffer.byteLength(f.code) : f.source.length,
-      }))
+      .filter((f) => isPrecached(f.fileName, size(f)))
+      .map((f) => ({ u: '/' + f.fileName, s: size(f) }))
     this.emitFile({
       type: 'asset',
       fileName: 'precache.json',
@@ -184,9 +185,9 @@ export default defineConfig({
       injectRegister: false,
       manifest: false,
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,wasm,woff2}'],
-        globIgnores: ['404.html', '**/tesseract-core*'],
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        globPatterns: [PRECACHE_GLOB],
+        globIgnores: PRECACHE_IGNORES,
+        maximumFileSizeToCacheInBytes: PRECACHE_MAX_BYTES,
         navigateFallback: 'index.html',
         navigateFallbackDenylist: [/^\/privacy(\.html)?$/],
         clientsClaim: true,

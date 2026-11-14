@@ -1,5 +1,12 @@
 import { useBlockNoteEditor } from '@blocknote/react'
-import { useEffect, useRef, useState, type PointerEvent } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { historyState } from '../../../core/historySteps'
 import { runHistory } from '../../../editor/historyActions'
@@ -9,6 +16,7 @@ import {
   deleteBackward,
 } from '../../../editor/lineActions'
 import type { Editor } from '../../../editor/barActions'
+import { useFlag } from '../../flags'
 import { t, type MessageKey } from '../../../i18n/t'
 import { useLevel } from '../../../settings/level'
 import { Icon, type IconName } from '../icons'
@@ -20,6 +28,10 @@ import {
 } from '../main/newLineGesture'
 import { REPEAT_AFTER_MS, backspaceStep } from '../main/backspaceHold'
 import { FoldCard, type FoldEntry } from './FoldCard'
+
+// The ⋯ card's own group (1f) loads with the first ⋯ tap.
+const MoreExtras = lazy(() => import('./cards/more/MoreExtras'))
+const MoreMenuV2 = lazy(() => import('./cards/more/MoreMenuV2'))
 import type { OpenCard } from './barState'
 import { v8Tools, type V8ToolId } from './registryV8'
 import { useFold, type FoldSpec } from './useFold'
@@ -299,6 +311,7 @@ export function ToolBar({
   const showNames = names && result.names
   const folded = result.folded.filter((id) => id !== 'more')
   const moreOpen = card?.id === 'fold.bar'
+  const menuV2 = useFlag('toolbar.menu')
 
   const history_ = (kind: 'undo' | 'redo') => {
     if (editor) runHistory(editor, kind)
@@ -518,9 +531,24 @@ export function ToolBar({
         <FoldCard
           anchor={card.anchor}
           testId="v8-card-fold.bar"
-          entries={entries}
+          entries={menuV2 ? [] : entries}
           onClose={() => onCloseCard('fold.bar')}
-        />
+        >
+          <Suspense fallback={null}>
+            {menuV2 ? (
+              <MoreMenuV2
+                entries={entries}
+                onClose={() => onCloseCard('fold.bar')}
+                onAllTools={() => onToggleCard('more.alltools', card.anchor)}
+              />
+            ) : (
+              <MoreExtras
+                onClose={() => onCloseCard('fold.bar')}
+                onAllTools={() => onToggleCard('more.alltools', card.anchor)}
+              />
+            )}
+          </Suspense>
+        </FoldCard>
       ) : null}
       {card?.id === NEWLINE_CARD ? (
         <FoldCard

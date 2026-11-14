@@ -11,7 +11,11 @@
  * written holds the update back instead.
  */
 import { cachedPaths, listFiles, type Listed } from './updateProgress'
-import { mandatoryMeta, mandatoryUpdate } from './mandatoryState'
+import {
+  mandatoryFailure,
+  mandatoryMeta,
+  mandatoryUpdate,
+} from './mandatoryState'
 import type { UpdateRisk } from './autoUpdate'
 import type { UpdateReason } from './updateLevel'
 
@@ -21,6 +25,8 @@ export const INSTALL_MAX_MS = 30_000
 /** The restart is forced if the service worker has not done it by now. */
 export const FORCE_RESTART_MS = 6_000
 const PARALLEL = 4
+/** No byte from any file for this long: the download is stopped (Try again). */
+export const STALL_MS = 20_000
 /** update.v2: how long a change that is not saved yet may delay the install. */
 export const SAVE_WAIT_MS = 5000
 const SAVE_POLL_MS = 500
@@ -42,6 +48,12 @@ export function etaSeconds(
 export interface MandatoryDeps {
   /** Restarts into the new version. */
   apply: () => void
+  /**
+   * update.v2: how long the restart may take before Try again shows. A plain
+   * reload (the About test button) can take longer than the 6 s default on a
+   * real Safari, which revalidates every file on reload (L13).
+   */
+  restartMs?: number
   /** Flushes saves and takes the backup; a risk blocks the update. */
   prepare: () => Promise<UpdateRisk | null>
   /** Last resort restart (drops old files, reloads). */
@@ -76,26 +88,55 @@ export async function downloadNewFiles(
   const total = todo.reduce((sum, f) => sum + f.s, 0)
   let loaded = 0
   onProgress(0, total)
+  if (todo.length === 0) return
   const queue = [...todo]
+  // Watchdog: any byte resets it; silence for STALL_MS stops the whole download.
+  const stop = new AbortController()
+  const link = () => stop.abort()
+  signal.onabort = link
+  let dead: (e: Error) => void = () => {}
+  const dying = new Promise<never>((_, rej) => (dead = rej))
+  dying.catch(() => {})
+  const fail = (why: string) => {
+    stop.abort()
+    dead(new Error(why))
+  }
+  let watchdog = setTimeout(() => fail('stalled'), STALL_MS)
+  const alive = () => {
+    clearTimeout(watchdog)
+    watchdog = setTimeout(() => fail('stalled'), STALL_MS)
+  }
   const worker = async () => {
     for (let f = queue.shift(); f; f = queue.shift()) {
-      const res = await get(f.u, { cache: 'reload', signal })
+      const res = await get(f.u, { cache: 'reload', signal: stop.signal })
+      alive()
       if (!res.ok) throw new Error(`${f.u}: ${res.status}`)
       const reader = res.body?.getReader()
       if (!reader) {
         loaded += (await res.arrayBuffer()).byteLength
+        alive()
         onProgress(loaded, total)
         continue
       }
       for (;;) {
         const { done, value } = await reader.read()
+        alive()
         if (done) break
         loaded += value.byteLength
         onProgress(loaded, total)
       }
     }
   }
-  await Promise.all(Array.from({ length: PARALLEL }, worker))
+  try {
+    await Promise.race([
+      Promise.all(Array.from({ length: PARALLEL }, worker)),
+      dying,
+    ])
+  } finally {
+    clearTimeout(watchdog)
+    signal.onabort = null
+    stop.abort()
+  }
 }
 
 export interface Flow {
@@ -154,7 +195,10 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
       if (controller.signal.aborted) return
       // Offline is not a failure: wait for the network (update.v2).
       if (v2 && !isOnline()) set({ phase: 'offline' })
-      else set({ phase: 'failed', reason: 'download' })
+      else {
+        mandatoryFailure.set({ what: 'download', waitedMs: now() - startedAt })
+        set({ phase: 'failed', reason: 'download' })
+      }
       return
     }
     if (controller.signal.aborted) return
@@ -193,13 +237,16 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
       set({ phase: 'failed', reason: 'install' })
       return
     }
+    const installAt = now()
     const failIfStuck = () => {
-      if (mandatoryUpdate.get()?.phase === 'installing')
+      if (mandatoryUpdate.get()?.phase === 'installing') {
+        mandatoryFailure.set({ what: 'restart', waitedMs: now() - installAt })
         set({ phase: 'failed', reason: 'install' })
+      }
     }
     if (v2) {
       // No restart within 6 s: say so, with Try again (nothing is lost).
-      installTimer = after(failIfStuck, FORCE_RESTART_MS)
+      installTimer = after(failIfStuck, deps.restartMs ?? FORCE_RESTART_MS)
       return
     }
     after(() => deps.hardRestart?.(), FORCE_RESTART_MS)
@@ -260,4 +307,5 @@ export function resetMandatoryUpdate(): void {
   current = null
   mandatoryMeta.set({ v2: false, reason: 'storage' })
   mandatoryUpdate.set(null)
+  mandatoryFailure.set(null)
 }

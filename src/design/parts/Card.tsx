@@ -16,7 +16,10 @@ import {
   type OverlayHandle,
 } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
+import { useFootLift } from '../../app/spaces/footLift'
+import { useFlag } from '../../app/flags'
 import { motionMs } from './motion'
+import { ScrollBar } from './ScrollBar'
 import { tp } from './tp'
 import { useAnchoredCard, usePhone } from './useAnchoredCard'
 import './Card.css'
@@ -44,9 +47,37 @@ export type CardProps = {
   placement?: 'anchored' | 'static'
   /** Rect the card keeps clear of (the selected picture); read at each placement. */
   avoid?: () => RectLike | null
+  /** A box the card hangs around: right, else left, under, above; never over it. */
+  around?: () => RectLike | null
+  /** With `around`: the card never starts above this y; a taller card is shortened and scrolls. */
+  clearTop?: () => number
   /** Force the phone sheet look (gallery cell). */
   phone?: boolean
   testId?: string
+}
+
+/** Where the thin track sits (px inside the card) and where its thumb is. */
+interface TrackBox {
+  top: number
+  height: number
+  thumbTop: number
+  thumbH: number
+}
+
+/** The track for a cut body, or null when nothing is cut (no track then). */
+function trackOf(body: HTMLElement): TrackBox | null {
+  const { scrollHeight: sh, clientHeight: ch, scrollTop: st } = body
+  // Layout height, not scrollHeight: the open motion slides the view 4 px, which must not count as "cut".
+  const content =
+    (body.firstElementChild as HTMLElement | null)?.offsetHeight ?? sh
+  if (content - ch <= 1 || sh - ch <= 1) return null
+  const thumbH = Math.max(24, (ch / sh) * ch)
+  return {
+    top: body.offsetTop,
+    height: ch,
+    thumbH,
+    thumbTop: (st / (sh - ch)) * (ch - thumbH),
+  }
 }
 
 const WIDTH = { pick: 304, panel: 376 } as const
@@ -67,18 +98,27 @@ export function Card(props: CardProps) {
     testId,
   } = props
   const isStatic = placement === 'static'
-  const phone = usePhone() || !!props.phone
+  // A card that hangs around a box stays a floating card on a phone too (above or
+  // under the box), so the sheet never covers it.
+  const phone = (usePhone() && !props.around) || !!props.phone
   const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
+  // New app frame (SC-01): a card that scrolls shows the shared bar at rest.
+  const shell = useFlag('foundation.shell')
+  const [bodyEl, setBodyEl] = useState<HTMLDivElement | null>(null)
+  useEffect(() => setBodyEl(bodyRef.current), [])
   const [node, setNode] = useState<HTMLDivElement | null>(null)
   const [closing, setClosing] = useState(false)
   const [picked, setPicked] = useState(false)
   const [fade, setFade] = useState(false)
+  // The thin track: drawn while the body is cut (more to scroll), never otherwise.
+  const [track, setTrack] = useState<TrackBox | null>(null)
   // true once the open motion has finished (at once when there is none)
   const [settled, setSettled] = useState(false)
   const closingRef = useRef(false)
   const reasonRef = useRef<CardCloseReason>('outside')
   const handleRef = useRef<OverlayHandle | null>(null)
+  const releaseRef = useRef<() => void>(() => {})
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const onCloseRef = useRef(onClose)
   const anchorRef = useRef(anchor)
@@ -93,16 +133,21 @@ export function Card(props: CardProps) {
     reasonRef.current = reason
     setClosing(true)
     handleRef.current?.close()
-    timerRef.current = setTimeout(() => {
-      // Why: a tap into the text during the closing motion must keep its
-      // focus; hand focus back only if it is still in the card or nowhere.
-      const now = document.activeElement
-      const free =
-        !now || now === document.body || !!rootRef.current?.contains(now)
-      onCloseRef.current(reason)
-      const a = anchorRef.current
-      if (reason !== 'outside' && free && a instanceof HTMLElement) a.focus()
-    }, motionMs(130))
+    // Why: the closing motion is only a picture. Keys pressed while it plays
+    // (CI run 43505401817) were pulled back into the fading card by its Tab
+    // trap, and a tap into the text (CI run 43478875272) was undone by a late
+    // focus hand-back. So the trap ends and focus goes back to the chip now,
+    // and only if it is still in the card or nowhere.
+    releaseRef.current()
+    const now = document.activeElement
+    const free =
+      !now || now === document.body || !!rootRef.current?.contains(now)
+    const a = anchorRef.current
+    if (reason !== 'outside' && free && a instanceof HTMLElement) a.focus()
+    timerRef.current = setTimeout(
+      () => onCloseRef.current(reason),
+      motionMs(130),
+    )
   }, [])
 
   // Overlay: one card at a time; Esc and a tap outside close it.
@@ -120,6 +165,7 @@ export function Card(props: CardProps) {
       inside: (t) => !!el && el.contains(t),
     })
     const release = el ? trapFocus(el, null) : () => {}
+    releaseRef.current = release
     if (el) focusTarget(el).focus()
     return () => {
       closingRef.current = true
@@ -130,19 +176,24 @@ export function Card(props: CardProps) {
     }
   }, [isStatic, phone, request])
 
+  // BUG-006: with the keyboard up the card stays inside what can be seen.
+  const footLift = useFootLift()
   const pos = useAnchoredCard({
+    footLift,
     anchor,
     card: node,
     widthPx: WIDTH[size],
     active: !isStatic && !phone && !!anchor,
     avoid: props.avoid,
+    around: props.around,
+    clearTop: props.clearTop,
   })
 
   // A floating card is hidden until positioned, and a hidden element cannot
   // take focus, so focus again once it is visible (SP-14).
   const placed = !!pos
   useEffect(() => {
-    if (isStatic || !placed) return
+    if (isStatic || !placed || closingRef.current) return
     const el = rootRef.current
     if (!el || el.contains(document.activeElement)) return
     focusTarget(el).focus()
@@ -152,8 +203,10 @@ export function Card(props: CardProps) {
   useEffect(() => {
     const body = bodyRef.current
     if (!body) return
-    const update = () =>
+    const update = () => {
       setFade(body.scrollHeight - body.scrollTop - body.clientHeight > 4)
+      setTrack(trackOf(body))
+    }
     update()
     const ro = new ResizeObserver(update)
     ro.observe(body)
@@ -168,17 +221,26 @@ export function Card(props: CardProps) {
   }, [autoClose, picked, request])
 
   const floating = !isStatic && !phone
+  // F10: the phone dim layer takes the sheet layer number, so it also covers
+  // a sticky bar (--z-sticky) in the page behind.
+  const sheetLayer = { zIndex: LAYERS.sheet }
   const style: CSSProperties & Record<string, string | number | undefined> =
     isStatic
       ? { position: 'relative' }
       : phone
-        ? { zIndex: LAYERS.sheet }
+        ? sheetLayer
         : {
             zIndex: LAYERS.card,
             left: pos?.left ?? 0,
             top: pos?.top ?? 0,
             width: pos?.width,
             visibility: pos ? 'visible' : 'hidden',
+            maxHeight: footLift
+              ? Math.min(
+                  pos?.maxHeight ?? Infinity,
+                  Math.max(160, window.innerHeight - footLift - 24),
+                )
+              : pos?.maxHeight,
           }
   if (floating && pos?.arrowX != null) style['--arrow-x'] = `${pos.arrowX}px`
   const side = floating ? (pos?.side ?? 'below') : 'below'
@@ -208,6 +270,7 @@ export function Card(props: CardProps) {
         }}
         data-picked={picked || undefined}
         data-fade={fade || undefined}
+        data-cut={track ? '' : undefined}
         tabIndex={-1}
         style={style}
         onKeyDown={(e) => {
@@ -242,9 +305,11 @@ export function Card(props: CardProps) {
           ref={bodyRef}
           className="pcard-body"
           data-testid="pcard-body"
+          data-no-scroll-hint=""
           onScroll={(e) => {
             const b = e.currentTarget
             setFade(b.scrollHeight - b.scrollTop - b.clientHeight > 4)
+            setTrack(trackOf(b))
           }}
         >
           <div
@@ -255,14 +320,25 @@ export function Card(props: CardProps) {
             {loading ? <CardSkeleton /> : children}
           </div>
         </div>
+        {!shell && track && (
+          <span
+            className="pcard-track"
+            aria-hidden
+            data-testid="pcard-track"
+            style={{ top: track.top, height: track.height }}
+          >
+            <i style={{ top: track.thumbTop, height: track.thumbH }} />
+          </span>
+        )}
         {footer && <footer className="pcard-foot">{footer}</footer>}
+        {shell && <ScrollBar scroller={bodyEl} />}
       </div>
     </CardCtx.Provider>
   )
   if (isStatic) return card
   return createPortal(
     <>
-      {phone && <div className="pcard-scrim" aria-hidden />}
+      {phone && <div className="pcard-scrim" style={sheetLayer} aria-hidden />}
       {card}
     </>,
     document.body,

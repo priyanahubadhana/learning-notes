@@ -7,8 +7,13 @@ on:
   pull_request:
   schedule:
     - cron: '0 3 * * 1' # WebKit, every Monday
+    - cron: '30 20 * * *' # the full test set, every night (02:00 IST)
   workflow_dispatch:
     inputs:
+      full:
+        description: 'Run the full test set (every end-to-end test, about 40 minutes) instead of the fast set; a deploy from main needs it'
+        type: boolean
+        default: false
       full_webkit:
         description: 'Also run the full WebKit suite (about 30 minutes, warning only)'
         type: boolean
@@ -17,22 +22,40 @@ on:
 permissions:
   contents: read
 
+# What runs when (Phase 0 task 0.8):
+# - pull request: checks, then the fast set (e2e-fast), about 10 minutes.
+# - push to main: checks, the full set (e2e, pencil-webkit), then deploy.
+# - every night: checks and the full set on the code line.
+# - by hand: checks and the fast set; tick "full" for the full set (and, on
+#   main, the deploy).
+# - Monday: the whole suite in desktop WebKit (webkit), a warning only.
+env:
+  # A timed run always starts from main's copy of this file. The nightly full
+  # set tests the code line instead: build/next until Phase 0 task 0.7 puts
+  # the code on main (then set this to main).
+  NIGHTLY_REF: build/next
+
 # A newer push to main replaces a run still waiting or running, so the
 # queue never backs up and the newest code deploys first.
 concurrency:
   # One run at a time per branch: a running test run always finishes (no
   # cancels), and only the NEWEST waiting push runs next (older waiting ones
   # are skipped), so the queue never backs up when several builders push.
-  group: ci-${{ github.ref }}
+  # Timed runs (nightly, Monday) have their own queue: they never hold up a
+  # deploy of main and are never dropped while they wait behind one.
+  group: ci-${{ github.event_name == 'schedule' && 'schedule' || github.ref }}
   cancel-in-progress: false
 
 jobs:
   checks:
-    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # Empty means the code this run was started for.
+          ref: ${{ github.event_name == 'schedule' && env.NIGHTLY_REF || '' }}
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: lts/*
@@ -54,10 +77,63 @@ jobs:
           path: dist
           retention-days: 1
 
-  # The Chrome end-to-end specs, split in four so each part finishes well
-  # inside the time limit (the whole set takes over an hour on one machine).
+  # The fast set: the key flows listed in e2e/fastSet.ts, in Chrome and in the
+  # iPad stand-in (projects fast-chromium and fast-ipad). It guards every
+  # merge. It is split so that, with `checks` before it, a pull request has
+  # its answer in about 10 minutes. The browsers come from the same cache as
+  # the full set.
+  e2e-fast:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && !inputs.full)
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { project: fast-chromium, browser: chromium, shard: 1/3 }
+          - { project: fast-chromium, browser: chromium, shard: 2/3 }
+          - { project: fast-chromium, browser: chromium, shard: 3/3 }
+          - { project: fast-ipad, browser: webkit, shard: 1/2 }
+          - { project: fast-ipad, browser: webkit, shard: 2/2 }
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - name: Read the exact Playwright version
+        id: pw
+        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+      - name: Cache the browser
+        id: pw-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ matrix.browser }}-${{ steps.pw.outputs.version }}
+      - name: Install the system packages for the browser (every run, when cached)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps ${{ matrix.browser }}
+      - name: Install the browser (retries if the Ubuntu mirror is down)
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: |
+          for i in 1 2 3; do npx playwright install --with-deps ${{ matrix.browser }} && exit 0; echo "install failed, retry $i"; sleep 45; done
+          npx playwright install ${{ matrix.browser }}
+      - run: npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shard }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: failure()
+        with:
+          name: playwright-results-${{ matrix.project }}-${{ strategy.job-index }}
+          path: test-results
+          retention-days: 7
+
+  # The full set, part 1: every Chrome end-to-end spec, split in four so each
+  # part finishes well inside the time limit (the whole set takes over an hour
+  # on one machine). The full set runs on a push to main (the deploy needs
+  # it), every night on the code line, and by hand with "full" ticked.
   e2e:
-    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *') || (github.event_name == 'workflow_dispatch' && inputs.full)
     needs: checks
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -67,6 +143,8 @@ jobs:
         shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event_name == 'schedule' && env.NIGHTLY_REF || '' }}
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: lts/*
@@ -97,13 +175,13 @@ jobs:
           path: test-results
           retention-days: 7
 
-  # The Pencil and keyboard specs again in WebKit with an iPad profile (the
-  # nearest stand-in for the owner's iPad). It waits for `checks` to pass
-  # first (needs: checks), so a red `checks` run does not spend time here, and
-  # the deploy needs it. The list is in playwright.config.ts (project
-  # ipad-webkit).
+  # The full set, part 2: the Pencil and keyboard specs again in WebKit with
+  # an iPad profile (the nearest stand-in for the owner's iPad). It runs when
+  # `e2e` runs. It waits for `checks` to pass first (needs: checks), so a red
+  # `checks` run does not spend time here, and the deploy needs it. The list
+  # is in playwright.config.ts (project ipad-webkit).
   pencil-webkit:
-    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *') || (github.event_name == 'workflow_dispatch' && inputs.full)
     needs: checks
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -113,6 +191,8 @@ jobs:
         shard: [1, 2]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event_name == 'schedule' && env.NIGHTLY_REF || '' }}
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: lts/*
@@ -221,9 +301,10 @@ jobs:
 
   # Weekly (Monday schedule) and a warning only: it takes about 30 minutes, and
   # the known WebKit differences are on the Phase 9 iPad list. A hand-started
-  # run skips it unless the full_webkit box is ticked.
+  # run skips it unless the full_webkit box is ticked. The nightly timer does
+  # not start it.
   webkit:
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.full_webkit)
+    if: (github.event_name == 'schedule' && github.event.schedule == '0 3 * * 1') || (github.event_name == 'workflow_dispatch' && inputs.full_webkit)
     runs-on: ubuntu-latest
     timeout-minutes: 40
     continue-on-error: true

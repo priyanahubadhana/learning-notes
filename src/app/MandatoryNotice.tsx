@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { t } from '../i18n/t'
 import { COUNTDOWN_S, flow } from './mandatoryFlow'
-import { MANDATORY_TOP, type MandatoryState } from './mandatoryState'
+import {
+  MANDATORY_TOP,
+  mandatoryFailure,
+  type MandatoryState,
+} from './mandatoryState'
+import { failureNote } from './failureNote'
+import { isPreviewHost } from './flags'
 import { onRouted } from './input/eventRouter'
 import type { UpdateReason } from './updateLevel'
 import { useUnlocked } from '../settings/level'
@@ -268,7 +274,14 @@ export default function MandatoryNotice({
             <p className="text-[15px]">{t('update.req.failedSave')}</p>
           )}
           {s.phase === 'failed' && s.reason !== 'unsaved' && (
-            <p className="text-[15px]">{t('update.req.failed')}</p>
+            <>
+              <p className="text-[15px]">{t('update.req.failed')}</p>
+              {isPreviewHost() && (
+                <p data-failure-note className="text-xs text-muted">
+                  {failureNote(mandatoryFailure.get())}
+                </p>
+              )}
+            </>
           )}
         </div>
         <div aria-live="polite" role="status" className="sr-only">

@@ -25,6 +25,7 @@ import { hiTags } from './tags'
 import { hiToolbar } from './toolbar'
 import { hiUpdates } from './updates'
 import { hiUpdateV2 } from './updateV2'
+import { hiStorageSafety } from './storageSafety'
 import { hiLibraryV2 } from './libraryV2'
 import { hiFlags } from './flags'
 import { hiSlashMenu } from './slashMenu'
@@ -40,6 +41,7 @@ import { hiSearchV2 } from './searchV2'
 import { hiPanelV2 } from './panelV2'
 import { hiV8Pen } from './v8Pen'
 import { hiV8Tools } from './v8Tools'
+import { hiV8Text } from './v8Text'
 
 export const hi: Record<string, string> = {
   ...hiAccounts,
@@ -82,5 +84,7 @@ export const hi: Record<string, string> = {
   ...hiPanelV2,
   ...hiLibraryV2,
   ...hiV8Pen,
+  ...hiStorageSafety,
   ...hiV8Tools,
+  ...hiV8Text,
 }

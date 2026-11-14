@@ -39,3 +39,16 @@ Find pages, notes and cards by words, with filters, counts and saved searches. E
 ## Locked pages (batch 3)
 
 Notes and cards of a locked page (or a page in a locked notebook or database) never match a search while locked. A page-title result may still show, with a 🔒 and no text. The results re-run when something is unlocked or locked again. See [lock.md](lock.md).
+
+## Touch close and clear (F5, 14 Nov 2026)
+
+- When I type in the search pop-up, a ✕ inside the field appears; I tap it and the text is cleared, the pop-up stays open (e2e/searchClose.spec.ts).
+- When the field is empty, the ✕ inside it is not shown (e2e/searchClose.spec.ts).
+- When I tap the ✕ beside the field, the pop-up closes. It is always shown, 44 pt, labelled "Close search", with no "Esc" text (e2e/searchClose.spec.ts).
+- When I press Esc on a keyboard, the pop-up closes (e2e/searchClose.spec.ts).
+- When the device has touch, the "↑↓ move · Enter open · Esc close" footer is hidden; with a keyboard only, it shows (e2e/searchClose.spec.ts).
+
+### Won't do (F5)
+
+- No Esc text on the close control; the keyboard hint lives only in the footer.
+- No second search field or second clear control: the shared ClearField is used.

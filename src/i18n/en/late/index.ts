@@ -24,6 +24,7 @@ import { enLateSync } from './sync'
 import { enLateToolbar } from './toolbar'
 import { enLateUpdates } from './updates'
 import { enLateUpdateV2 } from './updateV2'
+import { enLateStorageSafety } from './storageSafety'
 import { enLateFlags } from './flags'
 import { enLateSlashMenu } from './slashMenu'
 import { enLatePageMenus } from './pageMenus'
@@ -32,14 +33,33 @@ import { enLateAiBuild } from './aibuild'
 import { enLateAiJobs } from './aijobs'
 import { enLateReviewV2 } from './reviewV2'
 import { enLateAiPlan } from './aiplan'
+import { enAi } from '../ai'
+import { enDatabases } from '../databases'
+import { enEditor } from '../editor'
+import { enHistory } from '../history'
+import { enImportExport } from '../importExport'
+import { enLock } from '../lock'
+import { enMedia } from '../media'
+import { enReading } from '../reading'
+import { enSettings } from '../settings'
 import { enParts } from '../parts'
 import { enV2Notebooks } from '../v2/notebooks'
 import { enV2Search } from '../v2/search'
 import { enV2Panel } from '../v2/panel'
 import { enV8Pen } from '../v8Pen'
 import { enV8Tools } from '../v8Tools'
+import { enV8Text } from '../v8Text'
 
 export const enLate = {
+  ...enSettings,
+  ...enReading,
+  ...enMedia,
+  ...enLock,
+  ...enImportExport,
+  ...enHistory,
+  ...enEditor,
+  ...enDatabases,
+  ...enAi,
   ...enLateAccounts,
   ...enLateAi,
   ...enLateClaude,
@@ -78,5 +98,7 @@ export const enLate = {
   ...enV2Panel,
   ...enLateLibraryV2,
   ...enV8Pen,
+  ...enLateStorageSafety,
   ...enV8Tools,
+  ...enV8Text,
 }

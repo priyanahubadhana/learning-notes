@@ -164,6 +164,13 @@
 .v8chip > svg:last-child:not(:first-child) {
   color: var(--color-muted);
 }
+/* Only the arrow turns when the card is open (the shared rule turns every icon). */
+.v8chip.pcard-trigger[data-pressed] svg {
+  transform: none;
+}
+.v8chip.pcard-trigger[data-pressed] > svg:last-child:not(:first-child) {
+  transform: rotate(180deg);
+}
 .v8chip[data-pressed] > svg:last-child:not(:first-child) {
   color: inherit;
 }

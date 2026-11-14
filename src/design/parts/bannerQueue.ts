@@ -1,5 +1,12 @@
 export type BannerKind =
-  'template' | 'journal' | 'readonly' | 'lock' | 'backup' | 'update'
+  | 'template'
+  | 'journal'
+  | 'readonly'
+  | 'lock'
+  | 'backup'
+  | 'update'
+  | 'install'
+  | 'storage'
 
 export interface BannerItem {
   id: string

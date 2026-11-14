@@ -5,6 +5,8 @@ import './index.css'
 import App from './App.tsx'
 import { reloadOnFailedChunk } from './app/chunkReload'
 import { ErrorBoundary } from './app/ErrorBoundary'
+import { applyLanguage } from './i18n/languages'
+import { ScrollBarHost } from './design/parts/ScrollBarHost'
 import { startNavHistory } from './app/navHistory'
 import { installPenTap, penTapOptions } from './app/penTap'
 import { fingerOnlyBars } from './app/tools/main/mainTools'
@@ -55,6 +57,7 @@ import { prefetchAfterIdle } from './app/idlePrefetch'
 import { installScrollHints } from './app/scrollHints'
 import {
   autoUpdateSetting,
+  languageSetting,
   scrollHintsSetting,
 } from './settings/builtinSettings'
 import {
@@ -87,6 +90,7 @@ fingerOnlyBars.subscribe(() => {
 {
   const hints = installScrollHints(
     () => readDeviceSetting(scrollHintsSetting) === 'on',
+    () => isOn('foundation.shell'),
   )
   subscribeDeviceSettings(hints.refresh)
 }
@@ -189,12 +193,14 @@ onUpdateOffer((apply) => void autoUpdate(apply))
 // A REQUIRED update (storage change or data fix) uses the full-screen flow.
 const startRequired = (
   apply: () => void,
-  test?: { reason?: UpdateReason; unsaved?: boolean },
+  test?: { reason?: UpdateReason; unsaved?: boolean; real?: boolean },
 ) =>
   void import('./app/mandatoryFlow').then((m) =>
     m.startMandatoryUpdate({
       v2: isOn('update.v2'),
       reason: test?.reason ?? updateReason(),
+      // A real reload (About test button) is slow on Safari: give it 30 s.
+      restartMs: test?.real ? m.INSTALL_MAX_MS : undefined,
       apply: () => {
         resetGestures('manual')
         rememberPlace()
@@ -220,17 +226,27 @@ if (isOn('update.v2'))
   void import('./app/otherTab').then((m) =>
     m.watchOtherTabUpgrade(db, () => triggerMustHave('storage')),
   )
-window.addEventListener('learning-notes:test-required-update', (e) =>
-  startRequired(
-    () => {
-      ;(
-        window as unknown as { __requiredApplied?: boolean }
-      ).__requiredApplied = true
-    },
-    (e as CustomEvent<{ reason?: UpdateReason; unsaved?: boolean } | null>)
-      .detail ?? undefined,
-  ),
-)
+// The About button ("real") reloads into the same page (keeps the offline copy).
+// Tests without it only set a marker (the page must stay).
+window.addEventListener('learning-notes:test-required-update', (e) => {
+  const detail =
+    (
+      e as CustomEvent<{
+        reason?: UpdateReason
+        unsaved?: boolean
+        real?: boolean
+      } | null>
+    ).detail ?? undefined
+  startRequired(() => {
+    ;(window as unknown as { __requiredApplied?: boolean }).__requiredApplied =
+      true
+    if (detail?.real) {
+      // Only a restart into the same page; the offline copy stays.
+      rememberPlace()
+      location.reload()
+    }
+  }, detail)
+})
 subscribeDeviceSettings(() => {
   if (updateWaiting()) repeatUpdateOffer()
 })
@@ -345,18 +361,37 @@ if (isConnectRoute(location.hash)) {
   )
 } else if (isDesignTokensRoute(location.hash)) {
   void import('./design/DesignTokensPage').then((m) =>
-    createRoot(document.getElementById('root')!).render(<m.default />),
+    createRoot(document.getElementById('root')!).render(
+      <>
+        <m.default />
+        <ScrollBarHost />
+      </>,
+    ),
   )
 } else {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <ErrorBoundary onHome={goHome} onSaveAll={saveEverything} fullScreen>
-        <UpgradeGate>
-          <App />
-        </UpgradeGate>
-      </ErrorBoundary>
-    </StrictMode>,
+  const draw = () =>
+    createRoot(document.getElementById('root')!).render(
+      <StrictMode>
+        <ErrorBoundary onHome={goHome} onSaveAll={saveEverything} fullScreen>
+          <UpgradeGate>
+            <App />
+            <ScrollBarHost />
+          </UpgradeGate>
+        </ErrorBoundary>
+      </StrictMode>,
+    )
+
+  // The first draw waits for the app's language texts (the late English pack):
+  // a screen restored from the address (Settings, a locked page) would
+  // otherwise show raw text keys. It waits at most 3 s (a hanging request on
+  // weak Wi-Fi must not leave a blank screen); the texts then fill in by
+  // themselves, because App asks for the same pack again and redraws when it
+  // is in. A failed load still draws.
+  const waitForTexts = applyLanguage(readDeviceSetting(languageSetting)).catch(
+    (error: unknown) => console.error('Could not load the language', error),
   )
+  const giveUp = new Promise<void>((resolve) => setTimeout(resolve, 3000))
+  void Promise.race([waitForTexts, giveUp]).then(draw)
 }
 
 // Inter comes after the first paint (never in the critical path).

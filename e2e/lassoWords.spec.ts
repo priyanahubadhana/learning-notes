@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
+import { copiedText, spyClipboard } from './clipboardSpy.ts'
 import { inkNote, line, stroke, type Pt } from './inkHelpers.ts'
 
 /**
@@ -230,17 +231,20 @@ test('our pill: Copy puts the selected words on the clipboard, Cut removes them,
   await context
     .grantPermissions(['clipboard-read', 'clipboard-write'])
     .catch(() => {})
+  await spyClipboard(page)
   await setup(page)
   const { phrase, box } = await rowPhrase(page)
   await stroke(page, loopAround(box))
   await expect.poll(() => marked(page)).toBe(phrase)
   const pill = page.locator('[data-mini-toolbar]')
   await pill.getByRole('button', { name: 'Copy', exact: true }).click()
-  // WebKit never lets a page read the clipboard (no permission to grant).
   if (browserName === 'chromium') {
     await expect
       .poll(() => page.evaluate(() => navigator.clipboard.readText()))
       .toContain(phrase)
+  } else {
+    // WebKit never lets a page read the clipboard: check what the app copied.
+    await expect.poll(() => copiedText(page)).toContain(phrase)
   }
   await pill.getByRole('button', { name: 'Cut', exact: true }).click()
   await expect

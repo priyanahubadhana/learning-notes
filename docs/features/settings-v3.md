@@ -33,24 +33,25 @@ Ids: SET-Bxx works in Beginner (and Professional). SET-Pxx is Professional only;
 
 #### Layout, search, preview
 
-| id      | When I do X                                             | Then Y                                                                                                                                                                                            |
-| ------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SET-B01 | open Settings on iPad landscape (≥ 1180)                | List of sections on the left, settings in the middle, a preview column (340 px, sticky) on the right. Settings are never covered by the preview (S5, S-e).                                        |
-| SET-B02 | open Settings on a phone (≤ 640)                        | Sections become a chip row. No preview column. A "Preview" pill (44 pt, accent) sits at the bottom, above the tab bar.                                                                            |
-| SET-B03 | tap the Preview pill                                    | The preview opens as a sheet above the tab bar (max 46 vh, scrolls). Tap the pill again, ✕ or Esc closes it. Settings behind it stay tappable above the sheet.                                    |
-| SET-B04 | change any setting on a phone while the preview is shut | The pill pulses 3 times (1 s each) so I know something changed. Tapping it shows the change.                                                                                                      |
-| SET-B05 | type in the Settings search box                         | Rows from every section that match name, help text or plain-word keywords are listed, each with its section name. ✕ clears the box. Nothing matches: "No settings match" plus a tip.              |
-| SET-B06 | open a search result                                    | The section opens, scrolls to the row and the row glows (`data-setting-id`). Works for account items too (`searchOnly`).                                                                          |
-| SET-B07 | change a setting                                        | The changed part of the live preview glows (accent outline + soft fill, 1.5 s, twice). A one-line note names what changed (S2, S-g).                                                              |
-| SET-B08 | change a General setting (any of them)                  | The General preview (a mini app) shows the effect: theme, paper, reduce glass, date style, language, device mode, path style, update chip, hidden spaces in the rail (S1, S-h).                   |
-| SET-B09 | look at any row                                         | A row with a real picture (Language, Reduce glass) shows it. A row with nothing to draw shows no box; its value is still there as words for screen readers (gate 3, 13 Nov: no empty "Now:" box). |
-| SET-B10 | change a setting                                        | Toast "Changed X" with Undo (6 s). The top-bar Undo and Redo also undo and redo the change. Ctrl+Z / Ctrl+Y work when no text field is focused.                                                   |
-| SET-B11 | tap Undo then Redo                                      | The value, the row, the preview and the stored value (database or device) all return together.                                                                                                    |
-| SET-B12 | see any row                                             | The sync badge stays: "All devices" or "This device", with the same menu as today (Keep on this device only, Use this device's value everywhere, Reset to synced value).                          |
-| SET-B13 | open a section and tap "Reset this section"             | A small dialog (420 px max) says what will reset. Confirm resets only that section's non-default settings. Toast "Section reset" with Undo (6 s). Nothing else changes.                           |
-| SET-B14 | tap Undo after a section reset                          | Every setting in that section returns to its earlier value in one step.                                                                                                                           |
-| SET-B15 | a row differs from its default                          | A "Reset" link shows on that row (as today). Tap: the default returns, toast with Undo.                                                                                                           |
-| SET-B16 | a row also lives in another section (`alsoIn`)          | Row note "Also in: Tool bar" stays. Changing it in one place shows in the other at once.                                                                                                          |
+| id       | When I do X                                               | Then Y                                                                                                                                                                                            |
+| -------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SET-B01  | open Settings on iPad landscape (≥ 1180)                  | List of sections on the left, settings in the middle, a preview column (340 px, sticky) on the right. Settings are never covered by the preview (S5, S-e).                                        |
+| SET-B02  | open Settings on a phone (≤ 640)                          | Sections become a chip row. No preview column. A "Preview" pill (44 pt, accent) sits at the bottom, above the tab bar.                                                                            |
+| SET-B03  | tap the Preview pill                                      | The preview opens as a sheet above the tab bar (max 46 vh, scrolls). Tap the pill again, ✕ or Esc closes it. Settings behind it stay tappable above the sheet.                                    |
+| SET-B04  | change any setting on a phone while the preview is shut   | The pill pulses 3 times (1 s each) so I know something changed. Tapping it shows the change.                                                                                                      |
+| SET-B04a | open a ▾ list on a phone while the page is scrolled (F10) | The dim layer covers the whole screen, the sticky "Search settings" bar too; the bar stays sticky above the rows when no sheet is open (e2e/settingsV3SearchF9.spec.ts).                          |
+| SET-B05  | type in the Settings search box                           | Rows from every section that match name, help text or plain-word keywords are listed, each with its section name. ✕ clears the box. Nothing matches: "No settings match" plus a tip.              |
+| SET-B06  | open a search result                                      | The section opens, scrolls to the row and the row glows (`data-setting-id`). Works for account items too (`searchOnly`).                                                                          |
+| SET-B07  | change a setting                                          | The changed part of the live preview glows (accent outline + soft fill, 1.5 s, twice). A one-line note names what changed (S2, S-g).                                                              |
+| SET-B08  | change a General setting (any of them)                    | The General preview (a mini app) shows the effect: theme, paper, reduce glass, date style, language, device mode, path style, update chip, hidden spaces in the rail (S1, S-h).                   |
+| SET-B09  | look at any row                                           | A row with a real picture (Language, Reduce glass) shows it. A row with nothing to draw shows no box; its value is still there as words for screen readers (gate 3, 13 Nov: no empty "Now:" box). |
+| SET-B10  | change a setting                                          | Toast "Changed X" with Undo (6 s). The top-bar Undo and Redo also undo and redo the change. Ctrl+Z / Ctrl+Y work when no text field is focused.                                                   |
+| SET-B11  | tap Undo then Redo                                        | The value, the row, the preview and the stored value (database or device) all return together.                                                                                                    |
+| SET-B12  | see any row                                               | The sync badge stays: "All devices" or "This device", with the same menu as today (Keep on this device only, Use this device's value everywhere, Reset to synced value).                          |
+| SET-B13  | open a section and tap "Reset this section"               | A small dialog (420 px max) says what will reset. Confirm resets only that section's non-default settings. Toast "Section reset" with Undo (6 s). Nothing else changes.                           |
+| SET-B14  | tap Undo after a section reset                            | Every setting in that section returns to its earlier value in one step.                                                                                                                           |
+| SET-B15  | a row differs from its default                            | A "Reset" link shows on that row (as today). Tap: the default returns, toast with Undo.                                                                                                           |
+| SET-B16  | a row also lives in another section (`alsoIn`)            | Row note "Also in: Tool bar" stays. Changing it in one place shows in the other at once.                                                                                                          |
 
 #### Your experience (inside Settings only)
 
@@ -352,3 +353,40 @@ See section 10. Files: `src/settings/v3/*.test.ts`, `e2e/settings-v3.spec.ts` (+
 ## Deliberate exceptions
 
 None. The "nothing lost" unit test (`src/settings/v3/nothingLost.test.ts`) checks that every registry setting and category, and every custom screen today's Settings renders (This device, About, Page tabs, Lock, AI, Connections, Permissions, Claude, Account, Sync), has a home in a v3 section.
+
+## Search in reach (F9, 14 Nov 2026)
+
+- When I scroll a long Settings section, the "Search settings" box stays at the top, on every section (e2e/settingsV3SearchF9.spec.ts).
+- When I type a name or plain words, search finds Try new features switches (when that list is open; on the preview host it is open from the start) and advanced options (e2e/settingsV3SearchF9.spec.ts, src/settings/v3/tryNew.test.ts).
+
+### Won't do (F9)
+
+- No second search box: the existing "Search settings" is extended.
+- Try new features stays hidden until opened on the live host (SET-B26).
+
+## Preview host defaults (F9, 14 Nov 2026)
+
+- When the app opens on the build-next preview host and the device has no saved switch choice, the 12 tested parts in `PREVIEW_DEFAULT_ON` (src/app/flags.ts) start ON (src/app/flags.test.ts "the build-next preview host starts with the tested parts ON").
+- When the app opens on the live host or any other host, every switch starts OFF (src/app/flags.test.ts "the live host and other hosts keep everything OFF").
+- When I turn a switch OFF on the preview host, it stays OFF after a reload and the other parts keep their state (src/app/flags.test.ts "a switch the user turned OFF stays OFF on the preview host").
+- When the device already has a saved choice, the preview defaults are not applied (src/app/flags.test.ts "a switch the user turned ON is kept on the preview host").
+- When Settings opens on the preview host, the Try new features list is open from the start; on the live host it stays hidden until Version is tapped 5 times (src/settings/v3/tryNew.test.ts "F9 preview host opens the list").
+- When check-dod reads the flags file, a default is allowed only in the form `isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON)`; any other use, including the negated `!isPreviewHost()`, fails (scripts/check-dod.test.mjs).
+
+## Test a phase (task 0.6, 14 Nov 2026)
+
+Two rows at the top of Try new features: "Test a phase" (a ▾ list: Phase 1, Up to Phase 2A, 2B, 3 … 8, Everything) and "Test this phase" (one On/Off switch). The sets are the table in docs/plans/phases/phase-1.md (`PHASE_ADDS` in src/app/flags.ts).
+
+- SET-B26a: When I open Try new features, "Test a phase" and its switch are the first two rows; the switch reads Off and choosing a phase while Off changes nothing (e2e/presetPhases.spec.ts "SET-B26a", "SET-B26b to B26e").
+- SET-B26b: When I switch it On, exactly that phase's switches turn on and every other one off; choosing another phase while On applies the new set at once (src/app/flagsPreset.test.ts "turns exactly that set on", "replaces the set at once").
+- SET-B26c: When I reload or reopen the app, the switch still reads On with the same phase, because it only compares the device's switches with the phase's set; nothing extra is stored (src/app/flagsPreset.test.ts "stays after a reload").
+- SET-B26d: When I change one single switch below, the preset switch reads Off by itself (src/app/flagsPreset.test.ts "changing one single switch afterwards ends the match").
+- SET-B26e: When I switch it Off, every new part is off and the old screens come back (e2e/presetPhases.spec.ts "SET-B26b to B26e").
+- SET-B26f: When any one phase is On, the app loads and I can move between Home, Library, Notebooks and Settings and open a page with no error, on chromium and ipad-webkit (e2e/presetPhases.spec.ts "SET-B26f").
+- SET-B26h: When I tap Undo after the preset switch (On or Off) or after choosing a phase while On, the exact earlier list of switches comes back (e2e/presetPhases.spec.ts "SET-B26h", src/settings/v3/tryNew.test.ts "Undo of a Test a phase change").
+- SET-B26g: "Turn all off" does not count or touch the two preset rows (src/settings/v3/tryNew.test.ts "rowsToTurnOff").
+
+### Won't do (Test a phase)
+
+- No new flag and no new stored value; no change to the preview-host defaults of a device with no saved choice.
+- The "Shared …" and "Tool list" switches are in no preset except Everything.

@@ -138,8 +138,18 @@ async function boot(db: LearningNotesDB): Promise<void> {
     }
   } catch (e) {
     set({ problem: mapSyncError(e) })
-    // A passing problem (offline) must never wipe a saved sign-in.
-    if (!(e instanceof TryLaterError)) await conn.auth.signOut()
+    // A failed round trip never ends a sign-in already on this device (an
+    // old callback address, a cancelled consent); a passing problem (offline)
+    // never wipes one either. Only a half-made sign-in is cleared.
+    if (!(e instanceof TryLaterError) && !conn.auth.current())
+      await conn.auth.signOut()
+  }
+  // F1 (14 Nov): whatever happened, the used-up callback leaves the address,
+  // so a tab that Safari reopens there never tries it again.
+  const left = new URL(location.href)
+  if (left.searchParams.get('sync') === 'callback') {
+    left.search = ''
+    history.replaceState(history.state, '', left.toString())
   }
   try {
     await decidePhase(conn)

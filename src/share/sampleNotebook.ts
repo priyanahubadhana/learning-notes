@@ -12,6 +12,10 @@ import { createPage } from '../pages/pageService'
 import { syncCardRecords } from '../recall/cardService'
 import { MARK_STYLE, type MarkLabel } from '../revise/reviseMarks'
 import { en } from '../i18n/en'
+import { enLate } from '../i18n/en/late'
+
+/** English texts: the first download and the late ones (the sample's keys moved to the late ones). */
+const enAll = { ...en, ...enLate }
 import { t } from '../i18n/t'
 
 /**
@@ -75,7 +79,7 @@ export async function loadSampleNotebook(
   workspaceId: string,
   now: number = Date.now(),
 ): Promise<Notebook> {
-  const made = await createNotebook(db, workspaceId, en['sample.notebook'])
+  const made = await createNotebook(db, workspaceId, enAll['sample.notebook'])
   await db.notebooks.update(made.id, { sample: true })
   const notebook: Notebook = { ...made, sample: true }
 
@@ -103,7 +107,7 @@ export async function loadSampleNotebook(
   }
 
   // Lesson 1: heart sounds.
-  const heart = await samplePage(null, en['sample.heart'])
+  const heart = await samplePage(null, enAll['sample.heart'])
   await paragraph(
     heart.id,
     plain('The '),
@@ -130,7 +134,7 @@ export async function loadSampleNotebook(
   await syncCardRecords(db, heart.id, now)
 
   // Lesson 2: lung volumes, with a sub-page.
-  const lungs = await samplePage(null, en['sample.lungs'])
+  const lungs = await samplePage(null, enAll['sample.lungs'])
   await paragraph(
     lungs.id,
     marked('Tidal volume', 'keyword'),
@@ -143,7 +147,7 @@ export async function loadSampleNotebook(
     plain(' suggests an obstructive problem such as asthma or COPD.'),
   )
   await card(lungs.id, t('sample.q3'), t('sample.a3'))
-  const detail = await samplePage(lungs.id, en['sample.detail'])
+  const detail = await samplePage(lungs.id, enAll['sample.detail'])
   await paragraph(
     detail.id,
     marked('Minute ventilation = tidal volume × breaths per minute', 'formula'),

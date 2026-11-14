@@ -3,6 +3,21 @@ export const esFlags = {
   'settings.category.tryNew': 'Funciones nuevas para probar',
   'settings.category.tryNew.hint':
     'Partes nuevas de la app, apagadas hasta que las pruebes.',
+  'flags.preset.phase.name': 'Probar una fase',
+  'flags.preset.phase.desc': 'Elige la fase que quieres probar.',
+  'flags.preset.on.name': 'Probar esta fase',
+  'flags.preset.on.desc':
+    'Sí: esta fase funciona y las siguientes siguen apagadas. No: todo lo nuevo se apaga.',
+  'flags.preset.phase1': 'Fase 1',
+  'flags.preset.phase2a': 'Hasta la fase 2A',
+  'flags.preset.phase2b': 'Hasta la fase 2B',
+  'flags.preset.phase3': 'Hasta la fase 3',
+  'flags.preset.phase4': 'Hasta la fase 4',
+  'flags.preset.phase5': 'Hasta la fase 5',
+  'flags.preset.phase6': 'Hasta la fase 6',
+  'flags.preset.phase7': 'Hasta la fase 7',
+  'flags.preset.phase8': 'Hasta la fase 8',
+  'flags.preset.everything': 'Todo',
   'flags.foundation.events.name': 'Eventos compartidos',
   'flags.foundation.events.desc':
     'Un solo lugar para toques, teclas y eventos del lápiz.',
@@ -49,6 +64,9 @@ export const esFlags = {
   'flags.security.m1.name': 'Mejora de seguridad',
   'flags.security.m1.desc':
     'El primer conjunto de controles de seguridad extra.',
+  'flags.toolbar.menu.name': 'Nuevo menú de la barra',
+  'flags.toolbar.menu.desc':
+    'El menú ⋯ de la barra en grupos cortos, con lo poco usado bajo Más.',
   'flags.page.menus.name': 'Nuevos menús de página',
   'flags.page.menus.desc': 'Los menús de página rediseñados.',
   'flags.page.objects.name': 'Nuevos objetos de página',
@@ -62,4 +80,7 @@ export const esFlags = {
   'flags.safety.v2.desc': 'Las copias y el historial de deshacer rediseñados.',
   'flags.system.v2.name': 'Nuevas partes del sistema',
   'flags.system.v2.desc': 'Las partes internas de la app rediseñadas.',
+  'flags.storage.safety.name': 'Seguridad del almacenamiento',
+  'flags.storage.safety.desc':
+    'Avisos tranquilos cuando las notas no se guardan y una copia con un toque.',
 }

@@ -1,0 +1,18 @@
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	﻿2026-11-14T04:39:32.6604549Z ##[group]Run npx playwright test --project=chromium --shard=2/4
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T04:39:32.6604964Z ^[[36;1mnpx playwright test --project=chromium --shard=2/4^[[0m
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T04:49:24.4476157Z   ✘  238 [chromium] › e2e/notebooksSearchGate3.spec.ts:64:3 › phone, touch › 3 touch shows "Close", never "Esc" (15.0s)
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T04:49:39.3442091Z   ✘  242 [chromium] › e2e/notebooksSearchGate3.spec.ts:129:1 › 3b a phone-size screen shows "Close", never "Esc" (14.9s)
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T04:49:40.7909611Z   ✘  243 [chromium] › e2e/notebooksSearchGate3.spec.ts:64:3 › phone, touch › 3 touch shows "Close", never "Esc" (retry #1) (14.7s)
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T04:49:56.4153019Z   ✘  244 [chromium] › e2e/notebooksSearchGate3.spec.ts:129:1 › 3b a phone-size screen shows "Close", never "Esc" (retry #1) (15.8s)
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T04:55:32.8859491Z   ✘  398 [chromium] › e2e/paperBoxes.spec.ts:173:1 › a row that does not fit what is left of a sheet starts on the next sheet (24.0s)
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.2803694Z   1) [chromium] › e2e/notebooksSearchGate3.spec.ts:64:3 › phone, touch › 3 touch shows "Close", never "Esc" 
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.2838898Z   2) [chromium] › e2e/notebooksSearchGate3.spec.ts:129:1 › 3b a phone-size screen shows "Close", never "Esc" 
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.2858513Z   3) [chromium] › e2e/paperBoxes.spec.ts:173:1 › a row that does not fit what is left of a sheet starts on the next sheet 
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.2866043Z   2 failed
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.2866623Z     [chromium] › e2e/notebooksSearchGate3.spec.ts:64:3 › phone, touch › 3 touch shows "Close", never "Esc" 
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.2867288Z     [chromium] › e2e/notebooksSearchGate3.spec.ts:129:1 › 3b a phone-size screen shows "Close", never "Esc" 
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.2867667Z   1 flaky
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.2868124Z     [chromium] › e2e/paperBoxes.spec.ts:173:1 › a row that does not fit what is left of a sheet starts on the next sheet 
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.2868546Z   47 skipped
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.2868735Z   509 passed (23.5m)
+e2e (2)	Run npx playwright test --project=chromium --shard=2/4	2026-11-14T05:03:05.3249890Z ##[error]Process completed with exit code 1.

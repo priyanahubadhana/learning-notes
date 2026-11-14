@@ -24,6 +24,8 @@ import { t } from '../../i18n/t'
 import { listNotePages } from '../../pages/pageService'
 import { usePref } from '../usePref'
 import { useFlag } from '../flags'
+import { ScrollBar } from '../../design/parts/ScrollBar'
+import { useScroller } from '../../design/parts/useScroller'
 import { outlineRequest } from './outlineRequest'
 import {
   glideTo,
@@ -457,6 +459,8 @@ function LeftPanelToday({
     }
   }, [ask, setTab, book])
   const docked = dockedProp ?? window.innerWidth >= PANEL_DOCK_MIN
+  const shell = useFlag('foundation.shell')
+  const [scroller, scrollerRef] = useScroller()
   // Gate 3 v4 (slice 6, fix 4): the book panel overlay starts below the top
   // bar (its panel button stays reachable), is solid, full width on a phone,
   // and has the dim layer behind it.
@@ -515,6 +519,7 @@ function LeftPanelToday({
       </div>
       <div
         role="tabpanel"
+        ref={scrollerRef}
         className={`min-h-0 flex-1 p-2 ${
           book?.format === 'pdf' && tab === 'pages'
             ? 'overflow-hidden'
@@ -547,6 +552,7 @@ function LeftPanelToday({
           <AudioTab db={db} pageId={book ? book.pageId : pageId} />
         )}
       </div>
+      {shell && <ScrollBar scroller={scroller} />}
     </aside>
   )
   if (!sheet) return aside

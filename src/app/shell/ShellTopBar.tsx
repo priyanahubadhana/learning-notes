@@ -14,7 +14,8 @@ import { useCanGoBack, useCanGoForward } from '../navHistory'
 import type { Space } from '../spaces/spaces'
 import { padHistoryState } from '../../editor/writePad/padHistory'
 import { HistoryButtons } from '../tools/HistoryButtons'
-import { showToolBar, useShowBarButton } from '../tools/toolbarVisibility'
+import { showToolBar } from '../tools/toolbarVisibility'
+import { ShowToolbarPill } from '../tools/v8/ShowToolbarPill'
 import { crumbsFor } from './crumbs'
 import { statusFor } from './status'
 import { showHistoryPair } from './historyTips'
@@ -107,7 +108,6 @@ export function ShellTopBar(props: ShellTopBarProps) {
   useReaderInset(barRef)
   const canGoBack = useCanGoBack()
   const canGoForward = useCanGoForward()
-  const barOff = useShowBarButton()
   // The editor toolbar's pair counted the Write pad's steps too; so does this one.
   const pad = padHistoryState.useValue()
   const [mode] = useDeviceSetting(deviceModeSetting)
@@ -233,16 +233,18 @@ export function ShellTopBar(props: ShellTopBarProps) {
         testId="shell-search"
         onClick={onSearch}
       />
-      {barOff && (
-        <button
-          type="button"
-          data-testid="show-tool-bar"
-          onClick={showToolBar}
-          className="sh-pill"
-        >
-          {t('bar.show')}
-        </button>
-      )}
+      <ShowToolbarPill
+        fallback={
+          <button
+            type="button"
+            data-testid="show-tool-bar"
+            onClick={showToolBar}
+            className="sh-pill"
+          >
+            {t('bar.show')}
+          </button>
+        }
+      />
     </header>
   )
 }

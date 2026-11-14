@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Card, type CardCloseReason } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
 import { Icon, type IconName } from '../icons'
@@ -24,12 +25,15 @@ export function FoldCard({
   onClose,
   testId,
   title,
+  children,
 }: {
   anchor: HTMLElement
   entries: FoldEntry[]
   onClose: (reason: CardCloseReason) => void
   testId: string
   title?: string
+  /** More below the list (the ⋯ card's own group). */
+  children?: ReactNode
 }) {
   return (
     <Card
@@ -39,26 +43,26 @@ export function FoldCard({
       onClose={onClose}
       testId={testId}
     >
-      <div className="v8fold" role="group" aria-label={t('v8.fold.title')}>
-        {entries.length === 0 ? (
-          <p className="v8note">{t('v8.card.empty')}</p>
-        ) : null}
-        {entries.map((e) => (
-          <button
-            key={e.id}
-            type="button"
-            data-chrome
-            data-testid={`v8-fold-${e.id}`}
-            className="v8fold-row"
-            aria-pressed={e.pressed}
-            onMouseDown={keepFocus}
-            onClick={e.onPick}
-          >
-            {e.icon ? <Icon name={e.icon} size={18} /> : null}
-            <span>{e.label}</span>
-          </button>
-        ))}
-      </div>
+      {entries.length > 0 ? (
+        <div className="v8fold" role="group" aria-label={t('v8.fold.title')}>
+          {entries.map((e) => (
+            <button
+              key={e.id}
+              type="button"
+              data-chrome
+              data-testid={`v8-fold-${e.id}`}
+              className="v8fold-row"
+              aria-pressed={e.pressed}
+              onMouseDown={keepFocus}
+              onClick={e.onPick}
+            >
+              {e.icon ? <Icon name={e.icon} size={18} /> : null}
+              <span>{e.label}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+      {children}
     </Card>
   )
 }

@@ -1,0 +1,97 @@
+/* Toolbar v8, slice 1e: Format and Box cards. Tokens only. */
+.v8look {
+  display: block;
+  line-height: 1;
+  color: var(--color-ink);
+}
+.v8look-h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+.v8look-h2 {
+  font-size: 20px;
+  font-weight: 650;
+}
+.v8look-h3 {
+  font-size: 17px;
+  font-weight: 600;
+}
+.v8look-bold {
+  font-size: 20px;
+  font-weight: 700;
+}
+.v8look-italic {
+  font-size: 20px;
+  font-style: italic;
+}
+.v8look-underline {
+  font-size: 20px;
+  text-decoration: underline;
+}
+.v8look-strike {
+  font-size: 20px;
+  text-decoration: line-through;
+}
+.v8look-code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 17px;
+}
+.v8boxprev {
+  display: block;
+  width: 44px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  box-sizing: border-box;
+}
+.v8boxprev-sm {
+  width: 28px;
+  height: 24px;
+  border: 1px solid var(--color-line);
+}
+.v8num {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.v8actrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+}
+/* The card's own body scrolls (Card.css, data-cut): no second scroller inside it. */
+.v8scroll.v8thin {
+  max-height: none;
+  overflow: visible;
+}
+/* The Box card is short so it fits above or under a box on a phone. */
+.pcard[data-testid='v8-card-text.box'] {
+  max-height: min(calc(100dvh - 200px), 400px);
+}
+/* TB-41 line height: the sample is drawn with that spacing, two lines. */
+.v8line {
+  display: block;
+  max-width: 2em;
+  height: 48px;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+.v8line-tight {
+  line-height: 1.1;
+}
+.v8line-loose {
+  line-height: 2;
+}
+/* Box settings row: icon, label, the look's name on the right, then a tick. */
+.v8setrow > span:nth-of-type(1) {
+  flex: 1;
+}
+.v8setrow-value {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+.v8setrow:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

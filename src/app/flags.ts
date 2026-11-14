@@ -52,10 +52,47 @@ function clean(ids: Iterable<unknown>): Set<FlagId> {
   return out
 }
 
+/** The test host (build-next preview); the live host is never listed. */
+const PREVIEW_HOST = 'build-next.learning-notes-app.pages.dev'
+
+/** Is this the build-next preview (not the live site)? */
+export function isPreviewHost(): boolean {
+  try {
+    return globalThis.location?.hostname === PREVIEW_HOST
+  } catch {
+    return false
+  }
+}
+
+/** Parts under test that start ON on the preview host, until the user chooses. */
+export const PREVIEW_DEFAULT_ON: readonly FlagId[] = [
+  'foundation.shell',
+  'toolbar.v8',
+  'settings.v3',
+  'notebooks.v2',
+  'search.v2',
+  'home.v2',
+  'library.v2',
+  'review.v2',
+  'ai.framework',
+  'update.v2',
+  'page.menus',
+  'storage.safety',
+]
+
+/**
+ * What a device with no saved choice gets: the tested parts ON on the preview
+ * host, everything OFF elsewhere. Once the user flips any switch the whole
+ * list is saved, so their own choice always wins.
+ */
+function defaults(): Set<FlagId> {
+  return isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON) : new Set()
+}
+
 function readStored(): Set<FlagId> {
   try {
     const raw = globalThis.localStorage?.getItem(FLAG_STORAGE_KEY)
-    if (raw == null) return new Set()
+    if (raw == null) return defaults()
     const value: unknown = JSON.parse(raw)
     return Array.isArray(value) ? clean(value) : new Set()
   } catch {

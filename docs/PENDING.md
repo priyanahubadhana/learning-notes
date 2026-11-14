@@ -4,11 +4,11 @@ The one short list of open work. The plan: [plans/phase-plan.md](plans/phase-pla
 
 ## Needs you
 
-- **Restart approved (owner, 14 Nov).** Update VS Code and Claude Code, restart the PC, open a NEW chat and type "continue". It runs on Opus at medium effort and reads docs/BUILD-STATE.md first.
+- **Restart done (14 Nov, evening).** The new chat is running; task 0.5 is pushed. Switch this chat back to Opus (`/model`) after reading Fable's audit report (docs/plans/audit-2026-11-14.md), and answer its 3 questions: delete the dead folders, the Fable effort setting, the small security-update task.
 - **Your first look at Phase 1 on the iPad (20 minutes, 17 steps):** Claude's suggestion is 15 Nov, once the preview holds the scroll fix and the one-tap test switch; the day is not confirmed by the owner yet. The new chat says when the preview is ready.
 - **When you have the iPad:** re-check F1 (stays signed in), F5 (✕ in search), F9 (Settings search on every page) and BUG-006 (the ⚙ gear) at the preview address. They are in the preview now.
 - **Small, not urgent:**
-  - Answered on 14 Nov: (1) one-time yes to delete the leftover folders: done except 8 folders Windows would not finish (task 0.11); (2) yes, the text box phase (2B) is planned early: after the first look at Phase 1, a second chat with Fable does the planning talk, no building; (3) the day of the iPad look: see above.
+  - Answered on 14 Nov: (1) one-time yes to delete the leftover folders: the 12 named working copies are gone, but the audit found 36 dead folders (no Git inside; most hold only an empty `node_modules`) and 67 loose `ln-*` log and text files still in Downloads (task 0.11; list in docs/plans/audit-2026-11-14.md); (2) yes, the text box phase (2B) is planned early: after the first look at Phase 1, a second chat with Fable does the planning talk, no building; (3) the day of the iPad look: see above.
   - Decisions to review: docs/DECISIONS.md "Decisions to review" (items from 12 to 14 Nov).
   - Agents research (14 Nov), on the owner's word to add its recommendations: the tidy-up of rules and memory at each phase end is now a rule (rules/phase-end.md); the builder's "separate copy by a setting" is task 0.13, tried on one task after tasks 0.7 and 0.11; the "done means green" check was not added, because the push guard of task 0.12 already blocks red pushes on every branch (looked at again with the numbers after Phase 1). The reviewer is locked since 14 Nov: its editing tools are switched off (owner's yes). Report: [plans/agents-research-2026-11-14.md](plans/agents-research-2026-11-14.md).
   - One check before the strict security header is switched on: Google sign-in, Drive and fonts still work. Until then the strict rule only reports.

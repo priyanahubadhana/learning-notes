@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { reloadCanHelp, shouldReload } from './chunkReload'
+import { RELOAD_DELAY_MS, reloadCanHelp, shouldReload } from './chunkReload'
 
 const memory = () => {
   const values = new Map<string, string>()
@@ -14,10 +14,13 @@ describe('reloading after a failed screen file', () => {
   // swapped the open notes (and the update notice) for a new load (U10); a
   // download aborted by leaving the page reloaded the old address and
   // cancelled the navigation (SS-01e).
-  it('does not reload offline or while the page is being left', () => {
-    expect(reloadCanHelp(true, false)).toBe(true)
-    expect(reloadCanHelp(false, false)).toBe(false)
-    expect(reloadCanHelp(true, true)).toBe(false)
+  it('does not reload offline', () => {
+    expect(reloadCanHelp(true)).toBe(true)
+    expect(reloadCanHelp(false)).toBe(false)
+  })
+
+  it('waits before reloading, so a page being left is not reloaded', () => {
+    expect(RELOAD_DELAY_MS).toBeGreaterThanOrEqual(500)
   })
 
   it('reloads once, then lets the error screen show', () => {

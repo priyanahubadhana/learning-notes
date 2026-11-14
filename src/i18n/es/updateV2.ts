@@ -26,4 +26,8 @@ export const esUpdateV2 = {
   'update.v2.updateNow': 'Actualizar ahora',
   'about.v2.level': 'Nivel de actualización {level}',
   'about.v2.pretend': 'Simular una actualización necesaria',
+  'update.v2.noteDownload':
+    'Nota de la vista previa: la descarga falló tras {s} s',
+  'update.v2.noteRestart':
+    'Nota de la vista previa: el reinicio no llegó tras {s} s',
 }

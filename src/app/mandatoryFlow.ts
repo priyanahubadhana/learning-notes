@@ -11,7 +11,11 @@
  * written holds the update back instead.
  */
 import { cachedPaths, listFiles, type Listed } from './updateProgress'
-import { mandatoryMeta, mandatoryUpdate } from './mandatoryState'
+import {
+  mandatoryFailure,
+  mandatoryMeta,
+  mandatoryUpdate,
+} from './mandatoryState'
 import type { UpdateRisk } from './autoUpdate'
 import type { UpdateReason } from './updateLevel'
 
@@ -191,7 +195,10 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
       if (controller.signal.aborted) return
       // Offline is not a failure: wait for the network (update.v2).
       if (v2 && !isOnline()) set({ phase: 'offline' })
-      else set({ phase: 'failed', reason: 'download' })
+      else {
+        mandatoryFailure.set({ what: 'download', waitedMs: now() - startedAt })
+        set({ phase: 'failed', reason: 'download' })
+      }
       return
     }
     if (controller.signal.aborted) return
@@ -230,9 +237,12 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
       set({ phase: 'failed', reason: 'install' })
       return
     }
+    const installAt = now()
     const failIfStuck = () => {
-      if (mandatoryUpdate.get()?.phase === 'installing')
+      if (mandatoryUpdate.get()?.phase === 'installing') {
+        mandatoryFailure.set({ what: 'restart', waitedMs: now() - installAt })
         set({ phase: 'failed', reason: 'install' })
+      }
     }
     if (v2) {
       // No restart within 6 s: say so, with Try again (nothing is lost).
@@ -297,4 +307,5 @@ export function resetMandatoryUpdate(): void {
   current = null
   mandatoryMeta.set({ v2: false, reason: 'storage' })
   mandatoryUpdate.set(null)
+  mandatoryFailure.set(null)
 }

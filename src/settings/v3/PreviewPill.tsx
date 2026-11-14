@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type CSSProperties,
-  type RefObject,
-} from 'react'
+import { useEffect, useLayoutEffect, useRef, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { overlay } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
@@ -28,25 +22,33 @@ import { tv } from './tv'
  * it), as CSS variables for the dock and the sheet: with the sidebar open the
  * card starts further right than the rail alone says (settingsV3.css).
  */
-function useCardEdges(area: RefObject<HTMLElement | null>): CSSProperties {
-  const [edges, setEdges] = useState<CSSProperties>({})
+function applyEdges(el: HTMLElement | null) {
+  if (!el) return
+  const r = el.getBoundingClientRect()
+  if (r.width === 0) return
+  const root = document.documentElement.style
+  root.setProperty('--sv3-l', `${Math.round(r.left)}px`)
+  root.setProperty('--sv3-r', `${Math.round(window.innerWidth - r.right)}px`)
+}
+
+function useCardEdges(area: RefObject<HTMLElement | null>): void {
+  // Before the first paint when the screen is already in place (no flash over
+  // the sidebar); a child's layout effect can run before the parent's ref is
+  // set, so the effect below measures again and keeps watching.
+  useLayoutEffect(() => applyEdges(area.current), [area])
   useEffect(() => {
     const el = area.current
     if (!el) return
-    const measure = () => {
-      const r = el.getBoundingClientRect()
-      if (r.width === 0) return
-      setEdges({
-        '--sv3-l': `${Math.round(r.left)}px`,
-        '--sv3-r': `${Math.round(window.innerWidth - r.right)}px`,
-      } as CSSProperties)
-    }
-    measure()
-    const ro = new ResizeObserver(measure)
+    applyEdges(el)
+    const ro = new ResizeObserver(() => applyEdges(el))
     ro.observe(el)
-    return () => ro.disconnect()
+    return () => {
+      ro.disconnect()
+      const root = document.documentElement.style
+      root.removeProperty('--sv3-l')
+      root.removeProperty('--sv3-r')
+    }
   }, [area])
-  return edges
 }
 
 export function PreviewPill({
@@ -70,7 +72,7 @@ export function PreviewPill({
 }) {
   const pill = useRef<HTMLButtonElement>(null)
   const sheet = useRef<HTMLDivElement>(null)
-  const edges = useCardEdges(area)
+  useCardEdges(area)
   const toggle = useRef(onToggle)
   useEffect(() => {
     toggle.current = onToggle
@@ -108,7 +110,6 @@ export function PreviewPill({
           aria-label={tv('sv3.previewTitle')}
           data-preview-sheet
           className="sv3-sheet"
-          style={edges}
         >
           <div className="sv3-sheet-head">
             <h2 className="sv3-preview-title">{tv('sv3.previewTitle')}</h2>
@@ -124,7 +125,7 @@ export function PreviewPill({
           <PreviewBody last={last} db={db} section={section} />
         </div>
       )}
-      <div data-preview-dock className="sv3-dock" style={edges}>
+      <div data-preview-dock className="sv3-dock">
         <button
           ref={pill}
           type="button"

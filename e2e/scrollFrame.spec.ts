@@ -378,8 +378,7 @@ test('the CommandList sample shows the shared bar in its own gutter when its lis
   await list.evaluate((el) => (el.style.maxHeight = '150px'))
   await expect(list).toHaveAttribute('data-scrollbar', '')
   const gap = await list.evaluate((el) => getComputedStyle(el).paddingRight)
-  // 33 px: the 22 px bar plus the 11 px its thumb's touch area reaches left (P1.4, SC-18)
-  expect(gap).toBe('33px')
+  expect(gap).toBe('22px')
   const r = (await list.boundingBox())!
   const bar = page.locator('[data-scrollbar-root]').filter({
     has: page.locator('[data-scrollbar-thumb]'),

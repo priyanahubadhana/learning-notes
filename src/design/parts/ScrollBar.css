@@ -6,8 +6,8 @@
  * are P1.1's and unchanged: bar 22, thumb 8 (12 dragged), arrows 38 / 44.
  */
 [data-scrollbar] {
-  /* The gutter the bar sits in, so it never covers content: the 22 px bar plus the 11 px its thumb's 44 pt touch area reaches left of it (P1.4: a "+" at the list's edge was covered by that touch area, 6+ notebooks). */
-  padding-inline-end: 33px;
+  /* The gutter the bar sits in, so it never covers content. */
+  padding-inline-end: 22px;
   scrollbar-width: none;
 }
 /* Panels: scrolling stays inside the panel. No touch-action here: sideways swipes (tables, chip rows) keep working. */
@@ -102,7 +102,7 @@
 .sbar__track--short {
   margin-block: 4px;
 }
-/* The thumb is 8 px (12 px while dragged); its touch area is 44 pt wide. */
+/* The thumb is 8 px (12 px while dragged); its touch area is the 22 px bar wide. */
 .sbar__thumb {
   position: absolute;
   inset-inline: 7px;
@@ -119,7 +119,8 @@
   content: '';
   position: absolute;
   inset-block: 0;
-  inset-inline: -18px;
+  /* Only as wide as the 22 px bar (thumb 8 px + 7 px each side): a touch box stays in its own lane (P1.4, SC-18). */
+  inset-inline: -7px;
 }
 @media (hover: hover) {
   .sbar__thumb:hover {

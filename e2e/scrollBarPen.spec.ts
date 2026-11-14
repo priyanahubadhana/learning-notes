@@ -201,15 +201,16 @@ test('SC-13 the bar is a bit bigger: thumb 8 px (12 dragged), bar 22 px, arrows 
       .some((e) => e.closest('[data-pagebar-arrow]'))
   }, bar.x)
   expect(edge).toBe(false)
-  // The thumb's touch area (its ::before) is 44 pt wide: hit-test 22 px each side of its centre.
+  // The thumb's touch area (its ::before) is exactly the bar's 22 px wide (a touch box stays in its own lane, P1.4):
+  // it reaches the bar's two edges (10 px each side of the thumb's centre) and not one pixel past the left edge.
   const hit = await thumb.evaluate((el) => {
     const r = el.getBoundingClientRect()
     const y = r.top + r.height / 2
     const cx = r.left + r.width / 2
     const probe = (dx: number) => document.elementFromPoint(cx + dx, y) === el
-    return { l: probe(-21), r: probe(10) }
+    return { l: probe(-10), r: probe(10), past: probe(-13) }
   })
-  expect(hit).toEqual({ l: true, r: true })
+  expect(hit).toEqual({ l: true, r: true, past: false })
 })
 
 test('SC-13 on touch each end arrow is 44 pt tall inside the gutter, the thumb travels between them, and a tap at its top or bottom edge scrolls', async ({

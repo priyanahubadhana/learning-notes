@@ -78,3 +78,5 @@ Running list, in the order the owner reports. The owner asked to note everything
 | L10 | The scroll bar should look premium and follow the design principles; in dark mode it is hard to see (owner, 14 Nov about 18:40 IST; confirmed: the scroll bar, not the tool bar) | **to fix now** (owner) | task P1.4; the owner then re-checks steps 1 to 3 |
 
 - **R6.** docs/features/update-v2.md writes its lines U1 to U17 as `- **U1** When`, a form `npm run check:dod` does not count, so those 17 lines have never been checked for tests (found in P1.3; the new lines are written as `UV-18` to `UV-20` and are counted). Small docs task before Phase 1 goes live: rewrite U1-U17 in the counted form and see which lack a test.
+- **R7.** Sidebar "+" (New notebook): with 6+ notebooks (iPad sideways) a tap can land on the scroll bar thumb at the header instead (found by the P1.4 builder; likely since P1.1). Sent back to the P1.4 builder to fix before review.
+- **R8.** First-load size is 315.9 KB of the 320 KB budget after P1.4 (4 KB left). The next tasks must watch it; a budget talk may be needed before Phase 2A.

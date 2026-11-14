@@ -122,6 +122,7 @@ const config = defineConfig({
         /pencilTaps/,
         /tb2-select/,
         /tb2-taps/,
+        /tb2-resize/,
         /boxPills/,
         /microBar/,
         /tableGap/,

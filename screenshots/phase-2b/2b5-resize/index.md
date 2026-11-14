@@ -1,4 +1,4 @@
-# 2B.5 pictures (chromium; ipad-webkit not yet taken)
+# 2B.5 pictures (chromium and ipad-webkit)
 
 Switch textbox.v2 ON. Every file opened and checked after the last source edit; theme set on the page and checked before each shot.
 

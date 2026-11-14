@@ -50,7 +50,13 @@ test('BL-1 a pen tap on a box is logged without its text, kept after reload, and
   page,
   context,
 }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  // WebKit has no clipboard permission to grant; there the text itself is not read back.
+  const canRead = await context
+    .grantPermissions(['clipboard-read', 'clipboard-write'])
+    .then(
+      () => true,
+      () => false,
+    )
   await startInMode(page, 'pencil')
   await page.goto('/?boxlog=1')
   await page.locator('aside').waitFor({ state: 'attached' })
@@ -81,10 +87,12 @@ test('BL-1 a pen tap on a box is logged without its text, kept after reload, and
   await expect(row).toContainText('box=picked')
   await expect(panel).not.toContainText('private')
   await panel.getByRole('button', { name: 'Copy' }).click()
-  await expect(panel.getByRole('button', { name: 'Copied' })).toBeVisible()
-  const clip = await page.evaluate(() => navigator.clipboard.readText())
-  expect(clip).toContain('pointerdown')
-  expect(clip).not.toContain('private')
+  if (canRead) {
+    await expect(panel.getByRole('button', { name: 'Copied' })).toBeVisible()
+    const clip = await page.evaluate(() => navigator.clipboard.readText())
+    expect(clip).toContain('pointerdown')
+    expect(clip).not.toContain('private')
+  }
   // Kept on the device: still there after a reload.
   await page.waitForTimeout(1300)
   await page.reload()

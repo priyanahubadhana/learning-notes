@@ -40,13 +40,13 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 14 Nov 2026: search pop-up touch close, Settings search in reach, preview defaults (slice fix-search, F5/F9)
 
-- What: the search pop-up has a ✕ close beside the field and no Esc text; the keyboard footer is hidden on touch; the Settings search stays at the top of every section and finds Try new features switches; on the build-next preview host 12 tested parts start ON (live stays OFF); check-dod allows a default only when gated by isPreviewHost.
-- Why: iPad test findings F5 and F9; testers had to switch each part on by hand.
-- Files: src/search/SearchPopup.tsx, src/app/flags.ts, src/settings/v3/tryNew.ts, src/settings/v3/settingsV3.css, src/design/parts/ClearField.css, scripts/dodSpec.mjs, e2e/searchClose.spec.ts, e2e/settingsV3SearchF9.spec.ts
+- What: the search pop-up has a ✕ close beside the field and no Esc text; the keyboard footer is hidden on touch; the Settings search stays at the top of every section and finds Try new features switches; on the build-next preview host 12 tested parts start ON (live stays OFF); check-dod allows a default only when gated by isPreviewHost (not the negated form). Fix round 3: the sticky Settings search sits above switches and why marks (new token --z-sticky, hairline below), with an e2e check that nothing paints over it; When lines for the preview defaults in settings-v3.md.
+- Why: iPad test findings F5 and F9; testers had to switch each part on by hand; gate 2 found list parts painting over the sticky bar.
+- Files: src/design/tokens.css, src/app/tools/ScrollFade.tsx, scripts/ratchet-baseline.json, scripts/check-dod.test.mjs, docs/features/settings-v3.md, src/search/SearchPopup.tsx, src/app/flags.ts, src/settings/v3/tryNew.ts, src/settings/v3/settingsV3.css, src/design/parts/ClearField.css, scripts/dodSpec.mjs, e2e/searchClose.spec.ts, e2e/settingsV3SearchF9.spec.ts
 
 ### 14 Nov 2026: build manager run 8
 
-Toolbar 1e/1f gate 2 PASS on 19e158cf. Reader v2 pictures re-shot (2f78926f), final look PASS: ready for the owner. docs/features/page-menus.md PM-44 now says the chip is off in Beginner and on in Professional (SET-B43), matching the code and DECISIONS. CI 43542651882 red on e2e/bigPageBudget.spec.ts:576 (runner frame timing); Fable ruling: count late frames that are also app work. Fix lists out for the scroll and search owner fixes. Files: docs/features/page-menus.md, docs/BUILD-STATE.md, docs/PENDING.md.
+build/next green again: CI 43549430501 on af75ee57. Search fix F5/F9 passed gate 2 and the final look on 4c9735ed. F1+F7 merging first. Toolbar 1e/1f gate 2 PASS on 19e158cf. Reader v2 pictures re-shot (2f78926f), final look PASS: ready for the owner. docs/features/page-menus.md PM-44 now says the chip is off in Beginner and on in Professional (SET-B43), matching the code and DECISIONS. CI 43542651882 red on e2e/bigPageBudget.spec.ts:576 (runner frame timing); Fable ruling: count late frames that are also app work. Fix lists out for the scroll and search owner fixes. Files: docs/features/page-menus.md, docs/BUILD-STATE.md, docs/PENDING.md.
 
 ### 14 Nov 2026: storage safety merged; BUG-006 in the preview
 

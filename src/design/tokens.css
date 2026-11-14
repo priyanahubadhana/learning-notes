@@ -310,8 +310,11 @@
       backdrop-filter: none;
     }
   }
+  /* data-solid: a card that must hide the words under it fully (the ⋯ list
+   * of a box) takes the same solid look as lite glass. */
   :root[data-glass='lite'] .glass,
-  :root[data-glass='lite'] .glass-flat {
+  :root[data-glass='lite'] .glass-flat,
+  .glass[data-solid] {
     background: var(--color-surface-2);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;

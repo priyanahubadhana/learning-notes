@@ -247,8 +247,15 @@ const isPicked = (dom: HTMLElement): boolean =>
   !!dom.closest('[data-paper-box][data-picked]')
 
 /** The browser's own mouse events of a box-selecting tap are cancelled. */
-function swallowCaret(doc: Document) {
+function swallowCaret(dom: HTMLElement, hit: EventTarget | null) {
+  const doc = dom.ownerDocument
   const stop = (ev: Event) => {
+    // Why: the tap's own mouse events land in this editor (Safari may move
+    // them onto a link, page link or toggle next to the words) or on the ink
+    // pad it hit: all are held back. Only a tap elsewhere right after (the box
+    // bar, its ⋯ list) answers at once.
+    const to = ev.target instanceof Node ? ev.target : null
+    if (to && !dom.contains(to) && to !== hit) return
     ev.preventDefault()
     ev.stopPropagation()
   }
@@ -362,7 +369,7 @@ export function watchTapSelect(
     // taps after the first on the Pencil are held off (R6-18).
     if (level <= 0) {
       boxTapUntil = Date.now() + 500
-      swallowCaret(doc)
+      swallowCaret(dom, e.target)
       if (e.cancelable) e.preventDefault()
     } else if (e.pointerType === 'pen' && count >= 2 && e.cancelable) {
       e.preventDefault()

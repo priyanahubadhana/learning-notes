@@ -26,7 +26,7 @@ afterEach(() => vi.restoreAllMocks())
 describe('flags', () => {
   it('lists 27 unique switches, each with a name and a description', () => {
     expect(FLAG_IDS).toHaveLength(27)
-    expect(new Set(FLAG_IDS).size).toBe(26)
+    expect(new Set(FLAG_IDS).size).toBe(27)
     for (const id of FLAG_IDS) {
       expect(all[`flags.${id}.name`]).toBeTruthy()
       expect(all[`flags.${id}.desc`]).toBeTruthy()

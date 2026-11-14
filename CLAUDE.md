@@ -16,9 +16,9 @@ Plan: docs/plans/phase-plan.md. How helpers work: docs/HOW-WE-BUILD.md. State: d
 
 **Owner settings** (change only on the owner's word; log each change in docs/DECISIONS.md):
 
-- Top manager: Fable, the main chat (artifact, phase plan, final look, hard cases).
-- Middle managers: Opus at medium effort, `phase-manager` (one phase) and `reviewer` (each task once).
-- Builders: Sonnet (`builder`), as many as the phase has separate tasks; no Haiku in the build.
+- Builders: Sonnet (`builder`), one planned task each; no Haiku in the build.
+- Manager and reviewer: Opus at medium effort. It runs the build (the main chat in lean mode; `phase-manager` only when the owner asks for the full team), reviews each task once (code and look) and takes over when Sonnet failed twice.
+- Fable: plans each phase with the owner and solves what Opus could not. No routine reviews.
 - Tests: a fast set on each merge; the full set nightly and before each release.
 - Weekly quota: 80% is a reference, not a cap.
 

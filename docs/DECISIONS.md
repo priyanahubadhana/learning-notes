@@ -1198,3 +1198,13 @@ On CI, e2e/bigPageBudget.spec.ts counts a late frame against the app only when o
 The owner paused the build and decided: (1) work in phases, one at a time (artifact, plan with Fable, build, early iPad test, polish, release); (2) roles: Fable top manager, Opus at medium effort as phase manager and reviewer, Sonnet builders, as many as the phase has separate tasks; (3) tests: a fast set per merge, the full set nightly and before each release; (4) the owner tests early, before the polish; (5) a complete clean-up of rules and files before the restart. Phase order (Fable, on the owner's request to compare and choose): frame and Settings, writing tools, text box and Pencil, Notebooks, Search, Home and Library, Review and Study, Reader, AI and connector, then the two areas that still need an artifact. Plan: docs/plans/phase-plan.md. Reasons: docs/plans/build-diagnosis-2026-11-14.md.
 
 Decisions to review from the clean-up: Settings moved next to the frame (the owner had it later); the Definition of Done gained a "real use on an iPad" line; the user setting for Opus effort went from low to medium; three stale memory notes were retired (kept in a "retired" folder).
+
+### 14 Nov 2026 (owner): roles, lean restart and the last plan decisions
+
+- Roles: Sonnet builds; Opus at medium effort manages and reviews each task once (code against the plan, look against the approved picture) and takes over when Sonnet failed twice; Fable only plans each phase and solves what Opus could not. No routine Fable reviews.
+- The build restarts lean: the main chat on Opus manages one or two builders; the full team only on the owner's word.
+- The reviewer fails a task only for real problems (gaps against the plan or picture, broken rules, breakages); style notes are listed apart.
+- Helpers may push normally; force pushes stay denied (.claude/settings.json).
+- One code line at the end of Phase 1, after the owner's test. A one-tap test preset in Settings, removed when the redesign is done.
+- The real app's check on main was red since 13 Nov because of a lint line added by Claude in mcp/src/setup.ts; fixed (f6342473).
+- The method, the roles and three generic helper files are saved in the owner's global files (~/.claude/CLAUDE.md, playbook.md, agents/) for all projects.

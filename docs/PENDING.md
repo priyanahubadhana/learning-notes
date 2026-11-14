@@ -4,37 +4,35 @@ The one short list of open work. The plan: [plans/phase-plan.md](plans/phase-pla
 
 ## Needs you
 
-- **BUILD PAUSED (owner, 14 Nov 11:10 IST).** Read the phase plan and say yes, or change the order. Nothing restarts until you say "restart".
-- **Yes or no before the restart:**
-  1. **One code line (Phase 0, task 0.6).** When the full test set is green, the code of the preview goes into the live app with every new part still switched OFF, and from then on small tasks merge straight into it. This changes the live app's code but not what you see.
-  2. **Pushes by helpers.** The safety check stopped a builder from saving an approved merge on 14 Nov, and the work waited for you. A rule that lets helpers push normally (force pushes stay blocked) avoids that.
-  3. **Reviewer rule (open since 13 Nov).** Should the reviewer fail a task only for gaps against the plan and for breakages, and list style points separately? Today style points can fail a task too.
-  4. **Unlock switch "about.updateDetails"** (open since 13 Nov): keep it, or keep using "about.version".
+- **BUILD PAUSED (owner, 14 Nov 11:10 IST).** After the two final audits, say "restart" and switch this chat to Opus with `/model` (medium effort). Nothing restarts before that.
 - **When you have the iPad:** re-check F1 (stays signed in), F5 (✕ in search), F9 (Settings search on every page) and BUG-006 (the ⚙ gear) at the preview address. They are in the preview now.
-- **Decisions to review:** docs/DECISIONS.md "Decisions to review" (items from 12 to 14 Nov).
-- **One check before the strict security header is switched on:** Google sign-in, Drive and fonts still work. Until then the strict rule only reports.
-- **AI test key:** you said you typed it into Settings › AI with a cap. On the device, check it shows masked and that Test passes. Never paste it in chat.
-- **Supabase, Phase 8:** the online Claude connector needs its job tools deployed (list in docs/features/ai-framework.md "Needs the owner"). Needs your OK then.
+- **Small, not urgent:**
+  - Unlock switch "about.updateDetails" (open since 13 Nov): keep it, or keep using "about.version". Asked again in the Phase 1 page.
+  - Decisions to review: docs/DECISIONS.md "Decisions to review" (items from 12 to 14 Nov).
+  - One check before the strict security header is switched on: Google sign-in, Drive and fonts still work. Until then the strict rule only reports.
+  - AI test key: you said you typed it into Settings › AI with a cap. On the device, check it shows masked and that Test passes. Never paste it in chat.
+  - Supabase, Phase 8: the online Claude connector needs its job tools deployed (list in docs/features/ai-framework.md "Needs the owner"). Needs your OK then.
+- **Decided on 14 Nov (nothing to do):** work in phases, in the order of the phase plan, Settings with the frame; restart lean (Opus chat, one or two builders); Sonnet builds, Opus reviews code and look, Fable only plans and solves what Opus could not; the reviewer fails a task only for real problems; helpers may push normally; the preview's code goes into the real app at the end of Phase 1; a one-tap test preset; the real app's check was fixed.
 - Done lately: Claude connector A tested (13 Nov); refresh-token rotation on, 10 s (14 Nov); email limits fine (14 Nov); Drive function redeployed with the strict website list (14 Nov).
 
 Preview address: https://build-next.learning-notes-app.pages.dev (the parts you test start ON there). The live app has had no new code since 12 Nov.
 
 ## Phase board
 
-| Phase | What                                             | State                                                       |
-| ----- | ------------------------------------------------ | ----------------------------------------------------------- |
-| 0     | Reset: clean rules, fast tests, one code line    | rules cleaned 14 Nov; tasks 0.3 to 0.8 wait for the restart |
-| 1     | The frame and Settings                           | built; owner's first look started 14 Nov (F1 to F9)         |
-| 2A    | Writing tools: tool bar, page menus              | built; two parts parked                                     |
-| 2B    | Text box and Pencil                              | not built                                                   |
-| 3     | Notebooks                                        | built                                                       |
-| 4     | Search                                           | built                                                       |
-| 5     | Home and Library                                 | built                                                       |
-| 6     | Review and Study                                 | mostly built; two parts parked                              |
-| 7     | Reader                                           | built, parked                                               |
-| 8     | AI and the Claude connector                      | partly built                                                |
-| 9     | Things inside a page; pictures, PDF, audio       | needs its artifact                                          |
-| 10    | Safety and data; system layer; welcome and tours | needs its artifact                                          |
+| Phase | What                                                    | State                                                       |
+| ----- | ------------------------------------------------------- | ----------------------------------------------------------- |
+| 0     | Reset: clean rules, the real app check, the test preset | rules cleaned 14 Nov; tasks 0.3 to 0.8 wait for the restart |
+| 1     | The frame and Settings                                  | built; owner's first look started 14 Nov (F1 to F9)         |
+| 2A    | Writing tools: tool bar, page menus                     | built; two parts parked                                     |
+| 2B    | Text box and Pencil                                     | not built                                                   |
+| 3     | Notebooks                                               | built                                                       |
+| 4     | Search                                                  | built                                                       |
+| 5     | Home and Library                                        | built                                                       |
+| 6     | Review and Study                                        | mostly built; two parts parked                              |
+| 7     | Reader                                                  | built, parked                                               |
+| 8     | AI and the Claude connector                             | partly built                                                |
+| 9     | Things inside a page; pictures, PDF, audio              | needs its artifact                                          |
+| 10    | Safety and data; system layer; welcome and tours        | needs its artifact                                          |
 
 Branches and commit ids of every parked part: docs/BUILD-STATE.md.
 

@@ -4,13 +4,13 @@
 
 Plan: [plans/phase-plan.md](plans/phase-plan.md). How helpers work: [HOW-WE-BUILD.md](HOW-WE-BUILD.md). Why the build was reset: [plans/build-diagnosis-2026-11-14.md](plans/build-diagnosis-2026-11-14.md). Numbers of the two old systems: plans/system-trial-2026-11-13.md.
 
-**Next result for the owner:** after the restart, Phase 0 tasks 0.3 to 0.8; then the Phase 1 first look (the frame and Settings) with F1 to F9 re-checked.
+**Next result for the owner:** after the restart (lean: the main chat on Opus, one or two builders), tasks 0.4 to 0.6; then the Phase 1 first look (the frame and Settings) with F1 to F9 re-checked.
 
 ## Fixed facts
 
 - **Live app:** `main`. No new app code since 12 Nov (b5b0bc74); every new part is OFF. A push of app code to `main` deploys by itself; docs-only pushes do not.
-- **Code line until Phase 0 task 0.6:** `build/next` 87969361, pull request #5 (never merge it by hand), working copy `C:\Users\pc\Downloads\ln-buildnext`. It runs the tests and publishes the preview. The test run on 87969361 (43562438919) was still going at the pause; check it with the refresh command.
-- **Bookkeeping files** (this file, PENDING, CHANGELOG, DECISIONS) are written on `main`. Until task 0.6, merge `main` into `build/next` right after any such push, or the pull request clashes and no test run starts.
+- **Code line until Phase 0 task 0.7:** `build/next` 87969361, pull request #5 (never merge it by hand), working copy `C:\Users\pc\Downloads\ln-buildnext`. It runs the tests and publishes the preview. The test run on 87969361 (43562438919) was still going at the pause; check it with the refresh command.
+- **Bookkeeping files** (this file, PENDING, CHANGELOG, DECISIONS) are written on `main`. Until task 0.7, merge `main` into `build/next` right after any such push, or the pull request clashes and no test run starts.
 - **Preview address:** https://build-next.learning-notes-app.pages.dev . The parts the owner tests start ON there (build-next host only); the live address keeps them OFF.
 - **Dexie:** highest version on `build/next` is 24; the phase manager gives out the next number, one task at a time.
 - **Hot files** (one builder at a time, merged alone): `src/App.tsx`, `src/core/db.ts`, `src/core/types.ts`, `src/settings/builtinSettings.ts`, `src/app/flags.ts`, `package.json`, `playwright.config.ts`.
@@ -25,18 +25,18 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 
 "ahead 0" = fully merged into `build/next`.
 
-## Phase 0 (reset)
+## Phase 0 (reset), in the order of docs/plans/phase-plan.md section 6
 
-| Task                                                                                                        | State                                                                                    | Next step                                               |
-| ----------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| 0.1 Rules, helper files, memory, PENDING, HANDOFF, this file                                                | done 14 Nov (Fable)                                                                      | none                                                    |
-| 0.2 Opus effort low to medium                                                                               | see docs/CHANGELOG.md 14 Nov                                                             | none                                                    |
-| 0.3 Merge the scrolling fix (F2, F3, F4, F6, F8)                                                            | parked: `slice/fix-scroll-frame` 5e2c80f7 (ln-sfix-scroll), review PASS, final look PASS | merge `main` and `build/next` into it, then merge alone |
-| 0.4 Fast test set per merge; full set nightly and before a release; docs formatting apart                   | not started                                                                              | builder + reviewer                                      |
-| 0.5 Cause of the three iPad tests that always fail here (textBoxFree:461, toolsRefresh:60, undoHistory:210) | not started                                                                              | Opus builder                                            |
-| 0.6 One code line: release `build/next` to `main`, parts OFF; retire `build/next`                           | waits for the owner's yes and a green full set                                           | builder + reviewer                                      |
-| 0.7 Pulse script reads the phase board                                                                      | not started                                                                              | builder                                                 |
-| 0.8 List unused working copies                                                                              | not started                                                                              | builder; the owner approves removals                    |
+| Task                                                                                                          | State                                                                                                 | Next step                                                                                   |
+| ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 0.1 Rules, helper files, memory, PENDING, HANDOFF, this file; the method saved in the owner's global files    | done 14 Nov (Fable)                                                                                   | none                                                                                        |
+| 0.2 Opus effort low to medium                                                                                 | done 14 Nov                                                                                           | none                                                                                        |
+| 0.3 The real app's check green again (lint line in `mcp/src/setup.ts`, f6342473)                              | fixed 14 Nov; run on `main` was going at the time of writing                                          | confirm green with `gh run list --branch main --limit 1`                                    |
+| 0.4 Clear the paperwork clash: merge `main` into `build/next`                                                 | not started                                                                                           | first task after the restart: PENDING takes main's; CHANGELOG and DECISIONS keep both sides |
+| 0.5 Merge the scrolling fix (F2, F3, F4, F6, F8)                                                              | parked: `slice/fix-scroll-frame` 5e2c80f7 (ln-sfix-scroll), reviewed; merges cleanly (checked 14 Nov) | second task: merge alone, watch the test run                                                |
+| 0.6 Test preset: pick a phase, one On/Off switch (Settings › Try new features)                                | not started                                                                                           | third task: one builder, reviewed once; touches `src/app/flags.ts` (hot)                    |
+| 0.7 One code line: `build/next` into `main`, parts OFF; retire `build/next`                                   | owner's yes given 14 Nov                                                                              | at the end of Phase 1, after the owner's test                                               |
+| 0.8 to 0.11 Fast test set, the three iPad tests, pulse script, unused working copies and the local lint count | waiting                                                                                               | when the owner moves to the full team                                                       |
 
 ## In the code line (`build/next`), by phase
 
@@ -71,6 +71,6 @@ Text box v2 (`textbox.v2`, Phase 2B); things inside a page and media (`page.obje
 
 ## Tests to know about
 
-- Three iPad tests fail on this PC every time (task 0.5).
+- Three iPad tests fail on this PC every time (task 0.9).
 - `e2e/bigPageBudget.spec.ts` on CI counts only late frames caused by the app's own work, plus a median-frame check (owner-approved 14 Nov, b3f576b9).
 - `paperBoxes:173` passed only on retry on 14 Nov.

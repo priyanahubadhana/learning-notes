@@ -34,10 +34,10 @@ Goal: Apple-level results, delivered with Toyota-level consistency: every featur
 ## 5. Gates, in this order
 
 1. The builder builds the task, runs the tests and uses it for real.
-2. The reviewer (Opus) checks the task against its spec lines and the first-look bar.
+2. The reviewer (Opus) checks the task once: the code against its spec lines and the first-look bar, and the look against the approved picture.
 3. **The owner's first look** on the iPad, as soon as the phase works.
 4. Fixes, then polish to the Definition of Done; the reviewer checks the release bar.
-5. Fable looks once at the full picture set of the phase.
+5. The reviewer checks the full picture set of the phase against the approved pictures. Fable is called only when there is no approved picture or Opus failed.
    Only then, on the owner's yes, is the phase switched ON in the live app.
 
 ## 6. Safe release

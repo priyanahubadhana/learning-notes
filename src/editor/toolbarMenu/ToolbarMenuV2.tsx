@@ -32,6 +32,22 @@ const STYLE_ICON: Record<string, IconName> = {
   code: 'code',
 }
 
+/** One icon for every row under More (none is left without). */
+const ACTION_ICON: Record<string, IconName> = {
+  blank: 'input',
+  card: 'cards',
+  newLine: 'newLine',
+  alignLeft: 'alignLeft',
+  alignCenter: 'alignCenter',
+  alignRight: 'alignRight',
+  color: 'palette',
+  indent: 'indent',
+  outdent: 'outdent',
+  link: 'link',
+}
+const iconOf = (id: string): IconName =>
+  ACTION_ICON[id] ?? (id.startsWith('mark:') ? 'highlighter' : 'tag')
+
 const COPY: Record<string, [IconName, MessageKey]> = {
   copyPlain: ['copy', 'copy.plain'],
   copyMarkdown: ['fileText', 'copy.markdown'],
@@ -168,6 +184,11 @@ export function ToolbarMenuV2({
                   onSelect={() => a.run?.()}
                 >
                   <Icon name={STYLE_ICON[id] ?? 'type'} size={20} />
+                  {hint(a.hint) && (
+                    <span className="text-[10px] text-muted">
+                      {hint(a.hint)}
+                    </span>
+                  )}
                 </Tile>
               )
             })}
@@ -219,9 +240,10 @@ export function ToolbarMenuV2({
                   <div
                     key={id}
                     data-action={id}
-                    className="flex min-h-[44px] items-center justify-between gap-3 px-3 text-sm"
+                    className="flex min-h-[44px] items-center gap-3 px-3 text-sm"
                   >
-                    <span>{a.label}</span>
+                    <Icon name={iconOf(id)} size={18} />
+                    <span className="flex-1 text-left">{a.label}</span>
                     <CreateLinkButton />
                   </div>
                 )
@@ -229,6 +251,7 @@ export function ToolbarMenuV2({
               return (
                 <Row
                   key={id}
+                  icon={iconOf(id)}
                   active={a.active}
                   disabled={a.disabled}
                   hint={hint(a.hint)}

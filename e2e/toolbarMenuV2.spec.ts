@@ -11,13 +11,20 @@ test.use({ viewport: { width: 1024, height: 900 }, hasTouch: true })
 const tray = (page: import('@playwright/test').Page) =>
   page.locator('[data-bar="tray"]')
 
-async function flagOn(page: import('@playwright/test').Page, on: boolean) {
-  await page.addInitScript((value) => {
-    localStorage.setItem(
-      'learning-notes:flags',
-      JSON.stringify(value ? ['toolbar.menu'] : []),
-    )
-  }, on)
+async function flagOn(
+  page: import('@playwright/test').Page,
+  on: boolean,
+  extra: string[] = [],
+) {
+  await page.addInitScript(
+    ([value, more]) => {
+      localStorage.setItem(
+        'learning-notes:flags',
+        JSON.stringify(value ? ['toolbar.menu', ...more] : []),
+      )
+    },
+    [on, extra] as const,
+  )
 }
 
 const EVERY_ITEM = [
@@ -174,4 +181,72 @@ test('every item of the old menu is in the new one (by name)', async ({
   await tray(page).getByRole('button', { name: 'Show more items' }).click()
   const now = await names()
   for (const name of old) expect(now, name).toContain(name)
+})
+
+test('TM-05 the Done tile closes the menu', async ({ page }) => {
+  await flagOn(page, true)
+  await openNote(page)
+  await barMenu(page).click()
+  await tray(page).getByRole('button', { name: 'Done', exact: true }).click()
+  await expect(tray(page)).toHaveCount(0)
+})
+
+test('a tap opens the menu with no focus ring; an arrow key shows the ring on the first tile', async ({
+  page,
+}) => {
+  await flagOn(page, true)
+  await openNote(page)
+  await barMenu(page).click()
+  await expect(tray(page)).toBeVisible()
+  const ringed = () =>
+    page.evaluate(() => {
+      const el = document.activeElement
+      if (!el) return false
+      const css = getComputedStyle(el)
+      return css.outlineStyle !== 'none' && parseFloat(css.outlineWidth) > 0
+    })
+  expect(await ringed()).toBe(false)
+  await page.keyboard.press('ArrowDown')
+  await expect(
+    tray(page).getByRole('button', { name: 'Edit toolbar…' }),
+  ).toBeFocused()
+  expect(await ringed()).toBe(true)
+})
+
+test('every row under More has an icon', async ({ page }) => {
+  await flagOn(page, true)
+  await openNote(page)
+  await barMenu(page).click()
+  await tray(page).getByRole('button', { name: 'Show more items' }).click()
+  const rows = tray(page).locator('[data-menu-more] > *')
+  const n = await rows.count()
+  expect(n).toBeGreaterThan(10)
+  for (let i = 0; i < n; i++) {
+    await expect(rows.nth(i).locator('svg').first()).toBeVisible()
+  }
+})
+
+test('with the new shell on, the long list has the shared scroll bar', async ({
+  page,
+}) => {
+  await flagOn(page, true, ['foundation.shell'])
+  await openNote(page)
+  await barMenu(page).click()
+  await tray(page).getByRole('button', { name: 'Show more items' }).click()
+  await expect(page.locator('.sbar[data-layer="tray"]')).toHaveCount(1)
+})
+
+test.describe('mouse and keyboard', () => {
+  test.use({ hasTouch: false })
+  test('TM-04 Bold to Code show their shortcut hints', async ({ page }) => {
+    await flagOn(page, true)
+    await openNote(page, 'computer', { 'advanced.shortcutHints': 'on' })
+    await barMenu(page).click()
+    await expect(
+      tray(page).getByRole('checkbox', { name: 'Bold', exact: true }),
+    ).toContainText('Ctrl+B')
+    await expect(
+      tray(page).getByRole('checkbox', { name: 'Italic', exact: true }),
+    ).toContainText('Ctrl+I')
+  })
 })

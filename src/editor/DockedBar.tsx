@@ -390,6 +390,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
             bottom={bottom}
             label={t('bar.menu')}
             focusFirst
+            quietFocus={menuV2}
             onClose={() => setPanel(null)}
           >
             {menuV2 ? (
@@ -654,6 +655,7 @@ function Tray({
   wide,
   label,
   focusFirst,
+  quietFocus,
   onClose,
   children,
 }: {
@@ -664,6 +666,8 @@ function Tray({
   label?: string
   /** Moves the keyboard focus into the tray (the toolbar menu). */
   focusFirst?: boolean
+  /** With focusFirst: focus the tray, not the first item, so no ring shows for a tap. */
+  quietFocus?: boolean
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -675,12 +679,15 @@ function Tray({
     setListEl(el)
   }, [])
   useEffect(() => {
-    if (focusFirst) {
+    if (!focusFirst) return
+    // Quiet: the tray itself takes the focus (no ring); an arrow key then
+    // reaches the first item, and the ring shows for the keyboard only.
+    if (quietFocus) ref.current?.focus({ preventScroll: true })
+    else
       ref.current
         ?.querySelector<HTMLElement>('button:not([data-popup-close])')
         ?.focus({ preventScroll: true })
-    }
-  }, [focusFirst])
+  }, [focusFirst, quietFocus])
   const arrows = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
     const items = [
@@ -690,7 +697,8 @@ function Tray({
     ]
     const at = items.indexOf(document.activeElement as HTMLElement)
     e.preventDefault()
-    const next = at + (e.key === 'ArrowDown' ? 1 : -1)
+    const down = e.key === 'ArrowDown'
+    const next = at < 0 ? (down ? 0 : items.length - 1) : at + (down ? 1 : -1)
     items[(next + items.length) % items.length]?.focus()
   }
   return (
@@ -700,7 +708,8 @@ function Tray({
       aria-label={label}
       onKeyDown={label ? arrows : undefined}
       data-bar="tray"
-      className={`absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 shadow-lg ${
+      tabIndex={quietFocus ? -1 : undefined}
+      className={`${quietFocus ? 'outline-none ' : ''}absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 shadow-lg ${
         wide ? 'w-[340px]' : 'min-w-[230px]'
       } ${bottom ? 'bottom-full mb-1' : 'top-full'}`}
     >

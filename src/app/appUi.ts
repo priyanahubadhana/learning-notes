@@ -31,7 +31,11 @@ export interface AppUi {
   /** Asks a question; resolves to the chosen value, or null if cancelled. */
   choose: (request: ChoiceRequest) => Promise<string | null>
   /** The Name it sheet: resolves to the new name, or null if cancelled or unchanged. */
-  askName: (title: string, initial: string) => Promise<string | null>
+  askName: (
+    title: string,
+    initial: string,
+    placeholder?: string,
+  ) => Promise<string | null>
   /** Opens Settings, optionally at one setting (highlighted). */
   openSettings: (settingId?: string) => void
 }

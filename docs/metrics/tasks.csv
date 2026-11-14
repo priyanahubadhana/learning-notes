@@ -1,1 +1,2 @@
 merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,test_runs_red,hours_start_to_merged,notes
+2026-11-14T13:12+05:30,0,0.12 safety programs,sonnet,81199,2,,,0.75,"builder tokens as last reported; reviewer (Opus medium) about 61000; first review failed on test samples not saved to git; hours are approximate"

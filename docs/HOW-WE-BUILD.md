@@ -76,7 +76,9 @@ Done when: <tests>. Follow .claude/agents/builder.md.
 ## 8. Guards
 
 - **Test guard** (`.claude/hooks/guard-tests.mjs`): blocks `.only`, fewer `expect()` calls and emptied test files; a higher timeout, a skip or a deleted test file needs a `test-guard-reason:` line that the owner or Fable approved.
-- **Push guard** (`scripts/push-guard.mjs`, run by `.githooks/pre-push`): Prettier and `check:links` on every branch; ESLint, `tsc -b`, `check:ratchet`, related unit tests and the changed e2e files on `build/next` and `slice/` branches. Fix the cause; never `--no-verify`.
+- **Push guard** (`scripts/push-guard.mjs`, run by `.githooks/pre-push`): Prettier and `check:links` on every branch; on every branch that changes code also ESLint, `tsc -b` and the related unit tests; on `build/next` and `slice/` branches also `check:ratchet` and the changed e2e files. Fix the cause; never `--no-verify`.
+- **Failure sorter** (`npm run ci:sort`, or `node scripts/ci-sort.mjs --run <id>`): a fixed program, no AI, that says in plain lines what kind of failure a red run is (simple check, new, repeat, shaky, test file changed). Run it before anyone reads a log.
+- **Windows note:** run git and test commands from a path with a capital drive letter (`C:\...`). With a small `c:` Vitest loads itself twice and reports "no tests" (seen 14 Nov in the main working copy).
 - **Pushes:** helpers may push normally; force pushes are denied (owner, 14 Nov).
 - **Secret scan** on every shell command.
 

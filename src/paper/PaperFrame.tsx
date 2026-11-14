@@ -1095,10 +1095,12 @@ export function PaperFrame({
       }
       glide.current = from
     }
-    const since = Date.now()
-    setHeldRows(rows)
-    onGridChange?.(rows, places)
-    if (m && d.clock) m.toastMoved(since)
+    const write = () => {
+      setHeldRows(rows)
+      onGridChange?.(rows, places)
+    }
+    if (m && d.clock) m.dropWithUndo(write)
+    else write()
   }
   // Text box v2 (TB-14): once the drop is drawn, one transform glides each box in.
   useLayoutEffect(() => {

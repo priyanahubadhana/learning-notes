@@ -17,7 +17,7 @@ export {
   glideFrom,
   playGlide,
   tabOnly,
-  toastMoved,
+  dropWithUndo,
 } from './boxDrag'
 
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'

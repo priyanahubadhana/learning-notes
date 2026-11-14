@@ -111,10 +111,12 @@ export const tabOnly = (from: Element): boolean =>
   !from.hasAttribute('data-box-band')
 
 /**
- * After a drop there is no tick to press: a toast says "Box moved" and its
- * Undo takes the page's newest step back (the drop is one step).
+ * Writes the drop and says so: there is no tick to press, a toast says "Box
+ * moved" and its Undo takes the page's newest step back (the drop is one step).
  */
-export function toastMoved(since: number): void {
+export function dropWithUndo(write: () => void): void {
+  const since = Date.now()
+  write()
   getAppActions()?.toast(t('paper.box.moved'), {
     label: t('paper.box.undo'),
     onSelect: () => void undoSince(since),

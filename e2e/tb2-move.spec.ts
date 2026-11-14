@@ -8,6 +8,7 @@ import {
   typeInEditor,
 } from './helpers.ts'
 import { savedInk } from './inkHelpers.ts'
+import { installRealPen } from './realPen.ts'
 import { tool } from './mainBarHelpers.ts'
 
 /**
@@ -434,5 +435,35 @@ test('The Pencil on the tab moves the box; no ink, no page scroll', async ({
   await page.waitForTimeout(800)
   expect(away(await rect(b), f0)).toBeGreaterThan(60)
   expect(await scroller.evaluate((s) => s.scrollTop)).toBe(top0)
+  expect((await savedInk(page)).strokes).toHaveLength(0)
+})
+
+test('A real Pencil (the browser own input as a pen: hover first, contact moves with the button down) holds, drags and drops the box; no ink', async ({
+  page,
+}) => {
+  await installRealPen(page)
+  const { b } = await twoBoxes(page, 'RealPen')
+  await tool(page, 'Pen').click()
+  await pickBox(page, b)
+  const f0 = await rect(b)
+  const g = await centre(grip(b))
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
+  // The hover a Pencil sends before it touches (no button).
+  await page.mouse.move(g.x - 3, g.y - 6)
+  await page.mouse.move(g.x, g.y)
+  await page.mouse.down()
+  await page.waitForTimeout(170)
+  await page.mouse.move(g.x + 160, g.y + 150, { steps: 12 })
+  // Still down and held still: the drag goes on.
+  await page.waitForTimeout(1300)
+  await expect(page.locator('html')).toHaveAttribute('data-box-drag', '')
+  await page.mouse.up()
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
+  await page.waitForTimeout(800)
+  expect(away(await rect(b), f0)).toBeGreaterThan(60)
   expect((await savedInk(page)).strokes).toHaveLength(0)
 })

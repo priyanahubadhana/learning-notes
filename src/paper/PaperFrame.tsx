@@ -1908,7 +1908,9 @@ export function PaperFrame({
                     className="absolute inset-x-0 mx-auto w-max max-w-[80%] text-center text-sm text-muted"
                     style={{ top: box.y * k + step * 5 }}
                   >
-                    {t('textTool.hint')}
+                    {t(
+                      isOn('textbox.v2') ? 'textTool.hintV2' : 'textTool.hint',
+                    )}
                   </p>
                 </div>
               )}

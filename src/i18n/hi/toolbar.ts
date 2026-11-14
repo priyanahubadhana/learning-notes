@@ -412,6 +412,7 @@ export const hiToolbar = {
   'textTool.boxStyle': 'बॉक्स की शैली',
   'textTool.hint':
     'टेक्स्ट बॉक्स जोड़ने के लिए टैप करें · यहाँ टाइप करने के लिए दबाए रखें',
+  'textTool.hintV2': 'टाइप करें, या लिखना शुरू करने के लिए कहीं भी टैप करें',
   'textTool.lineSpacing': 'पंक्ति अंतर',
   'textTool.pin': 'टेक्स्ट टूल पिन करें',
   'textTool.startTyping': 'यहाँ टाइप करना शुरू करें',

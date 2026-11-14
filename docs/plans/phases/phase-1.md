@@ -51,7 +51,7 @@ Address: https://build-next.learning-notes-app.pages.dev . Write down the step n
 9. Tap the three dots at the top of a page. **You should see:** a sheet docked on the right at full height. Tell Claude if you like it there.
 10. Open Settings and tap each section. **You should see:** the new layout; the search box stays at the top of every page while you scroll (F9).
 11. In the Settings search, type "frame", then "dark". **You should see:** matching settings, including switches from Try new features.
-12. Open Settings, then Claude; tap Inbox, then Activity. **You should see:** three tabs; Inbox says "Nothing is waiting"; nothing breaks.
+12. Open Settings, then **Let AI use my notebooks** (the new name of the Claude section; searching "Claude" also finds it); tap Inbox, then Activity. **You should see:** three tabs; Inbox says "Nothing is waiting"; nothing breaks.
 13. Open Settings, then About; tap Check for updates now. **You should see:** only a small pill; nothing downloads by itself.
 14. Open Settings, then Advanced; tap "Pretend a must-have update". **You should see:** a full-screen notice counts down 5 seconds, downloads, and the app reopens on the same page.
 15. Reload the page. **You should see:** a calm notice "Keep your notes safe: add this app to your Home Screen" with Show how and Back up first. Tap both. **You should see:** three short steps; then "Backup saved." and a file in Downloads. Tell Claude if the notice looks right.

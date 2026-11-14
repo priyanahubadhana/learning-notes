@@ -371,7 +371,10 @@ test('P1.3 a file that never arrives ends in Try again, never stuck', async ({
   page,
 }) => {
   test.setTimeout(90_000)
-  await start(page)
+  // No notebook needed: the shared createNotebook helper raced its own name
+  // dialog under load and was the cause of the flake, not the stall limit.
+  await page.goto(FLAG)
+  await expect(page.locator('aside')).toBeVisible()
   await slowDownload(page) // the file is never let go
   await pretend(page)
   await expect(notice(page)).toHaveAttribute('data-phase', 'downloading', {

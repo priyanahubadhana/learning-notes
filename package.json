@@ -15,6 +15,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check:links": "node scripts/check-feature-links.mjs",
+    "ci:sort": "node scripts/ci-sort.mjs",
     "check:size": "node scripts/check-size.mjs",
     "aitools:catalog": "node scripts/aitools-catalog.mjs",
     "check:ratchet": "node scripts/check-ratchet.mjs",

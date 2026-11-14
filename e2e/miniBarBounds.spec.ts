@@ -233,3 +233,23 @@ for (const size of [
     ).toBeLessThan(160)
   })
 }
+
+// The frame rule: cards are solid. The scroll-hint fade used to sit on the card
+// itself, so the page showed through its lower edge.
+test('BUG-002 side fix: the pop-up card is solid, only its inside scrolls', async ({
+  page,
+}) => {
+  await prepare(page, { width: 390, height: 844 })
+  await selectWordAt(page, 'left')
+  await mini(page).locator('[data-mini="colour"]').click()
+  const card = page.locator('[data-pill-card]')
+  await expect(card).toBeVisible()
+  const look = await card.evaluate((el) => ({
+    mask: getComputedStyle(el).maskImage,
+    bg: getComputedStyle(el).backgroundColor,
+    inner: getComputedStyle(el.firstElementChild!).overflowY,
+  }))
+  expect(look.mask).toBe('none')
+  expect(look.bg).not.toMatch(/rgba\(.*, 0\)|transparent/)
+  expect(look.inner).toBe('auto')
+})

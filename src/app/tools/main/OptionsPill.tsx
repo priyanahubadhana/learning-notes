@@ -338,14 +338,21 @@ function Pill({
                 maxHeight: anchor.maxHeight,
                 width: Math.min(340, screen.width - 16),
               }}
-              className="fixed z-[45] overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 text-ink shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
+              className="fixed z-[45] overflow-hidden rounded-2xl border border-ink-soft bg-bg text-ink shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
             >
-              <DetailCard
-                card={card}
-                editor={editor}
-                onPage={(page) => openCard.set({ tool, page })}
-                onClose={() => openCard.set(null)}
-              />
+              {/* The surface stays solid; only this inner box scrolls and gets
+                  the scroll-hint fade (a fade on the surface let the page show through). */}
+              <div
+                className="overflow-y-auto p-1.5"
+                style={{ maxHeight: anchor.maxHeight - 2 }}
+              >
+                <DetailCard
+                  card={card}
+                  editor={editor}
+                  onPage={(page) => openCard.set({ tool, page })}
+                  onClose={() => openCard.set(null)}
+                />
+              </div>
             </div>
           )}
           {tool === 'lasso' && editor && !card && (

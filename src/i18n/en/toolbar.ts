@@ -13,6 +13,7 @@ export const enToolbar = {
   'v8.fold.title': 'More',
   'v8.item.actions': 'Actions',
   'v8.item.bold': 'Bold',
+  'v8.item.boxset': 'Box settings',
   'v8.item.box': 'Box',
   'v8.item.colour': 'Colour',
   'v8.item.feel': 'Feel',

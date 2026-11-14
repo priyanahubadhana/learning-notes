@@ -47,9 +47,37 @@ export type CardProps = {
   placement?: 'anchored' | 'static'
   /** Rect the card keeps clear of (the selected picture); read at each placement. */
   avoid?: () => RectLike | null
+  /** A box the card hangs around: right, else left, under, above; never over it. */
+  around?: () => RectLike | null
+  /** With `around`: the card never starts above this y; a taller card is shortened and scrolls. */
+  clearTop?: () => number
   /** Force the phone sheet look (gallery cell). */
   phone?: boolean
   testId?: string
+}
+
+/** Where the thin track sits (px inside the card) and where its thumb is. */
+interface TrackBox {
+  top: number
+  height: number
+  thumbTop: number
+  thumbH: number
+}
+
+/** The track for a cut body, or null when nothing is cut (no track then). */
+function trackOf(body: HTMLElement): TrackBox | null {
+  const { scrollHeight: sh, clientHeight: ch, scrollTop: st } = body
+  // Layout height, not scrollHeight: the open motion slides the view 4 px, which must not count as "cut".
+  const content =
+    (body.firstElementChild as HTMLElement | null)?.offsetHeight ?? sh
+  if (content - ch <= 1 || sh - ch <= 1) return null
+  const thumbH = Math.max(24, (ch / sh) * ch)
+  return {
+    top: body.offsetTop,
+    height: ch,
+    thumbH,
+    thumbTop: (st / (sh - ch)) * (ch - thumbH),
+  }
 }
 
 const WIDTH = { pick: 304, panel: 376 } as const
@@ -70,7 +98,9 @@ export function Card(props: CardProps) {
     testId,
   } = props
   const isStatic = placement === 'static'
-  const phone = usePhone() || !!props.phone
+  // A card that hangs around a box stays a floating card on a phone too (above or
+  // under the box), so the sheet never covers it.
+  const phone = (usePhone() && !props.around) || !!props.phone
   const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   // New app frame (SC-01): a card that scrolls shows the shared bar at rest.
@@ -81,6 +111,8 @@ export function Card(props: CardProps) {
   const [closing, setClosing] = useState(false)
   const [picked, setPicked] = useState(false)
   const [fade, setFade] = useState(false)
+  // The thin track: drawn while the body is cut (more to scroll), never otherwise.
+  const [track, setTrack] = useState<TrackBox | null>(null)
   // true once the open motion has finished (at once when there is none)
   const [settled, setSettled] = useState(false)
   const closingRef = useRef(false)
@@ -153,6 +185,8 @@ export function Card(props: CardProps) {
     widthPx: WIDTH[size],
     active: !isStatic && !phone && !!anchor,
     avoid: props.avoid,
+    around: props.around,
+    clearTop: props.clearTop,
   })
 
   // A floating card is hidden until positioned, and a hidden element cannot
@@ -169,8 +203,10 @@ export function Card(props: CardProps) {
   useEffect(() => {
     const body = bodyRef.current
     if (!body) return
-    const update = () =>
+    const update = () => {
       setFade(body.scrollHeight - body.scrollTop - body.clientHeight > 4)
+      setTrack(trackOf(body))
+    }
     update()
     const ro = new ResizeObserver(update)
     ro.observe(body)
@@ -200,8 +236,11 @@ export function Card(props: CardProps) {
             width: pos?.width,
             visibility: pos ? 'visible' : 'hidden',
             maxHeight: footLift
-              ? Math.max(160, window.innerHeight - footLift - 24)
-              : undefined,
+              ? Math.min(
+                  pos?.maxHeight ?? Infinity,
+                  Math.max(160, window.innerHeight - footLift - 24),
+                )
+              : pos?.maxHeight,
           }
   if (floating && pos?.arrowX != null) style['--arrow-x'] = `${pos.arrowX}px`
   const side = floating ? (pos?.side ?? 'below') : 'below'
@@ -231,6 +270,7 @@ export function Card(props: CardProps) {
         }}
         data-picked={picked || undefined}
         data-fade={fade || undefined}
+        data-cut={track ? '' : undefined}
         tabIndex={-1}
         style={style}
         onKeyDown={(e) => {
@@ -265,9 +305,11 @@ export function Card(props: CardProps) {
           ref={bodyRef}
           className="pcard-body"
           data-testid="pcard-body"
+          data-no-scroll-hint=""
           onScroll={(e) => {
             const b = e.currentTarget
             setFade(b.scrollHeight - b.scrollTop - b.clientHeight > 4)
+            setTrack(trackOf(b))
           }}
         >
           <div
@@ -278,6 +320,16 @@ export function Card(props: CardProps) {
             {loading ? <CardSkeleton /> : children}
           </div>
         </div>
+        {!shell && track && (
+          <span
+            className="pcard-track"
+            aria-hidden
+            data-testid="pcard-track"
+            style={{ top: track.top, height: track.height }}
+          >
+            <i style={{ top: track.thumbTop, height: track.thumbH }} />
+          </span>
+        )}
         {footer && <footer className="pcard-foot">{footer}</footer>}
         {shell && <ScrollBar scroller={bodyEl} />}
       </div>

@@ -17,6 +17,8 @@ export interface RowItem {
   icon?: IconName
   /** A round dot instead of an icon: size or the current colour. */
   dot?: 'size' | 'colour'
+  /** Only the icon shows, never the name (the Box settings button). */
+  iconOnly?: boolean
   /** Card width rule: pick = choose one thing, panel = adjust several. */
   card: 'pick' | 'panel'
   /** Toggles only: the text style it switches. */
@@ -32,6 +34,11 @@ const menu = (
 
 export const ROW_ITEMS: Record<V8ToolId, readonly RowItem[]> = {
   text: [
+    // TB-40: the settings button sits in front of Box ▾ (T3).
+    menu('text', 'boxset', 'v8.item.boxset', {
+      icon: 'settings',
+      iconOnly: true,
+    }),
     menu('text', 'box', 'v8.item.box', { icon: 'square', card: 'panel' }),
     menu('text', 'format', 'v8.item.format', {
       icon: 'textSize',
@@ -87,7 +94,8 @@ export const cardIdOf = (item: RowItem): string => `${item.tool}.${item.id}`
 /** The card a second tap on the active tool opens (TB-04). */
 export function firstCardOf(tool: V8ToolId): string {
   if (tool === 'insert') return 'insert'
-  const first = ROW_ITEMS[tool].find((i) => i.kind === 'menu')
+  // The settings button in front (iconOnly) is never the "first card".
+  const first = ROW_ITEMS[tool].find((i) => i.kind === 'menu' && !i.iconOnly)
   return first ? cardIdOf(first) : tool
 }
 
@@ -97,6 +105,8 @@ export function cardInfo(id: string): {
   size: 'pick' | 'panel'
 } {
   if (id === 'insert') return { title: 'v8.tool.insert', size: 'panel' }
+  if (id === 'more.alltools')
+    return { title: 'v8.allTools.title', size: 'panel' }
   if (id === 'sel.more') return { title: 'v8.sel.more', size: 'pick' }
   if (id === 'sel.colour') return { title: 'ink.sel.colour', size: 'pick' }
   if (id === 'sel.resize') return { title: 'main.sel.resize', size: 'pick' }

@@ -89,6 +89,7 @@ export const esToolbar = {
   'v8.fold.title': 'Más',
   'v8.item.actions': 'Acciones',
   'v8.item.bold': 'Negrita',
+  'v8.item.boxset': 'Ajustes del cuadro',
   'v8.item.box': 'Cuadro',
   'v8.item.colour': 'Color',
   'v8.item.feel': 'Tacto',

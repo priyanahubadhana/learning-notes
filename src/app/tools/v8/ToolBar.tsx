@@ -1,5 +1,12 @@
 import { useBlockNoteEditor } from '@blocknote/react'
-import { useEffect, useRef, useState, type PointerEvent } from 'react'
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { historyState } from '../../../core/historySteps'
 import { runHistory } from '../../../editor/historyActions'
@@ -20,6 +27,9 @@ import {
 } from '../main/newLineGesture'
 import { REPEAT_AFTER_MS, backspaceStep } from '../main/backspaceHold'
 import { FoldCard, type FoldEntry } from './FoldCard'
+
+// The ⋯ card's own group (1f) loads with the first ⋯ tap.
+const MoreExtras = lazy(() => import('./cards/more/MoreExtras'))
 import type { OpenCard } from './barState'
 import { v8Tools, type V8ToolId } from './registryV8'
 import { useFold, type FoldSpec } from './useFold'
@@ -520,7 +530,14 @@ export function ToolBar({
           testId="v8-card-fold.bar"
           entries={entries}
           onClose={() => onCloseCard('fold.bar')}
-        />
+        >
+          <Suspense fallback={null}>
+            <MoreExtras
+              onClose={() => onCloseCard('fold.bar')}
+              onAllTools={() => onToggleCard('more.alltools', card.anchor)}
+            />
+          </Suspense>
+        </FoldCard>
       ) : null}
       {card?.id === NEWLINE_CARD ? (
         <FoldCard

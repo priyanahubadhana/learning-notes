@@ -344,6 +344,8 @@ test('SC-13 the thumb touch box is at least 44 tall (a 40 px thumb gets 44, cent
       )
       return {
         h: r.height,
+        thumbTop: r.top,
+        thumbBottom: r.bottom,
         reach: r.height + top + bot,
         top: r.top - top,
         bottom: r.bottom + bot,
@@ -353,15 +355,30 @@ test('SC-13 the thumb touch box is at least 44 tall (a 40 px thumb gets 44, cent
       }
     })
   // In the middle: a short thumb (a very long page) gets the full 44.
-  await main.evaluate((el) => (el.scrollTop = 2000))
+  await main.evaluate((el) => (el.scrollTop = 30000))
+  // The bar follows the scroll on its next frame.
+  await expect.poll(async () => (await box()).reach).toBeGreaterThanOrEqual(44)
   const mid = await box()
   expect(mid.h).toBeLessThan(44)
   expect(mid.reach).toBeGreaterThanOrEqual(44)
   // At both ends the box is clamped inside the track.
   await main.evaluate((el) => (el.scrollTop = 0))
+  // Wait until the thumb is really at the top: flush with the track start.
+  await expect
+    .poll(async () => {
+      const b = await box()
+      return b.thumbTop - b.arrowBottom
+    })
+    .toBeLessThanOrEqual(0.5)
   const first = await box()
   expect(first.top).toBeGreaterThanOrEqual(first.arrowBottom - 0.5)
   await main.evaluate((el) => (el.scrollTop = el.scrollHeight))
+  await expect
+    .poll(async () => {
+      const b = await box()
+      return b.arrowTop - b.thumbBottom
+    })
+    .toBeLessThanOrEqual(0.5)
   const last = await box()
   expect(last.bottom).toBeLessThanOrEqual(last.arrowTop + 0.5)
   expect(mid.w).toBeCloseTo(22, 0)

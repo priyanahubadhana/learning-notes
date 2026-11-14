@@ -27,7 +27,7 @@ Written 13 Nov 2026. Do it on the iPad in Safari, at the preview address. Tap ea
    - You should see: the app loads within a few seconds, with no error page.
 2. [ ] Go to Settings, then Try new features.
    - You should see: a list of switches, all OFF.
-3. [ ] Turn ON each of these: Shell, New Home, New Library, Notebooks and Search, New Settings, Page menus, Toolbar, AI framework, New updates. If a name differs a little, pick the closest one.
+3. [ ] Turn ON each of these: Shell, New Home, Storage safety (or do it in step 44), New Library, Notebooks and Search, New Settings, Page menus, Toolbar, AI framework, New updates. If a name differs a little, pick the closest one.
    - You should see: each switch stays ON after you tap it.
 4. [ ] Close the app completely (swipe up from the bottom, then swipe it away) and open it again.
    - You should see: the switches are still ON and your notes are still there.
@@ -133,6 +133,15 @@ Written 13 Nov 2026. Do it on the iPad in Safari, at the preview address. Tap ea
     - You should see: the next card appears after each answer, and the count left goes down.
 40. [ ] Fully close the app, open it, and time how long until Home is ready. Do this three times.
     - You should see: Home is usable in a few seconds. Write the three times down.
+
+**Part 11b: Added overnight (14 Nov)**
+
+43. [ ] **BUG-006, the Settings gear.** Hold the iPad upright in Safari, open a page, tap in a text box so the keyboard shows.
+    - You should see: the ⚙ gear at the bottom of the left strip is still visible and opens its menu (Settings is in it).
+44. [ ] **Storage safety.** In Settings, then Try new features, turn ON Storage safety. Reload the page.
+    - You should see: a calm notice "Keep your notes safe: add this app to your Home Screen" with Show how and Back up first. Tap Show how: three short steps. Tap Back up first: "Backup saved." and a file in Downloads.
+45. [ ] **Review (new).** Open Review and answer a few cards; open its other tabs.
+    - You should see: the counts change after each answer, and nothing jumps or overlaps.
 
 **Part 12: Send your results**
 

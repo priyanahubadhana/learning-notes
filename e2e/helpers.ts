@@ -56,16 +56,28 @@ export function row(page: Page, name: string): Locator {
  * If the "Name it" sheet is open, types `name` and presses Enter (Done).
  * Returns false when no sheet is open (a mouse names in the row).
  */
-export async function sheetFill(page: Page, name: string): Promise<boolean> {
+export async function sheetFill(
+  page: Page,
+  name: string,
+  /** What shows instead of the sheet when none opens (e.g. the row's name field). */
+  instead?: Locator,
+): Promise<boolean> {
   const touch = await page.evaluate(
     () => window.matchMedia('(any-pointer: coarse)').matches,
   )
   if (!touch) return false
   const sheet = page.getByTestId('name-sheet')
-  try {
-    await sheet.waitFor({ state: 'visible', timeout: 1500 })
-  } catch {
-    return false
+  if (instead) {
+    // Wait until one of the two really shows, however slow the machine is,
+    // so a late sheet is never mistaken for "no sheet".
+    await expect(sheet.or(instead).first()).toBeVisible()
+    if (!(await sheet.isVisible())) return false
+  } else {
+    try {
+      await sheet.waitFor({ state: 'visible', timeout: 1500 })
+    } catch {
+      return false
+    }
   }
   const field = sheet.getByRole('textbox', { name: 'Name' })
   await field.fill(name)
@@ -148,7 +160,7 @@ export async function createNotebook(
   // the field with Rename like a user would.
   await expect(async () => {
     // Touch and Pencil devices name it in the "Name it" sheet instead.
-    if (await sheetFill(page, name)) {
+    if (await sheetFill(page, name, nameField)) {
       await showSidebar(page)
       await expect(named).toBeVisible({ timeout: 3000 })
       return

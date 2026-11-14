@@ -362,3 +362,12 @@ None. The "nothing lost" unit test (`src/settings/v3/nothingLost.test.ts`) check
 
 - No second search box: the existing "Search settings" is extended.
 - Try new features stays hidden until opened on the live host (SET-B26).
+
+## Preview host defaults (F9, 14 Nov 2026)
+
+- When the app opens on the build-next preview host and the device has no saved switch choice, the 12 tested parts in `PREVIEW_DEFAULT_ON` (src/app/flags.ts) start ON (src/app/flags.test.ts "the build-next preview host starts with the tested parts ON").
+- When the app opens on the live host or any other host, every switch starts OFF (src/app/flags.test.ts "the live host and other hosts keep everything OFF").
+- When I turn a switch OFF on the preview host, it stays OFF after a reload and the other parts keep their state (src/app/flags.test.ts "a switch the user turned OFF stays OFF on the preview host").
+- When the device already has a saved choice, the preview defaults are not applied (src/app/flags.test.ts "a switch the user turned ON is kept on the preview host").
+- When Settings opens on the preview host, the Try new features list is open from the start; on the live host it stays hidden until Version is tapped 5 times (src/settings/v3/tryNew.test.ts "F9 preview host opens the list").
+- When check-dod reads the flags file, a default is allowed only in the form `isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON)`; any other use, including the negated `!isPreviewHost()`, fails (scripts/check-dod.test.mjs).

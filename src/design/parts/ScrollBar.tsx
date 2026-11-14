@@ -152,7 +152,7 @@ export function ScrollBar({
       track,
       g.thumbH,
     )
-    scroller.scrollTop = top
+    scroller.scrollTo({ top, behavior: 'instant' })
     // The thumb moves in the same frame as the finger, not a scroll event later.
     setState((old) => (old ? { ...old, scrollTop: top } : old))
   }
@@ -167,7 +167,7 @@ export function ScrollBar({
     e.stopPropagation()
     const y = e.clientY - e.currentTarget.getBoundingClientRect().top
     const top = trackJumpTop(y, state.scrollH, state.clientH, track, g.thumbH)
-    scroller.scrollTop = top
+    scroller.scrollTo({ top, behavior: 'instant' })
     setState((old) => (old ? { ...old, scrollTop: top } : old))
     try {
       e.currentTarget.setPointerCapture(e.pointerId)
@@ -245,14 +245,6 @@ export function ScrollBar({
     // A pop-over sits in the top layer: the bar must be inside it to show.
     scroller.closest<HTMLElement>('[popover]') ?? document.body,
   )
-}
-
-/** The scroller element as state, so its ScrollBar re-renders once it is attached: `const [node, ref] = useScroller()`. */
-export function useScroller(): [
-  HTMLElement | null,
-  (el: HTMLElement | null) => void,
-] {
-  return useState<HTMLElement | null>(null)
 }
 
 /**

@@ -18,7 +18,10 @@ function sheetTops(el: HTMLElement): number[] {
 export function PageScrollBar({ sheetsKey }: { sheetsKey: number }) {
   const [el, setEl] = useState<HTMLElement | null>(null)
   useEffect(() => {
-    setEl(document.querySelector<HTMLElement>('[data-page-scroller]'))
+    const frame = requestAnimationFrame(() =>
+      setEl(document.querySelector<HTMLElement>('[data-page-scroller]')),
+    )
+    return () => cancelAnimationFrame(frame)
   }, [sheetsKey])
   return (
     <ScrollBar

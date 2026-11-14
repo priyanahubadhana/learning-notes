@@ -24,7 +24,8 @@ import { t } from '../../i18n/t'
 import { listNotePages } from '../../pages/pageService'
 import { usePref } from '../usePref'
 import { useFlag } from '../flags'
-import { ScrollBar, useScroller } from '../../design/parts/ScrollBar'
+import { ScrollBar } from '../../design/parts/ScrollBar'
+import { useScroller } from '../../design/parts/useScroller'
 import { outlineRequest } from './outlineRequest'
 import {
   glideTo,

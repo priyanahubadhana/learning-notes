@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: F7 freeze recorder on the preview
+
+- What: the slow-moments recorder (R6-11) now runs by itself on the preview addresses (never on the live host; the test machine only with the switch `learning-notes:perf.freezeWatch`) and notes main-thread blocks of 500 ms or more. Every entry now also names the top open panel and the last tap or key kind (never typed text). Settings › Advanced › Copy report shows them.
+- Why: F7, the owner's iPad sometimes freezes with no clear trigger; the cause must be measured, not guessed.
+- Files: src/perf/slowMoments.ts, src/perf/slowMomentsSwitch.ts, src/perf/freezeWatch.test.ts
+
 ### 14 Nov 2026: F1 stays signed in when Safari reopens at an old sign-in address
 
 - What: a Google sign-in callback that cannot finish (its one-time code already used, or a cancelled consent) no longer signs out a device that already holds a sign-in; the callback is always removed from the address, also after a failure.

@@ -11,9 +11,17 @@
  * app in front or not). The last 50 stay in localStorage; nothing leaves the
  * device. Settings › Advanced › Record slow moments turns it on; Copy report
  * puts the entries on the clipboard as text.
+ *
+ * F7 (14 Nov): on the preview only it also runs by itself, noting blocks of
+ * 500 ms or more (`minMs`), each with the open panel and the last tap or key
+ * kind (never typed text). See slowMomentsSwitch.ts.
  */
 
+import { onRouted, PRIORITY } from '../app/input/eventRouter'
 import { activeTool } from '../app/tools/main/mainTools'
+
+/** Above every handler, so a handled tap is still seen (F7). */
+const WATCH_FIRST = PRIORITY.gesture + 1000
 
 const KEY = 'learning-notes:perf.slow'
 export const KEEP = 50
@@ -37,6 +45,10 @@ export interface SlowMoment {
   hidden?: boolean
   /** Rough memory use, when the browser says (Chromium only). */
   heapMb?: number
+  /** The top open dialog, sheet or menu (F7). */
+  panel?: string
+  /** The last tap or key kind before the block, and how long before (F7). */
+  action?: string
 }
 
 function store(): Storage | undefined {
@@ -110,6 +122,71 @@ function context(): Omit<SlowMoment, 'at' | 'kind' | 'ms'> {
       : undefined,
     hidden: document.visibilityState !== 'visible' || undefined,
     heapMb: mem ? Math.round(mem / 1048576) : undefined,
+    panel: openPanel(),
+    action: lastAction,
+  }
+}
+
+/** A short, content-free name: the label of a control, never note text. */
+const short = (s: string | null | undefined) =>
+  s ? s.replace(/s+/g, ' ').trim().slice(0, 40) : ''
+
+function openPanel(): string | undefined {
+  const open = document.querySelectorAll(
+    '[role="dialog"],[role="alertdialog"],[role="menu"],[role="listbox"]',
+  )
+  const el = open[open.length - 1]
+  if (!el) return undefined
+  const name = short(
+    el.getAttribute('aria-label') ?? el.getAttribute('data-testid'),
+  )
+  return `${el.getAttribute('role')}${name ? `:${name}` : ''}`
+}
+
+let lastAction: string | undefined
+
+/** What a tap or key landed on: role and label of the control only. */
+function describeTarget(t: EventTarget | null): string {
+  const el = t instanceof Element ? t : null
+  if (!el) return 'page'
+  if (
+    el.closest(
+      '[contenteditable]:not([contenteditable="false"]),textarea,input',
+    )
+  )
+    return 'editor'
+  const c = el.closest('button,a,[role],[data-testid]')
+  if (!c) return el.tagName.toLowerCase()
+  const kind = c.getAttribute('role') ?? c.tagName.toLowerCase()
+  const name = short(
+    c.getAttribute('aria-label') ??
+      c.getAttribute('data-testid') ??
+      c.getAttribute('title'),
+  )
+  return name ? `${kind}:${name}` : kind
+}
+
+const NAMED_KEYS =
+  /^(Enter|Escape|Tab|Backspace|Delete|Arroww+|Pagew+|Home|End)$/
+
+function watchActions(): () => void {
+  const tap = (e: Event) => {
+    lastAction = `tap ${describeTarget(e.target)}`
+  }
+  const key = (e: KeyboardEvent) => {
+    // Typed characters are never kept: only "type" or a named key.
+    const k = NAMED_KEYS.test(e.key) ? e.key : 'type'
+    const mod = e.metaKey || e.ctrlKey ? 'cmd+' : ''
+    lastAction = `${mod}${k === 'type' && mod ? 'key' : k} ${describeTarget(e.target)}`
+  }
+  // Heard first through the one event router, never handled (passed on).
+  const opts = { priority: WATCH_FIRST, name: 'freezeWatch' }
+  const offTap = onRouted('pointerdown', tap, opts)
+  const offKey = onRouted('keydown', key, opts)
+  return () => {
+    offTap()
+    offKey()
+    lastAction = undefined
   }
 }
 
@@ -139,15 +216,17 @@ const LONG_TASK_GAP_MS = 250
  * background nothing runs (no timer, no notes: a hidden tab is throttled on
  * purpose), and waiting moments are written as it leaves the front.
  */
-export function startSlowMoments(): () => void {
-  const stops: (() => void)[] = []
+export function startSlowMoments(opts: { minMs?: number } = {}): () => void {
+  const stops: (() => void)[] = [watchActions()]
+  const longMs = Math.max(LONG_TASK_MS, opts.minMs ?? 0)
+  const stallMs = Math.max(STALL_MS, opts.minMs ?? 0)
   const visible = () => document.visibilityState === 'visible'
   if (typeof PerformanceObserver !== 'undefined') {
     try {
       let lastNoted = -Infinity
       const po = new PerformanceObserver((list) => {
         for (const e of list.getEntries()) {
-          if (e.duration < LONG_TASK_MS || !visible()) continue
+          if (e.duration < longMs || !visible()) continue
           // Sample: a run of back-to-back long tasks is noted once.
           if (e.startTime - lastNoted < LONG_TASK_GAP_MS) continue
           lastNoted = e.startTime
@@ -173,7 +252,7 @@ export function startSlowMoments(): () => void {
       const now = performance.now()
       const late = now - last - TICK_MS
       last = now
-      if (late >= STALL_MS && visible()) noteSlowMoment('stall', late)
+      if (late >= stallMs && visible()) noteSlowMoment('stall', late)
     }, TICK_MS)
   }
   if (visible()) startTimer()
@@ -222,6 +301,8 @@ export function slowMomentsReport(
       m.focus ? `focus=${m.focus}` : '',
       m.hidden ? 'hidden' : '',
       m.heapMb ? `heap=${m.heapMb}MB` : '',
+      m.panel ? `panel=${m.panel}` : '',
+      m.action ? `last=${m.action}` : '',
     ]
     return parts.filter(Boolean).join('  ')
   })

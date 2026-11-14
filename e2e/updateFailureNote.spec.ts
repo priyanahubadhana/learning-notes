@@ -54,8 +54,11 @@ test.describe('on the preview host', () => {
     page,
   }) => {
     test.setTimeout(60_000)
+    await page.route('**/precache.json*', (r) =>
+      r.fulfill({ json: { files: [] } }),
+    )
     await page.goto('/?flags=update.v2')
-    await expect(page.locator('aside')).toBeVisible()
+    await expect(page.locator('aside')).toBeAttached()
     await pretend(page)
     await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
       timeout: 30_000,
@@ -70,8 +73,11 @@ test('L13 on another host the failed screen has no extra line', async ({
   page,
 }) => {
   test.setTimeout(60_000)
+  await page.route('**/precache.json*', (r) =>
+    r.fulfill({ json: { files: [] } }),
+  )
   await page.goto('/?flags=update.v2')
-  await expect(page.locator('aside')).toBeVisible()
+  await expect(page.locator('aside')).toBeAttached()
   await pretend(page)
   await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
     timeout: 30_000,

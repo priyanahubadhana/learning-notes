@@ -475,3 +475,39 @@ test('A real Pencil (the browser own input as a pen: hover first, contact moves 
   expect(away(await rect(b), f0)).toBeGreaterThan(60)
   expect((await savedInk(page)).strokes).toHaveLength(0)
 })
+
+test('TB-17 an Esc sent in the same moment as the last move still cancels the drag (the frame has not run yet)', async ({
+  page,
+}) => {
+  const { b } = await twoBoxes(page, 'TB17quick')
+  const f0 = await rect(b)
+  const g = await centre(grip(b))
+  await page.mouse.move(g.x, g.y)
+  await page.mouse.down()
+  await page.waitForTimeout(250)
+  // The last move and the Esc arrive in one task: no animation frame between.
+  await grip(b).evaluate(
+    async (el, { x, y }) => {
+      const ev = (type: string) =>
+        new PointerEvent(type, {
+          pointerId: 1,
+          pointerType: 'mouse',
+          buttons: type === 'pointerup' ? 0 : 1,
+          clientX: x,
+          clientY: y,
+          bubbles: true,
+          cancelable: true,
+        })
+      el.dispatchEvent(ev('pointermove'))
+      window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+      await new Promise((r) => requestAnimationFrame(() => r(null)))
+      el.dispatchEvent(ev('pointerup'))
+    },
+    { x: g.x + 220, y: g.y + 200 },
+  )
+  await page.mouse.up()
+  await page.waitForTimeout(600)
+  expect(away(await rect(b), f0)).toBeLessThan(3)
+  await expect(page.getByText('Box moved')).toHaveCount(0)
+  await expect(page.locator('html')).not.toHaveAttribute('data-box-drag', '')
+})

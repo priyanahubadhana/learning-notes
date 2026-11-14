@@ -3,6 +3,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type CSSProperties,
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
@@ -99,6 +100,19 @@ type Read = {
   scrollTop: number
   scrollH: number
   clientH: number
+}
+
+/**
+ * A thumb shorter than 44 pt gets a 44 pt tall touch box centred on it, clamped
+ * inside the track so it never covers an arrow (rules/quality.md; P1.4). The
+ * extra reach above and below goes to the CSS as two custom properties.
+ */
+function touchPad(top: number, h: number, track: number) {
+  const want = Math.max(0, (44 - h) / 2)
+  return {
+    '--sbar-pad-top': `${Math.min(want, top)}px`,
+    '--sbar-pad-bottom': `${Math.min(want, Math.max(0, track - top - h))}px`,
+  } as CSSProperties
 }
 
 /**
@@ -379,7 +393,12 @@ export function ScrollBar({
                 (dragging ? 'bg-accent' : 'bg-muted/70')
               : `sbar__thumb${dragging ? ' sbar__thumb--drag' : ''}`
           }
-          style={{ top: g.thumbTop, height: g.thumbH, touchAction: 'none' }}
+          style={{
+            top: g.thumbTop,
+            height: g.thumbH,
+            touchAction: 'none',
+            ...touchPad(g.thumbTop, g.thumbH, track),
+          }}
         />
       </div>
       {arrow(1)}

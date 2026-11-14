@@ -302,3 +302,67 @@ for (const [name, size] of [
     await expect(page.locator('[data-pagebar-root]')).toHaveCount(0)
     await expect(page.locator('[data-scrollbar-root]')).toHaveCount(1)
   })
+
+test('SC-13 the thumb touch box is at least 44 tall (a 40 px thumb gets 44, centred) and never covers an arrow', async ({
+  page,
+}) => {
+  await longPage(page)
+  const main = page.locator('main[data-page-scroller]')
+  // A very long page, so the thumb is at its 40 px minimum.
+  await main.evaluate((el) => {
+    const f = document.createElement('div')
+    f.style.height = '60000px'
+    el.appendChild(f)
+  })
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          document
+            .querySelector('[data-pagebar-thumb]')!
+            .getBoundingClientRect().height,
+      ),
+    )
+    .toBeLessThan(44)
+  const box = () =>
+    page.evaluate(() => {
+      const t = document.querySelector('[data-pagebar-thumb]')!
+      const r = t.getBoundingClientRect()
+      const q = getComputedStyle(t, '::before')
+      const a = document
+        .querySelector('[data-pagebar-arrow="up"]')!
+        .getBoundingClientRect()
+      const b = document
+        .querySelector('[data-pagebar-arrow="down"]')!
+        .getBoundingClientRect()
+      // The ::before is absolutely placed at inset; read its reach from the custom properties.
+      const top = parseFloat(
+        getComputedStyle(t).getPropertyValue('--sbar-pad-top'),
+      )
+      const bot = parseFloat(
+        getComputedStyle(t).getPropertyValue('--sbar-pad-bottom'),
+      )
+      return {
+        h: r.height,
+        reach: r.height + top + bot,
+        top: r.top - top,
+        bottom: r.bottom + bot,
+        arrowBottom: a.bottom,
+        arrowTop: b.top,
+        w: parseFloat(q.width),
+      }
+    })
+  // In the middle: a short thumb (a very long page) gets the full 44.
+  await main.evaluate((el) => (el.scrollTop = 2000))
+  const mid = await box()
+  expect(mid.h).toBeLessThan(44)
+  expect(mid.reach).toBeGreaterThanOrEqual(44)
+  // At both ends the box is clamped inside the track.
+  await main.evaluate((el) => (el.scrollTop = 0))
+  const first = await box()
+  expect(first.top).toBeGreaterThanOrEqual(first.arrowBottom - 0.5)
+  await main.evaluate((el) => (el.scrollTop = el.scrollHeight))
+  const last = await box()
+  expect(last.bottom).toBeLessThanOrEqual(last.arrowTop + 0.5)
+  expect(mid.w).toBeCloseTo(22, 0)
+})

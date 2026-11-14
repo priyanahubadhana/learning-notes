@@ -118,7 +118,9 @@
 .sbar__thumb::before {
   content: '';
   position: absolute;
-  inset-block: 0;
+  /* At least 44 pt tall (ScrollBar.tsx sets the reach, clamped inside the track). */
+  inset-block: calc(-1 * var(--sbar-pad-top, 0px))
+    calc(-1 * var(--sbar-pad-bottom, 0px));
   /* Only as wide as the 22 px bar (thumb 8 px + 7 px each side): a touch box stays in its own lane (P1.4, SC-18). */
   inset-inline: -7px;
 }

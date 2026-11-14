@@ -1,6 +1,11 @@
 // CI failure sorter (read-only, no AI): node scripts/ci-sort.mjs [--branch b] [--run id]
 import { execFileSync } from 'node:child_process'
-import { buildReport, parseFailedLog, testKey } from './ci-sort-lib.mjs'
+import {
+  buildReport,
+  ghReady,
+  parseFailedLog,
+  testKey,
+} from './ci-sort-lib.mjs'
 
 const args = process.argv.slice(2)
 const opt = (n) => {
@@ -23,6 +28,11 @@ const tryGh = (...a) => {
 const json = (...a) => {
   const t = tryGh(...a)
   return t ? JSON.parse(t) : null
+}
+
+if (!ghReady((a) => gh(...a))) {
+  console.error('gh is not installed or not signed in')
+  process.exit(1)
 }
 
 const branch = opt('--branch') || 'build/next'

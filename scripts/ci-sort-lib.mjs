@@ -109,3 +109,14 @@ export function buildReport({ parsed, history, changedFiles }) {
   }
   return [...lines, adviceLine]
 }
+
+/** True when `gh` is installed and signed in. exec(args) throws on failure. */
+export function ghReady(exec) {
+  try {
+    exec(['--version'])
+    exec(['auth', 'status'])
+    return true
+  } catch {
+    return false
+  }
+}

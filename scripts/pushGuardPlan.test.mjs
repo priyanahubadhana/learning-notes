@@ -14,7 +14,7 @@ describe('planChecks: which checks run for which branch and files', () => {
     const p = planChecks('main', ['scripts/x.mjs', 'docs/a.md'])
     expect(p.eslint).toEqual(['scripts/x.mjs'])
     expect(p.tsc).toBe(false)
-    expect(p.vitestRelated).toEqual([])
+    expect(p.vitestRelated).toEqual(['scripts/x.mjs'])
   })
   it('a ts file on main: eslint, tsc, related tests', () => {
     const p = planChecks('main', ['src/a/b.ts'])
@@ -26,7 +26,7 @@ describe('planChecks: which checks run for which branch and files', () => {
   it('json outside docs counts as code but is not linted', () => {
     const p = planChecks('main', ['package.json'])
     expect(p.eslint).toEqual([])
-    expect(p.tsc).toBe(false)
+    expect(p.tsc).toBe(true)
   })
   it('a ts file on slice/x: also ratchet', () => {
     const p = planChecks('slice/x', ['src/a.tsx'])
@@ -41,5 +41,21 @@ describe('planChecks: which checks run for which branch and files', () => {
   })
   it('an e2e spec on main does not run playwright', () => {
     expect(planChecks('main', ['e2e/foo.spec.ts']).specs).toEqual([])
+  })
+  it('docs-only on slice/* and build/next still plans tsc and ratchet', () => {
+    for (const b of ['slice/x', 'build/next']) {
+      const p = planChecks(b, ['docs/a.md'])
+      expect(p.tsc).toBe(true)
+      expect(p.ratchet).toBe(true)
+      expect(p.eslint).toEqual([])
+    }
+  })
+  it('on main a tsconfig or package.json change plans tsc', () => {
+    expect(planChecks('main', ['tsconfig.app.json']).tsc).toBe(true)
+    expect(planChecks('main', ['package.json']).tsc).toBe(true)
+    expect(planChecks('main', ['scripts/a.json']).tsc).toBe(false)
+  })
+  it('lint match is case-insensitive', () => {
+    expect(planChecks('main', ['src/A.TS']).eslint).toEqual(['src/A.TS'])
   })
 })

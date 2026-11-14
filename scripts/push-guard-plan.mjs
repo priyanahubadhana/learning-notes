@@ -1,8 +1,7 @@
 // Pure decision for the push guard: which checks run for which branch and
 // which changed files. No side effects, so it is unit-tested.
 const CODE = /\.(ts|tsx|js|mjs|cjs|json)$/i
-const LINT = /\.(ts|tsx|js|mjs)$/
-const SRC = /^src\/.*\.(ts|tsx|js|mjs)$/
+const LINT = /\.(ts|tsx|js|mjs)$/i
 const SPEC = /^e2e\/.*\.spec\.ts$/
 
 export const isFullBranch = (branch) =>
@@ -18,9 +17,13 @@ export function planChecks(branch, files) {
   return {
     full,
     eslint: full ? files.filter((f) => LINT.test(f)) : eslint,
-    tsc: full || code.some((f) => /\.(ts|tsx)$/.test(f)),
+    tsc:
+      full ||
+      code.some((f) =>
+        /\.(ts|tsx)$|(^|\/)(tsconfig[^/]*|package)\.json$/i.test(f),
+      ),
     ratchet: full,
-    vitestRelated: (full ? files : code).filter((f) => SRC.test(f)),
+    vitestRelated: code,
     specs: full ? files.filter((f) => SPEC.test(f)) : [],
   }
 }

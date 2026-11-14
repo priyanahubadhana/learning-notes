@@ -1055,7 +1055,9 @@ export function PaperFrame({
   // Esc while a box is dragged: nothing changes (the preview closes).
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || !drag.current?.moved) return
+      // A held drag (v2) cancels even before its first frame has run.
+      if (e.key !== 'Escape' || !(drag.current?.moved || drag.current?.held))
+        return
       document.documentElement.removeAttribute('data-box-drag')
       if (drag.current) endLift(drag.current)
       drag.current = null

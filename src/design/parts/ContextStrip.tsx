@@ -14,6 +14,7 @@ import { CommandList } from './CommandList'
 import type { Command, CommandGroup } from './commandListLogic'
 import {
   placeStrip,
+  itemWidth,
   splitStripItems,
   STRIP_PHONE_MAX,
   type StripPlacement,
@@ -151,6 +152,9 @@ export function ContextStrip(props: ContextStripProps) {
   const { shown } = split
   const overflow = [...split.overflow, ...hidden]
   const showMore = split.showMore || hidden.length > 0
+  // The width the whole strip wants on the full screen.
+  const natural =
+    shown.reduce((n, i) => n + itemWidth(i), 0) + (showMore ? 60 : 0) + 16
 
   // "⋯" list: the items that did not fit (a ▾ item becomes one row per choice), then the extra commands.
   const listGroups = ((): CommandGroup[] => {
@@ -220,7 +224,9 @@ export function ContextStrip(props: ContextStripProps) {
     const run = () => {
       setVw(document.documentElement.clientWidth || window.innerWidth)
       if (!floating) return
-      const b = boundsRef.current?.() ?? null
+      // Inside the box only while the whole strip fits there; else the screen.
+      const box = boundsRef.current?.() ?? null
+      const b = box && (phone || natural <= box.width - 24) ? box : null
       setRoom((prev) =>
         b
           ? prev && prev.left === b.left && prev.width === b.width
@@ -260,7 +266,7 @@ export function ContextStrip(props: ContextStripProps) {
     if (barRef.current) ro.observe(barRef.current)
     ro.observe(document.documentElement)
     return () => ro.disconnect()
-  }, [floating, props.target, shown.length, showMore, phone])
+  }, [floating, props.target, shown.length, showMore, phone, natural])
 
   const placed = !floating || !!pos
   useEffect(() => {

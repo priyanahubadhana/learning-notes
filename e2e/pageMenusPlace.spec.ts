@@ -10,15 +10,19 @@ import { createNotebook } from './helpers.ts'
  * switch and "1 heading" / "2 headings". docs/features/page-menus.md.
  */
 
-async function open(page: Page, size: { width: number; height: number }) {
+async function open(
+  page: Page,
+  size: { width: number; height: number },
+  level = 'professional',
+) {
   await page.setViewportSize(size)
-  await page.addInitScript(() => {
+  await page.addInitScript((l) => {
     localStorage.setItem(
       'learning-notes:level',
-      JSON.stringify({ level: 'professional', unlocked: [] }),
+      JSON.stringify({ level: l, unlocked: [] }),
     )
     localStorage.setItem('learning-notes:general.pasteMode', '"ask"')
-  })
+  }, level)
   await page.goto('/?flags=page.menus')
   await createNotebook(page, 'Biology', 'First')
   await page.locator('.bn-editor').click()
@@ -124,4 +128,29 @@ test('on a phone the chooser ends above the tab bar', async ({ page }) => {
     .locator('xpath=ancestor::nav')
     .boundingBox())!
   expect(card.y + card.height).toBeLessThanOrEqual(bar.y)
+})
+
+test.describe('iPad portrait', () => {
+  test.use({ hasTouch: true })
+  for (const level of ['beginner', 'professional'] as const) {
+    test(`iPad portrait ${level}: the strip stays inside the page area when it fits`, async ({
+      page,
+    }) => {
+      await open(page, { width: 820, height: 1180 }, level)
+      // The sidebar is closed on iPad portrait.
+      const hide = page.getByRole('button', { name: 'Hide menu' })
+      if (await hide.isVisible()) {
+        await hide.click()
+        await page.waitForTimeout(400)
+      }
+      await page.locator('.bn-editor').click()
+      await rightClick(page, 5)
+      const strip = (await page.locator('.cs__bar').boundingBox())!
+      const area = (await page.locator('[data-page-scroller]').boundingBox())!
+      // Beginner (about 460 px) fits the page area: inside it. A strip wider
+      // than the area (Professional) may use the screen instead.
+      if (level === 'beginner') expect(strip.x).toBeGreaterThanOrEqual(area.x)
+      else expect(strip.x).toBeGreaterThanOrEqual(12)
+    })
+  }
 })

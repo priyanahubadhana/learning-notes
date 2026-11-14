@@ -58,16 +58,12 @@ function targetRect(at: HoldPoint): Rect {
  * part decides); the rest stays in ⋯.
  */
 /**
- * The page area: the strip stays inside it, not over the rail or sidebar.
- * A page area too narrow for the whole Professional strip gives no box, so
- * no action folds into "more" only to avoid the sidebar.
+ * The page area: the strip stays inside it, not over the rail or sidebar,
+ * whenever the whole strip fits there (the strip decides).
  */
-const pageArea = () => {
-  const r = document
-    .querySelector('[data-page-scroller]')
-    ?.getBoundingClientRect()
-  return r && r.width >= 800 ? r : null
-}
+const pageArea = () =>
+  document.querySelector('[data-page-scroller]')?.getBoundingClientRect() ??
+  null
 
 export default function PageStrip({
   editor,

@@ -140,7 +140,7 @@ test('PM-44 with the switch on the chip shows for 8 s and re-pastes another form
 
 const pasteGroup = (page: Page) => page.getByRole('group', { name: 'Paste as' })
 
-test('PM-43 Settings shows Keep format as the choice with the flag on', async ({
+test('PM-43 Settings shows Keep original as the choice with the flag on', async ({
   page,
 }) => {
   await page.goto('/?flags=page.menus#/settings/general')

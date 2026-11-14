@@ -767,7 +767,8 @@ export const pasteModeSetting: SettingDefinition<PasteMode> = {
   labelKey: 'settings.pasteMode.label',
   descriptionKey: 'settings.pasteMode.description',
   category: 'general',
-  keywords: 'paste keep format plain text ask each time chooser clipboard',
+  keywords:
+    'paste keep original format plain text always ask each time chooser clipboard',
   scope: 'device',
   defaultValue: 'ask',
   // Flag page.menus (PM-43): until one is picked, Settings shows Keep original.

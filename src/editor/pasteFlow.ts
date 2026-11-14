@@ -193,7 +193,7 @@ export function cleanupOffered(plan: PastePlan): boolean {
   return c.enabled && c.candidates.length > 0
 }
 
-/** The choices a plan offers (the first is "Keep original format"). */
+/** The choices a plan offers (the first is "Keep original"). */
 export function choicesFor(
   plan: PastePlan,
   /** `box`: the editor is on a paper page (the paste can go in a new box). */

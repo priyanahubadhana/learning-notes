@@ -247,7 +247,7 @@ export const esSettings = {
   'settings.openNotebookAt.tabs': 'Pestañas del cuaderno',
   'settings.pasteMode.ask': 'Preguntar siempre',
   'settings.pasteMode.description':
-    'Al pegar texto con formato: preguntar cada vez (un pequeño selector), mantener siempre el formato original o pegar siempre texto sin formato.',
+    'Al pegar texto con formato: Preguntar siempre (un pequeño selector cada vez), Mantener el original (conservar siempre el formato) o Texto sin formato (pegar siempre sin formato).',
   'settings.pasteMode.keep': 'Mantener el original',
   'settings.pasteMode.label': 'Pegar como',
   'settings.pasteMode.plain': 'Texto sin formato',

@@ -87,7 +87,7 @@ export const enLateSettings = {
   'settings.openNotebookAt.tabs': 'Notebook tabs',
   'settings.pasteMode.ask': 'Always ask',
   'settings.pasteMode.description':
-    'When you paste text with formatting: ask each time (a small chooser), always keep the original format, or always paste plain text.',
+    'When you paste text with formatting: Always ask (a small chooser each time), Keep original (always keep the formatting) or Plain text (always paste plain text).',
   'settings.pasteMode.keep': 'Keep original',
   'settings.pasteMode.label': 'Paste as',
   'settings.pasteMode.plain': 'Plain text',

@@ -29,7 +29,7 @@ const CleanupDialog = lazy(() =>
 )
 
 /**
- * The paste chooser (a small pop-up on a rich paste: Keep original format,
+ * The paste chooser (a small pop-up on a rich paste: Keep original,
  * Plain text, As table) and the chip after a paste that swaps the result.
  * State lives in pasteFlow.ts; one instance per page editor shows only the
  * requests of its own editor.

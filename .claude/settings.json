@@ -12,16 +12,43 @@
       "Bash(git log*)",
       "Bash(git show*)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(git push)",
+      "Bash(git push -q)",
+      "Bash(git push origin *)",
+      "Bash(git push -q origin *)",
+      "Bash(git fetch*)",
+      "Bash(git merge *)"
     ],
     "deny": [
       "Bash(git push --force*)",
       "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
+      "Bash(git push * +*)",
+      "Bash(git push --no-verify*)",
+      "Bash(git push * --no-verify*)",
       "Bash(git reset --hard*)",
       "Bash(git clean *)",
       "Bash(rm -rf *)",
       "Read(.env)",
-      "Read(.env.*)"
+      "Read(.env.*)",
+      "mcp__claude_ai_Gmail",
+      "mcp__claude_ai_Google_Calendar",
+      "mcp__claude_ai_Notion",
+      "mcp__claude_ai_Spotify",
+      "mcp__claude_ai_Adobe",
+      "mcp__claude_ai_Goodnotes"
+    ],
+    "ask": [
+      "mcp__claude_ai_Supabase",
+      "mcp__claude_ai_Google_Drive__create_file",
+      "mcp__claude_ai_Google_Drive__copy_file",
+      "mcp__claude_ai_Google_Drive__update_file",
+      "mcp__claude_ai_Google_Drive__share_file",
+      "mcp__claude_ai_Google_Drive__trash_file",
+      "mcp__claude_ai_Claude_Docs__delete",
+      "mcp__learning-notes"
     ]
   },
   "hooks": {
@@ -53,40 +80,6 @@
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/push-guard-noverify.mjs\"",
             "timeout": 5
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/mark-mirror.mjs\"",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/on-stop.mjs\"",
-            "timeout": 45
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/on-stop.mjs\"",
-            "timeout": 45
           }
         ]
       }

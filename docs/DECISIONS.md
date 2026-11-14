@@ -1206,3 +1206,73 @@ Research (docs/plans/ai-build-best-practices-2026-11-13.md) puts the useful limi
 ### 14 Nov 2026 (owner, option A): big-page smoothness test on CI
 
 On CI, e2e/bigPageBudget.spec.ts counts a late frame against the app only when one of the app's long tasks overlaps it, and a new check keeps the median frame under 25 ms. Locally the old strict check stays. The app script budget is unchanged. Why: the CI runner stalls to 30 fps (5-35% late frames on unchanged code, script work 0.5-0.9 ms per frame). Fable ruled; the owner approved in the main chat; build/next b3f576b9. Drive function drive-token was also redeployed with the strict CORS list (owner said "deploy it").
+
+### 14 Nov 2026 (owner): build reset into phases
+
+The owner paused the build and decided: (1) work in phases, one at a time (artifact, plan with Fable, build, early iPad test, polish, release); (2) roles: Fable top manager, Opus at medium effort as phase manager and reviewer, Sonnet builders, as many as the phase has separate tasks; (3) tests: a fast set per merge, the full set nightly and before each release; (4) the owner tests early, before the polish; (5) a complete clean-up of rules and files before the restart. Phase order (Fable, on the owner's request to compare and choose): frame and Settings, writing tools, text box and Pencil, Notebooks, Search, Home and Library, Review and Study, Reader, AI and connector, then the two areas that still need an artifact. Plan: docs/plans/phase-plan.md. Reasons: docs/plans/build-diagnosis-2026-11-14.md.
+
+Decisions to review from the clean-up: Settings moved next to the frame (the owner had it later); the Definition of Done gained a "real use on an iPad" line; the user setting for Opus effort went from low to medium; three stale memory notes were retired (kept in a "retired" folder).
+
+### 14 Nov 2026 (owner): roles, lean restart and the last plan decisions
+
+- Roles: Sonnet builds; Opus at medium effort manages and reviews each task once (code against the plan, look against the approved picture) and takes over when Sonnet failed twice; Fable only plans each phase and solves what Opus could not. No routine Fable reviews.
+- The build restarts lean: the main chat on Opus manages one or two builders; the full team only on the owner's word.
+- The reviewer fails a task only for real problems (gaps against the plan or picture, broken rules, breakages); style notes are listed apart.
+- Helpers may push normally; force pushes stay denied (.claude/settings.json).
+- One code line at the end of Phase 1, after the owner's test. A one-tap test preset in Settings, removed when the redesign is done.
+- The real app's check on main was red since 13 Nov because of a lint line added by Claude in mcp/src/setup.ts; fixed (f6342473).
+- The method, the roles and three generic helper files are saved in the owner's global files (~/.claude/CLAUDE.md, playbook.md, agents/) for all projects.
+
+### 14 Nov 2026 (owner): last two plan answers and the results record
+
+- Old waiting tests (9 to 12 Nov): dropped for screens the redesign replaces, kept for things that stay.
+- Full team: approved for Phase 2B (the text box is the foundation); any other phase asks the owner first.
+- Results are recorded: docs/metrics/tasks.csv (one row per merged task), docs/metrics/phase-results.md (one row per phase, next to the two ways that failed) and the cross-project log ~/.claude/playbook-results.md. If the phased way proves better it stays the standard in the global playbook.
+- Phase 1 page written: docs/plans/phases/phase-1.md (tasks 0.4 to 0.6, the 17-step first look, the release steps).
+
+### 14 Nov 2026 (owner): test set-up built now; four answers
+
+- Two safety programs approved (task 0.12): the same checks before every push on every branch, and a script that sorts each failed test run. Built after the owner's review of the guards.
+- The fast test set (task 0.8) is built now, by a Fable helper, at the owner's request (Fable usage is not a concern for this session). Features stay paused.
+- A list of known shaky tests: not now; decided after one phase of real numbers.
+- The owner's iPad test becomes a tappable checklist page.
+- The owner asked for a one-by-one review of every setting that differs from the Claude Code defaults; nothing is changed without the owner's answer.
+
+### 14 Nov 2026 (owner): settings review, answers so far
+
+- Voice add-on: switched off for now (user setting enabledPlugins); to be fixed as its own small job after Phase 1.
+- Connectors in this project: the owner keeps Supabase, Claude Docs and Google Drive and drops Gmail, Calendar, Notion, Spotify, Adobe and Goodnotes here; waiting for the owner's yes on "ask first" for the three kept ones before anything is applied.
+- Time left in every status line: this phase and the whole project, each marked measured, estimate or not known yet.
+
+- Settings review, questions 1 and 3 (owner yes, 14 Nov): in this project Gmail, Calendar, Notion, Spotify, Adobe and Goodnotes are blocked; Supabase asks before every action; Google Drive asks before it creates, copies, changes, shares or trashes a file; Claude Docs asks before deleting; the Learning Notes connector asks before every action (.claude/settings.json, permissions deny and ask).
+
+- Settings review, question 4 (owner, 14 Nov): the permission mode stays Auto. Questions go up a ladder (plan and approved picture, then Opus, then Fable) and reach the owner only for money, logins and Supabase, switching a part on in the live app, possible data loss, a real-device test, or a real product or design decision. When the safety check blocks a planned action, the owner is asked once to allow that kind of action for good.
+
+- Settings review, questions 5 and 6 (owner, 14 Nov): the test guard stays. The lint and type check that ran at every stop is removed (the push guard runs the same checks before every push); the stop hook now only makes the backup copy.
+
+- Settings review, question 7 (owner, 14 Nov): the automatic copy to "Downloads\gdrive notes" is stopped (the owner does not use that folder; GitHub is the backup). Removed: the two hook programs, their settings entries and the rule lines. The folder itself was left untouched.
+
+- Settings review, questions 8 and 9 (owner, 14 Nov): the secret scan, the push guard and its protector stay. Thinking effort goes back to the Claude Code defaults (medium for Fable, Opus and Sonnet; the official model page lists medium as their default); Fable is called at high effort for planning a phase or a hard case, extra high only on the owner's word. Applied at the end of the planning session. Before the restart the owner updates VS Code and Claude Code and opens a new chat.
+- Task 0.12 (safety programs) built by a Sonnet builder on slice/p0-guard 86f36120 (about 75,000 helper tokens, 4 minutes); Opus review started.
+
+- Settings review (owner, 14 Nov): the built-in Claude Code setting "continue automatically when a usage limit resets" is switched on in the user settings (autoContinueAtUsageLimit). Until now only a written rule and a timer set by the chat covered this.
+
+- Settings review, question 10 (owner, 14 Nov): the daily cloud check "Daily CI check (Haiku)" is switched off (not deleted; the owner can delete it at claude.ai/code/routines) and its pull request #6 is closed. The build checks the test runs itself, and `npm run ci:sort` sorts failed runs.
+
+- Tasks 0.4 and 0.8 (14 Nov, Fable helper, Opus review PASS). Left for task 0.7: set `NIGHTLY_REF` in `.github/workflows/ci.yml` to `main`. Until then a run started by hand on `main` without `full` fails at the fast set (main has no fast list yet) and publishes nothing. Left out of the fast list on purpose, still in the full set: freezeWatch (a real-time test, shaky locally), textBoxFree and undoHistory (task 0.9).
+
+- Agents research (owner's request, 14 Nov): no rule or setting changed. Three proposals wait for the owner in docs/PENDING.md "Needs you".
+
+- Agents research recommendations (owner, 14 Nov: "why don't you add them"). Added: the rule and memory tidy-up at every phase end (rules/phase-end.md; also in the owner's global playbook). Scheduled: task 0.13, the builder's `isolation: worktree` on one trial task after 0.7 and 0.11 (adding it today would start every builder from the live line, which lacks the preview's code). Not added: a "done means green" stop check on the builder; the push guard of task 0.12 already blocks red pushes on every branch, so it would be the same check twice. Review this with the task record after Phase 1.
+
+- Reviewer lock (owner's yes, 14 Nov): `disallowedTools: Edit, Write, NotebookEdit` in .claude/agents/reviewer.md and in the owner's global reviewer file. The reviewer can read, run git and tests and report, but cannot change a file with the editing tools.
+
+- End of the planning session (14 Nov): the custom thinking-effort settings were removed from the user settings, as decided in settings review questions 8 and 9. Every model now uses Claude Code's default (medium). The helper files still name `effort: medium` for the reviewer and the phase manager.
+
+- Settings review, question 11 (owner, 14 Nov, option A): 47 unused working copies (clean, merged, not needed) were removed with `git worktree remove`; 19 working copies remain. Branches and commits were not touched. For 41 copies it left only an empty folder holding a link to the main project's packages; those 19 shells that were left were removed link-first, not recursively. For 6 copies Windows stopped half-way ("Invalid argument"): `ln-flakes`, `ln-s0g`, `ln-s0h`, `ln-s4`, `ln-s6`, `ln-s9b` in Downloads, about 0.5 GB each, no longer git working copies, their work is merged. The freed disk space was not measured before, so it is not known; it is less than the first estimate, because many copies only linked to the main packages.
+
+- Safety finding (14 Nov): many helper copies hold `node_modules` as a Windows junction to `learning-notes/node_modules`. A recursive delete of such a folder can delete the main project's packages. Any clean-up checks for links first and removes a link by itself. The warning is in docs/HOW-WE-BUILD.md section 8.
+
+- Waiting for the owner's one-time yes (asked 14 Nov), nothing deleted until then: (a) the 6 half-deleted folders named above; (b) 5 folders in `.claude/worktrees` that hold only packages: `agent-a28887514973e62e2`, `agent-a2fd5427873c2c564`, `agent-a7967b587e02ca695`, `agent-a9103c00a50196a1d`, `agent-af2c4726a9f477d28`; (c) 6 working copies whose only unsaved files are helper scratch files: `.claude/worktrees/agent-a13e450d3d907a560`, `agent-abf2624bdd84b00a8`, `agent-ad8f0379d84ddfc1d`, `agent-a6ce0ab15d843ec57` (clean, locked), `ln-s0h-b` and `ln-s3` (a half-finished merge of work that is already on the preview line). Not in the question, left for task 0.11: older empty leftovers never listed by git (`ln-a`, `ln-art`, `ln-base`, `ln-base2`, `ln-c`, `ln-ci2`, `ln-g`, `ln-g2`, `ln-l`, `ln-mine`, `ln-s0g-pre`, `ln-s8-old`, `ln-stab` and `ln-stab-*`, `ln-tb2`, `ln-tb2-base`), 67 log files named `ln-*` and two picture folders (`ln-sfix-scroll-shots*`). `ln-sshell` (the unreviewed shell fix) and the 9 parked parts stay.
+
+- Unlock switch name (Fable decision under the question ladder, 14 Nov): the update details in Settings › About use the existing `about.version` switch; no new `about.updateDetails` switch.

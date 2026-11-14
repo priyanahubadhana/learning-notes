@@ -67,6 +67,24 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: the app took about 15 s to start on WebKit because starters were written before the first screen.
 - Files: src/templates/templateService.ts, src/templates/NewPageStart.tsx, src/templates/seedBulk.test.ts, e2e/startSeeding.spec.ts, e2e/startSpeed.spec.ts, docs/features/perf-start.md, docs/CHANGELOG.md.
 
+### 14 Nov 2026: slice 12 rest - page strip, Paste menu, page more-menu sheet (flag page.menus, OFF)
+
+- What: right-click and press-and-hold open the shared Context strip (Beginner: Cut, Copy, Paste menu, Delete, more; Professional adds Duplicate, Turn into, Colour); Paste menu pastes in the chosen form in one Undo step; with the flag ON "Keep original" is the Paste default until Settings stores a choice and the "Pasted as" chip needs `page.pastedChip`; the page more-menu is a side Sheet (Beginner 8 rows, Professional sections and pinned tiles via `page.menuAll`, Move, Duplicate). Spec: docs/features/page-menus.md PM-20..22, 40..45, 60..64.
+- Why: the menus you use while writing, on the shared parts, nothing dropped.
+- Files: src/editor/menus/_, src/pages/menus/_, src/editor/{PageEditor,PasteChooser,pasteFlow,holdMenuWatch}.ts(x), src/pages/PageView.tsx, src/app/flags.ts, src/i18n/*/pageMenus.ts, e2e/pageMenusStrip.spec.ts, e2e/pageMenusSheet.spec.ts, playwright.config.ts (one ipad-webkit line), scripts/feature-links.json, docs/CHANGELOG.md.
+
+### 14 Nov 2026: slice 12 rest - page strip, Paste menu, page more-menu sheet (flag page.menus, OFF)
+
+- What: right-click and press-and-hold open the shared Context strip (Beginner: Cut, Copy, Paste menu, Delete, more; Professional adds Duplicate, Turn into, Colour); Paste menu pastes in the chosen form in one Undo step; with the flag ON "Keep original" is the Paste default until Settings stores a choice and the "Pasted as" chip needs `page.pastedChip`; the page more-menu is a side Sheet (Beginner 8 rows, Professional sections and pinned tiles via `page.menuAll`, Move, Duplicate). Spec: docs/features/page-menus.md PM-20..22, 40..45, 60..64.
+- Why: the menus you use while writing, on the shared parts, nothing dropped.
+- Files: src/editor/menus/_, src/pages/menus/_, src/editor/{PageEditor,PasteChooser,pasteFlow,holdMenuWatch}.ts(x), src/pages/PageView.tsx, src/app/flags.ts, src/i18n/*/pageMenus.ts, e2e/pageMenusStrip.spec.ts, e2e/pageMenusSheet.spec.ts, playwright.config.ts (one ipad-webkit line), scripts/feature-links.json, docs/CHANGELOG.md.
+
+### 14 Nov 2026: owner fix F5/F9 merged; scroll fix passes gates
+
+- What: search fix merged into build/next as 1a8e0c66 (CI 43557319251 red on e2e (2), being fixed); scroll fix F2/F3/F4/F6/F8 at 5e2c80f7 passed gate 2 (third visit, Opus builder) and the final look (second visit), 4 follow-ups.
+- Why: iPad test findings F1 to F9, owner priority.
+- Files: docs/BUILD-STATE.md, docs/PENDING.md, docs/CHANGELOG.md
+
 ### 14 Nov 2026: owner fix F1+F7 merged into build/next
 
 - What: sign-in freeze fix (F1) and the freeze recorder (F7, build-next host only) merged OFF as b1aad3f8; CI 43553398541 green.
@@ -1867,3 +1885,43 @@ Home strip shows every item at every level, stays inside the pane, labels on pho
 
 - Why: the left strip was as tall as the layout, but the iPad keyboard (and the text bar above it) shrink only the visible area, so the gear fell off screen and the strip did not scroll. Now the strip is capped to the visible area (spaces scroll, gear pinned at the foot) and the gear panel rises above the keyboard and text bar.
 - Files: src/app/spaces/SpaceStrip.tsx, QuietCorner.tsx, footLift.ts; e2e/stripGear.spec.ts (chromium + ipad-webkit); pictures screenshots/bug006/INDEX.md.
+
+## 14 Nov 2026: build paused, diagnosis written
+
+The owner paused the build at 11:10 IST. All helpers and the hourly check were stopped. Fable wrote docs/plans/build-diagnosis-2026-11-14.md (causes, score for the trial, proposal for a phased build). Files: docs/BUILD-STATE.md, docs/PENDING.md (pause lines), the new plan file. No app code changed.
+
+## 14 Nov 2026: clean-up for the phased build (Fable, owner-approved)
+
+What: new docs/plans/phase-plan.md (the plan) and docs/HOW-WE-BUILD.md (how helpers work); three helper files (.claude/agents/phase-manager.md, builder.md, reviewer.md) replace the ten old ones; CLAUDE.md rewritten (9.2 KB to 4.8 KB); rules/building.md, sessions.md, testing.md, quality.md, planning.md, phase-end.md now describe one method; docs/PENDING.md rebuilt (530 to about 80 lines), the owner decisions and approved designs moved word for word to docs/design/owner-decisions.md, the iPad checklist to docs/plans/ipad-checklist-first-preview.md, the old list kept in docs/plans/archive/; docs/HANDOFF.md trimmed (old entries in ARCHIVE); docs/BUILD-STATE.md rewritten (paused, Phase 0 tasks, every parked part with its commit); docs/ECONOMY-MODE.md archived; INDEX, token-efficiency, next command updated. Why: the audit in docs/plans/build-diagnosis-2026-11-14.md section 7 found contradicting rules and a plan that had been overridden without being rewritten. No app code changed. The build stays PAUSED.
+
+## 14 Nov 2026: final plan pass (Fable, owner decisions)
+
+What: docs/plans/phase-plan.md and docs/HOW-WE-BUILD.md rewritten with the roles (Sonnet builds, Opus reviews code and look, Fable plans and is the last resort), the lean and full ways to run, the test preset (task 0.6) and the one code line at the end of Phase 1 (task 0.7); .claude/agents/reviewer.md does the look check; CLAUDE.md owner settings, rules/quality.md gates, rules/building.md roles line, docs/PENDING.md "Needs you", docs/BUILD-STATE.md Phase 0 table; .claude/settings.json lets helpers push (force pushes denied); mcp/src/setup.ts lint line so the checks on main pass. Global: ~/.claude/CLAUDE.md, playbook.md, agents/. Why: the owner's answers of 14 Nov and the two audits. No app behaviour changed.
+
+## 14 Nov 2026: Phase 1 page and results record (Fable)
+
+What: docs/plans/phases/phase-1.md; docs/metrics/phase-results.md and tasks.csv; small lines in phase-plan.md, HOW-WE-BUILD.md, rules/phase-end.md and PENDING.md; three old docs files formatted so the format check on main passes. Global: ~/.claude/playbook-results.md and one line each in the global CLAUDE.md and playbook. Why: the owner asked for the numbers to be recorded so a way that works becomes the standard for every project.
+
+## 14 Nov 2026: task 0.12, two safety programs (Sonnet builder, Opus review)
+
+What: scripts/push-guard.mjs now runs ESLint, tsc and the related unit tests on every branch whenever a push changes code (decision in scripts/push-guard-plan.mjs, unit-tested); new read-only scripts/ci-sort.mjs and ci-sort-lib.mjs with `npm run ci:sort`, which sorts a failed test run into plain lines; fixtures from four real runs. Why: 8 of the 19 failed runs of 13 to 14 Nov were simple checks a local run catches, and a lint error reached main unnoticed. Review: FAIL once (test samples not saved to git, one check too narrow, a wrong answer without gh, a missing test), then PASS. Merged f4e90a93. Also: .claude/hooks/on-stop.mjs and mark-mirror.mjs removed and settings changed in the settings review (see DECISIONS).
+
+## 14 Nov 2026: agents research report (owner's request)
+
+What: docs/plans/agents-research-2026-11-14.md added (four Sonnet fact-gatherers, one Opus writer; official Claude Code pages and outside reports read on 14 Nov); a row in docs/INDEX.md; three proposals listed in docs/PENDING.md "Needs you". Why: the owner asked what agents are, whether we use them fully and whether more would help. Finding: more agents would hurt this build; the lean setup matches the official advice. No rule, setting or code was changed.
+
+## 14 Nov 2026: tasks 0.4 and 0.8 done (Fable helper, Opus review PASS); daily cloud check off
+
+What: `main` merged into `build/next` (4d2b12cb), pull request #5 mergeable again. Fast test set: `e2e/fastSet.ts` (36 files, 16 also on iPad), its unit test `scripts/fastSet.test.mjs`, two fast Playwright projects, and a new `.github/workflows/ci.yml` (the same file on `main` c0acc5a5 and `build/next` 42c35e2c): pull requests run checks, fast set and preview; pushes to `main` run checks, full set and deploy; the full set runs nightly at 02:00 IST on `build/next`. Measured: checks plus fast set 9.5 minutes, against 33 to 43 for the full set. Docs: rules/testing.md, docs/HOW-WE-BUILD.md section 5, BUILD-STATE, PENDING, HANDOFF, DECISIONS, the task record. Settings review question 10: the daily cloud check switched off and pull request #6 closed. Why: the owner asked for the fast set now; nobody read the cloud check's note.
+
+## 14 Nov 2026: agents research recommendations applied (owner's word)
+
+What: rules/phase-end.md, the rule check became a rule and memory tidy-up at every phase end; task 0.13 added to docs/plans/phase-plan.md and docs/BUILD-STATE.md (trial of the builder's own-copy setting after 0.7 and 0.11); docs/PENDING.md and docs/DECISIONS.md updated; one line added to the owner's global playbook. Why: the owner asked to add the research recommendations. The stop check was left out because the push guard already does that job.
+
+## 14 Nov 2026: reviewer locked; thinking effort back to the defaults
+
+What: .claude/agents/reviewer.md gets `disallowedTools: Edit, Write, NotebookEdit` (the same in the owner's global reviewer file); the custom `modelSettings` block removed from the user settings. Why: the owner said yes to the lock (a setting instead of a promise, from the agents research); the effort change was decided in the settings review and waited for the end of the planning session.
+
+## 14 Nov 2026: 47 unused working copies removed (settings review question 11)
+
+What: `git worktree remove` on 47 clean, merged copies; 19 remain. Six folders were left half-deleted by Windows and wait for the owner's word, with two other groups (list in docs/DECISIONS.md). Docs: a packages-link warning in docs/HOW-WE-BUILD.md section 8; BUILD-STATE row 0.11; PENDING (three open questions); the Phase 1 page (the switch-name point is decided, the scroll fix id is current). Why: the owner chose option A. Finding: many copies hold `node_modules` as a link to the main packages, so no folder is ever deleted recursively.

@@ -1,7 +1,7 @@
 # Building a Step
 
-- **Phase start:** all of the phase's questions were asked in the planning talk and written into the plan; build from that plan.
-- **During:** decide small things yourself and log them in docs/DECISIONS.md. Don't stop.
+- **Phase start:** all of the phase's questions were asked in the planning talk and written into the phase page (docs/plans/phases/); build from that page. The order of phases is in docs/plans/phase-plan.md.
+- **During:** build only what the phase page lists; after that only bug fixes and rework of things that do not behave as planned. Decide small things yourself and log them in docs/DECISIONS.md. Don't stop.
 - **A question only the owner could answer** (one the plan doesn't cover): pick the safest sensible option, log it in docs/DECISIONS.md "Decisions to review" (date, step, what was picked, other options), and carry on.
 - Short replies. Write risks, bugs and weak decisions into "Decisions to review" at once, in full.
 - New ideas that come up mid-build go into docs/IDEAS.md (date, short description, likely phase), not into the current step.
@@ -11,8 +11,8 @@
 - **Publishing:** the live site changes only through GitHub. No manual uploads to Cloudflare (owner, 2026-11-03).
 - If the app stops, note how to restart it in docs/HANDOFF.md (commit rhythm: rules/sessions.md).
 
-## Agent hierarchy (owner, 12 Nov 2026)
+## Who does what (owner, 14 Nov 2026)
 
-See CLAUDE.md "How Work Runs". The build runs on the simple system (Opus manager, Sonnet builders, Fable for two looks; docs/ECONOMY-MODE.md); other tasks use Fable → Opus sub-managers → Sonnet/Haiku.
+See CLAUDE.md "How we work" and docs/HOW-WE-BUILD.md: Sonnet builds; Opus at medium effort manages and reviews each task once (code and look) and takes over when Sonnet failed twice; Fable plans each phase and solves what Opus could not.
 
-- **Escalate automatically (owner, 13 Nov 2026):** stuck work goes Sonnet → Opus → Fable without waiting for the owner; stalls are fixed at once. Details: docs/ECONOMY-MODE.md section 4.
+- **Escalate automatically (owner, 13 Nov 2026):** stuck work goes Sonnet → Opus → Fable without waiting for the owner; stalls are fixed at once.

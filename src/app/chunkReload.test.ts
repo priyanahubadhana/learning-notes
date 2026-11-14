@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { shouldReload } from './chunkReload'
+import { reloadCanHelp, shouldReload } from './chunkReload'
 
 const memory = () => {
   const values = new Map<string, string>()
@@ -10,6 +10,16 @@ const memory = () => {
 }
 
 describe('reloading after a failed screen file', () => {
+  // Why: CI 43528030714. Offline, an idle prefetch failed and the reload
+  // swapped the open notes (and the update notice) for a new load (U10); a
+  // download aborted by leaving the page reloaded the old address and
+  // cancelled the navigation (SS-01e).
+  it('does not reload offline or while the page is being left', () => {
+    expect(reloadCanHelp(true, false)).toBe(true)
+    expect(reloadCanHelp(false, false)).toBe(false)
+    expect(reloadCanHelp(true, true)).toBe(false)
+  })
+
   it('reloads once, then lets the error screen show', () => {
     const storage = memory()
     expect(shouldReload(storage, 100_000)).toBe(true)

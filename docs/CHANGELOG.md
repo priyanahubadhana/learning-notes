@@ -14,6 +14,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: the owner tests a phase with one switch.
 - Files: src/app/flags.ts, src/settings/flagSettings.ts, src/settings/v3/tryNew.ts, texts en/es/hi flags, e2e/presetPhases.spec.ts, src/app/flagsPreset.test.ts, playwright.config.ts (one test-list line), docs/features/settings-v3.md, docs/DECISIONS.md.
 
+### 14 Nov 2026 (night): Phase 2B page written (text box and Pencil)
+
+- What: the phase page with 12 tasks in two lanes, a short brief for each builder, the owner's morning Pencil checks and the first-look list; the text box spec updated with the owner's answers (TB-01, 02, 04, 05, 06, 11, 14, 25, the keyboard rule, Won't do, Decisions 1 and 2; new TB-41 and TB-42); the "tap beside = side by side" idea saved.
+- Why: planning step of Phase 2B, from the owner's answers of 14 Nov night.
+- Files: docs/plans/phases/phase-2b.md, docs/features/textbox-v2.md, docs/IDEAS.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 14 Nov 2026 (evening): task 0.5 merged; audit answers recorded; clean-up done
 
 - What: the scroll fix (`slice/fix-scroll-frame` 0db04220) merged alone into `build/next` (d91b83d8); the owner's three answers to the audit recorded (folders deleted by the owner's script, Fable's `xhigh` effort entry removed from the user settings, security updates planned as task 0.14 after 0.6); task 0.11 done (lint 0 errors).

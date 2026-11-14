@@ -163,6 +163,7 @@ export default defineConfig({
         /textTool/,
         /textBoxFree/,
         /homeV2/,
+        /searchClose/,
         // Paste needs the clipboard-write permission, which WebKit does not have: chromium only.
         /toolbarV8(Bar|Frame|Pen|Row|Tools).spec/,
       ],

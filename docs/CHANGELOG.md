@@ -13,6 +13,18 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: owner iPad test 14 Nov (F2 empty space did not scroll, F3 bar too faint, F4 duplicate rows, F6 one behaviour everywhere, F8 layout broke after turning the iPad). Other lists keep the fading hint handle (scrollHints.ts); moving them to the shared bar is left for a later slice.
 - Files: src/design/parts/ScrollBar._, src/design/parts/scrollBarLogic._, src/design/parts/useScroller.ts, src/paper/PageScrollBar.tsx, src/notebooks/Sidebar.tsx, src/app/panel/LeftPanel.tsx, src/app/panel/v2/PanelV2.tsx, src/app/shell/useFrameSize.ts, src/index.css, src/i18n parts texts (en, es, hi), e2e/scrollFrame.spec.ts
 
+### 14 Nov 2026: F7 freeze recorder on the preview
+
+- What: the slow-moments recorder (R6-11) now runs by itself on the preview address build-next.learning-notes-app.pages.dev only (never on the live host or a deploy hash address, which can be a production build; the test machine only with the switch `learning-notes:perf.freezeWatch`) and notes main-thread blocks of 500 ms or more. Every entry now also names the top open panel and the last tap or key kind (never typed text; the label clean-up and key names were fixed after gate 2). Settings › Advanced › Copy report shows them.
+- Why: F7, the owner's iPad sometimes freezes with no clear trigger; the cause must be measured, not guessed.
+- Files: src/perf/slowMoments.ts, src/perf/slowMomentsSwitch.ts, src/perf/freezeWatch.test.ts
+
+### 14 Nov 2026: F1 stays signed in when Safari reopens at an old sign-in address
+
+- What: a Google sign-in callback that cannot finish (its one-time code already used, or a cancelled consent) no longer signs out a device that already holds a sign-in; the callback is always removed from the address, also after a failure.
+- Why (F1, owner iPad): Safari reopens a closed tab at the address it saved, which can still be `?sync=callback&code=...`. Start-up tried the used-up code again, failed ("no verifier") and called sign out, which wiped the stored session (and the Drive key on the server). A cancelled "connect Google" consent did the same. Every sign-in left a new callback address, so it repeated on each reopen.
+- Files: src/sync/syncService.ts, src/sync/connectors/supabase.ts, e2e/staySignedIn.spec.ts
+
 ### 14 Nov 2026: build/next red fixed after storage safety (CI 43528030714)
 
 - What: a failed chunk download no longer reloads the app when offline, and waits 1 s so a page being left is not reloaded; Try new features expects 26 switches (storage.safety added); SS-07 measures the phone banner in the bundled Inter font, not the test machine's fallback.
@@ -48,6 +60,22 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.
 - Why: the app took about 15 s to start on WebKit because starters were written before the first screen.
 - Files: src/templates/templateService.ts, src/templates/NewPageStart.tsx, src/templates/seedBulk.test.ts, e2e/startSeeding.spec.ts, e2e/startSpeed.spec.ts, docs/features/perf-start.md, docs/CHANGELOG.md.
+
+### 14 Nov 2026: owner fix F1+F7 merged into build/next
+
+- What: sign-in freeze fix (F1) and the freeze recorder (F7, build-next host only) merged OFF as b1aad3f8; CI 43553398541 green.
+- Why: iPad test findings F1, F7.
+- Files: docs/BUILD-STATE.md, docs/PENDING.md, docs/CHANGELOG.md
+
+### 14 Nov 2026: search pop-up touch close, Settings search in reach, preview defaults (slice fix-search, F5/F9)
+
+- What: the search pop-up has a ✕ close beside the field and no Esc text; the keyboard footer is hidden on touch; the Settings search stays at the top of every section and finds Try new features switches; on the build-next preview host 12 tested parts start ON (live stays OFF); check-dod allows a default only when gated by isPreviewHost (not the negated form). Fix round 3: the sticky Settings search sits above switches and why marks (new token --z-sticky, hairline below), with an e2e check that nothing paints over it; When lines for the preview defaults in settings-v3.md.
+- Why: iPad test findings F5 and F9; testers had to switch each part on by hand; gate 2 found list parts painting over the sticky bar.
+- Files: src/design/tokens.css, src/app/tools/ScrollFade.tsx, scripts/ratchet-baseline.json, scripts/check-dod.test.mjs, docs/features/settings-v3.md, src/search/SearchPopup.tsx, src/app/flags.ts, src/settings/v3/tryNew.ts, src/settings/v3/settingsV3.css, src/design/parts/ClearField.css, scripts/dodSpec.mjs, e2e/searchClose.spec.ts, e2e/settingsV3SearchF9.spec.ts
+
+### 14 Nov 2026: build manager run 8
+
+build/next green again: CI 43549430501 on af75ee57. Search fix F5/F9 passed gate 2 and the final look on 4c9735ed. F1+F7 merging first. Toolbar 1e/1f gate 2 PASS on 19e158cf. Reader v2 pictures re-shot (2f78926f), final look PASS: ready for the owner. docs/features/page-menus.md PM-44 now says the chip is off in Beginner and on in Professional (SET-B43), matching the code and DECISIONS. CI 43542651882 red on e2e/bigPageBudget.spec.ts:576 (runner frame timing); Fable ruling: count late frames that are also app work. Fix lists out for the scroll and search owner fixes. Files: docs/features/page-menus.md, docs/BUILD-STATE.md, docs/PENDING.md.
 
 ### 14 Nov 2026: storage safety merged; BUG-006 in the preview
 

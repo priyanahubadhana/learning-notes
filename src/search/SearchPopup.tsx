@@ -356,12 +356,10 @@ export function SearchPopup({
           type="button"
           onClick={onClose}
           aria-label={t('search.close')}
-          className="min-h-8 rounded-md px-2 text-xs text-muted hover:bg-hover"
+          data-testid="search-close"
+          className="flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-hover"
         >
-          <span className="any-pointer-coarse:hidden phone:hidden">Esc</span>
-          <span className="hidden any-pointer-coarse:inline phone:inline">
-            {t('popup.close')}
-          </span>
+          <Icon name="close" size={18} />
         </button>
       </div>
       {v2 && (
@@ -677,7 +675,7 @@ export function SearchPopup({
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-3.5 py-2 text-xs text-muted">
-        <span className="phone:hidden">
+        <span className="phone:hidden any-pointer-coarse:hidden">
           <Kbd>↑</Kbd>
           <Kbd>↓</Kbd> {t('search.keys.move')} · <Kbd>Enter</Kbd>{' '}
           {selected >= 0 || browsing || !active

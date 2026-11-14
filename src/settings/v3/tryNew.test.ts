@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   asksForTryNew,
   closeTryNew,
@@ -63,5 +63,23 @@ describe('Turn all off keeps the new Settings on', () => {
     expect(
       rowsToTurnOff(rows, (r) => r.id === 'tryNew.page.menus').map((r) => r.id),
     ).toEqual(['tryNew.page.menus'])
+  })
+})
+
+describe('F9 preview host opens the list', () => {
+  afterEach(() => vi.unstubAllGlobals())
+  it('is open at once on the preview host, closed on the live host', async () => {
+    vi.stubGlobal('location', {
+      hostname: 'build-next.learning-notes-app.pages.dev',
+      search: '',
+    })
+    vi.resetModules()
+    expect((await import('./tryNew')).tryNewOpen()).toBe(true)
+    vi.stubGlobal('location', {
+      hostname: 'learning-notes-app.pages.dev',
+      search: '',
+    })
+    vi.resetModules()
+    expect((await import('./tryNew')).tryNewOpen()).toBe(false)
   })
 })

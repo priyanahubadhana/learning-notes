@@ -464,6 +464,7 @@
   --sh-gap: 12px;
 
   /* Shell layer scale (shell-spec 8, D10) */
+  --z-sticky: 1; /* a sticky bar above its own scrolling list (F9) */
   --z-tabbar: 30;
   --z-fbar: 40;
   --z-chip: 41;

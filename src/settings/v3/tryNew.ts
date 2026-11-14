@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react'
+import { isPreviewHost } from '../../app/flags'
 
 /**
  * SET-B26: "Try new features" stays hidden until someone opens it (Version
@@ -13,7 +14,9 @@ export const TAPS_NEEDED = 5
 export const TAP_WINDOW_MS = 3000
 
 const listeners = new Set<() => void>()
+// F9: on the preview host testers always see the list, so search finds every switch.
 let open = (() => {
+  if (isPreviewHost()) return true
   try {
     return globalThis.sessionStorage?.getItem(TRY_NEW_KEY) === '1'
   } catch {

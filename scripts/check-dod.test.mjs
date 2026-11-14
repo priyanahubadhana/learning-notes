@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { behaviourLineCount } from './dodSpec.mjs'
+import { behaviourLineCount, defaultsOn } from './dodSpec.mjs'
 
 describe('behaviour lines in a spec', () => {
   it('counts "- When" bullets', () => {
@@ -31,6 +31,43 @@ describe('behaviour lines in a spec', () => {
   })
   it('adds bullets and rows', () => {
     expect(behaviourLineCount('- When a\n| SP-1 | a | b |')).toBe(2)
+  })
+})
+
+describe('switches on by default', () => {
+  it('finds an ungated default', () => {
+    expect(defaultsOn("const DEFAULT_ON = ['a.v1']")).toBe(true)
+    expect(defaultsOn('const x = { defaultOn: true }')).toBe(true)
+  })
+  it('allows a default that only the preview host gets', () => {
+    const ok = [
+      "export const PREVIEW_DEFAULT_ON: readonly string[] = ['a.v1']",
+      'const defaults = () =>',
+      '  isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON) : new Set()',
+    ].join('\n')
+    expect(defaultsOn(ok)).toBe(false)
+  })
+  it('still fails when the preview list is also used without the host check', () => {
+    const bad = [
+      "export const PREVIEW_DEFAULT_ON = ['a.v1']",
+      'const defaults = () => new Set(PREVIEW_DEFAULT_ON)',
+    ].join('\n')
+    expect(defaultsOn(bad)).toBe(true)
+  })
+  it('still fails an ungated DEFAULT_ON next to a gated one', () => {
+    const bad = [
+      "export const PREVIEW_DEFAULT_ON = ['a.v1']",
+      'const defaults = () => isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON) : new Set()',
+      "const DEFAULT_ON = ['b.v1']",
+    ].join('\n')
+    expect(defaultsOn(bad)).toBe(true)
+  })
+  it('fails the negated form that gives the list to every host but the preview', () => {
+    const bad = [
+      "export const PREVIEW_DEFAULT_ON = ['a.v1']",
+      'const defaults = () => !isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON) : new Set()',
+    ].join('\n')
+    expect(defaultsOn(bad)).toBe(true)
   })
 })
 

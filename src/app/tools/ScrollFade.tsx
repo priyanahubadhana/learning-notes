@@ -69,8 +69,10 @@ export function ScrollFade({
       left: direction * ref.current.clientWidth * 0.7,
       behavior: 'smooth',
     })
+  // The sticky holder below is already its own layer, with this button as its
+  // only child, so the button needs no layer of its own.
   const cue =
-    'pointer-events-auto absolute inset-y-0 z-[2] grid w-7 place-items-center bg-surface text-ink-soft hover:text-ink'
+    'pointer-events-auto absolute inset-y-0 grid w-7 place-items-center bg-surface text-ink-soft hover:text-ink'
   const holder = 'pointer-events-none sticky z-[2] w-0 shrink-0 self-stretch'
   return (
     <div

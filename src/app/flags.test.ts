@@ -109,3 +109,62 @@ describe('flags', () => {
     act(() => root.unmount())
   })
 })
+
+describe('preview defaults (F5)', () => {
+  const PREVIEW_ON = [
+    'foundation.shell',
+    'toolbar.v8',
+    'settings.v3',
+    'notebooks.v2',
+    'search.v2',
+    'home.v2',
+    'library.v2',
+    'review.v2',
+    'ai.framework',
+    'update.v2',
+    'page.menus',
+    'storage.safety',
+  ] as const
+  const PREVIEW = 'build-next.learning-notes-app.pages.dev'
+  const onHost = (hostname: string) => {
+    vi.stubGlobal('location', { hostname, search: '' })
+    reloadFlags()
+  }
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    reloadFlags()
+  })
+
+  it('the build-next preview host starts with the tested parts ON', () => {
+    onHost(PREVIEW)
+    for (const id of PREVIEW_ON) expect(isOn(id)).toBe(true)
+    expect(isOn('textbox.v2')).toBe(false)
+    expect(isOn('reader.v2')).toBe(false)
+  })
+
+  it('the live host and other hosts keep everything OFF', () => {
+    for (const h of [
+      'learning-notes-app.pages.dev',
+      'localhost',
+      `${PREVIEW}.example.com`,
+    ]) {
+      onHost(h)
+      for (const id of FLAG_IDS) expect(isOn(id)).toBe(false)
+    }
+  })
+
+  it('a switch the user turned OFF stays OFF on the preview host', () => {
+    onHost(PREVIEW)
+    setFlag('search.v2', false)
+    reloadFlags()
+    expect(isOn('search.v2')).toBe(false)
+    expect(isOn('home.v2')).toBe(true)
+  })
+
+  it('a switch the user turned ON is kept on the preview host', () => {
+    localStorage.setItem(FLAG_STORAGE_KEY, JSON.stringify(['textbox.v2']))
+    onHost(PREVIEW)
+    expect(isOn('textbox.v2')).toBe(true)
+    expect(isOn('search.v2')).toBe(false)
+  })
+})

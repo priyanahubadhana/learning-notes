@@ -1271,3 +1271,9 @@ html[data-box-drag] {
 :root[data-v8-picture] [data-resize-handle] {
   visibility: hidden;
 }
+
+/* F5: the search field fills the header row, so the close ✕ sits at the right edge. */
+.srv2-dialog .clr-wrap {
+  flex: 1;
+  min-width: 0;
+}

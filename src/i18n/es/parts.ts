@@ -218,4 +218,7 @@ export const esParts = {
   'parts.fb.bannerRegion': 'Aviso',
   'parts.fb.bannerClose': 'Descartar el aviso',
   'parts.fb.bannerNext': '{count} avisos más en espera',
+  'parts.scroll.up': 'Desplazar hacia arriba',
+  'parts.scroll.down': 'Desplazar hacia abajo',
+  'parts.scroll.bar': 'Barra de desplazamiento',
 } as const

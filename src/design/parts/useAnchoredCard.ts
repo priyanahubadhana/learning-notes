@@ -179,8 +179,10 @@ export function useAnchoredCard(opts: {
   around?: () => RectLike | null
   /** With `around`: the card never starts above this y (the bottom of the bar + 8). */
   clearTop?: () => number
+  /** Pixels at the foot the on-screen keyboard (and its text bar) cover. */
+  footLift?: number
 }): CardPos | null {
-  const { anchor, card, widthPx, active, avoid, around, clearTop } = opts
+  const { anchor, card, widthPx, active, avoid, around, clearTop, footLift = 0 } = opts
   const [pos, setPos] = useState<CardPos | null>(null)
   useLayoutEffect(() => {
     if (!active || !anchor || !card) {
@@ -189,7 +191,7 @@ export function useAnchoredCard(opts: {
     const run = () => {
       const root = document.documentElement
       const size = { width: widthPx, height: card.offsetHeight }
-      const view = { width: root.clientWidth, height: window.innerHeight }
+      const view = { width: root.clientWidth, height: window.innerHeight - footLift }
       const box = around?.() ?? null
       const next =
         (box && placeAround(box, size, view, clearTop?.() ?? 0)) ||
@@ -211,6 +213,6 @@ export function useAnchoredCard(opts: {
     ro.observe(card)
     ro.observe(document.documentElement)
     return () => ro.disconnect()
-  }, [anchor, card, widthPx, active, avoid, around, clearTop])
+  }, [anchor, card, widthPx, active, avoid, around, clearTop, footLift])
   return active && anchor && card ? pos : null
 }

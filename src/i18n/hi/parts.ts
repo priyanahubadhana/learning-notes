@@ -215,4 +215,7 @@ export const hiParts = {
   'parts.fb.bannerRegion': 'सूचना',
   'parts.fb.bannerClose': 'सूचना हटाएँ',
   'parts.fb.bannerNext': '{count} और सूचनाएँ प्रतीक्षा में',
+  'parts.scroll.up': 'ऊपर स्क्रॉल करें',
+  'parts.scroll.down': 'नीचे स्क्रॉल करें',
+  'parts.scroll.bar': 'स्क्रॉल बार',
 } as const

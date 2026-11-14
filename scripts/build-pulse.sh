@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Hourly pulse of the build (docs/ECONOMY-MODE.md section 5). Read-only.
+# Hourly pulse of the build (docs/HOW-WE-BUILD.md section 9). Read-only.
 # Run from the main repo folder: bash scripts/build-pulse.sh
 # Prints PROGRESS or STALL. STALL = in the last 60 minutes there was no merge
 # into build/next, no new green CI run and fewer than 2 slice branches with

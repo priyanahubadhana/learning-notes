@@ -109,15 +109,21 @@ async function record(page: Page) {
   await page.evaluate(() => {
     const w = window as unknown as Row
     w.__long = [] as number[]
+    w.__longSpans = [] as [number, number][]
     w.__frames = [] as number[]
+    w.__frameSpans = [] as [number, number][]
     w.__po = new PerformanceObserver((l) => {
-      for (const e of l.getEntries()) w.__long.push(e.duration)
+      for (const e of l.getEntries()) {
+        w.__long.push(e.duration)
+        w.__longSpans.push([e.startTime, e.startTime + e.duration])
+      }
     })
     w.__po.observe({ entryTypes: ['longtask'] })
     w.__rec = true
     let last = performance.now()
     const tick = (t: number) => {
       w.__frames.push(t - last)
+      w.__frameSpans.push([last, t])
       last = t
       if (w.__rec) requestAnimationFrame(tick)
     }
@@ -130,7 +136,12 @@ async function stop(page: Page) {
     const w = window as unknown as Row
     w.__rec = false
     w.__po.disconnect()
-    return { long: w.__long as number[], frames: w.__frames as number[] }
+    return {
+      long: w.__long as number[],
+      frames: w.__frames as number[],
+      longSpans: w.__longSpans as [number, number][],
+      frameSpans: w.__frameSpans as [number, number][],
+    }
   })
 }
 
@@ -558,12 +569,19 @@ async function mixedPass(page: Page, cdp: CDPSession, zoom: number) {
   const d = (k: string) => ((m1[k] ?? 0) - (m0[k] ?? 0)) * 1000
   const n = Math.max(1, r.frames.length)
   const late = r.frames.filter((f) => f > 25).length
+  // A late frame is the app's fault only when the app's own main-thread work
+  // (a long task) overlaps it; a late frame with no long task is the CI
+  // machine stalling (owner-approved 14 Nov, option A).
+  const lateApp = r.frameSpans.filter(
+    ([a, b]) => b - a > 25 && r.longSpans.some(([s, e]) => s < b && e > a),
+  ).length
   return {
     zoom,
     frames: r.frames.length,
     medianFrameMs: +median(r.frames).toFixed(1),
     p95FrameMs: +percentile(r.frames, 0.95).toFixed(1),
     lateFramePct: +((100 * late) / n).toFixed(1),
+    lateAppPct: +((100 * lateApp) / n).toFixed(1),
     longTasks: r.long.length,
     maxLongMs: Math.round(Math.max(0, ...r.long)),
     scriptPerFrameMs: +(d('ScriptDuration') / n).toFixed(2),
@@ -617,7 +635,14 @@ for (const zoom of [1, 0.73, 1.5]) {
     // Medians and shares, not single frames (a two-core CI machine).
     expect(out.maxLongMs).toBeLessThan(150 * RUNNER)
     expect(out.p95FrameMs).toBeLessThan(34 * RUNNER)
-    expect(out.lateFramePct).toBeLessThan(10 * RUNNER)
+    if (process.env.CI) {
+      // CI runner stalls are not the app: count only app-caused late frames,
+      // and the typical frame must still be smooth (owner-approved 14 Nov).
+      expect(out.lateAppPct).toBeLessThan(10 * RUNNER)
+      expect(out.medianFrameMs).toBeLessThan(25)
+    } else {
+      expect(out.lateFramePct).toBeLessThan(10)
+    }
     expect(out.scriptPerFrameMs).toBeLessThan(3 * RUNNER)
   })
 }

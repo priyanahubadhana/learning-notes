@@ -15,6 +15,7 @@ import {
 import {
   Suspense,
   lazy,
+  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -35,6 +36,7 @@ import {
 import { historyState } from '../core/historySteps'
 import { useFlag } from '../app/flags'
 import { tuckState } from '../app/tools/v8/tuck'
+import { ScrollBar } from '../design/parts/ScrollBar'
 import { padHistoryState } from './writePad/padHistory'
 import { MainBarRow } from '../app/tools/main/MainBar'
 import { ToolbarV8Lazy } from '../app/tools/v8/ToolbarV8Lazy'
@@ -637,6 +639,13 @@ function Tray({
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
+  // The menu's own list gets the shared bar from the start (new frame), not only once touched (P1.1).
+  const shell = useFlag('foundation.shell')
+  const [listEl, setListEl] = useState<HTMLDivElement | null>(null)
+  const setRef = useCallback((el: HTMLDivElement | null) => {
+    ref.current = el
+    setListEl(el)
+  }, [])
   useEffect(() => {
     if (focusFirst) {
       ref.current
@@ -658,7 +667,7 @@ function Tray({
   }
   return (
     <div
-      ref={ref}
+      ref={setRef}
       role={label ? 'group' : undefined}
       aria-label={label}
       onKeyDown={label ? arrows : undefined}
@@ -669,6 +678,7 @@ function Tray({
     >
       <PopupHeader title={label} onClose={onClose} />
       {children}
+      {shell && <ScrollBar scroller={listEl} />}
     </div>
   )
 }

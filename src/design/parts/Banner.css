@@ -17,7 +17,8 @@
   animation: fb-banner-in var(--fb-dur-banner) var(--ease-out) both;
 }
 .fb-banner[data-kind='lock'],
-.fb-banner[data-kind='readonly'] {
+.fb-banner[data-kind='readonly'],
+.fb-banner[data-kind='storage'] {
   background: var(--color-warn-soft);
 }
 .fb-banner__icon {
@@ -27,7 +28,8 @@
   color: var(--color-accent);
 }
 .fb-banner[data-kind='lock'] .fb-banner__icon,
-.fb-banner[data-kind='readonly'] .fb-banner__icon {
+.fb-banner[data-kind='readonly'] .fb-banner__icon,
+.fb-banner[data-kind='storage'] .fb-banner__icon {
   color: var(--color-warn);
 }
 .fb-banner__text {

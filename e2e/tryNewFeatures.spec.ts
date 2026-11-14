@@ -28,7 +28,7 @@ test('Try new features: every switch starts off, one can be turned on and stays 
 }) => {
   await openTryNew(page)
   const switches = main(page).locator('[data-setting-id^="tryNew."]')
-  await expect(switches).toHaveCount(25)
+  await expect(switches).toHaveCount(26) // one per flag in src/app/flags.ts
   await expect(
     main(page).locator('[aria-pressed="true"]', { hasText: 'On' }),
   ).toHaveCount(0)

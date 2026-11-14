@@ -54,3 +54,5 @@ Noted while batch 1 is being built. Test batch 1 first, then decide which of the
 - Effort: Quick · Standard · Deep next to "Auto ▾", each showing its cost; Deep = top model plans, workers write (the owner's hierarchy).
 - Top-bar AI bar = "Claude Code for your page": type ANY instruction ("make this a 2-column page with a summary tab and 10 cards", "rename all headings…") and the AI changes the page with any app tool; quick "Build from this page" actions (notes, summary, mind map, cards, database); Ask second; plan preview + Undo for every change.
 - Technically possible: the connector already exposes tools (create_notebook, add_page, add_cards, create_database, apply_style, refine_page); the catalog extends this to every feature.
+
+- Settings search must also find every switch in Try new features and every advanced option, by its name and by plain words (owner, 14 Nov 2026). Check the "Search settings" box in New Settings covers them.

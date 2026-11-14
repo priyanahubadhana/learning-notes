@@ -16,7 +16,10 @@ import {
   type OverlayHandle,
 } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
+import { useFootLift } from '../../app/spaces/footLift'
+import { useFlag } from '../../app/flags'
 import { motionMs } from './motion'
+import { ScrollBar } from './ScrollBar'
 import { tp } from './tp'
 import { useAnchoredCard, usePhone } from './useAnchoredCard'
 import './Card.css'
@@ -100,6 +103,10 @@ export function Card(props: CardProps) {
   const phone = (usePhone() && !props.around) || !!props.phone
   const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
+  // New app frame (SC-01): a card that scrolls shows the shared bar at rest.
+  const shell = useFlag('foundation.shell')
+  const [bodyEl, setBodyEl] = useState<HTMLDivElement | null>(null)
+  useEffect(() => setBodyEl(bodyRef.current), [])
   const [node, setNode] = useState<HTMLDivElement | null>(null)
   const [closing, setClosing] = useState(false)
   const [picked, setPicked] = useState(false)
@@ -111,6 +118,7 @@ export function Card(props: CardProps) {
   const closingRef = useRef(false)
   const reasonRef = useRef<CardCloseReason>('outside')
   const handleRef = useRef<OverlayHandle | null>(null)
+  const releaseRef = useRef<() => void>(() => {})
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const onCloseRef = useRef(onClose)
   const anchorRef = useRef(anchor)
@@ -125,16 +133,21 @@ export function Card(props: CardProps) {
     reasonRef.current = reason
     setClosing(true)
     handleRef.current?.close()
-    timerRef.current = setTimeout(() => {
-      // Why: a tap into the text during the closing motion must keep its
-      // focus; hand focus back only if it is still in the card or nowhere.
-      const now = document.activeElement
-      const free =
-        !now || now === document.body || !!rootRef.current?.contains(now)
-      onCloseRef.current(reason)
-      const a = anchorRef.current
-      if (reason !== 'outside' && free && a instanceof HTMLElement) a.focus()
-    }, motionMs(130))
+    // Why: the closing motion is only a picture. Keys pressed while it plays
+    // (CI run 43505401817) were pulled back into the fading card by its Tab
+    // trap, and a tap into the text (CI run 43478875272) was undone by a late
+    // focus hand-back. So the trap ends and focus goes back to the chip now,
+    // and only if it is still in the card or nowhere.
+    releaseRef.current()
+    const now = document.activeElement
+    const free =
+      !now || now === document.body || !!rootRef.current?.contains(now)
+    const a = anchorRef.current
+    if (reason !== 'outside' && free && a instanceof HTMLElement) a.focus()
+    timerRef.current = setTimeout(
+      () => onCloseRef.current(reason),
+      motionMs(130),
+    )
   }, [])
 
   // Overlay: one card at a time; Esc and a tap outside close it.
@@ -152,6 +165,7 @@ export function Card(props: CardProps) {
       inside: (t) => !!el && el.contains(t),
     })
     const release = el ? trapFocus(el, null) : () => {}
+    releaseRef.current = release
     if (el) focusTarget(el).focus()
     return () => {
       closingRef.current = true
@@ -162,7 +176,10 @@ export function Card(props: CardProps) {
     }
   }, [isStatic, phone, request])
 
+  // BUG-006: with the keyboard up the card stays inside what can be seen.
+  const footLift = useFootLift()
   const pos = useAnchoredCard({
+    footLift,
     anchor,
     card: node,
     widthPx: WIDTH[size],
@@ -176,7 +193,7 @@ export function Card(props: CardProps) {
   // take focus, so focus again once it is visible (SP-14).
   const placed = !!pos
   useEffect(() => {
-    if (isStatic || !placed) return
+    if (isStatic || !placed || closingRef.current) return
     const el = rootRef.current
     if (!el || el.contains(document.activeElement)) return
     focusTarget(el).focus()
@@ -204,11 +221,14 @@ export function Card(props: CardProps) {
   }, [autoClose, picked, request])
 
   const floating = !isStatic && !phone
+  // F10: the phone dim layer takes the sheet layer number, so it also covers
+  // a sticky bar (--z-sticky) in the page behind.
+  const sheetLayer = { zIndex: LAYERS.sheet }
   const style: CSSProperties & Record<string, string | number | undefined> =
     isStatic
       ? { position: 'relative' }
       : phone
-        ? { zIndex: LAYERS.sheet }
+        ? sheetLayer
         : {
             zIndex: LAYERS.card,
             left: pos?.left ?? 0,
@@ -216,6 +236,9 @@ export function Card(props: CardProps) {
             width: pos?.width,
             maxHeight: pos?.maxHeight,
             visibility: pos ? 'visible' : 'hidden',
+            maxHeight: footLift
+              ? Math.max(160, window.innerHeight - footLift - 24)
+              : undefined,
           }
   if (floating && pos?.arrowX != null) style['--arrow-x'] = `${pos.arrowX}px`
   const side = floating ? (pos?.side ?? 'below') : 'below'
@@ -306,13 +329,14 @@ export function Card(props: CardProps) {
           </span>
         )}
         {footer && <footer className="pcard-foot">{footer}</footer>}
+        {shell && <ScrollBar scroller={bodyEl} />}
       </div>
     </CardCtx.Provider>
   )
   if (isStatic) return card
   return createPortal(
     <>
-      {phone && <div className="pcard-scrim" aria-hidden />}
+      {phone && <div className="pcard-scrim" style={sheetLayer} aria-hidden />}
       {card}
     </>,
     document.body,

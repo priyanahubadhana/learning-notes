@@ -3,6 +3,21 @@ export const enLateFlags = {
   'settings.category.tryNew': 'Try new features',
   'settings.category.tryNew.hint':
     'New parts of the app, switched off until you try them.',
+  'flags.preset.phase.name': 'Test a phase',
+  'flags.preset.phase.desc': 'Pick the phase you want to try.',
+  'flags.preset.on.name': 'Test this phase',
+  'flags.preset.on.desc':
+    'On: this phase works, later parts stay off. Off: every new part is off.',
+  'flags.preset.phase1': 'Phase 1',
+  'flags.preset.phase2a': 'Up to Phase 2A',
+  'flags.preset.phase2b': 'Up to Phase 2B',
+  'flags.preset.phase3': 'Up to Phase 3',
+  'flags.preset.phase4': 'Up to Phase 4',
+  'flags.preset.phase5': 'Up to Phase 5',
+  'flags.preset.phase6': 'Up to Phase 6',
+  'flags.preset.phase7': 'Up to Phase 7',
+  'flags.preset.phase8': 'Up to Phase 8',
+  'flags.preset.everything': 'Everything',
   'flags.foundation.events.name': 'Shared events',
   'flags.foundation.events.desc':
     'One shared place for taps, keys and pen events.',
@@ -61,4 +76,7 @@ export const enLateFlags = {
   'flags.safety.v2.desc': 'The redesigned backups and undo history.',
   'flags.system.v2.name': 'New system parts',
   'flags.system.v2.desc': 'The redesigned behind-the-scenes parts of the app.',
+  'flags.storage.safety.name': 'Storage safety',
+  'flags.storage.safety.desc':
+    'Calm notices when notes may not save, and a one-tap backup.',
 }

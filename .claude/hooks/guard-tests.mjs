@@ -3,7 +3,7 @@
 // setTimeout) or retries, grepInvert/testIgnore, fewer expect() calls, emptied or deleted test files.
 // Reason channel (owner-approved 13 Nov 2026): the hook cannot see commit messages, so a weakening
 // is allowed only when the same added line, or the line just above it, carries a comment
-// `test-guard-reason: <at least 5 words>`. The commit message must repeat the reason (docs/ECONOMY-MODE.md s.12).
+// `test-guard-reason: <at least 5 words>`. The commit message must repeat the reason (docs/HOW-WE-BUILD.md section 8).
 // Deleting a test file through Bash needs the same comment inside the command text.
 // Edit|Write|MultiEdit are wired in settings.json; the Bash branch works once a Bash matcher points here.
 import { existsSync, readFileSync } from 'node:fs'

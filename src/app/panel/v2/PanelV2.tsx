@@ -12,6 +12,9 @@ import { outlineRequest } from '../outlineRequest'
 import { OutlineTabV2 } from './OutlineTabV2'
 import { PagesTabV2 } from './PagesTabV2'
 import { ResourcesTab } from './ResourcesTab'
+import { ScrollBarIn } from '../../../design/parts/ScrollBar'
+import { useFrameSize } from '../../shell/useFrameSize'
+import { useFlag } from '../../flags'
 import './panelV2.css'
 
 const TABS = ['pages', 'outline', 'resources'] as const
@@ -39,15 +42,7 @@ const isTab = (v: unknown): v is Tab | 'audio' =>
 const DOCK_MIN = 1024
 
 function useDocked(): boolean {
-  const [docked, setDocked] = useState(() => window.innerWidth >= DOCK_MIN)
-  useEffect(() => {
-    const ro = new ResizeObserver(() =>
-      setDocked(window.innerWidth >= DOCK_MIN),
-    )
-    ro.observe(document.documentElement)
-    return () => ro.disconnect()
-  }, [])
-  return docked
+  return useFrameSize().width >= DOCK_MIN
 }
 
 /**
@@ -70,6 +65,9 @@ export default function PanelV2({
   onClose: () => void
 }) {
   const docked = useDocked()
+  // The shared bar is part of the new app frame; with it off the old hint handle stays.
+  const shell = useFlag('foundation.shell')
+  const [body, setBody] = useState<HTMLElement | null>(null)
   const [stored, setTab] = usePref<Tab | 'audio'>(
     'leftPanel.tab',
     isTab,
@@ -159,11 +157,12 @@ export default function PanelV2({
           }}
         />
       </div>
-      <div role="tabpanel" className="lpv2-body" data-tab={tab}>
+      <div role="tabpanel" className="lpv2-body" data-tab={tab} ref={setBody}>
         {tab === 'pages' && <PagesTabV2 {...common} onOpenPage={open} />}
         {tab === 'outline' && <OutlineTabV2 {...common} onOpenPage={open} />}
         {tab === 'resources' && <ResourcesTab {...common} onOpenPage={open} />}
       </div>
+      {shell && <ScrollBarIn root={body} selector=".lpv2-scroll" />}
     </aside>
   )
   if (docked) return panel

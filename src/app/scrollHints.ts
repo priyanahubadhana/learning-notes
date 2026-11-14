@@ -18,6 +18,7 @@ const HIT = 24
 const INSET = 3
 
 import { installEdgeStretch } from './edgeStretch'
+import { setScrollTarget } from '../design/parts/scrollTarget'
 
 export type More = 'top' | 'bottom' | 'both' | null
 
@@ -106,11 +107,14 @@ const MARK = 'data-scroll-more'
  */
 const GUTTER = 'data-scroll-gutter'
 
+/** True in the new frame: the shared bar overlays the list's edge, so no gutter is added on the fly. */
+let barOn: () => boolean = () => false
+
 function mark(el: HTMLElement): void {
   const more = moreOf(el.scrollTop, el.scrollHeight, el.clientHeight)
   if (more) {
     el.setAttribute(MARK, more)
-    el.setAttribute(GUTTER, '')
+    if (!barOn()) el.setAttribute(GUTTER, '')
   } else el.removeAttribute(MARK)
 }
 
@@ -118,7 +122,11 @@ function mark(el: HTMLElement): void {
  * Starts the hints. `isOn` is read each time, so the Settings switch takes
  * effect at once; call the returned `refresh` when it changes.
  */
-export function installScrollHints(isOn: () => boolean): {
+export function installScrollHints(
+  isOn: () => boolean,
+  /** New app frame (foundation.shell): the shared scroll bar replaces the handle. */
+  barMode: () => boolean = () => false,
+): {
   refresh: () => void
   stop: () => void
 } {
@@ -127,6 +135,7 @@ export function installScrollHints(isOn: () => boolean): {
   thumb.setAttribute('aria-hidden', 'true')
   thumb.dataset.noScrollHint = ''
   document.body.appendChild(thumb)
+  barOn = barMode
   const stopStretch = installEdgeStretch()
 
   let hideTimer: ReturnType<typeof setTimeout> | undefined
@@ -137,6 +146,10 @@ export function installScrollHints(isOn: () => boolean): {
   let hovered = false
 
   const hide = () => {
+    if (barMode()) {
+      current = null
+      setScrollTarget(null)
+    }
     if (drag || hovered) return
     thumb.classList.remove('is-on')
   }
@@ -146,6 +159,13 @@ export function installScrollHints(isOn: () => boolean): {
   }
 
   const show = (el: HTMLElement) => {
+    if (barMode()) {
+      // The shared bar (ScrollBarHost) draws it; the old handle stays hidden.
+      current = el
+      setScrollTarget(el)
+      return
+    }
+    setScrollTarget(null)
     const g = thumbOf(el.scrollTop, el.scrollHeight, el.clientHeight)
     if (!g) {
       current = null
@@ -283,6 +303,7 @@ export function installScrollHints(isOn: () => boolean): {
     ) {
       current = null
       hovered = false
+      setScrollTarget(null)
       thumb.classList.remove('is-on')
     }
   }
@@ -305,6 +326,7 @@ export function installScrollHints(isOn: () => boolean): {
       observer.disconnect()
       clearTimeout(hideTimer)
       clearTimeout(scanTimer)
+      setScrollTarget(null)
       thumb.remove()
     },
   }

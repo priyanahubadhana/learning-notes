@@ -4,6 +4,7 @@
 import { spawnSync, execFileSync } from 'node:child_process'
 import { appendFileSync, existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { planChecks } from './push-guard-plan.mjs'
 
 const cwd = process.cwd()
 const ZERO = /^0+$/
@@ -145,9 +146,11 @@ for (const [, localSha, remoteRef, remoteSha] of lines) {
   }
 
   const files = changedFiles(localSha, remoteSha)
-  const full = branch === 'build/next' || branch.startsWith('slice/')
+  const plan = planChecks(branch, files)
+  const full = plan.full
+  const hasCode = plan.eslint.length > 0 || plan.tsc || full
   console.log(
-    `push guard: ${branch} (${short}), ${files.length} changed file(s), ${full ? 'code' : 'basic'} checks`,
+    `push guard: ${branch} (${short}), ${files.length} changed file(s), ${hasCode ? 'code' : 'basic'} checks`,
   )
   try {
     runEach(
@@ -156,18 +159,16 @@ for (const [, localSha, remoteRef, remoteSha] of lines) {
       files.filter((f) => TEXT.test(f)),
     )
     run('check:links', 'npm run check:links')
+    runEach('eslint', 'npx eslint --quiet', plan.eslint)
+    if (plan.tsc) run('tsc', 'npx tsc -b')
+    if (plan.ratchet) run('check:ratchet', 'npm run check:ratchet')
+    runEach(
+      'vitest related',
+      'npx vitest related --run --passWithNoTests',
+      plan.vitestRelated,
+    )
     if (full) {
-      const lint = files.filter((f) => /\.(ts|tsx|js|mjs)$/.test(f))
-      runEach('eslint', 'npx eslint --quiet', lint)
-      run('tsc', 'npx tsc -b')
-      run('check:ratchet', 'npm run check:ratchet')
-      const src = files.filter((f) => /^src\/.*\.(ts|tsx|js|mjs)$/.test(f))
-      runEach(
-        'vitest related',
-        'npx vitest related --run --passWithNoTests',
-        src,
-      )
-      let specs = files.filter((f) => /^e2e\/.*\.spec\.ts$/.test(f))
+      let specs = plan.specs
       if (
         branch === 'build/next' &&
         existsSync(resolve(cwd, SMOKE)) &&

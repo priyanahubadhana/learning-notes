@@ -4,6 +4,7 @@ import { Settings } from 'lucide-react'
 import { DeviceModeMenuRow } from '../DeviceModeMenu'
 import { THEMES, type Theme } from '../theme'
 import type { LearningNotesDB } from '../../core/db'
+import { useFootLift } from './footLift'
 import { Tip } from '../../help/Help'
 import { t } from '../../i18n/t'
 import { TrashSection } from '../../trash/TrashSection'
@@ -79,6 +80,9 @@ export function QuietCorner({
     if (open) panel.current?.querySelector('button')?.focus()
   }, [open])
 
+  // BUG-006: the panel rises from the foot of what can be SEEN.
+  const lift = useFootLift()
+
   const choose = (run: () => void) => () => {
     setOpen(false)
     run()
@@ -107,6 +111,12 @@ export function QuietCorner({
           <div
             ref={panel}
             data-corner
+            style={{
+              marginBottom: lift,
+              maxHeight: lift
+                ? `min(80vh, ${Math.max(160, innerHeight - lift - 16)}px)`
+                : undefined,
+            }}
             data-testid="corner-panel"
             role="region"
             aria-label={t('corner.label')}

@@ -4,14 +4,13 @@ Owner request (12 Nov 2026): work must survive a power cut, the PC turning off, 
 
 ## Where the work lives (safe places)
 
-| What                                | Where                                                           | Safe because                                      |
-| ----------------------------------- | --------------------------------------------------------------- | ------------------------------------------------- |
-| Code, rules, plans, decisions       | git repo, pushed to GitHub after every step                     | survives any PC problem                           |
-| Open work list                      | `docs/PENDING.md` (the single list) + `docs/CHANGELOG.md`       | read first by any new session                     |
-| Approved mock-ups and their sources | `docs/mockups/` (copied from the temporary scratchpad)          | the scratchpad is a temp folder Windows may clean |
-| Mock-up links                       | claude.ai artifacts (listed in PENDING)                         | online, survive the PC                            |
-| Backup copy                         | `C:\Users\pc\Downloads\gdrive notes` (mirror after each change) | second copy                                       |
-| Helpers' half-done code             | their own git worktree + branch, committed in small steps       | a restart continues from the last commit          |
+| What                                | Where                                                     | Safe because                                      |
+| ----------------------------------- | --------------------------------------------------------- | ------------------------------------------------- |
+| Code, rules, plans, decisions       | git repo, pushed to GitHub after every step               | survives any PC problem                           |
+| Open work list                      | `docs/PENDING.md` (the single list) + `docs/CHANGELOG.md` | read first by any new session                     |
+| Approved mock-ups and their sources | `docs/mockups/` (copied from the temporary scratchpad)    | the scratchpad is a temp folder Windows may clean |
+| Mock-up links                       | claude.ai artifacts (listed in PENDING)                   | online, survive the PC                            |
+| Helpers' half-done code             | their own git worktree + branch, committed in small steps | a restart continues from the last commit          |
 
 ## What happens when…
 
@@ -31,7 +30,7 @@ Owner request (12 Nov 2026): work must survive a power cut, the PC turning off, 
 3. Approved or in-progress mock-ups are copied to `docs/mockups/` and committed.
 4. Each helper works in its own worktree and branch, so a crash never mixes half-done work into main.
 5. On restart, first read HANDOFF + PENDING + `git log -20`, then continue; never redo finished work.
-6. The quality rules (`rules/quality.md`) apply after a restart exactly as before: same checks, same 3 gates.
+6. The quality rules (`rules/quality.md`) apply after a restart exactly as before: same checks, same gates, in the same order.
 
 ## Restart checklist for the owner (30 seconds)
 

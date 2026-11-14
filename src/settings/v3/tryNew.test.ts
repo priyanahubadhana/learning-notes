@@ -83,3 +83,16 @@ describe('F9 preview host opens the list', () => {
     expect((await import('./tryNew')).tryNewOpen()).toBe(false)
   })
 })
+
+describe('rowsToTurnOff leaves the Test a phase rows alone (SET-B26g)', () => {
+  it('does not list the preset rows', () => {
+    const rows = [
+      { id: 'tryNewPreset.on', category: 'tryNew' },
+      { id: 'tryNewPreset.phase', category: 'tryNew' },
+      { id: 'tryNew.home.v2', category: 'tryNew' },
+    ]
+    expect(rowsToTurnOff(rows, () => true).map((r) => r.id)).toEqual([
+      'tryNew.home.v2',
+    ])
+  })
+})

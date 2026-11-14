@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026 (evening): task 0.6 Test a phase
+
+- What: Settings › Try new features gets "Test a phase" (a list of phases) and one On/Off switch that sets every switch up to that phase.
+- Why: the owner tests a phase with one switch.
+- Files: src/app/flags.ts, src/settings/flagSettings.ts, src/settings/v3/tryNew.ts, texts en/es/hi flags, e2e/presetPhases.spec.ts, src/app/flagsPreset.test.ts, playwright.config.ts (one test-list line), docs/features/settings-v3.md, docs/DECISIONS.md.
+
 ### 14 Nov 2026 (evening): task 0.5 merged; audit answers recorded; clean-up done
 
 - What: the scroll fix (`slice/fix-scroll-frame` 0db04220) merged alone into `build/next` (d91b83d8); the owner's three answers to the audit recorded (folders deleted by the owner's script, Fable's `xhigh` effort entry removed from the user settings, security updates planned as task 0.14 after 0.6); task 0.11 done (lint 0 errors).

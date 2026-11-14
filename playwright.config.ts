@@ -108,6 +108,7 @@ const config = defineConfig({
         /startSpeed/,
         /startSeeding/,
         /tryNewFeatures/,
+        /presetPhases/,
         /libraryV2/,
         /foundationInput/,
         /stripGear/,

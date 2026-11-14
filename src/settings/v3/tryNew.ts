@@ -66,7 +66,11 @@ export function rowsToTurnOff<T extends { id: string; category: string }>(
   isOn: (row: T) => boolean,
 ): T[] {
   return rows.filter(
-    (s) => s.category === 'tryNew' && s.id !== KEEP_ON_ID && isOn(s),
+    (s) =>
+      s.category === 'tryNew' &&
+      s.id !== KEEP_ON_ID &&
+      !s.id.startsWith('tryNewPreset.') &&
+      isOn(s),
   )
 }
 

@@ -3,6 +3,21 @@ export const esFlags = {
   'settings.category.tryNew': 'Funciones nuevas para probar',
   'settings.category.tryNew.hint':
     'Partes nuevas de la app, apagadas hasta que las pruebes.',
+  'flags.preset.phase.name': 'Probar una fase',
+  'flags.preset.phase.desc': 'Elige la fase que quieres probar.',
+  'flags.preset.on.name': 'Probar esta fase',
+  'flags.preset.on.desc':
+    'Sí: esta fase funciona y las siguientes siguen apagadas. No: todo lo nuevo se apaga.',
+  'flags.preset.phase1': 'Fase 1',
+  'flags.preset.phase2a': 'Hasta la fase 2A',
+  'flags.preset.phase2b': 'Hasta la fase 2B',
+  'flags.preset.phase3': 'Hasta la fase 3',
+  'flags.preset.phase4': 'Hasta la fase 4',
+  'flags.preset.phase5': 'Hasta la fase 5',
+  'flags.preset.phase6': 'Hasta la fase 6',
+  'flags.preset.phase7': 'Hasta la fase 7',
+  'flags.preset.phase8': 'Hasta la fase 8',
+  'flags.preset.everything': 'Todo',
   'flags.foundation.events.name': 'Eventos compartidos',
   'flags.foundation.events.desc':
     'Un solo lugar para toques, teclas y eventos del lápiz.',

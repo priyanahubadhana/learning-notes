@@ -1819,3 +1819,7 @@ What: docs/plans/phases/phase-1.md; docs/metrics/phase-results.md and tasks.csv;
 ## 14 Nov 2026: task 0.12, two safety programs (Sonnet builder, Opus review)
 
 What: scripts/push-guard.mjs now runs ESLint, tsc and the related unit tests on every branch whenever a push changes code (decision in scripts/push-guard-plan.mjs, unit-tested); new read-only scripts/ci-sort.mjs and ci-sort-lib.mjs with `npm run ci:sort`, which sorts a failed test run into plain lines; fixtures from four real runs. Why: 8 of the 19 failed runs of 13 to 14 Nov were simple checks a local run catches, and a lint error reached main unnoticed. Review: FAIL once (test samples not saved to git, one check too narrow, a wrong answer without gh, a missing test), then PASS. Merged f4e90a93. Also: .claude/hooks/on-stop.mjs and mark-mirror.mjs removed and settings changed in the settings review (see DECISIONS).
+
+## 14 Nov 2026: agents research report (owner's request)
+
+What: docs/plans/agents-research-2026-11-14.md added (four Sonnet fact-gatherers, one Opus writer; official Claude Code pages and outside reports read on 14 Nov); a row in docs/INDEX.md; three proposals listed in docs/PENDING.md "Needs you". Why: the owner asked what agents are, whether we use them fully and whether more would help. Finding: more agents would hurt this build; the lean setup matches the official advice. No rule, setting or code was changed.

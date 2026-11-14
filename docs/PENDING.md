@@ -10,6 +10,7 @@ The one short list of open work. The plan: [plans/phase-plan.md](plans/phase-pla
 - **Small, not urgent:**
   - Unlock switch "about.updateDetails" (open since 13 Nov): keep it, or keep using "about.version". Asked again in the Phase 1 page.
   - Decisions to review: docs/DECISIONS.md "Decisions to review" (items from 12 to 14 Nov).
+  - Three small proposals from the agents research (14 Nov), to be asked after the settings review; nothing is changed until you answer: (1) each builder gets its own copy of the code by a setting, only after there is one code line (task 0.7), because the setting starts from the live line; (2) a "done means green" check on the builder, only if the task record shows builders report done while checks are red; (3) a tidy-up of rules and memory at each phase end. Report: [plans/agents-research-2026-11-14.md](plans/agents-research-2026-11-14.md).
   - One check before the strict security header is switched on: Google sign-in, Drive and fonts still work. Until then the strict rule only reports.
   - AI test key: you said you typed it into Settings › AI with a cap. On the device, check it shows masked and that Test passes. Never paste it in chat.
   - Supabase, Phase 8: the online Claude connector needs its job tools deployed (list in docs/features/ai-framework.md "Needs the owner"). Needs your OK then.

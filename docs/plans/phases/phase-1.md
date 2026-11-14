@@ -58,6 +58,19 @@ Address: https://build-next.learning-notes-app.pages.dev . Write down the step n
 16. Use the app for ten minutes as you normally would. **You should see:** no freeze (F7). If it freezes, note what you had just tapped.
 17. In "Test a phase", switch Off. **You should see:** the old screens come back at once.
 
+## Re-check round (after fixes P1.1 and P1.2, 14 Nov)
+
+Same address, iPad, Safari, about 10 minutes. First check Settings › Help & tour › About this app shows the version Claude names. Write down the step and what you saw.
+
+1. **Scroll bar with the Pencil (L4).** In the left list, a long page and the page list, tap the bar, its ▲ ▼ arrows and drag the thumb with the **Apple Pencil**, then with a finger. **You should see:** every tap and drag moves the list; nothing else reacts (not the tool bar, not a row).
+2. **Scroll bar size and look (L1).** **You should see:** a bit bigger than before (between the old big bar and the thin one), calm. Say if you like it.
+3. **One bar per edge (L4, R4).** Open the tool bar ⋯ menu over a long page. **You should see:** only the menu's bar at the right edge; the page's bar comes back when the menu closes.
+4. **Step 13.** Settings › Help & tour › About this app › Check for updates now. **You should see:** only a small pill; nothing downloads by itself.
+5. **Step 14.** In the same block, Pretend a must-have update. **You should see:** a full-screen notice counts down 5 seconds and the app reopens on the same page.
+6. **Step 15.** The Home Screen notice shows again only after 7 days. For now: Settings › General › This device › Back up now. **You should see:** "Backup saved." and a file in Downloads.
+7. **iPad upright Settings (R1).** **You should see:** the settings use the full width, with no wide empty area on the left.
+8. **Phone, if you have one at hand (R2, F10).** Open the address on the phone, Settings, open a ▾ list (for example Day starts at), in Beginner and in Professional. **You should see:** everything behind the list goes dim, the search bar and the tab bar too.
+
 ## After the first look
 
 - Fix each finding (one or two builders, each reviewed once), then the owner re-checks those steps.

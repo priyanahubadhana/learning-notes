@@ -50,7 +50,7 @@ At the end of a phase: the owner's first look on the iPad, fixes, polish to the 
 ## 5. Tests
 
 - **Before a push:** `npm run format:check`, `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run check:links`, `npm run check:size`, and the task's own e2e files on chromium and ipad-webkit. Run them in the task's own working copy, not in the main one.
-- **Running Playwright by hand:** set `PW_PORT` to a free port first; every working copy uses port 5199 otherwise, and a second run cannot start. At most 2 iPad runs at once on this PC.
+- **Running Playwright by hand:** set `PW_PORT` to a free port first; every working copy uses port 5199 otherwise, and a second run cannot start. Only **one** ipad-webkit suite at a time on this PC (measured 14 Nov: two at once gave timeouts and 9 of 20 failures in one test; alone 20/20); the manager says when it is free.
 - **On the code line:** a push to `build/next` (pull request #5) runs the checks and the fast set, 9.5 minutes measured on 14 Nov, and publishes the preview. The full set (33 to 43 minutes) runs on every push to `main`, every night at 02:00 IST on `build/next`, and by hand before a release: `gh workflow run ci.yml --ref <branch> -f full=true`. The fast list is `e2e/fastSet.ts` (36 files, 16 of them also on iPad); a unit test keeps it from shrinking. Until task 0.7, do not start a run by hand on `main` without `full`: main has no fast list yet.
 
 ## 6. Brief for a builder (under 200 words; point to files, never paste them)

@@ -70,3 +70,31 @@ test.describe('a bar that overflows', () => {
       .toBeGreaterThan(50)
   })
 })
+
+test.describe('the "more tools" arrow has its own place', () => {
+  test.use({ viewport: { width: 560, height: 800 }, hasTouch: true })
+
+  // Why: the arrow sat on top of the last tool (Backspace) and hid it.
+  test('the arrows never cover a tool, at the start, in the middle and at the end', async ({
+    page,
+  }) => {
+    await openNote(page, 'touch', { 'toolbar.extras': MANY })
+    const scroller = page.locator('[data-bar-scroll] [data-slot="tools"]')
+    const overlap = async () => {
+      const s = (await scroller.boundingBox())!
+      for (const side of ['start', 'end']) {
+        const cue = page.locator(`[data-scroll-cue="${side}"]`)
+        if (!(await cue.count())) continue
+        const c = (await cue.boundingBox())!
+        // The cue sits outside the strip that holds the tools.
+        const clear = c.x + c.width <= s.x + 0.5 || c.x >= s.x + s.width - 0.5
+        expect(clear, `${side} cue overlaps the tools`).toBe(true)
+      }
+    }
+    await overlap()
+    await scroller.evaluate((el) => (el.scrollLeft = 80))
+    await overlap()
+    await scroller.evaluate((el) => (el.scrollLeft = el.scrollWidth))
+    await overlap()
+  })
+})

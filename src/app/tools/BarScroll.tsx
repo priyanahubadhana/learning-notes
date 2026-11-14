@@ -104,61 +104,63 @@ export function BarScroll({
       ? `linear-gradient(to right, ${o.start ? 'transparent' : '#000'} 0, #000 ${fade}px, #000 calc(100% - ${fade}px), ${o.end ? 'transparent' : '#000'} 100%)`
       : undefined
   const cue =
-    'absolute top-0 z-[1] grid h-full min-w-8 place-items-center text-ink-soft hover:text-ink'
+    'relative grid min-w-11 shrink-0 place-items-center self-stretch text-ink-soft hover:text-ink'
   return (
     <div
       data-bar-scroll
       data-overflow={o.start || o.end || undefined}
       className={`relative min-w-0 ${className}`}
     >
-      <div
-        ref={scroller}
-        data-slot="tools"
-        onScroll={measure}
-        className="flex items-center gap-px overflow-x-auto"
-        style={{
-          scrollbarWidth: 'none',
-          maskImage: mask,
-          WebkitMaskImage: mask,
-        }}
-      >
-        {children}
+      <div className="flex items-stretch">
+        {o.start && (
+          <button
+            type="button"
+            data-scroll-cue="start"
+            tabIndex={-1}
+            aria-label={t('bar.scrollBack', { count: o.hiddenStart })}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => slide(-1)}
+            className={cue}
+          >
+            <Icon name="chevronLeft" size={16} />
+          </button>
+        )}
+        <div
+          ref={scroller}
+          data-slot="tools"
+          onScroll={measure}
+          className="flex min-w-0 flex-1 items-center gap-px overflow-x-auto"
+          style={{
+            scrollbarWidth: 'none',
+            maskImage: mask,
+            WebkitMaskImage: mask,
+          }}
+        >
+          {children}
+        </div>
+        {o.end && (
+          <button
+            type="button"
+            data-scroll-cue="end"
+            tabIndex={-1}
+            aria-label={t('bar.scrollMore', { count: o.hiddenEnd })}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => slide(1)}
+            className={cue}
+          >
+            <Icon name="chevronRight" size={16} />
+            {o.hiddenEnd > 0 && (
+              <span
+                aria-hidden
+                data-scroll-count
+                className="absolute top-0.5 right-0.5 rounded-full bg-accent px-1 text-[10px] leading-4 font-semibold text-white"
+              >
+                {o.hiddenEnd}
+              </span>
+            )}
+          </button>
+        )}
       </div>
-      {o.start && (
-        <button
-          type="button"
-          data-scroll-cue="start"
-          tabIndex={-1}
-          aria-label={t('bar.scrollBack', { count: o.hiddenStart })}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => slide(-1)}
-          className={`${cue} left-0`}
-        >
-          <Icon name="chevronLeft" size={16} />
-        </button>
-      )}
-      {o.end && (
-        <button
-          type="button"
-          data-scroll-cue="end"
-          tabIndex={-1}
-          aria-label={t('bar.scrollMore', { count: o.hiddenEnd })}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => slide(1)}
-          className={`${cue} right-0`}
-        >
-          <Icon name="chevronRight" size={16} />
-          {o.hiddenEnd > 0 && (
-            <span
-              aria-hidden
-              data-scroll-count
-              className="absolute top-0.5 right-0.5 rounded-full bg-accent px-1 text-[10px] leading-4 font-semibold text-white"
-            >
-              {o.hiddenEnd}
-            </span>
-          )}
-        </button>
-      )}
       {o.thumb && (
         <div
           ref={track}

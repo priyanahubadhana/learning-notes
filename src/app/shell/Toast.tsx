@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { Undo2 } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { useKeyboardInset } from '../../settings/deviceModeSettings'
 import { stackPositions } from '../overlay'
@@ -72,8 +73,10 @@ function ToastView({ toasts }: { toasts: ShellToasts }) {
           <button
             type="button"
             className="sh-toast-act"
+            data-icon={toast.action.icon}
             onClick={() => toasts.undo()}
           >
+            {toast.action.icon === 'undo' && <Undo2 size={16} aria-hidden />}
             {toast.action.label}
           </button>
         )}

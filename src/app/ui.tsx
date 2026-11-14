@@ -8,6 +8,7 @@ import {
   useState,
   type ComponentProps,
 } from 'react'
+import { Undo2 } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { usePopup } from './popups'
 import { PopupHeader } from './tools/PopupClose'
@@ -482,8 +483,14 @@ export function Toast({
         <button
           type="button"
           onClick={action.onSelect}
-          className="-my-1 min-h-9 shrink-0 rounded-md px-2.5 font-semibold text-accent underline underline-offset-2 hover:bg-hover"
+          className={
+            '-my-1 min-h-9 shrink-0 rounded-md px-2.5 font-semibold text-accent hover:bg-hover ' +
+            (action.icon
+              ? 'inline-flex items-center gap-1.5'
+              : 'underline underline-offset-2')
+          }
         >
+          {action.icon === 'undo' && <Undo2 size={16} aria-hidden />}
           {action.label}
         </button>
       )}

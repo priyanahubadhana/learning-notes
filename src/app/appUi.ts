@@ -7,6 +7,8 @@ export type PickerMode = 'new' | 'insert'
 export interface ToastAction {
   label: string
   onSelect: () => void
+  /** A small icon before the label (the Undo arrow). */
+  icon?: 'undo'
 }
 
 /** A small question with a few answers (see AppUi.choose). */

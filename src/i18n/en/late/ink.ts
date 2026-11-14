@@ -385,6 +385,7 @@ export const enLateInk = {
   'paper.box.move': 'Move box (drag)',
   'paper.box.moveDown': 'Move down',
   'paper.box.moveUp': 'Move up',
+  'paper.box.moved': 'Box moved',
   'paper.box.movedMany': '{n} boxes moved.',
   'paper.box.noColour': 'No colour',
   'paper.box.resize': 'Change box width (drag)',

@@ -400,6 +400,7 @@ export const esInk = {
   'paper.box.move': 'Mover el cuadro (arrastrar)',
   'paper.box.moveDown': 'Bajar',
   'paper.box.moveUp': 'Subir',
+  'paper.box.moved': 'Cuadro movido',
   'paper.box.movedMany': '{n} cuadros movidos.',
   'paper.box.noColour': 'Sin color',
   'paper.box.resize': 'Cambiar el ancho del cuadro (arrastrar)',

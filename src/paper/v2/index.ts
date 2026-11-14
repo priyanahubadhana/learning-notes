@@ -11,6 +11,16 @@ import './boxV2.css'
 
 export { rowUnder } from './boxSelection'
 export { HOLD_MS, floorFor, minWidthPx, nearestHandle } from './boxResize'
+export {
+  GLIDE_MS,
+  createDragClock,
+  glideFrom,
+  playGlide,
+  liftAt,
+  tabOnly,
+  watchFinger,
+  dropWithUndo,
+} from './boxDrag'
 
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 /** Parts of a box with their own tap (the tab, the menu, dots, frame strips). */
@@ -52,15 +62,26 @@ export function installBoxV2(): () => void {
   let swallowUntil = 0
   /** The tap that only selected a box makes no click on the text under it. */
   const stopClick = (e: Event) => {
-    if (Date.now() >= swallowUntil) return
-    // Only the words of that tap: a bar, a menu or any button answers at once.
-    const t = e.target instanceof Element ? e.target : null
-    if (!t?.closest('.ProseMirror') || t.closest(OWN_TAP)) return
+    if (!dragging()) {
+      if (Date.now() >= swallowUntil) return
+      // Only that tap's own events in the box text are held back (a link,
+      // page link or toggle there too); the bar or a menu answers at once.
+      const t = e.target instanceof Element ? e.target : null
+      if (!t?.closest('.ProseMirror')) return
+    }
     e.preventDefault()
     e.stopImmediatePropagation()
   }
 
+  /** TB-12, the drag lock: while a box is dragged no other press, lift or click reaches anything. */
+  const dragging = () => document.documentElement.hasAttribute('data-box-drag')
   const onDown = (e: PointerEvent) => {
+    if (dragging()) {
+      tap = null
+      e.stopImmediatePropagation()
+      if (e.cancelable) e.preventDefault()
+      return
+    }
     mode = inputModeFor(e.pointerType)
     setInputMode(mode)
     tap = null

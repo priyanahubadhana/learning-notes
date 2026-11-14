@@ -756,7 +756,7 @@ html[data-note-line] .bn-editor {
 }
 /*
  * The handle: a 24 px wide invisible touch area (only while shown) with a thin
- * bar on its right edge: 3 px at rest, 7 px while dragged. Drag = 1:1. A list
+ * bar on its right edge: 4 px at rest, 6 px while dragged (the same as the shared bar, design/parts/ScrollBar.css). Drag = 1:1. A list
  * that has the handle keeps its own 24 px gutter (padding at its end), so the
  * handle never covers a row's or header's buttons.
  */
@@ -773,9 +773,9 @@ html[data-note-line] .bn-editor {
   content: '';
   position: absolute;
   top: 0;
-  right: 3px;
+  right: 8px;
   bottom: 0;
-  width: 3px;
+  width: 4px;
   border-radius: 4px;
   background: var(--color-muted);
   transition: width 0.15s ease;
@@ -791,7 +791,7 @@ html[data-note-line] .bn-editor {
   padding-inline-end: 24px;
 }
 .scroll-hint-thumb.is-drag::after {
-  width: 7px;
+  width: 6px;
 }
 @media (prefers-reduced-motion: reduce) {
   .scroll-hint-thumb,

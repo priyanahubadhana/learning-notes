@@ -83,10 +83,12 @@ test('the handle is thin, has a 24 px touch area and drags 1:1', async ({
   await page.mouse.down()
   await page.mouse.move(x, y + 30, { steps: 6 })
   await expect(thumb).toHaveClass(/is-drag/)
-  const wide = await thumb.evaluate((el) =>
-    parseFloat(getComputedStyle(el, '::after').width),
-  )
-  expect(wide).toBeGreaterThanOrEqual(6)
+  // 6 px while dragged (design check 14 Nov; was 7), once the 150 ms grow has finished.
+  await expect
+    .poll(() =>
+      thumb.evaluate((el) => parseFloat(getComputedStyle(el, '::after').width)),
+    )
+    .toBeGreaterThanOrEqual(6)
   await page.mouse.up()
   const after = await list.evaluate((el) => el.scrollTop)
   const range = 900 - 150

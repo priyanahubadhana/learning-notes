@@ -193,7 +193,17 @@ function Pill({
 
   // The card sits next to the pill.
   const screen = { width: window.innerWidth, height: window.innerHeight }
-  const anchor = cardAnchor(pos, size, place.edge, screen)
+  // The card never covers the selection mini bar.
+  const miniBox = document
+    .querySelector('[data-mini-toolbar]')
+    ?.getBoundingClientRect()
+  const anchor = cardAnchor(
+    pos,
+    size,
+    place.edge,
+    screen,
+    miniBox && miniBox.width > 0 ? miniBox : undefined,
+  )
   const zones = dropZones(room)
   const label = t(`main.pill.${tool}` as MessageKey)
 

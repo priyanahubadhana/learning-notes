@@ -130,4 +130,34 @@ describe('where the options pill sits', () => {
     inside(cardAnchor({ x: 300, y: 40 }, pill, 'bottom', screen))
     inside(cardAnchor({ x: 8, y: 380 }, tall, 'left', screen))
   })
+
+  // Review 1: a card with too little room on its natural side flips to the
+  // other side; it never slides over its pill or over the mini bar.
+  it('flips to the other side instead of covering the pill', () => {
+    const screen = { width: 844, height: 390 }
+    const span = (a: ReturnType<typeof cardAnchor>) => {
+      const top = a.top ?? screen.height - (a.bottom ?? 0) - a.maxHeight
+      return [top, top + a.maxHeight]
+    }
+    const low = cardAnchor({ x: 300, y: 300 }, pill, 'top', screen)
+    expect(span(low)[1]).toBeLessThanOrEqual(300 - 6)
+    const high = cardAnchor({ x: 300, y: 20 }, pill, 'bottom', screen)
+    expect(span(high)[0]).toBeGreaterThanOrEqual(20 + 52 + 6)
+  })
+
+  it('keeps clear of the mini bar', () => {
+    const screen = { width: 820, height: 1180 }
+    const bar = { left: 100, right: 500, top: 520, bottom: 600 }
+    const a = cardAnchor({ x: 20, y: 160 }, pill, 'top', screen, bar)
+    const top = a.top ?? screen.height - (a.bottom ?? 0) - a.maxHeight
+    const end = top + a.maxHeight
+    expect(end <= bar.top - 6 || top >= bar.bottom + 6).toBe(true)
+    // A bar on the other side of the screen does not matter.
+    const far = cardAnchor({ x: 20, y: 160 }, pill, 'top', screen, {
+      ...bar,
+      left: 600,
+      right: 800,
+    })
+    expect(far.top).toBe(160 + 52 + 6)
+  })
 })

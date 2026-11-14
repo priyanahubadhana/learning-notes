@@ -43,6 +43,12 @@ async function ready(page: Page, attr: string) {
   await page.waitForTimeout(250)
 }
 
+// Without SHOTS the file still holds one test (an empty file is an error): the picture plan is complete.
+test('picture plan covers 3 sizes and 3 themes', () => {
+  expect(Object.keys(SIZES)).toHaveLength(3)
+  expect(Object.keys(THEMES)).toHaveLength(3)
+})
+
 for (const [sizeName, size] of Object.entries(SIZES)) {
   if (!SHOTS || !ONLY_SIZES.includes(sizeName)) continue
   for (const [label, attr] of Object.entries(THEMES)) {

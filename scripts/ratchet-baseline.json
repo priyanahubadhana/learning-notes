@@ -1,7 +1,7 @@
 {
   "totals": {
-    "listeners": 355,
-    "zIndex": 136
+    "listeners": 361,
+    "zIndex": 137
   },
   "files": {
     "listeners": {
@@ -33,7 +33,7 @@
       "src/app/reading/wakeLock.ts": 1,
       "src/app/router.ts": 2,
       "src/app/rowPalmGuard.ts": 2,
-      "src/app/scrollHints.ts": 5,
+      "src/app/scrollHints.ts": 11,
       "src/app/softRefresh.ts": 4,
       "src/app/spaces/QuietCorner.tsx": 2,
       "src/app/tools/BarScroll.tsx": 1,
@@ -181,7 +181,7 @@
       "src/images/PictureChooser.tsx": 1,
       "src/images/PicturePlacement.tsx": 2,
       "src/images/pictureMax.ts": 1,
-      "src/index.css": 1,
+      "src/index.css": 2,
       "src/ink/InkSurface.tsx": 1,
       "src/ink/MagnifierView.tsx": 1,
       "src/ink/controller.ts": 1,

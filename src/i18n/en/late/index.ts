@@ -32,6 +32,15 @@ import { enLateAiBuild } from './aibuild'
 import { enLateAiJobs } from './aijobs'
 import { enLateReviewV2 } from './reviewV2'
 import { enLateAiPlan } from './aiplan'
+import { enAi } from '../ai'
+import { enDatabases } from '../databases'
+import { enEditor } from '../editor'
+import { enHistory } from '../history'
+import { enImportExport } from '../importExport'
+import { enLock } from '../lock'
+import { enMedia } from '../media'
+import { enReading } from '../reading'
+import { enSettings } from '../settings'
 import { enParts } from '../parts'
 import { enV2Notebooks } from '../v2/notebooks'
 import { enV2Search } from '../v2/search'
@@ -41,6 +50,15 @@ import { enV8Tools } from '../v8Tools'
 import { enV8Text } from '../v8Text'
 
 export const enLate = {
+  ...enSettings,
+  ...enReading,
+  ...enMedia,
+  ...enLock,
+  ...enImportExport,
+  ...enHistory,
+  ...enEditor,
+  ...enDatabases,
+  ...enAi,
   ...enLateAccounts,
   ...enLateAi,
   ...enLateClaude,

@@ -11,6 +11,7 @@ Source: docs/plans/ipad-test-findings-2026-11-14.md L3 and R3. The owner's iPad 
 - TM-05 When I tap ✕ or Done → the menu closes; the list scrolls with the shared scroll bar; every control is at least 44 pt.
 - TM-06 When the switch is OFF → the old flat menu shows, unchanged.
 - TM-07 When I compare with the old menu → every old item is still there (e2e "every item of the old menu is in the new one").
+- TM-08 When the new tool bar (toolbar.v8) is on and I tap its ⋯ → the card shows the app actions (Reading mode, All tools, Settings, Hide the tool bar) as one row of icon tiles and the tools that did not fit as a tile grid under "More tools"; no key names; a tap draws no focus ring; the shared scroll bar only (e2e toolbarMenuV8.spec.ts).
 
 ## Won't do
 

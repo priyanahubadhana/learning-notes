@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: toolbar menu redesign 2A.2, v8 ⋯ card (flag toolbar.menu)
+
+- What: the new tool bar's ⋯ card shows its four app actions as icon tiles and the tools that did not fit as a tile grid (same items). Review fixes: quiet focus, Done test, shortcut hints on Bold to Code for mouse only, icons on every More row.
+- Why: the owner tests with "up to Phase 2A" (v8 ON), where the old ⋯ tray is not drawn.
+- Files: src/app/tools/v8/cards/more/MoreMenuV2.tsx, src/app/tools/v8/ToolBar.tsx, e2e/toolbarMenuV8.spec.ts.
+
 ### 14 Nov 2026: toolbar ⋯ menu redesign 2A.2 (flag toolbar.menu, OFF live)
 
 - What: the ⋯ toolbar menu is a short top row of four icon buttons, groups "Text style" and "Copy and paste", the rare items under More ▾; no key names on touch screens. Flag added (ON on preview host and in the phase2a preset).

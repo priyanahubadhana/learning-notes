@@ -173,6 +173,15 @@ describe('resizeCols', () => {
     expect(resizeCols(r, 0, 0.05).cols[0].w).toBe(0.25)
     expect(resizeCols(r, 0, 0.99).cols[1].w).toBe(0.25)
   })
+  it('keeps a floor (longest word) on each side when it fits', () => {
+    const f = { l: 0.4, r: 0.3 }
+    expect(resizeCols(r, 0, 0.05, true, f).cols[0].w).toBe(0.4)
+    expect(resizeCols(r, 0, 0.99, true, f).cols[1].w).toBe(0.3)
+    // A floor that does not fit is ignored: the usual minimum stays.
+    expect(resizeCols(r, 0, 0.05, true, { l: 0.7, r: 0.7 }).cols[0].w).toBe(
+      0.25,
+    )
+  })
   it('only the two neighbours change', () => {
     const three = row('r', [0.3, ['a']], [0.3, ['b']], [0.4, ['c']])
     const out = resizeCols(three, 0, 0.45, false)

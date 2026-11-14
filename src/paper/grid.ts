@@ -399,6 +399,8 @@ export function resizeCols(
   i: number,
   at: number,
   snap = true,
+  /** Text box v2: the least each side needs (fractions of the row), e.g. its longest word. */
+  floor?: { l: number; r: number },
 ): GridRow {
   if (i < 0 || i + 1 >= row.cols.length) return row
   const before = sum(row.cols.slice(0, i).map((c) => c.w))
@@ -408,7 +410,11 @@ export function resizeCols(
     const hit = SNAPS.find((s) => Math.abs(s - edge) <= 0.03)
     if (hit !== undefined) edge = hit
   }
-  const left = Math.min(span - MIN_FRAC, Math.max(MIN_FRAC, edge - before))
+  // A floor that does not fit in the span is ignored.
+  const fits = !!floor && floor.l + floor.r <= span
+  const minL = Math.max(MIN_FRAC, fits ? floor!.l : 0)
+  const minR = Math.max(MIN_FRAC, fits ? floor!.r : 0)
+  const left = Math.min(span - minR, Math.max(minL, edge - before))
   const cols = row.cols.map((c, j) =>
     j === i
       ? { ...c, w: round(left) }

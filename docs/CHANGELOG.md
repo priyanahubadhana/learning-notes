@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: F8 the page no longer jumps when the lazy tool bar draws
+
+- What: the bar slot keeps the tool bar's height (two rows, --v8-row-h) from the first paint until the page editor has drawn the bar; the new tool bar's own loading placeholder keeps it too. Only for a bar docked at the top on a page route (not Home, Settings, Library, floating, hidden, bottom, auto-hide, ribbon, reading). PageEditor and the reserved space read one rule (src/editor/barRoomRule.ts). e2e F8 tests now wait for the bar and compare the bars block; new first-paint test and no-blank guard tests.
+- Why: the flaky F8 test (15 Nov findings) showed a real 118 px layout jump on load (bar missing at first paint in one state, drawn in the other).
+- Files: src/editor/barRoomRule.ts, BarRoom.tsx, PageEditor.tsx, src/App.tsx (hot, approved for this fix), src/app/shell/Shell.tsx, shell.css, src/app/tools/v8/ToolbarV8Lazy.tsx, toolbarV8.css, src/design/tokens.css, e2e/scrollFrame.spec.ts, e2e/barRoom.spec.ts, src/editor/barRoomRule.test.ts.
+
 ### 15 Nov 2026: P1.5 the real Pencil on scroll bars, menus and lists (L11; flag foundation.shell)
 
 - What: pressing a menu's or panel's own scroll bar (track, thumb, arrow) scrolls its list and the menu stays open (SC-19); the pages panel opened over the page shows its bar (SC-20); a Pencil drag scrolls lists, menus and panels like a finger, and on the note page the Pencil still writes (SC-21). The tests now use a Pencil sent by the browser itself (`e2e/realPen.ts`).
@@ -328,6 +334,10 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 - Released to main, live, all switched off: build/next at 1c412c8 (merge b5b0bc7, run 43205383635): foundation 0a-0f + 0i, update flow, security mediums (report-only strict policy + Permissions-Policy in public/_headers), AI job engine, iPad test flake fixes (inkLayers, boxTaps), free preview job in CI.
 - On build/next after the release: shared parts step 1 (src/design/parts/, gallery), AI Build screen, "first outside tap only closes" in the overlay manager, event router gained click / input / touchmove. Ratchet now 362 listeners / 137 z-index.
 - Fixed on the way (why it happened): version.json always said level 1 because two regexes in vite.config.ts had lost their backslashes; Parts gallery stalled iPad WebKit in CI because of a dozen 28 px blurs on static cards; phone layouts of the Time range bar and Arrange sheet were clipped because the editor sat in the page flow with no width limit.
+
+## 2026-11-15 - 2B.5 resize dots (switch textbox.v2)
+
+- Dots: 44 pt targets fully outside the edge (text wins inside), 10 px ring, nearest dot wins, 120 ms hold, 4 px dead zone, minimum width = longest word, height follows the dot live, grid dividers get the 4 px dead zone. Lines of a box keep 1.3 x type and 4 px top/bottom padding (fixes the overlap in PENDING; v2 only, the old look with the switch OFF has the same fault). Files: src/paper/v2/boxResize.ts, boxV2.css, BoxFrame.tsx, PaperFrame.tsx, GridDividers.tsx, e2e/tb2-resize*.spec.ts.
 
 ## 2026-11-12 (Build master plan)
 

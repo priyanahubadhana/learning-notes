@@ -39,6 +39,7 @@ import { ThemeContext } from './app/themeContext'
 import type { ToastAction } from './app/appUi'
 import { toggleFavourite } from './app/favourites'
 import { isOn, useFlag } from './app/flags'
+import { BarRoom } from './editor/BarRoom'
 import { shellToasts } from './app/shell/toastStore'
 import { useFrameSize } from './app/shell/useFrameSize'
 import { SpaceStrip } from './app/spaces/SpaceStrip'
@@ -1930,6 +1931,7 @@ function App() {
                   onSearch={() => choose(() => setSearchPopup(true))}
                   onSlot={setBarSlot}
                   onStackSlot={setStackSlot}
+                  pageRoute={route.kind === 'page'}
                   sidebar={sidebarEl}
                   panel={leftPanelEl}
                 >
@@ -2027,7 +2029,9 @@ function App() {
                       data-chrome
                       data-bar-slot
                       className="relative pb-1 empty:p-0"
-                    />
+                    >
+                      <BarRoom pageRoute={route.kind === 'page'} />
+                    </div>
                   </div>
                   {pageArea}
                 </div>

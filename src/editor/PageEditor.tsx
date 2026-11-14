@@ -23,6 +23,7 @@ import {
   lazy,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -53,6 +54,7 @@ import { LinkPicker } from '../links/LinkPicker'
 import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
 import { DockedBar } from './DockedBar'
+import { editorDecided, isDocked } from './barRoomRule'
 import { watchDragSelect } from './dragSelect'
 import { ownSelection } from './ownSelection'
 import { pageHistoryExtension } from './historyExtension'
@@ -401,7 +403,7 @@ function LoadedPageEditor({
   const mode = !policyOn && wanted === 'ink' ? 'edit' : wanted
   // The main bar and ribbon are hidden while reading (the reader has its own controls).
   const inReading = !!reading
-  const docked = bar.placement !== 'floating' && !readOnly && !inReading
+  const docked = isDocked(bar.placement, !!readOnly, inReading)
   const barSlot = useContext(TopStackSlotContext)
   // The element ink is laid over (the editor sits in it).
   const [inkWrap, setInkWrap] = useState<HTMLElement | null>(null)
@@ -417,6 +419,13 @@ function LoadedPageEditor({
   // Phase Q: a box other than the default one (no ink, no page controls yet).
   const extraBox = !!boxId && boxId !== MAIN_BOX
   const ownsBar = useOwnsBar(pageId, boxId)
+  // The page's own editor has now decided whether to draw the bar: the space
+  // kept for it (BarRoom) is not needed any more.
+  useLayoutEffect(() => {
+    if (boxId) return
+    editorDecided.set(true)
+    return () => editorDecided.set(false)
+  }, [boxId])
   useEffect(() => {
     if (!autoFocus) return
     activeBox.set(pageId, boxId ?? MAIN_BOX)

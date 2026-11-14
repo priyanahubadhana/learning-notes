@@ -47,6 +47,7 @@ import {
   isFreeRow,
   layoutRows,
   placesOf,
+  COL_GAP,
   MIN_FRAC,
   migrateToRows,
   reconcile,
@@ -1051,17 +1052,36 @@ export function PaperFrame({
     top0: number
     floorY: number
     shift?: number
+    /** Text box v2: the least width (mm), the 120 ms hold and where the pointer is. */
+    minW: number
+    floor?: { l: number; r: number }
+    held: boolean
+    holdTimer?: number
+    handle: HTMLElement
+    last: { x: number; y: number }
   } | null>(null)
   const [liveH, setLiveH] = useState<{ id: string; h: number } | null>(null)
   const resizeDown = (b: PaperBox, how: ResizeHow, e: ReactPointerEvent) => {
     if (e.button !== 0) return
     e.preventDefault()
     e.stopPropagation()
+    const handle = e.currentTarget as HTMLElement
     try {
-      e.currentTarget.setPointerCapture(e.pointerId)
+      handle.setPointerCapture(e.pointerId)
     } catch {
       // The moves still arrive.
     }
+    // Text box v2 (TB-20): where two targets meet, the nearest dot wins.
+    const m = v2.current
+    const frame = handle.parentElement?.getBoundingClientRect()
+    if (m && frame)
+      how =
+        m.nearestHandle(
+          e.clientX - frame.left,
+          e.clientY - frame.top,
+          frame.width,
+          frame.height,
+        ) ?? how
     const el = paperEl.current?.querySelector<HTMLElement>(
       '[data-paper-box="' + CSS.escape(b.id) + '"]',
     )
@@ -1088,7 +1108,28 @@ export function PaperFrame({
             geo,
           ).get(b.id)?.y ?? top0)
         : top0
+    const minW =
+      m && isFree && el && content
+        ? Math.max(FREE_MIN_W, m.minWidthPx(el, content) / k)
+        : FREE_MIN_W
     resizing.current = {
+      minW,
+      floor:
+        m && row && i !== null && !isFree && !lone
+          ? m.floorFor(
+              paperEl.current!,
+              row,
+              i,
+              (geo.sheetW -
+                geo.left -
+                geo.right -
+                COL_GAP * (row.cols.length - 1)) *
+                k,
+            )
+          : undefined,
+      held: !m,
+      handle,
+      last: { x: e.clientX, y: e.clientY },
       free: isFree
         ? how.includes('e')
           ? 'e'
@@ -1112,20 +1153,34 @@ export function PaperFrame({
       rows: baseRows,
       moved: false,
     }
+    // Text box v2: the resize commits after a 120 ms hold; the dot grows then.
+    if (m) {
+      const d = resizing.current
+      d.holdTimer = window.setTimeout(() => {
+        d.held = true
+        handle.setAttribute('data-held', '')
+        resizeAt(d.last.x, d.last.y)
+      }, m.HOLD_MS)
+    }
   }
   const resizeMove = (e: ReactPointerEvent) => {
     const d = resizing.current
+    if (!d) return
+    d.last = { x: e.clientX, y: e.clientY }
+    if (d.held) resizeAt(e.clientX, e.clientY)
+  }
+  const resizeAt = (px: number, py: number) => {
+    const d = resizing.current
     const r = paperEl.current?.getBoundingClientRect()
     if (!d || !r) return
-    if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < TAP_PX)
-      return
+    if (!d.moved && Math.hypot(px - d.x0, py - d.y0) < TAP_PX) return
     d.moved = true
     if (d.i !== null) {
       const at =
-        ((e.clientX - r.left) / k - geo.left) /
+        ((px - r.left) / k - geo.left) /
         Math.max(1, geo.sheetW - geo.left - geo.right)
-      const atMm = (e.clientX - r.left) / k
-      const maxX = geo.sheetW - geo.right - FREE_MIN_W
+      const atMm = (px - r.left) / k
+      const maxX = geo.sheetW - geo.right - d.minW
       d.rows = baseRows.map((row) =>
         row.id !== d.rowId
           ? row
@@ -1136,18 +1191,21 @@ export function PaperFrame({
                   Math.round(
                     Math.min(
                       geo.sheetW - (row.x ?? 0),
-                      Math.max(FREE_MIN_W, atMm - (row.x ?? 0)),
+                      Math.max(d.minW, atMm - (row.x ?? 0)),
                     ) * 10,
                   ) / 10,
               })
             : d.free === 'w'
               ? (() => {
-                  const x = Math.min(maxX, Math.max(0, atMm))
+                  const x = Math.min(
+                    maxX,
+                    d.minW > FREE_MIN_W ? d.right0 - d.minW : maxX,
+                    Math.max(0, atMm),
+                  )
                   return withoutAuto({
                     ...row,
                     x: Math.round(x * 10) / 10,
-                    wmm:
-                      Math.round(Math.max(FREE_MIN_W, d.right0 - x) * 10) / 10,
+                    wmm: Math.round(Math.max(d.minW, d.right0 - x) * 10) / 10,
                   })
                 })()
               : d.lone
@@ -1160,14 +1218,14 @@ export function PaperFrame({
                       },
                     ],
                   }
-                : resizeCols(row, d.i!, at),
+                : resizeCols(row, d.i!, at, true, d.floor),
       )
       setPreview(d.rows)
     }
     if (d.north) {
       // Top edge: moves with the finger, the bottom stays; never above the
       // place the page flow gives the row, never below the text's minimum.
-      const dy = (e.clientY - d.y0) / k
+      const dy = (py - d.y0) / k
       const shift = Math.min(d.h0 - d.minH, Math.max(d.floorY - d.top0, dy))
       d.shift = shift
       d.h = d.h0 - shift
@@ -1179,13 +1237,17 @@ export function PaperFrame({
       setPreview(d.rows)
       setLiveH({ id: d.id, h: d.h })
     } else if (d.vert) {
-      d.h = Math.max(d.minH, d.h0 + (e.clientY - d.y0) / k)
+      d.h = Math.max(d.minH, d.h0 + (py - d.y0) / k)
       setLiveH({ id: d.id, h: d.h })
     }
   }
   const resizeEnd = (e: ReactPointerEvent) => {
     const d = resizing.current
     resizing.current = null
+    if (d) {
+      window.clearTimeout(d.holdTimer)
+      d.handle.removeAttribute('data-held')
+    }
     if (d?.moved) lastDragEnd.current = e.timeStamp
     setLiveH(null)
     setPreview(null)

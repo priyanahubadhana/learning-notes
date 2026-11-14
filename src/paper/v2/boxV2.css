@@ -16,3 +16,34 @@
 [data-paper-box] .bn-block-outer {
   outline: none;
 }
+
+/*
+ * Resize dots (task 2B.5): a 10 px ring; once the 120 ms hold is made the dot
+ * grows a little, so the finger knows the drag has started. States picture, panel 1.
+ */
+[data-resize-handle] [data-handle-dot] {
+  transition: transform 120ms ease-out;
+}
+[data-resize-handle][data-held] {
+  --dot-scale: 1.4;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-resize-handle] [data-handle-dot] {
+    transition: none;
+  }
+}
+
+/*
+ * Lines of a box never overlap and never touch the frame (task 2B.5, found by
+ * the 2B.3 reviewer). The paper step (--box-line) can be smaller than the type
+ * on a zoomed or small page; a line is never shorter than 1.3 of its type, and
+ * the text keeps a 4 px breath inside the top and bottom edge.
+ */
+[data-paper-box]:not([data-paper-box='main']) .bn-inline-content {
+  line-height: max(var(--box-line, 0px), 1.3em);
+}
+[data-paper-box]:not([data-paper-box='main']) [data-box-content] {
+  padding-block: 4px;
+  /* The dots sit on the edge: the text keeps clear of them. */
+  padding-inline: 10px;
+}

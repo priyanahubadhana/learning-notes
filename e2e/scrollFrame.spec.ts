@@ -17,6 +17,12 @@ test.use({ viewport: LAND, hasTouch: true })
 
 /** What the frame looks like: sizes of the parts that broke after rotation. */
 async function frameOf(page: Page) {
+  // The tool bar is a lazy part: after a reload it can appear a moment after
+  // the page (the page below it then moves down by its height). Measure only
+  // when it is drawn, and count its height too (F8 flake: 15 Nov findings).
+  await expect(
+    page.locator('[data-frame-bars] [data-bar] [data-tool]').first(),
+  ).toBeVisible()
   return page.evaluate(() => {
     const box = (sel: string) => {
       const el = document.querySelector<HTMLElement>(sel)
@@ -35,6 +41,7 @@ async function frameOf(page: Page) {
       side: box('aside#sidebar'),
       panel: box('[data-testid="left-panel"]'),
       main: box('main[data-page-scroller]'),
+      bars: box('[data-frame-bars]'),
       top2:
         document.querySelector('[data-bar-scroll]')?.getBoundingClientRect()
           .height ?? 0,
@@ -392,4 +399,30 @@ test('the CommandList sample shows the shared bar in its own gutter when its lis
       return false
     })
     .toBe(true)
+})
+
+test('F8 the page does not jump when the lazy tool bar draws: main keeps its top', async ({
+  page,
+}) => {
+  await page.goto(ON)
+  await createNotebook(page, 'Heart', 'Cardiology')
+  await expect(page.locator('main[data-page-scroller]')).toBeVisible()
+  await page.waitForTimeout(500)
+  // The tool bar is a lazy part: hold its file back for 4 s on the reload.
+  await page.route('**/assets/ToolbarV8*.js', async (route) => {
+    await new Promise((ok) => setTimeout(ok, 4000))
+    await route.continue()
+  })
+  await page.reload()
+  const main = page.locator('main[data-page-scroller]')
+  await expect(main).toBeVisible()
+  const top = () =>
+    main.evaluate((m) => Math.round(m.getBoundingClientRect().top))
+  const bar = page.locator('[data-frame-bars] [data-bar] [data-tool]').first()
+  // First paint: the bar has not drawn yet.
+  await expect(bar).toHaveCount(0)
+  const before = await top()
+  await expect(bar).toBeVisible({ timeout: 15_000 })
+  await page.waitForTimeout(300)
+  expect(await top()).toBe(before)
 })

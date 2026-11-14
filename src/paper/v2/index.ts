@@ -10,6 +10,7 @@ import { clearBoxes, inputModeFor, isTap, selectBoxes } from './boxSelection'
 import './boxV2.css'
 
 export { rowUnder } from './boxSelection'
+export { HOLD_MS, floorFor, minWidthPx, nearestHandle } from './boxResize'
 
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 /** Parts of a box with their own tap (the tab, the menu, dots, frame strips). */

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { CHROME_SELECTOR } from '../../penTap'
 import { changeSet } from '../toolbarState'
 import { activeTool, penPicksPen } from './mainTools'
 
@@ -23,7 +24,8 @@ export function usePenPicksPen(): void {
       const target = e.target
       const onBar =
         target instanceof Element &&
-        target.closest('[data-bar], [data-pill-root]') !== null
+        // Bars, menus, cards, panels and scroll bars: the Pencil uses them, it does not write there (P1.5).
+        target.closest(CHROME_SELECTOR) !== null
       if (
         shouldPickPen(e.pointerType, penPicksPen.get(), activeTool.get(), onBar)
       ) {

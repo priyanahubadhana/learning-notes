@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { createNotebook, startInMode } from './helpers.ts'
+import { createNotebook, openCorner, startInMode } from './helpers.ts'
 import { installRealPen, realPen } from './realPen.ts'
 
 /**
@@ -154,6 +154,70 @@ test('PR-2 a real Pencil tap on a ⋯ menu row still chooses it', async ({
   const b = (await edit.boundingBox())!
   await realPen(page, [{ x: b.x + b.width / 2, y: b.y + b.height / 2 }])
   await expect(tray).toBeHidden()
+})
+
+test('PR-1 a real Pencil press on the quiet corner list bar scrolls it; the corner stays open', async ({
+  page,
+}) => {
+  await installRealPen(page)
+  await startInMode(page, 'pencil')
+  await page.goto(ON)
+  await createNotebook(page, 'Heart', 'Cardiology')
+  // The gear menu is a shared Card (overlay manager): its list is the card body.
+  const panel = await openCorner(page)
+  const list = panel.getByTestId('pcard-body')
+  await list.evaluate((el) => {
+    const filler = document.createElement('div')
+    filler.style.cssText = 'height:1500px;flex:none'
+    el.appendChild(filler)
+  })
+  const bar = page.locator('[data-scrollbar-root][data-layer]')
+  await expect(bar).toHaveCount(1)
+  const t = (await bar.locator('[data-scrollbar-track]').boundingBox())!
+  await realPen(page, [{ x: t.x + t.width / 2, y: t.y + t.height * 0.8 }])
+  await expect
+    .poll(() => list.evaluate((el) => Math.round(el.scrollTop)))
+    .toBeGreaterThan(100)
+  await expect(panel).toBeVisible()
+})
+
+test('PR-4 with "Pencil picks the Pen tool" on, a Pencil press on a scroll bar or a drag in a menu keeps the tool; a press on the page picks the Pen', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:toolbar.penPicksPen', 'true'),
+  )
+  await installRealPen(page)
+  await startInMode(page, 'pencil')
+  await page.goto(ON)
+  await createNotebook(page, 'Heart', 'Cardiology')
+  // The setting acts only while the Text tool is the active one.
+  const text = page.locator('[data-bar-tool="text"]').first()
+  await text.click()
+  await expect(text).toHaveAttribute('aria-pressed', 'true')
+  const pen = page.locator('[data-bar-tool="pen"]').first()
+  await page.getByRole('button', { name: 'Toolbar menu' }).first().click()
+  const tray = page.locator(TRAY)
+  await expect(tray).toBeVisible()
+  await expect(page.locator('[data-scrollbar-root]')).toHaveCount(1)
+  const t = await box(page, '[data-scrollbar-track]')
+  await realPen(page, [{ x: t.x + t.width / 2, y: t.y + t.height * 0.85 }])
+  await expect.poll(() => scrollTop(page, TRAY)).toBeGreaterThan(20)
+  const b = (await tray.boundingBox())!
+  await realPen(page, [
+    { x: b.x + b.width / 2, y: b.y + 80 },
+    { x: b.x + b.width / 2, y: b.y + 160 },
+  ])
+  await expect(tray).toBeVisible()
+  await expect(pen).toHaveAttribute('aria-pressed', 'false')
+  // The setting still does its job on the page.
+  await page.keyboard.press('Escape')
+  await expect(tray).toBeHidden()
+  const main = (await page.locator('main[data-page-scroller]').boundingBox())!
+  await realPen(page, [
+    { x: main.x + main.width / 2, y: main.y + main.height - 60 },
+  ])
+  await expect(pen).toHaveAttribute('aria-pressed', 'true')
 })
 
 test.describe('the pages panel and the note page', () => {

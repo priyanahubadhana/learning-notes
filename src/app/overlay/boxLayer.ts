@@ -3,9 +3,9 @@
  *
  * A part drawn on the page body for a list inside a floating box (the shared
  * scroll bar of the pages panel opened over the page) must sit above that box,
- * or the box hides it: the pages panel showed no scroll bar at all. Boxes with
- * a named layer (card, sheet, tray) are placed by ScrollBar.css; this is for
- * the others.
+ * or the box hides it: the pages panel showed no scroll bar at all, and a
+ * card's bar sat under the card. ScrollBar.css takes the higher of this and
+ * its named layer (card, sheet, tray).
  *
  * Returns the outermost layer set around `el`, plus one; undefined when the
  * box does not float above the bars (the part keeps its own layer, --z-bar).

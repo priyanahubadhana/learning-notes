@@ -101,7 +101,7 @@ type Read = {
   inset: { top: number; bottom: number }
   /** Something else (a panel, a sheet) is drawn over the scroller, or it is off the screen. */
   covered: boolean
-  /** The layer just above the list's floating box, when that box has no named layer (the pages panel over the page). */
+  /** The layer just above the box the list floats in (a card, the pages panel over the page): the bar is never drawn under it. */
   z: number | undefined
   scrollTop: number
   scrollH: number
@@ -165,7 +165,7 @@ export function ScrollBar({
       rect: { right: r.right, top: r.top, height: r.height, width: r.width },
       inset: legacy ? { top: 0, bottom: 0 } : cornersOf(el, r.right),
       covered: !legacy && coveredBy(el, r),
-      z: legacy || layerOf(el) ? undefined : layerAbove(el),
+      z: legacy ? undefined : layerAbove(el),
       scrollTop: el.scrollTop,
       scrollH: el.scrollHeight,
       clientH: el.clientHeight,
@@ -425,7 +425,7 @@ export function ScrollBar({
         height,
         ...(state.z === undefined
           ? {}
-          : ({ '--sbar-layer': state.z } as CSSProperties)),
+          : ({ '--sbar-box': state.z } as CSSProperties)),
       }}
     >
       {arrow(-1)}

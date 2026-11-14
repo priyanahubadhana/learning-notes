@@ -1215,3 +1215,11 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 - Full team: approved for Phase 2B (the text box is the foundation); any other phase asks the owner first.
 - Results are recorded: docs/metrics/tasks.csv (one row per merged task), docs/metrics/phase-results.md (one row per phase, next to the two ways that failed) and the cross-project log ~/.claude/playbook-results.md. If the phased way proves better it stays the standard in the global playbook.
 - Phase 1 page written: docs/plans/phases/phase-1.md (tasks 0.4 to 0.6, the 17-step first look, the release steps).
+
+### 14 Nov 2026 (owner): test set-up built now; four answers
+
+- Two safety programs approved (task 0.12): the same checks before every push on every branch, and a script that sorts each failed test run. Built after the owner's review of the guards.
+- The fast test set (task 0.8) is built now, by a Fable helper, at the owner's request (Fable usage is not a concern for this session). Features stay paused.
+- A list of known shaky tests: not now; decided after one phase of real numbers.
+- The owner's iPad test becomes a tappable checklist page.
+- The owner asked for a one-by-one review of every setting that differs from the Claude Code defaults; nothing is changed without the owner's answer.

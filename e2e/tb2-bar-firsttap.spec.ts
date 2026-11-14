@@ -204,6 +204,14 @@ test('textbox.v2 ON: the first selecting tap on a page shows the bar at once, fa
     const b = r.getBoundingClientRect()
     const x = b.x + 1
     const y = b.y + b.height / 2
+    // The moment the bar enters the page (a frame-by-frame poll is too
+    // coarse on WebKit, whose frames run late while the tap is handled).
+    let shown = -1
+    const seen = new MutationObserver(() => {
+      if (shown < 0 && document.querySelector('[data-box-bar]'))
+        shown = performance.now() - t0
+    })
+    seen.observe(document.body, { childList: true, subtree: true })
     const t0 = performance.now()
     for (const type of ['pointerdown', 'pointerup'])
       document.elementFromPoint(x, y)!.dispatchEvent(
@@ -220,11 +228,10 @@ test('textbox.v2 ON: the first selecting tap on a page shows the bar at once, fa
           composed: true,
         }),
       )
-    while (!document.querySelector('[data-box-bar]')) {
-      if (performance.now() - t0 > 1000) return -1
+    while (shown < 0 && performance.now() - t0 < 1000)
       await new Promise((f) => requestAnimationFrame(f))
-    }
-    return performance.now() - t0
+    seen.disconnect()
+    return shown
   }, ED)
   await expect(box).toHaveAttribute('data-picked', '')
   expect(ms).toBeGreaterThanOrEqual(0)

@@ -1,5 +1,7 @@
 # Roadmap
 
+> **Order of work since 14 Nov 2026:** [plans/phase-plan.md](plans/phase-plan.md) (Phases 0 to 10 of the redesign). The phase numbers and letters below (Phase 7 to 15, Phases A to Q) are older numberings and mean something else; they are kept as history.
+
 > **Order of work since 6 Nov 2026:** [plans/master-plan-2026-11.md](plans/master-plan-2026-11.md) (Phases A–Q, plus its "Audit changes" section) replaces the batch and step numbering below. This file stays as the long-range list of what each later phase holds.
 
 Approved 2026-11-01. Each phase still gets a short planning talk, a Definition of Done, and mockups for new screens. Only the owner uses the app for now, mainly on iPad and Windows PC; the phone just needs to work. Budget ₹0 or close.

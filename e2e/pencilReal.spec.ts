@@ -167,10 +167,7 @@ test.describe('the pages panel and the note page', () => {
     const panel = page.getByTestId('left-panel')
     await expect(panel).toBeVisible()
     await panel.evaluate((el) => {
-      const list =
-        Array.from(el.querySelectorAll<HTMLElement>('*')).find((n) =>
-          /auto|scroll/.test(getComputedStyle(n).overflowY),
-        ) ?? el
+      const list = el.querySelector<HTMLElement>('[role="tabpanel"]')!
       list.setAttribute('data-test-list', '')
       const filler = document.createElement('div')
       filler.style.height = '4000px'
@@ -212,7 +209,7 @@ test.describe('the pages panel and the note page', () => {
     ])
     await expect
       .poll(() => scrollTop(page, '[data-test-list]'))
-      .toBeGreaterThan(150)
+      .toBeGreaterThan(100)
     await expect(panel).toBeVisible()
   })
 

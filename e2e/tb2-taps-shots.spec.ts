@@ -20,6 +20,9 @@ const THEMES: [string, string][] = [
   ['dark', 'night'],
   ['sepia', 'sepia'],
 ]
+// Where the box bar lands differs by browser: pick the word it does not cover.
+const WORD = () =>
+  test.info().project.name === 'ipad-webkit' ? 'dioxide' : 'Photosynthesis'
 type Size = { width: number; height: number }
 
 async function theme(page: Page, th: string) {
@@ -115,15 +118,15 @@ async function wordShots(
     await expect(box).not.toHaveAttribute('data-picked', '')
     await box.evaluate((e) => e.scrollIntoView({ block: 'end' }))
     await page.waitForTimeout(600)
-    // The last word, "dioxide" (the bar sits over the first line): find it on screen.
+    // The word to double-tap (see WORD): find it on screen.
     const where = () =>
-      page.evaluate(() => {
+      page.evaluate((word) => {
         const ed = document.querySelector(
           '[data-paper-box]:not([data-paper-box="main"]) .bn-editor',
         )!
         const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT)
         for (let n = w.nextNode(); n; n = w.nextNode()) {
-          const i = (n.textContent ?? '').indexOf('dioxide')
+          const i = (n.textContent ?? '').indexOf(word)
           if (i < 0) continue
           const r = document.createRange()
           r.setStart(n, i + 1)
@@ -132,7 +135,7 @@ async function wordShots(
           return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
         }
         return null
-      })
+      }, WORD())
     const at = await where()
     expect(at).not.toBeNull()
     // First tap selects the box; then a double-tap selects the word.
@@ -149,7 +152,7 @@ async function wordShots(
     }
     await expect
       .poll(() => page.evaluate(() => window.getSelection()?.toString()))
-      .toBe('dioxide')
+      .toBe(WORD())
     await page.waitForTimeout(300)
     await page.screenshot({ path: `${OUT()}/word-${name}-${label}.png` })
   }

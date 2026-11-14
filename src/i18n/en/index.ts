@@ -7,22 +7,13 @@
  * language needs), then call `t('key', { count })`.
  */
 import { enAccounts } from './accounts'
-import { enAi } from './ai'
 import { enCommon } from './common'
-import { enDatabases } from './databases'
-import { enEditor } from './editor'
 import { enHelp } from './help'
-import { enHistory } from './history'
 import { enHome } from './home'
-import { enImportExport } from './importExport'
 import { enInk } from './ink'
 import { enLibrary } from './library'
-import { enLock } from './lock'
-import { enMedia } from './media'
-import { enReading } from './reading'
 import { enRecall } from './recall'
 import { enSearch } from './search'
-import { enSettings } from './settings'
 import { enSidebar } from './sidebar'
 import { enSync } from './sync'
 import { enTags } from './tags'
@@ -31,22 +22,13 @@ import { enUpdates } from './updates'
 
 export const en = {
   ...enAccounts,
-  ...enAi,
   ...enCommon,
-  ...enDatabases,
-  ...enEditor,
   ...enHelp,
-  ...enHistory,
   ...enHome,
-  ...enImportExport,
   ...enInk,
   ...enLibrary,
-  ...enLock,
-  ...enMedia,
-  ...enReading,
   ...enRecall,
   ...enSearch,
-  ...enSettings,
   ...enSidebar,
   ...enSync,
   ...enTags,

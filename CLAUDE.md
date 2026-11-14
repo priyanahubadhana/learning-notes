@@ -25,7 +25,7 @@ Plan: docs/plans/phase-plan.md. How helpers work: docs/HOW-WE-BUILD.md. State: d
 ## Core rules
 
 - **Owner is a beginner:** plain words; what it is, what it does, why it matters. Be honest, not agreeable; estimates come from the measured pace.
-- **Status line:** start every message to the owner with `Status:`, `Time left:` (rough, and how sure) and `Needs you: no` or `yes, <what>`.
+- **Status line:** start every message to the owner with `Status:`, `Time left:` (this phase and the whole project, each marked measured, estimate or not known yet) and `Needs you: no` or `yes, <what>`.
 - **Stop the line:** a red test stops that task until the root cause is fixed. Never weaken, skip or delete a test.
 - **Never drop a feature:** a redesign keeps every feature (simple by default, advanced behind ▾); check against the spec and the inventory.
 - **Do it yourself:** ask the owner only for money, logins and Supabase, switching a part ON in the live app, possible data loss, a test on a real device, or a real product decision.

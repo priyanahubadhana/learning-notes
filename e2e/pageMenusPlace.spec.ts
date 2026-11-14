@@ -117,6 +117,42 @@ test('on a phone the Paste card ends 12 px above the tab bar, last row on screen
   expect(last.y + last.height).toBeLessThanOrEqual(bar.y - 12)
 })
 
+test('on a phone with the strip low the Paste card opens above the strip', async ({
+  page,
+}) => {
+  await open(page, { width: 390, height: 844 })
+  for (let i = 0; i < 6; i++) {
+    await page.keyboard.press('Enter')
+    await page.keyboard.type(`Line ${i}`)
+  }
+  const line = page.locator('.bn-editor p').last()
+  const box = (await line.boundingBox())!
+  // The pressed line sits low: too little room for the card below the strip.
+  expect(box.y).toBeGreaterThan(560)
+  await page.mouse.click(box.x + 20, box.y + box.height / 2, {
+    button: 'right',
+  })
+  await expect(page.getByTestId('page-strip')).toBeVisible()
+  await page.getByTestId('cs-paste').click()
+  const card = page.getByTestId('cs-picker')
+  await expect(card).toBeVisible()
+  const strip = (await page.locator('.cs__bar').boundingBox())!
+  // After the open motion settles: wholly above the strip, 8 px gap.
+  await expect
+    .poll(async () => {
+      const b = (await card.boundingBox())!
+      return b.y + b.height
+    })
+    .toBeLessThanOrEqual(strip.y - 7)
+  const b = (await card.boundingBox())!
+  expect(b.y).toBeGreaterThanOrEqual(0)
+  const last = (await card
+    .getByRole('menuitem', { name: 'Link / Embed' })
+    .boundingBox())!
+  expect(last.y).toBeGreaterThanOrEqual(b.y)
+  expect(last.y + last.height).toBeLessThanOrEqual(b.y + b.height)
+})
+
 test('the paste chooser has a close button that cancels, and a shared switch', async ({
   page,
 }) => {

@@ -135,3 +135,12 @@ export function pushRow(rows: CheckRow[], row: CheckRow): CheckRow[] {
   }
   return [row, ...rows].slice(0, MAX_ROWS)
 }
+
+/** Words of the panel. A hidden diagnostic tool for the owner, so English only on purpose (kept out of JSX). */
+export const LABELS = { title: 'Pencil check', clear: 'Clear', close: 'Close' }
+
+/** One row as a line of text. */
+export function rowText(r: CheckRow): string {
+  const n = r.count > 1 ? ` x${r.count}` : ''
+  return `${r.type}${n} ${r.pointerType} ${r.target} prevented=${r.prevented} btn=${r.buttons} p=${r.pressure} touch=${r.touchType} ta=${r.touchAction} bubbled=${r.bubbled} bar=${r.barHandled}`
+}

@@ -4,7 +4,9 @@ import {
   CHECK_EVENTS,
   describeEvent,
   isNearBar,
+  LABELS,
   pushRow,
+  rowText,
   type CheckRow,
 } from './pencilCheckLogic'
 
@@ -86,7 +88,7 @@ export default function PencilCheck() {
       data-pencil-check
       data-chrome
       role="region"
-      aria-label="Pencil check"
+      aria-label={LABELS.title}
       style={{
         position: 'fixed',
         inset: 'auto auto 8px 8px',
@@ -103,7 +105,9 @@ export default function PencilCheck() {
       }}
     >
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-        <strong style={{ flex: 1 }}>Pencil check ({rows.length})</strong>
+        <strong style={{ flex: 1 }}>
+          {LABELS.title} ({rows.length})
+        </strong>
         <button
           type="button"
           onClick={() => {
@@ -112,11 +116,11 @@ export default function PencilCheck() {
           }}
           style={btn}
         >
-          Clear
+          {LABELS.clear}
         </button>
         <button
           type="button"
-          aria-label="Close"
+          aria-label={LABELS.close}
           onClick={() => setOpen(false)}
           style={btn}
         >
@@ -130,12 +134,7 @@ export default function PencilCheck() {
             data-row
             style={{ borderTop: '1px solid var(--color-line)' }}
           >
-            {r.type}
-            {r.count > 1 ? ` x${r.count}` : ''} {r.pointerType} {r.target}{' '}
-            prevented={String(r.prevented)} btn={r.buttons} p={r.pressure}{' '}
-            touch={r.touchType} ta=
-            {r.touchAction} bubbled={String(r.bubbled)} bar=
-            {String(r.barHandled)}
+            {rowText(r)}
           </div>
         ))}
       </div>

@@ -170,6 +170,8 @@ interface PageEditorProps {
   boxId?: string
   /** Phase Q: a box just made on the paper; the caret goes into it. */
   autoFocus?: boolean
+  /** Text box v2 (TB-42): "Tap here to keep writing" waits until the page has text. */
+  waitForText?: boolean
 }
 
 /** Time for the window that lost the page to finish its last save. */
@@ -326,6 +328,7 @@ function LoadedPageEditor({
   readOnly,
   boxId,
   autoFocus,
+  waitForText,
   owns,
 }: PageEditorProps & {
   records: Block[]
@@ -1029,7 +1032,7 @@ function LoadedPageEditor({
           />
         </ToolsBoundary>
       </div>
-      {bar.mode !== 'computer' && !frozen && !extraBox && (
+      {bar.mode !== 'computer' && !frozen && !extraBox && !waitForText && (
         <button
           type="button"
           onClick={() => focusEndLine(editor)}

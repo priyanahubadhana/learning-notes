@@ -36,6 +36,7 @@ import { dateKey } from '../journal/dates'
 import { t } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
 import { isPageBlank, saveAsTemplate } from '../templates/templateService'
+import { isOn } from '../app/flags'
 import { hintPageOk } from '../paper/hintPages'
 import { PAPER_STYLES, paperStyleKey } from './paperStyles'
 import { makeDatabasePage } from '../databases/databasePage'
@@ -440,6 +441,7 @@ export function PageView({
       reading={view === 'off' ? undefined : { view }}
       boxId={boxId}
       autoFocus={boxId ? boxId === boxes.fresh : autoFocusTitle && !reader}
+      waitForText={!boxId && isOn('textbox.v2') && !!blankPage}
       key={boxId ?? 'main'}
     />
   )

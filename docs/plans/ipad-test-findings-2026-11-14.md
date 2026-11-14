@@ -21,3 +21,12 @@ Owner is running the iPad checklist (docs/PENDING.md "iPad checklist (first prev
 - Frame works apart from F2, F3, F6 and F7.
 - **F8. Layout breaks after turning the iPad sideways and back upright.** After a landscape → portrait turn, the open page does not hold its frame: the page outline sidebar keeps a wide landscape width and squeezes the page into a narrow column; the top bar (notebook / page title row) is gone and the tool bar is cut to a few tools with a stray scroll indicator; page blocks sit narrow with wide empty margins. Expected: after any rotation the layout is exactly what a fresh load in that orientation gives (sidebar width, top bar, full tool bar, page width). Add an e2e that rotates landscape → portrait → landscape on ipad-webkit and compares with a fresh load. Screenshot: owner upload 14 Nov 06:18. Related to step 6 of the checklist.
 - **F9. Settings search on every Settings page.** A search box stays at the top of every Settings page and section (not only the Settings home), and it searches ALL settings, including every switch in Try new features and every advanced option, by name and by plain words. Some pages have many settings, so the search must always be in reach. Reuses the existing "Search settings" in New Settings; extend it, do not add a second one.
+
+## Phase 1 first look (14 Nov, evening, about 16:15 IST onward)
+
+Running list, in the order the owner reports. The owner asked to note everything and decide together at the end; nothing is changed before that talk.
+
+| #   | What the owner said                                                                                                                | Owner's call                | Where it is now |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | --------------- |
+| L1  | The scroll bar works really well; its look should be more premium, it feels out of step with the app's design                      | park as an idea, no fix now | docs/IDEAS.md   |
+| L2  | The on-screen keyboard always opens in floating mode; no way to open the full keyboard, even in touch mode (owner uses the Pencil) | park as an idea, no fix now | docs/IDEAS.md   |

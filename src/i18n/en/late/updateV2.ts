@@ -26,4 +26,6 @@ export const enLateUpdateV2 = {
   'update.v2.updateNow': 'Update now',
   'about.v2.level': 'Update level {level}',
   'about.v2.pretend': 'Pretend a must-have update',
+  'update.v2.noteDownload': 'Preview note: the download failed after {s} s',
+  'update.v2.noteRestart': 'Preview note: the restart did not come after {s} s',
 }

@@ -1950,3 +1950,9 @@ What: 6 scratch working copies removed with git and 9 folders in `.claude/worktr
 - Size: bar 22 px (was 20), thumb 8 / 12 dragged (was 4 / 6), arrows 38 (was 34). Flag off: old 24 px bar unchanged.
 - Files: src/design/parts/ScrollBar.tsx, ScrollBar.css, scrollBarLogic.ts, e2e/scrollBarPen.spec.ts, playwright.config.ts (one test-list line), docs/features/shell.md.
 - Review 2 (Opus took over): on a touch or Pencil device each end arrow is 22 x 44 (38 with a mouse; the chevron is unchanged), inside the gutter. Cause: the app's touch minimum for buttons (index.css, 32 x 44) silently made the arrow 32 wide (10 px past the gutter) and 44 tall while the bar still counted 38, so the thumb ran 12 px into the down arrow at the end. The bar now sets the arrow box itself (`ARROW_TOUCH`, `shortFor`: a list keeps its arrows from 168 px on touch). Test: `SC-13 on touch each end arrow is 44 pt tall ...` (chromium + ipad-webkit) and a unit test in scrollBarLogic.test.ts.
+
+## 2026-11-14 · F10 dim layer covers the sticky Settings search bar (slice/p1-f10)
+
+- What: on a phone the dim layer behind a ▾ sheet now covers the sticky "Search settings" bar.
+- Why: the dim layer (`.pcard-scrim`) had no layer number, so the bar (`--z-sticky: 1`) painted above it. The scrim now takes the sheet's layer number (`LAYERS.sheet`), reusing the sheet's one `zIndex` use: the ratchet stays 137.
+- Files: src/design/parts/Card.tsx, e2e/settingsV3SearchF9.spec.ts (SET-B04a), docs/features/settings-v3.md, docs/PENDING.md.

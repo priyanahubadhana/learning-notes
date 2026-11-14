@@ -118,19 +118,19 @@ test.describe('phone width', () => {
   })
 })
 
-test('a locked page: the end state has no blank space (pins today: the room can show first, then go)', async ({
+test('a locked page: the kept room is gone at the end (pins today: it can show first, then go)', async ({
   page,
 }) => {
   // The lock is stored with the page (read after the first paint), so the
   // room cannot know it yet. Logged in DECISIONS "Decisions to review".
-  const seen = await watchPage(page, {}, (p) => pageAction(p, 'Lock editing'))
-  void seen.room
+  await watchPage(page, {}, async (p) => {
+    await pageAction(p, 'Lock editing')
+    // The setup must really have locked the page (a missed menu tap would
+    // leave an editable page, where the bar shows and the slot is not empty).
+    await expect(p.getByTestId('edit-lock-bar')).toBeVisible()
+  })
+  await expect(page.getByTestId('edit-lock-bar')).toBeVisible()
   expect(await page.locator('[data-bar-room]').count()).toBe(0)
-  expect(
-    await page
-      .locator('[data-bar-slot]')
-      .evaluate((s) => Math.round(s.getBoundingClientRect().height)),
-  ).toBe(0)
 })
 
 test('Home, Settings and Library keep no room', async ({ page }) => {

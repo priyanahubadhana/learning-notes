@@ -2,7 +2,7 @@
 
 This is the plan the build follows. It replaces the order and the roles of `build-master-plan.md` (12 Nov), which stays as the catalogue of what each part contains. Why the change: [build-diagnosis-2026-11-14.md](build-diagnosis-2026-11-14.md).
 
-**State: PAUSED.** Nothing is built until the owner says "restart".
+**State:** see [../BUILD-STATE.md](../BUILD-STATE.md), the only file that says running or paused (running, lean, since the owner's restart of 14 Nov).
 
 The phase numbers here (0 to 10) are new. Older files use other numberings (ROADMAP "Phase 7 to 15", an older plan "Phases A to Q"); those mean something else.
 

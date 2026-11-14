@@ -1,6 +1,6 @@
 # Phase 1: the frame and Settings
 
-Written by Fable, 14 Nov 2026. Plan: [../phase-plan.md](../phase-plan.md). The build is PAUSED until the owner says "restart".
+Written by Fable, 14 Nov 2026. Plan: [../phase-plan.md](../phase-plan.md). Whether the build is running or paused: only [../../BUILD-STATE.md](../../BUILD-STATE.md) says (running, lean, since the restart of 14 Nov).
 
 ## What the owner gets
 

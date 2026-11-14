@@ -4,8 +4,6 @@
  */
 export const KEEP = 300
 
-export { diagGate } from './diagGate'
-
 /** The panel shows only with ?boxlog=1; the recording itself is quiet. */
 export const diagPanelShown = (search: string): boolean => {
   try {

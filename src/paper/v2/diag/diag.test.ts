@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { diagGate } from '../../../app/diagGate'
 import { createAutosaver } from '../../../editor/autosave'
 import { markSaved, markUnsaved } from '../../../app/saveStatus'
 import {
@@ -15,7 +16,6 @@ import {
   capped,
   copyText,
   deferredSave,
-  diagGate,
   diagPanelShown,
   KEEP,
   loadRows,

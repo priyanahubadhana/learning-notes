@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { isPreviewHost, useFlag } from '../../app/flags'
-import { diagGate } from '../../paper/v2/diag/diagGate'
+import { diagGate } from '../../app/diagGate'
 import { pencilCheckShown } from './pencilCheckLogic'
 import { ScrollBar } from './ScrollBar'
 import { useScrollTarget } from './scrollTarget'

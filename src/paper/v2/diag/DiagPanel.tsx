@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { diagGate } from '../../../app/diagGate'
 import { isPreviewHost } from '../../../app/flags'
 import { watchWindowPassive } from '../../../app/input/windowRecorder'
 import { startBoxPencilLog, type BoxEntry } from './boxPencilLog'
@@ -6,7 +7,6 @@ import { startSaveStateLog, type SaveEntry } from './saveStateLog'
 import {
   copyText,
   deferredSave,
-  diagGate,
   DIAG_LABELS,
   diagPanelShown,
   loadRows,

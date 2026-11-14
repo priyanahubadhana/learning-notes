@@ -385,6 +385,7 @@ export const esInk = {
   'layout.v2.tidy': 'Ordenar',
   'nameSheet.newNotebook': 'Pon nombre a tu cuaderno',
   'nameSheet.newPage': 'Pon nombre a tu página',
+  'nameSheet.clear': 'Borrar nombre',
   'paper.addBox': '+ cuadro',
   'paper.addBoxEnd': 'Añadir un cuadro aquí',
   'paper.bar.label': 'Formato del cuadro',

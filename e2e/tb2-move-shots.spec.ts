@@ -41,7 +41,7 @@ async function theme(page: Page, th: string) {
     th,
   )
   await expect(page.locator('html')).toHaveAttribute('data-theme', th)
-  await page.waitForTimeout(350)
+  await page.waitForTimeout(1000)
 }
 
 async function addBox(page: Page, text: string, down: number, under?: Locator) {

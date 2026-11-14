@@ -207,11 +207,14 @@ test('TB-13 other boxes slide aside live; a 2 px accent outline marks the landin
 test('TB-14 the drop glides 200 ms, is not tappable until it lands, says "Box moved" and one Undo puts it back', async ({
   page,
 }) => {
-  const { b } = await twoBoxes(page, 'TB14')
+  const { a, b } = await twoBoxes(page, 'TB14')
   const f0 = await rect(b)
-  await dragTab(page, b, (f) => ({ x: f.x + 220, y: f.y + 140 }), {
+  const a0 = await rect(a)
+  // Dropped into a row (above Alpha): it lands a good way from where it was let go.
+  await dragTab(page, b, () => ({ x: a0.x + a0.width * 0.85, y: a0.y + 4 }), {
     up: false,
   })
+  await page.waitForTimeout(300)
   await page.mouse.up()
   await expect(b).toHaveAttribute('data-gliding', '', { timeout: 400 })
   expect(await b.evaluate((e) => getComputedStyle(e).pointerEvents)).toBe(
@@ -331,7 +334,12 @@ test('TB-18 a lost pointer capture ends the drag within a second or two at the l
   await dragTab(page, b, (f) => ({ x: f.x + 220, y: f.y + 140 }), {
     up: false,
   })
-  await grip(b).evaluate((g) => g.releasePointerCapture(1))
+  // The browser tells the page the capture is gone (sent as the browser sends it).
+  await grip(b).evaluate((g) => {
+    g.dispatchEvent(
+      new PointerEvent('lostpointercapture', { pointerId: 1, bubbles: true }),
+    )
+  })
   await expect(page.locator('html')).not.toHaveAttribute('data-box-drag', '', {
     timeout: 2500,
   })

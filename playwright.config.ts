@@ -123,6 +123,7 @@ const config = defineConfig({
         /tb2-select/,
         /tb2-taps/,
         /tb2-resize/,
+        /tb2-move/,
         /boxPills/,
         /microBar/,
         /tableGap/,

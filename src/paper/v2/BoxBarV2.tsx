@@ -1,4 +1,5 @@
-import { useContext, useEffect, useRef } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
+import { onRouted } from '../../app/input/eventRouter'
 import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
 import { useAnchoredMenu } from '../../app/tools/useAnchoredMenu'
@@ -22,6 +23,19 @@ function boxText(pageId: string, boxId: string): string {
 
 /** The bar never gets nearer than this to the top of the screen (px). */
 const SAFE_TOP = 12
+/** Under a box the bar clears the 8 dots, which sit 16 px outside the edge. */
+const BELOW_GAP = 24
+
+/** Is the caret in this box, or any of its words selected? */
+function textActiveIn(boxId: string): boolean {
+  const box = document.querySelector(
+    '[data-paper-box="' + CSS.escape(boxId) + '"]',
+  )
+  const ed = box?.querySelector('.ProseMirror')
+  const sel = window.getSelection()
+  if (!ed || !sel?.anchorNode || !ed.contains(sel.anchorNode)) return false
+  return !sel.isCollapsed || ed.contains(document.activeElement)
+}
 
 /**
  * TB-24, TB-30, TB-31 (switch textbox.v2): the one Object bar over a selected
@@ -51,6 +65,19 @@ export default function BoxBarV2({
   const { toast } = useContext(AppUiContext)
   const menu = useAnchoredMenu()
   const wrap = useRef<HTMLDivElement>(null)
+  // One bar at a time: while the caret or selected words are in the box, the
+  // text bar is the one that shows (spec: the box bar shows when you are NOT
+  // typing), so this one steps aside.
+  const [typing, setTyping] = useState(false)
+  useEffect(() => {
+    const check = () =>
+      requestAnimationFrame(() => setTyping(textActiveIn(box.id)))
+    check()
+    const offs = (['pointerup', 'keyup', 'focusin', 'focusout'] as const).map(
+      (type) => onRouted(type, () => void check()),
+    )
+    return () => offs.forEach((off) => off())
+  }, [box.id])
 
   // The safe top zone: a box scrolled to the top of the screen must not drag
   // the bar into the top 12 px. Watched with an observer (no scroll listener).
@@ -59,8 +86,18 @@ export default function BoxBarV2({
     if (!el || typeof IntersectionObserver === 'undefined') return
     const fit = () => {
       el.style.translate = '0 0'
-      const top = el.getBoundingClientRect().top
-      if (top < SAFE_TOP) el.style.translate = `0 ${SAFE_TOP - top}px`
+      const r = el.getBoundingClientRect()
+      if (r.top >= SAFE_TOP) return
+      // No room above: go under the box (never over its top dots or text);
+      // only when that does not fit either, stay at the top of the screen.
+      const box = el.closest('[data-paper-box]')?.getBoundingClientRect()
+      const under = box ? box.bottom + BELOW_GAP : null
+      const fits =
+        under !== null &&
+        under >= SAFE_TOP &&
+        under + r.height <= innerHeight - SAFE_TOP
+      const to = fits ? under : SAFE_TOP
+      el.style.translate = `0 ${to - r.top}px`
     }
     fit()
     const io = new IntersectionObserver(fit, {
@@ -190,6 +227,7 @@ export default function BoxBarV2({
       : []),
   ]
 
+  if (typing) return null
   return (
     <div ref={wrap} data-box-bar data-ui>
       <ObjectBar kind="box" actions={actions} onAction={onAction} />

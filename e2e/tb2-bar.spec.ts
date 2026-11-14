@@ -315,6 +315,60 @@ test('the bar never enters the 12 px safe zone at the top of the screen', async 
   expect(b.y).toBeGreaterThanOrEqual(12)
 })
 
+test('one bar at a time: with words selected in the box only the text bar shows, never the box bar', async ({
+  page,
+}) => {
+  await start(page, 'One')
+  const box = await addBox(page, 'Select these words')
+  await pick(page, box)
+  await expect(bar(page)).toHaveCount(1)
+  const r = await rect(box.locator('.bn-editor'))
+  await page.mouse.click(r.x + 20, r.y + r.height / 2)
+  await expect(box.locator('.bn-editor')).toBeFocused()
+  await page.keyboard.press('Control+a')
+  await expect(bar(page)).toHaveCount(0)
+  await expect(page.getByTestId('object-bar')).toHaveCount(0)
+  // The words stay selected and visible: nothing of ours sits on them.
+  const sel = await page.evaluate(() => {
+    const b = window.getSelection()!.getRangeAt(0).getBoundingClientRect()
+    return { x: b.x, y: b.y, w: b.width, h: b.height }
+  })
+  expect(sel.w).toBeGreaterThan(0)
+  // Let go of the caret: a box with no caret keeps no selected words (TB-03),
+  // so the box bar is back, and it is still the only bar.
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  await expect(bar(page)).toHaveCount(1)
+  await expect(page.getByTestId('object-bar')).toHaveCount(1)
+})
+
+test('the bar never covers the box: above its top dots and edge, or below when there is no room', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1336, height: 700 })
+  await start(page, 'Cover')
+  const box = await addBox(page, 'Keep the edge clear')
+  await pick(page, box)
+  const gap = async () => {
+    const b = await rect(bar(page).getByTestId('object-bar'))
+    const x = await rect(box)
+    // The dots sit 16 px outside the edge: keep the bar off that band too.
+    return b.y + b.height <= x.y - 16 || b.y >= x.y + x.height + 16
+  }
+  expect(await gap()).toBe(true)
+  const y = (await rect(box)).y
+  await page.evaluate((dy) => {
+    let el: HTMLElement | null = document.querySelector(
+      '[data-paper-box="main"]',
+    )
+    while (el && el.scrollHeight <= el.clientHeight + 1) el = el.parentElement
+    el?.scrollBy(0, dy)
+  }, y - 4)
+  await expect.poll(gap).toBe(true)
+  expect(
+    (await rect(bar(page).getByTestId('object-bar'))).y,
+  ).toBeGreaterThanOrEqual(12)
+})
+
 test.describe('phone', () => {
   test.use({ viewport: { width: 390, height: 844 } })
   test('every bar button and every ⋯ row is at least 44 pt', async ({

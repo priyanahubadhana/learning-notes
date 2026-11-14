@@ -26,4 +26,4 @@ Names: size-theme-level-scene. Sizes: ipad-upright 820x1180, ipad-sideways 1180x
 - phone-light-Beginner-page.png
 - phone-light-Professional-menu.png
 - phone-light-Professional-page.png
-Retaken 14 Nov after review 1 (menu list now shows its own bar; arrows stay inside the gutter).
+  Retaken 14 Nov after review 1 (menu list now shows its own bar; arrows stay inside the gutter).

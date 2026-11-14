@@ -6,6 +6,8 @@ import { useScrollTarget } from './scrollTarget'
 
 // P1.5a: hidden recorder, preview host + ?pencilcheck=1 only (its own chunk).
 const PencilCheck = lazy(() => import('./PencilCheck'))
+// 2B.2: quiet box and save recorders, preview address only (its own chunk).
+const DiagPanel = lazy(() => import('../../paper/v2/diag/DiagPanel'))
 
 /**
  * Mounted once (new app frame, flag foundation.shell): the shared scroll bar on
@@ -19,6 +21,11 @@ export function ScrollBarHost() {
   return (
     <>
       {on ? <ScrollBar scroller={target} auto /> : null}
+      {isPreviewHost() ? (
+        <Suspense fallback={null}>
+          <DiagPanel />
+        </Suspense>
+      ) : null}
       {check ? (
         <Suspense fallback={null}>
           <PencilCheck />

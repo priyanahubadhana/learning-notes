@@ -1229,3 +1229,5 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 - Voice add-on: switched off for now (user setting enabledPlugins); to be fixed as its own small job after Phase 1.
 - Connectors in this project: the owner keeps Supabase, Claude Docs and Google Drive and drops Gmail, Calendar, Notion, Spotify, Adobe and Goodnotes here; waiting for the owner's yes on "ask first" for the three kept ones before anything is applied.
 - Time left in every status line: this phase and the whole project, each marked measured, estimate or not known yet.
+
+- Settings review, questions 1 and 3 (owner yes, 14 Nov): in this project Gmail, Calendar, Notion, Spotify, Adobe and Goodnotes are blocked; Supabase asks before every action; Google Drive asks before it creates, copies, changes, shares or trashes a file; Claude Docs asks before deleting; the Learning Notes connector asks before every action (.claude/settings.json, permissions deny and ask).

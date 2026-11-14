@@ -74,6 +74,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-14 (evening) · P1.3 download watchdog: only a 20 s "no byte at all" limit, no per-file limit (manager, safest option).** A per-file limit would stop a slow but moving download and Try again would fetch everything again.
+- **2026-11-14 (evening) · P1.3 About "Pretend a must-have update" ends with a plain reload on the same page, never drops the offline copy (manager, safest option).** A real must-have update keeps its existing ending.
 - **2026-11-14 (evening) · Scroll bar arrows 22 px wide on touch (P1.1, Opus manager on the reviewer's advice).** The owner asked for a bar "a bit bigger" than 20 px but smaller than the old 24 px; the bar is 22 px. Its end arrows get a touch area at least 44 pt tall but only 22 px wide, because a wider touch area reached into the list's rows and covered their ✕ and ⋯ (P1.1 review 1). The track and thumb take a tap across the whole bar width. This is a step below the 44 × 44 pt rule (rules/quality.md) for width only. Other option: a 44 px wide bar (the old one was 24 and the owner found it too big). Say if you want the arrows wider.
 - **2026-11-14 (evening) · P1.1 taken over by an Opus builder after two failed reviews (rule of HOW-WE-BUILD section 3.4).** Review 1 failed on three items (all fixed by Sonnet); review 2 failed on the arrow touch height only.
 

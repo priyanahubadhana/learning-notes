@@ -54,6 +54,9 @@ Beginner and Professional behave the same unless marked.
 - **U15** (Professional, proposed unlock `about.updateDetails`) When I tap the reason line on the notice → a pop-up explains what changed in storage or which data is repaired, in plain words.
 - **U16** When reduced motion is on → the countdown ring and progress do not animate; the numbers still change each second.
 - **U17** When I use a screen reader → the notice is an `alertdialog`, the countdown is announced once at 5 and once at "Downloading", not every second.
+- UV-18 When I tap "Pretend a must-have update" in About → the notice counts down, downloads and the app reopens on the same page (a plain reload; the offline copy stays).
+- UV-19 When I check for new files → the list is exactly what the offline copy saves (same kinds, ignores, size limit); a file the copy never saves is never "missing". With every listed file already saved, the download step shows 0 files and moves on at once.
+- UV-20 When a file does not arrive (no byte at all for 20 s; a slow file that keeps sending is never stopped) → the screen moves to "The update did not finish" with "Try again" (or the offline note when offline); never stuck on "downloading".
 
 ## Shared parts used (plan 3.2 row 0g)
 

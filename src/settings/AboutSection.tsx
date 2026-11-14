@@ -87,7 +87,9 @@ export function AboutSection() {
           data-about-pretend
           onClick={() =>
             window.dispatchEvent(
-              new CustomEvent('learning-notes:test-required-update'),
+              new CustomEvent('learning-notes:test-required-update', {
+                detail: { real: true },
+              }),
             )
           }
           className="ml-3 mt-3 min-h-11 rounded-lg border border-line px-3 hover:bg-hover"

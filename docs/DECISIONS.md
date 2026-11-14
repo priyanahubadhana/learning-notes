@@ -74,6 +74,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-15 · P1.5 Pencil drag-to-scroll (Fable, safest option).** (1) It works only on the app's own bars, menus, cards and panels, where the app already cancels the Pencil's touch; other lists keep Safari's own Pencil scrolling. (2) The list follows the tip 1:1 with no glide after the lift (a glide would be a new motion; to decide after the owner's test). (3) Scroll bar arrows now act when the pointer lifts on them, not on the browser's click. (4) The pages panel opened over the page now shows its scroll bar (it was hidden under the panel); any other floating box gets the same, and so do cards (the gear menu): their bars were drawn under them. (5) "Pencil picks the Pen tool" skips every bar, menu, card and panel, not only the tool bars (this also applies with the new frame off).
+
 - 2026-11-15 · 2A.2: "Bar settings…" opens the Edit bar panel, not the Edit toolbar sheet, so it was kept and renamed "Choose tools on the bar…" instead of removed (manager rule: duplicate removed only if same panel).
 
 - **2026-11-14 (evening) · P1.3 download watchdog: only a 20 s "no byte at all" limit, no per-file limit (manager, safest option).** A per-file limit would stop a slow but moving download and Try again would fetch everything again.

@@ -19,8 +19,9 @@
 }
 .sbar {
   position: fixed;
-  /* Above the box its list lives in: a floating card or a phone sheet. */
-  z-index: var(--sbar-layer, var(--z-bar));
+  /* Above the box its list lives in: a floating card or a phone sheet. --sbar-box is that box's own layer plus one,
+     measured by ScrollBar.tsx (P1.5: a card's bar was drawn under the card, because --z-card is not set on the page). */
+  z-index: max(var(--sbar-box, 0), var(--sbar-layer, var(--z-bar)));
   display: flex;
   flex-direction: column;
   touch-action: none;

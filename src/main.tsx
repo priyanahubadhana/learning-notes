@@ -83,6 +83,11 @@ installInputMachine()
 inputMachine.setTool(activeTool.get())
 activeTool.subscribe(() => inputMachine.setTool(activeTool.get()))
 installPenTap()
+// P1.5: a Pencil drag scrolls lists, menus and panels (new app frame only).
+// Loaded after the start, so the first load stays inside its size budget.
+void import('./app/input/penScroll').then((m) =>
+  m.installPenScroll(() => isOn('foundation.shell')),
+)
 penTapOptions.fingerOnly = fingerOnlyBars.get()
 fingerOnlyBars.subscribe(() => {
   penTapOptions.fingerOnly = fingerOnlyBars.get()

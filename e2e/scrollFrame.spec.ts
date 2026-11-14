@@ -24,14 +24,20 @@ async function frameOf(page: Page) {
       const r = el.getBoundingClientRect()
       return r.width === 0 && r.height === 0
         ? null
-        : { x: Math.round(r.x), w: Math.round(r.width), h: Math.round(r.height) }
+        : {
+            x: Math.round(r.x),
+            w: Math.round(r.width),
+            h: Math.round(r.height),
+          }
     }
     return {
       top: box('header[data-shell-top]'),
       side: box('aside#sidebar'),
       panel: box('[data-testid="left-panel"]'),
       main: box('main[data-page-scroller]'),
-      top2: document.querySelector('[data-bar-scroll]')?.getBoundingClientRect().height ?? 0,
+      top2:
+        document.querySelector('[data-bar-scroll]')?.getBoundingClientRect()
+          .height ?? 0,
       tools: document.querySelectorAll('[data-bar-scroll] [data-tool]').length,
     }
   })

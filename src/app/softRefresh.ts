@@ -242,10 +242,9 @@ export function restoreSoftRefresh(): 'auto' | 'manual' | null {
       tries = 99
       touched = true
     }
-    window.addEventListener('wheel', stop, { once: true, passive: true })
-    window.addEventListener('pointerdown', stop, { once: true, passive: true })
-    window.addEventListener('touchstart', stop, { once: true, passive: true })
-    window.addEventListener('keydown', stop, { once: true })
+    for (const type of ['wheel', 'pointerdown', 'touchstart', 'keydown']) {
+      window.addEventListener(type, stop, { once: true, passive: true })
+    }
     let settling = false
     const settle = (el: HTMLElement) => {
       if (settling) return

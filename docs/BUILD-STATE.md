@@ -53,17 +53,18 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 
 ## Parked: finished and reviewed, saved on GitHub, merged in their phase
 
-| Part                     | Phase | Branch @ commit (working copy)                     | At the merge                                                                  |
-| ------------------------ | ----- | -------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Scrolling fix            | 0     | `slice/fix-scroll-frame` 5e2c80f7 (ln-sfix-scroll) | four small follow-ups                                                         |
-| Shared parts step 3      | 1     | `slice/0g-parts-3` 9840315e (ln-s0g3)              | two gallery follow-ups                                                        |
-| Tool bar 1e, 1f, BUG-003 | 2A    | `slice/1-toolbar-v8` 19e158cf (ln-s1)              | hot files: alone                                                              |
-| Page menus rest          | 2A    | `slice/12-page-menus-rest` 627f07cf (ln-s12)       | hot files: alone                                                              |
-| Review rest (8b)         | 6     | `slice/8b-review-rest` bfb6298d (ln-s8b)           | four follow-ups                                                               |
-| Study tabs (15)          | 6     | `slice/15-study-v2` c1180092 (ln-s15)              | ST27 + ST11 wiring in App.tsx: alone                                          |
-| Reader v2                | 7     | `slice/7-reader-v2` 2f78926f (ln-s7)               | eight follow-ups; touches playwright.config.ts: alone                         |
-| AI framework step 6      | 8     | `slice/9-ai-framework-6` 0d94407d (ln-s9)          | hot test list                                                                 |
-| AI cost additions        | 8     | `slice/9-ai-cost` 14b9e748 (ln-s9cost)             | after step 6; drop its EpubView guard (the Reader's ada7d1c5 fixes the cause) |
+| Part                      | Phase | Branch @ commit (working copy)                                                                                                                | At the merge                                                                                                      |
+| ------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Scrolling fix             | 0     | `slice/fix-scroll-frame` 142f5231 (ln-sfix-scroll); GitHub has it only up to 5e2c80f7, the test fix fe43d3dc and a merge are on this PC only  | four small follow-ups; push it as part of task 0.5                                                                |
+| Shell fix: toast position | 1     | `slice/shell-fixes` e8f5b6a0 (ln-sshell), on this PC only, plus three unsaved files (`e2e/helpers.ts`, `playwright.config.ts`, `src/App.tsx`) | found 14 Nov, never reviewed; Opus checks it at the start of Phase 1; do not remove this working copy before that |
+| Shared parts step 3       | 1     | `slice/0g-parts-3` 9840315e (ln-s0g3)                                                                                                         | two gallery follow-ups                                                                                            |
+| Tool bar 1e, 1f, BUG-003  | 2A    | `slice/1-toolbar-v8` 19e158cf (ln-s1)                                                                                                         | hot files: alone                                                                                                  |
+| Page menus rest           | 2A    | `slice/12-page-menus-rest` 627f07cf (ln-s12)                                                                                                  | hot files: alone                                                                                                  |
+| Review rest (8b)          | 6     | `slice/8b-review-rest` bfb6298d (ln-s8b)                                                                                                      | four follow-ups                                                                                                   |
+| Study tabs (15)           | 6     | `slice/15-study-v2` c1180092 (ln-s15)                                                                                                         | ST27 + ST11 wiring in App.tsx: alone                                                                              |
+| Reader v2                 | 7     | `slice/7-reader-v2` 2f78926f (ln-s7)                                                                                                          | eight follow-ups; touches playwright.config.ts: alone                                                             |
+| AI framework step 6       | 8     | `slice/9-ai-framework-6` 0d94407d (ln-s9)                                                                                                     | hot test list                                                                                                     |
+| AI cost additions         | 8     | `slice/9-ai-cost` 14b9e748 (ln-s9cost)                                                                                                        | after step 6; drop its EpubView guard (the Reader's ada7d1c5 fixes the cause)                                     |
 
 Parked parts fall behind the code line: merge the code line into each before merging it. They were reviewed under the old bar; each still gets the owner's first look in its phase.
 

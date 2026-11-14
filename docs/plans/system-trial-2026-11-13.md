@@ -28,3 +28,5 @@ Variables: `S='<start> +0530'; E='<end> +0530'` and `git fetch -q origin` first.
 Baseline method notes: plain git log over the whole window. Branch count in row 2 is distinct branches over the whole window, not a rolling 3 h rate. Row 5 to 8, 10, 11 had no records; start recording now so the NEW side is complete, then compare only rows that have both sides.
 
 Verdict rule (proposal): NEW wins if merges per 3 h are at least equal, red share of CI runs is lower, stalls and owner interventions are fewer, and usage per merge is lower.
+
+**Trial ended 14 Nov 2026, 11:10 IST (owner paused the build).** Result and score: build-diagnosis-2026-11-14.md section 2. The build now follows phase-plan.md.

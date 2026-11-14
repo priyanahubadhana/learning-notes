@@ -31,7 +31,7 @@ Owner request (12 Nov 2026): work must survive a power cut, the PC turning off, 
 3. Approved or in-progress mock-ups are copied to `docs/mockups/` and committed.
 4. Each helper works in its own worktree and branch, so a crash never mixes half-done work into main.
 5. On restart, first read HANDOFF + PENDING + `git log -20`, then continue; never redo finished work.
-6. The quality rules (`rules/quality.md`) apply after a restart exactly as before: same checks, same 3 gates.
+6. The quality rules (`rules/quality.md`) apply after a restart exactly as before: same checks, same gates, in the same order.
 
 ## Restart checklist for the owner (30 seconds)
 

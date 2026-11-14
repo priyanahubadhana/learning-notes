@@ -12,11 +12,22 @@
       "Bash(git log*)",
       "Bash(git show*)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(git push)",
+      "Bash(git push -q)",
+      "Bash(git push origin *)",
+      "Bash(git push -q origin *)",
+      "Bash(git fetch*)",
+      "Bash(git merge *)"
     ],
     "deny": [
       "Bash(git push --force*)",
       "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
+      "Bash(git push * +*)",
+      "Bash(git push --no-verify*)",
+      "Bash(git push * --no-verify*)",
       "Bash(git reset --hard*)",
       "Bash(git clean *)",
       "Bash(rm -rf *)",

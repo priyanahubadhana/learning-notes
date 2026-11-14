@@ -1868,3 +1868,19 @@ Home strip shows every item at every level, stays inside the pane, labels on pho
 
 - Why: the left strip was as tall as the layout, but the iPad keyboard (and the text bar above it) shrink only the visible area, so the gear fell off screen and the strip did not scroll. Now the strip is capped to the visible area (spaces scroll, gear pinned at the foot) and the gear panel rises above the keyboard and text bar.
 - Files: src/app/spaces/SpaceStrip.tsx, QuietCorner.tsx, footLift.ts; e2e/stripGear.spec.ts (chromium + ipad-webkit); pictures screenshots/bug006/INDEX.md.
+
+## 14 Nov 2026: build paused, diagnosis written
+
+The owner paused the build at 11:10 IST. All helpers and the hourly check were stopped. Fable wrote docs/plans/build-diagnosis-2026-11-14.md (causes, score for the trial, proposal for a phased build). Files: docs/BUILD-STATE.md, docs/PENDING.md (pause lines), the new plan file. No app code changed.
+
+## 14 Nov 2026: clean-up for the phased build (Fable, owner-approved)
+
+What: new docs/plans/phase-plan.md (the plan) and docs/HOW-WE-BUILD.md (how helpers work); three helper files (.claude/agents/phase-manager.md, builder.md, reviewer.md) replace the ten old ones; CLAUDE.md rewritten (9.2 KB to 4.8 KB); rules/building.md, sessions.md, testing.md, quality.md, planning.md, phase-end.md now describe one method; docs/PENDING.md rebuilt (530 to about 80 lines), the owner decisions and approved designs moved word for word to docs/design/owner-decisions.md, the iPad checklist to docs/plans/ipad-checklist-first-preview.md, the old list kept in docs/plans/archive/; docs/HANDOFF.md trimmed (old entries in ARCHIVE); docs/BUILD-STATE.md rewritten (paused, Phase 0 tasks, every parked part with its commit); docs/ECONOMY-MODE.md archived; INDEX, token-efficiency, next command updated. Why: the audit in docs/plans/build-diagnosis-2026-11-14.md section 7 found contradicting rules and a plan that had been overridden without being rewritten. No app code changed. The build stays PAUSED.
+
+## 14 Nov 2026: final plan pass (Fable, owner decisions)
+
+What: docs/plans/phase-plan.md and docs/HOW-WE-BUILD.md rewritten with the roles (Sonnet builds, Opus reviews code and look, Fable plans and is the last resort), the lean and full ways to run, the test preset (task 0.6) and the one code line at the end of Phase 1 (task 0.7); .claude/agents/reviewer.md does the look check; CLAUDE.md owner settings, rules/quality.md gates, rules/building.md roles line, docs/PENDING.md "Needs you", docs/BUILD-STATE.md Phase 0 table; .claude/settings.json lets helpers push (force pushes denied); mcp/src/setup.ts lint line so the checks on main pass. Global: ~/.claude/CLAUDE.md, playbook.md, agents/. Why: the owner's answers of 14 Nov and the two audits. No app behaviour changed.
+
+## 14 Nov 2026: Phase 1 page and results record (Fable)
+
+What: docs/plans/phases/phase-1.md; docs/metrics/phase-results.md and tasks.csv; small lines in phase-plan.md, HOW-WE-BUILD.md, rules/phase-end.md and PENDING.md; three old docs files formatted so the format check on main passes. Global: ~/.claude/playbook-results.md and one line each in the global CLAUDE.md and playbook. Why: the owner asked for the numbers to be recorded so a way that works becomes the standard for every project.

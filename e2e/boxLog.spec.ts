@@ -59,6 +59,7 @@ test('BL-1 a pen tap on a box is logged without its text, kept after reload, and
   await page.evaluate(() => {
     const box = document.createElement('div')
     box.setAttribute('data-paper-box', '')
+    box.setAttribute('data-picked', '')
     box.style.cssText =
       'position:fixed;left:30%;top:120px;width:260px;height:80px;background:#fff'
     box.innerHTML = '<p id="bx">my private words</p>'
@@ -77,6 +78,7 @@ test('BL-1 a pen tap on a box is logged without its text, kept after reload, and
   const panel = page.locator('[data-diag-panel]')
   const row = panel.locator('[data-box-row]', { hasText: 'pointerdown pen' })
   await expect(row).toBeVisible()
+  await expect(row).toContainText('box=picked')
   await expect(panel).not.toContainText('private')
   await panel.getByRole('button', { name: 'Copy' }).click()
   await expect(panel.getByRole('button', { name: 'Copied' })).toBeVisible()

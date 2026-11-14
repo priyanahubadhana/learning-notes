@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
+import { isPreviewHost } from '../../../app/flags'
+import { watchWindowPassive } from '../../../app/input/windowRecorder'
 import { startBoxPencilLog, type BoxEntry } from './boxPencilLog'
 import { startSaveStateLog, type SaveEntry } from './saveStateLog'
 import {
   copyText,
+  deferredSave,
+  diagGate,
   DIAG_LABELS,
   diagPanelShown,
   loadRows,
@@ -49,23 +53,27 @@ export default function DiagPanel() {
   const saveRef = useRef(save)
 
   useEffect(() => {
+    if (!diagGate(isPreviewHost())) return // the same gate as the mount
+    const later = deferredSave(() => {
+      saveRows(store(), BOX_KEY, boxRef.current)
+      saveRows(store(), SAVE_KEY, saveRef.current)
+    })
     const stopBox = startBoxPencilLog(boxRef.current, (rows) => {
       boxRef.current = rows
       setBox(rows)
+      later.changed()
     })
     const stopSave = startSaveStateLog(saveRef.current, (rows) => {
       saveRef.current = rows
       setSave(rows)
+      later.changed()
     })
-    // Kept on the device a moment after each change (not on every move).
-    const timer = setInterval(() => {
-      saveRows(store(), BOX_KEY, boxRef.current)
-      saveRows(store(), SAVE_KEY, saveRef.current)
-    }, 1000)
+    const stopHide = watchWindowPassive(['pagehide'], later.flush)
     return () => {
       stopBox()
       stopSave()
-      clearInterval(timer)
+      stopHide()
+      later.flush()
     }
   }, [])
 
@@ -119,6 +127,8 @@ export default function DiagPanel() {
           onClick={() => {
             boxRef.current = []
             saveRef.current = []
+            saveRows(store(), BOX_KEY, [])
+            saveRows(store(), SAVE_KEY, [])
             setBox([])
             setSave([])
             setCopied(false)

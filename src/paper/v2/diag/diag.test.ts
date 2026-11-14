@@ -4,6 +4,9 @@ import { createAutosaver } from '../../../editor/autosave'
 import { markSaved, markUnsaved } from '../../../app/saveStatus'
 import {
   BOX_EVENTS,
+  boxStateOf,
+  caretPoint,
+  pointOf,
   reactionOf,
   startBoxPencilLog,
   type BoxEntry,
@@ -11,7 +14,8 @@ import {
 import {
   capped,
   copyText,
-  diagHost,
+  deferredSave,
+  diagGate,
   diagPanelShown,
   KEEP,
   loadRows,
@@ -26,9 +30,8 @@ import {
 
 describe('2B.2 where it runs', () => {
   it('records only on the preview address; the panel needs ?boxlog=1', () => {
-    expect(diagHost('build-next.learning-notes-app.pages.dev')).toBe(true)
-    expect(diagHost('learning-notes-app.pages.dev')).toBe(false)
-    expect(diagHost('localhost')).toBe(false)
+    expect(diagGate(true)).toBe(true)
+    expect(diagGate(false)).toBe(false)
     expect(diagPanelShown('?boxlog=1')).toBe(true)
     expect(diagPanelShown('')).toBe(false)
     expect(diagPanelShown('?boxlog=0')).toBe(false)
@@ -73,7 +76,7 @@ describe('box log', () => {
       reactionOf({
         selection: 'caret',
         editableFocused: true,
-        boxSelected: false,
+        boxState: 'idle',
       }),
     ).toBe('sel=caret keys=on box=idle')
   })
@@ -161,5 +164,97 @@ describe('save log', () => {
       error: 'QuotaExceededError',
       blockKind: 'checkListItem',
     })
+  })
+})
+
+describe('2B.2 review fixes', () => {
+  afterEach(() => {
+    document.body.innerHTML = ''
+    vi.useRealTimers()
+  })
+  it('reads the box state marks BoxFrame really sets', () => {
+    const mk = (attrs: string) => {
+      document.body.innerHTML = `<div data-paper-box ${attrs}></div>`
+      return document.querySelector('[data-paper-box]')
+    }
+    expect(boxStateOf(mk(''))).toBe('idle')
+    expect(boxStateOf(mk('data-picked'))).toBe('picked')
+    expect(boxStateOf(mk('data-picked data-typing'))).toBe('typing')
+    expect(boxStateOf(mk('data-picked data-dragging'))).toBe('dragging')
+    expect(boxStateOf(null)).toBe('idle')
+  })
+  it('takes the position of a touch from changedTouches, then touches', () => {
+    const e = (o: object) => o as unknown as Event
+    expect(
+      pointOf(e({ changedTouches: [{ clientX: 12.4, clientY: 30 }] })),
+    ).toEqual({ x: 12, y: 30 })
+    expect(pointOf(e({ touches: [{ clientX: 5, clientY: 6 }] }))).toEqual({
+      x: 5,
+      y: 6,
+    })
+    expect(pointOf(e({ clientX: 7, clientY: 8 }))).toEqual({ x: 7, y: 8 })
+    expect(pointOf(e({}))).toEqual({ x: 0, y: 0 })
+  })
+  it('a touch tap is logged with its real position', () => {
+    document.body.innerHTML = '<div data-paper-box><p id="p">x</p></div>'
+    let rows: BoxEntry[] = []
+    const stop = startBoxPencilLog([], (r) => (rows = r))
+    const ev = new Event('touchstart', { bubbles: true }) as Event & {
+      changedTouches: unknown
+    }
+    ev.changedTouches = [{ clientX: 40, clientY: 50, touchType: 'stylus' }]
+    document.getElementById('p')!.dispatchEvent(ev)
+    stop()
+    expect(rows[0]).toMatchObject({ x: 40, y: 50, touchType: 'stylus' })
+  })
+  it('gives the caret place as numbers, -1 without a caret', async () => {
+    expect(caretPoint()).toEqual({ x: -1, y: -1 })
+    document.body.innerHTML =
+      '<div data-paper-box><p id="p">some words</p></div>'
+    const r = document.createRange()
+    r.setStart(document.getElementById('p')!.firstChild!, 3)
+    r.collapse(true)
+    r.getClientRects = () =>
+      [
+        { left: 33.4, top: 21.2, width: 1, height: 16 },
+      ] as unknown as DOMRectList
+    const sel = document.getSelection()!
+    sel.removeAllRanges()
+    sel.addRange(r)
+    const orig = Selection.prototype.getRangeAt
+    Selection.prototype.getRangeAt = () => r
+    expect(caretPoint()).toEqual({ x: 33, y: 21 })
+    Selection.prototype.getRangeAt = orig
+    // and a logged tap carries it next to x and y
+    let rows: BoxEntry[] = []
+    const stop = startBoxPencilLog([], (rr) => (rows = rr))
+    document
+      .getElementById('p')!
+      .dispatchEvent(new MouseEvent('pointerup', { bubbles: true }))
+    await new Promise((res) => setTimeout(res, 5))
+    stop()
+    expect(typeof rows[0].caretX).toBe('number')
+    expect(typeof rows[0].caretY).toBe('number')
+  })
+  it('writes to the device only after a change, once per delay', () => {
+    vi.useFakeTimers()
+    const write = vi.fn()
+    const later = deferredSave(write, 1000)
+    vi.advanceTimersByTime(10_000)
+    expect(write).not.toHaveBeenCalled() // nothing changed: nothing written
+    later.changed()
+    later.changed()
+    later.changed()
+    vi.advanceTimersByTime(999)
+    expect(write).not.toHaveBeenCalled()
+    vi.advanceTimersByTime(1)
+    expect(write).toHaveBeenCalledTimes(1)
+    vi.advanceTimersByTime(10_000)
+    expect(write).toHaveBeenCalledTimes(1)
+    later.changed()
+    later.flush() // page hide: written at once
+    expect(write).toHaveBeenCalledTimes(2)
+    later.flush() // nothing pending: nothing written
+    expect(write).toHaveBeenCalledTimes(2)
   })
 })

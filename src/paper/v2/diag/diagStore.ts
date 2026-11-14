@@ -4,9 +4,7 @@
  */
 export const KEEP = 300
 
-/** Preview address only (same rule as freezeWatchHost in perf/slowMomentsSwitch). */
-const PREVIEW = 'build-next.learning-notes-app.pages.dev'
-export const diagHost = (host: string): boolean => host === PREVIEW
+export { diagGate } from './diagGate'
 
 /** The panel shows only with ?boxlog=1; the recording itself is quiet. */
 export const diagPanelShown = (search: string): boolean => {
@@ -64,4 +62,24 @@ export const DIAG_LABELS = {
   copied: 'Copied',
   clear: 'Clear',
   close: 'Close',
+}
+
+/**
+ * Writes only after a change, and at most once per delay; nothing is
+ * written while nothing changes.
+ */
+export function deferredSave(write: () => void, delayMs = 1000) {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const flush = () => {
+    if (timer === undefined) return
+    clearTimeout(timer)
+    timer = undefined
+    write()
+  }
+  return {
+    changed() {
+      timer ??= setTimeout(flush, delayMs)
+    },
+    flush,
+  }
 }

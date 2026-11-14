@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { isPreviewHost, useFlag } from '../../app/flags'
+import { diagGate } from '../../paper/v2/diag/diagGate'
 import { pencilCheckShown } from './pencilCheckLogic'
 import { ScrollBar } from './ScrollBar'
 import { useScrollTarget } from './scrollTarget'
@@ -21,7 +22,7 @@ export function ScrollBarHost() {
   return (
     <>
       {on ? <ScrollBar scroller={target} auto /> : null}
-      {isPreviewHost() ? (
+      {diagGate(isPreviewHost()) ? (
         <Suspense fallback={null}>
           <DiagPanel />
         </Suspense>

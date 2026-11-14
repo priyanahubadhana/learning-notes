@@ -33,6 +33,16 @@
 .sbar[data-layer='sheet'] {
   --sbar-layer: calc(var(--z-sheet) + 1);
 }
+/*
+ * Exactly the box ScrollBar.tsx gives it: 22 x 38, or 22 x 44 on a touch or
+ * Pencil device (SC-13). The app's touch minimum for buttons (index.css, 32 x
+ * 44) made it 32 wide, past the gutter, and taller than the thumb's track
+ * expected (the thumb ran 12 px under the down arrow): the bar sets it itself.
+ */
+.sbar > .sbar__arrow {
+  min-width: 0;
+  min-height: 0;
+}
 .sbar__arrow {
   position: relative;
   display: flex;

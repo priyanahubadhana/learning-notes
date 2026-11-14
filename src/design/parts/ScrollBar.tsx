@@ -6,16 +6,18 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { touchUi } from '../../app/touchUi'
 import { t } from '../../i18n/t'
 import {
   ARROW,
+  ARROW_TOUCH,
   BAR_W,
   OLD_ARROW,
   OLD_BAR_W,
-  SHORT,
   barGeometry,
   dragTop,
   sheetTarget,
+  shortFor,
   trackJumpTop,
 } from './scrollBarLogic'
 import './ScrollBar.css'
@@ -225,7 +227,13 @@ export function ScrollBar({
   const barW = legacy ? OLD_BAR_W : BAR_W
   // Inside the rounded corners; a short list shows the thumb only (no arrows on its content).
   const height = state.rect.height - state.inset.top - state.inset.bottom
-  const arrowH = legacy ? OLD_ARROW : height < SHORT ? 0 : ARROW
+  // 44 pt tall on a touch or Pencil device (SC-13); the track below uses the same size.
+  const arrowSize = touchUi() ? ARROW_TOUCH : ARROW
+  const arrowH = legacy
+    ? OLD_ARROW
+    : height < shortFor(arrowSize)
+      ? 0
+      : arrowSize
   const track = Math.max(0, height - arrowH * 2)
   const g = barGeometry(state.scrollTop, state.scrollH, state.clientH, track)
   if (!g) return null

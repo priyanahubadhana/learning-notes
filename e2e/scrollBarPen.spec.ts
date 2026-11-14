@@ -212,6 +212,80 @@ test('SC-13 the bar is a bit bigger: thumb 8 px (12 dragged), bar 22 px, arrows 
   expect(hit).toEqual({ l: true, r: true })
 })
 
+test('SC-13 on touch each end arrow is 44 pt tall inside the gutter, the thumb travels between them, and a tap at its top or bottom edge scrolls', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const main = await longPage(page)
+  expect(
+    await page.evaluate(() => matchMedia('(any-pointer: coarse)').matches),
+  ).toBe(true)
+  const bar = (await page.locator('[data-pagebar-root]').boundingBox())!
+  const arrowBox = async (dir: 'up' | 'down') =>
+    (await page.locator(`[data-pagebar-arrow="${dir}"]`).boundingBox())!
+  for (const dir of ['up', 'down'] as const) {
+    const box = await arrowBox(dir)
+    expect(box.height).toBeGreaterThanOrEqual(44)
+    // Inside the bar's own gutter: never over the rows, never past the bar's ends.
+    expect(box.x).toBeGreaterThanOrEqual(bar.x - 0.5)
+    expect(box.x + box.width).toBeLessThanOrEqual(bar.x + bar.width + 0.5)
+    expect(box.y).toBeGreaterThanOrEqual(bar.y - 0.5)
+    expect(box.y + box.height).toBeLessThanOrEqual(bar.y + bar.height + 0.5)
+    // The whole 44 pt is the arrow's own: its top and bottom pixel rows hit it.
+    const own = await page.evaluate(
+      ({ s, b }) =>
+        [b.y + 1, b.y + b.height - 1].map(
+          (y) => !!document.elementFromPoint(b.x + b.width / 2, y)?.closest(s),
+        ),
+      { s: `[data-pagebar-arrow="${dir}"]`, b: box },
+    )
+    expect(own).toEqual([true, true])
+  }
+  // The thumb travels the whole track between the arrows, never under them.
+  const thumbBox = async () =>
+    (await page.locator('[data-pagebar-thumb]').boundingBox())!
+  const up = await arrowBox('up')
+  const down = await arrowBox('down')
+  expect((await thumbBox()).y).toBeCloseTo(up.y + up.height, 0)
+  await main.evaluate((el) => (el.scrollTop = el.scrollHeight))
+  await expect
+    .poll(async () => {
+      const t = await thumbBox()
+      return Math.round(t.y + t.height)
+    })
+    .toBe(Math.round(down.y))
+
+  // A finger and a Pencil tap at the arrow's top and bottom edge both scroll.
+  const at = (b: { x: number; width: number }, y: number) => ({
+    x: b.x + b.width / 2,
+    y,
+  })
+  for (const [dir, start] of [
+    ['down', 0],
+    ['up', 3000],
+  ] as const) {
+    const b = await arrowBox(dir)
+    for (const y of [b.y + 2, b.y + b.height - 2])
+      for (const input of ['finger', 'pen'] as const) {
+        await main.evaluate((el, s) => (el.scrollTop = s), start)
+        const arrow = page.locator(`[data-pagebar-arrow="${dir}"]`)
+        await expect(arrow).toBeEnabled()
+        const p = at(b, y)
+        if (input === 'finger') await page.touchscreen.tap(p.x, p.y)
+        else
+          await pen(page, [
+            { type: 'down', ...p },
+            { type: 'up', ...p },
+          ])
+        const moved = expect.poll(() => main.evaluate((el) => el.scrollTop), {
+          message: `${input} tap at ${dir} arrow y=${Math.round(y - b.y)}`,
+        })
+        if (dir === 'down') await moved.toBeGreaterThan(start)
+        else await moved.toBeLessThan(start)
+      }
+  }
+})
+
 for (const [name, size] of [
   ['phone', { width: 390, height: 844 }],
   ['short iPad window', { width: 820, height: 600 }],

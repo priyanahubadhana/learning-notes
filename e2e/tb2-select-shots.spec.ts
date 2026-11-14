@@ -15,7 +15,6 @@ const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 const OUT = 'screenshots/phase-2b/2b3-select'
 const SIZES = {
   'ipad-upright': { width: 820, height: 1180 },
-  'ipad-sideways': { width: 1180, height: 820 },
 } as const
 const THEMES = { light: 'day', dark: 'night', sepia: 'sepia' } as const
 

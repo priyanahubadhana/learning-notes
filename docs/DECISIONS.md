@@ -1242,3 +1242,9 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 - Task 0.12 (safety programs) built by a Sonnet builder on slice/p0-guard 86f36120 (about 75,000 helper tokens, 4 minutes); Opus review started.
 
 - Settings review (owner, 14 Nov): the built-in Claude Code setting "continue automatically when a usage limit resets" is switched on in the user settings (autoContinueAtUsageLimit). Until now only a written rule and a timer set by the chat covered this.
+
+- Settings review, question 10 (owner, 14 Nov): the daily cloud check "Daily CI check (Haiku)" is switched off (not deleted; the owner can delete it at claude.ai/code/routines) and its pull request #6 is closed. The build checks the test runs itself, and `npm run ci:sort` sorts failed runs.
+
+- Tasks 0.4 and 0.8 (14 Nov, Fable helper, Opus review PASS). Left for task 0.7: set `NIGHTLY_REF` in `.github/workflows/ci.yml` to `main`. Until then a run started by hand on `main` without `full` fails at the fast set (main has no fast list yet) and publishes nothing. Left out of the fast list on purpose, still in the full set: freezeWatch (a real-time test, shaky locally), textBoxFree and undoHistory (task 0.9).
+
+- Agents research (owner's request, 14 Nov): no rule or setting changed. Three proposals wait for the owner in docs/PENDING.md "Needs you".

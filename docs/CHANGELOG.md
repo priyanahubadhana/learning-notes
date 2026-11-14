@@ -1823,3 +1823,7 @@ What: scripts/push-guard.mjs now runs ESLint, tsc and the related unit tests on 
 ## 14 Nov 2026: agents research report (owner's request)
 
 What: docs/plans/agents-research-2026-11-14.md added (four Sonnet fact-gatherers, one Opus writer; official Claude Code pages and outside reports read on 14 Nov); a row in docs/INDEX.md; three proposals listed in docs/PENDING.md "Needs you". Why: the owner asked what agents are, whether we use them fully and whether more would help. Finding: more agents would hurt this build; the lean setup matches the official advice. No rule, setting or code was changed.
+
+## 14 Nov 2026: tasks 0.4 and 0.8 done (Fable helper, Opus review PASS); daily cloud check off
+
+What: `main` merged into `build/next` (4d2b12cb), pull request #5 mergeable again. Fast test set: `e2e/fastSet.ts` (36 files, 16 also on iPad), its unit test `scripts/fastSet.test.mjs`, two fast Playwright projects, and a new `.github/workflows/ci.yml` (the same file on `main` c0acc5a5 and `build/next` 42c35e2c): pull requests run checks, fast set and preview; pushes to `main` run checks, full set and deploy; the full set runs nightly at 02:00 IST on `build/next`. Measured: checks plus fast set 9.5 minutes, against 33 to 43 for the full set. Docs: rules/testing.md, docs/HOW-WE-BUILD.md section 5, BUILD-STATE, PENDING, HANDOFF, DECISIONS, the task record. Settings review question 10: the daily cloud check switched off and pull request #6 closed. Why: the owner asked for the fast set now; nobody read the cloud check's note.

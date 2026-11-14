@@ -21,20 +21,20 @@ Preview address: https://build-next.learning-notes-app.pages.dev (the parts you 
 
 ## Phase board
 
-| Phase | What                                                    | State                                                       |
-| ----- | ------------------------------------------------------- | ----------------------------------------------------------- |
-| 0     | Reset: clean rules, the real app check, the test preset | rules cleaned 14 Nov; tasks 0.4 to 0.6 wait for the restart |
-| 1     | The frame and Settings                                  | built; owner's first look started 14 Nov (F1 to F9)         |
-| 2A    | Writing tools: tool bar, page menus                     | built; two parts parked                                     |
-| 2B    | Text box and Pencil                                     | not built                                                   |
-| 3     | Notebooks                                               | built                                                       |
-| 4     | Search                                                  | built                                                       |
-| 5     | Home and Library                                        | built                                                       |
-| 6     | Review and Study                                        | mostly built; two parts parked                              |
-| 7     | Reader                                                  | built, parked                                               |
-| 8     | AI and the Claude connector                             | partly built                                                |
-| 9     | Things inside a page; pictures, PDF, audio              | needs its artifact                                          |
-| 10    | Safety and data; system layer; welcome and tours        | needs its artifact                                          |
+| Phase | What                                                    | State                                                                                                                                                  |
+| ----- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 0     | Reset: clean rules, the real app check, the test preset | rules cleaned, the clash cleared (0.4), the fast test set (0.8) and the two safety programs (0.12) done 14 Nov; tasks 0.5 and 0.6 wait for the restart |
+| 1     | The frame and Settings                                  | built; owner's first look started 14 Nov (F1 to F9)                                                                                                    |
+| 2A    | Writing tools: tool bar, page menus                     | built; two parts parked                                                                                                                                |
+| 2B    | Text box and Pencil                                     | not built                                                                                                                                              |
+| 3     | Notebooks                                               | built                                                                                                                                                  |
+| 4     | Search                                                  | built                                                                                                                                                  |
+| 5     | Home and Library                                        | built                                                                                                                                                  |
+| 6     | Review and Study                                        | mostly built; two parts parked                                                                                                                         |
+| 7     | Reader                                                  | built, parked                                                                                                                                          |
+| 8     | AI and the Claude connector                             | partly built                                                                                                                                           |
+| 9     | Things inside a page; pictures, PDF, audio              | needs its artifact                                                                                                                                     |
+| 10    | Safety and data; system layer; welcome and tours        | needs its artifact                                                                                                                                     |
 
 Branches and commit ids of every parked part: docs/BUILD-STATE.md.
 

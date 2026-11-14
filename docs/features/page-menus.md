@@ -65,7 +65,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 - PM-41 When I tap Paste ▾ → options: Keep original, Plain text, As text box (paper pages), As table (tab rows), As quote, Link / Embed (lone address), Clean up with AI (AI on with a key; cost shown first); the pick pastes in that form.
 - PM-42 When I press Ctrl/Cmd+Shift+V → plain text, as today.
 - PM-43 Settings › General › "Paste as" → Keep original (default), Plain text, Always ask; "Always ask" opens today's paste chooser before pasting.
-- PM-44 Professional switch "Show 'Pasted as' chip" (default off) → after a paste the chip "Pasted as <form> ▾" shows for 8 s; choosing another form re-pastes it (Pro: `page.pastedChip` new).
+- PM-44 Professional switch "Show 'Pasted as' chip" (default off in Beginner; on in Professional, where every switch reads as on per SET-B43, and can be turned off by itself) → after a paste the chip "Pasted as <form> ▾" shows for 8 s; choosing another form re-pastes it (Pro: `page.pastedChip` new).
 - PM-45 When I tap Undo after any paste → the whole paste goes in one step.
 - PM-46 Pasted HTML is always cleaned by `sanitizePastedHtml` (unchanged rules).
 
@@ -133,7 +133,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 | Page row menu `src/pages/PageRowMenu.tsx:14`                                                                                    | Strip PM-23                      |
 | Paste planner `src/editor/pasteFlow.ts:117`, choices `:195`, apply `:417`                                                       | PM-40/41/45                      |
 | Paste chooser `src/editor/PasteChooser.tsx:31`                                                                                  | "Always ask" PM-43               |
-| "Pasted as" chip `src/i18n/en/late/importExport.ts:108`                                                                         | PM-44 (Pro, off)                 |
+| "Pasted as" chip `src/i18n/en/late/importExport.ts:108`                                                                         | PM-44 (Pro, on; Beginner off)    |
 | Paste as box `src/editor/pasteFlow.ts:402`                                                                                      | Paste ▾ PM-41                    |
 | Plain paste `src/editor/clipboard.ts:376`                                                                                       | PM-42, Paste ▾                   |
 | Clean up with AI `src/editor/cleanupAi.ts`                                                                                      | Paste ▾ PM-41                    |

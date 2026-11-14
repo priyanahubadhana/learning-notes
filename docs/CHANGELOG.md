@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026 (night): P1.6 name box, P1.7 pretend restart
+
+- What: P1.6: the new-notebook name box opens empty with a gray "Untitled notebook" (empty Done keeps it); rename shows the name with the caret at the end, nothing selected, and a ✕ that clears it (L12). P1.7: the About "Pretend a must-have update" restart gets 30 s (not 6 s) before "did not finish"; on the preview host that screen adds one line with the failing step (download or restart) and the seconds waited (L13).
+- Why: owner 14 Nov, notes L12, L13 (Pencil handwriting fought selected text; the pretend ended on Try again). The L13 cause is not proven on the iPad: the note shows it on the next try.
+- Files: src/app/NameSheet.tsx, nameSheetLogic.ts, appUi.ts, App.tsx, mandatoryFlow.ts, mandatoryState.ts, MandatoryNotice.tsx, failureNote.ts, main.tsx, texts en/es/hi, e2e/nameSheet.spec.ts, updateV2.spec.ts, updateFailureNote.spec.ts.
+
 ### 14 Nov 2026 (night): P1.4 scroll bar look
 
 - What: the shared scroll bar looks premium: pill thumb with a hairline halo, quiet hairline track, Lucide chevrons with a soft hover well, calm 180 ms states; Dark thumb is the soft ink (clearly visible). SC-04 now measures the colour the bar uses on every surface and the track (the old check read one token against two surfaces). New tokens `--sbar-thumb`, `--sbar-thumb-hover`, `--sbar-track`. Sizes and behaviour unchanged; flag-off bar unchanged.

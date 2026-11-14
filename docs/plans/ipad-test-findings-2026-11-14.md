@@ -63,4 +63,4 @@ Running list, in the order the owner reports. The owner asked to note everything
 ### Seen by reviewers after the first look (to show the owner in the re-check round, not acted on)
 
 - **R1.** iPad upright, new Settings: in the P1.2 builder's pictures the settings sit in a narrow column with a wide empty area on the left (P1.2 reviewer, 14 Nov; there before P1.2). The owner's own screenshots of 16:44 and 16:45 do not show it. Check on the owner's iPad before acting.
-- **R2.** With P1.2, every phone ▾ sheet now also dims the phone tab bar and the other bars behind it, like a normal pop-up sheet (intended; the owner has not seen it yet).
+- **R2.** With P1.2, every phone ▾ sheet now also dims the phone tab bar and the other bars behind it, like a normal pop-up sheet (intended; the owner has not seen it yet). Also check Professional on the phone with a sheet open: the builder's Professional pictures came out identical to Beginner, so Professional may not have been on in them (P1.2 reviewer, review 2).

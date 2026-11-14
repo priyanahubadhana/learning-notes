@@ -2,6 +2,7 @@ import { useActiveStyles } from './useActiveStyles'
 import type { ReactNode } from 'react'
 import { markActionId } from '../app/deviceMode'
 import { isApple } from '../app/keys'
+import { Icon } from '../app/tools/icons'
 import { t } from '../i18n/t'
 import {
   markLabels,
@@ -188,9 +189,9 @@ export function useBarActions(editor: Editor): BarAction[] {
   })
   add({
     id: 'indent',
-    label: dict.nest.tooltip,
+    label: t('tool.indent'),
     hint: hintOf(dict.nest.secondary_tooltip),
-    face: '→',
+    face: <Icon name="indent" size={16} />,
     disabled: !editor.canNestBlock(),
     run: () => {
       editor.nestBlock()
@@ -199,9 +200,9 @@ export function useBarActions(editor: Editor): BarAction[] {
   })
   add({
     id: 'outdent',
-    label: dict.unnest.tooltip,
+    label: t('tool.outdent'),
     hint: hintOf(dict.unnest.secondary_tooltip),
-    face: '←',
+    face: <Icon name="outdent" size={16} />,
     disabled: !editor.canUnnestBlock(),
     run: () => {
       editor.unnestBlock()

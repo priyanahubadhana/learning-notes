@@ -9,6 +9,28 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Review 1 (15 Nov): a card's bar (the gear menu) was drawn under its card, because ScrollBar.css used `--z-card`, which is not set on the page; the bar's layer is now measured from the box. "Pencil picks the Pen tool" no longer fires on a scroll bar, menu, card or panel (SC-22). The old quiet corner asks pressHome too (it has no shared bar today: old frame only).
 - Files: src/app/spaces/QuietCorner.tsx, src/app/tools/main/penPicks.ts, src/design/parts/ScrollBar.css, src/app/input/{pressHome,penScroll,ownTouches}.ts, src/app/overlay/{boxLayer,manager}.ts, src/app/popups.ts, src/design/parts/ScrollBar.tsx, src/tags/TagPicker.tsx, src/links/LinkPicker.tsx, src/main.tsx, e2e/{realPen.ts,pencilReal.spec.ts,scrollBarPen.spec.ts}, playwright.config.ts, docs/features/shell.md.
 
+### 15 Nov 2026: toolbar menu, row renamed (2A.2)
+
+- What: the menu row "Bar settings…" is now "Choose tools on the bar…" (en, es, hi). Why: it opens the Edit bar panel (which tools show, order, options), a different panel from the "Edit toolbar…" tile, so the name must tell them apart. Nothing removed. Files: ToolbarMenuV2.tsx, i18n toolbar files, e2e/toolbarMenuV2.spec.ts (name comparison keeps an alias).
+
+### 15 Nov 2026: toolbar menu 2A.2 owner decisions (flag toolbar.menu)
+
+- What: the ⋯ menu hides what the bar already shows (live), is four tiles plus five folded groups with ▾ (new shared part FoldGroup), and the v8 ⋯ card has its tools in a folded group. Nest block / Unnest block are now Indent / Outdent with the indent icons (en, es, hi).
+- Why: owner decisions 15 Nov about 00:15 IST; the menus looked long and complicated.
+- Files: src/editor/toolbarMenu/_, src/design/parts/FoldGroup._, src/editor/barActions.tsx, src/app/tools/v8/cards/more/MoreMenuV2.tsx, e2e/toolbarMenuV2.spec.ts, e2e/dockedBar.spec.ts (the two renamed labels).
+
+### 14 Nov 2026: toolbar menu redesign 2A.2, v8 ⋯ card (flag toolbar.menu)
+
+- What: the new tool bar's ⋯ card shows its four app actions as icon tiles and the tools that did not fit as a tile grid (same items). Review fixes: quiet focus, Done test, shortcut hints on Bold to Code for mouse only, icons on every More row.
+- Why: the owner tests with "up to Phase 2A" (v8 ON), where the old ⋯ tray is not drawn.
+- Files: src/app/tools/v8/cards/more/MoreMenuV2.tsx, src/app/tools/v8/ToolBar.tsx, e2e/toolbarMenuV8.spec.ts.
+
+### 14 Nov 2026: toolbar ⋯ menu redesign 2A.2 (flag toolbar.menu, OFF live)
+
+- What: the ⋯ toolbar menu is a short top row of four icon buttons, groups "Text style" and "Copy and paste", the rare items under More ▾; no key names on touch screens. Flag added (ON on preview host and in the phase2a preset).
+- Why: owner findings L3 and R3 (one long flat list; "⌘⇧V" on an iPad).
+- Files: src/editor/toolbarMenu/_, src/editor/DockedBar.tsx, src/app/flags.ts (hot), src/i18n/_, e2e/toolbarMenuV2.spec.ts, docs/features/toolbar-menu.md.
+
 ### 14 Nov 2026: R5 phone tray ends above the tab bar
 
 - What: the tool bar ⋯ tray (old bar) is as tall as the room above the tab bar, so its last row can be scrolled into view. Why: on the phone its last rows sat behind the tab bar. The v8 ⋯ sheet is above the tab bar by design; a test keeps its last row reachable.

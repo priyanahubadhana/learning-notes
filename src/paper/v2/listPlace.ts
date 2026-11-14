@@ -33,3 +33,10 @@ export function placeList(
     }
   return null
 }
+
+/** Height of the bottom bar (phones), so the list does not run under it. */
+export function bottomBar(): number {
+  const at = document.elementFromPoint(innerWidth / 2, innerHeight - 2)
+  const top = at?.closest('nav')?.getBoundingClientRect().top
+  return top && top < innerHeight ? innerHeight - top : 0
+}

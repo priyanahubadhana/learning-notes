@@ -2,6 +2,7 @@ import { AnchoredMenu } from '../../app/tools/AnchoredMenu'
 import type { AnchoredMenuState } from '../../app/tools/useAnchoredMenu'
 import { Icon, type IconName } from '../../app/tools/icons'
 import { t } from '../../i18n/t'
+import { bottomBar } from './listPlace'
 
 export type MoreRow = {
   id: string
@@ -22,13 +23,6 @@ export const MORE_LIST_W = 248
  * 44 pt rows, a ✕, no key names. Built on the shared anchored menu, so it
  * follows the one pop-up rule (outside tap, Esc, scroll close it).
  */
-/** Height of the bottom bar (phones), so the list does not run under it. */
-export function bottomBar(): number {
-  const at = document.elementFromPoint(innerWidth / 2, innerHeight - 2)
-  const top = at?.closest('nav')?.getBoundingClientRect().top
-  return top && top < innerHeight ? innerHeight - top : 0
-}
-
 export function BoxMoreList({
   menu,
   groups,

@@ -5,9 +5,9 @@ import type { LearningNotesDB } from '../../core/db'
 import type { PaperBox } from '../../core/types'
 import { t } from '../../i18n/t'
 import type { GridInfo } from '../layoutPlan'
-import { BoxMoreList, bottomBar, type MoreRow } from './BoxMoreList'
+import { BoxMoreList, type MoreRow } from './BoxMoreList'
 import { moveStep, neighbourOf } from './boxOrder'
-import { placeList } from './listPlace'
+import { bottomBar, placeList } from './listPlace'
 import { MORE_LIST_W } from './BoxMoreList'
 
 /**

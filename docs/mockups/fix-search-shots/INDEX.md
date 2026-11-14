@@ -14,3 +14,4 @@ Repeat-fault list (ECONOMY-MODE section 7): thin scroll track n/a; toast n/a; si
 - Follow-up (1px line under the bar, --color-line): same settings-scrolled-* pictures.
 - The "Open" item from round 2 is closed.
 - Repeat-fault list (ECONOMY-MODE section 7): unchanged from above; no new colour, shadow or motion; the only new token is --z-sticky.
+- Option B (owner): ratchet kept at 137 by removing the redundant chevron layer in src/app/tools/ScrollFade.tsx (no visible change). Settings CSS unchanged since the round 3 pictures, so they still apply.

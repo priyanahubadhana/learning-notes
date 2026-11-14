@@ -1187,3 +1187,7 @@ Short core lines for hierarchy, escalation, token efficiency, continuity and qua
 ### 13 Nov 2026 (owner): trial at 5 builders, rules frozen
 
 Research (docs/plans/ai-build-best-practices-2026-11-13.md) puts the useful limit at 3-5 parallel builders; cap set to 5. No rule changes during the trial so the benchmark is fair.
+
+### 14 Nov 2026 (owner, option A): big-page smoothness test on CI
+
+On CI, e2e/bigPageBudget.spec.ts counts a late frame against the app only when one of the app's long tasks overlaps it, and a new check keeps the median frame under 25 ms. Locally the old strict check stays. The app script budget is unchanged. Why: the CI runner stalls to 30 fps (5-35% late frames on unchanged code, script work 0.5-0.9 ms per frame). Fable ruled; the owner approved in the main chat; build/next b3f576b9. Drive function drive-token was also redeployed with the strict CORS list (owner said "deploy it").

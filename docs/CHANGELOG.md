@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: R5 phone tray ends above the tab bar
+
+- What: the tool bar ⋯ tray (old bar) is as tall as the room above the tab bar, so its last row can be scrolled into view. Why: on the phone its last rows sat behind the tab bar. The v8 ⋯ sheet is above the tab bar by design; a test keeps its last row reachable.
+- Files: src/editor/DockedBar.tsx, e2e/phoneTrayTabBar.spec.ts.
+
 ### 14 Nov 2026: toolbar v8 gate 2 fix round (1e/1f/BUG-003)
 
 - What: Advanced in Format now shows fonts in their own face and line height (TB-41); headings, indent, outdent and divider are buttons; the new-box look is one Undo/Redo step; a reload during a peek keeps the bar Off (TB-75); tests for Box look Undo/Redo, 200 ms tuck, Pencil tuck, each Pro switch alone.

@@ -80,21 +80,29 @@ test.describe('the "more tools" arrow has its own place', () => {
   }) => {
     await openNote(page, 'touch', { 'toolbar.extras': MANY })
     const scroller = page.locator('[data-bar-scroll] [data-slot="tools"]')
-    const overlap = async () => {
+    const overlap = async (starts: boolean, ends: boolean) => {
       const s = (await scroller.boundingBox())!
+      // The arrows that must show are there (not skipped), and the others are not.
+      await expect(page.locator('[data-scroll-cue="start"]')).toHaveCount(
+        starts ? 1 : 0,
+      )
+      await expect(page.locator('[data-scroll-cue="end"]')).toHaveCount(
+        ends ? 1 : 0,
+      )
       for (const side of ['start', 'end']) {
-        const cue = page.locator(`[data-scroll-cue="${side}"]`)
-        if (!(await cue.count())) continue
-        const c = (await cue.boundingBox())!
-        // The cue sits outside the strip that holds the tools.
+        if (side === 'start' ? !starts : !ends) continue
+        const c = (await page
+          .locator(`[data-scroll-cue="${side}"]`)
+          .boundingBox())!
+        // The arrow sits outside the strip that holds the tools.
         const clear = c.x + c.width <= s.x + 0.5 || c.x >= s.x + s.width - 0.5
-        expect(clear, `${side} cue overlaps the tools`).toBe(true)
+        expect(clear, `${side} arrow overlaps the tools`).toBe(true)
       }
     }
-    await overlap()
+    await overlap(false, true)
     await scroller.evaluate((el) => (el.scrollLeft = 80))
-    await overlap()
+    await overlap(true, true)
     await scroller.evaluate((el) => (el.scrollLeft = el.scrollWidth))
-    await overlap()
+    await overlap(true, false)
   })
 })

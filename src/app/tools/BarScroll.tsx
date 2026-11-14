@@ -34,6 +34,11 @@ export function BarScroll({
   const scroller = useRef<HTMLDivElement>(null)
   const track = useRef<HTMLDivElement>(null)
   const [o, setO] = useState<Overflow>(NONE)
+  // A tool cut by the edge is hidden whole (a half glyph looks like a fault).
+  const [cut, setCut] = useState<{ start: number; end: number | null }>({
+    start: 0,
+    end: null,
+  })
 
   const measure = useCallback(() => {
     const el = scroller.current
@@ -52,6 +57,17 @@ export function BarScroll({
       edges,
     )
     setO((old) => (JSON.stringify(old) === JSON.stringify(next) ? old : next))
+    const sl = el.scrollLeft
+    const cw = el.clientWidth
+    let start = 0
+    let end: number | null = null
+    for (const e of edges) {
+      if (e.left < sl - 0.5 && e.right > sl + 0.5) start = e.right - sl
+      if (e.left < sl + cw - 0.5 && e.right > sl + cw + 0.5) end = e.left - sl
+    }
+    setCut((old) =>
+      old.start === start && old.end === end ? old : { start, end },
+    )
   }, [])
 
   useEffect(() => {
@@ -98,10 +114,9 @@ export function BarScroll({
     )
   }
 
-  const fade = 28
   const mask =
-    o.start || o.end
-      ? `linear-gradient(to right, ${o.start ? 'transparent' : '#000'} 0, #000 ${fade}px, #000 calc(100% - ${fade}px), ${o.end ? 'transparent' : '#000'} 100%)`
+    cut.start > 0 || cut.end !== null
+      ? `linear-gradient(to right, transparent ${cut.start}px, #000 ${cut.start}px, #000 ${cut.end ?? 100000}px, transparent ${cut.end ?? 100000}px)`
       : undefined
   const cue =
     'relative grid min-w-11 shrink-0 place-items-center self-stretch text-ink-soft hover:text-ink'

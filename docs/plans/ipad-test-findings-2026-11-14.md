@@ -108,3 +108,10 @@ Running list, in the order the owner reports. The owner asked to note everything
 - **L13 update (14 Nov night, P1.7):** cause not proven. The builder ruled out stored state and a blocked reload (by reading the code); what remains is a reload on Safari slower than 6 s, or a failed download (both show "did not finish"). Fix: the About pretend allows 30 s for the restart (real updates keep 6 s), and on the preview address the failure screen now names the reason and the seconds waited, so the owner's next try shows which one it was.
 
 - **L14 (owner, 14 Nov night, Pencil check):** tapping the Pencil check panel's Clear closes the tool bar ⋯ menu (expected: a tap outside closes it) and the app went back to the home screen (not expected; not looked into). The owner's way, adopted: no Clear; three screenshots in a row and Claude reads only the new rows.
+
+- **L11 Pencil check results (owner, 14 Nov 23:44-23:46 IST; pictures L11-pencilcheck-1/2/3; newest row at the top):**
+  - Tap the bar: `pointerdown pen` on `sbar__track` (pressure 0.08) is **not handled** (prevented=false, bubbled=true, bar=false); the very next `pointermove`/`pointerup` already land on the page behind (`div.mx-auto`, `data-paper-sheet`): the ⋯ menu closed at the pen's pointerdown.
+  - Tap the ▼ arrow: the same: `pointerdown pen` on the arrow's `svg` not handled, then moves on `main[data-page-scroller]`, then a synthetic `click` (mouse) on the paper sheet: the "tap falls through to the page".
+  - Drag the thumb: only `touch=direct` rows and `scroll` on the menu's list, the menu stayed open: that run looks like a finger (or palm), not the Pencil; no pen rows survived (panel full).
+  - No `touchstart` with `touchType=stylus` rows at all. In the e2e (simulated pen) the thumb's pen pointerdown was handled (bubbled=false); on the real iPad it is not.
+  - Conclusion: on a real Pencil the scroll bar never takes the pen's pointerdown, and the ⋯ menu treats it as a tap outside and closes. Escalated to Fable (P1.1 was already taken over by Opus and still fails on the device).

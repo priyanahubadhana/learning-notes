@@ -25,6 +25,12 @@ describe('placeList (the ⋯ list never covers its box)', () => {
   it('stays inside the screen, and gives up when nothing fits', () => {
     const p = placeList(box(100, 1100, 120, 60), 248, view)!
     expect(p.bottom + 4 + LIST_H).toBeLessThanOrEqual(1180)
+    // A phone: under the box, shorter, it scrolls inside.
+    const q = placeList(box(56, 330, 278, 44), 248, {
+      width: 390,
+      height: 844,
+    })!
+    expect(q.bottom + 4).toBeGreaterThanOrEqual(374)
     expect(placeList(box(40, 100, 740, 1000), 248, view)).toBeNull()
   })
 })

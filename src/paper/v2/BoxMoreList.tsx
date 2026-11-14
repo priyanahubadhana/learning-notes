@@ -22,6 +22,13 @@ export const MORE_LIST_W = 248
  * 44 pt rows, a ✕, no key names. Built on the shared anchored menu, so it
  * follows the one pop-up rule (outside tap, Esc, scroll close it).
  */
+/** Height of the bottom bar (phones), so the list does not run under it. */
+export function bottomBar(): number {
+  const at = document.elementFromPoint(innerWidth / 2, innerHeight - 2)
+  const top = at?.closest('nav')?.getBoundingClientRect().top
+  return top && top < innerHeight ? innerHeight - top : 0
+}
+
 export function BoxMoreList({
   menu,
   groups,
@@ -30,7 +37,12 @@ export function BoxMoreList({
   groups: MoreRow[][]
 }) {
   return (
-    <AnchoredMenu menu={menu} label={t('paper.box.menu')} width={MORE_LIST_W}>
+    <AnchoredMenu
+      menu={menu}
+      label={t('paper.box.menu')}
+      width={MORE_LIST_W}
+      bottomReserve={bottomBar()}
+    >
       {groups.map((rows, g) => (
         <div key={g}>
           {g > 0 && <hr className="my-1 border-line" />}

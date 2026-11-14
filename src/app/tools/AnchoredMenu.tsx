@@ -14,6 +14,7 @@ export function AnchoredMenu({
   label,
   width = 220,
   focusFirst = true,
+  bottomReserve = 0,
   children,
 }: {
   menu: AnchoredMenuState
@@ -21,6 +22,8 @@ export function AnchoredMenu({
   width?: number
   /** Move the keyboard focus to the first item when it opens. */
   focusFirst?: boolean
+  /** Screen height at the bottom the menu must not use (a bottom bar), px. */
+  bottomReserve?: number
   children: ReactNode
 }) {
   const panel = useRef<HTMLDivElement>(null)
@@ -59,7 +62,10 @@ export function AnchoredMenu({
       }
     : {
         top: Math.max(8, at.bottom + 4),
-        maxHeight: Math.max(120, window.innerHeight - at.bottom - 12),
+        maxHeight: Math.max(
+          120,
+          window.innerHeight - at.bottom - 12 - bottomReserve,
+        ),
       }
   return createPortal(
     <div

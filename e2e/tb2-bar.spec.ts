@@ -454,6 +454,8 @@ test.describe('phone', () => {
     expect(b.x).toBeGreaterThanOrEqual(0)
     expect(b.x + b.width).toBeLessThanOrEqual(390)
     await bar(page).getByRole('button', { name: 'Box actions' }).tap()
+    // The list stands under the box, never over its words.
+    expect(hit(await rect(more(page)), await rect(box))).toBe(false)
     const rows = more(page).getByRole('menuitem')
     for (let i = 0; i < (await rows.count()); i++)
       expect((await rect(rows.nth(i))).height).toBeGreaterThanOrEqual(44)

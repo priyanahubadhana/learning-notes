@@ -5,7 +5,7 @@ import type { LearningNotesDB } from '../../core/db'
 import type { PaperBox } from '../../core/types'
 import { t } from '../../i18n/t'
 import type { GridInfo } from '../layoutPlan'
-import { BoxMoreList, type MoreRow } from './BoxMoreList'
+import { BoxMoreList, bottomBar, type MoreRow } from './BoxMoreList'
 import { moveStep, neighbourOf } from './boxOrder'
 import { placeList } from './listPlace'
 import { MORE_LIST_W } from './BoxMoreList'
@@ -47,7 +47,7 @@ export default function BoxMoreHost({
   const spot = boxEl
     ? placeList(boxEl.getBoundingClientRect(), MORE_LIST_W, {
         width: window.innerWidth,
-        height: window.innerHeight,
+        height: window.innerHeight - bottomBar(),
       })
     : null
   const menu: AnchoredMenuState = {

@@ -1,5 +1,7 @@
 /** Height the ⋯ list needs (6 rows, 2 lines, the title row), px. */
 export const LIST_H = 340
+/** Under a box a shorter list is fine: it scrolls inside (shared scroll bar). */
+const MIN_UNDER = 220
 const GAP = 8
 
 type Box = { left: number; right: number; top: number; bottom: number }
@@ -21,7 +23,7 @@ export function placeList(
     return { right: box.right + GAP + width, bottom: top - 4 }
   if (box.left - GAP - width >= GAP)
     return { right: box.left - GAP, bottom: top - 4 }
-  if (box.bottom + GAP + LIST_H <= view.height - GAP)
+  if (box.bottom + GAP + MIN_UNDER <= view.height - GAP)
     return {
       right: Math.min(
         Math.max(box.left + width, width + GAP),

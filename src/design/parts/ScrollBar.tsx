@@ -71,50 +71,65 @@ export function ScrollBar({
   const drag = useRef<{ y: number; top: number } | null>(null)
   const [dragging, setDragging] = useState(false)
 
+  const read = useCallback(() => {
+    const el = scroller
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const next: Read = {
+      rect: { right: r.right, top: r.top, height: r.height, width: r.width },
+      covered: coveredBy(el, r),
+      scrollTop: el.scrollTop,
+      scrollH: el.scrollHeight,
+      clientH: el.clientHeight,
+    }
+    setState((old) =>
+      old &&
+      old.rect.right === next.rect.right &&
+      old.rect.top === next.rect.top &&
+      old.rect.height === next.rect.height &&
+      old.rect.width === next.rect.width &&
+      old.covered === next.covered &&
+      old.scrollTop === next.scrollTop &&
+      old.scrollH === next.scrollH &&
+      old.clientH === next.clientH
+        ? old
+        : next,
+    )
+  }, [scroller])
+
   useEffect(() => {
     const el = scroller
     if (!el) return
-    el.setAttribute('data-scrollbar', '')
+    // A list found by the scroll hints (auto) gets no padding on the fly: no content jump.
+    if (!auto) el.setAttribute('data-scrollbar', '')
     // The shared bar replaces the fading hint handle on this list.
     if (!auto) el.setAttribute('data-no-scroll-hint', '')
-    const read = () => {
-      const r = el.getBoundingClientRect()
-      const next: Read = {
-        rect: { right: r.right, top: r.top, height: r.height, width: r.width },
-        covered: coveredBy(el, r),
-        scrollTop: el.scrollTop,
-        scrollH: el.scrollHeight,
-        clientH: el.clientHeight,
-      }
-      setState((old) =>
-        old &&
-        old.rect.right === next.rect.right &&
-        old.rect.top === next.rect.top &&
-        old.rect.height === next.rect.height &&
-        old.rect.width === next.rect.width &&
-        old.covered === next.covered &&
-        old.scrollTop === next.scrollTop &&
-        old.scrollH === next.scrollH &&
-        old.clientH === next.clientH
-          ? old
-          : next,
-      )
-    }
     const first = requestAnimationFrame(read)
     el.addEventListener('scroll', read, { passive: true })
     const ro = new ResizeObserver(read)
     ro.observe(el)
     for (const c of Array.from(el.children)) ro.observe(c)
-    const poll = window.setInterval(read, 700) // content that grows by itself
+    // Content that grows by itself: children are added or removed.
+    const mo = new MutationObserver(read)
+    mo.observe(el, { childList: true, subtree: true })
     return () => {
       cancelAnimationFrame(first)
       el.removeEventListener('scroll', read)
       ro.disconnect()
-      window.clearInterval(poll)
-      el.removeAttribute('data-scrollbar')
+      mo.disconnect()
+      if (!auto) el.removeAttribute('data-scrollbar')
       if (!auto) el.removeAttribute('data-no-scroll-hint')
     }
-  }, [scroller, auto])
+  }, [scroller, auto, read])
+
+  // Something drawn over the list (or taken away) leaves no trace inside it: look
+  // again every 700 ms, but ONLY while the list overflows (the bar could show).
+  const overflowing = !!state && state.scrollH - state.clientH > 1
+  useEffect(() => {
+    if (!scroller || !overflowing) return
+    const poll = window.setInterval(read, 700)
+    return () => window.clearInterval(poll)
+  }, [scroller, overflowing, read])
 
   const jump = useCallback(
     (dir: 1 | -1) => {

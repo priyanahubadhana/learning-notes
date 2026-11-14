@@ -74,6 +74,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-14 · fix-scroll: with the new frame (foundation.shell) the scroll bar no longer fades; it stays on the list being scrolled, with persistent end arrows.** One shared bar (design/parts/ScrollBar) replaces the fading 3 px handle, as the owner asked for one clear bar with visible ends (F3, F6). Flag OFF keeps the old fading handle exactly. The list under the bar gets no extra padding on the fly (the bar overlays its right edge).
 - **2026-11-13 · Storage safety D1: the three new alerts use the shared Banner part.** `storageLost`, `storageFull` and `homeScreen` are drawn with `src/design/parts/Banner.tsx` (new kinds `install`, `storage`); the older alerts keep `AttentionBanner`. Reason: new work uses shared parts; moving the old alerts is a separate slice. The banner sits in the top layer with a private overlay manager (like the toasts), so no new z-index.
 - **2026-11-13 · Storage safety D2: device full is a calm warm banner, not the bright level-2 bar.** Owner asked for calm; urgency order unchanged (`storageLost`, `storageFull` first). With the flag ON it replaces the once-a-minute "out of space" toast.
 - **2026-11-13 · Storage safety D3: one-tap backup records the time in the existing backup reminder (`meta.backupReminder`).** So Settings › This device shows the last backup time, as the spec asks. No note, setting or Undo step changes; no new table, no Dexie bump.

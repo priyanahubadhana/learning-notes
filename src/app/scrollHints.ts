@@ -8,8 +8,12 @@
  * Off by switch (Settings › Scroll hints): the marks are removed.
  */
 
+/** How long the indicator stays after the last scroll or touch (ms). */
+const HIDE_MS = 1000
 /** Smallest indicator height (px), so it stays easy to see. */
 const MIN_THUMB = 28
+/** Width of the handle's own gutter and touch area (px). */
+const HIT = 24
 /** Edge gap of the indicator (px). */
 const INSET = 3
 
@@ -103,46 +107,135 @@ const MARK = 'data-scroll-more'
  */
 const GUTTER = 'data-scroll-gutter'
 
+/** True in the new frame: the shared bar overlays the list's edge, so no gutter is added on the fly. */
+let barOn: () => boolean = () => false
+
 function mark(el: HTMLElement): void {
   const more = moreOf(el.scrollTop, el.scrollHeight, el.clientHeight)
   if (more) {
     el.setAttribute(MARK, more)
-    el.setAttribute(GUTTER, '')
+    if (!barOn()) el.setAttribute(GUTTER, '')
   } else el.removeAttribute(MARK)
 }
 
 /**
  * Starts the hints. `isOn` is read each time, so the Settings switch takes
- * effect at once; call the returned `refresh` when it changes. The slim handle
- * of old is gone: the list being scrolled gets the shared scroll bar
- * (design/parts/ScrollBar, mounted once as ScrollBarHost).
+ * effect at once; call the returned `refresh` when it changes.
  */
-export function installScrollHints(isOn: () => boolean): {
+export function installScrollHints(
+  isOn: () => boolean,
+  /** New app frame (foundation.shell): the shared scroll bar replaces the handle. */
+  barMode: () => boolean = () => false,
+): {
   refresh: () => void
   stop: () => void
 } {
+  const thumb = document.createElement('div')
+  thumb.className = 'scroll-hint-thumb'
+  thumb.setAttribute('aria-hidden', 'true')
+  thumb.dataset.noScrollHint = ''
+  document.body.appendChild(thumb)
+  barOn = barMode
   const stopStretch = installEdgeStretch()
+
+  let hideTimer: ReturnType<typeof setTimeout> | undefined
   let scanTimer: ReturnType<typeof setTimeout> | undefined
+
   let current: HTMLElement | null = null
+  let drag: { y: number; top: number; height: number } | null = null
+  let hovered = false
+
+  const hide = () => {
+    if (barMode()) {
+      current = null
+      setScrollTarget(null)
+    }
+    if (drag || hovered) return
+    thumb.classList.remove('is-on')
+  }
+  const later = () => {
+    clearTimeout(hideTimer)
+    hideTimer = setTimeout(hide, HIDE_MS)
+  }
 
   const show = (el: HTMLElement) => {
-    current = el
-    setScrollTarget(el)
-  }
-  const hide = () => {
-    current = null
+    if (barMode()) {
+      // The shared bar (ScrollBarHost) draws it; the old handle stays hidden.
+      current = el
+      setScrollTarget(el)
+      return
+    }
     setScrollTarget(null)
+    const g = thumbOf(el.scrollTop, el.scrollHeight, el.clientHeight)
+    if (!g) {
+      current = null
+      return hide()
+    }
+    current = el
+    const box = el.getBoundingClientRect()
+    thumb.style.top = `${box.top + el.clientTop + g.top}px`
+    thumb.style.height = `${g.height}px`
+    // The hit area is 24 px wide and ends at the list's right edge.
+    thumb.style.left = `${box.right - el.clientLeft - HIT}px`
+    thumb.classList.add('is-on')
+    if (!drag) later()
   }
 
-  // A mouse over a list shows its bar (touch: on scroll or touch).
+  // The handle: drag it and the content follows 1:1.
+  thumb.addEventListener('pointerdown', (e) => {
+    if (!current) return
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      thumb.setPointerCapture(e.pointerId)
+    } catch {
+      // Not a real pointer (a test): move and up still arrive.
+    }
+    drag = {
+      y: e.clientY,
+      top: current.scrollTop,
+      height: thumb.getBoundingClientRect().height,
+    }
+    thumb.classList.add('is-drag')
+    clearTimeout(hideTimer)
+  })
+  thumb.addEventListener('pointermove', (e) => {
+    if (!drag || !current) return
+    current.scrollTop = dragScrollTop(
+      drag.top,
+      e.clientY - drag.y,
+      current.scrollHeight,
+      current.clientHeight,
+      drag.height,
+    )
+  })
+  const endDrag = () => {
+    if (!drag) return
+    drag = null
+    thumb.classList.remove('is-drag')
+    later()
+  }
+  thumb.addEventListener('pointerup', endDrag)
+  thumb.addEventListener('pointercancel', endDrag)
+  thumb.addEventListener('pointerenter', (e) => {
+    if (e.pointerType !== 'mouse') return
+    hovered = true
+    clearTimeout(hideTimer)
+  })
+  thumb.addEventListener('pointerleave', () => {
+    hovered = false
+    later()
+  })
+  // A mouse over a list shows the handle (touch: on scroll or touch).
   const over = (event: PointerEvent) => {
-    if (!isOn() || event.pointerType !== 'mouse') return
+    if (!isOn() || event.pointerType !== 'mouse' || drag) return
     const el = scrollerOf(event.target)
     if (el && el !== current) {
       mark(el)
       show(el)
     }
   }
+
   const touch = (event: Event) => {
     if (!isOn()) return
     const el = scrollerOf(event.target)
@@ -154,6 +247,7 @@ export function installScrollHints(isOn: () => boolean): {
     if (!isOn()) return
     const el = event.target
     if (!(el instanceof HTMLElement) || !scrolls(el)) return
+    if (drag && el !== current) return
     mark(el)
     show(el)
   }
@@ -199,13 +293,22 @@ export function installScrollHints(isOn: () => boolean): {
     passive: true,
   })
   window.addEventListener('resize', soon)
-  // A list that leaves the page (a closed menu) takes its bar along at once.
-  const observer = new MutationObserver(() => {
+  // A list that leaves the page (a closed menu) takes its handle along at once,
+  // so a stale handle never sits over what is now under it.
+  const dropIfGone = () => {
     if (
       current &&
+      !drag &&
       (!current.isConnected || current.getClientRects().length === 0)
-    )
-      hide()
+    ) {
+      current = null
+      hovered = false
+      setScrollTarget(null)
+      thumb.classList.remove('is-on')
+    }
+  }
+  const observer = new MutationObserver(() => {
+    dropIfGone()
     soon()
   })
   observer.observe(document.body, { childList: true, subtree: true })
@@ -221,8 +324,10 @@ export function installScrollHints(isOn: () => boolean): {
       stopStretch()
       window.removeEventListener('resize', soon)
       observer.disconnect()
+      clearTimeout(hideTimer)
       clearTimeout(scanTimer)
-      hide()
+      setScrollTarget(null)
+      thumb.remove()
     },
   }
 }

@@ -8,10 +8,9 @@
   padding-inline-end: 20px;
   scrollbar-width: none;
 }
-/* Panels: contained, and a finger drags from anywhere inside, rows and empty space alike. The page keeps its own touch rules (ink). */
+/* Panels: scrolling stays inside the panel. No touch-action here: sideways swipes (tables, chip rows) keep working. */
 [data-scrollbar]:not([data-page-scroller]) {
   overscroll-behavior: contain;
-  touch-action: pan-y;
 }
 [data-scrollbar]::-webkit-scrollbar {
   display: none;

@@ -754,9 +754,50 @@ html[data-note-line] .bn-editor {
 [data-scroll-more] {
   scrollbar-width: none;
 }
-/* A list that has had the shared bar keeps its gutter, so rows never slide sideways when it appears (design/parts/ScrollBar). */
+/*
+ * The handle: a 24 px wide invisible touch area (only while shown) with a thin
+ * bar on its right edge: 3 px at rest, 7 px while dragged. Drag = 1:1. A list
+ * that has the handle keeps its own 24 px gutter (padding at its end), so the
+ * handle never covers a row's or header's buttons.
+ */
+.scroll-hint-thumb {
+  position: fixed;
+  width: 24px;
+  opacity: 0;
+  pointer-events: none;
+  touch-action: none;
+  z-index: var(--z-toast);
+  transition: opacity 0.25s ease;
+}
+.scroll-hint-thumb::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 3px;
+  bottom: 0;
+  width: 3px;
+  border-radius: 4px;
+  background: var(--color-muted);
+  transition: width 0.15s ease;
+}
+.scroll-hint-thumb.is-on {
+  opacity: 0.8;
+  pointer-events: auto;
+}
+.scroll-hint-thumb.is-drag {
+  opacity: 1;
+}
 [data-scroll-gutter] {
-  padding-inline-end: 20px;
+  padding-inline-end: 24px;
+}
+.scroll-hint-thumb.is-drag::after {
+  width: 7px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint-thumb,
+  .scroll-hint-thumb::after {
+    transition: none;
+  }
 }
 /* Reduce motion: no stretch, a brief glow at the edge that was pulled. */
 @media (prefers-reduced-motion: reduce) {

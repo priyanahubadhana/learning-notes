@@ -88,6 +88,7 @@ fingerOnlyBars.subscribe(() => {
 {
   const hints = installScrollHints(
     () => readDeviceSetting(scrollHintsSetting) === 'on',
+    () => isOn('foundation.shell'),
   )
   subscribeDeviceSettings(hints.refresh)
 }

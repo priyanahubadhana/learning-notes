@@ -59,3 +59,8 @@ Running list, in the order the owner reports. The owner asked to note everything
 - **L2 → stays parked** (likely the iPad's window mode; tip given: pinch outward on the floating keyboard).
 - **F10** (phone search bar not dimmed) → fix before Phase 1 goes live (P1.2).
 - **Re-check round:** steps 5, 6 and 9 (scroll bar, finger and Pencil), 13, 14, 15.
+
+### Seen by reviewers after the first look (to show the owner in the re-check round, not acted on)
+
+- **R1.** iPad upright, new Settings: in the P1.2 builder's pictures the settings sit in a narrow column with a wide empty area on the left (P1.2 reviewer, 14 Nov; there before P1.2). The owner's own screenshots of 16:44 and 16:45 do not show it. Check on the owner's iPad before acting.
+- **R2.** With P1.2, every phone ▾ sheet now also dims the phone tab bar and the other bars behind it, like a normal pop-up sheet (intended; the owner has not seen it yet).

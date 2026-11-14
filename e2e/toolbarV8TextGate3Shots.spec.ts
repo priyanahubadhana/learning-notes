@@ -103,10 +103,13 @@ for (const [dev, size] of Object.entries(SIZES)) {
         await shot('format')
         if (level === 'professional') {
           // Advanced: each font in its own face, and line height (TB-41).
-          await page
+          // The card body scrolls, not the inner list: scroll it, prove it moved.
+          const body = page
             .getByTestId('v8-format')
-            .evaluate((e) => e.scrollTo(0, e.scrollHeight))
+            .locator('xpath=ancestor::*[contains(@class,"pcard-body")][1]')
+          await body.evaluate((e) => e.scrollTo(0, e.scrollHeight))
           await settle(page)
+          expect(await body.evaluate((e) => e.scrollTop)).toBeGreaterThan(0)
           await shot('formatadv')
         }
         await closeCard(page)

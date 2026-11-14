@@ -62,7 +62,13 @@ export function installBoxV2(): () => void {
   let swallowUntil = 0
   /** The tap that only selected a box makes no click on the text under it. */
   const stopClick = (e: Event) => {
-    if (dragging() ? false : Date.now() >= swallowUntil) return
+    if (!dragging()) {
+      if (Date.now() >= swallowUntil) return
+      // Only that tap's own events in the box text are held back (a link,
+      // page link or toggle there too); the bar or a menu answers at once.
+      const t = e.target instanceof Element ? e.target : null
+      if (!t?.closest('.ProseMirror')) return
+    }
     e.preventDefault()
     e.stopImmediatePropagation()
   }

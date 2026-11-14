@@ -34,6 +34,9 @@ import {
 } from './boxService'
 import type { BoxChange } from './PaperFrame'
 import { BoxBar } from './BoxBar'
+import { BoxBarV2Lazy, BoxMoreV2Lazy } from './v2/BoxBarV2Lazy'
+import { prefetchBoxBarV2 } from './v2/boxBarV2Load'
+import { isOn } from '../app/flags'
 import { clearPageWide, pageWideClip, pageWideRange } from './pageWide'
 
 const DOTS: Record<string, string> = {
@@ -105,6 +108,12 @@ export function usePaperBoxes(
   useEffect(() => {
     if (editable) runTask(repairBoxes(db, pageId).then(() => {}))
   }, [db, pageId, editable])
+
+  // Text box v2: the box bar's code comes in while the page opens, so the
+  // first tap that selects a box shows its bar at once.
+  useEffect(() => {
+    if (isOn('textbox.v2')) prefetchBoxBarV2()
+  }, [])
 
   // Item 6/9: an accidental box left empty is removed when the caret leaves
   // it (a short wait first: the caret may be moving to its own bar or menu).
@@ -377,17 +386,28 @@ export function usePaperBoxes(
     onBoxMenu: (box, at) => setMenuFor({ box, at }),
     onGroup: (ids, group) => runTask(setGroup(db, pageId, ids, group)),
     onDeleteBox: remove,
-    renderBar: (box) => (
-      <BoxBar
-        pageId={pageId}
-        boxId={box.id}
-        canEdit={editable}
-        onDuplicate={() => editable && duplicate(box)}
-        onDelete={() => remove(box)}
-        onMenu={(at) => setMenuFor({ box, at })}
-        onLayout={openLayoutHere}
-      />
-    ),
+    renderBar: (box) =>
+      // Text box v2 (switch textbox.v2, task 2B.8): the Object bar and the ⋯ list.
+      isOn('textbox.v2') ? (
+        <BoxBarV2Lazy
+          pageId={pageId}
+          box={box}
+          canEdit={editable}
+          onDuplicate={() => editable && duplicate(box)}
+          onDelete={() => remove(box)}
+          onMenu={(at) => setMenuFor({ box, at })}
+        />
+      ) : (
+        <BoxBar
+          pageId={pageId}
+          boxId={box.id}
+          canEdit={editable}
+          onDuplicate={() => editable && duplicate(box)}
+          onDelete={() => remove(box)}
+          onMenu={(at) => setMenuFor({ box, at })}
+          onLayout={openLayoutHere}
+        />
+      ),
     onInkOnPaper: editable
       ? (at, lines) =>
           addBoxWithLines(db, pageId, at, lines).catch((error: unknown) => {
@@ -398,13 +418,31 @@ export function usePaperBoxes(
     fresh,
     menu: (
       <>
-        {menuFor && (
-          <MenuPopover
-            anchor={menuFor.at}
-            items={items(menuFor.box)}
-            onClose={() => setMenuFor(null)}
-          />
-        )}
+        {menuFor &&
+          (isOn('textbox.v2') ? (
+            <BoxMoreV2Lazy
+              db={db}
+              pageId={pageId}
+              box={menuFor.box}
+              at={menuFor.at}
+              canEdit={editable}
+              getGrid={() => gridView.current}
+              onClose={() => setMenuFor(null)}
+              onDuplicate={() => editable && duplicate(menuFor.box)}
+              onDelete={() => remove(menuFor.box)}
+              onLock={(locked) =>
+                onBoxChange(menuFor.box.id, {
+                  locked: locked ? true : undefined,
+                })
+              }
+            />
+          ) : (
+            <MenuPopover
+              anchor={menuFor.at}
+              items={items(menuFor.box)}
+              onClose={() => setMenuFor(null)}
+            />
+          ))}
         {layoutOpen && (
           <LayoutDialogLazy
             db={db}

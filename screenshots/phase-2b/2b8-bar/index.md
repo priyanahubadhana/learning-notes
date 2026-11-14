@@ -1,0 +1,6 @@
+# 2B.8 first look (switch textbox.v2 ON), chromium and ipad-webkit
+
+Files: `chromium/` and `ipad-webkit/`, `<size>-<state>-<theme>.png`. Sizes: ipad-upright 820x1180, ipad-sideways 1180x820, phone 390x844. States: bar (selected box + Object bar), list (the ⋯ list open), locked (iPad: lock on the tab, no dots; phone: the ⋯ list open, first row "Unlock"). Themes: light, dark, sepia (data-theme set before each shot). Beginner and Professional look the same: the bar and list have no Pro rows. All retaken after review 1 (15 Nov).
+Against states.html panels 4 and 5: list 248 px, rows Lock in place, Duplicate, Move up, Move down, Group (dimmed, "Pick 2 or more"), Delete.
+The bar fades in place (no slide). The ⋯ list is a solid card (no see-through glass); its title row stays put and only the rows scroll, so the scroll-hint fade touches the rows, never the card (R12).
+Known gaps: on the phone a box sits in a stacked column, so it already shows the lock and no dots before Lock in place; the locked phone picture therefore shows the list with "Unlock". On the phone the room under the box is shorter than the list: Group and Delete are reached by scrolling the list (shared scroll bar, fade at the bottom edge). ipad-webkit pictures: `ipad-webkit/`, same names (taken 15 Nov after review 1).

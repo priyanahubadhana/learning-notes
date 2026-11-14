@@ -1250,3 +1250,7 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 - Agents research (owner's request, 14 Nov): no rule or setting changed. Three proposals wait for the owner in docs/PENDING.md "Needs you".
 
 - Agents research recommendations (owner, 14 Nov: "why don't you add them"). Added: the rule and memory tidy-up at every phase end (rules/phase-end.md; also in the owner's global playbook). Scheduled: task 0.13, the builder's `isolation: worktree` on one trial task after 0.7 and 0.11 (adding it today would start every builder from the live line, which lacks the preview's code). Not added: a "done means green" stop check on the builder; the push guard of task 0.12 already blocks red pushes on every branch, so it would be the same check twice. Review this with the task record after Phase 1.
+
+- Reviewer lock (owner's yes, 14 Nov): `disallowedTools: Edit, Write, NotebookEdit` in .claude/agents/reviewer.md and in the owner's global reviewer file. The reviewer can read, run git and tests and report, but cannot change a file with the editing tools.
+
+- End of the planning session (14 Nov): the custom thinking-effort settings were removed from the user settings, as decided in settings review questions 8 and 9. Every model now uses Claude Code's default (medium). The helper files still name `effort: medium` for the reviewer and the phase manager.

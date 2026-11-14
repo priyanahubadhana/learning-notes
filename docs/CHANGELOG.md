@@ -1831,3 +1831,7 @@ What: `main` merged into `build/next` (4d2b12cb), pull request #5 mergeable agai
 ## 14 Nov 2026: agents research recommendations applied (owner's word)
 
 What: rules/phase-end.md, the rule check became a rule and memory tidy-up at every phase end; task 0.13 added to docs/plans/phase-plan.md and docs/BUILD-STATE.md (trial of the builder's own-copy setting after 0.7 and 0.11); docs/PENDING.md and docs/DECISIONS.md updated; one line added to the owner's global playbook. Why: the owner asked to add the research recommendations. The stop check was left out because the push guard already does that job.
+
+## 14 Nov 2026: reviewer locked; thinking effort back to the defaults
+
+What: .claude/agents/reviewer.md gets `disallowedTools: Edit, Write, NotebookEdit` (the same in the owner's global reviewer file); the custom `modelSettings` block removed from the user settings. Why: the owner said yes to the lock (a setting instead of a promise, from the agents research); the effort change was decided in the settings review and waited for the end of the planning session.

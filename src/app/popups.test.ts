@@ -5,6 +5,7 @@ import { act, createElement as h, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { setPressHome } from './input/pressHome'
 import { SCROLL_GRACE_MS, openPopupCount, usePopup } from './popups'
 
 ;(
@@ -231,5 +232,29 @@ describe('the one pop-up rule', () => {
       window.dispatchEvent(new Event('popstate'))
     })
     expect(open('a')).toBe(false)
+  })
+})
+
+// P1.5 (first look L11): the scroll bar of a menu's list is drawn on the page
+// body, outside the menu. Pressing it closed the menu ("a tap outside").
+describe('a part drawn outside its pop-up (its scroll bar)', () => {
+  it('a press on it is a press inside the pop-up; without a home it is outside', () => {
+    click('#a-open')
+    const bar = document.createElement('div')
+    bar.append(document.createElement('span'))
+    document.body.append(bar)
+    const forget = setPressHome(bar, q('#a-item') as Element)
+    act(() => {
+      bar.firstElementChild!.dispatchEvent(
+        new PointerEvent('pointerdown', { bubbles: true }),
+      )
+    })
+    expect(open('a')).toBe(true)
+    forget()
+    act(() => {
+      bar.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    })
+    expect(open('a')).toBe(false)
+    bar.remove()
   })
 })

@@ -55,6 +55,7 @@ describe('phase-to-switch table (task 0.6)', () => {
       expect(now.size).toBeGreaterThan(before.size)
     }
     expect(presetFlags('phase2a').has('toolbar.v8')).toBe(true)
+    expect(presetFlags('phase2a').has('toolbar.menu')).toBe(true)
     expect(presetFlags('phase2a').has('page.menus')).toBe(true)
     expect(presetFlags('phase2b').has('textbox.v2')).toBe(true)
     expect(presetFlags('phase3').has('notebooks.v2')).toBe(true)

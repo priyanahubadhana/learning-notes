@@ -114,6 +114,8 @@ export type TileProps = {
   multi?: boolean
   /** A tile that does something (Insert, All tools): a button, not a choice. */
   action?: boolean
+  /** An action tile that is on now (the tool showing): aria-pressed. */
+  pressed?: boolean
   onSelect?: () => void
   /** Pins hover or pressed (gallery cells). */
   force?: 'hover' | 'pressed'
@@ -128,6 +130,7 @@ export function Tile({
   disabled,
   multi,
   action,
+  pressed,
   onSelect,
   force,
   children,
@@ -140,10 +143,11 @@ export function Tile({
       className="pcard-tile"
       role={action ? undefined : multi ? 'checkbox' : 'radio'}
       aria-checked={action ? undefined : !!selected}
+      aria-pressed={action ? pressed : undefined}
       aria-label={label}
       disabled={disabled}
       data-force={force}
-      data-selected={selected || undefined}
+      data-selected={selected || pressed || undefined}
       data-testid={testId}
       onClick={() => {
         onSelect?.()

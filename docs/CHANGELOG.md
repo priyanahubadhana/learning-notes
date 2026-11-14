@@ -8,6 +8,23 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: the owner asked for a true audit so the next chat starts from files that do not contradict each other.
 - Files: docs/HANDOFF.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/DECISIONS.md, docs/CHANGELOG.md, docs/plans/audit-2026-11-14.md.
 
+### 14 Nov 2026: fix-scroll slice, round 3 (gate 2 + final look)
+
+- What: with the flag off the page bar is the old 24 px bar again, exactly (ScrollBar `legacy`: old sizes, classes and `data-pagebar` gutter in index.css), and the pages panel V2 draws no shared bar. With the flag on: a Card or CommandList that scrolls shows the shared bar at rest in its own gutter; a short list (under 148 px) shows the thumb only; the bar sits inside the rounded corners of its panel and draws nothing while its list is off the screen; a list's gutter is reserved only while it overflows; a bar over a floating card or phone sheet is drawn above it (layer variable, no new z-index); touch devices show no Alt+T / Ctrl+K labels in the sidebar; long breadcrumbs end in an ellipsis.
+- Why: gate 2 (flag-off look changed) and Fable's final look (Card overflow without the bar, arrows over a short card, arrows over the drawer corner, stray pixels at the phone's left edge, shortcut labels on touch).
+- Files: src/design/parts/ScrollBar.tsx, ScrollBar.css, scrollBarLogic.ts, Card.tsx, CommandList.tsx, src/paper/PageScrollBar.tsx, src/app/panel/v2/PanelV2.tsx, src/notebooks/Sidebar.tsx, src/app/shell/shell.css, src/index.css, e2e/scrollFrame.spec.ts, docs/features/shell.md
+
+### 14 Nov 2026: fix-scroll slice, round 2 (one bar everywhere)
+
+- What: the old fading handle (.scroll-hint-thumb) is gone. app/scrollHints.ts now only marks lists and tells design/parts/ScrollBarHost which list is being scrolled; ScrollBarHost draws the shared ScrollBar on it, so Card, CommandList and every other list have the same bar with end arrows. Thumb 4 px (6 dragged), 44 pt touch area, 150 ms. Contrast test (3:1) in Light, Dark, Sepia. docs/features/shell.md added (check:dod runs).
+- Files: src/design/parts/ScrollBar*.tsx, scrollTarget.ts, scrollBarContrast.test.ts, src/app/scrollHints.ts, src/index.css, src/main.tsx, e2e/scrollHints.spec.ts, docs/features/shell.md
+
+### 14 Nov 2026: fix-scroll slice (iPad findings F2, F3, F4, F6, F8; flag foundation.shell)
+
+- What: ONE shared scroll bar part (src/design/parts/ScrollBar.tsx, scrollBarLogic.ts, ScrollBar.css, useScroller.ts): visible track, a thumb at full muted ink, an arrow at each end that dims at its end, tokens only, 20 px wide (the page bar was 24, arrows 34 not 40). Used by the Notebooks sidebar, the pages panel (classic and V2) and the page (PageScrollBar is now a thin user with sheet stops). The sidebar is one scroller, so rows and empty space scroll alike. The Notebooks sidebar no longer lists Review / All cards / All summaries (the Review space keeps them). useFrameSize re-reads the window size after a resize because iPad Safari reports the old size for a moment after a turn.
+- Why: owner iPad test 14 Nov (F2 empty space did not scroll, F3 bar too faint, F4 duplicate rows, F6 one behaviour everywhere, F8 layout broke after turning the iPad). Other lists keep the fading hint handle (scrollHints.ts); moving them to the shared bar is left for a later slice.
+- Files: src/design/parts/ScrollBar._, src/design/parts/scrollBarLogic._, src/design/parts/useScroller.ts, src/paper/PageScrollBar.tsx, src/notebooks/Sidebar.tsx, src/app/panel/LeftPanel.tsx, src/app/panel/v2/PanelV2.tsx, src/app/shell/useFrameSize.ts, src/index.css, src/i18n parts texts (en, es, hi), e2e/scrollFrame.spec.ts
+
 ### 14 Nov 2026: F7 freeze recorder on the preview
 
 - What: the slow-moments recorder (R6-11) now runs by itself on the preview address build-next.learning-notes-app.pages.dev only (never on the live host or a deploy hash address, which can be a production build; the test machine only with the switch `learning-notes:perf.freezeWatch`) and notes main-thread blocks of 500 ms or more. Every entry now also names the top open panel and the last tap or key kind (never typed text; the label clean-up and key names were fixed after gate 2). Settings › Advanced › Copy report shows them.

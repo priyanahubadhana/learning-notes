@@ -1050,7 +1050,8 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
 
 /* Item 7 (10 Nov): the page has its own scroll bar (paper/PageScrollBar.tsx).
    Its gutter is reserved here so the bar never covers the paper, and the
-   system bar hides so there are not two. */
+   system bar hides so there are not two. With the new app frame on
+   (foundation.shell) the shared bar's ScrollBar.css reserves it instead. */
 [data-page-scroller][data-pagebar] {
   padding-inline-end: 24px;
   scrollbar-width: none;

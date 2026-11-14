@@ -109,6 +109,7 @@
   "pages -> paper",
   "pages -> tags",
   "pages -> templates",
+  "paper -> design",
   "paper -> editor",
   "paper -> history",
   "paper -> ink",

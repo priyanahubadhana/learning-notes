@@ -164,6 +164,7 @@ const config = defineConfig({
         /textTool/,
         /textBoxFree/,
         /homeV2/,
+        /scrollFrame/,
         /staySignedIn/,
         /freezeWatch/,
         /searchClose/,

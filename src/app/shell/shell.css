@@ -281,7 +281,12 @@
 .sh-crumbs svg {
   flex: none;
 }
+/* A long crumb shrinks with an ellipsis; it is never cut mid-letter. */
 .sh-crumbs button {
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
   min-height: var(--sh-hit);
   padding: 0 6px;
   border: 0;

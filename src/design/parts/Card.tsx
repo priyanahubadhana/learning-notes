@@ -17,7 +17,9 @@ import {
 } from '../../app/overlay'
 import { Icon } from '../../app/tools/icons'
 import { useFootLift } from '../../app/spaces/footLift'
+import { useFlag } from '../../app/flags'
 import { motionMs } from './motion'
+import { ScrollBar } from './ScrollBar'
 import { tp } from './tp'
 import { useAnchoredCard, usePhone } from './useAnchoredCard'
 import './Card.css'
@@ -71,6 +73,10 @@ export function Card(props: CardProps) {
   const phone = usePhone() || !!props.phone
   const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
+  // New app frame (SC-01): a card that scrolls shows the shared bar at rest.
+  const shell = useFlag('foundation.shell')
+  const [bodyEl, setBodyEl] = useState<HTMLDivElement | null>(null)
+  useEffect(() => setBodyEl(bodyRef.current), [])
   const [node, setNode] = useState<HTMLDivElement | null>(null)
   const [closing, setClosing] = useState(false)
   const [picked, setPicked] = useState(false)
@@ -270,6 +276,7 @@ export function Card(props: CardProps) {
           </div>
         </div>
         {footer && <footer className="pcard-foot">{footer}</footer>}
+        {shell && <ScrollBar scroller={bodyEl} />}
       </div>
     </CardCtx.Provider>
   )

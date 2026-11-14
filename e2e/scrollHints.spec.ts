@@ -132,3 +132,55 @@ test('pulling past the top gives a small stretch that springs back', async ({
     .poll(() => child.evaluate((el) => el.style.transform), { timeout: 2000 })
     .toBe('')
 })
+
+/** New app frame (flag foundation.shell): the shared scroll bar replaces the handle. */
+test.describe('new frame: the shared bar replaces the handle', () => {
+  const ON = '/?flags=foundation.shell'
+
+  test('a scrolled list gets the shared bar (4 px thumb, 6 dragged, 44 pt touch area, end arrows) and the old handle never shows; the thumb drags 1:1', async ({
+    page,
+  }) => {
+    await page.goto(ON)
+    await page.locator('aside').waitFor({ state: 'attached' })
+    await addList(page)
+    const list = page.locator('#hint-list')
+    await list.evaluate((el) => (el.scrollTop = 100))
+    const thumb = page.locator('[data-scrollbar-thumb]')
+    await expect(thumb).toBeVisible()
+    await expect(page.locator('.scroll-hint-thumb')).not.toHaveClass(/is-on/)
+    await expect(page.locator('[data-scrollbar-arrow="up"]')).toBeVisible()
+    await expect(page.locator('[data-scrollbar-arrow="down"]')).toBeVisible()
+    // No padding added on the fly: the list's content does not move when the bar shows.
+    expect(await list.evaluate((el) => getComputedStyle(el).paddingRight)).toBe(
+      '0px',
+    )
+
+    const box = (await thumb.boundingBox())!
+    expect(box.width).toBeLessThanOrEqual(4.5)
+    const hit = await thumb.evaluate((el) => {
+      const r = getComputedStyle(el, '::before')
+      return parseFloat(r.left) < 0 && parseFloat(r.width) >= 40
+    })
+    expect(hit).toBe(true)
+
+    // Drag 30 px: the content moves by 30 * range / travel (exact), not to the end.
+    const before = await list.evaluate((el) => el.scrollTop)
+    const x = box.x + box.width / 2
+    const y = box.y + box.height / 2
+    await page.mouse.move(x, y)
+    await page.mouse.down()
+    await page.mouse.move(x, y + 30, { steps: 6 })
+    await expect
+      .poll(async () => (await thumb.boundingBox())!.width)
+      .toBeGreaterThanOrEqual(5.9)
+    await page.mouse.up()
+    const after = await list.evaluate((el) => el.scrollTop)
+    const range = 900 - 150
+    // The track is the list height minus an arrow (34 px) at each end.
+    const travel = 150 - 2 * 34 - box.height
+    expect(after - before).toBeCloseTo((30 * range) / travel, 0)
+    expect(after).toBeLessThan(range)
+    const moved = (await thumb.boundingBox())!
+    expect(moved.y - box.y).toBeCloseTo(30, 0)
+  })
+})

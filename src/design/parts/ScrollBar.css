@@ -1,0 +1,84 @@
+/*
+ * The ONE scroll bar (design/parts/ScrollBar.tsx). Tokens only. Track = a
+ * visible line colour, thumb = the muted ink at full strength (the old page
+ * bar used 60% / 70% of them: too faint), arrows dim at their end.
+ */
+[data-scrollbar] {
+  /* The gutter the bar sits in, so it never covers content. */
+  padding-inline-end: 20px;
+  scrollbar-width: none;
+}
+/* Panels: scrolling stays inside the panel. No touch-action here: sideways swipes (tables, chip rows) keep working. */
+[data-scrollbar]:not([data-page-scroller]) {
+  overscroll-behavior: contain;
+}
+[data-scrollbar]::-webkit-scrollbar {
+  display: none;
+}
+.sbar {
+  position: fixed;
+  /* Above the box its list lives in: a floating card or a phone sheet. */
+  z-index: var(--sbar-layer, var(--z-bar));
+  display: flex;
+  flex-direction: column;
+  touch-action: none;
+}
+.sbar[data-layer='card'] {
+  --sbar-layer: calc(var(--z-card) + 1);
+}
+.sbar[data-layer='sheet'] {
+  --sbar-layer: calc(var(--z-sheet) + 1);
+}
+.sbar__arrow {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink-soft);
+  touch-action: manipulation;
+}
+.sbar__arrow:hover:not(:disabled) {
+  color: var(--color-ink);
+}
+.sbar__arrow:disabled {
+  opacity: 0.4;
+}
+.sbar__track {
+  position: relative;
+  flex: 1;
+  margin: 0 8px;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+/* A short list: the thumb only, with a little air at both ends. */
+.sbar__track--short {
+  margin-block: 4px;
+}
+/* The thumb is 4 px (6 px while dragged); its touch area is 44 pt wide. */
+.sbar__thumb {
+  position: absolute;
+  inset-inline: 0;
+  border-radius: 999px;
+  background: var(--color-muted);
+  touch-action: none;
+  transition:
+    inset-inline 150ms var(--ease-out, ease),
+    background-color 150ms var(--ease-out, ease);
+}
+.sbar__thumb::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline: -20px;
+}
+.sbar__thumb--drag {
+  inset-inline: -1px;
+  background: var(--color-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sbar__thumb {
+    transition: none;
+  }
+}

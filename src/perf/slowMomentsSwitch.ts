@@ -15,14 +15,15 @@ const chosen = (): boolean =>
   'on'
 
 /**
- * F7 (14 Nov): the freeze recorder runs by itself on the preview addresses
- * (build-next and branch previews), never on the live host. The test
- * machine (localhost) only with the browser tests' switch.
+ * F7 (14 Nov): the freeze recorder runs by itself on the preview address
+ * only, never on the live host or a deploy hash address (those can be
+ * production builds). The test machine (localhost) only with the browser
+ * tests' switch.
  */
-const LIVE = 'learning-notes-app.pages.dev'
+const PREVIEW = 'build-next.learning-notes-app.pages.dev'
 const TEST_SWITCH = 'learning-notes:perf.freezeWatch'
 export const freezeWatchHost = (host: string, testSwitch = false): boolean =>
-  host.endsWith(`.${LIVE}`) ||
+  host === PREVIEW ||
   (testSwitch && (host === 'localhost' || host === '127.0.0.1'))
 
 function onPreview(): boolean {

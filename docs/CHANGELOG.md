@@ -4,7 +4,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 14 Nov 2026: F7 freeze recorder on the preview
 
-- What: the slow-moments recorder (R6-11) now runs by itself on the preview addresses (never on the live host; the test machine only with the switch `learning-notes:perf.freezeWatch`) and notes main-thread blocks of 500 ms or more. Every entry now also names the top open panel and the last tap or key kind (never typed text). Settings › Advanced › Copy report shows them.
+- What: the slow-moments recorder (R6-11) now runs by itself on the preview address build-next.learning-notes-app.pages.dev only (never on the live host or a deploy hash address, which can be a production build; the test machine only with the switch `learning-notes:perf.freezeWatch`) and notes main-thread blocks of 500 ms or more. Every entry now also names the top open panel and the last tap or key kind (never typed text; the label clean-up and key names were fixed after gate 2). Settings › Advanced › Copy report shows them.
 - Why: F7, the owner's iPad sometimes freezes with no clear trigger; the cause must be measured, not guessed.
 - Files: src/perf/slowMoments.ts, src/perf/slowMomentsSwitch.ts, src/perf/freezeWatch.test.ts
 

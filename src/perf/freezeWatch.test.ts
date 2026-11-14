@@ -11,11 +11,12 @@ import {
 } from './slowMoments'
 
 describe('F7 freeze recorder: preview only', () => {
-  it('runs on the preview and branch previews, never on the live host', () => {
+  it('runs on the preview address only, never on the live host', () => {
     expect(freezeWatchHost('build-next.learning-notes-app.pages.dev')).toBe(
       true,
     )
-    expect(freezeWatchHost('a1b2c3d4.learning-notes-app.pages.dev')).toBe(true)
+    // Deploy hash addresses can be production builds: never there.
+    expect(freezeWatchHost('a1b2c3d4.learning-notes-app.pages.dev')).toBe(false)
     expect(freezeWatchHost('learning-notes-app.pages.dev')).toBe(false)
     expect(freezeWatchHost('example.com')).toBe(false)
     // The test machine only with its switch (for the browser tests).
@@ -34,7 +35,8 @@ describe('F7 freeze recorder: blocks over 500 ms with what was going on', () => 
     vi.spyOn(performance, 'now').mockImplementation(() => now)
     document.body.innerHTML = `
       <div role="dialog" aria-label="Search everything"></div>
-      <button aria-label="Open page">x</button>`
+      <button aria-label="Open page">x</button>
+      <button aria-label="Close search">x</button>`
   })
   afterEach(() => {
     vi.useRealTimers()
@@ -62,6 +64,23 @@ describe('F7 freeze recorder: blocks over 500 ms with what was going on', () => 
       action: 'tap button:Open page',
     })
     expect(slowMomentsReport(list)).toContain('panel=dialog:Search everything')
+  })
+
+  it('keeps the letter s in labels and names arrow keys', () => {
+    const stop = startSlowMoments({ minMs: 500 })
+    const close = document.querySelectorAll('button')[1]
+    close.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    now += 800
+    vi.advanceTimersByTime(100)
+    close.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+    )
+    now += 800
+    vi.advanceTimersByTime(100)
+    stop()
+    const [a, b] = readSlowMoments()
+    expect(a.action).toBe('tap button:Close search')
+    expect(b.action).toBe('ArrowDown button:Close search')
   })
 
   it('never records typed text: a key press notes only its kind', () => {

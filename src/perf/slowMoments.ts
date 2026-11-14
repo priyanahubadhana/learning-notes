@@ -135,7 +135,7 @@ function context(): Omit<SlowMoment, 'at' | 'kind' | 'ms'> {
 
 /** A short, content-free name: the label of a control, never note text. */
 const short = (s: string | null | undefined) =>
-  s ? s.replace(/s+/g, ' ').trim().slice(0, 40) : ''
+  s ? s.replace(/\s+/g, ' ').trim().slice(0, 40) : ''
 
 function openPanel(): string | undefined {
   const open = document.querySelectorAll(
@@ -173,7 +173,7 @@ function describeTarget(t: EventTarget | null): string {
 }
 
 const NAMED_KEYS =
-  /^(Enter|Escape|Tab|Backspace|Delete|Arroww+|Pagew+|Home|End)$/
+  /^(Enter|Escape|Tab|Backspace|Delete|Arrow\w+|Page\w+|Home|End)$/
 
 function watchActions(): () => void {
   const tap = (e: Event) => {

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026 (evening): task 0.5 merged; audit answers recorded; clean-up done
+
+- What: the scroll fix (`slice/fix-scroll-frame` 0db04220) merged alone into `build/next` (d91b83d8); the owner's three answers to the audit recorded (folders deleted by the owner's script, Fable's `xhigh` effort entry removed from the user settings, security updates planned as task 0.14 after 0.6); task 0.11 done (lint 0 errors).
+- Why: Phase 0 order; the owner's answers.
+- Files: docs/BUILD-STATE.md, docs/PENDING.md, docs/plans/phase-plan.md, docs/plans/audit-2026-11-14.md, docs/CHANGELOG.md; `~/.claude/settings.json` (outside the repo).
+
 ### 14 Nov 2026 (evening): Fable audit after the restart; docs made to agree
 
 - What: HANDOFF no longer says PAUSED (only BUILD-STATE says whether the build is paused); the duplicated "slice 12 rest" entry below was removed once; BUILD-STATE rows 0.3 (both runs green), 0.5 (pushed, 0db04220), 0.8 (the fast set exists on `build/next` only; `main` has the CI file but not the test list, so a hand-started run on `main` must tick "full" until task 0.7) and 0.11 (36 dead folders and 67 loose `ln-*` files remain in Downloads, not 8) corrected; "phase manager" wording for Dexie numbers changed to "the manager (the main chat in lean mode)". Full report: docs/plans/audit-2026-11-14.md.

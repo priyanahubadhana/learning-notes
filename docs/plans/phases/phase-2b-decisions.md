@@ -12,4 +12,6 @@ Planned live with the owner (Opus manager; questions drafted by Fable). The phas
 - **Moving a box:** only by the ≡ tab.
 - **Two boxes side by side:** a tap makes the new box under the first; drag it beside to make columns. "Tap beside = side by side" saved as an idea (owner asked for an explanation; OK with the pick).
 - **✓ after a drop:** none; Undo instead.
-- **Rotation, and a tall Box card under a wide box:** owner asked for an explanation; waiting.
+- **Rotation:** not now (parked with layers).
+- **Tall Box card under a wide box:** the card scrolls inside; the page stays still.
+- **The missing-states picture:** approved by the owner as it is (14 Nov night: "I liked everything ... I confirm all"); the guessed numbers above are accepted with it.

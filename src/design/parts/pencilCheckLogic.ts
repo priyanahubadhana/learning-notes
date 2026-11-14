@@ -119,7 +119,11 @@ export function describeEvent(
 const REPEATING = new Set(['pointermove', 'touchmove', 'scroll'])
 
 /** Newest first, at most MAX_ROWS. A repeated move/scroll on the same target folds into the newest row (count), so a drag never pushes the start events out. */
-export function pushRow(rows: CheckRow[], row: CheckRow): CheckRow[] {
+export function pushRow<T extends CheckRow>(
+  rows: T[],
+  row: T,
+  max = MAX_ROWS,
+): T[] {
   const top = rows[0]
   if (
     top &&
@@ -133,7 +137,7 @@ export function pushRow(rows: CheckRow[], row: CheckRow): CheckRow[] {
       ...rows.slice(1),
     ]
   }
-  return [row, ...rows].slice(0, MAX_ROWS)
+  return [row, ...rows].slice(0, max)
 }
 
 /** Words of the panel. A hidden diagnostic tool for the owner, so English only on purpose (kept out of JSX). */

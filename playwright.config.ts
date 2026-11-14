@@ -120,6 +120,7 @@ const config = defineConfig({
         /foundationSelectionOverlay/,
         /barFixes/,
         /pencilTaps/,
+        /tb2-select/,
         /boxPills/,
         /microBar/,
         /tableGap/,

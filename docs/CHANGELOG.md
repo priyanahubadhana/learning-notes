@@ -9,6 +9,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Review 1 (15 Nov): a card's bar (the gear menu) was drawn under its card, because ScrollBar.css used `--z-card`, which is not set on the page; the bar's layer is now measured from the box. "Pencil picks the Pen tool" no longer fires on a scroll bar, menu, card or panel (SC-22). The old quiet corner asks pressHome too (it has no shared bar today: old frame only).
 - Files: src/app/spaces/QuietCorner.tsx, src/app/tools/main/penPicks.ts, src/design/parts/ScrollBar.css, src/app/input/{pressHome,penScroll,ownTouches}.ts, src/app/overlay/{boxLayer,manager}.ts, src/app/popups.ts, src/design/parts/ScrollBar.tsx, src/tags/TagPicker.tsx, src/links/LinkPicker.tsx, src/main.tsx, e2e/{realPen.ts,pencilReal.spec.ts,scrollBarPen.spec.ts}, playwright.config.ts, docs/features/shell.md.
 
+### 14 Nov 2026: R5 phone tray ends above the tab bar
+
+- What: the tool bar ⋯ tray (old bar) is as tall as the room above the tab bar, so its last row can be scrolled into view. Why: on the phone its last rows sat behind the tab bar. The v8 ⋯ sheet is above the tab bar by design; a test keeps its last row reachable.
+- Files: src/editor/DockedBar.tsx, e2e/phoneTrayTabBar.spec.ts.
+
 ### 14 Nov 2026: toolbar v8 gate 2 fix round (1e/1f/BUG-003)
 
 - What: Advanced in Format now shows fonts in their own face and line height (TB-41); headings, indent, outdent and divider are buttons; the new-box look is one Undo/Redo step; a reload during a peek keeps the bar Off (TB-75); tests for Box look Undo/Redo, 200 ms tuck, Pencil tuck, each Pro switch alone.

@@ -1,5 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useContext, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { AppUiContext } from '../app/appUi'
+import { useFlag } from '../app/flags'
+import { toggleFavourite, isFavourite } from '../app/favourites'
+import { ClearField } from '../design/parts/ClearField'
+import { ScrollTrack } from '../design/parts/ScrollTrack'
+import { isUnlocked, useLevel } from '../settings/level'
 import { buildRows, rowMatches, type Row } from '../app/tools/controlRows'
 import { Icon } from '../app/tools/icons'
 import { pinTool, unpinTool } from '../app/tools/main/barOrder'
@@ -8,7 +14,8 @@ import { MenuIcon } from '../app/ui'
 import type { LearningNotesDB } from '../core/db'
 import { t, type MessageKey } from '../i18n/t'
 import { readRecentPages } from './recentPages'
-import { searchWords } from './searchText'
+import { fold, searchWords } from './searchText'
+import { isLive } from '../core/records'
 import {
   DEFAULT_FILTERS,
   RESULT_TYPES,
@@ -20,6 +27,13 @@ import { TaskResults } from './TaskResults'
 import { noteRecentTool } from './recentTools'
 import { ToolSections } from './ToolSections'
 import { TYPE_ICON, useHitDetails, useSearch } from './useSearch'
+import { chipList } from './v2/chips'
+import { holdJustFired, rightClickInfo, useRowHold } from '../app/rowHold'
+import { ResultStrip } from './v2/ResultStrip'
+import { pageLink, resultStripItems } from './v2/strips'
+import { usePref } from '../app/usePref'
+import { isScope, scopeCounts, type Scope } from './v2/scope'
+import { ts, type TsKey } from './v2/ts'
 
 /** Recent pages shown before typing. */
 const RECENT = 6
@@ -61,6 +75,8 @@ export function SearchPopup({
   onSeeAll,
   initialChip = 'all',
   onOpenTask,
+  pageId,
+  notebookId,
 }: {
   db: LearningNotesDB
   onClose: () => void
@@ -73,11 +89,26 @@ export function SearchPopup({
   initialChip?: 'all' | 'feature'
   /** A task was picked: Home's Tasks. */
   onOpenTask?: () => void
+  /** The page and notebook now open: what "This page" and "Notebook" search. */
+  pageId?: string | null
+  notebookId?: string | null
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const [text, setText] = useState('')
   const [chip, setChip] = useState<Chip>(initialChip)
+  // Flag search.v2: chips by level, a ✕ in the box, a strip on a result row.
+  const v2 = useFlag('search.v2')
+  const libraryOn = useFlag('library.v2')
+  useLevel() // re-draw when Beginner / Professional or an unlock changes
+  const { toast } = useContext(AppUiContext)
+  const [strip, setStrip] = useState<{
+    hit: SearchHit
+    el: HTMLElement
+  } | null>(null)
+  const chips: Chip[] = v2
+    ? chipList({ unlocked: isUnlocked, libraryOn, active: chip })
+    : CHIPS
   const type: SearchQuery['type'] =
     chip === 'all' || chip === 'page' || chip === 'note' || chip === 'card'
       ? chip
@@ -85,8 +116,26 @@ export function SearchPopup({
   /** False on the coming chips and on Features: no note results there. */
   const showNotes = type === chip
   const [selected, setSelected] = useState(-1)
-  const query: SearchQuery = { text, type, filters: DEFAULT_FILTERS }
-  const { outcome, now } = useSearch(db, query)
+  // SR-B05: This page · Notebook · Everything; the choice is remembered.
+  const [savedScope, setScope] = usePref<Scope>('search.scope', isScope, 'all')
+  const scope: Scope =
+    v2 && savedScope !== 'all' && (savedScope === 'page' ? pageId : notebookId)
+      ? savedScope
+      : 'all'
+  const query: SearchQuery = {
+    text,
+    type,
+    filters:
+      scope === 'all'
+        ? DEFAULT_FILTERS
+        : { ...DEFAULT_FILTERS, notebookId: notebookId ?? null },
+  }
+  const { outcome: found, now } = useSearch(db, query)
+  // "This page" keeps only the hits on that page (counts follow).
+  const outcome = useMemo(
+    () => (found && scope === 'page' ? scopeCounts(found, pageId!) : found),
+    [found, scope, pageId],
+  )
   const listId = useId()
   const onBar = extraTools.useValue()
   const featureRows = useMemo(() => buildRows(), [])
@@ -117,6 +166,11 @@ export function SearchPopup({
     : []
   const flat = groups.flatMap((g) => g.hits)
   const details = useHitDetails(db, flat)
+  useRowHold((info) => {
+    if (!v2 || info.kind !== 'hit') return
+    const hit = flat.find((h) => h.id === info.id)
+    if (hit) setStrip({ hit, el: info.el })
+  })
 
   // Features: every tool and setting (the former control panel).
   const typed = text.trim().length > 0
@@ -157,7 +211,8 @@ export function SearchPopup({
     if (e.key === 'Escape') {
       // A search box would clear its text first; Esc should just close.
       e.preventDefault()
-      onClose()
+      if (strip) setStrip(null)
+      else onClose()
       return
     }
     const count = browsing ? (recent?.length ?? 0) : rows
@@ -194,6 +249,24 @@ export function SearchPopup({
   }, [selected, listId])
 
   const optionId = (i: number) => `${listId}-${i}`
+  // The Tasks chip counts like the others (tasks are few, matched in memory).
+  const taskCount = useLiveQuery(async () => {
+    const words = searchWords(text)
+    if (!v2 || words.length === 0) return undefined
+    return (await db.tasks.toArray()).filter(
+      (task) =>
+        isLive(task) && words.every((w) => fold(task.title).includes(w)),
+    ).length
+  }, [db, v2, text])
+  /** The count on a chip (typed text only): notes by type, features by match. */
+  const chipCount = (v: Chip): number | undefined => {
+    if (v === 'feature')
+      return featureRows.filter((r) => rowMatches(r.haystack, text)).length
+    if (v === 'task') return taskCount
+    if (v === 'all' || v === 'page' || v === 'note' || v === 'card')
+      return outcome?.active ? outcome.typeCounts[v] : undefined
+    return undefined
+  }
   let index = 0
 
   return (
@@ -207,73 +280,173 @@ export function SearchPopup({
       onClick={(e) => {
         if (e.target === ref.current) onClose() // click on the backdrop
       }}
-      className="mx-auto mt-[10vh] flex max-h-[72vh] w-[min(620px,calc(100vw-32px))] flex-col overflow-hidden glass rounded-[var(--r-lg)] p-0 text-ink backdrop:bg-[var(--scrim)] phone:m-0 phone:h-full phone:max-h-none phone:w-full phone:max-w-none phone:rounded-none phone:border-0"
+      onPointerDown={(e) => {
+        if (
+          strip &&
+          e.target instanceof Element &&
+          !e.target.closest('[data-strip-host]')
+        )
+          setStrip(null)
+      }}
+      className={`mx-auto mt-[10vh] flex max-h-[72vh] w-[min(620px,calc(100vw-32px))] flex-col overflow-hidden glass rounded-[var(--r-lg)] p-0 text-ink backdrop:bg-[var(--scrim)] phone:m-0 phone:h-full phone:max-h-none phone:w-full phone:max-w-none phone:rounded-none phone:border-0 ${v2 ? 'srv2-dialog' : ''}`}
     >
       <div className="flex items-center gap-2.5 border-b border-line px-3.5 py-3 phone:ps-2">
         <button
           type="button"
           onClick={onOpenMenu}
           aria-label={t('nav.openMenu')}
-          className="hidden size-11 shrink-0 items-center justify-center rounded-lg border border-line text-ink phone:flex"
+          className="hidden size-11 shrink-0 items-center justify-center rounded-lg text-ink hover:bg-hover phone:flex"
         >
           <MenuIcon />
         </button>
         <span aria-hidden className="text-muted">
           <Icon name="search" size={18} />
         </span>
-        <input
-          ref={inputRef}
-          type="search"
-          autoFocus
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value)
-            setSelected(-1)
-          }}
-          onKeyDown={onKeyDown}
-          placeholder={t('search.placeholder')}
-          aria-label={t('search.placeholder')}
-          role="combobox"
-          aria-expanded={rows > 0}
-          aria-controls={listId}
-          aria-activedescendant={selected >= 0 ? optionId(selected) : undefined}
-          autoComplete="off"
-          className="min-w-0 flex-1 bg-transparent text-base outline-none [&::-webkit-search-cancel-button]:hidden"
-        />
+        {v2 ? (
+          <ClearField
+            ref={inputRef}
+            type="search"
+            autoFocus
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value)
+              setSelected(-1)
+            }}
+            onClear={() => {
+              setText('')
+              setSelected(-1)
+            }}
+            onKeyDown={onKeyDown}
+            placeholder={t('search.placeholder')}
+            aria-label={t('search.placeholder')}
+            role="combobox"
+            aria-expanded={rows > 0}
+            aria-controls={listId}
+            aria-activedescendant={
+              selected >= 0 ? optionId(selected) : undefined
+            }
+            autoComplete="off"
+            data-testid="srv2-box"
+            className="min-w-0 flex-1 bg-transparent text-base outline-none [&::-webkit-search-cancel-button]:hidden"
+          />
+        ) : (
+          <input
+            ref={inputRef}
+            type="search"
+            autoFocus
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value)
+              setSelected(-1)
+            }}
+            onKeyDown={onKeyDown}
+            placeholder={t('search.placeholder')}
+            aria-label={t('search.placeholder')}
+            role="combobox"
+            aria-expanded={rows > 0}
+            aria-controls={listId}
+            aria-activedescendant={
+              selected >= 0 ? optionId(selected) : undefined
+            }
+            autoComplete="off"
+            className="min-w-0 flex-1 bg-transparent text-base outline-none [&::-webkit-search-cancel-button]:hidden"
+          />
+        )}
         <button
           type="button"
           onClick={onClose}
           aria-label={t('search.close')}
-          className="min-h-8 rounded-md px-2 text-xs text-muted hover:bg-hover"
+          data-testid="search-close"
+          className="flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-hover"
         >
-          Esc
+          <Icon name="close" size={18} />
         </button>
       </div>
-      <div
+      {v2 && (
+        <div
+          role="group"
+          aria-label={ts('srv2.scope')}
+          data-testid="srv2-scope"
+          className="flex items-center gap-2 border-b border-line px-3.5 py-2"
+        >
+          <div className="flex rounded-full border border-line p-0.5 text-sm">
+            {(['page', 'notebook', 'all'] as const).map((s) => {
+              const off =
+                s === 'page' ? !pageId : s === 'notebook' && !notebookId
+              return (
+                <button
+                  key={s}
+                  type="button"
+                  data-scope={s}
+                  aria-pressed={scope === s}
+                  disabled={off}
+                  onClick={() => {
+                    setScope(s)
+                    setSelected(-1)
+                    inputRef.current?.focus()
+                  }}
+                  className={`min-h-9 rounded-full px-3 whitespace-nowrap disabled:opacity-40 any-pointer-coarse:min-h-11 ${
+                    scope === s
+                      ? 'bg-accent-soft font-semibold text-accent'
+                      : 'text-ink-soft hover:bg-hover'
+                  }`}
+                >
+                  {ts(`srv2.scope.${s}` as TsKey)}
+                </button>
+              )
+            })}
+          </div>
+          {scope === 'page' && outcome?.active && typed && (
+            <span
+              className="min-w-0 truncate text-xs text-muted"
+              data-testid="srv2-page-count"
+            >
+              {ts('srv2.scope.pageCount', {
+                count: outcome.typeCounts.all,
+              })}
+            </span>
+          )}
+        </div>
+      )}
+      <ScrollTrack
         role="group"
         aria-label={t('search.show')}
-        className="flex flex-wrap gap-1.5 border-b border-line px-3.5 py-2"
+        wrapClassName="border-b border-line"
+        barClassName="mx-3.5 mb-2"
+        className={`flex gap-1.5 px-3.5 py-2 ${v2 ? 'flex-nowrap' : 'flex-wrap'}`}
       >
-        {CHIPS.map((v) => (
+        {chips.map((v) => (
           <button
             key={v}
             type="button"
+            data-chip={v}
             aria-pressed={chip === v}
             onClick={() => {
               setChip(v)
               setSelected(-1)
               inputRef.current?.focus() // keep typing and arrow keys working
             }}
-            className={`min-h-7 rounded-full border px-2.5 text-[12.5px] whitespace-nowrap ${
+            className={`${
+              v2
+                ? 'relative min-h-9 shrink-0 px-3 font-semibold after:absolute after:-inset-y-1 after:inset-x-0 after:content-[""]'
+                : 'min-h-7 px-2.5'
+            } rounded-full border text-[12.5px] whitespace-nowrap ${
               chip === v
-                ? 'border-ink bg-ink text-bg'
+                ? v2
+                  ? 'border-transparent bg-accent-soft text-accent'
+                  : 'border-ink bg-ink text-bg'
                 : 'border-line text-muted hover:text-ink'
             }`}
           >
             {t(`search.type.${v}` as MessageKey)}
+            {v2 && typed && chipCount(v) !== undefined && (
+              <span className="ms-1 tabular-nums opacity-80">
+                {chipCount(v)}
+              </span>
+            )}
           </button>
         ))}
-      </div>
+      </ScrollTrack>
       <p role="status" aria-live="polite" className="sr-only">
         {!typed && chip !== 'feature'
           ? ''
@@ -300,7 +473,7 @@ export function SearchPopup({
               onOpenTask?.()
             }}
           />
-        ) : COMING.includes(chip) ? (
+        ) : !v2 && COMING.includes(chip) ? (
           <p className="px-4 py-7 text-center text-sm text-muted">
             {t(`search.coming.${chip}` as MessageKey)}
           </p>
@@ -370,7 +543,7 @@ export function SearchPopup({
                 <GroupLabel>{t(`search.type.${group.kind}`)}</GroupLabel>
                 {group.hits.map((hit) => {
                   const i = index++
-                  return (
+                  const row = (
                     <ResultRow
                       key={hit.id}
                       id={optionId(i)}
@@ -379,8 +552,59 @@ export function SearchPopup({
                       query={text}
                       now={now}
                       selected={selected === i}
-                      onOpen={onOpenHit}
+                      onOpen={(h) => {
+                        if (!holdJustFired()) onOpenHit(h)
+                      }}
                     />
+                  )
+                  if (!v2) return row
+                  return (
+                    <div
+                      key={hit.id}
+                      data-hold={`hit:${hit.id}`}
+                      data-testid="srv2-row"
+                      style={{
+                        WebkitTouchCallout: 'none',
+                        WebkitUserSelect: 'none',
+                        userSelect: 'none',
+                      }}
+                      onContextMenu={(e) => {
+                        const info = rightClickInfo(e.target)
+                        if (!info) return
+                        e.preventDefault()
+                        setStrip({ hit, el: info.el })
+                      }}
+                    >
+                      {strip?.hit.id === hit.id && (
+                        <ResultStrip
+                          row={strip.el}
+                          items={resultStripItems({
+                            pinned: isFavourite(hit.pageId),
+                            canPin: !hit.deleted,
+                          })}
+                          onAction={(id) => {
+                            setStrip(null)
+                            if (id === 'open') onOpenHit(hit)
+                            else if (id === 'openNew')
+                              window.open(
+                                pageLink(hit.pageId),
+                                '_blank',
+                                'noopener',
+                              )
+                            else if (id === 'pin') toggleFavourite(hit.pageId)
+                            else if (id === 'copyLink')
+                              void navigator.clipboard
+                                .writeText(pageLink(hit.pageId))
+                                .then(
+                                  () => toast(ts('srv2.linkCopied')),
+                                  () => toast(ts('srv2.linkFailed')),
+                                )
+                          }}
+                          onClose={() => setStrip(null)}
+                        />
+                      )}
+                      {row}
+                    </div>
                   )
                 })}
               </div>
@@ -451,7 +675,7 @@ export function SearchPopup({
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-3.5 py-2 text-xs text-muted">
-        <span className="phone:hidden">
+        <span className="phone:hidden any-pointer-coarse:hidden">
           <Kbd>↑</Kbd>
           <Kbd>↓</Kbd> {t('search.keys.move')} · <Kbd>Enter</Kbd>{' '}
           {selected >= 0 || browsing || !active

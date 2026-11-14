@@ -1,0 +1,105 @@
+/*
+ * The ONE scroll bar (design/parts/ScrollBar.tsx). Tokens only. Track = a
+ * visible line colour, thumb = the muted ink at full strength (the old page
+ * bar used 60% / 70% of them: too faint), arrows dim at their end.
+ */
+[data-scrollbar] {
+  /* The gutter the bar sits in, so it never covers content. */
+  padding-inline-end: 22px;
+  scrollbar-width: none;
+}
+/* Panels: scrolling stays inside the panel. No touch-action here: sideways swipes (tables, chip rows) keep working. */
+[data-scrollbar]:not([data-page-scroller]) {
+  overscroll-behavior: contain;
+}
+[data-scrollbar]::-webkit-scrollbar {
+  display: none;
+}
+.sbar {
+  position: fixed;
+  /* Above the box its list lives in: a floating card or a phone sheet. */
+  z-index: var(--sbar-layer, var(--z-bar));
+  display: flex;
+  flex-direction: column;
+  touch-action: none;
+}
+.sbar[data-layer='card'] {
+  --sbar-layer: calc(var(--z-card) + 1);
+}
+.sbar[data-layer='tray'] {
+  /* The tool bar's ⋯ tray sits at --z-fbar; its bar is drawn just above it. */
+  --sbar-layer: calc(var(--z-fbar) + 2);
+}
+.sbar[data-layer='sheet'] {
+  --sbar-layer: calc(var(--z-sheet) + 1);
+}
+/*
+ * Exactly the box ScrollBar.tsx gives it: 22 x 38, or 22 x 44 on a touch or
+ * Pencil device (SC-13). The app's touch minimum for buttons (index.css, 32 x
+ * 44) made it 32 wide, past the gutter, and taller than the thumb's track
+ * expected (the thumb ran 12 px under the down arrow): the bar sets it itself.
+ */
+.sbar > .sbar__arrow {
+  min-width: 0;
+  min-height: 0;
+}
+.sbar__arrow {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink-soft);
+  touch-action: manipulation;
+}
+.sbar__arrow:hover:not(:disabled) {
+  color: var(--color-ink);
+}
+.sbar__arrow:disabled {
+  opacity: 0.4;
+}
+/* The track is the whole bar width, so a Pencil tap anywhere across the bar jumps (a precise tip has no finger fuzz); the visible line is the ::before. */
+.sbar__track {
+  position: relative;
+  flex: 1;
+}
+.sbar__track::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 8px;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+/* A short list: the thumb only, with a little air at both ends. */
+.sbar__track--short {
+  margin-block: 4px;
+}
+/* The thumb is 8 px (12 px while dragged); its touch area is 44 pt wide. */
+.sbar__thumb {
+  position: absolute;
+  inset-inline: 7px;
+  border-radius: 999px;
+  background: var(--color-muted);
+  touch-action: none;
+  transition:
+    inset-inline 150ms var(--ease-out, ease),
+    background-color 150ms var(--ease-out, ease);
+}
+.sbar__thumb::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline: -18px;
+}
+.sbar__thumb--drag {
+  inset-inline: 5px;
+  background: var(--color-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sbar__thumb {
+    transition: none;
+  }
+}

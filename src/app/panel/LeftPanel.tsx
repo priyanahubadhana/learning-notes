@@ -23,6 +23,9 @@ import { sampleName } from '../../i18n/defaultNames'
 import { t } from '../../i18n/t'
 import { listNotePages } from '../../pages/pageService'
 import { usePref } from '../usePref'
+import { useFlag } from '../flags'
+import { ScrollBar } from '../../design/parts/ScrollBar'
+import { useScroller } from '../../design/parts/useScroller'
 import { outlineRequest } from './outlineRequest'
 import {
   glideTo,
@@ -41,6 +44,8 @@ import { Icon } from '../tools/icons'
 import { readerBridge } from '../../reader/readerBridge'
 import type { BookTab } from '../../reader/BookPanel'
 
+// The new panel (flag notebooks.v2): its own folder, loaded only when switched on.
+const PanelV2 = lazy(() => import('./v2/PanelV2'))
 const BookPanel = lazy(() => import('../../reader/BookPanel'))
 const AloudPanel = lazy(() => import('../../reader/aloud/AloudPanel'))
 const BOOK_TABS = ['pages', 'outline', 'audio', 'annotations'] as const
@@ -49,6 +54,23 @@ type BookTabId = (typeof BOOK_TABS)[number]
 const TABS = ['pages', 'outline', 'audio'] as const
 type Tab = (typeof TABS)[number]
 const isTab = (v: unknown): v is Tab => TABS.includes(v as Tab)
+
+/** The overlay panel's layer; its dim layer shares it (drawn first, so under). */
+const PANEL_Z = 'z-[39]'
+
+/** Bottom edge of the top bar that holds the panel button (0 if none). */
+function topBarRect(): { left: number; right: number; bottom: number } {
+  const bar = document
+    .querySelector('[data-testid="panel-toggle"]')
+    ?.closest('header')
+  if (!bar) return { left: 0, right: 0, bottom: 0 }
+  const r = bar.getBoundingClientRect()
+  return {
+    left: Math.max(0, Math.round(r.left)),
+    right: Math.max(0, Math.round(window.innerWidth - r.right)),
+    bottom: Math.round(r.bottom),
+  }
+}
 
 /** Screens at least this wide dock the panel; narrower ones overlay it. */
 const PANEL_DOCK_MIN = 1024
@@ -404,18 +426,24 @@ function AudioTab({ db, pageId }: { db: LearningNotesDB; pageId: string }) {
  * Outline (the page's headings) and Audio (this page's recordings). Docked
  * beside the page on wide screens, an overlay on narrow ones.
  */
-export function LeftPanel({
+function LeftPanelToday({
   db,
   notebookId,
   pageId,
   onOpenPage,
   onClose,
+  docked: dockedProp,
+  width,
 }: {
   db: LearningNotesDB
   notebookId: string
   pageId: string
   onOpenPage: (id: string) => void
   onClose: () => void
+  /** The new app frame decides docked or overlay itself (flag foundation.shell). */
+  docked?: boolean
+  /** Docked width in px (the new frame uses 288). */
+  width?: number
 }) {
   const [noteTab, setTab] = usePref<Tab>('leftPanel.tab', isTab, 'pages')
   // While a book is open the panel is about the book (items 32 and 45).
@@ -430,16 +458,31 @@ export function LeftPanel({
       ;(book ? setBookTab : setTab)(want as never)
     }
   }, [ask, setTab, book])
-  const docked = window.innerWidth >= PANEL_DOCK_MIN
-  return (
+  const docked = dockedProp ?? window.innerWidth >= PANEL_DOCK_MIN
+  const shell = useFlag('foundation.shell')
+  const [scroller, scrollerRef] = useScroller()
+  // Gate 3 v4 (slice 6, fix 4): the book panel overlay starts below the top
+  // bar (its panel button stays reachable), is solid, full width on a phone,
+  // and has the dim layer behind it.
+  const sheet = !!book && !docked
+  const bar = sheet ? topBarRect() : { left: 0, right: 0, bottom: 0 }
+  const barBottom = bar.bottom
+  const aside = (
     <aside
       data-chrome
       data-testid="left-panel"
+      style={
+        sheet
+          ? { top: barBottom, paddingTop: 0 }
+          : docked && width
+            ? { width }
+            : undefined
+      }
       aria-label={t('lp.label')}
       className={
         docked
           ? 'flex w-[280px] shrink-0 flex-col border-e border-line bg-bg'
-          : 'fixed inset-y-0 start-0 z-[39] flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[calc(env(safe-area-inset-top)+3rem)] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14'
+          : `fixed inset-y-0 start-0 ${PANEL_Z} flex w-[300px] max-w-[88vw] flex-col border-e border-line bg-bg pt-[calc(env(safe-area-inset-top)+3rem)] shadow-[8px_0_24px_rgba(0,0,0,0.08)] phone:bottom-14 ${sheet ? 'phone:w-full phone:max-w-none phone:border-e-0' : ''}`
       }
     >
       <div className="flex items-center gap-1 px-2 pt-2" role="tablist">
@@ -476,6 +519,7 @@ export function LeftPanel({
       </div>
       <div
         role="tabpanel"
+        ref={scrollerRef}
         className={`min-h-0 flex-1 p-2 ${
           book?.format === 'pdf' && tab === 'pages'
             ? 'overflow-hidden'
@@ -508,8 +552,63 @@ export function LeftPanel({
           <AudioTab db={db} pageId={book ? book.pageId : pageId} />
         )}
       </div>
+      {shell && <ScrollBar scroller={scroller} />}
     </aside>
   )
+  if (!sheet) return aside
+  return (
+    <>
+      <div
+        data-testid="left-panel-dim"
+        aria-hidden
+        onClick={onClose}
+        style={{ top: barBottom }}
+        className={`fixed inset-x-0 bottom-0 ${PANEL_Z} bg-[var(--scrim)]`}
+      />
+      {/* Gate 3 v5 fix 3: also dim beside the top bar (rail and sidebar
+          header), so only the top bar stays bright. */}
+      {bar.left > 0 && (
+        <div
+          data-testid="left-panel-dim-side"
+          aria-hidden
+          onClick={onClose}
+          style={{ top: 0, height: barBottom, width: bar.left }}
+          className={`fixed left-0 ${PANEL_Z} bg-[var(--scrim)]`}
+        />
+      )}
+      {bar.right > 0 && (
+        <div
+          data-testid="left-panel-dim-side"
+          aria-hidden
+          onClick={onClose}
+          style={{ top: 0, height: barBottom, width: bar.right }}
+          className={`fixed right-0 ${PANEL_Z} bg-[var(--scrim)]`}
+        />
+      )}
+      {aside}
+    </>
+  )
+}
+
+/** The left panel: today's, or the new Pages / Outline / Resources one when `notebooks.v2` is on. */
+export function LeftPanel(props: {
+  db: LearningNotesDB
+  notebookId: string
+  pageId: string
+  onOpenPage: (id: string) => void
+  onClose: () => void
+}) {
+  const v2 = useFlag('notebooks.v2')
+  // While a book is open the panel is about the book: that stays as it is.
+  const book = readerBridge.useValue()
+  if (v2 && !book) {
+    return (
+      <Suspense fallback={null}>
+        <PanelV2 {...props} />
+      </Suspense>
+    )
+  }
+  return <LeftPanelToday {...props} />
 }
 
 /** Thumbnails of the open page's sheets (long pages only); a tap jumps there. */

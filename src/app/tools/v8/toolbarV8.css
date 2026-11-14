@@ -1,0 +1,325 @@
+/* Toolbar v8, slice 1b: the tool bar and the tool row. Tokens only. */
+.v8 {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+}
+
+/* ---- first line: the tool bar (52 px tall, 44 px targets) ---- */
+.v8bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-height: 52px;
+  min-width: 0;
+}
+.v8spacer {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.v8tool {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink-soft);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+  transition:
+    background-color var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+}
+.v8tool:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+.v8tool:active {
+  transform: scale(var(--press-scale));
+}
+.v8tool[data-active] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.v8tool[data-pressed] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.v8tool[data-pressed] .v8chev {
+  transform: rotate(180deg);
+}
+.v8tool:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.v8tool[aria-disabled='true'] {
+  cursor: default;
+}
+.v8tool:focus-visible,
+.v8chip:focus-visible,
+.v8fold-row:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+/* The row clips what sticks out: the ring stays whole by sitting inside the chip. */
+.v8row .v8chip:focus-visible {
+  outline-offset: -2px;
+}
+.v8chev {
+  transition: transform var(--dur-2) var(--ease-out);
+}
+.v8badge {
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--r-pill);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* ---- second line: the tool row (44 px chips, 8 px gap, never scrolls) ---- */
+.v8row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  min-width: 0;
+  border-top: 1px solid var(--color-line);
+}
+.v8row-items {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+}
+.v8chip {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition:
+    background-color var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    transform var(--dur-1) var(--ease-out);
+}
+.v8chip:hover {
+  background: var(--color-hover);
+}
+.v8chip:active {
+  transform: scale(var(--press-scale));
+}
+.v8chip[data-pressed],
+.v8chip[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.v8chip svg {
+  flex: none;
+}
+.v8chip > svg:last-child:not(:first-child) {
+  color: var(--color-muted);
+}
+.v8chip[data-pressed] > svg:last-child:not(:first-child) {
+  color: inherit;
+}
+.v8chip[aria-disabled='true'] {
+  color: var(--color-muted);
+  cursor: default;
+}
+.v8chip-icon {
+  padding: 0;
+  min-width: 44px;
+}
+.v8chip-more {
+  padding: 0;
+  min-width: 44px;
+}
+.v8hair {
+  flex: none;
+  width: 1px;
+  height: 24px;
+  margin: 0 var(--space-1);
+  background: var(--color-line-strong);
+}
+.v8dot-box {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+}
+.v8dot {
+  display: inline-block;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-ink);
+}
+.v8dot-colour {
+  width: 18px;
+  height: 18px;
+  box-shadow: 0 0 0 1px var(--color-line-strong);
+}
+
+/* The hidden box that measures chips so the row can decide what folds. */
+.v8measure {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  gap: 8px;
+  width: max-content;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+}
+.v8measure > span {
+  flex: none;
+}
+
+/* ---- name tip while a tool is held (touch) ---- */
+.v8tip {
+  position: fixed;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  background: var(--color-ink);
+  color: var(--color-bg);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: v8tip-in var(--dur-1) var(--ease-out) both;
+}
+@keyframes v8tip-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---- the list behind ⋯ n and the empty card note ---- */
+.v8fold {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.v8fold-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.v8fold-row:hover {
+  background: var(--color-hover);
+}
+.v8fold-row[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.v8note {
+  margin: 0;
+  padding: var(--space-3);
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+/* The touch rule in index.css gives buttons min-width 32; targets here stay 44. */
+.v8 .v8tool,
+.v8 .v8chip,
+.v8 .v8chip-icon,
+.v8 .v8chip-more,
+.v8 .v8fold-row {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v8tool,
+  .v8chip,
+  .v8chev,
+  .v8tip {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* Phone sheets of the new bar are solid: nothing shows through (the tab bar glow). */
+.pcard[data-phone][data-testid^='v8-card-'] {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+/* On touch a card opens without a ring on its cross (a ring means keyboard). */
+@media (hover: none) {
+  .pcard[data-testid^='v8-card-'] .pcard-x:focus-visible {
+    outline: none;
+  }
+}
+/* Chosen words wear the accent tint, not the system blue. */
+.bn-editor::selection,
+.bn-editor ::selection {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+/* A tap or click that opens a card leaves no ring on its chip or tool: only the keyboard gets one. */
+:root[data-v8-pointer] .v8tool:focus-visible,
+:root[data-v8-pointer] .v8chip:focus-visible,
+:root[data-v8-pointer] .v8row .v8chip:focus-visible {
+  outline: none;
+}

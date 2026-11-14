@@ -3,6 +3,7 @@ import { t, type MessageKey } from '../i18n/t'
 import { errorKey } from './signInErrors'
 import { PASSWORD_MAX, passwordProblem } from './passwordRules'
 import { accountAuth, afterAccountSignIn } from './syncService'
+import { AreaInput } from '../settings/AreaInput'
 
 /**
  * Sign in or create an account: Google, an email code (6 digits, no
@@ -66,7 +67,7 @@ export function SignInPanel({
   const emailField = (
     <label className="flex flex-col gap-1 text-sm">
       {t('signin.email')}
-      <input
+      <AreaInput
         type="email"
         name="email"
         autoComplete="email"
@@ -81,7 +82,7 @@ export function SignInPanel({
   const codeField = (
     <label className="flex flex-col gap-1 text-sm">
       {t('signin.code')}
-      <input
+      <AreaInput
         type="text"
         name="code"
         inputMode="numeric"
@@ -98,7 +99,7 @@ export function SignInPanel({
   const passField = (label: MessageKey, current: boolean) => (
     <label className="flex flex-col gap-1 text-sm">
       {t(label)}
-      <input
+      <AreaInput
         type="password"
         name="password"
         autoComplete={current ? 'current-password' : 'new-password'}
@@ -151,7 +152,7 @@ export function SignInPanel({
           type="button"
           data-account="code"
           onClick={() => go('code')}
-          className="min-h-14 rounded-xl border border-line px-4 text-left hover:bg-hover"
+          className="min-h-14 rounded-xl border border-line px-4 py-3 text-left hover:bg-hover"
         >
           <span className="block text-sm font-semibold">
             {t('signin.codeBtn')}
@@ -164,7 +165,7 @@ export function SignInPanel({
           type="button"
           data-account="password"
           onClick={() => go('pass')}
-          className="min-h-14 rounded-xl border border-line px-4 text-left hover:bg-hover"
+          className="min-h-14 rounded-xl border border-line px-4 py-3 text-left hover:bg-hover"
         >
           <span className="block text-sm font-semibold">
             {t('signin.passBtn')}

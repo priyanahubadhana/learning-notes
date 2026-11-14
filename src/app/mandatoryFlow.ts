@@ -21,6 +21,8 @@ export const INSTALL_MAX_MS = 30_000
 /** The restart is forced if the service worker has not done it by now. */
 export const FORCE_RESTART_MS = 6_000
 const PARALLEL = 4
+/** No byte from any file for this long: the download is stopped (Try again). */
+export const STALL_MS = 20_000
 /** update.v2: how long a change that is not saved yet may delay the install. */
 export const SAVE_WAIT_MS = 5000
 const SAVE_POLL_MS = 500
@@ -76,26 +78,55 @@ export async function downloadNewFiles(
   const total = todo.reduce((sum, f) => sum + f.s, 0)
   let loaded = 0
   onProgress(0, total)
+  if (todo.length === 0) return
   const queue = [...todo]
+  // Watchdog: any byte resets it; silence for STALL_MS stops the whole download.
+  const stop = new AbortController()
+  const link = () => stop.abort()
+  signal.onabort = link
+  let dead: (e: Error) => void = () => {}
+  const dying = new Promise<never>((_, rej) => (dead = rej))
+  dying.catch(() => {})
+  const fail = (why: string) => {
+    stop.abort()
+    dead(new Error(why))
+  }
+  let watchdog = setTimeout(() => fail('stalled'), STALL_MS)
+  const alive = () => {
+    clearTimeout(watchdog)
+    watchdog = setTimeout(() => fail('stalled'), STALL_MS)
+  }
   const worker = async () => {
     for (let f = queue.shift(); f; f = queue.shift()) {
-      const res = await get(f.u, { cache: 'reload', signal })
+      const res = await get(f.u, { cache: 'reload', signal: stop.signal })
+      alive()
       if (!res.ok) throw new Error(`${f.u}: ${res.status}`)
       const reader = res.body?.getReader()
       if (!reader) {
         loaded += (await res.arrayBuffer()).byteLength
+        alive()
         onProgress(loaded, total)
         continue
       }
       for (;;) {
         const { done, value } = await reader.read()
+        alive()
         if (done) break
         loaded += value.byteLength
         onProgress(loaded, total)
       }
     }
   }
-  await Promise.all(Array.from({ length: PARALLEL }, worker))
+  try {
+    await Promise.race([
+      Promise.all(Array.from({ length: PARALLEL }, worker)),
+      dying,
+    ])
+  } finally {
+    clearTimeout(watchdog)
+    signal.onabort = null
+    stop.abort()
+  }
 }
 
 export interface Flow {

@@ -1,6 +1,8 @@
 // Definition of Done checklist for one slice.
 //   npm run check:dod -- <flag id> <spec name>
 //   npm run check:dod -- toolbar.v8 toolbar
+//   npm run check:dod -- - shared-parts   (a spec with no feature flag)
+// "When" lines are "- When" bullets or table rows starting with a spec ID.
 // Hard items (exit 1 if missing): the flag exists in src/app/flags.ts, no
 // switch is on by default, docs/features/<spec>.md exists with "When" lines
 // and a "Won't do" section, the first-load size is inside the budget.
@@ -9,8 +11,10 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { behaviourLineCount, defaultsOn } from './dodSpec.mjs'
 
-const root = fileURLToPath(new URL('../', import.meta.url))
+const root =
+  process.env.DOD_ROOT ?? fileURLToPath(new URL('../', import.meta.url))
 const [flagId, spec] = process.argv.slice(2)
 if (!flagId || !spec) {
   console.error('Usage: npm run check:dod -- <flag id> <spec name>')
@@ -24,13 +28,12 @@ const add = (state, text) => rows.push({ state, text })
 const flagsSource = readFileSync(join(root, 'src/app/flags.ts'), 'utf8')
 const list = /FLAG_IDS\s*=\s*\[([\s\S]*?)\]\s*as const/.exec(flagsSource)
 const ids = list ? [...list[1].matchAll(/'([^']+)'/g)].map((m) => m[1]) : []
-if (ids.includes(flagId)) {
+if (flagId === '-') {
+  add('ok', 'no feature flag (shared parts): flag check skipped')
+} else if (ids.includes(flagId)) {
   add('ok', `flag ${flagId} is in src/app/flags.ts`)
   // The list holds only ids: a switch is on only if someone turns it on.
-  const defaultsOn = /defaultOn|DEFAULT_ON|defaultValue:\s*true/.test(
-    flagsSource,
-  )
-  add(defaultsOn ? 'missing' : 'ok', 'flags are OFF by default')
+  add(defaultsOn(flagsSource) ? 'missing' : 'ok', 'flags are OFF by default')
 } else {
   add('missing', `flag ${flagId} is not in src/app/flags.ts`)
 }
@@ -41,13 +44,13 @@ let whenCount = 0
 if (existsSync(specFile)) {
   add('ok', `docs/features/${spec}.md exists`)
   const text = readFileSync(specFile, 'utf8')
-  whenCount = (text.match(/^\s*[-*]\s+When\b/gm) ?? []).length
+  whenCount = behaviourLineCount(text)
   add(
     whenCount > 0 ? 'ok' : 'missing',
     `spec has ${whenCount} "When" line${whenCount === 1 ? '' : 's'}`,
   )
   add(
-    /^#{2,3}\s+Won['’]t do\b/im.test(text) ? 'ok' : 'missing',
+    /^#{2,3}\s+(?:\d+\.\s+)?Won['’]t do\b/im.test(text) ? 'ok' : 'missing',
     'spec has a "Won\'t do" section',
   )
 } else {
@@ -60,7 +63,10 @@ const files = readdirSync(e2eDir).filter((f) => f.endsWith('.spec.ts'))
 let tests = 0
 for (const f of files) {
   const text = readFileSync(join(e2eDir, f), 'utf8')
-  if (f.toLowerCase().includes(spec.toLowerCase()) || text.includes(flagId)) {
+  if (
+    f.toLowerCase().includes(spec.toLowerCase()) ||
+    (flagId !== '-' && text.includes(flagId))
+  ) {
     tests += (text.match(/^\s*test(?:\.\w+)?\(/gm) ?? []).length
   }
 }

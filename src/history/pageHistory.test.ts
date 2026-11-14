@@ -83,6 +83,7 @@ const NOT_ACTIONS = [
   'files',
   'secrets',
   'claudeInbox',
+  'aiJobs',
 ]
 
 describe('page history', () => {

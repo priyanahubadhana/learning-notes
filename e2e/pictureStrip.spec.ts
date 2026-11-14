@@ -164,18 +164,34 @@ test('resize, background and back, type, resize again: the picture stays, Undo r
   await expect.poll(() => widthOf(page)).toBeCloseTo(w1, -1)
 })
 
+/** Why-note: a preset glides for 180 ms, and on a slow runner a check can pass mid-glide;
+ * a click then lands on the moving strip. Wait until two reads agree. */
+async function settledWidth(page: Page) {
+  let last = -1
+  await expect
+    .poll(async () => {
+      const now = await widthOf(page)
+      const still = now === last
+      last = now
+      return still
+    })
+    .toBe(true)
+  return last
+}
+
 test('size presets glide over 180 ms and land on one saved width', async ({
   page,
 }) => {
   await pageWithPicture(page)
-  const w0 = await widthOf(page)
+  const w0 = await settledWidth(page)
   await page.locator('[data-picture-action="smaller"]').click()
   await expect.poll(() => widthOf(page)).toBeCloseTo(w0 * 0.6, -1)
+  await settledWidth(page)
   await page.locator('[data-picture-action="bigger"]').click()
   await expect.poll(() => widthOf(page)).toBeGreaterThan(w0 * 0.8)
   // Reduce motion: instant.
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  const w1 = await widthOf(page)
+  const w1 = await settledWidth(page)
   await page.locator('[data-picture-action="smaller"]').click()
   await expect.poll(() => widthOf(page)).toBeLessThan(w1 - 20)
 })

@@ -1,0 +1,201 @@
+/* SP-06 Drag: reorderable list / grid. Only tokens, no raw colours. */
+.rord {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.rord[data-axis='x'] {
+  flex-direction: row;
+}
+.rord[data-axis='grid'] {
+  display: grid;
+  /* --rord-cols is the most columns; a cell never gets narrower than --rord-min, so on a phone the grid drops to fewer columns (a wide item then fills the row). */
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(
+      max(
+        var(--rord-min, 9rem),
+        calc(100% / var(--rord-cols, 4) - var(--space-3))
+      ),
+      1fr
+    )
+  );
+  gap: var(--space-3);
+}
+.rord[data-dragging],
+.rord[data-dragging] * {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+html[data-reorder-active],
+html[data-reorder-active] * {
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grabbing;
+}
+.rord-item {
+  position: relative;
+  min-width: 0;
+  touch-action: pan-y;
+  border-radius: var(--r-md);
+  outline-offset: 2px;
+  transition:
+    background-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-1) var(--ease-out);
+}
+.rord[data-axis='x'] .rord-item,
+.rord[data-axis='grid'] .rord-item {
+  touch-action: pan-x pan-y;
+}
+.rord-item:focus-visible {
+  outline: 2px solid var(--color-accent);
+}
+.rord-item[data-state='hold-pending'] {
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+.rord-item[data-state='lifted'],
+.rord-item[data-state='invalid'] {
+  z-index: var(--z-pill);
+  box-shadow: var(--elev-3);
+  background: var(--color-surface-2);
+  cursor: grabbing;
+}
+.rord-item[data-state='invalid'] {
+  box-shadow:
+    var(--elev-3),
+    0 0 0 2px var(--color-warn);
+}
+.rord-item[data-state='flash'] {
+  animation: rord-flash 700ms var(--ease-out);
+}
+@keyframes rord-flash {
+  from {
+    background: var(--color-accent-soft);
+  }
+  to {
+    background: transparent;
+  }
+}
+
+.rord-grip {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  border-radius: var(--r-sm);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.rord-grip:hover:not(:disabled) {
+  color: var(--color-ink);
+  background: var(--color-hover);
+}
+.rord-grip:focus-visible {
+  outline: 2px solid var(--color-accent);
+}
+.rord-grip:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.rord-moves {
+  display: inline-flex;
+  flex: none;
+}
+.rord-move {
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink-soft);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+}
+.rord-move:hover:not(:disabled) {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+.rord-move:active:not(:disabled) {
+  background: var(--color-pressed);
+}
+.rord-move:focus-visible {
+  outline: 2px solid var(--color-accent);
+}
+.rord-move:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* The drop-line: 3 px accent, 7 px dots at both ends. */
+.rord-line {
+  position: absolute;
+  pointer-events: none;
+  list-style: none;
+  background: var(--color-accent);
+  border-radius: var(--r-pill);
+}
+.rord-line[data-axis='y'] {
+  height: 3px;
+  margin-top: -1px;
+}
+.rord-line[data-axis='x'] {
+  width: 3px;
+  margin-left: -1px;
+}
+.rord-line::before,
+.rord-line::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: var(--color-accent);
+}
+.rord-line[data-axis='y']::before {
+  left: -2px;
+  top: -2px;
+}
+.rord-line[data-axis='y']::after {
+  right: -2px;
+  top: -2px;
+}
+.rord-line[data-axis='x']::before {
+  top: -2px;
+  left: -2px;
+}
+.rord-line[data-axis='x']::after {
+  bottom: -2px;
+  left: -2px;
+}
+
+.rord-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rord-item {
+    transition: none;
+  }
+  .rord-item[data-state='flash'] {
+    animation: none;
+    background: var(--color-accent-soft);
+  }
+}

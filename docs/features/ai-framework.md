@@ -1,4 +1,4 @@
-# AI framework: executor and hand-made plans (slices 1-2)
+# AI framework: executor, hand-made plans and connector parity (slices 1-3)
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
@@ -82,15 +82,122 @@ the existing tables in one `db.transaction`.
 - AF-23. When the person opens Activity → one row per job in plain words, with
   time, destination and Undo / Redo.
 
+### Slice 3: connector parity (local `mcp/` connector, Inbox `job` item)
+
+The same plan, checked by the same code, behaves the same when Claude sends it
+as when a person builds it. Tools: `list_tools`, `describe_tool`,
+`plan_preview`, `run_plan`, `job_status`, `undo_job`. Scopes stay two (read,
+write); undo never hard-deletes. The online connector (`supabase/`) is not
+part of this slice: see "Online part still needed".
+
+- AF-30. When Claude asks `list_tools` or `describe_tool` → it gets the same
+  catalog the Build screen shows (id, label, group, one-line description, risk;
+  for one tool: inputs, outputs, limits, an example step). Nothing is written.
+- AF-31. When Claude sends a plan to `plan_preview` → the plan is checked with
+  the same checker as the app. A bad plan comes back as a list of "where +
+  what is wrong". A good plan is staged with nothing saved, and Claude gets
+  what each step will create or change, how many records, and which steps
+  would wait in the Inbox and why.
+- AF-32. When Claude sends a plan to `run_plan` and every step is `direct` risk
+  and only makes new things → it is saved in one all-or-nothing save and
+  Claude gets the job id and counts. The plan `id` is the key: the same plan
+  sent again returns the first answer and writes nothing again.
+- AF-33. When the plan has a step that is not `direct`, edits something that
+  exists, or Claude asks for `mode: "inbox"` → nothing is saved; the whole job
+  waits as one item in the Inbox (Settings › Claude › Inbox) and Claude gets
+  "waiting for the owner".
+- AF-34. When a plan cannot be fully staged (a step fails, a page is locked or
+  gone, a notebook Claude may not use) → nothing is written and Claude gets
+  the failing step in plain words. No half-built result, ever.
+- AF-35. When Claude asks `job_status` → it sees the job's state: applied,
+  waiting in the Inbox, accepted, rejected, undone, failed, with counts. Only
+  jobs from this connection are shown.
+- AF-36. When Claude asks `undo_job` for one of its own jobs and nothing in the
+  result was touched since → what it created goes to Trash and values it
+  changed get their old values back; one save. Asking again changes nothing.
+- AF-37. When the person has changed the result since (a page edited, a block
+  added) → `undo_job` writes nothing; it adds an Inbox request "Undo this
+  job" and tells Claude so. Another connection's job is refused.
+- AF-38. When the existing tools `create_notebook`, `add_page`, `add_cards`
+  are used → they run as a one-step plan through the same engine (so they
+  have a job id and can be undone) and answer exactly as before.
+- AF-39. When Claude calls a write tool → the limit counts the steps too: one
+  `run_plan` counts as one write plus one per enabled step, checked before
+  anything runs and refused whole, with a plain "try again in N seconds".
+  Reads 60 a minute, writes 20 a minute and 500 a day. `undo_job` counts one.
+- AF-40. When a plan asks the local connector for something it cannot make yet
+  (databases, mind maps) → refused before anything runs, in plain words.
+- AF-41. When a job waits in the Inbox → the item shows what it will make or
+  change in plain words and counts, "Show changes" (the same preview lines as
+  Build), Accept and Reject. Accept saves the whole job in one save with an
+  Undo toast; if a page changed meanwhile nothing is saved and the item says
+  why. Reject only closes it. Nothing is deleted.
+- AF-42. When an "Undo this job" request is in the Inbox → Accept undoes the
+  job in one save (created things to Trash); Reject closes the request.
+
+### Slice 4: goal box, effort, router, cost, spend gate
+
+Full lines with "Won't do": [docs/plans/ai-v4-spec.md](../plans/ai-v4-spec.md).
+Code: `src/aitools/plan/` (pure) and `src/aibuild/GoalBox.tsx`.
+
+- When I type a goal, pick where it goes and tap "Make a plan" → the app shows a prompt to copy; I paste the answer; no AI call is made (V4-C1).
+- When the pasted plan passes the checker → it becomes the plan with "Plan ready" shown under the title, never over it, plus its estimate; Run starts it through the one executor (V4-C2, V4-B1, V4-A1).
+- When the pasted plan is wrong → I see the problems and may paste again; after 2 repair rounds a simple built-in plan is offered (V4-C3).
+- When I pick Quick, Standard or Deep → the plan records the effort and the router uses the tier it maps to (V4-C4, V4-C5).
+- When the plan is shown → it says "free" for copy-and-paste and what a paid model would cost per effort level (V4-C6).
+- When any paid model call would start → `spendGate` refuses it while the limit is ₹0, before the call exists (V4-C7, V4-C8, V4-C9, V4-C10).
+
+### Slice 5a: Pages, Tabs, Summaries (both doors)
+
+Tools: `pages.rename`, `tabs.rename`, `tabs.set_hidden`, `summaries.set` (code in `src/aitools/tools/`; staged in `src/aitools/jobs/stage.ts`; the local connector uses the same files).
+
+- When a plan names one of these four tools → it is checked, staged, previewed, applied and undone exactly like the older tools, from the Build screen, the goal box or Claude (V4-D1).
+- When the same plan runs in the app and through `run_plan` → the records are byte-equal (V4-D2, `mcp/test/planParity.test.ts`).
+- When a notebook or page is locked, a tab or page is gone, a summary targets a sub-page, or the page changed meanwhile → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
+- When I pick steps by hand on the Build screen → the three tools that need their own arguments (rename page, rename tab, show or hide tab) are not offered there; they come through a plan.
+
+### Slice 5b and 5c: Mind maps, Cards, Databases, Styles, Layouts
+
+Tools: `mindmaps.add`, `mindmaps.set_theme`, `cards.suspend`, `databases.rename`, `styles.set_paper`, `layouts.set_path_style` (same folders as 5a).
+
+- When a plan names one of these tools → it is checked, staged, previewed, applied and undone like the older tools (V4-E1 to V4-E3, V4-F1 to V4-F3).
+- When `mindmaps.set_theme`, `cards.suspend`, `styles.set_paper` or `layouts.set_path_style` run in the app and through `run_plan` → the records are byte-equal (V4-E4, V4-F4, `mcp/test/planParity.test.ts`).
+- When Claude's local connector is asked for `mindmaps.add` or `databases.rename` → it says they are not offered there and writes nothing (they are app-only for now).
+- When a notebook, page or database is locked, the Study tracker is renamed, a block is not a mind map, an outline is blank, or the thing is gone → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
+
+### Slice 5d: Tags, Library
+
+Tools: `tags.add`, `tags.remove`, `tags.rename`, `library.pin` (same folders as 5a).
+
+- When a plan names one of these tools → it is checked, staged, previewed, applied and undone like the older tools (V4-G1 to V4-G4); one Undo reverts the whole job, and a tag made by the job goes to Trash.
+- When `tags.remove` and `library.pin` run in the app and through `run_plan` → the records are byte-equal (V4-G5, `mcp/test/planParity.test.ts`).
+- When Claude's local connector is asked for `tags.add` or `tags.rename` → it says they are not offered there and writes nothing (app-only for now).
+- When a notebook or page is locked, a tag name is blank or already used under the same parent, or the page, tag or notebook is gone → nothing is written and the reason is shown in plain words in English, Spanish and Hindi.
+- When the spend limit is ₹0 → none of these tools makes any network or paid call (V4-G6).
+
+### Slice 3: Build screen texts
+
+- AF-43. When a step or job shows a reason (step failed, stopped, nothing to
+  write, page changed, could not save) → the sentence is in the person's
+  language (English, Spanish, Hindi), never English only.
+
+### Online part still needed (not built here, owner steps later)
+
+The online function (`supabase/functions/`) must get the same six tools using
+the shared files (`src/aitools/*`, generated copy for Deno), one save call
+per job, the Inbox `job` write, the per-step rate counting, and an audit line
+per job (ids and counts only). This slice builds only the app and `mcp/` side.
+
 ### Slice 4: cost additions (pointer)
 
 Caching and the real token count are specified in [ai.md](ai.md), section "Cost additions".
 
 ## Won't do
 
-- No planner, no filler model, no cost estimator, no spend gate (slice 4).
+- Slices 1-3: no planner, filler model, cost estimator or spend gate (they arrive in slice 4, above).
+- Slice 4: no real paid call in any code or test, no key or secret, no new Dexie version; the spend limit stays ₹0.
 - No real AI or network call anywhere in these slices, and none in any test.
-- No `mcp/` or `supabase/` changes (slice 3); the online function stays as is.
+- No `supabase/` changes: the online function stays as is until the online part above is done.
 - No delete tool. No new dependency.
 - No sync of `aiJobs` until the table exists (main manager's version number).
 

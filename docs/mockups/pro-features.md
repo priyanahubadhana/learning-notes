@@ -4,7 +4,7 @@ Owner rule: every Professional-only feature or setting has its own toggle, so a 
 
 Sources: Professional-only parts of home-mock-v2, notebooks-mock-v2, toolbar-mock-v5/v6, annotations-mock (reader), library-mock, review-mock, search-mock, settings-mock-v3 (rows tagged Pro), and the AI mode decisions in docs/plans/owner-ideas-batch-2-2026-11-10.md section 12 (no AI mode mock exists yet).
 
-Total: 169 features.
+Total: 169 features, plus 50 proposed by the build specs (219).
 
 ## Home (2)
 
@@ -219,3 +219,60 @@ Total: 169 features.
 | `advanced.toolStateCopy`   | Tool state                           | Copies what the tools believe right now, for bug reports.                                                        |
 | `help.firstLaunch`         | Show the first-launch question again | Shows the New / Used a little / Experienced pop-up.                                                              |
 | `help.resetMock`           | Reset this mock-up                   | Clears the choices saved in this browser.                                                                        |
+
+## Added by the build specs (12 Nov 2026, to review)
+
+Proposed by the build specs in `docs/features/` (each lists them under "Decisions to review"). One switch each, like the rest. The owner can drop or rename any of them; until then they count in Settings > Professional features. Library ids come from `library-v2.md` D1; `settings-v3.md` proposed `lib.select`, `lib.themesTab`, `lib.typeRow` for the same three things, so those names are not added twice (`lib.linksTab` and `lib.layers` are kept from it).
+
+| id                      | Name                       | What it does                                                              |
+| ----------------------- | -------------------------- | ------------------------------------------------------------------------- |
+| `page.slashStars`       | Favourites in the / menu   | Star items in the slash menu to pin them on top, and arrange that menu.  |
+| `page.myBlocks`         | My blocks                  | Save a styled block and insert it again from the slash menu.              |
+| `page.contextMore`      | More in the selection menu | The full list behind the three dots on the selection strip.               |
+| `page.pastedChip`       | Pasted as chip             | After a paste, a small chip lets you re-paste in another form.            |
+| `page.menuAll`          | Full page menu             | All page actions by section, and pin up to five into the top row.         |
+| `page.blockMenuMore`    | More in the block menu     | Colour, copy link, copy as, make card, add to summary and comment for AI. |
+| `page.breadcrumbMore`   | Breadcrumb extras          | Sibling pages menu, hidden parts of the path, full path and copy address. |
+| `obj.tablePlus`         | Table extras               | Header row/column, cell colour, merge, sort, Turn into database.          |
+| `db.moreViews`          | More views                 | Gallery, List, Dashboard as tabs; saved views; default view.              |
+| `db.filtersPlus`        | Filters and groups         | Groups, match any, is not, several sorts, row search.                     |
+| `db.columnsPlus`        | All column types           | Every column type, formula, rollup, the Column editor.                    |
+| `db.rowTools`           | Row tools                  | Peek, select several, duplicate, row menu.                                |
+| `db.chartBuilder`       | Chart builder              | Full chart choices and chart presets.                                     |
+| `cal.morePlus`          | Calendar extras            | Week, Year, choose which databases show.                                  |
+| `mind.plus`             | Mind map extras            | Colours, fold, layouts, export, from headings, style presets.             |
+| `db.csvPlus`            | CSV options                | Column matching, import modes, export options.                            |
+| `pic.placePlus`         | Picture placement          | Wrap, exact size, lock in place.                                          |
+| `pdf.toolsPlus`         | More PDF tools             | Make searchable (OCR), a look per scan page, export choices.              |
+| `audio.plus`            | Audio extras               | Speed, rename, export, jump to the note written at that moment.           |
+| `paper.furniture`       | Page scroll bar            | Page scroll bar and sheet thumbnails.                                     |
+| `box.layers`            | Box layers                 | Overlap, bring to front / send to back, hide / show.                      |
+| `box.scale`             | Shrink to scale            | Make a box smaller than its text; text and pictures scale down.           |
+| `box.rotate`            | Rotate a box               | Turn a text box or picture with a knob.                                   |
+| `lasso.snapshot`        | Snapshot                   | Turn a Lasso selection into a picture.                                    |
+| `reading.bookmarks`     | Bookmarks and goal         | Bookmarks panel, ribbons, daily goal and streak, font import.             |
+| `study.cardTypes`       | All card types             | All 8 Review card types in the card editor.                               |
+| `study.cardList`        | Card list block            | The /card list block (count, Review, show all).                           |
+| `study.savedFilters`    | Saved card filters         | Save a card filter as a chip in the header.                               |
+| `study.summaryScopes`   | Summary scopes             | Notebook and All notes summaries, with Export.                            |
+| `study.slides`          | Slides                     | Present a notebook full screen with themes.                               |
+| `study.memoryHelpers`   | Memory helpers             | Major system and Acronym builder.                                         |
+| `study.anki`            | Anki in Cards              | Anki import and export from the Cards menu.                               |
+| `safety.historyCompare` | Compare versions           | Before / after view of a copy, and copy a part from it.                   |
+| `safety.namedVersions`  | Named versions             | Name a copy to keep it forever, shown with a star.                        |
+| `safety.trashTools`     | Trash tools                | Filter, select several, bulk restore or delete, and Trash keep time.      |
+| `safety.exportMore`     | More export                | Markdown, Text, Paper PDF, sub-pages and export presets.                  |
+| `safety.backupMore`     | More backup                | Backup password, notes-only backup, imports and the sample notebook.      |
+| `safety.conflictChoice` | Choose in a conflict       | Per change: Keep mine, Use other or Keep both.                            |
+| `system.palette`        | Command palette            | Ctrl/Cmd+K list of actions, pages and settings.                           |
+| `system.editKeys`       | Change shortcuts           | Record new keys, presets and reset with Undo.                             |
+| `system.toastPlace`     | Toast place                | Choose where toasts show and show fewer of them.                          |
+| `system.errorDetails`   | Error details              | Copy a plain error report (no note text).                                 |
+| `about.updateDetails`   | Update details             | Tap the reason line on the update notice for a plain explanation.         |
+| `lib.filterRow`         | Library filter row         | The extra filter row (type) on the library shelf.                         |
+| `lib.themes`            | Library Themes tab         | The Themes tab in the library.                                            |
+| `lib.bulkSelect`        | Select and bulk bar        | Select several books and act on them together.                            |
+| `lib.knowStats`         | Knowledge number tiles     | Number tiles on the Knowledge screen.                                     |
+| `lib.knowFilters`       | Knowledge filters          | Type, Tag, Date and Saved filters on the Knowledge screen.                |
+| `lib.linksTab`          | Library Links tab          | The Links tab in the library.                                             |
+| `lib.layers`            | Key / Summary layers       | The Key / Summary layers strip.                                           |

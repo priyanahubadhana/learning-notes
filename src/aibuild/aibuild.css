@@ -1,0 +1,21 @@
+/* Build screen: the parts that need more than the shared classes. Tokens only. */
+
+/* A disabled main button stays readable in every theme (no faded accent). */
+.aifw-primary:disabled {
+  background: var(--color-neutral-fill);
+  color: var(--color-ink-soft);
+  opacity: 1;
+  cursor: not-allowed;
+}
+
+/* The goal box grows with its text; the browser's resize grip is off. */
+.aifw-grow {
+  resize: none;
+  overflow: hidden;
+}
+
+/* Prompt and answer boxes grow too; a very long prompt stops at a cap. */
+.aifw-grow-cap {
+  max-height: 20rem;
+  overflow-y: auto;
+}

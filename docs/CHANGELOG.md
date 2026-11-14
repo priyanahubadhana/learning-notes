@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026 (evening): task 0.6 Test a phase
+
+- What: Settings › Try new features gets "Test a phase" (a list of phases) and one On/Off switch that sets every switch up to that phase.
+- Why: the owner tests a phase with one switch.
+- Files: src/app/flags.ts, src/settings/flagSettings.ts, src/settings/v3/tryNew.ts, texts en/es/hi flags, e2e/presetPhases.spec.ts, src/app/flagsPreset.test.ts, playwright.config.ts (one test-list line), docs/features/settings-v3.md, docs/DECISIONS.md.
+
 ### 14 Nov 2026 (evening): task 0.5 merged; audit answers recorded; clean-up done
 
 - What: the scroll fix (`slice/fix-scroll-frame` 0db04220) merged alone into `build/next` (d91b83d8); the owner's three answers to the audit recorded (folders deleted by the owner's script, Fable's `xhigh` effort entry removed from the user settings, security updates planned as task 0.14 after 0.6); task 0.11 done (lint 0 errors).
@@ -13,6 +19,71 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: HANDOFF no longer says PAUSED (only BUILD-STATE says whether the build is paused); the duplicated "slice 12 rest" entry below was removed once; BUILD-STATE rows 0.3 (both runs green), 0.5 (pushed, 0db04220), 0.8 (the fast set exists on `build/next` only; `main` has the CI file but not the test list, so a hand-started run on `main` must tick "full" until task 0.7) and 0.11 (36 dead folders and 67 loose `ln-*` files remain in Downloads, not 8) corrected; "phase manager" wording for Dexie numbers changed to "the manager (the main chat in lean mode)". Full report: docs/plans/audit-2026-11-14.md.
 - Why: the owner asked for a true audit so the next chat starts from files that do not contradict each other.
 - Files: docs/HANDOFF.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/DECISIONS.md, docs/CHANGELOG.md, docs/plans/audit-2026-11-14.md.
+
+### 14 Nov 2026: fix-scroll slice, round 3 (gate 2 + final look)
+
+- What: with the flag off the page bar is the old 24 px bar again, exactly (ScrollBar `legacy`: old sizes, classes and `data-pagebar` gutter in index.css), and the pages panel V2 draws no shared bar. With the flag on: a Card or CommandList that scrolls shows the shared bar at rest in its own gutter; a short list (under 148 px) shows the thumb only; the bar sits inside the rounded corners of its panel and draws nothing while its list is off the screen; a list's gutter is reserved only while it overflows; a bar over a floating card or phone sheet is drawn above it (layer variable, no new z-index); touch devices show no Alt+T / Ctrl+K labels in the sidebar; long breadcrumbs end in an ellipsis.
+- Why: gate 2 (flag-off look changed) and Fable's final look (Card overflow without the bar, arrows over a short card, arrows over the drawer corner, stray pixels at the phone's left edge, shortcut labels on touch).
+- Files: src/design/parts/ScrollBar.tsx, ScrollBar.css, scrollBarLogic.ts, Card.tsx, CommandList.tsx, src/paper/PageScrollBar.tsx, src/app/panel/v2/PanelV2.tsx, src/notebooks/Sidebar.tsx, src/app/shell/shell.css, src/index.css, e2e/scrollFrame.spec.ts, docs/features/shell.md
+
+### 14 Nov 2026: fix-scroll slice, round 2 (one bar everywhere)
+
+- What: the old fading handle (.scroll-hint-thumb) is gone. app/scrollHints.ts now only marks lists and tells design/parts/ScrollBarHost which list is being scrolled; ScrollBarHost draws the shared ScrollBar on it, so Card, CommandList and every other list have the same bar with end arrows. Thumb 4 px (6 dragged), 44 pt touch area, 150 ms. Contrast test (3:1) in Light, Dark, Sepia. docs/features/shell.md added (check:dod runs).
+- Files: src/design/parts/ScrollBar*.tsx, scrollTarget.ts, scrollBarContrast.test.ts, src/app/scrollHints.ts, src/index.css, src/main.tsx, e2e/scrollHints.spec.ts, docs/features/shell.md
+
+### 14 Nov 2026: fix-scroll slice (iPad findings F2, F3, F4, F6, F8; flag foundation.shell)
+
+- What: ONE shared scroll bar part (src/design/parts/ScrollBar.tsx, scrollBarLogic.ts, ScrollBar.css, useScroller.ts): visible track, a thumb at full muted ink, an arrow at each end that dims at its end, tokens only, 20 px wide (the page bar was 24, arrows 34 not 40). Used by the Notebooks sidebar, the pages panel (classic and V2) and the page (PageScrollBar is now a thin user with sheet stops). The sidebar is one scroller, so rows and empty space scroll alike. The Notebooks sidebar no longer lists Review / All cards / All summaries (the Review space keeps them). useFrameSize re-reads the window size after a resize because iPad Safari reports the old size for a moment after a turn.
+- Why: owner iPad test 14 Nov (F2 empty space did not scroll, F3 bar too faint, F4 duplicate rows, F6 one behaviour everywhere, F8 layout broke after turning the iPad). Other lists keep the fading hint handle (scrollHints.ts); moving them to the shared bar is left for a later slice.
+- Files: src/design/parts/ScrollBar._, src/design/parts/scrollBarLogic._, src/design/parts/useScroller.ts, src/paper/PageScrollBar.tsx, src/notebooks/Sidebar.tsx, src/app/panel/LeftPanel.tsx, src/app/panel/v2/PanelV2.tsx, src/app/shell/useFrameSize.ts, src/index.css, src/i18n parts texts (en, es, hi), e2e/scrollFrame.spec.ts
+
+### 14 Nov 2026: F7 freeze recorder on the preview
+
+- What: the slow-moments recorder (R6-11) now runs by itself on the preview address build-next.learning-notes-app.pages.dev only (never on the live host or a deploy hash address, which can be a production build; the test machine only with the switch `learning-notes:perf.freezeWatch`) and notes main-thread blocks of 500 ms or more. Every entry now also names the top open panel and the last tap or key kind (never typed text; the label clean-up and key names were fixed after gate 2). Settings › Advanced › Copy report shows them.
+- Why: F7, the owner's iPad sometimes freezes with no clear trigger; the cause must be measured, not guessed.
+- Files: src/perf/slowMoments.ts, src/perf/slowMomentsSwitch.ts, src/perf/freezeWatch.test.ts
+
+### 14 Nov 2026: F1 stays signed in when Safari reopens at an old sign-in address
+
+- What: a Google sign-in callback that cannot finish (its one-time code already used, or a cancelled consent) no longer signs out a device that already holds a sign-in; the callback is always removed from the address, also after a failure.
+- Why (F1, owner iPad): Safari reopens a closed tab at the address it saved, which can still be `?sync=callback&code=...`. Start-up tried the used-up code again, failed ("no verifier") and called sign out, which wiped the stored session (and the Drive key on the server). A cancelled "connect Google" consent did the same. Every sign-in left a new callback address, so it repeated on each reopen.
+- Files: src/sync/syncService.ts, src/sync/connectors/supabase.ts, e2e/staySignedIn.spec.ts
+
+### 14 Nov 2026: build/next red fixed after storage safety (CI 43528030714)
+
+- What: a failed chunk download no longer reloads the app when offline, and waits 1 s so a page being left is not reloaded; Try new features expects 26 switches (storage.safety added); SS-07 measures the phone banner in the bundled Inter font, not the test machine's fallback.
+- Why: U10 (iPad): offline, an idle prefetch failed and the reload dropped the open notes and update notice. SS-01e (iPad): a download aborted by leaving the page reloaded the old address and cancelled the navigation. SS-07: an iPad UA loads no Inter and the Linux CI has no SF, so wide DejaVu gave 4 lines.
+- Files: src/app/chunkReload.ts, src/app/chunkReload.test.ts, e2e/storageSafety.spec.ts, e2e/tryNewFeatures.spec.ts
+
+### 13 Nov 2026: storage safety built (flag storage.safety, OFF)
+
+- What: SS-01 to SS-09. Home Screen notice in a Safari tab (Show how pop-up with 3 steps), one-tap backup (pop-up, banner, Settings › This device "Back up now"), calm banners for a full device and a lost database. Banner kinds `install` and `storage`; alert codes `storageLost`, `storageFull`, `homeScreen`; `reportError` hands storage errors to the watcher while the flag is ON. Fix: the shared Banner now loads its close-button style (it was 14 px tall on its own).
+- Why: Safari can clear notes kept in a tab; the two storage failures needed one calm line that says what to do.
+- Files: src/app/flags.ts, src/app/errors.ts, src/app/attention/ (attentionLevel, attentionSignals, AttentionGate, StorageSafetyBanner, storageSafetyWire, storageSafetyBackup + tests), src/design/parts/Banner.tsx/.css/.test.ts, bannerQueue.ts, src/settings/DeviceSection.tsx, src/i18n (en/late, es, hi storageSafety + flags), e2e/storageSafety.spec.ts, e2e/storageSafetyShots.spec.ts, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: storage safety spec and mock-up
+
+- What: spec docs/features/storage-safety.md (IDs SS-01 to SS-09, When lines, Won't do) and a static mock-up of the Safari tab notice, the Show how pop-up, one-tap backup, storage full and connection lost, using the shared Banner, Dialog and Toast.
+- Why: the slice had helpers but only one PENDING line as its spec; a new visual pattern needs a spec and mock-up before the UI is built.
+- Files: docs/features/storage-safety.md, docs/mockups/storage-safety-mock.html, docs/mockups/storage-safety/, docs/PENDING.md, docs/CHANGELOG.md.
+
+### 14 Nov 2026: build/next red fixed (test timing, CI 43515340927)
+
+- What: TB-33 waits for the Text size card to finish its pop before reading the label tops; TB-34 keeps polling while the picture block re-renders after Smaller. Asserts unchanged.
+- Why: TB-33 failed (a tile still mid-scale read one pixel off); TB-34 threw on a null box once.
+- Files: e2e/toolbarV8Tenth.spec.ts, e2e/toolbarV8Tools.spec.ts
+
+### 14 Nov 2026: toolbar v8 flaky tests fixed in the product
+
+- What: a card closed with ✕ hands focus back to its chip only if nothing else took it; the page's text box frame follows its text when a picture loads while an ink tool is on.
+- Why: a quick tap into the text after ✕ lost its focus 130 ms later (CI run 43478875272); a resize handle sat over a new picture until the next tool change.
+- Files: src/design/parts/Card.tsx, src/design/parts/Card.test.ts, src/paper/PaperFrame.tsx, e2e/toolbarV8Tools.spec.ts, docs/CHANGELOG.md.
+
+### 13 Nov 2026: fast start (WebKit start 15 s -> 1.2 s)
+
+- What: starter templates seed in the background (one bulk write per starter, after the first paint); the new-page template list waits until starters are seeded (`startersReady`). Upgrades add only newer starters; a trashed starter is never re-added. Spec: docs/features/perf-start.md.
+- Why: the app took about 15 s to start on WebKit because starters were written before the first screen.
+- Files: src/templates/templateService.ts, src/templates/NewPageStart.tsx, src/templates/seedBulk.test.ts, e2e/startSeeding.spec.ts, e2e/startSpeed.spec.ts, docs/features/perf-start.md, docs/CHANGELOG.md.
 
 ### 14 Nov 2026: slice 12 rest - page strip, Paste menu, page more-menu sheet (flag page.menus, OFF)
 
@@ -156,6 +227,18 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 - What: proposed gate-2 rule "report only spec gaps and breakages, not style" added to PENDING "Needs you" (not applied, needs owner OK). Settings On/Off uses the switch from the approved mock-up, not the spec's two-part button; logged in DECISIONS "Decisions to review" for spec alignment.
 - Why: owner review of gate 2 and the Settings mock-up.
 - Files: docs/PENDING.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 13 Nov 2026: slice 4 gate 3, the 7 fixes left
+
+- What: a drawn thin track under cut rows (Continue cards, search chips; touch screens hide the browser bar); phone-size search shows Close, never Esc; phone strip labels wrap to 2 lines and the phone strip is solid; search v2 is solid at every size (no cover bleed on iPad); Collapse all is an icon button (name on hover and on hold) so the Notebooks heading is never cut.
+- Why: gate 3 re-shoot, docs/plans/gate3-2026-11-13.md slice 4 items 1-7.
+- Files: src/design/parts/ScrollTrack.tsx (new), ContextStrip.css, index.css, notebooks/v2/{ContinueStrip,CollapseAllButton}.tsx, search/SearchPopup.tsx, e2e/notebooksSearchGate3{,Shots}.spec.ts, e2e/notebooksV2Sidebar.spec.ts, screenshots/gate3-4/.
+
+### 13 Nov 2026: Library v2 gate 3 fourth visit, 5 fixes (slice 6)
+
+- What: 1 Books filter chips keep their words with Lucide icons in one row with the thin track (no typed letters). 2 Knowledge filters are ▾ menu chips (MenuPopover) sized to their words, one row with the track, colour dots at the end. 3 Tab row stops before the search button and shows the track. 4 Book panel overlay (narrow screens) starts below the top bar, solid, full width on a phone, dim layer behind (same layer, no new z-index). 5 Toast sits above the bottom bar of spaces on a phone, so it no longer lands under the pointer and closes on time.
+- Why: docs/plans/gate3-2026-11-13.md "Fourth visit (5, 6)". ScrollTrack copied from slice/4 (build/next does not have it yet), plus a data-testid prop.
+- Files: src/design/parts/ScrollTrack.tsx, src/index.css, src/library/v2/{LibraryV2,Knowledge}.tsx, src/app/panel/LeftPanel.tsx, src/app/ui.tsx, e2e/libraryV2.spec.ts, e2e/libraryV2Shots.spec.ts, screenshots/gate3-6/v4/.
 
 ### 13 Nov 2026: rules aligned with economy mode, 4 project hooks
 
@@ -1806,6 +1889,15 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - CI: a manual run (workflow_dispatch) on main now runs checks, e2e and deploy too, so docs-only fixes can still be deployed.
 - Supabase: connector migrations applied, connector_devices renumbered to 20261113000002; mcp function prefix fix (ad3ec12).
 
+## 2026-11-13 · Slice 4 gate 3 fix list (13 items)
+
+Home strip shows every item at every level, stays inside the pane, labels on phone; Continue and chip rows show a thin track; header controls one height, Find full width on phone; Duplicate notebook; Search: scope switch, lilac chips, Tasks count, single scroll row, solid phone surface, "Close" on touch, strip with Open in new place; sidebar Today one line, group header 8 px gap; PanelV2 top-layer import fixed after the 0g merge. Files: src/design/parts/ContextStrip._, contextStripPlace.ts, src/notebooks/v2/_, src/search/SearchPopup.tsx, src/search/v2/*, src/app/SidebarGroup.tsx, src/index.css, docs/DECISIONS.md.
+
+## 2026-11-13 - BUG-006: the gear stays reachable with the keyboard up
+
+- Why: the left strip was as tall as the layout, but the iPad keyboard (and the text bar above it) shrink only the visible area, so the gear fell off screen and the strip did not scroll. Now the strip is capped to the visible area (spaces scroll, gear pinned at the foot) and the gear panel rises above the keyboard and text bar.
+- Files: src/app/spaces/SpaceStrip.tsx, QuietCorner.tsx, footLift.ts; e2e/stripGear.spec.ts (chromium + ipad-webkit); pictures screenshots/bug006/INDEX.md.
+
 ## 14 Nov 2026: build paused, diagnosis written
 
 The owner paused the build at 11:10 IST. All helpers and the hourly check were stopped. Fable wrote docs/plans/build-diagnosis-2026-11-14.md (causes, score for the trial, proposal for a phased build). Files: docs/BUILD-STATE.md, docs/PENDING.md (pause lines), the new plan file. No app code changed.
@@ -1849,3 +1941,18 @@ What: `git worktree remove` on 47 clean, merged copies; 19 remain. Six folders w
 ## 14 Nov 2026: restart approved; leftover folders cleaned
 
 What: 6 scratch working copies removed with git and 9 folders in `.claude/worktrees` deleted (owner's one-time yes; links removed first; main packages untouched); 8 half-deleted folders in Downloads remain for task 0.11. docs/BUILD-STATE.md now says RESTART APPROVED (lean mode, the order of the first tasks); docs/PENDING.md "Needs you" rewritten; the owner's answers logged in docs/DECISIONS.md. Why: the owner answered the last three questions and asked to speed up.
+
+## 2026-11-14 P1.1 scroll bar: Pencil, one bar per edge, a bit bigger
+
+- Why: owner's first look L4 + L1 (Pencil missed the bar; two bars side by side; bar felt too small).
+- Cause of the Pencil miss: only the 6 px track line took a tap (the rest of the 20 px bar was dead for a precise tip; a finger's touch fuzz hid it), and the Pencil-tap guard cancelled the touch on the bar. Fix: the whole bar width is the track; thumb and track are `data-pen-native`.
+- SC-03 for cards and sheets: a bar hides when any card, sheet or tray is drawn over its column (it only looked at the list centre before).
+- Size: bar 22 px (was 20), thumb 8 / 12 dragged (was 4 / 6), arrows 38 (was 34). Flag off: old 24 px bar unchanged.
+- Files: src/design/parts/ScrollBar.tsx, ScrollBar.css, scrollBarLogic.ts, e2e/scrollBarPen.spec.ts, playwright.config.ts (one test-list line), docs/features/shell.md.
+- Review 2 (Opus took over): on a touch or Pencil device each end arrow is 22 x 44 (38 with a mouse; the chevron is unchanged), inside the gutter. Cause: the app's touch minimum for buttons (index.css, 32 x 44) silently made the arrow 32 wide (10 px past the gutter) and 44 tall while the bar still counted 38, so the thumb ran 12 px into the down arrow at the end. The bar now sets the arrow box itself (`ARROW_TOUCH`, `shortFor`: a list keeps its arrows from 168 px on touch). Test: `SC-13 on touch each end arrow is 44 pt tall ...` (chromium + ipad-webkit) and a unit test in scrollBarLogic.test.ts.
+
+## 2026-11-14 · F10 dim layer covers the sticky Settings search bar (slice/p1-f10)
+
+- What: on a phone the dim layer behind a ▾ sheet now covers the sticky "Search settings" bar.
+- Why: the dim layer (`.pcard-scrim`) had no layer number, so the bar (`--z-sticky: 1`) painted above it. The scrim now takes the sheet's layer number (`LAYERS.sheet`), reusing the sheet's one `zIndex` use: the ratchet stays 137.
+- Files: src/design/parts/Card.tsx, e2e/settingsV3SearchF9.spec.ts (SET-B04a), docs/features/settings-v3.md, docs/PENDING.md.

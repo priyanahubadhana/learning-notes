@@ -1,0 +1,560 @@
+/*
+ * The new app frame (flag foundation.shell). Values: docs/design/shell-spec.md
+ * and docs/mockups/shell.css. Sizes are the --sh-* tokens in design/tokens.css.
+ * No stacking numbers here: layers come from DOM order and the overlay layer.
+ * Phone = width < 40rem or height < 32rem (same rule as src/index.css).
+ */
+
+/* ---- frame: the page never scrolls; only the inner areas do ---- */
+.sh-frame {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  box-sizing: border-box;
+  color: var(--color-ink);
+}
+.sh-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: var(--sh-gap);
+  padding: 0 var(--sh-gap) var(--sh-gap);
+}
+.sh-skip {
+  position: absolute;
+  left: 8px;
+  top: -64px;
+  padding: 10px 16px;
+  min-height: var(--sh-hit);
+  border-radius: var(--r-md);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.sh-skip:focus {
+  top: 8px;
+}
+.sh-sidewrap {
+  display: contents;
+}
+.sh-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---- rail (SH-02) ---- */
+.sh-rail {
+  width: var(--sh-rail);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  padding: 8px 6px;
+  border-radius: var(--r-lg);
+  user-select: none;
+  -webkit-user-select: none;
+}
+.sh-rail-spaces {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 0;
+  overflow-y: auto;
+}
+.sh-brand {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  margin-bottom: 8px;
+  border-radius: var(--r-md);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 15px;
+  font-weight: 700;
+}
+.sh-grow {
+  flex: 1;
+}
+.sh-ib {
+  position: relative;
+  width: var(--sh-hit);
+  height: var(--sh-hit);
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+.sh-ib:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+.sh-ib:active {
+  background: var(--color-pressed);
+}
+.sh-ib[aria-current='page'] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.sh-ib[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--color-accent);
+}
+.sh-ib:focus-visible,
+.sh-tab:focus-visible,
+.sh-tb:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.sh-badge {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ---- phone tab bar (SH-03): attached, full width, 56 px + safe area ---- */
+.sh-tabbar {
+  display: none;
+  flex: none;
+  box-sizing: border-box;
+  height: calc(var(--sh-tabbar) + env(safe-area-inset-bottom, 0px));
+  padding: 0 4px env(safe-area-inset-bottom, 0px);
+  justify-content: space-around;
+  align-items: stretch;
+  border-radius: 0;
+  border-width: 1px 0 0;
+}
+.sh-tab {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: var(--sh-hit);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 0;
+  background: none;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.sh-tab[aria-current='page'] {
+  color: var(--color-accent);
+}
+.sh-tabicon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+}
+.sh-tab[aria-current='page'] .sh-tabicon {
+  background: var(--color-accent-soft);
+}
+.sh-tabicon .sh-badge {
+  top: -4px;
+  right: 2px;
+}
+.sh-tablbl {
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  .sh-rail {
+    display: none;
+  }
+  .sh-tabbar {
+    display: flex;
+  }
+  .sh-row {
+    padding: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-ib {
+    transition: none;
+  }
+}
+
+/* ---- top bar (SH-04): one row, 52 px, flat ---- */
+.sh-top {
+  /* Above the glass layer behind the bars (a positioned sibling paints over plain content). */
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--sh-top);
+  padding: var(--top-clear, 0px) max(8px, env(safe-area-inset-right, 0px)) 0
+    max(8px, env(safe-area-inset-left, 0px));
+}
+.sh-tb {
+  position: relative;
+  flex: none;
+  width: var(--sh-hit);
+  height: var(--sh-hit);
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.sh-tb:hover:enabled {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+.sh-tb:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.sh-tb[aria-pressed='true'] {
+  color: var(--color-accent);
+}
+.sh-phone-only {
+  display: none;
+}
+.sh-wide-only {
+  display: contents;
+}
+.sh-history {
+  margin-inline-end: 2px;
+}
+.sh-slot {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-inline-start: 4px;
+}
+.sh-crumbs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.sh-crumbs svg {
+  flex: none;
+}
+/* A long crumb shrinks with an ellipsis; it is never cut mid-letter. */
+.sh-crumbs button {
+  min-width: 0;
+  flex: 0 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: var(--sh-hit);
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--r-xs);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.sh-crumbs button:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+.sh-crumbs b {
+  min-width: 0;
+  padding: 0 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.sh-status {
+  flex: none;
+  padding: 0 6px;
+  font-size: 12px;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+.sh-pill {
+  flex: none;
+  min-height: var(--sh-hit);
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  .sh-phone-only {
+    display: contents;
+  }
+  .sh-wide-only {
+    display: none;
+  }
+  .sh-crumbs {
+    display: none;
+  }
+}
+
+/* The reader's bars start after the top bar's menu buttons, never over them
+   (they are fixed across the whole window). useReaderInset sets the variable. */
+.reader-bar {
+  left: var(--sh-reader-left, 0px);
+}
+[data-testid='reader-mini-exit'] {
+  left: calc(var(--sh-reader-left, 0px) + 4px);
+}
+
+/* ---- sidebar + pages panel (SH-07, SH-08) ---- */
+.sh-main {
+  /* Everything inside the page stays inside it: a column opened over the page
+     (drawn after it) always paints above, without any stacking numbers. */
+  isolation: isolate;
+}
+.sh-sidewrap[data-state='hidden'] {
+  display: none;
+}
+.sh-panelwrap[data-state='docked'] {
+  flex: none;
+  display: flex;
+  width: var(--sh-panel);
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--color-line);
+  background: var(--color-surface-1);
+}
+.sh-panelwrap[data-state='docked'] > aside {
+  flex: 1;
+  width: auto !important;
+  min-width: 0;
+  border-inline-end: 0;
+  background: transparent;
+}
+.sh-panelwrap[data-state='over'] {
+  display: contents;
+}
+.sh-scrim {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: var(--scrim, rgba(0, 0, 0, 0.32));
+  cursor: default;
+}
+.sh-overwrap {
+  position: fixed;
+  top: 8px;
+  bottom: 8px;
+  left: max(8px, env(safe-area-inset-left, 0px));
+  width: min(86vw, 320px);
+  display: flex;
+  --sidebar-width: min(86vw, 320px);
+  border-radius: var(--r-lg);
+  box-shadow: var(--elev-3);
+  animation: sh-in var(--dur-2) var(--ease-out);
+}
+@keyframes sh-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-overwrap {
+    animation: none;
+  }
+}
+.sh-scrim-phone {
+  bottom: calc(var(--sh-tabbar) + env(safe-area-inset-bottom, 0px));
+}
+
+/* A phone panel starts under the top bar, so the bar (and its buttons, such as
+   Exit reading) stays reachable. */
+.sh-panelwrap[data-state='over'] > aside {
+  top: calc(var(--attn-h, 0px) + var(--top-clear, 0px) + var(--sh-top));
+  padding-top: 0;
+}
+/* Beside the page, with no room to dock: over the page, after the rail and the sidebar. */
+.sh-panelwrap[data-state='over'][style*='--panel-left'] > aside {
+  inset-inline-start: var(--panel-left);
+  inset-block: calc(var(--attn-h, 0px) + var(--top-clear, 0px) + var(--sh-top))
+    var(--sh-gap);
+  bottom: var(--sh-gap);
+  width: var(--sh-panel);
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-lg);
+  background: var(--color-surface-1);
+  box-shadow: var(--elev-3);
+}
+
+.sh-resizewrap {
+  display: flex;
+  flex: none;
+  position: relative;
+  isolation: isolate;
+}
+.sh-hide-phone {
+  display: contents;
+}
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  /* Device mode is in the gear menu; the bar keeps room for the page's own buttons. */
+  .sh-hide-phone {
+    display: none;
+  }
+}
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  /* The phone's top bar keeps room for the page's own buttons. */
+  .sh-status {
+    display: none;
+  }
+}
+@media (max-width: 22.999rem) {
+  .sh-hide-narrow {
+    display: none;
+  }
+}
+
+/* ---- view toggle (SH-06) ---- */
+.sh-view {
+  flex: none;
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  background: var(--color-hover);
+  transition: box-shadow var(--dur-2) var(--ease-out);
+}
+.sh-view[data-glow] {
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+.sh-view button {
+  position: relative;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.sh-view button::after {
+  /* The visible segment is 36 px; the touch target is 44. */
+  content: '';
+  position: absolute;
+  inset: -4px 0;
+}
+.sh-view button[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+.sh-viewrow {
+  display: none;
+}
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  .sh-viewrow {
+    display: flex;
+    justify-content: center;
+    padding: 0 8px 4px;
+  }
+  .sh-top .sh-view {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-view {
+    transition: none;
+  }
+}
+
+/* Tablet widths: the toggle gets compact and the quiet status steps back, so the path keeps room. */
+@media (max-width: 1279.98px) {
+  .sh-view {
+    padding: 2px;
+  }
+  .sh-view button {
+    min-height: 36px;
+    padding: 0 9px;
+    font-size: 12.5px;
+  }
+}
+@media (max-width: 899.98px) {
+  .sh-status {
+    display: none;
+  }
+}
+
+/* Undo / Redo hover names ("Undo (Ctrl Z)"): only where there is a real hover, never on a touch screen. */
+.sh-history [data-tooltip] {
+  position: relative;
+}
+@media (hover: hover) and (pointer: fine) {
+  .sh-history [data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    padding: 4px 8px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--r-sm);
+    background: var(--color-surface-3);
+    color: var(--color-ink);
+    box-shadow: var(--elev-2);
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: sh-tip-in var(--dur-2) var(--ease-out) 450ms backwards;
+  }
+}
+@keyframes sh-tip-in {
+  from {
+    opacity: 0;
+  }
+}

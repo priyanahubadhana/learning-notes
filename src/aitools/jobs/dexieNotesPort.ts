@@ -19,6 +19,7 @@ const TABLES = [
   'databases',
   'dbColumns',
   'dbViews',
+  'tags',
 ] as const
 
 type Table = {
@@ -68,7 +69,9 @@ export class DexieNotesPort implements NotesPort {
     return revOf(await this.read(table, id))
   }
   async list(table: string, where: Rec) {
-    const [[field, value], ...rest] = Object.entries(where)
+    const entries = Object.entries(where)
+    if (!entries.length) return (await this.table(table).toArray()) as Rec[]
+    const [[field, value], ...rest] = entries
     const rows = (await this.table(table)
       .where(field)
       .equals(value)

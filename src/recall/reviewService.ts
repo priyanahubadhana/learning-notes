@@ -65,6 +65,9 @@ export interface ReviewQueue {
 
 const WRONG_DAYS = 7
 
+/** A log row that still counts: not erased (Delete forever) and not undone (Undo rating). */
+const logCounts = (l: ReviewLog): boolean => l.purgedAt === undefined
+
 /** Reads the scheduler settings fresh, so previews match current settings. */
 async function getSchedulerSettings(
   db: LearningNotesDB,
@@ -99,7 +102,9 @@ async function readyFor(
   settings: SchedulerSettings,
 ): Promise<Card> {
   if (scheduledBy(card) === scheduler.id) return card
-  const history = await db.reviewLogs.where('cardId').equals(card.id).toArray()
+  const history = (
+    await db.reviewLogs.where('cardId').equals(card.id).toArray()
+  ).filter(logCounts)
   return scheduler.adopt(card, history, settings)
 }
 /** A card is new until its first normal review (defined in cardService). */
@@ -227,7 +232,7 @@ async function doneToday(
   const logs = await db.reviewLogs
     .where('createdAt')
     .aboveOrEqual(studyDayStart(now, hour))
-    .filter((l) => l.kind === 'review')
+    .filter((l) => l.kind === 'review' && logCounts(l))
     .toArray()
   const newDone = logs.filter((l) => l.isNew).length
   return { newDone, reviewsDone: logs.length - newDone }
@@ -347,7 +352,7 @@ export async function wrongCardIds(
   const logs = await db.reviewLogs
     .where('createdAt')
     .aboveOrEqual(addStudyDays(now, -WRONG_DAYS, dayStart))
-    .filter((l) => l.rating === 'again')
+    .filter((l) => l.rating === 'again' && logCounts(l))
     .toArray()
   return new Set(logs.map((l) => l.cardId))
 }
@@ -367,11 +372,13 @@ export async function failCounts(
   if (ids.size === 0) return counts
   const logs =
     ids.size > manyKeys
-      ? db.reviewLogs.filter((l) => l.rating === 'again' && ids.has(l.cardId))
+      ? db.reviewLogs.filter(
+          (l) => l.rating === 'again' && logCounts(l) && ids.has(l.cardId),
+        )
       : db.reviewLogs
           .where('cardId')
           .anyOf([...ids])
-          .filter((l) => l.rating === 'again')
+          .filter((l) => l.rating === 'again' && logCounts(l))
   await logs.each((l) => counts.set(l.cardId, (counts.get(l.cardId) ?? 0) + 1))
   return counts
 }
@@ -613,7 +620,7 @@ export async function rateCard(
  */
 export function rebuildCard(card: Card, logs: ReviewLog[]): Card {
   const reviews = logs
-    .filter((l) => l.kind === 'review')
+    .filter((l) => l.kind === 'review' && logCounts(l))
     .sort((a, b) => a.createdAt - b.createdAt)
   const last = reviews.at(-1)
   const answered = withLastAnswer(card, logs)

@@ -52,20 +52,20 @@ export function SidebarGroup({
   if (hidden) return null
   return (
     <section data-group={id} className="mb-1">
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={() => setOpen(!open)}
           aria-expanded={open}
           aria-controls={body}
-          className="flex min-h-8 flex-1 items-center gap-1.5 rounded-md px-2.5 text-[11px] font-semibold tracking-[0.06em] text-muted uppercase hover:bg-hover any-pointer-coarse:min-h-11"
+          className="flex min-h-8 min-w-0 flex-1 items-center gap-1.5 rounded-md px-2.5 text-[11px] whitespace-nowrap font-semibold tracking-[0.06em] text-muted uppercase hover:bg-hover any-pointer-coarse:min-h-11"
         >
           <span aria-hidden className="w-3 text-[10px]">
             {open ? '▾' : '▸'}
           </span>
-          {title}
+          <span className="min-w-0 truncate">{title}</span>
         </button>
-        {action}
+        {action && <span className="shrink-0">{action}</span>}
       </div>
       <div id={body} hidden={!open}>
         {open && children}

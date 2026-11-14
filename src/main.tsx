@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.tsx'
 import { reloadOnFailedChunk } from './app/chunkReload'
 import { ErrorBoundary } from './app/ErrorBoundary'
+import { ScrollBarHost } from './design/parts/ScrollBarHost'
 import { startNavHistory } from './app/navHistory'
 import { installPenTap, penTapOptions } from './app/penTap'
 import { fingerOnlyBars } from './app/tools/main/mainTools'
@@ -87,6 +88,7 @@ fingerOnlyBars.subscribe(() => {
 {
   const hints = installScrollHints(
     () => readDeviceSetting(scrollHintsSetting) === 'on',
+    () => isOn('foundation.shell'),
   )
   subscribeDeviceSettings(hints.refresh)
 }
@@ -220,17 +222,27 @@ if (isOn('update.v2'))
   void import('./app/otherTab').then((m) =>
     m.watchOtherTabUpgrade(db, () => triggerMustHave('storage')),
   )
-window.addEventListener('learning-notes:test-required-update', (e) =>
-  startRequired(
-    () => {
-      ;(
-        window as unknown as { __requiredApplied?: boolean }
-      ).__requiredApplied = true
-    },
-    (e as CustomEvent<{ reason?: UpdateReason; unsaved?: boolean } | null>)
-      .detail ?? undefined,
-  ),
-)
+// The About button ("real") reloads into the same page (keeps the offline copy).
+// Tests without it only set a marker (the page must stay).
+window.addEventListener('learning-notes:test-required-update', (e) => {
+  const detail =
+    (
+      e as CustomEvent<{
+        reason?: UpdateReason
+        unsaved?: boolean
+        real?: boolean
+      } | null>
+    ).detail ?? undefined
+  startRequired(() => {
+    ;(window as unknown as { __requiredApplied?: boolean }).__requiredApplied =
+      true
+    if (detail?.real) {
+      // Only a restart into the same page; the offline copy stays.
+      rememberPlace()
+      location.reload()
+    }
+  }, detail)
+})
 subscribeDeviceSettings(() => {
   if (updateWaiting()) repeatUpdateOffer()
 })
@@ -345,7 +357,12 @@ if (isConnectRoute(location.hash)) {
   )
 } else if (isDesignTokensRoute(location.hash)) {
   void import('./design/DesignTokensPage').then((m) =>
-    createRoot(document.getElementById('root')!).render(<m.default />),
+    createRoot(document.getElementById('root')!).render(
+      <>
+        <m.default />
+        <ScrollBarHost />
+      </>,
+    ),
   )
 } else {
   createRoot(document.getElementById('root')!).render(
@@ -353,6 +370,7 @@ if (isConnectRoute(location.hash)) {
       <ErrorBoundary onHome={goHome} onSaveAll={saveEverything} fullScreen>
         <UpgradeGate>
           <App />
+          <ScrollBarHost />
         </UpgradeGate>
       </ErrorBoundary>
     </StrictMode>,

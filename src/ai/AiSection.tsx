@@ -1,6 +1,8 @@
 import { onPrefChangedExternally } from '../app/uiPrefs'
 import { useEffect, useState } from 'react'
+import { useFlag } from '../app/flags'
 import { usePref } from '../app/usePref'
+import { BuildEntry } from '../aibuild/BuildEntry'
 import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import { isTracking } from '../sync/device'
@@ -15,6 +17,7 @@ import { listKeys } from './keyStore'
 import { ModelCards } from './ModelCards'
 import { isCap } from './usage'
 import { UsageSection } from './UsageSection'
+import { AreaInput } from '../settings/AreaInput'
 
 const isBool = (v: unknown): v is boolean => typeof v === 'boolean'
 const isStrings = (v: unknown): v is string[] =>
@@ -72,6 +75,7 @@ export function AiSection({
     [],
   )
   const code = readCostCurrency().code
+  const framework = useFlag('ai.framework')
 
   const field =
     'min-h-11 w-full rounded-lg border border-line bg-bg px-3 text-sm outline-none focus:border-accent'
@@ -80,6 +84,7 @@ export function AiSection({
     <section data-testid="ai-section" className="mb-6 flex flex-col gap-4">
       <h2 className="text-base font-semibold">{t('ai.title')}</h2>
       <p className="text-sm text-muted">{t('ai.intro')}</p>
+      {framework && <BuildEntry db={db} />}
 
       {/* (a) On or off */}
       <label className="flex min-h-11 items-center gap-3 text-sm">
@@ -133,7 +138,7 @@ export function AiSection({
       <h3 className={head}>{t('ai.sec.spending')}</h3>
       <label className="flex flex-col gap-1 text-sm">
         {t('ai.cap', { currency: code })}
-        <input
+        <AreaInput
           key={`${code}${readCostCurrency().rates[code]}-${capFrom}`}
           type="number"
           min={0}

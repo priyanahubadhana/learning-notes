@@ -1,0 +1,242 @@
+import {
+  cloneElement,
+  useCallback,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react'
+import { t } from '../../i18n/t'
+import { SidebarResizer } from '../SidebarResizer'
+import type { Space } from '../spaces/spaces'
+import { OverSide, PanelSlot, SideSlot } from './ColumnSlots'
+import { columnsFor, effectiveSidebarWidth, panelLeft } from './columns'
+import { usePanelOverlay } from './usePanelOverlay'
+import { type GearActions } from './GearMenu'
+import { Rail } from './Rail'
+import { ShellTopBar } from './ShellTopBar'
+import { TabBar } from './TabBar'
+import { ToastHost } from './Toast'
+import { ViewToggle } from './ViewToggle'
+import { modeOf } from './views'
+import { useLevel } from '../../settings/level'
+import { useDue } from './useDue'
+import { useEscape } from './useEscape'
+import { useFrameSize } from './useFrameSize'
+import './shell.css'
+import {
+  settingsRegistry,
+  showUndoRedoSetting,
+} from '../../settings/builtinSettings'
+
+// The Settings row for Undo and Redo exists only with the new frame.
+if (!settingsRegistry.get(showUndoRedoSetting.id))
+  settingsRegistry.register(showUndoRedoSetting)
+
+/**
+ * Everything the frame needs from the app. The app keeps all the state (its
+ * routes, saved sidebar width and the rest); the frame only draws it, so
+ * there is no second source of truth.
+ */
+export interface ShellProps {
+  space: Space
+  spaces: Space[]
+  onSelectSpace: (space: Space) => void
+  gear: GearActions
+  /** Changes whenever the screen changes (closes a sidebar opened over the page). */
+  routeKey: string
+  title: string | null
+  sidebarHidden: boolean
+  onToggleSidebar: () => void
+  drawerOpen: boolean
+  onOpenDrawer: () => void
+  onCloseDrawer: () => void
+  /** A notebook or book is open, so there is a pages panel to show. */
+  hasPanel: boolean
+  panelOpen: boolean
+  onPanelOpen: (open: boolean) => void
+  sidebarWidth: number
+  onSidebarWidth: (width: number) => void
+  onSearch: () => void
+  onSlot: (element: HTMLElement | null) => void
+  onStackSlot: (element: HTMLElement | null) => void
+  /** The sidebar element; the frame sets its `hidden` prop. */
+  sidebar: ReactElement<{ hidden?: boolean }>
+  /** The pages panel element; the frame sets `docked` and `width`. */
+  panel: ReactElement<{ docked?: boolean; width?: number }>
+  /** Under the bars: the page area. */
+  children: ReactNode
+}
+
+function focusMain() {
+  const main = document.querySelector<HTMLElement>('[data-page-scroller]')
+  if (!main) return
+  main.tabIndex = -1
+  main.focus()
+}
+
+/** SH-01: the new app frame (rail, top bar, sidebar, pages panel, phone tab bar). */
+export default function Shell(p: ShellProps) {
+  const {
+    space,
+    routeKey,
+    sidebarHidden,
+    onToggleSidebar,
+    drawerOpen,
+    onCloseDrawer,
+    hasPanel,
+    panelOpen,
+    onPanelOpen,
+    sidebarWidth,
+    onSidebarWidth,
+    onSelectSpace,
+    onOpenDrawer,
+    onSearch,
+    onSlot,
+    onStackSlot,
+    gear,
+    spaces,
+    title,
+    sidebar,
+    panel,
+    children,
+  } = p
+  const { width, height } = useFrameSize()
+  const level = useLevel()
+  const due = useDue(gear.db)
+  // The sidebar opened over the page lasts for the screen it was opened on.
+  const [overAt, setOverAt] = useState<string | null>(null)
+  const sideOver = overAt === routeKey
+  const panelShown = hasPanel && panelOpen
+  const drawn = effectiveSidebarWidth(sidebarWidth)
+  const base = {
+    width,
+    height,
+    sidebarHidden,
+    panelOpen: panelShown,
+    sidebarWidth: drawn,
+  }
+  const cols = columnsFor({ ...base, sideOver })
+  const stepped = columnsFor({ ...base, sideOver: false }).steppedAside
+
+  const closeOver = useCallback(() => setOverAt(null), [])
+  const closePanel = useCallback(() => onPanelOpen(false), [onPanelOpen])
+  useEscape(cols.sidebar === 'over', closeOver)
+  useEscape(cols.phone && cols.panel === 'over', closePanel)
+  // Beside the page there was no room to dock the panel: it opens over the page.
+  const panelOver = !cols.phone && cols.panel === 'over'
+  const panelWrap = useRef<HTMLDivElement | null>(null)
+  usePanelOverlay(panelOver, panelWrap, closePanel)
+
+  const toggleSidebar = () =>
+    stepped ? setOverAt(sideOver ? null : routeKey) : onToggleSidebar()
+  const sidebarOff = stepped ? !sideOver : sidebarHidden
+
+  const nav = {
+    spaces,
+    current: space,
+    onSelect: onSelectSpace,
+    due,
+    gear,
+  }
+  const frameStyle: CSSProperties = {
+    paddingTop: 'calc(var(--attn-h, 0px) + var(--frame-gap))',
+  }
+
+  return (
+    <div
+      data-app-shell
+      data-mode={modeOf(level)}
+      className="sh-frame bg-wash"
+      style={frameStyle}
+    >
+      <button type="button" className="sh-skip" onClick={focusMain}>
+        {t('shell.skip')}
+      </button>
+      <div className="sh-row">
+        {!cols.phone && <Rail {...nav} />}
+        <SideSlot
+          cols={cols}
+          width={drawn}
+          render={(o) => cloneElement(sidebar, o)}
+        />
+        {cols.sidebar === 'docked' && (
+          // Its own stacking group, so the page's pop-ups (block menus) paint above it.
+          <div className="sh-resizewrap">
+            <SidebarResizer width={drawn} onChange={onSidebarWidth} />
+          </div>
+        )}
+        <PanelSlot
+          cols={cols}
+          wrapRef={panelWrap}
+          // Over the page it covers the docked sidebar, never the page (its ✕ and bars stay reachable).
+          left={panelLeft(null)}
+          render={(o) => cloneElement(panel, o)}
+        />
+        <div className="sh-main">
+          {/* One glass layer for the top bar and the tool bar (blur budget).
+              It is a sibling behind the bars, so a floating bar inside is
+              never trapped by a backdrop filter on the wrapper. */}
+          <div
+            data-frame-bars
+            className="relative shrink-0 rounded-[var(--r-lg)]"
+          >
+            <div
+              aria-hidden
+              className="glass pointer-events-none absolute inset-0 rounded-[inherit] phone:rounded-none phone:border-x-0 phone:border-t-0 phone:shadow-none"
+            />
+            <ShellTopBar
+              space={space}
+              title={title}
+              sidebarHidden={sidebarOff}
+              steppedAside={stepped}
+              drawerOpen={drawerOpen}
+              onOpenDrawer={onOpenDrawer}
+              onToggleSidebar={toggleSidebar}
+              panel={
+                hasPanel
+                  ? { open: panelOpen, onToggle: () => onPanelOpen(!panelOpen) }
+                  : undefined
+              }
+              onSelectSpace={onSelectSpace}
+              onSearch={onSearch}
+              onSlot={onSlot}
+            />
+            <div
+              ref={onStackSlot}
+              data-chrome
+              data-bar-slot
+              className="relative pb-1 empty:p-0"
+            />
+          </div>
+          {cols.phone && (
+            <div className="sh-viewrow">
+              <ViewToggle />
+            </div>
+          )}
+          {children}
+        </div>
+        <OverSide
+          cols={cols}
+          render={(o) => cloneElement(sidebar, o)}
+          onClose={closeOver}
+        />
+        {cols.phone && drawerOpen && (
+          // A second way to close the drawer for fingers; the sidebar's own
+          // button is the one for keyboards and screen readers.
+          <button
+            type="button"
+            aria-hidden
+            tabIndex={-1}
+            className="sh-scrim sh-scrim-phone"
+            onClick={onCloseDrawer}
+          />
+        )}
+      </div>
+      {cols.phone && <TabBar {...nav} />}
+      {/* SH-12: the one toast of the app (App routes its messages here while the frame is on). */}
+      <ToastHost />
+    </div>
+  )
+}

@@ -425,3 +425,126 @@
     opacity: 0.6;
   }
 }
+
+/* ---------- Shared parts tokens (slice 0g, SP-01): additive only ----------
+ * Card frame, shell sizes, layer names and part motion. Plain :root blocks so
+ * the contrast test (which reads the colour blocks above) is unchanged.
+ * The z-scale used by overlays lives in src/app/overlay/layers.ts (--z-bar..
+ * --z-toast); the --z-* names below are the shell scale (shell-spec 8, D10). */
+:root {
+  /* Card frame (day) */
+  --card-fill: rgba(255, 255, 255, 0.92);
+  --card-well: rgba(24, 23, 28, 0.045);
+  --card-well-2: rgba(24, 23, 28, 0.08);
+  --card-hair: rgba(24, 23, 28, 0.08);
+  --card-track: rgba(24, 23, 28, 0.14);
+  --card-hi: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --card-shadow:
+    0 18px 48px rgba(24, 23, 28, 0.16), 0 2px 8px rgba(24, 23, 28, 0.08);
+  --card-w-pick: 304px;
+  --card-w-panel: 376px;
+  --card-scrim: rgba(0, 0, 0, 0.4);
+  --ease-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+
+  /* Part motion (reduced motion sets these to ~0 below) */
+  --card-dur-in: 200ms;
+  --card-dur-out: 130ms;
+  --card-dur-pick: 190ms;
+  --card-dur-glow: 700ms;
+  --card-dur-pop: 280ms;
+
+  /* Shell sizes (D1: 288 for the side lists) */
+  --sh-rail: 56px;
+  --sh-side: 288px;
+  --sh-panel: 288px;
+  --sh-top: 52px;
+  --sh-tabbar: 56px;
+  --sh-sheet: 440px;
+  --sh-hit: 44px;
+  --sh-gap: 12px;
+
+  /* Shell layer scale (shell-spec 8, D10) */
+  --z-sticky: 1; /* a sticky bar above its own scrolling list (F9) */
+  --z-tabbar: 30;
+  --z-fbar: 40;
+  --z-chip: 41;
+  --z-drawer-scrim: 59;
+  --z-drawer: 60;
+  --z-sheet-scrim: 79;
+  --z-sheet: 80;
+  --z-dialog: 85;
+  --z-pop: 86;
+  --z-tagpick: 88;
+  --z-toast: 90;
+}
+:root[data-theme='night'] {
+  --card-fill: rgba(31, 30, 38, 0.88);
+  --card-well: rgba(255, 255, 255, 0.055);
+  --card-well-2: rgba(255, 255, 255, 0.1);
+  --card-hair: rgba(255, 255, 255, 0.07);
+  --card-track: rgba(255, 255, 255, 0.16);
+  --card-hi: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --card-shadow: 0 18px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --card-scrim: rgba(0, 0, 0, 0.55);
+}
+:root[data-theme='sepia'] {
+  --card-fill: rgba(251, 243, 224, 0.94);
+  --card-well: rgba(67, 52, 34, 0.055);
+  --card-well-2: rgba(67, 52, 34, 0.1);
+  --card-hair: rgba(67, 52, 34, 0.1);
+  --card-track: rgba(67, 52, 34, 0.18);
+  --card-hi: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --card-shadow:
+    0 18px 48px rgba(67, 52, 34, 0.18), 0 2px 8px rgba(67, 52, 34, 0.1);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --card-dur-in: 0.01ms;
+    --card-dur-out: 0.01ms;
+    --card-dur-pick: 0.01ms;
+    --card-dur-glow: 0.01ms;
+    --card-dur-pop: 0.01ms;
+  }
+}
+/* Gallery switch "Reduce motion" (same effect as the system setting). */
+:root[data-motion='reduce'] {
+  --dur-1: 120ms;
+  --dur-2: 120ms;
+  --dur-3: 120ms;
+  --spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --press-scale: 1;
+  --card-dur-in: 0.01ms;
+  --card-dur-out: 0.01ms;
+  --card-dur-pick: 0.01ms;
+  --card-dur-glow: 0.01ms;
+  --card-dur-pop: 0.01ms;
+}
+
+/* ---------- Feedback parts (slice 0g step 2): additive only ---------- */
+:root {
+  --fb-sheet-w: 376px;
+  --fb-dialog-w: 360px;
+  --fb-toast-w: 420px;
+  --fb-backdrop: rgba(0, 0, 0, 0.3);
+  --fb-dur-sheet-in: 240ms;
+  --fb-dur-sheet-out: 180ms;
+  --fb-dur-toast-in: 200ms;
+  --fb-dur-toast-out: 150ms;
+  --fb-dur-banner: 200ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fb-dur-sheet-in: 0.01ms;
+    --fb-dur-sheet-out: 0.01ms;
+    --fb-dur-toast-in: 0.01ms;
+    --fb-dur-toast-out: 0.01ms;
+    --fb-dur-banner: 0.01ms;
+  }
+}
+:root[data-motion='reduce'] {
+  --fb-dur-sheet-in: 0.01ms;
+  --fb-dur-sheet-out: 0.01ms;
+  --fb-dur-toast-in: 0.01ms;
+  --fb-dur-toast-out: 0.01ms;
+  --fb-dur-banner: 0.01ms;
+}

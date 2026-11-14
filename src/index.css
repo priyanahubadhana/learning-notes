@@ -1050,7 +1050,8 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
 
 /* Item 7 (10 Nov): the page has its own scroll bar (paper/PageScrollBar.tsx).
    Its gutter is reserved here so the bar never covers the paper, and the
-   system bar hides so there are not two. */
+   system bar hides so there are not two. With the new app frame on
+   (foundation.shell) the shared bar's ScrollBar.css reserves it instead. */
 [data-page-scroller][data-pagebar] {
   padding-inline-end: 24px;
   scrollbar-width: none;
@@ -1228,4 +1229,61 @@ html[data-box-drag] {
 }
 [data-reorder-mark='below'] > * {
   box-shadow: inset 0 -2px 0 0 var(--color-accent);
+}
+
+/* A sideways row that always shows a thin track, so a cut-off card says
+   "there is more" (also on touch screens, where bars hide by default). */
+.h-track {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.h-track::-webkit-scrollbar {
+  display: none;
+}
+.h-track__bar {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-soft, var(--color-line));
+}
+.h-track__bar > span {
+  position: absolute;
+  inset-block: 0;
+  border-radius: 2px;
+  background: var(--card-track, var(--color-line-strong));
+}
+
+/* Search v2: a solid surface at every size (the covers behind must not show through). */
+.srv2-dialog {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* Toolbar v8 (gate 3, tenth visit): a picked picture has one set of handles
+   (ours) and the accent frame of a drawing; BlockNote's side pills,
+   the orange outline and the text box frame stay quiet. */
+.bn-file-block-content-wrapper[data-v8-picked] .bn-resize-handle {
+  display: none !important;
+}
+.bn-editor .bn-file-block-content-wrapper[data-v8-picked] img.bn-visual-media {
+  outline: 1px dashed var(--color-accent) !important;
+  outline-offset: 2px !important;
+  border-radius: 2px;
+}
+:root[data-v8-picture] [data-box-frame] {
+  border-color: transparent !important;
+}
+:root[data-v8-picture] [data-main-frame],
+:root[data-v8-picture] [data-main-handles],
+:root[data-v8-picture] [data-box-grip],
+:root[data-v8-picture] [data-box-menu],
+:root[data-v8-picture] [data-resize-handle] {
+  visibility: hidden;
+}
+
+/* F5: the search field fills the header row, so the close ✕ sits at the right edge. */
+.srv2-dialog .clr-wrap {
+  flex: 1;
+  min-width: 0;
 }

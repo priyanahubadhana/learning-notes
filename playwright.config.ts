@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import { FAST_SET } from './e2e/fastSet.ts'
 
 /**
  * Playwright end-to-end tests: a real browser clicks through the app.
@@ -10,7 +11,7 @@ const PORT = Number(process.env.PW_PORT ?? 5199)
 /** GitHub's machine has 2 cores, so it gets longer limits. */
 const SLOW = process.env.CI ? 2 : 1
 
-export default defineConfig({
+const config = defineConfig({
   testDir: './e2e',
   timeout: 30_000 * SLOW,
   expect: { timeout: 5_000 * SLOW },
@@ -79,11 +80,14 @@ export default defineConfig({
       name: 'ipad-webkit',
       testIgnore: /visual\//,
       testMatch: [
+        /parts-gallery/,
         /pencilIsolation/,
+        /storageSafety.spec/,
         /updateV2/,
         /security-m1-/,
         /chromeIsolation/,
         /penTapChrome/,
+        /scrollBarPen/,
         /ipadKeyboard/,
         /inkLayers/,
         /penSelect/,
@@ -102,8 +106,13 @@ export default defineConfig({
         /magnifier/,
         /aiPicker/,
         /openNotebook/,
+        /startSpeed/,
+        /startSeeding/,
         /tryNewFeatures/,
+        /presetPhases/,
+        /libraryV2/,
         /foundationInput/,
+        /stripGear/,
         /foundationSelectionOverlay/,
         /barFixes/,
         /pencilTaps/,
@@ -156,6 +165,14 @@ export default defineConfig({
         /layoutAssist/,
         /textTool/,
         /textBoxFree/,
+        /homeV2/,
+        /scrollFrame/,
+        /staySignedIn/,
+        /freezeWatch/,
+        /searchClose/,
+        /settingsV3SearchF9/,
+        // Paste needs the clipboard-write permission, which WebKit does not have: chromium only.
+        /toolbarV8(Bar|Frame|Pen|Row|Tools).spec/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },
@@ -178,3 +195,42 @@ export default defineConfig({
     env: { E2E: '1' },
   },
 })
+
+/**
+ * The fast set (Phase 0 task 0.8): the key flows listed in e2e/fastSet.ts,
+ * run on every merge. `fast-chromium` and `fast-ipad` are copies of
+ * `chromium` and `ipad-webkit` above (same device, limits and settings, so
+ * they cannot drift apart); only the list of files differs. `fast-ipad`
+ * runs the fast files that are also in the `ipad-webkit` list.
+ */
+const projects = config.projects ?? []
+const projectNamed = (name: string) => {
+  const found = projects.find((project) => project.name === name)
+  if (!found) throw new Error(`playwright.config.ts: no project "${name}"`)
+  return found
+}
+const chromium = projectNamed('chromium')
+const ipad = projectNamed('ipad-webkit')
+const fastFiles = FAST_SET.map((entry) => entry.file)
+const inIpadList = (file: string) =>
+  [ipad.testMatch ?? []]
+    .flat()
+    .some((match) =>
+      typeof match === 'string'
+        ? match.endsWith(file)
+        : match.test(`e2e/${file}`),
+    )
+/** One exact file in e2e/ (the path Playwright checks is absolute). */
+const exactly = (file: string) =>
+  new RegExp(`[\\\\/]e2e[\\\\/]${file.replaceAll('.', '\\.')}$`)
+config.projects = [
+  ...projects,
+  { ...chromium, name: 'fast-chromium', testMatch: fastFiles.map(exactly) },
+  {
+    ...ipad,
+    name: 'fast-ipad',
+    testMatch: fastFiles.filter(inIpadList).map(exactly),
+  },
+]
+
+export default config

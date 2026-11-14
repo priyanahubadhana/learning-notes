@@ -22,6 +22,7 @@ import {
   type Rec,
   type StagedRecord,
   type StepState,
+  type UndoRecord,
 } from './jobTypes'
 import type { NotesPort } from './notesPort'
 import { StaleError, buildUndo, canon } from './notesTx'
@@ -42,6 +43,13 @@ export interface RunnerDeps {
   /** 0..1, for the retry jitter. Tests pass a fixed one. */
   random?: () => number
   catalog?: readonly CatalogTool[]
+  /**
+   * How long one fill may take, instead of the tool's own limit. The Build
+   * screen waits for a person to paste an answer, which takes minutes.
+   */
+  fillTimeoutMs?: number
+  /** Where plans run; decides which tools are offered. Default the app. */
+  surface?: 'app' | 'mcp'
 }
 
 export type CreateResult =
@@ -140,6 +148,8 @@ export class JobRunner {
   private readonly isOnline: () => boolean
   private readonly random: () => number
   private readonly catalog: readonly CatalogTool[]
+  private readonly fillTimeoutMs?: number
+  private readonly surface: 'app' | 'mcp'
   private tail: Promise<unknown> = Promise.resolve()
   private busy = 0
   /** Errors thrown by the job store: they crash the run instead of failing a step. */
@@ -156,13 +166,15 @@ export class JobRunner {
     this.isOnline = deps.isOnline ?? (() => true)
     this.random = deps.random ?? Math.random
     this.catalog = deps.catalog ?? toCatalog()
+    this.fillTimeoutMs = deps.fillTimeoutMs
+    this.surface = deps.surface ?? 'app'
   }
 
   // ---- public ----
 
   /** AF-1. Invalid plans never become jobs. The same plan id twice gives the same job. */
   async create(plan: unknown): Promise<CreateResult> {
-    const errors = validatePlan(plan, this.catalog)
+    const errors = validatePlan(plan, this.catalog, { surface: this.surface })
     if (errors.length) return { ok: false, errors }
     const p = plan as JobPlan
     const old = await this.store.get(p.id)
@@ -254,8 +266,18 @@ export class JobRunner {
     })
   }
 
-  /** AF-5, AF-6. One transaction for the whole ChangeSet and the undo record. */
-  apply(id: string): Promise<ApplyResult> {
+  /**
+   * AF-5, AF-6. One transaction for the whole ChangeSet and the undo record.
+   * `commit` replaces the port's own save (the connector saves through its
+   * own sealed push); it must be all-or-nothing and may throw StaleError.
+   */
+  apply(
+    id: string,
+    commit?: (
+      records: readonly StagedRecord[],
+      undo: UndoRecord,
+    ) => Promise<void>,
+  ): Promise<ApplyResult> {
     return this.exclusive(async () => {
       const job = await this.need(id)
       if (job.state === 'applied') return { outcome: 'already_applied', job }
@@ -267,7 +289,8 @@ export class JobRunner {
       this.go(job, 'applying')
       await this.save(job)
       try {
-        await this.port.commit(job.id, records, undo)
+        if (commit) await commit(records, undo)
+        else await this.port.commit(job.id, records, undo)
       } catch (e) {
         const stale = e instanceof StaleError
         this.go(job, stale ? 'preview' : 'failed')
@@ -283,6 +306,25 @@ export class JobRunner {
       job.timings.appliedAt = this.clock.now()
       await this.save(job)
       return { outcome: 'applied', job }
+    })
+  }
+
+  /**
+   * The job's records were saved by someone else (the app accepted it from
+   * the Inbox): mark it applied without writing anything.
+   */
+  adoptApplied(id: string): Promise<AiJob> {
+    return this.exclusive(async () => {
+      const job = await this.need(id)
+      if (job.state === 'applied') return job
+      if (job.state !== 'preview' || !job.changeSet)
+        throw new Error('This job is not ready to apply.')
+      job.undo = buildUndo(job.id, job.changeSet.records)
+      this.go(job, 'applying')
+      this.go(job, 'applied')
+      job.timings.appliedAt = this.clock.now()
+      await this.save(job)
+      return job
     })
   }
 
@@ -316,12 +358,38 @@ export class JobRunner {
     })
   }
 
-  /** AF-9. Called when the app starts. */
+  /**
+   * AF-9. Called when the app starts. Jobs that need nobody's answer run
+   * first, so a job that waits for a pasted answer never holds them back;
+   * the waiting ones follow (the runner stages one job at a time).
+   */
   async recover(): Promise<void> {
-    for (const j of await this.store.list()) {
-      if (j.state === 'running' || j.state === 'queued') await this.run(j.id)
-      else if (j.state === 'applying') await this.settleApplying(j.id)
-    }
+    const jobs = await this.store.list()
+    const runs: Promise<unknown>[] = []
+    for (const j of jobs)
+      if (j.state === 'applying') runs.push(this.settleApplying(j.id))
+    const runnable = jobs.filter(
+      (j) => j.state === 'running' || j.state === 'queued',
+    )
+    const quick = runnable.filter((j) => !this.needsAnswer(j))
+    const slow = runnable.filter((j) => this.needsAnswer(j))
+    for (const j of [...quick, ...slow]) runs.push(this.run(j.id))
+    const done = await Promise.allSettled(runs)
+    const failed = done.find((d) => d.status === 'rejected')
+    if (failed?.status === 'rejected') throw failed.reason
+  }
+
+  /** True if a step still to run needs content that a person or model must give. */
+  private needsAnswer(job: AiJob): boolean {
+    return job.steps.some((s) => {
+      if (s.state === 'done' || s.state === 'skipped' || s.filled) return false
+      const tool = AI_TOOLS_BY_ID.get(s.tool)
+      const field = tool && contentField(tool)
+      if (!tool || !field || tool.cost.fill === 'none') return false
+      const def = job.plan.steps.find((p) => p.id === s.id)
+      const given = (def?.args as Rec | undefined)?.[field]
+      return given === undefined
+    })
   }
 
   // ---- running ----
@@ -546,18 +614,21 @@ export class JobRunner {
     signal: AbortSignal,
   ) {
     const ctl = new AbortController()
-    const onAbort = () => ctl.abort()
-    signal.addEventListener('abort', onAbort)
-    const timer = setTimeout(() => ctl.abort(), tool.limits.timeoutMs)
+    // The run's own signal: only one wait uses it at a time (no shared listeners).
+    signal.onabort = () => ctl.abort()
+    const timer = setTimeout(
+      () => ctl.abort(),
+      this.fillTimeoutMs ?? tool.limits.timeoutMs,
+    )
     try {
-      const timeout = new Promise<never>((_, reject) =>
-        ctl.signal.addEventListener('abort', () =>
-          reject(
-            signal.aborted
-              ? new Error('aborted')
-              : new StepError('timeout', 'The step took too long.'),
-          ),
-        ),
+      const timeout = new Promise<never>(
+        (_, reject) =>
+          (ctl.signal.onabort = () =>
+            reject(
+              signal.aborted
+                ? new Error('aborted')
+                : new StepError('timeout', 'The step took too long.'),
+            )),
       )
       return await Promise.race([
         this.filler.fill({ stepId: step.id, tool, args, repair }, ctl.signal),
@@ -565,7 +636,7 @@ export class JobRunner {
       ])
     } finally {
       clearTimeout(timer)
-      signal.removeEventListener('abort', onAbort)
+      signal.onabort = null
     }
   }
 
@@ -580,6 +651,7 @@ export class JobRunner {
         steps: [{ id: 's1', tool: tool.id, toolVersion: tool.version, args }],
       },
       this.catalog,
+      { surface: this.surface },
     ).map(
       (e) => `${e.path.replace(/^\/steps\/0\/args/, '') || '/'}: ${e.message}`,
     )

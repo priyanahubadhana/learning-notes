@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import { usePref } from '../app/usePref'
 import type { LearningNotesDB } from '../core/db'
 import { addDays } from '../core/homeDays'
@@ -20,6 +20,14 @@ import { TimerCard } from './TimerCard'
 import { Top3 } from './Top3'
 import { useTasks, useToday } from './useHomeData'
 import { Icon } from '../app/tools/icons'
+import { useFlag } from '../app/flags'
+import { ScrollTrack } from '../design/parts/ScrollTrack'
+
+// Home v2 (flag home.v2) loads only when the flag is on: with it off the
+// first load stays as today (no drag part, no event router).
+const HomeBoard = lazy(() =>
+  import('./board/HomeBoard').then((m) => ({ default: m.HomeBoard })),
+)
 
 const TABS = ['today', 'tasks', 'plan', 'routines', 'reports'] as const
 type Tab = (typeof TABS)[number]
@@ -49,6 +57,7 @@ export function HomeScreen({
   db: LearningNotesDB
   deps: HomeDeps
 }) {
+  const v2 = useFlag('home.v2')
   const [tab, setTab] = usePref<Tab>('home.tab', isTab, 'today')
   const today = useToday(db)
   const [allDone, setAllDone] = useState(false)
@@ -103,10 +112,16 @@ export function HomeScreen({
       className="mx-auto w-full max-w-3xl px-4 py-5"
     >
       <header className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-xl font-semibold">{t('space.home')}</h2>
+        <h2 className="t-h2">{t('space.home')}</h2>
         <p className="text-sm text-muted">{dayMonthLabel(today)}</p>
       </header>
-      <div role="tablist" className="mb-4 flex flex-wrap gap-1.5">
+      <ScrollTrack
+        role="tablist"
+        data-testid="home-tabs"
+        wrapClassName="mb-4"
+        barClassName="mt-1"
+        className="flex flex-nowrap gap-1.5"
+      >
         {TABS.map((id) => (
           <button
             key={id}
@@ -114,7 +129,7 @@ export function HomeScreen({
             role="tab"
             aria-selected={tab === id}
             onClick={() => setTab(id)}
-            className={`min-h-11 rounded-lg px-4 text-sm ${
+            className={`min-h-11 shrink-0 rounded-lg px-4 text-sm whitespace-nowrap ${
               tab === id
                 ? 'bg-hover font-semibold text-accent'
                 : 'text-ink-soft hover:bg-hover'
@@ -123,8 +138,40 @@ export function HomeScreen({
             {t(`home.tab.${id}` as MessageKey)}
           </button>
         ))}
-      </div>
-      {tab === 'today' && record && (
+      </ScrollTrack>
+      {tab === 'today' && record && v2 && (
+        <div className="flex flex-col gap-4" data-testid="home-today">
+          <Suspense fallback={null}>
+            <HomeBoard
+              data={{
+                db,
+                today,
+                tasks,
+                projects,
+                briefing,
+                cardsDue,
+                record,
+                openReview: deps.openReview,
+              }}
+            />
+          </Suspense>
+          <button
+            type="button"
+            onClick={deps.openToday}
+            className="min-h-11 rounded-lg border border-line px-3 text-start text-sm hover:border-accent"
+          >
+            <Icon name="sun" size={16} className="me-1 inline" />
+            {t('space.home.today', { date: dayMonthLabel(today) })}
+          </button>
+          <EveningReview
+            db={db}
+            tasks={tasks}
+            today={today}
+            appendJournal={deps.appendJournal}
+          />
+        </div>
+      )}
+      {tab === 'today' && record && !v2 && (
         <div className="flex flex-col gap-4" data-testid="home-today">
           <DueTile count={cardsDue} onStart={deps.openReview} />
           {briefing && (

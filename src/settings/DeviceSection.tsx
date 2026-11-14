@@ -8,6 +8,9 @@ import { dateKey, shortDayLabel } from '../journal/dates'
 import { lastBackupAt } from '../share/backupReminder'
 import { shortcutShiftLabel } from '../app/keys'
 import { getAppActions } from '../app/tools/toolRuntime'
+import { touchUi } from '../app/touchUi'
+import { useFlag } from '../app/flags'
+import { whileBusy } from './whileBusy'
 
 /** Opened from the Home Screen or as an installed app, not a browser tab. */
 function isInstalled(): boolean {
@@ -24,6 +27,14 @@ export function DeviceSection({ db }: { db: LearningNotesDB }) {
   useEffect(() => {
     void isStorageProtected().then(setProtected)
   }, [])
+  const safety = useFlag('storage.safety')
+  const [busy, setBusy] = useState(false)
+  const backUp = async () => {
+    await whileBusy(setBusy, async () => {
+      const m = await import('../app/attention/storageSafetyBackup')
+      await m.backUpWithToast()
+    })
+  }
   const backup = useLiveQuery(async () => (await lastBackupAt(db)) ?? 0, [db])
 
   return (
@@ -45,6 +56,21 @@ export function DeviceSection({ db }: { db: LearningNotesDB }) {
               })
             : t('device.noBackup')}
         </p>
+      )}
+      {safety && (
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span className="flex-1">{t('storageSafety.fileRow')}</span>
+          <button
+            type="button"
+            data-testid="ss-backup-now"
+            disabled={busy}
+            aria-busy={busy}
+            onClick={() => void backUp()}
+            className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover disabled:opacity-60"
+          >
+            {t(busy ? 'storageSafety.busy' : 'storageSafety.backUpNow')}
+          </button>
+        </div>
       )}
       <p className="text-muted">
         {t('device.version', { commit: __APP_COMMIT__.slice(0, 7) })}
@@ -69,7 +95,9 @@ export function DeviceSection({ db }: { db: LearningNotesDB }) {
           onClick={() => getAppActions()?.openControlPanel()}
           className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
         >
-          {t('settings.controlPanel', { key: shortcutShiftLabel('K') })}
+          {touchUi()
+            ? t('bar.search')
+            : t('settings.controlPanel', { key: shortcutShiftLabel('K') })}
         </button>
       </div>
       {!isInstalled() && (

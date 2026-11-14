@@ -6,6 +6,7 @@ import {
   Suspense,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
@@ -57,6 +58,8 @@ import { readActiveLayer, writeActiveLayer } from './activeLayer'
 import { InkDoc } from './inkDoc'
 import { InkHistory } from './inkHistory'
 import { bumpInk, registerInk } from './inkRuntime'
+import { inkSelControl } from './inkSelControl'
+import { useFlag } from '../app/flags'
 import { saveToHighlightsPage } from './saveToNotes'
 import { copyPng, selectionPng } from './screenshot'
 import { insertPictureCard, pictureCard } from './cardFromInk'
@@ -442,6 +445,10 @@ export function InkUi({
   const [status, setStatus] = useState('')
   const [convertPng, setConvertPng] = useState<Blob | null>(null)
   const tool = activeTool.useValue()
+  const v8 = useFlag('toolbar.v8')
+  // The new selection bar owns the menu while drawings alone are picked.
+  const barOwns =
+    v8 && count > 0 && controller.blockSel.length === 0 && tool === 'lasso'
 
   // Strokes written while a recording ran can play it from that moment.
   const [found, setFound] = useState<{
@@ -510,6 +517,87 @@ export function InkUi({
     }
   }
 
+  /** Add to Summary for a drawing (its name); a drawing without a name asks for one first. */
+  const summary = () => {
+    // A drawing goes into the Summary by its name (a picture line
+    // is for later): name it first.
+    const label = controller.selectionLabel()
+    if (!label) {
+      toast(t('ink.sel.summaryNeedsName'))
+      return
+    }
+    const id = controller.selection[0]
+    void addBlockToSummary(db, `ink:${id}`, pageId, label).then((r) =>
+      toast(
+        t(
+          r.status === 'added'
+            ? 'summary.added'
+            : r.status === 'exists'
+              ? 'summary.exists'
+              : r.status === 'full'
+                ? 'summary.full'
+                : 'summary.nothing',
+        ),
+      ),
+    )
+  }
+
+  const convert = () => {
+    const style = getComputedStyle(document.body).backgroundColor
+    void selectionPng(controller, style || '#ffffff').then(setConvertPng)
+  }
+
+  // The new selection bar's actions on drawings (toolbar.v8, TB-33).
+  const act = useRef<(id: string) => void>(() => {})
+  useLayoutEffect(() => {
+    act.current = (id) => {
+      switch (id) {
+        case 'copy':
+          controller.copySelection()
+          void png('copy')
+          break
+        case 'cut':
+          controller.cutSelection()
+          toast(t('ink.sel.cutDone'))
+          break
+        case 'duplicate':
+          controller.duplicateSelection()
+          break
+        case 'delete':
+          controller.deleteSelection()
+          break
+        case 'paste':
+          controller.pasteClipboard()
+          break
+        case 'deselect':
+          controller.clearSelection()
+          break
+        case 'convert':
+          convert()
+          break
+        case 'screenshot':
+          void png('save')
+          break
+        case 'makeCard':
+          runTask(makeCardFromInk())
+          break
+        case 'summary':
+          summary()
+          break
+        case 'rotate':
+          controller.transformSelectionBy({ turn: Math.PI / 2 })
+          break
+        default:
+          toast(t('v8.sel.wordsOnly'))
+      }
+    }
+  })
+  useEffect(() => {
+    if (!barOwns) return
+    inkSelControl.set({ run: (id) => act.current(id) })
+    return () => inkSelControl.set(null)
+  }, [barOwns])
+
   return (
     <div
       role="group"
@@ -559,36 +647,10 @@ export function InkUi({
             box={box}
             count={count}
             onPng={png}
-            onConvert={() => {
-              const style = getComputedStyle(document.body).backgroundColor
-              void selectionPng(controller, style || '#ffffff').then(
-                setConvertPng,
-              )
-            }}
+            onConvert={convert}
+            bare={barOwns}
             onReplay={replay ? () => requestReplay(replay) : undefined}
-            onSummary={() => {
-              // A drawing goes into the Summary by its name (a picture line
-              // is for later): name it first.
-              const label = controller.selectionLabel()
-              if (!label) {
-                toast(t('ink.sel.summaryNeedsName'))
-                return
-              }
-              const id = controller.selection[0]
-              void addBlockToSummary(db, `ink:${id}`, pageId, label).then((r) =>
-                toast(
-                  t(
-                    r.status === 'added'
-                      ? 'summary.added'
-                      : r.status === 'exists'
-                        ? 'summary.exists'
-                        : r.status === 'full'
-                          ? 'summary.full'
-                          : 'summary.nothing',
-                  ),
-                ),
-              )
-            }}
+            onSummary={summary}
             onCard={() => runTask(makeCardFromInk())}
           />
         )}
@@ -635,6 +697,7 @@ function SelectionBox({
   onReplay,
   onSummary,
   onCard,
+  bare,
 }: {
   controller: InkController
   editor: Editor
@@ -650,7 +713,11 @@ function SelectionBox({
   onSummary: () => void
   /** Make card for a drawing alone. */
   onCard: () => void
+  /** The new selection bar has the menu: only the handles stay. */
+  bare?: boolean
 }) {
+  // The new bar owns the selection: no faint line to the text (it looked like a lasso trail).
+  const links = !useFlag('toolbar.v8')
   const { toast } = useContext(AppUiContext)
   const [colours, setColours] = useState(false)
   const [thickness, setThickness] = useState(false)
@@ -712,32 +779,36 @@ function SelectionBox({
         style={{ left: box.x, top: box.y, width: box.w, height: box.h }}
       />
       {/* Phase Q rule 8: a faint line to the text line each stroke is linked to. */}
-      <svg
-        aria-hidden
-        data-ink-links
-        className="pointer-events-none absolute top-0 left-0 overflow-visible"
-        width="1"
-        height="1"
-      >
-        {[...new Set(controller.selected().map((p) => p.blockId))].map((id) => {
-          const r = id === null ? undefined : controller.layout.rectOf(id)
-          if (!r) return null
-          return (
-            <line
-              key={id}
-              data-ink-link={id}
-              x1={box.x}
-              y1={box.y + box.h / 2}
-              x2={r.x}
-              y2={r.y + r.h / 2}
-              stroke="var(--color-accent)"
-              strokeOpacity={0.35}
-              strokeWidth={1}
-              strokeDasharray="3 3"
-            />
-          )
-        })}
-      </svg>
+      {links && (
+        <svg
+          aria-hidden
+          data-ink-links
+          className="pointer-events-none absolute top-0 left-0 overflow-visible"
+          width="1"
+          height="1"
+        >
+          {[...new Set(controller.selected().map((p) => p.blockId))].map(
+            (id) => {
+              const r = id === null ? undefined : controller.layout.rectOf(id)
+              if (!r) return null
+              return (
+                <line
+                  key={id}
+                  data-ink-link={id}
+                  x1={box.x}
+                  y1={box.y + box.h / 2}
+                  x2={r.x}
+                  y2={r.y + r.h / 2}
+                  stroke="var(--color-accent)"
+                  strokeOpacity={0.35}
+                  strokeWidth={1}
+                  strokeDasharray="3 3"
+                />
+              )
+            },
+          )}
+        </svg>
+      )}
       {corners.map((c, i) => (
         <button
           key={i}
@@ -785,6 +856,7 @@ function SelectionBox({
       </button>
     </>
   )
+  if (bare && !mixed) return <>{handles}</>
   // Drawings and page content in one loop: the mixed menu (the handles
   // move, resize and turn the ink only; the menu says so).
   if (mixed) {

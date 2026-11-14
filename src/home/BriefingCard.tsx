@@ -9,9 +9,12 @@ import { Icon } from '../app/tools/icons'
 export function BriefingCard({
   briefing,
   onOpenCards,
+  bare,
 }: {
   briefing: Briefing
   onOpenCards?: () => void
+  /** Inside a Home v2 widget: the widget draws the frame and the title. */
+  bare?: boolean
 }) {
   const top3Left = briefing.top3.filter((m) => m.mark !== 'done').length
   const lines: { key: string; text: string }[] = [
@@ -41,9 +44,11 @@ export function BriefingCard({
     <section
       aria-label={t('home.brief.title')}
       data-testid="briefing"
-      className="rounded-xl border border-line p-3"
+      className={bare ? '' : 'rounded-xl border border-line p-3'}
     >
-      <h3 className="mb-2 text-sm font-semibold">{t('home.brief.title')}</h3>
+      {!bare && (
+        <h3 className="mb-2 text-sm font-semibold">{t('home.brief.title')}</h3>
+      )}
       <ul className="flex flex-col gap-1 text-sm">
         {lines.map((l) => (
           <li key={l.key} data-testid={`brief-${l.key}`}>

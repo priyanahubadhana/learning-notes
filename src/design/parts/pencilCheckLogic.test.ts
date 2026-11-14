@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   MAX_ROWS,
+  describeEvent,
   pencilCheckShown,
   pushRow,
   shortTarget,
@@ -35,6 +36,7 @@ describe('rows', () => {
     touchAction: 'none',
     bubbled: true,
     barHandled: true,
+    count: 1,
   })
   it('keeps the newest 25, newest first', () => {
     let rows: CheckRow[] = []
@@ -44,5 +46,56 @@ describe('rows', () => {
   })
   it('names a missing target with a dash', () => {
     expect(shortTarget(null)).toBe('-')
+  })
+})
+
+describe('folding and touch type', () => {
+  const mk = (id: number, type: string): CheckRow => ({
+    id,
+    type,
+    pointerType: 'pen',
+    target: 'div.sbar',
+    prevented: false,
+    buttons: '1',
+    pressure: '0.50',
+    touchType: '-',
+    touchAction: 'none',
+    bubbled: false,
+    barHandled: false,
+    count: 1,
+  })
+  it('folds repeated moves into one row with a count', () => {
+    let rows: CheckRow[] = []
+    rows = pushRow(rows, mk(1, 'pointerdown'))
+    for (let i = 2; i < 60; i++) rows = pushRow(rows, mk(i, 'pointermove'))
+    expect(rows).toHaveLength(2)
+    expect(rows[0].count).toBe(58)
+    expect(rows[1].type).toBe('pointerdown')
+  })
+  it('keeps a move that comes after a different event as its own row', () => {
+    let rows = pushRow([], mk(1, 'pointermove'))
+    rows = pushRow(rows, mk(2, 'pointerup'))
+    rows = pushRow(rows, mk(3, 'pointermove'))
+    expect(rows.map((r) => r.type)).toEqual([
+      'pointermove',
+      'pointerup',
+      'pointermove',
+    ])
+  })
+  it('reads touchType (stylus / direct) from touches', () => {
+    const stylus = {
+      type: 'touchstart',
+      defaultPrevented: false,
+      target: null,
+      changedTouches: [{ touchType: 'stylus' }],
+    } as unknown as Event
+    const finger = {
+      type: 'touchmove',
+      defaultPrevented: false,
+      target: null,
+      touches: [{ touchType: 'direct' }],
+    } as unknown as Event
+    expect(describeEvent(stylus, 1, () => false).touchType).toBe('stylus')
+    expect(describeEvent(finger, 2, () => false).touchType).toBe('direct')
   })
 })

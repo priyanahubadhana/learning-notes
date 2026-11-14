@@ -46,6 +46,8 @@ export type CheckRow = {
   bubbled: boolean
   /** Was it handled by the scroll bar (it, or the thing it scrolls, was marked)? */
   barHandled: boolean
+  /** How many same events were folded into this row (moves repeat). */
+  count: number
 }
 
 /** A short name for an element: tag, data-* id, first classes. */
@@ -87,7 +89,10 @@ export function describeEvent(
     touches?: ArrayLike<{ touchType?: string }>
     changedTouches?: ArrayLike<{ touchType?: string }>
   }
-  const el = e.target instanceof Element ? e.target : null
+  const el =
+    typeof Element !== 'undefined' && e.target instanceof Element
+      ? e.target
+      : null
   const touch = raw.changedTouches?.[0] ?? raw.touches?.[0]
   let touchAction = '-'
   try {
@@ -107,10 +112,26 @@ export function describeEvent(
     touchAction,
     bubbled: false,
     barHandled: barHandled(el),
+    count: 1,
   }
 }
 
-/** Newest first, at most MAX_ROWS. */
+const REPEATING = new Set(['pointermove', 'touchmove', 'scroll'])
+
+/** Newest first, at most MAX_ROWS. A repeated move/scroll on the same target folds into the newest row (count), so a drag never pushes the start events out. */
 export function pushRow(rows: CheckRow[], row: CheckRow): CheckRow[] {
+  const top = rows[0]
+  if (
+    top &&
+    REPEATING.has(row.type) &&
+    top.type === row.type &&
+    top.pointerType === row.pointerType &&
+    top.target === row.target
+  ) {
+    return [
+      { ...top, count: top.count + 1, prevented: row.prevented },
+      ...rows.slice(1),
+    ]
+  }
   return [row, ...rows].slice(0, MAX_ROWS)
 }

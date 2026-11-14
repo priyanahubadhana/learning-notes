@@ -99,6 +99,67 @@ test('PC-2 no panel without the parameter', async ({ page }) => {
   await expect(page.locator('[data-pencil-check]')).toHaveCount(0)
 })
 
+test('PC-3 the panel follows the theme, and a drag folds into one row', async ({
+  page,
+}) => {
+  await startInMode(page, 'pencil')
+  await page.goto('/?flags=foundation.shell&pencilcheck=1')
+  await page.locator('aside').waitFor({ state: 'attached' })
+  await page.evaluate(() => {
+    const box = document.createElement('div')
+    box.style.cssText =
+      'position:fixed;left:40%;top:80px;width:200px;height:170px;overflow-y:auto;background:#fff;z-index:5'
+    box.id = 'hint-list'
+    box.innerHTML = '<div style="height:900px">long</div>'
+    document.body.appendChild(box)
+  })
+  const list = page.locator('#hint-list')
+  await list.evaluate((el) => {
+    el.scrollTop = 100
+  })
+  const thumb = page.locator('[data-scrollbar-thumb]')
+  await expect(thumb).toBeVisible()
+  const b = (await thumb.boundingBox())!
+  await page.evaluate(
+    ({ x, y }) => {
+      const send = (type: string, dy: number) =>
+        document.elementFromPoint(x, y + dy)?.dispatchEvent(
+          new PointerEvent(type, {
+            pointerType: 'pen',
+            pointerId: 7,
+            clientX: x,
+            clientY: y + dy,
+            bubbles: true,
+          }),
+        )
+      send('pointerdown', 0)
+      for (let i = 1; i <= 30; i++) send('pointermove', i)
+      send('pointerup', 30)
+    },
+    { x: b.x + b.width / 2, y: b.y + b.height / 2 },
+  )
+  const panel = page.locator('[data-pencil-check]')
+  await expect(
+    panel.locator('[data-row]', { hasText: 'pointerdown' }),
+  ).toHaveCount(1)
+  // 30 moves fold into a few rows (a new row only where the target changes).
+  const moves = panel.locator('[data-row]', { hasText: 'pointermove x' })
+  await expect(moves.first()).toBeVisible()
+  expect(await moves.count()).toBeLessThanOrEqual(3)
+  const dir = process.env.SHOTS_DIR ?? 'screenshots/p1-5a-pencil-check'
+  const bg: string[] = []
+  for (const theme of ['day', 'night']) {
+    await page.evaluate(
+      (v) => document.documentElement.setAttribute('data-theme', v),
+      theme,
+    )
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
+    bg.push(await panel.evaluate((el) => getComputedStyle(el).backgroundColor))
+    await page.screenshot({ path: `${dir}/${theme}.png` })
+  }
+  expect(bg[0]).not.toBe(bg[1])
+})
+
 test.afterEach(async ({ context }) => {
   // Requests still in flight when the test ends are not an error.
   await context.unrouteAll({ behavior: 'ignoreErrors' })

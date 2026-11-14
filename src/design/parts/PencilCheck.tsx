@@ -13,6 +13,16 @@ import {
  * passive and never stops or changes an event. Lazy-loaded and shown only on
  * the preview host with ?pencilcheck=1 (see pencilCheckShown).
  */
+const btn = {
+  minHeight: 44,
+  minWidth: 44,
+  padding: '0 12px',
+  borderRadius: 8,
+  border: '1px solid var(--color-line)',
+  background: 'var(--color-bg)',
+  color: 'var(--color-ink)',
+} as const
+
 export default function PencilCheck() {
   const [rows, setRows] = useState<CheckRow[]>([])
   const [open, setOpen] = useState(true)
@@ -32,8 +42,11 @@ export default function PencilCheck() {
       // The panel's own taps are not part of the evidence.
       if (el?.closest('[data-pencil-check]')) return
       const row = describeEvent(e, ++idRef.current, () => false)
-      seen.current.set(e, row.id)
-      commit(pushRow(rowsRef.current, row))
+      const next = pushRow(rowsRef.current, row)
+      // A folded move shares the id of the row it joined.
+      seen.current.set(e, next[0].id)
+      row.id = next[0].id
+      commit(next)
       // After the app's own handlers had their turn: prevented? did the bar start a drag?
       setTimeout(() => {
         const dragging = !!document.querySelector('.sbar__thumb--drag')
@@ -81,9 +94,9 @@ export default function PencilCheck() {
         width: 'min(96vw, 560px)',
         maxHeight: '45vh',
         overflow: 'auto',
-        background: 'var(--color-surface, #fff)',
-        color: 'var(--color-text, #111)',
-        border: '1px solid var(--color-border, #999)',
+        background: 'var(--color-bg)',
+        color: 'var(--color-ink)',
+        border: '1px solid var(--color-line)',
         borderRadius: 12,
         padding: 8,
         font: '11px/1.35 ui-monospace, monospace',
@@ -97,7 +110,7 @@ export default function PencilCheck() {
             rowsRef.current = []
             setRows([])
           }}
-          style={{ minHeight: 44, minWidth: 64 }}
+          style={btn}
         >
           Clear
         </button>
@@ -105,16 +118,22 @@ export default function PencilCheck() {
           type="button"
           aria-label="Close"
           onClick={() => setOpen(false)}
-          style={{ minHeight: 44, minWidth: 44 }}
+          style={btn}
         >
           ✕
         </button>
       </div>
       <div>
         {rows.map((r) => (
-          <div key={r.id} data-row style={{ borderTop: '1px solid #8884' }}>
-            {r.type} {r.pointerType} {r.target} prevented={String(r.prevented)}{' '}
-            btn={r.buttons} p={r.pressure} touch={r.touchType} ta=
+          <div
+            key={r.id}
+            data-row
+            style={{ borderTop: '1px solid var(--color-line)' }}
+          >
+            {r.type}
+            {r.count > 1 ? ` x${r.count}` : ''} {r.pointerType} {r.target}{' '}
+            prevented={String(r.prevented)} btn={r.buttons} p={r.pressure}{' '}
+            touch={r.touchType} ta=
             {r.touchAction} bubbled={String(r.bubbled)} bar=
             {String(r.barHandled)}
           </div>

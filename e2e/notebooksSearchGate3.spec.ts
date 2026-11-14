@@ -61,12 +61,15 @@ test.describe('phone, touch', () => {
     await expect(popup.getByTestId('scroll-track')).toBeVisible()
   })
 
-  test('3 touch shows "Close", never "Esc"', async ({ page }) => {
+  test('3 touch shows an X Close button, never "Esc"', async ({ page }) => {
     await setUp(page, PHONE)
     await page.keyboard.press('Control+K')
     const popup = page.getByRole('dialog', { name: 'Search' })
     await expect(popup.getByText('Esc', { exact: true })).toBeHidden()
-    await expect(popup.getByText('Close', { exact: true })).toBeVisible()
+    // F5 (owner, 14 Nov): the word Close became a visible X button (44 pt), same label.
+    await expect(
+      popup.getByRole('button', { name: 'Close search' }),
+    ).toBeVisible()
   })
 
   test('4 + 5 phone strip: labels whole, solid surface', async ({ page }) => {
@@ -126,10 +129,15 @@ test('7 iPad search: results sit on a solid surface', async ({ page }) => {
   expect(look.blur === 'none' || look.blur === '').toBe(true)
 })
 
-test('3b a phone-size screen shows "Close", never "Esc"', async ({ page }) => {
+test('3b a phone-size screen shows an X Close button, never "Esc"', async ({
+  page,
+}) => {
   await setUp(page, PHONE)
   await page.keyboard.press('Control+K')
   const popup = page.getByRole('dialog', { name: 'Search' })
   await expect(popup.getByText('Esc', { exact: true })).toBeHidden()
-  await expect(popup.getByText('Close', { exact: true })).toBeVisible()
+  // F5 (owner, 14 Nov): the word Close became a visible X button (44 pt), same label.
+  await expect(
+    popup.getByRole('button', { name: 'Close search' }),
+  ).toBeVisible()
 })

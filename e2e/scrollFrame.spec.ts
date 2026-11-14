@@ -133,3 +133,83 @@ test('F4 the Notebooks sidebar has no Review / All cards / All summaries rows; t
   for (const name of [/^Review/, 'All cards', /^All summaries/])
     await expect(side.getByRole('button', { name }).first()).toBeVisible()
 })
+
+/** The nearest box around a point that scrolls up and down (its test id or tag). */
+const scrollerAt = (page: Page, x: number, y: number) =>
+  page.evaluate(
+    ([px, py]) => {
+      let el = document.elementFromPoint(px, py)
+      while (el && el !== document.body) {
+        const o = getComputedStyle(el).overflowY
+        if (
+          (o === 'auto' || o === 'scroll') &&
+          el.scrollHeight > el.clientHeight + 1
+        )
+          return el.id || el.tagName
+        el = el.parentElement
+      }
+      return 'none'
+    },
+    [x, y],
+  )
+
+test.describe('F2 / F3 / F6 one scroll bar, scroll from anywhere', () => {
+  test.use({ viewport: { width: 1180, height: 560 } })
+
+  test('the Notebooks sidebar is one scroller, rows and empty space scroll alike, with the shared bar and arrows', async ({
+    page,
+  }) => {
+    await page.goto(ON)
+    for (let i = 1; i <= 6; i++)
+      await createNotebook(page, `Book ${i}`, `Page ${i}`)
+    const side = page.locator('aside#sidebar')
+    await expect(side).toBeVisible()
+    const rail = page.getByRole('navigation', { name: 'Spaces' })
+    await rail.locator('[data-space="notebooks"]').click()
+    await expect(side.locator('[data-notebook-row]').last()).toBeAttached()
+    const box = (await side.boundingBox())!
+    const row = (await side
+      .locator('[data-notebook-row]')
+      .first()
+      .boundingBox())!
+
+    // One scroller: a row, the header, the padding strip at the edge: all the same.
+    const atRow = await scrollerAt(page, row.x + 40, row.y + row.height / 2)
+    const atHead = await scrollerAt(page, box.x + 30, box.y + 30)
+    const atEdge = await scrollerAt(page, box.x + 3, box.y + box.height / 2)
+    expect(atRow).toBe('sidebar')
+    expect(atHead).toBe('sidebar')
+    expect(atEdge).toBe('sidebar')
+    // The list inside does not scroll by itself (that was the second scroller).
+    expect(
+      await side
+        .locator('nav')
+        .first()
+        .evaluate((el) => getComputedStyle(el).overflowY),
+    ).toBe('visible')
+
+    // The wheel over the header (no row there) scrolls the whole panel.
+    await page.mouse.move(box.x + 30, box.y + 30)
+    await page.mouse.wheel(0, 200)
+    await expect
+      .poll(() => side.evaluate((el) => el.scrollTop))
+      .toBeGreaterThan(0)
+
+    // The shared bar: both arrows, a thumb, 20 px wide, ends dim.
+    const bar = page.locator('[data-scrollbar-root]').first()
+    await expect(bar).toBeVisible()
+    expect((await bar.boundingBox())!.width).toBeLessThanOrEqual(20)
+    await side.evaluate((el) => (el.scrollTop = 0))
+    await expect(
+      page.locator('[data-scrollbar-arrow="up"]').first(),
+    ).toBeDisabled()
+    await page.locator('[data-scrollbar-arrow="down"]').first().click()
+    await expect
+      .poll(() => side.evaluate((el) => el.scrollTop))
+      .toBeGreaterThan(50)
+    await side.evaluate((el) => (el.scrollTop = el.scrollHeight))
+    await expect(
+      page.locator('[data-scrollbar-arrow="down"]').first(),
+    ).toBeDisabled()
+  })
+})

@@ -1048,16 +1048,7 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   content: none !important;
 }
 
-/* Item 7 (10 Nov): the page has its own scroll bar (paper/PageScrollBar.tsx).
-   Its gutter is reserved here so the bar never covers the paper, and the
-   system bar hides so there are not two. */
-[data-page-scroller][data-pagebar] {
-  padding-inline-end: 24px;
-  scrollbar-width: none;
-}
-[data-page-scroller][data-pagebar]::-webkit-scrollbar {
-  display: none;
-}
+/* The page uses the shared scroll bar (design/parts/ScrollBar.css reserves its gutter). */
 
 /* Owner item 21: the Lasso selection appears softly (fade and a small scale,
    about 220 ms, ease-out) and leaves in 150 ms; reduced motion: instant. */

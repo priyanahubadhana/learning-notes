@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { onRouted } from '../../input/eventRouter'
 import { overlay } from '../../overlay'
 import { usePref } from '../../usePref'
@@ -12,6 +12,7 @@ import { outlineRequest } from '../outlineRequest'
 import { OutlineTabV2 } from './OutlineTabV2'
 import { PagesTabV2 } from './PagesTabV2'
 import { ResourcesTab } from './ResourcesTab'
+import { ScrollBarIn } from '../../../design/parts/ScrollBar'
 import { useFrameSize } from '../../shell/useFrameSize'
 import './panelV2.css'
 
@@ -63,6 +64,7 @@ export default function PanelV2({
   onClose: () => void
 }) {
   const docked = useDocked()
+  const [body, setBody] = useState<HTMLElement | null>(null)
   const [stored, setTab] = usePref<Tab | 'audio'>(
     'leftPanel.tab',
     isTab,
@@ -152,11 +154,12 @@ export default function PanelV2({
           }}
         />
       </div>
-      <div role="tabpanel" className="lpv2-body" data-tab={tab}>
+      <div role="tabpanel" className="lpv2-body" data-tab={tab} ref={setBody}>
         {tab === 'pages' && <PagesTabV2 {...common} onOpenPage={open} />}
         {tab === 'outline' && <OutlineTabV2 {...common} onOpenPage={open} />}
         {tab === 'resources' && <ResourcesTab {...common} onOpenPage={open} />}
       </div>
+      <ScrollBarIn root={body} selector=".lpv2-scroll" />
     </aside>
   )
   if (docked) return panel

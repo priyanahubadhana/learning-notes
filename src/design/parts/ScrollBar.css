@@ -1,0 +1,58 @@
+/*
+ * The ONE scroll bar (design/parts/ScrollBar.tsx). Tokens only. Track = a
+ * visible line colour, thumb = the muted ink at full strength (the old page
+ * bar used 60% / 70% of them: too faint), arrows dim at their end.
+ */
+[data-scrollbar] {
+  /* The gutter the bar sits in, so it never covers content. */
+  padding-inline-end: 20px;
+  scrollbar-width: none;
+}
+/* Panels: contained, and a finger drags from anywhere inside, rows and empty space alike. The page keeps its own touch rules (ink). */
+[data-scrollbar]:not([data-page-scroller]) {
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+[data-scrollbar]::-webkit-scrollbar {
+  display: none;
+}
+.sbar {
+  position: fixed;
+  z-index: var(--z-bar);
+  display: flex;
+  flex-direction: column;
+  touch-action: none;
+}
+.sbar__arrow {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink-soft);
+  touch-action: manipulation;
+}
+.sbar__arrow:hover:not(:disabled) {
+  color: var(--color-ink);
+}
+.sbar__arrow:disabled {
+  opacity: 0.4;
+}
+.sbar__track {
+  position: relative;
+  flex: 1;
+  margin: 0 6px;
+  border-radius: 999px;
+  background: var(--color-line);
+}
+.sbar__thumb {
+  position: absolute;
+  inset-inline: -3px;
+  border-radius: 999px;
+  background: var(--color-muted);
+  touch-action: none;
+}
+.sbar__thumb--drag {
+  background: var(--color-accent);
+}

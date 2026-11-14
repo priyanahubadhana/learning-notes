@@ -1,10 +1,10 @@
 # Slice 12 rest pictures (strip, Paste menu, page sheet, Arrange, row strip)
 
-Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (source head 49f61b14); the pictures are in the commit after it). Made by shots.spec.ts (run with a config whose testDir is this folder).
+Flag page.menus ON, real data (notebook "Biology", page "Cell division"), taken after the last source edit (source head cdca0be2; the pictures are in the commit after it). Made by shots.spec.ts (run with a config whose testDir is this folder).
 
 Pattern: `<screen>-<size>-<theme>-<level>.png`
 
-- screen: chooser (rich paste with "Always ask": Paste as pop-up), chip ("Pasted as" chip after Enter; Beginner shows none, Professional has the page.pastedChip switch ON), settings (General, Paste row, scrolled into view), strip (right-click on the first line), paste (Paste menu open), sheet (page more-menu), arrange (Professional only: two pinned actions, Arrange list), rowstrip (long-press on the page row)
+- screen: chooser (rich paste with "Always ask": Paste as pop-up), chip ("Pasted as" chip after Enter; Beginner shows none; Professional shows it with no extra unlock, as every switch reads on there, SET-B43), settings (General, Paste row, scrolled into view), strip (right-click on the first line), paste (Paste menu open), sheet (page more-menu), arrange (Professional only: two pinned actions, Arrange list), rowstrip (long-press on the page row)
 - size: ipadL 1180x820, ipadP 820x1180, phone 390x844, pc 1440x900
 - theme: day, night, sepia
 - level: beginner, professional
@@ -22,9 +22,9 @@ Which picture proves which fix:
 
 New in this round (PM-43, PM-44):
 
-- chooser-*: the Paste as pop-up (Keep original format default, Plain text, As text box)
+- chooser-*: the Paste as pop-up (Keep original default, Plain text, As text box)
 - chip-*-professional: the "Pasted as" chip; chip-*-beginner: no chip (hidden, PM-44)
-- settings-*: Settings > General > Paste row shows Keep format (Reset to default link below)
+- settings-*: Settings > General > Paste row shows Keep original (Reset to default link below)
 
 Repeat-fault list (docs/ECONOMY-MODE.md section 7), ticked against these pictures:
 
@@ -48,3 +48,9 @@ Final-look fixes (source head 49f61b14), and the picture that proves each:
 6. Icons: bin on Delete page, lock on Lock editing: rowstrip-*; Arrange tiles show the action icon: arrange-*
 
 Round 2 of the final look (source head 49f61b14): the strip stays in the page area whenever the whole strip fits there (measured, not a fixed width). Proof: strip-ipadP-*-beginner (strip starts inside the page, not over the rail); e2e pageMenusPlace at 820x1180, Beginner and Professional.
+
+Fix round after the twenty-fourth visit and gate 2 (all 180 re-shot at source head cdca0be2):
+
+- Paste card on the phone no longer lies on the tab bar: paste-phone-* (all three themes, both levels). Room below is now measured to 12 px above the tab bar; the card opens above the strip at full height, all six rows to "Link / Embed" on screen. e2e: pageMenusPlace "on a phone the Paste card ends 12 px above the tab bar, last row on screen".
+- One name in the Settings description ("Always ask", "Keep original", "Plain text"): settings-*.
+- "Pasted as" chip reads on in Professional (SET-B43), no unlock in the picture setup: chip-*-professional; chip-*-beginner still shows none.

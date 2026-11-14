@@ -40,7 +40,7 @@ for (const [size, viewport] of Object.entries(SIZES)) {
               'learning-notes:level',
               JSON.stringify({
                 level: l,
-                unlocked: l === 'professional' ? ['page.pastedChip'] : [],
+                unlocked: [],
               }),
             )
             localStorage.setItem('learning-notes:theme', JSON.stringify(th))

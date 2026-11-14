@@ -78,3 +78,9 @@ html[data-box-drag] [data-box-bar] {
     transition: none;
   }
 }
+/* A lifted box is solid: the paper under it does not show through (picture, panel 2). */
+[data-paper-box][data-lifted],
+[data-paper-box][data-dragging] {
+  background: var(--color-bg);
+  border-radius: 6px;
+}

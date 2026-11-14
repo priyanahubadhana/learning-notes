@@ -94,3 +94,72 @@ Rough size: phases 1 and 2 are mostly testing and fixing what exists, about a da
 - Not merged, all saved on GitHub: scrolling fix (F2, F3, F4, F6, F8; both reviews passed at 5e2c80f7), toolbar 1e/1f, page menus rest, Study tabs, Review rest, Reader, AI framework 6, AI cost additions, shared parts step 3.
 - The scrolling builder was stopped mid-task; any unsaved edits are still in `C:\Users\pc\Downloads\ln-sfix-scroll`.
 - Stopped: all helpers, the hourly check. Still on: the small daily cloud check at 13:00 IST (reads only, cheap).
+
+## 7. Full audit: every file and setting that steers the build (14 Nov, second pass)
+
+The owner asked for everything with a direct or indirect effect to be checked. Read in full: both CLAUDE.md files, all 10 rule files, the 4 build helper files, docs/ECONOMY-MODE.md, docs/BUILD-STATE.md, the master plan, the project and user settings, the 6 hooks, the push guard, the 20 memory notes, the test setup (`ci.yml`, `playwright.config.ts`, `package.json`), HANDOFF and the layout of PENDING. Nothing was changed.
+
+### A. The plan and its order
+
+| #   | Finding                                                                                                                                                                                                                                                                                                                          | Effect                                                                                                                                               |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1  | The master plan of 12 Nov says: at most 3 builders, page parts strictly one after another, screens two at a time, about 11 nights or more, release area by area after each iPad test. On 13 Nov "first full build fast" and "maximum parallel" overrode it, and the plan was never rewritten. The builder limit went 3, 6, 8, 5. | Work planned for nights 7 to 11 started on day 2. The queue and the clashes come from here.                                                          |
+| A2  | The order drifted. The owner's stated top priority is the text box, typing and Pencil (memory note, PENDING "Priority 1"). Text box v2 (planned for nights 4 to 6) has not been started. Study tabs and AI framework 6 (planned for night 11 onwards) are built.                                                                 | Quota went to low-priority parts while the top one waits.                                                                                            |
+| A3  | On 12 Nov mock-ups were dropped for the remaining areas: parts are built from written lines.                                                                                                                                                                                                                                     | There is no approved picture to pass against, so design reviews repeat (25 and 15 visits), and the owner first sees a part when it is already built. |
+| A4  | The owner's answer of 12 Nov: the live app updates every night when tests pass, new parts switched off. That happened once.                                                                                                                                                                                                      | Nothing has reached the live app since.                                                                                                              |
+
+### B. Rules that contradict each other
+
+| #   | Finding                                                                                                                                                                                                                                          |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| B1  | rules/sessions.md, planning.md and phase-end.md still describe the phase way (plan together, mock-up first, build, the owner's check at the end, look back). CLAUDE.md says "the build runs by itself". Both are in force on paper.              |
+| B2  | rules/testing.md: the full test set must be green before any merge. ECONOMY-MODE: up to 3 merges per test run.                                                                                                                                   |
+| B3  | Who manages? Global CLAUDE.md, project CLAUDE.md (two hierarchies), the memory note "Fable manages every task" and ECONOMY-MODE ("main chat: Fable, thin") each say something different. In practice this chat was Sonnet, then Opus, now Fable. |
+| B4  | Four memory notes are out of date: the old economy mode, "parallel waves", "Fable for every task", and the text-box priority that nobody is following.                                                                                           |
+| B5  | CLAUDE.md says CHANGELOG and DECISIONS hold the current phase only. They are 1,805 and 1,194 lines. A rule check is due when CLAUDE.md passes 5 KB; it is 9.2 KB.                                                                                |
+| B6  | HANDOFF.md still lists queues from 8 to 10 Nov and "bugs only until 13 Nov". PENDING.md is 530 lines in about 30 sections, with owner tests from 9 to 12 Nov that were never done.                                                               |
+| B7  | The backup copy: a hook already does it by itself when a helper stops. CLAUDE.md, sessions.md and the manager file also tell every helper to run it by hand, and the safety system blocked those hand runs again and again.                      |
+| B8  | "Fable looks twice and no more" (CLAUDE.md) against helper files that send every fix round back for another look.                                                                                                                                |
+
+### C. The quality bar as written
+
+| #   | Finding                                                                                                                                                                                                                                                                                                                      | Effect                                                                                     |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| C1  | The Definition of Done applies to every part, "no exceptions": 2 levels × 3 themes × 4 screen sizes = 24 pictures per screen, a test for every spec line on two browsers, a 17-point list and two reviews. Sepia was added mid-build on 13 Nov. All of this for parts that are switched off and that the owner has not seen. | Rounds of up to 192 pictures. The end-to-end tests grew from 269 to 341 files in two days. |
+| C2  | Three gates come "before the owner sees it". The owner's test on the real iPad is last.                                                                                                                                                                                                                                      | Real problems are found last, after the costly polish.                                     |
+| C3  | Nothing in the bar checks "ten minutes of real use on an iPad in Safari": staying signed in, turning the device, scroll feel, freezes.                                                                                                                                                                                       | These are exactly the 9 things the owner found.                                            |
+
+### D. Tests and the test computer
+
+| #   | Finding                                                                                                                                                                                                                                                                  |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| D1  | One run is the full Chrome set in 4 parts plus an iPad list in 2 parts, on 2-core machines: 33 to 43 minutes. Every merge needs one.                                                                                                                                     |
+| D2  | Docs formatting is part of the same check as the app. A badly formatted docs line turned the app's run red at least twice.                                                                                                                                               |
+| D3  | The bookkeeping files (BUILD-STATE, CHANGELOG, DECISIONS, PENDING, the hourly numbers) are written on `main` while the code is on `build/next`. The two clashed at least 4 times; each time no test run started and the build sat idle (65 minutes, then about 2 hours). |
+| D4  | On this PC every working copy uses the same port for its test server unless told otherwise. The push guard picks a free one; a builder's own run does not. Two builders testing at once: the second cannot start. Each run also rebuilds the app first.                  |
+| D5  | Three iPad tests fail on this PC every time (textBoxFree:461, toolsRefresh:60, undoHistory:210). Nobody has found out why.                                                                                                                                               |
+
+### E. Guards and settings
+
+| #   | Finding                                                                                                                                                                                                                                                                                                                                                         |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E1  | Six hooks, the push guard and the app's own safety check. The intent is right. In two days they blocked wanted actions at least 6 times (an approved merge push, the approved test change, the backup copy, a guard fix), and each block waited for the owner.                                                                                                  |
+| E2  | The user settings pin Opus to **low** thinking effort (`effortLevel: low`). Build managers, reviewers and the stronger builders all ran on Opus; the master plan asks for medium. Whether this setting reaches helpers could not be confirmed from here (unverified), but a manager that skips steps or goes idle fits it. Worth testing before the next build. |
+| E3  | Plugins: the voice plugin fails to connect in every session (noise only). The effort guide is only a side pane. Neither steers the build.                                                                                                                                                                                                                       |
+
+### F. Housekeeping
+
+- 64 working copies and 53 branches on this PC. A copy with its packages is about 900 MB, so this may be tens of GB (not measured).
+- docs/plans holds 42 files, docs/features 85 specs. docs/INDEX.md is the only map.
+
+### G. What I would change (for planning; nothing is applied)
+
+1. **One short page "How we build"** in place of ECONOMY-MODE and the manager file. The phase rules in rules/planning.md, sessions.md and phase-end.md become the single truth again. CLAUDE.md goes back under 5 KB.
+2. **Rewrite the master plan as phases**, with the text box, typing and Pencil where the owner's priority puts them.
+3. **Two bars instead of one.** A "first look" bar for the owner's first iPad test of a phase (works, both levels, light and dark, iPad both ways and phone, key flows tested). The full bar (sepia, PC, every picture, accessibility, size) before a phase is switched ON in the live app. The release bar is not lowered.
+4. **The owner's iPad test moves forward**: after the first-look bar, before the polish.
+5. **Tests:** a fast set per merge, the full set nightly and before each release; docs checked apart from the app; find the cause of the 3 iPad tests that always fail.
+6. **Bookkeeping lives on the same branch as the code**, in one state file, so the two can no longer clash.
+7. **Guards:** keep the secret scan, the test guard and the push guard. Drop the hand-run backup rule (the hook does it). Give the managing chat the pushes it needs so nothing waits on a block.
+8. **Opus effort** set to medium or high for building and reviewing (the owner's setting; the owner changes it or approves the change).
+9. **Tidy up:** retire the 4 stale memory notes; cut PENDING to "Needs you", "Your tests by phase" and "Later"; trim HANDOFF; remove unused working copies one by one (never a recursive delete).

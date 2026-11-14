@@ -320,7 +320,7 @@ export function Card(props: CardProps) {
             {loading ? <CardSkeleton /> : children}
           </div>
         </div>
-        {track && (
+        {!shell && track && (
           <span
             className="pcard-track"
             aria-hidden

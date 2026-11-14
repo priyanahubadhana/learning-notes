@@ -12,6 +12,7 @@ async function open(
   page: Page,
   size: { width: number; height: number },
   level: 'beginner' | 'professional' = 'beginner',
+  flags = 'toolbar.v8',
 ) {
   await page.addInitScript(
     ([l, u]) =>
@@ -23,7 +24,7 @@ async function open(
   )
   await page.setViewportSize(size)
   await startInMode(page, 'touch')
-  await page.goto('/?flags=toolbar.v8')
+  await page.goto(`/?flags=${flags}`)
   await createNotebook(page, 'Biology', 'First')
   await typeInEditor(page, 'The nucleus holds the DNA')
 }
@@ -104,6 +105,23 @@ test('a cut card draws the thin track; a card that fits draws none', async ({
   await expect(page.locator('.pcard')).toHaveCount(0)
   await page.getByTestId('v8-chip-text.boxset').click()
   await expect(page.getByTestId('v8-card-text.boxset')).toBeVisible()
+  await expect(page.getByTestId('pcard-track')).toHaveCount(0)
+})
+
+// Review fix: with the new shell on, a cut card showed two bars (the thin track and the shared one).
+test('shell ON: a cut card draws exactly one scroll bar (the shared one)', async ({
+  page,
+}) => {
+  await open(
+    page,
+    { width: 820, height: 700 },
+    'professional',
+    'toolbar.v8,foundation.shell',
+  )
+  await openChip(page, 'text.format')
+  const card = page.getByTestId('v8-card-text.format')
+  await expect(card).toBeVisible()
+  await expect(page.locator('.sbar[data-layer="card"]')).toHaveCount(1)
   await expect(page.getByTestId('pcard-track')).toHaveCount(0)
 })
 

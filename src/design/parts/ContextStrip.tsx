@@ -8,6 +8,7 @@ import {
   type KeyboardEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { aboveTabBar } from '../../app/aboveTabBar'
 import { openInTopLayer, type Rect } from '../../app/overlay'
 import { Icon, type IconName } from '../../app/tools/icons'
 import { CommandList } from './CommandList'
@@ -512,10 +513,14 @@ function FloatingPicker(props: {
       const bar = (strip ?? anchor).getBoundingClientRect()
       const w = node.offsetWidth
       const left = Math.max(12, Math.min(bar.left, vw - 12 - w))
-      const below = vh - 12 - (bar.bottom + 8)
+      // Measure to the phone tab bar, not the screen bottom (gate 3 v24).
+      const floor = aboveTabBar() ?? 12
+      const below = vh - floor - (bar.bottom + 8)
       const above = bar.top - 8 - 12
       const h = node.scrollHeight
-      const useAbove = below < Math.min(h, 220) && above > below
+      // Above when the whole card fits there but not below, or below is tight.
+      const useAbove =
+        (below < h && above >= h) || (below < Math.min(h, 220) && above > below)
       const room = useAbove ? above : below
       const maxHeight = Math.max(120, room)
       const used = Math.min(h, maxHeight)

@@ -90,6 +90,33 @@ test('the Paste card opens below the strip with the left edges aligned', async (
     .toBeLessThanOrEqual(1)
 })
 
+test('on a phone the Paste card ends 12 px above the tab bar, last row on screen', async ({
+  page,
+}) => {
+  await open(page, { width: 390, height: 844 })
+  await rightClick(page, 60)
+  await page.getByTestId('cs-paste').click()
+  const card = page.getByTestId('cs-picker')
+  await expect(card).toBeVisible()
+  const bar = (await page
+    .locator('[data-space]')
+    .first()
+    .locator('xpath=ancestor::nav')
+    .boundingBox())!
+  // After the open motion settles.
+  await expect
+    .poll(async () => {
+      const b = (await card.boundingBox())!
+      return b.y + b.height
+    })
+    .toBeLessThanOrEqual(bar.y - 12)
+  const last = (await card
+    .getByRole('menuitem', { name: 'Link / Embed' })
+    .boundingBox())!
+  expect(last.y).toBeGreaterThanOrEqual(0)
+  expect(last.y + last.height).toBeLessThanOrEqual(bar.y - 12)
+})
+
 test('the paste chooser has a close button that cancels, and a shared switch', async ({
   page,
 }) => {

@@ -22,10 +22,10 @@
  * grows a little, so the finger knows the drag has started. States picture, panel 1.
  */
 [data-resize-handle] [data-handle-dot] {
-  transition: scale 120ms ease-out;
+  transition: transform 120ms ease-out;
 }
-[data-resize-handle][data-held] [data-handle-dot] {
-  scale: 1.4;
+[data-resize-handle][data-held] {
+  --dot-scale: 1.4;
 }
 @media (prefers-reduced-motion: reduce) {
   [data-resize-handle] [data-handle-dot] {
@@ -44,4 +44,6 @@
 }
 [data-paper-box]:not([data-paper-box='main']) [data-box-content] {
   padding-block: 4px;
+  /* The dots sit on the edge: the text keeps clear of them. */
+  padding-inline: 10px;
 }

@@ -2,7 +2,7 @@ import { useRef, type RefObject } from 'react'
 import { isOn } from '../app/flags'
 import type { GridRow } from '../core/types'
 import { t } from '../i18n/t'
-import { equalRow, resizeCols, type Rect } from './grid'
+import { COL_GAP, equalRow, resizeCols, type Rect } from './grid'
 
 /**
  * Item 26: the draggable divider between the columns of a row. Drag changes
@@ -11,6 +11,8 @@ import { equalRow, resizeCols, type Rect } from './grid'
  * dragged; the hit area is wide enough for a finger. It replaces the box
  * side handles (a single column is always the full row).
  */
+let v2Mod: typeof import('./v2/boxResize') | null = null
+
 export function GridDividers({
   rows,
   layout,
@@ -43,28 +45,70 @@ export function GridDividers({
     rows: GridRow[]
     moved: boolean
     x0: number
+    /** Text box v2: the 120 ms hold, the pointer so far, the least each column needs. */
+    held: boolean
+    last: number
+    timer?: number
+    floor?: { l: number; r: number }
   } | null>(null)
   const lastTap = useRef(0)
   if (!enabled) return null
 
-  const move = (e: React.PointerEvent) => {
-    const d = drag.current
+  const at = (d: NonNullable<typeof drag.current>, x: number) => {
     const r = paperEl.current?.getBoundingClientRect()
-    if (!d || !r) return
+    if (!r) return
     // Text box v2: a move under 4 px is a tap, not a resize.
-    if (!d.moved && isOn('textbox.v2') && Math.abs(e.clientX - d.x0) < 4) return
-    const at = ((e.clientX - r.left) / k - left) / Math.max(1, width)
+    if (!d.moved && isOn('textbox.v2') && Math.abs(x - d.x0) < 4) return
+    // The module loads on the press; by the end of the hold it is there.
+    if (!d.floor && v2Mod && paperEl.current) {
+      const row = d.rows.find((rw) => rw.id === d.rowId)
+      if (row)
+        d.floor = v2Mod.floorFor(
+          paperEl.current,
+          row,
+          d.i,
+          (width - COL_GAP * (row.cols.length - 1)) * k,
+        )
+    }
+    const to = ((x - r.left) / k - left) / Math.max(1, width)
     const next = d.rows.map((row) =>
-      row.id === d.rowId ? resizeCols(row, d.i, at) : row,
+      row.id === d.rowId ? resizeCols(row, d.i, to, true, d.floor) : row,
     )
     d.rows = next
     d.moved = true
     onLive(next)
   }
+  const move = (e: React.PointerEvent) => {
+    const d = drag.current
+    if (!d) return
+    d.last = e.clientX
+    if (d.held) at(d, e.clientX)
+  }
+  /** A press on a divider: with the switch ON it commits after a 120 ms hold. */
+  const begin = (rowId: string, i: number, rows: GridRow[], x: number) => {
+    if (isOn('textbox.v2') && !v2Mod)
+      void import('./v2/boxResize').then((m) => (v2Mod = m))
+    const d = {
+      rowId,
+      i,
+      rows,
+      moved: false,
+      x0: x,
+      held: !isOn('textbox.v2'),
+      last: x,
+    } as NonNullable<typeof drag.current>
+    drag.current = d
+    if (!d.held)
+      d.timer = window.setTimeout(() => {
+        d.held = true
+        at(d, d.last)
+      }, 120)
+  }
   const end = (e: React.PointerEvent) => {
     const d = drag.current
     drag.current = null
     if (!d) return
+    window.clearTimeout(d.timer)
     if (e.type === 'pointercancel') return onLive(null)
     if (d.moved) return onCommit(d.rows)
     onLive(null)
@@ -86,7 +130,7 @@ export function GridDividers({
       return
     }
     lastTap.current = now
-    drag.current = { rowId: row.id, i, rows, moved: false, x0: e.clientX }
+    begin(row.id, i, rows, e.clientX)
   }
   // Item 46: the lone selected box gets a pill on each side that has a neighbour.
   const pills = (() => {
@@ -150,13 +194,7 @@ export function GridDividers({
               return
             }
             lastTap.current = now
-            drag.current = {
-              rowId: row.id,
-              i,
-              rows,
-              moved: false,
-              x0: e.clientX,
-            }
+            begin(row.id, i, rows, e.clientX)
           }}
           onPointerMove={move}
           onPointerUp={end}

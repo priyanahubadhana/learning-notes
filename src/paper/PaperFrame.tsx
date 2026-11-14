@@ -47,6 +47,7 @@ import {
   isFreeRow,
   layoutRows,
   placesOf,
+  COL_GAP,
   MIN_FRAC,
   migrateToRows,
   reconcile,
@@ -1053,6 +1054,7 @@ export function PaperFrame({
     shift?: number
     /** Text box v2: the least width (mm), the 120 ms hold and where the pointer is. */
     minW: number
+    floor?: { l: number; r: number }
     held: boolean
     holdTimer?: number
     handle: HTMLElement
@@ -1112,6 +1114,19 @@ export function PaperFrame({
         : FREE_MIN_W
     resizing.current = {
       minW,
+      floor:
+        m && row && i !== null && !isFree && !lone
+          ? m.floorFor(
+              paperEl.current!,
+              row,
+              i,
+              (geo.sheetW -
+                geo.left -
+                geo.right -
+                COL_GAP * (row.cols.length - 1)) *
+                k,
+            )
+          : undefined,
       held: !m,
       handle,
       last: { x: e.clientX, y: e.clientY },
@@ -1203,7 +1218,7 @@ export function PaperFrame({
                       },
                     ],
                   }
-                : resizeCols(row, d.i!, at),
+                : resizeCols(row, d.i!, at, true, d.floor),
       )
       setPreview(d.rows)
     }

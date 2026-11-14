@@ -114,3 +114,30 @@ export function minWidthPx(frame: HTMLElement, content: HTMLElement): number {
   const chrome = frame.getBoundingClientRect().width - textArea
   return word + chrome
 }
+
+/** The least width (px) a column needs: the widest minimum of its boxes. */
+export function colMinPx(root: ParentNode, boxIds: string[]): number {
+  let widest = 0
+  for (const id of boxIds) {
+    const el = root.querySelector<HTMLElement>(
+      '[data-paper-box="' + CSS.escape(id) + '"]',
+    )
+    const content = el?.querySelector<HTMLElement>('[data-box-content]')
+    if (el && content) widest = Math.max(widest, minWidthPx(el, content))
+  }
+  return widest
+}
+
+/** What the two columns beside divider `i` need, as fractions of the row (TB-21). */
+export function floorFor(
+  root: ParentNode,
+  row: { cols: { boxIds: string[] }[] },
+  i: number,
+  pxPerFrac: number,
+): { l: number; r: number } | undefined {
+  if (!row.cols[i] || !row.cols[i + 1] || pxPerFrac <= 0) return undefined
+  return {
+    l: colMinPx(root, row.cols[i].boxIds) / pxPerFrac,
+    r: colMinPx(root, row.cols[i + 1].boxIds) / pxPerFrac,
+  }
+}

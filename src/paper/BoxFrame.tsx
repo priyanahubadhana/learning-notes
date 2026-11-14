@@ -459,7 +459,9 @@ export function ResizeDots({
           >
             <span
               aria-hidden
-              style={{ transform: `translate(${-dx}px, ${-dy}px)` }}
+              style={{
+                transform: `translate(${-dx}px, ${-dy}px)${v2 ? ' scale(var(--dot-scale, 1))' : ''}`,
+              }}
               data-handle-dot={corner ? 'corner' : 'side'}
               className={
                 v2

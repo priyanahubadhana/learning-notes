@@ -46,17 +46,13 @@ describe('nearestHandle (TB-20)', () => {
       const z = zoneOf(k, 300, 200)
       expect(z.x1 - z.x0).toBe(ZONE)
       expect(z.y1 - z.y0).toBe(ZONE)
-      const inside =
-        z.x1 > 0 &&
-        z.x0 < 300 &&
-        z.y1 > 0 &&
-        z.y0 < 200 &&
-        !(z.x0 >= 300 || z.x1 <= 0 || z.y0 >= 200 || z.y1 <= 0)
-      // A side zone may run along the edge, never into the box.
-      if (k.length === 1 || k.length === 2) {
-        expect(z.x0 >= 300 || z.x1 <= 0 || z.y0 >= 200 || z.y1 <= 0).toBe(true)
-      }
-      expect(inside && false).toBe(false)
+      // Not one pixel of the zone lies inside the box.
+      expect(z.x0 >= 300 || z.x1 <= 0 || z.y0 >= 200 || z.y1 <= 0).toBe(true)
+      // The zone starts exactly at the edge of its own side.
+      if (k.includes('e')) expect(z.x0).toBe(300)
+      if (k.includes('w')) expect(z.x1).toBe(0)
+      if (k.includes('s')) expect(z.y0).toBe(200)
+      if (k.includes('n')) expect(z.y1).toBe(0)
     }
   })
 })

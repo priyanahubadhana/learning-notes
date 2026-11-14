@@ -965,3 +965,6 @@
   border: 0;
   background: none;
 }
+.sv3-hit .sv3-line-help {
+  display: block;
+}

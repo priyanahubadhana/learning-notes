@@ -137,7 +137,7 @@ test('pulling past the top gives a small stretch that springs back', async ({
 test.describe('new frame: the shared bar replaces the handle', () => {
   const ON = '/?flags=foundation.shell'
 
-  test('a scrolled list gets the shared bar (8 px thumb, 12 dragged, 44 pt touch area, end arrows) and the old handle never shows; the thumb drags 1:1', async ({
+  test('a scrolled list gets the shared bar (8 px thumb, 12 dragged, a bar-wide touch area, end arrows) and the old handle never shows; the thumb drags 1:1', async ({
     page,
   }) => {
     await page.goto(ON)
@@ -163,7 +163,8 @@ test.describe('new frame: the shared bar replaces the handle', () => {
     expect(box.width).toBeLessThanOrEqual(8.5)
     const hit = await thumb.evaluate((el) => {
       const r = getComputedStyle(el, '::before')
-      return parseFloat(r.left) < 0 && parseFloat(r.width) >= 40
+      // As wide as the 22 px bar, no wider (a touch box stays in its own lane, SC-18).
+      return parseFloat(r.left) < 0 && Math.abs(parseFloat(r.width) - 22) < 0.5
     })
     expect(hit).toBe(true)
 

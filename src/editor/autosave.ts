@@ -65,6 +65,14 @@ export function createAutosaver(
         dirty = true
         failures += 1
         onError(error)
+        // Record only (preview save log, 2B.2): the error name; nothing else changes.
+        globalThis.dispatchEvent?.(
+          new CustomEvent('ln:save-error', {
+            detail: String(
+              (error as { name?: unknown } | null)?.name ?? 'unknown',
+            ),
+          }),
+        )
         markUnsaved(token, () => void flush())
         if (!disposed) {
           clearTimeout(timer)

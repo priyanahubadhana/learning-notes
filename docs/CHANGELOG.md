@@ -7,6 +7,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: right-click and press-and-hold open the shared Context strip (Beginner: Cut, Copy, Paste menu, Delete, more; Professional adds Duplicate, Turn into, Colour); Paste menu pastes in the chosen form in one Undo step; with the flag ON "Keep original" is the Paste default until Settings stores a choice and the "Pasted as" chip needs `page.pastedChip`; the page more-menu is a side Sheet (Beginner 8 rows, Professional sections and pinned tiles via `page.menuAll`, Move, Duplicate). Spec: docs/features/page-menus.md PM-20..22, 40..45, 60..64.
 - Why: the menus you use while writing, on the shared parts, nothing dropped.
 - Files: src/editor/menus/_, src/pages/menus/_, src/editor/{PageEditor,PasteChooser,pasteFlow,holdMenuWatch}.ts(x), src/pages/PageView.tsx, src/app/flags.ts, src/i18n/*/pageMenus.ts, e2e/pageMenusStrip.spec.ts, e2e/pageMenusSheet.spec.ts, playwright.config.ts (one ipad-webkit line), scripts/feature-links.json, docs/CHANGELOG.md.
+
 ### 15 Nov 2026: toolbar menu, row renamed (2A.2)
 
 - What: the menu row "Bar settings…" is now "Choose tools on the bar…" (en, es, hi). Why: it opens the Edit bar panel (which tools show, order, options), a different panel from the "Edit toolbar…" tile, so the name must tell them apart. Nothing removed. Files: ToolbarMenuV2.tsx, i18n toolbar files, e2e/toolbarMenuV2.spec.ts (name comparison keeps an alias).

@@ -71,6 +71,7 @@ import { EditBarPanel } from './EditBarPanel'
 import { useBarActions, type BarAction, type Editor } from './barActions'
 import { clearSelection } from './lineActions'
 import { ColorPanel } from './ColorPicker'
+import { ToolbarMenuV2 } from './toolbarMenu/ToolbarMenuV2'
 import { PopupHeader } from '../app/tools/PopupClose'
 import {
   copyAs,
@@ -125,6 +126,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const kbInset = useKeyboardInset()
   const settings = useBarSettings()
   const toolbarV8 = useFlag('toolbar.v8')
+  const menuV2 = useFlag('toolbar.menu')
   // BUG-003: the bar tucked away while writing (the Show toolbar pill is up).
   const tucked = tuckState.useValue().tucked
   const { buttonPx, hoverTips, shortcutHints, autoHide } = settings
@@ -388,90 +390,118 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
             bottom={bottom}
             label={t('bar.menu')}
             focusFirst
+            quietFocus={menuV2}
             onClose={() => setPanel(null)}
           >
-            <MenuItem px={buttonPx} accent onClick={() => openSheet()}>
-              {t('editBar.open')}
-            </MenuItem>
-            {!ribbon && (
-              <MenuItem px={buttonPx} onClick={openRibbon}>
-                {t('bar.allTools')}
-              </MenuItem>
-            )}
-            <MenuItem
-              px={buttonPx}
-              onClick={() => {
-                setPanel(null)
-                getAppActions()?.openControlPanel()
-              }}
-            >
-              {t('bar.search')}
-            </MenuItem>
-            <MenuItem px={buttonPx} onClick={done}>
-              {t('bar.done')}
-            </MenuItem>
-            <MenuItem px={buttonPx} onClick={() => setPanel('edit')}>
-              {t('bar.edit')}
-            </MenuItem>
-            <hr className="my-1 border-line" />
-            <MenuItem
-              px={buttonPx}
-              onClick={() => {
-                void copyAs(editor, 'plain', toast)
-                setPanel(null)
-              }}
-            >
-              {t('copy.plain')}
-            </MenuItem>
-            <MenuItem
-              px={buttonPx}
-              onClick={() => {
-                void copyAs(editor, 'markdown', toast)
-                setPanel(null)
-              }}
-            >
-              {t('copy.markdown')}
-            </MenuItem>
-            <MenuItem
-              px={buttonPx}
-              hint={isApple() ? '⌘⇧V' : 'Ctrl+Shift+V'}
-              onClick={() => {
-                void pastePlainFromClipboard(editor, toast)
-                setPanel(null)
-              }}
-            >
-              {t('paste.plain')}
-            </MenuItem>
-            <MenuItem
-              px={buttonPx}
-              onClick={() => {
-                void copyPageWithPictures(editor, toast)
-                setPanel(null)
-              }}
-            >
-              {t('copy.pictures')}
-            </MenuItem>
-            {(layout.short === 'free' || layout.ribbon === 'free') && (
-              <MenuItem
-                px={buttonPx}
-                onClick={() => {
+            {menuV2 ? (
+              <ToolbarMenuV2
+                editor={editor}
+                actions={actions}
+                ribbon={ribbon}
+                freePos={layout.short === 'free' || layout.ribbon === 'free'}
+                hints={shortcutHints}
+                rowPx={buttonPx}
+                onEdit={() => openSheet()}
+                onAllTools={openRibbon}
+                onSearch={() => {
+                  setPanel(null)
+                  getAppActions()?.openControlPanel()
+                }}
+                onDone={done}
+                onBarSettings={() => setPanel('edit')}
+                onResetPos={() => {
                   resetFreePos()
                   setPanel(null)
                 }}
-              >
-                {t('bar.resetPos')}
-              </MenuItem>
-            )}
-            <hr className="my-1 border-line" />
-            {actions.map((action) => (
-              <MoreRow
-                key={action.id}
-                action={action}
-                px={buttonPx}
-                hint={shortcutHints}
                 onColor={() => setPanel('color')}
+                onClose={() => setPanel(null)}
               />
-            ))}
+            ) : (
+              <>
+                <MenuItem px={buttonPx} accent onClick={() => openSheet()}>
+                  {t('editBar.open')}
+                </MenuItem>
+                {!ribbon && (
+                  <MenuItem px={buttonPx} onClick={openRibbon}>
+                    {t('bar.allTools')}
+                  </MenuItem>
+                )}
+                <MenuItem
+                  px={buttonPx}
+                  onClick={() => {
+                    setPanel(null)
+                    getAppActions()?.openControlPanel()
+                  }}
+                >
+                  {t('bar.search')}
+                </MenuItem>
+                <MenuItem px={buttonPx} onClick={done}>
+                  {t('bar.done')}
+                </MenuItem>
+                <MenuItem px={buttonPx} onClick={() => setPanel('edit')}>
+                  {t('bar.edit')}
+                </MenuItem>
+                <hr className="my-1 border-line" />
+                <MenuItem
+                  px={buttonPx}
+                  onClick={() => {
+                    void copyAs(editor, 'plain', toast)
+                    setPanel(null)
+                  }}
+                >
+                  {t('copy.plain')}
+                </MenuItem>
+                <MenuItem
+                  px={buttonPx}
+                  onClick={() => {
+                    void copyAs(editor, 'markdown', toast)
+                    setPanel(null)
+                  }}
+                >
+                  {t('copy.markdown')}
+                </MenuItem>
+                <MenuItem
+                  px={buttonPx}
+                  hint={isApple() ? '⌘⇧V' : 'Ctrl+Shift+V'}
+                  onClick={() => {
+                    void pastePlainFromClipboard(editor, toast)
+                    setPanel(null)
+                  }}
+                >
+                  {t('paste.plain')}
+                </MenuItem>
+                <MenuItem
+                  px={buttonPx}
+                  onClick={() => {
+                    void copyPageWithPictures(editor, toast)
+                    setPanel(null)
+                  }}
+                >
+                  {t('copy.pictures')}
+                </MenuItem>
+                {(layout.short === 'free' || layout.ribbon === 'free') && (
+                  <MenuItem
+                    px={buttonPx}
+                    onClick={() => {
+                      resetFreePos()
+                      setPanel(null)
+                    }}
+                  >
+                    {t('bar.resetPos')}
+                  </MenuItem>
+                )}
+                <hr className="my-1 border-line" />
+                {actions.map((action) => (
+                  <MoreRow
+                    key={action.id}
+                    action={action}
+                    px={buttonPx}
+                    hint={shortcutHints}
+                    onColor={() => setPanel('color')}
+                  />
+                ))}
+              </>
+            )}
           </Tray>
         )}
         {sheet && (
@@ -626,6 +656,7 @@ function Tray({
   wide,
   label,
   focusFirst,
+  quietFocus,
   onClose,
   children,
 }: {
@@ -636,6 +667,8 @@ function Tray({
   label?: string
   /** Moves the keyboard focus into the tray (the toolbar menu). */
   focusFirst?: boolean
+  /** With focusFirst: focus the tray, not the first item, so no ring shows for a tap. */
+  quietFocus?: boolean
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -647,12 +680,15 @@ function Tray({
     setListEl(el)
   }, [])
   useEffect(() => {
-    if (focusFirst) {
+    if (!focusFirst) return
+    // Quiet: the tray itself takes the focus (no ring); an arrow key then
+    // reaches the first item, and the ring shows for the keyboard only.
+    if (quietFocus) ref.current?.focus({ preventScroll: true })
+    else
       ref.current
         ?.querySelector<HTMLElement>('button:not([data-popup-close])')
         ?.focus({ preventScroll: true })
-    }
-  }, [focusFirst])
+  }, [focusFirst, quietFocus])
   // R5: on a phone the tray ends above the tab bar (and the screen edge), so its
   // last row can be scrolled into view and is never hidden behind the bar.
   const [room, setRoom] = useState<number | null>(null)
@@ -683,7 +719,8 @@ function Tray({
     ]
     const at = items.indexOf(document.activeElement as HTMLElement)
     e.preventDefault()
-    const next = at + (e.key === 'ArrowDown' ? 1 : -1)
+    const down = e.key === 'ArrowDown'
+    const next = at < 0 ? (down ? 0 : items.length - 1) : at + (down ? 1 : -1)
     items[(next + items.length) % items.length]?.focus()
   }
   return (
@@ -693,8 +730,9 @@ function Tray({
       aria-label={label}
       onKeyDown={label ? arrows : undefined}
       data-bar="tray"
+      tabIndex={quietFocus ? -1 : undefined}
       style={room == null ? undefined : { maxHeight: `min(75vh, ${room}px)` }}
-      className={`absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 shadow-lg ${
+      className={`${quietFocus ? 'outline-none ' : ''}absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 shadow-lg ${
         wide ? 'w-[340px]' : 'min-w-[230px]'
       } ${bottom ? 'bottom-full mb-1' : 'top-full'}`}
     >

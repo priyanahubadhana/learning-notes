@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.tsx'
 import { reloadOnFailedChunk } from './app/chunkReload'
 import { ErrorBoundary } from './app/ErrorBoundary'
+import { applyLanguage } from './i18n/languages'
 import { ScrollBarHost } from './design/parts/ScrollBarHost'
 import { startNavHistory } from './app/navHistory'
 import { installPenTap, penTapOptions } from './app/penTap'
@@ -56,6 +57,7 @@ import { prefetchAfterIdle } from './app/idlePrefetch'
 import { installScrollHints } from './app/scrollHints'
 import {
   autoUpdateSetting,
+  languageSetting,
   scrollHintsSetting,
 } from './settings/builtinSettings'
 import {
@@ -367,16 +369,26 @@ if (isConnectRoute(location.hash)) {
     ),
   )
 } else {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <ErrorBoundary onHome={goHome} onSaveAll={saveEverything} fullScreen>
-        <UpgradeGate>
-          <App />
-          <ScrollBarHost />
-        </UpgradeGate>
-      </ErrorBoundary>
-    </StrictMode>,
-  )
+  const draw = () =>
+    createRoot(document.getElementById('root')!).render(
+      <StrictMode>
+        <ErrorBoundary onHome={goHome} onSaveAll={saveEverything} fullScreen>
+          <UpgradeGate>
+            <App />
+            <ScrollBarHost />
+          </UpgradeGate>
+        </ErrorBoundary>
+      </StrictMode>,
+    )
+
+  // The first draw waits for the app's language texts (the late English pack):
+  // a screen restored from the address (Settings, a locked page) would
+  // otherwise show raw text keys. A failed load still draws.
+  void applyLanguage(readDeviceSetting(languageSetting))
+    .catch((error: unknown) =>
+      console.error('Could not load the language', error),
+    )
+    .finally(draw)
 }
 
 // Inter comes after the first paint (never in the critical path).

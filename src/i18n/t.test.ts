@@ -32,6 +32,13 @@ describe('t()', () => {
     expect(t('settings.error.number', { min: 0, max: 9999 })).toContain('9.999')
   })
 
+  it('a language map that lacks a first-download English key falls back to English', () => {
+    // 'save.retry' is in the first-download English; the map below has no such key.
+    setMessages('de', { 'settings.title': 'Einstellungen' })
+    expect(t('settings.title')).toBe('Einstellungen')
+    expect(t('save.retry')).toBe('Try again')
+  })
+
   it('shows the key instead of crashing when text is missing', () => {
     expect(t('missing.key' as MessageKey)).toBe('missing.key')
   })

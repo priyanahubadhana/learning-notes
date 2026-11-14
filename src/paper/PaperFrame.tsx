@@ -82,7 +82,11 @@ import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { onGestureReset } from '../app/gestureReset'
 import type { Rect } from '../ink/geometry'
-import { startGripDrag } from '../app/tools/gripDrag'
+import {
+  gripDragging,
+  resetGripDrags,
+  startGripDrag,
+} from '../app/tools/gripDrag'
 import type { DragClock } from './v2/boxDrag'
 import { adopterIn, lassoAcrossBoxes, setPaperDrop } from '../ink/inkTransfer'
 import { lassoSettings } from '../app/tools/main/inkSettings'
@@ -754,12 +758,25 @@ export function PaperFrame({
     held?: boolean
     el?: HTMLElement | null
     last?: { x: number; y: number }
+    unwatch?: () => void
   } | null>(null)
   /** Where the dropped boxes were let go: the glide (v2) starts there. */
   const glide = useRef<Map<string, DOMRect> | null>(null)
-  const endLift = (d: { clock?: DragClock; el?: HTMLElement | null }) => {
+  const endLift = (d: {
+    clock?: DragClock
+    el?: HTMLElement | null
+    unwatch?: () => void
+  }) => {
     d.clock?.stop()
+    d.unwatch?.()
     d.el?.removeAttribute('data-lifted')
+  }
+  /** A lift that never came: the drop happens at the last place the finger was. */
+  const lostFinger = (d: NonNullable<typeof drag.current>) => {
+    if (drag.current !== d || !v2.current) return
+    dragEnd(v2.current.liftAt(d.last!) as unknown as ReactPointerEvent)
+    // The page lock of the grip goes too: no tool stays stuck.
+    resetGripDrags()
   }
   const [guides, setGuides] = useState<SnapResult | null>(null)
   const lastPt = useRef<{ clientX: number; clientY: number } | null>(null)
@@ -806,6 +823,7 @@ export function PaperFrame({
       const d = drag.current
       d.last = { x: e.clientX, y: e.clientY }
       d.clock = m.createDragClock({
+        pointerId: e.pointerId,
         // 120 ms: the box lifts; the drag counts from where the finger is now.
         onHold: () => {
           d.held = true
@@ -816,17 +834,13 @@ export function PaperFrame({
           )
           d.el?.setAttribute('data-lifted', '')
         },
-        // The lift never came (a dropped pointerup): drop where it is now.
-        onSafety: () => {
-          if (drag.current !== d) return
-          dragEnd({
-            type: 'pointerup',
-            timeStamp: performance.now(),
-            clientX: d.last!.x,
-            clientY: d.last!.y,
-          } as unknown as ReactPointerEvent)
-        },
+        // The pointer is really gone (a lost capture, a move with no button
+        // down, the app in the background): drop where it is now. A finger
+        // only held still is still down and never ends the drag.
+        lost: () => !gripDragging({ pointerId: e.pointerId }),
+        onLost: () => lostFinger(d),
       })
+      d.unwatch = m.watchFinger(e.pointerId, () => lostFinger(d))
     }
   }
   /** The arrangement a drop at the pointer would give (pure, from the rows at drag start). */
@@ -925,7 +939,6 @@ export function PaperFrame({
     const held = drag.current
     if (held.clock) {
       held.last = { x: e.clientX, y: e.clientY }
-      held.clock.touch()
       if (!held.held) return
     }
     pending.current = { clientX: e.clientX, clientY: e.clientY }
@@ -1025,7 +1038,6 @@ export function PaperFrame({
     const before = sc.scrollTop
     sc.scrollTop = before + Math.max(-24, Math.min(24, v))
     if (sc.scrollTop !== before) {
-      d.clock?.touch()
       applyMove(p, d)
     }
   }

@@ -1,9 +1,15 @@
 /**
  * Text box v2, task 2B.7: moving a box (TB-11 to TB-18). The pure parts of the
- * drag: the 120 ms hold, the 4 s safety end, the 200 ms glide. PaperFrame keeps
+ * drag: the 120 ms hold, the heartbeat that keeps a held finger alive, the 200 ms glide. PaperFrame keeps
  * the planning of the drop (layoutDrop.ts, guides.ts, boxService.ts unchanged).
  * States picture, panels 2 and 3.
  */
+import {
+  createEventRouter,
+  PRIORITY,
+  type RouterTargets,
+} from '../../app/input/eventRouter'
+import { inputMachine } from '../../app/inputMachine'
 import { getAppActions } from '../../app/tools/toolRuntime'
 import { undoSince } from '../../core/historySteps'
 import { t } from '../../i18n/t'
@@ -15,51 +21,76 @@ export const GLIDE_MS = 200
 /** Lift: scale 1.02 and elevation 3 over this long (ms). */
 export const LIFT_MS = 120
 export const LIFT_SCALE = 1.02
-/** A lift of the finger that never came: the drag ends after this long (ms). */
-export const SAFETY_MS = 4000
+/** While the finger is held, the drag says "still down" this often (ms). */
+export const BEAT_MS = 1000
 
 export type DragClock = {
   /** Has the 120 ms hold been made? */
   held(): boolean
-  /** A sign of the finger (a move): the 4 s start again. */
-  touch(): void
   /** The drag ended (or was cancelled): no timer runs on. */
   stop(): void
 }
 
-/** The hold timer and the safety timer of one drag. */
+/**
+ * The hold timer and the heartbeat of one drag. A finger that is only held
+ * still is still down: the heartbeat tells the shared input machine so (it
+ * would drop a pointer that has not moved for 4 s) and asks `lost` whether the
+ * pointer is really gone (a lost capture); only then does the drag end.
+ */
 export function createDragClock(o: {
+  pointerId: number
   onHold: () => void
-  onSafety: () => void
+  /** Called every beat; true when the pointer is really lost. */
+  lost: () => boolean
+  onLost: () => void
   hold?: number
-  safety?: number
+  beat?: number
 }): DragClock {
   let held = false
   let stopped = false
-  let safety = 0
-  const arm = () => {
-    window.clearTimeout(safety)
-    safety = window.setTimeout(() => {
-      if (!stopped) o.onSafety()
-    }, o.safety ?? SAFETY_MS)
-  }
   const hold = window.setTimeout(() => {
     if (stopped) return
     held = true
     o.onHold()
   }, o.hold ?? HOLD_MS)
-  arm()
+  const beat = window.setInterval(() => {
+    if (stopped) return
+    if (o.lost()) return o.onLost()
+    inputMachine.move({ pointerId: o.pointerId })
+  }, o.beat ?? BEAT_MS)
   return {
     held: () => held,
-    touch: () => {
-      if (!stopped) arm()
-    },
     stop: () => {
       stopped = true
       window.clearTimeout(hold)
-      window.clearTimeout(safety)
+      window.clearInterval(beat)
     },
   }
+}
+
+/** A move that arrives with no button down: the "finger lifted" was lost on the way. */
+export const noButtonDown = (e: { buttons: number }): boolean => e.buttons === 0
+
+/**
+ * Listens (through the event router) for the signs that the pointer is gone
+ * without a lift: a move with no button down, or the app going to the
+ * background (blur, hidden page). `pointercancel` has its own handler.
+ */
+export function watchFinger(pointerId: number, onLost: () => void): () => void {
+  const router = createEventRouter({
+    doc: document as unknown as RouterTargets['doc'],
+    win: window,
+  })
+  const o = { priority: PRIORITY.gesture, name: 'textbox.v2.drag' }
+  router.subscribe(
+    'pointermove',
+    (e) => {
+      if (e.pointerId === pointerId && noButtonDown(e)) onLost()
+    },
+    o,
+  )
+  router.subscribe('background', () => onLost(), o)
+  return () => router.destroy()
 }
 
 type R = { left: number; top: number; width: number; height: number }
@@ -98,7 +129,7 @@ export function playGlide(
           },
           { transform: 'translate(0px, 0px) scale(1)' },
         ],
-        { duration: GLIDE_MS, easing: 'cubic-bezier(0.2, 0, 0, 1)' },
+        { duration: GLIDE_MS, easing: 'cubic-bezier(.2,.8,.2,1)' },
       )
       .finished.then(end, end)
   } catch {
@@ -119,6 +150,15 @@ export function dropWithUndo(write: () => void): void {
   write()
   getAppActions()?.toast(t('paper.box.moved'), {
     label: t('paper.box.undo'),
+    icon: 'undo',
     onSelect: () => void undoSince(since),
   })
 }
+
+/** The lift that never came, made up: where the finger was last seen. */
+export const liftAt = (at: { x: number; y: number }) => ({
+  type: 'pointerup',
+  timeStamp: performance.now(),
+  clientX: at.x,
+  clientY: at.y,
+})

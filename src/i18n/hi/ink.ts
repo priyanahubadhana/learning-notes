@@ -392,7 +392,7 @@ export const hiInk = {
   'paper.box.lock': 'जगह पर लॉक करें',
   'paper.box.menu': 'बॉक्स की क्रियाएँ',
   'paper.box.move': 'बॉक्स खिसकाएँ (खींचें)',
-  'paper.box.moved': 'बॉक्स हिलाया गया।',
+  'paper.box.moved': 'बॉक्स हिलाया गया',
   'paper.box.movedMany': '{n} बॉक्स हिलाए गए।',
   'paper.box.noColour': 'कोई रंग नहीं',
   'paper.box.resize': 'बॉक्स की चौड़ाई बदलें (खींचें)',

@@ -102,7 +102,7 @@ for (const [name, vp, mode] of SIZES) {
     await page.mouse.move(gx, gy)
     await page.mouse.down()
     await page.waitForTimeout(250)
-    await page.mouse.move(a0.x + a0.width / 2, a0.y + 4, { steps: 12 })
+    await page.mouse.move(a0.x + a0.width * 0.85, a0.y + 4, { steps: 12 })
     await page.waitForTimeout(500)
     await expect(b).toHaveAttribute('data-lifted', '')
     await expect(page.locator('[data-grid-ghost]')).toHaveCount(1)

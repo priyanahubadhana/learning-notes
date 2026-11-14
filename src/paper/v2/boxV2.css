@@ -84,3 +84,8 @@ html[data-box-drag] [data-box-bar] {
   background: var(--color-bg);
   border-radius: 6px;
 }
+/* The tab sits on the top edge of the lifted box (picture, panel 2), not above it. */
+[data-paper-box][data-lifted] [data-chrome],
+[data-paper-box][data-dragging] [data-chrome] {
+  top: -44px !important;
+}

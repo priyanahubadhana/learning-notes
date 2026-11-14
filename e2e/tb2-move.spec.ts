@@ -42,7 +42,10 @@ async function start(page: Page, name: string) {
 }
 
 async function addBox(page: Page, lines: string[], fx = 0.3, down = 60) {
-  const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
+  const sheetEl = page.locator('[data-paper-sheet="1"]')
+  const sheet = (await sheetEl.count())
+    ? await rect(sheetEl)
+    : { x: 0, width: 300 }
   const main = await rect(page.locator('[data-paper-box="main"]'))
   const n = await page.locator(EXTRA).count()
   await page.mouse.click(
@@ -141,7 +144,7 @@ test('TB-11 a drag on the border, the text or a dot never moves the box', async 
   }
 })
 
-test('TB-12 while a box is dragged the toolbar, the bar and the keyboard do not react', async ({
+test('TB-12 while a box is dragged a tap on another box, the Lasso, a new box, the toolbar, the bar and the keyboard do not react', async ({
   page,
 }) => {
   const { a, b } = await twoBoxes(page, 'TB12')
@@ -156,11 +159,27 @@ test('TB-12 while a box is dragged the toolbar, the bar and the keyboard do not 
       .locator('[data-box-menu]')
       .evaluate((e) => getComputedStyle(e).visibility),
   ).toBe('hidden')
+  // A second finger taps: another box, the Lasso tool, blank paper (a new box).
+  const ar = await rect(a)
+  await page.touchscreen.tap(ar.x + ar.width / 2, ar.y + ar.height / 2)
+  const lasso = await rect(tool(page, 'Lasso'))
+  await page.touchscreen.tap(
+    lasso.x + lasso.width / 2,
+    lasso.y + lasso.height / 2,
+  )
+  const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
+  await page.touchscreen.tap(sheet.x + sheet.width * 0.7, ar.y + ar.height + 15)
+  await page.waitForTimeout(500)
   await page.keyboard.type('zzz')
+  await expect(page.locator(EXTRA)).toHaveCount(2)
+  await expect(a).not.toHaveAttribute('data-picked', '')
+  await expect(a.locator('.bn-editor')).not.toBeFocused()
+  await expect(tool(page, 'Lasso')).not.toHaveAttribute('aria-pressed', 'true')
   await expect(a).not.toContainText('zzz')
   await expect(b).not.toContainText('zzz')
   await page.mouse.up()
-  await page.waitForTimeout(500)
+  await page.waitForTimeout(700)
+  await expect(page.locator(EXTRA)).toHaveCount(2)
   await expect(page.locator('html')).not.toHaveAttribute('data-box-drag', '')
   await expect(page.locator('html')).not.toHaveAttribute('data-grip-drag', '')
 })
@@ -249,28 +268,126 @@ test('TB-17 Esc during a drag: the box returns and nothing is saved', async ({
   await expect(page.locator('html')).not.toHaveAttribute('data-box-drag', '')
 })
 
-test('TB-18 a lost "finger lifted" ends the drag within 4 s: the box lands at the last preview, no tool stays stuck', async ({
+test('TB-18 a finger held still for 5 s keeps the drag; the lift then ends it normally', async ({
   page,
 }) => {
-  const { b } = await twoBoxes(page, 'TB18')
+  const { b } = await twoBoxes(page, 'TB18still')
   const f0 = await rect(b)
-  // The finger goes down, moves, and the lift never comes.
   await dragTab(page, b, (f) => ({ x: f.x + 220, y: f.y + 140 }), {
     up: false,
   })
+  await page.waitForTimeout(5200)
   await expect(page.locator('html')).toHaveAttribute('data-box-drag', '')
+  await expect(page.locator('html')).toHaveAttribute('data-grip-drag', '')
+  await expect(page.locator('[data-grid-ghost]')).toHaveCount(1)
+  await page.mouse.up()
+  await page.waitForTimeout(600)
+  expect(away(await rect(b), f0)).toBeGreaterThan(60)
+})
+
+test('TB-18 a move with no button down (the lift was lost) ends the drag at the last preview; no tool stays stuck', async ({
+  page,
+}) => {
+  const { b } = await twoBoxes(page, 'TB18a')
+  const f0 = await rect(b)
+  const { end } = await dragTab(
+    page,
+    b,
+    (f) => ({ x: f.x + 220, y: f.y + 140 }),
+    { up: false },
+  )
+  await expect(page.locator('html')).toHaveAttribute('data-box-drag', '')
+  await page.evaluate(({ x, y }) => {
+    document.body.dispatchEvent(
+      new PointerEvent('pointermove', {
+        pointerId: 1,
+        pointerType: 'mouse',
+        buttons: 0,
+        clientX: x,
+        clientY: y,
+        bubbles: true,
+      }),
+    )
+  }, end)
   await expect(page.locator('html')).not.toHaveAttribute('data-box-drag', '', {
-    timeout: 4800,
+    timeout: 1500,
   })
   await expect(page.locator('html')).not.toHaveAttribute('data-grip-drag', '', {
-    timeout: 1000,
+    timeout: 1500,
   })
   await page.waitForTimeout(500)
   expect(away(await rect(b), f0)).toBeGreaterThan(60)
   await page.mouse.up()
-  // Nothing stuck: the Pen tool still answers a tap.
   await tool(page, 'Pen').click()
   await expect(tool(page, 'Pen')).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('TB-18 a lost pointer capture ends the drag within a second or two at the last preview', async ({
+  page,
+}) => {
+  const { b } = await twoBoxes(page, 'TB18b')
+  const f0 = await rect(b)
+  await dragTab(page, b, (f) => ({ x: f.x + 220, y: f.y + 140 }), {
+    up: false,
+  })
+  await grip(b).evaluate((g) => g.releasePointerCapture(1))
+  await expect(page.locator('html')).not.toHaveAttribute('data-box-drag', '', {
+    timeout: 2500,
+  })
+  await page.waitForTimeout(500)
+  expect(away(await rect(b), f0)).toBeGreaterThan(60)
+  await page.mouse.up()
+})
+
+test.describe('switch OFF', () => {
+  test.use({ hasTouch: false })
+  test('the old border-strip drag still moves a box', async ({ page }) => {
+    await page.addInitScript(() =>
+      localStorage.removeItem('learning-notes:flags'),
+    )
+    await startInMode(page, 'computer')
+    await page.goto('/')
+    await createNotebook(page, 'Paper', 'Off')
+    await typeInEditor(page, 'Main text')
+    const a = await addBox(page, ['Alpha'])
+    const b = await addBox(
+      page,
+      ['Beta gamma delta epsilon zeta eta theta iota kappa lambda'],
+      0.3,
+      280,
+    )
+    await pickBox(page, b)
+    const f0 = await rect(b)
+    const strip = await rect(b.locator('[data-box-band="top"]'))
+    const band = {
+      x: strip.x + strip.width * 0.3,
+      y: strip.y + strip.height / 2,
+    }
+    await page.mouse.move(band.x, band.y)
+    await page.mouse.down()
+    await page.waitForTimeout(50)
+    await page.mouse.move(band.x + 200, band.y + 150, { steps: 10 })
+    await page.mouse.up()
+    await page.waitForTimeout(600)
+    expect(away(await rect(b), f0)).toBeGreaterThan(60)
+    void a
+  })
+})
+
+test('A phone has nothing to drag: no ≡ tab', async ({ page }) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+  )
+  await startInMode(page, 'touch')
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Phone')
+  await typeInEditor(page, 'Main text')
+  const box = await addBox(page, ['Alpha'], 0.3, 40)
+  const r = await rect(box)
+  await page.mouse.click(r.x + r.width / 2, r.y + r.height / 2)
+  await expect(box).toHaveAttribute('data-picked', '')
+  await expect(page.locator('[data-box-grip]')).toHaveCount(0)
 })
 
 test('The Pencil on the tab moves the box; no ink, no page scroll', async ({

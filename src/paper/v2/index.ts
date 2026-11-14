@@ -16,7 +16,9 @@ export {
   createDragClock,
   glideFrom,
   playGlide,
+  liftAt,
   tabOnly,
+  watchFinger,
   dropWithUndo,
 } from './boxDrag'
 
@@ -60,12 +62,20 @@ export function installBoxV2(): () => void {
   let swallowUntil = 0
   /** The tap that only selected a box makes no click on the text under it. */
   const stopClick = (e: Event) => {
-    if (Date.now() >= swallowUntil) return
+    if (dragging() ? false : Date.now() >= swallowUntil) return
     e.preventDefault()
     e.stopImmediatePropagation()
   }
 
+  /** TB-12, the drag lock: while a box is dragged no other press, lift or click reaches anything. */
+  const dragging = () => document.documentElement.hasAttribute('data-box-drag')
   const onDown = (e: PointerEvent) => {
+    if (dragging()) {
+      tap = null
+      e.stopImmediatePropagation()
+      if (e.cancelable) e.preventDefault()
+      return
+    }
     mode = inputModeFor(e.pointerType)
     setInputMode(mode)
     tap = null

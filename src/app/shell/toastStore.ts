@@ -4,6 +4,8 @@ export interface ShellToastAction {
   label: string
   /** Runs the stored undo function; the toast closes after it. */
   onSelect: () => void
+  /** A small icon before the label (the Undo arrow). */
+  icon?: 'undo'
 }
 
 export interface ShellToast {

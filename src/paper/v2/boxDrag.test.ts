@@ -2,12 +2,14 @@
  * @vitest-environment jsdom
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { inputMachine } from '../../app/inputMachine'
 import {
   GLIDE_MS,
   HOLD_MS,
   LIFT_SCALE,
-  SAFETY_MS,
+  BEAT_MS,
   createDragClock,
+  watchFinger,
   glideFrom,
   playGlide,
   tabOnly,
@@ -17,45 +19,80 @@ beforeEach(() => vi.useFakeTimers())
 afterEach(() => vi.useRealTimers())
 
 describe('numbers of the picture (states panels 2 and 3)', () => {
-  it('holds 120 ms, glides 200 ms, lifts to 1.02, ends a lost drag after 4 s', () => {
-    expect([HOLD_MS, GLIDE_MS, LIFT_SCALE, SAFETY_MS]).toEqual([
-      120, 200, 1.02, 4000,
+  it('holds 120 ms, glides 200 ms, lifts to 1.02, beats every second', () => {
+    expect([HOLD_MS, GLIDE_MS, LIFT_SCALE, BEAT_MS]).toEqual([
+      120, 200, 1.02, 1000,
     ])
   })
 })
 
 describe('createDragClock (TB-11, TB-18)', () => {
+  const make = (lost = () => false) => {
+    const o = { onHold: vi.fn(), onLost: vi.fn(), lost: vi.fn(lost) }
+    return { o, c: createDragClock({ pointerId: 7, ...o }) }
+  }
   it('lifts after the hold, not before', () => {
-    const onHold = vi.fn()
-    const c = createDragClock({ onHold, onSafety: vi.fn() })
+    const { o, c } = make()
     vi.advanceTimersByTime(HOLD_MS - 1)
-    expect(onHold).not.toHaveBeenCalled()
+    expect(o.onHold).not.toHaveBeenCalled()
     expect(c.held()).toBe(false)
     vi.advanceTimersByTime(1)
-    expect(onHold).toHaveBeenCalledTimes(1)
+    expect(o.onHold).toHaveBeenCalledTimes(1)
     expect(c.held()).toBe(true)
     c.stop()
   })
-  it('ends by itself after 4 s without a sign of the finger; every move starts the 4 s again', () => {
-    const onSafety = vi.fn()
-    const c = createDragClock({ onHold: vi.fn(), onSafety })
+  it('a finger held still for 5 s never ends the drag, and keeps the input machine told', () => {
+    const move = vi.spyOn(inputMachine, 'move')
+    const { o, c } = make()
+    vi.advanceTimersByTime(5000)
+    expect(o.onLost).not.toHaveBeenCalled()
+    expect(move).toHaveBeenCalledTimes(5)
+    expect(move).toHaveBeenCalledWith({ pointerId: 7 })
+    c.stop()
+  })
+  it('ends only when the pointer is really lost', () => {
+    let gone = false
+    const { o, c } = make(() => gone)
     vi.advanceTimersByTime(3000)
-    c.touch()
-    vi.advanceTimersByTime(3000)
-    expect(onSafety).not.toHaveBeenCalled()
+    expect(o.onLost).not.toHaveBeenCalled()
+    gone = true
     vi.advanceTimersByTime(1000)
-    expect(onSafety).toHaveBeenCalledTimes(1)
-    vi.advanceTimersByTime(10000)
-    expect(onSafety).toHaveBeenCalledTimes(1)
+    expect(o.onLost).toHaveBeenCalledTimes(1)
+    c.stop()
   })
   it('stop() cancels both timers (a normal lift)', () => {
-    const onHold = vi.fn()
-    const onSafety = vi.fn()
-    const c = createDragClock({ onHold, onSafety })
+    const { o, c } = make(() => true)
     c.stop()
     vi.advanceTimersByTime(10000)
-    expect(onHold).not.toHaveBeenCalled()
-    expect(onSafety).not.toHaveBeenCalled()
+    expect(o.onHold).not.toHaveBeenCalled()
+    expect(o.onLost).not.toHaveBeenCalled()
+  })
+})
+
+describe('watchFinger (TB-18)', () => {
+  const moveEvent = (pointerId: number, buttons: number) =>
+    Object.assign(new Event('pointermove', { bubbles: true }), {
+      pointerId,
+      buttons,
+    })
+  it('ends on a move of the same pointer with no button down, not on others', () => {
+    const lost = vi.fn()
+    const off = watchFinger(3, lost)
+    document.dispatchEvent(moveEvent(3, 1))
+    document.dispatchEvent(moveEvent(4, 0))
+    expect(lost).not.toHaveBeenCalled()
+    document.dispatchEvent(moveEvent(3, 0))
+    expect(lost).toHaveBeenCalledTimes(1)
+    off()
+  })
+  it('ends when the app goes to the background; nothing after off()', () => {
+    const lost = vi.fn()
+    const off = watchFinger(3, lost)
+    window.dispatchEvent(new Event('blur'))
+    expect(lost).toHaveBeenCalledTimes(1)
+    off()
+    window.dispatchEvent(new Event('blur'))
+    expect(lost).toHaveBeenCalledTimes(1)
   })
 })
 
@@ -90,7 +127,10 @@ describe('playGlide', () => {
         { transform: `translate(20px, 10px) scale(${LIFT_SCALE})` },
         { transform: 'translate(0px, 0px) scale(1)' },
       ],
-      expect.objectContaining({ duration: GLIDE_MS }),
+      expect.objectContaining({
+        duration: GLIDE_MS,
+        easing: 'cubic-bezier(.2,.8,.2,1)',
+      }),
     )
     expect(done).not.toHaveBeenCalled()
     finish()

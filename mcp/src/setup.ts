@@ -49,6 +49,7 @@ function askHidden(question: string): Promise<string> {
     let text = ''
     const onData = (raw: string) => {
       // Pasted text may arrive with bracketed-paste markers; drop them.
+      // eslint-disable-next-line no-control-regex -- the escape character is the point
       const chunk = raw.replace(/\u001b\[20[01]~/g, '')
       for (const ch of chunk) {
         if (ch === '\r' || ch === '\n') {

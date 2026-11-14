@@ -195,7 +195,7 @@ function keepPlaceWhileSettling(
 ) {
   if (typeof ResizeObserver === 'undefined') return
   let quiet: ReturnType<typeof setTimeout> | undefined
-  let hardStop: ReturnType<typeof setTimeout> | undefined
+  const hardStop = setTimeout(end, SETTLE_MAX_MS)
   const observer = new ResizeObserver(() => {
     if (touched()) return end()
     if (
@@ -215,7 +215,6 @@ function keepPlaceWhileSettling(
   observer.observe(scroller)
   for (const child of Array.from(scroller.children)) observer.observe(child)
   quiet = setTimeout(end, SETTLE_QUIET_MS)
-  hardStop = setTimeout(end, SETTLE_MAX_MS)
 }
 
 /**

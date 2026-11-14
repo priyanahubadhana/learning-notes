@@ -322,7 +322,17 @@ async function pencil(
   pts: { x: number; y: number }[],
   wait = 300,
 ) {
-  await target.evaluate((el, points) => {
+  await pencilStrokes(page, target, [pts], wait)
+}
+
+/** Several pen strokes sent in one go, so no test round trip sits between them. */
+async function pencilStrokes(
+  page: Page,
+  target: Locator,
+  strokes: { x: number; y: number }[][],
+  wait = 300,
+) {
+  await target.evaluate((el, all) => {
     const fire = (type: string, p: { x: number; y: number }) =>
       el.dispatchEvent(
         new PointerEvent(type, {
@@ -338,10 +348,12 @@ async function pencil(
           buttons: type === 'pointerup' ? 0 : 1,
         }),
       )
-    fire('pointerdown', points[0])
-    for (const p of points.slice(1)) fire('pointermove', p)
-    fire('pointerup', points[points.length - 1])
-  }, pts)
+    for (const points of all) {
+      fire('pointerdown', points[0])
+      for (const p of points.slice(1)) fire('pointermove', p)
+      fire('pointerup', points[points.length - 1])
+    }
+  }, strokes)
   if (wait) await page.waitForTimeout(wait)
 }
 
@@ -430,15 +442,19 @@ test('Box style: Sticky note and Callout presets; a new box remembers the last s
   ).toBeVisible()
 })
 
-async function wobblyLine(page: Page, wait = 300, dy = 90, x0f = 0.3) {
+async function wobblyPoints(page: Page, dy = 90, x0f = 0.3) {
   const sheet = await box(page.locator('[data-paper-sheet="1"]'))
   const main = await box(page.locator('[data-paper-box="main"]'))
   const y = main.y + main.height + dy
   const x0 = sheet.x + sheet.width * x0f
-  const pts = Array.from({ length: 24 }, (_, i) => ({
+  return Array.from({ length: 24 }, (_, i) => ({
     x: x0 + i * 7,
     y: y + Math.sin(i) * 1.2,
   }))
+}
+
+async function wobblyLine(page: Page, wait = 300, dy = 90, x0f = 0.3) {
+  const pts = await wobblyPoints(page, dy, x0f)
   await pencil(page, page.locator('[data-paper-sheets]'), pts, wait)
 }
 
@@ -463,8 +479,14 @@ test('Text tool + Pencil: strokes that look like handwriting are not converted',
 }) => {
   await start(page, 'Hand')
   // Two strokes next to each other, the second within the hold time.
-  await wobblyLine(page, 0)
-  await wobblyLine(page, 0, 110, 0.32)
+  // Both are sent in one go: the gap between them is then exactly zero, not
+  // whatever the machine's round trips take (they can pass the 400 ms hold).
+  await pencilStrokes(
+    page,
+    page.locator('[data-paper-sheets]'),
+    [await wobblyPoints(page), await wobblyPoints(page, 110, 0.32)],
+    0,
+  )
   await page.waitForTimeout(1500)
   await expect(page.locator(EXTRA)).toHaveCount(0)
   // A small round mark (a letter c) and a short dash are not shapes either.

@@ -140,3 +140,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - **Scroll bar fades when idle (P1.4 builder, 14 Nov):** Apple-style: the bar fades out after a moment without scrolling and comes back on scroll or touch near the edge. Not built; weigh against the owner's wish to see where they are (F3). _(Likely phase: polish, ask the owner)_
 
 - **Tap beside a box = a new box side by side (owner, 14 Nov, Phase 2B planning):** today and in Phase 2B a tap makes the new box under the first, and you drag it beside to make columns. Idea: a tap on the empty paper right beside a box, at the same height, makes the new box next to it at once. Not built: the owner chose the simple rule first. _(Likely phase: after the Phase 2B first look, ask the owner)_
+
+- **From P1.5 (Fable, 15 Nov night):** guard a palm resting on the page's scroll bar while writing; move the ~30 e2e specs still using made-up pen events to `e2e/realPen.ts`; a gentle glide after a Pencil scroll.

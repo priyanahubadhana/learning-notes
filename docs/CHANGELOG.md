@@ -329,6 +329,10 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 - On build/next after the release: shared parts step 1 (src/design/parts/, gallery), AI Build screen, "first outside tap only closes" in the overlay manager, event router gained click / input / touchmove. Ratchet now 362 listeners / 137 z-index.
 - Fixed on the way (why it happened): version.json always said level 1 because two regexes in vite.config.ts had lost their backslashes; Parts gallery stalled iPad WebKit in CI because of a dozen 28 px blurs on static cards; phone layouts of the Time range bar and Arrange sheet were clipped because the editor sat in the page flow with no width limit.
 
+## 2026-11-15 - 2B.5 resize dots (switch textbox.v2)
+
+- Dots: 44 pt targets fully outside the edge (text wins inside), 10 px ring, nearest dot wins, 120 ms hold, 4 px dead zone, minimum width = longest word, height follows the dot live, grid dividers get the 4 px dead zone. Lines of a box keep 1.3 x type and 4 px top/bottom padding (fixes the overlap in PENDING; v2 only, the old look with the switch OFF has the same fault). Files: src/paper/v2/boxResize.ts, boxV2.css, BoxFrame.tsx, PaperFrame.tsx, GridDividers.tsx, e2e/tb2-resize*.spec.ts.
+
 ## 2026-11-12 (Build master plan)
 
 - **What:** one complete plan for the rebuild: remaining mock-up batches 1 to 6 (with the owner's batch 1 answers), build slice 0 (4 root causes, shared parts, shell, tool registry base), slices per area with spec, Definition of Done, tests, flag and rollback, lanes and models, continuity, the first-night run list and 8 owner questions. Text box v2: keep the layout engine, rebuild the touch layer. Plan only, no app code.

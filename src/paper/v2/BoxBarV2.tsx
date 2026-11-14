@@ -1,17 +1,11 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { onRouted } from '../../app/input/eventRouter'
 import { AppUiContext } from '../../app/appUi'
-import { runTask } from '../../app/errors'
-import { useAnchoredMenu } from '../../app/tools/useAnchoredMenu'
-import type { LearningNotesDB } from '../../core/db'
 import type { PaperBox } from '../../core/types'
 import { ObjectBar, type ObjectBarAction } from '../../design/parts/ObjectBar'
 import { t } from '../../i18n/t'
 import { boxEditors } from '../activeBox'
 import { openBoxStyle } from '../boxStyleBus'
-import type { GridInfo } from '../layoutPlan'
-import { BoxMoreList, type MoreRow } from './BoxMoreList'
-import { moveStep, neighbourOf } from './boxOrder'
 
 /** All the text of a box as plain lines (no focus change, so the bar stays). */
 function boxText(pageId: string, boxId: string): string {
@@ -43,27 +37,22 @@ function textActiveIn(boxId: string): boolean {
  * today's BoxBar (BoxBar.tsx) action for action, on the shared Object bar.
  */
 export default function BoxBarV2({
-  db,
   pageId,
   box,
   canEdit,
-  getGrid,
   onDuplicate,
   onDelete,
-  onLock,
+  onMenu,
 }: {
-  db: LearningNotesDB
   pageId: string
   box: PaperBox
   canEdit: boolean
-  /** The grid as drawn now (for Move up / Move down). */
-  getGrid: () => GridInfo
   onDuplicate: () => void
   onDelete: () => void
-  onLock: (locked: boolean) => void
+  /** Opens the ⋯ list beside the ⋯ button. */
+  onMenu: (at: DOMRect) => void
 }) {
   const { toast } = useContext(AppUiContext)
-  const menu = useAnchoredMenu()
   const wrap = useRef<HTMLDivElement>(null)
   // One bar at a time: while the caret or selected words are in the box, the
   // text bar is the one that shows (spec: the box bar shows when you are NOT
@@ -147,11 +136,9 @@ export default function BoxBarV2({
     const btn = wrap.current?.querySelector<HTMLElement>(
       '[data-testid="ob-boxmore"]',
     )
-    if (!btn) return
-    if (menu.open) menu.close()
-    else menu.openAt(btn)
+    if (btn) onMenu(btn.getBoundingClientRect())
   }
-  // The ⋯ button is a trigger of its list (a press on it toggles the list).
+  // The ⋯ button is a trigger of its list (a press on it never closes it first).
   useEffect(() => {
     wrap.current
       ?.querySelector('[data-testid="ob-boxmore"]')
@@ -167,71 +154,10 @@ export default function BoxBarV2({
     else if (id === 'boxmore') openMore()
   }
 
-  const rows = getGrid().rows
-  const move = (step: 'up' | 'down') =>
-    runTask(moveStep(db, pageId, getGrid(), box.id, step).then(() => {}))
-  const groups: MoreRow[][] = [
-    [
-      {
-        id: 'lock',
-        icon: box.locked ? 'lockOpen' : 'lockKeyhole',
-        label: box.locked ? t('paper.box.unlock') : t('paper.box.lock'),
-        disabled: !canEdit,
-        onSelect: () => onLock(!box.locked),
-      },
-      {
-        id: 'duplicate',
-        icon: 'copy',
-        label: t('paper.box.duplicate'),
-        onSelect: onDuplicate,
-      },
-      {
-        id: 'up',
-        icon: 'chevronUp',
-        label: t('paper.box.moveUp'),
-        disabled: !canEdit || !!box.locked || !neighbourOf(rows, box.id, 'up'),
-        onSelect: () => move('up'),
-      },
-      {
-        id: 'down',
-        icon: 'chevronDown',
-        label: t('paper.box.moveDown'),
-        disabled:
-          !canEdit || !!box.locked || !neighbourOf(rows, box.id, 'down'),
-        onSelect: () => move('down'),
-      },
-    ],
-    [
-      // One box is picked, so Group waits for two or more (the group pill).
-      {
-        id: 'group',
-        icon: 'layers',
-        label: t('paper.group.group'),
-        note: t('paper.box.groupNeed'),
-        disabled: true,
-        onSelect: () => {},
-      },
-    ],
-    ...(canEdit
-      ? [
-          [
-            {
-              id: 'delete',
-              icon: 'trash',
-              label: t('paper.box.delete'),
-              danger: true,
-              onSelect: onDelete,
-            } satisfies MoreRow,
-          ],
-        ]
-      : []),
-  ]
-
   if (typing) return null
   return (
     <div ref={wrap} data-box-bar data-ui>
       <ObjectBar kind="box" actions={actions} onAction={onAction} />
-      <BoxMoreList menu={menu} groups={groups} />
     </div>
   )
 }

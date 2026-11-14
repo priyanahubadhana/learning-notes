@@ -34,7 +34,7 @@ import {
 } from './boxService'
 import type { BoxChange } from './PaperFrame'
 import { BoxBar } from './BoxBar'
-import { BoxBarV2Lazy } from './v2/BoxBarV2Lazy'
+import { BoxBarV2Lazy, BoxMoreV2Lazy } from './v2/BoxBarV2Lazy'
 import { isOn } from '../app/flags'
 import { clearPageWide, pageWideClip, pageWideRange } from './pageWide'
 
@@ -383,16 +383,12 @@ export function usePaperBoxes(
       // Text box v2 (switch textbox.v2, task 2B.8): the Object bar and the ⋯ list.
       isOn('textbox.v2') ? (
         <BoxBarV2Lazy
-          db={db}
           pageId={pageId}
           box={box}
           canEdit={editable}
-          getGrid={() => gridView.current}
           onDuplicate={() => editable && duplicate(box)}
           onDelete={() => remove(box)}
-          onLock={(locked) =>
-            onBoxChange(box.id, { locked: locked ? true : undefined })
-          }
+          onMenu={(at) => setMenuFor({ box, at })}
         />
       ) : (
         <BoxBar
@@ -415,13 +411,31 @@ export function usePaperBoxes(
     fresh,
     menu: (
       <>
-        {menuFor && (
-          <MenuPopover
-            anchor={menuFor.at}
-            items={items(menuFor.box)}
-            onClose={() => setMenuFor(null)}
-          />
-        )}
+        {menuFor &&
+          (isOn('textbox.v2') ? (
+            <BoxMoreV2Lazy
+              db={db}
+              pageId={pageId}
+              box={menuFor.box}
+              at={menuFor.at}
+              canEdit={editable}
+              getGrid={() => gridView.current}
+              onClose={() => setMenuFor(null)}
+              onDuplicate={() => editable && duplicate(menuFor.box)}
+              onDelete={() => remove(menuFor.box)}
+              onLock={(locked) =>
+                onBoxChange(menuFor.box.id, {
+                  locked: locked ? true : undefined,
+                })
+              }
+            />
+          ) : (
+            <MenuPopover
+              anchor={menuFor.at}
+              items={items(menuFor.box)}
+              onClose={() => setMenuFor(null)}
+            />
+          ))}
         {layoutOpen && (
           <LayoutDialogLazy
             db={db}

@@ -186,6 +186,17 @@ test('TB-30: ⋯ opens a 248 px list: Lock in place, Duplicate, Move up, Move do
   await expect(page.locator(EXTRA)).toHaveCount(2)
 })
 
+test('TB-30: the ⋯ beside the ≡ tab opens the same list', async ({ page }) => {
+  await start(page, 'TB30t')
+  const box = await addBox(page, 'Tabbed')
+  await pick(page, box)
+  await box.locator('[data-box-menu]').click()
+  await expect(
+    more(page).getByRole('menuitem', { name: 'Lock in place' }),
+  ).toBeVisible()
+  expect((await rect(more(page))).width).toBe(248)
+})
+
 test('TB-30: Delete in the ⋯ list removes the box and offers Undo', async ({
   page,
 }) => {

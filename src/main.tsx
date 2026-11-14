@@ -347,7 +347,12 @@ if (isConnectRoute(location.hash)) {
   )
 } else if (isDesignTokensRoute(location.hash)) {
   void import('./design/DesignTokensPage').then((m) =>
-    createRoot(document.getElementById('root')!).render(<m.default />),
+    createRoot(document.getElementById('root')!).render(
+      <>
+        <m.default />
+        <ScrollBarHost />
+      </>,
+    ),
   )
 } else {
   createRoot(document.getElementById('root')!).render(

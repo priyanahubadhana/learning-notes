@@ -34,7 +34,7 @@ import {
 } from './boxService'
 import type { BoxChange } from './PaperFrame'
 import { BoxBar } from './BoxBar'
-import { BoxBarV2Lazy, BoxMoreV2Lazy } from './v2/BoxBarV2Lazy'
+import { BoxBarV2Lazy, BoxCardV2Lazy, BoxMoreV2Lazy } from './v2/BoxBarV2Lazy'
 import { prefetchBoxBarV2 } from './v2/boxBarV2Load'
 import { isOn } from '../app/flags'
 import { clearPageWide, pageWideClip, pageWideRange } from './pageWide'
@@ -451,14 +451,24 @@ export function usePaperBoxes(
             onClose={() => setLayoutOpen(false)}
           />
         )}
-        {styleFor && (
-          <BoxStylePopoverLazy
-            db={db}
-            pageId={pageId}
-            boxId={styleFor}
-            onClose={() => setStyleFor(null)}
-          />
-        )}
+        {styleFor &&
+          (isOn('textbox.v2') ? (
+            // Text box v2 (2B.9): the Box card beside the box.
+            <BoxCardV2Lazy
+              db={db}
+              pageId={pageId}
+              boxId={styleFor}
+              getGrid={() => gridView.current}
+              onClose={() => setStyleFor(null)}
+            />
+          ) : (
+            <BoxStylePopoverLazy
+              db={db}
+              pageId={pageId}
+              boxId={styleFor}
+              onClose={() => setStyleFor(null)}
+            />
+          ))}
       </>
     ),
   }

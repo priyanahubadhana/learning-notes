@@ -1,10 +1,12 @@
 import { lazy, Suspense, type ComponentProps } from 'react'
 import type BoxBarV2Type from './BoxBarV2'
+import type BoxCardType from './BoxCard'
 import type BoxMoreHostType from './BoxMoreHost'
-import { loadBar, loadedV2, loadMore } from './boxBarV2Load'
+import { loadBar, loadCard, loadedV2, loadMore } from './boxBarV2Load'
 
 const Bar = lazy(loadBar)
 const More = lazy(loadMore)
+const Card = lazy(loadCard)
 
 /** The v2 box bar, loaded only when switch textbox.v2 is on. */
 export function BoxBarV2Lazy(props: ComponentProps<typeof BoxBarV2Type>) {
@@ -25,6 +27,17 @@ export function BoxMoreV2Lazy(props: ComponentProps<typeof BoxMoreHostType>) {
   return (
     <Suspense fallback={null}>
       <More {...props} />
+    </Suspense>
+  )
+}
+
+/** The v2 Box card (replaces the old Box style panel when switch textbox.v2 is on). */
+export function BoxCardV2Lazy(props: ComponentProps<typeof BoxCardType>) {
+  const Loaded = loadedV2.card
+  if (Loaded) return <Loaded {...props} />
+  return (
+    <Suspense fallback={null}>
+      <Card {...props} />
     </Suspense>
   )
 }

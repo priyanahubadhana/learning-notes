@@ -1,0 +1,140 @@
+/*
+ * Text box v2 (task 2B.9): the Box card. Tokens only. The card is solid (no
+ * see-through blur, no fade over the page words, R12): a tall card scrolls
+ * inside itself with the shared scroll bar. States picture, panel 8.
+ */
+.pcard[data-testid='bc-card'] {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.pcard[data-testid='bc-card'][data-fade] .pcard-body {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+.v8gl {
+  position: relative;
+  border-radius: var(--r-md);
+}
+.v8boxprev {
+  display: block;
+  width: 44px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  box-sizing: border-box;
+}
+.v8boxprev-sm {
+  width: 28px;
+  height: 24px;
+  border: 1px solid var(--color-line);
+}
+.v8num {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.bc-none {
+  background: var(--color-surface-2);
+  position: relative;
+}
+.bc-none::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: inherit;
+  border: 1px dashed var(--color-line-strong);
+}
+.bc-seg {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  margin-bottom: var(--space-3);
+  border-radius: var(--r-pill);
+  background: var(--color-soft, var(--color-hover));
+}
+.bc-seg button {
+  flex: 1;
+  min-height: 44px;
+  border-radius: var(--r-pill);
+  font-size: 14px;
+  color: var(--color-muted);
+}
+.bc-seg button[aria-pressed='true'] {
+  background: var(--color-surface-2);
+  color: var(--color-ink);
+  font-weight: 600;
+  box-shadow: 0 0 0 1px var(--card-hair);
+}
+.bc-mine {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 4px;
+  padding: 0;
+  list-style: none;
+}
+.bc-mine li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.bc-mine input {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 8px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--color-line);
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
+.bc-pick {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 8px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--color-line);
+  text-align: start;
+}
+.bc-act,
+.bc-x {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 8px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  color: var(--color-muted);
+}
+.bc-save {
+  color: var(--color-accent);
+}
+.bc-save:disabled {
+  color: var(--color-muted);
+}
+.bc-x {
+  color: var(--color-danger);
+}
+.bc-reset {
+  width: 100%;
+  text-align: start;
+}
+.bc-lay {
+  display: grid;
+  gap: 2px;
+  width: 36px;
+  height: 26px;
+}
+.bc-lay i {
+  border-radius: 2px;
+  background: var(--color-line-strong);
+}
+.bc-lay-two,
+.bc-lay-assist {
+  grid-template-columns: 1fr 1fr;
+}
+.bc-lay-six {
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+.bc-lay-assist i:first-child {
+  outline: 1.5px dashed var(--color-accent);
+}

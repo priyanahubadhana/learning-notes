@@ -1,6 +1,6 @@
 # Gate 3 pictures: toolbar.v8 slices 1e, 1f and BUG-003
 
-Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on head 6512a1f1 (flag ON; all 192 pictures re-shot after the last source edit, 6512a1f1; only pictures and this index follow it). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Both levels on every size (192 pictures).
+Taken with `SHOTS=1 npx playwright test e2e/toolbarV8TextGate3Shots.spec.ts` on head 6512a1f1 (flag ON; all 192 pictures re-shot after the last source edit, 6512a1f1; after it only pictures, this index and 70dd95cb (e2e heading list only) follow). File name: `<screen>-<size>-<theme>-<level>.png`. Sizes: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180, pc 1440x900. Themes: day, night, sepia. Both levels on every size (192 pictures).
 
 ## Screens
 

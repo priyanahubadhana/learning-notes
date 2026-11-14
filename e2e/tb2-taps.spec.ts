@@ -2,6 +2,8 @@
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import { line, stroke } from './inkHelpers.ts'
+import { tool } from './mainBarHelpers.ts'
 
 /**
  * Phase 2B, task 2B.4 (switch textbox.v2 ON): TB-04 the first tap only selects
@@ -273,4 +275,22 @@ test('TB-42 phone: the line below is the one hint on an empty page, then it says
   await expect(one).toHaveText('Type, or tap anywhere to start writing')
   await typeInEditor(page, 'Hello')
   await expect(one).toHaveText('Tap here to keep writing')
+})
+
+test('TB-42: drawing on an empty page removes the hint at once', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+  )
+  await startInMode(page, 'computer')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'TB42ink')
+  const hint = page.locator('[data-paper-hint]')
+  await expect(hint).toBeVisible()
+  await tool(page, 'Pen').click()
+  const main = await rect(page.locator('[data-paper-box="main"]'))
+  const y = main.y + 60
+  await stroke(page, line([main.x + 40, y], [main.x + 220, y + 10]))
+  await expect(hint).toHaveCount(0)
 })

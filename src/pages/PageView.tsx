@@ -37,6 +37,7 @@ import { t } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
 import { isPageBlank, saveAsTemplate } from '../templates/templateService'
 import { isOn } from '../app/flags'
+import { pageHasInk } from '../core/inkService'
 import { hintPageOk } from '../paper/hintPages'
 import { PAPER_STYLES, paperStyleKey } from './paperStyles'
 import { makeDatabasePage } from '../databases/databasePage'
@@ -424,9 +425,14 @@ export function PageView({
   )
   const hintPage = useMemo(() => hintPageOk(page.id), [page.id])
   const blankPage = useLiveQuery(() => isPageBlank(db, page.id), [db, page.id])
+  // Text box v2 (TB-42): the hint also goes the moment something is drawn.
+  const inked = useLiveQuery(
+    () => (isOn('textbox.v2') ? pageHasInk(db, page.id) : false),
+    [db, page.id],
+  )
   /** The "tap to add a box" hint shows on this page (the one hint of TB-42). */
   const showHint =
-    hintPage && !!blankPage && !!boxes.onAddBox && !page.boxes?.length
+    hintPage && !!blankPage && !inked && !!boxes.onAddBox && !page.boxes?.length
   /** The page editor of one box (unset = the default box, as before). */
   const editorOf = (boxId?: string) => (
     <PageEditor

@@ -27,7 +27,7 @@ Written 13 Nov 2026. Do it on the iPad in Safari, at the preview address. Tap ea
    - You should see: the app loads within a few seconds, with no error page.
 2. [ ] Go to Settings, then Try new features.
    - You should see: a list of switches, all OFF.
-3. [ ] Turn ON each of these: Shell, New Home, New Library, Notebooks and Search, New Settings, Page menus, Toolbar, AI framework, New updates. If a name differs a little, pick the closest one.
+3. [ ] Turn ON, in the order they appear: New app frame, New tool bar, New Settings, New Notebooks, New Search, New Home, New Library, New Review, AI framework, New updates, New page menus, Storage safety (once the preview has it). Leave the "Shared …", Tool list, New text box, New Reader and the other "New …" parts OFF.
    - You should see: each switch stays ON after you tap it.
 4. [ ] Close the app completely (swipe up from the bottom, then swipe it away) and open it again.
    - You should see: the switches are still ON and your notes are still there.
@@ -134,6 +134,15 @@ Written 13 Nov 2026. Do it on the iPad in Safari, at the preview address. Tap ea
 40. [ ] Fully close the app, open it, and time how long until Home is ready. Do this three times.
     - You should see: Home is usable in a few seconds. Write the three times down.
 
+**Part 11b: Added overnight (14 Nov)**
+
+43. [ ] **BUG-006, the Settings gear.** Hold the iPad upright in Safari, open a page, tap in a text box so the keyboard shows.
+    - You should see: the ⚙ gear at the bottom of the left strip is still visible and opens its menu (Settings is in it).
+44. [ ] **Storage safety.** In Settings, then Try new features, turn ON Storage safety. Reload the page.
+    - You should see: a calm notice "Keep your notes safe: add this app to your Home Screen" with Show how and Back up first. Tap Show how: three short steps. Tap Back up first: "Backup saved." and a file in Downloads.
+45. [ ] **Review (new).** Open Review and answer a few cards; open its other tabs.
+    - You should see: the counts change after each answer, and nothing jumps or overlaps.
+
 **Part 12: Send your results**
 
 41. [ ] Write down each step that did NOT match: the step number and what you saw. Send the list to Claude.
@@ -163,6 +172,7 @@ Written 13 Nov 2026. Do it on the iPad in Safari, at the preview address. Tap ea
 | 5 Prompt caching (AI)                                                                                                 | queued (owner-approved 13 Nov)                                                                       | -                                                                                     | first tasks of the AI slice (docs/features/ai-framework.md); builder Sonnet                                                                | Opus review                         |
 | 6 Real token count for the cost preview (AI)                                                                          | queued (owner-approved 13 Nov)                                                                       | -                                                                                     | first tasks of the AI slice (docs/features/ai-framework.md); builder Sonnet                                                                | Opus review                         |
 | 14 Nov gates: 8b Review rest, Reader v2, 12 rest, toolbar 1e/1f                                                       | 8b ready for the owner (gates 2+3 PASS); Reader gate 2 PASS; 12 rest and toolbar fixing gate 2 lists | slice/8b-review-rest, slice/7-reader-v2, slice/12-page-menus-rest, slice/1-toolbar-v8 | merge queue after BUG-006 CI: storage, 0g3, 9-6, 15, then 8b                                                                               | see docs/BUILD-STATE.md             |
+| 14 Nov merges: storage safety (cfebd3a4), BUG-006 in preview                                                          | storage safety merged OFF, CI running; AI cost additions ready for the owner                         | build/next                                                                            | lazy-load storage safety, then 0g3, 9-6, 15, 8b, 9-cost                                                                                    | see docs/BUILD-STATE.md             |
 
 nContinuity: see [CONTINUITY.md](CONTINUITY.md). Mock-ups: docs/mockups/.
 

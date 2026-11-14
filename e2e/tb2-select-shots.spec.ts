@@ -38,6 +38,7 @@ async function shoot(
   await page.keyboard.press('Escape')
   await expect(box).not.toHaveAttribute('data-picked', '')
   await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
+  await box.evaluate((e) => e.scrollIntoView({ block: 'center' }))
   const r = (await box.boundingBox())!
   await page.evaluate(
     ({ x, y }) => {

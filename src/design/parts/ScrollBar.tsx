@@ -80,7 +80,8 @@ function cornersOf(el: HTMLElement, right: number) {
 }
 
 /** The layer of the box the list lives in, so the bar is drawn above it. */
-function layerOf(el: HTMLElement): 'card' | 'sheet' | undefined {
+function layerOf(el: HTMLElement): 'card' | 'sheet' | 'tray' | undefined {
+  if (el.closest('[data-bar="tray"]')) return 'tray'
   const card = el.closest<HTMLElement>('.pcard:not([data-static])')
   if (!card) return undefined
   return card.hasAttribute('data-phone') ? 'sheet' : 'card'

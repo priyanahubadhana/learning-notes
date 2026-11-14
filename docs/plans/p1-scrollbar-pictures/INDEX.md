@@ -1,6 +1,6 @@
 # P1.1 scroll bar pictures (chromium, taken after the last source edit; toasts closed)
 
-Names: size-theme-level-scene. Sizes: ipad-upright 820x1180, ipad-sideways 1180x820, phone 390x844. Scene page = long page with the page bar; menu = tool bar menu open over it (page bar hidden). The focus ring on the first menu row comes from the Shift key the picture script pressed. Sepia and PC come at the release bar.
+Names: size-theme-level-scene. Sizes: ipad-upright 820x1180, ipad-sideways 1180x820, phone 390x844. Scene page = long page with the page bar; menu = tool bar menu open over it (page bar hidden). Sepia and PC come at the release bar.
 
 - ipad-sideways-dark-Beginner-menu.png
 - ipad-sideways-dark-Beginner-page.png
@@ -26,3 +26,4 @@ Names: size-theme-level-scene. Sizes: ipad-upright 820x1180, ipad-sideways 1180x
 - phone-light-Beginner-page.png
 - phone-light-Professional-menu.png
 - phone-light-Professional-page.png
+Retaken 14 Nov after review 1 (menu list now shows its own bar; arrows stay inside the gutter).

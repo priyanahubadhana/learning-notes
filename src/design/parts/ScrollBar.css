@@ -26,6 +26,10 @@
 .sbar[data-layer='card'] {
   --sbar-layer: calc(var(--z-card) + 1);
 }
+.sbar[data-layer='tray'] {
+  /* The tool bar's ⋯ tray sits at --z-fbar; its bar is drawn just above it. */
+  --sbar-layer: calc(var(--z-fbar) + 2);
+}
 .sbar[data-layer='sheet'] {
   --sbar-layer: calc(var(--z-sheet) + 1);
 }
@@ -39,12 +43,6 @@
   background: transparent;
   color: var(--color-ink-soft);
   touch-action: manipulation;
-}
-/* Touch area 44 pt: the arrow is 22 x 38, its invisible frame reaches 44 x 44 (finger and Pencil). */
-.sbar__arrow::before {
-  content: '';
-  position: absolute;
-  inset: -3px -1px -3px -21px;
 }
 .sbar__arrow:hover:not(:disabled) {
   color: var(--color-ink);

@@ -17,7 +17,7 @@ const ON = '/?flags=foundation.shell,toolbar.v8'
 test.use({ viewport: { width: 820, height: 1180 }, hasTouch: true })
 
 /** Makes the page long, so its bar shows. */
-async function longPage(page: Page, url = ON) {
+async function longPage(page: Page, url = ON, bar = true) {
   await startInMode(page, 'pencil')
   await page.goto(url)
   await createNotebook(page, 'Heart', 'Cardiology')
@@ -29,7 +29,7 @@ async function longPage(page: Page, url = ON) {
     filler.setAttribute('data-test-filler', '')
     el.appendChild(filler)
   })
-  await expect(page.locator('[data-pagebar-root]')).toBeVisible()
+  if (bar) await expect(page.locator('[data-pagebar-root]')).toBeVisible()
   return main
 }
 
@@ -191,6 +191,16 @@ test('SC-13 the bar is a bit bigger: thumb 8 px (12 dragged), bar 22 px, arrows 
     .locator('[data-pagebar-arrow="down"]')
     .boundingBox())!
   expect(arrow.height).toBeGreaterThanOrEqual(38)
+  // An arrow stays inside the bar: just left of it is the page, not the arrow.
+  const edge = await page.evaluate((x) => {
+    const r = document
+      .querySelector('[data-pagebar-arrow="down"]')!
+      .getBoundingClientRect()
+    return document
+      .elementsFromPoint(x - 3, r.top + r.height / 2)
+      .some((e) => e.closest('[data-pagebar-arrow]'))
+  }, bar.x)
+  expect(edge).toBe(false)
   // The thumb's touch area (its ::before) is 44 pt wide: hit-test 22 px each side of its centre.
   const hit = await thumb.evaluate((el) => {
     const r = el.getBoundingClientRect()
@@ -201,3 +211,19 @@ test('SC-13 the bar is a bit bigger: thumb 8 px (12 dragged), bar 22 px, arrows 
   })
   expect(hit).toEqual({ l: true, r: true })
 })
+
+for (const [name, size] of [
+  ['phone', { width: 390, height: 844 }],
+  ['short iPad window', { width: 820, height: 600 }],
+] as const)
+  test(`SC-01 SC-12 the overflowing ⋯ menu shows exactly one bar of its own on a ${name}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(size)
+    await longPage(page, '/?flags=foundation.shell', false)
+    await page.getByRole('button', { name: 'Toolbar menu' }).first().click()
+    const edit = page.getByRole('button', { name: /^Edit toolbar/ }).first()
+    await expect(edit).toBeVisible()
+    await expect(page.locator('[data-pagebar-root]')).toHaveCount(0)
+    await expect(page.locator('[data-scrollbar-root]')).toHaveCount(1)
+  })

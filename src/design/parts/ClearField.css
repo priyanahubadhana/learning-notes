@@ -36,6 +36,7 @@ textarea.clr-field {
 .clr-field::-webkit-search-cancel-button,
 .clr-field::-webkit-search-decoration {
   -webkit-appearance: none;
+  display: none;
   appearance: none;
 }
 .clr-btn {

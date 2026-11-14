@@ -51,5 +51,15 @@ for (const level of ['beginner', 'professional'] as const)
         await page.screenshot({
           path: `${OUT}/search-${level}-${theme}-${size}.png`,
         })
+        await page.keyboard.press('Escape')
+        await page.goto('/?flags=settings.v3,search.v2#/settings/toolbar')
+        await page.waitForLoadState('networkidle')
+        await page
+          .getByRole('searchbox', { name: 'Search settings' })
+          .fill('tool')
+        await page.waitForTimeout(500)
+        await page.screenshot({
+          path: `${OUT}/settings-search-${level}-${theme}-${size}.png`,
+        })
       })
     }

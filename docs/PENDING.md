@@ -210,6 +210,8 @@ Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2
 ## Priority 4: other bugs
 
 - Built 11 Nov, waiting for the owner iPad checks (top of plans/owner-checks-pending.md). Delete this line after the owner checks them.
+- BUG (14 Nov, seen in scroll-fix pictures rotation-1..4, iPad landscape, Professional): two writing hints overlap on the page, "Tap here to keep writing" over "Type, or tap anywhere…". Show one hint at a time. Owner: text box v2 slice (with a test).
+- Scroll-fix follow-ups (small, not blocking): (1) a Card or CommandList gets 20 px narrower once it starts to scroll (the bar's gutter appears), keep the width steady; (2) the scroll bar over a pop-up card has no e2e test yet, add one; (3) touch-size pictures are shot on chromium with touch, because WebKit on Windows draws no blur, so check the blur on the real iPad; (4) the phone has no page bar, on purpose (PaperFrame hides it on narrow screens), confirm with the owner at re-test.
 
 ## Text tool + Pencil (built 12 Nov, waiting for the owner iPad check)
 

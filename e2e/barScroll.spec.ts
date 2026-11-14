@@ -81,7 +81,6 @@ test.describe('the "more tools" arrow has its own place', () => {
     await openNote(page, 'touch', { 'toolbar.extras': MANY })
     const scroller = page.locator('[data-bar-scroll] [data-slot="tools"]')
     const overlap = async (starts: boolean, ends: boolean) => {
-      const s = (await scroller.boundingBox())!
       // The arrows that must show are there (not skipped), and the others are not.
       await expect(page.locator('[data-scroll-cue="start"]')).toHaveCount(
         starts ? 1 : 0,
@@ -89,6 +88,9 @@ test.describe('the "more tools" arrow has its own place', () => {
       await expect(page.locator('[data-scroll-cue="end"]')).toHaveCount(
         ends ? 1 : 0,
       )
+      // Measured after the arrows are in: they take their own room.
+      await page.waitForTimeout(150)
+      const s = (await scroller.boundingBox())!
       for (const side of ['start', 'end']) {
         if (side === 'start' ? !starts : !ends) continue
         const c = (await page

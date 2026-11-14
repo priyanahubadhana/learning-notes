@@ -146,6 +146,7 @@ const config = defineConfig({
         /toolSearchSections/,
         /pinnedTools/,
         /barScroll/,
+        /miniBarBounds/,
         /firstUse/,
         /pillScroll/,
         /lastTool/,

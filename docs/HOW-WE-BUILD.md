@@ -71,7 +71,8 @@ Done when: <tests>. Follow .claude/agents/builder.md.
 - the sidebar is closed on iPad upright; the layout after turning the device equals a fresh load;
 - shared parts only: no browser drop-downs, radio dots or resize grips; Lucide icons only; one button style per panel;
 - no key names on touch screens; a ✕ on every field and pop-up; the focus ring shows for the keyboard only;
-- pictures taken after the last source edit, with real data, tips and toasts closed.
+- pictures taken after the last source edit, with real data, tips and toasts closed;
+- "dark" pictures that are really light: set the theme the way the app does, check the theme attribute and a dark background before each shot, and open every picture you list (failed review twice on 14 Nov: tasks 0.6 and P1.2).
 
 ## 8. Guards
 

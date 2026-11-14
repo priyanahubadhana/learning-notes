@@ -4,9 +4,9 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 14 Nov 2026: search pop-up touch close, Settings search in reach, preview defaults (slice fix-search, F5/F9)
 
-- What: the search pop-up has a ✕ close beside the field and no Esc text; the keyboard footer is hidden on touch; the Settings search stays at the top of every section and finds Try new features switches; on the build-next preview host 12 tested parts start ON (live stays OFF); check-dod allows a default only when gated by isPreviewHost.
-- Why: iPad test findings F5 and F9; testers had to switch each part on by hand.
-- Files: src/search/SearchPopup.tsx, src/app/flags.ts, src/settings/v3/tryNew.ts, src/settings/v3/settingsV3.css, src/design/parts/ClearField.css, scripts/dodSpec.mjs, e2e/searchClose.spec.ts, e2e/settingsV3SearchF9.spec.ts
+- What: the search pop-up has a ✕ close beside the field and no Esc text; the keyboard footer is hidden on touch; the Settings search stays at the top of every section and finds Try new features switches; on the build-next preview host 12 tested parts start ON (live stays OFF); check-dod allows a default only when gated by isPreviewHost (not the negated form). Fix round 3: the sticky Settings search sits above switches and why marks (new token --z-sticky, hairline below), with an e2e check that nothing paints over it; When lines for the preview defaults in settings-v3.md.
+- Why: iPad test findings F5 and F9; testers had to switch each part on by hand; gate 2 found list parts painting over the sticky bar.
+- Files: src/design/tokens.css, scripts/ratchet-baseline.json, scripts/check-dod.test.mjs, docs/features/settings-v3.md, src/search/SearchPopup.tsx, src/app/flags.ts, src/settings/v3/tryNew.ts, src/settings/v3/settingsV3.css, src/design/parts/ClearField.css, scripts/dodSpec.mjs, e2e/searchClose.spec.ts, e2e/settingsV3SearchF9.spec.ts
 
 ### 14 Nov 2026: build manager run 8
 

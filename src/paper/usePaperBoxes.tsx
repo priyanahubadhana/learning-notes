@@ -12,6 +12,9 @@ import { triggerFirstUse } from '../help/firstUse'
 import { t } from '../i18n/t'
 import { BOX_COLOURS, MAIN_BOX } from './boxes'
 import { type GridInfo } from './layoutPlan'
+import { isOn } from '../app/flags'
+import { NARROW_PX } from './sheets'
+import { LayoutAssistLazy } from './v2/LayoutAssistLazy'
 import { LayoutDialogLazy } from './LayoutDialogLazy'
 import { LAYOUT_MODE_EVENT } from './layoutModeBus'
 import { BoxStylePopoverLazy } from './BoxStylePopoverLazy'
@@ -208,10 +211,21 @@ export function usePaperBoxes(
   // opened from the toolbar's Layout button, the Text strip and the box menu.
   // It writes nothing until Done, and then as one Undo step.
   const [layoutOpen, setLayoutOpen] = useState(false)
+  // Text box v2 (switch textbox.v2, task 2B.10): Layout Assist on the page
+  // itself instead of the pop-up.
+  const [assist, setAssist] = useState(false)
   const openLayoutHere = () => {
     if (!editable) return toast(t('layout.assist.readOnly'))
-    setLayoutOpen(true)
+    if (!isOn('textbox.v2')) return setLayoutOpen(true)
+    if (window.innerWidth < NARROW_PX) return toast(t('layout.assist.phone'))
+    setAssist(true)
   }
+  useEffect(() => {
+    if (!assist) return
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && setAssist(false)
+    document.addEventListener('keydown', key)
+    return () => document.removeEventListener('keydown', key)
+  }, [assist])
   // The Text strip's, the toolbar's and the box menu's Layout button.
   useEffect(() => {
     const on = (e: Event) => {
@@ -363,9 +377,16 @@ export function usePaperBoxes(
   ]
 
   return {
-    layoutMode: false,
+    layoutMode: assist,
     onBoxHeight: (id: string, h: number | undefined) => onBoxChange(id, { h }),
-    layoutBar: null,
+    layoutBar: assist ? (
+      <LayoutAssistLazy
+        db={db}
+        pageId={pageId}
+        getInfo={() => gridView.current}
+        onDone={() => setAssist(false)}
+      />
+    ) : null,
     onAddBox: editable ? onAddBox : undefined,
     onAddBoxInOrder: editable ? onAddBoxInOrder : undefined,
     onBoxChange,

@@ -14,13 +14,13 @@ Work runs in **phases, one at a time**: (1) **artifact**, a picture the owner ap
 
 Plan: docs/plans/phase-plan.md. How helpers work: docs/HOW-WE-BUILD.md. State: docs/BUILD-STATE.md. Open work: docs/PENDING.md.
 
-| Owner setting (change only on the owner's word; log it in docs/DECISIONS.md) | Value                                                                              |
-| ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| Top manager                                                                  | Fable, the main chat: artifact, phase plan, final look, hard cases                 |
-| Middle managers                                                              | Opus at medium effort: `phase-manager` (one phase), `reviewer` (each task once)    |
-| Builders                                                                     | Sonnet (`builder`), as many as the phase has separate tasks; no Haiku in the build |
-| Tests                                                                        | a fast set on each merge; the full set nightly and before each release             |
-| Weekly quota                                                                 | 80% is a reference, not a cap                                                      |
+**Owner settings** (change only on the owner's word; log each change in docs/DECISIONS.md):
+
+- Top manager: Fable, the main chat (artifact, phase plan, final look, hard cases).
+- Middle managers: Opus at medium effort, `phase-manager` (one phase) and `reviewer` (each task once).
+- Builders: Sonnet (`builder`), as many as the phase has separate tasks; no Haiku in the build.
+- Tests: a fast set on each merge; the full set nightly and before each release.
+- Weekly quota: 80% is a reference, not a cap.
 
 ## Core rules
 

@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createAutosaver } from '../../../editor/autosave'
 import { markSaved, markUnsaved } from '../../../app/saveStatus'
 import {
   BOX_EVENTS,
@@ -137,5 +138,28 @@ describe('save log', () => {
     expect(rows.map((r) => r.state)).toEqual(['saved', 'unsaved'])
     expect(rows[1]).toMatchObject({ blockKind: 'checkListItem', online: true })
     expect(JSON.stringify(rows)).not.toContain('private')
+  })
+
+  it('a failed autosave gives the real error name, and autosave behaves as before', async () => {
+    document.body.innerHTML =
+      '<div data-content-type="checkListItem"><span id="s" tabindex="0">x</span></div>'
+    document.getElementById('s')!.focus()
+    let rows: SaveEntry[] = []
+    const stop = startSaveStateLog([], (r) => (rows = r))
+    const onError = vi.fn()
+    const err = new DOMException('full', 'QuotaExceededError')
+    const a = createAutosaver(() => Promise.reject(err), 10, onError)
+    a.schedule()
+    await a.flush()
+    a.dispose()
+    stop()
+    // The save still reports its error, stays unsaved and will retry.
+    expect(onError).toHaveBeenCalledWith(err)
+    expect(a.failed()).toBe(true)
+    expect(rows[0]).toMatchObject({
+      state: 'unsaved',
+      error: 'QuotaExceededError',
+      blockKind: 'checkListItem',
+    })
   })
 })

@@ -2,6 +2,9 @@ import { hasUnsaved, onUnsavedChange } from '../../../app/saveStatus'
 import { watchWindowPassive } from '../../../app/input/windowRecorder'
 import { KEEP } from './diagStore'
 
+/** Sent by editor/autosave.ts when a save fails (name only). */
+export const SAVE_ERROR_EVENT = 'ln:save-error'
+
 /** One "Not saved yet" moment (BUG-001). Kinds, times and numbers only. */
 export type SaveEntry = {
   /** ms since the page opened */
@@ -31,7 +34,8 @@ export function recentError(
   return last && now - last.t <= windowMs ? last.name : '-'
 }
 
-const nameOf = (v: unknown): string => (v instanceof Error ? v.name : 'unknown')
+const nameOf = (v: unknown): string =>
+  String((v as { name?: unknown } | null)?.name ?? 'unknown')
 
 /** Starts logging. Newest first. Returns the stop function. */
 export function startSaveStateLog(
@@ -60,10 +64,18 @@ export function startSaveStateLog(
     ].slice(0, KEEP)
     onRows(rows)
   })
-  const stopErr = watchWindowPassive(['error', 'unhandledrejection'], (e) => {
-    const x = e as ErrorEvent & PromiseRejectionEvent
-    last = { name: nameOf(x.error ?? x.reason), t: now() }
-  })
+  const stopErr = watchWindowPassive(
+    ['error', 'unhandledrejection', SAVE_ERROR_EVENT],
+    (e) => {
+      const x = e as ErrorEvent & PromiseRejectionEvent & CustomEvent<string>
+      // The autosaver names its own failure; others give an error object.
+      const name =
+        e.type === SAVE_ERROR_EVENT
+          ? String(x.detail)
+          : nameOf(x.error ?? x.reason)
+      last = { name, t: now() }
+    },
+  )
   const stopInput = watchWindowPassive(['keydown', 'pointerdown'], () => {
     lastInput = now()
   })

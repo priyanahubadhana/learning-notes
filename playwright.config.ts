@@ -124,6 +124,8 @@ export default defineConfig({
         /toolBand/,
         /pencilOffer/,
         /lassoWords/,
+        /penTools/,
+        /pictureSelect/,
         /gestureWatchdog/,
         /lockToastStill/,
         /editToolbar/,

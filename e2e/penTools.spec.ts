@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
+import { copiedText, spyClipboard } from './clipboardSpy.ts'
 import { openNote, tool } from './mainBarHelpers.ts'
 
 /**
@@ -15,7 +16,8 @@ test.use({
   hasTouch: true,
 })
 
-test.beforeEach(async ({ context, browserName }) => {
+test.beforeEach(async ({ context, browserName, page }) => {
+  await spyClipboard(page)
   // WebKit has no clipboard permissions; the clipboard checks run in Chromium.
   if (browserName === 'chromium') {
     await context.grantPermissions(['clipboard-read', 'clipboard-write'])
@@ -275,6 +277,9 @@ test('typing mode: a Pencil double-tap selects the word, a triple-tap the line, 
     await expect
       .poll(() => page.evaluate(() => navigator.clipboard.readText()))
       .toBe('nucleus')
+  } else {
+    // WebKit cannot read the clipboard: check what the app copied.
+    await expect.poll(() => copiedText(page)).toBe('nucleus')
   }
   // Bold from the mini toolbar.
   await mini.getByRole('button', { name: 'Bold' }).click()

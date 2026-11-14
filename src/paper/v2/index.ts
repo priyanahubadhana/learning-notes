@@ -3,7 +3,7 @@ import {
   PRIORITY,
   type RouterTargets,
 } from '../../app/input/eventRouter'
-import { PICK_BOX } from '../../editor/tapSelect'
+import { PICK_BOX, textFirstTap } from '../../editor/tapSelect'
 import { activeTool } from '../../app/tools/main/mainTools'
 import { selection } from '../../app/selection/store'
 import { clearBoxes, inputModeFor, isTap, selectBoxes } from './boxSelection'
@@ -45,6 +45,7 @@ type Tap = {
  * Returns the function that removes it all.
  */
 export function installBoxV2(): () => void {
+  textFirstTap.on = true
   let mode: 'none' | 'text' = 'text'
   let tap: Tap | null = null
   let swallowUntil = 0
@@ -64,8 +65,13 @@ export function installBoxV2(): () => void {
     const box = target?.closest(EXTRA)
     if (!box || target?.closest(OWN_TAP)) return
     const picked = box.hasAttribute('data-picked')
-    // A tap on the words of a selected box: the editor and tapSelect place the caret.
-    if (picked && target?.closest('.ProseMirror')) return
+    // A tap on the words: tapSelect runs the first-tap rule (textFirstTap).
+    // (The empty trailing block under the text is not words: it counts as padding.)
+    if (
+      target?.closest('.ProseMirror') &&
+      !target.closest('[contenteditable="false"]')
+    )
+      return
     tap = {
       id: e.pointerId,
       x: e.clientX,
@@ -118,6 +124,10 @@ export function installBoxV2(): () => void {
     const ids = [...document.querySelectorAll(EXTRA + '[data-picked]')].map(
       (b) => b.getAttribute('data-paper-box') ?? '',
     )
+    // A selected box with no caret in it keeps no selection anywhere (TB-03),
+    // not even stale words in its own editor: the next tap places the caret.
+    if (ids.length && !document.activeElement?.closest(EXTRA + '[data-picked]'))
+      window.getSelection()?.removeAllRanges()
     if (ids.length) selectBoxes(selection, ids)
     else clearBoxes(selection)
   })
@@ -145,6 +155,7 @@ export function installBoxV2(): () => void {
   return () => {
     for (const off of offs) off()
     router.destroy()
+    textFirstTap.on = false
     watch.disconnect()
     mirror.disconnect()
     clearBoxes(selection)

@@ -1,5 +1,5 @@
 import { frameCss, padOf } from '../core/boxStyle'
-import { PICK_BOX } from '../editor/tapSelect'
+import { PICK_BOX, textFirstTap } from '../editor/tapSelect'
 import { isOn } from '../app/flags'
 import { isUiEvent } from '../app/uiGuard'
 import {
@@ -633,7 +633,13 @@ export function PaperFrame({
     const down = (e: Event) => {
       const id = boxOfText(e.target)
       window.clearTimeout(later)
-      if (id)
+      // Text box v2: the first tap on a box that is not selected only selects
+      // it (no caret, no typing state).
+      const unpicked =
+        textFirstTap.on &&
+        id !== 'main' &&
+        !(e.target as Element).closest('[data-paper-box][data-picked]')
+      if (id && !unpicked)
         later = window.setTimeout(() => send({ type: 'caretIn', id }), 250)
     }
     const key = (e: KeyboardEvent) => {

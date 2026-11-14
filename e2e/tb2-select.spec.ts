@@ -297,7 +297,8 @@ test('TB-06: a tap on empty paper makes a box under the last one, never beside i
     r.y + 4,
   )
   await expect(page.locator(EXTRA)).toHaveCount(2)
-  const second = await rect(page.locator(EXTRA).nth(1))
+  const fresh = page.locator(EXTRA + ':has(.bn-editor:focus)')
+  const second = await rect(fresh)
   expect(second.y).toBeGreaterThanOrEqual(r.y + r.height - 2)
   await expect(page.locator(EXTRA).nth(1).locator('.bn-editor')).toBeFocused()
   await page.keyboard.type('Second')
@@ -377,4 +378,35 @@ test('TB-10: a new box stays one line wide until the right margin; never a lette
   expect(two.width).toBeGreaterThan(one.width)
   expect(two.height).toBeLessThan(one.height * 1.6)
   expect(two.width).toBeGreaterThan(80)
+})
+
+test('turning the device with a box selected keeps the box where it was (same as a fresh load)', async ({
+  page,
+}) => {
+  await start(page, 'Turn')
+  const box = await oneBox(page, 'Photosynthesis: light and water')
+  await page.setViewportSize({ width: 820, height: 1180 })
+  await page.waitForTimeout(800)
+  await expect(box).toHaveCount(1)
+  const frac = async () => {
+    const s = await rect(page.locator('[data-paper-sheet="1"]'))
+    const b = await rect(box)
+    return { x: (b.x - s.x) / s.width, w: b.width / s.width }
+  }
+  const p = await charPoint(page, 5)
+  await tapAt(page, p.x, p.y, 'touch')
+  await expect(box).toHaveAttribute('data-picked', '')
+  const before = await frac()
+  for (const vp of [
+    { width: 1180, height: 820 },
+    { width: 820, height: 1180 },
+  ]) {
+    await page.setViewportSize(vp)
+    await page.waitForTimeout(800)
+    await expect(box).toHaveCount(1)
+  }
+  const after = await frac()
+  expect(Math.abs(after.x - before.x)).toBeLessThan(0.03)
+  expect(Math.abs(after.w - before.w)).toBeLessThan(0.03)
+  await expect(box).toHaveAttribute('data-picked', '')
 })

@@ -1,3 +1,3 @@
-# 2B.3 first-look pictures (chromium, switch textbox.v2 ON)
+# 2B.3 first-look pictures (switch textbox.v2 ON)
 
-ipad-upright and ipad-sideways (sideways taken in an earlier run; the viewport switch inside one test then loses the box: open item), each in light, dark and sepia: a selected box (1.5 px accent line, 8 dots, tab, bar). Phone: not yet (the box is not found in the phone layout; to look into). ipad-webkit pictures wait for the webkit turn. Made by e2e/tb2-select-shots.spec.ts.
+Folders chromium/ and ipad-webkit/: ipad-upright, ipad-sideways, phone, each in light, dark and sepia (theme set on the page before each shot). A box is selected by a first tap on its words: 1.5 px accent line, 8 dots, tab, bar, no caret. Phone: boxes stack in a column, so no dots (spec), a lock and the menu show instead. Made by e2e/tb2-select-shots.spec.ts. Seen in review of my own pictures: in a narrow box the two text lines sit too close and touch the top line (the old box line height; not part of this task). Beginner/Professional not shot (no difference for this screen).

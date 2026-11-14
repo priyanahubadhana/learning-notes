@@ -25,7 +25,7 @@ Stop and report (do not guess) when: the spec is unclear or conflicts with the p
 
 "PUSH BLOCKED by the push guard: <step>" means a quick local check failed on your changes: read the lines shown, fix the cause, re-run the printed command, push again. Never bypass it (no `--no-verify`, no hooks-path change, no skip line unless Fable or the owner approved the reason).
 
-Never weaken, skip or delete a test. Never delete folders. Do not run the backup copy by hand; a hook does it.
+Never weaken, skip or delete a test. Never delete folders.
 
 ## Design and quality checklist (tick each in the report: ✓ / ✗ / n/a + proof)
 

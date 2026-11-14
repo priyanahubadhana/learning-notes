@@ -4,14 +4,13 @@ Owner request (12 Nov 2026): work must survive a power cut, the PC turning off, 
 
 ## Where the work lives (safe places)
 
-| What                                | Where                                                           | Safe because                                      |
-| ----------------------------------- | --------------------------------------------------------------- | ------------------------------------------------- |
-| Code, rules, plans, decisions       | git repo, pushed to GitHub after every step                     | survives any PC problem                           |
-| Open work list                      | `docs/PENDING.md` (the single list) + `docs/CHANGELOG.md`       | read first by any new session                     |
-| Approved mock-ups and their sources | `docs/mockups/` (copied from the temporary scratchpad)          | the scratchpad is a temp folder Windows may clean |
-| Mock-up links                       | claude.ai artifacts (listed in PENDING)                         | online, survive the PC                            |
-| Backup copy                         | `C:\Users\pc\Downloads\gdrive notes` (mirror after each change) | second copy                                       |
-| Helpers' half-done code             | their own git worktree + branch, committed in small steps       | a restart continues from the last commit          |
+| What                                | Where                                                     | Safe because                                      |
+| ----------------------------------- | --------------------------------------------------------- | ------------------------------------------------- |
+| Code, rules, plans, decisions       | git repo, pushed to GitHub after every step               | survives any PC problem                           |
+| Open work list                      | `docs/PENDING.md` (the single list) + `docs/CHANGELOG.md` | read first by any new session                     |
+| Approved mock-ups and their sources | `docs/mockups/` (copied from the temporary scratchpad)    | the scratchpad is a temp folder Windows may clean |
+| Mock-up links                       | claude.ai artifacts (listed in PENDING)                   | online, survive the PC                            |
+| Helpers' half-done code             | their own git worktree + branch, committed in small steps | a restart continues from the last commit          |
 
 ## What happens when…
 

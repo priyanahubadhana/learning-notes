@@ -50,6 +50,5 @@ Plan: docs/plans/phase-plan.md. How helpers work: docs/HOW-WE-BUILD.md. State: d
 ## Files
 
 - **Read docs/INDEX.md first**, then only what the task needs. Never read docs/ARCHIVE.md during work; search a heading only.
-- Rule files, read when the work needs them: `rules/planning.md` (planning a phase), `building.md`, `sessions.md` (chats, limits, backup copy), `testing.md`, `architecture.md` (code, data, design), `global.md` (text, UTC, accessibility), `scalability.md`, `security.md`, `quality.md` (every feature), `phase-end.md`.
+- Rule files, read when the work needs them: `rules/planning.md` (planning a phase), `building.md`, `sessions.md` (chats, limits), `testing.md`, `architecture.md` (code, data, design), `global.md` (text, UTC, accessibility), `scalability.md`, `security.md`, `quality.md` (every feature), `phase-end.md`.
 - docs/CHANGELOG.md: a dated entry after every change (what, why, files). Keep README, CLAUDE.md, docs/ and `rules/` up to date.
-- The backup copy to "gdrive notes" is made by a hook when a chat or helper stops (rules/sessions.md).

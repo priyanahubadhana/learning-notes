@@ -79,7 +79,6 @@ Done when: <tests>. Follow .claude/agents/builder.md.
 - **Push guard** (`scripts/push-guard.mjs`, run by `.githooks/pre-push`): Prettier and `check:links` on every branch; ESLint, `tsc -b`, `check:ratchet`, related unit tests and the changed e2e files on `build/next` and `slice/` branches. Fix the cause; never `--no-verify`.
 - **Pushes:** helpers may push normally; force pushes are denied (owner, 14 Nov).
 - **Secret scan** on every shell command.
-- **Backup copy** to "gdrive notes": a hook does it by itself when a helper stops. Do not run it by hand.
 
 ## 9. Hourly pulse (full team only)
 

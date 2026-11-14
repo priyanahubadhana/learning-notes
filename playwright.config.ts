@@ -176,6 +176,7 @@ const config = defineConfig({
         /textBoxFree/,
         /homeV2/,
         /scrollFrame/,
+        /barRoom/,
         /staySignedIn/,
         /freezeWatch/,
         /searchClose/,

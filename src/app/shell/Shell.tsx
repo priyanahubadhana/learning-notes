@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { t } from '../../i18n/t'
 import { SidebarResizer } from '../SidebarResizer'
+import { BarRoom } from '../../editor/BarRoom'
 import type { Space } from '../spaces/spaces'
 import { OverSide, PanelSlot, SideSlot } from './ColumnSlots'
 import { columnsFor, effectiveSidebarWidth, panelLeft } from './columns'
@@ -61,6 +62,8 @@ export interface ShellProps {
   onSearch: () => void
   onSlot: (element: HTMLElement | null) => void
   onStackSlot: (element: HTMLElement | null) => void
+  /** A page is the open screen: the bar slot keeps the tool bar's height (BarRoom). */
+  pageRoute?: boolean
   /** The sidebar element; the frame sets its `hidden` prop. */
   sidebar: ReactElement<{ hidden?: boolean }>
   /** The pages panel element; the frame sets `docked` and `width`. */
@@ -95,6 +98,7 @@ export default function Shell(p: ShellProps) {
     onSearch,
     onSlot,
     onStackSlot,
+    pageRoute,
     gear,
     spaces,
     title,
@@ -208,7 +212,9 @@ export default function Shell(p: ShellProps) {
               data-chrome
               data-bar-slot
               className="relative pb-1 empty:p-0"
-            />
+            >
+              <BarRoom pageRoute={!!pageRoute} />
+            </div>
           </div>
           {cols.phone && (
             <div className="sh-viewrow">

@@ -2,11 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
-### 15 Nov 2026: F8 late-reporting test is flaky (findings, no code change yet)
+### 15 Nov 2026: F8 the page no longer jumps when the lazy tool bar draws
 
-- What: e2e/scrollFrame.spec.ts "F8 a late-reporting window size" on ipad-webkit, 15 repeats each, workers=1: cf1731ad (before 2A.1 and R5) 5 failed; 4225e831 (2A.1) 3 failed; 2892d193 (R5) 3 failed; 66720168 (head) 7 failed. So it was flaky before tonight's merges (not a new red from one merge); the head is worse in this sample but the spread is wide. Failure: after the late-size turn main is 1082 px (or 1096) tall; on a fresh reload sometimes 978 px, about 104 px less. What takes those 104 px is not yet known (a banner, notice or the dock's late height are the guesses); next step is a DOM capture of the elements above main on a failing run.
-- Why: red-test stop; the cause is to be fixed, never the test.
-- Files: none changed.
+- What: the bar slot keeps the tool bar's height (two rows, --v8-row-h) from the first paint until the page editor has drawn the bar; the new tool bar's own loading placeholder keeps it too. Only for a bar docked at the top on a page route (not Home, Settings, Library, floating, hidden, bottom, auto-hide, ribbon, reading). PageEditor and the reserved space read one rule (src/editor/barRoomRule.ts). e2e F8 tests now wait for the bar and compare the bars block; new first-paint test and no-blank guard tests.
+- Why: the flaky F8 test (15 Nov findings) showed a real 118 px layout jump on load (bar missing at first paint in one state, drawn in the other).
+- Files: src/editor/barRoomRule.ts, BarRoom.tsx, PageEditor.tsx, src/App.tsx (hot, approved for this fix), src/app/shell/Shell.tsx, shell.css, src/app/tools/v8/ToolbarV8Lazy.tsx, toolbarV8.css, src/design/tokens.css, e2e/scrollFrame.spec.ts, e2e/barRoom.spec.ts, src/editor/barRoomRule.test.ts.
+
 ### 15 Nov 2026: P1.5 the real Pencil on scroll bars, menus and lists (L11; flag foundation.shell)
 
 - What: pressing a menu's or panel's own scroll bar (track, thumb, arrow) scrolls its list and the menu stays open (SC-19); the pages panel opened over the page shows its bar (SC-20); a Pencil drag scrolls lists, menus and panels like a finger, and on the note page the Pencil still writes (SC-21). The tests now use a Pencil sent by the browser itself (`e2e/realPen.ts`).

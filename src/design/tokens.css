@@ -462,6 +462,10 @@
   --sh-side: 288px;
   --sh-panel: 288px;
   --sh-top: 52px;
+  /* One row of the tool bar (v8): the loaded bar and the space kept for it while it loads. */
+  --v8-row-h: 52px;
+  /* The whole bar block: two rows and the pill's own border and padding (10 px). */
+  --v8-bar-h: calc(var(--v8-row-h) * 2 + 10px);
   --sh-tabbar: 56px;
   --sh-sheet: 440px;
   --sh-hit: 44px;

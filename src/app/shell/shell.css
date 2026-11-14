@@ -14,6 +14,13 @@
   box-sizing: border-box;
   color: var(--color-ink);
 }
+/* The kept tool bar space gives way the moment the real bar is in the slot. */
+[data-bar-slot] > [data-bar-room] {
+  min-height: var(--v8-bar-h);
+}
+[data-bar-slot] > [data-bar-room]:not(:only-child) {
+  display: none;
+}
 .sh-row {
   flex: 1;
   min-height: 0;

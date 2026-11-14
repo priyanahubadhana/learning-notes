@@ -36,8 +36,29 @@ function coveredBy(el: HTMLElement, r: DOMRect): boolean {
     r.left + r.width / 2,
     r.top + r.height / 2,
   )
-  return !!hit && !el.contains(hit) && !hit.contains(el)
+  if (!!hit && !el.contains(hit) && !hit.contains(el)) return true
+  // A panel, card or sheet drawn over any part of the bar's own column (the
+  // tool bar's ⋯ tray or More card over the page's right edge) hides the
+  // covered list's bar: one bar per edge (P1.1). Bars themselves are skipped.
+  const col = { l: r.right - BAR_W, r: r.right, t: r.top, b: r.bottom }
+  for (const n of Array.from(
+    document.querySelectorAll<HTMLElement>(PANEL_OVER),
+  )) {
+    if (n.contains(el) || el.contains(n) || n.closest('.sbar, [data-static]'))
+      continue
+    if (n.dataset.state === 'closed') continue
+    const q = n.getBoundingClientRect()
+    if (q.width === 0 || q.height === 0) continue
+    if (getComputedStyle(n).visibility === 'hidden') continue
+    if (q.left < col.r && q.right > col.l && q.top < col.b && q.bottom > col.t)
+      return true
+  }
+  return false
 }
+
+/** Boxes that, drawn over a list's bar column, cover that list (cards, sheets, trays, pop-ups). */
+const PANEL_OVER =
+  '.pcard, [popover], dialog, [role="dialog"], [data-bar="tray"], [data-popup]'
 
 /**
  * The rounded corners at the scroller's right edge (its own or a panel's that
@@ -307,6 +328,7 @@ export function ScrollBar({
       {arrow(-1)}
       <div
         {...hook('track')}
+        {...(legacy ? {} : { 'data-pen-native': '' })}
         onPointerDown={trackTap}
         onPointerMove={move}
         onPointerUp={up}
@@ -327,6 +349,7 @@ export function ScrollBar({
           aria-valuenow={Math.round(state.scrollTop)}
           tabIndex={0}
           {...hook('thumb')}
+          {...(legacy ? {} : { 'data-pen-native': '' })}
           onPointerDown={down}
           onKeyDown={(e) => {
             if (e.key === 'ArrowDown') jump(1)

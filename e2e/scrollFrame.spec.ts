@@ -190,10 +190,10 @@ test.describe('F2 / F3 / F6 one scroll bar, scroll from anywhere', () => {
 
     // (The wheel is not available in mobile WebKit: the single scroller above is the proof that every spot scrolls.)
 
-    // The shared bar: both arrows, a thumb, 20 px wide, ends dim.
+    // The shared bar: both arrows, a thumb, 22 px wide, ends dim.
     const bar = page.locator('[data-scrollbar-root]').first()
     await expect(bar).toBeVisible()
-    expect((await bar.boundingBox())!.width).toBeLessThanOrEqual(20)
+    expect((await bar.boundingBox())!.width).toBeLessThanOrEqual(22)
     await side.evaluate((el) => (el.scrollTop = 0))
     await expect(
       page.locator('[data-scrollbar-arrow="up"]').first(),

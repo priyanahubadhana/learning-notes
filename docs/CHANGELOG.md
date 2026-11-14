@@ -1941,3 +1941,11 @@ What: `git worktree remove` on 47 clean, merged copies; 19 remain. Six folders w
 ## 14 Nov 2026: restart approved; leftover folders cleaned
 
 What: 6 scratch working copies removed with git and 9 folders in `.claude/worktrees` deleted (owner's one-time yes; links removed first; main packages untouched); 8 half-deleted folders in Downloads remain for task 0.11. docs/BUILD-STATE.md now says RESTART APPROVED (lean mode, the order of the first tasks); docs/PENDING.md "Needs you" rewritten; the owner's answers logged in docs/DECISIONS.md. Why: the owner answered the last three questions and asked to speed up.
+
+## 2026-11-14 P1.1 scroll bar: Pencil, one bar per edge, a bit bigger
+
+- Why: owner's first look L4 + L1 (Pencil missed the bar; two bars side by side; bar felt too small).
+- Cause of the Pencil miss: only the 6 px track line took a tap (the rest of the 20 px bar was dead for a precise tip; a finger's touch fuzz hid it), and the Pencil-tap guard cancelled the touch on the bar. Fix: the whole bar width is the track; thumb and track are `data-pen-native`.
+- SC-03 for cards and sheets: a bar hides when any card, sheet or tray is drawn over its column (it only looked at the list centre before).
+- Size: bar 22 px (was 20), thumb 8 / 12 dragged (was 4 / 6), arrows 38 (was 34). Flag off: old 24 px bar unchanged.
+- Files: src/design/parts/ScrollBar.tsx, ScrollBar.css, scrollBarLogic.ts, e2e/scrollBarPen.spec.ts, playwright.config.ts (one test-list line), docs/features/shell.md.

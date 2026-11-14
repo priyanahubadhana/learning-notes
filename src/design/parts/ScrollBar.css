@@ -5,7 +5,7 @@
  */
 [data-scrollbar] {
   /* The gutter the bar sits in, so it never covers content. */
-  padding-inline-end: 20px;
+  padding-inline-end: 22px;
   scrollbar-width: none;
 }
 /* Panels: scrolling stays inside the panel. No touch-action here: sideways swipes (tables, chip rows) keep working. */
@@ -30,6 +30,7 @@
   --sbar-layer: calc(var(--z-sheet) + 1);
 }
 .sbar__arrow {
+  position: relative;
   display: flex;
   width: 100%;
   align-items: center;
@@ -39,16 +40,28 @@
   color: var(--color-ink-soft);
   touch-action: manipulation;
 }
+/* Touch area 44 pt: the arrow is 22 x 38, its invisible frame reaches 44 x 44 (finger and Pencil). */
+.sbar__arrow::before {
+  content: '';
+  position: absolute;
+  inset: -3px -1px -3px -21px;
+}
 .sbar__arrow:hover:not(:disabled) {
   color: var(--color-ink);
 }
 .sbar__arrow:disabled {
   opacity: 0.4;
 }
+/* The track is the whole bar width, so a Pencil tap anywhere across the bar jumps (a precise tip has no finger fuzz); the visible line is the ::before. */
 .sbar__track {
   position: relative;
   flex: 1;
-  margin: 0 8px;
+}
+.sbar__track::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 8px;
   border-radius: 999px;
   background: var(--color-line);
 }
@@ -56,10 +69,10 @@
 .sbar__track--short {
   margin-block: 4px;
 }
-/* The thumb is 4 px (6 px while dragged); its touch area is 44 pt wide. */
+/* The thumb is 8 px (12 px while dragged); its touch area is 44 pt wide. */
 .sbar__thumb {
   position: absolute;
-  inset-inline: 0;
+  inset-inline: 7px;
   border-radius: 999px;
   background: var(--color-muted);
   touch-action: none;
@@ -71,10 +84,10 @@
   content: '';
   position: absolute;
   inset-block: 0;
-  inset-inline: -20px;
+  inset-inline: -18px;
 }
 .sbar__thumb--drag {
-  inset-inline: -1px;
+  inset-inline: 5px;
   background: var(--color-accent);
 }
 @media (prefers-reduced-motion: reduce) {

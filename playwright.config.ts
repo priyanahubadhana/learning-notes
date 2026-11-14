@@ -87,6 +87,7 @@ const config = defineConfig({
         /security-m1-/,
         /chromeIsolation/,
         /penTapChrome/,
+        /scrollBarPen/,
         /ipadKeyboard/,
         /inkLayers/,
         /penSelect/,

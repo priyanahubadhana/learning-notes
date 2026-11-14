@@ -1,6 +1,6 @@
-/** Width of the shared scroll bar and height of each arrow (px); a little smaller than 24 / 40 (14 Nov F6). */
-export const BAR_W = 20
-export const ARROW = 34
+/** Width of the shared scroll bar and height of each arrow (px): between the old page bar (24 / 40, too big) and 14 Nov's 20 / 34 (too small); P1.1. */
+export const BAR_W = 22
+export const ARROW = 38
 const MIN_THUMB = 40
 /** The old page bar (flag foundation.shell off): 24 px wide, 40 px arrows. */
 export const OLD_BAR_W = 24

@@ -21,6 +21,7 @@ Full frame design: [shell-spec](../design/shell-spec.md). This file holds the be
 - SC-15 When the arrows are drawn → they are the app's Lucide chevrons (stroke 1.6), dimmed at their end; hover and press show a soft round well behind the chevron. (P1.4; `e2e/scrollBarLook.spec.ts`)
 - SC-16 When the track is drawn → a quiet 14 px pill (`--sbar-track`) with a hairline, wider than the 8 px thumb; the thumb is a pill with a hairline glass halo. Tokens only. (P1.4; `e2e/scrollBarLook.spec.ts`)
 - SC-17 When a bar state changes → 180 ms (`--dur-2`, ease-out); with reduced motion → none. (P1.4; `e2e/scrollBarLook.spec.ts`)
+- SC-18 When a list overflows → no part of its bar (the thumb's 44 pt touch area, the track, the arrows) sits over any button or field of that list at any scroll position: the gutter is 33 px (the 22 px bar plus the 11 px the touch area reaches left of it). A tap and a Pencil tap on the sidebar's "+" (New notebook) create a notebook with 7+ notebooks, iPad upright and sideways. (P1.4 fix: the touch area covered the "+"; `e2e/scrollBarHeader.spec.ts`)
 
 ## Won't do
 

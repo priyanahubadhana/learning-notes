@@ -6,8 +6,8 @@
  * are P1.1's and unchanged: bar 22, thumb 8 (12 dragged), arrows 38 / 44.
  */
 [data-scrollbar] {
-  /* The gutter the bar sits in, so it never covers content. */
-  padding-inline-end: 22px;
+  /* The gutter the bar sits in, so it never covers content: the 22 px bar plus the 11 px its thumb's 44 pt touch area reaches left of it (P1.4: a "+" at the list's edge was covered by that touch area, 6+ notebooks). */
+  padding-inline-end: 33px;
   scrollbar-width: none;
 }
 /* Panels: scrolling stays inside the panel. No touch-action here: sideways swipes (tables, chip rows) keep working. */

@@ -89,6 +89,7 @@ const config = defineConfig({
         /penTapChrome/,
         /scrollBarPen/,
         /scrollBarLook/,
+        /scrollBarHeader/,
         /ipadKeyboard/,
         /inkLayers/,
         /penSelect/,

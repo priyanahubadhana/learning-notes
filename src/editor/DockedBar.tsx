@@ -689,6 +689,27 @@ function Tray({
         ?.querySelector<HTMLElement>('button:not([data-popup-close])')
         ?.focus({ preventScroll: true })
   }, [focusFirst, quietFocus])
+  // R5: on a phone the tray ends above the tab bar (and the screen edge), so its
+  // last row can be scrolled into view and is never hidden behind the bar.
+  const [room, setRoom] = useState<number | null>(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el || bottom) return
+    const measure = () => {
+      const bar = document.querySelector<HTMLElement>('.sh-tabbar')
+      const barTop =
+        bar && bar.offsetParent !== null
+          ? bar.getBoundingClientRect().top
+          : window.innerHeight
+      setRoom(
+        Math.max(160, Math.floor(barTop - el.getBoundingClientRect().top - 8)),
+      )
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(document.documentElement)
+    return () => ro.disconnect()
+  }, [bottom])
   const arrows = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
     const items = [
@@ -710,6 +731,7 @@ function Tray({
       onKeyDown={label ? arrows : undefined}
       data-bar="tray"
       tabIndex={quietFocus ? -1 : undefined}
+      style={room == null ? undefined : { maxHeight: `min(75vh, ${room}px)` }}
       className={`${quietFocus ? 'outline-none ' : ''}absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 shadow-lg ${
         wide ? 'w-[340px]' : 'min-w-[230px]'
       } ${bottom ? 'bottom-full mb-1' : 'top-full'}`}

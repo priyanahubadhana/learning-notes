@@ -1,11 +1,14 @@
 import { lazy, Suspense } from 'react'
 import { isPreviewHost, useFlag } from '../../app/flags'
+import { diagGate } from '../../app/diagGate'
 import { pencilCheckShown } from './pencilCheckLogic'
 import { ScrollBar } from './ScrollBar'
 import { useScrollTarget } from './scrollTarget'
 
 // P1.5a: hidden recorder, preview host + ?pencilcheck=1 only (its own chunk).
 const PencilCheck = lazy(() => import('./PencilCheck'))
+// 2B.2: quiet box and save recorders, preview address only (its own chunk).
+const DiagPanel = lazy(() => import('../../paper/v2/diag/DiagPanel'))
 
 /**
  * Mounted once (new app frame, flag foundation.shell): the shared scroll bar on
@@ -19,6 +22,11 @@ export function ScrollBarHost() {
   return (
     <>
       {on ? <ScrollBar scroller={target} auto /> : null}
+      {diagGate(isPreviewHost()) ? (
+        <Suspense fallback={null}>
+          <DiagPanel />
+        </Suspense>
+      ) : null}
       {check ? (
         <Suspense fallback={null}>
           <PencilCheck />

@@ -20,3 +20,14 @@ export function watchWindowEvents(
     }
   }
 }
+
+/** One passive bubble-phase listener per type; for recorders. Returns the stop function. */
+export function watchWindowPassive(
+  types: readonly string[],
+  on: (e: Event) => void,
+): () => void {
+  for (const t of types) window.addEventListener(t, on, { passive: true })
+  return () => {
+    for (const t of types) window.removeEventListener(t, on)
+  }
+}

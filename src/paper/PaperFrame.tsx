@@ -1,5 +1,6 @@
 import { frameCss, padOf } from '../core/boxStyle'
-import { PICK_BOX } from '../editor/tapSelect'
+import { PICK_BOX, textFirstTap } from '../editor/tapSelect'
+import { isOn } from '../app/flags'
 import { isUiEvent } from '../app/uiGuard'
 import {
   lazy,
@@ -51,6 +52,7 @@ import {
   reconcile,
   removeBox as removeFromRows,
   resizeCols,
+  ROW_GAP,
   zoneOf,
   type Geometry,
   type Zone,
@@ -631,7 +633,13 @@ export function PaperFrame({
     const down = (e: Event) => {
       const id = boxOfText(e.target)
       window.clearTimeout(later)
-      if (id)
+      // Text box v2: the first tap on a box that is not selected only selects
+      // it (no caret, no typing state).
+      const unpicked =
+        textFirstTap.on &&
+        id !== 'main' &&
+        !(e.target as Element).closest('[data-paper-box][data-picked]')
+      if (id && !unpicked)
         later = window.setTimeout(() => send({ type: 'caretIn', id }), 250)
     }
     const key = (e: KeyboardEvent) => {
@@ -674,6 +682,23 @@ export function PaperFrame({
     window.addEventListener(PICK_BOX, on)
     return () => window.removeEventListener(PICK_BOX, on)
   }, [extra])
+  // Text box v2 (switch textbox.v2, task 2B.3): its tap rules load on demand.
+  const v2 = useRef<typeof import('./v2') | null>(null)
+  useEffect(() => {
+    if (!isOn('textbox.v2')) return
+    let off: (() => void) | undefined
+    let gone = false
+    void import('./v2').then((m) => {
+      if (gone) return
+      v2.current = m
+      off = m.installBoxV2()
+    })
+    return () => {
+      gone = true
+      off?.()
+      v2.current = null
+    }
+  }, [])
   // A tap on the bare paper deselects: the Lasso's own loop-up does it.
   useEffect(() => {
     if (picked.length === 0) return
@@ -1579,6 +1604,21 @@ export function PaperFrame({
       Math.hypot(e.clientX - prev.x, e.clientY - prev.y) < DOUBLE_TAP_PX
     )
       return
+    // TB-06 (switch textbox.v2): beside a box, the new box goes under it.
+    let tapY = y
+    if (v2.current) {
+      const spans = extra.flatMap((b) => {
+        const fr = paperEl.current
+          ?.querySelector<HTMLElement>(
+            '[data-paper-box="' + CSS.escape(b.id) + '"]',
+          )
+          ?.getBoundingClientRect()
+        return fr
+          ? [{ top: (fr.top - r.top) / k, bottom: (fr.bottom - r.top) / k }]
+          : []
+      })
+      tapY = v2.current.rowUnder(y, spans, ROW_GAP)
+    }
     // Text box v2: a SMALL box exactly where tapped (its first line on the
     // paper line under the tap); it grows with the text, then wraps.
     onAddBox({
@@ -1586,7 +1626,7 @@ export function PaperFrame({
         Math.max(0, x - 1),
         sheet.w - 15 - FREE_MIN_W - FREE_RIGHT_GAP,
       ),
-      y: Math.max(0, snap(y, step / k)),
+      y: Math.max(0, snap(tapY, step / k)),
       row,
       free: true,
       rows: baseRows,

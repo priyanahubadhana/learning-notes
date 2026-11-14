@@ -1,0 +1,18 @@
+/*
+ * Text box v2 (task 2B.3), loaded only with the switch ON: one selection look.
+ * A selected box: a solid 1.5 px accent line with a 1 px paper halo, so it
+ * keeps 3:1 against the page in dark and sepia too. A line or block inside
+ * never gets its own outline. States picture, panel 1.
+ */
+[data-paper-box][data-picked] [data-box-frame] {
+  border-width: 1.5px;
+}
+[data-paper-box][data-picked]:not([data-typing]) [data-box-frame] {
+  box-shadow: 0 0 0 1px var(--color-bg);
+}
+[data-paper-box] .bn-editor:focus-visible,
+[data-paper-box] .ProseMirror:focus-visible,
+[data-paper-box] .bn-block-content,
+[data-paper-box] .bn-block-outer {
+  outline: none;
+}

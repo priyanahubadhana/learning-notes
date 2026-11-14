@@ -203,14 +203,17 @@ export const boxTapPending = (): boolean => Date.now() < boxTapUntil
 /** Fired on window when a first tap selects a box: detail {id, add}. */
 export const PICK_BOX = 'ln:pick-box'
 
+/** Text box v2 (2B.3): with the Text tool too, the first tap selects the box. */
+export const textFirstTap = { on: false }
+
 /**
  * 1 when a tap on this editor's box first selects the box (Lasso, an extra
  * box that is not picked): every count then moves up by one. 0 when the box
  * is active already (Text tool, the page's main box, a picked box).
  */
-function boxShift(dom: HTMLElement, tool: string): number {
+export function boxShift(dom: HTMLElement, tool: string): number {
   const box = dom.closest('[data-paper-box]')
-  if (!box || tool === 'text') return 0
+  if (!box || (tool === 'text' && !textFirstTap.on)) return 0
   if (box.getAttribute('data-paper-box') === 'main') return 0
   return box.hasAttribute('data-picked') ? 0 : 1
 }

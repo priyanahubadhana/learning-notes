@@ -368,3 +368,28 @@ test.describe('phone: a list moved off the screen draws nothing', () => {
     expect(stray).toBe(0)
   })
 })
+
+test('the CommandList sample shows the shared bar in its own gutter when its list overflows', async ({
+  page,
+}) => {
+  await page.goto('/?flags=foundation.shell#/design-tokens')
+  const list = page.getByTestId('list-demo').getByTestId('cl-list')
+  await list.scrollIntoViewIfNeeded()
+  await list.evaluate((el) => (el.style.maxHeight = '150px'))
+  await expect(list).toHaveAttribute('data-scrollbar', '')
+  const gap = await list.evaluate((el) => getComputedStyle(el).paddingRight)
+  expect(gap).toBe('20px')
+  const r = (await list.boundingBox())!
+  const bar = page.locator('[data-scrollbar-root]').filter({
+    has: page.locator('[data-scrollbar-thumb]'),
+  })
+  await expect
+    .poll(async () => {
+      for (const b of await bar.all()) {
+        const q = await b.boundingBox()
+        if (q && Math.abs(q.x + q.width - (r.x + r.width)) < 2) return true
+      }
+      return false
+    })
+    .toBe(true)
+})

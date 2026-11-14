@@ -4,9 +4,9 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 14 Nov 2026: fix-scroll slice, round 3 (gate 2 + final look)
 
-- What: with the flag off the page bar is the old 24 px bar again, exactly (ScrollBar `legacy`: old sizes, classes and `data-pagebar` gutter in index.css), and the pages panel V2 draws no shared bar. With the flag on: a Card that scrolls shows the shared bar at rest; a short list (under 148 px) shows the thumb only; the bar sits inside the rounded corners of its panel and draws nothing while its list is off the screen; a list's gutter is reserved only while it overflows; a bar over a floating card or phone sheet is drawn above it (layer variable, no new z-index); touch devices show no Alt+T / Ctrl+K labels in the sidebar; long breadcrumbs end in an ellipsis.
+- What: with the flag off the page bar is the old 24 px bar again, exactly (ScrollBar `legacy`: old sizes, classes and `data-pagebar` gutter in index.css), and the pages panel V2 draws no shared bar. With the flag on: a Card or CommandList that scrolls shows the shared bar at rest in its own gutter; a short list (under 148 px) shows the thumb only; the bar sits inside the rounded corners of its panel and draws nothing while its list is off the screen; a list's gutter is reserved only while it overflows; a bar over a floating card or phone sheet is drawn above it (layer variable, no new z-index); touch devices show no Alt+T / Ctrl+K labels in the sidebar; long breadcrumbs end in an ellipsis.
 - Why: gate 2 (flag-off look changed) and Fable's final look (Card overflow without the bar, arrows over a short card, arrows over the drawer corner, stray pixels at the phone's left edge, shortcut labels on touch).
-- Files: src/design/parts/ScrollBar.tsx, ScrollBar.css, scrollBarLogic.ts, Card.tsx, src/paper/PageScrollBar.tsx, src/app/panel/v2/PanelV2.tsx, src/notebooks/Sidebar.tsx, src/app/shell/shell.css, src/index.css, e2e/scrollFrame.spec.ts, docs/features/shell.md
+- Files: src/design/parts/ScrollBar.tsx, ScrollBar.css, scrollBarLogic.ts, Card.tsx, CommandList.tsx, src/paper/PageScrollBar.tsx, src/app/panel/v2/PanelV2.tsx, src/notebooks/Sidebar.tsx, src/app/shell/shell.css, src/index.css, e2e/scrollFrame.spec.ts, docs/features/shell.md
 
 ### 14 Nov 2026: fix-scroll slice, round 2 (one bar everywhere)
 

@@ -18,7 +18,10 @@ import {
   type Command,
   type CommandGroup,
 } from './commandListLogic'
+import { useFlag } from '../../app/flags'
 import { motionMs } from './motion'
+import { ScrollBar } from './ScrollBar'
+import { useScroller } from './useScroller'
 import {
   placeStrip,
   STRIP_GAP,
@@ -83,6 +86,9 @@ export function CommandList(props: CommandListProps) {
   const floating = mode === 'floating'
   const uid = useId()
   const rootRef = useRef<HTMLDivElement>(null)
+  // New app frame (SC-01): a long list shows the shared bar at rest, in its own gutter.
+  const shell = useFlag('foundation.shell')
+  const [listEl, listRef] = useScroller()
   const inputRef = useRef<HTMLInputElement>(null)
   const [query, setQuery] = useState(props.initialQuery ?? '')
   const [showAll, setShowAll] = useState(!!props.initialShowAll)
@@ -313,6 +319,7 @@ export function CommandList(props: CommandListProps) {
         aria-label={tm('parts.menus.listLabel')}
         className="cl__list"
         data-testid="cl-list"
+        ref={listRef}
       >
         {built.rows.map((r) => {
           if (r.kind === 'heading')
@@ -359,6 +366,7 @@ export function CommandList(props: CommandListProps) {
           </div>
         )}
       </div>
+      {shell && <ScrollBar scroller={listEl} />}
       <span className="cl__sr" role="status" aria-live="polite">
         {query && navCount > 0
           ? tm('parts.menus.results', { count: built.matches })

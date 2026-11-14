@@ -910,8 +910,10 @@ function App() {
       new Promise((resolve) => setPicker({ mode, resolve })),
     choose: (request) =>
       new Promise((resolve) => setChoice({ request, resolve })),
-    askName: (title, initial) =>
-      new Promise((resolve) => setNameAsk({ title, initial, resolve })),
+    askName: (title, initial, placeholder) =>
+      new Promise((resolve) =>
+        setNameAsk({ title, initial, placeholder, resolve }),
+      ),
     openSettings,
     toast: (message, action) => {
       // The new frame (flag foundation.shell) draws its own toast (SH-12).
@@ -1077,6 +1079,7 @@ function App() {
   const [nameAsk, setNameAsk] = useState<{
     title: string
     initial: string
+    placeholder?: string
     resolve: (name: string | null) => void
   } | null>(null)
 
@@ -1145,7 +1148,7 @@ function App() {
     // The notebook name field (or sheet) keeps the cursor, not the page title.
     if (touchUi()) {
       void appUi
-        .askName(t('nameSheet.newNotebook'), notebook.title)
+        .askName(t('nameSheet.newNotebook'), '', notebook.title)
         .then((name) => name && runTask(renameNotebook(db, notebook.id, name)))
     } else setRenamingNotebookId(notebook.id)
     const first = await createPageIn(notebook.id, null, false)
@@ -2170,6 +2173,7 @@ function App() {
               <LazyNameSheet
                 title={nameAsk.title}
                 initial={nameAsk.initial}
+                placeholder={nameAsk.placeholder}
                 onCancel={() => {
                   setNameAsk(null)
                   nameAsk.resolve(null)

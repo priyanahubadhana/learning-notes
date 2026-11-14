@@ -14,7 +14,7 @@ import { createNotebook, showSidebar, startInMode } from './helpers.ts'
 const ON = '/?flags=foundation.shell'
 test.use({ hasTouch: true })
 const SIZES = {
-  upright: { width: 820, height: 560 },
+  upright: { width: 820, height: 420 },
   sideways: { width: 1180, height: 700 },
 }
 
@@ -22,12 +22,16 @@ const SIZES = {
 async function covered(page: Page, scrollTop: number) {
   return page.evaluate(async (top) => {
     const side = document.querySelector<HTMLElement>('aside#sidebar')!
+    // The list the shared bar serves (it carries the gutter attribute), else the first one that overflows.
     const sc =
+      side.querySelector<HTMLElement>('[data-scrollbar]') ??
+      (side.matches('[data-scrollbar]') ? side : null) ??
       Array.from(side.querySelectorAll<HTMLElement>('*')).find(
         (e) =>
           getComputedStyle(e).overflowY === 'auto' &&
           e.scrollHeight > e.clientHeight,
-      ) ?? side
+      ) ??
+      side
     sc.scrollTop = top
     // The bar follows the scroll on its next frames.
     await new Promise((r) => setTimeout(r, 200))

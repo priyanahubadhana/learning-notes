@@ -2,6 +2,18 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 14 Nov 2026: F7 freeze recorder on the preview
+
+- What: the slow-moments recorder (R6-11) now runs by itself on the preview address build-next.learning-notes-app.pages.dev only (never on the live host or a deploy hash address, which can be a production build; the test machine only with the switch `learning-notes:perf.freezeWatch`) and notes main-thread blocks of 500 ms or more. Every entry now also names the top open panel and the last tap or key kind (never typed text; the label clean-up and key names were fixed after gate 2). Settings › Advanced › Copy report shows them.
+- Why: F7, the owner's iPad sometimes freezes with no clear trigger; the cause must be measured, not guessed.
+- Files: src/perf/slowMoments.ts, src/perf/slowMomentsSwitch.ts, src/perf/freezeWatch.test.ts
+
+### 14 Nov 2026: F1 stays signed in when Safari reopens at an old sign-in address
+
+- What: a Google sign-in callback that cannot finish (its one-time code already used, or a cancelled consent) no longer signs out a device that already holds a sign-in; the callback is always removed from the address, also after a failure.
+- Why (F1, owner iPad): Safari reopens a closed tab at the address it saved, which can still be `?sync=callback&code=...`. Start-up tried the used-up code again, failed ("no verifier") and called sign out, which wiped the stored session (and the Drive key on the server). A cancelled "connect Google" consent did the same. Every sign-in left a new callback address, so it repeated on each reopen.
+- Files: src/sync/syncService.ts, src/sync/connectors/supabase.ts, e2e/staySignedIn.spec.ts
+
 ### 14 Nov 2026: build/next red fixed after storage safety (CI 43528030714)
 
 - What: a failed chunk download no longer reloads the app when offline, and waits 1 s so a page being left is not reloaded; Try new features expects 26 switches (storage.safety added); SS-07 measures the phone banner in the bundled Inter font, not the test machine's fallback.

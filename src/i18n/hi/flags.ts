@@ -60,6 +60,9 @@ export const hiFlags = {
   'flags.update.v2.desc': 'फिर से डिज़ाइन किया गया ऐप अपडेट तरीका।',
   'flags.security.m1.name': 'सुरक्षा सुधार',
   'flags.security.m1.desc': 'अतिरिक्त सुरक्षा जाँचों का पहला सेट।',
+  'flags.toolbar.menu.name': 'नया टूलबार मेन्यू',
+  'flags.toolbar.menu.desc':
+    'छोटे समूहों में ⋯ टूलबार मेन्यू, कम इस्तेमाल वाले विकल्प "और" के नीचे।',
   'flags.page.menus.name': 'नए पेज मेन्यू',
   'flags.page.menus.desc': 'पेज पर फिर से डिज़ाइन किए गए मेन्यू।',
   'flags.page.objects.name': 'नए पेज ऑब्जेक्ट',

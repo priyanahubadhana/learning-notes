@@ -64,6 +64,9 @@ export const esFlags = {
   'flags.security.m1.name': 'Mejora de seguridad',
   'flags.security.m1.desc':
     'El primer conjunto de controles de seguridad extra.',
+  'flags.toolbar.menu.name': 'Nuevo menú de la barra',
+  'flags.toolbar.menu.desc':
+    'El menú ⋯ de la barra en grupos cortos, con lo poco usado bajo Más.',
   'flags.page.menus.name': 'Nuevos menús de página',
   'flags.page.menus.desc': 'Los menús de página rediseñados.',
   'flags.page.objects.name': 'Nuevos objetos de página',

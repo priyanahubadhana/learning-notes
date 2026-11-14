@@ -6,7 +6,7 @@ The file a build manager reads to continue. How the build runs: [ECONOMY-MODE.md
 
 **Switch (13 Nov, 19:45 IST, owner request):** the 13-section economy mode is replaced by the simple system: Opus manager, Sonnet builders that own a whole slice, Opus gate 2, Fable for the design check and the final look only, no Haiku. Handover of run 5 folded in (run 6).
 
-**Next result for the owner:** BUG-006 delivered (CI 43522929290 green on 1d7db514, main chat told 14 Nov). Now: storage safety merged cfebd3a4, CI 43528030714 running; first load 310,509 B (earlier 319,763 was a stale dist; no lazy fix needed). Then one at a time, CI after each: 0g3 9840315e, 9-6 0d94407d, 15 c1180092 (ST11 App.tsx wiring), 8b bfb6298d, 9-cost 14b9e748 (drop its EpubView guard, keep slice 7 viewRef fix).
+**Next result for the owner:** BUG-006 delivered (CI 43522929290 green on 1d7db514, main chat told 14 Nov). Now: storage safety merged cfebd3a4, CI 43528030714 RED (chromium shard 4 + ipad-webkit pencil shard 2; Opus builder on root cause); first load 310,509 B (earlier 319,763 was a stale dist; no lazy fix needed). Then one at a time, CI after each: 0g3 9840315e, 9-6 0d94407d, 15 c1180092 (ST11 App.tsx wiring), 8b bfb6298d, 9-cost 14b9e748 (drop its EpubView guard, keep slice 7 viewRef fix).
 
 ## Milestones (the main chat checks them with `bash scripts/build-pulse.sh` every hour)
 
@@ -30,7 +30,7 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 ## Fixed facts
 
 - **Live app:** `main`; every new part is switched OFF. A push of app code to `main` deploys by itself; docs-only pushes do not. Release to `main` only from a green `build/next`, by the release flow in the master plan.
-- **Integration branch:** `build/next` cfebd3a4 (CI 43528030714 running; 43522929290 on 1d7db514 green; 43515340927 on 8c3b102e red on TB-33/TB-34 timing, fixed 4579cdb4; 826072cf BUG-006 merge was red on toolbarV8Tools.spec.ts:585 ipad-webkit, root cause Card close focus trap, fixed c17bd0d9 by Opus builder, after-the-fact gate 2 PASS 14 Nov), worktree `C:\Users\pc\Downloads\ln-buildnext`, draft pull request #5 (never merge by hand). Its CI run is the judge and publishes the preview: https://build-next.learning-notes-app.pages.dev (new parts under Settings › Try new features). Last green: 43412535492 on ff92ce2f.
+- **Integration branch:** `build/next` cfebd3a4 (CI 43528030714 red, Opus builder fixing; 43522929290 on 1d7db514 green; 43515340927 on 8c3b102e red on TB-33/TB-34 timing, fixed 4579cdb4; 826072cf BUG-006 merge was red on toolbarV8Tools.spec.ts:585 ipad-webkit, root cause Card close focus trap, fixed c17bd0d9 by Opus builder, after-the-fact gate 2 PASS 14 Nov), worktree `C:\Users\pc\Downloads\ln-buildnext`, draft pull request #5 (never merge by hand). Its CI run is the judge and publishes the preview: https://build-next.learning-notes-app.pages.dev (new parts under Settings › Try new features). Last green: 43412535492 on ff92ce2f.
 - **Docs** (this file, PENDING, CHANGELOG, DECISIONS) are written on `main` only; merge `main` into `build/next` before a CI batch.
 - **Dexie:** highest version on `build/next` is 24; the manager gives out the next number, one lane at a time.
 - **Hot files** (one builder at a time, merged alone): `src/App.tsx`, `src/core/db.ts`, `src/core/types.ts`, `src/settings/builtinSettings.ts`, `src/app/flags.ts`, `package.json`, `playwright.config.ts`.

@@ -33,4 +33,12 @@ describe('placeList (the ⋯ list never covers its box)', () => {
     expect(q.bottom + 4).toBeGreaterThanOrEqual(374)
     expect(placeList(box(40, 100, 740, 1000), 248, view)).toBeNull()
   })
+  it('a box low on a phone: the list goes over it, never on its words', () => {
+    // Why: under it there was no room, and the menu's own place covered the box.
+    const phone = { width: 390, height: 789 }
+    const p = placeList(box(56, 574, 278, 65), 248, phone, 422)!
+    expect(p.above).toBe(566)
+    // Not low enough for the menu to open upwards: nothing fits.
+    expect(placeList(box(56, 574, 278, 65), 248, phone, 600)).toBeNull()
+  })
 })

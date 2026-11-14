@@ -45,13 +45,20 @@ export default function BoxMoreHost({
     '[data-paper-box="' + CSS.escape(box.id) + '"]',
   )
   const spot = boxEl
-    ? placeList(boxEl.getBoundingClientRect(), MORE_LIST_W, {
-        width: window.innerWidth,
-        height: window.innerHeight - bottomBar(),
-      })
+    ? placeList(
+        boxEl.getBoundingClientRect(),
+        MORE_LIST_W,
+        { width: window.innerWidth, height: window.innerHeight - bottomBar() },
+        window.innerHeight / 2,
+      )
     : null
   const menu: AnchoredMenuState = {
-    at: spot ? new DOMRect(spot.right - 1, 0, 1, spot.bottom) : at,
+    at: !spot
+      ? at
+      : spot.above !== undefined
+        ? // The shared menu opens upwards and ends 4 px above this top.
+          new DOMRect(spot.right - 1, spot.above + 4, 1, 0)
+        : new DOMRect(spot.right - 1, 0, 1, spot.bottom),
     opener: null,
     id,
     open: true,

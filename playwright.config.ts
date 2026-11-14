@@ -180,6 +180,7 @@ const config = defineConfig({
         // Toolbar v8 files. toolbarV8Paste needs the real clipboard permission, which WebKit lacks, so it
         // stays chromium only; toolbarV8PasteIpad covers the same behaviour here with a stubbed clipboard.
         /toolbarV8(Bar|Frame|Pen|Row|Tools|Text|Insert|Tuck|PasteIpad|Round5).spec/,
+        /toolbarMenuV(2|8)/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

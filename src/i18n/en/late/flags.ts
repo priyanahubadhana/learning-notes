@@ -63,6 +63,9 @@ export const enLateFlags = {
   'flags.update.v2.desc': 'The redesigned app update flow.',
   'flags.security.m1.name': 'Security upgrade',
   'flags.security.m1.desc': 'The first set of extra security checks.',
+  'flags.toolbar.menu.name': 'New toolbar menu',
+  'flags.toolbar.menu.desc':
+    'The ⋯ toolbar menu in short groups, with the rare items under More.',
   'flags.page.menus.name': 'New page menus',
   'flags.page.menus.desc': 'The redesigned menus on a page.',
   'flags.page.objects.name': 'New page objects',

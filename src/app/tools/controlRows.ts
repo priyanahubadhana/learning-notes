@@ -1,4 +1,5 @@
 import { en } from '../../i18n/en'
+import { enLate } from '../../i18n/en/late'
 import { t } from '../../i18n/t'
 import { settingsRegistry } from '../../settings/builtinSettings'
 import '../../settings/toolbarSettings'
@@ -39,7 +40,7 @@ export interface Row {
 }
 
 const englishName = (key: string): string =>
-  (en as Record<string, string>)[key] ?? ''
+  (({ ...en, ...enLate }) as Record<string, string>)[key] ?? ''
 
 /** All rows: the tools, then the settings (labels follow the language). */
 export function buildRows(): Row[] {

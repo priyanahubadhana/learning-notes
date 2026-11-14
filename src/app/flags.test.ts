@@ -24,9 +24,9 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks())
 
 describe('flags', () => {
-  it('lists 26 unique switches, each with a name and a description', () => {
-    expect(FLAG_IDS).toHaveLength(26)
-    expect(new Set(FLAG_IDS).size).toBe(26)
+  it('lists 27 unique switches, each with a name and a description', () => {
+    expect(FLAG_IDS).toHaveLength(27)
+    expect(new Set(FLAG_IDS).size).toBe(27)
     for (const id of FLAG_IDS) {
       expect(all[`flags.${id}.name`]).toBeTruthy()
       expect(all[`flags.${id}.desc`]).toBeTruthy()
@@ -114,6 +114,7 @@ describe('preview defaults (F5)', () => {
   const PREVIEW_ON = [
     'foundation.shell',
     'toolbar.v8',
+    'toolbar.menu',
     'settings.v3',
     'notebooks.v2',
     'search.v2',

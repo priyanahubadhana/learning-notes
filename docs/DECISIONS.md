@@ -74,6 +74,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- 2026-11-15 · 2A.2: "Bar settings…" opens the Edit bar panel, not the Edit toolbar sheet, so it was kept and renamed "Choose tools on the bar…" instead of removed (manager rule: duplicate removed only if same panel).
+
 - **2026-11-14 (evening) · P1.3 download watchdog: only a 20 s "no byte at all" limit, no per-file limit (manager, safest option).** A per-file limit would stop a slow but moving download and Try again would fetch everything again.
 - **2026-11-14 (evening) · P1.3 About "Pretend a must-have update" ends with a plain reload on the same page, never drops the offline copy (manager, safest option).** A real must-have update keeps its existing ending.
 - **2026-11-14 (night) · Phase 2B page: four points decided by Fable from the owner's answers (docs/plans/phases/phase-2b.md "Decided").** (1) A single tap on a box that is already selected puts the cursor there: the owner's rule names the first tap (select the box) and the double-tap (word); the tap in between keeps today's meaning (TB-01). (2) Two spec lines added without a new feature: TB-41 (Pencil inside a box follows the tool: Text tool = Scribble, Pen tool = drawing) and TB-42 (one writing hint at a time, approved panel 7). (3) "Move only by the ≡ tab" is about dragging: keyboard arrows and ⋯ › Move up / Move down stay as the no-drag way. (4) The Pencil recorder for boxes and the BUG-001 recorder run on the preview only, store no note text and are removed before release.

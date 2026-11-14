@@ -1,6 +1,4 @@
-# F5 search pop-up pictures (source head before this commit: ab9501f3)
-Files: search-{beginner|professional}-{day|night|sepia}-{ipad|ipad-portrait|phone|pc}.png (24).
-Each shows the search field with text, the clear x inside it, and the separate close x beside it; no red Esc text.
-Touch sizes (ipad, ipad-portrait, phone) have no keyboard-hint footer; pc keeps it.
-Proof of fixes: clear x = any picture's field; close x = right of field; footer hidden = ipad vs pc pictures.
-Taken with flag search.v2 ON, after the last source edit (SearchPopup.tsx, flags.ts).
+# F5 / F9 pictures (48, all taken after the last source edit; head commit is the one that adds this file)
+- search-{beginner|professional}-{day|night|sepia}-{ipad|ipad-portrait|phone|pc}.png: search pop-up with text. Shows the clear x inside the field (only with text), the separate close x beside it, no red Esc. Touch sizes have no keyboard-hint footer; pc keeps it.
+- settings-search-{level}-{theme}-{size}.png: Settings > Tool bar with "tool" typed: the search box at the top, results with the help line on its own line, one clear x (the browser's own glyph is gone).
+Repeat-fault list (ECONOMY-MODE section 7): thin scroll track n/a; toast n/a; sidebar closed on iPad portrait n/a (pop-up/Settings only); shared parts only (ClearField, Icon close) ok; no key names on touch ok (ipad/phone pictures); focus ring ok; Light/Dark/Sepia, both levels, 4 sizes ok.

@@ -88,7 +88,7 @@ const COPY_LABEL: Record<string, MessageKey> = {
   copyMarkdown: 'copy.markdown',
   pastePlain: 'paste.plain',
   copyPictures: 'copy.pictures',
-  barSettings: 'bar.edit',
+  barSettings: 'toolbarMenu.barTools',
   resetPos: 'bar.resetPos',
 }
 

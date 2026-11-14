@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: toolbar menu, row renamed (2A.2)
+
+- What: the menu row "Bar settings…" is now "Choose tools on the bar…" (en, es, hi). Why: it opens the Edit bar panel (which tools show, order, options), a different panel from the "Edit toolbar…" tile, so the name must tell them apart. Nothing removed. Files: ToolbarMenuV2.tsx, i18n toolbar files, e2e/toolbarMenuV2.spec.ts (name comparison keeps an alias).
+
 ### 15 Nov 2026: toolbar menu 2A.2 owner decisions (flag toolbar.menu)
 
 - What: the ⋯ menu hides what the bar already shows (live), is four tiles plus five folded groups with ▾ (new shared part FoldGroup), and the v8 ⋯ card has its tools in a folded group. Nest block / Unnest block are now Indent / Outdent with the indent icons (en, es, hi).

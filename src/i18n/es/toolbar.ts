@@ -71,6 +71,7 @@ export const esToolbar = {
   'bar.reset': 'Restablecer',
   'bar.resetPos': 'Restablecer la posición de la barra',
   'toolbarMenu.groupFolded': 'Más herramientas',
+  'toolbarMenu.barTools': 'Elegir las herramientas de la barra…',
   'toolbarMenu.groupTop': 'Barra',
   'toolbarMenu.groupBar': 'Ajustes de la barra',
   'toolbarMenu.groupArrange': 'Organizar',

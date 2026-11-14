@@ -116,7 +116,7 @@ test('1: what the bar already shows is not in the menu; the rest is', async ({
     'Copy as Markdown',
     'Paste as plain text',
     'Copy page with pictures',
-    'Bar settings…',
+    'Choose tools on the bar…',
   ]) {
     await expect(
       tray(page).getByRole('button', { name, exact: true }),
@@ -131,7 +131,9 @@ test('1: it updates live when the bar changes (New line and Italic come back)', 
   await openNote(page)
   await barMenu(page).click()
   await unfold(page)
-  await tray(page).getByRole('button', { name: 'Bar settings…' }).click()
+  await tray(page)
+    .getByRole('button', { name: 'Choose tools on the bar…' })
+    .click()
   const panel = page.getByRole('group', { name: 'Edit bar' })
   await panel
     .locator('[data-edit-list="main"]')
@@ -174,7 +176,14 @@ test('1: nothing is dropped: every old item is on the bar, in the menu or in All
   await barMenu(page).click()
   await unfold(page)
   const inMenu = new Set((await names(page)).map((n) => n.toLowerCase()))
-  const missing = old.filter((n) => !inMenu.has(n))
+  // The same feature under a clearer name (the editor's words, or the panel's own).
+  const sameAs: Record<string, string> = {
+    'align text left': 'align left',
+    'align text center': 'align center',
+    'align text right': 'align right',
+    'bar settings…': 'choose tools on the bar…',
+  }
+  const missing = old.filter((n) => !inMenu.has(sameAs[n] ?? n))
   expect(missing.length).toBeGreaterThan(0)
   // The rest is on the bar (the Text tool's options) or in All tools.
   await tray(page).getByRole('button', { name: 'Done', exact: true }).click()
@@ -210,12 +219,6 @@ test('1: nothing is dropped: every old item is on the bar, in the menu or in All
     for (const l of labels) found.add(l)
   }
   // Exact names, one by one: each item missing from the menu is on the bar or in All tools.
-  // The same tool, named by the app (the old menu used the editor's own words).
-  const sameAs: Record<string, string> = {
-    'align text left': 'align left',
-    'align text center': 'align center',
-    'align text right': 'align right',
-  }
   const lost = missing.filter((n) => !found.has(sameAs[n] ?? n))
   expect(lost).toEqual([])
 })

@@ -70,6 +70,7 @@ export const hiToolbar = {
   'bar.reset': 'रीसेट',
   'bar.resetPos': 'बार की जगह रीसेट करें',
   'toolbarMenu.groupFolded': 'और टूल',
+  'toolbarMenu.barTools': 'बार के टूल चुनें…',
   'toolbarMenu.groupTop': 'टूलबार',
   'toolbarMenu.groupBar': 'टूलबार सेटिंग',
   'toolbarMenu.groupArrange': 'व्यवस्थित करें',

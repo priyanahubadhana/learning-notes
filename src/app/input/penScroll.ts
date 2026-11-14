@@ -50,6 +50,8 @@ interface Drag {
   y: number
   top: number
   moved: boolean
+  /** The list's own text-selection style, put back when the drag ends. */
+  select: string
 }
 
 /**
@@ -70,6 +72,7 @@ export function installPenScroll(
   const first = { priority: PRIORITY.gesture + 1, name: 'pen-scroll' }
 
   const end = () => {
+    if (drag?.moved) drag.el.style.userSelect = drag.select
     drag = null
     offTouch?.()
     offTouch = null
@@ -90,6 +93,7 @@ export function installPenScroll(
           y: e.clientY,
           top: el.scrollTop,
           moved: false,
+          select: el.style.userSelect,
         }
         // While the Pencil is down on a list, Safari must not pan it as well.
         offTouch = router.subscribe(
@@ -115,6 +119,9 @@ export function installPenScroll(
           d.moved = true
           d.y = e.clientY
           d.top = d.el.scrollTop
+          // A scroll drag never selects the rows' text on its way.
+          d.el.style.userSelect = 'none'
+          d.el.ownerDocument.getSelection()?.removeAllRanges()
           dropClick = true
           dropUntil = Infinity
           return

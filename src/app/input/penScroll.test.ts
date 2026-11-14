@@ -131,6 +131,10 @@ describe('a Pencil drag scrolls a list like a finger', () => {
     expect(el.scrollTop).toBe(150)
     pointer('pointermove', row, 200 - MAX_MOVE + 30)
     expect(el.scrollTop).toBe(70)
+    // No text is selected on the way; the list's own style comes back at the lift.
+    expect(el.style.userSelect).toBe('none')
+    pointer('pointerup', row, 200 - MAX_MOVE + 30)
+    expect(el.style.userSelect).toBe('')
   })
 
   it('the click after a scroll drag chooses nothing; a plain tap still clicks', () => {

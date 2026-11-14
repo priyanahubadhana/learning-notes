@@ -135,6 +135,8 @@ test('PR-2 a real Pencil drag inside the ⋯ menu scrolls it like a finger and c
   ])
   await expect.poll(() => scrollTop(page, TRAY)).toBeGreaterThan(80)
   await expect(tray).toBeVisible()
+  // No accidental selecting: the drag did not select the rows' text.
+  expect(await page.evaluate(() => String(getSelection()))).toBe('')
   // And back down again.
   const top = await scrollTop(page, TRAY)
   await realPen(page, [
@@ -211,6 +213,7 @@ test.describe('the pages panel and the note page', () => {
       .poll(() => scrollTop(page, '[data-test-list]'))
       .toBeGreaterThan(100)
     await expect(panel).toBeVisible()
+    expect(await page.evaluate(() => String(getSelection()))).toBe('')
   })
 
   test('PR-3 on the note page a real Pencil drag never scrolls the page; the page bar still works with the Pencil', async ({

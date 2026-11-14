@@ -8,7 +8,7 @@ import { openNote } from './mainBarHelpers.ts'
 test.skip(!process.env.SHOTS, 'pictures only with SHOTS=1')
 test.use({ hasTouch: true })
 
-const DIR = process.env.SHOTS_DIR ?? 'screenshots/2a3'
+const DIR = process.env.SHOTS_DIR ?? 'docs/mockups/2a3-build-shots'
 const SIZES = {
   'ipad-upright': { width: 820, height: 1180 },
   'ipad-sideways': { width: 1180, height: 820 },
@@ -60,7 +60,6 @@ for (const level of LEVELS) {
         ],
       })
       await page.keyboard.press('Escape')
-      await page.waitForTimeout(650)
       const at = await page.evaluate(() => {
         const w = document.createTreeWalker(
           document.querySelector('.bn-editor')!,
@@ -86,6 +85,20 @@ for (const level of LEVELS) {
         .getByRole('button', { name: 'Text colour' })
         .click()
         .catch(() => undefined)
+      // The first-run Pencil prompt is a one-time nudge: shots show the screen without it.
+      await page
+        .getByRole('button', { name: 'Not now' })
+        .click({ timeout: 4000 })
+        .catch(() => undefined)
+      await page.waitForTimeout(650)
+      await page.waitForTimeout(300)
+      if (!(await page.locator('[data-pill-card]').count())) {
+        await page
+          .locator('[data-mini-toolbar]')
+          .getByRole('button', { name: 'Text colour' })
+          .click()
+        await page.waitForTimeout(300)
+      }
       for (const [label, attr] of Object.entries(THEMES)) {
         await page.evaluate(
           (v) => document.documentElement.setAttribute('data-theme', v),

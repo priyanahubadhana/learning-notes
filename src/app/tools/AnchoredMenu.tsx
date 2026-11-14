@@ -15,6 +15,7 @@ export function AnchoredMenu({
   width = 220,
   focusFirst = true,
   bottomReserve = 0,
+  solid = false,
   children,
 }: {
   menu: AnchoredMenuState
@@ -24,6 +25,12 @@ export function AnchoredMenu({
   focusFirst?: boolean
   /** Screen height at the bottom the menu must not use (a bottom bar), px. */
   bottomReserve?: number
+  /**
+   * A fully opaque card whose title row stays put and whose rows scroll
+   * inside it: the scroll-hint fade then touches the rows only, never the
+   * card (R12).
+   */
+  solid?: boolean
   children: ReactNode
 }) {
   const panel = useRef<HTMLDivElement>(null)
@@ -81,15 +88,22 @@ export function AnchoredMenu({
       role="menu"
       aria-label={label}
       onKeyDown={arrows}
+      data-solid={solid || undefined}
       style={{
         left,
         ...vertical,
         width,
       }}
-      className="fixed z-50 glass overflow-y-auto rounded-xl p-1 text-ink"
+      className={`fixed z-50 glass rounded-xl p-1 text-ink ${solid ? 'flex flex-col' : 'overflow-y-auto'}`}
     >
       <PopupHeader title={label} onClose={close} />
-      {children}
+      {solid ? (
+        <div data-menu-rows className="min-h-0 flex-1 overflow-y-auto">
+          {children}
+        </div>
+      ) : (
+        children
+      )}
     </div>,
     document.body,
   )

@@ -36,6 +36,7 @@ export function BoxMoreList({
       label={t('paper.box.menu')}
       width={MORE_LIST_W}
       bottomReserve={bottomBar()}
+      solid
     >
       {groups.map((rows, g) => (
         <div key={g}>

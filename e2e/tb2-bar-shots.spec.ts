@@ -110,10 +110,24 @@ async function run(
   await page.getByTestId('ob-boxmore').tap()
   await more(page).getByRole('menuitem', { name: 'Lock in place' }).click()
   await expect(page.locator(EXTRA)).toHaveAttribute('data-locked', '')
+  // A phone stacks its boxes: every box there already shows the lock and no
+  // dots, so the phone shot opens the ⋯ list, where the lock shows as Unlock.
+  const phone = vp.width < 600
   for (const [label, th] of THEMES) {
     await theme(page, th)
     await pick(page)
+    if (phone) {
+      await page.getByTestId('ob-boxmore').tap()
+      await expect(
+        more(page).getByRole('menuitem', { name: 'Unlock' }),
+      ).toBeVisible()
+      await page.waitForTimeout(300)
+    }
     await shot('locked', label)
+    if (phone) {
+      await page.keyboard.press('Escape')
+      await expect(more(page)).toHaveCount(0)
+    }
   }
 }
 

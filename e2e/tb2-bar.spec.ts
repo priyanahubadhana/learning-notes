@@ -459,5 +459,48 @@ test.describe('phone', () => {
     const rows = more(page).getByRole('menuitem')
     for (let i = 0; i < (await rows.count()); i++)
       expect((await rect(rows.nth(i))).height).toBeGreaterThanOrEqual(44)
+    // The card is fully opaque: a solid fill, no see-through blur, and the
+    // scroll-hint fade never masks the card itself (R12).
+    const look = await more(page).evaluate((el) => {
+      const s = getComputedStyle(el)
+      return {
+        bg: s.backgroundColor,
+        blur: s.backdropFilter || 'none',
+        mask: s.maskImage || s.webkitMaskImage || 'none',
+      }
+    })
+    expect(look.bg).toMatch(/^rgb\(/)
+    expect(look.blur).toBe('none')
+    expect(look.mask).toBe('none')
+    // Every row can be reached: scrolled to, it is whole on the screen, above
+    // the bottom bar, and a tap there lands on it.
+    const navTop = await page.evaluate(() => {
+      const nav = document
+        .elementFromPoint(innerWidth / 2, innerHeight - 2)
+        ?.closest('nav')
+      return nav ? nav.getBoundingClientRect().top : innerHeight
+    })
+    const card = await rect(more(page))
+    expect(card.y + card.height).toBeLessThanOrEqual(navTop)
+    await expect(rows).toHaveCount(6)
+    for (let i = 0; i < 6; i++) {
+      await rows.nth(i).scrollIntoViewIfNeeded()
+      await page.waitForTimeout(150)
+      const r = await rect(rows.nth(i))
+      expect(r.y, 'row ' + i).toBeGreaterThanOrEqual(card.y)
+      expect(r.y + r.height, 'row ' + i).toBeLessThanOrEqual(
+        Math.min(card.y + card.height, navTop),
+      )
+      const p = { x: r.x + r.width / 2, y: r.y + r.height / 2 }
+      expect(
+        await rows
+          .nth(i)
+          .evaluate(
+            (el, q) => el.contains(document.elementFromPoint(q.x, q.y)),
+            p,
+          ),
+        'row ' + i,
+      ).toBe(true)
+    }
   })
 })

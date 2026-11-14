@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: F8 late-reporting test is flaky (findings, no code change yet)
+
+- What: e2e/scrollFrame.spec.ts "F8 a late-reporting window size" on ipad-webkit, 15 repeats each, workers=1: cf1731ad (before 2A.1 and R5) 5 failed; 4225e831 (2A.1) 3 failed; 2892d193 (R5) 3 failed; 66720168 (head) 7 failed. So it was flaky before tonight's merges (not a new red from one merge); the head is worse in this sample but the spread is wide. Failure: after the late-size turn main is 1082 px (or 1096) tall; on a fresh reload sometimes 978 px, about 104 px less. What takes those 104 px is not yet known (a banner, notice or the dock's late height are the guesses); next step is a DOM capture of the elements above main on a failing run.
+- Why: red-test stop; the cause is to be fixed, never the test.
+- Files: none changed.
+
 ### 14 Nov 2026: R5 phone tray ends above the tab bar
 
 - What: the tool bar ⋯ tray (old bar) is as tall as the room above the tab bar, so its last row can be scrolled into view. Why: on the phone its last rows sat behind the tab bar. The v8 ⋯ sheet is above the tab bar by design; a test keeps its last row reachable.

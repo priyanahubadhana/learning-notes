@@ -175,7 +175,15 @@ export function rangeForTaps(
     return $pos.start() === $pos.end() ? null : [$pos.start(), $pos.end()]
   }
   if (taps === 3) return visualLineRange(view, pos, y)
-  const word = wordAround($pos.parent.textContent, $pos.parentOffset)
+  // A line break (or any inline leaf) counts one position but no text: it is
+  // given one blank character, or every word after it would be found early.
+  const text = $pos.parent.textBetween(
+    0,
+    $pos.parent.content.size,
+    undefined,
+    ' ',
+  )
+  const word = wordAround(text, $pos.parentOffset)
   return word ? [$pos.start() + word[0], $pos.start() + word[1]] : null
 }
 
@@ -216,6 +224,22 @@ export function boxShift(dom: HTMLElement, tool: string): number {
   if (!box || (tool === 'text' && !textFirstTap.on)) return 0
   if (box.getAttribute('data-paper-box') === 'main') return 0
   return box.hasAttribute('data-picked') ? 0 : 1
+}
+
+/**
+ * What the Nth quick tap of a run does: 0 selects the box, 1 the caret, 2 the
+ * word, 3 the line, 4 the paragraph. With text box v2 on (`strict`, Text
+ * tool) the first tap that selects a box is not counted: the count starts
+ * with the next tap, so a double tap on an unselected box never selects a
+ * word (TB-04). Otherwise the count moves up by one, as before.
+ */
+export function tapLevel(
+  count: number,
+  shift: number,
+  strict: boolean,
+): number {
+  if (strict) return Math.max(0, count - shift)
+  return count === 1 ? 1 - shift : count
 }
 
 /** Is this editor in a paper box that is picked now? */
@@ -273,7 +297,9 @@ export function watchTapSelect(
     count: number
     /** 1 when the first tap of the run found its box not active (it selects the box). */
     shift: number
+    tool: string
   }
+  const strictFor = (tool: string) => tool === 'text' && textFirstTap.on
   let down: Tap | null = null
   let last: Tap | null = null
   // WebKit runs its own triple-click paragraph select on the third mousedown,
@@ -335,8 +361,9 @@ export function watchTapSelect(
       at: now,
       count,
       shift,
+      tool,
     }
-    const level = count === 1 ? 1 - shift : count
+    const level = tapLevel(count, shift, strictFor(tool))
     ownMouseUntil = level >= 2 ? now + 700 : 0
     // The tap that selects a box types nothing and shows no keyboard; the
     // taps after the first on the Pencil are held off (R6-18).
@@ -376,7 +403,7 @@ export function watchTapSelect(
       return
     }
     const count = start.count
-    const level = count === 1 ? 1 - start.shift : count
+    const level = tapLevel(count, start.shift, strictFor(start.tool))
     last = { ...start, at: Date.now(), x: e.clientX, y: e.clientY }
     const view = editor.prosemirrorView
     if (!view) return

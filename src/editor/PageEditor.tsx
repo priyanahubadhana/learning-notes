@@ -38,6 +38,8 @@ import { listBlocks } from '../core/blockService'
 import { blocksOfBox, tagDrafts } from './boxScope'
 import { activeBox, boxEditors, useOwnsBar } from '../paper/activeBox'
 import { MAIN_BOX } from '../paper/boxes'
+import { NARROW_PX } from '../paper/sheets'
+import { useFrameSize } from '../app/shell/useFrameSize'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import { pageEditLock } from '../core/editLock'
@@ -170,6 +172,8 @@ interface PageEditorProps {
   boxId?: string
   /** Phase Q: a box just made on the paper; the caret goes into it. */
   autoFocus?: boolean
+  /** Text box v2 (TB-42): "Tap here to keep writing" waits until the page has text. */
+  waitForText?: boolean
 }
 
 /** Time for the window that lost the page to finish its last save. */
@@ -326,6 +330,7 @@ function LoadedPageEditor({
   readOnly,
   boxId,
   autoFocus,
+  waitForText,
   owns,
 }: PageEditorProps & {
   records: Block[]
@@ -880,6 +885,8 @@ function LoadedPageEditor({
 
   // Flag page.menus: the "/" menu on the shared Command list (same actions).
   const menusOn = useFlag('page.menus')
+  // Follows a screen turn (TB-42: the one hint is on the paper or the line below).
+  const frame = useFrameSize()
   const slashActions: SlashMenuActions = {
     onNewSubPage: newSubPage,
     onLinkPage: () => openLinkPicker(null),
@@ -1029,15 +1036,19 @@ function LoadedPageEditor({
           />
         </ToolsBoundary>
       </div>
-      {bar.mode !== 'computer' && !frozen && !extraBox && (
-        <button
-          type="button"
-          onClick={() => focusEndLine(editor)}
-          className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
-        >
-          {t('bar.tapBelow')}
-        </button>
-      )}
+      {bar.mode !== 'computer' &&
+        !frozen &&
+        !extraBox &&
+        (!waitForText || frame.width < NARROW_PX) && (
+          <button
+            type="button"
+            onClick={() => focusEndLine(editor)}
+            className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
+          >
+            {/* Empty page (TB-42): the line below is the one hint, in its own words. */}
+            {t(waitForText ? 'textTool.hintV2' : 'bar.tapBelow')}
+          </button>
+        )}
       {docked && (layout.short === 'bottom' || layout.ribbon === 'bottom') && (
         // Room under the last line, so the fixed bars never cover text.
         <div

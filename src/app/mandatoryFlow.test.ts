@@ -232,7 +232,7 @@ describe('downloadNewFiles', () => {
       async () => new Set(),
       get,
     )
-  it('watchdog: no byte for ${STALL_MS} ms rejects (never stuck)', async () => {
+  it('watchdog: no byte for the stall limit rejects (never stuck)', async () => {
     vi.useFakeTimers()
     const p = run(hung)
     const out = expect(p).rejects.toThrow('stalled')

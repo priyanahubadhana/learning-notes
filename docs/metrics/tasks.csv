@@ -31,3 +31,5 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 2026-11-16T00:30+05:30,1,H,opus+fable,420000,1,4,2,8.0,Journal duplicate month repair; Undo failed twice on webkit, Fable fixed (one transaction)
 2026-11-15T18:53+05:30,2A,2A.cfg,sonnet,,1,1,0,,webkit list for 2A specs; helper merge refused by safety check, main chat merged
 2026-11-15T18:53+05:30,2A,2A.14,sonnet,56616,1,3,0,,merge-and-webkit builder only (earlier build tokens in prior run); 4 conflicts both kept
+2026-11-16T20:00+05:30,1,P1.11,sonnet,160000,1,4,1,6.0,T29 real cause (file list fails offline) + T31 key names everywhere
+2026-11-16T20:00+05:30,1,P1.12,sonnet,125000,1,4,1,6.0,close ✕ on notices (owner idea I1)

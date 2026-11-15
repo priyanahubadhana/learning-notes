@@ -370,4 +370,4 @@ Settings v5 stories review (15 Nov), owner yes to the picks: tapping the Current
 
 Pictures: docs/mockups/settings-v5/shots/ (1–8 iPad and dark, 9–16 phone); source docs/mockups/settings-v5/settings-v5.html. Stories: docs/features/settings-v5-stories.md. Replaces Settings v3 as the build reference. "Your layouts" hidden until after the owner's test. "Reset group" lives under More › Reset. Before the build: recount all 169 v3 feature switches into v5 (the mock shows 113).
 
-Tool bar settings (2A.14, 15 Nov): the 5 rows (Show tool names, Format tabs 3/4, Back to last tool, Three eraser menus, Bigger Lasso) plus a "Layout: Beginner | Professional" shortcut row kept on the Writing page; one tap sets all 5, single rows can still be changed. Pictures: scratchpad toolbar-rows-shots (owner OK on the look pending).
+Tool bar settings (2A.14, 15 Nov): the 5 rows (Show tool names, Format tabs 3/4, Back to last tool, Three eraser menus, Bigger Lasso) plus a "Layout: Beginner | Professional" shortcut row kept on the Writing page; one tap sets all 5, single rows can still be changed. Pictures APPROVED by owner (15 Nov): docs/mockups/toolbar-v9/settings-rows/

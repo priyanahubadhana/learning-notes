@@ -5,7 +5,7 @@ Each run covers light and dark, Beginner and Professional, iPad sideways, iPad u
 
 ## Section 7 check (HOW-WE-BUILD)
 
-- Dark pictures: every file with night or dark in its name has a dark background (mean brightness below 110 of 255, measured with sharp on all 403 files); every light one is bright. No light-as-dark picture.
+- Dark pictures: every file with night or dark in its name has a dark background (mean brightness below 110 of 255, measured with sharp on all 451 files); every light one is bright. No light-as-dark picture.
 - iPad upright has the sidebar closed in the pen row, format and bar pictures (the shots hide it first); one shared scroll bar, no key names (touch mode), pictures show no toast and no tip.
 - Opened and looked at: 2a9-format text tab (phone night Professional, iPad upright day Professional): font names whole, check mark at the lower right, no overlap.
 - Not in this set: Settings rows (2A.14 settings), sepia and PC (release bar).
@@ -241,6 +241,57 @@ Regenerate: `SHOTS=1 SHOTS_OUT=screenshots/2a16/<folder> npx playwright test e2e
 - edit-phone-day-professional.png
 - edit-phone-night-beginner.png
 - edit-phone-night-professional.png
+
+## 2a16b-sheets (48 pictures, folder `2a16b-sheets/`)
+
+- add-ipad-sideways-day-beginner.png
+- add-ipad-sideways-day-professional.png
+- add-ipad-sideways-night-beginner.png
+- add-ipad-sideways-night-professional.png
+- add-ipad-upright-day-beginner.png
+- add-ipad-upright-day-professional.png
+- add-ipad-upright-night-beginner.png
+- add-ipad-upright-night-professional.png
+- add-phone-day-beginner.png
+- add-phone-day-professional.png
+- add-phone-night-beginner.png
+- add-phone-night-professional.png
+- feel-ipad-sideways-day-beginner.png
+- feel-ipad-sideways-day-professional.png
+- feel-ipad-sideways-night-beginner.png
+- feel-ipad-sideways-night-professional.png
+- feel-ipad-upright-day-beginner.png
+- feel-ipad-upright-day-professional.png
+- feel-ipad-upright-night-beginner.png
+- feel-ipad-upright-night-professional.png
+- feel-page-ipad-sideways-day-beginner.png
+- feel-page-ipad-sideways-day-professional.png
+- feel-page-ipad-sideways-night-beginner.png
+- feel-page-ipad-sideways-night-professional.png
+- feel-page-ipad-upright-day-beginner.png
+- feel-page-ipad-upright-day-professional.png
+- feel-page-ipad-upright-night-beginner.png
+- feel-page-ipad-upright-night-professional.png
+- feel-page-phone-day-beginner.png
+- feel-page-phone-day-professional.png
+- feel-page-phone-night-beginner.png
+- feel-page-phone-night-professional.png
+- feel-phone-day-beginner.png
+- feel-phone-day-professional.png
+- feel-phone-night-beginner.png
+- feel-phone-night-professional.png
+- organise-ipad-sideways-day-beginner.png
+- organise-ipad-sideways-day-professional.png
+- organise-ipad-sideways-night-beginner.png
+- organise-ipad-sideways-night-professional.png
+- organise-ipad-upright-day-beginner.png
+- organise-ipad-upright-day-professional.png
+- organise-ipad-upright-night-beginner.png
+- organise-ipad-upright-night-professional.png
+- organise-phone-day-beginner.png
+- organise-phone-day-professional.png
+- organise-phone-night-beginner.png
+- organise-phone-night-professional.png
 
 ## 2A.5 dark mode, tool bar (68 pictures, folder `2a5-dark-bar/`)
 

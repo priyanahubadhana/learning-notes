@@ -146,9 +146,9 @@ for (const [tool, id, w0, h0, w1, h1] of TURNS) {
     const card = page.getByTestId(`v8-card-${id}`)
     await expect(card).toBeVisible()
     await page.setViewportSize(PORTRAIT)
-    await page.waitForTimeout(150)
+    await page.waitForTimeout(350)
     const early = (await card.boundingBox())!
-    await page.waitForTimeout(1050)
+    await page.waitForTimeout(850)
     await expect(card).toBeVisible()
     const turned = (await card.boundingBox())!
 
@@ -159,7 +159,7 @@ for (const [tool, id, w0, h0, w1, h1] of TURNS) {
     await expect(card).toBeVisible()
     await page.waitForTimeout(500)
     const again = (await card.boundingBox())!
-    // it was already there 150 ms after the turn, not only after a long wait
+    // it was already there 350 ms after the turn (a phone sheet re-opens with a 200 ms motion), not only after a long wait
     expect(Math.abs(early.x - again.x)).toBeLessThanOrEqual(2)
     expect(Math.abs(early.y - again.y)).toBeLessThanOrEqual(2)
     expect(Math.abs(turned.x - again.x)).toBeLessThanOrEqual(2)

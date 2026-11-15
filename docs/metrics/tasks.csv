@@ -25,3 +25,5 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 2026-11-15T09:00+05:30,2B,2B.7,sonnet,273000,1,2,0,2.0,move by tab; heartbeat instead of 4 s end
 2026-11-15T09:30+05:30,2B,2B.8,opus,600000,2,3,1,6.0,box bar; Sonnet then Opus; 300 ms React throttle found
 2026-11-15T13:30+05:30,2B,2B.11,sonnet,343000,1,3,1,4.0,Pencil on paper; T6 card loop; T23; closed loop not a tap
+2026-11-15T21:00+05:30,1,P1.8,sonnet,412000,1,3,0,9.0,update screens to approved panel 5; focus ring + slow note fixed after review
+2026-11-15T23:00+05:30,1,P1.9,sonnet,371000,1,4,1,10.0,frame covers to approved panels 1-4,6; Pencil-mode jump at 820 px found and fixed

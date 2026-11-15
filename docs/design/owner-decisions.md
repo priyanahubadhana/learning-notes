@@ -357,3 +357,15 @@ Mock: claude.ai/artifact/PBcn8WrYWcfAzCrXfDZ9HS (copy: docs/mockups/toolbar-v9/t
 Mock: claude.ai/artifact/H9xtkQg7JSwXjmwn1N5PDG (copy: docs/mockups/phase1-fixes/phase1-fixes.html). Panels: side list bar (T4), right sheets below the top bar, Page options folded, Pin an action ✕/✓ at the top, must-have update screens, no jump between Computer and Pencil mode.
 
 Settings v4 (claude.ai/artifact/PL5zc6xh2np4CXwTYgr5sw) NOT approved: too many changes. Owner: start from the approved Settings mock v3 and add only the needed new changes; Fable checks which are needed.
+
+Settings v3-plus (claude.ai/artifact/UV3fX4TMDJss4XmzXcScah), owner answers 15 Nov: Reduce glass keeps 2 choices (Auto, Solid). Test tools live in Advanced and are found by search at any level. Beginner also gets an "Advanced features" entry that switches on / shows all settings, just in case. Owner asked for deep research on making Settings simpler before approving.
+
+Settings design questions (docs/research/reports, "Full customisation kept simple", 15 Nov): owner said yes to Claude's pick on 1, 2, 4, 5, 7, 8, 9, 12; 13 later. 11, 14, 15 later (docs/IDEAS.md). 3, 6, 10 yes to the pick. All 15 settled; Fable makes the Settings v5 picture from them.
+
+Settings v5 (15 Nov): "Your layouts" hidden for now (owner chose A, later); it returns after the owner passes the Settings and tool bar test, with edit, rename and delete (docs/IDEAS.md). Manager, never drop: recount all 169 v3 feature switches into v5; keep the per-setting "this device / everywhere" menu; keep "Turn on all in this group". The old "Reset to Beginner" button is kept, named "Reset to Beginner layout" (owner, 15 Nov).
+
+Settings v5 stories review (15 Nov), owner yes to the picks: tapping the Current starter after changes asks "Go back to Simple? (n changes)" with Undo; changing My experience later asks "Also apply the matching starter?" (No changes only the label); the button is named "Reset to Simple starter" (replaces "Reset to Beginner layout"). Owner: make the pictures cleaner to the design principles (Fable).
+
+## Settings v5: APPROVED by owner (15 Nov 2026)
+
+Pictures: docs/mockups/settings-v5/shots/ (1–8 iPad and dark, 9–16 phone); source docs/mockups/settings-v5/settings-v5.html. Stories: docs/features/settings-v5-stories.md. Replaces Settings v3 as the build reference. "Your layouts" hidden until after the owner's test. "Reset group" lives under More › Reset. Before the build: recount all 169 v3 feature switches into v5 (the mock shows 113).

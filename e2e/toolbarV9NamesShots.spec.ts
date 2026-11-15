@@ -5,7 +5,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /** First-look pictures for task 2A.14: the bar names (and the Box card under Box). Run by hand. */
-const OUT = 'docs/mockups/toolbar-v9-build-shots/2a14'
+const OUT = process.env.SHOTS_OUT ?? 'docs/mockups/toolbar-v9-build-shots/2a14'
 const SIZES = [
   ['ipad-upright', 820, 1180],
   ['ipad-sideways', 1180, 820],

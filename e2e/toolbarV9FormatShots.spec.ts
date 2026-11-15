@@ -14,7 +14,7 @@ import {
  * `SHOTS=1 npx playwright test e2e/toolbarV9FormatShots.spec.ts`.
  * Light and dark, Beginner and Professional, iPad both ways and phone.
  */
-const OUT = 'screenshots/2a9'
+const OUT = process.env.SHOTS_OUT ?? 'screenshots/2a9'
 // test-guard-reason: pictures only on purpose, same as the other Shots files
 test.skip(!process.env.SHOTS, 'pictures only on purpose (SHOTS=1)')
 test.use({ hasTouch: true })

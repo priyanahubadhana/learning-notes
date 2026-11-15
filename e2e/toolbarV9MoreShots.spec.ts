@@ -5,7 +5,8 @@ import { mkdirSync } from 'node:fs'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /** First-look pictures for the 2A.12 ⋯ More card. Run by hand (SHOTS=1). */
-const OUT = 'docs/mockups/toolbar-v9-build-shots/2a12-more'
+const OUT =
+  process.env.SHOTS_OUT ?? 'docs/mockups/toolbar-v9-build-shots/2a12-more'
 const SIZES = [
   ['ipad-upright', 820, 1180],
   ['ipad-sideways', 1180, 820],

@@ -98,7 +98,7 @@ export function FontTiles<T extends ReadingFont | 'default'>({
               data-chip={tile.id}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onPick(tile.id as T)}
-              className={`flex min-h-11 min-w-0 flex-col items-start justify-center gap-0.5 rounded-lg border px-2 py-1 text-start ${
+              className={`flex min-h-11 min-w-0 flex-col items-start justify-center gap-0.5 rounded-lg border ${compact ? 'px-0.5' : 'px-2'} py-1 text-start ${
                 on
                   ? 'border-accent bg-hover text-accent'
                   : 'border-line text-ink hover:bg-hover'

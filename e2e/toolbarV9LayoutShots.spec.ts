@@ -4,7 +4,8 @@ import { test } from '@playwright/test'
 import { mkdirSync } from 'node:fs'
 
 /** First-look pictures for the 2A.14 Layout shortcut row (Settings, Advanced). Run by hand. */
-const OUT = 'docs/mockups/toolbar-v9-build-shots/2a14-layout'
+const OUT =
+  process.env.SHOTS_OUT ?? 'docs/mockups/toolbar-v9-build-shots/2a14-layout'
 const SIZES = [
   ['ipad-upright', 820, 1180],
   ['ipad-sideways', 1180, 820],

@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /** 2A.6 first-look pictures. Runs only with SHOTS=1 (not part of the suites). */
-const OUT = 'docs/screens/2a6'
+const OUT = process.env.SHOTS_OUT ?? 'docs/screens/2a6'
 const SIZES = {
   'ipad-up': { width: 820, height: 1180 },
   'ipad-side': { width: 1180, height: 820 },

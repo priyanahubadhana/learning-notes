@@ -10,7 +10,7 @@ import {
 } from './helpers.ts'
 
 /** First-look pictures for 2A.5 (only with SHOTS=1; not part of the suites). */
-const OUT = 'docs/mockups/2a5-shots'
+const OUT = process.env.SHOTS_OUT ?? 'docs/mockups/2a5-shots'
 const sizes = {
   'ipad-upright': { width: 820, height: 1180 },
   'ipad-sideways': { width: 1180, height: 820 },

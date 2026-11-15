@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026 (evening): Phase 1 re-test steps
+
+- What: phase-1.md gets the re-test round after P1.8 and P1.9 (10 steps, preview at 8105fcb, CI green) and the optional 10-minute Pencil look at the new text box (switch "New text box" on with the Phase 1 preset; 6 steps).
+- Why: plan step 1.1; owner answer 5A.
+- Files: docs/plans/phases/phase-1.md, docs/CHANGELOG.md.
+
 ### 15 Nov 2026 (evening): plan reorganised after the owner's decisions
 
 - What: phase-plan section 0 "What's next" (ordered steps with pictures, sizes and likely times from docs/metrics/tasks.csv; the 2A v9 task list 2A.4 to 2A.16; Settings v5 as Phase 1S with tasks S.1 to S.11; tasks to redo, specs out of date, pictures superseded); BUILD-STATE rewritten (84 lines); PENDING "Needs you" and phase board rewritten; 8 owner questions written.

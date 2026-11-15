@@ -33,7 +33,6 @@ Full frame design: [shell-spec](../design/shell-spec.md). This file holds the be
 - P1.9-4 When Pin an action opens → ✕ at the top left, ✓ at the top right, "N of 5 pinned to your bar", a round tick per row; nothing changes on the bar until ✓; ✕, Esc and a tap outside keep it as it was. (T21; panel 4; `e2e/p1FrameCovers.spec.ts`)
 - P1.9-6 When the mode changes between Computer, Touch and Pencil → the tool bar keeps its 64 px height and nothing below it moves; only the buttons inside grow. (R19; panel 6; `e2e/p1FrameCovers.spec.ts`, `src/editor/barRoomRule.test.ts`)
 
-
 ## Won't do
 
 - No second scroll bar style, and no browser scroll bars.

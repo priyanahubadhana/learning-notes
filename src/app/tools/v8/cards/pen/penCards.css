@@ -79,7 +79,9 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 /* The wedge slider draws its own wedge on the input: the plain track stays clear. */
-.v8range[data-wedge]::-webkit-slider-runnable-track,
+.v8range[data-wedge]::-webkit-slider-runnable-track {
+  background: transparent;
+}
 .v8range[data-wedge]::-moz-range-track {
   background: transparent;
 }

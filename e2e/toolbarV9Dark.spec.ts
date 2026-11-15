@@ -39,8 +39,12 @@ test('2A.5 at night the default ink is light and the saved colour is untouched',
   await open(page, 'night')
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'night')
   await expect(dot(page)).toHaveCSS('background-color', 'rgb(236, 236, 238)')
-  // Pick black on purpose: it is saved as the plain default, not as the light ink.
+  // Pick the default on purpose: it is saved as the plain default, not as the light ink.
+  // It is named "Auto ink" (as in v9), not "Black", since it shows light at night.
   await page.getByTestId('v8-chip-pen.colour').click()
+  await expect(page.getByTestId('v8-pen-colour-black')).toHaveAccessibleName(
+    'Auto ink',
+  )
   await page.getByTestId('v8-pen-colour-black').click()
   const saved = await page.evaluate(
     () => localStorage.getItem('learning-notes:ink.pen') ?? '',
@@ -167,8 +171,33 @@ test('2A.5 at night: raised segmented thumb, 6 px filled slider track, light ink
       own: getComputedStyle(el).backgroundImage,
     }))
     expect(w.own).toContain('gradient')
-    // Chromium does not report the track pseudo-element: only the wedge on the input is checked.
   }
+  // The track pseudo-element is not reported by computed style: the wedge's clear-track rule
+  // must exist on its own (in a list with -moz- the browser drops the whole rule).
+  const wedgeTrack = await page.evaluate(() => {
+    for (const sh of Array.from(document.styleSheets)) {
+      let rules: CSSRuleList
+      try {
+        rules = sh.cssRules
+      } catch {
+        continue
+      }
+      for (const r of Array.from(rules)) {
+        if (
+          r instanceof CSSStyleRule &&
+          r.selectorText ===
+            '.v8range[data-wedge]::-webkit-slider-runnable-track'
+        )
+          return r.style.backgroundColor + '|' + r.style.backgroundImage
+      }
+    }
+    return 'missing'
+  })
+  // Clear colour and no image: the accent fill no longer draws over the wedge.
+  expect(wedgeTrack).toMatch(
+    // The build may shorten `background: transparent`, which reads back as `initial`.
+    /^(transparent|rgba\(0, 0, 0, 0\)|initial)\|(none|initial)$/,
+  )
   await page.keyboard.press('Escape')
   // Feel card: preview in a well, light line, a 6 px filled slider track.
   await page.getByTestId('v8-chip-pen.feel').click()

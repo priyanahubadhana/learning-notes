@@ -347,3 +347,13 @@ Mock: claude.ai/artifact/UNS1UzPv4wb6errBrtpv4h; sources docs/mockups/toolbar-v8
 ## Favourites row + Organise + long-press strip + Paste: APPROVED (owner, 12 Nov 2026)
 
 Pictures and mock: docs/mockups/favourites/. Favourites live inside the tool row on every tab, with "+" (Add form: tool → Current setup / Any preset → ticks → preview → name) and "☰" (Organise sheet: live preview, big rows, drag handle + ▲▼ + Move to start/end, remove with Undo, Reset, Add, Done; full-height on phone). The ★ custom tool is removed. Long-press = right-click = a horizontal GoodNotes-style strip above the selection; paste keeps the original by default, Paste ▾ offers formats, and Settings has a default paste format. Fix in the build: the B/I/U bar covering the selection handles; phone "More favourites" items must be tappable.
+
+## Tool bar mock v9: APPROVED by owner (15 Nov 2026)
+
+Mock: claude.ai/artifact/PBcn8WrYWcfAzCrXfDZ9HS (copy: docs/mockups/toolbar-v9/toolbar-v9.html). Replaces v8 as the 2A reference: v8 plus the owner's 15 Nov answers (docs/plans/contradictions-2026-11-15.md), Undo and Redo in the page top bar instead of < >.
+
+## Phase 1 fixes mock: APPROVED by owner (15 Nov 2026)
+
+Mock: claude.ai/artifact/H9xtkQg7JSwXjmwn1N5PDG (copy: docs/mockups/phase1-fixes/phase1-fixes.html). Panels: side list bar (T4), right sheets below the top bar, Page options folded, Pin an action ✕/✓ at the top, must-have update screens, no jump between Computer and Pencil mode.
+
+Settings v4 (claude.ai/artifact/PL5zc6xh2np4CXwTYgr5sw) NOT approved: too many changes. Owner: start from the approved Settings mock v3 and add only the needed new changes; Fable checks which are needed.

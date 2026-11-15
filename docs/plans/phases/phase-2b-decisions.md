@@ -15,3 +15,5 @@ Planned live with the owner (Opus manager; questions drafted by Fable). The phas
 - **Rotation:** not now (parked with layers).
 - **Tall Box card under a wide box:** the card scrolls inside; the page stays still.
 - **The missing-states picture:** approved by the owner as it is (14 Nov night: "I liked everything ... I confirm all"); the guessed numbers above are accepted with it.
+- **Phone boxes (owner, 15 Nov morning):** must be resizable on a phone too, the same as on the iPad ("uniformity from the start"): the same dots and handles; height and width change; a narrower box stays inside the single column. Task 2B.5b.
+- **2A.3 merge (owner, 15 Nov morning):** "merge it": merged by the manager as 5b35d73d after the safety check had refused the builder's push.

@@ -44,6 +44,9 @@ export const enV8Text = {
   'v8.insert.title': 'Insert',
   'v8.more.allTools': 'All tools',
   'v8.more.groupApp': 'Tool bar',
+  'v8.more.groupView': 'View',
+  'v8.more.groupPage': 'Page',
+  'v8.more.groupBar': 'Tool bar',
   'v8.more.hideBar': 'Hide the tool bar',
   'v8.more.title': 'More',
 }

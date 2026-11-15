@@ -16,6 +16,7 @@ import { lazyNow } from '../../../../lazyNow'
 import type { FoldEntry } from '../../FoldCard'
 
 const MoreStudy = lazyNow(() => import('./MoreStudy'))
+const MoreTools = lazyNow(() => import('./MoreTools'))
 
 /**
  * The tool bar's ⋯ card in the redesigned look (flag `toolbar.menu`, 2A.2):
@@ -129,6 +130,7 @@ export default function MoreMenuV2({
       {editor ? (
         <Suspense fallback={null}>
           <MoreStudy editor={editor} onClose={onClose} />
+          <MoreTools onClose={onClose} />
         </Suspense>
       ) : null}
     </div>

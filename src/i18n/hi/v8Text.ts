@@ -43,6 +43,9 @@ export const hiV8Text = {
   'v8.insert.title': 'डालें',
   'v8.more.allTools': 'सभी टूल',
   'v8.more.groupApp': 'टूल बार',
+  'v8.more.groupView': 'देखें',
+  'v8.more.groupPage': 'पेज',
+  'v8.more.groupBar': 'टूल बार',
   'v8.more.hideBar': 'टूल बार छिपाएँ',
   'v8.more.title': 'और',
 }

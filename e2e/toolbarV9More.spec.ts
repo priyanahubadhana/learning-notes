@@ -122,3 +122,30 @@ test("nothing from today's ⋯ is dropped: Reading mode, All tools, Settings, Hi
   for (const id of ['reading', 'alltools', 'settings', 'hide'])
     await expect(page.getByTestId(`v8-more-${id}`)).toBeVisible()
 })
+
+test('View, Page and Tool bar folds: Professional has all three, Beginner no Page', async ({
+  page,
+}) => {
+  await open(page, 'professional', { width: 820, height: 900 })
+  await more(page)
+  for (const g of ['View', 'Page', 'Tool bar'])
+    await expect(
+      card(page).getByRole('button', { name: g, exact: true }),
+    ).toBeVisible()
+  await card(page).getByRole('button', { name: 'Page', exact: true }).click()
+  await expect(page.getByTestId('v8-more-tool-share')).toBeVisible()
+})
+
+test('Beginner: View and Tool bar folds, no Page', async ({ page }) => {
+  await open(page, 'beginner', { width: 820, height: 900 })
+  await more(page)
+  await expect(
+    card(page).getByRole('button', { name: 'View', exact: true }),
+  ).toBeVisible()
+  await expect(
+    card(page).getByRole('button', { name: 'Tool bar', exact: true }),
+  ).toBeVisible()
+  await expect(
+    card(page).getByRole('button', { name: 'Page', exact: true }),
+  ).toHaveCount(0)
+})

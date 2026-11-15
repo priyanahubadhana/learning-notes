@@ -458,7 +458,6 @@ export function ToolBar({
           data-testid="v8-back"
           className={btn}
           aria-label={backLabel}
-          title={backLabel}
           onMouseDown={keepFocus}
           onClick={() => swapToLastTool()}
         >

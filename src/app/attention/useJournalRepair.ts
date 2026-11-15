@@ -3,6 +3,7 @@ import { AppUiContext } from '../appUi'
 import { runTask } from '../errors'
 import type { LearningNotesDB } from '../../core/db'
 import { isReadOnlyGate } from '../../core/readOnlyGate'
+import { getOrCreateDefaultWorkspace } from '../../core/workspaceService'
 import { t } from '../../i18n/t'
 import { getSyncStatus, subscribeSync } from '../../sync/syncStatus'
 
@@ -29,10 +30,7 @@ export function useJournalRepair(db: LearningNotesDB, on: boolean): void {
       if (!live || running || isReadOnlyGate()) return
       running = true
       try {
-        const [repair, { getOrCreateDefaultWorkspace }] = await Promise.all([
-          import('../../journal/journalRepair'),
-          import('../../core/workspaceService'),
-        ])
+        const repair = await import('../../journal/journalRepair')
         const ws = (await getOrCreateDefaultWorkspace(db)).id
         const outcome = await repair.repairJournalMonths(db, ws)
         if (!live || outcome.kind !== 'joined') return

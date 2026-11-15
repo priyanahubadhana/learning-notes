@@ -1299,17 +1299,6 @@ export function PaperFrame({
       }, m.HOLD_MS)
     }
   }
-  // The saved width takes over from the live one.
-  useEffect(() => {
-    if (!liveW) return
-    const saved = boxesOf(page).find((b) => b.id === liveW.id)?.w
-    if (saved !== undefined && Math.abs(saved - liveW.w) < 0.2) {
-      setLiveW(null)
-      return
-    }
-    const id = window.setTimeout(() => setLiveW(null), 1500)
-    return () => window.clearTimeout(id)
-  })
   const resizeMove = (e: ReactPointerEvent) => {
     const d = resizing.current
     if (!d) return
@@ -1414,6 +1403,8 @@ export function PaperFrame({
       const id = d.id
       const w = Math.round(d.phone.w * 10) / 10
       setLiveW({ id, w })
+      // The saved width takes over once the write is in.
+      window.setTimeout(() => setLiveW(null), 600)
       onGridChange?.(baseRows, [{ id, patch: { w } }])
     }
     if (d.i !== null || d.north) {

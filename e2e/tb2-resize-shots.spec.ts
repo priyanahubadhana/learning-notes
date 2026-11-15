@@ -70,9 +70,9 @@ for (const [name, vp, mode] of SIZES) {
     const at = (await box.boundingBox())!
     await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2)
     await expect(box).toHaveAttribute('data-picked', '')
-    // A phone page is one stacked column: no dots there, only the selected box.
+    // 2B.5b: a phone shows the same eight dots (one stacked column).
     const dots = await box.locator('[data-resize-handle]').count()
-    if (name === 'phone') expect(dots).toBe(0)
+    if (name === 'phone') expect(dots).toBe(8)
     // Make it narrow so the text wraps into lines.
     if (dots) {
       const e = (await box.locator('[data-resize-handle="e"]').boundingBox())!

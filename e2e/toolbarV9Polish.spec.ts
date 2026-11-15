@@ -140,16 +140,17 @@ test('fix 3: compact font tiles show every name whole, and the check never cover
 async function settledBox(card: Locator) {
   await card.page().evaluate(() => document.fonts.ready)
   let last = (await card.boundingBox())!
-  for (let i = 0; i < 20; i++) {
+  let same = 0
+  for (let i = 0; i < 30 && same < 3; i++) {
     await card.page().waitForTimeout(400)
     const now = (await card.boundingBox())!
-    if (
+    same =
       now.x === last.x &&
       now.y === last.y &&
       now.width === last.width &&
       now.height === last.height
-    )
-      return now
+        ? same + 1
+        : 0
     last = now
   }
   return last

@@ -102,3 +102,4 @@ Decided by Claude, no answer needed (logged in docs/DECISIONS.md, 15 Nov): the p
 ## Owner's answers (15 Nov, evening)
 
 1A, 3A (rule change: owner may switch Phase 1 on after the re-test; the full release bar before anyone else; written into rules/phase-end.md after this phase), 4A (full team, up to 3 builders, for the 2A and Settings rebuilds), 5A, 6A. Asked to explain: 2, 7, 8.
+2A. 7: owner wants the ladder (Opus, then Fable, then the owner); the safety check itself can only be passed by the owner's tap. 8: instead of stopping runs, every manual Playwright run uses `--global-timeout` so it stops by itself (no permission change).

@@ -14,7 +14,6 @@ import {
 } from '@blocknote/react'
 import {
   Suspense,
-  lazy,
   useCallback,
   useContext,
   useEffect,
@@ -25,6 +24,10 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { lazyNow } from '../app/lazyNow'
+import { prefetchAfterIdle } from '../app/idlePrefetch'
+import { preloadHoldMenu } from './HoldMenuLazy'
+import { preloadPageStrip } from './menus/PageStripLazy'
 import type { Place } from '../app/tools/toolbarState'
 import { AppUiContext } from '../app/appUi'
 import { isApple } from '../app/keys'
@@ -90,7 +93,7 @@ import {
 /** Keeps the editor's selection and keyboard when a bar button is pressed. */
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
-const LazyEditToolbar = lazy(() =>
+const LazyEditToolbar = lazyNow(() =>
   import('../app/tools/main/EditToolbarSheet').then((m) => ({
     default: m.EditToolbarSheet,
   })),
@@ -120,7 +123,7 @@ function useToolActive(editor: Editor): (id: string) => boolean {
 }
 
 // The iPad keyboard bar loads only when the keyboard is up (bug batch 2, item 8).
-const KeyboardBar = lazy(() => import('../app/tools/main/KeyboardBar'))
+const KeyboardBar = lazyNow(() => import('../app/tools/main/KeyboardBar'))
 
 function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const kbInset = useKeyboardInset()
@@ -170,6 +173,17 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
     hidden: shellOn,
   }
   usePenPicksPen()
+  // Menus and sheets a tap or hold opens: fetched ahead, so they paint at once (R13).
+  useEffect(
+    () =>
+      prefetchAfterIdle([
+        LazyEditToolbar.preload,
+        KeyboardBar.preload,
+        preloadHoldMenu,
+        preloadPageStrip,
+      ]),
+    [],
+  )
 
   // Ctrl/Cmd+F1: "Tools close after use" or "Tools stay open".
   useEffect(() => {

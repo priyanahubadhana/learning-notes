@@ -95,6 +95,18 @@ const cases: {
     min: 2,
   },
   {
+    name: 'the page More options sheet',
+    tap: '[aria-label="More options"]',
+    appear: '[data-testid="page-sheet"]',
+    min: 2,
+  },
+  {
+    name: 'the Name it sheet',
+    tap: '[aria-label="New notebook"]',
+    appear: '[data-testid="name-sheet"]',
+    min: 0,
+  },
+  {
     name: 'the More list',
     tap: '[data-testid="v8-more"]',
     appear: '[data-testid="v8-card-fold.bar"]',

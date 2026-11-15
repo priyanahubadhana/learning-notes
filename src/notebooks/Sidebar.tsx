@@ -40,7 +40,8 @@ import { SavedSearchesSection } from '../search/SavedSearchesSection'
 import { TagsSection } from '../tags/TagsSection'
 import { FavouritesSection, RecentSection } from '../app/QuickPages'
 import { t } from '../i18n/t'
-import { LazyNotebookMenu } from '../app/LazyNameSheet'
+import { LazyNotebookMenu, nameParts } from '../app/LazyNameSheet'
+import { prefetchAfterIdle } from '../app/idlePrefetch'
 import { useRowPalmGuard } from '../app/useRowPalmGuard'
 import { touchUi } from '../app/touchUi'
 import { useLongPress } from '../app/useLongPress'
@@ -212,6 +213,8 @@ export function Sidebar({
   // Due count for the Review button; re-checked every minute so cards
   // that come due (e.g. after Again) show up without other changes.
   const [minute, setMinute] = useState(() => Date.now())
+  // The "Name it" sheet and the row menus are fetched ahead, so a tap paints them at once (R13).
+  useEffect(() => prefetchAfterIdle(nameParts), [])
   useEffect(() => {
     const timer = setInterval(() => setMinute(Date.now()), 60_000)
     return () => clearInterval(timer)

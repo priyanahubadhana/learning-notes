@@ -95,13 +95,16 @@ import { openReader } from '../app/reading/readingTools'
 import { Glyph, Icon } from '../app/tools/icons'
 import { setPageReloader } from '../core/historySteps'
 
+import { lazyNow } from '../app/lazyNow'
+import { prefetchAfterIdle } from '../app/idlePrefetch'
+
 const PromptsDialog = lazy(() => import('../prompts/PromptsDialog'))
 
 const MindMapTab = lazy(() => import('./tabs/MindMapTab'))
 const SlidesTab = lazy(() => import('./tabs/SlidesTab'))
 const AudioTab = lazy(() => import('./tabs/AudioTab'))
 const DatabaseTab = lazy(() => import('./tabs/DatabaseTab'))
-const PageSheet = lazy(() => import('./menus/PageSheet'))
+const PageSheet = lazyNow(() => import('./menus/PageSheet'))
 const ExportDialog = lazy(() =>
   import('../share/export/ExportDialog').then((m) => ({
     default: m.ExportDialog,
@@ -156,6 +159,8 @@ export function PageView({
   const { toast } = useContext(AppUiContext)
   // Undo of a restored version redraws the page from the database.
   useEffect(() => setPageReloader(onReload), [onReload])
+  // The page's more-menu sheet is fetched ahead, so a tap paints it at once (R13).
+  useEffect(() => prefetchAfterIdle([PageSheet.preload]), [])
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
   const notebook = useLiveQuery(
     () => getNotebook(db, page.notebookId),

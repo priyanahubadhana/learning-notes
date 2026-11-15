@@ -1,6 +1,6 @@
 name: Live site check
 
-# Daily: the live site must be the latest app-code commit on main (docs-only pushes do not deploy), with its protection
+# Daily: the live site must be the latest app-code commit on main (only src, public, index.html, vite config, lockfile ship), with its protection
 # in place. A failure here (GitHub emails the owner) most likely means
 # something other than the deploy job published the site.
 on:

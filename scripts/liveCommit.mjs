@@ -1,24 +1,29 @@
 import { execFileSync } from 'node:child_process'
 
-// Docs-only pushes to main do not deploy (ci.yml `paths-ignore`), so the live
-// site is allowed to be older than main's head by such commits. Keep this in
-// step with that list.
-export function isDocsOnly(file) {
-  return file.startsWith('docs/') || file.endsWith('.md')
+// What ships to the live site: the app source, its static files, the page,
+// the build settings and the locked dependencies. Docs, tests, scripts,
+// workflows and the package.json scripts do not change the shipped app.
+export function isShipped(file) {
+  return (
+    file.startsWith('src/') ||
+    file.startsWith('public/') ||
+    file === 'index.html' ||
+    file === 'package-lock.json' ||
+    /^vite.config.[^/]+$/.test(file)
+  )
 }
 
 /**
- * The commit that should be live: the newest one that changed anything the
- * deploy builds.
+ * The commit that should be live: the newest one that changed what ships.
  * @param {{ sha: string, files: string[] }[]} commits newest first
  * @returns {string | null}
  */
 export function pickAppCommit(commits) {
-  return commits.find((c) => c.files.some((f) => !isDocsOnly(f)))?.sha ?? null
+  return commits.find((c) => c.files.some(isShipped))?.sha ?? null
 }
 
 /** Reads main's recent history from git (-m: merge commits show their changes). */
-export function readCommits(ref = 'HEAD', count = 300) {
+export function readCommits(ref = 'HEAD', count = 3000) {
   const out = execFileSync(
     'git',
     [

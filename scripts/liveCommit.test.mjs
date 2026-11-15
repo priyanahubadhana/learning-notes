@@ -13,12 +13,25 @@ describe('which commit should be live', () => {
   })
 
   it('picks the head when it changed app code (stays strict)', () => {
-    expect(pickAppCommit([{ sha: 'head', files: ['scripts/x.mjs'] }])).toBe(
-      'head',
-    )
-    expect(
-      pickAppCommit([{ sha: 'wf', files: ['.github/workflows/ci.yml'] }]),
-    ).toBe('wf')
+    expect(pickAppCommit([{ sha: 'head', files: ['src/a.ts'] }])).toBe('head')
+    expect(pickAppCommit([{ sha: 'p', files: ['public/x.png'] }])).toBe('p')
+    expect(pickAppCommit([{ sha: 'v', files: ['vite.config.ts'] }])).toBe('v')
+  })
+
+  it('skips commits that only touch ci.yml, scripts or tests', () => {
+    const commits = [
+      {
+        sha: 'ci',
+        files: [
+          '.github/workflows/ci.yml',
+          'scripts/x.mjs',
+          'e2e/a.spec.ts',
+          'package.json',
+        ],
+      },
+      { sha: 'app', files: ['src/a.ts'] },
+    ]
+    expect(pickAppCommit(commits)).toBe('app')
   })
 
   it('returns null when nothing but docs is found', () => {

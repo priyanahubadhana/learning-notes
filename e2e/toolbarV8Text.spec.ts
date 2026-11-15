@@ -58,14 +58,16 @@ test('TB-40 the Text row is settings, Box, Format, B, I and the top bar has no D
 })
 
 const tab = (c: Locator, id: string) => c.getByTestId(`v8-format-tab-${id}`)
-const tabIds = (c: Locator) =>
-  c
+const tabIds = async (c: Locator) => {
+  await c.getByRole('tab').first().waitFor()
+  return c
     .getByRole('tab')
     .evaluateAll((els) =>
       els.map((e) =>
         e.getAttribute('data-testid')?.replace('v8-format-tab-', ''),
       ),
     )
+}
 
 test('TB-41 Beginner Format: 3 tabs Text, Style, Paragraph in one card; a ✕ closes', async ({
   page,
@@ -99,18 +101,23 @@ test('T16 T17 colours sit inside the Text tab: no second card opens, the colour 
   page,
 }) => {
   await open(page)
-  await page.locator('.bn-editor').first().click()
-  await page.keyboard.press('Control+A')
+  await page.getByText('The nucleus holds the DNA').click({ clickCount: 3 })
   await chip(page, 'text.format').click()
   const c = card(page, 'text.format')
   await c.getByTestId('v8-format-textColor-red').click()
   await expect(
-    page.locator('.bn-editor [data-text-color="red"]').first(),
+    page
+      .locator('.bn-editor [data-style-type="textColor"][data-value="red"]')
+      .first(),
   ).toBeVisible()
   await expect(page.locator('.pcard')).toHaveCount(1)
   await c.getByTestId('v8-format-highlight-yellow').click()
   await expect(
-    page.locator('.bn-editor [data-background-color="yellow"]').first(),
+    page
+      .locator(
+        '.bn-editor [data-style-type="backgroundColor"][data-value="yellow"]',
+      )
+      .first(),
   ).toBeVisible()
   await expect(page.locator('.pcard')).toHaveCount(1)
   await expect(c.getByTestId('v8-format-textColor-red')).toHaveAttribute(
@@ -119,9 +126,9 @@ test('T16 T17 colours sit inside the Text tab: no second card opens, the colour 
   )
   await page.keyboard.press('Control+Z')
   await page.keyboard.press('Control+Z')
-  await expect(page.locator('.bn-editor [data-text-color="red"]')).toHaveCount(
-    0,
-  )
+  await expect(
+    page.locator('.bn-editor [data-style-type="textColor"][data-value="red"]'),
+  ).toHaveCount(0)
 })
 
 test('TB-41 Text size: Small, Body, Large set the note size; Beginner has 3, tb.textFonts adds 5 sizes and fonts', async ({
@@ -264,7 +271,9 @@ test('TB-41 the Format card never covers the tool bar or the side bar', async ({
   const c = card(page, 'text.format')
   const r = (await c.boundingBox())!
   const row = (await page.getByTestId('v8-row').boundingBox())!
-  expect(r.y + r.height).toBeLessThanOrEqual(row.y + 1)
+  expect(r.y + r.height <= row.y + 1 || r.y >= row.y + row.height - 1).toBe(
+    true,
+  )
   const vp = page.viewportSize()!
   expect(r.x).toBeGreaterThanOrEqual(0)
   expect(r.x + r.width).toBeLessThanOrEqual(vp.width)

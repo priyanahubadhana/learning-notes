@@ -75,7 +75,9 @@ describe('Format card (TB-41)', () => {
     const fontsOnly = formatTabs({ textFonts: true, textMarks: false })
     expect(fontsOnly.length).toBe(4)
     expect(
-      fontsOnly.flatMap((t) => t.groups.flatMap((g) => g.tiles.map((x) => x.tool))),
+      fontsOnly.flatMap((t) =>
+        t.groups.flatMap((g) => g.tiles.map((x) => x.tool)),
+      ),
     ).not.toContain('code')
   })
   it('no tile appears twice', () => {

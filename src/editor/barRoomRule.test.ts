@@ -76,7 +76,7 @@ describe('barRoomHeight (R14: the old bar keeps its own height too)', () => {
   })
   it('a height measured on this screen wins', () => {
     expect(barRoomHeight(false, 44, 128)).toBe(128)
-    expect(barRoomHeight(true, 44, 128)).toBe(128)
+    expect(barRoomHeight(true, 44, 128)).toBeNull() // the new bar keeps its token
   })
   it('keys by button size and width; keeps 8 screens', () => {
     expect(roomKey(30, 390.4)).toBe('44@390')

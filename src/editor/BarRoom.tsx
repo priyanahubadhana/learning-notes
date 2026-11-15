@@ -26,24 +26,29 @@ const rooms = prefStore('bar.roomPx', isRoomMap, {})
  */
 export function BarRoom({ pageRoute }: { pageRoute: boolean }) {
   const v8 = useFlag('toolbar.v8')
+  // R14: the old bar's room goes live with Phase 1 (foundation.shell), not before.
+  const shell = useFlag('foundation.shell')
   const bar = useBarSettings()
   const layout = useBarLayout()
   const reading = readingView.useValue() !== 'off'
   const decided = editorDecided.useValue()
   const remembered = rooms.useValue()
   const key = roomKey(bar.buttonPx, window.innerWidth)
+  const buttonPx = bar.buttonPx
 
   // The old bar's height on this screen, remembered for the next start.
   useEffect(() => {
-    if (v8) return
+    if (v8 || !shell) return
     const slot = document.querySelector('[data-bar-slot]')
     if (!slot) return
     const ro = new ResizeObserver(() => {
       // The button rows plus the pill's frame (10 px); a selection's extra row is not part of it.
       const row = slot.querySelector('[data-pill="short"] [data-main-bar]')
       const h = row ? Math.round(row.getBoundingClientRect().height) + 10 : 0
-      if (h > 0 && rooms.get()[key] !== h)
-        rooms.set(withRoom(rooms.get(), key, h))
+      // The key is read now, so a turned screen saves under its new width.
+      const now = roomKey(buttonPx, window.innerWidth)
+      if (h > 0 && rooms.get()[now] !== h)
+        rooms.set(withRoom(rooms.get(), now, h))
     })
     const watch = () => {
       ro.disconnect()
@@ -58,9 +63,10 @@ export function BarRoom({ pageRoute }: { pageRoute: boolean }) {
       ro.disconnect()
       mo.disconnect()
     }
-  }, [v8, key])
+  }, [v8, shell, buttonPx])
 
   if (
+    (!v8 && !shell) ||
     decided ||
     !barRoomWanted({
       pageRoute,

@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { t } from '../../i18n/t'
+import { useFlag } from '../flags'
 import { Icon } from './icons'
 import {
   NONE,
@@ -55,8 +56,13 @@ export function BarScroll({
     setO((old) => (JSON.stringify(old) === JSON.stringify(next) ? old : next))
   }, [])
 
-  // Measured before the first paint: the scroll handle must not appear a frame later (R14).
+  // With Phase 1 (foundation.shell) on, measured before the first paint: the
+  // scroll handle must not appear a frame later (R14).
+  const shell = useFlag('foundation.shell')
   useLayoutEffect(() => {
+    if (shell) measure()
+  }, [measure, children, shell])
+  useEffect(() => {
     measure()
     const el = scroller.current
     if (!el) return

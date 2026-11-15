@@ -41,13 +41,14 @@ export function barRoomWanted(p: {
  * 44 px) in a pill whose frame (border and padding) adds 10 px. Its real
  * height also depends on the screen (a phone wraps to two rows; a row that
  * overflows adds a 22 px scroll handle), so the height measured last time on
- * this screen size and button size, when there is one, wins.
+ * this screen size and button size, when there is one, wins (old bar only). Only the old
+ * bar uses it; the new bar keeps its token.
  */
 export const barRoomHeight = (
   v8: boolean,
   buttonPx: number,
   remembered: number | null = null,
-): number | null => remembered ?? (v8 ? null : Math.max(buttonPx, 44) + 10)
+): number | null => (v8 ? null : (remembered ?? Math.max(buttonPx, 44) + 10))
 
 /** Which screen the remembered height belongs to. */
 export const roomKey = (buttonPx: number, width: number): string =>

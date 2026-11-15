@@ -155,6 +155,12 @@ test('Home, Settings and Library keep no room', async ({ page }) => {
 /** R14: the OLD bar (toolbar.v8 OFF) also arrives late; the page below must not drop. */
 const OLD = 'foundation.shell'
 
+/** The saved room heights, read back from this device's display preferences. */
+const savedRooms = (page: Page) =>
+  page.evaluate(() =>
+    JSON.parse(localStorage.getItem('learning-notes:bar.roomPx') ?? '{}'),
+  ) as Promise<Record<string, number>>
+
 test('R14 old bar: the room shows and the page never moves', async ({
   page,
 }) => {
@@ -186,7 +192,8 @@ test.describe('R14 old bar on a phone', () => {
 })
 
 for (const [name, keys] of [
-  ['floating', { 'advanced.barPlacement': 'free' }],
+  ['floating', { 'advanced.barPlacement': 'floating' }],
+  ['free', { 'advanced.barPlacement': 'free' }],
   ['at the bottom', { 'advanced.barPlacement': 'bottom' }],
   ['on auto-hide', { 'advanced.barAutoHide': 'on' }],
   ['with the ribbon open', { 'toolbar.ribbon': true }],
@@ -197,3 +204,31 @@ for (const [name, keys] of [
     if ('advanced.barPlacement' in keys)
       expect(seen.slot).toBeLessThanOrEqual(4)
   })
+
+// A wrong saved height (too big, too small) must correct itself.
+for (const wrong of [300, 20])
+  test(`R14 old bar: a saved height of ${wrong} px is corrected after the bar draws`, async ({
+    page,
+  }) => {
+    await watchPage(
+      page,
+      { 'bar.roomPx': { '44@1336': wrong } },
+      undefined,
+      OLD,
+    )
+    const saved = await savedRooms(page)
+    expect(saved['44@1336']).toBe(54)
+  })
+
+test('R14 switch OFF (foundation.shell off): nothing is kept and nothing is saved', async ({
+  page,
+}) => {
+  const seen = await watchPage(page, {}, undefined, 'toolbar.menu')
+  expect(seen.room).toBe(false)
+  expect(await savedRooms(page)).toEqual({})
+})
+
+test('R14 new bar ignores the saved heights', async ({ page }) => {
+  const seen = await watchPage(page, { 'bar.roomPx': { '44@1336': 20 } })
+  expect(seen.tops.length).toBe(1)
+})

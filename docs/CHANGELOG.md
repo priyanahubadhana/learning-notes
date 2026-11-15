@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: polish sweep R12 (solid surfaces), R13 (lazy parts paint at once), Pages tab bar fade
+
+- What: R12: a scrolling box that paints a solid background is never masked by the scroll-hint fade; its edge fades inside it in its own colour (scrollHints.ts solidOf, index.css; grids, gaps and boxes with their own ::before / ::after stay solid with no fade). Goes live with foundation.shell. R13: new lazyNow (src/app/lazyNow.ts), a drop-in for lazy with preload(): a preloaded part draws in its own render, without React 19's 300 ms Suspense hold. The v8 bar's seven card bodies, selection bar and More list, the page More options sheet, the Name it sheet, hold menu, page strip, Edit toolbar sheet and keyboard bar are fetched once the screen is idle (prefetchAfterIdle; chunks are not in the first load). The Pages tab's Object bar fades in place (pm-fade) instead of sliding 6 px.
+- Why: findings R12, R13 and the owner's iPad test.
+- Files: src/app/lazyNow.ts, scrollHints.ts, index.css, partsMisc.css, tools/v8/ToolbarV8.tsx, ToolBar.tsx, LazyNameSheet.tsx, editor/DockedBar.tsx, HoldMenuLazy.tsx, menus/PageStripLazy.tsx, pages/PageView.tsx, notebooks/Sidebar.tsx; e2e/lazyTapPaint.spec.ts, scrollSolid.spec.ts, pagesBarFade.spec.ts.
+
 ### 15 Nov 2026: R14 the page no longer drops 90 px a moment after load on iPad
 
 - What: the part that grew was the OLD tool bar (toolbar.v8 OFF) in the bar slot under the top bar: the slot went 0, then one button row (68 px with large buttons), then 90 px when the bar's scroll handle (22 px, BarScroll) was measured a frame after the bar drew. Fix: the room F8 kept for the new bar is now kept for the old bar too, as tall as the old bar was last time on this screen (remembered per button size and screen width in the display preference bar.roomPx; its plain height the first time; behind foundation.shell), and BarScroll measures before the first paint so the handle is never a frame late. Same rule as F8: nothing is kept where no bar shows. No change to App.tsx or Shell.tsx.

@@ -491,8 +491,7 @@
 .sh-frame[data-compact] .sh-top .sh-view,
 .sh-frame[data-compact] .sh-hide-phone,
 .sh-frame[data-compact] .sh-hide-narrow,
-.sh-frame[data-compact] .sh-status,
-.sh-frame[data-compact] .sh-crumbs {
+.sh-frame[data-compact] .sh-status {
   display: none;
 }
 @media (max-width: 39.999rem), (max-height: 31.999rem) {

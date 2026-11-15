@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: P1.11 owner bugs T29 and T31
+
+- What: T29 a failed must-have download is aborted and ignored afterwards, so a late progress report cannot put the screen back on Downloading (the note with Try again and Not now stays). T31 key names (menus, tool tips, search list, copy menu, bar) show only in Computer mode through one helper, src/app/keyNames.ts. Files: src/app/mandatoryFlow.ts, src/app/keyNames.ts, ui.tsx, ToolButton, CopyPasteMenu, SearchPopup, barActions, DockedBar, deviceModeSettings; tests mandatoryFlow.v2.test.ts, keyNames.test.ts, e2e/updateV2.spec.ts, e2e/keyNames.spec.ts.
+
 ### 15 Nov 2026 (evening): Phase 2A started (full team); wheel test merged
 
 - What: 2A.4, 2A.5, 2A.14 built on their branches (not merged yet); the phone wheel test move merged into build/next b2872d53 after desktop webkit 1/1. Why: owner answers 4A and 7. Files: docs/BUILD-STATE.md, docs/CHANGELOG.md.

@@ -20,6 +20,7 @@ import {
 } from '../app/deviceMode'
 import { isBoolean, readPref, writePref } from '../app/uiPrefs'
 import { t } from '../i18n/t'
+import { keyNamesShown } from '../app/keyNames'
 import {
   applyDeviceMode,
   applyModePreset,
@@ -130,7 +131,8 @@ export function useBarSettings(): BarSettings {
     size,
     buttonPx: barButtonPx(size, mode),
     hoverTips: hoverTips === 'on',
-    shortcutHints: hints === 'on' || keyboard,
+    // T31: key names only in Computer mode, even with a keyboard attached.
+    shortcutHints: keyNamesShown(mode) && (hints === 'on' || keyboard),
     autoHide: autoHide === 'on',
   }
 }

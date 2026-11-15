@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Icon, type IconName } from '../../app/tools/icons'
+import { useFlag } from '../../app/flags'
 import {
   type BannerItem,
   type BannerKind,
@@ -30,14 +31,28 @@ export function Banner({
   onClose(): void
   waiting?: number
 }) {
+  // I1 (switch foundation.shell): the close ✕ sits on the leading edge.
+  const lead = useFlag('foundation.shell')
+  const close = (
+    <button
+      type="button"
+      className="fb-x fb-banner__x"
+      aria-label={tf('parts.fb.bannerClose')}
+      data-testid="fb-banner-x"
+      onClick={onClose}
+    >
+      <Icon name="close" size={14} />
+    </button>
+  )
   return (
     <div
-      className="fb-banner"
+      className={lead ? 'fb-banner fb-banner--lead' : 'fb-banner'}
       role="region"
       aria-label={tf('parts.fb.bannerRegion')}
       data-kind={item.kind}
       data-testid="fb-banner"
     >
+      {lead && close}
       <span className="fb-banner__icon" aria-hidden="true">
         <Icon name={ICONS[item.kind]} size={18} />
       </span>
@@ -61,15 +76,7 @@ export function Banner({
           {item.action.label}
         </button>
       ) : null}
-      <button
-        type="button"
-        className="fb-x fb-banner__x"
-        aria-label={tf('parts.fb.bannerClose')}
-        data-testid="fb-banner-x"
-        onClick={onClose}
-      >
-        <Icon name="close" size={14} />
-      </button>
+      {!lead && close}
     </div>
   )
 }

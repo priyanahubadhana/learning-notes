@@ -209,6 +209,7 @@ const config = defineConfig({
         /toolbarMenuV(2|8)/,
         // Task H: the Journal and its month repair (manager OK, 15 Nov).
         /journalMonthRepair/,
+        /noticeClose/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

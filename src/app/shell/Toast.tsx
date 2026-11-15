@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { Undo2 } from 'lucide-react'
+import { Undo2, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
+import { t } from '../../i18n/t'
 import { useKeyboardInset } from '../../settings/deviceModeSettings'
 import { stackPositions } from '../overlay'
 import { toastBottom } from '../toastTiming'
@@ -68,6 +69,19 @@ function ToastView({ toasts }: { toasts: ShellToasts }) {
         onPointerDown={toasts.hold}
         onPointerUp={toasts.release}
       >
+        {toast.action && (
+          // I1: closes the notice without doing the action.
+          <button
+            type="button"
+            className="sh-toast-x"
+            aria-label={t('popup.close')}
+            onClick={() => toasts.dismiss()}
+          >
+            <span className="sh-toast-x-dot">
+              <X size={10} strokeWidth={2.4} aria-hidden />
+            </span>
+          </button>
+        )}
         <span className="sh-toast-msg">{toast.message}</span>
         {toast.action && (
           <button

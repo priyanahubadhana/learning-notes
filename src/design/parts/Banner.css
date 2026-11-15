@@ -16,6 +16,9 @@
   line-height: 20px;
   animation: fb-banner-in var(--fb-dur-banner) var(--ease-out) both;
 }
+.fb-banner--lead {
+  padding-inline-start: var(--space-1);
+}
 .fb-banner[data-kind='lock'],
 .fb-banner[data-kind='readonly'],
 .fb-banner[data-kind='storage'] {

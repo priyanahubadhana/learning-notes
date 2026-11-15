@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { X } from 'lucide-react'
+import { useFlag } from '../flags'
 import { t } from '../../i18n/t'
 import type { LearningNotesDB } from '../../core/db'
 import { dismissUpdateOffer } from '../updates'
@@ -167,9 +169,42 @@ export function AttentionBanner({
       live = false
     }
   }, [attention.code])
+  const shellOn = useFlag('foundation.shell')
   const { text, action } = content(attention.code, db, googleLinked)
   const bright = attention.level === 2
   const button = bright ? 'hover:bg-white/15' : 'text-accent hover:bg-accent/10'
+  const dismiss = () => {
+    if (attention.code === 'update') dismissUpdateOffer()
+    snooze(attention, browserSnooze(), Date.now(), session)
+    if (attention.code === 'update') setSignals({}) // redraw readers
+    onDismissed()
+  }
+  // I1 (switch foundation.shell): the close ✕ sits on the leading edge, the
+  // action on the trailing edge; drawn 10 px in a faint 22 px circle, tap
+  // area 44 x 44.
+  const closeButton = shellOn ? (
+    <button
+      type="button"
+      aria-label={t('popup.close')}
+      onClick={dismiss}
+      className="absolute start-1 top-[env(safe-area-inset-top)] grid h-11 w-11 place-items-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-current"
+    >
+      <span
+        className={`grid h-[22px] w-[22px] place-items-center rounded-full ${bright ? 'bg-[color-mix(in_srgb,var(--color-on-accent)_30%,transparent)]' : 'bg-line'}`}
+      >
+        <X size={10} strokeWidth={2.4} aria-hidden />
+      </span>
+    </button>
+  ) : (
+    <button
+      type="button"
+      aria-label={t('attention.dismiss')}
+      onClick={dismiss}
+      className={`min-h-9 min-w-9 rounded-md ${button}`}
+    >
+      ×
+    </button>
+  )
   return (
     <div
       role="status"
@@ -177,12 +212,13 @@ export function AttentionBanner({
       data-chrome
       data-testid="attention-banner"
       data-code={attention.code}
-      className={`fixed inset-x-0 top-0 z-40 flex min-h-11 items-center justify-center gap-2 px-4 pt-[env(safe-area-inset-top)] text-[13px] ${
+      className={`fixed inset-x-0 top-0 z-40 flex min-h-11 items-center ${shellOn ? 'px-12' : 'px-4'} justify-center gap-2 pt-[env(safe-area-inset-top)] text-[13px] ${
         bright
           ? 'bg-accent font-medium text-white'
           : 'border-b border-line bg-hover text-ink'
       }`}
     >
+      {shellOn && closeButton}
       <span>{text}</span>
       <button
         type="button"
@@ -191,19 +227,7 @@ export function AttentionBanner({
       >
         {action.label}
       </button>
-      <button
-        type="button"
-        aria-label={t('attention.dismiss')}
-        onClick={() => {
-          if (attention.code === 'update') dismissUpdateOffer()
-          snooze(attention, browserSnooze(), Date.now(), session)
-          if (attention.code === 'update') setSignals({}) // redraw readers
-          onDismissed()
-        }}
-        className={`min-h-9 min-w-9 rounded-md ${button}`}
-      >
-        ×
-      </button>
+      {!shellOn && closeButton}
     </div>
   )
 }

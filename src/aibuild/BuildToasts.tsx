@@ -11,6 +11,7 @@ import {
 } from 'react'
 import { createToastQueue, stackPositions } from '../app/overlay'
 import { t } from '../i18n/t'
+import { useFlag } from '../app/flags'
 
 export interface ToastAction {
   label: string
@@ -63,6 +64,8 @@ export const BuildToasts = forwardRef<BuildToastsApi>(
       [queue],
     )
     const items = queue.visible()
+    // I1 (switch foundation.shell): the close ✕ sits on the leading edge.
+    const lead = useFlag('foundation.shell')
     const host = useRef<HTMLDivElement>(null)
     const nodes = useRef(new Map<number, HTMLDivElement>())
     const [tops, setTops] = useState<Record<number, number>>({})
@@ -146,6 +149,16 @@ export const BuildToasts = forwardRef<BuildToastsApi>(
       >
         {items.map((item) => {
           const action = actions.current.get(item.id)
+          const close = (
+            <button
+              type="button"
+              aria-label={t('aifw.toast.close')}
+              className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-hover"
+              onClick={() => queue.dismiss(item.id)}
+            >
+              <X size={18} strokeWidth={1.6} aria-hidden />
+            </button>
+          )
           return (
             <div
               key={item.id}
@@ -162,8 +175,9 @@ export const BuildToasts = forwardRef<BuildToastsApi>(
                 width,
                 pointerEvents: 'auto',
               }}
-              className="flex items-center gap-2 rounded-xl border border-line bg-bg p-2 pl-4 text-sm shadow-lg"
+              className={`flex items-center gap-2 rounded-xl border border-line bg-bg p-2 text-sm shadow-lg ${lead ? 'pl-1' : 'pl-4'}`}
             >
+              {lead && close}
               <span className="min-w-0 flex-1">{item.message}</span>
               {action && (
                 <button
@@ -178,14 +192,7 @@ export const BuildToasts = forwardRef<BuildToastsApi>(
                   {action.label}
                 </button>
               )}
-              <button
-                type="button"
-                aria-label={t('aifw.toast.close')}
-                className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-hover"
-                onClick={() => queue.dismiss(item.id)}
-              >
-                <X size={18} strokeWidth={1.6} aria-hidden />
-              </button>
+              {!lead && close}
             </div>
           )
         })}

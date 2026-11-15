@@ -263,21 +263,34 @@ test('TB-41 headings, indent and divider are buttons, not checkboxes', async ({
   )
 })
 
-test('TB-41 the Format card never covers the tool bar or the side bar', async ({
-  page,
-}) => {
-  await open(page, 'professional', ['tb.textFonts'])
-  await chip(page, 'text.format').click()
-  const c = card(page, 'text.format')
-  const r = (await c.boundingBox())!
-  const row = (await page.getByTestId('v8-row').boundingBox())!
-  expect(r.y + r.height <= row.y + 1 || r.y >= row.y + row.height - 1).toBe(
-    true,
-  )
-  const vp = page.viewportSize()!
-  expect(r.x).toBeGreaterThanOrEqual(0)
-  expect(r.x + r.width).toBeLessThanOrEqual(vp.width)
-})
+for (const size of [
+  { width: 1180, height: 820 },
+  { width: 820, height: 1180 },
+  { width: 1180, height: 700 },
+]) {
+  test(`TB-41 the Format card opens under the tool bar, never over it or the side bar (${size.width}x${size.height})`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(size)
+    await open(page, 'professional', ['tb.textFonts'])
+    await chip(page, 'text.format').click()
+    const c = card(page, 'text.format')
+    await expect(c).toBeVisible()
+    await page.waitForTimeout(400)
+    const r = (await c.boundingBox())!
+    const bar = (await page.getByTestId('toolbar-v8').boundingBox())!
+    expect(r.y).toBeGreaterThanOrEqual(bar.y + bar.height - 1)
+    const vp = page.viewportSize()!
+    expect(r.y + r.height).toBeLessThanOrEqual(vp.height)
+    expect(r.x).toBeGreaterThanOrEqual(0)
+    expect(r.x + r.width).toBeLessThanOrEqual(vp.width)
+    const side = page.locator('aside')
+    if (await side.isVisible()) {
+      const sb = (await side.boundingBox())!
+      expect(r.x >= sb.x + sb.width - 1 || r.x + r.width <= sb.x + 1).toBe(true)
+    }
+  })
+}
 
 test('TB-42 tb.textBox alone adds fill, border, corners, padding and shadow; Beginner has none', async ({
   page,

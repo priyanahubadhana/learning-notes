@@ -168,7 +168,9 @@ function SizeGroups({ fonts }: { fonts: boolean }) {
               testId={`v8-format-size-${n}`}
               onSelect={() => pick(n)}
             >
-              <span className="v8num">{n}%</span>
+              <span className="v8num" style={{ fontSize: 8 + n / 10 }}>
+                Aa
+              </span>
             </Tile>
           ))}
         </TileGroup>

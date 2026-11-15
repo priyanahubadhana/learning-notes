@@ -147,3 +147,10 @@
 .v8swatches .pcard-tile-label {
   display: none;
 }
+/* The Format card keeps the same height on every tab and is short enough to open under the bar (never over it or the side bar); the rest scrolls inside. */
+@media (min-width: 641px) {
+  .pcard[data-testid='v8-card-text.format'] {
+    min-height: min(480px, calc(100dvh - 220px));
+    max-height: min(calc(100dvh - 220px), 560px);
+  }
+}

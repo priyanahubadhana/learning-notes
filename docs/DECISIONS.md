@@ -77,6 +77,13 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-15 · 2A.8 Erases is a multi-select (builder, safest option).** Highlighter, Text, Pen can be on together (at least one), as in mock v9; default Highlighter + Pen = today's behaviour. Highlighter alone equals the old "highlights only".
+- **2026-11-15 · 2A.8 Highlighter target also clears snapped text highlights in every mode (builder).** Before, only "highlights only" did; the default eraser left them.
+- **2026-11-15 · 2A.8 Ink erase plus word erase in one stroke gives two Undo steps (builder).** The ink and the page text have separate histories (as before for highlights).
+- **2026-11-15 · 2A.8 Beginner has one Eraser menu (type + size) (builder).** As mock v9; Professional (setting "Eraser's three menus") has Mode, Size, Options.
+- **2026-11-15 · 2A.8 Two TB-30 e2e tests and one autoClose assertion rewritten for v9 (builder).** The spec replaced the old Mode tile and switches; nothing skipped or weakened, new coverage in toolbarV8Eraser.spec.ts.
+- **2026-11-15 · 2A.8 New fields eraseHl, eraseText, erasePen in the ink.eraser store (builder).** Local pref store with per-field defaults: no Dexie version, no builtinSettings. Hot file playwright.config.ts: one entry (Eraser) added to the ipad-webkit toolbarV8 line.
+
 - **2026-11-15 · 2A.14 Layout shortcut when the five rows are mixed (builder, safest option).** The Layout row (Beginner | Professional) shows neither button chosen when the rows are mixed (value "custom"; tapping a button sets all five). It never guesses the nearest one, so it never claims a look the bar does not have. One tap is one Undo step that gives each row its earlier value (rows become explicit on/off, no longer "follow my level"). Only with `toolbar.v8` on.
 - **2026-11-16 · P1.11 hot file playwright.config.ts (manager OK).** One entry `/keyNames/` added to the ipad-webkit list only, so the T31 key-name spec also runs on the iPad size.
 - **2026-11-15 · Task H Undo holds on every device (manager's decision, review 1).** The "keep apart" mark is an optional page field `monthJoinDeclined` (src/core/types.ts, hot file, manager OK); optional, so no database version change. It is kept in full backups (checkRows) and not copied by Duplicate. Unit test "Undo holds on every device" uses two and three simulated devices.

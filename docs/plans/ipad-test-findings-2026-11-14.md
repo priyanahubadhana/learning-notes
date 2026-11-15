@@ -170,3 +170,4 @@ Running list, in the order the owner reports. The owner asked to note everything
 | T22 | Page options sheet (T22-page-options.png): the groups (Share, Protect, Tools) should fold with a ▾ arrow, folded by default so only a few options show, like the new ⋯ menu; clearer and in line with the theme | design, noted | Same pattern as the approved 2A.2 ⋯ menu (folded groups). Also seen in both pictures: the sheet covers the right end of the top bar (as in T4) |
 
 - **Owner, 15 Nov 10:45:** steps 1-5 (Phase 1) answered; step 6 (the tool bar ⋯ menu) all pass. Remaining: 7 format bar near the corners, 8 pen favourites, 9 page menus, 10 Notebooks, 11 Search.
+- **Owner:** "I love the pin option there. Loved it. Really well planned." (Pin an action; keep it, add only the ✓/✕ of T21.)

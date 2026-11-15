@@ -1,0 +1,881 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tool bar v9</title>
+<style>
+:root,[data-theme="light"]{color-scheme:light;
+--canvas:#f2f1f6;--surface:#ffffff;--surface-2:#fafafc;--card-solid:#ffffff;--ink:#18171c;--ink-soft:#4d4b55;--muted:#6b6976;--line:#e7e5ee;
+--hover:rgba(24,23,28,.05);--pressed:rgba(24,23,28,.09);--accent:#6941e0;--on-accent:#fff;--accent-soft:rgba(105,65,224,.11);--danger:#c0352b;
+--glass:rgba(255,255,255,.86);--glass-line:rgba(24,23,28,.08);--well:rgba(24,23,28,.045);--well-line:rgba(24,23,28,.07);
+--thumb:#ffffff;--thumb-sh:0 1px 2px rgba(24,23,28,.14),0 0 0 .5px rgba(24,23,28,.08);--track:rgba(24,23,28,.14);--knob:#fff;
+--paper:#ffffff;--paper-line:rgba(40,60,120,.075);--sh-card:0 18px 44px -10px rgba(24,23,28,.24),0 2px 8px rgba(24,23,28,.07);--sh-bar:0 1px 2px rgba(24,23,28,.05),0 8px 24px -12px rgba(24,23,28,.14);
+--pen-body:#dcd9e6;--pen-edge:rgba(24,23,28,.28);--bezel:#1b1a20;--dev-bg:linear-gradient(180deg,#ece9f7,#f2f1f6 40%);
+--c-auto:#1d1c24;--c-blue:#2f6fe4;--c-red:#d8453b;--c-green:#1f8a55;--c-amber:#d99a0b;--c-purple:#6941e0;
+--f-yellow:#fff3c4;--f-blue:#e3edff;--f-green:#e1f5e9;--f-pink:#fde4ee;--f-purple:#ece6ff;
+--hl-yellow:rgba(250,204,21,.45);--hl-green:rgba(74,222,128,.38);--hl-pink:rgba(244,114,182,.32);--hl-blue:rgba(96,165,250,.34);--hl-purple:rgba(167,139,250,.38);
+--scrim:rgba(20,18,30,.16)}
+[data-theme="sepia"]{color-scheme:light;
+--canvas:#ece2cd;--surface:#fbf6ea;--surface-2:#f7f0e1;--card-solid:#faf4e6;--ink:#3a2e22;--ink-soft:#5e4f3e;--muted:#7d6c58;--line:#e2d5bb;
+--hover:rgba(58,46,34,.06);--pressed:rgba(58,46,34,.1);--accent:#7b4fc2;--on-accent:#fff;--accent-soft:rgba(123,79,194,.12);--danger:#b23a2a;
+--glass:rgba(251,246,234,.9);--glass-line:rgba(58,46,34,.1);--well:rgba(58,46,34,.055);--well-line:rgba(58,46,34,.08);
+--thumb:#fffaf0;--thumb-sh:0 1px 2px rgba(58,46,34,.16),0 0 0 .5px rgba(58,46,34,.1);--track:rgba(58,46,34,.16);--knob:#fff;
+--paper:#fbf5e7;--paper-line:rgba(120,90,50,.1);--sh-card:0 18px 44px -10px rgba(70,50,20,.26),0 2px 8px rgba(70,50,20,.08);--sh-bar:0 8px 24px -12px rgba(70,50,20,.18);
+--pen-body:#e2d5bb;--pen-edge:rgba(58,46,34,.3);--bezel:#2a241c;--dev-bg:linear-gradient(180deg,#e6dac0,#ece2cd 40%);
+--c-auto:#2e241a;--c-blue:#2c62c9;--c-red:#c2402f;--c-green:#2a7a4b;--c-amber:#c58a0a;--c-purple:#7b4fc2;
+--f-yellow:#fbecb8;--f-blue:#e2e8f3;--f-green:#e2efdc;--f-pink:#f7e1e2;--f-purple:#ebe2f5;
+--hl-yellow:rgba(240,190,40,.42);--hl-green:rgba(90,190,110,.34);--hl-pink:rgba(230,110,150,.3);--hl-blue:rgba(90,140,220,.3);--hl-purple:rgba(150,110,220,.32);
+--scrim:rgba(60,40,10,.16)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="sepia"]){color-scheme:dark;
+--canvas:#0d0c11;--surface:#16151b;--surface-2:#1d1c23;--card-solid:#24232c;--ink:#ecebf2;--ink-soft:#bdbbc8;--muted:#9a98a6;--line:#2a2931;
+--hover:rgba(255,255,255,.06);--pressed:rgba(255,255,255,.1);--accent:#a594ff;--on-accent:#16112e;--accent-soft:rgba(160,140,255,.17);--danger:#ff7a6b;
+--glass:rgba(34,33,42,.9);--glass-line:rgba(255,255,255,.09);--well:rgba(255,255,255,.06);--well-line:rgba(255,255,255,.07);
+--thumb:#4a4955;--thumb-sh:0 1px 2px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.09);--track:rgba(255,255,255,.17);--knob:#fff;
+--paper:#17161c;--paper-line:rgba(255,255,255,.045);--sh-card:0 24px 60px -12px rgba(0,0,0,.7),0 2px 10px rgba(0,0,0,.35);--sh-bar:0 10px 30px -14px rgba(0,0,0,.6);
+--pen-body:#5a5865;--pen-edge:rgba(255,255,255,.2);--bezel:#050507;--dev-bg:linear-gradient(180deg,#1d1730,#0f0e13 42%);
+--c-auto:#eceaf4;--c-blue:#6ea8ff;--c-red:#ff7b72;--c-green:#5fd39a;--c-amber:#f5c04a;--c-purple:#a594ff;
+--f-yellow:#3d3418;--f-blue:#1d2a42;--f-green:#1b3326;--f-pink:#3b1f2a;--f-purple:#2a2343;
+--hl-yellow:rgba(250,204,21,.3);--hl-green:rgba(74,222,128,.26);--hl-pink:rgba(244,114,182,.28);--hl-blue:rgba(96,165,250,.3);--hl-purple:rgba(167,139,250,.32);
+--scrim:rgba(0,0,0,.42)}}
+:root[data-theme="dark"],[data-theme="dark"]{color-scheme:dark;
+--canvas:#0d0c11;--surface:#16151b;--surface-2:#1d1c23;--card-solid:#24232c;--ink:#ecebf2;--ink-soft:#bdbbc8;--muted:#9a98a6;--line:#2a2931;
+--hover:rgba(255,255,255,.06);--pressed:rgba(255,255,255,.1);--accent:#a594ff;--on-accent:#16112e;--accent-soft:rgba(160,140,255,.17);--danger:#ff7a6b;
+--glass:rgba(34,33,42,.9);--glass-line:rgba(255,255,255,.09);--well:rgba(255,255,255,.06);--well-line:rgba(255,255,255,.07);
+--thumb:#4a4955;--thumb-sh:0 1px 2px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.09);--track:rgba(255,255,255,.17);--knob:#fff;
+--paper:#17161c;--paper-line:rgba(255,255,255,.045);--sh-card:0 24px 60px -12px rgba(0,0,0,.7),0 2px 10px rgba(0,0,0,.35);--sh-bar:0 10px 30px -14px rgba(0,0,0,.6);
+--pen-body:#5a5865;--pen-edge:rgba(255,255,255,.2);--bezel:#050507;--dev-bg:linear-gradient(180deg,#1d1730,#0f0e13 42%);
+--c-auto:#eceaf4;--c-blue:#6ea8ff;--c-red:#ff7b72;--c-green:#5fd39a;--c-amber:#f5c04a;--c-purple:#a594ff;
+--f-yellow:#3d3418;--f-blue:#1d2a42;--f-green:#1b3326;--f-pink:#3b1f2a;--f-purple:#2a2343;
+--hl-yellow:rgba(250,204,21,.3);--hl-green:rgba(74,222,128,.26);--hl-pink:rgba(244,114,182,.28);--hl-blue:rgba(96,165,250,.3);--hl-purple:rgba(167,139,250,.32);
+--scrim:rgba(0,0,0,.42)}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--canvas);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.i{flex:none;display:block}
+.wrap{max-width:1240px;margin:0 auto;padding:20px 16px 64px}
+.top{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.top h1{font-size:26px;letter-spacing:-.02em;margin:0 0 2px}
+.top p{margin:0;color:var(--muted);font-size:14px}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px}
+.ctl{display:flex;flex-direction:column;gap:4px}
+.ctl>span{font-size:12px;font-weight:600;color:var(--muted)}
+.hint{color:var(--ink-soft);font-size:14px;margin:4px 0 12px}
+/* segmented (shared) */
+.seg{display:flex;background:var(--well);border-radius:12px;padding:3px;gap:2px}
+.seg>button{flex:1;min-height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:500;color:var(--ink-soft);padding:0 10px;white-space:nowrap;transition:background .18s,color .18s}
+.seg>button.sel{background:var(--thumb);box-shadow:var(--thumb-sh);color:var(--ink);font-weight:600}
+.ctl .seg>button{min-height:36px}
+/* device */
+#stageWrap{position:relative;width:100%;overflow:hidden}
+#stage{transform-origin:0 0;position:absolute;left:0;top:0}
+.dev{border:10px solid var(--bezel);border-radius:38px;background:var(--dev-bg);overflow:hidden;position:relative;box-shadow:0 30px 60px -30px rgba(0,0,0,.5)}
+.dev.land{width:1200px;height:840px}.dev.port{width:840px;height:1100px}.dev.phone{width:410px;height:820px;border-radius:48px}
+.app{display:grid;grid-template-columns:60px 1fr;gap:12px;padding:12px;height:100%}
+.phone .app{grid-template-columns:1fr;padding:12px 6px 6px}
+.phone .tb{padding:4px 3px}.phone .r1{gap:0}.phone .r1 .tbtn{min-width:40px;padding:0 2px}.phone .r1 .vd{display:none}
+.rail{background:var(--glass);border:1px solid var(--glass-line);border-radius:20px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0;box-shadow:var(--sh-bar)}
+.phone .rail{display:none}
+.rail .av{width:32px;height:32px;border-radius:10px;background:var(--accent);color:var(--on-accent);display:grid;place-items:center;font-weight:700;font-size:14px;margin-bottom:8px}
+.rail .rb{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--ink-soft);position:relative}
+.rail .rb.on{background:var(--accent-soft);color:var(--accent)}
+.rail .bd{position:absolute;top:4px;right:2px;background:var(--accent);color:var(--on-accent);font-size:10px;font-weight:700;border-radius:8px;padding:0 4px;line-height:15px}
+.rail .sp{flex:1}
+.main{position:relative;display:flex;flex-direction:column;gap:10px;min-width:0;min-height:0}
+.hdr{height:40px;display:flex;align-items:center;gap:6px;color:var(--ink-soft);font-size:13.5px;padding:0 4px}
+.hdr .crumb{display:flex;gap:6px;align-items:center;min-width:0;white-space:nowrap;overflow:hidden}
+.hdr b{color:var(--ink);font-weight:600}
+.hdr .fl{flex:1}
+.hb{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--ink-soft)}
+.hb.on{background:var(--accent-soft);color:var(--accent)}
+.hb.ai{width:auto;padding:0 8px;gap:4px;display:flex;align-items:center;color:var(--accent);font-weight:600}
+/* tool bar */
+.tb{background:var(--glass);border:1px solid var(--glass-line);border-radius:18px;padding:4px 6px;box-shadow:var(--sh-bar);-webkit-backdrop-filter:blur(28px) saturate(1.4);backdrop-filter:blur(28px) saturate(1.4)}
+.r1{display:flex;align-items:center;gap:2px;min-height:64px;overflow:hidden}
+.r2{display:flex;align-items:center;gap:2px;min-height:52px}
+.bkic{position:relative;display:grid}.bkb{position:absolute;right:-6px;bottom:-5px;background:var(--card-solid);border-radius:50%;padding:1px;display:grid;color:var(--accent)}
+.rowfold{display:flex;flex-direction:column;align-items:flex-start;gap:8px}.rowfold .cgrp{flex-wrap:wrap;max-width:100%}
+.itoast .acts{display:flex;gap:4px}
+.r2{border-top:1px solid var(--line);padding-top:2px}
+.r1 .fl,.r2 .fl{flex:1}
+.items{display:flex;align-items:center;gap:4px;min-width:0;flex:1;overflow:hidden}
+.tbtn{flex:none;white-space:nowrap;height:44px;min-width:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 10px;font-size:13.5px;font-weight:500;color:var(--ink-soft);transition:background .15s,color .15s,transform .12s}
+.tbtn:hover,.chip:hover,.ibtn:hover{background:var(--hover)}
+.tbtn:active,.chip:active,.ibtn:active,.tile:active,.rowb:active{transform:scale(.96)}
+.tbtn.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.tbtn.open,.chip.open{background:var(--accent-soft);color:var(--accent)}
+.tbtn.open .chev,.chip.open .chev{transform:rotate(180deg)}
+.chev{transition:transform .2s;opacity:.7}
+.tbtn.key{color:var(--ink)}
+.vd{width:1px;height:24px;background:var(--line);margin:0 4px;flex:none}
+.aa{font-weight:700;font-size:15px;letter-spacing:-.5px}.aa small{font-size:11px}
+.minb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--ink-soft);box-shadow:inset 0 0 0 1px var(--line)}
+.chip{background:transparent;height:40px;border-radius:12px;display:flex;align-items:center;gap:7px;padding:0 10px;font-size:13.5px;font-weight:600;color:var(--ink);white-space:nowrap;flex:none;transition:background .15s,color .15s,box-shadow .3s,transform .12s;position:relative}
+.chip .cl small{color:var(--muted);font-weight:500}
+.chip.on{background:var(--accent-soft);color:var(--accent)}
+.chip.sq{width:44px;justify-content:center;padding:0}
+.chip.fav{background:var(--well)}
+.chip.fav.on{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.r2.c1 .chip:not(.fav) .cl:not(.keep){display:none}
+
+.cgrp{display:flex;align-items:center;gap:2px;background:var(--well);border-radius:13px;padding:2px;flex:none}
+.cgrp .cgl{font-size:12px;font-weight:600;color:var(--muted);padding:0 6px 0 8px}
+.cgrp .chip{height:36px;border-radius:10px;font-weight:500;color:var(--ink-soft);padding:0 9px}
+.cgrp .chip.on{background:var(--thumb);box-shadow:var(--thumb-sh);color:var(--ink);font-weight:600}
+.cgrp .chip.on .i{color:var(--accent)}
+.cgrp .chip.dim{opacity:.45}
+.ibtn{width:44px;height:42px;border-radius:12px;display:grid;place-items:center;color:var(--ink-soft);flex:none;position:relative}
+.ibtn.open{background:var(--accent-soft);color:var(--accent)}
+.dot{display:block;border-radius:50%;background:var(--c);flex:none}
+.cdot{width:22px;height:22px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14),0 0 0 2px var(--glass),0 0 0 3px var(--line);flex:none}
+.glow{animation:glow .7s ease-out}
+@keyframes glow{0%{box-shadow:0 0 0 0 var(--accent)}100%{box-shadow:0 0 0 10px transparent}}
+.showpill{height:40px;border-radius:20px;align-self:flex-end;background:var(--accent);color:var(--on-accent);display:flex;align-items:center;gap:6px;padding:0 14px;font-weight:600;font-size:13.5px;box-shadow:var(--sh-bar)}
+/* page */
+.page{flex:1;min-height:0;border-radius:18px;background:var(--paper);border:1px solid var(--line);position:relative;overflow:hidden}
+.page.lined{background-image:repeating-linear-gradient(to bottom,transparent 0 31px,var(--paper-line) 31px 32px)}
+.page.grid{background-image:linear-gradient(var(--paper-line) 1px,transparent 1px),linear-gradient(90deg,var(--paper-line) 1px,transparent 1px);background-size:24px 24px}
+.page.dots{background-image:radial-gradient(var(--paper-line) 1.4px,transparent 1.6px);background-size:22px 22px}
+.page.dots,.page.grid{--paper-line:color-mix(in srgb,var(--ink) 14%,transparent)}
+.pin{padding:44px 48px;max-width:760px}
+.phone .pin{padding:28px 20px}
+.pin h1{font-size:30px;letter-spacing:-.02em;margin:0 0 18px}
+.tbx{border-radius:12px;padding:10px 14px;margin:0 -14px;transition:all .25s;position:relative}
+.tbx.sel{box-shadow:0 0 0 1.5px var(--accent)}
+.tbx p{margin:0;font-size:16.5px;line-height:1.6}
+.selt{border-radius:3px;transition:all .2s}
+.selt.on{outline:2px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:1px}
+.kp{border-bottom:2px solid var(--c-amber)}
+.ink{position:absolute;pointer-events:none}
+.lasso{position:absolute;border:1.5px dashed var(--accent);border-radius:16px;background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.lasso .hd{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--knob);box-shadow:0 0 0 1.5px var(--accent)}
+.selmenu{position:absolute;display:flex;gap:2px;padding:4px;border-radius:14px;background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--sh-card);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);z-index:5;animation:cin .2s cubic-bezier(.2,.8,.2,1)}
+.selmenu button{height:44px;min-width:48px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10.5px;gap:1px;padding:0 6px;color:var(--ink-soft)}
+.selmenu button:hover{background:var(--hover)}
+.selmore{position:absolute;z-index:6;width:230px;padding:6px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--sh-card);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);animation:cin .2s cubic-bezier(.2,.8,.2,1)}
+.selmore button{display:flex;width:100%;align-items:center;gap:10px;height:40px;padding:0 10px;border-radius:10px;font-size:13.5px}
+.selmore button:hover{background:var(--hover)}
+.selmore .dn{color:var(--danger)}
+.pagebtn{position:absolute;right:16px;bottom:16px;height:36px;padding:0 12px;border-radius:18px;background:var(--well);font-size:13px;font-weight:600;color:var(--ink-soft)}
+/* cards */
+.card{position:absolute;z-index:20;display:flex;flex-direction:column;background:var(--glass);border:1px solid var(--glass-line);border-radius:20px;box-shadow:var(--sh-card),inset 0 1px 0 rgba(255,255,255,.06);-webkit-backdrop-filter:blur(28px) saturate(1.4);backdrop-filter:blur(28px) saturate(1.4);padding:10px 12px 12px;color:var(--ink);text-align:left}
+.card.pick{width:304px}.card.panel{width:376px}
+.card.anim{animation:cin .2s cubic-bezier(.2,.8,.2,1);transform-origin:var(--ax,40px) 0}
+@keyframes cin{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
+.card:not(.static):not(.bot)::before{content:"";position:absolute;top:-7px;left:calc(var(--ax,40px) - 7px);width:13px;height:13px;background:var(--card-solid);border-left:1px solid var(--glass-line);border-top:1px solid var(--glass-line);transform:rotate(45deg);border-top-left-radius:3px}
+.card.static{position:relative;max-width:100%;z-index:auto}
+.card.sheet{width:440px}
+.card.sheet::before{display:none}
+.card.sheet.bot{top:52px!important;max-height:none!important;width:auto}
+.card.bot{left:0!important;right:0;bottom:0;top:auto!important;width:auto;border-radius:24px 24px 0 0;max-height:78%!important}
+.chd{display:flex;align-items:center;justify-content:space-between;min-height:40px;padding:0 0 4px 6px;gap:8px}
+.chd h3{margin:0;font-size:15px;font-weight:650;letter-spacing:-.01em;flex:1}
+.chd .x,.chd .ok{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;margin:-4px -4px -4px 0}
+.chd .x i,.chd .x svg{background:var(--well);border-radius:50%}
+.chd .x>span,.chd .ok>span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--well);color:var(--ink-soft)}
+.chd .ok>span{background:var(--accent);color:var(--on-accent)}
+.chd.sh{padding-left:0}
+.chd.sh h3{text-align:center}
+.chd.sh .x{margin:-4px 0 -4px -4px}
+.cbody{overflow:auto;min-height:0;display:flex;flex-direction:column;gap:14px;padding:2px;margin:0 -2px;scrollbar-width:thin;-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 18px),transparent)}
+.cbody>*{flex-shrink:0}
+.cbody>:last-child{margin-bottom:10px}
+.cfoot{display:flex;align-items:center;gap:8px;padding-top:10px;border-top:1px solid var(--line);margin-top:6px}
+.cfoot .fl{flex:1}
+.grp{display:flex;flex-direction:column;gap:7px}
+.gl{font-size:12.5px;font-weight:600;color:var(--ink-soft);padding:0 4px}
+.note{font-size:12px;color:var(--muted);margin:0;padding:0 4px;line-height:1.4}
+.well{background:var(--well);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 12px;font-size:14px}
+.row+.row{border-top:1px solid var(--well-line)}
+.row.col{flex-direction:column;align-items:stretch;gap:4px;padding:10px 12px}
+.row .rt{flex:1;display:flex;flex-direction:column;min-width:0}
+.row .rt small{font-size:12px;color:var(--muted);line-height:1.35}
+.row .rh{display:flex;justify-content:space-between;align-items:center}
+.rpic{width:36px;height:28px;border-radius:8px;background:var(--well);display:grid;place-items:center;color:var(--ink-soft);flex:none}
+.rowb{width:100%;text-align:left}
+.rowb .chr{opacity:.5}
+.rowb.dn{color:var(--danger)}
+.pill{font-size:12px;font-weight:600;background:var(--well);border-radius:8px;padding:2px 8px;color:var(--ink-soft)}
+.sw{width:51px;height:31px;border-radius:16px;background:var(--track);position:relative;flex:none;transition:background .2s}
+.sw i{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:var(--knob);box-shadow:0 2px 4px rgba(0,0,0,.25),0 0 0 .5px rgba(0,0,0,.06);transition:transform .25s cubic-bezier(.34,1.45,.64,1)}
+.sw.on{background:var(--accent)}.sw.on i{transform:translateX(20px)}
+.rng{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;margin:0}
+.rng::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--accent) var(--p),var(--track) var(--p))}
+.rng::-moz-range-track{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--accent) var(--p),var(--track) var(--p))}
+.rng::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--knob);margin-top:-9px;box-shadow:0 2px 6px rgba(0,0,0,.3),0 0 0 .5px rgba(0,0,0,.08);transition:transform .12s}
+.rng::-moz-range-thumb{width:24px;height:24px;border:0;border-radius:50%;background:var(--knob);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.rng:active::-webkit-slider-thumb{transform:scale(1.15)}
+.tiles{display:grid;grid-template-columns:repeat(var(--cols,3),minmax(0,1fr));gap:8px}
+.tile{position:relative;background:var(--well);border-radius:14px;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 4px;font-size:12.5px;font-weight:500;color:var(--ink);text-align:center;transition:background .15s,box-shadow .2s,transform .12s}
+.tile:hover{background:var(--pressed)}
+.tile .tl{line-height:1.2}
+.tile .th{font-size:11px;color:var(--muted);line-height:1.2}
+.tile.sel{background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent);color:var(--accent);font-weight:600}
+.tile.sel .th{color:color-mix(in srgb,var(--accent) 70%,var(--muted))}
+.tile .ck{position:absolute;top:5px;right:5px;width:17px;height:17px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}
+.tile.small{min-height:52px}
+.pop{animation:pop .28s cubic-bezier(.34,1.45,.64,1)}
+@keyframes pop{from{transform:scale(.93)}to{transform:none}}
+.sws{display:flex;flex-wrap:wrap;gap:0;background:var(--well);border-radius:14px;padding:4px}
+.swb{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;position:relative}
+.swb i{width:28px;height:28px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);transition:box-shadow .2s}
+.swb.sel i{box-shadow:0 0 0 2.5px var(--card-solid),0 0 0 4.5px var(--accent)}
+.swb.none i{background:var(--card-solid);box-shadow:inset 0 0 0 1.5px var(--line)}
+.swb.none i::after{content:"";display:block;width:2px;height:24px;background:var(--danger);transform:translate(13px,2px) rotate(45deg);border-radius:1px;opacity:.8}
+.swb.none.sel i{box-shadow:0 0 0 2.5px var(--card-solid),0 0 0 4.5px var(--accent)}
+.swb.add i{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line);display:grid;place-items:center;color:var(--ink-soft)}
+.prev{background:var(--well);border-radius:14px;height:64px;display:grid;place-items:center;overflow:hidden}
+.font-t .aa2{font-size:20px;line-height:1}
+.stylerow{display:flex;align-items:center;justify-content:space-between;width:100%;padding:8px 12px;min-height:44px;text-align:left}
+.stylerow+.stylerow{border-top:1px solid var(--well-line)}
+.stylerow.sel{color:var(--accent);background:var(--accent-soft)}
+.stylerow .ckr{width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}
+.fold{background:var(--well);border-radius:14px}
+.fold .fh{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 12px;font-size:14px;font-weight:600;color:var(--ink);text-align:left}
+.fold .fh span{flex:1}
+.fold .fh small{font-weight:500;color:var(--muted);font-size:12px}
+.fold.open .fh .chev{transform:rotate(180deg)}
+.fold .fb{padding:0 8px 10px;display:flex;flex-direction:column;gap:10px;animation:cin .18s ease-out}
+.fold .well{background:var(--well)}
+.txt{width:100%;height:44px;border-radius:12px;border:0;background:var(--well);color:var(--ink);font:inherit;padding:0 12px}
+.orow{display:flex;align-items:center;gap:8px;min-height:56px;padding:4px 6px 4px 4px;position:relative;background:transparent;transition:background .15s}
+.orow+.orow{border-top:1px solid var(--well-line)}
+.orow.drag{background:var(--accent-soft);border-radius:12px;box-shadow:var(--sh-card);z-index:3}
+.grip{width:32px;height:44px;display:grid;place-items:center;color:var(--muted);cursor:grab;touch-action:none}
+.oic{width:36px;height:36px;border-radius:10px;background:var(--well);display:grid;place-items:center;flex:none}
+.ot{flex:1;min-width:0;display:flex;flex-direction:column}
+.ot b{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ot small{font-size:12px;color:var(--muted)}
+.ib{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--well);color:var(--ink-soft);flex:none}
+.ib:disabled{opacity:.35;cursor:default}
+.omenu{position:absolute;right:6px;top:50px;z-index:5;width:190px;padding:6px;border-radius:14px;background:var(--card-solid);border:1px solid var(--glass-line);box-shadow:var(--sh-card);animation:cin .16s ease-out}
+.omenu button{display:flex;align-items:center;gap:10px;width:100%;height:40px;padding:0 10px;border-radius:10px;font-size:13.5px}
+.omenu button:hover{background:var(--hover)}
+.omenu .dn{color:var(--danger)}
+.omenu .off{opacity:.45;cursor:default}
+.itoast{display:flex;align-items:center;justify-content:space-between;background:var(--well);border-radius:12px;padding:6px 6px 6px 12px;font-size:13px;animation:cin .2s ease-out}
+.lbtn{height:40px;padding:0 12px;border-radius:12px;font-weight:600;font-size:13.5px;color:var(--ink-soft)}
+.lbtn:hover{background:var(--hover)}
+.pbtn{height:40px;padding:0 14px;border-radius:20px;font-weight:600;font-size:13.5px;color:var(--accent);background:var(--accent-soft);display:flex;align-items:center;gap:6px}
+.prevbar{background:var(--well);border-radius:14px;padding:6px;display:flex;flex-wrap:wrap;gap:4px;pointer-events:none}
+.prevbar .chip{height:34px;font-size:12.5px;background:var(--glass)}
+.toast{position:absolute;left:50%;bottom:18px;transform:translate(-50%,20px);opacity:0;z-index:40;display:flex;align-items:center;gap:14px;background:var(--ink);color:var(--canvas);border-radius:14px;padding:8px 8px 8px 16px;font-size:13.5px;font-weight:500;box-shadow:var(--sh-card);transition:all .22s cubic-bezier(.2,.8,.2,1);pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{height:32px;padding:0 12px;border-radius:9px;font-weight:700;color:var(--canvas);background:rgba(127,127,127,.25)}
+.scrim{position:absolute;inset:0;background:var(--scrim);z-index:19;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+/* docs */
+.sec{margin-top:40px}
+.sec h2{font-size:21px;letter-spacing:-.015em;margin:0 0 4px}
+.sec>p.sub{color:var(--muted);margin:0 0 14px;font-size:14px}
+.chg{display:grid;gap:8px;padding:0;margin:0;list-style:none}
+.chg li{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14px}
+.chg li b{display:block;margin-bottom:2px}
+.galtool{margin-top:22px}
+.galtool h3{font-size:16px;margin:0 0 10px}
+.galcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,540px),1fr));gap:14px}
+.galcol{border-radius:20px;padding:14px;background:var(--canvas);border:1px solid var(--line);color:var(--ink);min-width:0;background-image:var(--dev-bg)}
+.galcol>.lab{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;display:block}
+.gbar{position:relative;overflow:hidden;margin-bottom:12px}
+.gbar>.tb{width:1060px;transform-origin:0 0;position:absolute;left:0;top:0}
+.gcards{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start}
+.gcards .card{pointer-events:none;max-height:none}
+.gcards .card .cbody{-webkit-mask-image:none;overflow:visible}
+.gcap{font-size:12px;color:var(--muted);margin:2px 0 6px}
+.gal *{pointer-events:none}
+table.nd{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+table.nd th,table.nd td{text-align:left;padding:9px 12px;border-top:1px solid var(--line);vertical-align:top}
+table.nd th{background:var(--surface-2);font-size:12.5px;color:var(--ink-soft);border-top:0}
+table.nd td.ok{color:var(--c-green);font-weight:700;width:28px}
+table.nd tr.hd td{background:var(--surface-2);font-weight:700;font-size:13px}
+.tw{overflow-x:auto;border-radius:14px}
+@media (max-width:640px){table.nd thead{display:none}table.nd tr{display:grid;grid-template-columns:24px 1fr;border-top:1px solid var(--line)}table.nd td{border:0;padding:4px 10px}table.nd td.ok{grid-row:span 3;padding-top:10px}table.nd td.w{color:var(--muted);font-size:12.5px}table.nd tr.hd{display:block}table.nd tr.hd td{display:block}}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 0}
+.legend span{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-soft)}
+.legend .tile{width:56px;min-height:40px;pointer-events:none}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Tool bar v9</h1>
+      <p>Mock-up for approval, 15 Nov 2026. Built on the approved v8; only the owner's 15 Nov changes are new.</p>
+    </div>
+    <div class="ctrls" id="ctrls"></div>
+  </div>
+  <p class="hint">Tap the tools and every ▾. On the second row, <b>+</b> saves what you have now as a favourite and <b>☰</b> sorts the row. With the Lasso, tap the page to show or hide a selection.</p>
+  <div id="stageWrap"><div id="stage"></div></div>
+
+  <section class="sec">
+    <h2>What changed from v8</h2>
+    <p class="sub">Everything not listed here is the same as the approved v8 (and the approved Favourites row).</p>
+    <ul class="chg" id="changes"></ul>
+    <div class="legend">
+      <span><button class="tile sel small" tabindex="-1"><span class="ck"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>B</button>A state: tinted, ring and tick while it is on</span>
+      <span><button class="tile act small" tabindex="-1">Indent</button>A one-off action: no "on" look</span>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Every bar and card, light and dark</h2>
+    <p class="sub">Snapshots of the same parts as above, side by side. They follow the Beginner / Professional switch at the top.</p>
+    <div id="gal" class="gal"></div>
+  </section>
+
+  <section class="sec">
+    <h2>Nothing dropped</h2>
+    <p class="sub">Every tool option in v8 and in today's live app, and where it lives in v9.</p>
+    <div class="tw"><table class="nd" id="nd"></table></div>
+  </section>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- icons (Lucide, 1.6 stroke) ---------- */
+const pa=d=>d.split('|').map(x=>x[0]==='c'&&x[1]===' '?(()=>{const [cx,cy,r]=x.slice(2).split(' ');return `<circle cx="${cx}" cy="${cy}" r="${r}"/>`})():x[0]==='r'&&x[1]===' '?(()=>{const [X,Y,W,H,R]=x.slice(2).split(' ');return `<rect x="${X}" y="${Y}" width="${W}" height="${H}" rx="${R||0}"/>`})():`<path d="${x}"/>`).join('');
+const P={
+x:'M18 6 6 18|m6 6 12 12',check:'M20 6 9 17l-5-5',chevD:'m6 9 6 6 6-6',chevU:'m18 15-6-6-6 6',chevL:'m15 18-6-6 6-6',chevR:'m9 18 6-6-6-6',plus:'M5 12h14|M12 5v14',menu:'M4 6h16|M4 12h16|M4 18h16',
+dots:'c 5 12 1|c 12 12 1|c 19 12 1',undo:'M9 14 4 9l5-5|M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11',redo:'m15 14 5-5-5-5|M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13',
+bksp:'M10 5a2 2 0 0 0-1.344.519l-6.328 5.74a1 1 0 0 0 0 1.481l6.328 5.741A2 2 0 0 0 10 19h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z|m12 9 6 6|m18 9-6 6',newline:'M20 4v7a4 4 0 0 1-4 4H4|m9 10-5 5 5 5',
+eraser:'m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21|M22 21H7|m5 11 9 9',
+penTool:'M15.707 21.293a1 1 0 0 1-1.414 0l-1.586-1.586a1 1 0 0 1 0-1.414l5.586-5.586a1 1 0 0 1 1.414 0l1.586 1.586a1 1 0 0 1 0 1.414z|m18 13-1.375-6.874a1 1 0 0 0-.746-.776L3.235 2.028a1 1 0 0 0-1.207 1.207L5.35 15.879a1 1 0 0 0 .776.746L13 18|m2.3 2.3 7.286 7.286|c 11 11 2',
+shapes:'M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z|r 3 14 7 7 1|c 17.5 17.5 3.5',
+lasso:'M7 22a5 5 0 0 1-2-4|M3.3 14A6.8 6.8 0 0 1 2 10c0-4.4 4.5-8 10-8s10 3.6 10 8-4.5 8-10 8a12 12 0 0 1-5-1|M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+grid:'r 3 3 7 7 1|r 14 3 7 7 1|r 14 14 7 7 1|r 3 14 7 7 1',aa:'M21 14h-5|M16 16v-3.5a2.5 2.5 0 0 1 5 0V16|M4.5 13h6|m3 16 4.5-9 4.5 9',
+sqDash:'M5 3a2 2 0 0 0-2 2|M19 3a2 2 0 0 1 2 2|M21 19a2 2 0 0 1-2 2|M5 21a2 2 0 0 1-2-2|M9 3h1|M9 21h1|M14 3h1|M14 21h1|M3 9v1|M21 9v1|M3 14v1|M21 14v1',
+hl:'m9 11-6 6v3h9l3-3|m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4',penLine:'M12 20h9|M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z',
+type:'M4 7V4h16v3|M9 20h6|M12 4v16',image:'r 3 3 18 18 2|c 9 9 2|m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21',
+scissors:'c 6 6 3|c 6 18 3|M20 4 8.12 15.88|M14.47 14.48 20 20|M8.12 8.12 12 12',copy:'r 8 8 14 14 2|M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2',
+paste:'r 8 2 8 4 1|M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2',dup:'r 8 8 14 14 2|M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2|M15 12v6|M12 15h6',
+trash:'M3 6h18|M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6|M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2|M10 11v6|M14 11v6',
+palette:'M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z|c 13.5 6.5 .5|c 17.5 10.5 .5|c 8.5 7.5 .5|c 6.5 12.5 .5',
+pipette:'m2 22 1-1h3l9-9|M3 21v-3l9-9|m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z',
+sliders:'M21 4h-7|M10 4H3|M21 12h-9|M8 12H3|M21 20h-5|M12 20H3|M14 2v4|M8 10v4|M16 18v4',
+star:'M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z',
+layers:'M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z|M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12|M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17',
+eye:'M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0|c 12 12 3',
+eyeOff:'M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49|M14.084 14.158a3 3 0 0 1-4.242-4.242|M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143|m2 2 20 20',
+lock:'r 3 11 18 11 2|M7 11V7a5 5 0 0 1 10 0v4',unlock:'r 3 11 18 11 2|M7 11V7a5 5 0 0 1 9.9-1',grip:'c 9 12 1|c 9 5 1|c 9 19 1|c 15 12 1|c 15 5 1|c 15 19 1',
+toStart:'M5 3h14|m18 13-6-6-6 6|M12 7v14',toEnd:'M12 17V3|m6 11 6 6 6-6|M19 21H5',
+bold:'M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8',italic:'M19 4h-9|M14 20H5|M15 4 9 20',underline:'M6 4v6a6 6 0 0 0 12 0V4|M4 20h16',strike:'M16 4H9a3 3 0 0 0-2.83 4|M14 12a4 4 0 0 1 0 8H6|M4 12h16',
+code:'m16 18 6-6-6-6|m8 6-6 6 6 6',link:'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71|M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',
+list:'M3 12h.01|M3 18h.01|M3 6h.01|M8 12h13|M8 18h13|M8 6h13',listOl:'M10 12h11|M10 18h11|M10 6h11|M4 10h2|M4 6h1v4|M6 18H4c0-1 2-2 2-3s-1-1.5-2-1',listCheck:'m3 17 2 2 4-4|m3 7 2 2 4-4|M13 6h8|M13 12h8|M13 18h8',
+listToggle:'m3 10 2.5-2.5L3 5|m3 19 2.5-2.5L3 14|M10 6h11|M10 12h11|M10 18h11',listStar:'M10 6h11|M10 12h11|M10 18h11|m4.5 4 .8 1.6 1.7.3-1.2 1.2.3 1.7-1.6-.8-1.5.8.3-1.7L2 5.9l1.7-.3z',
+indent:'M21 12H11|M21 18H11|M21 6H11|m3 8 4 4-4 4',outdent:'M21 12H11|M21 18H11|M21 6H11|m7 8-4 4 4 4',
+alL:'M15 12H3|M17 18H3|M21 6H3',alC:'M17 12H7|M19 18H5|M21 6H3',alR:'M21 12H9|M21 18H7|M21 6H3',alJ:'M3 12h18|M3 18h18|M3 6h18',
+minus:'M5 12h14',square:'r 3 3 18 18 2',circle:'c 12 12 10',triangle:'M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z',arrowUR:'M7 7h10v10|M7 17 17 7',line:'M5 19 19 5',free:'M3 16c3-7 5 3 8-3s5-7 10-3',
+tape:'r 2 8 20 8 1|M6 8v8|M18 8v8',keyboard:'M10 8h.01|M12 12h.01|M14 8h.01|M16 12h.01|M18 8h.01|M6 8h.01|M7 16h10|M8 12h.01|r 2 4 20 16 2',
+focus:'c 12 12 3|M3 7V5a2 2 0 0 1 2-2h2|M17 3h2a2 2 0 0 1 2 2v2|M21 17v2a2 2 0 0 1-2 2h-2|M7 21H5a2 2 0 0 1-2-2v-2',
+zoomIn:'c 11 11 8|m21 21-4.3-4.3|M11 8v6|M8 11h6',zoomOut:'c 11 11 8|m21 21-4.3-4.3|M8 11h6',fitW:'m18 8 4 4-4 4|M2 12h20|m6 8-4 4 4 4',grid3:'r 3 3 18 18 2|M3 9h18|M3 15h18|M9 3v18|M15 3v18',
+book:'M12 7v14|M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z',
+callout:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',table:'r 3 3 18 18 2|M3 9h18|M3 15h18|M12 3v18',
+camera:'M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z|c 12 13 3',
+file:'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z|M14 2v4a2 2 0 0 0 2 2h4|M10 9H8|M16 13H8|M16 17H8',
+mic:'M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z|M19 10v2a7 7 0 0 1-14 0v-2|M12 19v3',music:'M9 18V5l12-2v13|c 6 18 3|c 18 16 3',
+cards:'r 2 7 15 13 2|M7 3h13a2 2 0 0 1 2 2v11',sticky:'M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z|M15 3v4a2 2 0 0 0 2 2h4',
+settings:'M20 7h-9|M14 17H5|c 17 17 3|c 7 7 3',sun:'c 12 12 4|M12 2v2|M12 20v2|m4.93 4.93 1.41 1.41|m17.66 17.66 1.41 1.41|M2 12h2|M20 12h2|m6.34 17.66-1.41 1.41|m19.07 4.93-1.41 1.41',
+moon:'M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z',home:'M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8|M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+library:'m16 6 4 14|M12 6v14|M8 8v12|M4 4v16',notebook:'M2 6h4|M2 10h4|M2 14h4|M2 18h4|r 4 2 16 20 2|M16 2v20',search:'c 11 11 8|m21 21-4.3-4.3',
+history:'M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8|M3 3v5h5|M12 7v5l4 2',reset:'M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8|M3 3v5h5',
+help:'c 12 12 10|M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3|M12 17h.01',tag:'M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z|c 7.5 7.5 .5',
+scale:'M21 3 9 15|M12 3H3v18h18v-9|M16 3h5v5|M14 15H9v-5',convert:'m6 16 6-12 6 12|M8 12h8|m16 20 2 2 4-4',input:'r 2 6 20 12 2|M12 12h.01|M17 12h.01|M7 12h.01',
+share:'M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8|m16 6-4-4-4 4|M12 2v13',ruler:'M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z|m14.5 12.5 2-2|m11.5 9.5 2-2|m8.5 6.5 2-2|m17.5 15.5 2-2',
+play:'M6 3 20 12 6 21 6 3z',crosshair:'c 12 12 10|M22 12h-4|M6 12H2|M12 6V2|M12 22v-4',minimise:'M17 12H3|m11 18 6-6-6-6|M21 5v14',sparkles:'M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z',
+bookmark:'m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z',quote:'M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z|M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z',
+graduation:'M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z|M22 10v6|M6 12.5V16a6 3 0 0 0 12 0v-3.5',
+fileOut:'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z|M14 2v4a2 2 0 0 0 2 2h4|M12 18v-6|m9 15 3 3 3-3',hand:'M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2|M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2|M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8|M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15',
+scribble:'M3 15c2-4 3-4 4 0s2 4 3 0 2-4 3 0 2 4 3 0 2-4 4 0'
+};
+Object.assign(P,{library:'<path d="M3 20.5h18"/><rect x="4" y="5" width="4" height="12.5" rx="1"/><rect x="8" y="8" width="4" height="9.5" rx="1"/><path d="m13.6 7.4 3.5-1 3 10.2-3.5 1z"/>',notebook:'<rect x="5" y="3" width="15" height="18" rx="2"/><path d="M3 7.5h4M3 12h4M3 16.5h4"/><path d="M11 8h5M11 12h5M11 16h3"/>',review:'<path d="M20.5 11A8.5 8.5 0 0 0 5.6 6.4L3.5 8.5"/><path d="M3.5 3.5v5h5"/><path d="M3.5 13a8.5 8.5 0 0 0 14.9 4.6l2.1-2.1"/><path d="M20.5 20.5v-5h-5"/><rect x="9" y="9.5" width="6" height="5" rx="1"/>',settings:'<path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"/><circle cx="12" cy="12" r="3"/>',sidebar:'r 3 3 18 18 2|M9 3v18',pages:'M3 6h.01|M3 12h.01|M3 18h.01|M8 6h13|M8 12h13|M8 18h13'});
+const I=(n,s=20,c='',sw=1.6)=>{const b=P[n]||P.dots;return `<svg class="i ${c}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${b[0]==='<'?b:pa(b)}</svg>`};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const A=(a,v)=>`data-a="${a}"`+(v!==undefined?` data-v="${esc(v)}"`:'');
+const $=(s,r)=>(r||document).querySelector(s);
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+/* ---------- data ---------- */
+const PENS=[['fountain','Fountain pen','Thick and thin'],['ball','Ballpoint','Even line'],['brush','Brush','Soft, bold'],['pencil','Pencil','Sketchy'],['marker','Marker','Broad tip'],['hl','Highlighter','See-through']];
+const COLS=['auto','blue','red','green','amber','purple'];
+const CNAME={auto:'Auto ink (dark on light pages, light on dark)',blue:'Blue',red:'Red',green:'Green',amber:'Amber',purple:'Purple'};
+const col=c=>c&&c[0]==='#'?c:`var(--c-${c})`;
+const DOT=[0,6,9,13];const PX=[0,1.5,3,5];
+const SHAPES=[['free','Freehand','free'],['line','Line','line'],['arrow','Arrow','arrowUR'],['box','Box','square'],['oval','Oval','circle'],['tri','Triangle','triangle'],['tape','Tape','tape']];
+const EMODES=[['standard','Standard','eraser','Rubs out a small area around the tip.'],['stroke','Whole stroke','penLine','Removes the whole line you touch.'],['precise','Precise','crosshair','Erases only the exact spot under the tip.']];
+const ESIZES=[[1,'Thin'],[2,'Medium'],[3,'Thick']];
+const ROWACT={copy:['Copy','copy'],cut:['Cut','scissors'],duplicate:['Duplicate','dup'],convert:['Convert to text','convert'],colour:['Colour','palette'],delete:['Delete','trash'],thickness:['Thickness','sliders'],makeCard:['Make card','cards'],summary:['Add to Summary','book'],label:['Name this drawing','tag']};
+const ROWALL=Object.keys(ROWACT);
+const FONTS=[['default','Default','-apple-system,"Segoe UI",system-ui,sans-serif'],['serif','Serif','Georgia,"Times New Roman",serif'],['sans','Sans','"Helvetica Neue",Arial,sans-serif'],['dys','Dyslexia','Verdana,Tahoma,sans-serif'],['literata','Literata','"Iowan Old Style",Georgia,serif'],['source','Source Serif','"Palatino Linotype",Palatino,serif'],['atkinson','Atkinson','Verdana,"Trebuchet MS",sans-serif'],['lexend','Lexend','"Trebuchet MS",Arial,sans-serif'],['caveat','Caveat','"Segoe Print","Bradley Hand",cursive'],['kalam','Kalam','"Segoe Script","Bradley Hand",cursive'],['patrick','Patrick','"Comic Sans MS","Chalkboard SE",cursive'],['shantell','Shantell','"Chalkboard SE","Comic Sans MS",cursive']];
+const STYLES=[['title','Title','font-size:22px;font-weight:750;letter-spacing:-.02em'],['h1','Heading 1','font-size:19px;font-weight:700'],['h2','Heading 2','font-size:16.5px;font-weight:700'],['h3','Heading 3','font-size:14.5px;font-weight:700'],['body','Body','font-size:14px'],['quote','Quote','font-size:14px;font-style:italic;border-left:3px solid var(--accent);padding-left:8px'],['code','Code block','font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px']];
+const LISTS=[['bullet','Bullets','list'],['number','Numbers','listOl'],['check','Checklist','listCheck'],['star','Star list','listStar'],['toggle','Toggle list','listToggle']];
+const LOOKS=[['plain','Plain'],['outline','Outline'],['soft','Soft card'],['sticky','Sticky note'],['callout','Callout'],['shadow','Shadow card']];
+const FILLS=['none','yellow','blue','green','pink','purple'];
+const TCOL=['default','blue','red','green','amber','purple'];
+const HCOL=['none','yellow','green','pink','blue','purple'];
+const TOOLN={text:'Text',pen:'Pen',eraser:'Eraser',shapes:'Shapes',lasso:'Lasso'};
+
+/* ---------- state ---------- */
+const S={theme:null,lvl:'pro',dev:'land',tool:'pen',last:'text',card:null,cardK:null,sheet:null,folds:{},glow:null,pop:null,toast:null,lsel:true,lmore:false,hidden:false,compact:0,scale:1,
+pen:{type:'fountain',size:2,px:3,colour:'auto',tab:'feel',tip:35,flat:0,stab:40,pressure:true,pstr:55,tilt:true,speed:false,latency:false,line:'solid',finger:'auto',scribble:true,circle:false,shapeHold:true,snap:true,fillShapes:false,ruler:false,mag:false,paper:'lined',hop:45,hsnap:true,hbehind:true,hsave:false,psize:'fit',zoom:'100',asDrawn:false,custom:['#4f7dff']},
+shapes:{shape:'line',size:2,colour:'auto'},
+er:{mode:'standard',size:2,hl:true,text:false,pen:true,back:false},
+la:{shape:'free',ink:true,pictures:false,text:false,row:['copy','cut','duplicate','convert','colour'],layers:[{id:1,name:'Layer 1',n:14,vis:true,lock:false},{id:2,name:'Sketch',n:3,vis:true,lock:false}],draw:1},
+t:{tab:'text',font:'default',size:'100',bsize:'body',b:true,i:false,u:false,s:false,color:'default',hl:'yellow',key:true,style:'body',list:null,plain:false,callout:false,icode:false,align:'left',sp:'normal',lh:'default',ls:'normal'},
+box:{tab:'box',look:'soft',fill:'none',border:'thin',ostyle:'solid',corners:'soft',pad:'normal',shadow:false,newBoxes:false,bw:1,cr:10,pd:12,wpc:100,pos:'left',cols:'one',lockSize:false,width:'auto'},
+v:{focus:false,grid:false,dark:false,keyHidden:false,reading:false},
+favs:{pen:[{id:'f1',name:'Blue fine',type:'ball',size:1,colour:'blue'},{id:'f2',name:'Yellow highlight',type:'hl',size:3,colour:'amber'}],text:[{id:'f3',name:'Sticky note',look:'sticky'}],eraser:[],shapes:[],lasso:[]},
+order:{}};
+let fid=10;
+
+/* ---------- small parts ---------- */
+const get=p=>p.split('.').reduce((o,k)=>o==null?o:o[k],S);
+function setp(p,v){const ks=p.split('.'),l=ks.pop();const o=ks.reduce((o,k)=>o[k],S);o[l]=v}
+const tick=()=>`<span class="ck">${I('check',10,'',3)}</span>`;
+function tile(o){const sel=!!o.sel;return `<button class="tile${sel?' sel':''}${o.act?' act':''}${sel&&S.pop===o.v?' pop':''} ${o.cls||''}" ${A(o.a||'set',o.v)}${o.act?'':` aria-pressed="${sel}"`}${o.aria?` aria-label="${esc(o.aria)}"`:''}${o.title?` title="${esc(o.title)}"`:''}>${sel?tick():''}${o.pic||''}${o.label?`<span class="tl">${o.label}</span>`:''}${o.hint?`<span class="th">${o.hint}</span>`:''}</button>`}
+const tiles=(arr,cols=3)=>`<div class="tiles" style="--cols:${cols}">${arr.join('')}</div>`;
+function seg(path,items,aria){const cur=get(path);return `<div class="seg" role="radiogroup"${aria?` aria-label="${esc(aria)}"`:''}>${items.map(([v,l,ic,al])=>`<button role="radio" aria-checked="${cur==v}" class="${cur==v?'sel':''}" ${A('set',path+'|'+v)}${al?` aria-label="${esc(al)}" title="${esc(al)}"`:''}>${ic?I(ic,17):''}${l?`<span>${l}</span>`:''}</button>`).join('')}</div>`}
+const grp=(label,inner,note)=>`<div class="grp">${label?`<div class="gl">${label}</div>`:''}${inner}${note?`<p class="note">${note}</p>`:''}</div>`;
+const well=rows=>`<div class="well">${rows.join('')}</div>`;
+function swRow(path,label,note,pic){const on=!!get(path);return `<div class="row">${pic?`<span class="rpic">${pic}</span>`:''}<span class="rt"><span>${label}</span>${note?`<small>${note}</small>`:''}</span><button class="sw${on?' on':''}" role="switch" aria-checked="${on}" aria-label="${esc(label)}" ${A('tog',path)}><i></i></button></div>`}
+function slRow(path,label,unit,min,max,step){unit=unit==null?'%':unit;min=min||0;max=max||100;const v=get(path);return `<div class="row col"><div class="rh"><span>${label}</span><span class="pill" data-out="${path}">${v}${unit}</span></div><input type="range" class="rng" min="${min}" max="${max}" step="${step||1}" value="${v}" data-a="rng" data-v="${path}" data-unit="${unit}" data-min="${min}" data-max="${max}" style="--p:${(v-min)/(max-min)*100}%" aria-label="${esc(label)}"></div>`}
+const rowb=(icon,label,note,a,v,extra,cls)=>`<button class="row rowb ${cls||''}" ${A(a,v)}>${icon?`<span class="rpic">${I(icon,18)}</span>`:''}<span class="rt"><span>${label}</span>${note?`<small>${note}</small>`:''}</span>${extra||I('chevR',16,'chr')}</button>`;
+function fold(id,label,inner,icon,sub){const o=!!S.folds[id];return `<div class="fold${o?' open':''}"><button class="fh" ${A('fold',id)} aria-expanded="${o}">${icon?I(icon,18):''}<span>${label}</span>${sub?`<small>${sub}</small>`:''}${I('chevD',16,'chev')}</button>${o?`<div class="fb">${inner}</div>`:''}</div>`}
+const isPro=()=>S.lvl==='pro';
+function sws(path,list,cls){const cur=get(path);return `<div class="sws" role="radiogroup">${list.map(c=>{const sel=cur===c;const none=c==='none'||(c==='default'&&cls==='t');const bg=cls==='hl'?`var(--hl-${c})`:cls==='fill'?`var(--f-${c})`:cls==='t'&&c==='default'?'var(--ink)':col(c);return `<button class="swb${sel?' sel':''}${c==='none'?' none':''}${sel&&S.pop===path+'|'+c?' pop':''}" role="radio" aria-checked="${sel}" aria-label="${esc(c==='none'?'None':c==='default'?'Default':CNAME[c]||c)}" ${A('set',path+'|'+c)} style="--c:${bg}"><i></i></button>`}).join('')}</div>`}
+const dotEl=(size,c)=>`<span class="dot" style="width:${DOT[size]}px;height:${DOT[size]}px;--c:${col(c)}"></span>`;
+const cdot=c=>`<span class="cdot" style="--c:${col(c)}"></span>`;
+function penPic(type,c){const tip={hl:'var(--c-amber)',pencil:'#c9a46a',marker:col(c)}[type]||'var(--pen-edge)';const band=type==='hl'?'var(--c-amber)':col(c);return `<svg width="22" height="30" viewBox="0 0 22 30" aria-hidden="true"><g transform="rotate(20 11 15)"><rect x="7" y="1" width="8" height="19" rx="2.5" fill="var(--pen-body)" stroke="var(--pen-edge)" stroke-width=".8"/><rect x="7" y="6" width="8" height="3" fill="${band}"/><path d="M7.3 20 L11 ${type==='brush'||type==='marker'?27:28.5} L14.7 20Z" fill="${tip}" stroke="var(--pen-edge)" stroke-width=".6"/></g></svg>`}
+function stroke(type,c,w){const wd={fountain:2.6,ball:1.8,brush:4.2,pencil:1.5,marker:5,hl:8}[type]*(w?w/3:1);return `<svg width="64" height="16" viewBox="0 0 64 16" aria-hidden="true"><path d="M3 11 C 14 2, 24 3, 32 8 S 52 13, 61 5" fill="none" stroke="${type==='hl'?'var(--c-amber)':col(c)}" stroke-width="${wd}" stroke-linecap="round" ${type==='hl'?'opacity=".45"':''} ${type==='pencil'?'stroke-dasharray="0.1 0" opacity=".8"':''}/></svg>`}
+const penName=t=>(PENS.find(p=>p[0]===t)||PENS[0])[1];
+function boxPrev(look,txt){const st={plain:'',outline:'box-shadow:inset 0 0 0 1.5px var(--line-strong,var(--muted))',soft:'background:var(--well)',sticky:'background:var(--f-yellow)',callout:'background:var(--accent-soft);border-left:3px solid var(--accent)',shadow:'background:var(--card-solid);box-shadow:0 4px 12px rgba(0,0,0,.28),0 0 0 .5px var(--well-line)'}[look];return `<span style="display:grid;place-items:center;width:46px;height:30px;border-radius:7px;font-size:12px;font-weight:600;color:var(--ink);${st}">${txt||'Aa'}</span>`}
+function paperPic(k){const bg={blank:'',lined:'background-image:repeating-linear-gradient(to bottom,transparent 0 6px,var(--muted) 6px 7px)',grid:'background-image:linear-gradient(var(--muted) 1px,transparent 1px),linear-gradient(90deg,var(--muted) 1px,transparent 1px);background-size:7px 7px',dots:'background-image:radial-gradient(var(--muted) 1px,transparent 1.3px);background-size:7px 7px'}[k];return `<span style="display:block;width:34px;height:42px;border-radius:5px;background-color:var(--paper);box-shadow:0 0 0 1px var(--well-line),0 2px 4px rgba(0,0,0,.12);opacity:.95;${bg};background-blend-mode:normal;--muted:color-mix(in srgb,var(--ink) 22%,transparent)"></span>`}
+function colPic(k){const b={one:[[0,0,1,1]],two:[[0,0,.48,1],[.52,0,.48,1]],nw:[[0,0,.32,1],[.36,0,.64,1]],wn:[[0,0,.64,1],[.68,0,.32,1]],three:[[0,0,.3,1],[.35,0,.3,1],[.7,0,.3,1]],g22:[[0,0,.48,.46],[.52,0,.48,.46],[0,.54,.48,.46],[.52,.54,.48,.46]],g23:[[0,0,.3,.46],[.35,0,.3,.46],[.7,0,.3,.46],[0,.54,.3,.46],[.35,.54,.3,.46],[.7,.54,.3,.46]]}[k];return `<svg width="40" height="28" viewBox="0 0 40 28" aria-hidden="true">${b.map(([x,y,w,h])=>`<rect x="${x*40}" y="${y*28}" width="${w*40}" height="${h*28}" rx="3" fill="currentColor" opacity=".28"/>`).join('')}</svg>`}
+
+/* ---------- favourites ---------- */
+function favPic(tool,f){if(tool==='pen')return `<span style="display:grid;place-items:center;width:28px;height:24px;border-radius:7px;background:var(--glass)">${stroke(f.type,f.colour).replace('width="64"','width="22"').replace('height="16"','height="12"')}</span>`;
+ if(tool==='text')return boxPrev(f.look,'Aa').replace('width:46px;height:30px','width:26px;height:20px').replace('font-size:12px','font-size:10px');
+ if(tool==='shapes')return `<span style="color:${col(f.colour)}">${I((SHAPES.find(s=>s[0]===f.shape)||SHAPES[0])[2],18)}</span>`;
+ if(tool==='eraser')return `<span style="display:flex;align-items:center;gap:3px">${I('eraser',17)}${dotEl(f.size,'auto')}</span>`;
+ return I('lasso',18)}
+function favOn(tool,f){if(tool==='pen')return ['type','size','colour'].every(k=>f[k]===undefined||S.pen[k]===f[k]);if(tool==='text')return S.box.look===f.look&&(f.font===undefined||S.t.font===f.font);if(tool==='shapes')return ['shape','size','colour'].every(k=>f[k]===undefined||S.shapes[k]===f[k]);if(tool==='eraser')return S.er.mode===f.mode&&S.er.size===f.size;return S.la.shape===f.shape}
+function baseItems(tool){const p=isPro();return {pen:['type','size','colour','feel'],shapes:['shape','size','colour'],eraser:p?['emode','esize','erases','eback']:['emode'],lasso:p?['lshape','lpicks','lopts']:['lshape','lact'],text:p?['box','format','style','bold','italic','list']:['box','format','bold','italic']}[tool]}
+function orderOf(tool){const base=baseItems(tool),fv=S.favs[tool].map(f=>'fav-'+f.id);const valid=[...base,...fv];let o=(S.order[tool]||[]).filter(k=>valid.includes(k));valid.forEach(k=>{if(!o.includes(k))o.push(k)});return o}
+const favOf=(tool,k)=>S.favs[tool].find(f=>'fav-'+f.id===k);
+
+/* ---------- row 1 ---------- */
+function chipBtn(k,inner,o){o=o||{};const open=!o.g&&o.dd&&S.card===o.dd;return `<button class="chip${o.dd?' dd':''}${open?' open':''}${o.on?' on':''}${o.cls?' '+o.cls:''}${!o.g&&S.glow===k?' glow':''}" data-k="${k}" ${o.dd?`${A('dd',o.dd)} aria-expanded="${open}" aria-haspopup="dialog"`:A(o.a,o.v)}${!o.dd&&o.on!==undefined?` aria-pressed="${!!o.on}"`:''}${o.aria?` aria-label="${esc(o.aria)}"`:''}${o.title||o.aria?` title="${esc(o.title||o.aria)}"`:''}>${inner}${o.dd?I('chevD',14,'chev'):''}</button>`}
+const TICON={text:'aa',pen:'penTool',eraser:'eraser',shapes:'shapes',lasso:'lasso'};
+function row1(tool,dev,g){const phone=dev==='phone';const lab=g?isPro():(isPro()&&!phone&&!S.r1c);const fold=phone?['shapes','insert','back']:[];
+ let h=[['text','Text','aa'],['pen','Pen','penTool'],['eraser','Eraser','eraser'],['shapes','Shapes','shapes'],['lasso','Lasso','lasso']].filter(t=>!fold.includes(t[0])).map(([id,l,ic])=>`<button class="tbtn${tool===id?' on':''}" ${A('tool',id)} data-k="t-${id}" aria-pressed="${tool===id}" title="${l}" aria-label="${l}">${I(ic,20)}${lab?`<span>${l}</span>`:''}</button>`).join('');
+ if(!fold.includes('insert')){const open=!g&&S.card==='insert';h+=`<button class="tbtn${open?' open':''}" ${A('dd','insert')} data-k="insert" aria-expanded="${open}" aria-haspopup="dialog" title="Insert" aria-label="Insert">${I('grid',20)}${lab?'<span>Insert</span>':''}${I('chevD',14,'chev')}</button>`}
+ if(isPro()&&!fold.includes('back')){const lt=S.last;h+=`<button class="tbtn" ${A('back')} data-k="back" title="Back to ${TOOLN[lt]}" aria-label="Back to ${TOOLN[lt]}"><span class="bkic">${I(TICON[lt],20)}<span class="bkb">${I('undo',10,'',2.6)}</span></span>${lab?`<span>Back to ${TOOLN[lt]}</span>`:''}</button>`}
+ h+=`<span class="vd"></span><button class="tbtn key" ${A('key','Backspace')} title="Backspace" aria-label="Backspace">${I('bksp',20)}</button><button class="tbtn key" ${A('key','New line')} title="New line. Hold or double-tap for Heading, Checklist, Divider." aria-label="New line">${I('newline',20)}</button><span class="fl"></span>`;
+ const mo=!g&&S.card==='more';h+=`<button class="tbtn${mo?' open':''}" ${A('dd','more')} data-k="more" aria-expanded="${mo}" aria-haspopup="dialog" title="More" aria-label="More">${I('dots',20,'',2.4)}</button>`;
+ if(!phone)h+=`<span class="vd"></span><button class="minb" ${A('hide')} title="Minimise the tool bar" aria-label="Minimise the tool bar">${I('minimise',18)}</button>`;
+ return `<div class="r1">${h}</div>`}
+
+/* ---------- row 2 ---------- */
+function item(tool,k,g){const o={g};const p=S.pen,sh=S.shapes,e=S.er,l=S.la,t=S.t;
+ if(k.startsWith('fav-')){const f=favOf(tool,k);return chipBtn(k,favPic(tool,f)+`<span class="cl" data-prevname>${esc(f.name)}</span>`,{g,a:'fav',v:k,on:favOn(tool,f),cls:'fav'})}
+ switch(tool+'.'+k){
+ case 'pen.type':return chipBtn(k,penPic(p.type,p.colour)+`<span class="cl">${penName(p.type)}</span>`,{g,dd:'pen.type',aria:'Pen type: '+penName(p.type)});
+ case 'pen.size':return chipBtn(k,`<span style="width:16px;display:grid;place-items:center">${dotEl(p.size,p.colour)}</span>`,{g,dd:'pen.size',aria:'Size'});
+ case 'pen.colour':return chipBtn(k,cdot(p.colour),{g,dd:'pen.colour',aria:'Colour'});
+ case 'pen.feel':return chipBtn(k,I('sliders',18)+'<span class="cl">Feel</span>',{g,dd:'pen.feel'});
+ case 'shapes.shape':{const s=SHAPES.find(x=>x[0]===sh.shape);return chipBtn(k,I(s[2],18)+`<span class="cl">${s[1]}</span>`,{g,dd:'shapes.shape',aria:'Shape: '+s[1]})}
+ case 'shapes.size':return chipBtn(k,`<span style="width:16px;display:grid;place-items:center">${dotEl(sh.size,sh.colour)}</span>`,{g,dd:'shapes.size',aria:'Size'});
+ case 'shapes.colour':return chipBtn(k,cdot(sh.colour),{g,dd:'shapes.colour',aria:'Colour'});
+ case 'eraser.emode':{const m=EMODES.find(x=>x[0]===e.mode);return chipBtn(k,I(m[2],18)+`<span class="cl">${m[1]}</span>`,{g,dd:'eraser.mode',aria:'Mode: '+m[1]})}
+ case 'eraser.esize':return chipBtn(k,`<span style="width:16px;display:grid;place-items:center">${dotEl(e.size,'auto')}</span><span class="cl">${ESIZES[e.size-1][1]}</span>`,{g,dd:'eraser.size',aria:'Size'});
+ case 'eraser.erases':return `<div class="cgrp" data-k="erases" role="group" aria-label="What it erases"><span class="cgl">Erases</span>${[['hl','Highlighter','hl'],['text','Text','type'],['pen','Pen','penLine']].map(([kk,lb,ic])=>chipBtn('er-'+kk,I(ic,17)+`<span class="cl">${lb}</span>`,{g,a:'tog',v:'er.'+kk,on:e[kk]})).join('')}</div>`;
+ case 'eraser.eback':return `<div class="cgrp" data-k="eback">${chipBtn('eback-b',I('history',17)+'<span class="cl opt">Back after one</span>',{g,a:'tog',v:'er.back',on:e.back,aria:'Go back to the previous tool after one erase'})}</div>`;
+ case 'lasso.lshape':if(!isPro()){return chipBtn(k,I(l.shape==='free'?'lasso':'sqDash',18)+`<span class="cl">${l.shape==='free'?'Free':'Rectangle'}</span>`,{g,dd:'lasso.shape',aria:'Shape'})}
+   return `<div class="cgrp" data-k="lshape" role="radiogroup" aria-label="Lasso shape">${[['free','Free-hand','lasso'],['rect','Rectangle','sqDash']].map(([v,lb,ic])=>chipBtn('ls-'+v,I(ic,17)+`<span class="cl">${lb}</span>`,{g,a:'set',v:'la.shape|'+v,on:l.shape===v})).join('')}</div>`;
+ case 'lasso.lpicks':return `<div class="cgrp" data-k="lpicks" role="group" aria-label="What it picks"><span class="cgl">Picks</span>${[['ink','Ink','penLine'],['pictures','Pictures','image'],['text','Text','type']].map(([kk,lb,ic])=>chipBtn('lp-'+kk,I(ic,17)+`<span class="cl">${lb}</span>`,{g,a:'tog',v:'la.'+kk,on:l[kk]})).join('')}</div>`;
+ case 'lasso.lopts':return chipBtn(k,I('sliders',18)+'<span class="cl">Options</span>',{g,dd:'lasso.opts'});
+ case 'lasso.lact':return chipBtn(k,I('scissors',18)+'<span class="cl">Actions</span>',{g,dd:'lasso.actions'});
+ case 'text.box':return chipBtn(k,boxPrev(S.box.look,'Aa').replace('width:46px;height:30px','width:24px;height:20px').replace('font-size:12px','font-size:9.5px')+'<span class="cl">Box</span>',{g,dd:'text.box'});
+ case 'text.format':return chipBtn(k,I('palette',18)+'<span class="cl">Format</span>',{g,dd:'text.format'});
+ case 'text.style':{const s=STYLES.find(x=>x[0]===t.style);return chipBtn(k,`<span class="cl keep"><small>Style:</small> ${s[1]}</span>`,{g,dd:'text.style',aria:'Style: '+s[1]})}
+ case 'text.bold':return chipBtn(k,I('bold',18,'',2),{g,a:'tog',v:'t.b',on:t.b,aria:'Bold',cls:'sq'});
+ case 'text.italic':return chipBtn(k,I('italic',18,'',2),{g,a:'tog',v:'t.i',on:t.i,aria:'Italic',cls:'sq'});
+ case 'text.list':{const li=LISTS.find(x=>x[0]===t.list);return chipBtn(k,I(li?li[2]:'list',18)+`<span class="cl">${li?li[1]:'List'}</span>`,{g,dd:'text.list',on:!!li,aria:'List'})}
+ }return ''}
+function row2(tool,g){let its=orderOf(tool);let favFold='';
+ if(!g&&S.compact>1){const fv=its.filter(k=>k.startsWith('fav-'));if(fv.length){its=its.filter(k=>!k.startsWith('fav-'));favFold=chipBtn('favs',I('star',17)+`<span class="cl keep">${fv.length}</span>`,{g,dd:'favs',aria:'Favourites'})}}
+ let rowMore='';if(!g){S.rowFold=[];if(S.compact>2){const nf=its.filter(k=>!k.startsWith('fav-'));const n=Math.min(nf.length-1,S.compact-2);S.rowFold=nf.slice(nf.length-n);its=its.filter(k=>!S.rowFold.includes(k));rowMore=chipBtn('rowmore',I('dots',17,'',2.4)+`<span class="cl keep">${n}</span>`,{g,dd:'rowmore',aria:n+' more options'})}}
+ const pl=!g&&S.sheet&&S.sheet.k==='add',mn=!g&&S.sheet&&S.sheet.k==='org';
+ return `<div class="r2${!g&&S.compact?' c1':''}${!g&&S.compact>1?' c2':''}"><div class="items">${its.map(k=>item(tool,k,g)).join('')}${rowMore}${favFold}</div><span class="vd"></span><button class="ibtn${pl?' open':''}" data-k="plus" ${A('add')} title="Save this setup as a favourite" aria-label="Save this setup as a favourite">${I('plus',20)}</button><button class="ibtn${mn?' open':''}" data-k="menu" ${A('org')} title="Organise this row" aria-label="Organise this row">${I('menu',20)}</button></div>`}
+const bar=(tool,dev,g)=>`<div class="tb" id="${g?'':'tb'}">${row1(tool,dev,g)}${row2(tool,g)}</div>`;
+
+/* ---------- top bar and rail (shared) ---------- */
+function topHTML(o){o=o||{};const u=`<button class="hb" ${A('key','Undo')} title="Undo" aria-label="Undo">${I('undo',20)}</button><button class="hb" ${A('key','Redo')} title="Redo" aria-label="Redo">${I('redo',20)}</button>`;const title=o.title||'How to read books';
+ if(o.phone)return `<div class="hdr"><span class="hb${o.sideOn?' on':''}" title="Side list">${I('sidebar',20)}</span>${u}<b class="fl" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(title)}</b><span class="hb" title="Search">${I('search',20)}</span><span class="hb" title="Page options">${I('dots',20,'',2.4)}</span></div>`;
+ const path=o.path||['Library','Reading'];return `<div class="hdr"><span class="hb${o.sideOn?' on':''}" title="Side list">${I('sidebar',20)}</span>${o.narrow?'':`<span class="hb" title="Pages">${I('pages',20)}</span>`}${u}<span class="crumb">${o.narrow?'':path.map(x=>esc(x)+' '+I('chevR',14)).join(' ')} <b>${esc(title)}</b></span><span class="fl"></span>${o.noSaved||o.narrow?'':'<span>Saved</span>'}<span class="hb" title="Search">${I('search',20)}</span><span class="hb" title="Page options">${I('dots',20,'',2.4)}</span>${o.narrow?'':`<span class="hb ai">${I('sparkles',18)}AI</span>`}</div>`}
+function railHTML(o){o=o||{};return `<nav class="rail" aria-label="App"><span class="av">L</span><span class="rb${o.on==='home'?' on':''}">${I('home',20)}</span><span class="rb${o.on==='library'?' on':''}">${I('library',20)}</span><span class="rb${!o.on||o.on==='notebook'?' on':''}">${I('notebook',20)}</span><span class="rb${o.on==='review'?' on':''}">${I('review',20)}<span class="bd">17</span></span><span class="sp"></span><span class="rb">${I('sun',20)}</span><span class="rb${o.on==='settings'?' on':''}">${I('settings',20)}</span></nav>`}
+/* ---------- cards ---------- */
+const CARD={};
+CARD['pen.type']=()=>({t:'Pen type',w:304,b:tiles(PENS.map(([k,n,h])=>tile({v:'pen.type|'+k,sel:S.pen.type===k,pic:penPic(k,S.pen.colour)+stroke(k,S.pen.colour),label:n,hint:h})),3)});
+function sizeCard(tool){const st=S[tool],c=st.colour,p=isPro()&&tool==='pen';let b='';
+ if(p)b+=`<div class="prev" aria-label="Preview">${`<svg width="250" height="50" viewBox="0 0 250 50"><path data-prev d="M8 34 C 40 6, 70 8, 100 26 S 170 46, 242 14" fill="none" stroke="${col(c)}" stroke-width="${S.pen.px}" stroke-linecap="round"/></svg>`}</div>`;
+ b+=grp(p?'Size':'',tiles([1,2,3].map(n=>tile({v:tool+'.size|'+n,sel:st.size===n,pic:`<span style="height:22px;display:grid;place-items:center">${dotEl(n,c)}</span>`,aria:['Fine','Medium','Bold'][n-1],title:['Fine','Medium','Bold'][n-1],cls:'small'})),3));
+ if(p)b+=grp('Thickness',well([slRow('pen.px','Exact thickness',' px',0.5,12,0.5)]));
+ return {t:'Size',w:304,b}}
+CARD['pen.size']=()=>sizeCard('pen');CARD['shapes.size']=()=>sizeCard('shapes');
+function colourCard(tool){let b=grp('',sws((tool==='pen'?'pen':'shapes')+'.colour',COLS),'The first dot is Auto ink: dark on a light page, light on a dark page.');
+ if(isPro()){b+=well([rowb('pipette','Colour picker','Pick from the page','act','Tap anywhere on the page to pick its colour')]);
+  b+=grp('Custom colours',`<div class="sws">${S.pen.custom.map(h=>`<button class="swb${S[tool].colour===h?' sel':''}" ${A('set',tool+'.colour|'+h)} style="--c:${h}" aria-label="Custom colour ${h}"><i></i></button>`).join('')}<button class="swb add" ${A('addColour')} aria-label="Add colour" title="Add colour"><i>${I('plus',16)}</i></button></div>`,'Keep up to 6 colours of your own. The newest comes first.')}
+ return {t:'Colour',w:304,b}}
+CARD['pen.colour']=()=>colourCard('pen');CARD['shapes.colour']=()=>colourCard('shapes');
+function layersBlock(){const l=S.la;return well(l.layers.map(y=>`<div class="row"><button class="ib" ${A('set','la.draw|'+y.id)} aria-label="Draw on ${esc(y.name)}" style="${l.draw===y.id?'background:var(--accent);color:var(--on-accent)':''}">${l.draw===y.id?I('penLine',15):I('layers',15)}</button><span class="rt"><span>${esc(y.name)}${l.draw===y.id?' <small style="display:inline;color:var(--accent)">· Drawing here</small>':''}</span><small>${y.n} strokes</small></span><button class="ib" ${A('layer','vis:'+y.id)} aria-label="${y.vis?'Hide':'Show'} ${esc(y.name)}">${I(y.vis?'eye':'eyeOff',16)}</button><button class="ib" ${A('layer','lock:'+y.id)} aria-label="${y.lock?'Unlock':'Lock'} ${esc(y.name)}" style="${y.lock?'color:var(--accent)':''}">${I(y.lock?'lock':'unlock',16)}</button></div>`).concat([rowb('plus','Add layer','','layer','add'),rowb('layers','Merge top into second','','act','Layers merged')]))}
+CARD['pen.feel']=(o)=>{const tab=(o&&o.tab)||S.pen.tab,p=isPro();let b=seg('pen.tab',[['feel','Feel'],['aids','Aids'],['math','Math'],['page','Page']],'Sections');
+ if(tab==='feel'){if(p){b+=`<div class="prev"><svg width="320" height="56" viewBox="0 0 320 56"><path data-prev d="M10 40 C 60 50, 100 30, 150 22 S 240 4, 310 34" fill="none" stroke="${col(S.pen.colour)}" stroke-width="${S.pen.px}" stroke-linecap="round"/></svg></div>`;
+   if(S.pen.type==='hl')b+=grp('Highlighter',well([slRow('pen.hop','Opacity'),swRow('pen.hsnap','Snap to lines','',I('alL',16)),swRow('pen.hbehind','Behind ink','Highlights sit under your writing.',I('layers',16)),swRow('pen.hsave','Save highlights to notes','',I('book',16))]));
+   b+=grp('Tip',well([slRow('pen.tip','Tip sharpness'),slRow('pen.flat','Flatness'),slRow('pen.stab','Stabilisation')]));
+   b+=grp('Response',well([swRow('pen.pressure','Pressure','',`<svg width="22" height="12" viewBox="0 0 22 12"><path d="M1 6c4-5 16-5 20 0-4 5-16 5-20 0z" fill="currentColor"/></svg>`),slRow('pen.pstr','Pressure strength'),swRow('pen.tilt','Tilt widens the line','',I('penTool',16)),swRow('pen.speed','Thickness by speed','',I('fitW',16)),swRow('pen.latency','Reduce latency','Smoother ink on a slower device. It can use more battery.',I('sparkles',16))]));
+   b+=grp('Line style',seg('pen.line',[['solid','Solid'],['dashed','Dashed'],['dotted','Dotted']]))}
+  else{b+=well([slRow('pen.pstr','Pressure'),`<p class="note" style="padding:0 12px 10px">Press harder for a thicker line.</p>`]);b+=well([slRow('pen.stab','Stabilisation'),`<p class="note" style="padding:0 12px 10px">Smooths out a shaky hand.</p>`]);
+   b+=grp('More',fold('finetune','Fine-tune',grp('',well([slRow('pen.px','Exact thickness',' px',0.5,12,0.5),slRow('pen.tip','Tip sharpness')]))+grp('Line style',seg('pen.line',[['solid','Solid'],['dashed','Dashed'],['dotted','Dotted']])),'sliders','Thickness, line, tip'))}}
+ if(tab==='aids'){b+=grp('Finger can draw',seg('pen.finger',[['auto','Automatic'],['always','Always'],['never','Never']]));b+=grp('Gestures',well([swRow('pen.scribble','Scribble to erase','',I('scribble',16)),swRow('pen.circle','Circle to lasso','',I('lasso',16))]));
+  if(!p)b+=grp('Speed',well([swRow('pen.latency','Reduce latency','Smoother ink on a slower device. It can use more battery.',I('sparkles',16))]))}
+ if(tab==='math'){b+=grp('Shape help',well([swRow('pen.shapeHold','Draw and hold for a perfect shape','',I('circle',16)),swRow('pen.snap','Snap shapes','',I('grid3',16)),swRow('pen.fillShapes','Fill closed shapes','',I('triangle',16))]));b+=grp('Tools',well([swRow('pen.ruler','Ruler','',I('ruler',16)),swRow('pen.mag','Magnifier','',I('zoomIn',16))]))}
+ if(tab==='page'){b+=grp('Page style',tiles([['blank','Blank'],['lined','Lined'],['grid','Grid'],['dots','Dots']].map(([k,n])=>tile({v:'pen.paper|'+k,sel:S.pen.paper===k,pic:paperPic(k),label:n})),4),p?'':'How the page looks behind your notes.');
+  if(p){b+=grp('Layers',layersBlock());b+=grp('Paper size',seg('pen.psize',[['fit','Fit page'],['a4','A4'],['letter','Letter']]));b+=grp('View',seg('pen.zoom',[['100','100%'],['150','150%'],['200','200%'],['300','300%'],['400','400%']]),'Zoom is a demo here: pinch zooms the real page.');b+=well([swRow('pen.asDrawn','View as drawn','',I('eye',16)),rowb('play','Replay','Play the writing back stroke by stroke','act','Replay starts on the page')])}}
+ return {t:'Feel',w:376,b}};
+CARD['shapes.shape']=()=>({t:'Draw as',w:304,b:tiles(SHAPES.map(([k,n,ic])=>tile({v:'shapes.shape|'+k,sel:S.shapes.shape===k,pic:I(ic,22),label:n})),4)});
+CARD['eraser.mode']=()=>{const ms=EMODES.filter(m=>isPro()||m[0]!=='precise'||S.er.mode==='precise');const cur=EMODES.find(m=>m[0]===S.er.mode);let b=grp('',tiles(ms.map(([k,n,ic])=>tile({v:'er.mode|'+k,sel:S.er.mode===k,pic:I(ic,22),label:n})),ms.length),cur[3]+(isPro()?' Rubbing in the Magnifier pad also erases on the page.':''));if(!isPro())b+=grp('Size',tiles(ESIZES.map(([n,lb])=>tile({v:'er.size|'+n,sel:S.er.size===n,pic:`<span style="height:22px;display:grid;place-items:center">${dotEl(n,'auto')}</span>`,label:lb,cls:'small'})),3));return {t:isPro()?'Eraser mode':'Eraser',w:304,b}};
+CARD['eraser.size']=()=>({t:'Size',w:304,b:tiles(ESIZES.map(([n,lb])=>tile({v:'er.size|'+n,sel:S.er.size===n,pic:`<span style="height:22px;display:grid;place-items:center">${dotEl(n,'auto')}</span>`,label:lb,cls:'small'})),3)});
+CARD['lasso.shape']=()=>({t:'Shape',w:304,b:tiles([['free','Free-hand','lasso'],['rect','Rectangle','sqDash']].map(([k,n,ic])=>tile({v:'la.shape|'+k,sel:S.la.shape===k,pic:I(ic,22),label:n})),2)});
+const LACT=[['cut','Cut','scissors'],['copy','Copy','copy'],['paste','Paste','paste'],['duplicate','Duplicate','dup'],['colour','Colour','palette'],['resize','Resize','scale'],['delete','Delete','trash']];
+CARD['lasso.actions']=()=>({t:'Actions',w:304,b:grp('After you select',well(LACT.map(([k,n,ic])=>`<div class="row"><span class="rpic">${I(ic,17)}</span><span class="rt">${n}</span></div>`)),'Circle what you want, then use the menu that appears by the selection.')});
+CARD['lasso.opts']=()=>{const l=S.la;let b=grp('After you select',`<div class="prevbar">${l.row.map(k=>`<span class="chip">${I(ROWACT[k][1],16)}<span class="cl">${ROWACT[k][0].replace(' to text','').replace('Add to ','')}</span></span>`).join('')}<span class="chip">${I('dots',16,'',2.4)}<span class="cl">More</span></span></div>`,'This menu appears by the selection. Drag inside the box to move it; the dots resize and the turn dot rotates.');
+ const swb=k=>`<button class="sw${l.row.includes(k)?' on':''}" role="switch" aria-checked="${l.row.includes(k)}" aria-label="${ROWACT[k][0]} in the menu row" ${A('rowact',k)}><i></i></button>`;const off=ROWALL.filter(k=>!l.row.includes(k));
+ b+=fold('lrow','Menu row',grp('On the row, in this order',well(l.row.map((k,i)=>`<div class="row"><span class="rpic">${I(ROWACT[k][1],16)}</span><span class="rt">${ROWACT[k][0]}</span><button class="ib" ${A('rmv',k+':up')} ${i===0?'disabled':''} aria-label="Move ${ROWACT[k][0]} earlier">${I('chevU',15)}</button><button class="ib" ${A('rmv',k+':down')} ${i===l.row.length-1?'disabled':''} aria-label="Move ${ROWACT[k][0]} later">${I('chevD',15)}</button>${swb(k)}</div>`)))+(off.length?grp('Under More',well(off.map(k=>`<div class="row"><span class="rpic">${I(ROWACT[k][1],16)}</span><span class="rt">${ROWACT[k][0]}</span>${swb(k)}</div>`)),'Switched-off actions stay one tap away, under More.'):''),'list',l.row.length+' on the row');
+ b+=fold('llayers','Layers',layersBlock()+`<p class="note">A hidden or locked layer cannot be selected.</p>`,'layers',l.layers.length+' layers');
+ return {t:'Lasso options',w:376,b}};
+CARD['text.box']=(o)=>{const bx=S.box;if(!isPro())return {t:'Box',w:304,b:grp('Box look',tiles([['plain','Plain'],['sticky','Sticky note'],['callout','Callout']].map(([k,n])=>tile({v:'box.look|'+k,sel:bx.look===k,pic:boxPrev(k),label:n})),3))};
+ let b=seg('box.tab',[['box','Box'],['layout','Layout']]);
+ if(bx.tab==='box'){b+=`<div class="prev">${boxPrev(bx.look,'Sample').replace('width:46px;height:30px','width:150px;height:42px').replace('font-size:12px','font-size:14px')}</div><p class="note" style="margin-top:-8px">Every change shows on the selected box straight away.</p>`;
+  b+=grp('Look',tiles(LOOKS.map(([k,n])=>tile({v:'box.look|'+k,sel:bx.look===k,pic:boxPrev(k),label:n})),3));
+  b+=grp('Fill',sws('box.fill',FILLS,'fill'));b+=grp('Border',seg('box.border',[['none','None'],['thin','Thin'],['medium','Medium'],['thick','Thick']]));b+=grp('Outline style',seg('box.ostyle',[['solid','Solid'],['dashed','Dashed'],['dotted','Dotted']]));
+  b+=grp('Corners',seg('box.corners',[['square','Square'],['soft','Soft'],['round','Round']]));b+=grp('Padding',seg('box.pad',[['tight','Tight'],['normal','Normal'],['roomy','Roomy']]));
+  b+=well([swRow('box.shadow','Shadow','',I('square',16))]);b+=fold('bx-fine','Exact values',well([slRow('box.bw','Border width',' pt',0,8,0.5),slRow('box.cr','Corner radius',' pt',0,24),slRow('box.pd','Padding',' pt',0,32)]),'sliders','Fine-tune');
+  b+=grp('My presets',well([rowb('star','Save this style','','act','Style saved to My presets',`<span class="pill">0 of 8</span>`)]));
+  b+=grp('New boxes',well([swRow('box.newBoxes','Use for new boxes','Off: a new box starts plain.',I('plus',16))]));b+=well([rowb('reset','Reset box style','','act','Box style reset')])}
+ else{b+=grp('Columns',tiles([['one','One box'],['two','Two columns'],['nw','Narrow-wide'],['wn','Wide-narrow'],['three','Three columns'],['g22','2×2'],['g23','2×3']].map(([k,n])=>tile({v:'box.cols|'+k,sel:bx.cols===k,pic:colPic(k),label:n})),4));
+  b+=well([rowb('fitW','Equalise columns','','act','Columns made equal'),rowb('sparkles','Tidy the page','','act','Page tidied'),rowb('grid','Layout Assist','Ctrl/Cmd+Alt+L','act','Layout Assist opens')]);
+  b+=grp('This box',fold('bx-wp','Width and position',well([slRow('box.wpc','Width',' %',20,100)])+seg('box.pos',[['left','Left'],['center','Centre'],['right','Right']]),'scale')+well([swRow('box.lockSize','Lock size','',I('lock',16))]),'Grid dividers: drag to resize, double-tap to make equal.');
+  b+=grp('Width',seg('box.width',[['auto','Auto'],['narrow','Narrow'],['medium','Medium'],['wide','Wide']]))}
+ return {t:'Box',w:376,b}};
+function fontTiles(){return tiles(FONTS.map(([k,n,ff])=>tile({v:'t.font|'+k,sel:S.t.font===k,pic:`<span class="aa2" style="font-family:${ff};font-size:20px;line-height:1">Aa</span>`,label:n,cls:'small'})),4)}
+function emph(list){return tiles(list.map(([k,ic,n])=>tile({a:'tog',v:'t.'+k,sel:S.t[k],pic:I(ic,18,'',2),aria:n,title:n,cls:'small'})),list.length)}
+CARD['text.format']=(o)=>{const p=isPro();const tab=(o&&o.tab)||S.t.tab;const tabs=[['text','Text'],['style','Style'],['para','Paragraph']].concat(p?[['adv','Advanced']]:[]);
+ let b=`<div class="seg" role="tablist">${tabs.map(([k,n])=>`<button role="tab" aria-selected="${tab===k}" class="${tab===k?'sel':''}" ${A('set','t.tab|'+k)}>${n}</button>`).join('')}</div>`;
+ if(tab==='text'){if(p){b+=grp('Font',fontTiles());b+=grp('Size',seg('t.size',[['90','90%'],['100','100%'],['115','115%'],['130','130%'],['150','150%']]))}else b+=grp('Text size',seg('t.bsize',[['body','Body'],['heading','Heading'],['small','Small']]));
+  b+=grp('Emphasis',emph([['b','bold','Bold'],['i','italic','Italic'],['u','underline','Underline']].concat(p?[['s','strike','Strike-through']]:[])));
+  b+=grp('Text colour',sws('t.color',TCOL,'t'));b+=grp('Highlight colour',sws('t.hl',HCOL,'hl'));
+  if(p)b+=grp('Marks',tiles([tile({a:'act',v:'Link: paste or type an address',act:true,pic:I('link',18),label:'Link'}),tile({a:'tog',v:'t.key',sel:S.t.key,pic:`<span style="color:var(--c-amber)">${I('hl',18)}</span>`,label:'Key point'})],2))}
+ if(tab==='style'){b+=grp('Style',`<div class="well">${STYLES.filter(s=>p||s[0]!=='title').map(([k,n,css])=>`<button class="stylerow${S.t.style===k?' sel':''}" ${A('set','t.style|'+k)} aria-pressed="${S.t.style===k}"><span style="${css}">${n}</span>${S.t.style===k?`<span class="ckr">${I('check',12,'',3)}</span>`:''}</button>`).join('')}</div>`);
+  b+=grp('Lists',tiles(LISTS.filter(x=>p||['bullet','number','check'].includes(x[0])).map(([k,n,ic])=>tile({a:'list',v:k,sel:S.t.list===k,pic:I(ic,18),label:n,cls:'small'})).concat(p?[tile({a:'act',v:'Outdented',act:true,pic:I('outdent',18),label:'Outdent',cls:'small'}),tile({a:'act',v:'Indented',act:true,pic:I('indent',18),label:'Indent',cls:'small'})]:[]),p?4:3));
+  b+=grp('Blocks',tiles((p?[tile({a:'tog',v:'t.plain',sel:S.t.plain,pic:I('square',18),label:'Plain block',cls:'small'}),tile({a:'tog',v:'t.callout',sel:S.t.callout,pic:I('callout',18),label:'Callout',cls:'small'})]:[]).concat([tile({a:'act',v:'Divider added',act:true,pic:I('minus',18),label:'Divider',cls:'small'})]).concat(p?[tile({a:'tog',v:'t.icode',sel:S.t.icode,pic:I('code',18),label:'Inline code',cls:'small'})]:[]),p?4:3))}
+ if(tab==='para'){b+=grp('Alignment',seg('t.align',[['left','','alL','Left'],['center','','alC','Centre'],['right','','alR','Right'],['justify','','alJ','Justify']]));b+=grp('Paragraph spacing',seg('t.sp',[['compact','Compact'],['normal','Normal'],['roomy','Roomy']]))}
+ if(tab==='adv'){b+=grp('Line height',seg('t.lh',[['default','Default'],['tight','Tight'],['loose','Loose']]));b+=grp('Letter spacing',seg('t.ls',[['tight','Tight'],['normal','Normal'],['wide','Wide']]));
+  b+=grp('Custom styles',well([rowb('star','Save as a custom style','','act','Saved as a custom style')]));b+=grp('Clear',well([rowb('reset','Clear formatting','Back to plain Body text','act','Formatting cleared')]))}
+ return {t:'Format',w:376,b}};
+CARD['text.style']=()=>({t:'Text style',w:304,b:`<div class="well">${STYLES.map(([k,n,css])=>`<button class="stylerow${S.t.style===k?' sel':''}" ${A('set','t.style|'+k)} aria-pressed="${S.t.style===k}"><span style="${css}">${n}</span>${S.t.style===k?`<span class="ckr">${I('check',12,'',3)}</span>`:''}</button>`).join('')}</div>`});
+CARD['text.list']=()=>({t:'List',w:304,b:tiles(LISTS.map(([k,n,ic])=>tile({a:'list',v:k,sel:S.t.list===k,pic:I(ic,20),label:n})),3)+grp('',tiles([tile({a:'act',v:'Outdented',act:true,pic:I('outdent',18),label:'Outdent',cls:'small'}),tile({a:'act',v:'Indented',act:true,pic:I('indent',18),label:'Indent',cls:'small'})],2),'Tap the list you have on again to turn it off.')});
+CARD['insert']=()=>{const t1=[['Table','table'],['Picture','image'],['Callout','callout'],['Recall card','cards'],['Text box','type'],['Link','link'],['Elements','grid'],['Divider','minus'],['Camera','camera']].map(([n,ic])=>tile({a:'act',v:n+' added',act:true,pic:I(ic,20),label:n,cls:'small'}));
+ let b=grp(isPro()?'Add to the page':'',tiles(t1,3));
+ if(isPro()){b+=grp('Media and handwriting',tiles([['File or PDF','file'],['Audio','music'],['Write pad','penLine'],['Handwriting','scribble'],['Mic','mic']].map(([n,ic])=>tile({a:'act',v:n,act:true,pic:I(ic,20),label:n,cls:'small'})),3));
+  b+=grp('Page',tiles([['Page link','link'],['Database','table'],['Mind map','share'],['Summary','book'],['Insert template','file'],['Save as template','star'],['To Home','home']].map(([n,ic])=>tile({a:'act',v:n,act:true,pic:I(ic,20),label:n,cls:'small'})),3))}
+ return {t:'Insert',w:376,b}};
+CARD['more']=()=>{const p=isPro(),phone=S.dev==='phone';const lt=S.last;
+ let b=tiles([tile({a:'act',v:'Keyboard up',act:true,pic:I('keyboard',22),label:'Keyboard'}),tile({a:'tog',v:'v.reading',sel:S.v.reading,pic:I('book',22),label:'Reading mode'}),tile({a:'act',v:'Search all features: type what you want to do',act:true,pic:I('search',22),label:'Search'}),tile({a:'hide',act:true,pic:I('eyeOff',22),label:'Hide tool bar'})],4);
+ if(phone)b+=grp('On this bar',tiles([tile({a:'tool',v:'shapes',sel:S.tool==='shapes',pic:I('shapes',20),label:'Shapes',cls:'small'}),tile({a:'dd',v:'insert',act:true,pic:I('grid',20),label:'Insert',cls:'small'})].concat(p?[tile({a:'back',act:true,pic:I(TICON[lt],20),label:'Back to '+TOOLN[lt],cls:'small'})]:[]),p?3:2));
+ const ti=(n,ic,msg,extra)=>tile(Object.assign({a:'act',v:msg||n,act:true,pic:I(ic,20),label:n,cls:'small'},extra||{}));
+ b+=fold('m-mark','Mark for review',tiles([ti('Keyword','tag','Marked as Keyword'),ti('Must know','star','Marked as Must know'),ti('Formula','code','Marked as Formula'),ti('Make blank','input','Made a blank to fill in'),ti('Make card','cards','Recall card made')].concat(p?[ti('Summary','book','Added to Summary'),ti('Quiz me','graduation','Quiz starts'),ti('Flashcards','cards','Flashcards open'),ti('Review today','history','Review opens')]:[]),3)+`<p class="note">Key point sits in Text › Format › Marks.</p>`,'bookmark',p?'Marks and study':'Keyword, Must know…');
+ b+=fold('m-copy','Copy and paste',tiles([ti('Copy','copy','Copied'),ti('Cut','scissors','Cut'),ti('Paste','paste','Pasted')],3)+well([rowb('copy','Copy as plain text','','act','Copied as plain text'),rowb('file','Copy as Markdown','','act','Copied as Markdown'),rowb('paste','Paste as plain text','⌘⇧V','act','Pasted as plain text'),rowb('image','Copy page with pictures','','act','Page copied with pictures')]),'copy');
+ b+=fold('m-view','View',well([swRow('v.focus','Focus mode','Dims everything except the box you are in.',I('focus',16))].concat(p?[swRow('v.grid','Grid lines','',I('grid3',16)),swRow('v.dark','Dark mode','',I('moon',16))]:[]))+(p?tiles([ti('Zoom in','zoomIn','Zoomed in'),ti('Zoom out','zoomOut','Zoomed out'),ti('Fit width','fitW','Fitted to width')],3):''),'eye');
+ if(p)b+=fold('m-page','Page',well([rowb('fileOut','Export PDF','','act','PDF exported'),rowb('share','Share','','act','Share sheet opens'),rowb('dup','Duplicate page','','act','Page duplicated'),rowb('notebook','Move page','','act','Move page opens'),rowb('history','Version history','','act','Version history opens')]),'file');
+ b+=fold('m-bar','Tool bar',well([rowb('grid','Toolbar layouts','Switch, rename or reset a layout.','act','Layouts open'),rowb('sliders','Edit toolbar','Choose which tools show, and their order.','act','Edit toolbar opens')].concat(p?[rowb('grid3','All tools','Every tool, by tab.','act','All tools opens')]:[]).concat([rowb('settings','Toolbar settings','Keyboard, Pencil and New line behaviour.','act','Toolbar settings open'),swRow('v.keyHidden','Keyboard stays hidden','The on-screen keyboard will not pop up. Keyboard above brings it.',I('keyboard',16)),rowb('check','Done','Leave writing; the keyboard goes down.','act','Done'),rowb('reset','Reset position','Puts a moved tool bar back on top.','act','Tool bar back in place'),rowb('help','Where things live','A short map of the tool bar.','act','Map opens')])),'settings');
+ return {t:'More',w:376,b}};
+CARD['rowmore']=()=>({t:'More on this row',w:304,b:`<div class="rowfold">${(S.rowFold||[]).map(k=>item(S.tool,k,false)).join('')}</div>`});
+CARD['favs']=()=>{const tool=S.tool;return {t:'Favourites',w:304,b:tiles(S.favs[tool].map(f=>tile({a:'fav',v:'fav-'+f.id,sel:favOn(tool,f),pic:favPic(tool,f),label:esc(f.name)})),2)}};
+
+/* ---------- sheets (choice: ✓ and ✕) ---------- */
+const KEEPS={pen:[['type','Pen type',()=>penName(S.pen.type)],['size','Size',()=>['','Fine','Medium','Bold'][S.pen.size]],['colour','Colour',()=>S.pen.colour[0]==='#'?'Custom':(S.pen.colour==='auto'?'Auto ink':CNAME[S.pen.colour])]],
+ text:[['look','Box look',()=>LOOKS.find(x=>x[0]===S.box.look)[1]],['font','Font',()=>FONTS.find(x=>x[0]===S.t.font)[1]]],
+ shapes:[['shape','Shape',()=>SHAPES.find(x=>x[0]===S.shapes.shape)[1]],['size','Size',()=>['','Fine','Medium','Bold'][S.shapes.size]],['colour','Colour',()=>S.shapes.colour]],
+ eraser:[['mode','Mode',()=>EMODES.find(x=>x[0]===S.er.mode)[1]],['size','Size',()=>ESIZES[S.er.size-1][1]]],
+ lasso:[['shape','Shape',()=>S.la.shape==='free'?'Free-hand':'Rectangle'],['picks','What it picks',()=>['ink','pictures','text'].filter(k=>S.la[k]).join(', ')]]};
+const PRESETS={pen:[{name:'Black fountain',type:'fountain',size:2,colour:'auto'},{name:'Red marker',type:'marker',size:3,colour:'red'},{name:'Sketch pencil',type:'pencil',size:1,colour:'auto'}],text:[{name:'Callout',look:'callout'},{name:'Outline',look:'outline'},{name:'Shadow card',look:'shadow'}],shapes:[{name:'Blue arrow',shape:'arrow',size:2,colour:'blue'},{name:'Red box',shape:'box',size:2,colour:'red'}],eraser:[{name:'Big eraser',mode:'standard',size:3},{name:'Stroke eraser',mode:'stroke',size:2}],lasso:[{name:'Box select',shape:'rect'},{name:'Free select',shape:'free'}]};
+function currentFav(tool){const sh=S.sheet;const src=sh.src==='preset'?PRESETS[tool][sh.preset]:null;const f={};
+ const cur={pen:{type:S.pen.type,size:S.pen.size,colour:S.pen.colour},text:{look:S.box.look,font:S.t.font},shapes:{shape:S.shapes.shape,size:S.shapes.size,colour:S.shapes.colour},eraser:{mode:S.er.mode,size:S.er.size},lasso:{shape:S.la.shape,picks:{ink:S.la.ink,pictures:S.la.pictures,text:S.la.text}}}[tool];
+ KEEPS[tool].forEach(([k])=>{if(sh.keep[k]){const v=src?src[k]:cur[k];if(v!==undefined)f[k]=v}});
+ if(tool==='text'&&f.look===undefined)f.look=S.box.look;if(tool==='eraser'&&f.size===undefined)f.size=S.er.size;if(tool==='eraser'&&f.mode===undefined)f.mode=S.er.mode;if(tool==='lasso'&&f.shape===undefined)f.shape=S.la.shape;
+ if(tool==='pen'){f.type=f.type||S.pen.type;f.colour=f.colour||S.pen.colour}
+ return f}
+function defaultName(tool){const s=S.sheet&&S.sheet.src==='preset'?PRESETS[tool][S.sheet.preset].name:null;if(s)return s;
+ if(tool==='pen'){const c=S.pen.colour;return (c==='auto'?'Ink':c[0]==='#'?'Custom':CNAME[c])+' '+['','fine','medium','bold'][S.pen.size]}
+ if(tool==='text')return LOOKS.find(x=>x[0]===S.box.look)[1];if(tool==='eraser')return ESIZES[S.er.size-1][1]+' eraser';if(tool==='shapes')return SHAPES.find(x=>x[0]===S.shapes.shape)[1];return S.la.shape==='free'?'Free-hand select':'Box select'}
+const SHEET={};
+SHEET.add=(sh)=>{const tool=sh.tool;let b=grp('Start from',seg('sheet.src',[['cur','Current setup'],['preset','A preset']]));
+ if(sh.src==='preset')b+=tiles(PRESETS[tool].map((pr,i)=>tile({a:'preset',v:i,sel:sh.preset===i,pic:favPic(tool,pr),label:pr.name,cls:'small'})),3);
+ b+=grp('It keeps',well(KEEPS[tool].map(([k,n,val])=>`<button class="row rowb" ${A('tog','sheet.keep.'+k)} role="checkbox" aria-checked="${!!sh.keep[k]}"><span class="rt"><span>${n}</span><small>${sh.src==='preset'?'From the preset':esc(val())}</small></span><span style="width:24px;height:24px;border-radius:50%;display:grid;place-items:center;${sh.keep[k]?'background:var(--accent);color:var(--on-accent)':'box-shadow:inset 0 0 0 1.5px var(--muted)'}">${sh.keep[k]?I('check',13,'',3):''}</span></button>`)));
+ const f=currentFav(tool);b+=grp('Preview',`<div class="prevbar">${chipBtn('pv',favPic(tool,f)+`<span class="cl" data-pvname>${esc(sh.name)}</span>`,{g:true,a:'x',cls:'fav on'})}</div>`);
+ b+=grp('Name',`<input class="txt" data-a="name" value="${esc(sh.name)}" aria-label="Name of the favourite" maxlength="24">`);
+ return {t:'Save as favourite',b,anchor:'plus'}};
+function listRows(keys,kind){const sh=S.sheet;return `<div class="well">${keys.map((k,i)=>{let ic,nm,sub,canRm=true;
+  if(kind==='arr'){ic=I(ROWACT[k][1],18);nm=ROWACT[k][0];sub='On the row'}
+  else{const f=favOf(sh.tool,k);if(f){ic=favPic(sh.tool,f);nm=esc(f.name);sub='Favourite'}else{ic=itemIcon(sh.tool,k);nm=itemName(sh.tool,k);sub='Tool';canRm=false}}
+  return `<div class="orow${sh.drag===k?' drag':''}" data-row="${k}"><span class="grip" data-drag="${k}" aria-label="Drag to move">${I('grip',18)}</span><span class="oic">${ic}</span><span class="ot"><b>${nm}</b><small>${sub}</small></span><button class="ib" ${A('mv',k+':up')} ${i===0?'disabled':''} aria-label="Move ${nm} up">${I('chevU',16)}</button><button class="ib" ${A('mv',k+':down')} ${i===keys.length-1?'disabled':''} aria-label="Move ${nm} down">${I('chevD',16)}</button><button class="ib" ${A('rowmenu',k)} aria-label="More for ${nm}">${I('dots',16,'',2.4)}</button>${sh.menu===k?`<div class="omenu"><button ${A('mv',k+':start')}>${I('toStart',16)}Move to start</button><button ${A('mv',k+':end')}>${I('toEnd',16)}Move to end</button>${canRm?`<button class="dn" ${A('rm',k)}>${I('trash',16)}${kind==='arr'?'Take off the row':'Remove'}</button>`:`<button class="off" disabled>${I('trash',16)}Tools stay on the row</button>`}</div>`:''}</div>`}).join('')}</div>`}
+function itemName(tool,k){return {type:'Pen type',size:'Size',colour:'Colour',feel:'Feel',shape:'Shape',emode:'Mode',esize:'Size',erases:'Erases',hlonly:'Highlights only',eback:'Back after one erase',lshape:'Shape',lpicks:'Picks',lopts:'Options',lact:'Actions',box:'Box',format:'Format',style:'Style',bold:'Bold',italic:'Italic',list:'List'}[k]||k}
+function itemIcon(tool,k){const m={type:penPic(S.pen.type,S.pen.colour),size:dotEl(2,'auto'),colour:cdot(tool==='pen'?S.pen.colour:S.shapes.colour),feel:I('sliders',18),shape:I('shapes',18),emode:I('eraser',18),esize:dotEl(2,'auto'),erases:I('hl',18),hlonly:I('hl',18),eback:I('history',18),lshape:I('lasso',18),lpicks:I('penLine',18),lopts:I('sliders',18),lact:I('scissors',18),box:I('square',18),format:I('palette',18),style:I('type',18),bold:I('bold',18),italic:I('italic',18),list:I('list',18)};return m[k]||I('dots',18)}
+SHEET.org=(sh)=>{const keys=orderOf(sh.tool);let b=`<p class="note" style="margin-top:-6px">Drag, or use the arrows, to change the order.</p>`+grp('Preview',`<div class="prevbar">${keys.map(k=>item(sh.tool,k,true)).join('')}</div>`)+listRows(keys,'org');
+ if(sh.confirm)b+=`<div class="itoast">Put this row back to the default set?<span class="acts"><button class="lbtn" ${A('orgResetNo')}>Cancel</button><button class="lbtn" style="color:var(--danger)" ${A('orgResetYes')}>Reset</button></span></div>`;
+ else if(sh.toast)b+=`<div class="itoast">${esc(sh.toast)}<button class="lbtn" style="color:var(--accent)" ${A('sheetUndo')}>Undo</button></div>`;
+ return {t:'Organise this row',b,anchor:'menu',foot:`<button class="lbtn" ${A('orgReset')}>Reset</button><span class="fl"></span><button class="pbtn" ${A('add')}>${I('plus',16)}Add favourite</button>`}};
+SHEET.arr=(sh)=>{const off=ROWALL.filter(k=>!S.la.row.includes(k));let b=`<p class="note" style="margin-top:-6px">The first five show by the selection; the rest sit under More.</p>`+listRows(S.la.row,'arr');
+ if(off.length)b+=grp('Not on the row',well(off.map(k=>`<div class="row"><span class="rpic">${I(ROWACT[k][1],16)}</span><span class="rt">${ROWACT[k][0]}</span><button class="ib" ${A('rowact',k)} aria-label="Add ${ROWACT[k][0]} to the row">${I('plus',16)}</button></div>`)));
+ if(sh.toast)b+=`<div class="itoast">${esc(sh.toast)}<button class="lbtn" style="color:var(--accent)" ${A('sheetUndo')}>Undo</button></div>`;
+ return {t:'Arrange the menu',b,anchor:'lopts'}};
+
+/* ---------- frames ---------- */
+function cardHTML(id,o){o=o||{};const c=CARD[id](o);const cls=c.w===376?'panel':'pick';return `<div class="card ${cls}${o.g?' static':''}${!o.g&&S.animCard?' anim':''}${!o.g&&S.dev==='phone'&&c.w===376?' bot':''}" ${o.g?'':`data-anchor="${esc(S.cardK||'')}"`} role="dialog" aria-label="${esc(c.t)}"><div class="chd"><h3>${c.t}</h3><button class="x" ${A('close')} aria-label="Close"><span>${I('x',15,'',2)}</span></button></div><div class="cbody">${c.b}</div></div>`}
+function sheetHTML(sh,o){o=o||{};const c=SHEET[sh.k](sh);return `<div class="card panel sheet${o.g?' static':''}${!o.g&&S.animSheet?' anim':''}${!o.g&&S.dev==='phone'?' bot':''}" data-anchor="${c.anchor}" data-align="right" role="dialog" aria-label="${esc(c.t)}"><div class="chd sh"><button class="x" ${A('sheetX')} aria-label="Cancel" title="Cancel"><span>${I('x',15,'',2)}</span></button><h3>${c.t}</h3><button class="ok" ${A('sheetOK')} aria-label="Done" title="Done"><span>${I('check',16,'',2.4)}</span></button></div><div class="cbody">${c.b}</div>${c.foot?`<div class="cfoot">${c.foot}</div>`:''}</div>`}
+
+/* ---------- page ---------- */
+function pageHTML(){const t=S.t,bx=S.box;const s=STYLES.find(x=>x[0]===t.style);const ff=FONTS.find(x=>x[0]===t.font)[2];
+ const lookCss={plain:'',outline:'box-shadow:inset 0 0 0 1.5px var(--muted)',soft:'background:var(--well)',sticky:'background:var(--f-yellow)',callout:'background:var(--accent-soft);border-left:3px solid var(--accent)',shadow:'background:var(--card-solid);box-shadow:0 6px 18px rgba(0,0,0,.18),0 0 0 .5px var(--well-line)'}[bx.look];
+ const fill=bx.fill!=='none'?`background:var(--f-${bx.fill});`:'';
+ const sz=(isPro()?+t.size:{body:100,heading:125,small:88}[t.bsize])/100;
+ const span=`font-weight:${t.b?700:'inherit'};font-style:${t.i?'italic':'normal'};text-decoration:${[t.u?'underline':'',t.s?'line-through':''].join(' ')||'none'};color:${t.color==='default'?'inherit':col(t.color)};background:${t.hl==='none'?'transparent':`var(--hl-${t.hl})`};${t.icode?'font-family:ui-monospace,Menlo,monospace;font-size:.9em;padding:1px 4px;border-radius:4px;background:var(--well);':''}`;
+ const li=t.list?{bullet:'• ',number:'1. ',check:'☐ ',star:'★ ',toggle:'▸ '}[t.list]:'';
+ const lsel=S.tool==='lasso'&&S.lsel&&!S.hidden;const phone=S.dev==='phone';
+ const ink=`<svg class="ink" style="left:${phone?20:470}px;top:${phone?320:232}px" width="260" height="130" viewBox="0 0 260 130"><path d="M20 40 C 60 10, 120 12, 150 40 S 200 90, 236 60" fill="none" stroke="var(--c-auto)" stroke-width="3" stroke-linecap="round"/><path d="M226 50 l12 10 -14 6" fill="none" stroke="var(--c-auto)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 92 C 70 84, 120 98, 170 88" fill="none" stroke="var(--c-blue)" stroke-width="2.4" stroke-linecap="round"/><path d="M40 112 L 200 110" stroke="var(--c-amber)" stroke-width="12" stroke-linecap="round" opacity=".38"/><text x="44" y="118" font-size="13" fill="var(--c-auto)" font-family="Segoe Print,Bradley Hand,cursive">active recall!</text></svg>`;
+ let sel='';if(lsel){const L=phone?{x:12,y:308,w:276,h:150}:{x:458,y:220,w:286,h:152};
+  sel=`<div class="lasso" style="left:${L.x}px;top:${L.y}px;width:${L.w}px;height:${L.h}px;${S.la.shape==='free'?'border-radius:46% 54% 50% 50%/55% 45% 55% 45%':''}">${[[-5,-5],[L.w-5,-5],[-5,L.h-5],[L.w-5,L.h-5]].map(([x,y])=>`<span class="hd" style="left:${x}px;top:${y}px"></span>`).join('')}</div>`;
+  const mx=phone?8:L.x-20,my=L.y-62;
+  sel+=`<div class="selmenu" style="left:${mx}px;top:${my}px" role="menu" aria-label="Selected drawing">${S.la.row.slice(0,phone?4:5).map(k=>`<button ${A('act',ROWACT[k][0]+' done')} role="menuitem">${I(ROWACT[k][1],18)}<span>${ROWACT[k][0].replace(' to text','').replace('Add to ','').replace('Name this drawing','Name')}</span></button>`).join('')}<button ${A('lmore')} role="menuitem" aria-expanded="${S.lmore}">${I('dots',18,'',2.4)}<span>More</span></button></div>`;
+  if(S.lmore){const rest=ROWALL.filter(k=>!S.la.row.slice(0,phone?4:5).includes(k));sel+=`<div class="selmore" style="left:${Math.min(mx+200,phone?140:mx+260)}px;top:${my+54}px">${rest.map(k=>`<button ${A('act',ROWACT[k][0]+' done')} class="${k==='delete'?'dn':''}">${I(ROWACT[k][1],17)}${ROWACT[k][0]}</button>`).join('')}<button ${A('act','Pasted')}>${I('paste',17)}Paste</button><button ${A('act','Resize: drag a dot')}>${I('scale',17)}Resize</button><button ${A('act','Screenshot saved')}>${I('camera',17)}Screenshot</button><button ${A('act','Picture copied')}>${I('image',17)}Copy as picture</button><button ${A('act','Picture saved')}>${I('fileOut',17)}Save as picture</button><button ${A('act','Marked as Key point')}>${I('hl',17)}Key point</button><button ${A('act','Saved to notes')}>${I('book',17)}Save to notes</button><button ${A('act','Turn: drag the turn dot')}>${I('reset',17)}Turn</button><button ${A('lsel')}>${I('x',17)}Deselect</button></div>`}}
+ return `<div class="page ${S.pen.paper}" ${A('pageTap')}><div class="pin"><h1>How to read books</h1><div class="tbx${S.tool==='text'?' sel':''}" style="${lookCss};${fill}"><p style="${s[2].replace(/font-size:[^;]+;?/,'')};font-size:${16.5*sz*({title:1.45,h1:1.3,h2:1.15,h3:1.02,body:1,quote:1,code:.9}[t.style])}px;font-family:${t.style==='code'?'ui-monospace,Menlo,monospace':ff};text-align:${t.align};line-height:${{default:1.6,tight:1.35,loose:1.9}[t.lh]};letter-spacing:${{tight:'-.02em',normal:'0',wide:'.04em'}[t.ls]}">${li}Audio book = zero retention. Try #1: <span class="selt${S.tool==='text'?' on':''}${t.key?' kp':''}" style="${span}">first notes in GoodNotes</span>, keyword notes in Notion.</p></div></div>${ink}${sel}${S.tool==='lasso'&&!S.lsel?`<button class="pagebtn" ${A('lsel')}>Show a selection</button>`:''}</div>`}
+
+/* ---------- render ---------- */
+let lastCard=null,lastSheet=null;
+function render(){const st=$('#stage');const keep={};const cb=$('#main .card:not(.sheet) .cbody');if(cb)keep.c=cb.scrollTop;const sb=$('#main .sheet .cbody');if(sb)keep.s=sb.scrollTop;
+ S.animCard=S.card!==lastCard;S.animSheet=(S.sheet&&S.sheet.k)!==lastSheet;
+ const dev=S.dev;const phone=dev==='phone';
+ const rail=railHTML();
+ const hdr=topHTML({phone});
+ let over='';if(S.card&&!S.hidden)over+=(phone&&CARD[S.card]({}).w===376?`<div class="scrim" ${A('close')}></div>`:'')+cardHTML(S.card);
+ if(S.sheet)over+=`<div class="scrim" ${A('sheetX')}></div>`+sheetHTML(S.sheet);
+ const tb=S.hidden?`<button class="showpill" ${A('show')}>${I('penTool',17)}Show tool bar</button>`:bar(S.tool,dev,false);
+ st.innerHTML=`<div class="dev ${dev}"><div class="app">${rail}<div class="main" id="main">${hdr}${tb}${pageHTML()}${over}<div class="toast${S.toast?' show':''}" role="status" aria-live="polite">${S.toast?esc(S.toast.msg)+(S.toast.undo?`<button ${A('undo')}>Undo</button>`:''):''}</div></div></div></div>`;
+ lastCard=S.card;lastSheet=S.sheet&&S.sheet.k;
+ // fold the row if it does not fit: names first, then favourites
+ if(!S.hidden){const it=$('#tb .items');const r1=$('#tb .r1');if(r1&&r1.scrollWidth>r1.clientWidth+1&&!S.r1c){S.r1c=true;return render()}if(it&&it.scrollWidth>it.clientWidth+1&&S.compact<10){S.compact++;return render()}}
+ place();const cb2=$('#main .card:not(.sheet) .cbody');if(cb2&&keep.c)cb2.scrollTop=keep.c;const sb2=$('#main .sheet .cbody');if(sb2&&keep.s)sb2.scrollTop=keep.s;
+ if(S.glow){const g=S.glow;setTimeout(()=>{if(S.glow===g)S.glow=null},750)}S.pop=null;
+ renderCtrls()}
+function place(){const main=$('#main');if(!main)return;const sc=S.scale||1;const mr=main.getBoundingClientRect();const tb=$('#tb');
+ const hb=main.querySelector('.hdr');const hTop=hb?(hb.getBoundingClientRect().bottom-mr.top)/sc+4:52;const scr=main.querySelector(':scope>.scrim');if(scr&&S.sheet)scr.style.top=hTop+'px';
+ main.querySelectorAll(':scope>.card').forEach(c=>{if(c.classList.contains('sheet')&&!c.classList.contains('bot')){c.style.left=(main.clientWidth-c.offsetWidth)+'px';c.style.top=hTop+'px';c.style.height=c.style.maxHeight=(main.clientHeight-hTop)+'px';return}if(c.classList.contains('bot')){c.style.maxHeight='';return}
+  const a=tb&&tb.querySelector(`[data-k="${c.dataset.anchor}"]`);const W=main.clientWidth,cw=c.offsetWidth;const top=tb?(tb.getBoundingClientRect().bottom-mr.top)/sc+8:60;
+  let left=12,ax=40;if(a){const r=a.getBoundingClientRect();const ax0=(r.left+r.width/2-mr.left)/sc;left=c.dataset.align==='right'?(r.right-mr.left)/sc-cw:(r.left-mr.left)/sc;left=Math.max(8,Math.min(left,W-cw-8));ax=ax0-left}
+  c.style.left=left+'px';c.style.top=top+'px';c.style.maxHeight=(main.clientHeight-top-10)+'px';c.style.setProperty('--ax',Math.max(20,Math.min(cw-20,ax))+'px')})}
+function fit(){const w=$('#stageWrap').clientWidth;const W={land:1200,port:840,phone:410}[S.dev],H={land:840,port:1100,phone:820}[S.dev];S.scale=Math.min(1,w/W);const st=$('#stage');st.style.transform=`scale(${S.scale})`;st.style.left=Math.max(0,(w-W*S.scale)/2)+'px';$('#stageWrap').style.height=H*S.scale+'px'}
+function renderCtrls(){const th=S.theme||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+ const sg=(a,cur,items,lab)=>`<div class="ctl"><span>${lab}</span><div class="seg" role="radiogroup" aria-label="${lab}">${items.map(([v,l])=>`<button role="radio" aria-checked="${cur===v}" class="${cur===v?'sel':''}" data-c="${a}" data-v="${v}">${l}</button>`).join('')}</div></div>`;
+ $('#ctrls').innerHTML=sg('theme',th,[['light','Light'],['dark','Dark'],['sepia','Sepia']],'Theme')+sg('lvl',S.lvl,[['beg','Beginner'],['pro','Professional']],'Level')+sg('dev',S.dev,[['land','iPad sideways'],['port','iPad upright'],['phone','Phone']],'Size')}
+
+/* ---------- toast ---------- */
+let tt;function toast(msg,undo){S.toast={msg,undo};clearTimeout(tt);tt=setTimeout(()=>{S.toast=null;const t=$('.toast');if(t)t.classList.remove('show')},4200)}
+
+/* ---------- actions ---------- */
+const AUTOCLOSE=['pen.type','eraser.size','shapes.shape','lasso.shape','text.style'];
+const GLOWMAP={'pen.type':'type','pen.size':'size','pen.colour':'colour','shapes.shape':'shape','shapes.size':'size','shapes.colour':'colour','er.mode':'emode','er.size':'esize','t.style':'style','la.shape':'lshape','box.look':'box'};
+function parse(v){return v==='true'?true:v==='false'?false:/^-?\d+(\.\d+)?$/.test(v)?Number(v):v}
+function moveIn(arr,k,dir){const i=arr.indexOf(k);if(i<0)return;arr.splice(i,1);const j=dir==='up'?Math.max(0,i-1):dir==='down'?Math.min(arr.length,i+1):dir==='start'?0:arr.length;arr.splice(j,0,k)}
+function act(a,v,el){const sh=S.sheet;
+ switch(a){
+ case 'tool':if(S.tool!==v){S.last=S.tool;S.tool=v;S.compact=0;S.r1c=false;S.lsel=v==='lasso';S.lmore=false}S.card=null;S.sheet=null;break;
+ case 'dd':{const inCard=el&&el.closest('.card');const from=S.card;if(S.card===v){S.card=null}else{S.card=v;S.cardK=inCard?(from==='rowmore'?'rowmore':'more'):(el.dataset.k||v)}S.sheet=null;S.lmore=false;break}
+ case 'close':S.card=null;break;
+ case 'fold':S.folds[v]=!S.folds[v];break;
+ case 'set':{const [p,val]=v.split('|');const pv=parse(val);setp(p,pv);if(p==='sheet.src'&&pv==='preset'&&S.sheet.preset==null)S.sheet.preset=0;if(p.startsWith('sheet.'))S.sheet.name=defaultName(S.sheet.tool);
+  S.pop=v;if(GLOWMAP[p])S.glow=GLOWMAP[p];if(p==='la.shape')S.glow='ls-'+pv;
+  if((AUTOCLOSE.includes(S.card)||(S.card==='eraser.mode'&&isPro()))||(!isPro()&&['pen.size','pen.colour','shapes.size','shapes.colour','text.box'].includes(S.card))){if(!p.endsWith('.tab')){const c=S.card;render();setTimeout(()=>{if(S.card===c){S.card=null;render()}},190);return}}
+  break}
+ case 'tog':{const cur=!!get(v);if(['er.hl','er.text','er.pen'].includes(v)&&cur&&['hl','text','pen'].filter(k=>S.er[k]).length===1){toast('The eraser needs at least one thing to erase');return render()}setp(v,!cur);
+  if(v.startsWith('sheet.')){S.sheet.name=defaultName(S.sheet.tool);break}
+  const sw=el&&el.classList.contains('sw');if(sw&&!v.startsWith('sheet')){const lab=el.getAttribute('aria-label');toast(`${lab} ${!cur?'on':'off'}`,()=>{setp(v,cur);render()})}
+  if(v.startsWith('t.')||v.startsWith('er.')||v.startsWith('la.'))S.pop=v;break}
+ case 'list':S.t.list=S.t.list===v?null:v;S.glow='list';break;
+ case 'fav':{const tool=S.tool;const f=favOf(tool,v);if(!f)break;if(tool==='pen')['type','size','colour'].forEach(k=>{if(f[k]!==undefined)S.pen[k]=f[k]});if(tool==='text'){S.box.look=f.look;if(f.font)S.t.font=f.font}if(tool==='shapes')['shape','size','colour'].forEach(k=>{if(f[k]!==undefined)S.shapes[k]=f[k]});if(tool==='eraser'){S.er.mode=f.mode;S.er.size=f.size}if(tool==='lasso'){S.la.shape=f.shape;if(f.picks)Object.assign(S.la,f.picks)}S.glow=v;if(S.card==='favs')S.card=null;break}
+ case 'add':S.card=null;S.sheet={k:'add',tool:S.tool,src:'cur',preset:0,keep:Object.fromEntries(KEEPS[S.tool].map(([k])=>[k,true]))};S.sheet.name=defaultName(S.tool);break;
+ case 'org':S.card=null;S.sheet={k:'org',tool:S.tool,snap:{order:clone(orderOf(S.tool)),favs:clone(S.favs[S.tool])}};S.order[S.tool]=orderOf(S.tool);break;
+ case 'arr':S.card=null;S.sheet={k:'arr',snap:clone(S.la.row)};break;
+ case 'preset':S.sheet.preset=+v;S.sheet.name=defaultName(S.sheet.tool);break;
+ case 'sheetX':if(!sh)break;if(sh.k==='org'){S.order[sh.tool]=sh.snap.order;S.favs[sh.tool]=sh.snap.favs}if(sh.k==='arr')S.la.row=sh.snap;S.sheet=null;break;
+ case 'sheetOK':if(!sh)break;if(sh.k==='add'){const f=Object.assign({id:'n'+(fid++),name:(sh.name||defaultName(sh.tool)).trim()||'Favourite'},currentFav(sh.tool));const tool=sh.tool;S.favs[tool].push(f);S.order[tool]=orderOf(tool);S.glow='fav-'+f.id;S.compact=0;
+   toast(`Saved “${f.name}” to the row`,()=>{S.favs[tool]=S.favs[tool].filter(x=>x.id!==f.id);S.compact=0;render()})}
+  if(sh.k==='org')toast('Row saved',()=>{S.order[sh.tool]=sh.snap.order;S.favs[sh.tool]=sh.snap.favs;S.compact=0;render()});
+  if(sh.k==='arr')toast('Menu row saved',()=>{S.la.row=sh.snap;render()});S.sheet=null;S.compact=0;break;
+ case 'mv':{const [k,dir]=v.split(':');const before={order:clone(orderOf(sh.tool)),favs:clone(S.favs[sh.tool])};const arr=(S.order[sh.tool]=orderOf(sh.tool));moveIn(arr,k,dir);sh.menu=null;const f=favOf(sh.tool,k);sh.toast='Moved '+(f?f.name:itemName(sh.tool,k));sh.undo=before;sh.confirm=false;S.compact=0;break}
+ case 'rowmenu':sh.menu=sh.menu===v?null:v;break;
+ case 'rm':{sh.menu=null;if(sh.k==='arr'){const before=clone(S.la.row);S.la.row=S.la.row.filter(x=>x!==v);sh.toast=`${ROWACT[v][0]} is now under More`;sh.undo={row:before}}else{const tool=sh.tool;const f=favOf(tool,v);const before={order:clone(orderOf(tool)),favs:clone(S.favs[tool])};S.favs[tool]=S.favs[tool].filter(x=>'fav-'+x.id!==v);S.order[tool]=orderOf(tool);sh.toast=`Removed “${f.name}”`;sh.undo=before}S.compact=0;break}
+ case 'sheetUndo':if(sh&&sh.undo){if(sh.k==='arr')S.la.row=sh.undo.row;else{S.order[sh.tool]=sh.undo.order;S.favs[sh.tool]=sh.undo.favs}sh.toast=null;sh.undo=null}break;
+ case 'orgReset':sh.confirm=true;sh.toast=null;break;
+ case 'orgResetNo':sh.confirm=false;break;
+ case 'orgResetYes':sh.confirm=false;S.order[sh.tool]=baseItems(sh.tool).concat(S.favs[sh.tool].map(f=>'fav-'+f.id));sh.toast='Order reset';sh.undo={order:sh.snap.order,favs:clone(S.favs[sh.tool])};break;
+ case 'rmv':{const [k,dir]=v.split(':');moveIn(S.la.row,k,dir);break}
+ case 'rowact':{const on=S.la.row.includes(v);S.la.row=on?S.la.row.filter(x=>x!==v):S.la.row.concat([v]);break}
+ case 'layer':{if(v==='add'){const n=S.la.layers.length+1;S.la.layers.push({id:Date.now(),name:'Layer '+n,n:0,vis:true,lock:false});toast('Layer added')}else{const [k,id]=v.split(':');const y=S.la.layers.find(x=>String(x.id)===id);if(y)y[k]=!y[k]}break}
+ case 'undo':if(S.toast&&S.toast.undo){const u=S.toast.undo;S.toast=null;u();return}break;
+ case 'lsel':S.lsel=!S.lsel;S.lmore=false;break;
+ case 'lmore':S.lmore=!S.lmore;break;
+ case 'pageTap':if(S.card||S.sheet){S.card=null;if(S.sheet)return act('sheetX');break}if(S.tool==='lasso'){S.lsel=!S.lsel;S.lmore=false;break}return;
+ case 'hide':S.hidden=true;S.card=null;S.sheet=null;break;
+ case 'show':S.hidden=false;break;
+ case 'back':{const t=S.last;S.last=S.tool;S.tool=t;S.card=null;S.compact=0;S.r1c=false;S.lsel=t==='lasso';break}
+ case 'key':toast(v);return render();
+ case 'addColour':S.pen.custom.unshift(['#e0559a','#18a999','#8c6dff','#f08a24','#5a6b7d'][S.pen.custom.length%5]);S.pen.custom=S.pen.custom.slice(0,6);break;
+ case 'act':if(v)toast(v);if(S.card==='more'||S.card==='insert')S.card=null;S.lmore=false;break;
+ default:return}
+ render()}
+document.addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(c){const v=c.dataset.v;if(c.dataset.c==='theme'){S.theme=v;document.documentElement.setAttribute('data-theme',v)}if(c.dataset.c==='lvl'){S.lvl=v;S.card=null;S.sheet=null;S.compact=0;S.r1c=false;renderGal()}if(c.dataset.c==='dev'){S.dev=v;S.card=null;S.sheet=null;S.compact=0;S.r1c=false;fit()}render();return}
+ const el=e.target.closest('[data-a]');if(!el){if(S.card&&e.target.closest('#main')&&!e.target.closest('.card')){S.card=null;render()}return}if(el.closest('.gal'))return;const a=el.dataset.a;if(a==='name'||a==='rng')return;
+ if(a==='pageTap'&&e.target.closest('button,.selmenu,.selmore'))return;e.stopPropagation();act(a,el.dataset.v,el)});
+document.addEventListener('input',e=>{const el=e.target;if(el.dataset.a==='rng'){const p=el.dataset.v,v=+el.value;setp(p,v);const mn=+el.dataset.min,mx=+el.dataset.max;el.style.setProperty('--p',(v-mn)/(mx-mn)*100+'%');document.querySelectorAll(`[data-out="${p}"]`).forEach(o=>o.textContent=v+el.dataset.unit);if(p==='pen.px')document.querySelectorAll('#main [data-prev]').forEach(x=>x.setAttribute('stroke-width',v))}
+ if(el.dataset.a==='name'&&S.sheet){S.sheet.name=el.value;document.querySelectorAll('[data-pvname]').forEach(x=>x.textContent=el.value)}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(S.sheet)act('sheetX');else if(S.card){S.card=null;render()}}});
+/* drag to reorder in sheets */
+let drag=null;
+document.addEventListener('pointerdown',e=>{const g=e.target.closest('[data-drag]');if(!g||!S.sheet||g.closest('.gal'))return;e.preventDefault();const row=g.closest('.orow');drag={k:g.dataset.drag,y:e.clientY,h:row.getBoundingClientRect().height};S.sheet.drag=drag.k;render()});
+document.addEventListener('pointermove',e=>{if(!drag)return;const dy=e.clientY-drag.y;if(Math.abs(dy)>drag.h*.6){const sh=S.sheet;const arr=sh.k==='arr'?S.la.row:(S.order[sh.tool]=orderOf(sh.tool));moveIn(arr,drag.k,dy>0?'down':'up');drag.y+=dy>0?drag.h:-drag.h;S.compact=0;render()}});
+document.addEventListener('pointerup',()=>{if(!drag)return;drag=null;if(S.sheet){S.sheet.drag=null;render()}});
+window.addEventListener('resize',()=>{fit();place();fitGal()});
+
+/* ---------- gallery ---------- */
+function galSet(){const p=isPro();return [
+ ['Pen',  'pen',   [['pen.type'],['pen.size'],['pen.colour'],['pen.feel',{tab:'feel'}],['pen.feel',{tab:'page'}]]],
+ ['Eraser','eraser',[['eraser.mode'],['eraser.size']]],
+ ['Shapes','shapes',[['shapes.shape'],['shapes.size'],['shapes.colour']]],
+ ['Lasso','lasso', p?[['lasso.opts']]:[['lasso.shape'],['lasso.actions']]],
+ ['Text','text',  (p?[['text.box'],['text.format',{tab:'text'}],['text.format',{tab:'style'}],['text.style'],['text.list']]:[['text.box'],['text.format',{tab:'text'}],['text.format',{tab:'style'}]])],
+ ['Top row: Insert and ⋯ More','pen',[['insert'],['more']]],
+ ['Favourites: + and ☰','pen',[['sheet:add'],['sheet:org']]]]}
+function renderGal(){const save={card:S.card,sheet:S.sheet,tool:S.tool,folds:S.folds,t:S.t.tab,pt:S.pen.tab,lsel:S.lsel};S.card=null;S.folds={};
+ let h='';galSet().forEach(([title,tool,cards])=>{S.tool=tool;
+  const col=th=>`<div class="galcol" data-theme="${th}"><span class="lab">${th==='light'?'Light':'Dark'}</span>${title.startsWith('Top')||title.startsWith('Fav')&&false?'':`<div class="gbar">${bar(tool,'land',true)}</div>`}<div class="gcards">${cards.map(([id,o])=>{if(id.startsWith('sheet:')){const k=id.slice(6);const sh=k==='add'?{k:'add',tool:'pen',src:'cur',preset:0,keep:{type:true,size:true,colour:true},name:defaultName('pen')}:{k:'org',tool:'pen',snap:{}};const prev=S.sheet;S.sheet=sh;const out=sheetHTML(sh,{g:true});S.sheet=prev;return out}
+    if(o&&o.tab){if(id==='pen.feel')S.pen.tab=o.tab;else S.t.tab=o.tab}const out=cardHTML(id,{g:true});return out}).join('')}</div></div>`;
+  h+=`<div class="galtool"><h3>${title}</h3><div class="galcols">${col('light')}${col('dark')}</div></div>`});
+ Object.assign(S,{card:save.card,sheet:save.sheet,tool:save.tool,folds:save.folds,lsel:save.lsel});S.t.tab=save.t;S.pen.tab=save.pt;
+ $('#gal').innerHTML=h;fitGal()}
+function fitGal(){document.querySelectorAll('.gbar').forEach(g=>{const tb=g.firstElementChild;const s=Math.min(1,g.clientWidth/1060);tb.style.transform=`scale(${s})`;g.style.height=tb.offsetHeight*s+'px'})}
+
+/* ---------- docs ---------- */
+const CHANGES=[
+['Pen bar: pick by sight','Colour is only its dot. Size is a dot drawn at that size. No names on either (screen readers still hear "Size" and "Colour"). Shapes uses the same two controls.'],
+['Top row: New line and Backspace always show','Both sit on the top row on every size, phone included. They left ⋯ More.'],
+['Undo and Redo move to the page\'s top bar','They sit at the top left, before the page path, where the back < and forward > arrows were. They left the tool bar (and Redo no longer folds into ⋯ on the phone). Going back still works: tap any part of the page path, or swipe back on the iPad.'],
+['Tool row 64 px tall; names by level','The top row is 64 px tall whether you use the Pencil or a finger, so nothing jumps. Beginner sees icons only; Professional sees icon and name. On a narrow screen names go first.'],
+['Eraser bar: everything on the bar','Professional: Mode ▾, Size ▾, "Erases: Highlighter · Text · Pen" (like the Lasso\'s Picks) and "Back after one". Highlighter alone is the old "Erase highlights only": this one choice replaces the old Mode tile and Options switch. Typed text can be erased. Beginner stays simple: one Eraser ▾ with two modes and three sizes.'],
+['Lasso: rebuilt from today\'s live Lasso','Professional: Free-hand / Rectangle and "Picks: Ink · Pictures · Text" right on the bar, as in the live app. One Options ▾ card: a picture of the selection menu, then Menu row ▾ and Layers ▾ folded. The order of the menu row is set inside the card (▲▼), not in a sheet on top. The v8 Select / Menu / Layers cards are gone. The on-page selection menu is the live one.'],
+['⋯ More: the approved 2A.2 pattern','Four tiles (Keyboard, Reading mode, Search, Hide tool bar), then folded ▾ groups: Mark for review (Keyword is here), Copy and paste, View, Page, Tool bar. Nothing already on the bar is repeated. "Back to <tool>" stays on the bar for Professional, as approved.'],
+['Dark mode looks premium','Auto ink: the default ink is light on a dark page and dark on a light page. Every control sits in a tonal well with a raised thumb. Switch knobs are always white.'],
+['Every state shows that it is on','Headings, style, list type, alignment, Key point, Callout, font, size, colour and highlight get a tint, a ring and a tick. One-off actions (Indent, Outdent, Divider, Link, Clear) never look "on". The bar shows them too: B and I light up, Style says which style, List shows its type.'],
+['Text › Format: one card, four tabs','Text · Style · Paragraph · Advanced. Colours, fonts and sizes are inside the card. No card ever opens on top of another card.'],
+['Box ▾ hangs under its button','It opens with its arrow under Box, like every other ▾.'],
+['+ and ☰ work','+ saves what you have now (or a preset) as a favourite on this row. ☰ sorts the row: drag, ▲▼, Move to start / end, Remove, with Undo.'],
+['Right sheets: one size, below the top bar','Save as favourite and Organise this row dock on the right, 440 px wide, from just below the top bar to the bottom (full height on the phone). Only the area below the top bar dims.'],
+['Choice sheets get ✕ and ✓ at the top','Save as favourite and Organise this row have ✕ (cancel) on the left and ✓ (done) on the right, like Pin an action. Quick pickers (pen type, eraser mode, shape…) still close by themselves after a pick. Tap outside or Escape always closes a sheet.'],
+['No card on a card','Everything opens inside its own card: Box › Exact values and Width and position fold open in place. A row that does not fit loses its names, then folds favourites into ★ n, then options into ⋯ n; it never scrolls sideways.']];
+const ND=[
+['Top row'],
+['Text, Pen, Eraser, Shapes, Lasso, Insert ▾','v8 top row; live','Top row (phone: Shapes and Insert move into ⋯ › On this bar)'],
+['Undo, Redo','v8 tool bar top row; live','Page top bar, top left before the page path (all sizes)'],
+['Back < and Forward > arrows','v8 and live page top bar','Removed: the page path (tap any part) and the iPad swipe back do the same'],
+['⋯, Minimise','v8 top row; live','Top row (no Minimise on the phone)'],
+['New line (hold or double-tap for Heading, Checklist, Divider)','v8 ⋯ Tools; live top row','Top row, always'],
+['Backspace','v8 ⋯ Tools; live top row','Top row, always'],
+['Back to <tool> (previous tool, its icon)','v8 spec TB-14 (Professional); v8 mock ⋯','Top row, Professional (phone: ⋯ › On this bar)'],
+['Keyboard, Mic, Reader, Table, Highlighter buttons','live classic bar','Keyboard: ⋯ tile · Mic: Insert ▾ · Reader: ⋯ › Reading mode · Table: Insert ▾ · Highlighter: Pen type'],
+['Pen'],
+['Pen type: Fountain pen, Ballpoint, Brush, Pencil, Marker, Highlighter','v8 Pen type ▾; live','Pen bar › pen type ▾ (picture + sample stroke)'],
+['Size: Fine, Medium, Bold','v8 Size ▾ ("Medium")','Pen bar › size dot ▾ (three dots)'],
+['Exact thickness, live preview (Pro)','v8 Size ▾','Same card'],
+['Colours','v8 Colour ▾','Pen bar › colour dot ▾ (first dot = Auto ink)'],
+['Colour picker, Custom colours, Add colour (Pro)','v8 Colour ▾','Same card'],
+['Tip sharpness, Flatness, Stabilisation, Pressure, Pressure strength, Tilt, Thickness by speed, Reduce latency, Line style','v8 Feel › Feel; live Pen settings','Feel ▾ › Feel'],
+['Beginner: Pressure, Stabilisation, Fine-tune','v8 Feel › Feel','Feel ▾ › Feel (Fine-tune folded ▾)'],
+['Finger can draw, Scribble to erase, Circle to lasso','v8 Feel › Aids; live Pen gestures','Feel ▾ › Aids'],
+['Shape help, Snap shapes, Fill closed shapes, Ruler, Magnifier','v8 Feel › Math','Feel ▾ › Math'],
+['Page style: Blank, Lined, Grid, Dots (with pictures)','v8 Feel › Page','Feel ▾ › Page'],
+['Layers, Paper size, View zoom, View as drawn, Replay (Pro)','v8 Feel › Page','Feel ▾ › Page'],
+['Highlighter: opacity, snap to lines, behind ink, save to notes (Pro)','v8 spec TB-26','Feel ▾ › Feel while Highlighter is the pen type'],
+['Favourites (saved pens)','v8 Favourites ▾; approved Favourites row','Chips on the row, + to save, ☰ to sort'],
+['Eraser'],
+['Mode: Standard, Whole stroke, Precise (Pro), with hints','v8 Mode ▾; live Mode card','Pro: Eraser bar › Mode ▾ · Beginner: Eraser ▾'],
+['Size: Thin, Medium, Thick','v8 Size ▾; live','Pro: Eraser bar › Size ▾ · Beginner: Eraser ▾'],
+['Erase highlights only','v8 Options ▾ and Mode tile; live Mode card › More options','Eraser bar › Erases: Highlighter alone (Pro; one choice replaces both)'],
+['Go back to the previous tool after one erase','v8 Options ▾; live','Eraser bar › Back after one (Pro)'],
+['What it erases: Highlighter, Text, Pen (typed text can be erased)','new (owner, 15 Nov)','Eraser bar › Erases (Pro)'],
+['Rubbing in the Magnifier pad also erases','v8 Options ▾ note','Mode ▾ card note'],
+['Shapes'],
+['Draw as: Freehand, Line, Arrow, Box, Oval, Triangle, Tape','v8 Shape ▾','Shapes bar › shape ▾'],
+['Size, Colour','v8 Size ▾, Colour ▾','Shapes bar › size dot ▾, colour dot ▾'],
+['Lasso'],
+['Shape: Free-hand, Rectangle','v8 Select ▾ (Pro), Shape ▾ (Beginner); live bar','Pro: on the bar · Beginner: Shape ▾ (as v8)'],
+['What it picks: Ink, Pictures, Text','v8 Select ▾; live bar','Pro: on the bar (Picks)'],
+['Actions list: Cut, Copy, Paste, Duplicate, Colour, Resize, Delete','v8 Actions ▾ (Beginner); live card','Beginner: Actions ▾ · Pro: Options ▾ picture + the selection menu'],
+['Actions in the menu row (10 switches)','v8 Menu ▾; live Lasso card','Options ▾ › Menu row ▾'],
+['Arrange the menu…','v8 Menu ▾; live','Options ▾ › Menu row ▾ (order with ▲▼ inside the card)'],
+['Layers (draw here, hide, lock, add, merge)','v8 Layers ▾; live Lasso card','Options ▾ › Layers ▾ (also Feel › Page)'],
+['Move, resize, turn a selection','v8 Select ▾ note','Options ▾ note; on the page'],
+['Selection menu: Copy, Cut, Duplicate, Convert, Colour + More (Delete, Thickness, Make card, Add to Summary, Name, Paste, Resize, Screenshot, Copy / Save as picture, Deselect)','live','By the selection, unchanged'],
+['Text'],
+['Box look, Fill, Border, Outline style, Corners, Padding, Shadow, Fine-tune, My presets, Use for new boxes, Reset','v8 Box ▾ › Box','Box ▾ › Box (hangs under its button; Fine-tune folds open inside)'],
+['Columns, Equalise, Tidy the page, Layout Assist, Width and position, Lock size, Width','v8 Box ▾ › Layout','Box ▾ › Layout'],
+['Beginner box looks: Plain, Sticky note, Callout','v8 Box ▾','Same'],
+['Font (12), Size, Emphasis B I U S, Text colour, Highlight colour, Link, Key point','v8 Format › Text; live Format','Format ▾ › Text (states shown)'],
+['Beginner Text size: Body, Heading, Small','v8 Format › Text','Same'],
+['Title, Heading 1–3, Body, Quote, Code block','v8 Format › Style; Style ▾','Format ▾ › Style and Style ▾ (Pro)'],
+['Bullets, Numbers, Checklist, Star list, Toggle list, Outdent, Indent','v8 Format › Style; List ▾','Format ▾ › Style and List ▾ (Pro)'],
+['Plain block, Callout, Divider, Inline code','v8 Format › Style','Format ▾ › Style'],
+['Alignment, Paragraph spacing','v8 Format › Paragraph','Format ▾ › Paragraph'],
+['Line height, Letter spacing, Custom styles, Clear formatting','v8 Format › Advanced','Format ▾ › Advanced (Pro)'],
+['Bold, Italic on the row','v8; live','Text bar (lit while on)'],
+['Text favourites','v8 last change','Chips on the row, + and ☰'],
+['Insert ▾'],
+['Table, Picture, Callout, Recall card, Text box, Link, Elements, Divider, Camera','v8 Insert ▾','Same'],
+['File or PDF, Audio, Write pad, Handwriting, Mic; Page link, Database, Mind map, Summary, Insert template, Save as template, To Home (Pro)','v8 Insert ▾','Same'],
+['⋯ More'],
+
+['Keyboard','v8 ⋯ Tools','⋯ tile'],
+['Reading mode','v8 ⋯ View; live 2A.2 tile','⋯ tile'],
+['Search','v8 ⋯ Tools; live 2A.2 tile','⋯ tile (also 🔍 on the top bar)'],
+['Key point, Keyword, Must know, Formula, Make blank, Make card','live 2A.2 Mark for review; v8 Mark key term','⋯ › Mark for review ▾ (Key point: Format › Text › Marks)'],
+['Summary, Quiz me, Flashcards, Review today (Pro)','v8 ⋯ Study','⋯ › Mark for review ▾'],
+['Copy, Cut, Paste; Copy as plain text, Copy as Markdown, Paste as plain text, Copy page with pictures','v8 ⋯ Copy & paste; live 2A.2','⋯ › Copy and paste ▾'],
+['Focus mode, Grid lines, Dark mode, Zoom in, Zoom out, Fit width','v8 ⋯ View, Zoom and look','⋯ › View ▾'],
+['Export PDF, Share, Duplicate page, Move page, Version history (Pro)','v8 ⋯ File','⋯ › Page ▾'],
+['Hide toolbar','v8 ⋯; live 2A.2 tile','⋯ tile (and Minimise at the end of the top row)'],
+['Toolbar layouts, Edit toolbar, All tools, Toolbar settings, Keyboard stays hidden, Done, Reset position, Where things live','v8 ⋯ Layout & settings, Write & input, Help; live 2A.2','⋯ › Tool bar ▾'],
+['Text style and Arrange groups (Bold … Code, colour, link, align, indent)','live 2A.2','Already on the bar: Text › Format (2A.2 rule: the menu hides what the bar shows)'],
+['Custom tools (★)','v8 ⋯','Replaced by Favourites + and ☰ (owner-approved 12 Nov)']];
+function renderDocs(){$('#changes').innerHTML=CHANGES.map(([t,d])=>`<li><b>${t}</b>${d}</li>`).join('');
+ $('#nd').innerHTML=`<thead><tr><th></th><th>Option</th><th>Was in</th><th>Lives in v9</th></tr></thead><tbody>${ND.map(r=>r.length===1?`<tr class="hd"><td colspan="4">${r[0]}</td></tr>`:`<tr><td class="ok" aria-label="kept">✓</td><td>${r[0]}</td><td class="w">${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody>`}
+
+/* ---------- start ---------- */
+if(innerWidth<700)S.dev='phone';
+renderDocs();fit();render();renderGal();
+})();
+</script>
+</body>
+</html>

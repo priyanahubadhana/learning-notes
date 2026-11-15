@@ -190,3 +190,4 @@ Running list, in the order the owner reports. The owner asked to note everything
 
 - **Pen bar:** the colour needs no name, just the dot; the size needs no name ("Medium"), show it visually (a dot of that size). The user picks by sight.
 - **Eraser bar:** add a choice of what the eraser works on, Highlighter / Text / Pen, like the Lasso bar's Select.
+- **More owner comments on the comparison page (15 Nov):** Lasso: v8's Pro lasso (Select, Menu, Layers) is too complex; rework it from today's live lasso, which looked good, with the new design rules. ⋯ More card: v8's looks poor and has too many settings; New line and Backspace must always stay visible on the top bar; the Keyword option is needed; "back to pen" can live in ⋯. Owner asked for a redone tool bar mock-up (v9) to check again: being made.

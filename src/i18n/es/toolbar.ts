@@ -88,6 +88,7 @@ export const esToolbar = {
   'bar.size': 'Tamaño',
   'bar.v8Label': 'Herramientas',
   'v8.bar.backspace': 'Retroceso',
+  'v8.bar.backTo': 'Volver a {tool}',
   'v8.bar.more': 'Más',
   'v8.bar.minimise': 'Minimizar',
   'v8.bar.newLine': 'Nueva línea',

@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import {
   CardGroup,
   Tile,
@@ -10,7 +11,11 @@ import { useUnlocked } from '../../../../../settings/level'
 import { requestHideToolBar } from '../../../toolbarVisibility'
 import { Icon, type IconName } from '../../../icons'
 import { runTool } from '../../../toolRegistry'
+import type { Editor } from '../../../../../editor/barActions'
+import { lazyNow } from '../../../../lazyNow'
 import type { FoldEntry } from '../../FoldCard'
+
+const MoreStudy = lazyNow(() => import('./MoreStudy'))
 
 /**
  * The tool bar's ⋯ card in the redesigned look (flag `toolbar.menu`, 2A.2):
@@ -21,10 +26,13 @@ import type { FoldEntry } from '../../FoldCard'
  */
 export default function MoreMenuV2({
   entries,
+  editor,
   onAllTools,
   onClose,
 }: {
   entries: FoldEntry[]
+  /** The page's editor: the study and copy groups need it (left out without). */
+  editor?: Editor | null
   onAllTools: () => void
   onClose: () => void
 }) {
@@ -118,6 +126,11 @@ export default function MoreMenuV2({
           </TileGroup>
         </FoldGroup>
       )}
+      {editor ? (
+        <Suspense fallback={null}>
+          <MoreStudy editor={editor} onClose={onClose} />
+        </Suspense>
+      ) : null}
     </div>
   )
 }

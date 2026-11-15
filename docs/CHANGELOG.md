@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.8 eraser as in mock v9 (switch toolbar.v8, OFF live)
+
+- What: Eraser row is Mode, Size, Options (three menus; one Eraser menu when "Eraser's three menus" is off); Options holds Erases (Highlighter, Text, Pen; never none) and "go back after one erase"; the old "highlights only" Mode tile and switch are gone from the new bar (the old switch still works on today's bar and equals Highlighter alone); the eraser can erase typed text; T10 fixed (letters measured once per stroke, one repaint per frame, spaces included).
+- Why: owner answer B (15 Nov), contradiction 4, T10. Measured on chromium, 80 moves: measuring calls 12956 to 327, p95 per move 4.5 ms to 0.4 ms.
+- Files: src/ink/eraseText.ts(+css, test), controller.ts, inkSettings.ts (eraseHl, eraseText, erasePen; no Dexie), v8 eraser cards, rowItems, autoClose, i18n en/es/hi, docs/features/toolbar-v8.md (TB-30 to TB-30d), e2e/toolbarV8Eraser(.Shots).spec.ts
+
 ### 15 Nov 2026: 2A.14 third review fixes (switch toolbar.v8, OFF live)
 
 - What: Settings v3 below 1024 px gives the rows the full width with toolbar.v8 on (off: unchanged); the "?" sits right after the row name on the tool bar rows; "Back to pen on the bar" is now "Back to last tool" (en, es, hi, spec).

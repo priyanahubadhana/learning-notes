@@ -177,6 +177,46 @@ export function requestSoftRefresh(
   return true
 }
 
+/** How long the layout must stay unchanged before the kept place is let go. */
+const SETTLE_QUIET_MS = 1500
+const SETTLE_MAX_MS = 10_000
+
+/**
+ * The page is still growing and its bars still arriving for a moment after
+ * the place is put back (on iPad Safari the scroller grew and shrank by
+ * 90 px, which moved the scroll 62 px). While the size keeps changing, put
+ * the place back again; let go after a quiet 1.5 s, at once when the person
+ * scrolls or touches, and never later than 10 s.
+ */
+function keepPlaceWhileSettling(
+  scroller: HTMLElement,
+  top: number,
+  touched: () => boolean,
+) {
+  if (typeof ResizeObserver === 'undefined') return
+  let quiet: ReturnType<typeof setTimeout> | undefined
+  const hardStop = setTimeout(end, SETTLE_MAX_MS)
+  const observer = new ResizeObserver(() => {
+    if (touched()) return end()
+    if (
+      Math.abs(scroller.scrollTop - top) > 1 &&
+      scroller.scrollHeight - scroller.clientHeight >= top - 1
+    ) {
+      scroller.scrollTop = top
+    }
+    clearTimeout(quiet)
+    quiet = setTimeout(end, SETTLE_QUIET_MS)
+  })
+  function end() {
+    clearTimeout(quiet)
+    clearTimeout(hardStop)
+    observer.disconnect()
+  }
+  observer.observe(scroller)
+  for (const child of Array.from(scroller.children)) observer.observe(child)
+  quiet = setTimeout(end, SETTLE_QUIET_MS)
+}
+
 /**
  * On start: puts the page's scroll and the tool back once, if the refresh was
  * less than a minute ago. Returns 'auto' when the toast is due, 'manual' for
@@ -197,11 +237,20 @@ export function restoreSoftRefresh(): 'auto' | 'manual' | null {
   if (hash === location.hash) {
     let tries = 0
     let toolDone = false
+    let touched = false
     const stop = () => {
       tries = 99
+      touched = true
     }
-    window.addEventListener('wheel', stop, { once: true, passive: true })
-    window.addEventListener('pointerdown', stop, { once: true, passive: true })
+    for (const type of ['wheel', 'pointerdown', 'touchstart', 'keydown']) {
+      window.addEventListener(type, stop, { once: true, passive: true })
+    }
+    let settling = false
+    const settle = (el: HTMLElement) => {
+      if (settling) return
+      settling = true
+      keepPlaceWhileSettling(el, top, () => touched)
+    }
     const step = () => {
       const el = document.querySelector<HTMLElement>('[data-page-scroller]')
       if (el && tries < 40) {
@@ -211,7 +260,10 @@ export function restoreSoftRefresh(): 'auto' | 'manual' | null {
         }
         if (top > 0 && el.scrollHeight - el.clientHeight >= top - 1) {
           el.scrollTop = top
-          if (Math.abs(el.scrollTop - top) <= 1) tries += 10
+          if (Math.abs(el.scrollTop - top) <= 1) {
+            tries += 10
+            settle(el)
+          }
         } else if (top <= 0) {
           tries += 10
         }

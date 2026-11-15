@@ -21,7 +21,7 @@ import {
 } from './mandatoryFlow'
 import { mandatoryFailure, mandatoryUpdate } from './mandatoryState'
 import { slowEtaS, SLOW_BYTES_PER_S, SLOW_ETA_S } from './updateProgress'
-import { resetUpdates } from './updates'
+import { resetUpdates, triggerMustHave } from './updates'
 
 afterEach(() => {
   vi.useRealTimers()
@@ -194,5 +194,61 @@ describe('P1.8 the failed screen has a way back to the app', () => {
     flow()?.retry()
     await vi.advanceTimersByTimeAsync(0)
     expect(mandatoryFailure.get()).toBeNull()
+  })
+})
+
+describe('P1.8 review: never leave when the notes are already upgraded (U11)', () => {
+  it('another tab upgraded the notes: no way back, the app stays blocked', async () => {
+    vi.useFakeTimers()
+    // This tab's code is older than the stored notes; its database is closed.
+    triggerMustHave('storage', () => {})
+    startMandatoryUpdate(
+      deps({
+        download: async () => {
+          throw new Error('x')
+        },
+      }),
+    )
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    expect(phase()).toBe('failed')
+    expect(flow()?.canDismiss()).toBe(false)
+    flow()?.dismiss()
+    expect(phase()).toBe('failed')
+  })
+  it('a normal must-have update may be left after a failure', () => {
+    startMandatoryUpdate(deps())
+    expect(flow()?.canDismiss()).toBe(true)
+  })
+})
+
+describe('P1.8 review: a 404 is skipped only when the newest list proves it', () => {
+  const missing = (async () =>
+    new Response('gone', { status: 404 })) as unknown as typeof fetch
+  it('the newest list cannot be read: the 404 is a failure', async () => {
+    let reads = 0
+    await expect(
+      downloadNewFiles(
+        () => {},
+        new AbortController().signal,
+        async () => {
+          if (reads++ === 0) return [{ u: '/assets/a.js', s: 10 }]
+          throw new Error('offline')
+        },
+        async () => new Set(),
+        missing,
+      ),
+    ).rejects.toThrow('404')
+  })
+  it('the newest list comes back empty (a failed read): the 404 is a failure', async () => {
+    let reads = 0
+    await expect(
+      downloadNewFiles(
+        () => {},
+        new AbortController().signal,
+        async () => (reads++ === 0 ? [{ u: '/assets/a.js', s: 10 }] : []),
+        async () => new Set(),
+        missing,
+      ),
+    ).rejects.toThrow('404')
   })
 })

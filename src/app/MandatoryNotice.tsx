@@ -313,8 +313,9 @@ export default function MandatoryNotice({
             </button>
           )}
           {/* P1.8: a failure never keeps the person out of the app. Plain
-              button until the approved picture places it (owner, 15 Nov). */}
-          {s.phase === 'failed' && (
+              button until the approved picture places it (owner, 15 Nov).
+              Not when another tab upgraded the notes (U11: no database). */}
+          {s.phase === 'failed' && flow()?.canDismiss() && (
             <button
               type="button"
               data-update-dismiss

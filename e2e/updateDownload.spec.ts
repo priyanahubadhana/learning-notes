@@ -150,3 +150,57 @@ test.describe('P1.8 nothing in the offline copy', () => {
     await expect(page.locator('aside')).toBeVisible()
   })
 })
+
+// Review P1.8: the parallel download runs next to a REAL service worker
+// install (one file at a time), through to an active offline copy.
+test.describe('P1.8 with the offline copy on', () => {
+  test.use({ serviceWorkers: 'allow' })
+  test('P1.8 the parallel download and a real offline-copy install finish together', async ({
+    page,
+  }) => {
+    await page.goto(FLAG)
+    // The first visit: the worker is installing its whole copy right now.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          async () =>
+            !!(await navigator.serviceWorker.getRegistration())?.installing,
+        ),
+      )
+      .toBe(true)
+    await page.evaluate(() =>
+      window.dispatchEvent(
+        new CustomEvent('learning-notes:test-required-update'),
+      ),
+    )
+    await expect
+      .poll(
+        () =>
+          page.evaluate(
+            () =>
+              (window as never as { __requiredApplied?: boolean })
+                .__requiredApplied ?? false,
+          ),
+        { timeout: 25_000 },
+      )
+      .toBe(true)
+    await expect(notice(page)).not.toHaveAttribute('data-phase', 'failed')
+    const copy = await page.evaluate(async () => {
+      const reg = await navigator.serviceWorker.ready
+      const { files } = (await (
+        await fetch(`/precache.json?t=${Date.now()}`, { cache: 'no-store' })
+      ).json()) as { files: { u: string; s: number }[] }
+      const have = new Set<string>()
+      for (const name of await caches.keys())
+        if (name.includes('precache'))
+          for (const r of await (await caches.open(name)).keys())
+            have.add(new URL(r.url).pathname)
+      return {
+        active: reg.active?.state,
+        missing: files.filter((f) => !have.has(f.u)).map((f) => f.u),
+      }
+    })
+    expect(copy.active).toBe('activated')
+    expect(copy.missing).toEqual([])
+  })
+})

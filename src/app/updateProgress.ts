@@ -123,14 +123,16 @@ export async function downloadNewFiles(
   if (todo.length === 0) return
   const queue = [...todo]
   // A newer version published during the download removes old names: a 404
-  // for a file the newest list no longer names is skipped (read once).
-  let newest: Promise<Set<string>> | undefined
+  // for a file the newest list no longer names is skipped (read once). A list
+  // that cannot be read (or is empty) proves nothing: the 404 is a failure.
+  let newest: Promise<Set<string> | null> | undefined
   const stillListed = async (u: string) => {
     newest ??= files().then(
-      (l) => new Set(l.map((f) => f.u)),
-      () => new Set<string>(),
+      (l) => (l.length > 0 ? new Set(l.map((f) => f.u)) : null),
+      () => null,
     )
-    return (await newest).has(u)
+    const names = await newest
+    return names === null || names.has(u)
   }
   // Watchdog: any byte resets it; silence for STALL_MS stops the whole download.
   const stop = new AbortController()

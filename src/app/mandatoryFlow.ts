@@ -17,6 +17,7 @@ import {
   mandatoryUpdate,
 } from './mandatoryState'
 import type { UpdateRisk } from './autoUpdate'
+import { isOtherTabUpgrade } from './updates'
 import type { UpdateReason } from './updateLevel'
 
 export const COUNTDOWN_S = 5
@@ -71,6 +72,11 @@ export interface MandatoryDeps {
   /** update.v2: calls `fn` when the network goes or comes back; returns a stop. */
   watchOnline?: (fn: (online: boolean) => void) => () => void
   now?: () => number
+  /**
+   * P1.8: may "Not now" leave a failed update? Not when another tab already
+   * upgraded the notes (U11): this tab has closed its database then.
+   */
+  mayLeave?: () => boolean
 }
 
 export interface Flow {
@@ -82,6 +88,8 @@ export interface Flow {
    * Paused keeps the app blocked (docs/features/update-v2.md UV-5, line 132).
    */
   dismiss: () => void
+  /** False when the app must stay blocked (U11: another tab upgraded the notes). */
+  canDismiss: () => boolean
 }
 
 let current: Flow | null = null
@@ -106,6 +114,7 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
   const now = deps.now ?? Date.now
   const isOnline =
     deps.online ?? (() => typeof navigator === 'undefined' || navigator.onLine)
+  const mayLeave = deps.mayLeave ?? (() => !isOtherTabUpgrade())
   let startedAt = 0
   let abort: AbortController | null = null
   let timer: unknown
@@ -217,11 +226,12 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
       void run()
     },
     dismiss() {
-      if (mandatoryUpdate.get()?.phase !== 'failed') return
+      if (mandatoryUpdate.get()?.phase !== 'failed' || !mayLeave()) return
       clear(installTimer)
       mandatoryFailure.set(null)
       set(null)
     },
+    canDismiss: () => mayLeave(),
   }
   if (v2) {
     const watch =

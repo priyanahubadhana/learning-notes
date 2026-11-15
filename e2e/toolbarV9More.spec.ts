@@ -160,7 +160,9 @@ test('Professional: Marks and study holds Summary, Study now, All cards, Due tod
 }) => {
   await open(page, 'professional', { width: 820, height: 900 })
   await more(page)
-  await card(page).getByRole('button', { name: 'Marks and study' }).click()
+  await card(page)
+    .getByRole('button', { name: /^Mark for review/ })
+    .click()
   for (const id of ['summary', 'studyNow', 'allCards', 'dueToday'])
     await expect(page.getByTestId(`v8-more-study-${id}`)).toBeVisible()
   await card(page).getByRole('button', { name: 'Copy and paste' }).click()
@@ -224,7 +226,9 @@ test('Study now and All cards have their own icons; the Key point hint shows on 
 }) => {
   await open(page, 'professional', { width: 820, height: 900 })
   await more(page)
-  await card(page).getByRole('button', { name: 'Marks and study' }).click()
+  await card(page)
+    .getByRole('button', { name: /^Mark for review/ })
+    .click()
   const iconOf = (id: string) =>
     page.getByTestId(id).locator('svg').first().getAttribute('class')
   const make = await iconOf('v8-more-card')

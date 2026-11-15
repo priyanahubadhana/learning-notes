@@ -83,7 +83,7 @@ for (const [dev, size] of Object.entries(SIZES)) {
           await page.screenshot({
             path: `${OUT}/${id.replace('.', '-')}-${tag}.png`,
           })
-          await page.getByRole('button', { name: 'Close' }).click()
+          await page.getByTestId('pcard-close').click()
         }
       })
     }

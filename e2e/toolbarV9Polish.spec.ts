@@ -267,7 +267,10 @@ for (const [w, h] of [
   test(`v9 More card (${w}x${h}): it opens below both rows, never over row 2`, async ({
     page,
   }) => {
-    await open(page, { size: { width: w, height: h } })
+    await open(page, {
+      size: { width: w, height: h },
+      level: 'professional',
+    })
     await page.getByTestId('v8-more').click()
     const card = page.getByTestId('v8-card-fold.bar')
     await expect(card).toBeVisible()
@@ -275,6 +278,12 @@ for (const [w, h] of [
     const bar = (await page.getByTestId('toolbar-v8').boundingBox())!
     const c = (await card.boundingBox())!
     expect(c.y).toBeGreaterThanOrEqual(bar.y + bar.height - 1)
+    // With the longest group open the card is capped, not moved over row 2.
+    await card.getByTestId('more-group-study').locator('.fgroup-head').click()
+    await page.waitForTimeout(400)
+    const c2 = (await card.boundingBox())!
+    expect(c2.y).toBeGreaterThanOrEqual(bar.y + bar.height - 1)
+    expect(c2.y + c2.height).toBeLessThanOrEqual(h)
   })
 }
 

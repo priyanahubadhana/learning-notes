@@ -25,15 +25,38 @@ type RectLike = { left: number; top: number; width: number; height: number }
 const rectOf = (a: HTMLElement | RectLike): RectLike =>
   a instanceof Element ? a.getBoundingClientRect() : a
 
-/** The anchor's x with the top and height of the box it must clear (v9: ⋯ card under both rows). */
-const targetOf = (
-  a: HTMLElement | RectLike,
-  box: RectLike | null,
-): RectLike => {
-  const r = rectOf(a)
-  return box
-    ? { left: r.left, width: r.width, top: box.top, height: box.height }
-    : r
+/**
+ * v9: a card from a ⋯ in a bar's first row opens under the WHOLE bar at the
+ * anchor's x (never over row 2); too tall for the room, it is capped there and
+ * scrolls inside.
+ */
+function placeUnder(
+  anchor: RectLike,
+  bar: RectLike,
+  size: { width: number; height: number },
+  widthPx: number,
+  view: { width: number; height: number },
+): CardPos {
+  const width = Math.min(widthPx, view.width - 2 * CARD_EDGE)
+  const left = clamp(
+    anchor.left,
+    CARD_EDGE,
+    Math.max(CARD_EDGE, view.width - CARD_EDGE - width),
+  )
+  const top = bar.top + bar.height + CARD_GAP
+  const room = view.height - CARD_EDGE - top
+  return {
+    left,
+    top,
+    side: 'below',
+    arrowX: clamp(
+      anchor.left + anchor.width / 2 - left,
+      22,
+      Math.max(22, width - 22),
+    ),
+    width,
+    maxHeight: size.height > room ? Math.max(MIN_SHORT, room) : undefined,
+  }
 }
 
 const clamp = (v: number, lo: number, hi: number) =>
@@ -233,32 +256,33 @@ export function useAnchoredCard(opts: {
     const run = () => {
       const root = document.documentElement
       // fitInside: the card's own height, not the one it was capped to.
-      const body = fit ? card.querySelector<HTMLElement>('.pcard-body') : null
+      const body =
+        fit || below ? card.querySelector<HTMLElement>('.pcard-body') : null
       const cut = body ? Math.max(0, body.scrollHeight - body.clientHeight) : 0
       const size = {
         width: widthPx,
-        height: fit
-          ? Math.min(
-              card.offsetHeight + cut,
-              window.innerHeight - 2 * CARD_EDGE,
-            )
-          : // T6: the card's own height, not the one it was capped to (maxHeight);
-            // measured capped it would fit uncapped, grow, and be capped again, every frame.
-            Math.max(card.offsetHeight, card.scrollHeight),
+        height: below
+          ? // Under the bar: its own height with what the capped body hides.
+            card.offsetHeight + cut
+          : fit
+            ? Math.min(
+                card.offsetHeight + cut,
+                window.innerHeight - 2 * CARD_EDGE,
+              )
+            : // T6: the card's own height, not the one it was capped to (maxHeight);
+              // measured capped it would fit uncapped, grow, and be capped again, every frame.
+              Math.max(card.offsetHeight, card.scrollHeight),
       }
       const view = {
         width: root.clientWidth,
         height: window.innerHeight - footLift,
       }
       const box = around?.() ?? null
+      const bar = below?.() ?? null
       const next =
         (box && placeAround(box, size, view, clearTop?.() ?? 0, fit)) ||
-        placeCard(
-          targetOf(anchor, below?.() ?? null),
-          size,
-          view,
-          box ?? avoid?.() ?? null,
-        )
+        (bar && placeUnder(rectOf(anchor), bar, size, widthPx, view)) ||
+        placeCard(rectOf(anchor), size, view, box ?? avoid?.() ?? null)
       setPos((prev) =>
         prev &&
         prev.left === next.left &&

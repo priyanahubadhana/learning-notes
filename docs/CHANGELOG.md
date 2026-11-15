@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: 2A.16 design check fixes (switch toolbar.v8, OFF live)
+
+- What: phone: Shapes and Insert sit in ⋯ › On this bar, no Minimise, no count badge on the top ⋯; row: "⋯ 3 ▾" before "★ 2 ▾" with the count as text; More card: group On this bar, Mark for review (hint Marks and study), Hide tool bar, filled rows with icons, opens under both rows (capped and scrolling when too tall); Minimise is ⇥|; a divider before ⌫ ↵; favourite chips have a tile fill; all shot specs use the five preview switches and close the side list on an upright iPad.
+- Why: the 2A design check against docs/mockups/toolbar-v9/toolbar-v9.html. Not changed: the touch-mode name tip (touch mode has hover tips off by preset; the picture showed it only in computer mode).
+- Files: src/app/tools/v8/{ToolBar,ToolRow,PenFavChip,FoldCard}.tsx, toolbarV8.css, cards/more/_, src/design/parts/{Card.tsx,useAnchoredCard.ts}, src/i18n/_/v8Text.ts, e2e/toolbarV9Polish.spec.ts and the *Shots specs.
+
 ### 16 Nov 2026: 2A.16 part 1, carried polish (switch toolbar.v8, OFF live)
 
 - What: (1) phone: the star chip stands before the ⋯ chip (checked at 360, 390, 430 px; it already held, now guarded by a test). (2) The 700 ms of 2A.6: the change glow is the spec's 700 ms (TB-70), guarded by a test; the fixed 700 ms sleep in the pen-row pictures is now a wait for the sidebar to close. (3) Compact font tiles: names wrap instead of being cut, and the check mark sits in the lower right corner, never over a name. (4) A card measures again after the screen turns (anchor watched, again one frame and 250 ms later), so it equals a fresh load. (5) Escape leaves edit mode with the keyboard: test.

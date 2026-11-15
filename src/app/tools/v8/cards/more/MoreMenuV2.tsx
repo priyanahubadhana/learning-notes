@@ -111,7 +111,7 @@ export default function MoreMenuV2({
         </TileGroup>
       </CardGroup>
       {entries.length > 0 && (
-        <CardGroup>
+        <CardGroup label={t('v8.more.onThisBar')}>
           <TileGroup label={t('v8.more.onThisBar')} action columns={3}>
             {entries.map((e) => (
               <Tile

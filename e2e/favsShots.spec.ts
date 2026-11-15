@@ -49,13 +49,8 @@ for (const [dev, size] of Object.entries(SIZES))
         await createNotebook(page, 'Biology', 'First')
         await closeSidebarIfNarrow(page)
         await typeInEditor(page, 'The nucleus holds the DNA')
-        if (dev === 'ipad-up') {
-          await page
-            .getByRole('button', { name: /hide.*menu/i })
-            .first()
-            .click()
-          await page.waitForTimeout(700)
-        }
+        // closeSidebarIfNarrow (above) closed it.
+        if (dev === 'ipad-up') await expect(page.locator('aside')).toBeHidden()
         await page.getByTestId('v8-tool-pen').click()
         const shot = async (name: string) => {
           await page.waitForTimeout(500)

@@ -153,6 +153,11 @@ export interface Page extends BaseRecord {
   /** Journal month page: its month, "YYYY-MM". */
   journalMonth?: string
   /**
+   * Journal month page: the user undid joining it into another page of the
+   * same month (task H). It syncs, so no device joins it again.
+   */
+  monthJoinDeclined?: true
+  /**
    * Journal day or month page renamed by the user: `title` is shown instead
    * of the automatic date in the current language. Unset = automatic.
    */

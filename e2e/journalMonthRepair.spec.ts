@@ -84,6 +84,18 @@ test('two month pages of the same month are joined, with Undo', async ({
   // Both days are under the one month: nothing lost.
   await expect(side.getByRole('button', { name: /9 Nov$/ })).toBeVisible()
   await expect(side.getByRole('button', { name: /3 Nov$/ })).toBeVisible()
+  // The backup was saved first: both month pages and both days, as they were.
+  const backup = await page.evaluate(() =>
+    JSON.parse(
+      localStorage.getItem('learning-notes:journalRepair:backup') ?? 'null',
+    ),
+  )
+  const saved = backup.groups[0].pages as { id: string; parentId: string }[]
+  expect(saved.map((p) => p.id)).toContain('second-november')
+  expect(saved.find((p) => p.id === 'second-november-day')?.parentId).toBe(
+    'second-november',
+  )
+  expect(saved).toHaveLength(4)
 
   // Undo puts the two pages back, and this device does not join them again.
   await toast.getByRole('button', { name: 'Undo' }).click()

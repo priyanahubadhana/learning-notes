@@ -2,10 +2,14 @@ import type { LearningNotesDB } from '../core/db'
 import { pageDeleteBlocked } from '../core/editLock'
 import { stableId } from '../core/ids'
 import { isLive } from '../core/records'
-import type { Page } from '../core/types'
+import type { Block, Page } from '../core/types'
 import { t } from '../i18n/t'
 import { findNotebookOfKind } from '../notebooks/notebookService'
-import { listPages, movePage } from '../pages/pageService'
+import {
+  listPages,
+  markMonthJoinDeclined,
+  movePage,
+} from '../pages/pageService'
 import { trashPageWithUndo } from '../pages/pageTrash'
 import { monthLabel } from './dates'
 
@@ -26,12 +30,11 @@ import { monthLabel } from './dates'
  * The kept page is chosen the same way on every device (the fixed-id one,
  * else the oldest), so two devices that repair before they sync make the same
  * change, and a device that syncs after the other one finds nothing to do.
+ * Undo marks the duplicates (monthJoinDeclined, on the page, so it syncs):
+ * no device joins them again.
  */
 
 export const JOURNAL_REPAIR_BACKUP_KEY = 'learning-notes:journalRepair:backup'
-/** Groups this device must not join again (the user tapped Undo). */
-export const JOURNAL_REPAIR_DECLINED_KEY =
-  'learning-notes:journalRepair:declined'
 
 export interface MonthGroup {
   month: string
@@ -93,8 +96,6 @@ const defaultStorage = (): Storage | undefined => {
   }
 }
 
-const groupKey = (g: MonthGroup) => [g.keepId, ...g.duplicateIds].join('|')
-
 function readJson<T>(storage: Storage | undefined, key: string): T | null {
   try {
     const raw = storage?.getItem(key)
@@ -125,14 +126,13 @@ export async function findDuplicateMonths(
       (a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id),
     )
     const keep = list.find((p) => p.id === fixed) ?? oldest[0]
-    groups.push({
-      month,
-      keepId: keep.id,
-      duplicateIds: list
-        .filter((p) => p.id !== keep.id)
-        .map((p) => p.id)
-        .sort(),
-    })
+    // A page the user kept apart (Undo, on any device) is never joined.
+    const duplicateIds = list
+      .filter((p) => p.id !== keep.id && !p.monthJoinDeclined)
+      .map((p) => p.id)
+      .sort()
+    if (duplicateIds.length > 0)
+      groups.push({ month, keepId: keep.id, duplicateIds })
   }
   return groups.sort((a, b) => a.month.localeCompare(b.month))
 }
@@ -162,10 +162,25 @@ export async function journalCounts(
   }
 }
 
+/** An empty paragraph (no text, or spaces only) is not content. */
+function isEmptyLine(block: Block): boolean {
+  if (block.type !== 'paragraph') return false
+  const runs = (block.content as { text?: unknown } | null)?.text
+  return (
+    !Array.isArray(runs) ||
+    !runs.some(
+      (r) =>
+        typeof (r as { text?: unknown })?.text === 'string' &&
+        (r as { text: string }).text.trim() !== '',
+    )
+  )
+}
+
 /** Does a month page hold anything of its own (lines, drawings, files)? */
 async function hasOwnContent(db: LearningNotesDB, pageId: string) {
+  const lines = await db.blocks.where('pageId').equals(pageId).toArray()
+  if (lines.some((b) => isLive(b) && !isEmptyLine(b))) return true
   for (const table of [
-    db.blocks,
     db.inkChunks,
     db.recordings,
     db.bookFiles,
@@ -177,7 +192,11 @@ async function hasOwnContent(db: LearningNotesDB, pageId: string) {
   return false
 }
 
-/** Puts the saved pages back: duplicates out of Trash, days where they were. */
+/**
+ * Puts the saved pages back with the app's own actions: duplicates out of
+ * Trash (restorePage), then each day to its saved parent and place
+ * (movePage), in the saved order.
+ */
 async function restoreGroups(db: LearningNotesDB, groups: BackupGroup[]) {
   for (const g of groups)
     for (const id of g.duplicateIds) {
@@ -185,19 +204,22 @@ async function restoreGroups(db: LearningNotesDB, groups: BackupGroup[]) {
       if (page && page.deletedAt !== null)
         await import('../trash/trashService').then((m) => m.restorePage(db, id))
     }
-  const now = Date.now()
-  await db.transaction('rw', db.pages, async () => {
-    for (const saved of groups.flatMap((g) => g.pages)) {
-      const page = await db.pages.get(saved.id)
-      if (!page) continue
-      if (page.parentId !== saved.parentId || page.order !== saved.order)
-        await db.pages.update(saved.id, {
-          parentId: saved.parentId,
-          order: saved.order,
-          updatedAt: now,
-        })
+  for (const g of groups) {
+    const parents = new Map<string, Page[]>()
+    for (const p of g.pages)
+      if (p.parentId !== null)
+        parents.set(p.parentId, [...(parents.get(p.parentId) ?? []), p])
+    for (const [parentId, list] of parents) {
+      const sorted = [...list].sort((a, b) =>
+        a.order < b.order ? -1 : a.order > b.order ? 1 : 0,
+      )
+      for (const [index, saved] of sorted.entries()) {
+        const page = await db.pages.get(saved.id)
+        if (!page || !isLive(page) || page.parentId === parentId) continue
+        await movePage(db, saved.id, parentId, index)
+      }
     }
-  })
+  }
 }
 
 /** Restores the last saved backup (Settings or support can call this). */
@@ -245,12 +267,8 @@ export async function repairJournalMonths(
   const storage = options.storage ?? defaultStorage()
   const journal = await findNotebookOfKind(db, workspaceId, 'journal')
   if (!journal) return { kind: 'none' }
-  const declined = new Set(
-    readJson<string[]>(storage, JOURNAL_REPAIR_DECLINED_KEY) ?? [],
-  )
   const groups: MonthGroup[] = []
   for (const g of await findDuplicateMonths(db, workspaceId)) {
-    if (declined.has(groupKey(g))) continue
     let safe = true
     for (const id of g.duplicateIds)
       if ((await hasOwnContent(db, id)) || (await pageDeleteBlocked(db, id)))
@@ -298,6 +316,11 @@ export async function repairJournalMonths(
         await movePage(db, p.id, g.keepId, Number.MAX_SAFE_INTEGER)
     }
     await options.afterMoves?.()
+    // A day that arrived (by sync) under a duplicate meanwhile: stop.
+    const left = (
+      await db.pages.where('notebookId').equals(journal.id).toArray()
+    ).filter((p) => isLive(p) && p.parentId && dupIds.includes(p.parentId))
+    if (left.length > 0) return putBack('new sub-page')
     // 3. The emptied duplicates to Trash (the app's own Trash action).
     for (const id of dupIds) {
       const page = await db.pages.get(id)
@@ -325,14 +348,7 @@ export async function repairJournalMonths(
     })),
     undo: async () => {
       await restoreGroups(db, saved)
-      try {
-        storage.setItem(
-          JOURNAL_REPAIR_DECLINED_KEY,
-          JSON.stringify([...declined, ...groups.map(groupKey)]),
-        )
-      } catch {
-        // Storage blocked: the next start may offer the join again.
-      }
+      await markMonthJoinDeclined(db, dupIds)
     },
   }
 }

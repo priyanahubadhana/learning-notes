@@ -202,6 +202,9 @@ const config = defineConfig({
         // stays chromium only; toolbarV8PasteIpad covers the same behaviour here with a stubbed clipboard.
         /toolbarV8(Bar|Frame|Pen|Row|Tools|Text|Insert|Tuck|PasteIpad|Round5).spec/,
         /toolbarMenuV(2|8)/,
+        // Task H: the Journal and its month repair (manager OK, 15 Nov).
+        /journalMonthRepair/,
+        /journal\.spec/,
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

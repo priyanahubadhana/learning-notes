@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createBlock } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
 import { stableId } from '../core/ids'
+import { isLive } from '../core/records'
 import { createTestDb } from '../core/testing'
 import type { Page } from '../core/types'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
@@ -64,6 +65,42 @@ const novMonths = async (d = db) =>
   (await listPages(d, await journalId(d))).filter(
     (p) => p.journalMonth === '2026-11' && p.parentId === null,
   )
+
+/**
+ * Where every page of a notebook sits: parent, place among its siblings and
+ * live or not (Undo uses movePage, so the order keys themselves are new).
+ */
+async function layout(d: LearningNotesDB, notebookId: string) {
+  const pages = await d.pages.where('notebookId').equals(notebookId).toArray()
+  const place = (p: Page) =>
+    pages
+      .filter((x) => x.parentId === p.parentId && isLive(x))
+      .sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0))
+      .findIndex((x) => x.id === p.id)
+  return pages
+    .map((p) => [p.id, p.parentId, isLive(p) ? place(p) : -1, isLive(p)])
+    .sort()
+}
+
+/** Sync's rule for one record: the newer save wins. */
+async function syncPages(from: LearningNotesDB, to: LearningNotesDB) {
+  for (const p of await from.pages.toArray()) {
+    const there = await to.pages.get(p.id)
+    if (!there || there.updatedAt <= p.updatedAt) await to.pages.put(p)
+  }
+}
+
+/** A second device holding the same records as `db`. */
+async function copyDevice(): Promise<LearningNotesDB> {
+  const b = createTestDb()
+  for (const table of ['workspaces', 'notebooks', 'pages', 'blocks'] as const)
+    await (b[table] as unknown as LearningNotesDB['pages']).bulkPut(
+      (await (
+        db[table] as unknown as LearningNotesDB['pages']
+      ).toArray()) as never,
+    )
+  return b
+}
 
 /**
  * The owner's case: two "November 2026" month pages in the one Journal, each
@@ -201,10 +238,7 @@ describe('repairJournalMonths', () => {
   it('restores and stops when the counts before and after differ', async () => {
     const { dup } = await twoNovembers()
     const journal = await journalId()
-    const snapshot = async () =>
-      (await db.pages.where('notebookId').equals(journal).toArray())
-        .map((p) => [p.id, p.parentId, p.order, p.deletedAt === null])
-        .sort()
+    const snapshot = () => layout(db, journal)
     const before = await snapshot()
     const outcome = await repairJournalMonths(db, ws, {
       storage,
@@ -227,10 +261,7 @@ describe('repairJournalMonths', () => {
   it('Undo puts every page back where it was', async () => {
     const { dup } = await twoNovembers()
     const journal = await journalId()
-    const snapshot = async () =>
-      (await db.pages.where('notebookId').equals(journal).toArray())
-        .map((p) => [p.id, p.parentId, p.order, p.deletedAt === null])
-        .sort()
+    const snapshot = () => layout(db, journal)
     const before = await snapshot()
     const outcome = await repairJournalMonths(db, ws, { storage })
     if (outcome.kind !== 'joined') throw new Error('not joined')
@@ -264,17 +295,8 @@ describe('repairJournalMonths', () => {
   it('two devices choose the same page: after sync there is one month, never a third', async () => {
     await twoNovembers()
     // Device B holds the same records (synced before the repair).
-    const b = createTestDb()
+    const b = await copyDevice()
     try {
-      for (const table of [
-        'workspaces',
-        'notebooks',
-        'pages',
-        'blocks',
-      ] as const)
-        await (b[table] as LearningNotesDB['pages']).bulkPut(
-          (await (db[table] as LearningNotesDB['pages']).toArray()) as never,
-        )
       // Both repair before they sync again.
       await repairJournalMonths(db, ws, { storage })
       await repairJournalMonths(b, ws, { storage: memoryStorage() })
@@ -306,6 +328,89 @@ describe('repairJournalMonths', () => {
     const before = await db.pages.toArray()
     expect((await repairJournalMonths(db, ws, { storage })).kind).toBe('none')
     expect(await db.pages.toArray()).toEqual(before)
+  })
+
+  it('Undo holds on every device: the other device never joins them again', async () => {
+    await twoNovembers()
+    const b = await copyDevice()
+    try {
+      // B joins first; A joins, the user taps Undo on A.
+      await repairJournalMonths(b, ws, { storage: memoryStorage() })
+      await new Promise((r) => setTimeout(r, 5))
+      const outcome = await repairJournalMonths(db, ws, { storage })
+      if (outcome.kind !== 'joined') throw new Error('not joined')
+      await outcome.undo()
+      const kept = layout(db, await journalId())
+      // A's newer records reach B; B's start-up repair leaves them alone.
+      await syncPages(db, b)
+      expect(
+        (await repairJournalMonths(b, ws, { storage: memoryStorage() })).kind,
+      ).toBe('none')
+      expect(await novMonths(b)).toHaveLength(2)
+      expect(await layout(b, await journalId(b))).toEqual(await kept)
+      // A third device that only now syncs does not join them either.
+      const c = createTestDb()
+      try {
+        await syncPages(db, c)
+        for (const table of ['workspaces', 'notebooks', 'blocks'] as const)
+          await (c[table] as unknown as LearningNotesDB['pages']).bulkPut(
+            (await (
+              db[table] as unknown as LearningNotesDB['pages']
+            ).toArray()) as never,
+          )
+        expect(
+          (await repairJournalMonths(c, ws, { storage: memoryStorage() })).kind,
+        ).toBe('none')
+      } finally {
+        await c.delete()
+      }
+    } finally {
+      await b.delete()
+    }
+  })
+
+  it('puts everything back when a day arrives under the duplicate during the run', async () => {
+    const { dup } = await twoNovembers()
+    const journal = await journalId()
+    const before = await layout(db, journal)
+    const now = Date.now()
+    const outcome = await repairJournalMonths(db, ws, {
+      storage,
+      // Sync writes a new day under the duplicate between the moves and Trash.
+      afterMoves: async () => {
+        await db.pages.add({
+          id: 'synced-day',
+          notebookId: journal,
+          parentId: dup.id,
+          title: 'Fri 20 Nov',
+          order: 'a5',
+          journalDate: '2026-11-20',
+          createdAt: now,
+          updatedAt: now,
+          deletedAt: null,
+        })
+      },
+    })
+    expect(outcome.kind).toBe('restored')
+    expect((await db.pages.get(dup.id))?.deletedAt).toBeNull()
+    const arrived = await db.pages.get('synced-day')
+    expect(arrived?.deletedAt).toBeNull()
+    expect(arrived?.parentId).toBe(dup.id)
+    expect(
+      (await layout(db, journal)).filter(([id]) => id !== 'synced-day'),
+    ).toEqual(before)
+  })
+
+  it('a duplicate holding only an empty line counts as empty', async () => {
+    const { dup } = await twoNovembers()
+    for (const text of ['', '   '])
+      await createBlock(db, {
+        pageId: dup.id,
+        type: 'paragraph',
+        content: { text: text ? [{ type: 'text', text, styles: {} }] : [] },
+      })
+    expect((await repairJournalMonths(db, ws, { storage })).kind).toBe('joined')
+    expect((await db.pages.get(dup.id))?.deletedAt).not.toBeNull()
   })
 
   it('does nothing when there is no Journal or no duplicate', async () => {

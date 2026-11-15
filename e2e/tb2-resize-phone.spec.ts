@@ -118,9 +118,13 @@ test('phone: n/s change the height live and the south dot never goes under the c
 test('phone: e makes the box narrower, left-aligned, inside the column; never under its longest word', async ({
   page,
 }) => {
-  const word = 'Supercalifragilisticexpialidocious'
+  const word = 'Photosynthesis'
   const box = await phoneBox(page, 'P21w', ['Alpha ' + word, 'x'])
+  // Wider first (up to the column), then narrower with the live check.
+  const e0 = await centre(dot(box, 'e'))
+  await drag(page, e0, { x: e0.x + 120, y: e0.y })
   const f = await rect(box)
+  expect(f.width).toBeGreaterThan(200)
   const e = await centre(dot(box, 'e'))
   await drag(page, e, { x: e.x - 60, y: e.y }, { up: false })
   await page.waitForTimeout(120)
@@ -138,13 +142,25 @@ test('phone: e makes the box narrower, left-aligned, inside the column; never un
     .locator('[data-box-content]')
     .evaluate((c) => c.scrollWidth > c.clientWidth + 1)
   expect(clipped).toBe(false)
-  expect(small.width).toBeGreaterThan(80)
+  const wordW = await box.evaluate((el, w) => {
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const i = (n.textContent ?? '').indexOf(w)
+      if (i < 0) continue
+      const r = document.createRange()
+      r.setStart(n, i)
+      r.setEnd(n, i + w.length)
+      return r.getBoundingClientRect().width
+    }
+    return 0
+  }, word)
+  expect(small.width).toBeGreaterThanOrEqual(wordW - 1)
   // Far to the right: never wider than the column, never off the page.
   const e3 = await centre(dot(box, 'e'))
   await drag(page, e3, { x: 389, y: e3.y })
   const wide = await rect(box)
   expect(wide.x + wide.width).toBeLessThanOrEqual(389.5)
-  expect(wide.width).toBeLessThanOrEqual(f.width + 1)
+  expect(wide.width).toBeLessThanOrEqual(278)
 })
 
 test('phone: w changes the width too and the box stays left-aligned in the column', async ({
@@ -231,4 +247,16 @@ test('phone: the size is kept after a reload', async ({ page }) => {
   await expect(again).toBeVisible()
   expect(Math.abs((await rect(again)).width - w1)).toBeLessThan(1.5)
   expect(w1).toBeLessThan(f.width - 30)
+})
+
+test('phone: Undo puts the size back in one step', async ({ page }) => {
+  const box = await phoneBox(page, 'P-undo', ['Alpha beta', 'Gamma'])
+  const f = await rect(box)
+  const e = await centre(dot(box, 'e'))
+  await drag(page, e, { x: e.x - 70, y: e.y })
+  expect((await rect(box)).width).toBeLessThan(f.width - 30)
+  await page.keyboard.press('ControlOrMeta+z')
+  await expect
+    .poll(async () => Math.abs((await rect(box)).width - f.width))
+    .toBeLessThan(1.5)
 })

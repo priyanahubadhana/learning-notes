@@ -101,6 +101,9 @@ export function minWidthPx(frame: HTMLElement, content: HTMLElement): number {
   for (let n = walk.nextNode(); n; n = walk.nextNode()) {
     const el = n.parentElement
     if (!el || !n.textContent?.trim()) continue
+    // Why: the editor puts a <style> (its media rules) inside the box; its
+    // text is not content, and on a phone it made every minimum 137 mm.
+    if (el.closest('style, script, noscript')) continue
     const cs = getComputedStyle(el)
     parts.push({
       text: n.textContent,

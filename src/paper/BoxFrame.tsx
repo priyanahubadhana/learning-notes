@@ -181,7 +181,11 @@ export function BoxFrame({
         onEmptyDelete()
       }}
       className={
-        (stacked ? 'relative mt-8 ' : 'absolute ') +
+        (stacked
+          ? v2On
+            ? 'relative mt-12 '
+            : 'relative mt-8 '
+          : 'absolute ') +
         'group' +
         (dragging ? ' opacity-90 shadow-2xl' : '') +
         (pushed && !dragging
@@ -190,7 +194,12 @@ export function BoxFrame({
       }
       style={
         stacked
-          ? { marginLeft: stacked.x * k, width: stacked.w * k }
+          ? {
+              marginLeft: stacked.x * k,
+              width: stacked.w * k,
+              // Text box v2 (2B.5b): the height set with a dot, as on the iPad.
+              ...(v2On && shown.h ? { minHeight: shown.h * k } : {}),
+            }
           : dragging
             ? {
                 // One moving copy: placed at its old spot and moved by a
@@ -342,7 +351,7 @@ export function BoxFrame({
       {onResize &&
         !layoutMode &&
         picked &&
-        !stacked &&
+        (!stacked || v2On) &&
         !box.locked &&
         !dragging && <ResizeDots onResize={onResize} />}
       {picked && !typing && !dragging && bar && (

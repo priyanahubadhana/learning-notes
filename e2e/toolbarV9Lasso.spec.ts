@@ -140,7 +140,7 @@ test('Options card keeps Layers: the same layer list as the live Lasso', async (
   await chip(page, 'lasso.opts').click()
   const c = card(page, 'lasso.opts')
   await c.getByRole('button', { name: /Layers/ }).click()
-  await expect(c.getByTestId('v8-lasso-layers')).toContainText('Layer 1')
+  await expect(c.getByTestId('v8-lasso-layers')).toContainText('Add Layer 2')
   await expect(c.getByTestId('v8-lasso-layers')).toContainText(
     'A hidden or locked layer cannot be selected.',
   )

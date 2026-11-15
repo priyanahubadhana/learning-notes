@@ -20,6 +20,7 @@ export const enToolbar = {
   'v8.item.format': 'Format',
   'v8.item.italic': 'Italic',
   'v8.item.mode': 'Mode',
+  'v8.item.options': 'Options',
   'v8.item.shape': 'Shape',
   'v8.item.size': 'Size',
   'v8.item.type': 'Type',

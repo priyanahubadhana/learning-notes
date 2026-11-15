@@ -14,8 +14,12 @@ export function cardAutoClose(
     case 'eraser.mode':
     case 'eraser.size':
       return !unlocked('tb.eraserOptions')
+    // The quick Shape picker (Beginner row, or the folded Professional chip).
     case 'lasso.shape':
-      return !unlocked('tb.lassoOptions')
+      return true
+    case 'lasso.picks':
+    case 'lasso.opts':
+      return false
     case 'sel.colour':
     case 'sel.size':
       return true

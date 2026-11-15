@@ -103,6 +103,7 @@ export const hiToolbar = {
   'v8.item.format': 'फ़ॉर्मैट',
   'v8.item.italic': 'तिरछा',
   'v8.item.mode': 'मोड',
+  'v8.item.options': 'विकल्प',
   'v8.item.shape': 'आकृति',
   'v8.item.size': 'आकार',
   'v8.item.type': 'प्रकार',

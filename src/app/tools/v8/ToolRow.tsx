@@ -3,7 +3,9 @@ import { useActiveStyles, useBlockNoteEditor } from '@blocknote/react'
 import { CardTrigger } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
 import { Icon } from '../icons'
-import { ROW_ITEMS, cardIdOf, type RowItem } from './rowItems'
+import { rowItemsFor, cardIdOf, type RowItem } from './rowItems'
+import { useBarPref } from './barPrefs'
+import { LassoPickChips, LassoShapeChips } from './LassoRowParts'
 import { dotPx, usePenFace, type PenFace } from './penFace'
 import { useChangeCounts } from './changeCount'
 import type { V8ToolId } from './registryV8'
@@ -89,7 +91,7 @@ export function ToolRow({
   })
   const editor = useBlockNoteEditor()
   const active = useActiveStyles(editor as never) as Record<string, unknown>
-  const items = ROW_ITEMS[tool]
+  const items = rowItemsFor(tool, useBarPref('biggerLasso'))
   // What the row showed while no card was open. A chip that was already on the
   // row keeps its place while its card is open (the open chip may show its word,
   // but nothing else re-folds, so "⋯ n" does not jump and Format stays put).
@@ -102,7 +104,14 @@ export function ToolRow({
   const specs: FoldSpec[] = items.map((it, i) => ({
     id: it.id,
     priority: 100 - i,
-    fixedW: it.kind === 'toggle' ? 44 : undefined,
+    fixedW:
+      it.kind === 'toggle'
+        ? 44
+        : it.kind === 'lshape'
+          ? 230
+          : it.kind === 'lpicks'
+            ? 300
+            : undefined,
     keepName: it === openItem && !frozen,
   }))
   const {
@@ -141,7 +150,11 @@ export function ToolRow({
     >
       <div className="v8row-items" ref={rowRef}>
         {shown.map((item) =>
-          item.kind === 'menu' ? (
+          item.kind === 'lshape' ? (
+            <LassoShapeChips key={item.id} />
+          ) : item.kind === 'lpicks' ? (
+            <LassoPickChips key={item.id} />
+          ) : item.kind === 'menu' ? (
             <CardTrigger
               key={item.id}
               className="v8chip"
@@ -221,6 +234,10 @@ export function ToolRow({
             onPick: () => {
               if (item.kind === 'menu')
                 onToggleCard(cardIdOf(item), card.anchor)
+              else if (item.kind === 'lshape')
+                onToggleCard('lasso.shape', card.anchor)
+              else if (item.kind === 'lpicks')
+                onToggleCard('lasso.picks', card.anchor)
               else {
                 toggleStyle(item)
                 onCloseCard('fold.row')

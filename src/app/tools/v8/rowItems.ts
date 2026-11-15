@@ -1,13 +1,15 @@
 import type { IconName } from '../icons'
 import type { MessageKey } from '../../../i18n/t'
 import type { V8ToolId } from './registryV8'
+import { getBarPref } from './barPrefs'
 
 /**
  * What each tool shows in the tool row (second line). Slice 1b draws the
  * chips and opens an empty card; the card contents come with 1c to 1f, and
  * the Favourites chips with 1g. Order follows the spec (TB-21, TB-40).
  */
-export type ItemKind = 'menu' | 'toggle'
+/** lshape / lpicks = the Professional Lasso's segmented chips on the bar. */
+export type ItemKind = 'menu' | 'toggle' | 'lshape' | 'lpicks'
 
 export interface RowItem {
   id: string
@@ -91,9 +93,43 @@ export const ROW_ITEMS: Record<V8ToolId, readonly RowItem[]> = {
 
 export const cardIdOf = (item: RowItem): string => `${item.tool}.${item.id}`
 
+/**
+ * The Professional Lasso row (2A.11, mock v9): Free-hand / Rectangle and
+ * "Picks" right on the bar, then one Options menu. The Beginner row stays
+ * Shape ▾ and Actions ▾ (ROW_ITEMS.lasso).
+ */
+export const LASSO_PRO_ITEMS: readonly RowItem[] = [
+  {
+    id: 'lshape',
+    tool: 'lasso',
+    kind: 'lshape',
+    label: 'v8.item.shape',
+    icon: 'lasso',
+    card: 'pick',
+  },
+  {
+    id: 'lpicks',
+    tool: 'lasso',
+    kind: 'lpicks',
+    label: 'v8.lasso.picks',
+    icon: 'pen',
+    card: 'pick',
+  },
+  menu('lasso', 'opts', 'v8.item.options', { icon: 'sliders', card: 'panel' }),
+]
+
+/** The row's items now: the Lasso changes with its Professional look. */
+export const rowItemsFor = (
+  tool: V8ToolId,
+  lassoPro: boolean,
+): readonly RowItem[] =>
+  tool === 'lasso' && lassoPro ? LASSO_PRO_ITEMS : ROW_ITEMS[tool]
+
 /** The card a second tap on the active tool opens (TB-04). */
 export function firstCardOf(tool: V8ToolId): string {
   if (tool === 'insert') return 'insert'
+  // The Professional Lasso has no Shape menu on its bar: its first card is Options.
+  if (tool === 'lasso' && getBarPref('biggerLasso')) return 'lasso.opts'
   // The settings button in front (iconOnly) is never the "first card".
   const first = ROW_ITEMS[tool].find((i) => i.kind === 'menu' && !i.iconOnly)
   return first ? cardIdOf(first) : tool
@@ -104,6 +140,9 @@ export function cardInfo(id: string): {
   title: MessageKey
   size: 'pick' | 'panel'
 } {
+  // The Lasso's folded chips: the picks open as a card of their own (2A.11).
+  if (id === 'lasso.picks') return { title: 'v8.lasso.picks', size: 'pick' }
+  if (id === 'lasso.opts') return { title: 'v8.lasso.options', size: 'panel' }
   if (id === 'insert') return { title: 'v8.tool.insert', size: 'panel' }
   if (id === 'more.alltools')
     return { title: 'v8.allTools.title', size: 'panel' }

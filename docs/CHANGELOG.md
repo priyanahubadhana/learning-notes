@@ -9,6 +9,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Also (T5): the "Tap here to keep writing" line no longer takes a press that moved over 10 px as a tap (no new last line, no caret, no jump to the end), switch OFF and ON. 4 more e2e.
 - Also (T23): an empty box (no text, ink or picture) now goes when you leave it to the page title or any field outside the box, and is looked at again until a button or field in the box UI lets go of focus; whatever its style. (T6): the Box ▾ card of the Text tool no longer blinks: when the card was a little taller than the room above the box it was capped, measured capped, grown, capped again every frame; useAnchoredCard now measures its own full height. e2e: T23, tb2-boxchip (rect still for 2 s).
 - Files: e2e/tb2-pencil.spec.ts, e2e/tb2-boxchip.spec.ts, playwright.config.ts (ipad list), src/editor/PageEditor.tsx (one onClick guard), src/paper/usePaperBoxes.tsx, src/design/parts/useAnchoredCard.ts.
+
 ### 15 Nov 2026: P1.8 finish, the must-have update screens match panel 5 (behind update.v2)
 
 - What: icons, size line, percent pill, "Starts in N seconds", "Update now", Paused, Installing and "did not finish" bodies, "Not now" + "Try again" + "Copy details", and a "Must-have update waiting" pill after "Not now" (above the phone tab bar). Time left shows after 3 s from the last 5 s, rounded up in steps; the slow note only after 8 s under 50 KB/s, with the true speed.

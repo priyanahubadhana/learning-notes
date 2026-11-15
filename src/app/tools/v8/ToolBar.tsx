@@ -1,5 +1,12 @@
 import { useBlockNoteEditor } from '@blocknote/react'
-import { Suspense, useEffect, useRef, useState, type PointerEvent } from 'react'
+import {
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+  type ReactNode,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { historyState } from '../../../core/historySteps'
 import { runHistory } from '../../../editor/historyActions'
@@ -16,9 +23,15 @@ import {
   hoverTipsSetting,
 } from '../../../settings/builtinSettings'
 import { useDeviceSetting } from '../../../settings/useSetting'
-import { useToolNames } from './barPrefs'
+import { useBarPref, useToolNames } from './barPrefs'
 import { Icon, type IconName } from '../icons'
-import { TOOL_HOLD_MS, newLineExtras, newLineHoldMs } from '../main/mainTools'
+import {
+  TOOL_HOLD_MS,
+  lastTool,
+  newLineExtras,
+  newLineHoldMs,
+} from '../main/mainTools'
+import { swapToLastTool } from '../main/selectTool'
 import {
   NEW_LINE_EXTRA_KINDS,
   holdOpensExtras,
@@ -33,7 +46,20 @@ const MoreExtras = lazyNow(() => import('./cards/more/MoreExtras'))
 const MoreMenuV2 = lazyNow(() => import('./cards/more/MoreMenuV2'))
 
 import type { OpenCard } from './barState'
-import { v8Tools, type V8ToolId } from './registryV8'
+import { type V8ToolId } from './registryV8'
+import {
+  PHONE_FOLD,
+  barDraft,
+  barTools,
+  isCore,
+  isLocked,
+  startEdit,
+} from './barEdit'
+import { EditSlot, FixedSlot } from './BarEditParts'
+import { barToolIcon, barToolName, type EditDrag } from './barEditUi'
+import { runTool } from '../toolRegistry'
+import { useBreakpoint } from '../../shell/useBreakpoint'
+import { modeToTool } from './barState'
 import { useFold, type FoldSpec } from './useFold'
 import './toolbarV8.css'
 
@@ -68,11 +94,19 @@ const KEEP: Record<string, number> = {
   insert: 94,
   min: 93,
   shapes: 92,
-  bs: 91,
-  nl: 90,
+  back: 89,
 }
 
+/**
+ * How long a press stays still before edit mode opens (S5-22): on the bar's
+ * free space soon; on a tool later, after its name has shown (TB-02) and a
+ * slide to another tool (TB-09) did not start.
+ */
+export const EDIT_HOLD_MS = 600
+export const EDIT_HOLD_TOOL_MS = 900
+
 export interface ToolBarProps {
+  editDrag: EditDrag
   tool: V8ToolId
   card: OpenCard | null
   onTool: (id: V8ToolId, el: HTMLElement) => void
@@ -126,6 +160,12 @@ function useToolHold(onPick: (id: V8ToolId, el: HTMLElement) => void) {
     null
   return {
     tip,
+    /** Forget a hold in progress (edit mode took over the press). */
+    reset() {
+      stop()
+      s.current.held = false
+      setTip(null)
+    },
     props(id: V8ToolId) {
       return {
         onPointerDown: (e: PointerEvent<HTMLElement>) => {
@@ -279,8 +319,12 @@ function ToolFace({
   )
 }
 
+/** Not on a phone's bar while editing: it keeps one row (Settings v5 mock). */
+const PHONE_EDIT_HIDDEN = ['min', 'undo', 'redo']
+
 /** The first line: tools, Backspace and New line, then ⋯ and Minimise (Undo and Redo only without the new frame; with it they are in the top bar). */
 export function ToolBar({
+  editDrag,
   tool,
   card,
   onTool,
@@ -291,10 +335,20 @@ export function ToolBar({
   const [hoverTips] = useDeviceSetting(hoverTipsSetting)
   const history = historyState.useValue()
   const editor = useBlockNoteEditor() as unknown as Editor | null
-  const tools = v8Tools()
+  const saved = barTools.useValue()
+  const draft = barDraft.useValue()
+  const edit = draft !== null
+  const list = draft ?? saved
+  const tools = list.map((id) => ({ id, icon: barToolIcon(id) }))
+  const editHold = useRef({ timer: 0, x: 0, y: 0 })
+  const stopEditHold = () => {
+    window.clearTimeout(editHold.current.timer)
+    editHold.current.timer = 0
+  }
+  useEffect(() => stopEditHold, [])
   const hold = useToolHold(onTool)
   // PC: the mouse over an icon shows its name when the bar shows none (TB-02).
-  const [hover, setHover] = useState<{ id: V8ToolId; el: HTMLElement } | null>(
+  const [hover, setHover] = useState<{ id: string; el: HTMLElement } | null>(
     null,
   )
   const backspace = useBackspace(editor)
@@ -308,14 +362,20 @@ export function ToolBar({
   // 2A.4: with the new frame, Undo and Redo sit in the page top bar, not here.
   const inTopBar = useFlag('foundation.shell')
 
+  // Professional: "Back to <tool>" swaps to the tool used before (TB-14).
+  const backPref = useBarPref('backToPen')
+  const last = lastTool.useValue()
+  const backTool = backPref && last ? modeToTool(last) : null
   const specs: FoldSpec[] = [
     ...tools.map((x) => ({
       id: x.id as string,
       priority: KEEP[x.id] ?? 50,
       fixedW: undefined,
     })),
-    { id: 'bs', priority: KEEP.bs!, fixedW: 44 },
-    { id: 'nl', priority: KEEP.nl!, fixedW: 44 },
+    ...(backTool ? [{ id: 'back', priority: KEEP.back!, fixedW: 44 }] : []),
+    // New line and Backspace never fold under ⋯ (TB-11, 2A.12).
+    { id: 'bs', priority: Infinity, fixedW: 44 },
+    { id: 'nl', priority: Infinity, fixedW: 44 },
     ...(inTopBar
       ? []
       : [
@@ -326,9 +386,16 @@ export function ToolBar({
     { id: 'min', priority: KEEP.min!, fixedW: 44 },
   ]
   const { rowRef, measureRef, result } = useFold(specs, { gap: 0, moreW: 0 })
-  const shows = (id: string) => result.shown.includes(id)
+  // On a phone, while editing, Shapes and Insert sit inside ⋯ More and there
+  // is no Minimise, Undo or Redo, so the bar stays one row (as the mock).
+  const phone = useBreakpoint() === 'phone'
+  const shows = (id: string) =>
+    edit && phone && (PHONE_FOLD.includes(id) || PHONE_EDIT_HIDDEN.includes(id))
+      ? false
+      : (edit && !['undo', 'redo', 'min'].includes(id)) ||
+        result.shown.includes(id)
   const showNames = names && result.names
-  const folded = result.folded.filter((id) => id !== 'more')
+  const folded = edit ? [] : result.folded.filter((id) => id !== 'more')
   const moreOpen = card?.id === 'fold.bar'
   const menuV2 = useFlag('toolbar.menu')
 
@@ -340,8 +407,8 @@ export function ToolBar({
   }
 
   const label = (id: string): string =>
-    id in TOOL_NAME
-      ? t(TOOL_NAME[id as V8ToolId])
+    tools.some((x) => x.id === id)
+      ? barToolName(id)
       : t(
           {
             bs: 'v8.bar.backspace',
@@ -351,6 +418,9 @@ export function ToolBar({
             min: 'v8.bar.minimise',
           }[id] as 'v8.bar.undo',
         )
+  const backLabel = backTool
+    ? t('v8.bar.backTo', { tool: t(TOOL_NAME[backTool]) })
+    : ''
   const iconOf = (id: string): IconName =>
     tools.find((x) => x.id === id)?.icon ??
     ({
@@ -363,8 +433,8 @@ export function ToolBar({
 
   const entries: FoldEntry[] = folded.map((id) => ({
     id,
-    label: label(id),
-    icon: iconOf(id),
+    label: id === 'back' ? backLabel : label(id),
+    icon: id === 'back' && backTool ? iconOf(backTool) : iconOf(id),
     pressed: id === tool,
     onPick: () => {
       if (id in TOOL_NAME) {
@@ -373,14 +443,49 @@ export function ToolBar({
         if (t_ === tool && t_ !== 'insert') onCloseCard('fold.bar')
         return
       }
+      if (!isCore(id) && tools.some((x) => x.id === id)) runTool(id)
       if (id === 'undo' || id === 'redo') history_(id)
       if (id === 'nl') newLine()
+      if (id === 'back') swapToLastTool()
       if (id === 'bs' && editor) deleteBackward(editor, 'char')
       onCloseCard('fold.bar')
     },
   }))
 
   const btn = 'v8tool'
+  /** A tool that is always on the bar: in edit mode it shows only its lock. */
+  const fixed = (testKey: string, name: string, node: ReactNode) =>
+    edit ? (
+      <FixedSlot key={testKey} testKey={testKey} name={name}>
+        {node}
+      </FixedSlot>
+    ) : (
+      node
+    )
+  // Touch and hold a tool or the bar's free space: edit mode opens (S5-22).
+  const holdDown = (e: PointerEvent<HTMLElement>) => {
+    if (edit || e.button !== 0) return
+    const b = (e.target as HTMLElement).closest('button')
+    const kind = b?.dataset.barTool
+    if (b && (!kind || kind === 'backspace' || kind === 'newLine')) return
+    stopEditHold()
+    editHold.current.x = e.clientX
+    editHold.current.y = e.clientY
+    editHold.current.timer = window.setTimeout(
+      () => {
+        editHold.current.timer = 0
+        hold.reset()
+        onCloseCard('fold.bar')
+        startEdit()
+      },
+      b ? EDIT_HOLD_TOOL_MS : EDIT_HOLD_MS,
+    )
+  }
+  const holdMove = (e: PointerEvent<HTMLElement>) => {
+    const h = editHold.current
+    if (h.timer && Math.hypot(e.clientX - h.x, e.clientY - h.y) > 10)
+      stopEditHold()
+  }
   return (
     <div
       className="v8bar"
@@ -388,24 +493,73 @@ export function ToolBar({
       aria-label={t('bar.v8Label')}
       data-testid="v8-bar"
       data-names={showNames || undefined}
+      data-editing={edit || undefined}
       ref={rowRef}
+      onPointerDown={holdDown}
+      onPointerMove={holdMove}
+      onPointerUp={stopEditHold}
+      onPointerCancel={stopEditHold}
     >
       {tools.map((x) => {
         if (!shows(x.id)) return null
-        const on = x.id === tool
-        const insert = x.id === 'insert'
-        const h = hold.props(x.id)
-        return (
+        const dragging = editDrag.dragId === x.id
+        const slot = (node: ReactNode) =>
+          edit ? (
+            <EditSlot
+              key={x.id}
+              id={x.id}
+              locked={isLocked(x.id)}
+              dragging={dragging}
+              testKey={x.id}
+            >
+              {node}
+            </EditSlot>
+          ) : (
+            node
+          )
+        if (!isCore(x.id))
+          return slot(
+            <button
+              key={x.id}
+              type="button"
+              data-chrome
+              data-bar-tool={x.id}
+              data-testid={`v8-tool-${x.id}`}
+              className={`${btn}${edit ? ' v8tool-edit' : ''}`}
+              aria-label={barToolName(x.id)}
+              onPointerEnter={(e) => {
+                if (e.pointerType === 'mouse' && !edit)
+                  setHover({ id: x.id, el: e.currentTarget })
+              }}
+              onPointerLeave={() => setHover(null)}
+              onMouseDown={keepFocus}
+              onContextMenu={(e) => e.preventDefault()}
+              onClick={() => {
+                if (!edit) runTool(x.id)
+              }}
+            >
+              <ToolFace
+                icon={x.icon}
+                name={barToolName(x.id)}
+                names={showNames}
+              />
+            </button>,
+          )
+        const id = x.id as V8ToolId
+        const on = id === tool
+        const insert = id === 'insert'
+        const h = hold.props(id)
+        return slot(
           <button
             key={x.id}
             type="button"
             data-chrome
             data-bar-tool={x.id}
             data-testid={`v8-tool-${x.id}`}
-            className={btn}
-            aria-label={t(TOOL_NAME[x.id])}
+            className={`${btn}${edit ? ' v8tool-edit' : ''}`}
+            aria-label={t(TOOL_NAME[id])}
             onPointerEnter={(e) => {
-              if (e.pointerType === 'mouse')
+              if (e.pointerType === 'mouse' && !edit)
                 setHover({ id: x.id, el: e.currentTarget })
             }}
             onPointerLeave={() => setHover(null)}
@@ -417,72 +571,99 @@ export function ToolBar({
             data-pressed={(insert && card?.id === 'insert') || undefined}
             onMouseDown={keepFocus}
             onContextMenu={(e) => e.preventDefault()}
-            onPointerDown={h.onPointerDown}
-            onPointerMove={h.onPointerMove}
-            onPointerUp={h.onPointerUp}
-            onPointerCancel={h.onPointerCancel}
+            onPointerDown={edit ? undefined : h.onPointerDown}
+            onPointerMove={edit ? undefined : h.onPointerMove}
+            onPointerUp={edit ? undefined : h.onPointerUp}
+            onPointerCancel={edit ? undefined : h.onPointerCancel}
             onClick={(e) => {
+              if (edit) return
               if (h.consumeHeld()) return
-              onTool(x.id, e.currentTarget)
+              onTool(id, e.currentTarget)
             }}
           >
             <ToolFace
               icon={x.icon}
-              name={t(TOOL_NAME[x.id])}
+              name={t(TOOL_NAME[id])}
               names={showNames}
               chevron={insert}
             />
-          </button>
+          </button>,
         )
       })}
-      {shows('bs') ? (
+      {backTool && !edit && shows('back') ? (
         <button
           type="button"
           data-chrome
-          data-bar-tool="backspace"
-          data-testid="v8-backspace"
-          className={`${btn} v8tool-first`}
-          aria-label={t('v8.bar.backspace')}
-          onMouseDown={keepFocus}
-          onContextMenu={(e) => e.preventDefault()}
-          onPointerDown={(e) => {
-            if (e.button !== 0) return
-            e.preventDefault()
-            try {
-              e.currentTarget.setPointerCapture(e.pointerId)
-            } catch {
-              // Not a real pointer (a test): the up event still arrives.
-            }
-            backspace.start()
-          }}
-          onPointerUp={backspace.stop}
-          onPointerCancel={backspace.stop}
-          onKeyDown={(e) => {
-            if ((e.key === 'Enter' || e.key === ' ') && editor) {
-              e.preventDefault()
-              deleteBackward(editor, 'char')
-            }
-          }}
-        >
-          <Icon name="backspace" size={20} />
-        </button>
-      ) : null}
-      {shows('nl') ? (
-        <button
-          type="button"
-          data-chrome
-          data-bar-tool="newLine"
-          data-testid="v8-newline"
+          data-testid="v8-back"
           className={btn}
-          aria-label={t('v8.bar.newLine')}
-          aria-haspopup={nlHold.mode === 'off' ? undefined : 'dialog'}
+          aria-label={backLabel}
           onMouseDown={keepFocus}
-          {...nlHold.props}
-          style={{ touchAction: 'pan-x' }}
+          onClick={() => swapToLastTool()}
         >
-          <Icon name="newLine" size={20} />
+          <Icon name={iconOf(backTool)} size={20} />
+          <span className="v8back-badge" aria-hidden>
+            <Icon name="undo" size={10} />
+          </span>
         </button>
       ) : null}
+      {shows('bs')
+        ? fixed(
+            'backspace',
+            t('v8.bar.backspace'),
+            <button
+              key="bs"
+              type="button"
+              data-chrome
+              data-bar-tool="backspace"
+              data-testid="v8-backspace"
+              className={`${btn} v8tool-first`}
+              aria-label={t('v8.bar.backspace')}
+              onMouseDown={keepFocus}
+              onContextMenu={(e) => e.preventDefault()}
+              onPointerDown={(e) => {
+                if (e.button !== 0 || edit) return
+                e.preventDefault()
+                try {
+                  e.currentTarget.setPointerCapture(e.pointerId)
+                } catch {
+                  // Not a real pointer (a test): the up event still arrives.
+                }
+                backspace.start()
+              }}
+              onPointerUp={backspace.stop}
+              onPointerCancel={backspace.stop}
+              onKeyDown={(e) => {
+                if ((e.key === 'Enter' || e.key === ' ') && editor) {
+                  e.preventDefault()
+                  deleteBackward(editor, 'char')
+                }
+              }}
+            >
+              <Icon name="backspace" size={20} />
+            </button>,
+          )
+        : null}
+      {shows('nl')
+        ? fixed(
+            'newline',
+            t('v8.bar.newLine'),
+            <button
+              key="nl"
+              type="button"
+              data-chrome
+              data-bar-tool="newLine"
+              data-testid="v8-newline"
+              className={btn}
+              aria-label={t('v8.bar.newLine')}
+              aria-haspopup={nlHold.mode === 'off' ? undefined : 'dialog'}
+              onMouseDown={keepFocus}
+              {...(edit ? {} : nlHold.props)}
+              style={{ touchAction: edit ? 'none' : 'pan-x' }}
+            >
+              <Icon name="newLine" size={20} />
+            </button>,
+          )
+        : null}
       <span className="v8spacer" />
       {shows('undo') ? (
         <button
@@ -513,30 +694,40 @@ export function ToolBar({
         </button>
       ) : null}
       {/* ⋯ also holds what did not fit; its own card (1f) comes later. */}
-      <button
-        type="button"
-        data-chrome
-        data-popup-trigger=""
-        data-testid="v8-more"
-        className={btn}
-        aria-haspopup="dialog"
-        aria-expanded={moreOpen}
-        aria-label={
-          folded.length
-            ? t('v8.row.moreN', { count: folded.length })
-            : t('v8.bar.more')
-        }
-        data-active={(!moreOpen && folded.includes(tool)) || undefined}
-        data-pressed={moreOpen || undefined}
-        onMouseDown={keepFocus}
-        onClick={(e) => onToggleCard('fold.bar', e.currentTarget)}
-      >
-        {/* The slot lit and showing the tool that sits behind it (TB-08). */}
-        <Icon name={folded.includes(tool) ? iconOf(tool) : 'more'} size={20} />
-        {folded.length ? (
-          <span className="v8badge">{folded.length}</span>
-        ) : null}
-      </button>
+      {fixed(
+        'more',
+        t('v8.bar.more'),
+        <button
+          key="more"
+          type="button"
+          data-chrome
+          data-popup-trigger=""
+          data-testid="v8-more"
+          className={btn}
+          aria-haspopup="dialog"
+          aria-expanded={moreOpen}
+          aria-label={
+            folded.length
+              ? t('v8.row.moreN', { count: folded.length })
+              : t('v8.bar.more')
+          }
+          data-active={(!moreOpen && folded.includes(tool)) || undefined}
+          data-pressed={moreOpen || undefined}
+          onMouseDown={keepFocus}
+          onClick={(e) => {
+            if (!edit) onToggleCard('fold.bar', e.currentTarget)
+          }}
+        >
+          {/* The slot lit and showing the tool that sits behind it (TB-08). */}
+          <Icon
+            name={folded.includes(tool) ? iconOf(tool) : 'more'}
+            size={20}
+          />
+          {folded.length ? (
+            <span className="v8badge">{folded.length}</span>
+          ) : null}
+        </button>,
+      )}
       {shows('min') ? (
         // Slice 1j wires Minimise; until then it only shows its place.
         <button
@@ -562,6 +753,7 @@ export function ToolBar({
             {menuV2 ? (
               <MoreMenuV2
                 entries={entries}
+                editor={editor}
                 onClose={() => onCloseCard('fold.bar')}
                 onAllTools={() => onToggleCard('more.alltools', card.anchor)}
               />
@@ -602,7 +794,7 @@ export function ToolBar({
             >
               <ToolFace
                 icon={x.icon}
-                name={t(TOOL_NAME[x.id])}
+                name={barToolName(x.id)}
                 names={names && mode === 'full'}
                 chevron={x.id === 'insert'}
               />
@@ -613,12 +805,12 @@ export function ToolBar({
       {hover && hoverTips === 'on' && !hold.tip && !showNames ? (
         <NameTip
           el={hover.el}
-          text={t(TOOL_NAME[hover.id])}
+          text={barToolName(hover.id)}
           testId="v8-hover-tip"
         />
       ) : null}
       {hold.tip && !showNames ? (
-        <NameTip el={hold.tip.el} text={t(TOOL_NAME[hold.tip.id])} />
+        <NameTip el={hold.tip.el} text={barToolName(hold.tip.id)} />
       ) : null}
     </div>
   )

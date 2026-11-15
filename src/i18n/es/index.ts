@@ -39,6 +39,7 @@ import { esParts } from './parts'
 import { esNotebooksV2 } from './notebooksV2'
 import { esSearchV2 } from './searchV2'
 import { esPanelV2 } from './panelV2'
+import { esV8BarEdit } from './v8BarEdit'
 import { esV8Pen } from './v8Pen'
 import { esV8Favs } from './v8Favs'
 import { esV8Tools } from './v8Tools'
@@ -84,6 +85,7 @@ export const es: Record<string, string> = {
   ...esSearchV2,
   ...esPanelV2,
   ...esLibraryV2,
+  ...esV8BarEdit,
   ...esV8Pen,
   ...esV8Favs,
   ...esStorageSafety,

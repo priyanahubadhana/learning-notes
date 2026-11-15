@@ -46,6 +46,7 @@ import { enParts } from '../parts'
 import { enV2Notebooks } from '../v2/notebooks'
 import { enV2Search } from '../v2/search'
 import { enV2Panel } from '../v2/panel'
+import { enV8BarEdit } from '../v8BarEdit'
 import { enV8Pen } from '../v8Pen'
 import { enV8Favs } from '../v8Favs'
 import { enV8Tools } from '../v8Tools'
@@ -98,6 +99,7 @@ export const enLate = {
   ...enV2Search,
   ...enV2Panel,
   ...enLateLibraryV2,
+  ...enV8BarEdit,
   ...enV8Pen,
   ...enV8Favs,
   ...enLateStorageSafety,

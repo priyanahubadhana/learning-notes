@@ -59,6 +59,10 @@ test('ON: app actions as one row of icon tiles, folded tools as a tile grid, not
   await page.goto('/?flags=toolbar.v8,toolbar.menu')
   await page.getByTestId('v8-more').click()
   await expect(card(page).locator('[data-menu-v2]')).toBeVisible()
+  // Settings and All tools sit under the Tool bar fold (2A.12).
+  await card(page)
+    .getByRole('button', { name: 'Tool bar', exact: true })
+    .click()
   const now = await cardNames(page)
   for (const name of old) expect(now, name).toContain(name)
   const top = card(page).getByRole('group', { name: 'Tool bar' })
@@ -109,15 +113,16 @@ test('a tap opens the card with no focus ring; Tab rings the first tile', async 
   expect(await ringed()).toBe(true)
 })
 
-test('a folded tile acts on the text: New line adds a line', async ({
+test('2A.12: New line stays on the bar (never a ⋯ tile) and adds a line', async ({
   page,
 }) => {
   await open(page, 'toolbar.v8,toolbar.menu')
   const blocks = page.locator('.bn-block')
   const before = await blocks.count()
   await page.getByTestId('v8-more').click()
-  await page.getByTestId('v8-fold-nl').click()
-  await expect(card(page)).toHaveCount(0)
+  await expect(page.getByTestId('v8-fold-nl')).toHaveCount(0)
+  await page.getByTestId('pcard-close').click()
+  await page.getByTestId('v8-newline').click()
   await expect.poll(() => blocks.count()).toBeGreaterThan(before)
 })
 

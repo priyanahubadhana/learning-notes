@@ -17,6 +17,11 @@ import {
   type OpenCard,
 } from './barState'
 import { NEWLINE_CARD, ToolBar } from './ToolBar'
+import { barToolName } from './barEditUi'
+import { useBreakpoint } from '../../shell/useBreakpoint'
+import { PHONE_FOLD, barDraft, cancelEdit } from './barEdit'
+import { EditBanner, EditTray } from './BarEditParts'
+import { useEditDrag } from './barEditUi'
 import { ToolRow } from './ToolRow'
 import { isPenCard } from './cards/pen/penModel'
 import { cardAutoClose } from './cards/autoClose'
@@ -58,6 +63,21 @@ export default function ToolbarV8() {
   const [card, setCard] = useState<OpenCard | null>(null)
   const root = useRef<HTMLDivElement>(null)
   useTuckWatcher()
+  // Editing the bar on the bar itself (2A.15): the draft is the unsaved bar.
+  const draft = barDraft.useValue()
+  const editing = draft !== null
+  const drag = useEditDrag()
+  const phone = useBreakpoint() === 'phone'
+  const folded = draft?.filter((id) => PHONE_FOLD.includes(id)) ?? []
+  useEffect(
+    () =>
+      barDraft.subscribe(() => {
+        if (barDraft.get() !== null) setCard(null)
+      }),
+    [],
+  )
+  // Leaving the page in the middle of an edit keeps the old bar.
+  useEffect(() => cancelEdit, [])
 
   useEffect(() => {
     preloadAhead([
@@ -150,21 +170,47 @@ export default function ToolbarV8() {
   const info = card ? cardInfo(card.id, eraserMenus) : null
 
   return (
-    <div ref={root} className="v8" data-testid="toolbar-v8" data-tool={tool}>
+    <div
+      ref={root}
+      className="v8"
+      data-testid="toolbar-v8"
+      data-tool={tool}
+      data-editing={editing || undefined}
+      onPointerDown={editing ? drag.onPointerDown : undefined}
+      onClickCapture={(e) => {
+        if (drag.consumeClick()) {
+          e.stopPropagation()
+          e.preventDefault()
+        }
+      }}
+    >
+      {editing ? <EditBanner /> : null}
       <ToolBar
+        editDrag={drag}
         tool={tool}
         card={card}
         onTool={onTool}
         onToggleCard={onToggleCard}
         onCloseCard={onCloseCard}
       />
-      <ToolRow
-        tool={tool}
-        card={card}
-        onToggleCard={onToggleCard}
-        onCloseCard={onCloseCard}
-      />
-      {tool === 'lasso' || picture ? (
+      {editing && phone && folded.length ? (
+        <p className="v8eb-note" data-testid="v8-edit-phone-note">
+          {t('v8.edit.phoneFold', {
+            names: folded.map(barToolName).join(', '),
+          })}
+        </p>
+      ) : null}
+      {editing ? (
+        <EditTray draft={draft} />
+      ) : (
+        <ToolRow
+          tool={tool}
+          card={card}
+          onToggleCard={onToggleCard}
+          onCloseCard={onCloseCard}
+        />
+      )}
+      {!editing && (tool === 'lasso' || picture) ? (
         <Suspense fallback={null}>
           <SelectionBarV8
             lasso={tool === 'lasso'}

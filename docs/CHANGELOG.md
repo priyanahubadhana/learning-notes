@@ -4,9 +4,23 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 16 Nov 2026: 2A.13 review 2 fixes (switch toolbar.v8, OFF live)
 
-- What: Organise names the row a move was made on (the "..." menu and keyboard moves gave the wrong name); the shared Arrange sheet now passes the moved row's id. The Add form grows on an upright iPad (opt-in `grow` on the shared sheet) so the live preview stays in view; both "Start from" tiles show a picture. New tests for each; pictures retaken.
+- What: Organise names the row a move was made on (the "..." menu and keyboard moves gave the wrong name); the shared Arrange sheet now passes the moved row's id. The Add form grows on an upright iPad (opt-in `grow` on the shared sheet) so the live preview stays in view; "Start from" is the shared segmented choice, as the v9 mock shows (review 3). New tests for each; pictures retaken.
 - Why: review 2 of 2A.13 (Safari pressed-row memory was reset by the menu and never set by keys).
-- Files: src/design/parts/ArrangeSheet.tsx, src/design/parts/SheetBase.tsx, src/design/parts/SheetBase.css, src/app/tools/v8/FavSheets.tsx, e2e/toolbarV8Favs.spec.ts, docs/screens/2a13/.
+- Files: src/design/parts/ArrangeSheet.tsx, src/design/parts/SheetBase.tsx, src/design/parts/SheetBase.css, src/app/tools/v8/FavSheets.tsx (uses OnOffChoice), e2e/toolbarV8Favs.spec.ts, docs/screens/2a13/.
+
+### 15 Nov 2026: 2A.15 Edit the tool bar on the bar (switch toolbar.v8, OFF live)
+
+- What: touch and hold a tool (after its name shows) or the bar's free space opens edit mode: top bar with cancel and done, a minus on removable tools, a lock on Text, Pen, Eraser, Backspace, New line and More, live drag, a "More tools" tray (tap or drag up to add, drop on it to remove); Done saves on this device with a toast and Undo; cancel keeps the old bar. Your layouts stay hidden (no button on the new bar; LayoutButton, layoutSync and data untouched).
+- Review 1 fixes: the tray offers every tool the old Edit toolbar sheet offered (usual ones first, the rest behind All tools, grouped, scrollable) and Reset to default (asks first, Undo); phone keeps Shapes and Insert in ⋯ More; lock label; small minus that never covers the next tool.
+- Review 2 fixes (16 Nov, Opus takeover): the minus is drawn 20 px at the tool corner with a 44 pt hit area (::before), the 44 pt test is back; a still tap removes, a press that moves drags the tool (new test); Escape leaves edit mode through the overlay manager (a Reset question takes Escape first; new test); the phone edit bar stays one row (no Minimise, Undo or Redo there; test); the tray never offers a tool without level facts except Revise marks; known tools worked out once.
+- Why: Settings v5 S5-22, S5-23; toolbar-v8 TB-61 hide.
+- Files: src/app/tools/v8/{barEdit.ts,barEditUi.ts,BarEditParts.tsx,ToolBar.tsx,ToolbarV8.tsx,toolbarV8.css}, src/i18n/*/v8BarEdit.ts, e2e/toolbarV8BarEdit.spec.ts
+
+### 15 Nov 2026: 2A.12 review 2 fix, More card pictures (switch toolbar.v8, OFF live)
+
+- What: the pictures script opens the study fold by its test id and fails when it does not open (it hid a missed click before); dark shots check the theme; one new shot with Copy and paste open; Study now and All cards get their own icons (graduation cap, library); the v9 line "Key point sits in Text › Format › Marks." under the study tiles (en, es, hi); all 13 pictures retaken.
+- Why: review 2 found all Professional pictures with the fold closed.
+- Files: e2e/toolbarV9MoreShots.spec.ts, e2e/toolbarV9More.spec.ts, src/app/tools/icons.tsx, src/app/tools/v8/cards/more/MoreStudy.tsx, src/i18n/{en,es,hi}/v8Text.ts, docs/mockups/toolbar-v9-build-shots/2a12-more/
 
 ### 15 Nov 2026: 2A.11 review 2 fixes (switch toolbar.v8, OFF live)
 
@@ -38,8 +52,6 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: P1.9 (T4) docks the side list beside the page, so at 820 px the tool bar folds two tools into "More options (2)" and the list brings a second bar; BUG-002 (2A.3b) keeps the pill 8 px above its words (6 px higher than before), so the old fixed start corners landed on its buttons. Not a timing fault; no app change.
 - Files: e2e/scrollBarPen.spec.ts, e2e/lassoWords.spec.ts
 
-> > > > > > > origin/build/next
-
 ### 15 Nov 2026: 2A.8 review 2 fixes (switch toolbar.v8, OFF live)
 
 - What: Erases chips carry their icons (Highlighter, Text, Pen) and are 44 px tall, as the mock; the T10 "whole words" check now splits on real spaces, looks at line one only and must find no cut word (it failed when the eraser was made to cut letters, then passed).
@@ -63,6 +75,18 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
+
+### 16 Nov 2026: 2A.12 merged
+
+- What: 2A.12 fast-forwarded into build/next with main (94e83c12); 2A.15 review 3 PASS (89b05330); webkit turn to 2A.13. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
+
+### 16 Nov 2026: 2A.12 PASS, 2A.15 to Opus
+
+- What: 2A.12 round 3 PASS (50f3e830); 2A.15 round 2 FAIL, Opus builder took over; 2A.13 fixes pushed; two decisions logged. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
+
+### 16 Nov 2026: 2A.13 review 1
+
+- What: 2A.13 review 1 FAIL (look only); fix list to the builder; TB-58 Pro unlock and chip order are not 2A.13 (PENDING Later). Why: plan step 2. Files: docs/BUILD-STATE.md, docs/PENDING.md.
 
 ### 16 Nov 2026: 2A.11 merged
 

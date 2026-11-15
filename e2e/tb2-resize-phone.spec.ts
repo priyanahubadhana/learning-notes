@@ -8,7 +8,8 @@ import { savedInk } from './inkHelpers.ts'
  * the same dots and rules as on the iPad (TB-20, TB-21, TB-22): n/s change the
  * height, e/w the width inside the single column (left-aligned), never below
  * the content, never under the box bar or the tab bar; a finger outside the
- * dots still scrolls the page.
+ * dots still scrolls the page (that test: tb2-phone-wheel.spec.ts, mouse wheel,
+ * chromium and desktop Safari only).
  */
 test.use({
   viewport: { width: 390, height: 844 },
@@ -259,21 +260,6 @@ test('phone: a box that was never resized fills the column, even if it is narrow
   expect(
     Math.abs((await rect(page.locator(EXTRA).first())).width - narrow),
   ).toBeLessThan(1.5)
-})
-
-test('phone: a finger on the page outside the dots still scrolls it', async ({
-  page,
-}) => {
-  const box = await phoneBox(page, 'P-scroll', ['Alpha beta'], { tall: true })
-  const f = await rect(box)
-  const scroller = page.locator('[data-page-scroller]')
-  const top0 = await scroller.evaluate((el) => el.scrollTop)
-  await page.mouse.move(380, 300)
-  await page.mouse.wheel(0, -200)
-  await page.waitForTimeout(500)
-  expect(await scroller.evaluate((el) => el.scrollTop)).toBeLessThan(top0)
-  const g = await rect(box)
-  expect(Math.abs(g.width - f.width)).toBeLessThan(1.5)
 })
 
 test('phone: with the switch OFF there are no dots', async ({ page }) => {

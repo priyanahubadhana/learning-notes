@@ -3,6 +3,13 @@ export const esV8Tools = {
   'main.sel.paste': 'Pegar',
   'main.sel.resize': 'Cambiar tamaño',
   'v8.eraser.modeGroup': 'Tipo de borrador',
+  'v8.eraser.erases': 'Borra',
+  'v8.eraser.erases.hl': 'Resaltador',
+  'v8.eraser.erases.text': 'Texto',
+  'v8.eraser.erases.pen': 'Lápiz',
+  'v8.eraser.erases.note':
+    'Toca para activar o desactivar cada uno. El texto escrito solo se borra con Texto activado.',
+  'v8.eraser.needOne': 'El borrador necesita borrar al menos una cosa',
   'v8.eraser.options': 'Más opciones',
   'v8.eraser.ring': 'Tamaño en la página',
   'v8.eraser.sizeGroup': 'Tamaño del borrador',

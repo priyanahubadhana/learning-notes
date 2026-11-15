@@ -72,6 +72,10 @@ export const ROW_ITEMS: Record<V8ToolId, readonly RowItem[]> = {
   eraser: [
     menu('eraser', 'mode', 'v8.item.mode', { icon: 'eraser' }),
     menu('eraser', 'size', 'v8.item.size', { dot: 'size' }),
+    menu('eraser', 'options', 'v8.item.options', {
+      icon: 'sliders',
+      card: 'panel',
+    }),
   ],
   shapes: [
     menu('shapes', 'shape', 'v8.item.shape', { icon: 'shapes' }),
@@ -89,6 +93,23 @@ export const ROW_ITEMS: Record<V8ToolId, readonly RowItem[]> = {
   insert: [],
 }
 
+/**
+ * The Eraser's row (2A.8, TB-30): three menus (Mode, Size, Options) when the
+ * setting "Eraser's three menus" is on, else one simple Eraser menu whose
+ * card holds the type and the size.
+ */
+export function eraserRowItems(menus: boolean): readonly RowItem[] {
+  if (menus) return ROW_ITEMS.eraser
+  return [menu('eraser', 'mode', 'v8.item.eraser', { icon: 'eraser' })]
+}
+
+/** The row's items now (only the Eraser changes with a setting). */
+export const rowItemsFor = (
+  tool: V8ToolId,
+  eraserMenus: boolean,
+): readonly RowItem[] =>
+  tool === 'eraser' ? eraserRowItems(eraserMenus) : ROW_ITEMS[tool]
+
 export const cardIdOf = (item: RowItem): string => `${item.tool}.${item.id}`
 
 /** The card a second tap on the active tool opens (TB-04). */
@@ -100,10 +121,15 @@ export function firstCardOf(tool: V8ToolId): string {
 }
 
 /** Title key and width rule of any v8 card id. */
-export function cardInfo(id: string): {
+export function cardInfo(
+  id: string,
+  eraserMenus = true,
+): {
   title: MessageKey
   size: 'pick' | 'panel'
 } {
+  if (id === 'eraser.mode' && !eraserMenus)
+    return { title: 'v8.item.eraser', size: 'pick' }
   if (id === 'insert') return { title: 'v8.tool.insert', size: 'panel' }
   if (id === 'more.alltools')
     return { title: 'v8.allTools.title', size: 'panel' }

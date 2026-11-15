@@ -3,6 +3,13 @@ export const hiV8Tools = {
   'main.sel.paste': 'चिपकाएँ',
   'main.sel.resize': 'आकार बदलें',
   'v8.eraser.modeGroup': 'इरेज़र का प्रकार',
+  'v8.eraser.erases': 'क्या मिटाता है',
+  'v8.eraser.erases.hl': 'हाइलाइटर',
+  'v8.eraser.erases.text': 'टेक्स्ट',
+  'v8.eraser.erases.pen': 'पेन',
+  'v8.eraser.erases.note':
+    'हर एक को चालू या बंद करने के लिए टैप करें। टाइप किया टेक्स्ट तभी मिटता है जब टेक्स्ट चालू हो।',
+  'v8.eraser.needOne': 'इरेज़र को कम से कम एक चीज़ मिटानी होगी',
   'v8.eraser.options': 'और विकल्प',
   'v8.eraser.ring': 'पन्ने पर आकार',
   'v8.eraser.sizeGroup': 'इरेज़र का आकार',

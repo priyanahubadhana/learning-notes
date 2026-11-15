@@ -104,6 +104,8 @@ export const esToolbar = {
   'v8.item.format': 'Formato',
   'v8.item.italic': 'Cursiva',
   'v8.item.mode': 'Modo',
+  'v8.item.eraser': 'Borrador',
+  'v8.item.options': 'Opciones',
   'v8.item.shape': 'Forma',
   'v8.item.size': 'Tamaño',
   'v8.item.type': 'Tipo',

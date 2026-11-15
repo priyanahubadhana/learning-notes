@@ -3,7 +3,8 @@ import { useActiveStyles, useBlockNoteEditor } from '@blocknote/react'
 import { CardTrigger } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
 import { Icon } from '../icons'
-import { ROW_ITEMS, cardIdOf, type RowItem } from './rowItems'
+import { rowItemsFor, cardIdOf, type RowItem } from './rowItems'
+import { useBarPref } from './barPrefs'
 import { dotPx, usePenFace, type PenFace } from './penFace'
 import { useChangeCounts } from './changeCount'
 import type { V8ToolId } from './registryV8'
@@ -86,7 +87,7 @@ export function ToolRow({
   })
   const editor = useBlockNoteEditor()
   const active = useActiveStyles(editor as never) as Record<string, unknown>
-  const items = ROW_ITEMS[tool]
+  const items = rowItemsFor(tool, useBarPref('eraserMenus'))
   // What the row showed while no card was open. A chip that was already on the
   // row keeps its place while its card is open (the open chip may show its word,
   // but nothing else re-folds, so "⋯ n" does not jump and Format stays put).

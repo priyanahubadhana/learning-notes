@@ -7,6 +7,7 @@ import { applyLayerVars } from '../../overlay'
 import { onRouted, PRIORITY } from '../../input/eventRouter'
 import { pictureControl } from '../../../editor/pictureControl'
 import { activeTool } from '../main/mainTools'
+import { useBarPref } from './barPrefs'
 import {
   followMode,
   modeToTool,
@@ -53,6 +54,7 @@ const pickedPictureRect = () =>
 export default function ToolbarV8() {
   const tool = v8Tool.useValue()
   const picture = pictureControl.useValue() !== null
+  const eraserMenus = useBarPref('eraserMenus')
   const [card, setCard] = useState<OpenCard | null>(null)
   const root = useRef<HTMLDivElement>(null)
   useTuckWatcher()
@@ -145,7 +147,7 @@ export default function ToolbarV8() {
   const onCloseCard = (id: string) =>
     setCard((c) => (c && c.id === id ? null : c))
 
-  const info = card ? cardInfo(card.id) : null
+  const info = card ? cardInfo(card.id, eraserMenus) : null
 
   return (
     <div ref={root} className="v8" data-testid="toolbar-v8" data-tool={tool}>

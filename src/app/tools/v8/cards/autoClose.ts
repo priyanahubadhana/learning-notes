@@ -1,5 +1,6 @@
 import { isUnlocked } from '../../../../settings/level'
 import type { ProFeatureId } from '../../../../settings/proFeatures.gen'
+import { getBarPref } from '../barPrefs'
 import { cardAutoClose as penAutoClose } from './pen/penModel'
 
 /**
@@ -9,11 +10,17 @@ import { cardAutoClose as penAutoClose } from './pen/penModel'
 export function cardAutoClose(
   id: string,
   unlocked: (id: ProFeatureId) => boolean = isUnlocked,
+  eraserMenus: () => boolean = () => getBarPref('eraserMenus'),
 ): boolean {
   switch (id) {
+    // v9: with three menus the Mode and Size cards are quick pickers; the
+    // one simple Eraser card (type + size) and Options stay open.
     case 'eraser.mode':
+      return eraserMenus()
     case 'eraser.size':
-      return !unlocked('tb.eraserOptions')
+      return true
+    case 'eraser.options':
+      return false
     case 'lasso.shape':
       return !unlocked('tb.lassoOptions')
     case 'sel.colour':

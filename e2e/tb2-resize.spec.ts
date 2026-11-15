@@ -154,8 +154,11 @@ test('TB-21 the east and south dots resize the box live', async ({ page }) => {
   const f = await rect(box)
   const e = await centre(dot(box, 'e'))
   await drag(page, e, { x: e.x + 140, y: e.y }, { up: false })
-  // Live: the box is already wider before the finger lifts.
-  expect((await rect(box)).width).toBeGreaterThan(f.width + 100)
+  // Live: the box is already wider before the finger lifts (it needs a frame
+  // to draw; the old inflated minimum hid that).
+  await expect
+    .poll(async () => (await rect(box)).width)
+    .toBeGreaterThan(f.width + 100)
   await page.mouse.up()
   await page.waitForTimeout(500)
   expect((await rect(box)).width).toBeGreaterThan(f.width + 100)
@@ -188,6 +191,8 @@ test('TB-21 never smaller than its text: the longest word and every line stay', 
   const e = await centre(dot(box, 'e'))
   await drag(page, e, { x: f.x - 300, y: e.y })
   expect((await rect(box)).width).toBeGreaterThanOrEqual(wordW - 1)
+  // And not much more: the word, the frame and the padding, plus 40 px.
+  expect((await rect(box)).width).toBeLessThanOrEqual(wordW + 70)
   const clipped = await box
     .locator('[data-box-content]')
     .evaluate((c) => c.scrollWidth > c.clientWidth + 1)
@@ -282,11 +287,12 @@ test('TB-23 a column divider resizes both boxes live; under 4 px is a tap', asyn
   await pickBox(page, b)
   const g = await rect(b.locator('[data-box-grip]'))
   const t = await rect(a)
-  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(t.x + t.width * 0.9, t.y + t.height * 0.5, { steps: 8 })
-  await page.mouse.up()
-  await page.waitForTimeout(500)
+  // Since 2B.7 the ≡ tab lifts the box only after a 120 ms hold (drag holds 160).
+  await drag(
+    page,
+    { x: g.x + g.width / 2, y: g.y + g.height / 2 },
+    { x: t.x + t.width * 0.9, y: t.y + t.height * 0.5 },
+  )
   const div = page.locator('[data-grid-divider]').first()
   await expect(div).toBeVisible()
   const d = await centre(div)
@@ -359,11 +365,13 @@ test('a Pencil slip on a divider (lifted inside 120 ms) does not resize', async 
   await pickBox(page, b)
   const g = await rect(b.locator('[data-box-grip]'))
   const t = await rect(a)
-  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(t.x + t.width * 0.9, t.y + t.height * 0.5, { steps: 8 })
-  await page.mouse.up()
-  await page.waitForTimeout(700)
+  // Since 2B.7 the ≡ tab lifts the box only after a 120 ms hold (drag holds 160).
+  await drag(
+    page,
+    { x: g.x + g.width / 2, y: g.y + g.height / 2 },
+    { x: t.x + t.width * 0.9, y: t.y + t.height * 0.5 },
+  )
+  await expect(page.locator('[data-grid-divider]').first()).toBeVisible()
   const d = await centre(page.locator('[data-grid-divider]').first())
   const wa0 = (await rect(a)).width
   await page.evaluate(({ x, y }) => {
@@ -399,11 +407,13 @@ test('TB-21 a column never gets narrower than its longest word', async ({
   await pickBox(page, b)
   const g = await rect(b.locator('[data-box-grip]'))
   const t = await rect(a)
-  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(t.x + t.width * 0.9, t.y + t.height * 0.5, { steps: 8 })
-  await page.mouse.up()
-  await page.waitForTimeout(700)
+  // Since 2B.7 the ≡ tab lifts the box only after a 120 ms hold (drag holds 160).
+  await drag(
+    page,
+    { x: g.x + g.width / 2, y: g.y + g.height / 2 },
+    { x: t.x + t.width * 0.9, y: t.y + t.height * 0.5 },
+  )
+  await expect(page.locator('[data-grid-divider]').first()).toBeVisible()
   const wordW = await a.evaluate((el, w) => {
     const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
     for (let n = walk.nextNode(); n; n = walk.nextNode()) {
@@ -439,4 +449,31 @@ test('TB-21 a column never gets narrower than its longest word', async ({
     return tops.length
   })
   expect(lines).toBe(1)
+})
+
+test('TB-21 upper limit: a short text narrows to its longest word, not to a larger minimum', async ({
+  page,
+}) => {
+  // Why: the editor's <style> text was counted as a word, so every minimum
+  // was about 137 mm; all other checks are lower limits and missed it.
+  const box = await oneBox(page, 'TB21up', ['Alpha beta', 'Gamma'])
+  const wordW = await box.evaluate((el) => {
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const i = (n.textContent ?? '').indexOf('Alpha')
+      if (i < 0) continue
+      const r = document.createRange()
+      r.setStart(n, i)
+      r.setEnd(n, i + 5)
+      return r.getBoundingClientRect().width
+    }
+    return 0
+  })
+  expect(wordW).toBeGreaterThan(20)
+  const f = await rect(box)
+  const e = await centre(dot(box, 'e'))
+  await drag(page, e, { x: f.x - 300, y: e.y })
+  const w = (await rect(box)).width
+  expect(w).toBeGreaterThanOrEqual(wordW - 1)
+  expect(w).toBeLessThanOrEqual(wordW + 70)
 })

@@ -7,12 +7,23 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: R12: a scrolling box that paints a solid background is never masked by the scroll-hint fade; its edge fades inside it in its own colour (scrollHints.ts solidOf, index.css; grids, gaps and boxes with their own ::before / ::after stay solid with no fade). Goes live with foundation.shell. R13: new lazyNow (src/app/lazyNow.ts), a drop-in for lazy with preload(): a preloaded part draws in its own render, without React 19's 300 ms Suspense hold. The v8 bar's seven card bodies, selection bar and More list, the page More options sheet, the Name it sheet, hold menu, page strip, Edit toolbar sheet and keyboard bar are fetched once the screen is idle (prefetchAfterIdle; chunks are not in the first load). The Pages tab's Object bar fades in place (pm-fade) instead of sliding 6 px.
 - Why: findings R12, R13 and the owner's iPad test.
 - Files: src/app/lazyNow.ts, scrollHints.ts, index.css, partsMisc.css, tools/v8/ToolbarV8.tsx, ToolBar.tsx, LazyNameSheet.tsx, editor/DockedBar.tsx, HoldMenuLazy.tsx, menus/PageStripLazy.tsx, pages/PageView.tsx, notebooks/Sidebar.tsx; e2e/lazyTapPaint.spec.ts, scrollSolid.spec.ts, pagesBarFade.spec.ts.
+### 15 Nov 2026: red on ipad-webkit fixed (createNotebook R9, TB-23 divider)
+
+- What: (a) the shared createNotebook step, after the "Name it" sheet, now waits for the named notebook's first page (breadcrumb) before it opens the phone drawer; Rename on touch also uses the sheet. (b) TB-23, the Pencil-slip and the column longest-word tests hold the ≡ tab 120 ms before they move it (the 2B.7 rule), so the column and its divider really form on WebKit. The phone resize helper is renamed phoneResizeHelpers.ts so the ipad-webkit pattern /tb2-resize/ no longer treats it as a test file (it blocked the phone spec from loading there). addPage waits for the sheet or the focused box instead of a fixed 1.5 s. phoneBox waits for the box's bar and for the box to stand still (the bar moves the page up once near the bottom of a phone; the nearest-dot test pressed where the dot had been, 3 of 15). No app change. Known red: the phone wheel test (mobile WebKit has no wheel), its move waits for a permission.
+- Why: (a) the first page's route closes the phone drawer about a second after the sheet (drawerOpen = drawerAt === routeHash), so the helper lost the drawer and every retry waited for a sheet already gone. (b) chromium crossed 120 ms by chance; WebKit did not.
+- Files: e2e/helpers.ts, e2e/nameSheetCreate.spec.ts (new), e2e/tb2-resize.spec.ts, e2e/phoneResizeHelpers.ts (renamed), e2e/tb2-resize-phone.spec.ts, e2e/tb2-resize-phone-swipe.spec.ts.
 
 ### 15 Nov 2026: R14 the page no longer drops 90 px a moment after load on iPad
 
 - What: the part that grew was the OLD tool bar (toolbar.v8 OFF) in the bar slot under the top bar: the slot went 0, then one button row (68 px with large buttons), then 90 px when the bar's scroll handle (22 px, BarScroll) was measured a frame after the bar drew. Fix: the room F8 kept for the new bar is now kept for the old bar too, as tall as the old bar was last time on this screen (remembered per button size and screen width in the display preference bar.roomPx; its plain height the first time; behind foundation.shell), and BarScroll measures before the first paint so the handle is never a frame late. Same rule as F8: nothing is kept where no bar shows. No change to App.tsx or Shell.tsx.
 - Why: findings R14 (iPad: header 52 to 142 px, the page moved down).
 - Files: src/editor/barRoomRule.ts, BarRoom.tsx, src/app/tools/BarScroll.tsx, src/editor/barRoomRule.test.ts, e2e/barRoom.spec.ts.
+
+### 15 Nov 2026: 2B.5b text boxes resize on a phone (switch textbox.v2, OFF)
+
+- What: on a phone a selected box shows the same eight dots and the same hold, dead zone, nearest-handle and 44 pt rules as on the iPad. n/s change the height; e/w the width, left-aligned inside the single column, never under the longest word. The width is a phone width (optional PaperBox.pw, apart from the iPad width); a box never resized on a phone fills the column. Tests now have upper limits on the minimum. The minimum width no longer counts the editor's <style> text (it made every minimum 137 mm). tb2-resize live-width check waits one frame (the inflated minimum had hidden the lag); tb2-resize-shots now expects 8 dots on a phone.
+- Why: owner, 15 Nov: "It must work. I want uniformity from the start."
+- Files: src/paper/PaperFrame.tsx (resize block, one lane), BoxFrame.tsx, src/paper/v2/boxResize.ts, e2e/tb2-resize-phone.spec.ts, tb2-resize-phone-shots.spec.ts.
 
 ### 15 Nov 2026: F8 the page no longer jumps when the lazy tool bar draws
 

@@ -254,6 +254,8 @@ export interface PaperBox {
     wmm?: number
     auto?: true
   }
+  /** Text box v2 (2B.5b): the width in mm set on a phone; absent = the whole column. */
+  pw?: number
 }
 
 /** What a source page is: a book, an article, a video, … */

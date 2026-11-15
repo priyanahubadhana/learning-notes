@@ -47,6 +47,7 @@ export const esV8Text = {
   'v8.more.groupApp': 'Barra de herramientas',
   'v8.more.makeBlank': 'Hacer hueco',
   'v8.more.groupStudyPro': 'Marcas y estudio',
+  'v8.more.keyPointHint': 'Punto clave está en Texto › Formato › Marcas.',
   'v8.more.copy': 'Copiar',
   'v8.more.cut': 'Cortar',
   'v8.more.paste': 'Pegar',

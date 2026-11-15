@@ -215,3 +215,29 @@ test('real use: reload, turn the screen both ways, open every fold, scroll the c
     await expect(page.getByTestId('v8-more')).toBeVisible()
   }
 })
+
+test('Study now and All cards have their own icons; the Key point hint shows on both levels', async ({
+  page,
+}) => {
+  await open(page, 'professional', { width: 820, height: 900 })
+  await more(page)
+  await card(page).getByRole('button', { name: 'Marks and study' }).click()
+  const iconOf = (id: string) =>
+    page.getByTestId(id).locator('svg').first().getAttribute('class')
+  const make = await iconOf('v8-more-card')
+  const study = await iconOf('v8-more-study-studyNow')
+  const all = await iconOf('v8-more-study-allCards')
+  expect(new Set([make, study, all]).size).toBe(3)
+  await expect(page.getByTestId('more-keypoint-hint')).toHaveText(
+    'Key point sits in Text › Format › Marks.',
+  )
+})
+
+test('Beginner: the Key point hint sits under Mark for review', async ({
+  page,
+}) => {
+  await open(page, 'beginner', { width: 820, height: 900 })
+  await more(page)
+  await card(page).getByRole('button', { name: 'Mark for review' }).click()
+  await expect(page.getByTestId('more-keypoint-hint')).toBeVisible()
+})

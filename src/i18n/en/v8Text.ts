@@ -46,6 +46,7 @@ export const enV8Text = {
   'v8.more.groupApp': 'Tool bar',
   'v8.more.makeBlank': 'Make blank',
   'v8.more.groupStudyPro': 'Marks and study',
+  'v8.more.keyPointHint': 'Key point sits in Text › Format › Marks.',
   'v8.more.copy': 'Copy',
   'v8.more.cut': 'Cut',
   'v8.more.paste': 'Paste',

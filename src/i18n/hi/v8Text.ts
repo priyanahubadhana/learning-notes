@@ -45,6 +45,7 @@ export const hiV8Text = {
   'v8.more.groupApp': 'टूल बार',
   'v8.more.makeBlank': 'खाली बनाएँ',
   'v8.more.groupStudyPro': 'मार्क और पढ़ाई',
+  'v8.more.keyPointHint': 'मुख्य बिंदु टेक्स्ट › फ़ॉर्मैट › निशान में है।',
   'v8.more.copy': 'कॉपी',
   'v8.more.cut': 'कट',
   'v8.more.paste': 'पेस्ट',

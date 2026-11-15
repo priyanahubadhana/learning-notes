@@ -32,8 +32,8 @@ const MARK_ICON: Record<string, IconName> = {
 /** Professional study tools that exist today (v9's Quiz me is Study now, Flashcards is All cards, Review today is Due today). */
 const STUDY: [string, IconName][] = [
   ['summary', 'fileText'],
-  ['studyNow', 'cards'],
-  ['allCards', 'cards'],
+  ['studyNow', 'graduation'],
+  ['allCards', 'library'],
   ['dueToday', 'history'],
 ]
 const CLIP = [
@@ -143,6 +143,9 @@ export default function MoreStudy({
               ))
             : null}
         </TileGroup>
+        <p className="v8note" data-testid="more-keypoint-hint">
+          {t('v8.more.keyPointHint')}
+        </p>
       </FoldGroup>
       <FoldGroup label={t('toolbarMenu.groupCopy')} testId="more-group-copy">
         <TileGroup label={t('toolbarMenu.groupCopy')} action columns={3}>

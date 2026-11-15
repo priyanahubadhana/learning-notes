@@ -70,6 +70,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
 
+### 16 Nov 2026: 2A.12 merged
+
+- What: 2A.12 fast-forwarded into build/next with main (94e83c12); 2A.15 review 3 PASS (89b05330); webkit turn to 2A.13. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
+
 ### 16 Nov 2026: 2A.12 PASS, 2A.15 to Opus
 
 - What: 2A.12 round 3 PASS (50f3e830); 2A.15 round 2 FAIL, Opus builder took over; 2A.13 fixes pushed; two decisions logged. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.

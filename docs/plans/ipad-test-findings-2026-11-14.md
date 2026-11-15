@@ -171,3 +171,4 @@ Running list, in the order the owner reports. The owner asked to note everything
 
 - **Owner, 15 Nov 10:45:** steps 1-5 (Phase 1) answered; step 6 (the tool bar ⋯ menu) all pass. Remaining: 7 format bar near the corners, 8 pen favourites, 9 page menus, 10 Notebooks, 11 Search.
 - **Owner:** "I love the pin option there. Loved it. Really well planned." (Pin an action; keep it, add only the ✓/✕ of T21.)
+  | T23 | Text tool: a tap meant to select a box made a new box instead; owner is fine with that, but an empty new box (nothing typed or drawn) must delete itself when you leave it. In T23-empty-boxes-stay.png two small empty green boxes stay on the page | fail, noted | The 2B.3 builder saw "empty boxes delete on blur" in today's code, so the rule exists; likely a box with a style (the green fill from Box style "use for new boxes") counts as not empty. Rule to keep: no text, no ink, no picture = delete on leave, whatever its style |

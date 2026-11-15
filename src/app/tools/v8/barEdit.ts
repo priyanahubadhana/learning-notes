@@ -2,7 +2,7 @@ import { t } from '../../../i18n/t'
 import { getLevel, isUnlocked } from '../../../settings/level'
 import type { ProFeatureId } from '../../../settings/proFeatures.gen'
 import { cleanStore, memStore, type Store } from '../store'
-import { allTools } from '../toolRegistry'
+import { allTools, findTool } from '../toolRegistry'
 import { metaOf } from '../toolRegistryMeta'
 import { currentRunner } from '../toolRuntime'
 import { followMode, v8Tool } from './barState'
@@ -37,17 +37,35 @@ export const EXTRA_IDS = [
 /** Tools that are fixed parts of the bar or cannot be pinned (as in the old Edit toolbar sheet). */
 const NOT_PINNABLE = new Set(['undo', 'redo', 'more', 'newLine'])
 
-/** Every tool a person may put on the bar: the six bar tools and every tool of the app the old Edit toolbar sheet offered. */
+const isMark = (id: string) => id.startsWith('mark:')
+
+let fixed: { list: string[]; set: Set<string> } | undefined
+/** The tools that never change (the six bar tools, the extras, the app's tool list), worked out once. */
+function fixedIds(): { list: string[]; set: Set<string> } {
+  if (!fixed) {
+    const list = [
+      ...new Set([
+        ...V8_TOOL_IDS,
+        ...EXTRA_IDS,
+        ...allTools()
+          .map((x) => x.id)
+          .filter((id) => !NOT_PINNABLE.has(id) && !isMark(id)),
+      ]),
+    ]
+    fixed = { list, set: new Set(list) }
+  }
+  return fixed
+}
+
+/** Every tool a person may put on the bar: the six bar tools and every tool of the app the old Edit toolbar sheet offered (with this notebook's Revise marks). */
 export const knownIds = (): string[] => [
-  ...new Set([
-    ...V8_TOOL_IDS,
-    ...EXTRA_IDS,
-    ...allTools()
-      .map((x) => x.id)
-      .filter((id) => !NOT_PINNABLE.has(id)),
-  ]),
+  ...fixedIds().list,
+  ...allTools()
+    .map((x) => x.id)
+    .filter(isMark),
 ]
-const isKnown = (id: string) => knownIds().includes(id)
+const isKnown = (id: string): boolean =>
+  fixedIds().set.has(id) || (isMark(id) && findTool(id) !== undefined)
 export const isLocked = (id: string): boolean =>
   (LOCKED_IDS as readonly string[]).includes(id)
 export const isCore = (id: string): id is V8ToolId =>
@@ -78,7 +96,9 @@ export function toolAvailable(id: string): boolean {
   // The six tools of the bar can always be added back (the bar shows them all today).
   if (isCore(id)) return true
   const meta = metaOf(id)
-  if (!meta) return true
+  // Revise marks are the person's own labels, open to every level. Any other
+  // tool without level facts is not offered, so no Professional tool slips in.
+  if (!meta) return isMark(id)
   const unlock = meta.unlock as ProFeatureId | undefined
   if (unlock) return isUnlocked(unlock)
   return meta.level === 'beginner' || getLevel() === 'professional'

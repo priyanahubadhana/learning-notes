@@ -33,6 +33,28 @@ const ids = (page: Page) =>
     .locator('[data-bar-tool]')
     .evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.barTool))
 
+/** How far a press still lands on the element, measured from its centre. */
+function hitArea(page: Page, testId: string) {
+  return page.getByTestId(testId).evaluate((el) => {
+    const r = el.getBoundingClientRect()
+    const cx = r.x + r.width / 2
+    const cy = r.y + r.height / 2
+    const hits = (x: number, y: number) => {
+      const at = document.elementFromPoint(x, y)
+      return !!at && (at === el || el.contains(at))
+    }
+    const reach = (dx: number, dy: number) => {
+      let d = 0
+      while (d < 60 && hits(cx + dx * (d + 0.5), cy + dy * (d + 0.5))) d += 0.5
+      return d
+    }
+    return {
+      width: reach(-1, 0) + reach(1, 0),
+      height: reach(0, -1) + reach(0, 1),
+    }
+  })
+}
+
 async function startEditing(page: Page, on = 'pen') {
   const box = (await tool(page, on).boundingBox())!
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
@@ -89,15 +111,17 @@ test('S5-23 Text, Pen, Eraser, Backspace, New line and More are locked; the othe
   }
   for (const id of ['shapes', 'lasso', 'insert'])
     await expect(page.getByTestId(`v8-edit-remove-${id}`)).toBeVisible()
-  // The minus is a roomy target that stays inside its own tool's width.
-  const box = (await page.getByTestId('v8-edit-remove-shapes').boundingBox())!
+  // The minus is drawn small (20 px) on the tool's top left corner, as the mock.
+  const rm = page.getByTestId('v8-edit-remove-shapes')
+  const drawn = (await rm.boundingBox())!
   const own = (await tool(page, 'shapes').boundingBox())!
-  expect(box.width).toBeGreaterThanOrEqual(30)
-  expect(box.height).toBeGreaterThanOrEqual(24)
-  // It never covers the middle of the tool, where a finger presses to drag.
-  expect(box.y + box.height).toBeLessThanOrEqual(own.y + own.height / 2 + 1)
-  expect(box.x).toBeGreaterThanOrEqual(own.x - 0.5)
-  expect(box.x + box.width).toBeLessThanOrEqual(own.x + own.width + 0.5)
+  expect(drawn.width).toBeLessThanOrEqual(21)
+  expect(Math.abs(drawn.x - (own.x - 5))).toBeLessThanOrEqual(1)
+  expect(Math.abs(drawn.y - (own.y - 5))).toBeLessThanOrEqual(1)
+  // Its hit area is a 44 pt target around the drawn badge.
+  const box = await hitArea(page, 'v8-edit-remove-shapes')
+  expect(box.width).toBeGreaterThanOrEqual(43.5)
+  expect(box.height).toBeGreaterThanOrEqual(43.5)
   // A lock says why it is there.
   await expect(page.getByTestId('v8-edit-lock-pen')).toHaveAttribute(
     'aria-label',
@@ -194,6 +218,44 @@ test('S5-22 dragging moves a tool and the others slide aside while the finger is
   expect(saved.indexOf('insert')).toBeLessThan(saved.indexOf('shapes'))
 })
 
+test('S5-22 a press on the minus that moves drags the tool; a still tap removes it', async ({
+  page,
+}) => {
+  await open(page)
+  await startEditing(page)
+  const rm = (await page.getByTestId('v8-edit-remove-lasso').boundingBox())!
+  const shapes = (await tool(page, 'shapes').boundingBox())!
+  await page.mouse.move(rm.x + rm.width / 2, rm.y + rm.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(shapes.x + 10, shapes.y + shapes.height / 2, {
+    steps: 8,
+  })
+  await page.mouse.up()
+  // Moved, not removed.
+  const live = await ids(page)
+  expect(live).toContain('lasso')
+  expect(live.indexOf('lasso')).toBeLessThan(live.indexOf('shapes'))
+  await page.getByTestId('v8-edit-remove-lasso').click()
+  expect(await ids(page)).not.toContain('lasso')
+})
+
+test('S5-22 Escape leaves edit mode and keeps the bar; with Reset asking, it only closes the question', async ({
+  page,
+}) => {
+  await open(page)
+  const before = await ids(page)
+  await startEditing(page)
+  await page.getByTestId('v8-edit-reset').click()
+  await expect(page.getByRole('dialog')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(editBar(page)).toBeVisible()
+  await page.getByTestId('v8-edit-remove-insert').click()
+  await page.keyboard.press('Escape')
+  await expect(editBar(page)).toHaveCount(0)
+  expect(await ids(page)).toEqual(before)
+})
+
 test('S5-22 dropping a tool on More tools removes it; a locked tool cannot be dragged out', async ({
   page,
 }) => {
@@ -245,6 +307,11 @@ test('S5-22 phone: edit mode fits; Shapes and Insert sit inside More, with a not
   )
   const w = await page.evaluate(() => document.documentElement.scrollWidth)
   expect(w).toBeLessThanOrEqual(391)
+  // One row, as the mock: ⋯ stays beside the tools and a phone has no Minimise.
+  await expect(page.getByTestId('v8-minimise')).toHaveCount(0)
+  const first = (await tool(page, 'text').boundingBox())!
+  const more = (await page.getByTestId('v8-more').boundingBox())!
+  expect(Math.abs(more.y - first.y)).toBeLessThanOrEqual(1)
 })
 
 test('S5-23 every tool of the old list can be added: All tools, grouped and scrollable', async ({

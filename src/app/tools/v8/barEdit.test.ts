@@ -17,9 +17,12 @@ import {
   removeFrom,
   startEdit,
   trayOf,
+  toolAvailable,
+  isCore,
 } from './barEdit'
 import { metaOf } from '../toolRegistryMeta'
 import { findTool } from '../toolRegistry'
+import { getLevel, setLevel } from '../../../settings/level'
 
 afterEach(() => {
   localStorage.clear()
@@ -143,5 +146,35 @@ describe('every tool of the old Edit toolbar list (never drop a feature)', () =>
     resetBar()
     expect(barTools.get()).toEqual([...DEFAULT_BAR])
     expect(barDraft.get()).toBeNull()
+  })
+})
+
+describe('only tools a person may use reach the tray (S5-23)', () => {
+  it('every tool the tray can offer has its level facts, so none is guessed', () => {
+    for (const id of knownIds())
+      if (!id.startsWith('mark:')) expect(metaOf(id), id).toBeDefined()
+  })
+  it('a tool with no level facts is never offered', () => {
+    expect(toolAvailable('ghost')).toBe(false)
+  })
+  it('Beginner with no switches on: no Professional tool is in the tray', () => {
+    const was = getLevel()
+    setLevel('beginner')
+    let checked = 0
+    for (const id of trayOf([...LOCKED_IDS])) {
+      if (isCore(id)) continue
+      const meta = metaOf(id)
+      if (!meta) continue
+      expect(meta.level === 'beginner' && !meta.unlock, id).toBe(true)
+      checked++
+    }
+    setLevel(was)
+    expect(checked).toBeGreaterThan(5)
+  })
+  it('knows a tool without building the list again for each one', () => {
+    const big = Array.from({ length: 2000 }, () => 'bold')
+    const t0 = performance.now()
+    for (let i = 0; i < 2000; i++) addTo([], big[i]!)
+    expect(performance.now() - t0).toBeLessThan(50)
   })
 })

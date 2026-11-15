@@ -1,0 +1,12 @@
+- box-card-beginner-light-ipad-sideways.png: Box card open from the Text tool chip, beginner, light, ipad-sideways 1180x820, taken after the last source edit
+- box-card-beginner-light-ipad-upright.png: Box card open from the Text tool chip, beginner, light, ipad-upright 820x1180, taken after the last source edit
+- box-card-beginner-dark-ipad-upright.png: Box card open from the Text tool chip, beginner, dark, ipad-upright 820x1180, taken after the last source edit
+- box-card-beginner-light-phone.png: Box card open from the Text tool chip, beginner, light, phone 390x844, taken after the last source edit
+- box-card-beginner-dark-phone.png: Box card open from the Text tool chip, beginner, dark, phone 390x844, taken after the last source edit
+- box-card-beginner-dark-ipad-sideways.png: Box card open from the Text tool chip, beginner, dark, ipad-sideways 1180x820, taken after the last source edit
+- box-card-professional-light-ipad-sideways.png: Box card open from the Text tool chip, professional, light, ipad-sideways 1180x820, taken after the last source edit
+- box-card-professional-light-ipad-upright.png: Box card open from the Text tool chip, professional, light, ipad-upright 820x1180, taken after the last source edit
+- box-card-professional-light-phone.png: Box card open from the Text tool chip, professional, light, phone 390x844, taken after the last source edit
+- box-card-professional-dark-phone.png: Box card open from the Text tool chip, professional, dark, phone 390x844, taken after the last source edit
+- box-card-professional-dark-ipad-upright.png: Box card open from the Text tool chip, professional, dark, ipad-upright 820x1180, taken after the last source edit
+- box-card-professional-dark-ipad-sideways.png: Box card open from the Text tool chip, professional, dark, ipad-sideways 1180x820, taken after the last source edit

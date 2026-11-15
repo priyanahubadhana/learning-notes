@@ -2,12 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
-
 ### 15 Nov 2026: 2A.14 Layout shortcut (switch toolbar.v8, OFF live)
 
 - What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
+
 ### 15 Nov 2026 (evening): Phase 1 re-test steps
 
 - What: phase-1.md gets the re-test round after P1.8 and P1.9 (10 steps, preview at 8105fcb, CI green) and the optional 10-minute Pencil look at the new text box (switch "New text box" on with the Phase 1 preset; 6 steps).

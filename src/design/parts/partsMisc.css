@@ -121,7 +121,9 @@
 }
 /* The box bar shows right after the tap that selects a box: it fades in place,
  * so a button never slides while the finger reaches for it. */
-[data-box-bar] .pm-ob {
+[data-box-bar] .pm-ob,
+/* The Pages tab's bar (Organise) the same: it fades where it is. */
+.pm-ob[data-kind='rows'] {
   animation: pm-fade 200ms var(--ease-out);
 }
 [data-glass='lite'] .pm-ob {

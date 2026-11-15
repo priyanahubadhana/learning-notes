@@ -1,14 +1,15 @@
-import { lazy, Suspense, type ComponentProps } from 'react'
+import { Suspense, type ComponentProps } from 'react'
+import { lazyNow } from './lazyNow'
 
 /**
  * The "Name it" sheet and the touch row menus load only when needed, so the
  * first screen stays small (CI size check).
  */
-const Sheet = lazy(() =>
+const Sheet = lazyNow(() =>
   import('./NameSheet').then((m) => ({ default: m.NameSheet })),
 )
-const NotebookMenu = lazy(() => import('../notebooks/NotebookRowMenu'))
-const PageMenu = lazy(() => import('../pages/PageRowMenu'))
+const NotebookMenu = lazyNow(() => import('../notebooks/NotebookRowMenu'))
+const PageMenu = lazyNow(() => import('../pages/PageRowMenu'))
 
 export function LazyNameSheet(props: ComponentProps<typeof Sheet>) {
   return (
@@ -33,3 +34,6 @@ export function LazyPageMenu(props: ComponentProps<typeof PageMenu>) {
     </Suspense>
   )
 }
+
+/** Fetches the sheet's and the row menus' code ahead of the first tap (R13). */
+LazyNameSheet.preload = [Sheet.preload, NotebookMenu.preload, PageMenu.preload]

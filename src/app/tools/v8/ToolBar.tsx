@@ -1,12 +1,5 @@
 import { useBlockNoteEditor } from '@blocknote/react'
-import {
-  lazy,
-  Suspense,
-  useEffect,
-  useRef,
-  useState,
-  type PointerEvent,
-} from 'react'
+import { Suspense, useEffect, useRef, useState, type PointerEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { historyState } from '../../../core/historySteps'
 import { runHistory } from '../../../editor/historyActions'
@@ -27,11 +20,13 @@ import {
   tapAction,
 } from '../main/newLineGesture'
 import { REPEAT_AFTER_MS, backspaceStep } from '../main/backspaceHold'
+import { lazyNow } from '../../lazyNow'
 import { FoldCard, type FoldEntry } from './FoldCard'
 
 // The ⋯ card's own group (1f) loads with the first ⋯ tap.
-const MoreExtras = lazy(() => import('./cards/more/MoreExtras'))
-const MoreMenuV2 = lazy(() => import('./cards/more/MoreMenuV2'))
+const MoreExtras = lazyNow(() => import('./cards/more/MoreExtras'))
+const MoreMenuV2 = lazyNow(() => import('./cards/more/MoreMenuV2'))
+
 import type { OpenCard } from './barState'
 import { v8Tools, type V8ToolId } from './registryV8'
 import { useFold, type FoldSpec } from './useFold'
@@ -592,3 +587,7 @@ export function ToolBar({
     </div>
   )
 }
+
+/** Fetches the ⋯ list's code ahead (R13). */
+ToolBar.preloadMore = () =>
+  Promise.all([MoreExtras.preload(), MoreMenuV2.preload()])

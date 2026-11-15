@@ -1,0 +1,71 @@
+import { expect, test, type Page } from '@playwright/test'
+import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+
+/** Task 2A.4, TB-01b: Undo and Redo live in the page top bar; the < > arrows go. */
+test.use({ viewport: { width: 1180, height: 820 }, hasTouch: true })
+
+const top = (page: Page) => page.locator('header[data-shell-top]')
+
+async function open(page: Page, flags: string) {
+  await startInMode(page, 'touch')
+  await page.goto(`/?flags=${flags}`)
+  await expect(page.locator('.sh-frame')).toBeVisible()
+  await createNotebook(page, 'Biology', 'First')
+  await typeInEditor(page, 'The nucleus holds the DNA')
+  await page.waitForTimeout(900)
+}
+
+test('TB-01b flag on: top bar has Undo and Redo before the page path, no Back or Forward', async ({
+  page,
+}) => {
+  await open(page, 'foundation.shell,toolbar.v8')
+  await expect(top(page).getByTestId('history-undo')).toBeVisible()
+  await expect(top(page).getByTestId('history-redo')).toBeVisible()
+  await expect(top(page).getByRole('button', { name: 'Back' })).toHaveCount(0)
+  await expect(top(page).getByRole('button', { name: 'Forward' })).toHaveCount(
+    0,
+  )
+  const u = (await top(page).getByTestId('history-undo').boundingBox())!
+  const c = (await top(page).locator('.sh-crumbs').boundingBox())!
+  expect(u.x + u.width).toBeLessThanOrEqual(c.x + 1)
+  expect(u.width).toBeGreaterThanOrEqual(43.5)
+  expect(u.height).toBeGreaterThanOrEqual(43.5)
+})
+
+test('TB-01b flag on: the tool bar no longer has Undo or Redo', async ({
+  page,
+}) => {
+  await open(page, 'foundation.shell,toolbar.v8')
+  await expect(page.getByTestId('v8-bar')).toBeVisible()
+  await expect(page.getByTestId('v8-undo')).toHaveCount(0)
+  await expect(page.getByTestId('v8-redo')).toHaveCount(0)
+})
+
+test('TB-01b flag on: the top bar pair undoes and redoes typing', async ({
+  page,
+}) => {
+  await open(page, 'foundation.shell,toolbar.v8')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('Second line')
+  await page.waitForTimeout(900)
+  await top(page).getByTestId('history-undo').click()
+  await expect(page.locator('.bn-editor')).not.toContainText('Second line')
+  await top(page).getByTestId('history-redo').click()
+  await expect(page.locator('.bn-editor')).toContainText('Second line')
+})
+
+test('TB-01b flag on: a page path part still goes back', async ({ page }) => {
+  await open(page, 'foundation.shell,toolbar.v8')
+  const crumbs = top(page).locator('.sh-crumbs button')
+  await expect(crumbs.first()).toBeVisible()
+})
+
+test('TB-01b flag off: the arrows stay and the tool bar keeps its pair', async ({
+  page,
+}) => {
+  await open(page, 'foundation.shell')
+  await expect(top(page).getByRole('button', { name: 'Back' })).toBeVisible()
+  await expect(top(page).getByRole('button', { name: 'Forward' })).toHaveCount(
+    1,
+  )
+})

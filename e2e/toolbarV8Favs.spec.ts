@@ -97,6 +97,25 @@ test('TB-52 the name field has a clear button; Cancel and the close button leave
   expect(await pref(page, 'toolbar.favourites2')).toEqual([])
 })
 
+test('TB-52 upright iPad: the Add form grows to show its preview; both start tiles have a picture', async ({
+  page,
+}) => {
+  await open(page, { size: { width: 820, height: 1180 } })
+  await page.getByTestId('v8-add').click()
+  await page.getByTestId('v8-add-preset').click()
+  const form = page.getByTestId('v8-addsheet')
+  const box = (await form.boundingBox())!
+  expect(box.height).toBeGreaterThan(640)
+  expect(box.y + box.height).toBeLessThanOrEqual(1180)
+  await expect(page.getByTestId('v8-add-preview')).toBeInViewport({
+    ratio: 1,
+  })
+  for (const id of ['v8-add-current', 'v8-add-preset'])
+    await expect(
+      page.getByTestId(id).locator('.pcard-tile-face > *'),
+    ).not.toHaveCount(0)
+})
+
 test('TB-50 a favourite can be saved for another tool and shows on that tool row only', async ({
   page,
 }) => {

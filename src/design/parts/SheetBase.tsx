@@ -24,6 +24,8 @@ export interface SheetBaseProps {
   anchor?: HTMLElement | null
   /** Inline only: draw the phone shape (full height, grab bar). */
   phone?: boolean
+  /** Floating: grow to the screen's bottom edge instead of stopping at 640 px (long forms). */
+  grow?: boolean
   id?: string
   'data-testid'?: string
 }
@@ -97,12 +99,23 @@ export function SheetBase(props: SheetBaseProps) {
       className="sheet-base"
       data-mode={mode}
       data-phone={props.phone ? '' : undefined}
+      data-grow={props.grow ? '' : undefined}
       data-testid={props['data-testid'] ?? 'sheet-base'}
       role="dialog"
       aria-modal={mode === 'floating' ? 'true' : undefined}
       aria-labelledby={`${id}-title`}
       tabIndex={-1}
-      style={pos ? { left: pos.left, top: pos.top } : undefined}
+      style={
+        pos
+          ? {
+              left: pos.left,
+              top: pos.top,
+              ...(props.grow
+                ? { maxHeight: `calc(100dvh - ${pos.top}px - var(--space-4))` }
+                : {}),
+            }
+          : undefined
+      }
     >
       <span className="sheet-base-grab" aria-hidden="true" />
       <header className="sheet-base-head">

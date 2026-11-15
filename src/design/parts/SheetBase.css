@@ -88,6 +88,11 @@
   }
 }
 
+/* A long form may use the whole height of the screen. */
+.sheet-base[data-grow] {
+  max-height: calc(100dvh - 2 * var(--space-4));
+}
+
 /* Phone shape: under 640 px, or forced in the gallery with data-phone. */
 @media (max-width: 639px) {
   .sheet-base[data-mode='floating'] {

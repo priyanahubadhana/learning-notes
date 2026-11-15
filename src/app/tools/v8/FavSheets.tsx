@@ -120,6 +120,7 @@ export function AddFavSheet({
       title={t('v8.row.add')}
       anchor={anchor}
       onClose={onClose}
+      grow
       data-testid="v8-addsheet"
       footer={
         <>
@@ -184,13 +185,17 @@ export function AddFavSheet({
               selected={start === 'current'}
               testId="v8-add-current"
               onSelect={() => setStart('current')}
-            />
+            >
+              <FavFace fav={{ id: 'cur', ...currentSetup(tool, keeps) }} />
+            </Tile>
             <Tile
               label={t('v8.favs.preset')}
               selected={start === 'preset'}
               testId="v8-add-preset"
               onSelect={() => setStart('preset')}
-            />
+            >
+              <FavFace fav={{ id: 'pre', ...presets[preset] }} />
+            </Tile>
           </TileGroup>
           {start === 'preset' ? (
             <TileGroup label={t('v8.favs.preset')} columns={3}>

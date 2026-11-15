@@ -2,6 +2,30 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.14 third review fixes (switch toolbar.v8, OFF live)
+
+- What: Settings v3 below 1024 px gives the rows the full width with toolbar.v8 on (off: unchanged); the "?" sits right after the row name on the tool bar rows; "Back to pen on the bar" is now "Back to last tool" (en, es, hi, spec).
+- Why: review of 2A.14 (iPad upright squeeze); owner-approved settings-rows picture, 15 Nov.
+- Files: src/settings/v3/SettingsV3.tsx, SettingRow.tsx, settingsV3.css, i18n en/es/hi settings, docs/features/toolbar-v8.md, e2e/toolbarV9Names.spec.ts, e2e/toolbarV9LayoutShots.spec.ts, docs/mockups/toolbar-v9-build-shots/2a14-layout/.
+
+### 15 Nov 2026: 2A.14 Layout shortcut (switch toolbar.v8, OFF live)
+
+- What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.
+- Why: owner decision, 15 Nov.
+- Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
+
+### 15 Nov 2026 (late): 2A.cfg and 2A.14 merged
+
+- What: 2A.cfg (df188a67) and 2A.14 tool names by mode (c2967488, ipad-webkit 28/28) merged into build/next, part OFF. Why: plan step 2. Files: docs/BUILD-STATE.md.
+
+### 15 Nov 2026 (late): 2A hold lifted; PENDING repaired
+
+- What: BUILD-STATE drops the HOLD (re-test finished) and sets the 2A merge order; PENDING PP1 row repaired (a stray | split it) and R20 copied from build/next. Why: new phase-manager run. Files: docs/BUILD-STATE.md, docs/PENDING.md.
+
+### 16 Nov 2026: P1.11 owner bugs T29 and T31
+
+- What: T29 a failed must-have download is aborted and ignored afterwards, so a late progress report cannot put the screen back on Downloading (the note with Try again and Not now stays). T31 key names (menus, tool tips, search list, copy menu, bar) show only in Computer mode through one helper, src/app/keyNames.ts. Files: src/app/mandatoryFlow.ts, src/app/keyNames.ts, ui.tsx, ToolButton, CopyPasteMenu, SearchPopup, barActions, DockedBar, deviceModeSettings; tests mandatoryFlow.v2.test.ts, keyNames.test.ts, e2e/updateV2.spec.ts, e2e/keyNames.spec.ts.
+
 ### 15 Nov 2026 (evening): Phase 2A started (full team); wheel test merged
 
 - What: 2A.4, 2A.5, 2A.14 built on their branches (not merged yet); the phone wheel test move merged into build/next b2872d53 after desktop webkit 1/1. Why: owner answers 4A and 7. Files: docs/BUILD-STATE.md, docs/CHANGELOG.md.

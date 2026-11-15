@@ -372,6 +372,37 @@
     bottom: calc(var(--sh-tabbar) + env(safe-area-inset-bottom, 0px) + 24px);
   }
 }
+.sh-toast:has(.sh-toast-x) {
+  padding-inline-start: 4px;
+  gap: 24px;
+}
+.sh-toast-x {
+  flex: none;
+  width: var(--sh-hit);
+  height: var(--sh-hit);
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.sh-toast-x-dot {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-hover);
+}
+.sh-toast-x:hover {
+  color: var(--color-ink);
+}
+.sh-toast-x:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -4px;
+  border-radius: 999px;
+}
 .sh-toast-act {
   min-height: var(--sh-hit);
   padding: 0 14px;

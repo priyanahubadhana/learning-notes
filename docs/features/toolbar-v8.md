@@ -31,11 +31,23 @@ Card / ▾ frame (304 / 376 px), Sheet (Organise, Add favourite, Layouts; from p
 
 Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names the unlock switch from `docs/mockups/pro-features.md`; it is on for Professional and can be turned on by a Beginner in Settings › Professional features.
 
+**Tool bar settings (v9, owner answer 2A, 15 Nov).** Every Beginner / Professional difference of the bar is its own setting (Settings › Advanced, also under Tool bar), each tied to the Professional switch named; a starter only sets values: Simple = Beginner column, Everything on = Professional column. Other tasks read these from `src/app/tools/v8/barPrefs.ts` (`useBarPref(id)` / `getBarPref(id)`).
+
+| Setting (id)                                                                                | Beginner value | Professional value | Pro switch                          |
+| ------------------------------------------------------------------------------------------- | -------------- | ------------------ | ----------------------------------- |
+| Show tool names (`advanced.toolNames`)                                                      | off            | on                 | none: the setting is its own switch |
+| Format tabs (`advanced.formatTabs`)                                                         | 3              | 4                  | `tb.textFonts`                      |
+| Back to last tool (`advanced.backToPen`; name owner-approved 15 Nov, settings-rows picture) | off            | on                 | `tb.layouts`                        |
+| Eraser's three ▾ (`advanced.eraserMenus`)                                                   | off            | on                 | `tb.eraserOptions`                  |
+| Bigger Lasso (`advanced.biggerLasso`)                                                       | off            | on                 | `tb.lassoOptions`                   |
+
+- TB-S1 (owner, 15 Nov) When I tap Beginner or Professional in the **Layout** row (Settings › Writing › Advanced, above the five rows, only with `toolbar.v8` on) → all five rows are set at once: Beginner = all off, 3 format tabs; Professional = all on, 4 tabs; one Undo step puts every row back. When I then change a single row → the Layout row shows neither chosen (mixed). With the switch off the row is not listed.
+
 **Bar and tools**
 
 - TB-01b When the flag is on → the page top bar shows Undo, Redo at the top left (after the sidebar and page-panel buttons, before the page path) at every screen size, and has no < > Back/Forward arrows; going back works through the page path and swipe back. The arrows are gone on every screen with a top bar (Home, Settings too). The SH-05 "Show Undo and Redo" setting still hides the pair on a computer. With the flag off the arrows stay and nothing else changes; with the new frame off the tool bar keeps its own Undo and Redo.
-- TB-01 When I open a page with the flag on and the new frame on → the bar shows Text, Pen, Eraser, Shapes, Lasso, Insert, then ⋯, Minimise; Beginner shows icons only. Undo and Redo are not on the bar: they sit in the page top bar (TB-01b).
-- TB-02 When I hover (PC) or long-press (touch) a Beginner tool icon → its name shows in a tooltip; the tool is not chosen by the long-press.
+- TB-01 (v9) When I open a page with the flag on → the bar shows Text, Pen, Eraser, Shapes, Lasso, Insert, then Undo, Redo, ⋯, Minimise (with the new frame on, Undo and Redo sit in the page top bar, TB-01b). Whether the tools show names is the setting **Show tool names** (Settings › Advanced; also found under Tool bar). The starter "Simple" (Beginner values) sets it off and "Everything on" (Professional) sets it on; until a person sets it, it follows Beginner or Professional (its own switch: the setting itself, so a Beginner can turn on names alone; no new Professional-list entry). Upright on a Pencil-mode device the bar shows icons only whatever the setting says; the names come back when the screen is turned sideways (owner, 15 Nov, E).
+- TB-02 (v9) When a tool shows no name (setting off, or upright Pencil mode) and I hover (PC) or long-press (touch) its icon → its name shows in a tooltip; the tool is not chosen by the long-press.
 - TB-03 When I tap a tool → it becomes active (accent tint) and its row shows below; nothing opens.
 - TB-04 When I tap the active tool again → its card opens beside it (304 or 376 px by the picker/panel rule) and the ▾ looks pressed.
 - TB-05 When a card is open and I tap another ▾ → the first card closes and the new one opens; never two cards, never a card from a card.
@@ -71,7 +83,8 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 
 - TB-40 Text row order: Box ▾ (first, one setting with 1 / 2 / 3 styles, settings button in front, T3) → Format ▾ → B → I → Favourites.
 - TB-41 When I open Format ▾ → sections Text · Style · Paragraph: H1–H3, bullet, star, numbered, checklist, B/I/U/S, indent, outdent, alignment, callout, divider, inline code (T6); styles drawn in their own look; Professional adds Advanced, fonts in their own face, line height (Pro: `tb.textFonts`) and more marks (Pro: `tb.textMarks`).
-- TB-42 When I open Box ▾ with a box selected → the Box card opens right of the box, else left, else under, else above; it never covers the box (M1); box looks, fill, border, corners, padding, shadow, columns (Pro: `tb.textBox`).
+- TB-42 (v9) When I open Box ▾ → the Box card hangs under its ▾ with its arrow under Box, like every other ▾ (it no longer moves beside the box); box looks, fill, border, corners, padding, shadow, columns (Pro: `tb.textBox`).
+- TB-42a (v9) The old rule M1 "the Box card never covers the box" is replaced by TB-42 (v9): the Box card hangs under Box ▾ like every other card, so it may cover part of the page; the box stays selected and Undo works as before.
 - TB-43 The text box's own mini-bar has no second minimise (M2); the top bar has no Done (M3).
 
 **Favourites row (replaces the ★ custom tool)**

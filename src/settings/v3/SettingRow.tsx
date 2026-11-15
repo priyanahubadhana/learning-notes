@@ -6,7 +6,8 @@ import { t } from '../../i18n/t'
 import { sectionIdsOf, sectionLabel } from './sections'
 import type { SettingDefinition } from '../registry'
 import { SettingSyncBadge } from '../SettingSyncBadge'
-import { setSetting } from '../settingsService'
+import { readDeviceSetting, setSetting } from '../settingsService'
+import { settingsRegistry } from '../builtinSettings'
 import { useDeviceSetting, useSyncedSetting } from '../useSetting'
 import { onFlags } from '../../app/flags'
 import { presetChangeItems } from './tryNew'
@@ -19,6 +20,12 @@ import { takeJustShown } from './experience'
 import { ShowInBeginner } from './ShowInBeginner'
 import { isProFeatureId } from '../level'
 import { RowPreview } from './RowPreview'
+import {
+  barRowHelp,
+  isBarPartRow,
+  LAYOUT_ROW,
+  LAYOUT_ROWS,
+} from '../toolbarRows'
 import { valueText, type Change } from './changeNote'
 
 interface RowProps {
@@ -76,6 +83,23 @@ function RowBody({
   // Every change is one Undo step with a toast (SET-B10).
   const commit = (next: JsonValue) => {
     const own = { id: definition.id, before: value, after: next }
+    if (definition.id === 'advanced.layoutShortcut') {
+      // One tap changes five rows: Undo gives each row its own earlier value.
+      const rows = LAYOUT_ROWS.map((rowId) => {
+        const d = settingsRegistry.get(rowId) as SettingDefinition
+        return { id: rowId, before: readDeviceSetting(d) as JsonValue, d }
+      })
+      onSave(next)
+      history.record({
+        label: name,
+        items: rows.map((r) => ({
+          id: r.id,
+          before: r.before,
+          after: readDeviceSetting(r.d) as JsonValue,
+        })),
+      })
+      return
+    }
     if (!definition.id.startsWith('tryNewPreset.')) {
       history.record({ label: name, items: [own] })
       onSave(next)
@@ -135,11 +159,26 @@ function RowBody({
       data-glow={glow > 0 ? 'on' : undefined}
       aria-labelledby={labelId}
       className="sv3-row"
+      data-tb-row={
+        isBarPartRow(definition.id) || definition.id === LAYOUT_ROW
+          ? ''
+          : undefined
+      }
+      data-inline={
+        isBarPartRow(definition.id)
+          ? definition.id === 'advanced.formatTabs'
+            ? 'choice'
+            : 'switch'
+          : undefined
+      }
     >
       <div className="sv3-row-head">
         <h3 id={labelId} className="sv3-row-name">
           {name}
         </h3>
+        {isBarPartRow(definition.id) && !isDefault && (
+          <span data-testid="row-changed" aria-hidden className="sv3-row-dot" />
+        )}
         <SettingSyncBadge definition={definition} />
         <WhyLink
           mark
@@ -151,7 +190,7 @@ function RowBody({
         </WhyLink>
       </div>
       <p id={descId} className="sv3-line-help">
-        {t(definition.descriptionKey)}
+        {barRowHelp(definition.id, value) ?? t(definition.descriptionKey)}
       </p>
       <div className="sv3-row-control">
         <RowControl

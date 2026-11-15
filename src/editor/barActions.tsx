@@ -14,6 +14,7 @@ import { BLANK_STYLE, toggleBlank } from './blankActions'
 import { canMakeCard, makeCard } from './cardActions'
 import { addLineAfterCursor } from './lineActions'
 import { toggleMark } from './markActions'
+import { keyName } from '../app/keyNames'
 import type { AppSchema } from './schema'
 
 /**
@@ -51,7 +52,7 @@ type Dictionary = Record<
 
 /** BlockNote's "Mod+B" written for this device ("Ctrl+B", or "⌘+B" on Apple). */
 const hintOf = (text?: string) =>
-  text ? text.replace('Mod', isApple() ? '⌘' : 'Ctrl') : undefined
+  keyName(text ? text.replace('Mod', isApple() ? '⌘' : 'Ctrl') : undefined)
 
 /** Blocks the next change applies to: the selected ones, or the cursor's. */
 function targetBlocks(editor: Editor) {

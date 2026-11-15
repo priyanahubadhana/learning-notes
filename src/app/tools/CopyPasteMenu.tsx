@@ -4,6 +4,7 @@ import { AnchoredMenu } from './AnchoredMenu'
 import { useAnchoredMenu } from './useAnchoredMenu'
 import { Icon } from './icons'
 import { COPY_PASTE_TOOLS } from './copyPasteTools'
+import { useKeyName } from '../keyNames'
 import { findTool, runTool, toolLabel } from './toolRegistry'
 
 /**
@@ -21,6 +22,7 @@ export function CopyPasteButton({
   onRun?: () => void
 }) {
   const menu = useAnchoredMenu()
+  const keyName = useKeyName()
   const label = t('tool.copyPaste')
   const min = Math.max(px, 44)
   return (
@@ -56,7 +58,7 @@ export function CopyPasteButton({
         {COPY_PASTE_TOOLS.map((id) => {
           const tool = findTool(id)
           if (!tool) return null
-          const shortcut = tool.shortcut?.()
+          const shortcut = keyName(tool.shortcut?.())
           return (
             <button
               key={id}

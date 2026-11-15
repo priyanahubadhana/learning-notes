@@ -464,4 +464,42 @@ export const esSettings = {
   'theme.night': 'Noche',
   'theme.pick': 'Elegir un tema',
   'theme.sepia': 'Sepia',
+  'settings.toolNames.label': 'Mostrar nombres de herramientas',
+  'settings.toolNames.description':
+    'Muestra el nombre junto a cada icono de la barra. Apagado: solo iconos; mantén pulsado o pasa el cursor para ver el nombre. En vertical con Lápiz la barra muestra solo iconos.',
+  'settings.formatTabs.label': 'Pestañas de Formato',
+  'settings.formatTabs.description':
+    'Cuántas pestañas tiene la tarjeta Formato: 3 (Texto, Estilo, Párrafo) o 4 (añade Avanzado).',
+  'settings.backToPen.label': 'Volver a la última herramienta',
+  'settings.backToPen.description':
+    'Muestra en la barra un botón que vuelve a la herramienta anterior.',
+  'settings.eraserMenus.label': 'Los tres menús del borrador',
+  'settings.eraserMenus.description':
+    'Muestra en la barra los menús de modo, tamaño y "borra" del borrador. Apagado: un menú sencillo.',
+  'settings.biggerLasso.label': 'Lazo más grande',
+  'settings.biggerLasso.description':
+    'Muestra en la barra la forma del lazo y lo que selecciona, con su menú de opciones. Apagado: una fila corta.',
+  'settings.layoutShortcut.label': 'Diseño',
+  'settings.layoutShortcut.description':
+    'Un toque ajusta las cinco filas de la barra de abajo. Principiante: todo apagado, 3 pestañas de formato. Profesional: todo encendido, 4 pestañas. Después puedes cambiar cada fila. Si las filas son mixtas, no se marca ninguno.',
+  'settings.layoutShortcut.beginner': 'Principiante',
+  'settings.layoutShortcut.professional': 'Profesional',
+  'settings.toolbarGroup.title': 'Barra de herramientas',
+  'settings.toolbarGroup.lead':
+    'Diseño ajusta estas cinco a la vez: Principiante = todo apagado, 3 pestañas. Profesional = todo encendido, 4 pestañas.',
+  'settings.layoutShortcut.help': 'Un toque ajusta las cinco filas de abajo.',
+  'settings.layoutShortcut.help.custom':
+    'Las filas de abajo son mixtas, así que no se marca ninguno.',
+  'settings.toolNames.help.on': 'Sí: un nombre junto a cada icono.',
+  'settings.toolNames.help.off': 'No: solo iconos.',
+  'settings.formatTabs.help.3': '3 pestañas: Texto, Estilo, Párrafo.',
+  'settings.formatTabs.help.4': '4 pestañas: Texto, Estilo, Párrafo, Avanzado.',
+  'settings.backToPen.help.on':
+    'Sí: un botón vuelve a la herramienta que usaste antes.',
+  'settings.backToPen.help.off': 'No: sin botón de volver en la barra.',
+  'settings.eraserMenus.help.on':
+    'Sí: Modo, Tamaño y Borra, cada uno en la barra.',
+  'settings.eraserMenus.help.off': 'No: un menú de borrador simple.',
+  'settings.biggerLasso.help.on': 'Sí: las opciones del lazo en un menú.',
+  'settings.biggerLasso.help.off': 'No: una fila corta de lazo.',
 }

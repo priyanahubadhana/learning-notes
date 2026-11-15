@@ -124,3 +124,10 @@
     animation-duration: 0.01ms;
   }
 }
+/* I1: ✕ on the leading edge (switch foundation.shell). */
+.fb-toast--lead {
+  padding-inline-start: var(--space-1);
+}
+.fb-toast--lead .fb-toast__x {
+  margin-right: 0;
+}

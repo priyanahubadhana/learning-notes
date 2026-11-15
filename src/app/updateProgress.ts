@@ -90,16 +90,19 @@ export async function cachedPaths(): Promise<Set<string>> {
   return out
 }
 
+/**
+ * The list of files of the newest build. T29: a list that cannot be read
+ * (offline, a server error, bad data) is a failure, never "nothing to
+ * download": that would install and restart with nothing fetched.
+ */
 export async function listFiles(): Promise<Listed[]> {
-  try {
-    const res = await fetch(`/precache.json?t=${Date.now()}`, {
-      cache: 'no-store',
-    })
-    const { files } = (await res.json()) as { files?: Listed[] }
-    return Array.isArray(files) ? files : []
-  } catch {
-    return []
-  }
+  const res = await fetch(`/precache.json?t=${Date.now()}`, {
+    cache: 'no-store',
+  })
+  if (!res.ok) throw new Error(`precache.json: ${res.status}`)
+  const { files } = (await res.json()) as { files?: Listed[] }
+  if (!Array.isArray(files)) throw new Error('precache.json: no list')
+  return files
 }
 
 /**

@@ -21,6 +21,8 @@ import { SectionReset } from './SectionReset'
 import { PreviewPane } from './PreviewPane'
 import { PreviewPill } from './PreviewPill'
 import { SettingRow } from './SettingRow'
+import { LAYOUT_ROW } from '../toolbarRows'
+import { ToolbarGroupHead } from '../ToolbarGroupHead'
 import type { Change } from './changeNote'
 import { ClearField } from '../../design/parts/ClearField'
 import { SearchResults } from './SearchResults'
@@ -49,6 +51,7 @@ import { TryNewHeader } from './TryNewHeader'
 import { inSection, useVisibleSettings } from './visibleSettings'
 import { tv } from './tv'
 import { useWide } from './useWide'
+import { useFlag } from '../../app/flags'
 import './settingsV3.css'
 
 /**
@@ -155,6 +158,8 @@ function SettingsV3Body({
 
   // The phone preview: open or shut, and how many changes it has not shown.
   const wide = useWide(root)
+  // 2A.14: with the new tool bar, upright iPad gives the rows the full width.
+  const v8 = useFlag('toolbar.v8')
   const [sheetOpen, setSheetOpen] = useState(false)
   const [unseen, setUnseen] = useState(0)
   const toggleSheet = () => {
@@ -172,6 +177,7 @@ function SettingsV3Body({
       ref={root}
       data-settings-v3
       data-wide={wide ? '' : undefined}
+      data-v8={v8 ? '' : undefined}
       className="sv3"
     >
       <div className="sv3-titlebar">
@@ -267,6 +273,7 @@ function SettingsV3Body({
           {!searching &&
             rows.map((s) => (
               <Fragment key={s.id}>
+                {s.id === LAYOUT_ROW && <ToolbarGroupHead />}
                 <SettingRow
                   db={db}
                   definition={s}

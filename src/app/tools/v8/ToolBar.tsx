@@ -11,7 +11,12 @@ import {
 import type { Editor } from '../../../editor/barActions'
 import { useFlag } from '../../flags'
 import { t, type MessageKey } from '../../../i18n/t'
-import { useLevel } from '../../../settings/level'
+import {
+  deviceModeSetting,
+  hoverTipsSetting,
+} from '../../../settings/builtinSettings'
+import { useDeviceSetting } from '../../../settings/useSetting'
+import { useToolNames } from './barPrefs'
 import { Icon, type IconName } from '../icons'
 import { TOOL_HOLD_MS, newLineExtras, newLineHoldMs } from '../main/mainTools'
 import {
@@ -76,13 +81,21 @@ export interface ToolBarProps {
 }
 
 /** A name shown above a held tool, so a finger can read it (TB-02). */
-function NameTip({ el, text }: { el: HTMLElement; text: string }) {
+function NameTip({
+  el,
+  text,
+  testId = 'v8-tip',
+}: {
+  el: HTMLElement
+  text: string
+  testId?: string
+}) {
   const r = el.getBoundingClientRect()
   return createPortal(
     <div
       className="v8tip z-(--z-menu)"
       role="tooltip"
-      data-testid="v8-tip"
+      data-testid={testId}
       style={{
         left: r.left + r.width / 2,
         top: r.bottom + 6,
@@ -274,11 +287,16 @@ export function ToolBar({
   onToggleCard,
   onCloseCard,
 }: ToolBarProps) {
-  const level = useLevel()
+  const [deviceMode] = useDeviceSetting(deviceModeSetting)
+  const [hoverTips] = useDeviceSetting(hoverTipsSetting)
   const history = historyState.useValue()
   const editor = useBlockNoteEditor() as unknown as Editor | null
   const tools = v8Tools()
   const hold = useToolHold(onTool)
+  // PC: the mouse over an icon shows its name when the bar shows none (TB-02).
+  const [hover, setHover] = useState<{ id: V8ToolId; el: HTMLElement } | null>(
+    null,
+  )
   const backspace = useBackspace(editor)
   const nlHold = useNewLineHold(
     (el) => onToggleCard(NEWLINE_CARD, el),
@@ -286,7 +304,7 @@ export function ToolBar({
       if (editor) addLineAfterCursor(editor)
     },
   )
-  const names = level === 'professional'
+  const names = useToolNames(deviceMode === 'pencil')
   // 2A.4: with the new frame, Undo and Redo sit in the page top bar, not here.
   const inTopBar = useFlag('foundation.shell')
 
@@ -386,6 +404,11 @@ export function ToolBar({
             data-testid={`v8-tool-${x.id}`}
             className={btn}
             aria-label={t(TOOL_NAME[x.id])}
+            onPointerEnter={(e) => {
+              if (e.pointerType === 'mouse')
+                setHover({ id: x.id, el: e.currentTarget })
+            }}
+            onPointerLeave={() => setHover(null)}
             aria-pressed={insert ? undefined : on}
             aria-haspopup={insert ? 'dialog' : undefined}
             aria-expanded={insert ? card?.id === 'insert' : undefined}
@@ -587,6 +610,13 @@ export function ToolBar({
           )),
         )}
       </div>
+      {hover && hoverTips === 'on' && !hold.tip && !showNames ? (
+        <NameTip
+          el={hover.el}
+          text={t(TOOL_NAME[hover.id])}
+          testId="v8-hover-tip"
+        />
+      ) : null}
       {hold.tip && !showNames ? (
         <NameTip el={hold.tip.el} text={t(TOOL_NAME[hold.tip.id])} />
       ) : null}

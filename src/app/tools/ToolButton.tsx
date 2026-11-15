@@ -8,6 +8,7 @@ import { CopyPasteButton } from './CopyPasteMenu'
 import { Icon } from './icons'
 import { ThemeArrow } from './ThemePicker'
 import { comingText, toolLabel, runTool, type ToolDef } from './toolRegistry'
+import { useKeyName } from '../keyNames'
 
 /** Keeps the editor's selection and keyboard when a button is pressed. */
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
@@ -99,10 +100,11 @@ function PlainToolButton({
   /** Called after the tool ran (the ribbon closes its tools). */
   onRun?: () => void
 }) {
+  const keyName = useKeyName()
   const readingOn = useReadingToolOn(tool.id)
   const active = activeProp ?? readingOn
   const label = toolLabel(tool)
-  const shortcut = hint ? tool.shortcut?.() : undefined
+  const shortcut = hint ? keyName(tool.shortcut?.()) : undefined
   const title = tool.coming
     ? `${label}. ${comingText(tool.coming)}`
     : tip || variant === 'ribbon'

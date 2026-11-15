@@ -235,6 +235,16 @@ function LinkField({ onDone }: { onDone: () => void }) {
 function ToolGroup({ group, link }: { group: FormatGroup; link?: boolean }) {
   const editor = useBlockNoteEditor()
   const active = useActiveStyles(editor as never) as Record<string, unknown>
+  let blockType = ''
+  try {
+    blockType = editor.getTextCursorPosition().block.type
+  } catch {
+    /* no cursor yet */
+  }
+  const isOn = (tile: FormatTile): boolean =>
+    (!!tile.style && !!active[tile.style]) ||
+    (!!tile.block && tile.block === blockType) ||
+    (!!tile.mark && active.mark === tile.mark)
   const [linking, setLinking] = useState(false)
   if (group.id === 'headings') return <StyleRows group={group} />
   return (
@@ -246,7 +256,7 @@ function ToolGroup({ group, link }: { group: FormatGroup; link?: boolean }) {
             multi={!tile.action}
             action={tile.action}
             label={tileName(tile)}
-            selected={!!tile.style && !!active[tile.style]}
+            selected={isOn(tile)}
             testId={`v8-format-${tile.tool}`}
             onSelect={() => runTool(tile.tool)}
           >

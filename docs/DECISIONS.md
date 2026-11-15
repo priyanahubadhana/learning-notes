@@ -77,6 +77,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-15 · 2A.6 Pen row favourites fold into "⋯ n" (builder, safest option).** Mock v9 folds a crowded row into a separate "★ n" chip; the build reuses the existing "⋯ n" list (every favourite stays tappable, no sideways scroll) to keep shared ToolRow edits tiny. Revisit if the owner wants "★ n".
 - **2026-11-15 · 2A.14 Layout shortcut when the five rows are mixed (builder, safest option).** The Layout row (Beginner | Professional) shows neither button chosen when the rows are mixed (value "custom"; tapping a button sets all five). It never guesses the nearest one, so it never claims a look the bar does not have. One tap is one Undo step that gives each row its earlier value (rows become explicit on/off, no longer "follow my level"). Only with `toolbar.v8` on.
 - **2026-11-16 · P1.11 hot file playwright.config.ts (manager OK).** One entry `/keyNames/` added to the ipad-webkit list only, so the T31 key-name spec also runs on the iPad size.
 - **2026-11-15 · Task H Undo holds on every device (manager's decision, review 1).** The "keep apart" mark is an optional page field `monthJoinDeclined` (src/core/types.ts, hot file, manager OK); optional, so no database version change. It is kept in full backups (checkRows) and not copied by Duplicate. Unit test "Undo holds on every device" uses two and three simulated devices.

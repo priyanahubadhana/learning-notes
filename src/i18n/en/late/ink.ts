@@ -387,6 +387,7 @@ export const enLateInk = {
   'paper.box.deleted': 'Box deleted.',
   'paper.box.duplicate': 'Duplicate box',
   'paper.box.groupNeed': 'Pick 2 or more',
+  'paper.box.groupTip': 'Pick 2 or more boxes with Lasso to group them',
   'paper.box.lock': 'Lock in place',
   'paper.box.menu': 'Box actions',
   'paper.box.move': 'Move box (drag)',

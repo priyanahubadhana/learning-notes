@@ -1436,8 +1436,8 @@ export function PaperFrame({
         { x: x0 + r.width, y: y0 + r.height },
       ].every((c) => inPolygon(c, poly))
     }
-    const v2 = isOn('textbox.v2')
-    const wholeIds = v2
+    const v2On = isOn('textbox.v2')
+    const wholeIds = v2On
       ? extra.filter((b) => {
           const el = frames.get(b.id)
           return !!el && whole(el)

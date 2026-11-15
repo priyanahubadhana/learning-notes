@@ -10,3 +10,5 @@ Approved picture: docs/mockups/textbox-2b/states.html panels 6a and 6b.
 | `page-phone-{...}.png`                                                       | phone: no sheets, so no Lasso loop, no pill and no Layout button (as before)                                                            |
 
 Beginner and Professional look the same here (no mode-specific parts). Boxes wiggle in the live page (a still picture cannot show it); reduced motion is tested in `e2e/tb2-group.spec.ts`.
+
+Review 1 changes: the Layouts strip is one row at every iPad width (label hidden when narrow, tile labels wrap inside equal tiles); the pill stays inside the paper; every box has the dashed outline in Layout Assist.

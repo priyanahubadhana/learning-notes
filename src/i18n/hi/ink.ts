@@ -397,6 +397,7 @@ export const hiInk = {
   'paper.box.deleted': 'बॉक्स हटाया गया।',
   'paper.box.duplicate': 'बॉक्स की कॉपी बनाएँ',
   'paper.box.groupNeed': '2 या अधिक चुनें',
+  'paper.box.groupTip': 'समूह बनाने के लिए लासो से 2 या अधिक बॉक्स चुनें',
   'paper.box.lock': 'जगह पर लॉक करें',
   'paper.box.menu': 'बॉक्स की क्रियाएँ',
   'paper.box.move': 'बॉक्स खिसकाएँ (खींचें)',

@@ -402,6 +402,7 @@ export const esInk = {
   'paper.box.deleted': 'Cuadro eliminado.',
   'paper.box.duplicate': 'Duplicar el cuadro',
   'paper.box.groupNeed': 'Elige 2 o más',
+  'paper.box.groupTip': 'Elige 2 o más cuadros con el Lazo para agruparlos',
   'paper.box.lock': 'Fijar en su sitio',
   'paper.box.menu': 'Acciones del cuadro',
   'paper.box.move': 'Mover el cuadro (arrastrar)',

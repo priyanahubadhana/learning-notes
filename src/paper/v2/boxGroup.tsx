@@ -73,19 +73,22 @@ export default function GroupPill({
           r.bottom > t,
       )
     }
-    const spots = tops
-      .flatMap((top) =>
-        [0, 20, 40, 60, 80, 100, 140, 180, 240].map((dx) => ({
-          left: x * k + dx,
-          top,
-        })),
-      )
-      .filter(
-        (c) =>
-          par.left + c.left + el.offsetWidth <= window.innerWidth - 12 &&
-          par.left + c.left >= 8,
-      )
-    const next = spots.find(clear) ?? first
+    // Always inside the paper: the left edge is pulled in if the pill is wider
+    // than the room to the right of the boxes.
+    const paper = (
+      el.closest('[data-paper]') ?? el.offsetParent
+    )?.getBoundingClientRect()
+    const lo = (paper?.left ?? par.left) - par.left + 8
+    const hi = (paper?.right ?? par.right) - par.left - 8 - el.offsetWidth
+    const inside = (left: number) =>
+      Math.max(lo, Math.min(left, Math.max(lo, hi)))
+    const spots = tops.flatMap((top) =>
+      [0, 20, 40, 60, 80, 100, 140, 180, 240]
+        .map((dx) => ({ left: inside(x * k + dx), top }))
+        .filter((c, i, all) => all.findIndex((o) => o.left === c.left) === i),
+    )
+    const next = spots.find(clear) ??
+      spots[0] ?? { left: inside(x * k), top: first.top }
     setChosen((cur) =>
       cur && cur.left === next.left && cur.top === next.top ? cur : next,
     )
@@ -94,7 +97,7 @@ export default function GroupPill({
   }, [key])
   if (picked.length < 2 || rects.length === 0) return null
   const btn =
-    'inline-flex min-h-11 items-center gap-2 rounded-xl px-3.5 text-sm font-medium outline-none focus-visible:outline-2 focus-visible:outline-accent disabled:text-muted'
+    'inline-flex min-h-11 min-w-0 items-center gap-1.5 rounded-xl px-2.5 text-[13px] font-medium outline-none focus-visible:outline-2 focus-visible:outline-accent disabled:text-muted'
   return (
     <div
       ref={ref}
@@ -102,12 +105,12 @@ export default function GroupPill({
       data-ui
       role="toolbar"
       aria-label={t('paper.group.bar')}
-      className="absolute z-(--z-pill) flex w-max items-center gap-1 rounded-2xl border border-line bg-surface p-1 shadow-md"
+      className="absolute z-(--z-pill) flex w-max max-w-[calc(100%-16px)] items-center gap-1 rounded-2xl border border-line bg-surface p-1 shadow-md"
       style={{ left: at.left, top: at.top }}
     >
       <span
         data-group-count
-        className="mr-1 ml-1.5 rounded-full whitespace-nowrap bg-hover px-3 py-1 text-xs font-semibold text-muted tabular-nums"
+        className="mr-0.5 ml-1 shrink-0 rounded-full whitespace-nowrap bg-hover px-2.5 py-1 text-xs font-semibold text-muted tabular-nums"
       >
         {t('paper.group.count', { count: picked.length })}
       </span>
@@ -119,8 +122,8 @@ export default function GroupPill({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => onGroup(ids, createId())}
       >
-        <Group size={16} aria-hidden />
-        {t('paper.group.group')}
+        <Group size={16} aria-hidden className="shrink-0" />
+        <span className="truncate">{t('paper.group.group')}</span>
       </button>
       <button
         type="button"
@@ -130,8 +133,8 @@ export default function GroupPill({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => onGroup(ids, undefined)}
       >
-        <Ungroup size={16} aria-hidden />
-        {t('paper.group.ungroup')}
+        <Ungroup size={16} aria-hidden className="shrink-0" />
+        <span className="truncate">{t('paper.group.ungroup')}</span>
       </button>
     </div>
   )

@@ -12,6 +12,8 @@ export type MoreRow = {
   note?: string
   danger?: boolean
   disabled?: boolean
+  /** Looks dimmed but still takes a tap (its onSelect says why it does not apply). */
+  dim?: boolean
   onSelect: () => void
 }
 
@@ -48,11 +50,12 @@ export function BoxMoreList({
               role="menuitem"
               data-box-more={r.id}
               disabled={r.disabled}
+              aria-disabled={r.dim ? true : undefined}
               onClick={() => {
                 menu.close()
                 r.onSelect()
               }}
-              className={`flex min-h-11 w-full items-center gap-2 rounded-md px-3 text-start text-sm hover:bg-hover disabled:opacity-50 disabled:hover:bg-transparent ${r.danger ? 'text-danger' : 'text-ink'}`}
+              className={`flex min-h-11 w-full items-center gap-2 rounded-md px-3 text-start text-sm hover:bg-hover disabled:opacity-50 disabled:hover:bg-transparent ${r.dim ? 'opacity-50' : ''} ${r.danger ? 'text-danger' : 'text-ink'}`}
             >
               <Icon name={r.icon} size={18} />
               <span className="flex-1">{r.label}</span>

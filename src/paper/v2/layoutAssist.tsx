@@ -115,14 +115,14 @@ export default function LayoutAssist({
     )
   }
   return (
-    <div data-layout-assist className="pb-6">
+    <div data-layout-assist className="@container pb-6">
       <div
         data-layout-strip
         role="toolbar"
         aria-label={t('layout.tile.strip')}
-        className="mx-auto flex w-max max-w-full flex-wrap items-center justify-center gap-1.5 rounded-2xl border border-line bg-surface p-1.5 shadow-md"
+        className="mx-auto flex w-full max-w-[600px] items-center gap-1 rounded-2xl border border-line bg-surface p-1.5 shadow-md"
       >
-        <span className="px-2.5 text-xs font-semibold text-muted">
+        <span className="hidden px-2.5 text-xs font-semibold text-muted @min-[520px]:block">
           {t('layout.tile.strip')}
         </span>
         {TILES.map((tile) => (
@@ -132,7 +132,7 @@ export default function LayoutAssist({
             aria-pressed={chosen === tile.id}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => void choose(tile.id)}
-            className="grid min-h-13 min-w-19 shrink-0 justify-items-center gap-1 rounded-xl bg-hover px-2 pt-1.5 pb-1 text-[11.5px] font-medium whitespace-nowrap text-muted outline-none focus-visible:outline-2 focus-visible:outline-accent aria-pressed:bg-accent/15 aria-pressed:text-accent aria-pressed:ring-[1.5px] aria-pressed:ring-accent"
+            className="grid h-14 min-w-0 flex-1 content-center justify-items-center gap-0.5 text-center leading-tight rounded-xl bg-hover px-1 pt-1.5 pb-1 text-[10.5px] font-medium text-muted outline-none focus-visible:outline-2 focus-visible:outline-accent aria-pressed:bg-accent/15 aria-pressed:text-accent aria-pressed:ring-[1.5px] aria-pressed:ring-accent"
           >
             <span aria-hidden className={'grid h-5 w-7.5 gap-0.5 ' + tile.cls}>
               {Array.from({ length: tile.cells }, (_, i) => (
@@ -153,7 +153,7 @@ export default function LayoutAssist({
           data-layout-done
           onMouseDown={(e) => e.preventDefault()}
           onClick={onDone}
-          className="min-h-11 shrink-0 rounded-xl bg-accent px-4 text-sm font-semibold text-on-accent outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="min-h-11 shrink-0 rounded-xl bg-accent px-3 text-sm font-semibold text-on-accent outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         >
           {t('layout.assist.done')}
         </button>

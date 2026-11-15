@@ -1,7 +1,14 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  createNotebook,
+  pickBox,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
+import { inkClientBox, line, savedInk, stroke } from './inkHelpers.ts'
+import { tool } from './mainBarHelpers.ts'
 import { lassoAround } from './groupHelpers.ts'
 
 /**
@@ -27,11 +34,16 @@ const centre = async (l: Locator) => {
 const COACH =
   'This is how your page will look. Drag any box to move it, pull an edge to resize. Tap Done when happy.'
 
-async function start(page: Page, name: string) {
+async function start(
+  page: Page,
+  name: string,
+  size?: { width: number; height: number },
+) {
   await page.addInitScript(() =>
     localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
   )
   await startInMode(page, 'computer')
+  if (size) await page.setViewportSize(size)
   await page.goto('/')
   await createNotebook(page, 'Paper', name)
 }
@@ -56,8 +68,12 @@ async function addBox(page: Page, text: string, down = 60) {
   return box
 }
 
-async function threeBoxes(page: Page, name: string) {
-  await start(page, name)
+async function threeBoxes(
+  page: Page,
+  name: string,
+  size?: { width: number; height: number },
+) {
+  await start(page, name, size)
   await typeInEditor(page, 'Main text')
   const a = await addBox(page, 'Alpha')
   const b = await addBox(page, 'Beta')
@@ -210,6 +226,117 @@ test('TB-35 a layout tile shows its result at once; one Undo returns the old lay
       return Math.abs(y.x - b0.x) < 4 && Math.abs(y.y - b0.y) < 4
     })
     .toBe(true)
+})
+
+const WIDTHS = [
+  { width: 744, height: 1180 },
+  { width: 820, height: 1180 },
+  { width: 1180, height: 1180 },
+  { width: 1366, height: 1180 },
+]
+
+for (const size of WIDTHS) {
+  test(`TB-32 the pill stays inside the paper at ${size.width} px`, async ({
+    page,
+  }) => {
+    const { a, b } = await threeBoxes(page, 'TB32w' + size.width, size)
+    await lassoAround(page, [0, 1])
+    await expect(pill(page)).toBeVisible()
+    await page.waitForTimeout(400)
+    const p = await rect(pill(page))
+    const paper = await rect(page.locator('[data-paper]'))
+    expect(p.x).toBeGreaterThanOrEqual(paper.x - 0.5)
+    expect(p.x + p.width).toBeLessThanOrEqual(paper.x + paper.width + 0.5)
+    for (const box of [a, b]) {
+      const r = await rect(box)
+      expect(p.y + p.height <= r.y + 1 || p.y >= r.y + r.height - 1).toBe(true)
+    }
+  })
+
+  test(`TB-34 the Layouts strip is one row at ${size.width} px`, async ({
+    page,
+  }) => {
+    await threeBoxes(page, 'TB34w' + size.width, size)
+    await openAssist(page)
+    const strip = page.locator('[data-layout-strip]')
+    const ys = await strip
+      .getByRole('button')
+      .evaluateAll((els) =>
+        els.map(
+          (e) =>
+            e.getBoundingClientRect().y + e.getBoundingClientRect().height / 2,
+        ),
+      )
+    expect(ys).toHaveLength(5)
+    expect(Math.max(...ys) - Math.min(...ys)).toBeLessThan(4)
+    const s = await rect(strip)
+    const paper = await rect(page.locator('[data-paper-wrap]'))
+    expect(s.x).toBeGreaterThanOrEqual(paper.x - 0.5)
+    expect(s.x + s.width).toBeLessThanOrEqual(paper.x + paper.width + 0.5)
+  })
+}
+
+test('TB-34 in Layout Assist every box has a dashed outline', async ({
+  page,
+}) => {
+  await threeBoxes(page, 'TB34d')
+  await openAssist(page)
+  const covers = page.locator('[data-layout-cover]')
+  // Three boxes and the page text.
+  await expect(covers).toHaveCount(4)
+  const styles = await covers.evaluateAll((els) =>
+    els.map((e) => getComputedStyle(e).borderTopStyle),
+  )
+  expect(styles.every((v) => v === 'dashed')).toBe(true)
+})
+
+test('TB-32 the loop picks the boxes with their ink: the ink moves with them', async ({
+  page,
+}) => {
+  const { a, b } = await threeBoxes(page, 'TB32i')
+  // Ink over the first box's words (linked to its line).
+  await tool(page, 'Pen').click()
+  await page.waitForTimeout(700)
+  const l = await rect(a.locator('.bn-block-content').first())
+  await stroke(
+    page,
+    line([l.x + 4, l.y + l.height / 2], [l.x + 40, l.y + l.height / 2]),
+  )
+  await expect
+    .poll(async () => (await savedInk(page)).strokes.length, { timeout: 8000 })
+    .toBe(1)
+  await lassoAround(page, [0, 1])
+  await expect(pill(page)).toContainText('2 boxes')
+  const ink0 = (await inkClientBox(page))!
+  const a0 = await rect(a)
+  const from = await centre(b.locator('[data-box-grip]'))
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  await page.waitForTimeout(200)
+  await page.mouse.move(from.x + 60, from.y + 20, { steps: 10 })
+  await page.mouse.up()
+  await page.waitForTimeout(900)
+  const ink1 = (await inkClientBox(page))!
+  const a1 = await rect(a)
+  expect(Math.abs(a1.x - a0.x) + Math.abs(a1.y - a0.y)).toBeGreaterThan(4)
+  expect(Math.abs(ink1.x0 - ink0.x0 - (a1.x - a0.x))).toBeLessThan(4)
+  expect(Math.abs(ink1.y0 - ink0.y0 - (a1.y - a0.y))).toBeLessThan(4)
+})
+
+test('the box ⋯ list: Group is dimmed and a tap says how to group', async ({
+  page,
+}) => {
+  const { b } = await threeBoxes(page, 'TB32g')
+  await pickBox(page, b)
+  await b.locator('[data-box-menu]').click()
+  const row = page.locator('[data-box-more="group"]')
+  await expect(row).toBeVisible()
+  await expect(row).toHaveAttribute('aria-disabled', 'true')
+  // Playwright treats aria-disabled as not clickable; a finger can tap it.
+  await row.click({ force: true })
+  await expect(
+    page.getByText('Pick 2 or more boxes with Lasso to group them'),
+  ).toBeVisible()
 })
 
 test.describe('reduced motion', () => {

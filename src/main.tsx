@@ -1,3 +1,4 @@
+import { mandatoryUpdate } from './app/mandatoryState'
 import {
   browserRestartDeps,
   restartIntoNewFiles as restartNow,
@@ -168,6 +169,11 @@ if (
 // Q3a: a device with no sign-in is read-only until the person signs in.
 startAccountGate()
 
+// T29: while the "did not finish" note shows, nothing restarts the app by
+// itself (a new worker taking over, a look for updates): only Try again or
+// Not now moves on.
+const noteHolds = () => mandatoryUpdate.get()?.phase === 'failed'
+
 // A unique build name makes the silent backup due right now.
 async function backupForUpdate(): Promise<'ok' | 'space' | 'error'> {
   const result = await runAutoBackup(
@@ -182,7 +188,9 @@ async function backupForUpdate(): Promise<'ok' | 'space' | 'error'> {
 // setting "Update automatically"); with it off the "Update" bar is shown.
 const autoUpdate = startAutoUpdate({
   enabled: () =>
-    readDeviceSetting(autoUpdateSetting) === 'on' && !isUpdateRequired(),
+    readDeviceSetting(autoUpdateSetting) === 'on' &&
+    !isUpdateRequired() &&
+    !noteHolds(),
   win: window,
   penDown: () => penIsDown(),
   hasPendingSaves,
@@ -291,6 +299,7 @@ const update = registerSW({
 // Looking works with or without a service worker: version.json is compared
 // with this build, and a newer one is applied by the auto-update rule.
 setUpdateFallback(() => {
+  if (noteHolds()) return
   resetGestures('manual')
   rememberPlace()
   void restartIntoNewFiles()
@@ -328,8 +337,12 @@ const restartIntoNewFiles = () => restartNow(browserRestartDeps(flushAllSaves))
 watchControllerChange(navigator.serviceWorker, () =>
   reloadWhenSafe(
     () =>
-      document.visibilityState === 'visible' && !penIsDown() && !hasUnsaved(),
+      document.visibilityState === 'visible' &&
+      !penIsDown() &&
+      !hasUnsaved() &&
+      !noteHolds(),
     () => {
+      if (noteHolds()) return
       rememberPlace()
       location.reload()
     },

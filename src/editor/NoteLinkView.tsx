@@ -3,6 +3,7 @@ import { useContext } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { shortcutLabel } from '../app/keys'
+import { useKeyName } from '../app/keyNames'
 import { t } from '../i18n/t'
 import { resolveLink } from '../links/linkService'
 import { restorePage } from '../trash/trashService'
@@ -16,6 +17,7 @@ import type { NoteLinkProps } from './mapping'
  */
 export function NoteLinkView({ pageId, blockId, label }: NoteLinkProps) {
   const app = useContext(EditorContext)
+  const keyName = useKeyName()
   const { toast } = useContext(AppUiContext)
   const link = useLiveQuery(
     async () => (app ? resolveLink(app.db, { pageId, blockId }) : undefined),
@@ -67,7 +69,9 @@ export function NoteLinkView({ pageId, blockId, label }: NoteLinkProps) {
       title={
         link.state === 'trash'
           ? t('links.inTrash')
-          : t('links.openHint', { key: shortcutLabel('Enter') })
+          : keyName(shortcutLabel('Enter'))
+            ? t('links.openHint', { key: shortcutLabel('Enter') })
+            : t('links.open')
       }
     >
       {title}

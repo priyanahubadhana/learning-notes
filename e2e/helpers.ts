@@ -155,20 +155,33 @@ export async function createNotebook(
 
   const nameField = sidebar(page).getByRole('textbox', { name: 'Name' })
   const named = sidebar(page).getByRole('button', { name, exact: true })
+  // Touch and Pencil devices name it in the "Name it" sheet instead.
+  if (await sheetFill(page, name, nameField)) {
+    // R9: the sheet comes before the first page. When that page opens, its
+    // route closes the phone drawer (the drawer belongs to the route), so
+    // wait for the page of the named notebook before looking in the drawer.
+    await expect(
+      page.getByRole('navigation', { name: 'Breadcrumb' }),
+    ).toContainText(name)
+    await showSidebar(page)
+    await expect(named).toBeVisible()
+    await setTitle(page, firstPage)
+    return
+  }
   // On a phone the drawer can close while naming, which ends the name field,
   // so repeat the whole step until the notebook shows its name, reopening
   // the field with Rename like a user would.
   await expect(async () => {
-    // Touch and Pencil devices name it in the "Name it" sheet instead.
-    if (await sheetFill(page, name, nameField)) {
-      await showSidebar(page)
-      await expect(named).toBeVisible({ timeout: 3000 })
-      return
-    }
     await showSidebar(page)
     if (await named.isVisible()) return
     if (!(await nameField.isVisible())) {
       await rowAction(page, 'Untitled notebook', 'Rename')
+      // On touch, Rename names it in the sheet.
+      if (await sheetFill(page, name, nameField)) {
+        await showSidebar(page)
+        await expect(named).toBeVisible({ timeout: 3000 })
+        return
+      }
     }
     await nameField.fill(name, { timeout: 3000 })
     await nameField.press('Enter', { timeout: 3000 }).catch(() => {})
@@ -193,7 +206,9 @@ export async function addPage(
   )
   await page.getByRole('menuitem', { name: 'Blank page' }).click()
   await page.waitForURL((url) => url.toString() !== before) // the new page is open
-  if (!(await sheetFill(page, title))) {
+  // R9: touch names the new page in the lazily loaded sheet, a mouse in the
+  // title; wait for whichever really shows, never a fixed time.
+  if (!(await sheetFill(page, title, page.locator('.bn-editor:focus')))) {
     // New pages open with the cursor in the top box; a tap on the title
     // edits the title.
     await expect(page.locator('.bn-editor').first()).toBeFocused()

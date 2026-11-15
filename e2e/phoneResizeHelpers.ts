@@ -45,7 +45,25 @@ export async function phoneBox(
   // Select it: the first tap on a box selects it.
   const r = await rect(box)
   await page.mouse.click(r.x + r.width / 2, r.y + r.height / 2)
-  if (o.flag !== false) await expect(box).toHaveAttribute('data-picked', '')
+  if (o.flag !== false) {
+    await expect(box).toHaveAttribute('data-picked', '')
+    // The box's bar comes a moment after the tap and, near the bottom of a
+    // phone, moves the page up once to make room (BoxBarV2). Wait for the
+    // bar and for the box to stand still, as a user's eye would.
+    await expect(box.locator('[data-box-bar]')).toBeVisible()
+    await expect
+      .poll(async () => {
+        const a = (await rect(box)).y
+        await page.evaluate(
+          () =>
+            new Promise((r) =>
+              requestAnimationFrame(() => requestAnimationFrame(r)),
+            ),
+        )
+        return Math.abs((await rect(box)).y - a)
+      })
+      .toBeLessThan(0.5)
+  }
   return box
 }
 

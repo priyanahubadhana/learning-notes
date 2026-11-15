@@ -24,7 +24,7 @@ import {
   phoneBox,
   rect,
   HOW,
-} from './tb2-resize-phone-helpers.ts'
+} from './phoneResizeHelpers.ts'
 
 test('phone: a selected box shows the 8 dots, 44 pt targets outside the box, on top', async ({
   page,

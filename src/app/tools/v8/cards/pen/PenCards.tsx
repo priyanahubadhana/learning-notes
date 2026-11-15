@@ -1,4 +1,7 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { db } from '../../../../../core/db'
+import { setPageSheet } from '../../../../../pages/pageService'
 import {
   CardGroup,
   CardNote,
@@ -8,10 +11,11 @@ import {
   Tile,
   TileGroup,
 } from '../../../../../design/parts/CardParts'
+import { OnOffChoice } from '../../../../../design/parts/OnOff'
 import { TabRow, type TabDef } from '../../../../../design/parts/TabRow'
 import { memoryTabSetStore } from '../../../../../design/parts/tabSets'
 import { t, type MessageKey } from '../../../../../i18n/t'
-import { Icon } from '../../../icons'
+import { Icon, type IconName } from '../../../icons'
 import { InkPreview } from '../../../main/InkPreview'
 import {
   FINGER_MODES,
@@ -23,6 +27,7 @@ import {
   highlighterSettings,
   isHex,
   penSettings,
+  type DrawAs,
 } from '../../../main/inkSettings'
 import { activeTool } from '../../../main/mainTools'
 import { LayersCard } from '../../../../../ink/LayersCard'
@@ -379,6 +384,19 @@ function FeelPane() {
   const feel = useUnlocked('tb.penFeel')
   const hlPro = useUnlocked('tb.highlighter')
   const [fine, setFine] = useState(false)
+  const drawAs = (cur: DrawAs) => (
+    <TileGroup label={t('ink.drawAs')} columns={4}>
+      {DRAW_AS_CHOICES.map((d) => (
+        <Tile
+          key={d}
+          label={t(k(`ink.drawAs.${d}`))}
+          selected={cur === d}
+          testId={`v8-pen-drawas-${d}`}
+          onSelect={() => penSettings.update({ drawAs: d })}
+        />
+      ))}
+    </TileGroup>
+  )
   return (
     <>
       <CardGroup>
@@ -434,6 +452,74 @@ function FeelPane() {
             </CardGroup>
           ) : null}
         </>
+      ) : feel ? (
+        <>
+          <CardGroup label={t('v8.pen.tip')}>
+            <CardWell testId="v8-feel-tip">
+              <Slider
+                label={t('ink.pen.sharpness')}
+                value={pen.sharpness}
+                min={0}
+                max={100}
+                testId="v8-pen-sharpness"
+                onChange={(sharpness) => penSettings.update({ sharpness })}
+              />
+              {pen.type === 'fountain' ? (
+                <Slider
+                  label={t('ink.pen.flatness')}
+                  value={pen.flatness}
+                  min={0}
+                  max={100}
+                  testId="v8-pen-flatness"
+                  onChange={(flatness) => penSettings.update({ flatness })}
+                />
+              ) : null}
+              <Slider
+                label={t('ink.pen.stabilisation')}
+                value={pen.stabilisation}
+                min={0}
+                max={100}
+                testId="v8-pen-stabilisation"
+                onChange={(stabilisation) =>
+                  penSettings.update({ stabilisation })
+                }
+              />
+            </CardWell>
+          </CardGroup>
+          <CardGroup label={t('v8.pen.response')}>
+            <CardWell testId="v8-feel-response">
+              <Slider
+                label={t('ink.pen.pressure')}
+                value={pen.pressure}
+                min={0}
+                max={100}
+                testId="v8-pen-pressure"
+                onChange={(pressure) => penSettings.update({ pressure })}
+              />
+              <SwitchRow
+                label={t('ink.pen.tilt')}
+                icon={<Icon name="penTool" size={16} />}
+                checked={pen.tilt}
+                onChange={(tilt) => penSettings.update({ tilt })}
+              />
+              <SwitchRow
+                label={t('ink.pen.speedWidth')}
+                icon={<Icon name="scale" size={16} />}
+                checked={pen.speedWidth}
+                onChange={(speedWidth) => penSettings.update({ speedWidth })}
+              />
+              <SwitchRow
+                label={t('ink.pen.lowLatency')}
+                icon={<Icon name="sparkles" size={16} />}
+                checked={pen.lowLatency}
+                onChange={(lowLatency) => penSettings.update({ lowLatency })}
+              />
+            </CardWell>
+          </CardGroup>
+          <CardGroup>
+            <Glow k={pen.drawAs}>{drawAs(pen.drawAs)}</Glow>
+          </CardGroup>
+        </>
       ) : (
         <>
           <CardGroup>
@@ -472,66 +558,7 @@ function FeelPane() {
             </button>
             {fine ? (
               <div data-testid="v8-pen-finebody">
-                <Glow k={pen.drawAs}>
-                  <TileGroup label={t('ink.drawAs')} columns={4}>
-                    {DRAW_AS_CHOICES.map((d) => (
-                      <Tile
-                        key={d}
-                        label={t(k(`ink.drawAs.${d}`))}
-                        selected={pen.drawAs === d}
-                        testId={`v8-pen-drawas-${d}`}
-                        onSelect={() => penSettings.update({ drawAs: d })}
-                      />
-                    ))}
-                  </TileGroup>
-                </Glow>
-                {feel ? (
-                  <>
-                    <Slider
-                      label={t('ink.pen.sharpness')}
-                      value={pen.sharpness}
-                      min={0}
-                      max={100}
-                      testId="v8-pen-sharpness"
-                      onChange={(sharpness) =>
-                        penSettings.update({ sharpness })
-                      }
-                    />
-                    {pen.type === 'fountain' ? (
-                      <Slider
-                        label={t('ink.pen.flatness')}
-                        value={pen.flatness}
-                        min={0}
-                        max={100}
-                        testId="v8-pen-flatness"
-                        onChange={(flatness) =>
-                          penSettings.update({ flatness })
-                        }
-                      />
-                    ) : null}
-                    <CardWell>
-                      <SwitchRow
-                        label={t('ink.pen.tilt')}
-                        checked={pen.tilt}
-                        onChange={(tilt) => penSettings.update({ tilt })}
-                      />
-                      <SwitchRow
-                        label={t('ink.pen.speedWidth')}
-                        checked={pen.speedWidth}
-                        onChange={(speedWidth) =>
-                          penSettings.update({ speedWidth })
-                        }
-                      />
-                      <SwitchRow
-                        label={t('ink.pen.lowLatency')}
-                        checked={pen.lowLatency}
-                        onChange={(lowLatency) =>
-                          penSettings.update({ lowLatency })
-                        }
-                      />
-                    </CardWell>
-                  </>
-                ) : null}
+                <Glow k={pen.drawAs}>{drawAs(pen.drawAs)}</Glow>
               </div>
             ) : null}
           </CardGroup>
@@ -547,17 +574,17 @@ function AidsPane() {
     <>
       <CardGroup label={t('ink.finger')}>
         <Glow k={pen.finger}>
-          <TileGroup label={t('ink.finger')} columns={3}>
-            {FINGER_MODES.map((m) => (
-              <Tile
-                key={m}
-                label={t(k(`ink.finger.${m}`))}
-                selected={pen.finger === m}
-                testId={`v8-pen-finger-${m}`}
-                onSelect={() => penSettings.update({ finger: m })}
-              />
-            ))}
-          </TileGroup>
+          <OnOffChoice
+            block
+            label={t('ink.finger')}
+            value={pen.finger}
+            options={FINGER_MODES.map((m) => ({
+              value: m,
+              label: t(k(`ink.finger.${m}`)),
+              testId: `v8-pen-finger-${m}`,
+            }))}
+            onChange={(finger) => penSettings.update({ finger })}
+          />
         </Glow>
         <CardNote>{t('ink.finger.note')}</CardNote>
       </CardGroup>
@@ -565,11 +592,13 @@ function AidsPane() {
         <CardWell>
           <SwitchRow
             label={t('ink.pen.scribbleErase')}
+            icon={<Icon name="penLine" size={16} />}
             checked={pen.scribbleErase}
             onChange={(scribbleErase) => penSettings.update({ scribbleErase })}
           />
           <SwitchRow
             label={t('ink.pen.circleLasso')}
+            icon={<Icon name="lasso" size={16} />}
             checked={pen.circleLasso}
             onChange={(circleLasso) => penSettings.update({ circleLasso })}
           />
@@ -578,6 +607,8 @@ function AidsPane() {
     </>
   )
 }
+
+const row = (name: IconName): ReactNode => <Icon name={name} size={16} />
 
 function MathPane() {
   const pen = penSettings.useValue()
@@ -590,16 +621,19 @@ function MathPane() {
         <CardWell>
           <SwitchRow
             label={t('ink.pen.holdShape')}
+            icon={row('circle')}
             checked={pen.holdShape}
             onChange={(holdShape) => penSettings.update({ holdShape })}
           />
           <SwitchRow
             label={t('ink.pen.shapeSnap')}
+            icon={row('grid')}
             checked={pen.shapeSnap}
             onChange={(shapeSnap) => penSettings.update({ shapeSnap })}
           />
           <SwitchRow
             label={t('ink.pen.shapeFill')}
+            icon={row('shapes')}
             checked={pen.shapeFill}
             onChange={(shapeFill) => penSettings.update({ shapeFill })}
           />
@@ -610,11 +644,13 @@ function MathPane() {
           <CardWell>
             <SwitchRow
               label={t('v8.pen.ruler')}
+              icon={row('ruler')}
               checked={ruler.on}
               onChange={() => toggleRuler()}
             />
             <SwitchRow
               label={t('ink.magnifier')}
+              icon={row('zoom')}
               checked={mag.on}
               onChange={() => toggleMagnifier()}
             />
@@ -652,7 +688,9 @@ function PagePane() {
                     ink.setPaper(bg)
                     bumpInk()
                   }}
-                />
+                >
+                  <span className="v8paper" data-paper-pic={bg ?? 'blank'} />
+                </Tile>
               ))}
             </TileGroup>
           </Glow>
@@ -661,11 +699,37 @@ function PagePane() {
         )}
       </CardGroup>
       {layers ? (
-        <CardGroup label={t('ink.layers')}>
-          <LayersCard />
-        </CardGroup>
+        <>
+          <CardGroup label={t('ink.layers')}>
+            <LayersCard hidePaper />
+          </CardGroup>
+          {ink ? <SheetSize pageId={ink.doc.pageId} /> : null}
+        </>
       ) : null}
     </>
+  )
+}
+
+const SHEETS = ['A4', 'Letter'] as const
+
+/** Paper size of the open page (A4 or Letter); saved with the page. */
+function SheetSize({ pageId }: { pageId: string }) {
+  const page = useLiveQuery(() => db.pages.get(pageId), [pageId])
+  const sheet = page?.sheet ?? 'A4'
+  return (
+    <CardGroup label={t('paper.size')}>
+      <OnOffChoice
+        block
+        label={t('paper.size')}
+        value={sheet}
+        options={SHEETS.map((s) => ({
+          value: s,
+          label: t(s === 'A4' ? 'paper.sizeA4' : 'paper.sizeLetter'),
+          testId: `v8-pen-sheet-${s}`,
+        }))}
+        onChange={(next) => void setPageSheet(db, pageId, next)}
+      />
+    </CardGroup>
   )
 }
 

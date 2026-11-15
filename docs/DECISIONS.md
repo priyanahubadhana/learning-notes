@@ -79,6 +79,10 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 - **2026-11-15 · 2A.10 Format on states (builder).** Callout stays a one-tap insert (each tap adds a callout block, no toggle off); its tile shows on while the cursor is in a callout. Beginner Body size shows on: it is the current state.
 
+- **2026-11-15 · 2A.7 Pressure switch (builder).** Not built: Pressure 0 already turns pressure off, so the slider alone does it (no new stored switch).
+- **2026-11-15 · 2A.7 Fit page (builder).** Not built as a choice: Paper size is A4 or Letter; an unset size is A4 (today's behaviour).
+- **2026-11-15 · 2A.7 View zoom (builder).** Not built: no zoom is stored; pinch and the ⋯ zoom already exist.
+- **2026-11-15 · 2A.7 Replay (builder).** Not built: it would be a new feature, not in today's Feel.
 - **2026-11-15 · 2A.9 Format card (builder, safest option).** Beginner Text size is Small / Body / Large (90 / 100 / 130 % of the note size), not the mock's Body / Heading / Small: a note-wide size called "Heading" is unclear. Not built because no backend exists: paragraph spacing, letter spacing, Custom styles, Clear formatting (PENDING FM1-FM4); Link, Quote and Justify were added after review. The card is capped in height by CSS so it opens under the bar, never over it or the side bar.
 - **2026-11-15 · 2A.8 review 1 fixes (builder).** The approved picture wins: Pro row is Mode, Size, Erases chips, Back after one chip (no Options ▾; the Options card stays only as the fold-away fallback on a narrow screen). The new default eraser targets (Highlighter also clears highlights on typed words) apply only with toolbar.v8 ON; OFF is today's eraser. Erasing takes whole words. With the sidebar open the Mode and Size chips lose their names by the row's normal fold rule.
 - **2026-11-15 · 2A.8 Erases is a multi-select (builder, safest option).** Highlighter, Text, Pen can be on together (at least one), as in mock v9; default Highlighter + Pen = today's behaviour. Highlighter alone equals the old "highlights only".

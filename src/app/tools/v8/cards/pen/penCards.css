@@ -164,3 +164,43 @@
     transition: none;
   }
 }
+/* Paper picture on a Page tile (v9): a small sheet with its lines. */
+.v8paper {
+  --ln: color-mix(in srgb, var(--color-ink) 22%, transparent);
+  display: block;
+  width: 34px;
+  height: 42px;
+  border-radius: 5px;
+  background-color: var(--color-surface-1);
+  box-shadow: 0 0 0 1px var(--card-hair);
+}
+.v8paper[data-paper-pic='lined'] {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 6px,
+    var(--ln) 6px 7px
+  );
+}
+.v8paper[data-paper-pic='grid'] {
+  background-image:
+    linear-gradient(var(--ln) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ln) 1px, transparent 1px);
+  background-size: 7px 7px;
+}
+.v8paper[data-paper-pic='dots'] {
+  background-image: radial-gradient(var(--ln) 1px, transparent 1.3px);
+  background-size: 7px 7px;
+}
+/* Sliders inside a well are plain rows split by the well's hairlines (v9). */
+.pcard-well > .v8gl {
+  border-radius: 0;
+  padding: 6px 12px 4px;
+}
+.pcard-well > .v8gl > .v8slider {
+  padding: 0;
+  background: none;
+}
+/* A row's own `border: 0` must not hide the well's hairline (v9 .row + .row). */
+.pcard-well > * + .pcard-row {
+  border-top: 1px solid var(--card-hair);
+}

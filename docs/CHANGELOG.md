@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.11 review 2 fixes (switch toolbar.v8, OFF live)
+
+- What: the Layers fold in Lasso Options now starts every box, text and icon on one left edge (measured 448 iPad upright, 808 sideways, 16 phone, light and dark); duplicate .v8llayers rules merged; new tests for the edge and for the "N layers" hint (0, 1, many).
+- Why: review 2 found four left edges (shared LayersCard pads its text rows). The fix stays in the lasso CSS; Pen > Feel > Page is unchanged.
+- Files: src/app/tools/v8/lassoRow.css, src/app/tools/v8/cards/lasso/LassoOptionsCard.test.ts, e2e/toolbarV9Lasso.spec.ts, screenshots/2a11/options-layers-*.
+
 ### 15 Nov 2026: 2A.11 Lasso rebuilt to v9 (switch toolbar.v8, OFF live)
 
 - What: Professional Lasso row = Free-hand / Rectangle and "Picks: Ink, Pictures, Text" chips on the bar, then one Options menu (picture of the selection menu, Menu row with up/down arrows and switches, Layers folded). Beginner keeps Shape and Actions. A narrow bar folds the chips into the "..." list (the picks open as a card). The v8 Select / Menu / Layers cards are gone; every switch and the layer list live in Options. R21 root cause: the test helper's forced click hit the neighbouring button while the bar scrolled; it now waits for the tool to stand still.

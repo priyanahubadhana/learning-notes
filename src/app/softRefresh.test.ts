@@ -77,4 +77,55 @@ describe('softRefresh', () => {
     sessionStorage.setItem('ln.softRefresh', 'not json')
     expect(restoreSoftRefresh()).toBeNull()
   })
+
+  it('keeps the restored place while the layout settles, and lets go when touched', () => {
+    // Why: on iPad Safari the page kept growing and a bar arrived late after
+    // the place was put back, which moved the scroll 62 px.
+    const callbacks: (() => void)[] = []
+    class FakeObserver {
+      constructor(cb: () => void) {
+        callbacks.push(cb)
+      }
+      observe() {}
+      disconnect() {}
+    }
+    const real = globalThis.ResizeObserver
+    globalThis.ResizeObserver = FakeObserver as unknown as typeof ResizeObserver
+    try {
+      location.hash = '#x'
+      document.body.innerHTML = '<div data-page-scroller><div></div></div>'
+      const el = document.querySelector<HTMLElement>('[data-page-scroller]')!
+      let top = 0
+      Object.defineProperty(el, 'scrollTop', {
+        get: () => top,
+        set: (v: number) => {
+          top = v
+        },
+      })
+      Object.defineProperty(el, 'scrollHeight', { get: () => 2000 })
+      Object.defineProperty(el, 'clientHeight', { get: () => 800 })
+      sessionStorage.setItem(
+        'ln.softRefresh',
+        JSON.stringify({
+          hash: '#x',
+          pageId: 'p',
+          top: 300,
+          tool: 'text',
+          at: Date.now(),
+          auto: false,
+        }),
+      )
+      expect(restoreSoftRefresh()).toBe('manual')
+      expect(top).toBe(300)
+      top = 362 // the layout moved it
+      callbacks.forEach((cb) => cb())
+      expect(top).toBe(300)
+      window.dispatchEvent(new Event('touchstart'))
+      top = 362 // the person scrolled: hands off
+      callbacks.forEach((cb) => cb())
+      expect(top).toBe(362)
+    } finally {
+      globalThis.ResizeObserver = real
+    }
+  })
 })

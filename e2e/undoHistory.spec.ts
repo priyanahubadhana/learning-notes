@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import {
   createNotebook,
   pickBox,
@@ -80,6 +80,22 @@ async function snap(page: Page, title = 'Undo page'): Promise<Snap> {
 
 const undoBtn = (page: Page) =>
   mainBar(page).getByRole('button', { name: 'Undo', exact: true })
+/**
+ * Whether the button is enabled once its state has stopped changing. A step
+ * is undone asynchronously and the button follows a moment later, so one
+ * read right after a click can still show the old state (the click then
+ * waits forever on a button that has just turned off; seen on ipad-webkit).
+ */
+async function settledEnabled(page: Page, button: Locator): Promise<boolean> {
+  let last = await button.isEnabled()
+  for (let same = 0; same < 3;) {
+    await page.waitForTimeout(100)
+    const now = await button.isEnabled()
+    same = now === last ? same + 1 : 0
+    last = now
+  }
+  return last
+}
 const redoBtn = (page: Page) =>
   mainBar(page).getByRole('button', { name: 'Redo', exact: true })
 
@@ -243,18 +259,16 @@ test('50 random steps go back to the start and forward again', async ({
   const end = await snap(page)
   expect(end).not.toEqual(start)
   let steps = 0
-  while ((await undoBtn(page).isEnabled()) && steps < 60) {
+  while ((await settledEnabled(page, undoBtn(page))) && steps < 60) {
     await undoBtn(page).click()
-    await page.waitForTimeout(120)
     steps++
   }
   expect(steps).toBeGreaterThan(20)
   // Back at the very start: only the first line.
   await expect(page.locator('.bn-editor').first()).not.toContainText('Line 0')
   let redoSteps = 0
-  while ((await redoBtn(page).isEnabled()) && redoSteps < 80) {
+  while ((await settledEnabled(page, redoBtn(page))) && redoSteps < 80) {
     await redoBtn(page).click()
-    await page.waitForTimeout(120)
     redoSteps++
   }
   expect(redoSteps).toBe(steps)

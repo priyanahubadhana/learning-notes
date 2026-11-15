@@ -63,8 +63,8 @@ export const isRoomMap = (v: unknown): v is RoomMap =>
 
 /** The map with one height set (only the 8 newest screens are kept). */
 export function withRoom(map: RoomMap, key: string, px: number): RoomMap {
-  const { [key]: _old, ...rest } = map
-  return Object.fromEntries([...Object.entries(rest).slice(-7), [key, px]])
+  const rest = Object.entries(map).filter(([k]) => k !== key)
+  return Object.fromEntries([...rest.slice(-7), [key, px]])
 }
 
 /** True while a page editor is mounted: it has decided to draw the bar or not. */

@@ -91,3 +91,5 @@ Branches and commit ids of every parked part: docs/BUILD-STATE.md.
 - **Noted (15 Nov, P1.9):** 7 shell/leftPanel e2e fail on ipad-webkit on plain build/next too: these specs are not on the ipad-webkit list and assume a desktop-width window. Not on the code line; to sort out in the polish sweep (make them size-aware or keep them desktop-only by design).
 
 - **Power cut (15 Nov, night):** git repaired from GitHub (main and slice/2a4 refs, two indexes, zeroed files restored); nothing pushed was lost. Leftovers you may delete when you like: `.git/index.corrupt-2026-11-15`, `.git/worktrees/ln-2a4/index.corrupt`, and the scratchpad `powercut` folder.
+
+- **2A next window (manager, 16 Nov):** add the 2A specs (toolbarV9Names, toolbarV9Dark, toolbarV8Ninth, toolbarV8History, settingsV3) to the ipad-webkit list in playwright.config.ts as a small task merged alone, so CI covers them on iPad; then 2A.14's webkit run and merge (slice/2a14 a63335f8, review PASS). One-off local configs are refused by the safety check, so they are no longer used.

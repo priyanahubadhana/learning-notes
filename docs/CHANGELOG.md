@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: 2A.16 fix, a card's scroll gutter no longer flickers on while it opens (switch foundation.shell, OFF live)
+
+- What: the shared scroll bar counts a list as cut only by its content. While something inside is still moving in, up to 8 px over is the motion (it looks again when the motion ends); a long list is cut at once as before.
+- Why: a card's content rises 4 px as it opens, and that moving box counts in scrollHeight. For those frames a short card looked cut, the bar reserved its 22 px gutter, the content narrowed, "Fountain pen" wrapped, and WebKit kept the taller first tile row after the gutter went away (Pen Type card 257.6 px after a phone turn instead of 238.4; about 1 run in 2 to 6 on ipad-webkit).
+- Files: src/design/parts/{ScrollBar.tsx,scrollBarLogic.ts,scrollBarLogic.test.ts}.
+
 ### 16 Nov 2026: 2A.16 design check fixes (switch toolbar.v8, OFF live)
 
 - What: phone: Shapes and Insert sit in ⋯ › On this bar, no Minimise, no count badge on the top ⋯; row: "⋯ 3 ▾" before "★ 2 ▾" with the count as text; More card: group On this bar, Mark for review (hint Marks and study), Hide tool bar, filled rows with icons, opens under both rows (capped and scrolling when too tall); Minimise is ⇥|; a divider before ⌫ ↵; favourite chips have a tile fill; all shot specs use the five preview switches and close the side list on an upright iPad.

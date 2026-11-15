@@ -88,3 +88,18 @@ export function trackJumpTop(
   const thumbTop = Math.min(travel, Math.max(0, y - thumbH / 2))
   return (thumbTop / travel) * range
 }
+
+/**
+ * How far a list may run over its window while something inside it is still
+ * moving in, before it counts as cut (2A.16). A card's content rises 4 px as
+ * it opens (`pcard-view`), and a moving box counts in `scrollHeight` where it
+ * is drawn, so for those frames a short card looked 4 to 5 px too tall: the
+ * bar reserved its 22 px gutter, the content narrowed, a tile name wrapped,
+ * and WebKit then kept that taller tile row after the gutter went away.
+ */
+export const MOTION_SLACK = 8
+
+/** True when the list has more content than room (`over` = scrollHeight - clientHeight). Pure. */
+export function isCut(over: number, moving: boolean): boolean {
+  return over > (moving ? MOTION_SLACK : 1)
+}

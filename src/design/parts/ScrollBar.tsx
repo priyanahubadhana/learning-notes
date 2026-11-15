@@ -22,6 +22,8 @@ import {
   OLD_BAR_W,
   barGeometry,
   dragTop,
+  isCut,
+  MOTION_SLACK,
   sheetTarget,
   shortFor,
   trackJumpTop,
@@ -106,6 +108,8 @@ type Read = {
   scrollTop: number
   scrollH: number
   clientH: number
+  /** More content than room (isCut): the gutter, the bar and the 700 ms look-again follow this. */
+  cut: boolean
 }
 
 /**
@@ -113,6 +117,15 @@ type Read = {
  * inside the track so it never covers an arrow (rules/quality.md; P1.4). The
  * extra reach above and below goes to the CSS as two custom properties.
  */
+/** Finite motions still running inside the list (a card's content sliding in). */
+function movingIn(el: HTMLElement): Animation[] {
+  return (el.getAnimations?.({ subtree: true }) ?? []).filter(
+    (a) =>
+      a.playState === 'running' &&
+      Number.isFinite(Number(a.effect?.getComputedTiming().endTime)),
+  )
+}
+
 function touchPad(top: number, h: number, track: number) {
   const want = Math.max(0, (44 - h) / 2)
   return {
@@ -157,10 +170,25 @@ export function ScrollBar({
   const pressed = useRef<{ id: number; dir: 1 | -1 } | null>(null)
   const [dragging, setDragging] = useState(false)
 
-  const read = useCallback(() => {
+  const waiting = useRef(false)
+  /** The latest read, for a look once a motion has stopped. */
+  const readLater = useRef<() => void>(() => {})
+  const read = useCallback((): void => {
     const el = scroller
     if (!el) return
     const r = el.getBoundingClientRect()
+    // A few px over may be a box still sliding in, not content (2A.16): decide
+    // once it has stopped. Only this narrow band looks at the motions.
+    const over = el.scrollHeight - el.clientHeight
+    const motion = over > 1 && over <= MOTION_SLACK ? movingIn(el) : []
+    if (motion.length && !waiting.current) {
+      waiting.current = true
+      const again = () => {
+        waiting.current = false
+        readLater.current()
+      }
+      void Promise.all(motion.map((a) => a.finished)).then(again, again)
+    }
     const next: Read = {
       rect: { right: r.right, top: r.top, height: r.height, width: r.width },
       inset: legacy ? { top: 0, bottom: 0 } : cornersOf(el, r.right),
@@ -169,6 +197,7 @@ export function ScrollBar({
       scrollTop: el.scrollTop,
       scrollH: el.scrollHeight,
       clientH: el.clientHeight,
+      cut: isCut(over, motion.length > 0),
     }
     setState((old) =>
       old &&
@@ -182,11 +211,15 @@ export function ScrollBar({
       old.z === next.z &&
       old.scrollTop === next.scrollTop &&
       old.scrollH === next.scrollH &&
-      old.clientH === next.clientH
+      old.clientH === next.clientH &&
+      old.cut === next.cut
         ? old
         : next,
     )
   }, [scroller, legacy])
+  useEffect(() => {
+    readLater.current = read
+  }, [read])
 
   useEffect(() => {
     const el = scroller
@@ -215,7 +248,7 @@ export function ScrollBar({
 
   // Something drawn over the list (or taken away) leaves no trace inside it: look
   // again every 700 ms, but ONLY while the list overflows (the bar could show).
-  const overflowing = !!state && state.scrollH - state.clientH > 1
+  const overflowing = !!state && state.cut
   // The gutter is reserved only while the list overflows (a short card keeps
   // its full width); a list found by the scroll hints (auto) gets none: no jump.
   const gutter = !!scroller && !auto && !legacy && overflowing
@@ -268,7 +301,13 @@ export function ScrollBar({
     [scroller, legacy],
   )
 
-  if (!scroller || !state || state.rect.width === 0 || state.covered)
+  if (
+    !scroller ||
+    !state ||
+    !state.cut ||
+    state.rect.width === 0 ||
+    state.covered
+  )
     return null
   const barW = legacy ? OLD_BAR_W : BAR_W
   // Inside the rounded corners; a short list shows the thumb only (no arrows on its content).

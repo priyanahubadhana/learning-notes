@@ -33,7 +33,8 @@ import {
   type Fav2,
   type Keep,
 } from './favs2'
-import { V8_TOOL_IDS, type V8ToolId } from './registryV8'
+import { V8_TOOL_IDS, v8Icon, type V8ToolId } from './registryV8'
+import { metaOf } from '../toolRegistryMeta'
 import './favSheets.css'
 
 const k = (key: string) => key as MessageKey
@@ -169,7 +170,9 @@ export function AddFavSheet({
               selected={tool === id}
               testId={`v8-add-tool-${id}`}
               onSelect={() => pickTool(id)}
-            />
+            >
+              <Icon name={v8Icon(id, metaOf(id)?.icon)} size={20} />
+            </Tile>
           ))}
         </TileGroup>
       </CardGroup>
@@ -198,7 +201,9 @@ export function AddFavSheet({
                   selected={preset === i}
                   testId={`v8-add-preset-${i}`}
                   onSelect={() => setPreset(i)}
-                />
+                >
+                  <FavFace fav={{ id: 'p', ...p }} />
+                </Tile>
               ))}
             </TileGroup>
           ) : null}

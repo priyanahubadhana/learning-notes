@@ -20,10 +20,10 @@
 
 | Task  | Branch @ head (working copy)    | State                                                                       |
 | ----- | ------------------------------- | --------------------------------------------------------------------------- |
-| 2A.4  | `slice/2a4` 6b4eb1c5 (ln-2a4)   | review FAIL 1 (tests), fixed, PASS; waits webkit for new tests; then merge  |
-| 2A.5  | `slice/2a5` 086ace27 (ln-2a5)   | scoped to toolbar.v8; review FAIL 1 (5 fixes: tests, well, Size card)       |
-| 2A.14 | `slice/2a14` 918d9df3 (ln-2a14) | webkit 36/36; review FAIL 1 (settings only with flag ON, pictures, 2 tests) |
-| wheel | `slice/tb2-phone-wheel`         | merged b2872d53 (desktop webkit 1/1 first); CI running                      |
+| 2A.4  | `slice/2a4` 6b4eb1c5 (ln-2a4)   | review PASS (after 1 FAIL); next webkit turn (toolbarV8History), then merge |
+| 2A.5  | `slice/2a5` 086ace27 (ln-2a5)   | review FAIL 1 (5 fixes) sent to its builder; then webkit (toolbarV9Dark)    |
+| 2A.14 | `slice/2a14` fa5e41e0 (ln-2a14) | FAIL 1 fixes pushed; reviewer re-check running; then webkit (5 files)       |
+| wheel | `slice/tb2-phone-wheel`         | merged b2872d53, CI green (run 43704785412)                                 |
 | rest  | 2A.6–2A.13, 2A.15, 2A.16        | not started; next after the first three merge (shared tool bar files)       |
 
 ## Waiting (each has its step)

@@ -90,6 +90,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 
 - TB-40 Text row order: Box ▾ (first, one setting with 1 / 2 / 3 styles, settings button in front, T3) → Format ▾ → B → I → Favourites.
 - TB-41 (v9, 2A.9) When I open Format ▾ → one card with a tab row, never a card on a card: Beginner 3 tabs (Text · Style · Paragraph), Professional 4 (adds Advanced, `tb.textFonts`).
+- TB-41a (2A.10, T15) When the cursor is in text that already has a style → the Format option shows "on" (accent fill and a check): heading level, bold, italic, underline, strike, code, list type, alignment, key point, callout, font, size, colour, highlight. Indent, Outdent and Divider stay plain. Moving the cursor updates it.
   - **Text**: Text size (Beginner: Small · Body · Large; with `tb.textFonts`: Font in its own face and Size 90–150 %), Emphasis B / I / U / S, Text colour and Highlight colour as swatches inside the tab (no pop-up opens), Key point.
   - **Style**: Heading 1–3 drawn in their own look; Lists (bullet, numbered, checklist, indent, outdent); Blocks (callout, divider; inline code with `tb.textMarks`).
   - **Paragraph**: Alignment left / centre / right. **Advanced** (`tb.textFonts`): Line height.

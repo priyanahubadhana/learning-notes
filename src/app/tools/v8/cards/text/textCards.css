@@ -218,3 +218,53 @@
   opacity: 0.35;
   cursor: not-allowed;
 }
+
+/* 2A.10 (T15, v9): an option that is on shows the accent fill (from the tile) and a check badge. Colour swatches keep their ring. */
+.v8scroll .pcard-tile[data-selected]:not(:has(.pcard-swatch))::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+.v8scroll .pcard-tile[data-selected]:not(:has(.pcard-swatch))::after {
+  content: '';
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 4px;
+  height: 7px;
+  border: solid var(--color-on-accent);
+  border-width: 0 1.8px 1.8px 0;
+  transform: rotate(45deg);
+}
+
+/* 2A.10 (T15): the chosen Font tile gets the same accent fill and check as every other on option. */
+.v8scroll [data-card-chips='font'] [aria-checked='true'] {
+  position: relative;
+  background: var(--color-accent-soft);
+}
+.v8scroll [data-card-chips='font'] [aria-checked='true']::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+.v8scroll [data-card-chips='font'] [aria-checked='true']::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 3.5px;
+  height: 6.5px;
+  border: solid var(--color-on-accent);
+  border-width: 0 1.6px 1.6px 0;
+  transform: rotate(45deg);
+}

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.10 Format on states (switch toolbar.v8, OFF live)
+
+- What: every Format option that is a state shows accent fill + check for the current selection (lists, callout and key point added; others already had it).
+- Why: owner finding T15.
+- Files: src/app/tools/v8/cards/text/{FormatCard.tsx,textModel.ts,textCards.css}, e2e/toolbarV8FormatOn.spec.ts
+
 ### 15 Nov 2026: 2A.7 Feel card as in mock v9 (switch toolbar.v8, OFF live)
 
 - What: Pro Feel has a Tip well (sharpness, flatness, stabilisation) and a Response well (pressure, tilt, speed, latency) with row pictures, split by hairlines; Beginner Feel unchanged; Aids Finger is a segmented control, gesture and Math rows have pictures; Page has four paper pictures, one paper choice (the Layers paper chips are hidden there), Paper size A4 / Letter and the Layers row
@@ -37,6 +43,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
+
+### 15 Nov 2026 (night): red1 merged; 2A.7 PASS; 2A.10, 2A.11 review FAIL; 2A.12 built
+
+- What: red1 merged by the main chat (6406f6dc, CI green); 2A.7 passed on round 3 (Opus took over); 2A.10 and 2A.11 fix lists sent; 2A.12 ⋯ card built. Why: plan step 2. Files: docs/BUILD-STATE.md.
 
 ### 15 Nov 2026 (night): 2A.9 and cfg2 merged; red1 root cause
 

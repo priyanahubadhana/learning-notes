@@ -30,6 +30,10 @@ export interface FormatTile {
   action?: boolean
   /** The editor style this tile shows as pressed. */
   style?: 'bold' | 'italic' | 'underline' | 'strike' | 'code'
+  /** The block type of the cursor's line that shows this tile as on (lists, callout). */
+  block?: string
+  /** The Revise mark label that shows this tile as on (Key point). */
+  mark?: string
 }
 
 export type FormatTabId = 'text' | 'style' | 'paragraph' | 'advanced'
@@ -92,7 +96,10 @@ export function formatTabs(u: FormatUnlocks): FormatTabDef[] {
     tile('strike', tl('strike'), 'strike', { style: 'strike' }),
   ]
   const blocks = [
-    tile('callout', tl('callout'), 'icon', { icon: 'sparkles' }),
+    tile('callout', tl('callout'), 'icon', {
+      icon: 'sparkles',
+      block: 'callout',
+    }),
     tile('divider', tl('divider'), 'icon', { icon: 'minus', action: true }),
   ]
   if (u.textMarks)
@@ -112,7 +119,12 @@ export function formatTabs(u: FormatUnlocks): FormatTabDef[] {
           id: 'marks',
           title: 'v8.format.g.marks',
           columns: 4,
-          tiles: [tile('mark:key', 'v8.format.star', 'icon', { icon: 'star' })],
+          tiles: [
+            tile('mark:key', 'v8.format.star', 'icon', {
+              icon: 'star',
+              mark: 'key',
+            }),
+          ],
         },
       ],
     },
@@ -136,11 +148,18 @@ export function formatTabs(u: FormatUnlocks): FormatTabDef[] {
           title: 'v8.format.g.lists',
           columns: 3,
           tiles: [
-            tile('bulletList', tl('bulletList'), 'icon', { icon: 'list' }),
+            tile('bulletList', tl('bulletList'), 'icon', {
+              icon: 'list',
+              block: 'bulletListItem',
+            }),
             tile('numberedList', tl('numberedList'), 'icon', {
               icon: 'numbered',
+              block: 'numberedListItem',
             }),
-            tile('checklist', tl('checklist'), 'icon', { icon: 'checklist' }),
+            tile('checklist', tl('checklist'), 'icon', {
+              icon: 'checklist',
+              block: 'checkListItem',
+            }),
             tile('indent', tl('indent'), 'icon', {
               icon: 'indent',
               action: true,

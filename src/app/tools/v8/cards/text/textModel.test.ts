@@ -93,3 +93,28 @@ describe('Box card looks (TB-42)', () => {
     }
   })
 })
+
+// 2A.10 (T15): every option that is a state knows what makes it "on"; the
+// one-off actions (Indent, Outdent, Divider, headings run as rows) do not.
+describe('Format on states (2A.10)', () => {
+  const tiles = formatTabs({ advanced: true, textMarks: true }).flatMap((s) =>
+    s.groups.flatMap((g) => g.tiles),
+  )
+  const byTool = (id: string) => tiles.find((x) => x.tool === id)!
+  it('lists, callout and key point carry their state', () => {
+    expect(byTool('bulletList').block).toBe('bulletListItem')
+    expect(byTool('numberedList').block).toBe('numberedListItem')
+    expect(byTool('checklist').block).toBe('checkListItem')
+    expect(byTool('callout').block).toBe('callout')
+    expect(byTool('mark:key').mark).toBe('key')
+  })
+  it('emphasis and code carry a style; actions carry no state', () => {
+    for (const id of ['bold', 'italic', 'underline', 'strike', 'code'])
+      expect(byTool(id).style).toBe(id)
+    for (const id of ['indent', 'outdent', 'divider']) {
+      const x = byTool(id)
+      expect(x.action).toBe(true)
+      expect(x.style ?? x.block ?? x.mark).toBeUndefined()
+    }
+  })
+})

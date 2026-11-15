@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from '../../app/tools/icons'
+import { useFlag } from '../../app/flags'
 import {
   createOverlayManager,
   openInTopLayer,
@@ -63,6 +64,20 @@ export function ToastStack({
   toasts: Toasts
   mode?: 'floating' | 'inline'
 }) {
+  // I1 (switch foundation.shell): the close ✕ sits on the leading edge of
+  // every notice, and closes it without the action.
+  const leadOn = useFlag('foundation.shell')
+  const close = (id: number) => (
+    <button
+      type="button"
+      className="fb-x fb-toast__x"
+      aria-label={tf('parts.fb.dismiss')}
+      data-testid={`fb-toast-x${mode === 'inline' ? '-inline' : ''}`}
+      onClick={() => toasts.dismiss(id)}
+    >
+      <Icon name="close" size={14} />
+    </button>
+  )
   const { queue } = toasts
   const [items, setItems] = useState<readonly ToastItem[]>(() => [
     ...queue.visible(),
@@ -160,6 +175,7 @@ export function ToastStack({
     >
       {items.map((t, i) => {
         const kind = toasts.kindOf(t.id)
+        const lead = leadOn && kind !== 'done'
         return (
           <div
             key={t.id}
@@ -167,7 +183,7 @@ export function ToastStack({
               if (el) refs.current.set(t.id, el)
               else refs.current.delete(t.id)
             }}
-            className="fb-toast"
+            className={lead ? 'fb-toast fb-toast--lead' : 'fb-toast'}
             data-kind={kind}
             data-testid={`fb-toast${sfx}`}
             style={
@@ -180,6 +196,7 @@ export function ToastStack({
             onFocus={() => toasts.hold(t.id, true)}
             onBlur={() => toasts.hold(t.id, false)}
           >
+            {lead ? close(t.id) : null}
             <span className="fb-toast__icon" aria-hidden="true">
               {kind === 'problem' ? '!' : <Icon name="check" size={16} />}
             </span>
@@ -194,17 +211,7 @@ export function ToastStack({
                 {tf('parts.fb.undo')}
               </button>
             ) : null}
-            {kind === 'problem' ? (
-              <button
-                type="button"
-                className="fb-x fb-toast__x"
-                aria-label={tf('parts.fb.dismiss')}
-                data-testid={`fb-toast-x${sfx}`}
-                onClick={() => toasts.dismiss(t.id)}
-              >
-                <Icon name="close" size={14} />
-              </button>
-            ) : null}
+            {!lead && kind === 'problem' ? close(t.id) : null}
           </div>
         )
       })}

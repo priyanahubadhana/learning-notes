@@ -69,3 +69,22 @@ test('banner: the ✕ is on the leading edge, the action on the trailing edge, a
     page.getByRole('heading', { name: 'Settings', level: 1 }),
   ).toBeHidden()
 })
+
+test('banner: it stays fixed at the top of the screen, also after a scroll', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1200, height: 500 })
+  await page.addInitScript(() => localStorage.setItem('attn.backupFails', '2'))
+  await page.goto('/?flags=foundation.shell')
+  const banner = page.getByTestId('attention-banner')
+  await expect(banner).toBeVisible()
+  expect(await banner.evaluate((el) => getComputedStyle(el).position)).toBe(
+    'fixed',
+  )
+  expect(Math.abs((await banner.boundingBox())!.y)).toBeLessThan(2)
+  await page.mouse.move(600, 300)
+  await page.mouse.wheel(0, 400)
+  await page.evaluate(() => window.scrollTo(0, 400))
+  await page.waitForTimeout(300)
+  expect(Math.abs((await banner.boundingBox())!.y)).toBeLessThan(2)
+})

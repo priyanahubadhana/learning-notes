@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: R14 the page no longer drops 90 px a moment after load on iPad
+
+- What: the part that grew was the OLD tool bar (toolbar.v8 OFF) in the bar slot under the top bar: the slot went 0, then one button row (68 px with large buttons), then 90 px when the bar's scroll handle (22 px, BarScroll) was measured a frame after the bar drew. Fix: the room F8 kept for the new bar is now kept for the old bar too, as tall as the old bar was last time on this screen (remembered per button size and screen width in the display preference bar.roomPx; its plain height the first time; behind foundation.shell), and BarScroll measures before the first paint so the handle is never a frame late. Same rule as F8: nothing is kept where no bar shows. No change to App.tsx or Shell.tsx.
+- Why: findings R14 (iPad: header 52 to 142 px, the page moved down).
+- Files: src/editor/barRoomRule.ts, BarRoom.tsx, src/app/tools/BarScroll.tsx, src/editor/barRoomRule.test.ts, e2e/barRoom.spec.ts.
+
 ### 15 Nov 2026: F8 the page no longer jumps when the lazy tool bar draws
 
 - What: the bar slot keeps the tool bar's height (two rows, --v8-row-h) from the first paint until the page editor has drawn the bar; the new tool bar's own loading placeholder keeps it too. Only for a bar docked at the top on a page route (not Home, Settings, Library, floating, hidden, bottom, auto-hide, ribbon, reading). PageEditor and the reserved space read one rule (src/editor/barRoomRule.ts). e2e F8 tests now wait for the bar and compare the bars block; new first-paint test and no-blank guard tests.

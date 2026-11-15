@@ -1855,3 +1855,5 @@ What: `git worktree remove` on 47 clean, merged copies; 19 remain. Six folders w
 ## 14 Nov 2026: restart approved; leftover folders cleaned
 
 What: 6 scratch working copies removed with git and 9 folders in `.claude/worktrees` deleted (owner's one-time yes; links removed first; main packages untouched); 8 half-deleted folders in Downloads remain for task 0.11. docs/BUILD-STATE.md now says RESTART APPROVED (lean mode, the order of the first tasks); docs/PENDING.md "Needs you" rewritten; the owner's answers logged in docs/DECISIONS.md. Why: the owner answered the last three questions and asked to speed up.
+
+- 2026-11-15: HOW-WE-BUILD section 2: new rule (owner's OK): a full side-by-side check against the approved design before every first look.

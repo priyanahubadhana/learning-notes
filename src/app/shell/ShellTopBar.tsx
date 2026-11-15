@@ -111,7 +111,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
   const canGoForward = useCanGoForward()
   // The editor toolbar's pair counted the Write pad's steps too; so does this one.
   const pad = padHistoryState.useValue()
-  // 2A.4 (toolbar.v8): Undo and Redo replace the < > arrows; going back is the page path / swipe back.
+  // 2A.4 (toolbar.v8): Undo and Redo replace the < > arrows (the SH-05 setting still hides the pair on a computer); going back is the page path / swipe back.
   const v8 = useFlag('toolbar.v8')
   const [mode] = useDeviceSetting(deviceModeSetting)
   const [undoPref] = useDeviceSetting(showUndoRedoSetting)
@@ -185,7 +185,7 @@ export function ShellTopBar(props: ShellTopBarProps) {
           />
         </>
       )}
-      {(v8 || showHistoryPair(mode, undoPref)) && (
+      {showHistoryPair(mode, undoPref) && (
         <HistoryButtons className="sh-history" tips also={pad} />
       )}
       <div ref={onSlot} className="sh-slot">

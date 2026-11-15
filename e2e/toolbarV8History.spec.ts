@@ -74,12 +74,52 @@ test('TB-01b flag on: swipe back (browser back) leaves the page; forward returns
   await expect(page.locator('.bn-editor')).toBeVisible()
 })
 
-test('TB-01b flag off: the arrows stay and the tool bar keeps its pair', async ({
+test('TB-01b flag on, phone width: Undo and Redo show in the top bar', async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await open(page, 'foundation.shell,toolbar.v8')
+  await expect(top(page).getByTestId('history-undo')).toBeVisible()
+  await expect(top(page).getByTestId('history-redo')).toBeVisible()
+  await expect(top(page).getByRole('button', { name: 'Back' })).toHaveCount(0)
+})
+
+test('TB-01b the SH-05 setting still hides the pair on a computer', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    if (!sessionStorage.getItem('seeded')) {
+      sessionStorage.setItem('seeded', '1')
+      localStorage.setItem('learning-notes:general.showUndoRedo', '"off"')
+    }
+  })
+  await page.setViewportSize({ width: 1180, height: 820 })
+  await startInMode(page, 'computer')
+  await page.goto('/?flags=foundation.shell,toolbar.v8')
+  await createNotebook(page, 'Biology', 'First')
+  await expect(top(page).getByTestId('history-undo')).toHaveCount(0)
+  await page.evaluate(() =>
+    localStorage.setItem('learning-notes:general.showUndoRedo', '"on"'),
+  )
+  await page.reload()
+  await expect(top(page).getByTestId('history-undo')).toBeVisible()
+})
+
+test('TB-01b flag off: the arrows stay', async ({ page }) => {
   await open(page, 'foundation.shell')
   await expect(top(page).getByRole('button', { name: 'Back' })).toBeVisible()
   await expect(top(page).getByRole('button', { name: 'Forward' })).toHaveCount(
     1,
   )
+})
+
+test('TB-01b new frame off, v8 on: the tool bar keeps its own Undo and Redo', async ({
+  page,
+}) => {
+  await startInMode(page, 'touch')
+  await page.goto('/?flags=toolbar.v8')
+  await createNotebook(page, 'Biology', 'First')
+  await typeInEditor(page, 'The nucleus holds the DNA')
+  await expect(page.getByTestId('v8-undo')).toBeVisible()
+  await expect(page.getByTestId('v8-redo')).toBeVisible()
 })

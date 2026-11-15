@@ -33,8 +33,8 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 
 **Bar and tools**
 
-- TB-01b When the flag is on → the page top bar shows Undo, Redo at the top left (after the sidebar and page-panel buttons, before the page path) at every screen size, and has no < > Back/Forward arrows; going back works through the page path and swipe back. With the flag off the arrows stay and nothing else changes.
-- TB-01 When I open a page with the flag on → the bar shows Text, Pen, Eraser, Shapes, Lasso, Insert, then ⋯, Minimise; Beginner shows icons only. Undo and Redo are not on the bar: they sit in the page top bar (TB-01b).
+- TB-01b When the flag is on → the page top bar shows Undo, Redo at the top left (after the sidebar and page-panel buttons, before the page path) at every screen size, and has no < > Back/Forward arrows; going back works through the page path and swipe back. The arrows are gone on every screen with a top bar (Home, Settings too). The SH-05 "Show Undo and Redo" setting still hides the pair on a computer. With the flag off the arrows stay and nothing else changes; with the new frame off the tool bar keeps its own Undo and Redo.
+- TB-01 When I open a page with the flag on and the new frame on → the bar shows Text, Pen, Eraser, Shapes, Lasso, Insert, then ⋯, Minimise; Beginner shows icons only. Undo and Redo are not on the bar: they sit in the page top bar (TB-01b).
 - TB-02 When I hover (PC) or long-press (touch) a Beginner tool icon → its name shows in a tooltip; the tool is not chosen by the long-press.
 - TB-03 When I tap a tool → it becomes active (accent tint) and its row shows below; nothing opens.
 - TB-04 When I tap the active tool again → its card opens beside it (304 or 376 px by the picker/panel rule) and the ▾ looks pressed.

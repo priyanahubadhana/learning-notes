@@ -330,3 +330,38 @@
 :root[data-v8-pointer] .v8row .v8chip:focus-visible {
   outline: none;
 }
+
+/* ---- Pen row as in mock v9 (2A.6) ---- */
+/* The colour chip: one 22 px dot with a thin ring, so dark ink shows on dark glass. */
+.v8dot-colour {
+  width: 22px;
+  height: 22px;
+}
+/* The size dot takes the pen colour; the ring keeps a dark dot visible. */
+.v8dot-ring {
+  box-shadow: 0 0 0 1px var(--color-line-strong);
+}
+.v8penpic {
+  flex: none;
+  display: block;
+}
+.v8chip-fav {
+  gap: 6px;
+  padding: 0 var(--space-2);
+}
+.v8favwell {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--glass-fill);
+}
+.v8chip-fav[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 1.5px var(--color-accent);
+}
+
+.v8favgroup {
+  display: inline-flex;
+  gap: 8px;
+}

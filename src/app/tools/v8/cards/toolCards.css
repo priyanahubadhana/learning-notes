@@ -170,3 +170,10 @@
 .pcard[data-testid^='v8-card-'] .pcard-tile-label {
   margin-top: auto;
 }
+
+/* Eraser › Options › Erases: a segmented control where several parts can be on.
+   The chosen part is filled with the accent, so it reads as "on" in dark too. */
+.pcard [data-testid='v8-eraser-erases'] .onoff-opt[aria-checked='true'] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}

@@ -9,6 +9,8 @@ export interface FoldSpec {
   priority: number
   /** Keeps its name even when the others lose theirs (the chip whose card is open). */
   keepName?: boolean
+  /** Width of the button that stands in for it once folded (the ★ n). */
+  stubW?: number
 }
 
 interface Measured {
@@ -74,6 +76,7 @@ export function useFold(
         full: s.fixedW ?? w?.full ?? 44,
         short: s.fixedW ?? (s.keepName ? w?.full : w?.short) ?? 44,
         priority: s.priority,
+        stub: s.stubW,
       }
     })
     return foldRow(items, m.avail, opts)

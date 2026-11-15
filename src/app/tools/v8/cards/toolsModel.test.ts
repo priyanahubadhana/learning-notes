@@ -64,11 +64,7 @@ describe('Eraser (TB-30)', () => {
   })
   it('simple pickers close after a pick; Professional cards stay', () => {
     const none = () => false
-    const all = () => true
-    expect(cardAutoClose('eraser.mode', none)).toBe(true)
-    expect(cardAutoClose('eraser.size', none)).toBe(true)
-    expect(cardAutoClose('eraser.mode', all)).toBe(false)
-    expect(cardAutoClose('eraser.size', all)).toBe(false)
+    // v9 (2A.8): the eraser's own closing rules are in eraserModel.test.ts.
     expect(cardAutoClose('lasso.shape', none)).toBe(true)
     expect(cardAutoClose('lasso.actions', none)).toBe(false)
     expect(cardAutoClose('shapes.shape', none)).toBe(false)

@@ -319,7 +319,7 @@ watchUpdateTriggers(window, lookQuietly)
 }
 
 /** Restarts on the live files; never drops them while a new version installs. */
-const restartIntoNewFiles = () => restartNow(browserRestartDeps())
+const restartIntoNewFiles = () => restartNow(browserRestartDeps(flushAllSaves))
 
 // R7-1: a new version took over this page without a restart (Update pressed
 // in another window, or the restart was missed): the old code must not keep

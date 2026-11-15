@@ -22,6 +22,8 @@ export interface RestartDeps {
   getRegistration: () => Promise<RegistrationLike | undefined>
   /** Unregisters the workers and deletes the saved copies. */
   clearOld: () => Promise<void>
+  /** Saves what is typed; called before every reload (data safety). */
+  flush: () => Promise<void>
   reload: () => void
   after: (run: () => void, ms: number) => unknown
 }
@@ -55,27 +57,33 @@ function finish(d: RestartDeps, w: WorkerLike): Promise<boolean> {
   })
 }
 
+let running = false
+/** True from the start of a restart until the page reloads. */
+export const restartRunning = (): boolean => running
+
 export async function restartIntoNewFiles(d: RestartDeps): Promise<void> {
-  let done = false
-  const reload = () => {
-    if (done) return
-    done = true
+  if (running) return
+  running = true
+  const reload = async () => {
+    await within(d, d.flush(), FALLBACK_MAX_MS)
     d.reload()
+    running = false
   }
   try {
     const reg = await within(d, d.getRegistration(), FALLBACK_MAX_MS)
     const w = reg?.installing ?? reg?.waiting
-    if (w && (await finish(d, w))) return reload()
+    if (w && (await finish(d, w))) return await reload()
     await within(d, d.clearOld(), FALLBACK_MAX_MS)
   } catch {
     // Restart anyway.
   }
-  reload()
+  await reload()
 }
 
 /** The real browser parts. */
-export function browserRestartDeps(): RestartDeps {
+export function browserRestartDeps(flush: () => Promise<void>): RestartDeps {
   return {
+    flush,
     getRegistration: async () =>
       (await navigator.serviceWorker?.getRegistration()) ?? undefined,
     clearOld: async () => {

@@ -8,6 +8,10 @@ export const enSettings = {
   'about.neverChecked': 'Not checked for updates yet.',
   'about.ready': 'Update ready. Tap Update in the notice at the top.',
   'about.readyAuto': 'Updating… the app restarts by itself.',
+  'about.readyWait':
+    'Update ready. It installs by itself when you pause. Or tap Update below.',
+  'about.readyClosed': 'Update ready. Tap Update below to restart into it.',
+  'about.updateNow': 'Update',
   'about.title': 'About this app',
   'about.version': 'Version {commit}, built {date}',
   'color.blue': 'Blue',

@@ -1,7 +1,11 @@
+// @vitest-environment jsdom
+import { SPLASH_MAX_MS, showUpdatingPill } from './autoUpdate'
+import { updateStatus } from './updateStatus'
 import { describe, expect, it, vi } from 'vitest'
 import {
   FALLBACK_MAX_MS,
   restartIntoNewFiles,
+  restartRunning,
   WORKER_WAIT_MAX_MS,
   type RestartDeps,
   type WorkerLike,
@@ -54,6 +58,7 @@ function deps(c: ReturnType<typeof clock>, over: Partial<RestartDeps>) {
   const d: RestartDeps = {
     getRegistration: async () => undefined,
     clearOld: async () => {},
+    flush: async () => {},
     reload,
     after: c.after,
     ...over,
@@ -151,6 +156,53 @@ describe('an update restart always finishes (T27)', () => {
     expect(reload).not.toHaveBeenCalled()
     await c.advance(FALLBACK_MAX_MS + 5)
     expect(reload).toHaveBeenCalledTimes(1)
+  })
+
+  it('data safety: what is typed during the wait is saved before the reload', async () => {
+    const c = clock()
+    const w = fakeWorker('installing')
+    let typed = 'a'
+    let saved = ''
+    const { d, reload } = deps(c, {
+      getRegistration: async () => ({ installing: w, waiting: null }),
+      flush: async () => {
+        saved = typed
+      },
+    })
+    void restartIntoNewFiles(d)
+    await c.advance(5_000)
+    typed = 'a note typed during the wait'
+    w.set('activated')
+    await c.advance(0)
+    expect(reload).toHaveBeenCalledTimes(1)
+    expect(saved).toBe('a note typed during the wait')
+  })
+
+  it('a save that never ends does not hold the reload longer than the limit', async () => {
+    const c = clock()
+    const { d, reload } = deps(c, { flush: never })
+    void restartIntoNewFiles(d)
+    await c.advance(FALLBACK_MAX_MS - 1)
+    expect(reload).not.toHaveBeenCalled()
+    await c.advance(2)
+    expect(reload).toHaveBeenCalledTimes(1)
+  })
+
+  it('the pill keeps "restarting" for the whole wait, not only 5 s (T27)', async () => {
+    const c = clock()
+    const w = fakeWorker('installing')
+    const { d } = deps(c, {
+      getRegistration: async () => ({ installing: w, waiting: null }),
+    })
+    void restartIntoNewFiles(d)
+    showUpdatingPill(c.after)
+    await c.advance(SPLASH_MAX_MS * 6)
+    expect(restartRunning()).toBe(true)
+    expect(updateStatus.get().phase).toBe('updating')
+    w.set('activated')
+    await c.advance(SPLASH_MAX_MS * 2)
+    expect(restartRunning()).toBe(false)
+    expect(updateStatus.get().phase).toBe('ready')
   })
 
   it('reloads only once', async () => {

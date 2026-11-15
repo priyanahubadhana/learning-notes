@@ -8,6 +8,11 @@ export const esSettings = {
   'about.neverChecked': 'Aún no se han buscado actualizaciones.',
   'about.ready': 'Actualización lista. Toca Actualizar en el aviso de arriba.',
   'about.readyAuto': 'Actualizando… la app se reinicia sola.',
+  'about.readyWait':
+    'Actualización lista. Se instala sola cuando haces una pausa. O toca Actualizar abajo.',
+  'about.readyClosed':
+    'Actualización lista. Toca Actualizar abajo para reiniciar.',
+  'about.updateNow': 'Actualizar',
   'about.title': 'Acerca de esta app',
   'about.version': 'Versión {commit}, creada {date}',
   'color.blue': 'Azul',

@@ -1,0 +1,26 @@
+# Settings vs the approved mock-up (settings v3): audit, 15 Nov 2026
+
+Asked by the owner during the 15 Nov test. Opus reviewer: origin/build/next (28ad3a50, preview switches on) vs docs/mockups/settings-mock-v3.html, iPad both ways and phone, light and dark, Beginner and Professional. Pictures: this chat's scratchpad `audit-settings/` (`SIDE-*` = mock and app side by side).
+
+**Verdict: the main layout and the owner's written condition (the calm "Bold · Pen · Read" card) are met; several features are missing and much of the look differs.**
+
+| Screen / part                                                                       | Mock                                                  | App                                                               | Severity                                |
+| ----------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------- |
+| Section list                                                                        | in the side bar, icon, subtitle and count             | plain text list inside the page; app side bar still open on iPad  | wrong place, wrong look                 |
+| AI sections                                                                         | one "AI & connections" (owner pick: merge)            | 4 sections: AI, Connections, Permissions, Let AI use my notebooks | wrong place (owner comment S-f not met) |
+| AI content                                                                          | simple rows with switches                             | old screen pasted in (checkbox, model list)                       | wrong look                              |
+| Tiny preview per row (SET-B09)                                                      | every row                                             | most rows none; Theme row an empty strip                          | missing feature                         |
+| Change note in the row (S-g)                                                        | "CHANGED Day → Sepia" in the row                      | only in the side preview; faint glow                              | wrong place                             |
+| Big live preview (S-h)                                                              | rich mini page and tool bar                           | thin mini app; "Nothing to preview yet" on most sections          | wrong look                              |
+| Your experience cards                                                               | "Current" tag, Choose this level, Replay tour         | plain cards, no buttons                                           | missing feature                         |
+| Tours list (S-i)                                                                    | under Your experience                                 | in Help & tour                                                    | wrong place                             |
+| Help & tour                                                                         | topic chips, what each area does, glossary, questions | none                                                              | missing feature                         |
+| Help & tour test button                                                             | none                                                  | "Pretend a must-have update" shows                                | wrong look (test tool visible)          |
+| Search results                                                                      | settings changeable in place, plus "From help"        | links only; still says "Ribbon" (mock: "All tools")               | wrong look                              |
+| Professional features list                                                          | groups folded; spec 169                               | all open; "0 of 219"                                              | wrong look, count to check              |
+| Reduce glass (S-c, SET-B32/33)                                                      | Off / On / Auto, split preview                        | Automatic / Solid only; purple bubble                             | wrong look                              |
+| Phone toast                                                                         | clear of the Preview pill                             | overlaps the pill                                                 | overlap                                 |
+| First-launch question                                                               | centred dialog                                        | pop-up next to the button                                         | wrong place                             |
+| Phone chip row, Preview pill and sheet, 44 pt, reset dialog, ✕ in search, dark mode | as specified                                          | match                                                             | fine                                    |
+
+Owner comments on the mock: S-b, S-d partly in place; S-c, S-e, S-g, S-h, S-i partly; S-f not met. Leftover: a detached git worktree in the scratchpad (`wt-next`) to remove with `git worktree remove`.

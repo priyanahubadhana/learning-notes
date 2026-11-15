@@ -2080,3 +2080,4 @@ What: 6 scratch working copies removed with git and 9 folders in `.claude/worktr
 - What: a Lasso loop that holds whole boxes picks the boxes; one group pill (count, Group, Ungroup); picked boxes drop in page order with one Undo; Layout Assist opens on the page (zoomed out, wiggling boxes, Layouts strip, Done, coach line), a tile applies at once as one Undo.
 - Why: states picture panels 6a and 6b, TB-32 to TB-35.
 - Files: `src/paper/v2/boxGroup.tsx`, `layoutAssist.tsx`, `LayoutAssistLazy.tsx`, `src/paper/PaperFrame.tsx`, `src/paper/usePaperBoxes.tsx`, texts en/es/hi, `e2e/tb2-group*.spec.ts`.
+- 2026-11-15: HOW-WE-BUILD section 2: new rule (owner's OK): a full side-by-side check against the approved design before every first look.

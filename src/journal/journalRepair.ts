@@ -192,17 +192,24 @@ async function hasOwnContent(db: LearningNotesDB, pageId: string) {
   return false
 }
 
+type RestorePage = (db: LearningNotesDB, id: string) => Promise<void>
+const loadRestorePage = async (): Promise<RestorePage> =>
+  (await import('../trash/trashService')).restorePage
+
 /**
  * Puts the saved pages back with the app's own actions: duplicates out of
  * Trash (restorePage), then each day to its saved parent and place
  * (movePage), in the saved order.
  */
-async function restoreGroups(db: LearningNotesDB, groups: BackupGroup[]) {
+async function restoreGroups(
+  db: LearningNotesDB,
+  groups: BackupGroup[],
+  restorePage: RestorePage,
+) {
   for (const g of groups)
     for (const id of g.duplicateIds) {
       const page = await db.pages.get(id)
-      if (page && page.deletedAt !== null)
-        await import('../trash/trashService').then((m) => m.restorePage(db, id))
+      if (page && page.deletedAt !== null) await restorePage(db, id)
     }
   for (const g of groups) {
     const parents = new Map<string, Page[]>()
@@ -229,7 +236,7 @@ export async function restoreJournalBackup(
 ): Promise<boolean> {
   const backup = readJson<Backup>(storage, JOURNAL_REPAIR_BACKUP_KEY)
   if (!backup) return false
-  await restoreGroups(db, backup.groups)
+  await restoreGroups(db, backup.groups, await loadRestorePage())
   return true
 }
 
@@ -299,7 +306,7 @@ export async function repairJournalMonths(
   const dupIds = groups.flatMap((g) => g.duplicateIds)
   const before = await journalCounts(db, journal.id, dupIds)
   const putBack = async (reason: string): Promise<RepairOutcome> => {
-    await restoreGroups(db, saved)
+    await restoreGroups(db, saved, await loadRestorePage())
     return { kind: 'restored', reason }
   }
   try {
@@ -346,9 +353,28 @@ export async function repairJournalMonths(
       month: g.month,
       count: 1 + g.duplicateIds.length,
     })),
+    // One transaction: the pages come back AND are marked, or nothing
+    // changes. Done in steps, the app closing (or reloading) between the
+    // steps left the duplicate back but not marked, and the next start
+    // joined it again.
     undo: async () => {
-      await restoreGroups(db, saved)
-      await markMonthJoinDeclined(db, dupIds)
+      // Loaded first: inside the transaction only database work is awaited.
+      const restorePage = await loadRestorePage()
+      await db.transaction(
+        'rw',
+        [
+          db.notebooks,
+          db.pages,
+          db.blocks,
+          db.databases,
+          db.dbColumns,
+          db.dbViews,
+        ],
+        async () => {
+          await restoreGroups(db, saved, restorePage)
+          await markMonthJoinDeclined(db, dupIds)
+        },
+      )
     },
   }
 }

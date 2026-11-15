@@ -272,6 +272,28 @@ describe('repairJournalMonths', () => {
     expect((await repairJournalMonths(db, ws, { storage })).kind).toBe('none')
   })
 
+  it('Undo is all or nothing: never back but not marked', async () => {
+    const { dup } = await twoNovembers()
+    const outcome = await repairJournalMonths(db, ws, { storage })
+    if (outcome.kind !== 'joined') throw new Error('not joined')
+    const joined = await layout(db, await journalId())
+    // The last step (the mark) fails, as when the app closes mid-Undo.
+    const update = db.pages.update.bind(db.pages)
+    db.pages.update = ((id: string, changes: Partial<Page>) =>
+      'monthJoinDeclined' in changes
+        ? Promise.reject(new Error('closed'))
+        : update(id, changes)) as typeof db.pages.update
+    await expect(outcome.undo()).rejects.toThrow()
+    db.pages.update = update
+    // Nothing changed: the duplicate is still in Trash, the days still joined.
+    expect((await db.pages.get(dup.id))?.deletedAt).not.toBeNull()
+    expect(await layout(db, await journalId())).toEqual(joined)
+    // A second Undo works, and then nothing joins them again.
+    await outcome.undo()
+    expect((await db.pages.get(dup.id))?.monthJoinDeclined).toBe(true)
+    expect((await repairJournalMonths(db, ws, { storage })).kind).toBe('none')
+  })
+
   it('restoreJournalBackup brings the saved pages back', async () => {
     const { dup } = await twoNovembers()
     await repairJournalMonths(db, ws, { storage })

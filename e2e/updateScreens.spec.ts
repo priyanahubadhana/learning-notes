@@ -276,3 +276,49 @@ test.describe('phone', () => {
     ).toBe(true)
   })
 })
+
+test.describe('phone pill', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+  test('the waiting pill sits above the phone tab bar, never on it', async ({
+    page,
+  }) => {
+    await failingFile(page)
+    await open(page)
+    await pretend(page)
+    await phase(page, 'failed', 14_000)
+    await notice(page).getByRole('button', { name: 'Not now' }).click()
+    await expect(pill(page)).toBeVisible()
+    const r = (await pill(page).boundingBox())!
+    // The tab bar is 56 px tall at the bottom edge.
+    expect(r.y + r.height).toBeLessThanOrEqual(844 - 56)
+    expect(r.x).toBeGreaterThanOrEqual(0)
+    expect(r.x + r.width).toBeLessThanOrEqual(390)
+  })
+})
+
+test('turning the screen keeps every stage whole and the buttons reachable', async ({
+  page,
+}) => {
+  await failingFile(page)
+  await open(page)
+  await page.setViewportSize({ width: 834, height: 1194 })
+  await pretend(page)
+  await phase(page, 'failed', 14_000)
+  for (const size of [
+    { width: 1194, height: 834 },
+    { width: 390, height: 844 },
+    { width: 834, height: 1194 },
+  ]) {
+    await page.setViewportSize(size)
+    await page.waitForTimeout(350)
+    for (const name of ['Try again', 'Not now', 'Copy details']) {
+      const b = notice(page).getByRole('button', { name })
+      await expect(b).toBeVisible()
+      const r = (await b.boundingBox())!
+      expect(r.x).toBeGreaterThanOrEqual(0)
+      expect(r.x + r.width).toBeLessThanOrEqual(size.width)
+      expect(r.y + r.height).toBeLessThanOrEqual(size.height)
+    }
+    expect(await blocked(page)).toBe(true)
+  }
+})

@@ -5,7 +5,6 @@ import {
   RefreshCw,
   ShieldCheck,
   TriangleAlert,
-  WifiLow,
 } from 'lucide-react'
 import { t } from '../i18n/t'
 import { COUNTDOWN_S, flow } from './mandatoryFlow'
@@ -228,7 +227,7 @@ export default function MandatoryNotice({
         aria-live="polite"
         data-mandatory-update
         data-phase="offline"
-        className={`fixed bottom-4 left-4 right-4 ${MANDATORY_TOP} mx-auto max-w-[420px] rounded-xl border border-line bg-surface-3 px-4 py-3 text-[13px] text-ink shadow-[var(--elev-2)]`}
+        className={`fixed bottom-4 left-4 right-4 phone:bottom-[calc(env(safe-area-inset-bottom)+76px)] ${MANDATORY_TOP} mx-auto max-w-[420px] rounded-xl border border-line bg-surface-3 px-4 py-3 text-[13px] text-ink shadow-[var(--elev-2)]`}
       >
         {t('update.v2.offline')}
       </div>
@@ -241,8 +240,7 @@ export default function MandatoryNotice({
       <div
         role="status"
         data-update-waiting
-        style={{ bottom: 'max(24px, env(safe-area-inset-bottom))' }}
-        className={`fixed left-1/2 ${MANDATORY_TOP} flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 whitespace-nowrap rounded-full bg-surface-3 py-1.5 pl-4 pr-1.5 text-sm text-ink shadow-[0_0_0_1px_var(--color-line),var(--elev-3)]`}
+        className={`fixed bottom-[max(24px,env(safe-area-inset-bottom))] left-1/2 phone:bottom-[calc(env(safe-area-inset-bottom)+76px)] ${MANDATORY_TOP} flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 whitespace-nowrap rounded-full bg-surface-3 py-1.5 pl-4 pr-1.5 text-sm text-ink shadow-[0_0_0_1px_var(--color-line),var(--elev-3)]`}
       >
         <span aria-hidden="true" className="h-2 w-2 rounded-full bg-warn" />
         {t('update.v2.waiting')}
@@ -410,12 +408,23 @@ export default function MandatoryNotice({
                   data-update-slow
                   className="mt-4 flex w-full items-start gap-2.5 rounded-xl bg-neutral-fill px-3.5 py-3 text-left text-[13px] text-ink-soft"
                 >
-                  <WifiLow
+                  <svg
                     aria-hidden="true"
-                    size={18}
+                    viewBox="0 0 24 24"
+                    width={18}
+                    height={18}
+                    fill="none"
+                    stroke="currentColor"
                     strokeWidth={1.6}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     className="mt-px shrink-0 text-warn"
-                  />
+                  >
+                    <path d="M12 20h.01" />
+                    <path d="M8.5 16.4a5 5 0 0 1 7 0" />
+                    <path d="M5 12.9a10 10 0 0 1 14 0" opacity=".35" />
+                    <path d="M2 8.8a15 15 0 0 1 20 0" opacity=".35" />
+                  </svg>
                   <span>
                     {t('update.v2.slow', {
                       k: Math.max(1, Math.round((s.bps ?? 0) / 1000)),

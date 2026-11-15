@@ -76,6 +76,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-15 · 2A.14 settings rows follow the approved settings-rows pictures inside today's Settings screen; the v5 frame waits (phase manager, safest option).** The approved 1-ipad.png shows the Settings v5 frame (breadcrumb, side list, Live preview, starters line) and no Layout row. 2A.14 matches the rows (switches, short texts, order, phone badge, "Tool bar" heading), keeps the owner's Layout Beginner | Professional row under the heading, and keeps the existing "Reset to default" and "Also in" (never drop a feature). Breadcrumb, side list and Live preview come with Phase 1S.
 - **2026-11-15 · 2A spec kept in toolbar-v8.md, each task rewrites its own TB lines to v9 in its first commit (phase manager, safest option).** No separate v9 spec file exists; one shared rewrite would block three builders. The reviewer checks the rewritten lines against mock v9. 2A.14 adds the Beginner/Professional settings (advanced.toolNames, formatTabs, backToPen, eraserMenus, biggerLasso; reuses tb.* switches) that the later tasks read.
 - **2026-11-15 · 2A.5: the v9 wells, white night knobs and light default ink apply only while `toolbar.v8` is ON (phase manager, safest option).** The builder had made them global; with the switch OFF the live app must look as today.
 

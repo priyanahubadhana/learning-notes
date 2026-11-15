@@ -109,6 +109,23 @@ test('P1.9 panel 3: Professional shows four tiles and groups folded, each with a
     'ps-tile-history',
     'ps-tile-search',
   ])
+  // Groups are separate rounded cards with a gap, and Export has the upload icon.
+  const cards = await sheet(page)
+    .locator('.fgroup')
+    .evaluateAll((els) =>
+      els.map((e) => {
+        const s = getComputedStyle(e)
+        return [parseFloat(s.borderTopLeftRadius), parseFloat(s.borderTopWidth)]
+      }),
+    )
+  expect(cards).toHaveLength(5)
+  for (const [radius, border] of cards) {
+    expect(radius).toBeGreaterThan(0)
+    expect(border).toBeGreaterThan(0)
+  }
+  await expect(
+    sheet(page).getByTestId('ps-tile-export').locator('svg'),
+  ).toHaveClass(/lucide-upload/)
   for (const name of ['Page', 'View', 'Share', 'Protect', 'Tools'])
     await expect(fold(page, name)).toHaveAttribute('aria-expanded', 'false')
   await expect(fold(page, 'Share')).toContainText('Copy')
@@ -183,15 +200,25 @@ test('P1.9 panel 4: ✕ at the top left, ✓ at the top right; nothing changes u
   await expect(sheet(page).getByTestId('ps-pin-count')).toHaveText(
     '5 of 5 pinned to your bar',
   )
-  // ✕ leaves without changes.
+  // ✕ leaves without changes and goes back to Page options.
   await sheet(page).getByTestId('fb-sheet-close').click()
+  await expect(sheet(page).getByTestId('ps-pinned')).toBeVisible()
+  await expect(sheet(page).locator('[data-testid^="ps-tile-"]')).toHaveCount(4)
+  await sheet(page).getByTestId('fb-sheet-close').click() // on Page options ✕ closes the sheet
   await expect(sheet(page)).toHaveCount(0)
   await page.getByRole('button', { name: 'More options' }).click()
-  await expect(sheet(page).locator('[data-testid^="ps-tile-"]')).toHaveCount(4)
   // Esc also keeps the bar as it was.
   await sheet(page).getByTestId('ps-pin-add').click()
   await sheet(page).getByTestId('ps-pin-rename').click()
   await page.keyboard.press('Escape')
+  await expect(sheet(page)).toHaveCount(0)
+  await page.getByRole('button', { name: 'More options' }).click()
+  await expect(sheet(page).locator('[data-testid^="ps-tile-"]')).toHaveCount(4)
+  // A tap outside also keeps the bar as it was.
+  await sheet(page).getByTestId('ps-pin-add').click()
+  await sheet(page).getByTestId('ps-pin-rename').click()
+  const area = (await page.locator('[data-page-scroller]').boundingBox())!
+  await page.mouse.click(area.x + 30, area.y + area.height - 40)
   await expect(sheet(page)).toHaveCount(0)
   await page.getByRole('button', { name: 'More options' }).click()
   await expect(sheet(page).locator('[data-testid^="ps-tile-"]')).toHaveCount(4)
@@ -225,6 +252,18 @@ test('P1.9 panel 1: on an upright iPad the side list docks beside the rail with 
   const list = (await side(page).boundingBox())!
   const rail = (await page.locator('.sh-rail').boundingBox())!
   expect(list.x).toBeGreaterThanOrEqual(rail.x + rail.width)
+  expect(Math.round(list.width)).toBe(300)
+  // A narrow page column: the top bar drops its lesser buttons and Beginner | Professional sits under it.
+  await expect(page.locator('.sh-viewrow')).toBeVisible()
+  await expect(topBar(page).locator('.sh-view')).toBeHidden()
+  await expect(
+    topBar(page).getByRole('button', { name: 'Forward' }),
+  ).toBeHidden()
+  await expect(page.getByTestId('shell-status')).toBeHidden()
+  const tops = await topBar(page).evaluate(
+    (el) => el.scrollWidth <= el.clientWidth + 1,
+  )
+  expect(tops).toBe(true)
   await expect
     .poll(async () => Math.round((await main.boundingBox())!.width))
     .toBeLessThan(before.width - 200)
@@ -272,32 +311,75 @@ test('P1.9 panel 1: on a phone the list is a drawer with the same bar and closes
 
 // ---- Panel 6: Computer, Touch and Pencil keep one bar height ----
 
-test('P1.9 panel 6: the tool bar is 64 px tall in Computer, Touch and Pencil mode and nothing below it moves', async ({
+const barBox = (page: Page) =>
+  page.evaluate(() => ({
+    pill: Math.round(
+      document.querySelector('[data-pill="short"]')!.getBoundingClientRect()
+        .height,
+    ),
+    page: Math.round(
+      document.querySelector('[data-page-scroller]')!.getBoundingClientRect()
+        .top,
+    ),
+    button: Math.round(
+      document
+        .querySelector('[data-pill="short"] [data-bar-tool="text"]')!
+        .getBoundingClientRect().height,
+    ),
+    icon: Math.round(
+      document
+        .querySelector('[data-pill="short"] [data-bar-tool="text"] svg')!
+        .getBoundingClientRect().width,
+    ),
+  }))
+
+test('P1.9 panel 6: the tool bar is 64 px tall in Computer mode', async ({
   page,
 }) => {
-  const seen: { pill: number; page: number }[] = []
-  for (const mode of ['computer', 'touch', 'pencil'] as const) {
-    const p = await page.context().newPage()
-    await p.setViewportSize({ width: 1180, height: 820 })
-    await startInMode(p, mode)
-    await p.goto('/?flags=foundation.shell')
-    await createNotebook(p, 'Biology', 'Cells')
-    await expect(p.locator('[data-pill="short"]')).toBeVisible()
-    seen.push(
-      await p.evaluate(() => ({
-        pill: Math.round(
-          document.querySelector('[data-pill="short"]')!.getBoundingClientRect()
-            .height,
-        ),
-        page: Math.round(
-          document
-            .querySelector('[data-page-scroller]')!
-            .getBoundingClientRect().top,
-        ),
-      })),
-    )
-    await p.close()
-  }
-  expect(seen.map((s) => s.pill)).toEqual([64, 64, 64])
-  expect(new Set(seen.map((s) => s.page)).size).toBe(1)
+  await startInMode(page, 'computer')
+  await page.setViewportSize({ width: 1180, height: 820 })
+  await page.goto('/?flags=foundation.shell')
+  await createNotebook(page, 'Biology', 'Cells')
+  await expect(page.locator('[data-pill="short"]')).toBeVisible()
+  expect((await barBox(page)).pill).toBe(64)
 })
+
+for (const [w, h] of [
+  [1180, 820],
+  [820, 1180],
+])
+  test(`P1.9 panel 6: ${w}x${h}: a first Pencil touch after a finger switches to Pencil mode in place; the bar and the page do not move, the buttons grow inside`, async ({
+    page,
+  }) => {
+    await startInMode(page, 'touch')
+    await page.setViewportSize({ width: w, height: h })
+    await page.goto('/?flags=foundation.shell')
+    await createNotebook(page, 'Biology', 'Cells')
+    await expect(page.locator('[data-pill="short"]')).toBeVisible()
+    // Typing counts as an edit: the switch waits for a quiet moment.
+    await page.waitForTimeout(1700)
+    const before = await barBox(page)
+    // A bar that overflows adds its scroll handle; the row itself is 64 px.
+    if (w >= 1100) expect(before.pill).toBe(64)
+    await page.evaluate(() => {
+      const init = { pointerType: 'pen', bubbles: true, pointerId: 7 }
+      document.body.dispatchEvent(new PointerEvent('pointerdown', init))
+      document.body.dispatchEvent(new PointerEvent('pointerup', init))
+    })
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          JSON.parse(
+            localStorage.getItem('learning-notes:general.deviceMode')!,
+          ),
+        ),
+      )
+      .toBe('pencil')
+    await expect
+      .poll(async () => (await barBox(page)).button)
+      .toBeGreaterThanOrEqual(54)
+    const after = await barBox(page)
+    expect(after.pill).toBe(before.pill)
+    expect(after.page).toBe(before.page)
+    expect(after.icon).toBeGreaterThan(before.icon) // 20 -> 24
+  })

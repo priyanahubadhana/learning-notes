@@ -16,6 +16,7 @@ import {
   columnsFor,
   effectiveSidebarWidth,
   isCompact,
+  STEPPED_SIDE_W,
   panelLeft,
 } from './columns'
 import { usePanelOverlay } from './usePanelOverlay'
@@ -130,7 +131,9 @@ export default function Shell(p: ShellProps) {
   const stepped = columnsFor({ ...base, sideOver: false }).steppedAside
   // The page column is narrow (a docked list beside it): the top bar gives up its
   // lesser buttons, like on a phone, and Beginner | Professional sits under it.
-  const compact = isCompact(cols, width, drawn)
+  // T4: the list opened beside an upright page is 300 px wide (picture panel 1).
+  const shownSide = stepped && sideOver ? STEPPED_SIDE_W : drawn
+  const compact = isCompact(cols, width, shownSide)
 
   const closeOver = useCallback(() => setOverAt(null), [])
   const closePanel = useCallback(() => onPanelOpen(false), [onPanelOpen])
@@ -172,7 +175,7 @@ export default function Shell(p: ShellProps) {
         {!cols.phone && <Rail {...nav} />}
         <SideSlot
           cols={cols}
-          width={drawn}
+          width={shownSide}
           render={(o) => cloneElement(sidebar, { ...o, onHide: toggleSidebar })}
         />
         {cols.sidebar === 'docked' && (
@@ -185,7 +188,7 @@ export default function Shell(p: ShellProps) {
           cols={cols}
           wrapRef={panelWrap}
           // Over the page it covers the docked sidebar, never the page (its ✕ and bars stay reachable).
-          left={panelLeft(stepped && sideOver ? drawn : null)}
+          left={panelLeft(stepped && sideOver ? shownSide : null)}
           render={(o) => cloneElement(panel, o)}
         />
         <div className="sh-main">

@@ -29,9 +29,12 @@ import {
 export function BarScroll({
   children,
   className = '',
+  minPx,
 }: {
   children: ReactNode
   className?: string
+  /** New frame: the strip is at least this tall in every mode (R19). */
+  minPx?: number
 }) {
   const scroller = useRef<HTMLDivElement>(null)
   const track = useRef<HTMLDivElement>(null)
@@ -134,7 +137,11 @@ export function BarScroll({
       data-overflow={o.start || o.end || undefined}
       className={`relative min-w-0 ${className}`}
     >
-      <div className="flex items-stretch">
+      <div
+        className="flex items-stretch"
+        // P1.9 R19: as tall as Pencil mode's buttons in every mode, so a mode change moves nothing.
+        style={shell && minPx ? { minHeight: minPx } : undefined}
+      >
         {o.start && (
           <button
             type="button"

@@ -183,3 +183,23 @@
 .ps-row[aria-checked='true'] {
   background: var(--color-accent-soft);
 }
+/* Groups are separate rounded cards (picture panel 3), not divider lines. */
+.ps-folds {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ps-folds .fgroup {
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  padding: 0 var(--space-1);
+}
+.ps-folds .fgroup-head {
+  padding: var(--space-1) var(--space-2);
+  min-height: 52px;
+  gap: var(--space-3);
+}
+.ps-folds .fgroup-body {
+  padding-bottom: var(--space-1);
+}

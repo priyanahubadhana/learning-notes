@@ -179,6 +179,8 @@ export default function PageSheet({
         shell && view === 'pins'
           ? {
               label: t('parts.fb.confirm'),
+              // ✕ leaves without changes: back to Page options (P1.9 T21).
+              onCancel: () => setView('main'),
               onConfirm: () => {
                 savePins(draft)
                 setView('main')

@@ -195,7 +195,7 @@ export function buildRows(a: PageSheetActions): SheetRow[] {
       id: 'export',
       section: 'share',
       label: t('page.export'),
-      icon: 'share',
+      icon: 'upload',
       run: a.exportPage,
     },
     {

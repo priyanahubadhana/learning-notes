@@ -23,6 +23,9 @@ export const sideCost = (width: number): number => width + 24
 /** A docked panel costs its width, its border and a gap. */
 export const PANEL_COST = 288 + 14
 
+/** The list opened beside an upright page (stepped aside, T4). */
+export const STEPPED_SIDE_W = 300
+
 /** The default sidebar and panel width (D1). Today's saved default maps to it. */
 export const COLUMN_WIDTH = 288
 const OLD_DEFAULT = 260
@@ -57,8 +60,7 @@ export function columnsFor(i: ColumnInput): Columns {
   if (i.sideOver) {
     const base = columnsFor({ ...i, sideOver: false })
     if (base.steppedAside && base.sidebar === 'hidden') {
-      const sw = i.sidebarWidth ?? COLUMN_WIDTH
-      const room = i.width - FRAME_PAD - RAIL_COST - sideCost(sw)
+      const room = i.width - FRAME_PAD - RAIL_COST - sideCost(STEPPED_SIDE_W)
       return {
         phone: false,
         sidebar: 'docked',

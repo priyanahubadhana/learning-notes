@@ -32,7 +32,7 @@ export interface SheetProps {
    * A choice sheet that changes something: ✕ sits at the top left (leave without
    * changes) and ✓ at the top right (keep). Only in the new frame.
    */
-  confirm?: { label: string; onConfirm(): void }
+  confirm?: { label: string; onConfirm(): void; onCancel?(): void }
   children?: ReactNode
   footer?: ReactNode
   /** Called after the closing motion, for ✕, Esc or a swipe. */
@@ -177,7 +177,7 @@ export function Sheet(props: SheetProps) {
       className="fb-x"
       aria-label={tf('parts.fb.close')}
       data-testid={`fb-sheet-close${sfx}`}
-      onClick={requestClose}
+      onClick={props.confirm?.onCancel ?? requestClose}
     >
       <Icon name="close" size={16} />
     </button>

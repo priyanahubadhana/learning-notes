@@ -13,6 +13,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
+
 ### 15 Nov 2026 (evening): Phase 2A started (full team); wheel test merged
 
 - What: 2A.4, 2A.5, 2A.14 built on their branches (not merged yet); the phone wheel test move merged into build/next b2872d53 after desktop webkit 1/1. Why: owner answers 4A and 7. Files: docs/BUILD-STATE.md, docs/CHANGELOG.md.

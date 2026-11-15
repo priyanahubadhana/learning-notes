@@ -281,6 +281,16 @@ export function OrganiseFavSheet({
       onChange={change}
       onAdd={onAdd}
       addLabel={t('v8.favs.addShort')}
+      preview={(list) => (
+        <span className="arr-chips">
+          {list.map((r) => (
+            <span key={r.id} className="v8chip v8chip-fav">
+              {r.preview}
+              <span className="v8chip-text">{r.label}</span>
+            </span>
+          ))}
+        </span>
+      )}
       onReset={onReset}
       isDefault={row.length === 0}
       onDone={onDone}

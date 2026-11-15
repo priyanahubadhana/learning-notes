@@ -95,7 +95,7 @@ export function AnchoredMenu({
         width,
         // Opened from a sheet or dialog (the Organise sheet's "..."): above it.
         zIndex: opener?.closest('[role="dialog"]')
-          ? 'calc(var(--z-sheet) + 1)'
+          ? 'var(--z-dialog)'
           : 50,
       }}
       className={`fixed glass rounded-xl p-1 text-ink ${solid ? 'flex flex-col' : 'overflow-y-auto'}`}

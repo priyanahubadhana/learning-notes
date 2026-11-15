@@ -29,6 +29,10 @@ import {
 } from '../main/inkSettings'
 import './toolbarV8.css'
 
+/** The sheets hang below the whole bar, never over its second row. */
+const barOf = (el: HTMLElement): HTMLElement =>
+  el.closest<HTMLElement>('[data-testid="toolbar-v8"]') ?? el
+
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
 /** What a chip says, and how its dot looks, from the pen's saved settings. */
@@ -356,7 +360,9 @@ export function ToolRow({
         aria-label={t('v8.row.add')}
         aria-haspopup="dialog"
         onMouseDown={keepFocus}
-        onClick={(e) => setSheet({ kind: 'add', anchor: e.currentTarget })}
+        onClick={(e) =>
+          setSheet({ kind: 'add', anchor: barOf(e.currentTarget) })
+        }
       >
         <Icon name="plus" size={18} />
       </button>
@@ -369,7 +375,9 @@ export function ToolRow({
         aria-label={t('v8.row.organise')}
         aria-haspopup="dialog"
         onMouseDown={keepFocus}
-        onClick={(e) => setSheet({ kind: 'org', anchor: e.currentTarget })}
+        onClick={(e) =>
+          setSheet({ kind: 'org', anchor: barOf(e.currentTarget) })
+        }
       >
         <Icon name="list" size={18} />
       </button>

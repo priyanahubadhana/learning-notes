@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { overlay, placeBeside, trapFocus } from '../../app/overlay'
+import { lastInputWasKey } from './inputModality'
 import { tp } from './tp'
 import './SheetBase.css'
 
@@ -66,7 +67,10 @@ export function SheetBase(props: SheetBaseProps) {
       opener,
     })
     const release = trapFocus(el, opener)
-    el.querySelector<HTMLElement>('[data-autofocus]')?.focus()
+    // Focus goes to the first control for the keyboard only; after a tap the
+    // sheet itself takes it, so no ring is drawn on a button.
+    if (lastInputWasKey())
+      el.querySelector<HTMLElement>('[data-autofocus]')?.focus()
     if (!el.contains(document.activeElement)) el.focus()
     return () => {
       release()

@@ -8,3 +8,15 @@
   border: 1px solid var(--color-line);
   border-radius: var(--r-md);
 }
+
+/* Group titles keep a gap above and below (mock fav-3). */
+.sheet-base .pcard-group + .pcard-group {
+  margin-top: var(--space-5);
+}
+.sheet-base .pcard-glabel {
+  margin: 0 0 var(--space-2);
+  padding: 0 var(--space-1);
+}
+.arr-chips .v8chip-fav {
+  min-height: 32px;
+}

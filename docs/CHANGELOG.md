@@ -14,6 +14,14 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
 
+### 15 Nov 2026 (late): 2A.cfg and 2A.14 merged
+
+- What: 2A.cfg (df188a67) and 2A.14 tool names by mode (c2967488, ipad-webkit 28/28) merged into build/next, part OFF. Why: plan step 2. Files: docs/BUILD-STATE.md.
+
+### 15 Nov 2026 (late): 2A hold lifted; PENDING repaired
+
+- What: BUILD-STATE drops the HOLD (re-test finished) and sets the 2A merge order; PENDING PP1 row repaired (a stray | split it) and R20 copied from build/next. Why: new phase-manager run. Files: docs/BUILD-STATE.md, docs/PENDING.md.
+
 ### 15 Nov 2026 (evening): Phase 2A started (full team); wheel test merged
 
 - What: 2A.4, 2A.5, 2A.14 built on their branches (not merged yet); the phone wheel test move merged into build/next b2872d53 after desktop webkit 1/1. Why: owner answers 4A and 7. Files: docs/BUILD-STATE.md, docs/CHANGELOG.md.

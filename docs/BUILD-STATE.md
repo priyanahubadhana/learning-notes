@@ -2,13 +2,13 @@
 
 **RUNNING, full team for Phase 2A (owner answer 4A, 15 Nov):** one `phase-manager` (Opus, medium) runs up to 3 Sonnet builders; lean again after the phase. Rewritten 15 Nov, evening.
 
-**Now:** Phase 1 fixes are done and merged into `build/next` (P1.8 update screens 8523d22d, P1.9 frame covers 8105fcba). No helper is running. **Next:** the owner's Phase 1 re-test, then task 0.7 and Phase 1 live; then the 2A tool bar rebuild to mock v9. The ordered list with sizes and likely times: [plans/phase-plan.md](plans/phase-plan.md) section 0. Waiting for the owner: [plans/questions-2026-11-15.md](plans/questions-2026-11-15.md) (8 questions) and PENDING "Needs you".
+**Now (phase-manager, 15 Nov late):** Phase 1 re-test finished (owner). Phase 2A building: merge order cfg, 2A.14, 2A.5, then 2A.6 to 2A.13, 2A.15, 2A.16. CI green on `build/next` 541bea89. Webkit is shared with the main chat's Phase 1 tasks: the manager hands out the turn.
 
 ## The order (details in phase-plan.md section 0)
 
 | #   | Step                                       | State                                                       | Likely time   |
 | --- | ------------------------------------------ | ----------------------------------------------------------- | ------------- |
-| 1   | Phase 1 re-test, fixes, task 0.7, live     | waiting for the owner's re-test                             | 1 day         |
+| 1   | Phase 1 re-test, fixes, task 0.7, live     | re-test done; fixes and 0.7 with the main chat              | 1 day         |
 | 1a  | Journal merge (H), backup first            | owner said yes; how: question 6                             | 2 hours       |
 | 2   | Phase 2A: tool bar rebuilt to v9 (2A.4–16) | full team (phase-manager, 4A); see the 2A table below       | 3 to 4 days   |
 | 3   | Phase 2B: 2B.12, 2B.13 and 6 bugs, live    | 2B.1–2B.11 merged behind `textbox.v2`                       | 2 to 3 days   |
@@ -18,17 +18,15 @@
 
 ## Phase 2A tasks (phase-manager, from 15 Nov; webkit turn handed out by the manager)
 
-**HOLD (main chat, 15 Nov):** no merge or push to `build/next` until "owner test done" (owner's Phase 1 re-test). Webkit lent to the Journal repair (H) until the main chat says done.
-
-| Task  | Branch @ head (working copy)                                                       | State                                                                                          |
-| ----- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)                                               | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it) |
-| 2A.5  | `slice/2a5` ac433b20 (ln-2a5)                                                      | PASS, webkit green; merge waits for the owner's answer on helper merges                        |
-| 2A.14 | `slice/2a14` a63335f8 (ln-2a14)                                                    | review PASS; webkit waits for the config task below (decision B)                               |
-| cfg   | add the 2A specs to the ipad-webkit list (playwright.config.ts, hot, merged alone) | first task after "owner test done" (decision B, main chat)                                     |
-| rule  | 2A.14's settings rows + Layout                                                     | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                        |
-| wheel | `slice/tb2-phone-wheel`                                                            | merged b2872d53, CI green (run 43704785412)                                                    |
-| rest  | 2A.6–2A.13, 2A.15, 2A.16                                                           | not started; next after the first three merge (shared tool bar files)                          |
+| Task  | Branch @ head (working copy)                      | State                                                                                          |
+| ----- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)              | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it) |
+| 2A.5  | `slice/2a5` local merge 868ce73c (ln-2a5)         | PASS; build/next merged in, chromium 17/17; webkit turn after P1.11/P1.12                      |
+| 2A.14 | `slice/2a14` merged c2967488 (ln-2a14)            | MERGED; ipad-webkit 28/28, chromium 28; CI waits for main merged into build/next               |
+| cfg   | `slice/2a-cfg-webkit` merged df188a67 (main chat) | MERGED; 2A specs on the ipad-webkit list                                                       |
+| rule  | 2A.14's settings rows + Layout                    | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                        |
+| wheel | `slice/tb2-phone-wheel`                           | merged b2872d53, CI green (run 43704785412)                                                    |
+| rest  | 2A.6–2A.13, 2A.15, 2A.16                          | not started; next after the first three merge (shared tool bar files)                          |
 
 ## Waiting (each has its step)
 

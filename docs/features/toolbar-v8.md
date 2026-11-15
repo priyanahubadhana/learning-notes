@@ -33,13 +33,13 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 
 **Tool bar settings (v9, owner answer 2A, 15 Nov).** Every Beginner / Professional difference of the bar is its own setting (Settings › Advanced, also under Tool bar), each tied to the Professional switch named; a starter only sets values: Simple = Beginner column, Everything on = Professional column. Other tasks read these from `src/app/tools/v8/barPrefs.ts` (`useBarPref(id)` / `getBarPref(id)`).
 
-| Setting (id)                                  | Beginner value | Professional value | Pro switch                          |
-| --------------------------------------------- | -------------- | ------------------ | ----------------------------------- |
-| Show tool names (`advanced.toolNames`)        | off            | on                 | none: the setting is its own switch |
-| Format tabs (`advanced.formatTabs`)           | 3              | 4                  | `tb.textFonts`                      |
-| Back to pen on the bar (`advanced.backToPen`) | off            | on                 | `tb.layouts`                        |
-| Eraser's three ▾ (`advanced.eraserMenus`)     | off            | on                 | `tb.eraserOptions`                  |
-| Bigger Lasso (`advanced.biggerLasso`)         | off            | on                 | `tb.lassoOptions`                   |
+| Setting (id)                                                                                | Beginner value | Professional value | Pro switch                          |
+| ------------------------------------------------------------------------------------------- | -------------- | ------------------ | ----------------------------------- |
+| Show tool names (`advanced.toolNames`)                                                      | off            | on                 | none: the setting is its own switch |
+| Format tabs (`advanced.formatTabs`)                                                         | 3              | 4                  | `tb.textFonts`                      |
+| Back to last tool (`advanced.backToPen`; name owner-approved 15 Nov, settings-rows picture) | off            | on                 | `tb.layouts`                        |
+| Eraser's three ▾ (`advanced.eraserMenus`)                                                   | off            | on                 | `tb.eraserOptions`                  |
+| Bigger Lasso (`advanced.biggerLasso`)                                                       | off            | on                 | `tb.lassoOptions`                   |
 
 - TB-S1 (owner, 15 Nov) When I tap Beginner or Professional in the **Layout** row (Settings › Writing › Advanced, above the five rows, only with `toolbar.v8` on) → all five rows are set at once: Beginner = all off, 3 format tabs; Professional = all on, 4 tabs; one Undo step puts every row back. When I then change a single row → the Layout row shows neither chosen (mixed). With the switch off the row is not listed.
 

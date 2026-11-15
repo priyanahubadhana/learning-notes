@@ -464,7 +464,7 @@ export const esSettings = {
   'settings.formatTabs.label': 'Pestañas de Formato',
   'settings.formatTabs.description':
     'Cuántas pestañas tiene la tarjeta Formato: 3 (Texto, Estilo, Párrafo) o 4 (añade Avanzado).',
-  'settings.backToPen.label': 'Volver al lápiz en la barra',
+  'settings.backToPen.label': 'Volver a la última herramienta',
   'settings.backToPen.description':
     'Muestra en la barra un botón que vuelve a la herramienta anterior.',
   'settings.eraserMenus.label': 'Los tres menús del borrador',

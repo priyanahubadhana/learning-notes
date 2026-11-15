@@ -20,7 +20,12 @@ import { takeJustShown } from './experience'
 import { ShowInBeginner } from './ShowInBeginner'
 import { isProFeatureId } from '../level'
 import { RowPreview } from './RowPreview'
-import { barRowHelp, isBarPartRow, LAYOUT_ROWS } from '../toolbarRows'
+import {
+  barRowHelp,
+  isBarPartRow,
+  LAYOUT_ROW,
+  LAYOUT_ROWS,
+} from '../toolbarRows'
 import { valueText, type Change } from './changeNote'
 
 interface RowProps {
@@ -154,6 +159,11 @@ function RowBody({
       data-glow={glow > 0 ? 'on' : undefined}
       aria-labelledby={labelId}
       className="sv3-row"
+      data-tb-row={
+        isBarPartRow(definition.id) || definition.id === LAYOUT_ROW
+          ? ''
+          : undefined
+      }
       data-inline={
         isBarPartRow(definition.id)
           ? definition.id === 'advanced.formatTabs'

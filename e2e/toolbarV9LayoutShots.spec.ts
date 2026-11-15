@@ -50,7 +50,7 @@ for (const screen of ['today', 'v3'] as const)
             '[data-setting-id="advanced.layoutShortcut"]',
           )
           await row.waitFor()
-          await page.getByTestId('toolbar-group-head').scrollIntoViewIfNeeded()
+          await row.evaluate((el) => el.scrollIntoView({ block: 'center' }))
           await page.waitForTimeout(600)
           mkdirSync(OUT, { recursive: true })
           await page.screenshot({

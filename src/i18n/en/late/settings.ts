@@ -229,7 +229,7 @@ export const enLateSettings = {
   'settings.formatTabs.label': 'Format tabs',
   'settings.formatTabs.description':
     'How many tabs the Format card has: 3 (Text, Style, Paragraph) or 4 (adds Advanced).',
-  'settings.backToPen.label': 'Back to pen on the bar',
+  'settings.backToPen.label': 'Back to last tool',
   'settings.backToPen.description':
     'Show a button on the bar that goes back to the tool you used before.',
   'settings.eraserMenus.label': "Eraser's three menus",

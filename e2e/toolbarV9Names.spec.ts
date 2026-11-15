@@ -252,3 +252,56 @@ test.describe('Settings layout upright on an iPad', () => {
     expect(await columns(page)).toBe('flex')
   })
 })
+
+test.describe('Settings v3 upright on an iPad (820 px)', () => {
+  test.use({ viewport: { width: 820, height: 1180 } })
+  const cols = (page: Page) =>
+    page.evaluate(() => {
+      const c = document.querySelector('.sv3-cols') as HTMLElement
+      const m = document.querySelector('.sv3-main') as HTMLElement
+      return {
+        tracks: getComputedStyle(c).gridTemplateColumns.split(' ').length,
+        share:
+          m.getBoundingClientRect().width / c.getBoundingClientRect().width,
+      }
+    })
+
+  test('with toolbar.v8 OFF the sections column stays beside the rows, as before', async ({
+    page,
+  }) => {
+    await page.goto('/?flags=settings.v3#/settings/toolbar')
+    await expect(page.locator('[data-settings-v3]')).toBeVisible()
+    expect((await cols(page)).tracks).toBe(2)
+  })
+
+  test('with toolbar.v8 ON the rows get the full width; "?" sits by the name, the switch on the right', async ({
+    page,
+  }) => {
+    await page.goto('/?flags=toolbar.v8,settings.v3#/settings/toolbar')
+    await expect(row(page, 'advanced.toolNames')).toBeVisible()
+    const c = await cols(page)
+    expect(c.tracks).toBe(1)
+    expect(c.share).toBeGreaterThan(0.95)
+    for (const id of ['advanced.layoutShortcut', 'advanced.toolNames']) {
+      const name = await row(page, id).locator('.sv3-row-name').boundingBox()
+      const why = await row(page, id).locator('.sv3-why-mark').boundingBox()
+      // Same line as the name, right after it (the dot may sit between).
+      expect(
+        Math.abs(why!.y + why!.height / 2 - (name!.y + name!.height / 2)),
+      ).toBeLessThan(12)
+      expect(why!.x - (name!.x + name!.width)).toBeLessThan(40)
+    }
+    const sw = await toggle(page, 'advanced.toolNames').boundingBox()
+    const badge = await row(page, 'advanced.toolNames')
+      .getByText('This device')
+      .boundingBox()
+    expect(badge!.x + badge!.width).toBeLessThan(sw!.x - 8)
+  })
+
+  test('the row name reads "Back to last tool"', async ({ page }) => {
+    await page.goto('/?flags=toolbar.v8,settings.v3#/settings/toolbar')
+    await expect(
+      row(page, 'advanced.backToPen').locator('.sv3-row-name'),
+    ).toHaveText('Back to last tool')
+  })
+})

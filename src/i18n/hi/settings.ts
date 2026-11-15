@@ -460,7 +460,7 @@ export const hiSettings = {
   'settings.formatTabs.label': 'फ़ॉर्मैट टैब',
   'settings.formatTabs.description':
     'फ़ॉर्मैट कार्ड में कितने टैब हों: 3 (टेक्स्ट, स्टाइल, पैराग्राफ़) या 4 (एडवांस्ड जुड़ता है)।',
-  'settings.backToPen.label': 'बार में पेन पर वापसी',
+  'settings.backToPen.label': 'पिछले औज़ार पर वापसी',
   'settings.backToPen.description':
     'बार में एक बटन दिखाएँ जो पिछले औज़ार पर लौटाता है।',
   'settings.eraserMenus.label': 'इरेज़र के तीन मेनू',

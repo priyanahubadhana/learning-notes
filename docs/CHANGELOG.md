@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.14 third review fixes (switch toolbar.v8, OFF live)
+
+- What: Settings v3 below 1024 px gives the rows the full width with toolbar.v8 on (off: unchanged); the "?" sits right after the row name on the tool bar rows; "Back to pen on the bar" is now "Back to last tool" (en, es, hi, spec).
+- Why: review of 2A.14 (iPad upright squeeze); owner-approved settings-rows picture, 15 Nov.
+- Files: src/settings/v3/SettingsV3.tsx, SettingRow.tsx, settingsV3.css, i18n en/es/hi settings, docs/features/toolbar-v8.md, e2e/toolbarV9Names.spec.ts, e2e/toolbarV9LayoutShots.spec.ts, docs/mockups/toolbar-v9-build-shots/2a14-layout/.
+
 ### 15 Nov 2026: 2A.14 Layout shortcut (switch toolbar.v8, OFF live)
 
 - What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.

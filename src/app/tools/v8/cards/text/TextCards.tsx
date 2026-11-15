@@ -128,6 +128,7 @@ function FormatCard() {
                   testId={`v8-format-${tile.tool}`}
                   onSelect={() => {
                     // T8: Font and Text size stay in the note (no Reading mode).
+                    if (tile.inert) return
                     if (tile.jump) {
                       document
                         .querySelector(`[data-v8-group="${tile.jump}"]`)
@@ -147,11 +148,7 @@ function FormatCard() {
               <FontsGroup />
             </div>
           ) : null}
-          {s.extras?.includes('lineHeight') ? (
-            <div data-v8-group="lineHeight">
-              <LineHeightGroup />
-            </div>
-          ) : null}
+          {s.extras?.includes('lineHeight') ? <LineHeightGroup /> : null}
         </Fragment>
       ))}
     </div>

@@ -74,6 +74,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-15 · P1.9 T8 Format › Advanced tiles (builder).** The Font and Text size tiles ran the Reading tools (Reading mode + the reader bar over the top bar). Font now scrolls to the fonts group below it; Text size does nothing for now (the Format card has no note text-size control; the card is rebuilt after Phase 1). Reading mode also ends with the last page screen. T4 "November 2026" twice: month pages already have a fixed id (sync L1), so the code cannot make a second one; the two rows are most likely old data from before that fix or two devices. Owner data not touched; a merge of duplicates would be a separate decision.
+
 - **2026-11-15 · 2B.9 Undo of "Apply to all pages in the notebook" works only from the page where it was done (builder, safest option).** A page's history knows only its own page, so the layout is one explicit Undo step on the page where it was applied. It puts back only the layout (rows, and each box's place and width) and never a box that was added or deleted since; a page whose boxes changed is skipped and a toast says how many. Full width is cleared on a box that a later layout moves off its row.
 
 - **2026-11-15 · 2B.5b phone width (builder, reviewer's pick).** A text box has an optional `pw` (mm) on the box record, set only by a resize on a phone; a box without it fills the phone column, whatever its iPad width. The iPad width (`w`, the grid) is never touched by a phone resize and the reverse. No Dexie version (optional field). The west dot on a phone changes the width from the right side (the box stays left-aligned), so the dot moves away from the finger.

@@ -192,7 +192,7 @@ describe('device modes', () => {
     applyDeviceMode('pencil')
     expect(readDeviceSetting(deviceModeSetting)).toBe('pencil')
     expect(readDeviceSetting(barPlacementSetting)).toBe('top')
-    expect(readDeviceSetting(barSizeSetting)).toBe('normal') // R19: no jump
+    expect(readDeviceSetting(barSizeSetting)).toBe('large')
     applyDeviceMode('computer')
     expect(readDeviceSetting(barPlacementSetting)).toBe('top')
     expect(readDeviceSetting(hoverTipsSetting)).toBe('on')

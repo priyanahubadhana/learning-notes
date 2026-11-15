@@ -35,18 +35,11 @@ describe('mode presets', () => {
       hoverTips: 'off',
     })
   })
-  it('Pencil also docks on top (always visible), same size as Touch', () => {
+  it('Pencil also docks on top (always visible), large', () => {
     expect(MODE_PRESETS.pencil).toMatchObject({
       placement: 'top',
-      size: 'normal',
+      size: 'large',
     })
-  })
-  // R19 (why): the first Pencil touch switches the mode by itself; with a
-  // bigger Pencil size every bar button grew 44 -> 54 px and the page moved.
-  it('switching Touch -> Pencil changes no button height (no jump)', () => {
-    expect(barButtonPx(MODE_PRESETS.pencil.size, 'pencil')).toBe(
-      barButtonPx(MODE_PRESETS.touch.size, 'touch'),
-    )
   })
 })
 

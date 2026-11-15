@@ -28,7 +28,9 @@ export interface FormatTile {
   /** Does something once (a heading, indent, a divider): a button, not a switch. */
   action?: boolean
   /** Scrolls to a group of the same card instead of running a tool (T8). */
-  jump?: 'fonts' | 'lineHeight'
+  jump?: 'fonts'
+  /** Does nothing for now (no note text-size control in this card; the card is rebuilt after Phase 1). */
+  inert?: true
   /** The editor style this tile shows as pressed. */
   style?: 'bold' | 'italic' | 'underline' | 'strike' | 'code'
 }
@@ -107,7 +109,7 @@ export function formatSections(u: FormatUnlocks): FormatSection[] {
         tile('font', tl('font'), 'icon', { icon: 'font', jump: 'fonts' }),
         tile('textSize', tl('textSize'), 'icon', {
           icon: 'textSize',
-          jump: 'lineHeight',
+          inert: true,
         }),
         tile('color', tl('color'), 'icon', { icon: 'palette' }),
         tile('highlight', tl('highlight'), 'icon', { icon: 'highlighter' }),

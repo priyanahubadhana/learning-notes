@@ -357,3 +357,5 @@ Mock: claude.ai/artifact/PBcn8WrYWcfAzCrXfDZ9HS (copy: docs/mockups/toolbar-v9/t
 Mock: claude.ai/artifact/H9xtkQg7JSwXjmwn1N5PDG (copy: docs/mockups/phase1-fixes/phase1-fixes.html). Panels: side list bar (T4), right sheets below the top bar, Page options folded, Pin an action ✕/✓ at the top, must-have update screens, no jump between Computer and Pencil mode.
 
 Settings v4 (claude.ai/artifact/PL5zc6xh2np4CXwTYgr5sw) NOT approved: too many changes. Owner: start from the approved Settings mock v3 and add only the needed new changes; Fable checks which are needed.
+
+Settings v3-plus (claude.ai/artifact/UV3fX4TMDJss4XmzXcScah), owner answers 15 Nov: Reduce glass keeps 2 choices (Auto, Solid). Test tools live in Advanced and are found by search at any level. Beginner also gets an "Advanced features" entry that switches on / shows all settings, just in case. Owner asked for deep research on making Settings simpler before approving.

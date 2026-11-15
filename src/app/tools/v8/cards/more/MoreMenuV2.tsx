@@ -7,7 +7,7 @@ import {
 import { FoldGroup } from '../../../../../design/parts/FoldGroup'
 import '../../../../../design/parts/Card.css'
 import { t } from '../../../../../i18n/t'
-import { useUnlocked } from '../../../../../settings/level'
+import { setKeyboard } from '../../../../../editor/keyboardPolicy'
 import { requestHideToolBar } from '../../../toolbarVisibility'
 import { Icon, type IconName } from '../../../icons'
 import { runTool } from '../../../toolRegistry'
@@ -37,7 +37,6 @@ export default function MoreMenuV2({
   onAllTools: () => void
   onClose: () => void
 }) {
-  const allTools = useUnlocked('tb.allTools')
   const run = (id: string) => {
     onClose()
     runTool(id)
@@ -49,6 +48,20 @@ export default function MoreMenuV2({
     testId: string
     onPick: () => void
   }[] = [
+    ...(editor
+      ? [
+          {
+            id: 'keyboard',
+            icon: 'keyboard' as IconName,
+            label: t('main.keyboard'),
+            testId: 'v8-more-keyboard',
+            onPick: () => {
+              onClose()
+              setKeyboard(editor, true)
+            },
+          },
+        ]
+      : []),
     {
       id: 'reading',
       icon: 'eye',
@@ -56,23 +69,12 @@ export default function MoreMenuV2({
       testId: 'v8-more-reading',
       onPick: () => run('readingMode'),
     },
-    ...(allTools
-      ? [
-          {
-            id: 'alltools',
-            icon: 'grid' as IconName,
-            label: t('v8.more.allTools'),
-            testId: 'v8-more-alltools',
-            onPick: onAllTools,
-          },
-        ]
-      : []),
     {
-      id: 'settings',
-      icon: 'settings',
-      label: t('tool.settings'),
-      testId: 'v8-more-settings',
-      onPick: () => run('settings'),
+      id: 'search',
+      icon: 'search',
+      label: t('tool.search'),
+      testId: 'v8-more-search',
+      onPick: () => run('search'),
     },
     {
       id: 'hide',
@@ -130,7 +132,7 @@ export default function MoreMenuV2({
       {editor ? (
         <Suspense fallback={null}>
           <MoreStudy editor={editor} onClose={onClose} />
-          <MoreTools onClose={onClose} />
+          <MoreTools onClose={onClose} onAllTools={onAllTools} />
         </Suspense>
       ) : null}
     </div>

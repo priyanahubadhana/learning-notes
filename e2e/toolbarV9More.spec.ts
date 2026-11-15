@@ -114,15 +114,6 @@ test('touch: the ⋯ card shows no key names, even with Copy and paste open', as
   expect(await card(page).innerText()).not.toMatch(/⌘|⇧|Ctrl|Shift/)
 })
 
-test("nothing from today's ⋯ is dropped: Reading mode, All tools, Settings, Hide", async ({
-  page,
-}) => {
-  await open(page, 'professional', { width: 820, height: 900 })
-  await more(page)
-  for (const id of ['reading', 'alltools', 'settings', 'hide'])
-    await expect(page.getByTestId(`v8-more-${id}`)).toBeVisible()
-})
-
 test('View, Page and Tool bar folds: Professional has all three, Beginner no Page', async ({
   page,
 }) => {
@@ -148,4 +139,44 @@ test('Beginner: View and Tool bar folds, no Page', async ({ page }) => {
   await expect(
     card(page).getByRole('button', { name: 'Page', exact: true }),
   ).toHaveCount(0)
+})
+
+test("nothing from today's ⋯ is dropped: Reading mode, Hide on top; Settings, All tools under Tool bar", async ({
+  page,
+}) => {
+  await open(page, 'professional', { width: 820, height: 900 })
+  await more(page)
+  for (const id of ['keyboard', 'reading', 'search', 'hide'])
+    await expect(page.getByTestId(`v8-more-${id}`)).toBeVisible()
+  await card(page)
+    .getByRole('button', { name: 'Tool bar', exact: true })
+    .click()
+  for (const id of ['settings', 'alltools'])
+    await expect(page.getByTestId(`v8-more-${id}`)).toBeVisible()
+})
+
+test('Professional: Marks and study holds Summary, Study now, All cards, Due today; Copy, Cut, Paste tiles', async ({
+  page,
+}) => {
+  await open(page, 'professional', { width: 820, height: 900 })
+  await more(page)
+  await card(page).getByRole('button', { name: 'Marks and study' }).click()
+  for (const id of ['summary', 'studyNow', 'allCards', 'dueToday'])
+    await expect(page.getByTestId(`v8-more-study-${id}`)).toBeVisible()
+  await card(page).getByRole('button', { name: 'Copy and paste' }).click()
+  for (const id of ['copy', 'cut', 'paste'])
+    await expect(page.getByTestId(`v8-more-${id}`)).toBeVisible()
+})
+
+test('the Search tile opens search; Make blank is one short label', async ({
+  page,
+}) => {
+  await open(page, 'beginner', { width: 820, height: 900 })
+  await more(page)
+  await card(page).getByRole('button', { name: 'Mark for review' }).click()
+  await expect(
+    card(page).getByRole('button', { name: 'Make blank', exact: true }),
+  ).toBeVisible()
+  await page.getByTestId('v8-more-search').click()
+  await expect(card(page)).toHaveCount(0)
 })

@@ -59,6 +59,10 @@ test('ON: app actions as one row of icon tiles, folded tools as a tile grid, not
   await page.goto('/?flags=toolbar.v8,toolbar.menu')
   await page.getByTestId('v8-more').click()
   await expect(card(page).locator('[data-menu-v2]')).toBeVisible()
+  // Settings and All tools sit under the Tool bar fold (2A.12).
+  await card(page)
+    .getByRole('button', { name: 'Tool bar', exact: true })
+    .click()
   const now = await cardNames(page)
   for (const name of old) expect(now, name).toContain(name)
   const top = card(page).getByRole('group', { name: 'Tool bar' })

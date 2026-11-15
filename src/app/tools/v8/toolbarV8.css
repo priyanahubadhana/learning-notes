@@ -376,7 +376,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--color-surface, #fff);
+  background: var(--color-bg);
   color: var(--color-accent);
-  box-shadow: 0 0 0 1px var(--color-line, currentColor);
+  box-shadow: 0 0 0 1px var(--color-line-strong);
 }

@@ -23,3 +23,7 @@ Pen bar without names (toolbar-v8.md:56, TB-23); "on" states (design-study.md:65
 ## Not decided anywhere yet
 
 Light default ink in dark mode (and on light paper later); an eraser that erases typed text; "Back to pen" in ⋯ for everyone (was Professional, on the bar); update timer and slow thresholds; upright Pencil mode icons only; the Settings ⋯ "Search" tile repeating the search box; the "Shift K" key label on touch (R3); merging the duplicate "November 2026" pages (changes stored data).
+
+## Owner's answers (15 Nov)
+
+Yes to Claude's pick on 2, 3, 4, 6, 8, 9, 10, 11; yes to A (light default ink in dark mode), B (eraser can erase typed text), D (timer numbers), F (no Search tile in Settings ⋯), G (no Shift K label on touch). **C: no** ("Back to pen" stays as approved: Professional, on the bar). **1 and 7: yes, but make sure nothing can get stuck** (a failed update always has a way forward; sheets always close). Asked to explain: E (upright Pencil mode icons only) and H (merging the two November 2026 pages). 5 (Format tabs) not answered yet.

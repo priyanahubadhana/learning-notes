@@ -205,14 +205,17 @@ test('TB-33 Text size labels sit on one line', async ({ page }) => {
   expect(new Set(tops).size).toBe(1)
 })
 
-test('TB-32 group labels in Lasso › Actions keep the card group gap', async ({
+test('TB-32 group labels in Lasso › Options (menu row) keep the card group gap', async ({
   page,
 }) => {
   await open(page, 'professional')
   await pickTool(page, 'lasso')
-  await page.getByTestId('v8-chip-lasso.actions').click()
-  await expect(card(page, 'lasso.actions')).toBeVisible()
-  const groups = card(page, 'lasso.actions').locator('.pcard-group')
+  await page.getByTestId('v8-chip-lasso.opts').click()
+  await expect(card(page, 'lasso.opts')).toBeVisible()
+  await card(page, 'lasso.opts')
+    .getByRole('button', { name: /Menu row/ })
+    .click()
+  const groups = card(page, 'lasso.opts').locator('.pcard-group')
   await expect(groups.nth(1)).toBeVisible()
   const gaps = await groups.evaluateAll((els) =>
     els

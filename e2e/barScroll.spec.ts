@@ -108,3 +108,36 @@ test.describe('the "more tools" arrow has its own place', () => {
     await overlap(true, false)
   })
 })
+
+test.describe('the cue and the tools move together', () => {
+  test.use({ viewport: { width: 560, height: 800 }, hasTouch: true })
+
+  // Bug (R21 family): the start cue takes room, and it left a frame after the
+  // scroll, so a tool under a finger already pressing it slid away and the tap
+  // went to its neighbour. The cue is updated in the scroll event itself now.
+  test('scrolling back to the start removes the start cue in the same event', async ({
+    page,
+  }) => {
+    await openNote(page, 'touch', { 'toolbar.extras': MANY })
+    const scroller = page.locator('[data-bar-scroll] [data-slot="tools"]')
+    await scroller.evaluate((el) => {
+      el.scrollLeft = 120
+    })
+    await expect(page.locator('[data-scroll-cue="start"]')).toBeVisible()
+    const cueLeft = await scroller.evaluate(
+      (el) =>
+        new Promise<number>((resolve) => {
+          el.addEventListener(
+            'scroll',
+            () =>
+              resolve(
+                document.querySelectorAll('[data-scroll-cue="start"]').length,
+              ),
+            { once: true },
+          )
+          el.scrollLeft = 0
+        }),
+    )
+    expect(cueLeft).toBe(0)
+  })
+})

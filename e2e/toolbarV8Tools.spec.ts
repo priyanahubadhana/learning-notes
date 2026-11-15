@@ -161,18 +161,17 @@ test('TB-32 Lasso: shape tiles and the action list; Professional adds what it pi
   await expect(card(page, 'lasso.actions').getByRole('switch')).toHaveCount(0)
 })
 
-test('TB-32 Professional Lasso lists what it picks and which actions sit in the menu row', async ({
+test('TB-32 Professional Lasso (v9): what it picks sits on the bar, the menu row switches in Options', async ({
   page,
 }) => {
   await open(page, 'lasso', 'professional', ['tb.lassoOptions'])
-  await openCard(page, 'lasso.actions')
-  const c = card(page, 'lasso.actions')
-  await expect(c.getByText('What it picks')).toBeVisible()
-  const picks = c.getByTestId('v8-lasso-picks').getByRole('switch')
+  const picks = page.getByTestId('v8-lasso-bar-picks').getByRole('checkbox')
   await expect(picks).toHaveCount(3)
   await picks.nth(2).click()
   expect((await stored(page, 'lasso')).text).toBe(true)
-  await expect(c.getByText('Actions in the menu row')).toBeVisible()
+  await openCard(page, 'lasso.opts')
+  const c = card(page, 'lasso.opts')
+  await c.getByRole('button', { name: /Menu row/ }).click()
   await expect(c.getByTestId('v8-lasso-row').getByRole('switch')).toHaveCount(
     10,
   )
@@ -480,13 +479,13 @@ test('selection bar: icon and word on a wide screen, icons only on a phone', asy
   await expect(word).toBeHidden()
 })
 
-test('Lasso Actions card (Professional) hangs under its own chip and stays inside the window', async ({
+test('Lasso Options card (Professional) hangs under its own chip and stays inside the window', async ({
   page,
 }) => {
   await open(page, 'lasso', 'professional', ['tb.lassoOptions'])
-  await openCard(page, 'lasso.actions')
-  const c = (await card(page, 'lasso.actions').boundingBox())!
-  const a = (await chip(page, 'lasso.actions').boundingBox())!
+  await openCard(page, 'lasso.opts')
+  const c = (await card(page, 'lasso.opts').boundingBox())!
+  const a = (await chip(page, 'lasso.opts').boundingBox())!
   const vp = page.viewportSize()!
   expect(c.y).toBeGreaterThanOrEqual(a.y + a.height)
   expect(c.y + c.height).toBeLessThanOrEqual(vp.height)
@@ -547,7 +546,7 @@ const iconClass = (b: Locator) =>
 test('1d gate fixes: Copy uses the Copy page icon, not the clipboard one, in the bar and the Lasso Actions card', async ({
   page,
 }) => {
-  await open(page, 'lasso', 'professional', ['tb.lassoOptions'])
+  await open(page, 'lasso')
   await openCard(page, 'lasso.actions')
   const inCard = card(page, 'lasso.actions')
     .getByTestId('v8-lasso-actions')
@@ -576,13 +575,13 @@ test('1d gate fixes: Smaller, Half, Bigger and Double each have their own icon',
   expect(classes.size).toBe(4)
 })
 
-test('1d gate fixes: a tap on the Actions chip leaves no focus ring; the keyboard still gets one', async ({
+test('1d gate fixes: a tap on the Actions chip leaves no focus ring; the keyboard still gets one (Professional: the Options chip)', async ({
   page,
 }) => {
   await open(page, 'lasso', 'professional', ['tb.lassoOptions'])
-  const actions = chip(page, 'lasso.actions')
+  const actions = chip(page, 'lasso.opts')
   await actions.click()
-  await expect(card(page, 'lasso.actions')).toBeVisible()
+  await expect(card(page, 'lasso.opts')).toBeVisible()
   await page.getByRole('button', { name: 'Close' }).click()
   await expect(actions).toHaveCSS('outline-style', 'none')
   await page.keyboard.press('Shift+Tab')

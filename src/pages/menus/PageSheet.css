@@ -180,3 +180,6 @@
   border-color: var(--color-accent);
   background: var(--color-accent);
 }
+.ps-row[aria-checked='true'] {
+  background: var(--color-accent-soft);
+}

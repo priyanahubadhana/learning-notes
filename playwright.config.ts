@@ -92,6 +92,7 @@ const config = defineConfig({
         /penTapChrome/,
         /scrollBarPen/,
         /pencilReal/,
+        /p1FrameCovers/,
         /scrollBarLook/,
         /scrollBarHeader/,
         /ipadKeyboard/,

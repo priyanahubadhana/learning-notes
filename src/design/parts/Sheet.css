@@ -116,11 +116,12 @@
 .fb-sheet__head[data-confirm] .fb-sheet__heading {
   text-align: center;
 }
-.fb-ok {
+.fb-x.fb-ok {
   background: var(--color-accent);
   color: var(--color-on-accent);
 }
-.fb-ok:hover {
+.fb-x.fb-ok:hover,
+.fb-x.fb-ok:active {
   background: var(--color-accent);
   filter: brightness(1.08);
 }

@@ -108,7 +108,7 @@ for (const level of ['beginner', 'professional'])
 
       test(`P1.9 shots side list ${level} ${th} ${sz}`, async ({ page }) => {
         await start(page, level, attr, width, height)
-        const open = page.getByRole('button', { name: 'Open menu' })
+        const open = page.getByRole('button', { name: /^(Open|Show) menu$/ })
         if (await open.first().isVisible()) await open.first().click()
         await page.waitForTimeout(700)
         const name = `side-list-${level}-${th}-${sz}.png`

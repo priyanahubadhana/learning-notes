@@ -453,7 +453,9 @@ function ShellMain({
             onClick={() => press(r)}
           >
             <Icon name={r.icon} size={20} />
-            <span className="ps-tile__name">{r.label}</span>
+            <span className="ps-tile__name">
+              {r.id === 'search' ? t('pageMenus.sheet.searchAll') : r.label}
+            </span>
           </button>
         ))}
       </div>

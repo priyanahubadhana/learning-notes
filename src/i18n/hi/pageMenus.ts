@@ -36,6 +36,7 @@ export const hiPageMenus = {
   'pageMenus.sheet.tools': 'औज़ार',
   'pageMenus.sheet.pinned': 'पिन किए',
   'pageMenus.sheet.pinAdd': '+ कोई क्रिया पिन करें',
+  'pageMenus.sheet.searchAll': 'सब खोजें',
   'pageMenus.sheet.pinSub': 'अपने बार के लिए {max} तक चुनें',
   'pageMenus.sheet.pinCount': '{max} में से {count} आपके बार पर लगाए गए',
   'pageMenus.sheet.pin': 'ऊपर पिन करें',

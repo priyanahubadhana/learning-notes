@@ -23,9 +23,15 @@ import {
   hoverTipsSetting,
 } from '../../../settings/builtinSettings'
 import { useDeviceSetting } from '../../../settings/useSetting'
-import { useToolNames } from './barPrefs'
+import { useBarPref, useToolNames } from './barPrefs'
 import { Icon, type IconName } from '../icons'
-import { TOOL_HOLD_MS, newLineExtras, newLineHoldMs } from '../main/mainTools'
+import {
+  TOOL_HOLD_MS,
+  lastTool,
+  newLineExtras,
+  newLineHoldMs,
+} from '../main/mainTools'
+import { swapToLastTool } from '../main/selectTool'
 import {
   NEW_LINE_EXTRA_KINDS,
   holdOpensExtras,
@@ -53,6 +59,7 @@ import { EditSlot, FixedSlot } from './BarEditParts'
 import { barToolIcon, barToolName, type EditDrag } from './barEditUi'
 import { runTool } from '../toolRegistry'
 import { useBreakpoint } from '../../shell/useBreakpoint'
+import { modeToTool } from './barState'
 import { useFold, type FoldSpec } from './useFold'
 import './toolbarV8.css'
 
@@ -87,8 +94,7 @@ const KEEP: Record<string, number> = {
   insert: 94,
   min: 93,
   shapes: 92,
-  bs: 91,
-  nl: 90,
+  back: 89,
 }
 
 /**
@@ -356,14 +362,20 @@ export function ToolBar({
   // 2A.4: with the new frame, Undo and Redo sit in the page top bar, not here.
   const inTopBar = useFlag('foundation.shell')
 
+  // Professional: "Back to <tool>" swaps to the tool used before (TB-14).
+  const backPref = useBarPref('backToPen')
+  const last = lastTool.useValue()
+  const backTool = backPref && last ? modeToTool(last) : null
   const specs: FoldSpec[] = [
     ...tools.map((x) => ({
       id: x.id as string,
       priority: KEEP[x.id] ?? 50,
       fixedW: undefined,
     })),
-    { id: 'bs', priority: KEEP.bs!, fixedW: 44 },
-    { id: 'nl', priority: KEEP.nl!, fixedW: 44 },
+    ...(backTool ? [{ id: 'back', priority: KEEP.back!, fixedW: 44 }] : []),
+    // New line and Backspace never fold under ⋯ (TB-11, 2A.12).
+    { id: 'bs', priority: Infinity, fixedW: 44 },
+    { id: 'nl', priority: Infinity, fixedW: 44 },
     ...(inTopBar
       ? []
       : [
@@ -406,6 +418,9 @@ export function ToolBar({
             min: 'v8.bar.minimise',
           }[id] as 'v8.bar.undo',
         )
+  const backLabel = backTool
+    ? t('v8.bar.backTo', { tool: t(TOOL_NAME[backTool]) })
+    : ''
   const iconOf = (id: string): IconName =>
     tools.find((x) => x.id === id)?.icon ??
     ({
@@ -418,8 +433,8 @@ export function ToolBar({
 
   const entries: FoldEntry[] = folded.map((id) => ({
     id,
-    label: label(id),
-    icon: iconOf(id),
+    label: id === 'back' ? backLabel : label(id),
+    icon: id === 'back' && backTool ? iconOf(backTool) : iconOf(id),
     pressed: id === tool,
     onPick: () => {
       if (id in TOOL_NAME) {
@@ -431,6 +446,7 @@ export function ToolBar({
       if (!isCore(id) && tools.some((x) => x.id === id)) runTool(id)
       if (id === 'undo' || id === 'redo') history_(id)
       if (id === 'nl') newLine()
+      if (id === 'back') swapToLastTool()
       if (id === 'bs' && editor) deleteBackward(editor, 'char')
       onCloseCard('fold.bar')
     },
@@ -574,6 +590,22 @@ export function ToolBar({
           </button>,
         )
       })}
+      {backTool && !edit && shows('back') ? (
+        <button
+          type="button"
+          data-chrome
+          data-testid="v8-back"
+          className={btn}
+          aria-label={backLabel}
+          onMouseDown={keepFocus}
+          onClick={() => swapToLastTool()}
+        >
+          <Icon name={iconOf(backTool)} size={20} />
+          <span className="v8back-badge" aria-hidden>
+            <Icon name="undo" size={10} />
+          </span>
+        </button>
+      ) : null}
       {shows('bs')
         ? fixed(
             'backspace',
@@ -721,6 +753,7 @@ export function ToolBar({
             {menuV2 ? (
               <MoreMenuV2
                 entries={entries}
+                editor={editor}
                 onClose={() => onCloseCard('fold.bar')}
                 onAllTools={() => onToggleCard('more.alltools', card.anchor)}
               />

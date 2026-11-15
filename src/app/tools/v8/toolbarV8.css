@@ -599,3 +599,17 @@
   font-size: 13px;
   color: var(--color-muted);
 }
+/* "Back to <tool>": the tool's icon with a small undo arrow (TB-14). */
+.v8back-badge {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-line-strong);
+}

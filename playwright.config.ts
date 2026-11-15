@@ -92,6 +92,7 @@ const config = defineConfig({
         /toolbarV8BarEdit.spec/,
         /inkTools/,
         /toolbarV9Lasso/,
+        /toolbarV9More/,
         /updateFailureNote/,
         /updateDownload/,
         /security-m1-/,

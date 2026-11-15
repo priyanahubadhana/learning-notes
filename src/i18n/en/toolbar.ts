@@ -4,6 +4,7 @@ export const enToolbar = {
   'bar.newLine': 'New line',
   'bar.show': 'Show tool bar',
   'v8.bar.backspace': 'Backspace',
+  'v8.bar.backTo': 'Back to {tool}',
   'v8.bar.more': 'More',
   'v8.bar.minimise': 'Minimise',
   'v8.bar.newLine': 'New line',

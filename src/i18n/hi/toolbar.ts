@@ -87,6 +87,7 @@ export const hiToolbar = {
   'bar.size': 'आकार',
   'bar.v8Label': 'औज़ार',
   'v8.bar.backspace': 'बैकस्पेस',
+  'v8.bar.backTo': '{tool} पर वापस',
   'v8.bar.more': 'और',
   'v8.bar.minimise': 'छोटा करें',
   'v8.bar.newLine': 'नई पंक्ति',

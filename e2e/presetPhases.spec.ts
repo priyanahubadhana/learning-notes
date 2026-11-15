@@ -18,7 +18,10 @@ const PHASES: { label: string; ids: string[] }[] = [
       'security.m1',
     ],
   },
-  { label: 'Up to Phase 2A', ids: ['toolbar.v8', 'page.menus'] },
+  {
+    label: 'Up to Phase 2A',
+    ids: ['toolbar.v8', 'toolbar.menu', 'page.menus'],
+  },
   { label: 'Up to Phase 2B', ids: ['textbox.v2'] },
   { label: 'Up to Phase 3', ids: ['notebooks.v2'] },
   { label: 'Up to Phase 4', ids: ['search.v2'] },

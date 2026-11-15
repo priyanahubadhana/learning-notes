@@ -141,7 +141,7 @@ test('F4 the Notebooks sidebar has no Review / All cards / All summaries rows; t
     await expect(side.getByRole('button', { name }).first()).toBeVisible()
 })
 
-/** The nearest box around a point that scrolls up and down (its test id or tag). */
+/** The nearest box around a point that scrolls up and down (its id, test id or tag). */
 const scrollerAt = (page: Page, x: number, y: number) =>
   page.evaluate(
     ([px, py]) => {
@@ -152,7 +152,7 @@ const scrollerAt = (page: Page, x: number, y: number) =>
           (o === 'auto' || o === 'scroll') &&
           el.scrollHeight > el.clientHeight + 1
         )
-          return el.id || el.tagName
+          return el.id || el.getAttribute('data-testid') || el.tagName
         el = el.parentElement
       }
       return 'none'
@@ -180,13 +180,21 @@ test.describe('F2 / F3 / F6 one scroll bar, scroll from anywhere', () => {
       .first()
       .boundingBox())!
 
-    // One scroller: a row, the header, the padding strip at the edge: all the same.
+    // P1.9-1 (T4, approved picture docs/mockups/phase1-fixes panel 1): the
+    // list has its own bar (title and ✕) that stays put; only the list under
+    // it scrolls. One scroller: a row, the empty strip at the list's top and
+    // the padding strip at the edge all scroll the same list.
+    const list = side.getByTestId('sb-list')
+    const top = (await list.boundingBox())!
+    const head = (await side.getByTestId('sb-head').boundingBox())!
     const atRow = await scrollerAt(page, row.x + 40, row.y + row.height / 2)
-    const atHead = await scrollerAt(page, box.x + 30, box.y + 30)
+    const atTop = await scrollerAt(page, top.x + 30, top.y + 3)
     const atEdge = await scrollerAt(page, box.x + 3, box.y + box.height / 2)
-    expect(atRow).toBe('sidebar')
-    expect(atHead).toBe('sidebar')
-    expect(atEdge).toBe('sidebar')
+    const atHead = await scrollerAt(page, head.x + 30, head.y + head.height / 2)
+    expect(atRow).toBe('sb-list')
+    expect(atTop).toBe('sb-list')
+    expect(atEdge).toBe('sb-list')
+    expect(atHead).toBe('none')
     // The list inside does not scroll by itself (that was the second scroller).
     expect(
       await side
@@ -201,15 +209,15 @@ test.describe('F2 / F3 / F6 one scroll bar, scroll from anywhere', () => {
     const bar = page.locator('[data-scrollbar-root]').first()
     await expect(bar).toBeVisible()
     expect((await bar.boundingBox())!.width).toBeLessThanOrEqual(22)
-    await side.evaluate((el) => (el.scrollTop = 0))
+    await list.evaluate((el) => (el.scrollTop = 0))
     await expect(
       page.locator('[data-scrollbar-arrow="up"]').first(),
     ).toBeDisabled()
     await page.locator('[data-scrollbar-arrow="down"]').first().click()
     await expect
-      .poll(() => side.evaluate((el) => el.scrollTop))
+      .poll(() => list.evaluate((el) => el.scrollTop))
       .toBeGreaterThan(50)
-    await side.evaluate((el) => (el.scrollTop = el.scrollHeight))
+    await list.evaluate((el) => (el.scrollTop = el.scrollHeight))
     await expect(
       page.locator('[data-scrollbar-arrow="down"]').first(),
     ).toBeDisabled()

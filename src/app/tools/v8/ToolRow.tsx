@@ -7,9 +7,11 @@ import { rowItemsFor, cardIdOf, type RowItem } from './rowItems'
 import { useBarPref } from './barPrefs'
 import { dotPx, usePenFace, type PenFace } from './penFace'
 import { PenPic } from './PenPictures'
-import { penFavItems, sizeDotPx } from './penRow'
+import { sizeDotPx } from './penRow'
 import { FavGroup, FavMeasure, FavStar } from './PenFavChip'
-import { penFavourites } from '../main/penFavourites'
+import { rowOf } from './favs2'
+import { useFavs } from './favRow'
+import { AddFavSheet, OrganiseFavSheet, ResetFavDialog } from './FavSheets'
 import { activeTool } from '../main/mainTools'
 import { useChangeCounts } from './changeCount'
 import type { V8ToolId } from './registryV8'
@@ -19,7 +21,11 @@ import { useFold, type FoldSpec } from './useFold'
 import type { FoldResult } from './rowFold'
 import { displayInk } from '../../../design/ink'
 import { ErasesChips, BackAfterOne } from './EraserRowParts'
-import { ERASER_SIZES, eraserSettings } from '../main/inkSettings'
+import {
+  ERASER_SIZES,
+  eraserSettings,
+  lassoSettings,
+} from '../main/inkSettings'
 import './toolbarV8.css'
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
@@ -113,9 +119,15 @@ export function ToolRow({
 }: ToolRowProps) {
   const openCard = card?.id ?? null
   const pen = usePenFace()
-  const mode = activeTool.useValue()
-  const saved = penFavourites.useValue()
-  const favItems = tool === 'pen' ? penFavItems(saved) : []
+  activeTool.useValue() // a favourite's ring follows the tool
+  const saved = useFavs()
+  lassoSettings.useValue() // a lasso favourite's ring follows it
+  const [sheet, setSheet] = useState<{
+    kind: 'add' | 'org' | 'reset'
+    anchor: HTMLElement
+    back?: boolean
+  } | null>(null)
+  const favItems = rowOf(saved, tool)
   // Each changed chip glows once (TB-70).
   const glow = useChangeCounts({
     'pen.type': pen.typeId,
@@ -178,6 +190,14 @@ export function ToolRow({
   const favsOpen = openCard === 'fold.favs'
   const moreOpen = openCard === 'fold.row'
 
+  // A sheet steps aside for the form or the question and then returns. Its
+  // own close (also run when it unmounts) must not undo that switch, so a
+  // close only counts while the same kind is still showing.
+  const back = (from: 'add' | 'org' | 'reset', to: 'org' | null) =>
+    setSheet((cur) =>
+      !cur || cur.kind !== from ? cur : to ? { ...cur, kind: to } : null,
+    )
+
   const toggleStyle = (item: RowItem) => {
     if (!item.style) return
     ;(
@@ -231,11 +251,10 @@ export function ToolRow({
             </button>
           ),
         )}
-        {favsShown ? <FavGroup items={favItems} mode={mode} /> : null}
+        {favsShown ? <FavGroup items={favItems} /> : null}
         {favsFolded ? (
           <FavStar
             items={favItems}
-            mode={mode}
             open={favsOpen}
             card={card}
             onToggle={(el) => onToggleCard('fold.favs', el)}
@@ -310,29 +329,52 @@ export function ToolRow({
         />
       ) : null}
       <span className="v8hair" aria-hidden />
-      {/* Slice 1g: Add favourite and Organise. Placeholders until then. */}
+      {/* Favourites: "+" opens the Add form, the list button opens Organise (TB-52, TB-53). */}
       <button
         type="button"
         data-chrome
+        data-popup-trigger=""
         data-testid="v8-add"
         className="v8chip v8chip-icon"
         aria-label={t('v8.row.add')}
-        aria-disabled="true"
+        aria-haspopup="dialog"
         onMouseDown={keepFocus}
+        onClick={(e) => setSheet({ kind: 'add', anchor: e.currentTarget })}
       >
         <Icon name="plus" size={18} />
       </button>
       <button
         type="button"
         data-chrome
+        data-popup-trigger=""
         data-testid="v8-organise"
         className="v8chip v8chip-icon"
         aria-label={t('v8.row.organise')}
-        aria-disabled="true"
+        aria-haspopup="dialog"
         onMouseDown={keepFocus}
+        onClick={(e) => setSheet({ kind: 'org', anchor: e.currentTarget })}
       >
         <Icon name="list" size={18} />
       </button>
+      {sheet?.kind === 'add' ? (
+        <AddFavSheet
+          anchor={sheet.anchor}
+          tool={tool}
+          onClose={() => back('add', sheet.back ? 'org' : null)}
+        />
+      ) : null}
+      {sheet?.kind === 'org' ? (
+        <OrganiseFavSheet
+          anchor={sheet.anchor}
+          tool={tool}
+          onAdd={() => setSheet({ ...sheet, kind: 'add', back: true })}
+          onReset={() => setSheet({ ...sheet, kind: 'reset', back: true })}
+          onDone={() => back('org', null)}
+        />
+      ) : null}
+      {sheet?.kind === 'reset' ? (
+        <ResetFavDialog tool={tool} onClose={() => back('reset', 'org')} />
+      ) : null}
     </div>
   )
 }

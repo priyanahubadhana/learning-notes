@@ -91,11 +91,7 @@ export function cleanFavs2(v: unknown): Fav2[] | undefined {
   return out
 }
 
-export const favs2 = cleanStore<Fav2[]>(
-  'toolbar.favourites2',
-  cleanFavs2,
-  [],
-)
+export const favs2 = cleanStore<Fav2[]>('toolbar.favourites2', cleanFavs2, [])
 const migratedFlag = prefStore<boolean>(
   'toolbar.favourites2.from1',
   (v): v is boolean => typeof v === 'boolean',
@@ -355,7 +351,10 @@ export function favIsOn(f: Fav2): boolean {
   if (f.tool === 'pen') {
     if ((mode === 'highlighter') !== !!f.hl) return false
     const p = f.hl ? highlighterSettings.get() : penSettings.get()
-    if (f.colour !== undefined && p.colour.toLowerCase() !== f.colour.toLowerCase())
+    if (
+      f.colour !== undefined &&
+      p.colour.toLowerCase() !== f.colour.toLowerCase()
+    )
       return false
     if (f.size !== undefined && p.size !== f.size) return false
     if (!f.hl) {

@@ -57,8 +57,20 @@ describe('favs2 data', () => {
 
   it('migrates today pen favourites once and leaves the old key alone', () => {
     const old = [
-      { tool: 'pen', type: 'fountain', colour: '#112233', size: 2, exact: null },
-      { tool: 'highlighter', type: null, colour: '#ffee00', size: 1, exact: null },
+      {
+        tool: 'pen',
+        type: 'fountain',
+        colour: '#112233',
+        size: 2,
+        exact: null,
+      },
+      {
+        tool: 'highlighter',
+        type: null,
+        colour: '#ffee00',
+        size: 1,
+        exact: null,
+      },
     ]
     penFavourites.set(old as never)
     migrateOnce()
@@ -117,5 +129,14 @@ describe('favs2 data', () => {
     undo()
     expect(penSettings.get()).toMatchObject({ type: 'pencil', size: 0 })
     expect(favIsOn(f)).toBe(false)
+  })
+})
+
+describe('movedId', () => {
+  it('names the one that moved', async () => {
+    const { movedId } = await import('./favRow')
+    const l = ['a', 'b', 'c', 'd'].map((id) => ({ id }))
+    expect(movedId(l, [l[3], l[0], l[1], l[2]])).toBe('d')
+    expect(movedId(l, l)).toBeUndefined()
   })
 })

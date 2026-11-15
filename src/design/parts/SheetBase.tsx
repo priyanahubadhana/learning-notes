@@ -57,7 +57,12 @@ export function SheetBase(props: SheetBaseProps) {
       id,
       layer: 'sheet',
       close: () => closeRef.current(),
-      inside: (n) => el.contains(n),
+      // A menu opened from a button inside the sheet (a row's "...") belongs to it.
+      inside: (n) => {
+        if (el.contains(n)) return true
+        const menu = n.closest('[role="menu"]')
+        return !!menu?.id && !!el.querySelector(`[aria-controls="${menu.id}"]`)
+      },
       opener,
     })
     const release = trapFocus(el, opener)

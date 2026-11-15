@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import {
   createNotebook,
   hideSidebar,
@@ -136,6 +136,25 @@ test('fix 3: compact font tiles show every name whole, and the check never cover
   expect(bad).toEqual([])
 })
 
+/** The card's box once it has stopped changing (its content settles a moment after it opens). */
+async function settledBox(card: Locator) {
+  await card.page().evaluate(() => document.fonts.ready)
+  let last = (await card.boundingBox())!
+  for (let i = 0; i < 20; i++) {
+    await card.page().waitForTimeout(400)
+    const now = (await card.boundingBox())!
+    if (
+      now.x === last.x &&
+      now.y === last.y &&
+      now.width === last.width &&
+      now.height === last.height
+    )
+      return now
+    last = now
+  }
+  return last
+}
+
 const near = (a: number, b: number, tol = 2) => Math.abs(a - b) <= tol
 
 const TURNS = [
@@ -157,18 +176,14 @@ for (const [tool, id, w0, h0, w1, h1] of TURNS) {
     await page.setViewportSize(PORTRAIT)
     await page.waitForTimeout(350)
     const early = (await card.boundingBox())!
-    await page.waitForTimeout(850)
-    await expect(card).toBeVisible()
-    const turned = (await card.boundingBox())!
+    const turned = await settledBox(card)
 
     // The same chip, opened again after the turn: the open card is where it would go now.
     await page.keyboard.press('Escape')
     await expect(card).toHaveCount(0)
     await page.getByTestId(`v8-chip-${id}`).click()
     await expect(card).toBeVisible()
-    await page.waitForTimeout(500)
-    const again = (await card.boundingBox())!
-    // it was already there 350 ms after the turn (a phone sheet re-opens with a 200 ms motion), not only after a long wait
+    const again = await settledBox(card)
     // 350 ms after the turn: the open motion may still move it a few px.
     expect(near(early.x, turned.x)).toBe(true)
     expect(near(early.y, turned.y, 10)).toBe(true)
@@ -181,8 +196,7 @@ for (const [tool, id, w0, h0, w1, h1] of TURNS) {
     await page.getByTestId(`v8-tool-${tool}`).click()
     await page.getByTestId(`v8-chip-${id}`).click()
     await expect(card).toBeVisible()
-    await page.waitForTimeout(800)
-    const f = (await card.boundingBox())!
+    const f = await settledBox(card)
     // It equals a fresh load.
     expect(near(turned.x, f.x)).toBe(true)
     expect(near(turned.y, f.y)).toBe(true)

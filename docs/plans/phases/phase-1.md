@@ -62,7 +62,7 @@ Address: https://build-next.learning-notes-app.pages.dev . Write down the step n
 
 iPad, Safari, about 15 minutes. Address: https://build-next.learning-notes-app.pages.dev . Write down the step number and what you saw for anything that does not match. Never clear the website's data.
 
-1. **Newest version.** Settings › Help & tour › About this app. **You should see:** version `8105fcb`. If not: Check for updates now, then tap the pill; or close the tab and open the address again.
+1. **Newest version.** Settings › Help & tour › About this app. **You should see:** version `e9c8fb4` (the preview after the 15 Nov paperwork merge; same app as 8105fcb). If not: Check for updates now, then tap the pill; or close the tab and open the address again.
 2. **Turn the phase on.** Settings › Try new features › "Test a phase": choose "Phase 1", switch "Test this phase" On. **You should see:** the new frame at once.
 3. **Update timer.** About this app › "Pretend a must-have update". **You should see:** "A must-have update", "Starts in 5 seconds" counting down, then a bar with MB and the time left; the app reopens on the same page, notes kept.
 4. **Slow, then Try again.** Tap Pretend again and, during the countdown, turn on Airplane mode. **You should see:** a calm note (slow connection, or "Nothing was installed and nothing was lost") with "Try again" and "Not now". Turn Airplane mode off, tap Try again. **You should see:** it finishes.

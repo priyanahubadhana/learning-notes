@@ -104,6 +104,7 @@ async function run(
       main.y + main.height + (sheet ? 60 : 40),
     )
     await expect(page.locator(EXTRA)).toHaveCount(1)
+    await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
     await page.keyboard.type('Photosynthesis: light, water and carbon dioxide')
     await page.waitForTimeout(900)
     await page.evaluate(() => (document.activeElement as HTMLElement).blur())

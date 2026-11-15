@@ -15,7 +15,7 @@ Order of work:
 1. More than 3 files or new stored data: write a 10-line plan in your first commit message.
 2. Tests first: unit and e2e tests for each spec line; run them and see them fail.
 3. Build until they pass. One item per commit; push after each. New parts OFF behind the task's switch. Do the mechanical work yourself: texts in every language (same keys and placeholders), Prettier, docs lines, merging the code line into your branch.
-4. Done = all green: your spec files on chromium and ipad-webkit (set `PW_PORT` to a free port), `npm run lint`, `npx tsc --noEmit`, `npm run check:size`, `npm run check:dod`, `npm run check:ratchet`. Long output to a file; read the tail.
+4. Done = all green: your spec files on chromium and ipad-webkit (set `PW_PORT` to a free port; always add `--global-timeout=1200000` so a stuck run stops by itself), `npm run lint`, `npx tsc --noEmit`, `npm run check:size`, `npm run check:dod`, `npm run check:ratchet`. Long output to a file; read the tail.
 5. Use it for real: with the switch ON, on an iPad-sized Safari (ipad-webkit), sign in, reload, turn the screen both ways, scroll every list, open and close every pop-up. Fix what breaks.
 6. Pictures for the first look: each screen you changed, in light and dark, Beginner and Professional, iPad upright and sideways and phone, taken after your last source edit, with an index file. Check your own pictures against the list in docs/HOW-WE-BUILD.md section 7 and against the approved picture. (The full picture set with sepia and PC is made once, at the end of the phase.)
 7. Tick the checklist below with proof (test name or file:line) and report. Then wait: fix lists come back to you.

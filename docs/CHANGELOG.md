@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: 2A.13 review 2 fixes (switch toolbar.v8, OFF live)
+
+- What: Organise names the row a move was made on (the "..." menu and keyboard moves gave the wrong name); the shared Arrange sheet now passes the moved row's id. The Add form grows on an upright iPad (opt-in `grow` on the shared sheet) so the live preview stays in view; both "Start from" tiles show a picture. New tests for each; pictures retaken.
+- Why: review 2 of 2A.13 (Safari pressed-row memory was reset by the menu and never set by keys).
+- Files: src/design/parts/ArrangeSheet.tsx, src/design/parts/SheetBase.tsx, src/design/parts/SheetBase.css, src/app/tools/v8/FavSheets.tsx, e2e/toolbarV8Favs.spec.ts, docs/screens/2a13/.
+
 ### 15 Nov 2026: 2A.11 review 2 fixes (switch toolbar.v8, OFF live)
 
 - What: the Layers fold in Lasso Options now starts every box, text and icon on one left edge (measured 448 iPad upright, 808 sideways, 16 phone, light and dark); duplicate .v8llayers rules merged; new tests for the edge and for the "N layers" hint (0, 1, many).

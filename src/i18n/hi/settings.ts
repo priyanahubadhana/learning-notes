@@ -6,7 +6,12 @@ export const hiSettings = {
   'about.failed': 'जाँच नहीं हो सकी। क्या आप ऑफ़लाइन हैं?',
   'about.lastChecked': 'अपडेट की पिछली जाँच: {time}',
   'about.neverChecked': 'अपडेट की जाँच अभी नहीं हुई।',
-  'about.ready': 'अपडेट तैयार है। ऊपर का अपडेट बटन दबाएँ।',
+  'about.ready': 'अपडेट तैयार है। ऊपर की सूचना में अपडेट दबाएँ।',
+  'about.readyAuto': 'अपडेट हो रहा है… ऐप अपने आप फिर शुरू होगा।',
+  'about.readyWait':
+    'अपडेट तैयार है। आपके रुकने पर यह अपने आप लगेगा। या नीचे अपडेट दबाएँ।',
+  'about.readyClosed': 'अपडेट तैयार है। फिर शुरू करने के लिए नीचे अपडेट दबाएँ।',
+  'about.updateNow': 'अपडेट',
   'about.title': 'इस ऐप के बारे में',
   'about.version': 'संस्करण {commit}, बना {date}',
   'color.blue': 'नीला',

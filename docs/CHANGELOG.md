@@ -6,6 +6,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - What: 2A.4, 2A.5, 2A.14 built on their branches (not merged yet); the phone wheel test move merged into build/next b2872d53 after desktop webkit 1/1. Why: owner answers 4A and 7. Files: docs/BUILD-STATE.md, docs/CHANGELOG.md.
 
+### 15 Nov 2026 (night): Task H Journal month repair (switch journal.monthRepair, OFF live)
+
+- What: the Journal joins two month pages of the same month into one (backup first, days moved, empty duplicate to Trash, counts checked, toast with Undo); runs on start and after each sync. Cause tests show sync's Journal merge and a Trash restore make the second page; import does not.
+- Why: owner's two "November 2026" pages (task H, option A).
+- Files: src/journal/journalRepair.ts, src/journal/journalRepair.test.ts, src/app/attention/useJournalRepair.ts, src/app/attention/AttentionGate.tsx, src/app/flags.ts, src/app/flags.test.ts, src/i18n (en, es, hi), src/sync/syncService.ts (export for test), vitest.config.ts, e2e/journalMonthRepair.spec.ts, docs/features/journal.md, docs/DECISIONS.md.
+
 ### 15 Nov 2026 (evening): Phase 1 re-test steps
 
 - What: phase-1.md gets the re-test round after P1.8 and P1.9 (10 steps, preview at 8105fcb, CI green) and the optional 10-minute Pencil look at the new text box (switch "New text box" on with the Phase 1 preset; 6 steps).

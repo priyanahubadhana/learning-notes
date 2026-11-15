@@ -38,9 +38,20 @@ export function repeatUpdateOffer() {
   if (pending && !dismissed) for (const fn of [...listeners]) fn(pending)
 }
 
+/** Applies the waiting update now (the button in About). */
+export function applyWaitingUpdate(): boolean {
+  if (!pending) return false
+  pending()
+  return true
+}
+
+export const updateDismissed = (): boolean => dismissed
+
 /** The user closed the offer: not shown again until the next app start. */
 export function dismissUpdateOffer() {
   dismissed = true
+  // About redraws its words (they depend on this).
+  for (const fn of checkedListeners) fn()
 }
 
 /**

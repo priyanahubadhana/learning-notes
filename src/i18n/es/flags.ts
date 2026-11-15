@@ -83,4 +83,7 @@ export const esFlags = {
   'flags.storage.safety.name': 'Seguridad del almacenamiento',
   'flags.storage.safety.desc':
     'Avisos tranquilos cuando las notas no se guardan y una copia con un toque.',
+  'flags.journal.monthRepair.name': 'Reparar meses del diario',
+  'flags.journal.monthRepair.desc':
+    'Une dos páginas del mismo mes del diario en una, con Deshacer.',
 }

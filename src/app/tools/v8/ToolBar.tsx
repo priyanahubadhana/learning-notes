@@ -266,7 +266,7 @@ function ToolFace({
   )
 }
 
-/** The first line: tools, Backspace and New line, then Undo, Redo, ⋯ and Minimise. */
+/** The first line: tools, Backspace and New line, then ⋯ and Minimise (Undo and Redo only without the new frame; with it they are in the top bar). */
 export function ToolBar({
   tool,
   card,
@@ -287,6 +287,8 @@ export function ToolBar({
     },
   )
   const names = level === 'professional'
+  // 2A.4: with the new frame, Undo and Redo sit in the page top bar, not here.
+  const inTopBar = useFlag('foundation.shell')
 
   const specs: FoldSpec[] = [
     ...tools.map((x) => ({
@@ -296,8 +298,12 @@ export function ToolBar({
     })),
     { id: 'bs', priority: KEEP.bs!, fixedW: 44 },
     { id: 'nl', priority: KEEP.nl!, fixedW: 44 },
-    { id: 'undo', priority: KEEP.undo!, fixedW: 44 },
-    { id: 'redo', priority: KEEP.redo!, fixedW: 44 },
+    ...(inTopBar
+      ? []
+      : [
+          { id: 'undo', priority: KEEP.undo!, fixedW: 44 },
+          { id: 'redo', priority: KEEP.redo!, fixedW: 44 },
+        ]),
     { id: 'more', priority: Infinity, fixedW: 44 },
     { id: 'min', priority: KEEP.min!, fixedW: 44 },
   ]

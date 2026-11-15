@@ -11,6 +11,7 @@ import {
 import { useSyncLabel } from '../../sync/useSyncLabel'
 import { DeviceModeButton } from '../DeviceModeMenu'
 import { useCanGoBack, useCanGoForward } from '../navHistory'
+import { useFlag } from '../flags'
 import type { Space } from '../spaces/spaces'
 import { padHistoryState } from '../../editor/writePad/padHistory'
 import { HistoryButtons } from '../tools/HistoryButtons'
@@ -110,6 +111,8 @@ export function ShellTopBar(props: ShellTopBarProps) {
   const canGoForward = useCanGoForward()
   // The editor toolbar's pair counted the Write pad's steps too; so does this one.
   const pad = padHistoryState.useValue()
+  // 2A.4 (toolbar.v8): Undo and Redo replace the < > arrows (the SH-05 setting still hides the pair on a computer); going back is the page path / swipe back.
+  const v8 = useFlag('toolbar.v8')
   const [mode] = useDeviceSetting(deviceModeSetting)
   const [undoPref] = useDeviceSetting(showUndoRedoSetting)
   const showRefresh = useSyncedSetting(db, showRefreshSetting)
@@ -165,19 +168,23 @@ export function ShellTopBar(props: ShellTopBarProps) {
           onClick={panel.onToggle}
         />
       )}
-      <Btn
-        icon="back"
-        label={t('nav.back')}
-        disabled={!canGoBack}
-        onClick={() => history.back()}
-      />
-      <Btn
-        className="sh-hide-narrow"
-        icon="fwd"
-        label={t('nav.forward')}
-        disabled={!canGoForward}
-        onClick={() => history.forward()}
-      />
+      {!v8 && (
+        <>
+          <Btn
+            icon="back"
+            label={t('nav.back')}
+            disabled={!canGoBack}
+            onClick={() => history.back()}
+          />
+          <Btn
+            className="sh-hide-narrow"
+            icon="fwd"
+            label={t('nav.forward')}
+            disabled={!canGoForward}
+            onClick={() => history.forward()}
+          />
+        </>
+      )}
       {showHistoryPair(mode, undoPref) && (
         <HistoryButtons className="sh-history" tips also={pad} />
       )}

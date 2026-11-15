@@ -143,6 +143,7 @@ const page: Fields<Page> = {
     number((v as { at?: unknown }).at),
   journalDate: text,
   journalMonth: text,
+  monthJoinDeclined: yes,
   customTitle: yes,
   pathStyle: oneOf('simple', 'full', 'page'),
   locked: yes,

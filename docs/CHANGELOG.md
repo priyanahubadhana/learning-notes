@@ -44,6 +44,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
 
+### 15 Nov 2026 (night): red1 merged; 2A.7 PASS; 2A.10, 2A.11 review FAIL; 2A.12 built
+
+- What: red1 merged by the main chat (6406f6dc, CI green); 2A.7 passed on round 3 (Opus took over); 2A.10 and 2A.11 fix lists sent; 2A.12 ⋯ card built. Why: plan step 2. Files: docs/BUILD-STATE.md.
+
 ### 15 Nov 2026 (night): 2A.9 and cfg2 merged; red1 root cause
 
 - What: 2A.9 Format tabs merged (4357bf6c), cfg2 puts toolbarV8Text, inkTools, toolbarV9Lasso on ipad-webkit; Opus found the cause of 3 webkit reds (test setup after P1.9 and BUG-002), review PASS; 2A.7 review 1 FAIL. Why: plan step 2, red first. Files: docs/BUILD-STATE.md, docs/IDEAS.md.

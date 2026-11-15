@@ -2,7 +2,7 @@
 
 **RUNNING, full team for Phase 2A (owner answer 4A, 15 Nov):** one `phase-manager` (Opus, medium) runs up to 3 Sonnet builders; lean again after the phase. Rewritten 15 Nov, evening.
 
-**Now (phase-manager, 15 Nov night):** 2A.6, 2A.8, 2A.9, cfg2 merged, CI green (fa85ce60). Webkit turn: 2A.10, then 2A.11. Builders never touch `main`.
+**Now (phase-manager, 15 Nov night):** build/next 6406f6dc CI green (2A.6, 2A.8, 2A.9, cfg2, red1 in). 2A.7 waits for the main chat to merge (helper pushes to build/next refused). Webkit: 2A.10, then 2A.12. Builders never touch `main`.
 
 ## The order (details in phase-plan.md section 0)
 
@@ -18,18 +18,18 @@
 
 ## Phase 2A tasks (phase-manager, from 15 Nov; webkit turn handed out by the manager)
 
-| Task                   | Branch @ head (working copy)                  | State                                                                                                                                          |
-| ---------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2A.4, 2A.5, 2A.14, cfg | merged b7ba4ede, 80de703c, c2967488, df188a67 | MERGED, CI green, webkit green; 2A.14 settings-row pictures owner-approved 15 Nov                                                              |
-| 2A.6                   | `slice/2a6` merged 920a3b4d (ln-2a6)          | MERGED; CI green (43725537965); 3 points carry to 2A.16 (phone ★ before ⋯, no open Favourites picture, fixed 700 ms wait)                      |
-| 2A.8                   | `slice/2a8` merged 99f8ba84 (ln-2a8)          | MERGED; CI green (43726453798); merged ToolRow.tsx reviewed PASS (Erases fold 310 px ok)                                                       |
-| 2A.9                   | `slice/2a9` merged 4357bf6c (ln-2a9)          | MERGED; CI green (43729189709). To 2A.16: compact font tiles cut names ("Same as no…")                                                         |
-| 2A.7                   | `slice/2a7` 70df06cf (ln-2a7)                 | webkit 19 pass 2 skip; review 1 FAIL (slider boxes in wells; docs for 4 left-out rows); builder a1381c64855ab52cd fixing                       |
-| 2A.11                  | `slice/2a11` 588ba66a (ln-2a11)               | built; R21 fixed; BarScroll flushSync fix for 3 ownerLasso webkit reds; waits for webkit (inkTools, toolbarV9Lasso); builder a960680fc4d73eba7 |
-| 2A.10                  | `slice/2a10` 40aab6b9 (ln-2a10)               | built, chromium green; webkit turn now; builder a22d37a7c7fdebe4e                                                                              |
-| red1                   | `slice/2a-red1` 8dea310d (ln-red1)            | Opus root cause: lassoWords:185 (BUG-002 pill height) and scrollBarPen:148/285 (P1.9 docked list); test setup only; review PASS; merging       |
-| cfg2                   | `slice/2a-cfg2` merged d1c5da37               | MERGED; toolbarV8Text, inkTools, toolbarV9Lasso on the ipad-webkit list; CI green                                                              |
-| rest                   | 2A.12, 2A.13, 2A.15, 2A.16                    | start when a builder seat frees                                                                                                                |
+| Task                         | Branch @ head (working copy)                            | State                                                                                                                                                                                                  |
+| ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2A.4, 2A.5, 2A.14, cfg, cfg2 | merged b7ba4ede, 80de703c, c2967488, df188a67, d1c5da37 | MERGED, CI green, webkit green; cfg2 put toolbarV8Text, inkTools, toolbarV9Lasso on ipad-webkit                                                                                                        |
+| 2A.6                         | `slice/2a6` merged 920a3b4d (ln-2a6)                    | MERGED; CI green (43725537965); 3 points carry to 2A.16 (phone ★ before ⋯, no open Favourites picture, fixed 700 ms wait)                                                                              |
+| 2A.8                         | `slice/2a8` merged 99f8ba84 (ln-2a8)                    | MERGED; CI green (43726453798); merged ToolRow.tsx reviewed PASS (Erases fold 310 px ok)                                                                                                               |
+| 2A.9                         | `slice/2a9` merged 4357bf6c (ln-2a9)                    | MERGED; CI green (43729189709). To 2A.16: compact font tiles cut names ("Same as no…")                                                                                                                 |
+| 2A.7                         | `slice/2a7` 8dff525e (ln-2a7)                           | 2 FAILs, Opus builder aa03147c3b60b8678 fixed; re-review PASS; helper push to build/next refused: main chat merges                                                                                     |
+| 2A.11                        | `slice/2a11` 159ff67d (ln-2a11)                         | webkit 29/29 + toolbarV9LassoUse; review 1 FAIL (Layers count hint, fold edges); builder a960680fc4d73eba7 fixing                                                                                      |
+| 2A.10                        | `slice/2a10` bcddeabf (ln-2a10)                         | review 1 FAIL fixed (font on-state, tests, FormatOn on webkit list: hot file); webkit turn now; builder a22d37a7c7fdebe4e                                                                              |
+| red1                         | `slice/2a-red1` merged 6406f6dc                         | MERGED by main chat (helper push refused); CI green (43735677999)                                                                                                                                      |
+| 2A.12                        | `slice/2a12` 75325375 (ln-2a12)                         | built, chromium green; finishing v9 View/Page/Tool bar folds; then webkit; adds toolbarV9More to the list (hot file); builder abcfb3f0ea57ad700                                                        |
+| rest                         | 2A.13, 2A.15, 2A.16                                     | 2A.16 list so far: phone ★ before ⋯; open Favourites picture; 700 ms wait (2A.6); font names cut in compact tiles (2A.9); shared Card keeps old place when the screen turns (Card.tsx, found by 2A.11) |
 
 ## Waiting (each has its step)
 

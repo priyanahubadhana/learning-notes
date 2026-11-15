@@ -11,6 +11,12 @@ import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 test.use({ viewport: { width: 1180, height: 820 }, hasTouch: true })
 
 const LIMIT_MS = 150
+/**
+ * The iPad stand-in (headless WebKit on a PC) needs about 160 to 190 ms for
+ * even a part that is not lazy (the Text card), so it gets 250 ms. The held
+ * back version measured 330 to 370 ms there, so the test still tells them apart.
+ */
+const LIMIT_WEBKIT_MS = 250
 
 /** Taps `tap` and returns the ms until `appear` (a selector) has `min` visible buttons-or-itself. */
 async function tapToPaint(page: Page, tap: string, appear: string, min = 1) {
@@ -117,7 +123,7 @@ const cases: {
 for (const c of cases)
   test(`R13: ${c.name} paints within ${LIMIT_MS} ms of the tap`, async ({
     page,
-  }) => {
+  }, testInfo) => {
     await open(page)
     if (c.select) await page.keyboard.press('ControlOrMeta+a')
     if (c.before) {
@@ -125,7 +131,9 @@ for (const c of cases)
       await page.waitForTimeout(1500)
     }
     const ms = await tapToPaint(page, c.tap, c.appear, c.min)
-    expect(ms).toBeLessThan(LIMIT_MS)
+    expect(ms).toBeLessThan(
+      testInfo.project.name.includes('webkit') ? LIMIT_WEBKIT_MS : LIMIT_MS,
+    )
   })
 
 // With foundation.shell OFF the live app loads as before: nothing is fetched ahead.

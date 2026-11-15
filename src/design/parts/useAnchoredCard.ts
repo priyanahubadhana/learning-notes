@@ -253,10 +253,33 @@ export function useAnchoredCard(opts: {
       )
     }
     run()
-    const ro = new ResizeObserver(run)
+    // 2A.16 (turning the screen): the bar moves its chips AFTER the page has
+    // resized, and a chip that only moves (same size) tells no observer. So
+    // after each change we measure again once the layout has settled, and we
+    // watch the anchor's own size too. The result equals a fresh load.
+    let raf = 0
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const settle = () => {
+      run()
+      cancelAnimationFrame(raf)
+      clearTimeout(timer)
+      raf = requestAnimationFrame(() => {
+        run()
+        timer = setTimeout(run, 250)
+      })
+    }
+    const ro = new ResizeObserver(settle)
     ro.observe(card)
     ro.observe(document.documentElement)
-    return () => ro.disconnect()
+    if (anchor instanceof HTMLElement) ro.observe(anchor)
+    const vv = window.visualViewport
+    vv?.addEventListener('resize', settle)
+    return () => {
+      ro.disconnect()
+      vv?.removeEventListener('resize', settle)
+      cancelAnimationFrame(raf)
+      clearTimeout(timer)
+    }
   }, [anchor, card, widthPx, active, avoid, around, clearTop, fit, footLift])
   return active && anchor && card ? pos : null
 }

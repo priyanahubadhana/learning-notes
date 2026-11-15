@@ -247,10 +247,11 @@
   position: relative;
   background: var(--color-accent-soft);
 }
+/* 2A.16: the check sits in the lower right corner, beside the Aa, never over a name. */
 .v8scroll [data-card-chips='font'] [aria-checked='true']::before {
   content: '';
   position: absolute;
-  top: 3px;
+  bottom: 3px;
   right: 3px;
   width: 15px;
   height: 15px;
@@ -260,7 +261,7 @@
 .v8scroll [data-card-chips='font'] [aria-checked='true']::after {
   content: '';
   position: absolute;
-  top: 6px;
+  bottom: 8px;
   right: 8px;
   width: 3.5px;
   height: 6.5px;

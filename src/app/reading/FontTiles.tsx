@@ -107,7 +107,7 @@ export function FontTiles<T extends ReadingFont | 'default'>({
               <span
                 className={
                   compact
-                    ? 'w-full truncate text-center text-[10px] font-semibold'
+                    ? 'w-full break-words text-center text-[10px] font-semibold leading-tight [text-wrap:balance]'
                     : 'text-[11px] font-semibold'
                 }
               >

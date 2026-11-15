@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: 2A.16 part 1, carried polish (switch toolbar.v8, OFF live)
+
+- What: (1) phone: the star chip stands before the ⋯ chip (checked at 360, 390, 430 px; it already held, now guarded by a test). (2) The 700 ms of 2A.6: the change glow is the spec's 700 ms (TB-70), guarded by a test; the fixed 700 ms sleep in the pen-row pictures is now a wait for the sidebar to close. (3) Compact font tiles: names wrap instead of being cut, and the check mark sits in the lower right corner, never over a name. (4) A card measures again after the screen turns (anchor watched, again one frame and 250 ms later, visual viewport resize), so it equals a fresh load. (5) Escape leaves edit mode with the keyboard: test.
+- Why: 2A.16 fix list; why-notes: (3) the tile name was one truncated line and the check sat at the top right over it; (4) the bar moves its chips after the page resized, and a chip that only moves tells no observer.
+- Files: src/app/reading/FontTiles.tsx, src/app/tools/v8/cards/text/textCards.css, src/design/parts/useAnchoredCard.ts, e2e/toolbarV9Polish.spec.ts, e2e/penRowShots.spec.ts
+
 ### 15 Nov 2026: 2A.15 Edit the tool bar on the bar (switch toolbar.v8, OFF live)
 
 - What: touch and hold a tool (after its name shows) or the bar's free space opens edit mode: top bar with cancel and done, a minus on removable tools, a lock on Text, Pen, Eraser, Backspace, New line and More, live drag, a "More tools" tray (tap or drag up to add, drop on it to remove); Done saves on this device with a toast and Undo; cancel keeps the old bar. Your layouts stay hidden (no button on the new bar; LayoutButton, layoutSync and data untouched).

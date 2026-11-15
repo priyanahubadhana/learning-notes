@@ -47,7 +47,7 @@ for (const [dev, size] of Object.entries(SIZES))
             .getByRole('button', { name: /hide.*menu/i })
             .first()
             .click()
-          await page.waitForTimeout(700)
+          await expect(page.locator('aside')).toBeHidden()
         }
         await page.getByTestId('v8-tool-pen').click()
         await expect(

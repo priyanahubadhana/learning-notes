@@ -45,11 +45,29 @@ async function setUp(
   await startInMode(page, 'touch')
   await page.goto('/?flags=toolbar.v8')
   await createNotebook(page, 'Biology', 'First')
-  if (size.width === 820) await hideSidebar(page)
+  await hideSidebar(page)
+  if (size.width === 820) await closeDockedSidebar(page)
   await typeInEditor(page, 'The nucleus holds the DNA')
   await expect(page.getByText('Switched to Pencil mode')).toHaveCount(0, {
     timeout: 20_000,
   })
+}
+
+/** iPad upright: the sidebar is docked; close it with the top bar's button. */
+async function closeDockedSidebar(page: Page) {
+  const aside = page.locator('aside')
+  if (!(await aside.isVisible())) return
+  await page
+    .locator('button[aria-controls="sidebar"][aria-expanded="true"]:visible')
+    .click()
+  await expect(aside).toBeHidden()
+}
+
+/** A shot with the pointer parked away from every control (no hover ring). */
+async function shot(page: Page, path: string) {
+  await page.mouse.move(2, 2)
+  await page.waitForTimeout(300)
+  await page.screenshot({ path })
 }
 
 async function startEditing(page: Page) {
@@ -70,17 +88,17 @@ for (const [dev, size] of Object.entries(SIZES)) {
         test.setTimeout(90_000)
         await setUp(page, theme, size, pro)
         const tag = `${dev}-${theme}-${level}`
-        await page.screenshot({ path: `${OUT}/bar-${tag}.png` })
+        await shot(page, `${OUT}/bar-${tag}.png`)
         await startEditing(page)
         // One tool removed and Highlighter added: the live state a person sees.
-        await page.getByTestId('v8-edit-remove-shapes').click()
+        await page.getByTestId('v8-edit-remove-lasso').click()
         await page.getByTestId('v8-edit-tile-highlighter').click()
         await page.waitForTimeout(500)
-        await page.screenshot({ path: `${OUT}/edit-${tag}.png` })
+        await shot(page, `${OUT}/edit-${tag}.png`)
         await page.getByTestId('v8-edit-done').click()
         await expect(page.getByRole('status')).toBeVisible()
         await page.waitForTimeout(400)
-        await page.screenshot({ path: `${OUT}/done-${tag}.png` })
+        await shot(page, `${OUT}/done-${tag}.png`)
       })
     }
   }

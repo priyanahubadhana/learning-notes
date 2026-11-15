@@ -17,7 +17,9 @@ import {
   type OpenCard,
 } from './barState'
 import { NEWLINE_CARD, ToolBar } from './ToolBar'
-import { barDraft, cancelEdit } from './barEdit'
+import { barToolName } from './barEditUi'
+import { useBreakpoint } from '../../shell/useBreakpoint'
+import { PHONE_FOLD, barDraft, cancelEdit } from './barEdit'
 import { EditBanner, EditTray } from './BarEditParts'
 import { useEditDrag } from './barEditUi'
 import { ToolRow } from './ToolRow'
@@ -65,6 +67,8 @@ export default function ToolbarV8() {
   const draft = barDraft.useValue()
   const editing = draft !== null
   const drag = useEditDrag()
+  const phone = useBreakpoint() === 'phone'
+  const folded = draft?.filter((id) => PHONE_FOLD.includes(id)) ?? []
   useEffect(
     () =>
       barDraft.subscribe(() => {
@@ -192,6 +196,13 @@ export default function ToolbarV8() {
         onToggleCard={onToggleCard}
         onCloseCard={onCloseCard}
       />
+      {editing && phone && folded.length ? (
+        <p className="v8eb-note" data-testid="v8-edit-phone-note">
+          {t('v8.edit.phoneFold', {
+            names: folded.map(barToolName).join(', '),
+          })}
+        </p>
+      ) : null}
       {editing ? (
         <EditTray draft={draft} />
       ) : (

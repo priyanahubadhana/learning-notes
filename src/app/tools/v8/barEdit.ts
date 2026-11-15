@@ -2,6 +2,7 @@ import { t } from '../../../i18n/t'
 import { getLevel, isUnlocked } from '../../../settings/level'
 import type { ProFeatureId } from '../../../settings/proFeatures.gen'
 import { cleanStore, memStore, type Store } from '../store'
+import { allTools } from '../toolRegistry'
 import { metaOf } from '../toolRegistryMeta'
 import { currentRunner } from '../toolRuntime'
 import { followMode, v8Tool } from './barState'
@@ -17,6 +18,8 @@ import { V8_TOOL_IDS, type V8ToolId } from './registryV8'
  */
 
 export const LOCKED_IDS = ['text', 'pen', 'eraser'] as const
+/** Tools the phone keeps inside ⋯ More while editing. */
+export const PHONE_FOLD: readonly string[] = ['shapes', 'insert']
 export const DEFAULT_BAR: readonly string[] = [...V8_TOOL_IDS]
 
 /** Other tools of the app that can sit on the bar (ids of the tool registry). */
@@ -31,8 +34,20 @@ export const EXTRA_IDS = [
   'readAloud',
 ] as const
 
-const KNOWN: readonly string[] = [...V8_TOOL_IDS, ...EXTRA_IDS]
-const isKnown = (id: string) => KNOWN.includes(id)
+/** Tools that are fixed parts of the bar or cannot be pinned (as in the old Edit toolbar sheet). */
+const NOT_PINNABLE = new Set(['undo', 'redo', 'more', 'newLine'])
+
+/** Every tool a person may put on the bar: the six bar tools and every tool of the app the old Edit toolbar sheet offered. */
+export const knownIds = (): string[] => [
+  ...new Set([
+    ...V8_TOOL_IDS,
+    ...EXTRA_IDS,
+    ...allTools()
+      .map((x) => x.id)
+      .filter((id) => !NOT_PINNABLE.has(id)),
+  ]),
+]
+const isKnown = (id: string) => knownIds().includes(id)
 export const isLocked = (id: string): boolean =>
   (LOCKED_IDS as readonly string[]).includes(id)
 export const isCore = (id: string): id is V8ToolId =>
@@ -63,7 +78,7 @@ export function toolAvailable(id: string): boolean {
   // The six tools of the bar can always be added back (the bar shows them all today).
   if (isCore(id)) return true
   const meta = metaOf(id)
-  if (!meta) return false
+  if (!meta) return true
   const unlock = meta.unlock as ProFeatureId | undefined
   if (unlock) return isUnlocked(unlock)
   return meta.level === 'beginner' || getLevel() === 'professional'
@@ -71,7 +86,7 @@ export function toolAvailable(id: string): boolean {
 
 /** What waits in the tray: every known tool that is not on the bar. */
 export const trayOf = (list: readonly string[]): string[] =>
-  KNOWN.filter((id) => !list.includes(id) && toolAvailable(id))
+  knownIds().filter((id) => !list.includes(id) && toolAvailable(id))
 
 export const removeFrom = (list: readonly string[], id: string): string[] =>
   isLocked(id) ? [...list] : list.filter((x) => x !== id)
@@ -109,6 +124,20 @@ export const editing = (): boolean => barDraft.get() !== null
 
 export function startEdit(): void {
   if (!editing()) barDraft.set([...barTools.get()])
+}
+
+/** Back to the standard bar on this device, with a toast and Undo (leaves edit mode). */
+export function resetBar(): void {
+  const before = barTools.get()
+  barDraft.set(null)
+  barTools.set([...DEFAULT_BAR])
+  const now = v8Tool.get()
+  if (!DEFAULT_BAR.includes(now)) v8Tool.set('text')
+  currentRunner().app?.toast(t('v8.edit.resetDone'), {
+    label: t('v8.bar.undo'),
+    icon: 'undo',
+    onSelect: () => barTools.set(before),
+  })
 }
 
 export function cancelEdit(): void {

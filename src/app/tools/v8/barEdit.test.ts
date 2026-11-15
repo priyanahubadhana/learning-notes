@@ -2,6 +2,8 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import {
   DEFAULT_BAR,
+  knownIds,
+  resetBar,
   EXTRA_IDS,
   LOCKED_IDS,
   addTo,
@@ -116,5 +118,30 @@ describe('edit session (S5-22)', () => {
   it('Done with no change says nothing changed', () => {
     startEdit()
     expect(doneEdit()).toBe(false)
+  })
+})
+
+describe('every tool of the old Edit toolbar list (never drop a feature)', () => {
+  it('knows the app tools but never the fixed parts', () => {
+    const ids = knownIds()
+    expect(ids.length).toBeGreaterThan(40)
+    for (const id of ['bold', 'share', 'highlighter', 'shapes'])
+      expect(ids).toContain(id)
+    for (const id of ['undo', 'redo', 'more', 'newLine'])
+      expect(ids).not.toContain(id)
+  })
+  it('keeps a saved bar with any of them', () => {
+    expect(cleanBar([...DEFAULT_BAR, 'bold', 'share'])).toEqual([
+      ...DEFAULT_BAR,
+      'bold',
+      'share',
+    ])
+  })
+  it('reset puts the standard bar back', () => {
+    barTools.set([...DEFAULT_BAR, 'bold'])
+    startEdit()
+    resetBar()
+    expect(barTools.get()).toEqual([...DEFAULT_BAR])
+    expect(barDraft.get()).toBeNull()
   })
 })

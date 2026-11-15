@@ -11,4 +11,11 @@ export const enV8BarEdit = {
   'v8.edit.title': 'Editing the tool bar',
   'v8.edit.tray': 'More tools · tap or drag one up',
   'v8.edit.trayEmpty': 'Every tool is on the bar.',
+  'v8.edit.all': 'All tools',
+  'v8.edit.reset': 'Reset to default',
+  'v8.edit.resetAsk':
+    'Put the tool bar back to the standard tools? Your own changes are replaced. You can undo it.',
+  'v8.edit.resetDone': 'Tool bar reset on this device',
+  'v8.edit.resetYes': 'Reset',
+  'v8.edit.phoneFold': 'On a phone, {names} sit inside ⋯ More.',
 }

@@ -89,10 +89,20 @@ test('S5-23 Text, Pen, Eraser, Backspace, New line and More are locked; the othe
   }
   for (const id of ['shapes', 'lasso', 'insert'])
     await expect(page.getByTestId(`v8-edit-remove-${id}`)).toBeVisible()
-  // The minus and the tiles are 44 pt targets.
+  // The minus is a roomy target that stays inside its own tool's width.
   const box = (await page.getByTestId('v8-edit-remove-shapes').boundingBox())!
-  expect(box.width).toBeGreaterThanOrEqual(43.5)
-  expect(box.height).toBeGreaterThanOrEqual(43.5)
+  const own = (await tool(page, 'shapes').boundingBox())!
+  expect(box.width).toBeGreaterThanOrEqual(30)
+  expect(box.height).toBeGreaterThanOrEqual(24)
+  // It never covers the middle of the tool, where a finger presses to drag.
+  expect(box.y + box.height).toBeLessThanOrEqual(own.y + own.height / 2 + 1)
+  expect(box.x).toBeGreaterThanOrEqual(own.x - 0.5)
+  expect(box.x + box.width).toBeLessThanOrEqual(own.x + own.width + 0.5)
+  // A lock says why it is there.
+  await expect(page.getByTestId('v8-edit-lock-pen')).toHaveAttribute(
+    'aria-label',
+    'Pen (always on the tool bar)',
+  )
 })
 
 test('S5-23 a removed tool waits in More tools; done saves with a toast; it stays after a reload', async ({
@@ -221,13 +231,57 @@ test('S5-22 Professional: the same edit mode works', async ({ page }) => {
   await expect(tool(page, 'lasso')).toHaveCount(0)
 })
 
-test('S5-22 phone: edit mode fits and the tray is reachable', async ({
+test('S5-22 phone: edit mode fits; Shapes and Insert sit inside More, with a note', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 780 })
   await open(page)
   await startEditing(page)
   await expect(page.getByTestId('v8-edit-tray')).toBeVisible()
+  await expect(tool(page, 'shapes')).toHaveCount(0)
+  await expect(tool(page, 'insert')).toHaveCount(0)
+  await expect(page.getByTestId('v8-edit-phone-note')).toContainText(
+    'Shapes, Insert sit inside ⋯ More.',
+  )
   const w = await page.evaluate(() => document.documentElement.scrollWidth)
   expect(w).toBeLessThanOrEqual(391)
+})
+
+test('S5-23 every tool of the old list can be added: All tools, grouped and scrollable', async ({
+  page,
+}) => {
+  await open(page)
+  await startEditing(page)
+  await page.getByTestId('v8-edit-all').click()
+  const list = page.getByTestId('v8-edit-all-list')
+  await expect(list).toBeVisible()
+  expect(await list.locator('[data-edit-id]').count()).toBeGreaterThan(30)
+  await page.getByTestId('v8-edit-tile-bold').scrollIntoViewIfNeeded()
+  await page.getByTestId('v8-edit-tile-bold').click()
+  expect(await ids(page)).toContain('bold')
+  await page.getByTestId('v8-edit-done').click()
+  await expect(tool(page, 'bold')).toBeVisible()
+})
+
+test('S5-22 Reset to default asks first, then puts the standard bar back, with Undo', async ({
+  page,
+}) => {
+  await open(page)
+  await startEditing(page)
+  await page.getByTestId('v8-edit-tile-highlighter').click()
+  await page.getByTestId('v8-edit-remove-lasso').click()
+  await page.getByTestId('v8-edit-done').click()
+  await expect(tool(page, 'highlighter')).toBeVisible()
+  await startEditing(page)
+  await page.getByTestId('v8-edit-reset').click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click()
+  await expect(tool(page, 'highlighter')).toBeVisible()
+  await page.getByTestId('v8-edit-reset').click()
+  await page.getByRole('dialog').getByRole('button', { name: 'Reset' }).click()
+  await expect(editBar(page)).toHaveCount(0)
+  await expect(tool(page, 'highlighter')).toHaveCount(0)
+  await expect(tool(page, 'lasso')).toBeVisible()
+  await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
+  await expect(tool(page, 'highlighter')).toBeVisible()
+  await expect(tool(page, 'lasso')).toHaveCount(0)
 })

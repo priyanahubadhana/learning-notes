@@ -41,10 +41,18 @@ const MoreMenuV2 = lazyNow(() => import('./cards/more/MoreMenuV2'))
 
 import type { OpenCard } from './barState'
 import { type V8ToolId } from './registryV8'
-import { barDraft, barTools, isCore, isLocked, startEdit } from './barEdit'
+import {
+  PHONE_FOLD,
+  barDraft,
+  barTools,
+  isCore,
+  isLocked,
+  startEdit,
+} from './barEdit'
 import { EditSlot, FixedSlot } from './BarEditParts'
 import { barToolIcon, barToolName, type EditDrag } from './barEditUi'
 import { runTool } from '../toolRegistry'
+import { useBreakpoint } from '../../shell/useBreakpoint'
 import { useFold, type FoldSpec } from './useFold'
 import './toolbarV8.css'
 
@@ -363,8 +371,13 @@ export function ToolBar({
     { id: 'min', priority: KEEP.min!, fixedW: 44 },
   ]
   const { rowRef, measureRef, result } = useFold(specs, { gap: 0, moreW: 0 })
+  // On a phone Shapes and Insert sit inside ⋯ More, also while editing (as the mock).
+  const phone = useBreakpoint() === 'phone'
   const shows = (id: string) =>
-    (edit && !['undo', 'redo', 'min'].includes(id)) || result.shown.includes(id)
+    edit && phone && PHONE_FOLD.includes(id)
+      ? false
+      : (edit && !['undo', 'redo', 'min'].includes(id)) ||
+        result.shown.includes(id)
   const showNames = names && result.names
   const folded = edit ? [] : result.folded.filter((id) => id !== 'more')
   const moreOpen = card?.id === 'fold.bar'

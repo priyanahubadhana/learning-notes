@@ -6,6 +6,11 @@ import { Icon } from '../icons'
 import { rowItemsFor, cardIdOf, type RowItem } from './rowItems'
 import { useBarPref } from './barPrefs'
 import { dotPx, usePenFace, type PenFace } from './penFace'
+import { PenPic } from './PenPictures'
+import { penFavItems, sizeDotPx } from './penRow'
+import { FavGroup, FavMeasure, FavStar } from './PenFavChip'
+import { penFavourites } from '../main/penFavourites'
+import { activeTool } from '../main/mainTools'
 import { useChangeCounts } from './changeCount'
 import type { V8ToolId } from './registryV8'
 import { FoldCard } from './FoldCard'
@@ -39,7 +44,10 @@ function view(item: RowItem, pen: PenFace) {
   return {
     text,
     colour: item.dot === 'colour' ? pen.colour : undefined,
-    dotPx: item.dot === 'size' ? eraserDot || dotPx(pen) : 0,
+    dotPx:
+      item.dot === 'size'
+        ? eraserDot || (item.tool === 'pen' ? sizeDotPx(pen.size) : dotPx(pen))
+        : 0,
   }
 }
 
@@ -65,12 +73,23 @@ function Face({
         />
       ) : item.dot === 'size' ? (
         <span className="v8dot-box" aria-hidden>
-          <span className="v8dot" style={{ width: v.dotPx, height: v.dotPx }} />
+          <span
+            className={item.tool === 'pen' ? 'v8dot v8dot-ring' : 'v8dot'}
+            style={{
+              width: v.dotPx,
+              height: v.dotPx,
+              ...(item.tool === 'pen'
+                ? { background: displayInk(pen.colour) }
+                : null),
+            }}
+          />
         </span>
+      ) : item.tool === 'pen' && item.id === 'type' ? (
+        <PenPic typeId={pen.typeId} colour={displayInk(pen.colour)} />
       ) : item.icon ? (
         <Icon name={item.icon} size={18} />
       ) : null}
-      {names && item.kind === 'menu' && !item.iconOnly ? (
+      {names && item.kind === 'menu' && !item.iconOnly && !item.noName ? (
         <span className="v8chip-text">{v.text}</span>
       ) : null}
     </>
@@ -94,6 +113,9 @@ export function ToolRow({
 }: ToolRowProps) {
   const openCard = card?.id ?? null
   const pen = usePenFace()
+  const mode = activeTool.useValue()
+  const saved = penFavourites.useValue()
+  const favItems = tool === 'pen' ? penFavItems(saved) : []
   // Each changed chip glows once (TB-70).
   const glow = useChangeCounts({
     'pen.type': pen.typeId,
@@ -113,19 +135,26 @@ export function ToolRow({
     (it) => it.kind === 'menu' && openCard === cardIdOf(it),
   )
   const frozen = !!openItem && !!free && free.shown.includes(openItem.id)
-  const specs: FoldSpec[] = items.map((it, i) => ({
-    id: it.id,
-    priority: 100 - i,
-    fixedW:
-      it.kind === 'toggle'
-        ? 44
-        : it.kind === 'erases'
-          ? 280
-          : it.kind === 'flag'
-            ? 130
-            : undefined,
-    keepName: it === openItem && !frozen,
-  }))
+  const specs: FoldSpec[] = [
+    ...items.map((it, i) => ({
+      id: it.id,
+      priority: 100 - i,
+      fixedW:
+        it.kind === 'toggle'
+          ? 44
+          : it.kind === 'erases'
+            ? 310
+            : it.kind === 'flag'
+              ? 130
+              : undefined,
+      keepName: it === openItem && !frozen,
+    })),
+    // The favourites are one group that keeps its names and gives way first,
+    // into its own "★ n" (TB-21c).
+    ...(favItems.length
+      ? [{ id: 'favs', priority: 50, keepName: true, stubW: 44 }]
+      : []),
+  ]
   const {
     rowRef,
     measureRef,
@@ -143,6 +172,10 @@ export function ToolRow({
     setFree(live)
   const shown = items.filter((i) => result.shown.includes(i.id))
   const folded = items.filter((i) => result.folded.includes(i.id))
+  const favsShown = favItems.length > 0 && result.shown.includes('favs')
+  const favsFolded = favItems.length > 0 && result.folded.includes('favs')
+  const foldedCount = folded.length
+  const favsOpen = openCard === 'fold.favs'
   const moreOpen = openCard === 'fold.row'
 
   const toggleStyle = (item: RowItem) => {
@@ -198,7 +231,18 @@ export function ToolRow({
             </button>
           ),
         )}
-        {folded.length > 0 ? (
+        {favsShown ? <FavGroup items={favItems} mode={mode} /> : null}
+        {favsFolded ? (
+          <FavStar
+            items={favItems}
+            mode={mode}
+            open={favsOpen}
+            card={card}
+            onToggle={(el) => onToggleCard('fold.favs', el)}
+            onClose={() => onCloseCard('fold.favs')}
+          />
+        ) : null}
+        {foldedCount > 0 ? (
           <button
             type="button"
             data-chrome
@@ -207,13 +251,13 @@ export function ToolRow({
             className="v8chip v8chip-more"
             aria-haspopup="dialog"
             aria-expanded={moreOpen}
-            aria-label={t('v8.row.moreN', { count: folded.length })}
+            aria-label={t('v8.row.moreN', { count: foldedCount })}
             data-pressed={moreOpen || undefined}
             onMouseDown={keepFocus}
             onClick={(e) => onToggleCard('fold.row', e.currentTarget)}
           >
             <Icon name="more" size={18} />
-            <span className="v8badge">{folded.length}</span>
+            <span className="v8badge">{foldedCount}</span>
           </button>
         ) : null}
         <div className="v8measure" ref={measureRef} aria-hidden inert>
@@ -232,33 +276,36 @@ export function ToolRow({
                 </span>
               )),
             )}
+          {favItems.length > 0 ? <FavMeasure items={favItems} /> : null}
         </div>
       </div>
       {moreOpen && card ? (
         <FoldCard
           anchor={card.anchor}
           testId="v8-card-fold.row"
-          entries={folded.map((item) => ({
-            id: item.id,
-            label: view(item, pen).text,
-            icon: item.icon,
-            pressed: !!item.style && !!active[item.style],
-            onPick: () => {
-              if (item.kind === 'erases')
-                onToggleCard('eraser.options', card.anchor)
-              else if (item.kind === 'flag')
-                eraserSettings.update({
-                  returnAfter: !eraserSettings.get().returnAfter,
-                })
-              if (item.kind === 'flag') onCloseCard('fold.row')
-              else if (item.kind === 'menu')
-                onToggleCard(cardIdOf(item), card.anchor)
-              else {
-                toggleStyle(item)
-                onCloseCard('fold.row')
-              }
-            },
-          }))}
+          entries={[
+            ...folded.map((item) => ({
+              id: item.id,
+              label: view(item, pen).text,
+              icon: item.icon,
+              pressed: !!item.style && !!active[item.style],
+              onPick: () => {
+                if (item.kind === 'erases')
+                  onToggleCard('eraser.options', card.anchor)
+                else if (item.kind === 'flag')
+                  eraserSettings.update({
+                    returnAfter: !eraserSettings.get().returnAfter,
+                  })
+                if (item.kind === 'flag') onCloseCard('fold.row')
+                else if (item.kind === 'menu')
+                  onToggleCard(cardIdOf(item), card.anchor)
+                else {
+                  toggleStyle(item)
+                  onCloseCard('fold.row')
+                }
+              },
+            })),
+          ]}
           onClose={() => onCloseCard('fold.row')}
         />
       ) : null}

@@ -20,6 +20,8 @@ export interface RowItem {
   dot?: 'size' | 'colour'
   /** Only the icon shows, never the name (the Box settings button). */
   iconOnly?: boolean
+  /** Dot-only chip: the name is its label, never printed (the Pen size and colour). */
+  noName?: boolean
   /** Card width rule: pick = choose one thing, panel = adjust several. */
   card: 'pick' | 'panel'
   /** Toggles only: the text style it switches. */
@@ -66,8 +68,8 @@ export const ROW_ITEMS: Record<V8ToolId, readonly RowItem[]> = {
   ],
   pen: [
     menu('pen', 'type', 'v8.item.type', { icon: 'penTool' }),
-    menu('pen', 'size', 'v8.item.size', { dot: 'size' }),
-    menu('pen', 'colour', 'v8.item.colour', { dot: 'colour' }),
+    menu('pen', 'size', 'v8.item.size', { dot: 'size', noName: true }),
+    menu('pen', 'colour', 'v8.item.colour', { dot: 'colour', noName: true }),
     menu('pen', 'feel', 'v8.item.feel', { icon: 'sliders', card: 'panel' }),
   ],
   eraser: [

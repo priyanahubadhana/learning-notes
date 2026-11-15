@@ -77,6 +77,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - **2026-11-15 · Task H Undo holds on every device (manager's decision, review 1).** The "keep apart" mark is an optional page field `monthJoinDeclined` (src/core/types.ts, hot file, manager OK); optional, so no database version change. It is kept in full backups (checkRows) and not copied by Duplicate. Unit test "Undo holds on every device" uses two and three simulated devices.
 - **2026-11-15 · Task H e2e scope (builder).** The e2e checks the saved backup; the count check is unit-tested only, because a mismatch needs a fault injected between the moves and the Trash step, which the app has no way to do from the page.
 - **2026-11-15 · Task H hot file playwright.config.ts (manager OK).** Two entries added to the ipad-webkit list only: `journalMonthRepair` and `journal.spec`, so the Journal specs also run on the iPad.
@@ -993,7 +995,11 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (remote sign-out, 9 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 ## Decisions to review (contextual strips, 9 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - Alt text is stored as the picture's caption (BlockNote shows the caption under the picture and uses it as alt); a separate hidden alt prop needs a schema change. Review if you want them apart.
 - Compact bar: words keep the mini toolbar (no ContextBar for text); the row floats over the page so the layout never moves.
@@ -1009,12 +1015,16 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (copy side, 9 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - Ctrl/Cmd+C keeps BlockNote's own copy (it already writes our lossless `blocknote/html`) and then replaces `text/plain` with clean Markdown and `text/html` with our own rich HTML, only when whole blocks are copied; words inside one block stay BlockNote's, so they paste into a line.
 - Button copies (Lasso, mini bar, block menu) use a one-shot copy event so the lossless format travels too; if the browser refuses, they fall back to HTML + Markdown without it.
 - Pictures in the rich HTML of a plain Copy are kept only when they are web or data addresses; "Copy as… Rich text" embeds app pictures as data URLs (same as Copy page with pictures).
 - Toggles are written as `<details>` in Markdown, cards as `**Q:** … / **A:** …`; database, mind map and day record blocks have no text form and are left out of the text formats.
 
 ## Decisions to review (Clean up with AI, 9 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - Offered only when AI is on and a key exists (otherwise the chooser looks as before). A rich paste of 40+ characters, or a plain multi-line paste of 200+, up to 24,000 characters; longer text is refused with "paste less" (the answer must fit in one reply of at most 8,000 tokens).
 - The instructions are the library prompt "Clean up pasted text" (starter id own.cleanup, purpose Write). If the owner deletes the row the shipped text is used; editing it in the dialog saves a new version in the library.
@@ -1023,12 +1033,16 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Vimeo, Loom and video files, 9 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - Vimeo: `dnt=1` (do not track) and the private-link hash of unlisted videos are kept; Loom frames use `hide_owner=true`. Frames use a sandbox (scripts, same-origin, presentation, popups; no forms, no top navigation).
 - Direct video files must be https and end in .mp4 or .webm; the file loads from its own host only after Play (no preload before). No CORS or download proxy.
 - Timestamps and screenshots stay YouTube only (they depend on the YouTube player messages).
 - CSP `frame-src` now lists three hosts (YouTube no-cookie, Vimeo player, Loom); `media-src` already allowed https.
 
 ## Decisions to review (Ink scrolls natively, 9 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - **No setting and no old path kept.** The task allowed a setting with the old path as fallback if the redesign was too risky; it was not (all ink, paper, book and Lasso specs pass in Chromium, WebKit and the iPad stand-in), and two code paths would double the bugs. If the iPad shows a problem, the previous version is the commit before this one.
 - **Tiles of 640 px, at most 8 slots per box, one tile above and below the screen, 160 px scroll step.** Chosen by measurement: creating and removing canvases while scrolling cost 6-18 % late frames; reusing slots with a transform gave 1 %. A big sheet at 2x pixel ratio is about 10 MB per tile canvas, so 8 slots stay inside the 160 MB canvas budget (it still falls back to 1x if the budget says no).
@@ -1038,11 +1052,15 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (As text box, 9 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - Offered for rich pastes only (the same ones the chooser already appears for) and never for an address or a database. The box starts 120 mm wide (or what fits) at the caret's x and just under its line; on the stacked phone layout it goes first in reading order. Its height grows with the content like any box.
 - The pasted content is made by the same parsers as the normal paste, then stored as the box's blocks in one transaction with the box; Undo is the toast (removes the box with History copy via `removeBox`).
 - A locked page refuses with the usual lock message and nothing is made.
 
 ## Decisions to review (database pages, 9 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - No new Dexie version or table: the database engine, relations, rollups, formulas, tags and stars (number with stars format, max up to 10) already existed; "stars 1-10" is that format, not a new type.
 - "Database page" = a page holding one full-width database block (not a new page kind), so every database feature works in notes and as a page. Offered as the last row of the new-page list.
@@ -1053,6 +1071,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (prompt gaps and Lock editing, 9 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - Icons: 66 Lucide icons, drawn only in the skill preview; saved text (pages, mind map, database, cards) uses the emoji of the icon because those are plain text. Unknown names are dropped. Not a full icon picker.
 - Prompts on note pages: in the page ⋯ menu only (note pages have no AI button row). Insert goes to the end of the page ("below"), not at the caret.
 - Reading handwriting with a saved prompt: one device preference (ai.readPrompt) shared by Convert to text and the Write pad; applies to handwriting, never to maths; no cost line there (as before).
@@ -1060,6 +1080,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Not run: iPad WebKit e2e for this work.
 
 ## Decisions to review (prompt library and skills, 9 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - Library = one `Database` with `kind: 'promptLibrary'`, found by workspace and kind (not a fixed id, so two devices that both create it before syncing end up with two; the oldest is used, the other stays as an ordinary database). Columns are found by `config.key`, so the owner can rename or reorder them. Seeds are added once per starter id; ids seen on this device are remembered (pref `prompts.seeded`); a deleted starter stays deleted on this device but would come back on a fresh device.
 - Prompt text is stored in a Text cell (up to 20,000 characters), versions and ratings as JSON text cells (30 versions, 100 ratings kept). Subject tags are one comma-separated text cell, not Tag records (filtering and search work in memory, a database filter on tags is not offered).
@@ -1100,6 +1122,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (boxes like GoodNotes, 9 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 | Decision                                                                                                                                              | Why                                                                       | Change it if                                               |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | Handles change the **width** only (height follows the text)                                                                                           | A box's height is its text; a free height would clip or pad text          | You want fixed-size boxes                                  |
@@ -1121,6 +1145,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (design tokens, 9 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - Colour values changed from system.md so every pair passes AA (the test found them): Day success #1D7A50 → #1A7248 (on its soft fill); Night muted #8F8D9B → #9A98A6 (on surface-3), Night line-strong #6E6C7A → #7F7D8C (3:1 on menus and dialogs); Sepia values were mine (system.md has none): accent #5F37D4, danger #A8321F, muted #6F614B.
 - "Text on glass" is tested over the wash colours, the paper and blurred text (at most 20 % ink) under a bar, not over pure white or black: the glass sits over canvas and paper, never over raw black or white.
 - Radius, type and shadow tokens are named `--r-*`, `t-*`, `--elev-*` (not Tailwind's `rounded-*`, `text-*`, `shadow-*`) so current screens do not shift before their redesign.
@@ -1128,6 +1154,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Old chart slot 4 (purple) became blue and the tag colour map swapped, so a violet tag still draws as chart 1 (the accent).
 
 ## Decisions to review (Drive stays connected, 9 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - Instead of a separate "exchange the code" function, Supabase Auth (which already holds the client secret) does the code exchange and returns `provider_refresh_token`; one function `drive-token` (store, token, revoke) keeps it. Fewer secrets, no new redirect address. The refresh token passes through the owner's own browser once, at sign-in, and is never kept there.
 - One function, not two: smaller setup. It runs with `--no-verify-jwt` and checks the signed-in owner (and the owner email) itself, so the new publishable keys cannot break it.
@@ -1147,6 +1175,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Design step 2, 9 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - **Toasts are solid, not glass.** The request said glass; docs/design/system.md (owner-approved) says solid surface-3. I followed the doc. Say if you want glass toasts.
 - **Icon rail = the strip of spaces.** Hiding the sidebar (button in the top bar) leaves the 56 px strip of spaces as the rail; I did not build a second 72 px rail of notebook icons or an automatic collapse on tablet widths. Say if you want that.
 - **Strip of spaces is flat glass (no blur)** so the blur budget stays at 3 (sidebar, bars, and one menu or the palette).
@@ -1156,6 +1186,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **2026-11-09 · Drive lasting connection confirmed live** by the owner (Settings › Account: "Drive: stays connected"). Fix: remove the old Google grant, then Set up lasting connection.
 
 ## Decisions to review (Accounts, 9 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - **Email code over magic link.** An iPad web app cannot receive a link (it opens in Safari, separate storage), so the code is typed inside the app. No magic link is offered. Research: docs/research/accounts-2026-11.md.
 - **Passwords: 15 to 128 characters, no other rules** (NIST 800-63B-4). Checked in the app; Supabase minimum length should also be 15 (owner step). A password cannot be removed once set (Supabase has no way); it can be changed. It is tracked by a has_password flag in user_metadata (user-writable, used only as a label).
@@ -1169,6 +1201,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Account gate, Q3a, 12 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - **Replaces "Existing signed-out devices are not locked out"** (Accounts, 9 Nov): owner chose (a). A device with no stored session is read-only with a top bar and a sign-in sheet. Reading, search, export, review and settings still work.
 - **"Signed in" = a session is stored on the device, not a fresh token.** So offline with an expired token, or a failed renewal, never gates (the stay-signed-in fix and single refresher are untouched). Signing out here, or the server ending the session, gates again (the "You were signed out" lock still shows first and the bar waits behind it).
 - **Enforced where it is safe, not at the database.** A blanket database block would break first-run seeding and reading (last-opened stamps, search index). So: the editor, title, boxes and menus use the edit lock; page and notebook create, rename, move, delete and Delete forever are refused in their services. Not blocked: cards review, tasks, habits, databases cells, settings, ink/paper boxes drawing outside the page editor, imports other than pages/notebooks. If you want those frozen too, say so.
@@ -1179,14 +1213,20 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Pencil double tap, 11 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - **Grace period 600 ms** after a tap selects text, nothing may delete, replace or write over the selection (no key pressed). Chosen just above the 500 ms Pencil-lift window and the 450 ms tap gap; short enough that real Scribble writing still works a moment later. Applies even when Scribble is free (Text tool). Side effect: dictation or autocorrect inside that 600 ms is also refused. Change: SELECT_GRACE_MS in src/editor/penGuard.ts.
 
 ## Decisions to review (CI fix, 11 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - **pictureStrip e2e:** the test now clicks the editor bottom-right instead of (5,5), because the owner new handle design puts the picture corner handle over the top-left. Behaviour was intentionally changed, not a bug.
 - **Tap-below button** moved 24 px lower so the first box handles do not cover it; text wrap uses break-word instead of anywhere (performance).
 
 ## Decisions to review (Security audit, 12 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - **Supabase refresh-token rotation + reuse detection must be ON (dashboard, owner).** Authentication > Sessions > "Detect and revoke potentially compromised refresh tokens". The client already handles rotation: each renewal stores the new refresh token, one renewal at a time (single refresher + Web Locks), a token spent by another tab adopts that tab's session. Known edge: if the server rotates but the reply is lost (network drop), the next try sends the old token; inside Supabase's reuse interval (10 s default) this is allowed, after it the session is revoked and the person signs in again (no data lost). Judged acceptable; keep the reuse interval at its default or higher.
 - **Lock delay (2026-11-12):** 3 free tries, then 30 s, 1 min, 5 min, 15 min, 1 h (cap), stored in localStorage on the device (not in synced settings, so another device cannot reset it). Someone who clears browser storage resets it: the lock stays an honestly labelled privacy screen. With sync on, setting a PIN/password shows a nudge for 12+ characters, not a block (a hard rule would lock out existing short codes).
@@ -1194,13 +1234,19 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (PDF page by page, 11 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - **Page by page uses scroll-snap, not a one-page viewer.** Same column and layout as the continuous scroll, with the page scaled to fit the screen and snapping to page edges. Keeps ink, highlights, Find and the position locator unchanged. Trade-off: a fast fling can pass over several pages before it settles (Safari decides); the Page Flip slider and Contents land exactly. Other option: render one page at a time (more code, new ink and highlight paths). This replaces the earlier decision that a PDF is always continuous (Builder H, d).
 
 ## Decisions to review (Bookerly-style font, 11 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - **Literata stands in for Bookerly.** Bookerly is Amazon's licensed font and cannot be bundled (₹0, licence). Literata is OFL, already in the app, and was designed for long reading on screens, so it is the closest free match. Other options: Source Serif 4 (also bundled, a bit more formal) or Charter (system, not on every device). The default stays "Book default" (the book's own font); the new tile is opt-in. Not applied to PDFs (their letters are pictures).
 
 ## Decisions to review (reading progress and favourites sync, 11 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - **They ride on the page record, not on the `settings` table.** The page already syncs and the book and the star belong to it; a settings row per book would have been a second place to keep in step, and backups and Delete forever already cover pages. Cost: a true conflict on a page now needs the small field rule (`mergePageReading`), which is the only table-specific rule in the merge. The rest of the page still follows the newer clock.
 - **"Last read" = the most recent `openedAt`**, not the furthest place. The furthest place is kept apart (`furthest`, shown by "Sync to furthest page read"). So reading page 20 on the PC after reading page 80 on the iPad moves your place to 20 everywhere, as a Kindle does with "Sync to furthest" as the escape.
@@ -1209,11 +1255,15 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Drive status, 11 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - **The server is asked, the flag is only a memory.** The status line and the consent choice now follow what the server says when it can be reached. Other option: also count the rows by a direct SQL check by hand (still the quickest way to look: Supabase › Table editor › drive_tokens).
 - **Not confirmed from here:** why a Google sign-in on the owner's live project returned no refresh token at first (the owner later saw "stays connected"). The diagnostics line (Settings › Advanced › Slow moments, kind drive) is the evidence to read if it happens again.
 - I touched `connectors/supabase.ts` in two small places only (the flag when a server pass works, and the new check); no sign-in or session code.
 
 ## Decisions to review (Claude connector B, 11 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - **Own OAuth, not Supabase's built-in OAuth server.** The built-in one exists (dynamic registration, PKCE, refresh tokens) but must be switched on in the dashboard, could not be confirmed as out of beta, issues ordinary project-wide Supabase tokens (not limited to the connector address), and still needs a consent screen in the app. Ours is small, tested, hashed, scoped and can be cut off in one SQL line. Switching later is possible.
 - **The consent screen lives in the app (`#/connect`), not in the function.** Edge Functions on the default address serve HTML as plain text. The function redirects there; the page calls `/oauth/consent` signed in as the person.
@@ -1223,6 +1273,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (build night 1, 12 Nov)
 
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
+
 - Night 1 work was released to the live app on 12 Nov after a fully green test run, with every new part switched off (owner's release rule). The next release waits for the end-of-run full check because it includes a new on-device table (Dexie version 24, aiJobs), which cannot be rolled back by a switch.
 - aiJobs is device-local: not synced, not in backup files; "Delete all data" removes it.
 - Shell: phone = width under 640 or height under 512; a page shows two Undo/Redo pairs until the toolbar slice removes one; Device mode is hidden from the phone top bar (stays in the gear menu).
@@ -1230,6 +1282,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Toasts: a 4th toast waits when 3 are showing.
 
 ## Decisions to review (slice 4 gate 3 fixes, 13 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - **Home v2 "More" button, count tiles and cover due badges are later.** Gate 3 item 12 (mock: sliders + "More" first in the filter row; tiles for notebooks, pages, cards due; "due" badge on the cover). The "More" button has nothing to open until the notebook More sheet is wired to Home, the tiles need a cross-notebook count query (cost to check at 500+ notebooks), and the due badge is today beside the name (not on the cover). Left out on purpose so this slice stays inside the bundle limit; re-plan with Home v2 (slice 5).
 - **"Open in new place" opens a new browser tab** until the side panel exists (SR-B10).
@@ -1248,6 +1302,8 @@ Short core lines for hierarchy, escalation, token efficiency, continuity and qua
 Research (docs/plans/ai-build-best-practices-2026-11-13.md) puts the useful limit at 3-5 parallel builders; cap set to 5. No rule changes during the trial so the benchmark is fair.
 
 ## Decisions to review (slice 12 rest fixes, 14 Nov)
+
+- **2026-11-15 · Task P1.12 hot file playwright.config.ts (manager OK).** One entry added to the ipad-webkit list: `noticeClose`, so the close ✕ spec also runs on the iPad.
 
 - **PM-20 keeps "Add to favourites" and "Comment" (owner rule: never drop features).** Add to favourites is built on the text strip: it stars the open page (Remove from favourites when starred, with a toast); Beginner finds it in ⋯. **Comment is built but hidden** (`COMMENTS = false` in `src/editor/menus/PageStrip.tsx`) because the app has no comment entry point yet; turn it on and give `onAction('comment')` a handler when comments exist. The spec line stays.
 - **Phone strip with names under the icons:** the items now share the bar's width (names wrap), so 4 items + ⋯ fit 390 px with nothing cut off (`.cs[data-labels]` in ContextStrip.css).

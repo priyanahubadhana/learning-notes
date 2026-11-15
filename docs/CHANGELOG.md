@@ -32,6 +32,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
 
+### 15 Nov 2026 (late): 2A.6 and 2A.8 merged; 2A.7, 2A.11 built
+
+- What: 2A.6 pen row (920a3b4d) and 2A.8 eraser (99f8ba84) merged, CI green, merged ToolRow.tsx reviewed PASS; 2A.7 Feel card and 2A.11 lasso built (R21 cause: forced click in pickTool). Why: plan step 2. Files: docs/BUILD-STATE.md, docs/metrics/tasks.csv.
+
 ### 15 Nov 2026 (late): 2A.8 and 2A.9 review 1 FAIL
 
 - What: 2A.8 (eraser row to the approved picture, live-bar leak) and 2A.9 (formatTabs pref, test restore, font tiles) fix lists sent; 2A.6 fixes done. Why: review. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.

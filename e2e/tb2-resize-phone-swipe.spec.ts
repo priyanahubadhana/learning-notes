@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test } from '@playwright/test'
-import { EXTRA, phoneBox } from './tb2-resize-phone-helpers.ts'
+import { EXTRA, phoneBox } from './phoneResizeHelpers.ts'
 
 /**
  * 2B.5b: a real touch swipe on the page, outside the dots, scrolls it. Chromium

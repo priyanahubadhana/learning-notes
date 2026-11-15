@@ -287,11 +287,12 @@ test('TB-23 a column divider resizes both boxes live; under 4 px is a tap', asyn
   await pickBox(page, b)
   const g = await rect(b.locator('[data-box-grip]'))
   const t = await rect(a)
-  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(t.x + t.width * 0.9, t.y + t.height * 0.5, { steps: 8 })
-  await page.mouse.up()
-  await page.waitForTimeout(500)
+  // Since 2B.7 the ≡ tab lifts the box only after a 120 ms hold (drag holds 160).
+  await drag(
+    page,
+    { x: g.x + g.width / 2, y: g.y + g.height / 2 },
+    { x: t.x + t.width * 0.9, y: t.y + t.height * 0.5 },
+  )
   const div = page.locator('[data-grid-divider]').first()
   await expect(div).toBeVisible()
   const d = await centre(div)
@@ -364,11 +365,13 @@ test('a Pencil slip on a divider (lifted inside 120 ms) does not resize', async 
   await pickBox(page, b)
   const g = await rect(b.locator('[data-box-grip]'))
   const t = await rect(a)
-  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(t.x + t.width * 0.9, t.y + t.height * 0.5, { steps: 8 })
-  await page.mouse.up()
-  await page.waitForTimeout(700)
+  // Since 2B.7 the ≡ tab lifts the box only after a 120 ms hold (drag holds 160).
+  await drag(
+    page,
+    { x: g.x + g.width / 2, y: g.y + g.height / 2 },
+    { x: t.x + t.width * 0.9, y: t.y + t.height * 0.5 },
+  )
+  await expect(page.locator('[data-grid-divider]').first()).toBeVisible()
   const d = await centre(page.locator('[data-grid-divider]').first())
   const wa0 = (await rect(a)).width
   await page.evaluate(({ x, y }) => {
@@ -404,11 +407,13 @@ test('TB-21 a column never gets narrower than its longest word', async ({
   await pickBox(page, b)
   const g = await rect(b.locator('[data-box-grip]'))
   const t = await rect(a)
-  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
-  await page.mouse.down()
-  await page.mouse.move(t.x + t.width * 0.9, t.y + t.height * 0.5, { steps: 8 })
-  await page.mouse.up()
-  await page.waitForTimeout(700)
+  // Since 2B.7 the ≡ tab lifts the box only after a 120 ms hold (drag holds 160).
+  await drag(
+    page,
+    { x: g.x + g.width / 2, y: g.y + g.height / 2 },
+    { x: t.x + t.width * 0.9, y: t.y + t.height * 0.5 },
+  )
+  await expect(page.locator('[data-grid-divider]').first()).toBeVisible()
   const wordW = await a.evaluate((el, w) => {
     const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
     for (let n = walk.nextNode(); n; n = walk.nextNode()) {

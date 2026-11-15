@@ -3,7 +3,7 @@
 Compare with docs/mockups/toolbar-v9/toolbar-v9.html (lasso parts). Names: what-device-theme-level.png
 
 - row-*: the Lasso row (Beginner: Shape and Actions menus; Professional: Free-hand/Rectangle, Picks, Options)
-- lasso-shape-*, lasso-actions-*: Beginner cards
+- lasso-shape-_, lasso-actions-_: Beginner cards
 - options-*: Professional Options card; -menurow: Menu row open; -layers: Layers open
 
 - lasso-actions-ipad-sideways-day-beginner.png

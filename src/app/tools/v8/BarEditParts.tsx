@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
+import { useOverlayLayer } from '../../shell/useOverlayLayer'
 import { t } from '../../../i18n/t'
 import { Icon } from '../icons'
 import {
@@ -26,10 +27,25 @@ import { findTool, tabLabel } from '../toolRegistry'
 
 const EXTRA = new Set<string>(EXTRA_IDS)
 
-/** The top bar: cancel keeps the bar, done saves it. */
+/** The top bar: cancel keeps the bar, done saves it. Escape is cancel too. */
 export function EditBanner() {
+  const ref = useRef<HTMLDivElement>(null)
+  // Edit mode is a layer of the overlay manager, so Escape leaves it from
+  // anywhere, after any question above it (Reset) is closed. Taps elsewhere
+  // do not end it (modal).
+  useOverlayLayer(ref, {
+    id: 'v8-bar-edit',
+    layer: 'bar',
+    modal: true,
+    onClose: () => {
+      // A question that is open (a native dialog) takes this Escape itself.
+      if (document.querySelector('dialog[open]')) return false
+      cancelEdit()
+    },
+  })
   return (
     <div
+      ref={ref}
       className="v8eb"
       role="group"
       aria-label={t('v8.edit.title')}
@@ -237,7 +253,6 @@ function EditBadge({ id, testKey }: { id: string; testKey: string }) {
       className="v8badge-edit v8badge-rm"
       data-testid={`v8-edit-remove-${testKey}`}
       aria-label={t('v8.edit.remove', { name })}
-      onPointerDown={(e) => e.stopPropagation()}
       onClick={(e) => {
         e.stopPropagation()
         barDraft.set(removeFrom(barDraft.get() ?? [], id))

@@ -87,7 +87,8 @@ export function useEditDrag(): {
       const el = (e.target as HTMLElement).closest<HTMLElement>(
         '[data-edit-id]',
       )
-      if (!el || (e.target as HTMLElement).closest('.v8badge-rm')) return
+      // The minus too: a still tap removes the tool, a press that moves drags it.
+      if (!el) return
       const id = el.dataset.editId!
       if (isLocked(id)) return
       off.current?.()

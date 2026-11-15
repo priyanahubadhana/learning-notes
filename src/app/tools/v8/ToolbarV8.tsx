@@ -183,9 +183,6 @@ export default function ToolbarV8() {
           e.preventDefault()
         }
       }}
-      onKeyDown={(e) => {
-        if (editing && e.key === 'Escape') cancelEdit()
-      }}
     >
       {editing ? <EditBanner /> : null}
       <ToolBar

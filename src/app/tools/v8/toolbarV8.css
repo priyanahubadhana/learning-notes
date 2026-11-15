@@ -436,8 +436,8 @@
 }
 .v8badge-edit {
   position: absolute;
-  top: -4px;
-  left: -4px;
+  top: -5px;
+  left: -5px;
   display: grid;
   place-items: center;
   width: 20px;
@@ -449,36 +449,27 @@
   background: var(--color-line);
   color: var(--color-ink-soft);
 }
-/* Beats the global 32 x 44 touch minimum, which would cover the tool under it. */
+/*
+ * The minus is drawn 20 px, as the mock; its 44 pt hit area is the ::before
+ * around it. Beats the global touch minimum, which would grow the drawn badge.
+ * A still tap removes the tool; a press that moves drags it (barEditUi.ts).
+ */
 .v8slot .v8badge-rm {
   min-width: 0;
   min-height: 0;
-  top: -4px;
-  left: 0;
-  width: 30px;
-  height: 26px;
-  padding: 0 10px 6px 0;
-  background: transparent;
+  background: var(--color-ink);
   color: var(--color-bg);
-  border-radius: 0;
   cursor: pointer;
+  touch-action: none;
 }
 .v8slot .v8badge-rm::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--color-ink);
-}
-.v8badge-rm > svg {
-  position: relative;
+  inset: -12px;
 }
 .v8badge-rm:focus-visible {
   outline: 2px solid var(--color-accent);
-  outline-offset: -4px;
+  outline-offset: 2px;
 }
 .v8tray {
   margin-top: var(--space-2);

@@ -313,6 +313,9 @@ function ToolFace({
   )
 }
 
+/** Not on a phone's bar while editing: it keeps one row (Settings v5 mock). */
+const PHONE_EDIT_HIDDEN = ['min', 'undo', 'redo']
+
 /** The first line: tools, Backspace and New line, then ⋯ and Minimise (Undo and Redo only without the new frame; with it they are in the top bar). */
 export function ToolBar({
   editDrag,
@@ -371,10 +374,11 @@ export function ToolBar({
     { id: 'min', priority: KEEP.min!, fixedW: 44 },
   ]
   const { rowRef, measureRef, result } = useFold(specs, { gap: 0, moreW: 0 })
-  // On a phone Shapes and Insert sit inside ⋯ More, also while editing (as the mock).
+  // On a phone, while editing, Shapes and Insert sit inside ⋯ More and there
+  // is no Minimise, Undo or Redo, so the bar stays one row (as the mock).
   const phone = useBreakpoint() === 'phone'
   const shows = (id: string) =>
-    edit && phone && PHONE_FOLD.includes(id)
+    edit && phone && (PHONE_FOLD.includes(id) || PHONE_EDIT_HIDDEN.includes(id))
       ? false
       : (edit && !['undo', 'redo', 'min'].includes(id)) ||
         result.shown.includes(id)

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.11 Lasso rebuilt to v9 (switch toolbar.v8, OFF live)
+
+- What: Professional Lasso row = Free-hand / Rectangle and "Picks: Ink, Pictures, Text" chips on the bar, then one Options menu (picture of the selection menu, Menu row with up/down arrows and switches, Layers folded). Beginner keeps Shape and Actions. A narrow bar folds the chips into the "..." list (the picks open as a card). The v8 Select / Menu / Layers cards are gone; every switch and the layer list live in Options. R21 root cause: the test helper's forced click hit the neighbouring button while the bar scrolled; it now waits for the tool to stand still.
+- Why: owner-approved picture toolbar-v9; "lasso rebuilt from the live lasso" (contradictions-2026-11-15 line 7); nothing from today's Lasso dropped.
+- Files: src/app/tools/v8/LassoRowParts.tsx, lassoRow.css, rowItems.ts, ToolRow.tsx, cards/lasso/*, cards/autoClose.ts, i18n en/es/hi, e2e/toolbarV9Lasso.spec.ts, toolbarV9LassoShots.spec.ts, inkTools.spec.ts, toolbarV8Tools/Tenth specs, screenshots/2a11/.
+
 ### 15 Nov 2026: 2A.14 third review fixes (switch toolbar.v8, OFF live)
 
 - What: Settings v3 below 1024 px gives the rows the full width with toolbar.v8 on (off: unchanged); the "?" sits right after the row name on the tool bar rows; "Back to pen on the bar" is now "Back to last tool" (en, es, hi, spec).

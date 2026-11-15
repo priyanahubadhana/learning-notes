@@ -54,7 +54,7 @@ function MenuRow({ row }: { row: readonly RowAction[] }) {
     </button>
   )
   return (
-    <div data-testid="v8-lasso-row">
+    <div className="v8lstack" data-testid="v8-lasso-row">
       <CardGroup label={t('v8.lasso.onRow')}>
         <CardWell>
           {row.map((id, i) => (
@@ -106,7 +106,7 @@ function MenuRow({ row }: { row: readonly RowAction[] }) {
 export function LassoOptionsCard() {
   const row = lassoRow.useValue()
   return (
-    <div className="v8scroll">
+    <div className="v8scroll v8lstack">
       <CardGroup label={t('v8.lasso.afterSelect')}>
         <Preview row={row} />
         <CardNote>{t('v8.lasso.previewNote')}</CardNote>

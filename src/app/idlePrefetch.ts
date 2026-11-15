@@ -42,16 +42,9 @@ export function preloadAhead(loaders: Array<() => Promise<unknown>>) {
   // second per chunk where the browser has no requestIdleCallback (Safari), so
   // a tap came before the last cards had arrived.
   const start = () => {
-    if (document.visibilityState === 'hidden') {
-      document.addEventListener('visibilitychange', start, { once: true })
-      return
-    }
     for (const load of loaders) void load().catch(() => {})
   }
-  const wait = () =>
-    'requestIdleCallback' in window
-      ? window.requestIdleCallback(start, { timeout: 2000 })
-      : setTimeout(start, 400)
-  if (document.readyState === 'complete') wait()
-  else window.addEventListener('load', wait, { once: true })
+  if ('requestIdleCallback' in window)
+    window.requestIdleCallback(start, { timeout: 2000 })
+  else setTimeout(start, 400)
 }

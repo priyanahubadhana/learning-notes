@@ -200,3 +200,7 @@
   padding: 0;
   background: none;
 }
+/* A row's own `border: 0` must not hide the well's hairline (v9 .row + .row). */
+.pcard-well > * + .pcard-row {
+  border-top: 1px solid var(--card-hair);
+}

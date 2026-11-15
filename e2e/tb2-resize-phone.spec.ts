@@ -333,3 +333,30 @@ test('phone: with the switch OFF there are no dots', async ({ page }) => {
   await expect(box).toBeVisible()
   await expect(page.locator('[data-resize-handle]')).toHaveCount(0)
 })
+
+test('phone: a real touch swipe on the page outside the dots scrolls it (chromium; WebKit cannot synthesize a swipe)', async ({
+  page,
+  browserName,
+}) => {
+  const box = await phoneBox(page, 'P-swipe', ['Alpha beta'], { tall: true })
+  const f = await rect(box)
+  const scroller = page.locator('[data-page-scroller]')
+  // Up first, so there is room to move down.
+  await scroller.evaluate((el) => (el.scrollTop = 0))
+  const top0 = await scroller.evaluate((el) => el.scrollTop)
+  if (browserName === 'chromium') {
+    const cdp = await page.context().newCDPSession(page)
+    await cdp.send('Input.synthesizeScrollGesture', {
+      x: 380,
+      y: 600,
+      yDistance: -300,
+      gestureSourceType: 'touch',
+      speed: 800,
+    })
+    await page.waitForTimeout(500)
+    expect(await scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(top0)
+  }
+  const g = await page.locator(EXTRA).first().boundingBox()
+  expect(g).not.toBeNull()
+  expect(f.width).toBeGreaterThan(0)
+})

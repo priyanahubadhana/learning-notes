@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026 (evening): plan reorganised after the owner's decisions
+
+- What: phase-plan section 0 "What's next" (ordered steps with pictures, sizes and likely times from docs/metrics/tasks.csv; the 2A v9 task list 2A.4 to 2A.16; Settings v5 as Phase 1S with tasks S.1 to S.11; tasks to redo, specs out of date, pictures superseded); BUILD-STATE rewritten (84 lines); PENDING "Needs you" and phase board rewritten; 8 owner questions written.
+- Why: tool bar v9, the Phase 1 fixes mock and Settings v5 were approved on 15 Nov, and P1.8 and P1.9 are merged; the old plan still pointed at v8 and v3.
+- Files: docs/plans/phase-plan.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/plans/questions-2026-11-15.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 14 Nov 2026 (night): Phase 2B page written (text box and Pencil)
 
 - What: the phase page with 12 tasks in two lanes, a short brief for each builder, the owner's morning Pencil checks and the first-look list; the text box spec updated with the owner's answers (TB-01, 02, 04, 05, 06, 11, 14, 25, the keyboard rule, Won't do, Decisions 1 and 2; new TB-41 and TB-42); the "tap beside = side by side" idea saved.

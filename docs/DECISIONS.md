@@ -76,6 +76,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-16 · 2A.12 icons differ from v9 (phase manager, reviewer PASS).** All cards uses the library icon (v9 shows the same cards icon as Make card) so the three study tiles look different; Summary uses fileText (v9: book). A test checks the three icons differ. Listed for the owner first look.
+- **2026-11-16 · 2A.15 minus badge (reviewer decision, follows settings-v5.html 3374-3376, 12388).** Drawn 20 px at -5/-5 with a 44x44 tap area; a still tap removes, a press that moves drags. Phone edit bar is one row: no Minimise, Undo or Redo.
 - **2026-11-15 · 2A.13 favourites get a new local key (e.g. `toolbar.favourites2`) with name, tool and setup; the old `toolbar.favourites` keeps its shape and stays written (phase manager, safest option).** Additive only, so no older build loses data; no Dexie or Supabase change. Default set is empty; Reset clears favourites with a confirm and Undo. Organise covers favourites only; reordering the tool chips (shown in the mock) waits for a later task.
 - **2026-11-15 · 2A.15 saves the edited tool bar as a device-only preference `toolbar.v9.tools` (phase manager, safest option).** Matches "Tool bar changed on this device"; not synced; no Dexie or Supabase change.
 - **2026-11-15 · Builders never merge into, check out or push `main`; bookkeeping goes to main only from the manager (phase manager, after a stray local merge).** Helper pushes to `build/next` are refused by the safety layer, so the main chat fast-forwards each reviewed slice.

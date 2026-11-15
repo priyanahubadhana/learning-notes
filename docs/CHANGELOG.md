@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: 2A.12 PASS, 2A.15 to Opus
+
+- What: 2A.12 round 3 PASS (50f3e830); 2A.15 round 2 FAIL, Opus builder took over; 2A.13 fixes pushed; two decisions logged. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
+
 ### 16 Nov 2026: 2A.13 review 1
 
 - What: 2A.13 review 1 FAIL (look only); fix list to the builder; TB-58 Pro unlock and chip order are not 2A.13 (PENDING Later). Why: plan step 2. Files: docs/BUILD-STATE.md, docs/PENDING.md.

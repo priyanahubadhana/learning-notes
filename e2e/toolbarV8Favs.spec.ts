@@ -239,3 +239,20 @@ test('TB-57 phone: Organise is full height and every item of the more-favourites
   expect(box.height).toBeGreaterThan(800 * 0.85)
   await expect(rows(page)).toHaveCount(6)
 })
+
+test('real use: favourites survive a reload; turning the screen keeps the sheet inside the screen', async ({
+  page,
+}) => {
+  await open(page, { favs: OLD, size: { width: 820, height: 1180 } })
+  await page.getByTestId('v8-organise').click()
+  await expect(page.getByTestId('arrange-sheet')).toBeVisible()
+  await page.setViewportSize({ width: 1180, height: 820 })
+  const box = (await page.getByTestId('arrange-sheet').boundingBox())!
+  expect(box.x).toBeGreaterThanOrEqual(0)
+  expect(box.y + box.height).toBeLessThanOrEqual(820 + 1)
+  await page.getByTestId('arrange-done').click()
+  await expect(page.getByTestId('arrange-sheet')).toHaveCount(0)
+  await page.reload()
+  await page.getByTestId('v8-tool-pen').click()
+  await expect(page.locator('[data-testid^="v8-fav-"]')).toHaveCount(3)
+})

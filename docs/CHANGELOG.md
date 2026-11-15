@@ -58,6 +58,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
 
+### 16 Nov 2026: 2A.13 review 1
+
+- What: 2A.13 review 1 FAIL (look only); fix list to the builder; TB-58 Pro unlock and chip order are not 2A.13 (PENDING Later). Why: plan step 2. Files: docs/BUILD-STATE.md, docs/PENDING.md.
+
 ### 16 Nov 2026: 2A.11 merged
 
 - What: 2A.11 fast-forwarded by the main chat (49fb5339), CI green; 2A.12, 2A.13, 2A.15 resumed; webkit turn to 2A.15. Why: plan step 2. Files: docs/BUILD-STATE.md.

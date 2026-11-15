@@ -1,6 +1,7 @@
 # 2A.8 eraser pictures (taken after the last source edit; chromium; light = day, dark = night)
 
 Compare with docs/mockups/toolbar-v9/toolbar-v9.html (eraser). Files: <what>-<device>-<theme>-<level>.png
+
 - row-*: the Eraser row (Beginner: one Eraser menu; Professional: Mode, Size, Options)
 - eraser-mode-*: Mode card (Beginner: type + sizes)
 - eraser-size-*: Size card with ring (Professional)

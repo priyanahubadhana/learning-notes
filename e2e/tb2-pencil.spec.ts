@@ -99,6 +99,26 @@ const square = (x: number, y: number, s: number): Pt[] => [
   { x, y },
 ]
 
+/**
+ * Strokes one after the other with as little between them as the browser
+ * allows (the shape waits 400 ms for a next stroke; a slow WebKit round trip
+ * between two realPen calls would be longer than that).
+ */
+async function quickPens(page: Page, paths: Pt[][]) {
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
+  for (const path of paths) {
+    await page.mouse.move(path[0].x, path[0].y)
+    await page.mouse.down()
+    for (const q of path.slice(1)) await page.mouse.move(q.x, q.y)
+    await page.mouse.up()
+  }
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
+}
+
 const asPen = (page: Page, on: boolean) =>
   page.evaluate((v) => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = v
@@ -180,9 +200,11 @@ test.describe('TB-37 the Text tool: shapes and circled numbers', () => {
     await start(page, 'TB37cancel')
     await tool(page, 'Text').click()
     const at = await blank(page, 120)
-    await realPen(page, square(at.x, at.y, 160))
     // The next stroke, close by and within the hold: it was handwriting.
-    await realPen(page, wavy(at.x + 175, at.y + 60, 60, 8, 8))
+    await quickPens(page, [
+      square(at.x, at.y, 160),
+      wavy(at.x + 175, at.y + 60, 60, 8, 8),
+    ])
     await page.waitForTimeout(1800)
     await expect(page.locator(EXTRA)).toHaveCount(0)
     expect((await savedInk(page)).strokes).toHaveLength(0)
@@ -198,9 +220,11 @@ test.describe('TB-37 the Text tool: shapes and circled numbers', () => {
     const b = (await box.boundingBox())!
     // A shape on blank paper a little under the box.
     const at = { x: b.x + 20, y: b.y + b.height + 30 }
-    await realPen(page, square(at.x, at.y, 160))
     // Handwriting on the box text, near the shape, before the hold ends.
-    await realPen(page, wavy(b.x + 10, b.y + 20, 50, 6, 8))
+    await quickPens(page, [
+      square(at.x, at.y, 160),
+      wavy(b.x + 10, b.y + 20, 50, 6, 8),
+    ])
     await page.waitForTimeout(1800)
     await expect(page.locator(EXTRA)).toHaveCount(1)
     expect((await savedInk(page)).strokes).toHaveLength(0)
@@ -315,7 +339,7 @@ test.describe('TB-38 pinch zoom', () => {
     const c = await blank(page, 40)
     await touches(page, 'touchstart', ...spread(c, 100))
     await touches(page, 'touchmove', ...spread(c, 80))
-    expect(await width(page)).toBeLessThan(w0)
+    await expect.poll(() => width(page)).toBeLessThan(w0)
     await touches(page, 'touchend', ...spread(c, 80))
     await expect(zoomBtn(page)).toHaveText('100 %')
     await expect.poll(() => width(page)).toBeCloseTo(w0, 0)
@@ -405,9 +429,11 @@ test.describe('TB-40 phone: the gap under a box', () => {
       first.y + first.height + 20,
     )
     await expect(boxes).toHaveCount(2)
-    const second = (await boxes.nth(1).boundingBox())!
-    expect(second.y).toBeGreaterThan(first.y + first.height - 2)
-    await expect(boxes.nth(0)).toContainText('One')
+    await page.waitForTimeout(600)
+    // The box with the text and the new one, whatever their order in the page.
+    const one = (await boxes.filter({ hasText: 'One' }).boundingBox())!
+    const added = (await boxes.filter({ hasNotText: 'One' }).boundingBox())!
+    expect(added.y).toBeGreaterThan(one.y + one.height - 2)
   })
 })
 
@@ -601,7 +627,11 @@ for (const flag of [false, true]) {
       await realPen(page, [{ x: b.x + 60, y: b.y + 20 }])
       await expect(main(page)).toBeFocused()
       await page.evaluate(() => (document.activeElement as HTMLElement).blur())
-      await page.mouse.click(b.x + 60, b.y + 20)
+      // The first tap added a line: the button moved down.
+      await below(page).scrollIntoViewIfNeeded()
+      await page.waitForTimeout(300)
+      const b2 = (await below(page).boundingBox())!
+      await page.mouse.click(b2.x + 60, b2.y + 20)
       await expect(main(page)).toBeFocused()
     })
   })

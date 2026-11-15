@@ -1771,7 +1771,13 @@ export function PaperFrame({
   }, [canDrop])
 
   /** A tap on empty paper with the Text tool: a new box there (step 3). */
-  const tapStart = useRef<{ x: number; y: number; t: number } | null>(null)
+  const tapStart = useRef<{
+    x: number
+    y: number
+    t: number
+    /** The farthest the pointer got from the press (a closed loop ends where it began). */
+    far: number
+  } | null>(null)
   const lastCreate = useRef<{ t: number; x: number; y: number } | null>(null)
   const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (document.documentElement.hasAttribute('data-placing')) return
@@ -1792,6 +1798,7 @@ export function PaperFrame({
     if (
       !down ||
       Math.hypot(e.clientX - down.x, e.clientY - down.y) > 10 ||
+      down.far > 10 ||
       Date.now() - down.t > 600
     )
       return
@@ -2143,6 +2150,7 @@ export function PaperFrame({
                   x: e.clientX,
                   y: e.clientY,
                   t: Date.now(),
+                  far: 0,
                 }
                 penDown(e)
                 // Hold on blank paper: "Start typing here" (loads on demand).
@@ -2162,6 +2170,12 @@ export function PaperFrame({
                 }
               }}
               onPointerMove={(e) => {
+                const ts = tapStart.current
+                if (ts)
+                  ts.far = Math.max(
+                    ts.far,
+                    Math.hypot(e.clientX - ts.x, e.clientY - ts.y),
+                  )
                 penMove(e)
                 hoverMove(e)
               }}

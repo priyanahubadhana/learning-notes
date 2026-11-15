@@ -441,6 +441,8 @@
   --card-well-2: rgba(24, 23, 28, 0.08);
   --card-hair: rgba(24, 23, 28, 0.08);
   --card-track: rgba(24, 23, 28, 0.14);
+  /* The default ink as drawn on screen; only the v9 block below changes it (2A.5). */
+  --ink-auto: #1d1d1f;
   /* Scroll bar (ScrollBar.css): rest thumb (the muted ink: >= 3:1 on every surface and on the track in all three themes, SC-04), hover / press thumb, quiet track. */
   --sbar-thumb: var(--color-muted);
   --sbar-thumb-hover: var(--color-ink-soft);
@@ -500,6 +502,25 @@
   --card-hi: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --card-shadow: 0 18px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
   --card-scrim: rgba(0, 0, 0, 0.55);
+}
+/* Toolbar v9 look (task 2A.5): only while toolbar.v8 is ON (ShowToolbarPill sets data-v9 on the root).
+ * With the switch OFF none of these exist and the parts keep today's look (their var() fallbacks). */
+:root[data-v9] {
+  --v9-well: var(--card-well);
+  --v9-tile: var(--card-well);
+  --v9-track: var(--card-track);
+  --v9-thumb: var(--color-surface-0);
+  --v9-thumb-sh: var(--elev-1);
+  --v9-knob: var(--color-surface-0);
+  --v9-preview: var(--card-well);
+}
+:root[data-v9][data-theme='night'] {
+  --v9-track: rgba(255, 255, 255, 0.17);
+  --v9-thumb: #4a4955;
+  --v9-thumb-sh:
+    0 1px 2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  --v9-knob: #fff;
+  --ink-auto: #ececee;
 }
 :root[data-theme='sepia'] {
   --card-fill: rgba(251, 243, 224, 0.94);

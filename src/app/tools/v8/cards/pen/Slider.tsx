@@ -48,6 +48,9 @@ export function Slider({
         max={max}
         step={step}
         value={value}
+        style={{
+          ['--p' as string]: `${((value - min) / (max - min || 1)) * 100}%`,
+        }}
         onChange={(e) => onChange(Number(e.target.value))}
       />
     </Glow>

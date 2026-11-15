@@ -12,6 +12,7 @@ import { FoldCard } from './FoldCard'
 import type { OpenCard } from './barState'
 import { useFold, type FoldSpec } from './useFold'
 import type { FoldResult } from './rowFold'
+import { displayInk } from '../../../design/ink'
 import './toolbarV8.css'
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
@@ -45,7 +46,9 @@ function Face({
       {item.dot === 'colour' ? (
         <span
           className="v8dot v8dot-colour"
-          style={{ background: v.colour }}
+          style={{
+            background: v.colour ? displayInk(v.colour) : undefined,
+          }}
           aria-hidden
         />
       ) : item.dot === 'size' ? (

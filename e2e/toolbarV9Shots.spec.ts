@@ -3,6 +3,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { test, type Page } from '@playwright/test'
 import {
+  closeSidebarIfNarrow,
   createNotebook,
   startInMode,
   startInTheme,
@@ -36,8 +37,11 @@ async function run(
   )
   await startInTheme(page, theme)
   await startInMode(page, 'touch')
-  await page.goto('/?flags=toolbar.v8')
+  await page.goto(
+    '/?flags=foundation.shell,toolbar.v8,toolbar.menu,page.menus,textbox.v2',
+  )
   await createNotebook(page, 'Biology', 'First')
+  await closeSidebarIfNarrow(page)
   await typeInEditor(page, 'The nucleus holds the DNA')
   await page.getByTestId('v8-tool-pen').click()
   const base = `${OUT}/${theme}-${level}-${size}`

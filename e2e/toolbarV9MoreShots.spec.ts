@@ -2,7 +2,12 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { mkdirSync } from 'node:fs'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  closeSidebarIfNarrow,
+  createNotebook,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 
 /** First-look pictures for the 2A.12 ⋯ More card. Run by hand (SHOTS=1). */
 const OUT =
@@ -42,8 +47,11 @@ for (const level of ['beginner', 'professional'] as const)
           { level, theme },
         )
         await startInMode(page, 'touch')
-        await page.goto('/?flags=toolbar.v8,toolbar.menu')
+        await page.goto(
+          '/?flags=foundation.shell,toolbar.v8,toolbar.menu,page.menus,textbox.v2',
+        )
         await createNotebook(page, 'Biology', 'First')
+        await closeSidebarIfNarrow(page)
         await typeInEditor(page, 'The nucleus holds the DNA')
         await page.getByTestId('v8-tool-pen').click()
         await page.getByTestId('v8-tool-eraser').click()
@@ -90,8 +98,11 @@ test('more professional light ipad-upright copy open', async ({ page }) => {
     localStorage.setItem('learning-notes:theme', JSON.stringify('light'))
   })
   await startInMode(page, 'touch')
-  await page.goto('/?flags=toolbar.v8,toolbar.menu')
+  await page.goto(
+    '/?flags=foundation.shell,toolbar.v8,toolbar.menu,page.menus,textbox.v2',
+  )
   await createNotebook(page, 'Biology', 'First')
+  await closeSidebarIfNarrow(page)
   await typeInEditor(page, 'The nucleus holds the DNA')
   await page.getByTestId('v8-more').click()
   await openFold(page, 'more-group-copy')

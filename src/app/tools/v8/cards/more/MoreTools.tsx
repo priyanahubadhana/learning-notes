@@ -43,7 +43,11 @@ export default function MoreTools({
     const rows = items.filter(([, proOnly]) => pro || !proOnly)
     if (rows.length === 0 && !extra) return null
     return (
-      <FoldGroup label={t(label)} testId={`more-group-${id}`}>
+      <FoldGroup
+        label={t(label)}
+        icon={<Icon name={icon} size={18} />}
+        testId={`more-group-${id}`}
+      >
         {rows.map(([tool]) => (
           <button
             key={tool}

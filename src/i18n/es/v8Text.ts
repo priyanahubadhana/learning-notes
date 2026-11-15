@@ -45,6 +45,7 @@ export const esV8Text = {
   'v8.insert.title': 'Insertar',
   'v8.more.allTools': 'Todas las herramientas',
   'v8.more.groupApp': 'Barra de herramientas',
+  'v8.more.onThisBar': 'En esta barra',
   'v8.more.makeBlank': 'Hacer hueco',
   'v8.more.groupStudyPro': 'Marcas y estudio',
   'v8.more.keyPointHint': 'Punto clave está en Texto › Formato › Marcas.',
@@ -54,6 +55,6 @@ export const esV8Text = {
   'v8.more.groupView': 'Vista',
   'v8.more.groupPage': 'Página',
   'v8.more.groupBar': 'Barra de herramientas',
-  'v8.more.hideBar': 'Ocultar la barra de herramientas',
+  'v8.more.hideBar': 'Ocultar barra de herramientas',
   'v8.more.title': 'Más',
 }

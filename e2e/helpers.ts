@@ -677,3 +677,20 @@ export async function pickBox(page: Page, box: Locator) {
   await page.mouse.click(r.x - 5, r.y + r.height / 2)
   await expect(box).toHaveAttribute('data-picked', '')
 }
+
+/**
+ * Pictures: the side list is closed on an iPad held upright and on a phone
+ * (HOW-WE-BUILD section 7). With the new frame the toggle is the button that
+ * controls "sidebar"; a wide (sideways) screen is left as it is.
+ */
+export async function closeSidebarIfNarrow(page: Page) {
+  const width = page.viewportSize()?.width ?? 1336
+  if (width >= 1000) return
+  const open = page
+    .locator('button[aria-controls="sidebar"][aria-expanded="true"]:visible')
+    .first()
+  if (await open.count()) {
+    await open.click()
+    await expect(page.locator('aside')).toBeHidden()
+  }
+}

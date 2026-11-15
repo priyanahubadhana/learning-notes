@@ -2,7 +2,12 @@
 /// <reference lib="dom" />
 import { test } from '@playwright/test'
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  closeSidebarIfNarrow,
+  createNotebook,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 
 /** First-look pictures for task 2A.14: the bar names (and the Box card under Box). Run by hand. */
 const OUT = process.env.SHOTS_OUT ?? 'docs/mockups/toolbar-v9-build-shots/2a14'
@@ -35,8 +40,11 @@ for (const level of ['beginner', 'professional'] as const)
           { level, theme },
         )
         await startInMode(page, 'pencil')
-        await page.goto('/?flags=toolbar.v8')
+        await page.goto(
+          '/?flags=foundation.shell,toolbar.v8,toolbar.menu,page.menus,textbox.v2',
+        )
         await createNotebook(page, 'Biology', 'First')
+        await closeSidebarIfNarrow(page)
         await typeInEditor(page, 'The nucleus holds the DNA')
         // The side list closed, so the bar has the room for names.
         const hide = page.getByRole('button', { name: 'Hide menu' })

@@ -44,6 +44,7 @@ export const enV8Text = {
   'v8.insert.title': 'Insert',
   'v8.more.allTools': 'All tools',
   'v8.more.groupApp': 'Tool bar',
+  'v8.more.onThisBar': 'On this bar',
   'v8.more.makeBlank': 'Make blank',
   'v8.more.groupStudyPro': 'Marks and study',
   'v8.more.keyPointHint': 'Key point sits in Text › Format › Marks.',
@@ -53,6 +54,6 @@ export const enV8Text = {
   'v8.more.groupView': 'View',
   'v8.more.groupPage': 'Page',
   'v8.more.groupBar': 'Tool bar',
-  'v8.more.hideBar': 'Hide the tool bar',
+  'v8.more.hideBar': 'Hide tool bar',
   'v8.more.title': 'More',
 }

@@ -4,7 +4,6 @@ import {
   Tile,
   TileGroup,
 } from '../../../../../design/parts/CardParts'
-import { FoldGroup } from '../../../../../design/parts/FoldGroup'
 import '../../../../../design/parts/Card.css'
 import { t } from '../../../../../i18n/t'
 import { setKeyboard } from '../../../../../editor/keyboardPolicy'
@@ -112,8 +111,8 @@ export default function MoreMenuV2({
         </TileGroup>
       </CardGroup>
       {entries.length > 0 && (
-        <FoldGroup label={t('toolbarMenu.groupFolded')} defaultOpen>
-          <TileGroup label={t('toolbarMenu.groupFolded')} action columns={4}>
+        <CardGroup>
+          <TileGroup label={t('v8.more.onThisBar')} action columns={3}>
             {entries.map((e) => (
               <Tile
                 key={e.id}
@@ -127,7 +126,7 @@ export default function MoreMenuV2({
               </Tile>
             ))}
           </TileGroup>
-        </FoldGroup>
+        </CardGroup>
       )}
       {editor ? (
         <Suspense fallback={null}>

@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import {
+  closeSidebarIfNarrow,
   createNotebook,
   hideSidebar,
   startInMode,
@@ -46,8 +47,11 @@ async function setUp(
   await startInTheme(page, theme)
   await page.setViewportSize(size)
   await startInMode(page, 'touch')
-  await page.goto('/?flags=toolbar.v8')
+  await page.goto(
+    '/?flags=foundation.shell,toolbar.v8,toolbar.menu,page.menus,textbox.v2',
+  )
   await createNotebook(page, 'Biology', 'First')
+  await closeSidebarIfNarrow(page)
   if (size.width === 820) await hideSidebar(page)
   await typeInEditor(page, 'The nucleus holds the DNA')
   const direct = page.getByTestId('v8-tool-eraser')

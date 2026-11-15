@@ -47,6 +47,8 @@ export type CardProps = {
   placement?: 'anchored' | 'static'
   /** Rect the card keeps clear of (the selected picture); read at each placement. */
   avoid?: () => RectLike | null
+  /** The whole bar: a card from a ⋯ in its first row opens under both rows. */
+  below?: () => RectLike | null
   /** A box the card hangs around: right, else left, under, above; never over it. */
   around?: () => RectLike | null
   /** With `around`: the card never starts above this y; a taller card is shortened and scrolls. */
@@ -187,6 +189,7 @@ export function Card(props: CardProps) {
     widthPx: WIDTH[size],
     active: !isStatic && !phone && !!anchor,
     avoid: props.avoid,
+    below: props.below,
     around: props.around,
     clearTop: props.clearTop,
     fit: props.fitInside,

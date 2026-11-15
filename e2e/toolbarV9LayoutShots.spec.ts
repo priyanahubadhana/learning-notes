@@ -37,7 +37,7 @@ for (const screen of ['today', 'v3'] as const)
           )
           await page.goto(
             screen === 'v3'
-              ? '/?flags=toolbar.v8,settings.v3#/settings/toolbar'
+              ? '/?flags=foundation.shell,toolbar.v8,toolbar.menu,page.menus,textbox.v2,settings.v3#/settings/toolbar'
               : '/?flags=toolbar.v8#/settings',
           )
           await page.reload()

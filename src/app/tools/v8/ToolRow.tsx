@@ -269,15 +269,6 @@ export function ToolRow({
           ),
         )}
         {favsShown ? <FavGroup items={favItems} /> : null}
-        {favsFolded ? (
-          <FavStar
-            items={favItems}
-            open={favsOpen}
-            card={card}
-            onToggle={(el) => onToggleCard('fold.favs', el)}
-            onClose={() => onCloseCard('fold.favs')}
-          />
-        ) : null}
         {foldedCount > 0 ? (
           <button
             type="button"
@@ -292,9 +283,19 @@ export function ToolRow({
             onMouseDown={keepFocus}
             onClick={(e) => onToggleCard('fold.row', e.currentTarget)}
           >
-            <Icon name="more" size={18} />
-            <span className="v8badge">{foldedCount}</span>
+            <Icon name="more" size={16} />
+            <span className="v8chip-count">{foldedCount}</span>
+            <Icon name="chevronDown" size={14} />
           </button>
+        ) : null}
+        {favsFolded ? (
+          <FavStar
+            items={favItems}
+            open={favsOpen}
+            card={card}
+            onToggle={(el) => onToggleCard('fold.favs', el)}
+            onClose={() => onCloseCard('fold.favs')}
+          />
         ) : null}
         <div className="v8measure" ref={measureRef} aria-hidden inert>
           {items
@@ -308,7 +309,7 @@ export function ToolRow({
                   data-m-mode={mode}
                 >
                   <Face item={item} pen={pen} names={mode === 'full'} />
-                  <Icon name="chevronDown" size={16} />
+                  <Icon name="chevronDown" size={14} />
                 </span>
               )),
             )}

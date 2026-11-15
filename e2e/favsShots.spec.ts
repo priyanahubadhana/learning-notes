@@ -1,6 +1,11 @@
 /// <reference lib="dom" />
 import { test, expect } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  closeSidebarIfNarrow,
+  createNotebook,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 
 /** 2A.13 first-look pictures. Runs only with SHOTS=1 (not part of the suites). */
 const OUT = process.env.SHOTS_OUT ?? 'docs/screens/2a13'
@@ -38,8 +43,11 @@ for (const [dev, size] of Object.entries(SIZES))
           [theme, level, FAVS] as const,
         )
         await startInMode(page, 'touch')
-        await page.goto('/?flags=toolbar.v8')
+        await page.goto(
+          '/?flags=foundation.shell,toolbar.v8,toolbar.menu,page.menus,textbox.v2',
+        )
         await createNotebook(page, 'Biology', 'First')
+        await closeSidebarIfNarrow(page)
         await typeInEditor(page, 'The nucleus holds the DNA')
         if (dev === 'ipad-up') {
           await page

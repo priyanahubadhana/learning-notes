@@ -25,6 +25,7 @@ export function FoldCard({
   onClose,
   testId,
   title,
+  below,
   children,
 }: {
   anchor: HTMLElement
@@ -32,6 +33,8 @@ export function FoldCard({
   onClose: (reason: CardCloseReason) => void
   testId: string
   title?: string
+  /** A rect the card opens below (the whole bar). */
+  below?: () => Pick<DOMRect, 'left' | 'top' | 'width' | 'height'> | null
   /** More below the list (the ⋯ card's own group). */
   children?: ReactNode
 }) {
@@ -42,6 +45,7 @@ export function FoldCard({
       title={title ?? t('v8.fold.title')}
       onClose={onClose}
       testId={testId}
+      below={below}
     >
       {entries.length > 0 ? (
         <div className="v8fold" role="group" aria-label={t('v8.fold.title')}>

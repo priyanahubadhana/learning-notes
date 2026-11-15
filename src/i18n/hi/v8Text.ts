@@ -43,6 +43,7 @@ export const hiV8Text = {
   'v8.insert.title': 'डालें',
   'v8.more.allTools': 'सभी टूल',
   'v8.more.groupApp': 'टूल बार',
+  'v8.more.onThisBar': 'इस बार पर',
   'v8.more.makeBlank': 'खाली बनाएँ',
   'v8.more.groupStudyPro': 'मार्क और पढ़ाई',
   'v8.more.keyPointHint': 'मुख्य बिंदु टेक्स्ट › फ़ॉर्मैट › निशान में है।',

@@ -110,8 +110,9 @@ export function FavStar({
         onMouseDown={keepFocus}
         onClick={(e) => onToggle(e.currentTarget)}
       >
-        <Icon name="star" size={18} />
-        <span className="v8badge">{items.length}</span>
+        <Icon name="star" size={16} />
+        <span className="v8chip-count">{items.length}</span>
+        <Icon name="chevronDown" size={14} />
       </button>
       {open && card ? (
         <Card

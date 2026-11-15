@@ -195,13 +195,16 @@ test('real use: reload, turn the screen both ways, open every fold, scroll the c
     await expect(page.getByTestId('v8-backspace')).toBeVisible()
     await more(page)
     for (const name of [
-      'Marks and study',
+      'Mark for review',
       'Copy and paste',
       'View',
       'Page',
       'Tool bar',
     ])
-      await card(page).getByRole('button', { name, exact: true }).click()
+      await card(page)
+        .getByRole('button', { name: new RegExp(`^${name}`) })
+        .first()
+        .click()
     await card(page).evaluate((el) => {
       const sc =
         el.querySelector<HTMLElement>('[data-scroll], .pcard-body') ?? el

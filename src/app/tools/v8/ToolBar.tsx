@@ -322,6 +322,12 @@ function ToolFace({
 /** Not on a phone's bar while editing: it keeps one row (Settings v5 mock). */
 const PHONE_EDIT_HIDDEN = ['min', 'undo', 'redo']
 
+/** Both rows of the bar: a card from ⋯ opens below them, never over row 2 (v9). */
+const barRect = () =>
+  document
+    .querySelector('[data-testid="toolbar-v8"]')
+    ?.getBoundingClientRect() ?? null
+
 /** The first line: tools, Backspace and New line, then ⋯ and Minimise (Undo and Redo only without the new frame; with it they are in the top bar). */
 export function ToolBar({
   editDrag,
@@ -366,12 +372,18 @@ export function ToolBar({
   const backPref = useBarPref('backToPen')
   const last = lastTool.useValue()
   const backTool = backPref && last ? modeToTool(last) : null
+  const phone = useBreakpoint() === 'phone'
+  // 2A.16 (v9): on a phone Shapes and Insert live in ⋯ › On this bar, and
+  // there is no Minimise.
+  const phoneFolded = phone && !edit ? PHONE_FOLD : []
   const specs: FoldSpec[] = [
-    ...tools.map((x) => ({
-      id: x.id as string,
-      priority: KEEP[x.id] ?? 50,
-      fixedW: undefined,
-    })),
+    ...tools
+      .filter((x) => !phoneFolded.includes(x.id))
+      .map((x) => ({
+        id: x.id as string,
+        priority: KEEP[x.id] ?? 50,
+        fixedW: undefined,
+      })),
     ...(backTool ? [{ id: 'back', priority: KEEP.back!, fixedW: 44 }] : []),
     // New line and Backspace never fold under ⋯ (TB-11, 2A.12).
     { id: 'bs', priority: Infinity, fixedW: 44 },
@@ -383,19 +395,29 @@ export function ToolBar({
           { id: 'redo', priority: KEEP.redo!, fixedW: 44 },
         ]),
     { id: 'more', priority: Infinity, fixedW: 44 },
-    { id: 'min', priority: KEEP.min!, fixedW: 44 },
+    ...(phone ? [] : [{ id: 'min', priority: KEEP.min!, fixedW: 44 }]),
   ]
   const { rowRef, measureRef, result } = useFold(specs, { gap: 0, moreW: 0 })
   // On a phone, while editing, Shapes and Insert sit inside ⋯ More and there
   // is no Minimise, Undo or Redo, so the bar stays one row (as the mock).
-  const phone = useBreakpoint() === 'phone'
   const shows = (id: string) =>
-    edit && phone && (PHONE_FOLD.includes(id) || PHONE_EDIT_HIDDEN.includes(id))
+    phoneFolded.includes(id)
       ? false
-      : (edit && !['undo', 'redo', 'min'].includes(id)) ||
-        result.shown.includes(id)
+      : edit &&
+          phone &&
+          (PHONE_FOLD.includes(id) || PHONE_EDIT_HIDDEN.includes(id))
+        ? false
+        : (edit && !['undo', 'redo', 'min'].includes(id)) ||
+          result.shown.includes(id)
   const showNames = names && result.names
-  const folded = edit ? [] : result.folded.filter((id) => id !== 'more')
+  const folded = edit
+    ? []
+    : [
+        ...tools
+          .map((x) => x.id as string)
+          .filter((id) => phoneFolded.includes(id)),
+        ...result.folded.filter((id) => id !== 'more'),
+      ]
   const moreOpen = card?.id === 'fold.bar'
   const menuV2 = useFlag('toolbar.menu')
 
@@ -428,7 +450,7 @@ export function ToolBar({
       nl: 'newLine',
       undo: 'undo',
       redo: 'redo',
-      min: 'chevronUp',
+      min: 'minimise',
     }[id] as IconName)
 
   const entries: FoldEntry[] = folded.map((id) => ({
@@ -606,6 +628,7 @@ export function ToolBar({
           </span>
         </button>
       ) : null}
+      {shows('bs') && !edit ? <span className="v8hair" aria-hidden /> : null}
       {shows('bs')
         ? fixed(
             'backspace',
@@ -723,9 +746,6 @@ export function ToolBar({
             name={folded.includes(tool) ? iconOf(tool) : 'more'}
             size={20}
           />
-          {folded.length ? (
-            <span className="v8badge">{folded.length}</span>
-          ) : null}
         </button>,
       )}
       {shows('min') ? (
@@ -739,13 +759,14 @@ export function ToolBar({
           aria-disabled="true"
           onMouseDown={keepFocus}
         >
-          <Icon name="chevronUp" size={20} />
+          <Icon name="minimise" size={20} />
         </button>
       ) : null}
       {moreOpen && card ? (
         <FoldCard
           anchor={card.anchor}
           testId="v8-card-fold.bar"
+          below={barRect}
           entries={menuV2 ? [] : entries}
           onClose={() => onCloseCard('fold.bar')}
         >

@@ -90,7 +90,7 @@ export default function MoreStudy({
     { touch: touchUi(), enabled: hints === 'on' },
     isApple() ? '⌘⇧V' : 'Ctrl+Shift+V',
   )
-  const studyLabel = t(pro ? 'v8.more.groupStudyPro' : 'toolbarMenu.groupStudy')
+  const studyLabel = t('toolbarMenu.groupStudy')
   const marks = MARKS.map((id) => actions.find((a) => a.id === id)).filter(
     (a) => a !== undefined,
   )
@@ -108,7 +108,12 @@ export default function MoreStudy({
   )
   return (
     <>
-      <FoldGroup label={studyLabel} testId="more-group-study">
+      <FoldGroup
+        label={studyLabel}
+        hint={pro ? t('v8.more.groupStudyPro') : undefined}
+        icon={<Icon name="bookmark" size={18} />}
+        testId="more-group-study"
+      >
         <TileGroup label={studyLabel} action columns={3}>
           {marks.map((a) => (
             <Tile
@@ -147,7 +152,11 @@ export default function MoreStudy({
           {t('v8.more.keyPointHint')}
         </p>
       </FoldGroup>
-      <FoldGroup label={t('toolbarMenu.groupCopy')} testId="more-group-copy">
+      <FoldGroup
+        label={t('toolbarMenu.groupCopy')}
+        icon={<Icon name="copy" size={18} />}
+        testId="more-group-copy"
+      >
         <TileGroup label={t('toolbarMenu.groupCopy')} action columns={3}>
           {CLIP.map(([id, key, icon]) => (
             <Tile

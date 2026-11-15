@@ -183,8 +183,15 @@
   min-width: 44px;
 }
 .v8chip-more {
+  gap: 2px;
   padding: 0;
   min-width: 44px;
+}
+/* "⋯ 3 ▾" and "★ 2 ▾": the count is plain text in the chip, not a badge (v9). */
+.v8chip-count {
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 .v8hair {
   flex: none;
@@ -348,6 +355,8 @@
 .v8chip-fav {
   gap: 6px;
   padding: 0 var(--space-2);
+  /* A tile fill, as the v9 favourite chips. */
+  background: var(--v9-tile, var(--card-well));
 }
 .v8favwell {
   display: inline-grid;
@@ -612,4 +621,28 @@
   background: var(--color-bg);
   color: var(--color-accent);
   box-shadow: 0 0 0 1px var(--color-line-strong);
+}
+
+/* 2A.16 (v9): the ⋯ card's folded groups are filled rows with an icon, the grey hint at the right. */
+[data-menu-v2] .fgroup {
+  border-top: 0;
+  border-radius: var(--r-md);
+  background: var(--v9-tile, var(--card-well));
+}
+[data-menu-v2] .fgroup-head {
+  padding: 0 var(--space-3);
+  gap: var(--space-3);
+}
+[data-menu-v2] .fgroup-text {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+[data-menu-v2] .fgroup-hint {
+  flex: none;
+  font-size: 12.5px;
+}
+[data-menu-v2] .fgroup-body {
+  padding: 0 var(--space-2) var(--space-2);
 }

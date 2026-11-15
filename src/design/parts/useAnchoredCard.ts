@@ -25,6 +25,17 @@ type RectLike = { left: number; top: number; width: number; height: number }
 const rectOf = (a: HTMLElement | RectLike): RectLike =>
   a instanceof Element ? a.getBoundingClientRect() : a
 
+/** The anchor's x with the top and height of the box it must clear (v9: ⋯ card under both rows). */
+const targetOf = (
+  a: HTMLElement | RectLike,
+  box: RectLike | null,
+): RectLike => {
+  const r = rectOf(a)
+  return box
+    ? { left: r.left, width: r.width, top: box.top, height: box.height }
+    : r
+}
+
 const clamp = (v: number, lo: number, hi: number) =>
   Math.max(lo, Math.min(hi, v))
 
@@ -191,6 +202,8 @@ export function useAnchoredCard(opts: {
   active: boolean
   /** Rect of something the card must keep clear of, read at each placement. */
   avoid?: () => RectLike | null
+  /** A box (the whole bar) the card opens below, at the anchor's x, never over it. */
+  below?: () => RectLike | null
   /** A box to hang around (right, left, under, above); wins over `avoid`. */
   around?: () => RectLike | null
   /** With `around`: the card never starts above this y (the bottom of the bar + 8). */
@@ -206,6 +219,7 @@ export function useAnchoredCard(opts: {
     widthPx,
     active,
     avoid,
+    below,
     around,
     clearTop,
     fit = false,
@@ -239,7 +253,12 @@ export function useAnchoredCard(opts: {
       const box = around?.() ?? null
       const next =
         (box && placeAround(box, size, view, clearTop?.() ?? 0, fit)) ||
-        placeCard(rectOf(anchor), size, view, box ?? avoid?.() ?? null)
+        placeCard(
+          targetOf(anchor, below?.() ?? null),
+          size,
+          view,
+          box ?? avoid?.() ?? null,
+        )
       setPos((prev) =>
         prev &&
         prev.left === next.left &&
@@ -277,6 +296,17 @@ export function useAnchoredCard(opts: {
       cancelAnimationFrame(raf)
       clearTimeout(timer)
     }
-  }, [anchor, card, widthPx, active, avoid, around, clearTop, fit, footLift])
+  }, [
+    anchor,
+    card,
+    widthPx,
+    active,
+    avoid,
+    below,
+    around,
+    clearTop,
+    fit,
+    footLift,
+  ])
   return active && anchor && card ? pos : null
 }

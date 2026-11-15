@@ -441,6 +441,11 @@
   --card-well-2: rgba(24, 23, 28, 0.08);
   --card-hair: rgba(24, 23, 28, 0.08);
   --card-track: rgba(24, 23, 28, 0.14);
+  /* v9 wells: the raised thumb and the white knob; the default ink follows the page (2A.5). */
+  --card-thumb: var(--color-surface-0);
+  --card-thumb-sh: var(--elev-1);
+  --card-knob: var(--color-surface-0);
+  --ink-auto: #1d1d1f;
   /* Scroll bar (ScrollBar.css): rest thumb (the muted ink: >= 3:1 on every surface and on the track in all three themes, SC-04), hover / press thumb, quiet track. */
   --sbar-thumb: var(--color-muted);
   --sbar-thumb-hover: var(--color-ink-soft);
@@ -493,7 +498,12 @@
   --card-well: rgba(255, 255, 255, 0.055);
   --card-well-2: rgba(255, 255, 255, 0.1);
   --card-hair: rgba(255, 255, 255, 0.07);
-  --card-track: rgba(255, 255, 255, 0.16);
+  --card-track: rgba(255, 255, 255, 0.17);
+  --card-thumb: #4a4955;
+  --card-thumb-sh:
+    0 1px 2px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+  --card-knob: #fff;
+  --ink-auto: #ececee;
   /* Dark: a light thumb (the soft ink, ~9:1), brighter again on hover / press, so it reads on every dark surface (owner 14 Nov). */
   --sbar-thumb: var(--color-ink-soft);
   --sbar-thumb-hover: var(--color-ink);

@@ -96,7 +96,7 @@ import { Glyph, Icon } from '../app/tools/icons'
 import { setPageReloader } from '../core/historySteps'
 
 import { lazyNow } from '../app/lazyNow'
-import { prefetchAfterIdle } from '../app/idlePrefetch'
+import { preloadAhead } from '../app/idlePrefetch'
 
 const PromptsDialog = lazy(() => import('../prompts/PromptsDialog'))
 
@@ -160,7 +160,7 @@ export function PageView({
   // Undo of a restored version redraws the page from the database.
   useEffect(() => setPageReloader(onReload), [onReload])
   // The page's more-menu sheet is fetched ahead, so a tap paints it at once (R13).
-  useEffect(() => prefetchAfterIdle([PageSheet.preload]), [])
+  useEffect(() => preloadAhead([PageSheet.preload]), [])
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
   const notebook = useLiveQuery(
     () => getNotebook(db, page.notebookId),

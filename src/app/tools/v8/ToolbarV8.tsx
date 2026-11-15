@@ -1,6 +1,6 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { lazyNow } from '../../lazyNow'
-import { prefetchAfterIdle } from '../../idlePrefetch'
+import { preloadAhead } from '../../idlePrefetch'
 import { Card } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
 import { applyLayerVars } from '../../overlay'
@@ -78,7 +78,7 @@ export default function ToolbarV8() {
   useTuckWatcher()
 
   useEffect(() => {
-    prefetchAfterIdle([
+    preloadAhead([
       ...[
         PenCardBody,
         EraserCardBody,

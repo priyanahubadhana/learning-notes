@@ -134,14 +134,18 @@ test('a palm right after the Pencil cannot press a row button', async ({
       el.dispatchEvent(new PointerEvent('pointerup', o))
       el.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
-  // The Pencil goes down and lifts, then a palm taps within 500 ms.
-  await more.evaluate((el) => {
+  // The Pencil goes down and lifts BESIDE the button (on the list itself: its
+  // lift on the button would be a real tap that opens the menu, penTap.ts),
+  // then a palm taps the button within 500 ms. The menu must stay shut, also
+  // after the menu's code has had time to arrive (it paints at once now).
+  await side.evaluate((el) => {
     const o = { bubbles: true, pointerType: 'pen', pointerId: 3 }
     el.dispatchEvent(new PointerEvent('pointerdown', o))
     el.dispatchEvent(new PointerEvent('pointerup', o))
   })
   await touchTap()
-  await expect(page.getByRole('menu')).toHaveCount(0)
+  await page.waitForTimeout(900)
+  await expect.poll(() => page.getByRole('menu').count()).toBe(0)
   // Well after the Pencil lifted, a finger works again.
   await page.waitForTimeout(700)
   await touchTap()

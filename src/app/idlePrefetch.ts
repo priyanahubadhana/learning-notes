@@ -1,3 +1,5 @@
+import { isOn } from './flags'
+
 /**
  * Fetch likely next chunks quietly once the first screen is up and the
  * browser is idle, so the first tap on them is instant. A failed fetch is
@@ -28,4 +30,12 @@ export function prefetchAfterIdle(loaders: Array<() => Promise<unknown>>) {
   const start = () => idle(next, 8000)
   if (document.readyState === 'complete') start()
   else window.addEventListener('load', start, { once: true })
+}
+
+/**
+ * R13: fetch the lazy parts a tap opens, once the screen is idle. Goes live
+ * with Phase 1 (foundation.shell); before that the live app loads as it did.
+ */
+export function preloadAhead(loaders: Array<() => Promise<unknown>>) {
+  if (isOn('foundation.shell')) prefetchAfterIdle(loaders)
 }

@@ -36,8 +36,14 @@ export function lazyNow<T extends ComponentType<any>>(
     )
   }
   Part.preload = (): Promise<unknown> =>
-    (fetching ??= load().then((m) => {
-      loaded = m.default
-    }))
+    (fetching ??= load().then(
+      (m) => {
+        loaded = m.default
+      },
+      (error) => {
+        fetching = null // a failed fetch tries again on the next use
+        throw error
+      },
+    ))
   return Part
 }

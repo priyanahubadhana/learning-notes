@@ -25,7 +25,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { lazyNow } from '../app/lazyNow'
-import { prefetchAfterIdle } from '../app/idlePrefetch'
+import { preloadAhead } from '../app/idlePrefetch'
 import { HoldMenuLazy } from './HoldMenuLazy'
 import { PageStripLazy } from './menus/PageStripLazy'
 import type { Place } from '../app/tools/toolbarState'
@@ -176,7 +176,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   // Menus and sheets a tap or hold opens: fetched ahead, so they paint at once (R13).
   useEffect(
     () =>
-      prefetchAfterIdle([
+      preloadAhead([
         LazyEditToolbar.preload,
         KeyboardBar.preload,
         HoldMenuLazy.preload,

@@ -29,4 +29,19 @@ describe('lazyNow (R13: a preloaded lazy part draws at once, no Suspense wait)',
     expect(Part.preload()).toBe(Part.preload())
     await Part.preload()
   })
+  it('a failed fetch tries again on the next preload', async () => {
+    let calls = 0
+    const Part = lazyNow(() => {
+      calls++
+      return calls === 1
+        ? Promise.reject(new Error('offline'))
+        : Promise.resolve({ default: () => h('b', null, 'hello') })
+    })
+    await expect(Part.preload()).rejects.toThrow('offline')
+    await Part.preload()
+    expect(calls).toBe(2)
+    expect(renderToString(h(Suspense, { fallback: null }, h(Part)))).toContain(
+      'hello',
+    )
+  })
 })

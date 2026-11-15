@@ -46,7 +46,7 @@ async function tapToPaint(page: Page, tap: string, appear: string, min = 1) {
 
 async function open(page: Page) {
   await startInMode(page, 'touch')
-  await page.goto('/?flags=toolbar.v8,toolbar.menu,page.menus')
+  await page.goto('/?flags=foundation.shell,toolbar.v8,toolbar.menu,page.menus')
   await createNotebook(page, 'Biology', 'First')
   await typeInEditor(page, 'The nucleus holds the DNA')
   await page.waitForTimeout(2500) // the page has been open a while
@@ -126,4 +126,25 @@ for (const c of cases)
     }
     const ms = await tapToPaint(page, c.tap, c.appear, c.min)
     expect(ms).toBeLessThan(LIMIT_MS)
+  })
+
+// With foundation.shell OFF the live app loads as before: nothing is fetched ahead.
+for (const [flags, ahead] of [
+  ['toolbar.v8,toolbar.menu,page.menus', false],
+  ['foundation.shell,toolbar.v8,toolbar.menu,page.menus', true],
+] as const)
+  test(`R13: the cards are fetched ahead only with foundation.shell (${ahead ? 'on' : 'off'})`, async ({
+    page,
+  }) => {
+    const asked: string[] = []
+    page.on('request', (r) => {
+      if (/EraserCards|ShapesCards|InsertCards|PageSheet/.test(r.url()))
+        asked.push(r.url())
+    })
+    await startInMode(page, 'touch')
+    await page.goto(`/?flags=${flags}`)
+    await createNotebook(page, 'Biology', 'First')
+    await typeInEditor(page, 'The nucleus holds the DNA')
+    await page.waitForTimeout(3000)
+    expect(asked.length > 0).toBe(ahead)
   })

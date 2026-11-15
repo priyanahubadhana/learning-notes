@@ -18,14 +18,16 @@
 
 ## Phase 2A tasks (phase-manager, from 15 Nov; webkit turn handed out by the manager)
 
-| Task  | Branch @ head (working copy)    | State                                                                      |
-| ----- | ------------------------------- | -------------------------------------------------------------------------- |
-| 2A.4  | `slice/2a4` 6b4eb1c5 (ln-2a4)   | review PASS (after 1 FAIL); has the webkit turn now (15 Nov), then merge   |
-| 2A.5  | `slice/2a5` 086ace27 (ln-2a5)   | review FAIL 1 (5 fixes) with its builder; webkit after 2A.4                |
-| 2A.14 | `slice/2a14` fa5e41e0 (ln-2a14) | FAIL 1 fixes pushed; reviewer re-check running; webkit after 2A.5          |
-| rule  | 2A.14's 5 new settings rows     | no approved picture: stay behind `toolbar.v8`; 2A not done until owner OKs |
-| wheel | `slice/tb2-phone-wheel`         | merged b2872d53, CI green (run 43704785412)                                |
-| rest  | 2A.6–2A.13, 2A.15, 2A.16        | not started; next after the first three merge (shared tool bar files)      |
+**HOLD (main chat, 15 Nov):** no merge or push to `build/next` until "owner test done" (owner's Phase 1 re-test). Webkit lent to the Journal repair (H) until the main chat says done.
+
+| Task  | Branch @ head (working copy)         | State                                                                                                |
+| ----- | ------------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4) | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it)       |
+| 2A.5  | `slice/2a5` d0dcb56e (ln-2a5)        | review PASS (Opus took over after 2 FAILs); ipad-webkit green; waits for the hold, after P1.10 and H |
+| 2A.14 | `slice/2a14` 8722dcc1 (ln-2a14)      | Layout row added (owner); FAIL: match approved settings-rows pictures; fixes with builder            |
+| rule  | 2A.14's settings rows + Layout       | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                              |
+| wheel | `slice/tb2-phone-wheel`              | merged b2872d53, CI green (run 43704785412)                                                          |
+| rest  | 2A.6–2A.13, 2A.15, 2A.16             | not started; next after the first three merge (shared tool bar files)                                |
 
 ## Waiting (each has its step)
 

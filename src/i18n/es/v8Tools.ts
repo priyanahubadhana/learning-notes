@@ -21,6 +21,8 @@ export const esV8Tools = {
   'v8.lasso.convertShort': 'Convertir',
   'v8.lasso.earlier': 'Subir {name}',
   'v8.lasso.inRow': '{name} en la fila del menú',
+  'v8.lasso.layersCount_one': '{count} capa',
+  'v8.lasso.layersCount_other': '{count} capas',
   'v8.lasso.later': 'Bajar {name}',
   'v8.lasso.layersNote': 'Una capa oculta o bloqueada no se puede seleccionar.',
   'v8.lasso.menuRow': 'Fila del menú',

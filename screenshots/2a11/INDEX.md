@@ -4,7 +4,7 @@ Compare with docs/mockups/toolbar-v9/toolbar-v9.html (lasso parts). Names: what-
 
 - row-*: the Lasso row (Beginner: Shape and Actions menus; Professional: Free-hand/Rectangle, Picks, Options)
 - lasso-shape-_, lasso-actions-_: Beginner cards
-- options-*: Professional Options card; -menurow: Menu row open; -layers: Layers open
+- options-*: Professional Options card; -menurow: Menu row open; -layers: Layers open (with count)
 
 - lasso-actions-ipad-sideways-day-beginner.png
 - lasso-actions-ipad-sideways-night-beginner.png

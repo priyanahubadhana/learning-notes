@@ -21,6 +21,8 @@ export const enV8Tools = {
   'v8.lasso.convertShort': 'Convert',
   'v8.lasso.earlier': 'Move {name} earlier',
   'v8.lasso.inRow': '{name} in the menu row',
+  'v8.lasso.layersCount_one': '{count} layer',
+  'v8.lasso.layersCount_other': '{count} layers',
   'v8.lasso.later': 'Move {name} later',
   'v8.lasso.layersNote': 'A hidden or locked layer cannot be selected.',
   'v8.lasso.menuRow': 'Menu row',

@@ -12,7 +12,7 @@ import './lassoRow.css'
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 const SHAPES: readonly (readonly [LassoShape, IconName])[] = [
   ['free', 'lasso'],
-  ['rect', 'square'],
+  ['rect', 'squareDashed'],
 ]
 
 /** "Free-hand | Rectangle" right on the bar (mock v9, Professional). */

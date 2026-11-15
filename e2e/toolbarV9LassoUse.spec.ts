@@ -33,7 +33,20 @@ test('Professional Lasso on an iPad: turn, scroll, close and reload keep the set
     await expect(c).toHaveCount(0)
     await page.setViewportSize(vp)
     // The row re-fits to the new width, then stands still.
-    await page.waitForTimeout(800)
+    let last = ''
+    await expect
+      .poll(
+        async () => {
+          const now = await page
+            .getByTestId('v8-row')
+            .evaluate((el) => el.innerHTML.length + ':' + el.scrollWidth)
+          const still = now === last
+          last = now
+          return still
+        },
+        { intervals: [150] },
+      )
+      .toBe(true)
     const chip = page.getByTestId('v8-chip-lasso.opts')
     if (await chip.isVisible()) await chip.click()
     else {

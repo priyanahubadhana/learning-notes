@@ -21,6 +21,8 @@ export const hiV8Tools = {
   'v8.lasso.convertShort': 'बदलें',
   'v8.lasso.earlier': '{name} को पहले करें',
   'v8.lasso.inRow': 'मेनू पंक्ति में {name}',
+  'v8.lasso.layersCount_one': '{count} परत',
+  'v8.lasso.layersCount_other': '{count} परतें',
   'v8.lasso.later': '{name} को बाद में करें',
   'v8.lasso.layersNote': 'छिपी या बंद परत को चुना नहीं जा सकता।',
   'v8.lasso.menuRow': 'मेनू पंक्ति',

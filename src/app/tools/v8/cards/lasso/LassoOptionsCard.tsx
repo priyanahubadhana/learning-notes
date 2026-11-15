@@ -11,6 +11,7 @@ import {
   type RowAction,
 } from '../../../../../ink/lassoMenu'
 import { rowLabel } from '../../../../../ink/lassoLabels'
+import { useInk } from '../../../../../ink/inkRuntime'
 import { t } from '../../../../../i18n/t'
 import { Icon } from '../../../icons'
 import { ROW_ICON, moveRowAction, toggleRowAction } from './lassoModel'
@@ -105,6 +106,7 @@ function MenuRow({ row }: { row: readonly RowAction[] }) {
 /** The Professional Lasso Options card (mock v9): menu picture, Menu row ▾, Layers ▾. */
 export function LassoOptionsCard() {
   const row = lassoRow.useValue()
+  const layerCount = useInk()?.doc.layers.length ?? 0
   return (
     <div className="v8scroll v8lstack">
       <CardGroup label={t('v8.lasso.afterSelect')}>
@@ -121,8 +123,9 @@ export function LassoOptionsCard() {
       <FoldGroup
         label={t('ink.layers')}
         icon={<Icon name="layers" size={18} />}
+        hint={t('v8.lasso.layersCount', { count: layerCount })}
       >
-        <div data-testid="v8-lasso-layers">
+        <div className="v8llayers" data-testid="v8-lasso-layers">
           <LayersCard />
           <CardNote>{t('v8.lasso.layersNote')}</CardNote>
         </div>

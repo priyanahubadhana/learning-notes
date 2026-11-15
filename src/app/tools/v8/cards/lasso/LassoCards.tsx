@@ -37,7 +37,10 @@ function ShapeCard() {
               testId={`v8-lasso-shape-${shape}`}
               onSelect={() => setLassoShape(shape)}
             >
-              <Icon name={shape === 'free' ? 'lasso' : 'square'} size={22} />
+              <Icon
+                name={shape === 'free' ? 'lasso' : 'squareDashed'}
+                size={22}
+              />
             </Tile>
           ))}
         </TileGroup>

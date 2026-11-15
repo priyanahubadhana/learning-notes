@@ -82,9 +82,12 @@ test('banner: it stays fixed at the top of the screen, also after a scroll', asy
     'fixed',
   )
   expect(Math.abs((await banner.boundingBox())!.y)).toBeLessThan(2)
-  await page.mouse.move(600, 300)
-  await page.mouse.wheel(0, 400)
-  await page.evaluate(() => window.scrollTo(0, 400))
+  // Scroll the page and every scroll container (works on every browser).
+  await page.evaluate(() => {
+    window.scrollTo(0, 400)
+    for (const el of Array.from(document.querySelectorAll('*')))
+      if (el.scrollHeight > el.clientHeight + 1) el.scrollTop = 400
+  })
   await page.waitForTimeout(300)
   expect(Math.abs((await banner.boundingBox())!.y)).toBeLessThan(2)
 })

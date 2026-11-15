@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.15 Edit the tool bar on the bar (switch toolbar.v8, OFF live)
+
+- What: touch and hold a tool (after its name shows) or the bar's free space opens edit mode: top bar with cancel and done, a minus on removable tools, a lock on Text, Pen, Eraser, Backspace, New line and More, live drag, a "More tools" tray (tap or drag up to add, drop on it to remove); Done saves on this device with a toast and Undo; cancel keeps the old bar. Your layouts stay hidden (no button on the new bar; LayoutButton, layoutSync and data untouched).
+- Why: Settings v5 S5-22, S5-23; toolbar-v8 TB-61 hide.
+- Files: src/app/tools/v8/{barEdit.ts,barEditUi.ts,BarEditParts.tsx,ToolBar.tsx,ToolbarV8.tsx,toolbarV8.css}, src/i18n/*/v8BarEdit.ts, e2e/toolbarV8BarEdit.spec.ts
+
 ### 15 Nov 2026: 2A.10 Format on states (switch toolbar.v8, OFF live)
 
 - What: every Format option that is a state shows accent fill + check for the current selection (lists, callout and key point added; others already had it).

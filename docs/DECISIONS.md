@@ -77,6 +77,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-15 · 2A.15 Tool bar list (builder).** The tools on the new bar are one device preference `toolbar.v9.tools` (a list of ids, cleaned when read, not synced, no Dexie or Supabase change); Text, Pen and Eraser come back if missing. The tray offers the six bar tools and eight registry tools (Highlighter, Camera, Audio, Zoom, Find, Table, Link, Read aloud). Hold on a tool opens edit after 900 ms (its name shows at 350 ms and slide-to-pick stays); hold on free space after 600 ms. Settings "Customise" (S5-24) can call `startEdit()` from barEdit.ts.
 - **2026-11-15 · 2A.10 Format on states (builder).** Callout stays a one-tap insert (each tap adds a callout block, no toggle off); its tile shows on while the cursor is in a callout. Beginner Body size shows on: it is the current state.
 
 - **2026-11-15 · 2A.7 Pressure switch (builder).** Not built: Pressure 0 already turns pressure off, so the slider alone does it (no new stored switch).

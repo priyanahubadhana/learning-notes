@@ -2,7 +2,7 @@
 
 **RUNNING, full team for Phase 2A (owner answer 4A, 15 Nov):** one `phase-manager` (Opus, medium) runs up to 3 Sonnet builders; lean again after the phase. Rewritten 15 Nov, evening.
 
-**Now (phase-manager, 15 Nov late):** Phase 1 re-test finished (owner). Phase 2A building: merge order cfg, 2A.14, 2A.5, then 2A.6 to 2A.13, 2A.15, 2A.16. CI green on `build/next` 541bea89. Webkit is shared with the main chat's Phase 1 tasks: the manager hands out the turn.
+**Now (phase-manager, 15 Nov late, restarted):** merging 2A.6, then 2A.8, then 2A.9 (one at a time, main merged into build/next with each). Next: 2A.7, 2A.10, 2A.11 (R21 first).
 
 ## The order (details in phase-plan.md section 0)
 
@@ -18,15 +18,17 @@
 
 ## Phase 2A tasks (phase-manager, from 15 Nov; webkit turn handed out by the manager)
 
-| Task  | Branch @ head (working copy)                      | State                                                                                          |
-| ----- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)              | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it) |
-| 2A.5  | `slice/2a5` local merge 868ce73c (ln-2a5)         | PASS; build/next merged in, chromium 17/17; webkit turn after P1.11/P1.12                      |
-| 2A.14 | `slice/2a14` merged c2967488 (ln-2a14)            | MERGED; ipad-webkit 28/28, chromium 28; CI waits for main merged into build/next               |
-| cfg   | `slice/2a-cfg-webkit` merged df188a67 (main chat) | MERGED; 2A specs on the ipad-webkit list                                                       |
-| rule  | 2A.14's settings rows + Layout                    | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                        |
-| wheel | `slice/tb2-phone-wheel`                           | merged b2872d53, CI green (run 43704785412)                                                    |
-| rest  | 2A.6–2A.13, 2A.15, 2A.16                          | not started; next after the first three merge (shared tool bar files)                          |
+| Task  | Branch @ head (working copy)                      | State                                                                                                                                                                                 |
+| ----- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)              | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it)                                                                                        |
+| 2A.5  | `slice/2a5` merged 80de703c (ln-2a5)              | MERGED; ipad-webkit 17/17; CI green                                                                                                                                                   |
+| 2A.14 | `slice/2a14` merged c2967488 (ln-2a14)            | MERGED; ipad-webkit 28/28; CI green (f0ab8d00, 0cdaed63)                                                                                                                              |
+| cfg   | `slice/2a-cfg-webkit` merged df188a67 (main chat) | MERGED; 2A specs on the ipad-webkit list                                                                                                                                              |
+| rule  | 2A.14's settings rows + Layout                    | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                                                                                                               |
+| 2A.6  | `slice/2a6` 025dca96 (ln-2a6)                     | re-review PASS; merging now (builder afd374fcf25ef2264); 3 points carry to 2A.16 (phone ★ before ⋯, no open Favourites picture, fixed 700 ms wait)                                    |
+| 2A.8  | `slice/2a8` 66238289 (ln-2a8)                     | 2 FAILs; Opus builder a64dc95c1de7b3551 fixed; re-review PASS; ipad-webkit after 2A.9, then merge                                                                                     |
+| 2A.9  | `slice/2a9` bc461d82 (ln-2a9)                     | review 1 FAIL fixed; ipad-webkit running now; then re-review (aa727769c61c77a7d); builder ab4a3353c97713e95. toolbarV8Text not on the ipad-webkit list (hot file; one cfg step later) |
+| rest  | 2A.7, 2A.10–2A.13, 2A.15, 2A.16                   | 2A.7 after 2A.6, 2A.10 after 2A.9; 2A.11 first fixes the inkTools lasso red (PENDING R21)                                                                                             |
 
 ## Waiting (each has its step)
 

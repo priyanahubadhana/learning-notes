@@ -26,6 +26,14 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
 
+### 15 Nov 2026 (late): 2A.8 and 2A.9 review 1 FAIL
+
+- What: 2A.8 (eraser row to the approved picture, live-bar leak) and 2A.9 (formatTabs pref, test restore, font tiles) fix lists sent; 2A.6 fixes done. Why: review. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
+
+### 15 Nov 2026 (late): 2A.5 merged; 2A.6, 2A.8, 2A.9 built
+
+- What: 2A.5 dark mode merged (80de703c, webkit 17/17); 2A.6 pen row review 1 FAIL; 2A.8 eraser and 2A.9 Format card built on chromium; R21 lasso red logged. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/PENDING.md.
+
 ### 15 Nov 2026 (late): 2A.cfg and 2A.14 merged
 
 - What: 2A.cfg (df188a67) and 2A.14 tool names by mode (c2967488, ipad-webkit 28/28) merged into build/next, part OFF. Why: plan step 2. Files: docs/BUILD-STATE.md.

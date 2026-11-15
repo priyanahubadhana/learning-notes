@@ -20,9 +20,9 @@
 
 | Task  | Branch @ head (working copy)    | State                                                                       |
 | ----- | ------------------------------- | --------------------------------------------------------------------------- |
-| 2A.4  | `slice/2a4` d9728336 (ln-2a4)   | built, chromium green; ipad-webkit running; then review                     |
-| 2A.5  | `slice/2a5` d8dc1b3e (ln-2a5)   | built, chromium green; waits for the webkit turn; then review               |
-| 2A.14 | `slice/2a14` a8d8dc5f (ln-2a14) | built (owns builtinSettings.ts: 5 new settings); TB-42 test fix; webkit 3rd |
+| 2A.4  | `slice/2a4` 6b4eb1c5 (ln-2a4)   | review FAIL 1 (tests), fixed, PASS; waits webkit for new tests; then merge  |
+| 2A.5  | `slice/2a5` 086ace27 (ln-2a5)   | scoped to toolbar.v8; review FAIL 1 (5 fixes: tests, well, Size card)       |
+| 2A.14 | `slice/2a14` 918d9df3 (ln-2a14) | webkit 36/36; review FAIL 1 (settings only with flag ON, pictures, 2 tests) |
 | wheel | `slice/tb2-phone-wheel`         | merged b2872d53 (desktop webkit 1/1 first); CI running                      |
 | rest  | 2A.6–2A.13, 2A.15, 2A.16        | not started; next after the first three merge (shared tool bar files)       |
 

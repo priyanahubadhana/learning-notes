@@ -10,6 +10,8 @@ import { t } from '../i18n/t'
 import { useFlag } from '../app/flags'
 import { UPDATE_LEVEL } from '../app/updateLevel'
 import { useUnlocked } from './level'
+import { autoUpdateSetting } from './builtinSettings'
+import { useDeviceSetting } from './useSetting'
 
 /** Settings › About this app: which version runs, and a way to look for a new one. */
 export function AboutSection() {
@@ -17,6 +19,7 @@ export function AboutSection() {
     'idle' | 'checking' | 'ready' | 'current' | 'failed'
   >(updateWaiting() ? 'ready' : 'idle')
   const [, tick] = useState(0)
+  const [auto] = useDeviceSetting(autoUpdateSetting)
   useEffect(() => onChecked(() => tick((n) => n + 1)), [])
   // update.v2: version, level and last check are Professional (about.version).
   const v2 = useFlag('update.v2')
@@ -56,7 +59,8 @@ export function AboutSection() {
       )}
       <p role="status" data-about-status>
         {status === 'checking' && t('about.checking')}
-        {status === 'ready' && t('about.ready')}
+        {status === 'ready' &&
+          t(auto === 'on' ? 'about.readyAuto' : 'about.ready')}
         {status === 'current' && t('about.current')}
         {status === 'failed' && t('about.failed')}
       </p>

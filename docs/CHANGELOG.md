@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.12 review 2 fix, More card pictures (switch toolbar.v8, OFF live)
+
+- What: the pictures script opens the study fold by its test id and fails when it does not open (it hid a missed click before); dark shots check the theme; one new shot with Copy and paste open; all 13 pictures retaken.
+- Why: review 2 found all Professional pictures with the fold closed.
+- Files: e2e/toolbarV9MoreShots.spec.ts, docs/mockups/toolbar-v9-build-shots/2a12-more/
+
 ### 15 Nov 2026: 2A.10 Format on states (switch toolbar.v8, OFF live)
 
 - What: every Format option that is a state shows accent fill + check for the current selection (lists, callout and key point added; others already had it).

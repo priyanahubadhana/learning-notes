@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { barLayout } from '../app/tools/barLayout'
 import {
   barRoomHeight,
+  OLD_BAR_H,
   barRoomWanted,
   isDocked,
   isRoomMap,
@@ -87,5 +88,16 @@ describe('barRoomHeight (R14: the old bar keeps its own height too)', () => {
     expect(isRoomMap(m)).toBe(true)
     expect(isRoomMap({ a: 'x' })).toBe(false)
     expect(isRoomMap([1])).toBe(false)
+  })
+})
+
+describe('P1.9 R19: the old bar is 64 px in every mode (new frame)', () => {
+  it('keeps 64 px in Computer (36), Touch (44) and Pencil (54) alike', () => {
+    for (const px of [36, 44, 54])
+      expect(barRoomHeight(false, px, null, OLD_BAR_H)).toBe(64)
+  })
+  it('a taller remembered bar (a phone with two rows) still wins', () => {
+    expect(barRoomHeight(false, 44, 128, OLD_BAR_H)).toBe(128)
+    expect(barRoomHeight(true, 44, null, OLD_BAR_H)).toBeNull()
   })
 })

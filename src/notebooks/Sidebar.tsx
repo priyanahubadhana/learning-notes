@@ -39,7 +39,7 @@ import type { Space } from '../app/spaces/spaces'
 import { SavedSearchesSection } from '../search/SavedSearchesSection'
 import { TagsSection } from '../tags/TagsSection'
 import { FavouritesSection, RecentSection } from '../app/QuickPages'
-import { t } from '../i18n/t'
+import { t, type MessageKey } from '../i18n/t'
 import { LazyNameSheet, LazyNotebookMenu } from '../app/LazyNameSheet'
 import { preloadAhead } from '../app/idlePrefetch'
 import { useRowPalmGuard } from '../app/useRowPalmGuard'
@@ -69,6 +69,8 @@ interface SidebarProps {
   /** The user hid the sidebar (not on phones, where it is a drawer). */
   hidden?: boolean
   onCloseDrawer?: () => void
+  /** New frame: hides the docked list (the ✕ in the list's own bar). */
+  onHide?: () => void
   /** The notebook whose tabs are open in the main area, if any. */
   openNotebookId: string | null
   onOpenNotebook: (notebookId: string) => void
@@ -142,6 +144,7 @@ export function Sidebar({
   drawerOpen = false,
   hidden = false,
   onCloseDrawer,
+  onHide,
   openNotebookId,
   onOpenNotebook,
   onOpenToday,
@@ -378,369 +381,407 @@ export function Sidebar({
   return (
     <>
       <aside
-        ref={scrollerRef}
+        ref={shell ? undefined : scrollerRef}
         data-chrome
         id="sidebar"
         data-palm-guard
         aria-label={t('sidebar.label')}
-        style={{ paddingTop: 'calc(14px + var(--top-clear))' }}
-        className={`${hidden ? 'wide:hidden' : ''} flex w-[min(var(--sidebar-width,260px),50vw)] shrink-0 flex-col overflow-y-auto glass rounded-[var(--r-lg)] px-2 py-3.5 transition-colors duration-250 phone:fixed phone:top-0 phone:bottom-14 phone:left-0 phone:z-40 phone:w-[min(300px,85vw)] phone:rounded-s-none phone:shadow-[var(--elev-3)] phone:transition-[transform,visibility] phone:duration-200 ${
+        style={{
+          paddingTop: shell
+            ? 'var(--top-clear, 0px)'
+            : 'calc(14px + var(--top-clear))',
+        }}
+        className={`${hidden ? 'wide:hidden' : ''} flex w-[min(var(--sidebar-width,260px),50vw)] shrink-0 flex-col ${shell ? 'overflow-hidden' : 'overflow-y-auto px-2 py-3.5'} glass rounded-[var(--r-lg)] transition-colors duration-250 phone:fixed phone:top-0 phone:bottom-14 phone:left-0 phone:z-40 phone:w-[min(300px,85vw)] phone:rounded-s-none phone:shadow-[var(--elev-3)] phone:transition-[transform,visibility] phone:duration-200 ${
           drawerOpen
             ? 'phone:translate-x-0'
             : 'phone:invisible phone:-translate-x-full'
         }`}
       >
-        <div className="flex items-center gap-1 pb-3.5 font-semibold tracking-[-0.01em] phone:-mt-1.5 phone:pb-2">
-          {drawerOpen && (
-            // Sits exactly where the button that opened the menu was.
+        {shell ? (
+          // T4: the list has its own bar; only the list below it scrolls.
+          <div
+            data-testid="sb-head"
+            className="flex h-[52px] shrink-0 items-center justify-between gap-2 border-b border-line ps-4 pe-1.5"
+          >
+            <span className="min-w-0 truncate text-[15px] font-semibold">
+              {t(`space.${space}` as MessageKey)}
+            </span>
             <button
               type="button"
-              aria-label={t('nav.closeMenu')}
+              data-testid="sb-head-close"
+              aria-label={t(drawerOpen ? 'nav.closeMenu' : 'sidebar.closeList')}
               aria-controls="sidebar"
-              aria-expanded
-              onClick={onCloseDrawer}
-              className="hidden size-11 shrink-0 items-center justify-center rounded-lg text-ink hover:bg-hover phone:flex"
+              onClick={() => (drawerOpen ? onCloseDrawer?.() : onHide?.())}
+              className="flex size-11 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-hover"
             >
-              <MenuIcon />
+              <Icon name="close" size={16} />
             </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 pb-3.5 font-semibold tracking-[-0.01em] phone:-mt-1.5 phone:pb-2">
+            {drawerOpen && (
+              // Sits exactly where the button that opened the menu was.
+              <button
+                type="button"
+                aria-label={t('nav.closeMenu')}
+                aria-controls="sidebar"
+                aria-expanded
+                onClick={onCloseDrawer}
+                className="hidden size-11 shrink-0 items-center justify-center rounded-lg text-ink hover:bg-hover phone:flex"
+              >
+                <MenuIcon />
+              </button>
+            )}
+            <span className="px-2.5 pt-1 phone:px-1 phone:pt-0">
+              ◐ Learning Notes
+            </span>
+          </div>
+        )}
+        <SideScroll on={shell} scrollerRef={scrollerRef}>
+          {space === 'notebooks' && (
+            <Tip id="sidebar.today" className="flex">
+              <button
+                type="button"
+                onClick={onOpenToday}
+                aria-label={t('sidebar.openToday')}
+                className="mb-1 flex min-h-9 any-pointer-coarse:min-h-11 w-full min-w-0 items-center gap-2 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-left text-sm transition-colors hover:border-accent"
+              >
+                <Icon name="sun" size={16} />
+                <span className="min-w-0 flex-1 truncate whitespace-nowrap">
+                  {t('sidebar.todayLabel', {
+                    date: shortDayLabel(dateKey(new Date())),
+                  })}
+                </span>
+                {keys && (
+                  <kbd className="shrink-0 rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
+                    {altShortcutLabel('T')}
+                  </kbd>
+                )}
+              </button>
+            </Tip>
           )}
-          <span className="px-2.5 pt-1 phone:px-1 phone:pt-0">
-            ◐ Learning Notes
-          </span>
-        </div>
-        {space === 'notebooks' && (
-          <Tip id="sidebar.today" className="flex">
+          <Tip id="sidebar.search" className="flex">
             <button
               type="button"
-              onClick={onOpenToday}
-              aria-label={t('sidebar.openToday')}
-              className="mb-1 flex min-h-9 any-pointer-coarse:min-h-11 w-full min-w-0 items-center gap-2 rounded-lg border border-line bg-bg px-2.5 py-1.5 text-left text-sm transition-colors hover:border-accent"
+              onClick={onOpenSearch}
+              aria-current={searchOpen ? 'page' : undefined}
+              className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+                searchOpen ? 'bg-accent-soft font-medium' : ''
+              }`}
             >
-              <Icon name="sun" size={16} />
-              <span className="min-w-0 flex-1 truncate whitespace-nowrap">
-                {t('sidebar.todayLabel', {
-                  date: shortDayLabel(dateKey(new Date())),
-                })}
+              <span aria-hidden className="text-muted">
+                <Icon name="search" size={18} />
               </span>
+              <span className="flex-1">{t('search.sidebar')}</span>
               {keys && (
-                <kbd className="shrink-0 rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
-                  {altShortcutLabel('T')}
+                <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
+                  {shortcutLabel('K')}
                 </kbd>
               )}
             </button>
           </Tip>
-        )}
-        <Tip id="sidebar.search" className="flex">
-          <button
-            type="button"
-            onClick={onOpenSearch}
-            aria-current={searchOpen ? 'page' : undefined}
-            className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-              searchOpen ? 'bg-accent-soft font-medium' : ''
-            }`}
+          <nav
+            aria-label={t('sidebar.groups')}
+            className={`flex-1 pt-2 ${shell ? '' : 'min-h-32 overflow-auto'}`}
+            {...hold}
           >
-            <span aria-hidden className="text-muted">
-              <Icon name="search" size={18} />
-            </span>
-            <span className="flex-1">{t('search.sidebar')}</span>
-            {keys && (
-              <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
-                {shortcutLabel('K')}
-              </kbd>
-            )}
-          </button>
-        </Tip>
-        <nav
-          aria-label={t('sidebar.groups')}
-          className={`flex-1 pt-2 ${shell ? '' : 'min-h-32 overflow-auto'}`}
-          {...hold}
-        >
-          {(space === 'review' || (space === 'notebooks' && !shell)) &&
-            studyGroup}
-          {space === 'notebooks' && (
-            <>
-              <SidebarGroup
-                id="quick"
-                title={t('sidebar.group.quick')}
-                defaultOpen
-              >
-                <FavouritesSection
-                  db={db}
-                  currentPageId={currentPage?.id ?? null}
-                  onOpen={onOpenPage}
-                />
-                <RecentSection
-                  db={db}
-                  currentPageId={currentPage?.id ?? null}
-                  onOpen={onOpenPage}
-                />
-                <Tip id="sidebar.calendar" className="flex">
-                  <button
-                    type="button"
-                    onClick={onOpenCalendar}
-                    aria-current={calendarOpen ? 'page' : undefined}
-                    className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-                      calendarOpen ? 'bg-accent-soft font-medium' : ''
-                    }`}
-                  >
-                    <span aria-hidden className="text-muted">
-                      ▦
-                    </span>
-                    {t('sidebar.calendar')}
-                  </button>
-                </Tip>
-                <Tip id="sidebar.allDatabases" className="flex">
-                  <button
-                    type="button"
-                    onClick={onOpenAllDatabases}
-                    aria-current={allDatabasesOpen ? 'page' : undefined}
-                    className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
-                      allDatabasesOpen ? 'bg-accent-soft font-medium' : ''
-                    }`}
-                  >
-                    <span aria-hidden className="text-muted">
-                      ◫
-                    </span>
-                    {t('sidebar.allDatabases')}
-                  </button>
-                </Tip>
-              </SidebarGroup>
-              <SidebarGroup
-                id="notebooks"
-                prefKey="notebooksOpen"
-                title={t('sidebar.notebooks')}
-                defaultOpen
-                action={
-                  <span className="flex items-center gap-1">
-                    {v2 && (
-                      <CollapseAllButton
-                        ids={notebooks.map((n) => n.id)}
-                        tree={tree}
-                      />
-                    )}
-                    <IconButton
-                      title={t('sidebar.newNotebook.title')}
-                      tip="sidebar.newNotebook"
-                      onClick={onCreateNotebook}
+            {(space === 'review' || (space === 'notebooks' && !shell)) &&
+              studyGroup}
+            {space === 'notebooks' && (
+              <>
+                <SidebarGroup
+                  id="quick"
+                  title={t('sidebar.group.quick')}
+                  defaultOpen
+                >
+                  <FavouritesSection
+                    db={db}
+                    currentPageId={currentPage?.id ?? null}
+                    onOpen={onOpenPage}
+                  />
+                  <RecentSection
+                    db={db}
+                    currentPageId={currentPage?.id ?? null}
+                    onOpen={onOpenPage}
+                  />
+                  <Tip id="sidebar.calendar" className="flex">
+                    <button
+                      type="button"
+                      onClick={onOpenCalendar}
+                      aria-current={calendarOpen ? 'page' : undefined}
+                      className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+                        calendarOpen ? 'bg-accent-soft font-medium' : ''
+                      }`}
                     >
-                      +
-                    </IconButton>
-                  </span>
-                }
-              >
-                {notebooks.map((notebook) => {
-                  const open = tree.isNotebookOpen(notebook.id)
-                  const line =
-                    dropTarget?.id === notebook.id
-                      ? dropTarget.after
-                        ? 'shadow-[inset_0_-2px_0_var(--color-accent)]'
-                        : 'shadow-[inset_0_2px_0_var(--color-accent)]'
-                      : ''
-                  return (
-                    <div key={notebook.id}>
-                      <div
-                        data-notebook-row={notebook.id}
-                        draggable={renamingNotebookId !== notebook.id}
-                        onDragStart={(e) => {
-                          e.dataTransfer.effectAllowed = 'move'
-                          e.dataTransfer.setData('text/plain', notebook.id) // Firefox
-                          setDragId(notebook.id)
-                        }}
-                        onDragOver={(e) => handleDragOver(e, notebook.id)}
-                        onDrop={handleDrop}
-                        onDragEnd={() => {
-                          setDragId(null)
-                          setDropTarget(null)
-                        }}
-                        className={`group @container flex min-h-9 items-center gap-1.5 rounded-lg px-2 py-1 text-sm hover:bg-hover ${line} ${
-                          openNotebookId === notebook.id ? 'bg-accent-soft' : ''
-                        } ${dragId === notebook.id ? 'opacity-40' : ''}`}
-                      >
-                        <button
-                          type="button"
-                          onClick={() => tree.toggleNotebook(notebook.id)}
-                          aria-label={t(open ? 'tree.collapse' : 'tree.expand')}
-                          className="w-3.5 text-center text-[10px] text-muted"
-                        >
-                          {open ? '▾' : '▸'}
-                        </button>
-                        {!notebook.kind && (
-                          <span
-                            aria-hidden
-                            data-notebook-tile
-                            className="grid size-6 shrink-0 place-items-center rounded-lg text-[10px] leading-none font-bold text-white"
-                            style={{ background: notebookColour(notebook) }}
-                          >
-                            {shortLabel(
-                              displayName(sampleName(notebook)) || '·',
-                            )}
-                          </span>
-                        )}
-                        {renamingNotebookId === notebook.id && !touch ? (
-                          <RenameInput
-                            initial={notebook.title}
-                            className="font-semibold"
-                            onDone={(title) => {
-                              onRenamingChange(null)
-                              if (title)
-                                runTask(renameNotebook(db, notebook.id, title))
-                            }}
-                          />
-                        ) : (
-                          <NotebookTip special={!!notebook.kind}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                // A normal notebook opens (its tabs); special ones fold.
-                                if (notebook.kind) {
-                                  tree.toggleNotebook(notebook.id)
-                                  return
-                                }
-                                tree.expandNotebook(notebook.id)
-                                onOpenNotebook(notebook.id)
-                              }}
-                              aria-current={
-                                openNotebookId === notebook.id
-                                  ? 'page'
-                                  : undefined
-                              }
-                              onDoubleClick={() => rename(notebook)}
-                              className="line-clamp-2 flex-1 text-left font-bold break-words"
-                            >
-                              {notebook.locked && (
-                                <Icon
-                                  name="lock"
-                                  size={13}
-                                  className="me-1 inline"
-                                />
-                              )}
-                              {notebook.editLocked && (
-                                <Icon
-                                  name="lockKeyhole"
-                                  size={13}
-                                  className="me-1 inline"
-                                />
-                              )}
-                              {displayName(sampleName(notebook)) ||
-                                t('review.untitled')}
-                            </button>
-                          </NotebookTip>
-                        )}
-                        {!notebook.kind &&
-                          (dueIn?.get(notebook.id) ?? 0) > 0 && (
-                            <span
-                              aria-label={t('review.dueCount', {
-                                count: dueIn?.get(notebook.id) ?? 0,
-                              })}
-                              className="rounded-full bg-accent px-1.5 text-[11px] leading-5 font-semibold text-on-accent tabular-nums group-hover:hidden any-pointer-coarse:inline"
-                            >
-                              {dueIn?.get(notebook.id)}
-                            </span>
-                          )}
-                        <RowMenuButton
-                          name={sampleName(notebook)}
-                          narrowToo
-                          onOpen={(anchor) =>
-                            setRowMenu({ id: notebook.id, anchor })
-                          }
-                        />
-                        <span className="flex shrink-0 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:hidden">
-                          {notebook.kind !== 'journal' && (
-                            <IconButton
-                              title={t('sidebar.addPage.title')}
-                              tip="sidebar.addPage"
-                              onClick={(e) =>
-                                openAddMenu(
-                                  e.currentTarget.getBoundingClientRect(),
-                                  notebook.id,
-                                  null,
-                                )
-                              }
-                            >
-                              +
-                            </IconButton>
-                          )}
-                          <span className="flex @max-[19rem]:hidden">
-                            {notebook.kind !== 'templates' && (
-                              <IconButton
-                                title={t('review.thisNotebook')}
-                                tip="sidebar.reviewNotebook"
-                                onClick={() =>
-                                  onOpenReview({
-                                    kind: 'notebook',
-                                    notebookId: notebook.id,
-                                  })
-                                }
-                              >
-                                ⟳
-                              </IconButton>
-                            )}
-                            <IconButton
-                              title={t('sidebar.rename.title')}
-                              tip="sidebar.rename"
-                              onClick={() => rename(notebook)}
-                            >
-                              ✎
-                            </IconButton>
-                          </span>
-                          <IconButton
-                            title={t('sidebar.deleteNotebook.title')}
-                            tip="sidebar.deleteNotebook"
-                            onClick={() => requestNotebookDelete(notebook)}
-                          >
-                            <Icon name="close" size={18} />
-                          </IconButton>
-                        </span>
-                      </div>
-                      {open && (
-                        <PageTree
-                          db={db}
-                          notebookId={notebook.id}
-                          currentPageId={currentPage?.id ?? null}
+                      <span aria-hidden className="text-muted">
+                        ▦
+                      </span>
+                      {t('sidebar.calendar')}
+                    </button>
+                  </Tip>
+                  <Tip id="sidebar.allDatabases" className="flex">
+                    <button
+                      type="button"
+                      onClick={onOpenAllDatabases}
+                      aria-current={allDatabasesOpen ? 'page' : undefined}
+                      className={`flex min-h-9 any-pointer-coarse:min-h-11 w-full items-center gap-2 rounded-lg px-2.5 text-left text-sm transition-colors hover:bg-hover ${
+                        allDatabasesOpen ? 'bg-accent-soft font-medium' : ''
+                      }`}
+                    >
+                      <span aria-hidden className="text-muted">
+                        ◫
+                      </span>
+                      {t('sidebar.allDatabases')}
+                    </button>
+                  </Tip>
+                </SidebarGroup>
+                <SidebarGroup
+                  id="notebooks"
+                  prefKey="notebooksOpen"
+                  title={t('sidebar.notebooks')}
+                  defaultOpen
+                  action={
+                    <span className="flex items-center gap-1">
+                      {v2 && (
+                        <CollapseAllButton
+                          ids={notebooks.map((n) => n.id)}
                           tree={tree}
-                          journal={notebook.kind === 'journal'}
-                          onOpen={onOpenPage}
-                          onAddSubPage={(parentId, anchor) =>
-                            openAddMenu(anchor, notebook.id, parentId)
-                          }
-                          onRequestDelete={requestPageDelete}
                         />
                       )}
-                    </div>
-                  )
-                })}
-              </SidebarGroup>
-              <TagsSection
+                      <IconButton
+                        title={t('sidebar.newNotebook.title')}
+                        tip="sidebar.newNotebook"
+                        onClick={onCreateNotebook}
+                      >
+                        +
+                      </IconButton>
+                    </span>
+                  }
+                >
+                  {notebooks.map((notebook) => {
+                    const open = tree.isNotebookOpen(notebook.id)
+                    const line =
+                      dropTarget?.id === notebook.id
+                        ? dropTarget.after
+                          ? 'shadow-[inset_0_-2px_0_var(--color-accent)]'
+                          : 'shadow-[inset_0_2px_0_var(--color-accent)]'
+                        : ''
+                    return (
+                      <div key={notebook.id}>
+                        <div
+                          data-notebook-row={notebook.id}
+                          draggable={renamingNotebookId !== notebook.id}
+                          onDragStart={(e) => {
+                            e.dataTransfer.effectAllowed = 'move'
+                            e.dataTransfer.setData('text/plain', notebook.id) // Firefox
+                            setDragId(notebook.id)
+                          }}
+                          onDragOver={(e) => handleDragOver(e, notebook.id)}
+                          onDrop={handleDrop}
+                          onDragEnd={() => {
+                            setDragId(null)
+                            setDropTarget(null)
+                          }}
+                          className={`group @container flex min-h-9 items-center gap-1.5 rounded-lg px-2 py-1 text-sm hover:bg-hover ${line} ${
+                            openNotebookId === notebook.id
+                              ? 'bg-accent-soft'
+                              : ''
+                          } ${dragId === notebook.id ? 'opacity-40' : ''}`}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => tree.toggleNotebook(notebook.id)}
+                            aria-label={t(
+                              open ? 'tree.collapse' : 'tree.expand',
+                            )}
+                            className="w-3.5 text-center text-[10px] text-muted"
+                          >
+                            {open ? '▾' : '▸'}
+                          </button>
+                          {!notebook.kind && (
+                            <span
+                              aria-hidden
+                              data-notebook-tile
+                              className="grid size-6 shrink-0 place-items-center rounded-lg text-[10px] leading-none font-bold text-white"
+                              style={{ background: notebookColour(notebook) }}
+                            >
+                              {shortLabel(
+                                displayName(sampleName(notebook)) || '·',
+                              )}
+                            </span>
+                          )}
+                          {renamingNotebookId === notebook.id && !touch ? (
+                            <RenameInput
+                              initial={notebook.title}
+                              className="font-semibold"
+                              onDone={(title) => {
+                                onRenamingChange(null)
+                                if (title)
+                                  runTask(
+                                    renameNotebook(db, notebook.id, title),
+                                  )
+                              }}
+                            />
+                          ) : (
+                            <NotebookTip special={!!notebook.kind}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  // A normal notebook opens (its tabs); special ones fold.
+                                  if (notebook.kind) {
+                                    tree.toggleNotebook(notebook.id)
+                                    return
+                                  }
+                                  tree.expandNotebook(notebook.id)
+                                  onOpenNotebook(notebook.id)
+                                }}
+                                aria-current={
+                                  openNotebookId === notebook.id
+                                    ? 'page'
+                                    : undefined
+                                }
+                                onDoubleClick={() => rename(notebook)}
+                                className="line-clamp-2 flex-1 text-left font-bold break-words"
+                              >
+                                {notebook.locked && (
+                                  <Icon
+                                    name="lock"
+                                    size={13}
+                                    className="me-1 inline"
+                                  />
+                                )}
+                                {notebook.editLocked && (
+                                  <Icon
+                                    name="lockKeyhole"
+                                    size={13}
+                                    className="me-1 inline"
+                                  />
+                                )}
+                                {displayName(sampleName(notebook)) ||
+                                  t('review.untitled')}
+                              </button>
+                            </NotebookTip>
+                          )}
+                          {!notebook.kind &&
+                            (dueIn?.get(notebook.id) ?? 0) > 0 && (
+                              <span
+                                aria-label={t('review.dueCount', {
+                                  count: dueIn?.get(notebook.id) ?? 0,
+                                })}
+                                className="rounded-full bg-accent px-1.5 text-[11px] leading-5 font-semibold text-on-accent tabular-nums group-hover:hidden any-pointer-coarse:inline"
+                              >
+                                {dueIn?.get(notebook.id)}
+                              </span>
+                            )}
+                          <RowMenuButton
+                            name={sampleName(notebook)}
+                            narrowToo
+                            onOpen={(anchor) =>
+                              setRowMenu({ id: notebook.id, anchor })
+                            }
+                          />
+                          <span className="flex shrink-0 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 any-pointer-coarse:hidden">
+                            {notebook.kind !== 'journal' && (
+                              <IconButton
+                                title={t('sidebar.addPage.title')}
+                                tip="sidebar.addPage"
+                                onClick={(e) =>
+                                  openAddMenu(
+                                    e.currentTarget.getBoundingClientRect(),
+                                    notebook.id,
+                                    null,
+                                  )
+                                }
+                              >
+                                +
+                              </IconButton>
+                            )}
+                            <span className="flex @max-[19rem]:hidden">
+                              {notebook.kind !== 'templates' && (
+                                <IconButton
+                                  title={t('review.thisNotebook')}
+                                  tip="sidebar.reviewNotebook"
+                                  onClick={() =>
+                                    onOpenReview({
+                                      kind: 'notebook',
+                                      notebookId: notebook.id,
+                                    })
+                                  }
+                                >
+                                  ⟳
+                                </IconButton>
+                              )}
+                              <IconButton
+                                title={t('sidebar.rename.title')}
+                                tip="sidebar.rename"
+                                onClick={() => rename(notebook)}
+                              >
+                                ✎
+                              </IconButton>
+                            </span>
+                            <IconButton
+                              title={t('sidebar.deleteNotebook.title')}
+                              tip="sidebar.deleteNotebook"
+                              onClick={() => requestNotebookDelete(notebook)}
+                            >
+                              <Icon name="close" size={18} />
+                            </IconButton>
+                          </span>
+                        </div>
+                        {open && (
+                          <PageTree
+                            db={db}
+                            notebookId={notebook.id}
+                            currentPageId={currentPage?.id ?? null}
+                            tree={tree}
+                            journal={notebook.kind === 'journal'}
+                            onOpen={onOpenPage}
+                            onAddSubPage={(parentId, anchor) =>
+                              openAddMenu(anchor, notebook.id, parentId)
+                            }
+                            onRequestDelete={requestPageDelete}
+                          />
+                        )}
+                      </div>
+                    )
+                  })}
+                </SidebarGroup>
+                <TagsSection
+                  db={db}
+                  onOpenTag={onOpenTag}
+                  onNotesRewritten={onNotesRewritten}
+                />
+                <TemplatesSection
+                  db={db}
+                  workspaceId={workspaceId}
+                  currentPageId={currentPage?.id ?? null}
+                  tree={tree}
+                  onOpen={onOpenPage}
+                  onCreate={onCreateTemplate}
+                  onRequestDelete={requestTemplateDelete}
+                  onRequestPageDelete={requestPageDelete}
+                />
+              </>
+            )}
+            {(space === 'notebooks' || space === 'review') && (
+              <SavedSearchesSection
                 db={db}
-                onOpenTag={onOpenTag}
-                onNotesRewritten={onNotesRewritten}
+                activeId={savedSearchId}
+                onOpen={onOpenSavedSearch}
+                onReview={onReviewSavedSearch}
               />
-              <TemplatesSection
-                db={db}
-                workspaceId={workspaceId}
-                currentPageId={currentPage?.id ?? null}
-                tree={tree}
-                onOpen={onOpenPage}
-                onCreate={onCreateTemplate}
-                onRequestDelete={requestTemplateDelete}
-                onRequestPageDelete={requestPageDelete}
+            )}
+            {space === 'home' && (
+              <SpacePlaceholder
+                space="home"
+                onOpenToday={onOpenToday}
+                compact
               />
-            </>
-          )}
-          {(space === 'notebooks' || space === 'review') && (
-            <SavedSearchesSection
-              db={db}
-              activeId={savedSearchId}
-              onOpen={onOpenSavedSearch}
-              onReview={onReviewSavedSearch}
-            />
-          )}
-          {space === 'home' && (
-            <SpacePlaceholder space="home" onOpenToday={onOpenToday} compact />
-          )}
-          {space === 'library' &&
-            (libraryPanel ?? <SpacePlaceholder space="library" compact />)}
-        </nav>
+            )}
+            {space === 'library' &&
+              (libraryPanel ?? <SpacePlaceholder space="library" compact />)}
+          </nav>
+        </SideScroll>
         {addMenu && (
           <MenuPopover
             anchor={addMenu.anchor}
@@ -810,6 +851,28 @@ export function Sidebar({
       </aside>
       {shell && <ScrollBar scroller={scroller} />}
     </>
+  )
+}
+
+/** New frame: the list under the bar is the one scrolling area. */
+function SideScroll({
+  on,
+  scrollerRef,
+  children,
+}: {
+  on: boolean
+  scrollerRef: (el: HTMLElement | null) => void
+  children: ReactNode
+}) {
+  return on ? (
+    <div
+      ref={scrollerRef}
+      className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-3.5 pt-2"
+    >
+      {children}
+    </div>
+  ) : (
+    <>{children}</>
   )
 }
 

@@ -11,8 +11,13 @@ import { t } from '../../i18n/t'
 import { SidebarResizer } from '../SidebarResizer'
 import { BarRoom } from '../../editor/BarRoom'
 import type { Space } from '../spaces/spaces'
-import { OverSide, PanelSlot, SideSlot } from './ColumnSlots'
-import { columnsFor, effectiveSidebarWidth, panelLeft } from './columns'
+import { PanelSlot, SideSlot } from './ColumnSlots'
+import {
+  columnsFor,
+  effectiveSidebarWidth,
+  isCompact,
+  panelLeft,
+} from './columns'
 import { usePanelOverlay } from './usePanelOverlay'
 import { type GearActions } from './GearMenu'
 import { Rail } from './Rail'
@@ -65,7 +70,7 @@ export interface ShellProps {
   /** A page is the open screen: the bar slot keeps the tool bar's height (BarRoom). */
   pageRoute?: boolean
   /** The sidebar element; the frame sets its `hidden` prop. */
-  sidebar: ReactElement<{ hidden?: boolean }>
+  sidebar: ReactElement<{ hidden?: boolean; onHide?: () => void }>
   /** The pages panel element; the frame sets `docked` and `width`. */
   panel: ReactElement<{ docked?: boolean; width?: number }>
   /** Under the bars: the page area. */
@@ -123,10 +128,14 @@ export default function Shell(p: ShellProps) {
   }
   const cols = columnsFor({ ...base, sideOver })
   const stepped = columnsFor({ ...base, sideOver: false }).steppedAside
+  // The page column is narrow (a docked list beside it): the top bar gives up its
+  // lesser buttons, like on a phone, and Beginner | Professional sits under it.
+  const compact = isCompact(cols, width, drawn)
 
   const closeOver = useCallback(() => setOverAt(null), [])
   const closePanel = useCallback(() => onPanelOpen(false), [onPanelOpen])
-  useEscape(cols.sidebar === 'over', closeOver)
+  // The stepped-aside sidebar the user opened (docked beside the page) closes with Esc.
+  useEscape(stepped && sideOver, closeOver)
   useEscape(cols.phone && cols.panel === 'over', closePanel)
   // Beside the page there was no room to dock the panel: it opens over the page.
   const panelOver = !cols.phone && cols.panel === 'over'
@@ -152,6 +161,7 @@ export default function Shell(p: ShellProps) {
     <div
       data-app-shell
       data-mode={modeOf(level)}
+      data-compact={compact ? '' : undefined}
       className="sh-frame bg-wash"
       style={frameStyle}
     >
@@ -163,7 +173,7 @@ export default function Shell(p: ShellProps) {
         <SideSlot
           cols={cols}
           width={drawn}
-          render={(o) => cloneElement(sidebar, o)}
+          render={(o) => cloneElement(sidebar, { ...o, onHide: toggleSidebar })}
         />
         {cols.sidebar === 'docked' && (
           // Its own stacking group, so the page's pop-ups (block menus) paint above it.
@@ -175,7 +185,7 @@ export default function Shell(p: ShellProps) {
           cols={cols}
           wrapRef={panelWrap}
           // Over the page it covers the docked sidebar, never the page (its ✕ and bars stay reachable).
-          left={panelLeft(null)}
+          left={panelLeft(stepped && sideOver ? drawn : null)}
           render={(o) => cloneElement(panel, o)}
         />
         <div className="sh-main">
@@ -216,18 +226,13 @@ export default function Shell(p: ShellProps) {
               <BarRoom pageRoute={!!pageRoute} />
             </div>
           </div>
-          {cols.phone && (
+          {(cols.phone || compact) && (
             <div className="sh-viewrow">
               <ViewToggle />
             </div>
           )}
           {children}
         </div>
-        <OverSide
-          cols={cols}
-          render={(o) => cloneElement(sidebar, o)}
-          onClose={closeOver}
-        />
         {cols.phone && drawerOpen && (
           // A second way to close the drawer for fingers; the sidebar's own
           // button is the one for keyboards and screen readers.

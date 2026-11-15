@@ -115,20 +115,21 @@ describe('Shell columns (SH-07, SH-08)', () => {
     expect($('.sh-sidewrap')?.getAttribute('data-state')).toBe('hidden')
   })
 
-  it('the sidebar toggle opens the stepped-aside sidebar over the page; Esc closes it', () => {
+  it('the sidebar toggle docks the stepped-aside sidebar beside the page (no scrim, never over the bars); Esc closes it', () => {
     const onToggleSidebar = vi.fn()
     mount(h(Shell, props({ hasPanel: true, panelOpen: true, onToggleSidebar })))
-    // It opens a drawer over the page, so it is named like the phone's button.
     click($('.sh-wide-only button'))
     expect(onToggleSidebar).not.toHaveBeenCalled() // the saved choice is untouched
-    expect($('.sh-overwrap #sidebar')).not.toBeNull()
-    expect($('.sh-scrim')).not.toBeNull()
+    expect($('.sh-sidewrap')?.getAttribute('data-state')).toBe('docked')
+    expect($('.sh-sidewrap #sidebar')).not.toBeNull()
+    expect($('.sh-overwrap')).toBeNull()
+    expect($('.sh-scrim')).toBeNull()
     document.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
     )
     // closed by the router handler
     return Promise.resolve().then(() => {
-      expect($('.sh-overwrap')).toBeNull()
+      expect($('.sh-sidewrap')?.getAttribute('data-state')).toBe('hidden')
     })
   })
 

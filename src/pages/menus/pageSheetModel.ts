@@ -21,6 +21,8 @@ export interface SheetRow {
   /** A row that opens a second view of the sheet (Move). */
   view?: 'move'
   run?: () => void
+  /** An on/off thing (Lock editing, Pause reviews): the new frame draws a switch with its state. */
+  toggle?: { on: boolean; label: string }
 }
 
 /** What the page offers; the caller leaves out what does not apply (templates, no sign-in). */
@@ -52,6 +54,7 @@ export interface PageSheetActions {
     label: string
     run?: () => void
     children?: SubItem[]
+    toggle?: { on: boolean; label: string }
   }[]
 }
 
@@ -260,6 +263,7 @@ export function buildRows(a: PageSheetActions): SheetRow[] {
       icon: 'sliders',
       run: x.run,
       children: x.children,
+      toggle: x.toggle,
     })
   }
   return out
@@ -289,3 +293,50 @@ export function cleanPins(value: unknown, known: readonly string[]): string[] {
       out.push(v)
   return out.slice(0, PIN_MAX)
 }
+
+/** The four main actions on top of the sheet when nothing was pinned yet (P1.9 T22). */
+export const MAIN_TILES = ['export', 'lock', 'history', 'search'] as const
+/** Beginner has no Search all row, so three. */
+export const BEGINNER_TILES = ['export', 'lock', 'history'] as const
+
+/** The tiles shown on top: the user's pins, or the main ones until they choose. */
+export function tileIds(
+  stored: unknown,
+  known: readonly string[],
+  all: boolean,
+): string[] {
+  if (!all) return BEGINNER_TILES.filter((id) => known.includes(id))
+  if (!Array.isArray(stored))
+    return MAIN_TILES.filter((id) => known.includes(id))
+  return cleanPins(stored, known)
+}
+
+/**
+ * The new frame's sheet (T22): a few tiles on top, everything else in groups
+ * folded behind a ▾ (a tile's action leaves its group). Beginner's other rows
+ * fold into one "Page" group. Nothing is dropped.
+ */
+export function foldGroups(
+  rows: readonly SheetRow[],
+  all: boolean,
+  tiles: readonly string[],
+): { section: SheetSection; rows: SheetRow[] }[] {
+  const left = rows.filter((r) => !tiles.includes(r.id))
+  if (!all) {
+    const ids: readonly string[] = BEGINNER_IDS
+    return [
+      {
+        section: 'page' as SheetSection,
+        rows: ids.flatMap((id) => left.filter((r) => r.id === id)),
+      },
+    ].filter((g) => g.rows.length > 0)
+  }
+  return SECTIONS.map((section) => ({
+    section,
+    rows: left.filter((r) => r.section === section),
+  })).filter((g) => g.rows.length > 0)
+}
+
+/** The grey line under a folded group: what is inside, in a few words. */
+export const groupSummary = (rows: readonly SheetRow[]): string =>
+  rows.map((r) => r.toggle?.label ?? r.label).join(', ')

@@ -131,6 +131,7 @@ export const esSidebar = {
   'sidebar.group.quick': 'Acceso rápido',
   'sidebar.group.study': 'Estudio',
   'sidebar.groups': 'Grupos de la barra lateral',
+  'sidebar.closeList': 'Cerrar la lista',
   'sidebar.label': 'Barra lateral',
   'sidebar.newNotebook.title': 'Cuaderno nuevo',
   'sidebar.notebooks': 'Cuadernos',

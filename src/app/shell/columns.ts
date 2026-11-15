@@ -41,7 +41,7 @@ export interface ColumnInput {
 
 export interface Columns {
   phone: boolean
-  sidebar: 'docked' | 'hidden' | 'over' | 'drawer'
+  sidebar: 'docked' | 'hidden' | 'drawer'
   panel: 'docked' | 'over' | 'hidden'
   /** The sidebar is hidden only because there is no room for it beside the page. */
   steppedAside: boolean
@@ -51,6 +51,27 @@ export const isPhone = (width: number, height: number): boolean =>
   width < PHONE_MAX_W || height < PHONE_MAX_H
 
 export function columnsFor(i: ColumnInput): Columns {
+  // P1.9 (T4): a stepped-aside sidebar the user opened docks beside the rail and
+  // the page column narrows; it is never drawn over the top bar. A pages panel
+  // with no room beside it then opens over the page.
+  if (i.sideOver) {
+    const base = columnsFor({ ...i, sideOver: false })
+    if (base.steppedAside && base.sidebar === 'hidden') {
+      const sw = i.sidebarWidth ?? COLUMN_WIDTH
+      const room = i.width - FRAME_PAD - RAIL_COST - sideCost(sw)
+      return {
+        phone: false,
+        sidebar: 'docked',
+        panel: !i.panelOpen
+          ? 'hidden'
+          : room - PANEL_COST >= MIN_PAGE_W
+            ? 'docked'
+            : 'over',
+        steppedAside: true,
+      }
+    }
+    return base
+  }
   if (isPhone(i.width, i.height)) {
     return {
       phone: true,
@@ -66,8 +87,7 @@ export function columnsFor(i: ColumnInput): Columns {
   const wide = i.width >= BOTH_MIN_W
   const wantSide = !i.sidebarHidden
   // The sidebar gone from the row: hidden by choice, or stepped aside for lack of room.
-  const away = (stepped: boolean): Columns['sidebar'] =>
-    stepped && i.sideOver ? 'over' : 'hidden'
+  const away = (): Columns['sidebar'] => 'hidden'
 
   if (!i.panelOpen) {
     if (!wantSide || fits(true, false))
@@ -79,7 +99,7 @@ export function columnsFor(i: ColumnInput): Columns {
       }
     return {
       phone: false,
-      sidebar: away(true),
+      sidebar: away(),
       panel: 'hidden',
       steppedAside: true,
     }
@@ -103,7 +123,7 @@ export function columnsFor(i: ColumnInput): Columns {
   if (!wide && fits(false, true))
     return {
       phone: false,
-      sidebar: away(true),
+      sidebar: away(),
       panel: 'docked',
       steppedAside: true,
     }
@@ -116,7 +136,7 @@ export function columnsFor(i: ColumnInput): Columns {
     }
   return {
     phone: false,
-    sidebar: away(true),
+    sidebar: away(),
     panel: fits(false, true) ? 'docked' : 'over',
     steppedAside: true,
   }
@@ -131,3 +151,21 @@ export const panelLeft = (dockedSidebar: number | null): number =>
 /** The width to draw: the saved one, or 288 when it is still today's 260. */
 export const effectiveSidebarWidth = (saved: number): number =>
   saved === OLD_DEFAULT ? COLUMN_WIDTH : saved
+
+/** Below this the page column is too narrow for the whole top bar. */
+export const COMPACT_PAGE_W = 600
+
+/** The page column is narrower than the whole top bar needs (not a phone). */
+export function isCompact(
+  cols: Columns,
+  width: number,
+  sidebarWidth: number,
+): boolean {
+  if (cols.phone) return false
+  const used =
+    FRAME_PAD +
+    RAIL_COST +
+    (cols.sidebar === 'docked' ? sideCost(sidebarWidth) : 0) +
+    (cols.panel === 'docked' ? PANEL_COST : 0)
+  return width - used < COMPACT_PAGE_W
+}

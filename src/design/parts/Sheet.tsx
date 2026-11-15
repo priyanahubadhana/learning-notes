@@ -9,6 +9,8 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { useFlag } from '../../app/flags'
+import { useFrameSize } from '../../app/shell/useFrameSize'
 import { Icon } from '../../app/tools/icons'
 import { openInTopLayer, trapFocus } from '../../app/overlay'
 import { motionMs } from './motion'
@@ -24,6 +26,13 @@ const SWIPE = 80
 
 export interface SheetProps {
   title: string
+  /** A grey line under the title (the page and its notebook). */
+  subtitle?: string
+  /**
+   * A choice sheet that changes something: ✕ sits at the top left (leave without
+   * changes) and ✓ at the top right (keep). Only in the new frame.
+   */
+  confirm?: { label: string; onConfirm(): void }
   children?: ReactNode
   footer?: ReactNode
   /** Called after the closing motion, for ✕, Esc or a swipe. */
@@ -52,10 +61,41 @@ export function Sheet(props: SheetProps) {
   const [closing, setClosing] = useState(false)
   const closeRef = useRef(onClose)
   const closingRef = useRef(false)
+  // New frame (P1.9 T4/T21/T22): the sheet starts below the top bar, one fixed
+  // size, over a dim that covers only the page area; the first outside tap closes it.
+  const shell = useFlag('foundation.shell') && mode === 'floating'
+  const scrimRef = useRef<HTMLDivElement | null>(null)
+  // A turned screen moves the top bar: place the sheet again (no raw listener).
+  const frame = useFrameSize()
   const start = useRef<{ x: number; y: number; head: boolean } | null>(null)
   useLayoutEffect(() => {
     closeRef.current = onClose
   })
+
+  useLayoutEffect(() => {
+    if (!shell) return
+    const place = () => {
+      const bar = document
+        .querySelector('header[data-shell-top]')
+        ?.getBoundingClientRect()
+      for (const el of [ref.current, scrimRef.current]) {
+        if (!el) continue
+        el.style.setProperty(
+          '--fb-sheet-top',
+          `${Math.round((bar?.bottom ?? 0) + 8)}px`,
+        )
+        el.style.setProperty(
+          '--fb-scrim-top',
+          `${Math.round(bar?.bottom ?? 0)}px`,
+        )
+        el.style.setProperty(
+          '--fb-scrim-left',
+          `${Math.round(bar?.left ?? 0)}px`,
+        )
+      }
+    }
+    place()
+  }, [shell, frame.width, frame.height])
 
   const requestClose = useCallback(() => {
     if (closingRef.current) return
@@ -67,6 +107,23 @@ export function Sheet(props: SheetProps) {
   }, [])
 
   useEffect(() => {
+    const scrim = scrimRef.current
+    if (!shell || !scrim) return
+    try {
+      scrim.showPopover()
+    } catch {
+      // No popover support: the scrim is a plain fixed layer.
+    }
+    return () => {
+      try {
+        scrim.hidePopover()
+      } catch {
+        // Already hidden.
+      }
+    }
+  }, [shell])
+
+  useEffect(() => {
     if (mode !== 'floating') return
     const el = ref.current
     if (!el) return
@@ -76,7 +133,8 @@ export function Sheet(props: SheetProps) {
       (document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null)
-    const docked = sheetDocks()
+    // With the dim over the page, a tap beside the sheet is an outside tap.
+    const docked = sheetDocks() && !shell
     const handle = openInTopLayer(el, {
       id,
       layer: 'sheet',
@@ -96,7 +154,7 @@ export function Sheet(props: SheetProps) {
       else opener?.focus()
       handle.close()
     }
-  }, [mode, id, props.opener, requestClose])
+  }, [mode, id, props.opener, requestClose, shell])
 
   const down = (e: RPointerEvent) => {
     const head = !!(e.target as HTMLElement).closest('.fb-sheet__head')
@@ -113,6 +171,17 @@ export function Sheet(props: SheetProps) {
   }
 
   const sfx = mode === 'inline' ? '-inline' : ''
+  const closeButton = (
+    <button
+      type="button"
+      className="fb-x"
+      aria-label={tf('parts.fb.close')}
+      data-testid={`fb-sheet-close${sfx}`}
+      onClick={requestClose}
+    >
+      <Icon name="close" size={16} />
+    </button>
+  )
   const card = (
     <div
       ref={ref}
@@ -120,9 +189,12 @@ export function Sheet(props: SheetProps) {
       data-mode={mode}
       data-phone={props.phone ? '' : undefined}
       data-closing={closing ? '' : undefined}
+      data-shell={shell ? '' : undefined}
       data-testid={props['data-testid'] ?? `fb-sheet${sfx}`}
       role="dialog"
-      aria-modal={mode === 'floating' && !sheetDocks() ? 'true' : undefined}
+      aria-modal={
+        mode === 'floating' && (!sheetDocks() || shell) ? 'true' : undefined
+      }
       aria-labelledby={`${id}-title`}
       tabIndex={-1}
       onPointerDown={down}
@@ -130,19 +202,34 @@ export function Sheet(props: SheetProps) {
       onPointerCancel={() => (start.current = null)}
     >
       <span className="fb-sheet__grab" aria-hidden="true" />
-      <header className="fb-sheet__head">
-        <h2 id={`${id}-title`} className="fb-sheet__title">
-          {title}
-        </h2>
-        <button
-          type="button"
-          className="fb-x"
-          aria-label={tf('parts.fb.close')}
-          data-testid={`fb-sheet-close${sfx}`}
-          onClick={requestClose}
-        >
-          <Icon name="close" size={16} />
-        </button>
+      <header
+        className="fb-sheet__head"
+        data-confirm={props.confirm ? '' : undefined}
+      >
+        {props.confirm && closeButton}
+        <div className="fb-sheet__heading">
+          <h2 id={`${id}-title`} className="fb-sheet__title">
+            {title}
+          </h2>
+          {props.subtitle ? (
+            <p className="fb-sheet__sub" data-testid={`fb-sheet-sub${sfx}`}>
+              {props.subtitle}
+            </p>
+          ) : null}
+        </div>
+        {props.confirm ? (
+          <button
+            type="button"
+            className="fb-x fb-ok"
+            aria-label={props.confirm.label}
+            data-testid={`fb-sheet-ok${sfx}`}
+            onClick={props.confirm.onConfirm}
+          >
+            <Icon name="check" size={18} />
+          </button>
+        ) : (
+          closeButton
+        )}
       </header>
       <div className="fb-sheet__body" data-testid={`fb-sheet-body${sfx}`}>
         {children}
@@ -154,5 +241,21 @@ export function Sheet(props: SheetProps) {
       ) : null}
     </div>
   )
-  return mode === 'inline' ? card : createPortal(card, document.body)
+  return mode === 'inline'
+    ? card
+    : createPortal(
+        <>
+          {shell && (
+            <div
+              ref={scrimRef}
+              popover="manual"
+              className="fb-sheet-scrim"
+              data-testid="fb-sheet-scrim"
+              aria-hidden="true"
+            />
+          )}
+          {card}
+        </>,
+        document.body,
+      )
 }

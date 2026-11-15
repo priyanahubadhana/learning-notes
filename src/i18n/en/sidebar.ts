@@ -113,6 +113,7 @@ export const enSidebar = {
   'sidebar.group.quick': 'Quick access',
   'sidebar.group.study': 'Study',
   'sidebar.groups': 'Sidebar groups',
+  'sidebar.closeList': 'Close the list',
   'sidebar.label': 'Sidebar',
   'sidebar.newNotebook.title': 'New notebook',
   'sidebar.notebooks': 'Notebooks',

@@ -36,6 +36,8 @@ export const enLatePageMenus = {
   'pageMenus.sheet.tools': 'Tools',
   'pageMenus.sheet.pinned': 'Pinned',
   'pageMenus.sheet.pinAdd': '+ Pin an action',
+  'pageMenus.sheet.pinSub': 'Pick up to {max} for your bar',
+  'pageMenus.sheet.pinCount': '{count} of {max} pinned to your bar',
   'pageMenus.sheet.pin': 'Pin to top',
   'pageMenus.sheet.arrange': 'Arrange pinned actions',
   'pageMenus.sheet.unpin': 'Unpin',

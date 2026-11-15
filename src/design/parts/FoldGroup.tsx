@@ -8,11 +8,16 @@ import './FoldGroup.css'
  */
 export function FoldGroup({
   label,
+  hint,
+  icon,
   defaultOpen = false,
   testId,
   children,
 }: {
   label: string
+  /** A grey line under the label: what is inside. */
+  hint?: string
+  icon?: ReactNode
   defaultOpen?: boolean
   testId?: string
   children: ReactNode
@@ -29,7 +34,15 @@ export function FoldGroup({
         onMouseDown={(e) => e.preventDefault()}
         onClick={() => setOpen(!open)}
       >
-        <span>{label}</span>
+        {icon ? (
+          <span className="fgroup-icon" aria-hidden>
+            {icon}
+          </span>
+        ) : null}
+        <span className="fgroup-text">
+          <span>{label}</span>
+          {hint ? <span className="fgroup-hint">{hint}</span> : null}
+        </span>
         <span className="fgroup-chev" aria-hidden>
           <Icon name="chevronDown" size={18} />
         </span>

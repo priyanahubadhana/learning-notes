@@ -96,8 +96,35 @@
   min-height: 56px;
   padding: 0 var(--space-2) 0 var(--space-4);
 }
-.fb-sheet__title {
+.fb-sheet__heading {
   flex: 1;
+  min-width: 0;
+}
+.fb-sheet__sub {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--color-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* ✕ at the top left, ✓ at the top right: the title sits between them. */
+.fb-sheet__head[data-confirm] {
+  padding: 0 var(--space-2);
+}
+.fb-sheet__head[data-confirm] .fb-sheet__heading {
+  text-align: center;
+}
+.fb-ok {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.fb-ok:hover {
+  background: var(--color-accent);
+  filter: brightness(1.08);
+}
+.fb-sheet__title {
   min-width: 0;
   margin: 0;
   font-size: 17px;
@@ -177,5 +204,47 @@
   .fb-sheet[data-mode='floating'],
   .fb-sheet[data-mode='floating'][data-closing] {
     animation-duration: 0.01ms;
+  }
+}
+
+/* New frame (foundation.shell): one fixed size, 12 px from the edges, starting
+   just below the top bar; only the page area under the bar is dimmed. */
+.fb-sheet[data-mode='floating'][data-shell] {
+  inset: var(--fb-sheet-top, 64px) var(--sh-gap) var(--sh-gap) auto;
+  width: min(var(--sh-sheet), calc(100% - 2 * var(--sh-gap)));
+  height: auto;
+  border-radius: var(--r-lg);
+  padding-bottom: 0;
+}
+.fb-sheet-scrim {
+  position: fixed;
+  inset: var(--fb-scrim-top, 0px) 0 0 var(--fb-scrim-left, 0px);
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--scrim);
+  animation: fb-scrim-in var(--fb-dur-sheet-in) var(--ease-out) both;
+}
+@keyframes fb-scrim-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fb-sheet-scrim {
+    animation: none;
+  }
+}
+@media (max-width: 39.999rem), (max-height: 31.999rem) {
+  .fb-sheet[data-mode='floating'][data-shell] {
+    inset: var(--fb-sheet-top, 64px) 0 0 0;
+    width: 100%;
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .fb-sheet-scrim {
+    inset: var(--fb-scrim-top, 0px) 0 0 0;
   }
 }

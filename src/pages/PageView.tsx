@@ -449,6 +449,7 @@ export function PageView({
           editLockBy === 'notebook' || editLockBy === 'account'
             ? null
             : editLockItem(db, 'page', page.id, !!page.editLocked, toast),
+        toggle: { on: !!page.editLocked, label: t('editLock.menu.lock') },
       },
       {
         section: 'protect',
@@ -463,6 +464,7 @@ export function PageView({
                 toast,
               )
             : null,
+        toggle: { on: !!page.paused, label: t('pause.pause') },
       },
       {
         section: 'view',

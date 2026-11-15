@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   buildRows,
   cleanPins,
+  foldGroups,
+  groupSummary,
+  tileIds,
   visibleGroups,
   type PageSheetActions,
 } from './pageSheetModel'
@@ -94,5 +97,55 @@ describe('page sheet model (PM-61, PM-62, PM-63)', () => {
       ),
     ).toEqual(['history', 'export', 'rename', 'move', 'lock'])
     expect(cleanPins('x', known)).toEqual([])
+  })
+})
+
+describe('P1.9 T22: tiles and folded groups', () => {
+  const rows = buildRows(actions)
+  const known = rows.map((r) => r.id)
+
+  it('Professional: the four main actions are the tiles until the user pins others', () => {
+    expect(tileIds(null, known, true)).toEqual([
+      'export',
+      'lock',
+      'history',
+      'search',
+    ])
+    expect(tileIds(['rename'], known, true)).toEqual(['rename'])
+    expect(tileIds([], known, true)).toEqual([])
+  })
+  it('Beginner: three tiles (there is no Search all row)', () => {
+    expect(tileIds(['rename'], known, false)).toEqual([
+      'export',
+      'lock',
+      'history',
+    ])
+  })
+  it('a tile leaves its group; nothing else is dropped', () => {
+    const tiles = tileIds(null, known, true)
+    const groups = foldGroups(rows, true, tiles)
+    const left = groups.flatMap((g) => g.rows.map((r) => r.id))
+    for (const id of tiles) expect(left).not.toContain(id)
+    expect([...left, ...tiles].sort()).toEqual([...known].sort())
+  })
+  it('Beginner: the other plain rows fold into one Page group, in order', () => {
+    const groups = foldGroups(rows, false, tileIds(null, known, false))
+    expect(groups).toHaveLength(1)
+    expect(groups[0].section).toBe('page')
+    expect(groups[0].rows.map((r) => r.id)).toEqual([
+      'rename',
+      'move',
+      'duplicate',
+      'delete',
+      'reading',
+    ])
+  })
+  it('the grey line lists what is inside (a switch row by its own name)', () => {
+    const a = {
+      ...rows[0],
+      label: 'Unlock editing',
+      toggle: { on: true, label: 'Lock editing' },
+    }
+    expect(groupSummary([rows[1], a])).toBe(`${rows[1].label}, Lock editing`)
   })
 })

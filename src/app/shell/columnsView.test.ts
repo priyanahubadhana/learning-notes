@@ -1,15 +1,9 @@
 // @vitest-environment jsdom
 import { createElement as h, act } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import {
-  $,
-  byLabel,
-  click,
-  cleanDom,
-  mount,
-} from '../../design/parts/testHelpers'
+import { $, cleanDom, mount } from '../../design/parts/testHelpers'
 import { resetEventRouterForTests } from '../input/eventRouter'
-import { OverSide, PanelSlot, SideSlot } from './ColumnSlots'
+import { PanelSlot, SideSlot } from './ColumnSlots'
 import { columnsFor, type ColumnInput } from './columns'
 import { useEscape } from './useEscape'
 
@@ -30,7 +24,7 @@ const cols = (over: Partial<ColumnInput> = {}) =>
 const side = ({ hidden }: { hidden: boolean }) =>
   h('aside', { id: 'sidebar', 'data-hidden': String(hidden) }, 'Sidebar')
 
-describe('SideSlot / OverSide (SH-07)', () => {
+describe('SideSlot (SH-07)', () => {
   it('draws the sidebar in the row with the chosen width', () => {
     mount(h(SideSlot, { cols: cols(), width: 288, render: side }))
     const wrap = $('.sh-sidewrap')
@@ -50,23 +44,12 @@ describe('SideSlot / OverSide (SH-07)', () => {
     expect($('#sidebar')?.getAttribute('data-hidden')).toBe('true')
   })
 
-  it('draws the sidebar over the page only in the "over" state, with a scrim that closes it', () => {
-    const over = cols({ width: 820, panelOpen: true, sideOver: true })
-    const onClose = vi.fn()
-    mount(
-      h('div', null, [
-        h(SideSlot, { key: 'a', cols: over, width: 288, render: side }),
-        h(OverSide, { key: 'b', cols: over, render: side, onClose }),
-      ]),
-    )
+  it('P1.9 T4: a stepped-aside sidebar the user opened sits in the row (docked), with no scrim and no overlay', () => {
+    const open = cols({ width: 820, panelOpen: true, sideOver: true })
+    mount(h(SideSlot, { cols: open, width: 288, render: side }))
     expect($$count('#sidebar')).toBe(1)
-    expect($('.sh-overwrap')).not.toBeNull()
-    click(byLabel('Close menu'))
-    expect(onClose).toHaveBeenCalled()
-  })
-
-  it('draws no scrim when the sidebar is docked', () => {
-    mount(h(OverSide, { cols: cols(), render: side, onClose: () => {} }))
+    expect($('.sh-sidewrap')?.getAttribute('data-state')).toBe('docked')
+    expect($('.sh-overwrap')).toBeNull()
     expect($('.sh-scrim')).toBeNull()
   })
 })

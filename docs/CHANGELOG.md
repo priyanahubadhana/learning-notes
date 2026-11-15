@@ -1857,3 +1857,7 @@ What: `git worktree remove` on 47 clean, merged copies; 19 remain. Six folders w
 What: 6 scratch working copies removed with git and 9 folders in `.claude/worktrees` deleted (owner's one-time yes; links removed first; main packages untouched); 8 half-deleted folders in Downloads remain for task 0.11. docs/BUILD-STATE.md now says RESTART APPROVED (lean mode, the order of the first tasks); docs/PENDING.md "Needs you" rewritten; the owner's answers logged in docs/DECISIONS.md. Why: the owner answered the last three questions and asked to speed up.
 
 - 2026-11-15: HOW-WE-BUILD section 2: new rule (owner's OK): a full side-by-side check against the approved design before every first look.
+
+## 2026-11-15 Owner answers E, H, 5
+
+- What: E option 1 (upright Pencil mode icons only), H option 1 (merge the two November 2026 pages, backup first), 5 yes (Format 3 tabs Beginner, 4 Professional). Why: owner answers to the contradictions list. Files: docs/plans/contradictions-2026-11-15.md, docs/PENDING.md.

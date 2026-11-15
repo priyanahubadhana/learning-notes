@@ -1,3 +1,5 @@
+import { highlighterSettings, penSettings } from '../main/inkSettings'
+import { currentRunner } from '../toolRuntime'
 import {
   applyFavourite,
   isCurrent,
@@ -28,10 +30,27 @@ export const favTypeId = (f: Favourite): PenTypeId =>
 export const penFavItems = (list: readonly Favourite[]): FavItem[] =>
   list.map((fav, i) => ({ id: `fav${i}`, fav, typeId: favTypeId(fav) }))
 
-/** Sets type, size and colour, and switches to that pen or highlighter. */
-export function chooseFavourite(fav: Favourite): void {
-  applyFavourite(fav)
-  activeTool.set(fav.tool === 'highlighter' ? 'highlighter' : 'pen')
+/**
+ * Sets type, size and colour, switches to that pen or highlighter, and says so
+ * with an Undo that puts back what was there (TB-21c, TB-51).
+ */
+export function chooseFavourite(item: FavItem): void {
+  const before = {
+    pen: penSettings.get(),
+    hl: highlighterSettings.get(),
+    tool: activeTool.get(),
+  }
+  applyFavourite(item.fav)
+  activeTool.set(item.fav.tool === 'highlighter' ? 'highlighter' : 'pen')
+  currentRunner().app?.toast(t('v8.fav.applied', { name: favName(item) }), {
+    label: t('v8.bar.undo'),
+    icon: 'undo',
+    onSelect: () => {
+      penSettings.update(before.pen)
+      highlighterSettings.update(before.hl)
+      activeTool.set(before.tool)
+    },
+  })
 }
 
 /** True while the pen (or highlighter) in use is set exactly like it. */

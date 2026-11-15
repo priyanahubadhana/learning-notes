@@ -6,14 +6,8 @@ import { Icon } from '../icons'
 import { ROW_ITEMS, cardIdOf, type RowItem } from './rowItems'
 import { dotPx, usePenFace, type PenFace } from './penFace'
 import { PenPic } from './PenPictures'
-import {
-  chooseFavourite,
-  favIsActive,
-  favLabel,
-  penFavItems,
-  sizeDotPx,
-} from './penRow'
-import { FavChip, FavMeasure } from './PenFavChip'
+import { penFavItems, sizeDotPx } from './penRow'
+import { FavGroup, FavMeasure, FavStar } from './PenFavChip'
 import { penFavourites } from '../main/penFavourites'
 import { activeTool } from '../main/mainTools'
 import { useChangeCounts } from './changeCount'
@@ -73,12 +67,14 @@ function Face({
             style={{
               width: v.dotPx,
               height: v.dotPx,
-              ...(item.tool === 'pen' ? { background: pen.colour } : null),
+              ...(item.tool === 'pen'
+                ? { background: displayInk(pen.colour) }
+                : null),
             }}
           />
         </span>
       ) : item.tool === 'pen' && item.id === 'type' ? (
-        <PenPic typeId={pen.typeId} colour={pen.colour} />
+        <PenPic typeId={pen.typeId} colour={displayInk(pen.colour)} />
       ) : item.icon ? (
         <Icon name={item.icon} size={18} />
       ) : null}
@@ -134,8 +130,11 @@ export function ToolRow({
       fixedW: it.kind === 'toggle' ? 44 : undefined,
       keepName: it === openItem && !frozen,
     })),
-    // Favourites give way first, the last one before the first (TB-21c).
-    ...favItems.map((f, i) => ({ id: f.id, priority: 50 - i })),
+    // The favourites are one group that keeps its names and gives way first,
+    // into its own "★ n" (TB-21c).
+    ...(favItems.length
+      ? [{ id: 'favs', priority: 50, keepName: true, stubW: 44 }]
+      : []),
   ]
   const {
     rowRef,
@@ -154,9 +153,10 @@ export function ToolRow({
     setFree(live)
   const shown = items.filter((i) => result.shown.includes(i.id))
   const folded = items.filter((i) => result.folded.includes(i.id))
-  const shownFavs = favItems.filter((f) => result.shown.includes(f.id))
-  const foldedFavs = favItems.filter((f) => result.folded.includes(f.id))
-  const foldedCount = folded.length + foldedFavs.length
+  const favsShown = favItems.length > 0 && result.shown.includes('favs')
+  const favsFolded = favItems.length > 0 && result.folded.includes('favs')
+  const foldedCount = folded.length
+  const favsOpen = openCard === 'fold.favs'
   const moreOpen = openCard === 'fold.row'
 
   const toggleStyle = (item: RowItem) => {
@@ -208,9 +208,17 @@ export function ToolRow({
             </button>
           ),
         )}
-        {shownFavs.map((f) => (
-          <FavChip key={f.id} item={f} mode={mode} names={result.names} />
-        ))}
+        {favsShown ? <FavGroup items={favItems} mode={mode} /> : null}
+        {favsFolded ? (
+          <FavStar
+            items={favItems}
+            mode={mode}
+            open={favsOpen}
+            card={card}
+            onToggle={(el) => onToggleCard('fold.favs', el)}
+            onClose={() => onCloseCard('fold.favs')}
+          />
+        ) : null}
         {foldedCount > 0 ? (
           <button
             type="button"
@@ -245,11 +253,7 @@ export function ToolRow({
                 </span>
               )),
             )}
-          {favItems.flatMap((f) =>
-            [true, false].map((n) => (
-              <FavMeasure key={`${f.id}-${n}`} item={f} names={n} />
-            )),
-          )}
+          {favItems.length > 0 ? <FavMeasure items={favItems} /> : null}
         </div>
       </div>
       {moreOpen && card ? (
@@ -269,15 +273,6 @@ export function ToolRow({
                   toggleStyle(item)
                   onCloseCard('fold.row')
                 }
-              },
-            })),
-            ...foldedFavs.map((f) => ({
-              id: f.id,
-              label: favLabel(f),
-              pressed: favIsActive(f.fav, mode),
-              onPick: () => {
-                chooseFavourite(f.fav)
-                onCloseCard('fold.row')
               },
             })),
           ]}

@@ -1,4 +1,5 @@
 import { TYPE_LOOK, samplePath } from './cards/pen/penModel'
+import { displayInk } from '../../../design/ink'
 import type { PenTypeId } from './penFace'
 
 /**
@@ -63,7 +64,7 @@ export function FavPic({
         <path
           d={samplePath(22, 12)}
           fill="none"
-          stroke={colour}
+          style={{ stroke: displayInk(colour) }}
           strokeWidth={Math.max(1.5, look.w * 0.45)}
           strokeLinecap={look.cap}
           opacity={look.o}

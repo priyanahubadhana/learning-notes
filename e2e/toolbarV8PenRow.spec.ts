@@ -113,7 +113,7 @@ for (const level of ['beginner', 'professional'] as const)
     )
   })
 
-test('TB-21c tapping a favourite sets type, size and colour and rings the chip', async ({
+test('TB-21c tapping a favourite sets type, size and colour, rings and glows the chip, and Undo puts it back', async ({
   page,
 }) => {
   await open(page, { favs: FAVS, size: WIDE })
@@ -124,12 +124,27 @@ test('TB-21c tapping a favourite sets type, size and colour and rings the chip',
   expect(p.colour).toBe('#c62828')
   expect(p.size).toBe(2)
   await expect(fav(page, 2)).toHaveAttribute('aria-pressed', 'true')
+  await expect(fav(page, 2).locator('.pcard-glow')).toHaveCount(1)
   await expect(fav(page, 0)).toHaveAttribute('aria-pressed', 'false')
   await expect(chip(page, 'type')).toContainText('Brush pen')
+  // The toast says so and its Undo restores the earlier pen (TB-51).
+  await expect(page.getByRole('status')).toContainText('Brush pen')
+  await page.getByRole('status').getByRole('button', { name: 'Undo' }).click()
+  await expect(chip(page, 'type')).toContainText('Fountain pen')
+  expect((await stored(page, 'pen')).colour).not.toBe('#c62828')
   // A highlighter favourite switches the highlighter on.
   await fav(page, 1).click()
   await expect(chip(page, 'type')).toContainText('Highlighter')
   expect((await stored(page, 'highlighter')).colour).toBe('#ffe58a')
+})
+
+test('TB-21c at the first squeeze the options lose their names but the favourites keep theirs', async ({
+  page,
+}) => {
+  await open(page, { favs: FAVS, size: { width: 1180, height: 820 } })
+  await expect(chip(page, 'type')).not.toContainText('Fountain')
+  await expect(fav(page, 0)).toContainText('Ballpoint')
+  await expect(page.getByTestId('v8-favs-more')).toHaveCount(0)
 })
 
 test('TB-21c no favourites: the row is the four chips and plus, list', async ({
@@ -139,22 +154,25 @@ test('TB-21c no favourites: the row is the four chips and plus, list', async ({
   await expect(page.locator('[data-testid^="v8-fav-"]')).toHaveCount(0)
 })
 
-test('TB-21c a narrow row loses names, then folds favourites into the fold list; never scrolls sideways', async ({
+test('TB-21c a narrow row folds the favourites into a star chip with a card of tiles; never scrolls sideways', async ({
   page,
 }) => {
   await open(page, { favs: FAVS, size: { width: 390, height: 844 } })
-  const more = page.getByTestId('v8-row-more')
-  await expect(more).toBeVisible()
+  const star = page.getByTestId('v8-favs-more')
+  await expect(star).toBeVisible()
+  await expect(star).toContainText('3')
+  await expect(page.locator('[data-testid^="v8-fav-"]')).toHaveCount(0)
   const hidden = await page
     .getByTestId('v8-row')
     .locator('.v8row-items')
     .evaluate((el) => el.scrollWidth - el.clientWidth)
   expect(hidden).toBeLessThanOrEqual(0)
-  await more.click()
-  const entry = page.getByTestId('v8-fold-fav2')
-  await expect(entry).toBeVisible()
-  await entry.click()
+  await star.click()
+  await expect(page.getByTestId('v8-card-fold.favs')).toBeVisible()
+  await expect(page.locator('[data-testid^="v8-favtile-"]')).toHaveCount(3)
+  await page.getByTestId('v8-favtile-2').click()
   expect((await stored(page, 'pen')).type).toBe('brush')
+  await expect(page.getByTestId('v8-card-fold.favs')).toHaveCount(0)
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - window.innerWidth,
   )

@@ -12,6 +12,11 @@ export interface FoldItem {
   short: number
   /** Higher stays longer; Infinity is never folded. */
   priority: number
+  /**
+   * Width of the small button that stands in for this item once it folds
+   * (the "★ n" of the favourites). Items without one fold into "⋯ n".
+   */
+  stub?: number
 }
 
 export interface FoldResult {
@@ -44,8 +49,18 @@ export function foldRow(
   if (sum([...items], 'short', gap) <= avail)
     return { names: false, shown: all, folded: [] }
   const keep = [...items]
-  const gone = new Set<string>()
-  while (keep.length > 0 && sum(keep, 'short', gap) + gap + moreW > avail) {
+  const gone = new Map<string, number | undefined>()
+  // Room taken by what folded: each stub, and one "⋯ n" if anything has none.
+  const goneW = (): number => {
+    let w = 0
+    let more = false
+    for (const stub of gone.values()) {
+      if (stub === undefined) more = true
+      else w += stub + gap
+    }
+    return w + (more ? gap + moreW : 0)
+  }
+  while (keep.length > 0 && sum(keep, 'short', gap) + goneW() > avail) {
     // The least important goes first; between equals, the later one.
     let at = -1
     for (let i = 0; i < keep.length; i++)
@@ -55,7 +70,7 @@ export function foldRow(
       )
         at = i
     if (at < 0) break
-    gone.add(keep[at]!.id)
+    gone.set(keep[at]!.id, keep[at]!.stub)
     keep.splice(at, 1)
   }
   return {

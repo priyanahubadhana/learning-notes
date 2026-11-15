@@ -18,18 +18,17 @@
 
 ## Phase 2A tasks (phase-manager, from 15 Nov; webkit turn handed out by the manager)
 
-| Task  | Branch @ head (working copy)                      | State                                                                                          |
-| ----- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)              | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it) |
-| 2A.5  | `slice/2a5` merged 80de703c (ln-2a5)              | MERGED; ipad-webkit 17/17; CI running                                                          |
-| 2A.14 | `slice/2a14` merged c2967488 (ln-2a14)            | MERGED; ipad-webkit 28/28; CI green (f0ab8d00, 0cdaed63)                                       |
-| cfg   | `slice/2a-cfg-webkit` merged df188a67 (main chat) | MERGED; 2A specs on the ipad-webkit list                                                       |
-| rule  | 2A.14's settings rows + Layout                    | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                        |
-| wheel | `slice/tb2-phone-wheel`                           | merged b2872d53, CI green (run 43704785412)                                                    |
-| 2A.6  | `slice/2a6` debc0407 (ln-2a6)                     | review 1 FAIL (★ n chip, names, glow test, undo): fixing                                       |
-| 2A.8  | `slice/2a8` d56fea1c (ln-2a8)                     | built on chromium; ipad-webkit turn now                                                        |
-| 2A.9  | `slice/2a9` a88b2a7e (ln-2a9)                     | built on chromium; webkit after 2A.8                                                           |
-| rest  | 2A.7, 2A.10–2A.13, 2A.15, 2A.16                   | 2A.7 after 2A.6, 2A.10 after 2A.9; 2A.11 first fixes the inkTools lasso red (PENDING R21)      |
+| Task  | Branch @ head (working copy)                      | State                                                                                                                                                                             |
+| ----- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)              | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it)                                                                                    |
+| 2A.5  | `slice/2a5` merged 80de703c (ln-2a5)              | MERGED; ipad-webkit 17/17; CI green                                                                                                                                               |
+| 2A.14 | `slice/2a14` merged c2967488 (ln-2a14)            | MERGED; ipad-webkit 28/28; CI green (f0ab8d00, 0cdaed63)                                                                                                                          |
+| cfg   | `slice/2a-cfg-webkit` merged df188a67 (main chat) | MERGED; 2A specs on the ipad-webkit list                                                                                                                                          |
+| rule  | 2A.14's settings rows + Layout                    | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                                                                                                           |
+| 2A.6  | `slice/2a6` (ln-2a6)                              | review 1 FAIL fixed (★ n chip etc.); webkit turn now, then review 2                                                                                                               |
+| 2A.8  | `slice/2a8` 39c6a578 (ln-2a8)                     | review 1 FAIL: Pro row to the approved picture, live-bar leak, whole words; fixing                                                                                                |
+| 2A.9  | `slice/2a9` 6ef9f3bd (ln-2a9)                     | review 1 FAIL: formatTabs pref, dark thumb, test restore, font tiles, Justify/Link/Quote; fixing. toolbarV8Text not on the ipad-webkit list (hot file, add in one cfg step later) |
+| rest  | 2A.7, 2A.10–2A.13, 2A.15, 2A.16                   | 2A.7 after 2A.6, 2A.10 after 2A.9; 2A.11 first fixes the inkTools lasso red (PENDING R21)                                                                                         |
 
 ## Waiting (each has its step)
 

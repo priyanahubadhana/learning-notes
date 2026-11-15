@@ -2,13 +2,13 @@
 
 **RUNNING, full team for Phase 2A (owner answer 4A, 15 Nov):** one `phase-manager` (Opus, medium) runs up to 3 Sonnet builders; lean again after the phase. Rewritten 15 Nov, evening.
 
-**Now:** Phase 1 fixes are done and merged into `build/next` (P1.8 update screens 8523d22d, P1.9 frame covers 8105fcba). No helper is running. **Next:** the owner's Phase 1 re-test, then task 0.7 and Phase 1 live; then the 2A tool bar rebuild to mock v9. The ordered list with sizes and likely times: [plans/phase-plan.md](plans/phase-plan.md) section 0. Waiting for the owner: [plans/questions-2026-11-15.md](plans/questions-2026-11-15.md) (8 questions) and PENDING "Needs you".
+**Now (phase-manager, 15 Nov late):** Phase 1 re-test finished (owner). Phase 2A building: merge order cfg, 2A.14, 2A.5, then 2A.6 to 2A.13, 2A.15, 2A.16. CI green on `build/next` 541bea89. Webkit is shared with the main chat's Phase 1 tasks: the manager hands out the turn.
 
 ## The order (details in phase-plan.md section 0)
 
 | #   | Step                                       | State                                                       | Likely time   |
 | --- | ------------------------------------------ | ----------------------------------------------------------- | ------------- |
-| 1   | Phase 1 re-test, fixes, task 0.7, live     | waiting for the owner's re-test                             | 1 day         |
+| 1   | Phase 1 re-test, fixes, task 0.7, live     | re-test done; fixes and 0.7 with the main chat              | 1 day         |
 | 1a  | Journal merge (H), backup first            | owner said yes; how: question 6                             | 2 hours       |
 | 2   | Phase 2A: tool bar rebuilt to v9 (2A.4–16) | full team (phase-manager, 4A); see the 2A table below       | 3 to 4 days   |
 | 3   | Phase 2B: 2B.12, 2B.13 and 6 bugs, live    | 2B.1–2B.11 merged behind `textbox.v2`                       | 2 to 3 days   |
@@ -17,8 +17,6 @@
 | 6–7 | Phases 3 to 8, then 9 and 10               | 3–8 mostly built; 9–10 need pictures                        | not known yet |
 
 ## Phase 2A tasks (phase-manager, from 15 Nov; webkit turn handed out by the manager)
-
-**HOLD (main chat, 15 Nov):** no merge or push to `build/next` until "owner test done" (owner's Phase 1 re-test). Webkit lent to the Journal repair (H) until the main chat says done.
 
 | Task  | Branch @ head (working copy)                                                       | State                                                                                          |
 | ----- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |

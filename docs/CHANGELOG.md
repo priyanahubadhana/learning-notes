@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026 (late): 2A hold lifted; PENDING repaired
+
+- What: BUILD-STATE drops the HOLD (re-test finished) and sets the 2A merge order; PENDING PP1 row repaired (a stray | split it) and R20 copied from build/next. Why: new phase-manager run. Files: docs/BUILD-STATE.md, docs/PENDING.md.
+
 ### 15 Nov 2026 (evening): Phase 2A started (full team); wheel test merged
 
 - What: 2A.4, 2A.5, 2A.14 built on their branches (not merged yet); the phone wheel test move merged into build/next b2872d53 after desktop webkit 1/1. Why: owner answers 4A and 7. Files: docs/BUILD-STATE.md, docs/CHANGELOG.md.

@@ -1,6 +1,6 @@
 # 2A.16 picture set: every bar and card of the v9 tool bar
 
-Taken by chromium after the last source edit (the commit named in the report (after merging 2A.13)), switch toolbar.v8 ON, real notebook data, tips and toasts closed.
+Taken by chromium after the last source edit (the commit named in the report (all five preview switches on: foundation.shell, toolbar.v8, toolbar.menu, page.menus, textbox.v2)), the five switches ON, real notebook data, tips and toasts closed.
 Each run covers light and dark, Beginner and Professional, iPad sideways, iPad upright and phone (names say day/night or light/dark, ipad-landscape/sideways, ipad-portrait/upright, phone).
 
 ## Section 7 check (HOW-WE-BUILD)

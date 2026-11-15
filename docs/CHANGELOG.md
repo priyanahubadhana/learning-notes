@@ -8,6 +8,18 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: review 2 found all Professional pictures with the fold closed.
 - Files: e2e/toolbarV9MoreShots.spec.ts, e2e/toolbarV9More.spec.ts, src/app/tools/icons.tsx, src/app/tools/v8/cards/more/MoreStudy.tsx, src/i18n/{en,es,hi}/v8Text.ts, docs/mockups/toolbar-v9-build-shots/2a12-more/
 
+### 15 Nov 2026: 2A.11 review 2 fixes (switch toolbar.v8, OFF live)
+
+- What: the Layers fold in Lasso Options now starts every box, text and icon on one left edge (measured 448 iPad upright, 808 sideways, 16 phone, light and dark); duplicate .v8llayers rules merged; new tests for the edge and for the "N layers" hint (0, 1, many).
+- Why: review 2 found four left edges (shared LayersCard pads its text rows). The fix stays in the lasso CSS; Pen > Feel > Page is unchanged.
+- Files: src/app/tools/v8/lassoRow.css, src/app/tools/v8/cards/lasso/LassoOptionsCard.test.ts, e2e/toolbarV9Lasso.spec.ts, screenshots/2a11/options-layers-*.
+
+### 15 Nov 2026: 2A.11 Lasso rebuilt to v9 (switch toolbar.v8, OFF live)
+
+- What: Professional Lasso row = Free-hand / Rectangle and "Picks: Ink, Pictures, Text" chips on the bar, then one Options menu (picture of the selection menu, Menu row with up/down arrows and switches, Layers folded). Beginner keeps Shape and Actions. A narrow bar folds the chips into the "..." list (the picks open as a card). The v8 Select / Menu / Layers cards are gone; every switch and the layer list live in Options. R21 root cause: the test helper's forced click hit the neighbouring button while the bar scrolled; it now waits for the tool to stand still.
+- Why: owner-approved picture toolbar-v9; "lasso rebuilt from the live lasso" (contradictions-2026-11-15 line 7); nothing from today's Lasso dropped.
+- Files: src/app/tools/v8/LassoRowParts.tsx, lassoRow.css, rowItems.ts, ToolRow.tsx, cards/lasso/*, cards/autoClose.ts, i18n en/es/hi, e2e/toolbarV9Lasso.spec.ts, toolbarV9LassoShots.spec.ts, inkTools.spec.ts, toolbarV8Tools/Tenth specs, screenshots/2a11/.
+
 ### 15 Nov 2026: 2A.10 Format on states (switch toolbar.v8, OFF live)
 
 - What: every Format option that is a state shows accent fill + check for the current selection (lists, callout and key point added; others already had it).
@@ -25,6 +37,8 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: scrollBarPen closes the side list its steps left docked before it checks the page bar; the Lasso back-to-back loops start in a gap between the pill buttons (free: any point of the loop; rectangle: a corner up to 14 by 10 px out) and fail loudly when none is free.
 - Why: P1.9 (T4) docks the side list beside the page, so at 820 px the tool bar folds two tools into "More options (2)" and the list brings a second bar; BUG-002 (2A.3b) keeps the pill 8 px above its words (6 px higher than before), so the old fixed start corners landed on its buttons. Not a timing fault; no app change.
 - Files: e2e/scrollBarPen.spec.ts, e2e/lassoWords.spec.ts
+
+> > > > > > > origin/build/next
 
 ### 15 Nov 2026: 2A.8 review 2 fixes (switch toolbar.v8, OFF live)
 

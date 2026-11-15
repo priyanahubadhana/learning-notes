@@ -5,6 +5,7 @@ import { t, type MessageKey } from '../../../i18n/t'
 import { Icon } from '../icons'
 import { rowItemsFor, cardIdOf, type RowItem } from './rowItems'
 import { useBarPref } from './barPrefs'
+import { LassoPickChips, LassoShapeChips } from './LassoRowParts'
 import { dotPx, usePenFace, type PenFace } from './penFace'
 import { PenPic } from './PenPictures'
 import { penFavItems, sizeDotPx } from './penRow'
@@ -124,7 +125,11 @@ export function ToolRow({
   })
   const editor = useBlockNoteEditor()
   const active = useActiveStyles(editor as never) as Record<string, unknown>
-  const items = rowItemsFor(tool, useBarPref('eraserMenus'))
+  const items = rowItemsFor(
+    tool,
+    useBarPref('eraserMenus'),
+    useBarPref('biggerLasso'),
+  )
   eraserSettings.useValue() // the Eraser chips say what is chosen
   // What the row showed while no card was open. A chip that was already on the
   // row keeps its place while its card is open (the open chip may show its word,
@@ -144,9 +149,13 @@ export function ToolRow({
           ? 44
           : it.kind === 'erases'
             ? 310
-            : it.kind === 'flag'
-              ? 130
-              : undefined,
+            : it.kind === 'lshape'
+              ? 230
+              : it.kind === 'lpicks'
+                ? 300
+                : it.kind === 'flag'
+                  ? 130
+                  : undefined,
       keepName: it === openItem && !frozen,
     })),
     // The favourites are one group that keeps its names and gives way first,
@@ -195,7 +204,11 @@ export function ToolRow({
     >
       <div className="v8row-items" ref={rowRef}>
         {shown.map((item) =>
-          item.kind === 'erases' ? (
+          item.kind === 'lshape' ? (
+            <LassoShapeChips key={item.id} />
+          ) : item.kind === 'lpicks' ? (
+            <LassoPickChips key={item.id} />
+          ) : item.kind === 'erases' ? (
             <ErasesChips key={item.id} />
           ) : item.kind === 'flag' ? (
             <BackAfterOne key={item.id} />
@@ -290,7 +303,11 @@ export function ToolRow({
               icon: item.icon,
               pressed: !!item.style && !!active[item.style],
               onPick: () => {
-                if (item.kind === 'erases')
+                if (item.kind === 'lshape')
+                  onToggleCard('lasso.shape', card.anchor)
+                else if (item.kind === 'lpicks')
+                  onToggleCard('lasso.picks', card.anchor)
+                else if (item.kind === 'erases')
                   onToggleCard('eraser.options', card.anchor)
                 else if (item.kind === 'flag')
                   eraserSettings.update({

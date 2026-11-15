@@ -5,6 +5,7 @@ import {
 } from '../../../main/inkSettings'
 import {
   lassoRow,
+  setRow,
   setRowAction,
   type RowAction,
 } from '../../../../../ink/lassoMenu'
@@ -43,3 +44,27 @@ export const actionLabel = (id: string): MessageKey =>
 /** Which actions sit in the menu row (Pro): switch one on or off. */
 export const toggleRowAction = (a: RowAction): void =>
   setRowAction(a, !lassoRow.get().includes(a))
+
+/** The icon of each menu-row action (mock v9). */
+export const ROW_ICON: Record<RowAction, IconName> = {
+  copy: 'copyPage',
+  cut: 'scissors',
+  duplicate: 'duplicate',
+  convert: 'type',
+  colour: 'palette',
+  delete: 'trash',
+  thickness: 'sliders',
+  makeCard: 'cards',
+  summary: 'fileText',
+  label: 'tag',
+}
+
+/** Moves an action one place earlier (-1) or later (+1) in the row; the edges stay. */
+export function moveRowAction(a: RowAction, by: -1 | 1): void {
+  const row = [...lassoRow.get()]
+  const i = row.indexOf(a)
+  const j = i + by
+  if (i < 0 || j < 0 || j >= row.length) return
+  ;[row[i], row[j]] = [row[j], row[i]]
+  setRow(row)
+}

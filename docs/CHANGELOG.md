@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: red on build/next fixed (lassoWords back to back, scrollBarPen SC-12)
+
+- What: scrollBarPen closes the side list its steps left docked before it checks the page bar; the Lasso back-to-back loops start in a gap between the pill buttons (free: any point of the loop; rectangle: a corner up to 14 by 10 px out) and fail loudly when none is free.
+- Why: P1.9 (T4) docks the side list beside the page, so at 820 px the tool bar folds two tools into "More options (2)" and the list brings a second bar; BUG-002 (2A.3b) keeps the pill 8 px above its words (6 px higher than before), so the old fixed start corners landed on its buttons. Not a timing fault; no app change.
+- Files: e2e/scrollBarPen.spec.ts, e2e/lassoWords.spec.ts
+
 ### 15 Nov 2026: 2A.8 review 2 fixes (switch toolbar.v8, OFF live)
 
 - What: Erases chips carry their icons (Highlighter, Text, Pen) and are 44 px tall, as the mock; the T10 "whole words" check now splits on real spaces, looks at line one only and must find no cut word (it failed when the eraser was made to cut letters, then passed).

@@ -11,7 +11,11 @@ import {
 } from '../../design/parts/CardParts'
 import { Card } from '../../design/parts/Card'
 import { usePhone } from '../../design/parts/useAnchoredCard'
-import { group as historyGroup } from '../../core/historySteps'
+import {
+  group as historyGroup,
+  pushStep,
+  quietAsync,
+} from '../../core/historySteps'
 import {
   BORDER_WIDTHS,
   cleanStyle,
@@ -31,7 +35,11 @@ import { t, type MessageKey } from '../../i18n/t'
 import { useUnlocked } from '../../settings/level'
 import { boxesOf, BOX_COLOURS, MAIN_BOX } from '../boxes'
 import { updateBox } from '../boxService'
-import { applyLayout, applyNotebook } from '../layoutAssistService'
+import {
+  applyLayout,
+  applyNotebook,
+  restoreNotebook,
+} from '../layoutAssistService'
 import { arrangeAll, noteRecentLayout, type GridInfo } from '../layoutPlan'
 import { placesOf } from '../grid'
 import { openLayoutMode } from '../layoutModeBus'
@@ -44,6 +52,17 @@ import {
   savePreset,
   setNewBoxStyle,
 } from '../boxPresets'
+import { narrow, widen } from './boxFull'
+import {
+  applyShape,
+  deleteLayout,
+  loadLayouts,
+  MAX_OWN_LAYOUTS,
+  renameLayout,
+  saveLayout,
+  shapeOf,
+  type OwnLayout,
+} from './ownLayouts'
 import './boxCard.css'
 
 const name = (key: string) => t(key as MessageKey)
@@ -115,12 +134,15 @@ export default function BoxCard({
   const [dflt, setDflt] = useState<BoxStyle | undefined>(undefined)
   const [editing, setEditing] = useState<string | null>(null)
   const [allPages, setAllPages] = useState(false)
+  const [layouts, setLayouts] = useState<OwnLayout[]>([])
+  const [editingLayout, setEditingLayout] = useState<string | null>(null)
   // Where the box was when the card opened (the card is placed around it).
   const [anchor] = useState(() => boxRect(boxId)() ?? undefined)
 
   useEffect(() => {
     void loadPresets(db).then(setOwn)
     void loadNewBoxStyle(db).then(setDflt)
+    void loadLayouts(db).then(setLayouts)
   }, [db])
 
   // One write, one Undo step. A new box remembers the last look you gave a box;
@@ -179,13 +201,51 @@ export default function BoxCard({
     </Tile>
   )
 
+  /** TB-27 Full width: the box spans its row (or the text width); off puts it back. One Undo. */
+  const setFull = async (on: boolean) => {
+    const info = getGrid()
+    const done = on
+      ? widen(info.rows, boxId, info.geo)
+      : box?.full
+        ? { rows: narrow(info.rows, boxId, box.full), memo: undefined }
+        : null
+    if (!done) return
+    await historyGroup('Full width', async () => {
+      await applyLayout(
+        db,
+        pageId,
+        done.rows,
+        placesOf(done.rows, info.heights, info.geo),
+        [],
+      )
+      await updateBox(db, pageId, boxId, { full: done.memo })
+    })
+  }
+
+  /** One of my layouts on this page: one Undo. */
+  const applyOwn = async (l: OwnLayout) => {
+    const info = getGrid()
+    const rows = applyShape(info.rows, l)
+    if (!rows) return
+    await historyGroup('Layout', () =>
+      applyLayout(db, pageId, rows, placesOf(rows, info.heights, info.geo), []),
+    )
+  }
+
   /** A layout for this page, or for every page of the notebook: one Undo. */
   const arrange = async (presetId: string) => {
     const info = getGrid()
     if (allPages && proLayouts && page) {
-      await historyGroup('Layout', () =>
-        applyNotebook(db, page.notebookId, presetId),
-      )
+      // Every page is written quietly; one step undoes and redoes them all
+      // (a page's history only knows its own page).
+      const nb = page.notebookId
+      const before = await quietAsync(() => applyNotebook(db, nb, presetId))
+      pushStep({
+        label: t('layout.title'),
+        kind: 'notebookLayout',
+        undo: () => quietAsync(() => restoreNotebook(db, before)),
+        redo: () => quietAsync(() => applyNotebook(db, nb, presetId)),
+      })
       noteRecentLayout(presetId)
       return
     }
@@ -205,6 +265,7 @@ export default function BoxCard({
       testId="bc-card"
       around={phone ? undefined : boxRect(boxId)}
       clearTop={() => 12}
+      fitInside
       onClose={onClose}
     >
       <div role="group" aria-label={t('boxCard.sections')} className="bc-seg">
@@ -398,6 +459,15 @@ export default function BoxCard({
                   />
                 </Glow>
               </CardGroup>
+              <CardGroup>
+                <Glow k={box?.full ? 1 : 0}>
+                  <SwitchRow
+                    label={t('boxCard.fullWidth')}
+                    checked={!!box?.full}
+                    onChange={(on) => void setFull(on)}
+                  />
+                </Glow>
+              </CardGroup>
               <CardGroup label={t('boxStyle.mine')}>
                 <ul className="bc-mine">
                   {own.map((p) => (
@@ -527,6 +597,96 @@ export default function BoxCard({
               </Tile>
             </TileGroup>
           </CardGroup>
+          {proLayouts && (
+            <CardGroup label={t('boxCard.myLayouts')}>
+              <ul className="bc-mine">
+                {layouts.map((l) => (
+                  <li key={l.id}>
+                    {editingLayout === l.id ? (
+                      <>
+                        <input
+                          autoFocus
+                          defaultValue={l.name}
+                          aria-label={t('boxStyle.rename')}
+                          data-testid="bc-rename-layout"
+                          onBlur={(e) => {
+                            void renameLayout(db, l.id, e.target.value).then(
+                              setLayouts,
+                            )
+                            setEditingLayout(null)
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') e.currentTarget.blur()
+                            if (e.key === 'Escape') {
+                              e.stopPropagation()
+                              setEditingLayout(null)
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="bc-x"
+                          aria-label={t('boxCard.cancelName')}
+                          onPointerDown={(e) => e.preventDefault()}
+                          onClick={() => setEditingLayout(null)}
+                        >
+                          ✕
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className="bc-pick"
+                          data-testid="bc-own-layout"
+                          onClick={() => void applyOwn(l)}
+                        >
+                          {l.name}
+                        </button>
+                        <button
+                          type="button"
+                          className="bc-act"
+                          data-testid="bc-layout-rename"
+                          onClick={() => setEditingLayout(l.id)}
+                        >
+                          {t('boxStyle.rename')}
+                        </button>
+                        <button
+                          type="button"
+                          className="bc-x"
+                          aria-label={t('boxCard.deleteLayout')}
+                          onClick={() =>
+                            void deleteLayout(db, l.id).then(setLayouts)
+                          }
+                        >
+                          ✕
+                        </button>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                className="bc-act bc-save"
+                data-testid="bc-save-layout"
+                disabled={layouts.length >= MAX_OWN_LAYOUTS}
+                onClick={() => {
+                  const shape = shapeOf(getGrid().rows)
+                  if (!shape) return
+                  void saveLayout(
+                    db,
+                    t('boxCard.layoutName', { n: layouts.length + 1 }),
+                    shape,
+                  ).then((n) => n && setLayouts(n))
+                }}
+              >
+                {layouts.length >= MAX_OWN_LAYOUTS
+                  ? t('boxCard.layoutsFull')
+                  : t('boxCard.saveLayout')}
+              </button>
+            </CardGroup>
+          )}
           {proLayouts && (
             <CardGroup>
               <SwitchRow

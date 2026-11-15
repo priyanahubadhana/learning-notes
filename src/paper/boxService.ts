@@ -163,6 +163,7 @@ export async function updateBox(
   if (patch.colour === undefined && 'colour' in patch) delete next.colour
   if (patch.style === undefined && 'style' in patch) delete next.style
   if (patch.h === undefined && 'h' in patch) delete next.h
+  if (patch.full === undefined && 'full' in patch) delete next.full
   await writeBoxes(db, pageId, (boxes) =>
     boxes.some((b) => b.id === id)
       ? boxes.map((b) => (b.id === id ? next : b))

@@ -114,6 +114,12 @@ export const enLateInk = {
   'boxCard.save': 'Save as my look',
   'boxCard.saveName': 'My look {n}',
   'boxCard.sections': 'Sections',
+  'boxCard.deleteLayout': 'Delete layout',
+  'boxCard.fullWidth': 'Full width',
+  'boxCard.layoutName': 'My layout {n}',
+  'boxCard.layoutsFull': 'You can keep up to 8 layouts',
+  'boxCard.myLayouts': 'My layouts',
+  'boxCard.saveLayout': 'Save this page as a layout',
   'boxStyle.useNew': 'Use for new boxes',
   'handwriting.intro':
     'Three ways to turn handwriting into text. Pick the one that fits.',

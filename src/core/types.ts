@@ -245,6 +245,15 @@ export interface PaperBox {
   group?: string
   /** Minimum height in mm set by the bottom handles (never below the content; B3-9). */
   h?: number
+  /** Full width (text box v2): on, with what to put back when it is turned off. */
+  full?: {
+    beside?: string
+    w?: number
+    at?: number
+    x?: number
+    wmm?: number
+    auto?: true
+  }
 }
 
 /** What a source page is: a book, an article, a video, … */

@@ -1,7 +1,13 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  addPage,
+  createNotebook,
+  openPage,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 
 /**
  * Phase 2B, task 2B.9 (switch textbox.v2 ON): the Box card.
@@ -400,4 +406,185 @@ test('phone: the Box card is a bottom sheet with 44 pt tiles', async ({
   expect(c.width).toBeLessThanOrEqual(390)
   const tile = await rect(page.getByTestId('bc-look-sticky'))
   expect(tile.height).toBeGreaterThanOrEqual(44)
+})
+
+const fullSwitch = (page: Page) =>
+  card(page).getByRole('switch', { name: 'Full width' })
+const sameRow = async (a: Locator, b: Locator) =>
+  Math.abs((await rect(a)).y - (await rect(b)).y) < 6
+const tapSwitch = async (l: Locator) => {
+  await l.scrollIntoViewIfNeeded()
+  await l.tap()
+}
+
+test('TB-27: Full width in a grid spans the whole row, off returns the box to its column, one Undo each', async ({
+  page,
+}) => {
+  await start(page, 'TB27full')
+  const a = await addBox(page, 'Alpha')
+  const b = await addBox(page, 'Bravo')
+  await openCard(page, b)
+  await page.getByTestId('bc-tab-layout').tap()
+  await page.getByTestId('bc-layout-two').tap()
+  await expect.poll(() => sameRow(a, b)).toBe(true)
+  const side = (await rect(b)).width
+  await page.getByTestId('bc-tab-box').tap()
+  await tapSwitch(fullSwitch(page))
+  await expect(fullSwitch(page)).toHaveAttribute('aria-checked', 'true')
+  // The box spans every column: about twice as wide, and under its neighbour.
+  await expect
+    .poll(async () => (await rect(b)).width)
+    .toBeGreaterThan(side * 1.6)
+  expect(await sameRow(a, b)).toBe(false)
+  // Off: back in its column.
+  await tapSwitch(fullSwitch(page))
+  await expect(fullSwitch(page)).toHaveAttribute('aria-checked', 'false')
+  await expect.poll(() => sameRow(a, b)).toBe(true)
+  // One Undo puts back exactly the last change (full again), a second the column.
+  await page.keyboard.press('ControlOrMeta+z')
+  await expect
+    .poll(async () => (await rect(b)).width)
+    .toBeGreaterThan(side * 1.6)
+  await page.keyboard.press('ControlOrMeta+z')
+  await expect.poll(() => sameRow(a, b)).toBe(true)
+  await expect.poll(async () => (await rect(b)).width).toBeLessThan(side * 1.2)
+})
+
+test('TB-27: Full width on a free box takes the page text width, off gives its width back, one Undo each', async ({
+  page,
+}) => {
+  await start(page, 'TB27free')
+  const a = await addBox(page, 'Alpha')
+  const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
+  const before = await rect(a)
+  await openCard(page, a)
+  await tapSwitch(fullSwitch(page))
+  // 180 of 210 mm: the text width, from the left margin.
+  await expect
+    .poll(async () => (await rect(a)).width / sheet.width)
+    .toBeGreaterThan(0.8)
+  const on = await rect(a)
+  expect(on.width / sheet.width).toBeLessThan(0.9)
+  expect(on.x).toBeLessThanOrEqual(before.x)
+  await tapSwitch(fullSwitch(page))
+  await expect
+    .poll(async () => Math.abs((await rect(a)).width - before.width))
+    .toBeLessThan(4)
+  await page.keyboard.press('ControlOrMeta+z')
+  await expect
+    .poll(async () => (await rect(a)).width / sheet.width)
+    .toBeGreaterThan(0.8)
+  await page.keyboard.press('ControlOrMeta+z')
+  await expect
+    .poll(async () => Math.abs((await rect(a)).width - before.width))
+    .toBeLessThan(4)
+})
+
+test('TB-28: my layouts: save this page, apply it, rename it, delete it; apply is one Undo', async ({
+  page,
+}) => {
+  await start(page, 'TB28own')
+  const a = await addBox(page, 'Alpha')
+  const b = await addBox(page, 'Bravo')
+  await openCard(page, b)
+  await page.getByTestId('bc-tab-layout').tap()
+  // Save the stacked page, then change it to two columns.
+  await tapSwitch(page.getByTestId('bc-save-layout'))
+  const mine = page.getByTestId('bc-own-layout')
+  await expect(mine).toHaveText('My layout 1')
+  await page.getByTestId('bc-layout-two').tap()
+  await expect.poll(() => sameRow(a, b)).toBe(true)
+  // Apply mine: stacked again.
+  await tapSwitch(mine)
+  await expect.poll(() => sameRow(a, b)).toBe(false)
+  await page.keyboard.press('ControlOrMeta+z')
+  await expect.poll(() => sameRow(a, b)).toBe(true)
+  // Rename.
+  await tapSwitch(page.getByTestId('bc-layout-rename'))
+  const field = page.getByTestId('bc-rename-layout')
+  await expect(
+    card(page).getByRole('button', { name: 'Cancel renaming' }),
+  ).toBeVisible()
+  await field.fill('Stacked')
+  await field.press('Enter')
+  await expect(page.getByTestId('bc-own-layout')).toHaveText('Stacked')
+  // It is kept: the card opened again still lists it.
+  await card(page).getByRole('button', { name: 'Close' }).click()
+  await expect(card(page)).toHaveCount(0)
+  await openCard(page, b)
+  await page.getByTestId('bc-tab-layout').tap()
+  await expect(page.getByTestId('bc-own-layout')).toHaveText('Stacked')
+  // Delete.
+  await card(page).getByRole('button', { name: 'Delete layout' }).tap()
+  await expect(page.getByTestId('bc-own-layout')).toHaveCount(0)
+})
+
+test('TB-28: Apply to all pages in the notebook changes every page; one Undo', async ({
+  page,
+}) => {
+  await start(page, 'TB28all')
+  const a = await addBox(page, 'Alpha')
+  const b = await addBox(page, 'Bravo')
+  await addPage(page, 'Paper', 'Second')
+  await typeInEditor(page, 'Main two')
+  const c = await addBox(page, 'Charlie')
+  const d = await addBox(page, 'Delta')
+  await openCard(page, d)
+  await page.getByTestId('bc-tab-layout').tap()
+  await tapSwitch(
+    card(page).getByRole('switch', {
+      name: 'Apply to all pages in the notebook',
+    }),
+  )
+  await page.getByTestId('bc-layout-two').tap()
+  await expect.poll(() => sameRow(c, d)).toBe(true)
+  await page.keyboard.press('Escape')
+  await openPage(page, 'TB28all')
+  await expect.poll(() => sameRow(a, b)).toBe(true)
+  // One Undo, on the page where it was done, puts every page back.
+  await openPage(page, 'Second')
+  await expect.poll(() => sameRow(c, d)).toBe(true)
+  await page.getByRole('button', { name: 'Undo' }).last().click()
+  await expect.poll(() => sameRow(c, d)).toBe(false)
+  await openPage(page, 'TB28all')
+  await expect.poll(() => sameRow(a, b)).toBe(false)
+})
+
+test('TB-25: a wide box low on the page: the card is capped at the room there is, scrolls inside, is solid, the page stays still', async ({
+  page,
+}) => {
+  await start(page, 'TB25wide')
+  const box = await addBox(page, 'Alpha beta')
+  await openCard(page, box)
+  await tapSwitch(fullSwitch(page))
+  await card(page).getByRole('button', { name: 'Close' }).click()
+  await page.setViewportSize({ width: 1336, height: 640 })
+  await box.evaluate((e) => e.scrollIntoView({ block: 'end' }))
+  await page.waitForTimeout(300)
+  await openCard(page, box)
+  const c = await rect(card(page))
+  const b = await rect(box)
+  expect(overlaps(c, b)).toBe(false)
+  expect(c.y).toBeGreaterThanOrEqual(0)
+  expect(c.y + c.height).toBeLessThanOrEqual(640)
+  const body = page.getByTestId('pcard-body')
+  expect(
+    await body.evaluate((e) => e.scrollHeight - e.clientHeight),
+  ).toBeGreaterThan(20)
+  const before = await scrolled(page)
+  await body.evaluate((e) => (e.scrollTop = 150))
+  await page.waitForTimeout(300)
+  expect(await scrolled(page)).toEqual(before)
+  const solid = await card(page).evaluate((e) => {
+    const s = getComputedStyle(e)
+    const m = getComputedStyle(e.querySelector('.pcard-body')!)
+    return [
+      s.backdropFilter,
+      m.maskImage || m.webkitMaskImage,
+      s.backgroundColor,
+    ]
+  })
+  expect(solid[0]).toBe('none')
+  expect(solid[1]).toBe('none')
+  expect(solid[2]).not.toMatch(/rgba\(.*, 0(\.\d+)?\)/)
 })

@@ -117,6 +117,8 @@ export function placeAround(
   viewport: { width: number; height: number },
   /** Highest y the card may start at (just under a bar it must not cover); 0 = none. */
   clearTop = 0,
+  /** fitInside: when nothing fits, cap the card at the room above or under the box (it scrolls inside). */
+  fit = false,
 ): CardPos | null {
   const width = Math.min(size.width, viewport.width - 2 * CARD_EDGE)
   const maxLeft = Math.max(CARD_EDGE, viewport.width - CARD_EDGE - width)
@@ -148,6 +150,20 @@ export function placeAround(
       width,
       maxHeight: room,
     }
+  if (fit) {
+    const roomBelow = viewport.height - CARD_EDGE - below
+    const roomAbove = box.top - CARD_GAP - floor
+    const up = roomAbove > roomBelow
+    const maxHeight = Math.max(MIN_SHORT, up ? roomAbove : roomBelow)
+    return {
+      left: flatLeft,
+      top: up ? floor : below,
+      side: up ? 'above' : 'below',
+      arrowX: null,
+      width,
+      maxHeight,
+    }
+  }
   return null
 }
 
@@ -179,6 +195,8 @@ export function useAnchoredCard(opts: {
   around?: () => RectLike | null
   /** With `around`: the card never starts above this y (the bottom of the bar + 8). */
   clearTop?: () => number
+  /** With around: a card too tall for the room is capped there and scrolls inside. */
+  fit?: boolean
   /** Pixels at the foot the on-screen keyboard (and its text bar) cover. */
   footLift?: number
 }): CardPos | null {
@@ -190,6 +208,7 @@ export function useAnchoredCard(opts: {
     avoid,
     around,
     clearTop,
+    fit = false,
     footLift = 0,
   } = opts
   const [pos, setPos] = useState<CardPos | null>(null)
@@ -199,14 +218,25 @@ export function useAnchoredCard(opts: {
     }
     const run = () => {
       const root = document.documentElement
-      const size = { width: widthPx, height: card.offsetHeight }
+      // fitInside: the card's own height, not the one it was capped to.
+      const body = fit ? card.querySelector<HTMLElement>('.pcard-body') : null
+      const cut = body ? Math.max(0, body.scrollHeight - body.clientHeight) : 0
+      const size = {
+        width: widthPx,
+        height: fit
+          ? Math.min(
+              card.offsetHeight + cut,
+              window.innerHeight - 2 * CARD_EDGE,
+            )
+          : card.offsetHeight,
+      }
       const view = {
         width: root.clientWidth,
         height: window.innerHeight - footLift,
       }
       const box = around?.() ?? null
       const next =
-        (box && placeAround(box, size, view, clearTop?.() ?? 0)) ||
+        (box && placeAround(box, size, view, clearTop?.() ?? 0, fit)) ||
         placeCard(rectOf(anchor), size, view, box ?? avoid?.() ?? null)
       setPos((prev) =>
         prev &&
@@ -225,6 +255,6 @@ export function useAnchoredCard(opts: {
     ro.observe(card)
     ro.observe(document.documentElement)
     return () => ro.disconnect()
-  }, [anchor, card, widthPx, active, avoid, around, clearTop, footLift])
+  }, [anchor, card, widthPx, active, avoid, around, clearTop, fit, footLift])
   return active && anchor && card ? pos : null
 }

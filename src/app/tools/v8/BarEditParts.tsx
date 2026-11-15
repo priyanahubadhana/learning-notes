@@ -33,7 +33,6 @@ export function EditBanner() {
         className="v8tool"
         data-testid="v8-edit-cancel"
         aria-label={t('v8.edit.cancel')}
-        title={t('v8.edit.cancel')}
         onClick={cancelEdit}
       >
         <Icon name="close" size={20} />
@@ -48,7 +47,6 @@ export function EditBanner() {
         className="v8tool v8eb-ok"
         data-testid="v8-edit-done"
         aria-label={t('v8.edit.done')}
-        title={t('v8.edit.done')}
         onClick={() => void doneEdit()}
       >
         <Icon name="check" size={20} />

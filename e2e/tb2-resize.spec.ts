@@ -154,7 +154,9 @@ test('TB-21 the east and south dots resize the box live', async ({ page }) => {
   const f = await rect(box)
   const e = await centre(dot(box, 'e'))
   await drag(page, e, { x: e.x + 140, y: e.y }, { up: false })
-  // Live: the box is already wider before the finger lifts.
+  // Live: the box is already wider before the finger lifts. (One frame to
+  // draw, as the height check below: the old inflated minimum hid the lag.)
+  await page.waitForTimeout(120)
   expect((await rect(box)).width).toBeGreaterThan(f.width + 100)
   await page.mouse.up()
   await page.waitForTimeout(500)

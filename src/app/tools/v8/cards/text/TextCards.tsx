@@ -1,6 +1,5 @@
-import { useActiveStyles, useBlockNoteEditor } from '@blocknote/react'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Fragment, useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import {
   BORDER_WIDTHS,
   PADS,
@@ -29,131 +28,14 @@ import {
 } from '../../../../../paper/boxPresets'
 import { openLayoutMode } from '../../../../../paper/layoutModeBus'
 import { useUnlocked } from '../../../../../settings/level'
-import { FontTiles } from '../../../../reading/FontTiles'
-import {
-  NOTE_LINES,
-  applyNoteStyle,
-  noteFont,
-  noteLine,
-} from '../../../main/textStyle'
 import { Icon } from '../../../icons'
-import { runTool, findTool, toolLabel } from '../../../toolRegistry'
 import { Glow } from '../../Glow'
-import { BOX_LOOKS, formatSections, type FormatTile } from './textModel'
+import FormatCard from './FormatCard'
+import { BOX_LOOKS } from './textModel'
 import '../toolCards.css'
 import './textCards.css'
 
 const k = (key: string) => key as MessageKey
-
-/** One Format tile: the style drawn in its own look, or its icon. */
-function Face({ tile }: { tile: FormatTile }) {
-  if (tile.look === 'icon' && tile.icon)
-    return <Icon name={tile.icon} size={22} />
-  const sample = tile.look.startsWith('h') ? 'Aa' : 'A'
-  return <span className={`v8look v8look-${tile.look}`}>{sample}</span>
-}
-
-function tileName(tile: FormatTile): string {
-  if (tile.label.startsWith('v8.')) return t(tile.label)
-  const def = findTool(tile.tool)
-  return def ? toolLabel(def) : t(tile.label)
-}
-
-/** TB-41 Advanced: every font drawn in its own face. */
-function FontsGroup() {
-  const font = noteFont.useValue()
-  return (
-    <CardGroup>
-      <FontTiles
-        value={font}
-        none="default"
-        onPick={(f) => {
-          noteFont.set(f)
-          applyNoteStyle()
-        }}
-      />
-    </CardGroup>
-  )
-}
-
-/** TB-41 Advanced: line height, each choice drawn with its own spacing. */
-function LineHeightGroup() {
-  const line = noteLine.useValue()
-  return (
-    <CardGroup label={t('main.text.lineHeight')}>
-      <TileGroup label={t('main.text.lineHeight')} columns={3}>
-        {NOTE_LINES.map((l) => (
-          <Tile
-            key={l}
-            label={t(k(`main.line.${l}`))}
-            selected={line === l}
-            testId={`v8-format-line-${l}`}
-            onSelect={() => {
-              noteLine.set(l)
-              applyNoteStyle()
-            }}
-          >
-            <span className={`v8look v8line v8line-${l}`}>Aa Aa</span>
-          </Tile>
-        ))}
-      </TileGroup>
-    </CardGroup>
-  )
-}
-
-/** TB-41: Text · Style · Paragraph (· Advanced), each style in its own look. */
-function FormatCard() {
-  const editor = useBlockNoteEditor()
-  const active = useActiveStyles(editor as never) as Record<string, unknown>
-  const textFonts = useUnlocked('tb.textFonts')
-  const textMarks = useUnlocked('tb.textMarks')
-  const sections = formatSections({ textFonts, textMarks })
-  return (
-    <div className="v8scroll v8thin" data-testid="v8-format">
-      {sections.map((s) => (
-        <Fragment key={s.id}>
-          <CardGroup label={t(s.title)}>
-            <TileGroup
-              label={t(s.title)}
-              multi
-              columns={s.id === 'paragraph' ? 4 : s.tiles.length > 3 ? 4 : 3}
-            >
-              {s.tiles.map((tile) => (
-                <Tile
-                  key={tile.tool}
-                  multi={!tile.action}
-                  action={tile.action}
-                  label={tileName(tile)}
-                  selected={!!tile.style && !!active[tile.style]}
-                  testId={`v8-format-${tile.tool}`}
-                  onSelect={() => {
-                    // T8: Font and Text size stay in the note (no Reading mode).
-                    if (tile.inert) return
-                    if (tile.jump) {
-                      document
-                        .querySelector(`[data-v8-group="${tile.jump}"]`)
-                        ?.scrollIntoView({ block: 'nearest' })
-                      return
-                    }
-                    runTool(tile.tool)
-                  }}
-                >
-                  <Face tile={tile} />
-                </Tile>
-              ))}
-            </TileGroup>
-          </CardGroup>
-          {s.extras?.includes('fonts') ? (
-            <div data-v8-group="fonts">
-              <FontsGroup />
-            </div>
-          ) : null}
-          {s.extras?.includes('lineHeight') ? <LineHeightGroup /> : null}
-        </Fragment>
-      ))}
-    </div>
-  )
-}
 
 function useActiveBoxStyle() {
   const at = useSyncExternalStore(activeBox.subscribe, activeBox.get)

@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
 import {
   createNotebook,
   hideSidebar,
@@ -57,30 +57,51 @@ test('TB-40 the Text row is settings, Box, Format, B, I and the top bar has no D
   ).toHaveCount(0)
 })
 
-test('TB-41 Format: Text, Style and Paragraph sections, each style in its own look, a ✕ closes', async ({
+const tab = (c: Locator, id: string) => c.getByTestId(`v8-format-tab-${id}`)
+const tabIds = async (c: Locator) => {
+  await c.getByRole('tab').first().waitFor()
+  return c
+    .getByRole('tab')
+    .evaluateAll((els) =>
+      els.map((e) =>
+        e.getAttribute('data-testid')?.replace('v8-format-tab-', ''),
+      ),
+    )
+}
+
+test('TB-41 Beginner Format: 3 tabs Text, Style, Paragraph in one card; a ✕ closes', async ({
   page,
 }) => {
   await open(page)
   await chip(page, 'text.format').click()
   const c = card(page, 'text.format')
-  await expect(c.getByTestId('v8-format-heading1')).toBeVisible()
-  const heads = await c.locator('.pcard-glabel').allTextContents()
-  expect(heads).toEqual(['Text', 'Style', 'Paragraph'])
+  expect(await tabIds(c)).toEqual(['text', 'style', 'paragraph'])
+  await expect(tab(c, 'text')).toHaveAttribute('aria-selected', 'true')
+  await expect(c.getByTestId('v8-format-bold')).toBeVisible()
+  await tab(c, 'style').click()
   const size = (id: string) =>
     c
       .getByTestId(`v8-format-${id}`)
       .locator('.v8look')
       .evaluate((e) => parseFloat(getComputedStyle(e).fontSize))
   expect(await size('heading1')).toBeGreaterThan(await size('heading3'))
+  await tab(c, 'text').click()
   const weight = await c
     .getByTestId('v8-format-bold')
     .locator('.v8look')
     .evaluate((e) => getComputedStyle(e).fontWeight)
   expect(Number(weight)).toBeGreaterThanOrEqual(600)
-  for (const b of await c.locator('.pcard-tile').all()) {
-    const r = (await b.boundingBox())!
-    expect(r.height).toBeGreaterThanOrEqual(44)
+  // Every touch target of every tab is at least 44 pt tall.
+  for (const id of ['text', 'style', 'paragraph']) {
+    await tab(c, id).click()
+    for (const b of await c
+      .locator('.pcard-tile, .v8stylerow, .v8seg button, .v8tab')
+      .all()) {
+      const r = (await b.boundingBox())!
+      expect(r.height).toBeGreaterThanOrEqual(44)
+    }
   }
+  await tab(c, 'style').click()
   await c.getByTestId('v8-format-heading1').click()
   await expect(
     page.locator('.bn-editor h1, .bn-editor [data-level="1"]').first(),
@@ -89,32 +110,71 @@ test('TB-41 Format: Text, Style and Paragraph sections, each style in its own lo
   await expect(c).toHaveCount(0)
 })
 
-test('TB-41 Beginner has no Advanced section; the Professional switches add it and inline code', async ({
+test('T16 T17 colours sit inside the Text tab: no second card opens, the colour is applied and undone', async ({
+  page,
+}) => {
+  await open(page)
+  await page.getByText('The nucleus holds the DNA').click({ clickCount: 3 })
+  await chip(page, 'text.format').click()
+  const c = card(page, 'text.format')
+  await c.getByTestId('v8-format-textColor-red').click()
+  await expect(
+    page
+      .locator('.bn-editor [data-style-type="textColor"][data-value="red"]')
+      .first(),
+  ).toBeVisible()
+  await expect(page.locator('.pcard')).toHaveCount(1)
+  await c.getByTestId('v8-format-highlight-yellow').click()
+  await expect(
+    page
+      .locator(
+        '.bn-editor [data-style-type="backgroundColor"][data-value="yellow"]',
+      )
+      .first(),
+  ).toBeVisible()
+  await expect(page.locator('.pcard')).toHaveCount(1)
+  await expect(c.getByTestId('v8-format-textColor-red')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await page.keyboard.press('Control+Z')
+  await page.keyboard.press('Control+Z')
+  await expect(
+    page.locator('.bn-editor [data-style-type="textColor"][data-value="red"]'),
+  ).toHaveCount(0)
+})
+
+test('TB-41 Text size: Small, Body, Large set the note size; Beginner has 3, tb.textFonts adds 5 sizes and fonts', async ({
   page,
 }) => {
   await open(page)
   await chip(page, 'text.format').click()
-  await expect(
-    card(page, 'text.format').getByTestId('v8-format-font'),
-  ).toHaveCount(0)
-  await expect(
-    card(page, 'text.format').getByTestId('v8-format-code'),
-  ).toHaveCount(0)
+  const c = card(page, 'text.format')
+  const note = () =>
+    page.evaluate(() =>
+      document.documentElement.style.getPropertyValue('--note-size'),
+    )
+  await c.getByTestId('v8-format-tsize-large').click()
+  expect(await note()).toBe('1.3em')
+  await expect(c.getByTestId('v8-format-tsize-large')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await c.getByTestId('v8-format-tsize-small').click()
+  expect(await note()).toBe('0.9em')
+  await c.getByTestId('v8-format-tsize-body').click()
+  expect(await note()).toBe('')
+  await expect(c.getByTestId('v8-format-size-150')).toHaveCount(0)
 })
 
-test('TB-41 Professional: fonts and inline code show with their own switches', async ({
+test('TB-41 Professional Format: 4 tabs; Advanced and fonts come with tb.textFonts, inline code with tb.textMarks', async ({
   page,
 }) => {
   await open(page, 'professional', ['tb.textFonts', 'tb.textMarks'])
   await chip(page, 'text.format').click()
   const c = card(page, 'text.format')
-  await expect(c.locator('.pcard-glabel')).toHaveText([
-    'Text',
-    'Style',
-    'Paragraph',
-    'Advanced',
-    'Line height',
-  ])
+  expect(await tabIds(c)).toEqual(['text', 'style', 'paragraph', 'advanced'])
+  await tab(c, 'style').click()
   await expect(c.getByTestId('v8-format-code')).toBeVisible()
 })
 
@@ -124,14 +184,7 @@ test('TB-41 each Professional switch works alone: tb.textFonts, tb.textMarks', a
   await open(page, 'beginner', ['tb.textFonts'])
   await chip(page, 'text.format').click()
   const c = card(page, 'text.format')
-  await expect(c.locator('.pcard-glabel')).toHaveText([
-    'Text',
-    'Style',
-    'Paragraph',
-    'Advanced',
-    'Line height',
-  ])
-  await expect(c.getByTestId('v8-format-code')).toHaveCount(0)
+  expect(await tabIds(c)).toEqual(['text', 'style', 'paragraph', 'advanced'])
   // Each font is drawn in its own face.
   const faces = await c
     .locator('[data-card-chips="font"] [data-chip]')
@@ -142,7 +195,27 @@ test('TB-41 each Professional switch works alone: tb.textFonts, tb.textMarks', a
     )
   expect(faces.length).toBeGreaterThan(2)
   expect(new Set(faces).size).toBeGreaterThan(1)
+  // Compact "Aa" font tiles, four in a row; Size, Emphasis and colours follow in the same tab.
+  const first = (await c
+    .locator('[data-card-chips="font"] [data-chip]')
+    .nth(0)
+    .boundingBox())!
+  const second = (await c
+    .locator('[data-card-chips="font"] [data-chip]')
+    .nth(1)
+    .boundingBox())!
+  expect(Math.abs(first.y - second.y)).toBeLessThan(2)
+  await c.getByTestId('v8-format-size-130').click()
+  expect(
+    await page.evaluate(() =>
+      document.documentElement.style.getPropertyValue('--note-size'),
+    ),
+  ).toBe('1.3em')
+  await c.getByTestId('v8-format-size-100').click()
+  await tab(c, 'style').click()
+  await expect(c.getByTestId('v8-format-code')).toHaveCount(0)
   // Line height changes the page's spacing and shows as chosen.
+  await tab(c, 'advanced').click()
   await c.getByTestId('v8-format-line-loose').click()
   await expect(c.getByTestId('v8-format-line-loose')).toHaveAttribute(
     'aria-checked',
@@ -156,18 +229,104 @@ test('TB-41 each Professional switch works alone: tb.textFonts, tb.textMarks', a
   await c.getByTestId('v8-format-line-default').click()
 })
 
-test('TB-41 tb.textMarks alone adds inline code and no Advanced', async ({
+test('TB-41 the Format tabs 3 / 4 setting decides the Advanced tab, also for a Professional level', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:toolbar.v9.formatTabs', '"on"'),
+  )
+  await open(page)
+  await chip(page, 'text.format').click()
+  expect(await tabIds(card(page, 'text.format'))).toEqual([
+    'text',
+    'style',
+    'paragraph',
+    'advanced',
+  ])
+})
+
+test('TB-41 Format tabs set to 3 hides Advanced even for Professional', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:toolbar.v9.formatTabs', '"off"'),
+  )
+  await open(page, 'professional', ['tb.textFonts'])
+  await chip(page, 'text.format').click()
+  expect(await tabIds(card(page, 'text.format'))).toEqual([
+    'text',
+    'style',
+    'paragraph',
+  ])
+})
+
+test('TB-41 Justify, Quote and Link: aligned text, a quote block and a link are made from the card', async ({
+  page,
+}) => {
+  await open(page, 'beginner', ['tb.textMarks'])
+  await page.getByText('The nucleus holds the DNA').click({ clickCount: 3 })
+  await chip(page, 'text.format').click()
+  const c = card(page, 'text.format')
+  await tab(c, 'paragraph').click()
+  await c.getByTestId('v8-format-alignJustify').click()
+  await expect(c.getByTestId('v8-format-alignJustify')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await expect(
+    page.locator('.bn-block-content[data-text-alignment="justify"]'),
+  ).toHaveCount(1)
+  await tab(c, 'style').click()
+  await c.getByTestId('v8-format-quote').click()
+  await expect(
+    page.locator('.bn-block-content[data-content-type="quote"]'),
+  ).toHaveCount(1)
+  await tab(c, 'text').click()
+  await c.getByTestId('v8-format-link').click()
+  await c.getByTestId('v8-format-linkinput').fill('example.com')
+  await c.getByTestId('v8-format-linkadd').click()
+  await expect(
+    page.locator('.bn-editor a[href="https://example.com"]'),
+  ).toHaveCount(1)
+})
+
+test('TB-41 tb.textMarks alone adds inline code and no Advanced tab', async ({
   page,
 }) => {
   await open(page, 'beginner', ['tb.textMarks'])
   await chip(page, 'text.format').click()
   const c = card(page, 'text.format')
+  expect(await tabIds(c)).toEqual(['text', 'style', 'paragraph'])
+  await tab(c, 'style').click()
   await expect(c.getByTestId('v8-format-code')).toBeVisible()
-  await expect(c.locator('.pcard-glabel')).toHaveText([
-    'Text',
-    'Style',
-    'Paragraph',
-  ])
+})
+
+test('TB-41 every earlier Format tile still has a home', async ({ page }) => {
+  await open(page, 'professional', ['tb.textFonts', 'tb.textMarks'])
+  await chip(page, 'text.format').click()
+  const c = card(page, 'text.format')
+  const home: Record<string, string[]> = {
+    text: ['bold', 'italic', 'underline', 'strike', 'mark:key'],
+    style: [
+      'heading1',
+      'heading2',
+      'heading3',
+      'bulletList',
+      'numberedList',
+      'checklist',
+      'indent',
+      'outdent',
+      'callout',
+      'divider',
+      'code',
+    ],
+    paragraph: ['alignLeft', 'alignCenter', 'alignRight'],
+  }
+  for (const [id, tools] of Object.entries(home)) {
+    await tab(c, id).click()
+    for (const t of tools)
+      await expect(c.getByTestId(`v8-format-${t}`)).toBeVisible()
+  }
 })
 
 test('TB-41 headings, indent and divider are buttons, not checkboxes', async ({
@@ -176,15 +335,46 @@ test('TB-41 headings, indent and divider are buttons, not checkboxes', async ({
   await open(page)
   await chip(page, 'text.format').click()
   const c = card(page, 'text.format')
+  await tab(c, 'style').click()
   for (const id of ['heading1', 'indent', 'divider'])
     expect(
       await c.getByTestId('v8-format-' + id).getAttribute('role'),
     ).toBeNull()
+  await tab(c, 'text').click()
   await expect(c.getByTestId('v8-format-bold')).toHaveAttribute(
     'role',
     'checkbox',
   )
 })
+
+for (const size of [
+  { width: 1180, height: 820 },
+  { width: 820, height: 1180 },
+  { width: 1180, height: 700 },
+]) {
+  test(`TB-41 the Format card opens under the tool bar, never over it or the side bar (${size.width}x${size.height})`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(size)
+    await open(page, 'professional', ['tb.textFonts'])
+    await chip(page, 'text.format').click()
+    const c = card(page, 'text.format')
+    await expect(c).toBeVisible()
+    await page.waitForTimeout(400)
+    const r = (await c.boundingBox())!
+    const bar = (await page.getByTestId('toolbar-v8').boundingBox())!
+    expect(r.y).toBeGreaterThanOrEqual(bar.y + bar.height - 1)
+    const vp = page.viewportSize()!
+    expect(r.y + r.height).toBeLessThanOrEqual(vp.height)
+    expect(r.x).toBeGreaterThanOrEqual(0)
+    expect(r.x + r.width).toBeLessThanOrEqual(vp.width)
+    const side = page.locator('aside')
+    if (await side.isVisible()) {
+      const sb = (await side.boundingBox())!
+      expect(r.x >= sb.x + sb.width - 1 || r.x + r.width <= sb.x + 1).toBe(true)
+    }
+  })
+}
 
 test('TB-42 tb.textBox alone adds fill, border, corners, padding and shadow; Beginner has none', async ({
   page,
@@ -293,14 +483,13 @@ test('TB-42 a Box look is picked and shows as chosen', async ({ page }) => {
 
 // T8 (why): Advanced › Font and Text size ran the Reading tools, which put the
 // page into Reading mode with the reader's bar over the top bar.
-test('T8 Advanced Font and Text size stay in the note: no Reading mode, the tool bar stays', async ({
+test('T8 Format Font and Size stay in the note: no Reading mode, the tool bar stays', async ({
   page,
 }) => {
   await open(page, 'professional', ['tb.textFonts'])
   await chip(page, 'text.format').click()
   const c = card(page, 'text.format')
-  await c.getByTestId('v8-format-font').click()
-  await c.getByTestId('v8-format-textSize').click()
+  await c.getByTestId('v8-format-size-115').click()
   await c.locator('[data-card-chips="font"] [data-chip]').nth(1).click()
   await expect(page.getByTestId('reading-frame')).toHaveAttribute(
     'data-view',

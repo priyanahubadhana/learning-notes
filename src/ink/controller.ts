@@ -23,6 +23,7 @@ import {
 import { createId } from '../core/ids'
 import type { InkLayer, Stroke } from '../core/inkTypes'
 import {
+  eraseTargets,
   eraserSettings,
   ERASER_SIZES,
   highlighterSettings,
@@ -95,15 +96,12 @@ import {
   type RawPoint,
 } from './style'
 import {
-  clearHighlightRuns,
-  eraseHighlightsLive,
-  restoreHighlights,
-  type LiveRemoved,
   highlightRuns,
   nearestHighlightName,
   runsText,
   textRunsUnder,
 } from './textSnap'
+import { WordEraseSession } from './eraseText'
 import { MAX_LABEL, STRIDE } from '../core/inkTypes'
 import { selectGesture } from '../editor/gesture'
 import { mostlyInside } from './lassoMenu'
@@ -260,8 +258,8 @@ type Gesture =
       path: Pt[]
       del: Map<string, Placed>
       add: Map<string, Placed>
-      /** Text highlights taken off live (put back before the real edit). */
-      live: LiveRemoved[]
+      /** The words under the eraser (highlights, typed text), made on the first move. */
+      words: WordEraseSession | null
     }
   | {
       kind: 'lasso'
@@ -1196,7 +1194,7 @@ export class InkController {
         path: [],
         del: new Map(),
         add: new Map(),
-        live: [],
+        words: null,
       }
       this.eraseTo(w)
       return
@@ -1818,7 +1816,7 @@ export class InkController {
       path: [],
       del: new Map(),
       add: new Map(),
-      live: [],
+      words: null,
     }
     this.eraseTo(w)
     this.requestDraw()
@@ -1851,23 +1849,26 @@ export class InkController {
     const hit = boundsOf([from, w])
     const area = inflate(hit, radius + 4)
     // The eraser only touches the active layer.
-    // Highlights on the words go as the Pencil rubs them (put back at the end).
-    if (settings.highlightsOnly) {
+    // Highlights and typed words go as the Pencil rubs them (2A.8, T10): the
+    // letters are measured once, the page changes once per frame.
+    const targets = eraseTargets(settings)
+    if (targets.hl || targets.text) {
       const root = this.env.editorEl()
       if (root) {
-        const box = this.env.wrap.getBoundingClientRect()
-        g.live.push(
-          ...eraseHighlightsLive(
-            this.env.editor,
-            textRunsUnder(root, box, [from, w], radius, true),
-          ),
+        g.words ??= new WordEraseSession(
+          this.env.editor as never,
+          root,
+          this.env.wrap.getBoundingClientRect(),
+          targets,
         )
+        g.words.move(from, w, radius)
       }
     }
     const active = eraserLayer(this.env.doc.layers, this.env.doc.chosenLayer)
     for (const p of this.selectable()) {
       if (active && p.layerId !== active.id) continue
-      if (settings.highlightsOnly && p.stroke.kind !== 'highlight') continue
+      if (!targets.pen && p.stroke.kind !== 'highlight') continue
+      if (!targets.hl && p.stroke.kind === 'highlight') continue
       const frame = this.layout.frame(p.blockId)
       const r = strokeRect(p.stroke, frame)
       if (!r || !intersects(r, area)) continue
@@ -1883,24 +1884,13 @@ export class InkController {
   }
 
   private finishErase(g: Extract<Gesture, { kind: 'erase' }>): void {
-    restoreHighlights(this.env.editor, g.live)
     const edit: Edit = {
       del: [...g.del.values()],
       add: [...g.add.values()],
       layers: [],
     }
     this.commit(edit, true)
-    if (eraserSettings.get().highlightsOnly && g.path.length > 0) {
-      const root = this.env.editorEl()
-      if (root) {
-        const box = this.env.wrap.getBoundingClientRect()
-        const radius = ERASER_SIZES[eraserSettings.get().size] / 2
-        clearHighlightRuns(
-          this.env.editor,
-          textRunsUnder(root, box, g.path, radius, true),
-        )
-      }
-    }
+    g.words?.finish()
   }
 
   // ---- Lasso ----

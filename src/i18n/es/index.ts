@@ -29,6 +29,7 @@ import { esStorageSafety } from './storageSafety'
 import { esLibraryV2 } from './libraryV2'
 import { esFlags } from './flags'
 import { esSlashMenu } from './slashMenu'
+import { esPageMenus } from './pageMenus'
 import { esShell } from './shell'
 import { esAiBuild } from './aibuild'
 import { esAiJobs } from './aijobs'
@@ -71,6 +72,7 @@ export const es: Record<string, string> = {
   ...esUpdateV2,
   ...esFlags,
   ...esSlashMenu,
+  ...esPageMenus,
   ...esShell,
   ...esAiBuild,
   ...esAiJobs,

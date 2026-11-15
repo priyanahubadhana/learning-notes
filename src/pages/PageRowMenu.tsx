@@ -3,7 +3,9 @@ import { editLockItem } from '../app/lock/editLockMenu'
 import { runTask } from '../app/errors'
 import { favourites, toggleFavourite } from '../app/favourites'
 import { toggleLock } from '../app/lock/lockMenu'
-import { MenuPopover, type MenuItem } from '../app/ui'
+import type { MenuItem } from '../app/ui'
+import { RowMenu } from '../app/RowStrip'
+import type { RowPoint } from '../app/rowStripLogic'
 import type { LearningNotesDB } from '../core/db'
 import { editLockSource } from '../core/editLock'
 import { useReadOnlyGate } from '../core/useReadOnlyGate'
@@ -15,6 +17,7 @@ export default function PageRowMenu({
   db,
   page,
   anchor,
+  at,
   toast,
   rootId,
   canMove,
@@ -29,6 +32,8 @@ export default function PageRowMenu({
   db: LearningNotesDB
   page: Page
   anchor: DOMRect
+  /** Where the long-press was (flag page.menus: the strip opens there). */
+  at?: RowPoint | null
   toast: (message: string) => void
   rootId?: string
   canMove: boolean
@@ -89,5 +94,5 @@ export default function PageRowMenu({
     disabled: !!editLockBy,
     hint: editLockBy ? t('editLock.deleteHint') : undefined,
   })
-  return <MenuPopover anchor={anchor} items={items} onClose={onClose} />
+  return <RowMenu anchor={anchor} at={at} items={items} onClose={onClose} />
 }

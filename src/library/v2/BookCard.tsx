@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { IconButton, MenuPopover } from '../../app/ui'
+import { IconButton } from '../../app/ui'
+import { RowMenu } from '../../app/RowStrip'
+import { rowHoldMs, type RowPoint } from '../../app/rowStripLogic'
 import { useLongPress } from '../../app/useLongPress'
 import type { Page } from '../../core/types'
 import { t } from '../../i18n/t'
@@ -28,13 +30,20 @@ export function BookCard({
 }) {
   const [menuAt, setMenuAt] = useState<DOMRect | null>(null)
   const [opener, setOpener] = useState<HTMLElement | null>(null)
-  const hold = useLongPress((x, y) => {
-    const card = document.elementFromPoint(x, y)?.closest('article')
-    if (card) {
-      setOpener(card as HTMLElement)
-      setMenuAt(card.getBoundingClientRect())
-    }
-  }, true)
+  // Flag page.menus: a long-press opens the strip at the press point (PM-23).
+  const [menuPt, setMenuPt] = useState<RowPoint | null>(null)
+  const hold = useLongPress(
+    (x, y) => {
+      const card = document.elementFromPoint(x, y)?.closest('article')
+      if (card) {
+        setOpener(card as HTMLElement)
+        setMenuPt({ x, y })
+        setMenuAt(card.getBoundingClientRect())
+      }
+    },
+    true,
+    rowHoldMs,
+  )
   const source = page.source
   const cover = useImageUrl(
     source?.coverImageId ? imageRef(source.coverImageId) : null,
@@ -92,6 +101,7 @@ export function BookCard({
         aria-haspopup="menu"
         onClick={(e) => {
           setOpener(e.currentTarget)
+          setMenuPt(null)
           setMenuAt(e.currentTarget.getBoundingClientRect())
         }}
         className="grid size-11 place-items-center rounded-full bg-bg/80 text-ink-soft hover:bg-hover"
@@ -99,8 +109,9 @@ export function BookCard({
         ⋯
       </IconButton>
       {menuAt && (
-        <MenuPopover
+        <RowMenu
           anchor={menuAt}
+          at={menuPt}
           onClose={() => setMenuAt(null)}
           items={bookMenuItems(page, prefs, actions, opener)}
         />

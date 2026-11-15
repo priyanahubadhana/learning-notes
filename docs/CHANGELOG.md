@@ -8,6 +8,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: the flaky F8 test (15 Nov findings) showed a real 118 px layout jump on load (bar missing at first paint in one state, drawn in the other).
 - Files: src/editor/barRoomRule.ts, BarRoom.tsx, PageEditor.tsx, src/App.tsx (hot, approved for this fix), src/app/shell/Shell.tsx, shell.css, src/app/tools/v8/ToolbarV8Lazy.tsx, toolbarV8.css, src/design/tokens.css, e2e/scrollFrame.spec.ts, e2e/barRoom.spec.ts, src/editor/barRoomRule.test.ts.
 
+### 14 Nov 2026: slice 12 rest - page strip, Paste menu, page more-menu sheet (flag page.menus, OFF)
+
+- What: right-click and press-and-hold open the shared Context strip (Beginner: Cut, Copy, Paste menu, Delete, more; Professional adds Duplicate, Turn into, Colour); Paste menu pastes in the chosen form in one Undo step; with the flag ON "Keep original" is the Paste default until Settings stores a choice and the "Pasted as" chip needs `page.pastedChip`; the page more-menu is a side Sheet (Beginner 8 rows, Professional sections and pinned tiles via `page.menuAll`, Move, Duplicate). Spec: docs/features/page-menus.md PM-20..22, 40..45, 60..64.
+- Why: the menus you use while writing, on the shared parts, nothing dropped.
+- Files: src/editor/menus/_, src/pages/menus/_, src/editor/{PageEditor,PasteChooser,pasteFlow,holdMenuWatch}.ts(x), src/pages/PageView.tsx, src/app/flags.ts, src/i18n/*/pageMenus.ts, e2e/pageMenusStrip.spec.ts, e2e/pageMenusSheet.spec.ts, playwright.config.ts (one ipad-webkit line), scripts/feature-links.json, docs/CHANGELOG.md.
+
 ### 15 Nov 2026: P1.5 the real Pencil on scroll bars, menus and lists (L11; flag foundation.shell)
 
 - What: pressing a menu's or panel's own scroll bar (track, thumb, arrow) scrolls its list and the menu stays open (SC-19); the pages panel opened over the page shows its bar (SC-20); a Pencil drag scrolls lists, menus and panels like a finger, and on the note page the Pencil still writes (SC-21). The tests now use a Pencil sent by the browser itself (`e2e/realPen.ts`).

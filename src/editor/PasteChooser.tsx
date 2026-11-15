@@ -1,4 +1,8 @@
 import { centreEl } from '../app/centreEl'
+import { aboveTabBar } from '../app/aboveTabBar'
+import { Icon } from '../app/tools/icons'
+import { OnOff } from '../design/parts/OnOff'
+import '../design/parts/ContextStrip.css'
 import {
   useEffect,
   useRef,
@@ -8,7 +12,9 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { lazy, Suspense } from 'react'
+import { useFlag } from '../app/flags'
 import { t } from '../i18n/t'
+import { useUnlocked } from '../settings/level'
 import {
   closePasteUi,
   pasteUiState,
@@ -23,7 +29,7 @@ const CleanupDialog = lazy(() =>
 )
 
 /**
- * The paste chooser (a small pop-up on a rich paste: Keep original format,
+ * The paste chooser (a small pop-up on a rich paste: Keep original,
  * Plain text, As table) and the chip after a paste that swaps the result.
  * State lives in pasteFlow.ts; one instance per page editor shows only the
  * requests of its own editor.
@@ -31,7 +37,11 @@ const CleanupDialog = lazy(() =>
 export function PasteChooser({ owner }: { owner: unknown }) {
   const ui = useSyncExternalStore(pasteUiSubscribe, pasteUiState)
   const chooser = ui.chooser?.owner === owner ? ui.chooser : null
-  const chip = ui.chip?.owner === owner ? ui.chip : null
+  // Flag page.menus: the "Pasted as" chip is a Professional extra (PM-44).
+  const menusOn = useFlag('page.menus')
+  const chipAllowed = useUnlocked('page.pastedChip')
+  const chip =
+    ui.chip?.owner === owner && (!menusOn || chipAllowed) ? ui.chip : null
   const cleanup = ui.cleanup?.owner === owner ? ui.cleanup : null
   // Ctrl/Cmd+C of whole blocks: clean Markdown and rich HTML go with them.
   useEffect(() => {
@@ -67,9 +77,10 @@ export function PasteChooser({ owner }: { owner: unknown }) {
       <div
         data-chrome
         ref={centreEl}
+        style={{ bottom: aboveTabBar() ?? 16 }}
         role="group"
         aria-label={t('pasteChooser.chip')}
-        className="pointer-events-auto fixed bottom-4 left-1/2 z-40 flex max-w-[calc(100vw-1.5rem)] flex-wrap items-center gap-1 rounded-full border border-line bg-bg px-2 py-1 text-[13px] shadow-lg"
+        className="pointer-events-auto fixed left-1/2 z-40 flex max-w-[calc(100vw-1.5rem)] flex-wrap items-center gap-1 rounded-full border border-line bg-bg px-2 py-1 text-[13px] shadow-lg"
       >
         <span className="px-2 text-ink-soft">{t('pasteChooser.chip')}</span>
         {chip.choices.map((choice) => (
@@ -113,6 +124,7 @@ function ChooserBox({ chooser }: { chooser: ChooserRequest }) {
     <div
       data-chrome
       className="pointer-events-auto fixed inset-0 z-50 flex items-end justify-center bg-black/20 p-3 sm:items-center"
+      style={{ paddingBottom: aboveTabBar() ?? undefined }}
       onPointerDown={(e) => {
         if (e.target === e.currentTarget) chooser.cancel()
       }}
@@ -125,7 +137,18 @@ function ChooserBox({ chooser }: { chooser: ChooserRequest }) {
         onKeyDown={onKey}
         className="w-full max-w-sm rounded-xl border border-line bg-bg p-3 shadow-xl outline-none"
       >
-        <p className="mb-2 text-sm font-medium">{t('pasteChooser.title')}</p>
+        <div className="cs-pick__head">
+          <h2 className="cs-pick__title">{t('pasteChooser.title')}</h2>
+          <button
+            type="button"
+            className="cs-pick__x"
+            aria-label={t('pasteChooser.close')}
+            data-testid="paste-chooser-close"
+            onClick={chooser.cancel}
+          >
+            <Icon name="close" size={16} />
+          </button>
+        </div>
         <ul
           role="listbox"
           aria-label={t('pasteChooser.title')}
@@ -156,16 +179,19 @@ function ChooserBox({ chooser }: { chooser: ChooserRequest }) {
             </li>
           ))}
         </ul>
-        <label className="mt-3 flex min-h-11 items-center gap-2 text-[13px]">
-          <input
-            type="checkbox"
+        <div className="mt-3 flex min-h-11 items-center text-[13px]">
+          <OnOff
             checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-            className="size-4"
-          />
-          {t('pasteChooser.always')}
-        </label>
-        <p className="text-[12px] text-ink-soft">{t('pasteChooser.keys')}</p>
+            onChange={setRemember}
+            label={t('pasteChooser.always')}
+            testId="paste-chooser-always"
+          >
+            {t('pasteChooser.always')}
+          </OnOff>
+        </div>
+        <p className="text-[12px] text-ink-soft any-pointer-coarse:hidden phone:hidden">
+          {t('pasteChooser.keys')}
+        </p>
       </div>
     </div>
   )

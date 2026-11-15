@@ -8,20 +8,22 @@ import {
   type KeyboardEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { aboveTabBar } from '../../app/aboveTabBar'
 import { openInTopLayer, type Rect } from '../../app/overlay'
 import { Icon, type IconName } from '../../app/tools/icons'
 import { CommandList } from './CommandList'
 import type { Command, CommandGroup } from './commandListLogic'
 import {
   placeStrip,
+  itemWidth,
   splitStripItems,
   STRIP_PHONE_MAX,
   type StripPlacement,
 } from './contextStripPlace'
 import { useLevel } from '../../settings/level'
+import { lastInputWasKey } from './inputModality'
 import { motionMs } from './motion'
 import { tm } from './textMenus'
-import { useAnchoredCard } from './useAnchoredCard'
 import './ContextStrip.css'
 
 export type StripMenuItem = { id: string; label: string; hint?: string }
@@ -125,6 +127,8 @@ export function ContextStrip(props: ContextStripProps) {
     props.initialList ? 'list' : 'strip',
   )
   const [focusIdx, setFocusIdx] = useState(0)
+  // The focus ring is for the keyboard: hidden until a key is pressed here.
+  const [keys, setKeys] = useState(() => lastInputWasKey())
   const [closing, setClosing] = useState(false)
   const closingRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -149,6 +153,9 @@ export function ContextStrip(props: ContextStripProps) {
   const { shown } = split
   const overflow = [...split.overflow, ...hidden]
   const showMore = split.showMore || hidden.length > 0
+  // The width the whole strip wants on the full screen.
+  const natural =
+    shown.reduce((n, i) => n + itemWidth(i), 0) + (showMore ? 60 : 0) + 16
 
   // "⋯" list: the items that did not fit (a ▾ item becomes one row per choice), then the extra commands.
   const listGroups = ((): CommandGroup[] => {
@@ -218,7 +225,9 @@ export function ContextStrip(props: ContextStripProps) {
     const run = () => {
       setVw(document.documentElement.clientWidth || window.innerWidth)
       if (!floating) return
-      const b = boundsRef.current?.() ?? null
+      // Inside the box only while the whole strip fits there; else the screen.
+      const box = boundsRef.current?.() ?? null
+      const b = box && (phone || natural <= box.width - 24) ? box : null
       setRoom((prev) =>
         b
           ? prev && prev.left === b.left && prev.width === b.width
@@ -258,7 +267,7 @@ export function ContextStrip(props: ContextStripProps) {
     if (barRef.current) ro.observe(barRef.current)
     ro.observe(document.documentElement)
     return () => ro.disconnect()
-  }, [floating, props.target, shown.length, showMore, phone])
+  }, [floating, props.target, shown.length, showMore, phone, natural])
 
   const placed = !floating || !!pos
   useEffect(() => {
@@ -339,6 +348,8 @@ export function ContextStrip(props: ContextStripProps) {
       data-labels={phone && props.phoneLabels ? '' : undefined}
       data-state={closing ? 'closing' : 'open'}
       data-view={view}
+      data-keys={keys || undefined}
+      onKeyDownCapture={() => setKeys(true)}
       style={style}
     >
       <div
@@ -485,12 +496,47 @@ function FloatingPicker(props: {
       handle.close()
     }
   }, [node, anchor])
-  const pos = useAnchoredCard({
-    anchor,
-    card: node,
-    widthPx: 304,
-    active: !!anchor && !!node,
-  })
+  // Below the strip, left edges aligned, 8 px gap; a tall card shrinks (and
+  // scrolls) to the room left, or opens above the strip when below is too tight.
+  const [pos, setPos] = useState<{
+    left: number
+    top: number
+    maxHeight: number
+  } | null>(null)
+  useLayoutEffect(() => {
+    const strip = anchor?.closest<HTMLElement>('.cs__bar')
+    if (!node || !anchor) return
+    const run = () => {
+      const root = document.documentElement
+      const vw = root.clientWidth
+      const vh = window.innerHeight
+      const bar = (strip ?? anchor).getBoundingClientRect()
+      const w = node.offsetWidth
+      const left = Math.max(12, Math.min(bar.left, vw - 12 - w))
+      // Measure to the phone tab bar, not the screen bottom (gate 3 v24).
+      const floor = aboveTabBar() ?? 12
+      const below = vh - floor - (bar.bottom + 8)
+      const above = bar.top - 8 - 12
+      const h = node.scrollHeight
+      // Above when the whole card fits there but not below, or below is tight.
+      const useAbove =
+        (below < h && above >= h) || (below < Math.min(h, 220) && above > below)
+      const room = useAbove ? above : below
+      const maxHeight = Math.max(120, room)
+      const used = Math.min(h, maxHeight)
+      const top = useAbove ? bar.top - 8 - used : bar.bottom + 8
+      setPos((p) =>
+        p && p.left === left && p.top === top && p.maxHeight === maxHeight
+          ? p
+          : { left, top, maxHeight },
+      )
+    }
+    run()
+    const ro = new ResizeObserver(run)
+    ro.observe(node)
+    ro.observe(document.documentElement)
+    return () => ro.disconnect()
+  }, [anchor, node])
   useEffect(() => {
     if (pos) node?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
     // Focus the first choice once the card is visible.
@@ -505,6 +551,7 @@ function FloatingPicker(props: {
       style={{
         left: pos?.left ?? 0,
         top: pos?.top ?? 0,
+        maxHeight: pos?.maxHeight,
         visibility: pos ? 'visible' : 'hidden',
       }}
     />,

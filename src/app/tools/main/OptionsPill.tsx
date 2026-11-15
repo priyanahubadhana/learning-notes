@@ -193,7 +193,17 @@ function Pill({
 
   // The card sits next to the pill.
   const screen = { width: window.innerWidth, height: window.innerHeight }
-  const anchor = cardAnchor(pos, size, place.edge, screen)
+  // The card never covers the selection mini bar.
+  const miniBox = document
+    .querySelector('[data-mini-toolbar]')
+    ?.getBoundingClientRect()
+  const anchor = cardAnchor(
+    pos,
+    size,
+    place.edge,
+    screen,
+    miniBox && miniBox.width > 0 ? miniBox : undefined,
+  )
   const zones = dropZones(room)
   const label = t(`main.pill.${tool}` as MessageKey)
 
@@ -328,14 +338,21 @@ function Pill({
                 maxHeight: anchor.maxHeight,
                 width: Math.min(340, screen.width - 16),
               }}
-              className="fixed z-[45] overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 text-ink shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
+              className="fixed z-[45] overflow-hidden rounded-2xl border border-ink-soft bg-bg text-ink shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
             >
-              <DetailCard
-                card={card}
-                editor={editor}
-                onPage={(page) => openCard.set({ tool, page })}
-                onClose={() => openCard.set(null)}
-              />
+              {/* The surface stays solid; only this inner box scrolls and gets
+                  the scroll-hint fade (a fade on the surface let the page show through). */}
+              <div
+                className="overflow-y-auto p-1.5"
+                style={{ maxHeight: anchor.maxHeight - 2 }}
+              >
+                <DetailCard
+                  card={card}
+                  editor={editor}
+                  onPage={(page) => openCard.set({ tool, page })}
+                  onClose={() => openCard.set(null)}
+                />
+              </div>
             </div>
           )}
           {tool === 'lasso' && editor && !card && (

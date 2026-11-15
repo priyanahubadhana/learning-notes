@@ -129,6 +129,15 @@ describe('Professional: each switch can be turned off by itself (SET-B20)', () =
     expect(PRO_FEATURES.every((f) => isUnlocked(f.id))).toBe(true)
   })
 
+  it('the Pasted-as chip reads as on in Professional like every switch (SET-B43, PM-44)', () => {
+    setLevel('professional')
+    expect(isUnlocked('page.pastedChip')).toBe(true)
+    setProOff('page.pastedChip', true)
+    expect(isUnlocked('page.pastedChip')).toBe(false)
+    setLevel('beginner')
+    expect(isUnlocked('page.pastedChip')).toBe(false)
+  })
+
   it('ignores unknown stored overrides', () => {
     localStorage.setItem(
       LEVEL_STORAGE_KEY,

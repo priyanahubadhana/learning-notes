@@ -127,7 +127,11 @@ export function usePaperBoxes(
       const id = box?.getAttribute('data-paper-box')
       if (!box || !id) return
       if (box.contains(e.relatedTarget as Node | null)) return
-      window.setTimeout(() => {
+      // T23 (15 Nov): focus resting on a bar button or a field (the title, a
+      // box card field) keeps the box for now, but the box is looked at again
+      // until that focus is gone: an empty box never stays whatever its style.
+      let tries = 0
+      const check = () => {
         const live = document.querySelector(
           '[data-paper-box="' + CSS.escape(id) + '"]',
         )
@@ -147,11 +151,15 @@ export function usePaperBoxes(
         if (
           document.activeElement?.closest(
             'button, input, select, textarea, [role="menu"]',
-          )
-        )
+          ) &&
+          !document.activeElement.closest('[data-page-title]')
+        ) {
+          if (++tries < 40) window.setTimeout(check, 600)
           return
+        }
         runTask(removeIfEmptyBox(db, pageId, id).then(() => {}))
-      }, 600)
+      }
+      window.setTimeout(check, 600)
     }
     document.addEventListener('focusout', out, true)
     return () => document.removeEventListener('focusout', out, true)

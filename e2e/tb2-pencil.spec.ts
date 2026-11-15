@@ -606,3 +606,36 @@ for (const flag of [false, true]) {
     })
   })
 }
+
+/**
+ * T23 (owner, 15 Nov): an empty new box (no text, no ink, no picture) deletes
+ * itself when you leave it, whatever its style (the green fill from "use for
+ * new boxes" kept two empty boxes on the page). Switch OFF and ON.
+ */
+for (const flag of [false, true]) {
+  test(`T23 an empty styled box goes when left, tapping elsewhere or the title (switch ${flag ? 'ON' : 'OFF'})`, async ({
+    page,
+  }) => {
+    await page.addInitScript(() =>
+      localStorage.setItem(
+        'learning-notes:settings.override.v1',
+        JSON.stringify({
+          'paper.boxStyleDefault': { bg: 'lime', border: 'lime', radius: 12 },
+        }),
+      ),
+    )
+    await start(page, 'T23' + flag, flag)
+    await tool(page, 'Text').click()
+    const at = await blank(page, 60)
+    await page.mouse.click(at.x, at.y)
+    const boxes = page.locator(EXTRA)
+    await expect(boxes).toHaveCount(1)
+    await expect(boxes.locator('.bn-editor')).toBeFocused()
+    // Left by tapping empty paper elsewhere: the first goes, the new one waits.
+    await page.mouse.click(at.x + 200, at.y + 120)
+    await page.waitForTimeout(1500)
+    await expect(boxes).toHaveCount(1)
+    await page.getByRole('textbox', { name: 'Page title' }).click()
+    await expect(boxes).toHaveCount(0)
+  })
+}

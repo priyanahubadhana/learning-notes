@@ -19,6 +19,7 @@ export const esV8Pen = {
   'v8.pen.pickColour': 'Selector de color',
   'v8.pen.pressure.note': 'Presiona más fuerte para una línea más gruesa.',
   'v8.pen.ruler': 'Regla',
+  'v8.pen.response': 'Respuesta',
   'v8.pen.shapeHelp': 'Ayuda con formas',
   'v8.pen.sizeGroup': 'Tamaño',
   'v8.pen.stabilisation.note': 'Suaviza el pulso tembloroso.',
@@ -26,6 +27,7 @@ export const esV8Pen = {
   'v8.pen.tab.math': 'Mates',
   'v8.pen.tab.page': 'Página',
   'v8.pen.tabs': 'Secciones de Tacto',
+  'v8.pen.tip': 'Punta',
   'v8.pen.type.highlighter': 'Resaltador',
   'v8.pen.typeGroup': 'Tipo de bolígrafo',
 } as const

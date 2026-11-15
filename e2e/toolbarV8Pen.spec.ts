@@ -242,7 +242,7 @@ test('TB-24 Professional Feel adds tip, tilt, speed and latency, Aids and the to
     'Math',
     'Page',
   ])
-  await page.getByTestId('v8-pen-finetune').click()
+  // v9: Professional shows the Tip and Response wells at once (no Fine-tune).
   await expect(page.getByTestId('v8-pen-sharpness')).toBeVisible()
   await expect(page.getByTestId('v8-pen-flatness')).toBeVisible()
   await card(page, 'feel').getByRole('switch', { name: 'Tilt' }).click()
@@ -287,9 +287,7 @@ test('TB-25 choosing a paper style in Page keeps the style visible and ticked', 
   await expect(card(page, 'feel')).toBeVisible()
 })
 
-// The page-size setting (A4) has no stored setting in the app today: there is
-// nothing for the card to read or write. Needs a decision before it can be built.
-test.fixme('TB-25 choosing A4 in Page keeps the grid and paper style visible', async () => {})
+// Done in 2A.7: see e2e/toolbarV8Feel.spec.ts "TB-25 choosing A4 or Letter ...".
 
 test('TB-26 highlighter options sit behind their switch; Strength is always there', async ({
   page,

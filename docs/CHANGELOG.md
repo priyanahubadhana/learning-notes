@@ -14,6 +14,26 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: owner-approved picture toolbar-v9; "lasso rebuilt from the live lasso" (contradictions-2026-11-15 line 7); nothing from today's Lasso dropped.
 - Files: src/app/tools/v8/LassoRowParts.tsx, lassoRow.css, rowItems.ts, ToolRow.tsx, cards/lasso/*, cards/autoClose.ts, i18n en/es/hi, e2e/toolbarV9Lasso.spec.ts, toolbarV9LassoShots.spec.ts, inkTools.spec.ts, toolbarV8Tools/Tenth specs, screenshots/2a11/.
 
+### 15 Nov 2026: 2A.10 Format on states (switch toolbar.v8, OFF live)
+
+- What: every Format option that is a state shows accent fill + check for the current selection (lists, callout and key point added; others already had it).
+- Why: owner finding T15.
+- Files: src/app/tools/v8/cards/text/{FormatCard.tsx,textModel.ts,textCards.css}, e2e/toolbarV8FormatOn.spec.ts
+
+### 15 Nov 2026: 2A.7 Feel card as in mock v9 (switch toolbar.v8, OFF live)
+
+- What: Pro Feel has a Tip well (sharpness, flatness, stabilisation) and a Response well (pressure, tilt, speed, latency) with row pictures, split by hairlines; Beginner Feel unchanged; Aids Finger is a segmented control, gesture and Math rows have pictures; Page has four paper pictures, one paper choice (the Layers paper chips are hidden there), Paper size A4 / Letter and the Layers row
+- Why: TB-24, TB-25, audit rows "Pen > Feel" and "Feel > Math rows"; review fixes: plain slider rows inside the wells; a hairline between every Response row (a row's own border reset hid it)
+- Files: src/app/tools/v8/cards/pen/*, src/design/parts/CardParts.tsx (SwitchRow icon), Card.css, src/ink/LayersCard.tsx (hidePaper), i18n en/es/hi v8Pen, e2e/toolbarV8Feel(+Shots).spec.ts, toolbarV8Pen.spec.ts, screenshots/2a7/
+
+### 15 Nov 2026: red on build/next fixed (lassoWords back to back, scrollBarPen SC-12)
+
+- What: scrollBarPen closes the side list its steps left docked before it checks the page bar; the Lasso back-to-back loops start in a gap between the pill buttons (free: any point of the loop; rectangle: a corner up to 14 by 10 px out) and fail loudly when none is free.
+- Why: P1.9 (T4) docks the side list beside the page, so at 820 px the tool bar folds two tools into "More options (2)" and the list brings a second bar; BUG-002 (2A.3b) keeps the pill 8 px above its words (6 px higher than before), so the old fixed start corners landed on its buttons. Not a timing fault; no app change.
+- Files: e2e/scrollBarPen.spec.ts, e2e/lassoWords.spec.ts
+
+> > > > > > > origin/build/next
+
 ### 15 Nov 2026: 2A.8 review 2 fixes (switch toolbar.v8, OFF live)
 
 - What: Erases chips carry their icons (Highlighter, Text, Pen) and are 44 px tall, as the mock; the T10 "whole words" check now splits on real spaces, looks at line one only and must find no cut word (it failed when the eraser was made to cut letters, then passed).
@@ -37,6 +57,14 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
+
+### 15 Nov 2026 (night): red1 merged; 2A.7 PASS; 2A.10, 2A.11 review FAIL; 2A.12 built
+
+- What: red1 merged by the main chat (6406f6dc, CI green); 2A.7 passed on round 3 (Opus took over); 2A.10 and 2A.11 fix lists sent; 2A.12 ⋯ card built. Why: plan step 2. Files: docs/BUILD-STATE.md.
+
+### 15 Nov 2026 (night): 2A.9 and cfg2 merged; red1 root cause
+
+- What: 2A.9 Format tabs merged (4357bf6c), cfg2 puts toolbarV8Text, inkTools, toolbarV9Lasso on ipad-webkit; Opus found the cause of 3 webkit reds (test setup after P1.9 and BUG-002), review PASS; 2A.7 review 1 FAIL. Why: plan step 2, red first. Files: docs/BUILD-STATE.md, docs/IDEAS.md.
 
 ### 15 Nov 2026 (late): 2A.6 and 2A.8 merged; 2A.7, 2A.11 built
 

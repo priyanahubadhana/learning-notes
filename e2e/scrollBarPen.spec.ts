@@ -23,6 +23,12 @@ async function longPage(page: Page, url = ON, bar = true) {
   await startInMode(page, 'pencil')
   await page.goto(url)
   await createNotebook(page, 'Heart', 'Cardiology')
+  // P1.9 T4: the side list the steps opened stays docked beside the page
+  // until it is closed; it narrows the tool bar (⋯ then holds two tools) and
+  // brings its own bar. These tests are about the page alone, as in SH-08.
+  const close = page.locator('#sidebar').getByTestId('sb-head-close')
+  if (await close.isVisible()) await close.click()
+  await expect(close).toBeHidden()
   const main = page.locator('main[data-page-scroller]')
   await expect(main).toBeVisible()
   await main.evaluate((el) => {

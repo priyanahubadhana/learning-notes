@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dragScrollTop, moreOf, thumbOf } from './scrollHints'
+import { dragScrollTop, moreOf, solidOf, thumbOf } from './scrollHints'
 import { edgeOf, MAX_STRETCH, rubberBand } from './edgeStretch'
 
 describe('scroll hints', () => {
@@ -48,5 +48,22 @@ describe('scroll hints', () => {
     expect(edgeOf(0, 1000, 500, -5)).toBeNull()
     expect(edgeOf(500, 1000, 500, -5)).toBe('bottom')
     expect(edgeOf(200, 1000, 500, 5)).toBeNull()
+  })
+})
+
+describe('R12: a solid surface keeps its background (only its inside fades)', () => {
+  it('knows a solid colour from a clear or see-through one', () => {
+    expect(solidOf('rgb(255, 255, 255)')).toBe('rgb(255, 255, 255)')
+    expect(solidOf('rgba(0, 0, 0, 1)')).toBe('rgba(0, 0, 0, 1)')
+    expect(solidOf('rgba(0, 0, 0, 0)')).toBeNull()
+    expect(solidOf('transparent')).toBeNull()
+    expect(solidOf('rgba(255, 255, 255, 0.6)')).toBeNull()
+    expect(solidOf('')).toBeNull()
+  })
+  it('reads the alpha of the newer colour spellings too', () => {
+    expect(solidOf('color(srgb 1 1 1)')).toBe('color(srgb 1 1 1)')
+    expect(solidOf('color(srgb 1 1 1 / 0.5)')).toBeNull()
+    expect(solidOf('oklab(0.9 0 0 / 0)')).toBeNull()
+    expect(solidOf('oklab(0.9 0 0)')).toBe('oklab(0.9 0 0)')
   })
 })

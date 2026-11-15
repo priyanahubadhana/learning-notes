@@ -1,7 +1,8 @@
-import { lazy, Suspense, type ComponentProps } from 'react'
+import { Suspense, type ComponentProps } from 'react'
+import { lazyNow } from '../../app/lazyNow'
 
 // The strip loads at the first press-and-hold, not in the first download.
-const PageStrip = lazy(() => import('./PageStrip'))
+const PageStrip = lazyNow(() => import('./PageStrip'))
 
 export function PageStripLazy(props: ComponentProps<typeof PageStrip>) {
   return (
@@ -10,3 +11,6 @@ export function PageStripLazy(props: ComponentProps<typeof PageStrip>) {
     </Suspense>
   )
 }
+
+/** Fetches the strip's code ahead of the first hold (R13). */
+PageStripLazy.preload = PageStrip.preload

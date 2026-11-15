@@ -1,5 +1,6 @@
 /** Spanish texts of the new tool bar's Pen cards (toolbar.v8, slice 1c). */
 export const esV8Pen = {
+  'v8.pen.colourAuto': 'Tinta automática',
   'v8.pen.colours': 'Colores',
   'v8.pen.customColours': 'Tus colores',
   'v8.pen.customNote':

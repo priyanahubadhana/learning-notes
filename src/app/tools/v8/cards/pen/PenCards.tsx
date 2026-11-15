@@ -259,7 +259,12 @@ function ColourCard() {
               <Swatch
                 key={c.id}
                 colour={c.hex}
-                label={t(k(`ink.colour.${c.id}`))}
+                label={t(
+                  // The default shows dark by day and light at night: "Auto ink" (v9).
+                  c.id === 'black'
+                    ? 'v8.pen.colourAuto'
+                    : k(`ink.colour.${c.id}`),
+                )}
                 selected={sameColour(face.colour, c.hex)}
                 testId={`v8-pen-colour-${c.id}`}
                 onSelect={() => chooseColour(mode, c.hex)}

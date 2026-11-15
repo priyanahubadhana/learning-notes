@@ -1,5 +1,6 @@
 /** English texts of the new tool bar's Pen cards (toolbar.v8, slice 1c). */
 export const enV8Pen = {
+  'v8.pen.colourAuto': 'Auto ink',
   'v8.pen.colours': 'Colours',
   'v8.pen.customColours': 'Your colours',
   'v8.pen.customNote':

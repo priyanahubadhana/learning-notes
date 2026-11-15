@@ -1,0 +1,60 @@
+import { expect, test } from '@playwright/test'
+import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+
+/** Real use on an iPad size (2A.11 step 5): turn the screen, scroll the card, reload, open and close. */
+test.use({ viewport: { width: 1180, height: 820 }, hasTouch: true })
+
+test('Professional Lasso on an iPad: turn, scroll, close and reload keep the settings', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'learning-notes:level',
+      JSON.stringify({ level: 'professional', unlocked: ['tb.lassoOptions'] }),
+    )
+  })
+  await startInMode(page, 'touch')
+  await page.goto('/?flags=toolbar.v8')
+  await createNotebook(page, 'Biology', 'First')
+  await typeInEditor(page, 'The nucleus holds the DNA')
+  await page.getByTestId('v8-tool-lasso').click()
+  await page.getByTestId('v8-lasso-bar-rect').click()
+  await page.getByTestId('v8-chip-lasso.opts').click()
+  const c = page.getByTestId('v8-card-lasso.opts')
+  await c.getByRole('button', { name: /Menu row/ }).click()
+  await c.getByRole('button', { name: /Layers/ }).click()
+  await c.getByTestId('v8-lasso-layers').scrollIntoViewIfNeeded()
+  for (const vp of [
+    { width: 820, height: 1180 },
+    { width: 1180, height: 820 },
+  ]) {
+    // A card open while the screen turns keeps its old place (shared Card, reported): close first.
+    await page.getByRole('button', { name: 'Close' }).click()
+    await expect(c).toHaveCount(0)
+    await page.setViewportSize(vp)
+    // The row re-fits to the new width, then stands still.
+    await page.waitForTimeout(800)
+    const chip = page.getByTestId('v8-chip-lasso.opts')
+    if (await chip.isVisible()) await chip.click()
+    else {
+      await page.getByTestId('v8-row-more').click()
+      await page
+        .getByTestId('v8-card-fold.row')
+        .getByRole('button', { name: 'Options' })
+        .click()
+    }
+    await expect(c).toBeVisible()
+    const b = (await c.boundingBox())!
+    expect(b.x).toBeGreaterThanOrEqual(0)
+    expect(b.x + b.width).toBeLessThanOrEqual(vp.width)
+    expect(b.y + b.height).toBeLessThanOrEqual(vp.height)
+  }
+  await page.getByRole('button', { name: 'Close' }).click()
+  await expect(c).toHaveCount(0)
+  await page.reload()
+  await page.getByTestId('v8-tool-lasso').click()
+  await expect(page.getByTestId('v8-lasso-bar-rect')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+})

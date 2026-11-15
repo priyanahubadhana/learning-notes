@@ -334,7 +334,12 @@ export function SelCardBody({
             <Swatch
               key={c.id}
               colour={c.hex}
-              label={t(`ink.colour.${c.id}` as MessageKey)}
+              label={t(
+                // The default shows dark by day and light at night: "Auto ink" (v9).
+                c.id === 'black'
+                  ? 'v8.pen.colourAuto'
+                  : (`ink.colour.${c.id}` as MessageKey),
+              )}
               selected={now === c.hex.toLowerCase()}
               testId={`v8-sel-colour-${c.id}`}
               onSelect={() => ink?.colourSelection(c.hex)}

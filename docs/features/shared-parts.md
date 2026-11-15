@@ -86,7 +86,7 @@ Anchor rule (DS 3.3): 8 px below the bar; left edge lines up with the ▾; never
 
 Phone (≤ 640): same component as a bottom sheet, full width, radius 20 20 0 0, max-height 82 vh, 36 x 5 grab bar, scrim 40%, no arrow (FAV 1706-1714). Safe-area padding at the bottom.
 
-States: closed; open (200 ms in); closing (130 ms); loading body (skeleton wells); scroll-fade on; ▾ trigger pressed. Tile states are in SP-02 helpers: default, hover (well), pressed (scale .96, 120 ms), selected (accent tint + 1.5 px ring, pop .93 → 1 in 280 ms spring), disabled (35%).
+States: closed; open (200 ms in); closing (130 ms); loading body (skeleton wells); scroll-fade on; ▾ trigger pressed. Tile states are in SP-02 helpers: default, hover (well), pressed (scale .96, 120 ms), selected (accent tint + 1.5 px ring, pop .93 → 1 in 280 ms spring), disabled (35%). v9 (2A.5): a tile rests in a well (`--card-well`); switch knob = `--v9-knob` (white in dark); segmented thumb = `--v9-thumb` with `--v9-thumb-sh`; off-track = `--v9-track`; all only under `data-v9` (toolbar.v8 ON), else the old look.
 
 Keyboard / screen reader: `role="dialog"` with `aria-label=title`; focus moves to the first control, Tab stays inside, Esc closes and returns focus to the ▾; the ▾ has `aria-haspopup="dialog"`, `aria-expanded`. Arrow keys move through tiles (roving tabindex); tiles are `role="radio"` in a `radiogroup` (single) or `checkbox` (multi). A choice is announced through the toast live region only when the result is not visible.
 

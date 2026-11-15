@@ -1,5 +1,6 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { useCardPick } from './cardPick'
+import { displayInk } from '../ink'
 
 /** A labelled group inside a card body. */
 export function CardGroup({
@@ -169,7 +170,7 @@ export function Swatch({
 }: { colour: string } & Omit<TileProps, 'children'>) {
   return (
     <Tile {...rest}>
-      <i className="pcard-swatch" style={{ background: colour }} />
+      <i className="pcard-swatch" style={{ background: displayInk(colour) }} />
     </Tile>
   )
 }

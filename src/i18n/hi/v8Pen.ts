@@ -1,5 +1,6 @@
 /** Hindi texts of the new tool bar's Pen cards (toolbar.v8, slice 1c). */
 export const hiV8Pen = {
+  'v8.pen.colourAuto': 'अपने-आप स्याही',
   'v8.pen.colours': 'रंग',
   'v8.pen.customColours': 'आपके रंग',
   'v8.pen.customNote': 'अपने 6 रंग तक रखें। सबसे नया सबसे पहले आता है।',

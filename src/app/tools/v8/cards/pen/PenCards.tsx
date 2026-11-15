@@ -59,6 +59,7 @@ import {
   swatchesFor,
   type FeelTab,
 } from './penModel'
+import { displayInk } from '../../../../../design/ink'
 import './penCards.css'
 
 const k = (key: string) => key as MessageKey
@@ -80,7 +81,7 @@ function Sample({
       <path
         d={samplePath(width, height)}
         fill="none"
-        stroke={colour}
+        style={{ stroke: displayInk(colour) }}
         strokeWidth={look.w}
         strokeLinecap={look.cap}
         opacity={look.o}
@@ -149,7 +150,7 @@ function SizeCard() {
                       y1="11"
                       x2="38"
                       y2="11"
-                      stroke={face.colour}
+                      style={{ stroke: displayInk(face.colour) }}
                       strokeWidth={Math.min(hl ? px * 0.7 : px, 18)}
                       strokeLinecap={hl ? 'butt' : 'round'}
                       opacity={hl ? 0.55 : 1}
@@ -258,7 +259,12 @@ function ColourCard() {
               <Swatch
                 key={c.id}
                 colour={c.hex}
-                label={t(k(`ink.colour.${c.id}`))}
+                label={t(
+                  // The default shows dark by day and light at night: "Auto ink" (v9).
+                  c.id === 'black'
+                    ? 'v8.pen.colourAuto'
+                    : k(`ink.colour.${c.id}`),
+                )}
                 selected={sameColour(face.colour, c.hex)}
                 testId={`v8-pen-colour-${c.id}`}
                 onSelect={() => chooseColour(mode, c.hex)}

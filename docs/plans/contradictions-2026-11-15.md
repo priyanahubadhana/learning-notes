@@ -27,3 +27,5 @@ Light default ink in dark mode (and on light paper later); an eraser that erases
 ## Owner's answers (15 Nov)
 
 Yes to Claude's pick on 2, 3, 4, 6, 8, 9, 10, 11; yes to A (light default ink in dark mode), B (eraser can erase typed text), D (timer numbers), F (no Search tile in Settings ⋯), G (no Shift K label on touch). **C: no** ("Back to pen" stays as approved: Professional, on the bar). **1 and 7: yes, but make sure nothing can get stuck** (a failed update always has a way forward; sheets always close). Asked to explain: E (upright Pencil mode icons only) and H (merging the two November 2026 pages). 5 (Format tabs) not answered yet.
+
+Later the same day: **E: option 1** (upright Pencil mode shows icons only; names come back sideways; a long press shows the name). **H: option 1** (merge the two "November 2026" Journal pages into one, backup first, nothing lost; a planned task after the Phase 1 fixes, checked against the backup before the owner sees it). **5: yes** (Format: 3 tabs in Beginner, 4 in Professional).

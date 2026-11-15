@@ -1,3 +1,7 @@
+import {
+  browserRestartDeps,
+  restartIntoNewFiles as restartNow,
+} from './app/restartNow'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
@@ -314,17 +318,8 @@ watchUpdateTriggers(window, lookQuietly)
   }
 }
 
-/** Drops the saved copy of the old files, then restarts on the live ones. */
-async function restartIntoNewFiles() {
-  try {
-    const regs = (await navigator.serviceWorker?.getRegistrations()) ?? []
-    await Promise.all(regs.map((r) => r.unregister()))
-    for (const key of (await caches?.keys()) ?? []) await caches.delete(key)
-  } catch {
-    // Restart anyway.
-  }
-  location.reload()
-}
+/** Restarts on the live files; never drops them while a new version installs. */
+const restartIntoNewFiles = () => restartNow(browserRestartDeps(flushAllSaves))
 
 // R7-1: a new version took over this page without a restart (Update pressed
 // in another window, or the restart was missed): the old code must not keep

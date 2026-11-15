@@ -54,8 +54,7 @@ One row, 52 px, flat (not glass), inside the main column. Left to right:
 
 1. sidebar toggle (when the screen has a sidebar)
 2. page-panel toggle (only while a notebook or book is open)
-3. Back · Forward (36 px icons, 44 px hit area)
-   3b. **Undo · Redo** (always visible, SH-05)
+3. **Undo · Redo** (always visible; 44 px hit area). The Back · Forward arrows go with toolbar.v8 ON (going back: the page path, swipe back); while it is OFF the arrows stay and Undo · Redo follow SH-05.
 4. breadcrumbs (earlier crumbs are buttons, the last one is plain text, truncates with …)
 5. "Saved" status (muted, only while editing)
 6. Search (opens the search popup, Ctrl K), then the Beginner | Professional view toggle (SH-06; on a phone it moves to the screen's title row)

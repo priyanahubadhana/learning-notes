@@ -13,12 +13,27 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
+### 15 Nov 2026 (evening): Phase 2A started (full team); wheel test merged
+
+- What: 2A.4, 2A.5, 2A.14 built on their branches (not merged yet); the phone wheel test move merged into build/next b2872d53 after desktop webkit 1/1. Why: owner answers 4A and 7. Files: docs/BUILD-STATE.md, docs/CHANGELOG.md.
+
+### 15 Nov 2026 (night): Task H Journal month repair (switch journal.monthRepair, OFF live)
+
+- What: the Journal joins two month pages of the same month into one (backup first, days moved, empty duplicate to Trash, counts checked, toast with Undo); runs on start and after each sync. Cause tests show sync's Journal merge and a Trash restore make the second page; import does not.
+- Why: owner's two "November 2026" pages (task H, option A).
+- Files: src/journal/journalRepair.ts, src/journal/journalRepair.test.ts, src/app/attention/useJournalRepair.ts, src/app/attention/AttentionGate.tsx, src/app/flags.ts, src/app/flags.test.ts, src/i18n (en, es, hi), src/sync/syncService.ts (export for test), vitest.config.ts, e2e/journalMonthRepair.spec.ts, docs/features/journal.md, docs/DECISIONS.md.
 
 ### 15 Nov 2026 (evening): Phase 1 re-test steps
 
 - What: phase-1.md gets the re-test round after P1.8 and P1.9 (10 steps, preview at 8105fcb, CI green) and the optional 10-minute Pencil look at the new text box (switch "New text box" on with the Phase 1 preset; 6 steps).
 - Why: plan step 1.1; owner answer 5A.
 - Files: docs/plans/phases/phase-1.md, docs/CHANGELOG.md.
+
+### 15 Nov 2026: the phone "finger scrolls the page" test moved to its own file (tests only)
+
+- What: the test "phone: a finger on the page outside the dots still scrolls it" moved, unchanged, from e2e/tb2-resize-phone.spec.ts to the new e2e/tb2-phone-wheel.spec.ts. The other 12 tests stay, unchanged. Before: 13 tests, 38 checks in one file; after: 12 + 1 tests, 36 + 2 checks. No test or check was removed or weakened.
+- Why: the test scrolls with a mouse wheel, which the `ipad-webkit` stand-in cannot do, so it was always red there. The new file name is outside the `ipad-webkit` list, so the test runs on chromium and desktop Safari only (owner OK, 15 Nov). The test guard blocks every edit with fewer checks, so the old file was deleted with a Fable-approved `test-guard-reason` and written again.
+- Files: e2e/tb2-resize-phone.spec.ts, e2e/tb2-phone-wheel.spec.ts.
 
 ### 15 Nov 2026: P1.9 the frame matches panels 1, 2, 3, 4 and 6 of the Phase 1 fixes picture (switch foundation.shell, OFF live)
 
@@ -420,6 +435,10 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 ## 2026-11-15 - 2B.5 resize dots (switch textbox.v2)
 
 - Dots: 44 pt targets fully outside the edge (text wins inside), 10 px ring, nearest dot wins, 120 ms hold, 4 px dead zone, minimum width = longest word, height follows the dot live, grid dividers get the 4 px dead zone. Lines of a box keep 1.3 x type and 4 px top/bottom padding (fixes the overlap in PENDING; v2 only, the old look with the switch OFF has the same fault). Files: src/paper/v2/boxResize.ts, boxV2.css, BoxFrame.tsx, PaperFrame.tsx, GridDividers.tsx, e2e/tb2-resize*.spec.ts.
+
+## 2026-11-15 (2A: 2A.4 merged, 2A.5 PASS, 2A.14 Layout row)
+
+- 2A.4 merged into build/next b7ba4ede, CI green; 2A.5 PASS after an Opus takeover (d0dcb56e); 2A.14 Layout row built, review FAIL against the approved settings-rows pictures; merges held for the owner's re-test. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
 
 ## 2026-11-12 (Build master plan)
 

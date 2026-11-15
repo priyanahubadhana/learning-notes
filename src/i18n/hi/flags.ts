@@ -80,4 +80,7 @@ export const hiFlags = {
   'flags.storage.safety.name': 'स्टोरेज सुरक्षा',
   'flags.storage.safety.desc':
     'नोट्स न सहेजे जाने पर शांत सूचना, और एक टैप में बैकअप।',
+  'flags.journal.monthRepair.name': 'जर्नल महीना सुधार',
+  'flags.journal.monthRepair.desc':
+    'जर्नल में एक ही महीने के दो पेज को एक में जोड़ता है, पूर्ववत के साथ।',
 }

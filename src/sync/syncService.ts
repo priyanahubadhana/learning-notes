@@ -634,7 +634,7 @@ export function dismissMerged(): void {
  * After a sync, keep one (the fixed-id one, else the oldest) and move the
  * other's notebooks into it. Nothing is deleted except the empty duplicate.
  */
-async function dedupeWorkspaces(db: LearningNotesDB): Promise<void> {
+export async function dedupeWorkspaces(db: LearningNotesDB): Promise<void> {
   const live = (await db.workspaces.toArray()).filter(isLive)
   if (live.length >= 2) await mergeWorkspaces(db, live)
   await dedupeSpecialNotebooks(db)

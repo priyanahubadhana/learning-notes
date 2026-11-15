@@ -1,15 +1,18 @@
 // Checks the live site after a publish, and daily (.github/workflows/).
-// Usage: node scripts/check-live.mjs <commit>
+// Usage: node scripts/check-live.mjs [commit]
+// With no commit: the newest commit on main that changed app code (docs-only
+// pushes do not deploy). Needs full git history (fetch-depth: 0).
 // Fails if the live site is not exactly that commit, or lost its protection.
 import { liveProblems } from './liveChecks.mjs'
+import { pickAppCommit, readCommits } from './liveCommit.mjs'
 
 const SITE = 'https://learning-notes-app.pages.dev'
 const TRIES = 12
 const WAIT_MS = 15_000
 
-const commit = process.argv[2]
+const commit = process.argv[2] || pickAppCommit(readCommits())
 if (!commit) {
-  console.error('Usage: node scripts/check-live.mjs <commit>')
+  console.error('Could not find the last app-code commit; pass a commit.')
   process.exit(2)
 }
 

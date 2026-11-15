@@ -16,6 +16,7 @@ export function liveProblems(commit, site) {
   if (site.version.json?.commit !== commit) {
     problems.push(
       `version.json says ${site.version.json?.commit ?? 'nothing'}, expected ${commit}. ` +
+        `Live is ${site.version.json?.commit ?? 'unknown'}; the last app-code commit on main is ${commit}. ` +
         'Something other than GitHub may have published the site.',
     )
   }

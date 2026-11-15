@@ -1,6 +1,6 @@
 name: Live site check
 
-# Daily: the live site must be the latest commit on main, with its protection
+# Daily: the live site must be the latest app-code commit on main (docs-only pushes do not deploy), with its protection
 # in place. A failure here (GitHub emails the owner) most likely means
 # something other than the deploy job published the site.
 on:
@@ -17,7 +17,9 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0 # the check reads history to find the last app-code commit
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: lts/*
-      - run: node scripts/check-live.mjs "$GITHUB_SHA"
+      - run: node scripts/check-live.mjs

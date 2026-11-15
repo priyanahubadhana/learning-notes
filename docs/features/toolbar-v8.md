@@ -81,6 +81,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 - TB-40 Text row order: Box ▾ (first, one setting with 1 / 2 / 3 styles, settings button in front, T3) → Format ▾ → B → I → Favourites.
 - TB-41 When I open Format ▾ → sections Text · Style · Paragraph: H1–H3, bullet, star, numbered, checklist, B/I/U/S, indent, outdent, alignment, callout, divider, inline code (T6); styles drawn in their own look; Professional adds Advanced, fonts in their own face, line height (Pro: `tb.textFonts`) and more marks (Pro: `tb.textMarks`).
 - TB-42 (v9) When I open Box ▾ → the Box card hangs under its ▾ with its arrow under Box, like every other ▾ (it no longer moves beside the box); box looks, fill, border, corners, padding, shadow, columns (Pro: `tb.textBox`).
+- TB-42a (v9) The old rule M1 "the Box card never covers the box" is replaced by TB-42 (v9): the Box card hangs under Box ▾ like every other card, so it may cover part of the page; the box stays selected and Undo works as before.
 - TB-43 The text box's own mini-bar has no second minimise (M2); the top bar has no Done (M3).
 
 **Favourites row (replaces the ★ custom tool)**

@@ -11,7 +11,10 @@ import {
 import type { Editor } from '../../../editor/barActions'
 import { useFlag } from '../../flags'
 import { t, type MessageKey } from '../../../i18n/t'
-import { deviceModeSetting } from '../../../settings/builtinSettings'
+import {
+  deviceModeSetting,
+  hoverTipsSetting,
+} from '../../../settings/builtinSettings'
 import { useDeviceSetting } from '../../../settings/useSetting'
 import { useToolNames } from './barPrefs'
 import { Icon, type IconName } from '../icons'
@@ -285,6 +288,7 @@ export function ToolBar({
   onCloseCard,
 }: ToolBarProps) {
   const [deviceMode] = useDeviceSetting(deviceModeSetting)
+  const [hoverTips] = useDeviceSetting(hoverTipsSetting)
   const history = historyState.useValue()
   const editor = useBlockNoteEditor() as unknown as Editor | null
   const tools = v8Tools()
@@ -600,7 +604,7 @@ export function ToolBar({
           )),
         )}
       </div>
-      {hover && !hold.tip && !showNames ? (
+      {hover && hoverTips === 'on' && !hold.tip && !showNames ? (
         <NameTip
           el={hover.el}
           text={t(TOOL_NAME[hover.id])}

@@ -38,6 +38,10 @@ for (const level of ['beginner', 'professional'] as const)
         await page.goto('/?flags=toolbar.v8')
         await createNotebook(page, 'Biology', 'First')
         await typeInEditor(page, 'The nucleus holds the DNA')
+        // The side list closed, so the bar has the room for names.
+        const hide = page.getByRole('button', { name: 'Hide menu' })
+        if (await hide.isVisible()) await hide.click()
+        await page.waitForTimeout(800)
         mkdirSync(OUT, { recursive: true })
         await page.screenshot({ path: `${OUT}/${level}-${theme}-${size}.png` })
         if (level === 'professional' && size !== 'phone') {

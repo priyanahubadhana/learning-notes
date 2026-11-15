@@ -6,7 +6,8 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - What: 15 e2e tests (e2e/tb2-pencil.spec.ts) for TB-36 to TB-41, with the browser's own Pencil input (installRealPen, L11) and the Scribble probe: Pen tool on empty paper makes a box with the ink inside; Text tool turns a shaky rectangle into a clean shape (one Undo), handwriting near it (on paper or in a box) cancels it, a ring round a digit gives the circled number; pinch zoom 100 to 400 % with the spring back, the Pencil never zooms; the "+ box" tag on mouse and Pencil hover only with the Text tool; the phone gap tap; TB-41 Pencil in a box: Text tool leaves it to Scribble (editable box under the stroke, no ink), Pen tool makes ink in that box and never converts. All pass with the switch ON on the existing code: no app code changed.
 - Why: tests first showed the kept behaviour already holds on the new layer. Moving the blocks behind the gesture router was not done (see the task report: pinch needs touch events with preventDefault, the router sees pointer events only).
-- Files: e2e/tb2-pencil.spec.ts, playwright.config.ts (ipad list).
+- Also (T5): the "Tap here to keep writing" line no longer takes a press that moved over 10 px as a tap (no new last line, no caret, no jump to the end), switch OFF and ON. 4 more e2e.
+- Files: e2e/tb2-pencil.spec.ts, playwright.config.ts (ipad list), src/editor/PageEditor.tsx (one onClick guard).
 
 ### 15 Nov 2026: red on ipad-webkit fixed (createNotebook R9, TB-23 divider)
 

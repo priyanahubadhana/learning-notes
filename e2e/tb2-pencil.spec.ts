@@ -533,3 +533,76 @@ test('switch OFF: the Pencil on empty paper still makes a box with ink (nothing 
     .poll(async () => (await savedInk(page)).strokes.length, { timeout: 8000 })
     .toBe(1)
 })
+
+/**
+ * T5 (owner, 15 Nov): a press that moves on the page is a scroll, never a tap.
+ * The "Tap here to keep writing" line used to take the lift of a Pencil drag
+ * as a tap: a new last line, the caret there, the page jumped to its end.
+ * Switch OFF and ON alike.
+ */
+for (const flag of [false, true]) {
+  test.describe(`T5 a drag is not a tap (switch ${flag ? 'ON' : 'OFF'})`, () => {
+    async function pencilPage(page: Page, name: string) {
+      await installRealPen(page)
+      if (flag)
+        await page.addInitScript(() =>
+          localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+        )
+      await startInMode(page, 'pencil')
+      await page.addInitScript(() =>
+        localStorage.setItem('learning-notes:advanced.autoSwitch', '"off"'),
+      )
+      await page.goto('/')
+      await createNotebook(page, 'Paper', name)
+      await typeInEditor(page, 'Only line')
+      await page.waitForTimeout(800)
+    }
+    const below = (page: Page) => page.locator('.ln-tap-below')
+    const lines = (page: Page) =>
+      page.locator('[data-paper-box="main"] .bn-block-content').count()
+
+    const main = (page: Page) =>
+      page.locator('[data-paper-box="main"] .bn-editor')
+
+    test('a drag (Pencil or mouse) on the line under the text puts no caret there and adds no line', async ({
+      page,
+    }) => {
+      await pencilPage(page, 'T5drag' + flag)
+      await expect(below(page)).toBeVisible()
+      const n0 = await lines(page)
+      await below(page).scrollIntoViewIfNeeded()
+      await page.waitForTimeout(300)
+      const b = (await below(page).boundingBox())!
+      const x = b.x + 60
+      const down = [
+        { x, y: b.y + 6 },
+        { x, y: b.y + 20 },
+        { x, y: b.y + 36 },
+      ]
+      await realPen(page, down)
+      await page.waitForTimeout(400)
+      // The mouse: the browser sends a click after any press and lift on one element.
+      await page.mouse.move(down[0].x, down[0].y)
+      await page.mouse.down()
+      await page.mouse.move(x, b.y + 38, { steps: 6 })
+      await page.mouse.up()
+      await page.waitForTimeout(500)
+      expect(await lines(page)).toBe(n0)
+      await expect(main(page)).not.toBeFocused()
+    })
+
+    test('a Pencil tap and a mouse click on the line under the text still put the caret there', async ({
+      page,
+    }) => {
+      await pencilPage(page, 'T5tap' + flag)
+      await below(page).scrollIntoViewIfNeeded()
+      await page.waitForTimeout(300)
+      const b = (await below(page).boundingBox())!
+      await realPen(page, [{ x: b.x + 60, y: b.y + 20 }])
+      await expect(main(page)).toBeFocused()
+      await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+      await page.mouse.click(b.x + 60, b.y + 20)
+      await expect(main(page)).toBeFocused()
+    })
+  })
+}

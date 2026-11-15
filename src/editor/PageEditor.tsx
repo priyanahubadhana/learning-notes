@@ -1066,7 +1066,19 @@ function LoadedPageEditor({
         (!waitForText || frame.width < NARROW_PX) && (
           <button
             type="button"
-            onClick={() => focusEndLine(editor)}
+            // T5 (15 Nov): a press that moved is a scroll, not a tap: it must not
+            // put a caret on a new last line and jump the page to its end.
+            onPointerDown={(e) => {
+              e.currentTarget.dataset.down = e.clientX + ',' + e.clientY
+            }}
+            onClick={(e) => {
+              const [x, y] = (e.currentTarget.dataset.down ?? '')
+                .split(',')
+                .map(Number)
+              delete e.currentTarget.dataset.down
+              if (Math.hypot(e.clientX - x, e.clientY - y) > 10) return
+              focusEndLine(editor)
+            }}
             className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
           >
             {/* Empty page (TB-42): the line below is the one hint, in its own words. */}

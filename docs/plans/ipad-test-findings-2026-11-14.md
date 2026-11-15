@@ -175,3 +175,11 @@ Running list, in the order the owner reports. The owner asked to note everything
   | T24 | Double-tap on a word selects the word | **pass** | |
   | T25 | Type "/" then write "tab" with the Pencil (Scribble): Scribble puts a space after "/", so the slash list does not match "tab" and the text "/ tab" is written instead of a table (T25-slash-scribble.png) | fail, noted | Fix idea: after "/", ignore a leading space from Scribble when matching the slash list (and drop it). Also seen: the slash list runs under the iPad's floating shortcut bar at the bottom |
   | T26 | Select a word (double-tap), then write over it with the Pencil to replace it: does not work; the word gets deselected and nothing is written | fail, noted | iPad Scribble normally replaces a selected word when you write over it; our page cancels the selection on the Pencil's touch. Check with the real-Pencil tests (e2e/realPen.ts) and scribbleProbe |
+
+### Decisions after the 15 Nov test (owner, about 10:55 IST)
+
+1. **Order:** Phase 1 first (updates, jumps and covers, Settings), the owner re-tests, Phase 1 goes live; then the 2A tool bar is rebuilt to match mock v8.
+2. **"+" and ☰ (favourites):** build them now (part of the approved design).
+3. **Settings:** yes, match the approved design before Phase 1 goes live, but **make a new mock-up first** that follows the design rules; the owner approves it, then build.
+4. **T5:** it happened with the **Pencil**. **Step 4:** Settings used the full width upright (pass).
+5. **New rule (owner's OK):** before any phase's first look, a reviewer compares every screen of the phase side by side with the approved design, light and dark, lists every difference, and they are fixed first.

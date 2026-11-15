@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026 (late): 2A.cfg and 2A.14 merged
+
+- What: 2A.cfg (df188a67) and 2A.14 tool names by mode (c2967488, ipad-webkit 28/28) merged into build/next, part OFF. Why: plan step 2. Files: docs/BUILD-STATE.md.
+
 ### 15 Nov 2026 (late): 2A hold lifted; PENDING repaired
 
 - What: BUILD-STATE drops the HOLD (re-test finished) and sets the 2A merge order; PENDING PP1 row repaired (a stray | split it) and R20 copied from build/next. Why: new phase-manager run. Files: docs/BUILD-STATE.md, docs/PENDING.md.

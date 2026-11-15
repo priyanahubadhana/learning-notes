@@ -18,15 +18,15 @@
 
 ## Phase 2A tasks (phase-manager, from 15 Nov; webkit turn handed out by the manager)
 
-| Task  | Branch @ head (working copy)                                                       | State                                                                                          |
-| ----- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)                                               | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it) |
-| 2A.5  | `slice/2a5` ac433b20 (ln-2a5)                                                      | PASS, webkit green; merge waits for the owner's answer on helper merges                        |
-| 2A.14 | `slice/2a14` a63335f8 (ln-2a14)                                                    | review PASS; webkit waits for the config task below (decision B)                               |
-| cfg   | add the 2A specs to the ipad-webkit list (playwright.config.ts, hot, merged alone) | first task after "owner test done" (decision B, main chat)                                     |
-| rule  | 2A.14's settings rows + Layout                                                     | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                        |
-| wheel | `slice/tb2-phone-wheel`                                                            | merged b2872d53, CI green (run 43704785412)                                                    |
-| rest  | 2A.6–2A.13, 2A.15, 2A.16                                                           | not started; next after the first three merge (shared tool bar files)                          |
+| Task  | Branch @ head (working copy)                      | State                                                                                          |
+| ----- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)              | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it) |
+| 2A.5  | `slice/2a5` local merge 868ce73c (ln-2a5)         | PASS; build/next merged in, chromium 17/17; webkit turn after P1.11/P1.12                      |
+| 2A.14 | `slice/2a14` merged c2967488 (ln-2a14)            | MERGED; ipad-webkit 28/28, chromium 28; CI waits for main merged into build/next               |
+| cfg   | `slice/2a-cfg-webkit` merged df188a67 (main chat) | MERGED; 2A specs on the ipad-webkit list                                                       |
+| rule  | 2A.14's settings rows + Layout                    | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                        |
+| wheel | `slice/tb2-phone-wheel`                           | merged b2872d53, CI green (run 43704785412)                                                    |
+| rest  | 2A.6–2A.13, 2A.15, 2A.16                          | not started; next after the first three merge (shared tool bar files)                          |
 
 ## Waiting (each has its step)
 

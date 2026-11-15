@@ -4,6 +4,8 @@ import {
   type Favourite,
 } from '../main/penFavourites'
 import { activeTool } from '../main/mainTools'
+import { t } from '../../../i18n/t'
+import type { MessageKey } from '../../../i18n/t'
 import { isHighlighter, type PenTypeId } from './penFace'
 
 /** Round dot (px) of the Size chip for Thin, Medium, Thick (mock v9, TB-21a). */
@@ -27,7 +29,7 @@ export const penFavItems = (list: readonly Favourite[]): FavItem[] =>
   list.map((fav, i) => ({ id: `fav${i}`, fav, typeId: favTypeId(fav) }))
 
 /** Sets type, size and colour, and switches to that pen or highlighter. */
-export function useFavourite(fav: Favourite): void {
+export function chooseFavourite(fav: Favourite): void {
   applyFavourite(fav)
   activeTool.set(fav.tool === 'highlighter' ? 'highlighter' : 'pen')
 }
@@ -35,3 +37,11 @@ export function useFavourite(fav: Favourite): void {
 /** True while the pen (or highlighter) in use is set exactly like it. */
 export const favIsActive = (fav: Favourite, mode: string): boolean =>
   isHighlighter(mode) === (fav.tool === 'highlighter') && isCurrent(fav)
+
+const k = (key: string) => key as MessageKey
+
+export const favName = (f: FavItem): string => t(k(`v8.pen.type.${f.typeId}`))
+
+/** What a screen reader hears: the type and the size. */
+export const favLabel = (f: FavItem): string =>
+  `${favName(f)}, ${t(k(`v8.pen.size.${f.fav.size}`))}`

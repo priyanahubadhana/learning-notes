@@ -6,6 +6,7 @@ import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 /** Toolbar v8, slice 2A.6: the Pen row as in mock v9 (TB-21, TB-21a to TB-21c). */
 test.use({ viewport: { width: 1180, height: 820 }, hasTouch: true })
 
+const WIDE = { width: 1700, height: 900 }
 const FAVS = [
   { tool: 'pen', type: 'ball', colour: '#0b6e99', size: 1, exact: null },
   { tool: 'highlighter', type: null, colour: '#ffe58a', size: 2, exact: null },
@@ -73,6 +74,7 @@ test('TB-21a the Size chip is one dot of 6, 9 or 13 px in the pen colour, no wor
   ] as const) {
     await chip(page, 'size').click()
     await page.getByTestId(`v8-pen-size-${i === 'thin' ? 0 : 2}`).click()
+    await expect(page.getByTestId('v8-card-pen.size')).toHaveCount(0)
     await expect(dot).toHaveCSS('width', px)
   }
   await chip(page, 'colour').click()
@@ -95,7 +97,7 @@ for (const level of ['beginner', 'professional'] as const)
   test(`TB-21c ${level}: favourites sit after Feel with a sample stroke and the type name`, async ({
     page,
   }) => {
-    await open(page, { level, favs: FAVS })
+    await open(page, { level, favs: FAVS, size: WIDE })
     await expect(page.locator('[data-testid^="v8-fav-"]')).toHaveCount(3)
     const feel = (await chip(page, 'feel').boundingBox())!
     const f0 = (await fav(page, 0).boundingBox())!
@@ -114,7 +116,7 @@ for (const level of ['beginner', 'professional'] as const)
 test('TB-21c tapping a favourite sets type, size and colour and rings the chip', async ({
   page,
 }) => {
-  await open(page, { favs: FAVS })
+  await open(page, { favs: FAVS, size: WIDE })
   await expect(fav(page, 2)).not.toHaveAttribute('aria-pressed', 'true')
   await fav(page, 2).click()
   const p = await stored(page, 'pen')

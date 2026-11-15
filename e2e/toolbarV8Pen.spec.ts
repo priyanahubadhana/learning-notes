@@ -134,7 +134,7 @@ test('TB-22 Beginner Size shows three tiles and closes on a pick; no Professiona
   await expect(page.getByTestId('v8-pen-line-dashed')).toHaveCount(0)
   await page.getByTestId('v8-pen-size-2').click()
   await expect(card(page, 'size')).toHaveCount(0)
-  await expect(chip(page, 'size')).toContainText('Thick')
+  await expect(chip(page, 'size')).toHaveAttribute('aria-label', 'Thick')
   expect((await stored(page, 'pen')).size).toBe(2)
 })
 

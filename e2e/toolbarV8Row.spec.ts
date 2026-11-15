@@ -82,7 +82,7 @@ test('TB-08 a wide screen shows every chip with its name and no fold button', as
 test('TB-08 a narrower row loses the names first, then folds; it never scrolls sideways', async ({
   page,
 }) => {
-  await open(page, { width: 560, height: 800 })
+  await open(page, { width: 480, height: 800 })
   await expect(page.getByTestId('v8-chip-pen.type')).not.toContainText(
     'Fountain',
   )

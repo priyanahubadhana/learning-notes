@@ -41,9 +41,17 @@ for (const [dev, size] of Object.entries(SIZES))
         await page.goto('/?flags=toolbar.v8')
         await createNotebook(page, 'Biology', 'First')
         await typeInEditor(page, 'The nucleus holds the DNA')
+        // iPad upright starts with the sidebar closed (fault list, section 7).
+        if (dev === 'ipad-up') {
+          await page
+            .getByRole('button', { name: /hide.*menu/i })
+            .first()
+            .click()
+          await page.waitForTimeout(700)
+        }
         await page.getByTestId('v8-tool-pen').click()
         await expect(
-          page.getByTestId('v8-fav-0').or(page.getByTestId('v8-row-more')),
+          page.getByTestId('v8-fav-0').or(page.getByTestId('v8-favs-more')),
         ).toBeVisible()
         const dark = await page.evaluate(
           () => document.documentElement.dataset.theme,

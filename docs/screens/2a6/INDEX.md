@@ -4,3 +4,4 @@ Files: `pen-row-<ipad-up|ipad-side|phone>-<day|night>-<beginner|professional>.pn
 
 Look for: Type chip = pen drawing + name; Size = one dot (6/9/13 px, pen colour, ring); Colour = one 22 px dot with ring; favourites = sample stroke + name after Feel, before + and list; first squeeze drops only the option names; narrower folds the favourites into "star n" (card of tiles), then options into "⋯ n".
 Retaken after 2A.5 (light default ink): dark pictures show a light dot, not an empty ring. Sepia and PC come at the end of the phase.
+iPad upright pictures are taken with the sidebar closed (the default there): Type, Size, Colour, Feel and the star-3 chip fit; the card of tiles opens from the star.

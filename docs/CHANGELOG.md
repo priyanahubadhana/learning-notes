@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: scrollFrame sidebar test follows the approved side-list bar (P1.9-1, T4)
+
+- What: e2e/scrollFrame.spec.ts:166 now checks the list under the side list's own bar (test id sb-list) as the one scroller: a row, the empty top strip and the edge strip scroll it; the bar itself does not scroll. Arrows and ends are checked on that list as before.
+- Why: P1.9 (approved picture docs/mockups/phase1-fixes, panel 1; shell.md P1.9-1 "Only the list under the bar scrolls") moved scrolling from aside#sidebar to the inner list; this one test was not updated then and has failed since on chromium and ipad-webkit.
+- Files: e2e/scrollFrame.spec.ts, src/notebooks/Sidebar.tsx (test id only).
+
 ### 16 Nov 2026: 2A.16 fix, a card's scroll gutter no longer flickers on while it opens (switch foundation.shell, OFF live)
 
 - What: the shared scroll bar counts a list as cut only by its content. While something inside is still moving in, up to 8 px over is the motion (it looks again when the motion ends); a long list is cut at once as before.

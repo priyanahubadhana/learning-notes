@@ -193,11 +193,14 @@ export function SwitchRow({
   checked,
   onChange,
   disabled,
+  icon,
 }: {
   label: string
   checked: boolean
   onChange: (next: boolean) => void
   disabled?: boolean
+  /** A small picture before the label (v9). */
+  icon?: ReactNode
 }) {
   return (
     <button
@@ -208,7 +211,12 @@ export function SwitchRow({
       className="pcard-row"
       onClick={() => onChange(!checked)}
     >
-      <span>{label}</span>
+      {icon ? (
+        <span className="pcard-row-pic" aria-hidden>
+          {icon}
+        </span>
+      ) : null}
+      <span className="pcard-row-label">{label}</span>
       <span
         className="pcard-switch"
         aria-hidden

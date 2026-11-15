@@ -28,7 +28,8 @@ import {
 
 const PAPERS = ['blank', 'lined', 'grid', 'dots'] as const
 
-export function LayersCard() {
+/** `hidePaper`: the paper is chosen elsewhere (Feel > Page), not twice. */
+export function LayersCard({ hidePaper = false }: { hidePaper?: boolean }) {
   const ink = useInk()
   const { toast, choose } = useContext(AppUiContext)
   if (!ink)
@@ -224,14 +225,19 @@ export function LayersCard() {
         </button>
       )}
       <hr className="my-0.5 border-line" />
-      <ChipRow
-        id="paper"
-        label={t('ink.paper')}
-        value={paper}
-        columns={2}
-        options={PAPERS.map((p) => ({ value: p, label: t(`ink.paper.${p}`) }))}
-        onChange={(p) => ink.setPaper(p === 'blank' ? undefined : p)}
-      />
+      {!hidePaper && (
+        <ChipRow
+          id="paper"
+          label={t('ink.paper')}
+          value={paper}
+          columns={2}
+          options={PAPERS.map((p) => ({
+            value: p,
+            label: t(`ink.paper.${p}`),
+          }))}
+          onChange={(p) => ink.setPaper(p === 'blank' ? undefined : p)}
+        />
+      )}
       <ActionRow
         id="asDrawn"
         label={t('ink.asDrawn')}

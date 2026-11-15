@@ -36,3 +36,6 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 2026-11-15T19:33+05:30,2A,2A.5,sonnet,63710,1,4,0,,merge-and-webkit builder only; clean merge
 2026-11-15T20:10+05:30,2A,2A.6,sonnet,,2,,,,pen row; 3 points to 2A.16
 2026-11-15T20:30+05:30,2A,2A.8,sonnet+opus,,3,,,,2 FAILs then Opus builder; merge clash in ToolRow.tsx reviewed PASS
+2026-11-15T23:00+05:30,2A,2A.9,sonnet,,2,,,,Format tabs
+2026-11-16T00:30+05:30,2A,2A.7,sonnet+opus,,3,,,,Feel card; Opus took over after 2 FAILs
+2026-11-16T01:30+05:30,2A,2A.10,sonnet,,2,,,,on states

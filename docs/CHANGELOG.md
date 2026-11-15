@@ -38,8 +38,6 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: P1.9 (T4) docks the side list beside the page, so at 820 px the tool bar folds two tools into "More options (2)" and the list brings a second bar; BUG-002 (2A.3b) keeps the pill 8 px above its words (6 px higher than before), so the old fixed start corners landed on its buttons. Not a timing fault; no app change.
 - Files: e2e/scrollBarPen.spec.ts, e2e/lassoWords.spec.ts
 
-> > > > > > > origin/build/next
-
 ### 15 Nov 2026: 2A.8 review 2 fixes (switch toolbar.v8, OFF live)
 
 - What: Erases chips carry their icons (Highlighter, Text, Pen) and are 44 px tall, as the mock; the T10 "whole words" check now splits on real spaces, looks at line one only and must find no cut word (it failed when the eraser was made to cut letters, then passed).
@@ -63,6 +61,14 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
+
+### 16 Nov 2026: 2A.11 merged
+
+- What: 2A.11 fast-forwarded by the main chat (49fb5339), CI green; 2A.12, 2A.13, 2A.15 resumed; webkit turn to 2A.15. Why: plan step 2. Files: docs/BUILD-STATE.md.
+
+### 15 Nov 2026 (night): 2A.7 and 2A.10 merged; 2A.11 PASS; 2A.13, 2A.15 started
+
+- What: 2A.7 (8dff525e) and 2A.10 (cd432703) fast-forwarded by the main chat, CI green; 2A.11 passed round 3; 2A.12 and 2A.15 fix lists; 2A.13 data decision (new local favourites key). Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
 
 ### 15 Nov 2026 (night): red1 merged; 2A.7 PASS; 2A.10, 2A.11 review FAIL; 2A.12 built
 

@@ -155,7 +155,12 @@ function mark(el: HTMLElement): void {
     // Goes live with Phase 1 (foundation.shell): before that the old look stays.
     const solid = barOn() ? solidOf(getComputedStyle(el).backgroundColor) : null
     if (solid) {
-      el.setAttribute(SOLID, fadeable(el) ? 'fade' : 'plain')
+      // 'edge' = a soft shadow drawn in the box's own background (no pseudo-element needed).
+      // Its own edge (already drawn) does not count as an image of its own.
+      const own =
+        el.getAttribute(SOLID) === 'edge' ||
+        getComputedStyle(el).backgroundImage === 'none'
+      el.setAttribute(SOLID, fadeable(el) ? 'fade' : own ? 'edge' : 'plain')
       el.style.setProperty('--scroll-fade-bg', solid)
     } else el.removeAttribute(SOLID)
     if (!barOn()) el.setAttribute(GUTTER, '')

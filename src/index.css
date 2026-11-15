@@ -755,8 +755,33 @@ html[data-note-line] .bn-editor {
  * the page would show through its edge. Only its inside fades, with a soft
  * edge in the surface's own colour (--scroll-fade-bg, set by scrollHints.ts).
  * A surface laid out as a grid, with gaps or its own ::before / ::after is
- * marked 'plain': solid, no fade (the handle still shows).
+ * marked 'edge': solid, with a soft edge shadow drawn in its own background
+ * (layers: a cover that scrolls with the content hides each shadow at the end).
+ * A surface that already has a background image stays 'plain' (solid, no cue).
  */
+[data-scroll-solid='edge'][data-scroll-more] {
+  background-image:
+    linear-gradient(var(--scroll-fade-bg) 30%, transparent),
+    linear-gradient(to top, var(--scroll-fade-bg) 30%, transparent),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-ink) 18%, transparent),
+      transparent
+    ),
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-ink) 18%, transparent),
+      transparent
+    );
+  background-position: top, bottom, top, bottom;
+  background-size:
+    100% 28px,
+    100% 28px,
+    100% 14px,
+    100% 14px;
+  background-repeat: no-repeat;
+  background-attachment: local, local, scroll, scroll;
+}
 [data-scroll-solid][data-scroll-more] {
   mask-image: none;
 }

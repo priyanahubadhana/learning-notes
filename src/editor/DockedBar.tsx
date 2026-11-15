@@ -26,8 +26,8 @@ import {
 import { createPortal } from 'react-dom'
 import { lazyNow } from '../app/lazyNow'
 import { prefetchAfterIdle } from '../app/idlePrefetch'
-import { preloadHoldMenu } from './HoldMenuLazy'
-import { preloadPageStrip } from './menus/PageStripLazy'
+import { HoldMenuLazy } from './HoldMenuLazy'
+import { PageStripLazy } from './menus/PageStripLazy'
 import type { Place } from '../app/tools/toolbarState'
 import { AppUiContext } from '../app/appUi'
 import { isApple } from '../app/keys'
@@ -179,8 +179,8 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
       prefetchAfterIdle([
         LazyEditToolbar.preload,
         KeyboardBar.preload,
-        preloadHoldMenu,
-        preloadPageStrip,
+        HoldMenuLazy.preload,
+        PageStripLazy.preload,
       ]),
     [],
   )

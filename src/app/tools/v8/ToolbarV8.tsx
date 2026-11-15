@@ -15,7 +15,7 @@ import {
   v8Tool,
   type OpenCard,
 } from './barState'
-import { NEWLINE_CARD, ToolBar, preloadMoreParts } from './ToolBar'
+import { NEWLINE_CARD, ToolBar } from './ToolBar'
 import { ToolRow } from './ToolRow'
 import { isPenCard } from './cards/pen/penModel'
 import { cardAutoClose } from './cards/autoClose'
@@ -90,7 +90,7 @@ export default function ToolbarV8() {
         SelectionBarV8,
         SelCardBody,
       ].map((part) => part.preload),
-      preloadMoreParts,
+      ToolBar.preloadMore,
     ])
   }, [])
   // The shared stacking table as --z-* variables (the name tip uses --z-menu).

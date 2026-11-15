@@ -27,9 +27,6 @@ import { FoldCard, type FoldEntry } from './FoldCard'
 const MoreExtras = lazyNow(() => import('./cards/more/MoreExtras'))
 const MoreMenuV2 = lazyNow(() => import('./cards/more/MoreMenuV2'))
 
-/** Fetches the ⋯ list's code ahead (R13). */
-export const preloadMoreParts = () =>
-  Promise.all([MoreExtras.preload(), MoreMenuV2.preload()])
 import type { OpenCard } from './barState'
 import { v8Tools, type V8ToolId } from './registryV8'
 import { useFold, type FoldSpec } from './useFold'
@@ -590,3 +587,7 @@ export function ToolBar({
     </div>
   )
 }
+
+/** Fetches the ⋯ list's code ahead (R13). */
+ToolBar.preloadMore = () =>
+  Promise.all([MoreExtras.preload(), MoreMenuV2.preload()])

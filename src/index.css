@@ -767,7 +767,6 @@ html[data-note-line] .bn-editor {
   flex: none;
   position: sticky;
   top: 0;
-  z-index: 1;
   height: 28px;
   margin-bottom: -28px;
   pointer-events: none;
@@ -780,7 +779,6 @@ html[data-note-line] .bn-editor {
   flex: none;
   position: sticky;
   bottom: 0;
-  z-index: 1;
   height: 28px;
   margin-top: -28px;
   pointer-events: none;

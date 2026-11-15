@@ -36,4 +36,4 @@ export function LazyPageMenu(props: ComponentProps<typeof PageMenu>) {
 }
 
 /** Fetches the sheet's and the row menus' code ahead of the first tap (R13). */
-export const nameParts = [Sheet.preload, NotebookMenu.preload, PageMenu.preload]
+LazyNameSheet.preload = [Sheet.preload, NotebookMenu.preload, PageMenu.preload]

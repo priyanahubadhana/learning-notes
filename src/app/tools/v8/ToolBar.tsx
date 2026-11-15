@@ -375,7 +375,7 @@ export function ToolBar({
   const phone = useBreakpoint() === 'phone'
   // 2A.16 (v9): on a phone Shapes and Insert live in ⋯ › On this bar, and
   // there is no Minimise.
-  const phoneFolded = phone && !edit ? PHONE_FOLD : []
+  const phoneFolded = phone && !edit ? [...PHONE_FOLD, 'back'] : []
   const specs: FoldSpec[] = [
     ...tools
       .filter((x) => !phoneFolded.includes(x.id))
@@ -384,7 +384,9 @@ export function ToolBar({
         priority: KEEP[x.id] ?? 50,
         fixedW: undefined,
       })),
-    ...(backTool ? [{ id: 'back', priority: KEEP.back!, fixedW: 44 }] : []),
+    ...(backTool && !phoneFolded.includes('back')
+      ? [{ id: 'back', priority: KEEP.back!, fixedW: 44 }]
+      : []),
     // New line and Backspace never fold under ⋯ (TB-11, 2A.12).
     { id: 'bs', priority: Infinity, fixedW: 44 },
     { id: 'nl', priority: Infinity, fixedW: 44 },
@@ -416,6 +418,7 @@ export function ToolBar({
         ...tools
           .map((x) => x.id as string)
           .filter((id) => phoneFolded.includes(id)),
+        ...(backTool && phoneFolded.includes('back') ? ['back'] : []),
         ...result.folded.filter((id) => id !== 'more'),
       ]
   const moreOpen = card?.id === 'fold.bar'
@@ -823,7 +826,11 @@ export function ToolBar({
           )),
         )}
       </div>
-      {hover && hoverTips === 'on' && !hold.tip && !showNames ? (
+      {hover &&
+      hoverTips === 'on' &&
+      deviceMode === 'computer' &&
+      !hold.tip &&
+      !showNames ? (
         <NameTip
           el={hover.el}
           text={barToolName(hover.id)}

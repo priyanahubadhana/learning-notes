@@ -1,6 +1,7 @@
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { useCardPick } from './cardPick'
 import { displayInk } from '../ink'
+import { Icon } from '../../app/tools/icons'
 
 /** A labelled group inside a card body. */
 export function CardGroup({
@@ -184,6 +185,35 @@ export function SizeTile({
     <Tile {...rest}>
       <span style={{ fontSize: px, fontWeight: 600 }}>{'A'}</span>
     </Tile>
+  )
+}
+
+/** A row with a tick box on the right: several can be on (v9 "It keeps"). */
+export function CheckRow({
+  label,
+  checked,
+  onChange,
+  disabled,
+}: {
+  label: string
+  checked: boolean
+  onChange: (next: boolean) => void
+  disabled?: boolean
+}) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={checked}
+      disabled={disabled}
+      className="pcard-row"
+      onClick={() => onChange(!checked)}
+    >
+      <span className="pcard-row-label">{label}</span>
+      <span className="pcard-check" aria-hidden data-on={checked || undefined}>
+        {checked ? <Icon name="check" size={12} /> : null}
+      </span>
+    </button>
   )
 }
 

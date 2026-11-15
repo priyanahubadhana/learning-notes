@@ -10,7 +10,7 @@ async function open(
   page: Page,
   o: {
     level: 'beginner' | 'professional'
-    mode?: 'touch' | 'pencil'
+    mode?: 'computer' | 'touch' | 'pencil'
     names?: 'on' | 'off'
     hoverTips?: 'on' | 'off'
   },
@@ -51,7 +51,12 @@ test('TB-01 Beginner with "Show tool names" on shows the names', async ({
 test('TB-01 Professional with "Show tool names" off shows icons only; the name still shows on hold', async ({
   page,
 }) => {
-  await open(page, { level: 'professional', names: 'off', hoverTips: 'on' })
+  await open(page, {
+    level: 'professional',
+    names: 'off',
+    hoverTips: 'on',
+    mode: 'computer',
+  })
   await expect(tool(page, 'pen').locator('.v8tool-name')).toHaveCount(0)
   await tool(page, 'pen').hover()
   await expect(page.getByTestId('v8-hover-tip')).toHaveText('Pen')

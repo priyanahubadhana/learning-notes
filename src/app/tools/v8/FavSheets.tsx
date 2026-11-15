@@ -6,7 +6,7 @@ import {
 import {
   CardGroup,
   CardNote,
-  SwitchRow,
+  CheckRow,
   Tile,
   TileGroup,
 } from '../../../design/parts/CardParts'
@@ -268,7 +268,7 @@ export function AddFavSheet({
           <CardNote>{t('v8.favs.noKeeps')}</CardNote>
         ) : (
           KEEPS[tool].map((key) => (
-            <SwitchRow
+            <CheckRow
               key={key}
               label={t(k(`v8.favs.keep.${key}`))}
               checked={keeps.includes(key)}

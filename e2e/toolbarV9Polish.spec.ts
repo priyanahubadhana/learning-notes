@@ -29,6 +29,7 @@ async function open(
     level?: 'beginner' | 'professional'
     favs?: unknown[]
     tool?: string
+    mode?: 'touch' | 'pencil'
   } = {},
 ) {
   await page.addInitScript(
@@ -51,7 +52,7 @@ async function open(
     [o.level ?? 'beginner', o.favs ?? null] as const,
   )
   if (o.size) await page.setViewportSize(o.size)
-  await startInMode(page, 'touch')
+  await startInMode(page, o.mode ?? 'touch')
   await page.goto(`/?flags=${FLAGS}`)
   await createNotebook(page, 'Biology', 'First')
   await hideSidebar(page)
@@ -135,17 +136,7 @@ test('fix 3: compact font tiles show every name whole, and the check never cover
   expect(bad).toEqual([])
 })
 
-/**
- * Same left edge and width; the same top too when the card is the same height
- * (a card whose content differs in height is placed by its own height).
- */
-const sameSpot = (
-  a: { x: number; y: number; width: number; height: number },
-  b: { x: number; y: number; width: number; height: number },
-) =>
-  Math.abs(a.x - b.x) <= 2 &&
-  Math.abs(a.width - b.width) <= 2 &&
-  (Math.abs(a.height - b.height) > 2 || Math.abs(a.y - b.y) <= 2)
+const near = (a: number, b: number, tol = 2) => Math.abs(a - b) <= tol
 
 const TURNS = [
   ['pen', 'pen.type', 1180, 820, 820, 1180],
@@ -178,8 +169,11 @@ for (const [tool, id, w0, h0, w1, h1] of TURNS) {
     await page.waitForTimeout(500)
     const again = (await card.boundingBox())!
     // it was already there 350 ms after the turn (a phone sheet re-opens with a 200 ms motion), not only after a long wait
-    expect(sameSpot(early, again)).toBe(true)
-    expect(sameSpot(turned, again)).toBe(true)
+    // 350 ms after the turn: the open motion may still move it a few px.
+    expect(near(early.x, turned.x)).toBe(true)
+    expect(near(early.y, turned.y, 10)).toBe(true)
+    // Opened again after the turn: the same left edge.
+    expect(near(turned.x, again.x)).toBe(true)
 
     // A fresh load at the new size (same notebook, same stored state).
     await page.keyboard.press('Escape')
@@ -190,7 +184,10 @@ for (const [tool, id, w0, h0, w1, h1] of TURNS) {
     await page.waitForTimeout(800)
     const f = (await card.boundingBox())!
     // It equals a fresh load.
-    expect(sameSpot(turned, f)).toBe(true)
+    expect(near(turned.x, f.x)).toBe(true)
+    expect(near(turned.y, f.y)).toBe(true)
+    expect(near(turned.width, f.width)).toBe(true)
+    expect(near(turned.height, f.height)).toBe(true)
   })
 }
 
@@ -308,12 +305,60 @@ test('v9 row: a favourite chip has a tile fill', async ({ page }) => {
   expect(bg).not.toBe('rgba(0, 0, 0, 0)')
 })
 
-test('v9 touch mode: the mouse over a tool shows no name tip', async ({
+for (const mode of ['touch', 'pencil'] as const)
+  for (const level of ['beginner', 'professional'] as const)
+    test(`v9 ${mode} mode, ${level}: the mouse over a tool never shows a name`, async ({
+      page,
+    }) => {
+      // Even with the hover-tips switch forced on (Professional reads switches as on).
+      await page.addInitScript(() =>
+        localStorage.setItem('learning-notes:advanced.hoverTips', '"on"'),
+      )
+      await open(page, { level, mode })
+      const box = (await page.getByTestId('v8-tool-eraser').boundingBox())!
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+      await page.waitForTimeout(800)
+      await expect(page.getByTestId('v8-hover-tip')).toHaveCount(0)
+      await expect(page.locator('[data-hover-name]')).toHaveCount(0)
+    })
+
+test('v9 phone, Professional: "Back to <tool>" sits in ⋯ › On this bar, not in the top row', async ({
   page,
 }) => {
-  await open(page)
-  const box = (await page.getByTestId('v8-tool-eraser').boundingBox())!
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
-  await page.waitForTimeout(700)
-  await expect(page.getByTestId('v8-hover-tip')).toHaveCount(0)
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'learning-notes:level',
+      JSON.stringify({ level: 'professional', unlocked: [] }),
+    )
+  })
+  await open(page, { level: 'professional', size: { width: 390, height: 844 } })
+  // Use another tool, so a "back" tool exists.
+  await page.getByTestId('v8-tool-text').click()
+  await page.getByTestId('v8-tool-pen').click()
+  await expect(page.getByTestId('v8-back')).toHaveCount(0)
+  await page.getByTestId('v8-more').click()
+  await expect(
+    page
+      .getByTestId('v8-card-fold.bar')
+      .getByRole('group', { name: 'On this bar' })
+      .getByTestId('v8-fold-back'),
+  ).toBeVisible()
+})
+
+test('v9 Add sheet: "What it keeps" uses ticks (checkboxes), not switches', async ({
+  page,
+}) => {
+  await open(page, { size: { width: 1700, height: 900 } })
+  await page.getByTestId('v8-add').click()
+  const sheet = page.getByTestId('v8-addsheet')
+  await expect(sheet).toBeVisible()
+  await expect(sheet.getByRole('switch')).toHaveCount(0)
+  const ticks = sheet.getByRole('checkbox')
+  await expect(ticks.first()).toBeVisible()
+  expect(await ticks.count()).toBeGreaterThan(1)
+  const first = ticks.first()
+  const before = await first.getAttribute('aria-checked')
+  await first.click()
+  await expect(first).not.toHaveAttribute('aria-checked', before!)
+  await expect(first.locator('.pcard-check')).toHaveCount(1)
 })

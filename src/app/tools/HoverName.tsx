@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { showNames } from './main/mainTools'
+import { deviceModeSetting } from '../../settings/builtinSettings'
+import { readDeviceSetting } from '../../settings/settingsService'
 
 /**
  * Names on hover (Phase A4, R4-10). A mouse, or a Pencil hovering over an iPad
@@ -40,6 +42,8 @@ export function HoverName() {
     }
     const over = (e: PointerEvent) => {
       if (e.pointerType === 'touch' || e.buttons !== 0) return
+      // 2A.16: Touch and Pencil mode never show a hover name (a stray mouse or a Pencil hover must not).
+      if (readDeviceSetting(deviceModeSetting) !== 'computer') return
       const el = e.target instanceof Element ? e.target.closest(TARGET) : null
       if (el === current) return
       hide()

@@ -51,6 +51,8 @@ export type CardProps = {
   around?: () => RectLike | null
   /** With `around`: the card never starts above this y; a taller card is shortened and scrolls. */
   clearTop?: () => number
+  /** With around: a card taller than the room is capped there and scrolls inside (opt-in). */
+  fitInside?: boolean
   /** Force the phone sheet look (gallery cell). */
   phone?: boolean
   testId?: string
@@ -187,6 +189,7 @@ export function Card(props: CardProps) {
     avoid: props.avoid,
     around: props.around,
     clearTop: props.clearTop,
+    fit: props.fitInside,
   })
 
   // A floating card is hidden until positioned, and a hidden element cannot

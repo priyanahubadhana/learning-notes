@@ -128,6 +128,7 @@ const config = defineConfig({
         /tb2-bar/,
         /tb2-move/,
         /tb2-group/,
+        /tb2-card/,
         /boxPills/,
         /microBar/,
         /tableGap/,

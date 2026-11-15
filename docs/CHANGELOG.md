@@ -2,11 +2,21 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026 (evening): Phase 2A started (full team); wheel test merged
+
+- What: 2A.4, 2A.5, 2A.14 built on their branches (not merged yet); the phone wheel test move merged into build/next b2872d53 after desktop webkit 1/1. Why: owner answers 4A and 7. Files: docs/BUILD-STATE.md, docs/CHANGELOG.md.
+
 ### 15 Nov 2026 (evening): Phase 1 re-test steps
 
 - What: phase-1.md gets the re-test round after P1.8 and P1.9 (10 steps, preview at 8105fcb, CI green) and the optional 10-minute Pencil look at the new text box (switch "New text box" on with the Phase 1 preset; 6 steps).
 - Why: plan step 1.1; owner answer 5A.
 - Files: docs/plans/phases/phase-1.md, docs/CHANGELOG.md.
+
+### 15 Nov 2026: the phone "finger scrolls the page" test moved to its own file (tests only)
+
+- What: the test "phone: a finger on the page outside the dots still scrolls it" moved, unchanged, from e2e/tb2-resize-phone.spec.ts to the new e2e/tb2-phone-wheel.spec.ts. The other 12 tests stay, unchanged. Before: 13 tests, 38 checks in one file; after: 12 + 1 tests, 36 + 2 checks. No test or check was removed or weakened.
+- Why: the test scrolls with a mouse wheel, which the `ipad-webkit` stand-in cannot do, so it was always red there. The new file name is outside the `ipad-webkit` list, so the test runs on chromium and desktop Safari only (owner OK, 15 Nov). The test guard blocks every edit with fewer checks, so the old file was deleted with a Fable-approved `test-guard-reason` and written again.
+- Files: e2e/tb2-resize-phone.spec.ts, e2e/tb2-phone-wheel.spec.ts.
 
 ### 15 Nov 2026: P1.9 the frame matches panels 1, 2, 3, 4 and 6 of the Phase 1 fixes picture (switch foundation.shell, OFF live)
 

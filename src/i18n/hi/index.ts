@@ -39,6 +39,7 @@ import { hiParts } from './parts'
 import { hiNotebooksV2 } from './notebooksV2'
 import { hiSearchV2 } from './searchV2'
 import { hiPanelV2 } from './panelV2'
+import { hiV8BarEdit } from './v8BarEdit'
 import { hiV8Pen } from './v8Pen'
 import { hiV8Tools } from './v8Tools'
 import { hiV8Text } from './v8Text'
@@ -83,6 +84,7 @@ export const hi: Record<string, string> = {
   ...hiSearchV2,
   ...hiPanelV2,
   ...hiLibraryV2,
+  ...hiV8BarEdit,
   ...hiV8Pen,
   ...hiStorageSafety,
   ...hiV8Tools,

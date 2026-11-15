@@ -149,3 +149,4 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - Share or back up a setup as a file, with a tick list on import that merges: later.
 - Settings file for experts: later; maybe a read-only "copy my settings" first.
 - App suggestions ("add the Highlighter to the tool bar?"): later, only as quiet suggestions the user accepts; the app never moves things by itself.
+- **Your layouts (up to 3 tool bars), owner 15 Nov:** later. For now everyone has one fully changeable tool bar. Once the Settings v5 / tool bar work passes the owner's test, discuss and add the 3 layouts, with create, edit, rename, delete and remove. Comes together with saved setups.

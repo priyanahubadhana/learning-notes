@@ -8,7 +8,7 @@ Compare with docs/mockups/phase1-fixes/phase1-fixes.html panel 5.
 |---|---|
 | 1-countdown | 1 Countdown |
 | 2-downloading | 2 Downloading (before 3 s: "Working out the time...") |
-| 2b-slow | 2b Really slow (after 8 s; a real stalled line, so the true speed is about 1 KB/s) |
+| 2b-slow | 2b Really slow (after 8 s; a real stalled line: under 1 KB/s the note has no number) |
 | 3-installing | 3 Installing |
 | 4-failed | 4 Did not finish |
 | 4b-after-not-now | After "Not now": notes with the "Must-have update waiting" pill |

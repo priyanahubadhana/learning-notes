@@ -119,6 +119,27 @@ function detailsText(s: MandatoryState): string {
 }
 
 /** The line under the buttons: what "Not now" does, and Copy details. */
+/** Where the notes area is centred (iPad sideways: not the whole screen). */
+function useNotesCentre(): number | null {
+  const [x, setX] = useState<number | null>(null)
+  useEffect(() => {
+    const el = document.querySelector('[data-page-scroller]')
+    if (!el) return
+    const read = () => {
+      const r = el.getBoundingClientRect()
+      setX(r.left + r.width / 2)
+    }
+    const ro = new ResizeObserver(read)
+    ro.observe(el)
+    window.addEventListener('resize', read)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', read)
+    }
+  }, [])
+  return x
+}
+
 function FailedLinks({
   s,
   canLeave,
@@ -162,6 +183,9 @@ export default function MandatoryNotice({
   // Professional (unlock about.version): the reason opens a plain explanation.
   const canExplain = useUnlocked('about.version')
   const [explain, setExplain] = useState(false)
+  // The focus ring shows only after a key press (never after a tap).
+  const [keys, setKeys] = useState(false)
+  const centre = useNotesCentre()
   useFadeIn(column, 'open')
   useFadeIn(phaseText, s.phase)
 
@@ -240,7 +264,8 @@ export default function MandatoryNotice({
       <div
         role="status"
         data-update-waiting
-        className={`fixed bottom-[max(24px,env(safe-area-inset-bottom))] left-1/2 phone:bottom-[calc(env(safe-area-inset-bottom)+76px)] ${MANDATORY_TOP} flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 whitespace-nowrap rounded-full bg-surface-3 py-1.5 pl-4 pr-1.5 text-sm text-ink shadow-[0_0_0_1px_var(--color-line),var(--elev-3)]`}
+        style={centre === null ? { left: '50%' } : { left: centre }}
+        className={`fixed bottom-[max(24px,env(safe-area-inset-bottom))] phone:bottom-[calc(env(safe-area-inset-bottom)+76px)] ${MANDATORY_TOP} flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 whitespace-nowrap rounded-full bg-surface-3 py-1.5 pl-4 pr-1.5 text-sm text-ink shadow-[0_0_0_1px_var(--color-line),var(--elev-3)]`}
       >
         <span aria-hidden="true" className="h-2 w-2 rounded-full bg-warn" />
         {t('update.v2.waiting')}
@@ -271,8 +296,11 @@ export default function MandatoryNotice({
       aria-describedby="req-update-reason"
       data-mandatory-update
       data-phase={s.phase}
-      onKeyDown={(e) => e.key === 'Escape' && e.preventDefault()}
-      className={`fixed inset-0 ${MANDATORY_TOP} flex items-center justify-center overflow-y-auto bg-bg px-4 py-8 text-ink`}
+      onKeyDown={(e) => {
+        setKeys(true)
+        if (e.key === 'Escape') e.preventDefault()
+      }}
+      className={`${keys ? '' : '[&_button:focus-visible]:outline-none '}fixed inset-0 ${MANDATORY_TOP} flex items-center justify-center overflow-y-auto bg-bg px-4 py-8 text-ink`}
     >
       <div
         ref={column}
@@ -426,9 +454,11 @@ export default function MandatoryNotice({
                     <path d="M2 8.8a15 15 0 0 1 20 0" opacity=".35" />
                   </svg>
                   <span>
-                    {t('update.v2.slow', {
-                      k: Math.max(1, Math.round((s.bps ?? 0) / 1000)),
-                    })}
+                    {(s.bps ?? 0) < 1000
+                      ? t('update.v2.slowNone')
+                      : t('update.v2.slow', {
+                          k: Math.round((s.bps ?? 0) / 1000),
+                        })}
                   </span>
                 </div>
               )}

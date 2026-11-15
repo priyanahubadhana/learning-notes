@@ -55,4 +55,6 @@ export const enLateUpdateV2 = {
     'The update did not finish: the restart did not come after {s} s.',
   'update.v2.detailUnsaved':
     'The update did not finish: your last change was not saved yet.',
+  'update.v2.slowNone':
+    'Your connection is very slow right now. You can leave this screen open; it carries on by itself.',
 }

@@ -60,4 +60,6 @@ export const esUpdateV2 = {
     'La actualización no terminó: el reinicio no llegó tras {s} s.',
   'update.v2.detailUnsaved':
     'La actualización no terminó: tu último cambio aún no estaba guardado.',
+  'update.v2.slowNone':
+    'Tu conexión está muy lenta ahora. Puedes dejar esta pantalla abierta; sigue sola.',
 }

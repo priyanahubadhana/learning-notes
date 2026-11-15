@@ -123,7 +123,7 @@ test('stage 2b really slow: the note comes only after 8 seconds, with the true s
     timeout: 10_000,
   })
   await expect(page.locator('[data-update-slow]')).toContainText(
-    /Your connection is slow right now \(about \d+ KB\/s\)\. You can leave this screen open; it carries on by itself\./,
+    /Your connection is very slow right now. You can leave this screen open; it carries on by itself./,
   )
   // It is not a dead end: Cancel is still there.
   await expect(
@@ -294,6 +294,41 @@ test.describe('phone pill', () => {
     expect(r.x).toBeGreaterThanOrEqual(0)
     expect(r.x + r.width).toBeLessThanOrEqual(390)
   })
+})
+
+test('no focus ring after a tap; it shows once a key is pressed', async ({
+  page,
+}) => {
+  await failingFile(page)
+  await open(page)
+  await page.mouse.click(5, 5)
+  await pretend(page)
+  await phase(page, 'failed', 14_000)
+  const again = notice(page).getByRole('button', { name: 'Try again' })
+  const outline = () =>
+    again.evaluate((el) => getComputedStyle(el).outlineStyle)
+  await expect(again).toBeFocused()
+  expect(await outline()).toBe('none')
+  await page.keyboard.press('Shift+Tab')
+  await expect(again).not.toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(again).toBeFocused()
+  expect(await outline()).toBe('solid')
+})
+
+test('the waiting pill is centred on the notes area (iPad sideways)', async ({
+  page,
+}) => {
+  await failingFile(page)
+  await page.setViewportSize({ width: 1194, height: 834 })
+  await open(page)
+  await pretend(page)
+  await phase(page, 'failed', 14_000)
+  await notice(page).getByRole('button', { name: 'Not now' }).click()
+  await expect(pill(page)).toBeVisible()
+  const p = (await pill(page).boundingBox())!
+  const n = (await page.locator('[data-page-scroller]').boundingBox())!
+  expect(Math.abs(p.x + p.width / 2 - (n.x + n.width / 2))).toBeLessThan(3)
 })
 
 test('turning the screen keeps every stage whole and the buttons reachable', async ({

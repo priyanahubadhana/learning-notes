@@ -85,10 +85,23 @@ test('TB-41 Beginner Format: 3 tabs Text, Style, Paragraph in one card; a ✕ cl
       .locator('.v8look')
       .evaluate((e) => parseFloat(getComputedStyle(e).fontSize))
   expect(await size('heading1')).toBeGreaterThan(await size('heading3'))
-  for (const b of await c.locator('.pcard-tile').all()) {
-    const r = (await b.boundingBox())!
-    expect(r.height).toBeGreaterThanOrEqual(44)
+  await tab(c, 'text').click()
+  const weight = await c
+    .getByTestId('v8-format-bold')
+    .locator('.v8look')
+    .evaluate((e) => getComputedStyle(e).fontWeight)
+  expect(Number(weight)).toBeGreaterThanOrEqual(600)
+  // Every touch target of every tab is at least 44 pt tall.
+  for (const id of ['text', 'style', 'paragraph']) {
+    await tab(c, id).click()
+    for (const b of await c
+      .locator('.pcard-tile, .v8stylerow, .v8seg button, .v8tab')
+      .all()) {
+      const r = (await b.boundingBox())!
+      expect(r.height).toBeGreaterThanOrEqual(44)
+    }
   }
+  await tab(c, 'style').click()
   await c.getByTestId('v8-format-heading1').click()
   await expect(
     page.locator('.bn-editor h1, .bn-editor [data-level="1"]').first(),
@@ -182,6 +195,16 @@ test('TB-41 each Professional switch works alone: tb.textFonts, tb.textMarks', a
     )
   expect(faces.length).toBeGreaterThan(2)
   expect(new Set(faces).size).toBeGreaterThan(1)
+  // Compact "Aa" font tiles, four in a row; Size, Emphasis and colours follow in the same tab.
+  const first = (await c
+    .locator('[data-card-chips="font"] [data-chip]')
+    .nth(0)
+    .boundingBox())!
+  const second = (await c
+    .locator('[data-card-chips="font"] [data-chip]')
+    .nth(1)
+    .boundingBox())!
+  expect(Math.abs(first.y - second.y)).toBeLessThan(2)
   await c.getByTestId('v8-format-size-130').click()
   expect(
     await page.evaluate(() =>
@@ -204,6 +227,67 @@ test('TB-41 each Professional switch works alone: tb.textFonts, tb.textMarks', a
     ),
   ).toBe('1.95')
   await c.getByTestId('v8-format-line-default').click()
+})
+
+test('TB-41 the Format tabs 3 / 4 setting decides the Advanced tab, also for a Professional level', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:toolbar.v9.formatTabs', '"on"'),
+  )
+  await open(page)
+  await chip(page, 'text.format').click()
+  expect(await tabIds(card(page, 'text.format'))).toEqual([
+    'text',
+    'style',
+    'paragraph',
+    'advanced',
+  ])
+})
+
+test('TB-41 Format tabs set to 3 hides Advanced even for Professional', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:toolbar.v9.formatTabs', '"off"'),
+  )
+  await open(page, 'professional', ['tb.textFonts'])
+  await chip(page, 'text.format').click()
+  expect(await tabIds(card(page, 'text.format'))).toEqual([
+    'text',
+    'style',
+    'paragraph',
+  ])
+})
+
+test('TB-41 Justify, Quote and Link: aligned text, a quote block and a link are made from the card', async ({
+  page,
+}) => {
+  await open(page, 'beginner', ['tb.textMarks'])
+  await page.getByText('The nucleus holds the DNA').click({ clickCount: 3 })
+  await chip(page, 'text.format').click()
+  const c = card(page, 'text.format')
+  await tab(c, 'paragraph').click()
+  await c.getByTestId('v8-format-alignJustify').click()
+  await expect(c.getByTestId('v8-format-alignJustify')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await expect(
+    page.locator('.bn-block-content[data-text-alignment="justify"]'),
+  ).toHaveCount(1)
+  await tab(c, 'style').click()
+  await c.getByTestId('v8-format-quote').click()
+  await expect(
+    page.locator('.bn-block-content[data-content-type="quote"]'),
+  ).toHaveCount(1)
+  await tab(c, 'text').click()
+  await c.getByTestId('v8-format-link').click()
+  await c.getByTestId('v8-format-linkinput').fill('example.com')
+  await c.getByTestId('v8-format-linkadd').click()
+  await expect(
+    page.locator('.bn-editor a[href="https://example.com"]'),
+  ).toHaveCount(1)
 })
 
 test('TB-41 tb.textMarks alone adds inline code and no Advanced tab', async ({

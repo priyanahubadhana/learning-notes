@@ -4,7 +4,7 @@ import { ROW_ITEMS } from '../../rowItems'
 import { formatTabs, TEXT_SIZE_STEPS, BOX_LOOKS } from './textModel'
 
 const ids = (pro = false) =>
-  formatTabs({ textFonts: pro, textMarks: pro }).flatMap((s) =>
+  formatTabs({ advanced: pro, textMarks: pro }).flatMap((s) =>
     s.groups.flatMap((g) => g.tiles.map((x) => x.tool)),
   )
 
@@ -33,7 +33,7 @@ describe('Text size and Font (T8)', () => {
 
 describe('Format card (TB-41)', () => {
   it('Beginner has Text, Style, Paragraph in that order', () => {
-    const s = formatTabs({ textFonts: false, textMarks: false })
+    const s = formatTabs({ advanced: false, textMarks: false })
     expect(s.map((x) => x.id)).toEqual(['text', 'style', 'paragraph'])
   })
   it('has H1-H3, B/I/U/S, lists, indent, alignment, callout, divider', () => {
@@ -50,9 +50,7 @@ describe('Format card (TB-41)', () => {
       'checklist',
       'indent',
       'outdent',
-      'alignLeft',
-      'alignCenter',
-      'alignRight',
+      'quote',
       'callout',
       'divider',
     ])
@@ -64,7 +62,7 @@ describe('Format card (TB-41)', () => {
   })
   it('Advanced tab only with tb.textFonts; inline code only with tb.textMarks', () => {
     expect(ids()).not.toContain('code')
-    const pro = formatTabs({ textFonts: true, textMarks: true })
+    const pro = formatTabs({ advanced: true, textMarks: true })
     expect(pro.map((x) => x.id)).toEqual([
       'text',
       'style',
@@ -72,7 +70,7 @@ describe('Format card (TB-41)', () => {
       'advanced',
     ])
     expect(ids(true)).toContain('code')
-    const fontsOnly = formatTabs({ textFonts: true, textMarks: false })
+    const fontsOnly = formatTabs({ advanced: true, textMarks: false })
     expect(fontsOnly.length).toBe(4)
     expect(
       fontsOnly.flatMap((t) =>

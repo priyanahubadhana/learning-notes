@@ -16,6 +16,7 @@ export type FormatLook =
   | 'underline'
   | 'strike'
   | 'code'
+  | 'quote'
   | 'icon'
 
 export interface FormatTile {
@@ -58,9 +59,18 @@ const tl = (id: string) => `tool.${id}` as MessageKey
 
 /** Which Professional switches are on (TB-41). */
 export interface FormatUnlocks {
-  textFonts: boolean
+  /** The fourth tab, Advanced (the Format tabs 3 / 4 setting). */
+  advanced: boolean
   textMarks: boolean
 }
+
+/** Alignment, one segmented control (the tools alignLeft / Center / Right, and Justify). */
+export const ALIGNMENTS = [
+  { id: 'left', tool: 'alignLeft', icon: 'alignLeft' },
+  { id: 'center', tool: 'alignCenter', icon: 'alignCenter' },
+  { id: 'right', tool: 'alignRight', icon: 'alignRight' },
+  { id: 'justify', tool: 'alignJustify', icon: 'alignJustify' },
+] as const satisfies readonly { id: string; tool: string; icon: IconName }[]
 
 /** Beginner Text size: three steps of the note size (percent). */
 export const TEXT_SIZE_STEPS = [
@@ -113,11 +123,12 @@ export function formatTabs(u: FormatUnlocks): FormatTabDef[] {
         {
           id: 'headings',
           title: 'v8.format.g.headings',
-          columns: 3,
+          columns: 1,
           tiles: [
             tile('heading1', tl('heading1'), 'h1', { action: true }),
             tile('heading2', tl('heading2'), 'h2', { action: true }),
             tile('heading3', tl('heading3'), 'h3', { action: true }),
+            tile('quote', tl('quote'), 'quote', { action: true }),
           ],
         },
         {
@@ -151,25 +162,10 @@ export function formatTabs(u: FormatUnlocks): FormatTabDef[] {
     {
       id: 'paragraph',
       title: 'v8.format.paragraph',
-      groups: [
-        {
-          id: 'align',
-          title: 'v8.format.g.align',
-          columns: 3,
-          tiles: [
-            tile('alignLeft', tl('alignLeft'), 'icon', { icon: 'alignLeft' }),
-            tile('alignCenter', tl('alignCenter'), 'icon', {
-              icon: 'alignCenter',
-            }),
-            tile('alignRight', tl('alignRight'), 'icon', {
-              icon: 'alignRight',
-            }),
-          ],
-        },
-      ],
+      groups: [],
     },
   ]
-  if (u.textFonts)
+  if (u.advanced)
     tabs.push({ id: 'advanced', title: 'v8.format.advanced', groups: [] })
   return tabs
 }

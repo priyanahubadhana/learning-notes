@@ -124,8 +124,8 @@
     color var(--dur-1) var(--ease-out);
 }
 .v8tab-sel {
-  background: var(--color-surface-0);
-  box-shadow: var(--elev-1);
+  background: var(--v9-thumb);
+  box-shadow: var(--v9-thumb-sh);
   color: var(--color-ink);
   font-weight: 600;
 }
@@ -153,4 +153,68 @@
     min-height: min(480px, calc(100dvh - 220px));
     max-height: min(calc(100dvh - 220px), 560px);
   }
+}
+
+.v8seg .v8tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.v8look-quote {
+  font-size: 17px;
+  font-style: italic;
+}
+/* Headings and Quote as rows of one well, each in its own look. */
+.v8stylerow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.v8stylerow:hover {
+  background: var(--card-well-2);
+}
+.v8stylerow[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+}
+.v8stylerow .v8look-h1 {
+  font-size: 22px;
+}
+.v8stylerow .v8look-h2 {
+  font-size: 19px;
+}
+.v8stylerow .v8look-h3 {
+  font-size: 16px;
+}
+.v8linkrow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+.v8linkrow > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+.v8linkadd {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--color-accent);
+  color: var(--color-surface-0);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.v8linkadd:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }

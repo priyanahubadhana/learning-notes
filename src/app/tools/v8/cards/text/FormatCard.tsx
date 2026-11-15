@@ -1,5 +1,6 @@
 import { useActiveStyles, useBlockNoteEditor } from '@blocknote/react'
-import { useState, type KeyboardEvent } from 'react'
+import { useState, type KeyboardEvent, type ReactNode } from 'react'
+import { ClearField } from '../../../../../design/parts/ClearField'
 import {
   CardGroup,
   Swatch,
@@ -13,6 +14,7 @@ import {
   colorLabel,
   setColor,
 } from '../../../../../editor/colorData'
+import { useActiveStyles as useStyles } from '../../../../../editor/useActiveStyles'
 import { t, type MessageKey } from '../../../../../i18n/t'
 import { useUnlocked } from '../../../../../settings/level'
 import { FontTiles } from '../../../../reading/FontTiles'
@@ -27,7 +29,9 @@ import {
 import { highlightChoice, textColourChoice } from '../../../main/pillChoices'
 import { Icon } from '../../../icons'
 import { runTool, findTool, toolLabel } from '../../../toolRegistry'
+import { useBarPref } from '../../barPrefs'
 import {
+  ALIGNMENTS,
   TEXT_SIZE_STEPS,
   formatTabs,
   type FormatGroup,
@@ -36,6 +40,7 @@ import {
 } from './textModel'
 
 const k = (key: string) => key as MessageKey
+type BnEditor = ReturnType<typeof useBlockNoteEditor>
 
 /** One Format tile: the style drawn in its own look, or its icon. */
 function Face({ tile }: { tile: FormatTile }) {
@@ -51,9 +56,187 @@ function tileName(tile: FormatTile): string {
   return def ? toolLabel(def) : t(tile.label)
 }
 
-function ToolGroup({ group }: { group: FormatGroup }) {
+const cap = (s: string) => s[0].toUpperCase() + s.slice(1)
+
+/** A segmented control: one choice of a few, 44 pt tall, raised chosen part. */
+function Seg({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="v8tabs v8seg" role="radiogroup" aria-label={label}>
+      {children}
+    </div>
+  )
+}
+
+function SegButton({
+  label,
+  on,
+  testId,
+  onPick,
+  children,
+}: {
+  label: string
+  on: boolean
+  testId: string
+  onPick: () => void
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={on}
+      aria-label={label}
+      data-testid={testId}
+      className={on ? 'v8tab v8tab-sel' : 'v8tab'}
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={onPick}
+    >
+      {children}
+    </button>
+  )
+}
+
+/** The block (or blocks) the cursor is in. */
+function targetBlocks(editor: BnEditor) {
+  const sel = editor.getSelection()
+  return sel ? sel.blocks : [editor.getTextCursorPosition().block]
+}
+
+/** Alignment as one segmented control, Justify included. */
+function AlignGroup() {
+  const editor = useBlockNoteEditor()
+  useStyles(editor as never)
+  let now = 'left'
+  try {
+    const props = editor.getTextCursorPosition().block.props as Record<
+      string,
+      unknown
+    >
+    if (typeof props.textAlignment === 'string') now = props.textAlignment
+  } catch {
+    /* no cursor yet: left */
+  }
+  return (
+    <CardGroup label={t('v8.format.g.align')}>
+      <Seg label={t('v8.format.g.align')}>
+        {ALIGNMENTS.map((a) => (
+          <SegButton
+            key={a.id}
+            label={t(
+              k(
+                a.id === 'justify'
+                  ? 'v8.format.align.justify'
+                  : `tool.align${cap(a.id)}`,
+              ),
+            )}
+            on={now === a.id}
+            testId={`v8-format-align${cap(a.id)}`}
+            onPick={() => {
+              for (const b of targetBlocks(editor as unknown as BnEditor))
+                if ('textAlignment' in b.props)
+                  editor.updateBlock(b, {
+                    props: { textAlignment: a.id },
+                  } as never)
+              editor.focus()
+            }}
+          >
+            <Icon name={a.icon} size={18} />
+          </SegButton>
+        ))}
+      </Seg>
+    </CardGroup>
+  )
+}
+
+/** Heading 1-3 and Quote as style rows, each drawn in its own look. */
+function StyleRows({ group }: { group: FormatGroup }) {
+  const editor = useBlockNoteEditor()
+  useStyles(editor as never)
+  let type = ''
+  let level = 0
+  try {
+    const b = editor.getTextCursorPosition().block
+    type = b.type
+    level = Number((b.props as Record<string, unknown>).level ?? 0)
+  } catch {
+    /* no cursor yet */
+  }
+  return (
+    <CardGroup label={t(group.title)}>
+      <div className="pcard-well">
+        {group.tiles.map((tile) => {
+          const on =
+            tile.tool === 'quote'
+              ? type === 'quote'
+              : type === 'heading' && tile.tool === `heading${level}`
+          return (
+            <button
+              key={tile.tool}
+              type="button"
+              className="v8stylerow"
+              aria-pressed={on}
+              data-testid={`v8-format-${tile.tool}`}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => runTool(tile.tool)}
+            >
+              <span className={`v8look v8look-${tile.look}`}>
+                {tileName(tile)}
+              </span>
+              {on ? <Icon name="check" size={16} /> : null}
+            </button>
+          )
+        })}
+      </div>
+    </CardGroup>
+  )
+}
+
+/** Link: a field with its ✕ and an Add button, inside the card (no pop-up). */
+function LinkField({ onDone }: { onDone: () => void }) {
+  const editor = useBlockNoteEditor()
+  const [url, setUrl] = useState('')
+  const add = () => {
+    const raw = url.trim()
+    if (!raw) return
+    const href = /^[a-z][a-z0-9+.-]*:/i.test(raw) ? raw : `https://${raw}`
+    if (editor.getSelectedText()) editor.createLink(href)
+    else editor.createLink(href, raw)
+    editor.focus()
+    onDone()
+  }
+  return (
+    <div className="v8linkrow" data-testid="v8-format-linkfield">
+      <ClearField
+        type="url"
+        inputMode="url"
+        value={url}
+        placeholder={t('v8.format.link.address')}
+        aria-label={t('v8.format.link.address')}
+        data-testid="v8-format-linkinput"
+        onChange={(e) => setUrl((e.target as HTMLInputElement).value)}
+        onClear={() => setUrl('')}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') add()
+        }}
+      />
+      <button
+        type="button"
+        className="v8linkadd"
+        data-testid="v8-format-linkadd"
+        disabled={!url.trim()}
+        onClick={add}
+      >
+        {t('v8.format.link.add')}
+      </button>
+    </div>
+  )
+}
+
+function ToolGroup({ group, link }: { group: FormatGroup; link?: boolean }) {
   const editor = useBlockNoteEditor()
   const active = useActiveStyles(editor as never) as Record<string, unknown>
+  const [linking, setLinking] = useState(false)
+  if (group.id === 'headings') return <StyleRows group={group} />
   return (
     <CardGroup label={t(group.title)}>
       <TileGroup label={t(group.title)} multi columns={group.columns}>
@@ -70,7 +253,19 @@ function ToolGroup({ group }: { group: FormatGroup }) {
             <Face tile={tile} />
           </Tile>
         ))}
+        {link ? (
+          <Tile
+            action
+            pressed={linking}
+            label={t('tool.link')}
+            testId="v8-format-link"
+            onSelect={() => setLinking((v) => !v)}
+          >
+            <Icon name="link" size={22} />
+          </Tile>
+        ) : null}
       </TileGroup>
+      {link && linking ? <LinkField onDone={() => setLinking(false)} /> : null}
     </CardGroup>
   )
 }
@@ -99,7 +294,11 @@ function ColourGroup({ kind }: { kind: 'textColor' | 'backgroundColor' }) {
           {COLOR_NAMES.map((name) => (
             <Swatch
               key={name}
-              colour={hex[name] ?? 'transparent'}
+              colour={
+                kind === 'backgroundColor' && TEXT_HEX[name]
+                  ? `color-mix(in srgb, ${TEXT_HEX[name]} 55%, transparent)`
+                  : (hex[name] ?? 'transparent')
+              }
               label={colorLabel(name)}
               selected={now === name}
               testId={`v8-format-${id}-${name}`}
@@ -118,7 +317,7 @@ function ColourGroup({ kind }: { kind: 'textColor' | 'backgroundColor' }) {
   )
 }
 
-/** Beginner: three steps; with tb.textFonts: the font tiles and five sizes. */
+/** Beginner: three steps; with tb.textFonts: five sizes and compact font tiles. */
 function SizeGroups({ fonts }: { fonts: boolean }) {
   const size = noteSize.useValue()
   const font = noteFont.useValue()
@@ -150,6 +349,7 @@ function SizeGroups({ fonts }: { fonts: boolean }) {
     <>
       <CardGroup label={t('v8.format.g.font')}>
         <FontTiles
+          compact
           value={font}
           none="default"
           onPick={(f) => {
@@ -179,27 +379,27 @@ function SizeGroups({ fonts }: { fonts: boolean }) {
   )
 }
 
-/** Line height, each choice drawn with its own spacing. */
+/** Line height as one segmented control. */
 function LineHeightGroup() {
   const line = noteLine.useValue()
   return (
     <CardGroup label={t('main.text.lineHeight')}>
-      <TileGroup label={t('main.text.lineHeight')} columns={3}>
+      <Seg label={t('main.text.lineHeight')}>
         {NOTE_LINES.map((l) => (
-          <Tile
+          <SegButton
             key={l}
             label={t(k(`main.line.${l}`))}
-            selected={line === l}
+            on={line === l}
             testId={`v8-format-line-${l}`}
-            onSelect={() => {
+            onPick={() => {
               noteLine.set(l)
               applyNoteStyle()
             }}
           >
-            <span className={`v8look v8line v8line-${l}`}>Aa Aa</span>
-          </Tile>
+            {t(k(`main.line.${l}`))}
+          </SegButton>
         ))}
-      </TileGroup>
+      </Seg>
     </CardGroup>
   )
 }
@@ -255,7 +455,9 @@ function TabBar({
 export default function FormatCard() {
   const fonts = useUnlocked('tb.textFonts')
   const marks = useUnlocked('tb.textMarks')
-  const tabs = formatTabs({ textFonts: fonts, textMarks: marks })
+  // The "Format tabs 3 / 4" setting (Settings, Layout row): 4 adds Advanced.
+  const advanced = useBarPref('formatTabs')
+  const tabs = formatTabs({ advanced, textMarks: marks })
   const [picked, setPicked] = useState<FormatTabId>('text')
   const tab = tabs.find((x) => x.id === picked) ?? tabs[0]
   return (
@@ -269,11 +471,17 @@ export default function FormatCard() {
             <ColourGroup kind="textColor" />
             <ColourGroup kind="backgroundColor" />
             {tab.groups.slice(1).map((g) => (
-              <ToolGroup key={g.id} group={g} />
+              <ToolGroup
+                key={g.id}
+                group={g}
+                link={g.id === 'marks' && marks}
+              />
             ))}
           </>
         ) : tab.id === 'advanced' ? (
           <LineHeightGroup />
+        ) : tab.id === 'paragraph' ? (
+          <AlignGroup />
         ) : (
           tab.groups.map((g) => <ToolGroup key={g.id} group={g} />)
         )}

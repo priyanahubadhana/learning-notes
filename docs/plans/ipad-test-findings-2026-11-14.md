@@ -196,3 +196,4 @@ Running list, in the order the owner reports. The owner asked to note everything
 
 - Step 3 Pretend a must-have update: PASS (countdown, then the app restarts by itself). Owner: "seems okay", the timer itself shows there is nothing to update.
 - Step 4 Airplane mode during the countdown: **T29** the note with "Try again" and "Not now" appears, then disappears almost at once; same after a refresh and a restart. Owner could not tap either button.
+- Step 5 Not now: PASS (notes open, "update waiting" pill stays). Steps 6–10: owner "all test pass".

@@ -285,7 +285,7 @@ The mock has the full table: Settings first page › "Where did it go" (`wherePa
 - [ ] Your experience (3 level cards) → first-launch Welcome; later Account › My experience and More › Experience. Sets starting values only (S5-01 to S5-03).
 - [ ] Beginner / Professional view hiding rows, "Show in Beginner" switches → gone as hiding controls; every row is always there: common, Advanced, or Show all settings (S5-02, S5-11).
 - [ ] Professional features list (central) → each group › Advanced › Feature switches; search finds each (S5-10, S5-12).
-- [ ] Turn on all in this group / Reset to Beginner (SET-B40, B41) → **check**: Group reset covers its switches; "Everything on" starter turns all on. No per-group "turn all on" button seen in the mock.
+- [ ] Turn on all in this group / Reset to Beginner (SET-B40, B41) → kept (owner, 15 Nov): a "Turn on all in this group" button on each Advanced page, and a "Reset to Beginner layout" button that puts the beginner values back, with Undo. The mock must add both before the build.
 - [ ] General: theme, language, show help, date style, default paper, open notebook at → Look and feel (common).
 - [ ] General: reduce glass (Auto, Solid), scroll hints, path style, refresh button, spaces Home/Library/Review, default page tabs, day start hour → Look and feel › Advanced.
 - [ ] General: device mode → Writing (common). New page study / chooser, paste as → Writing › Advanced › New pages and paste. Auto update → Account (common).

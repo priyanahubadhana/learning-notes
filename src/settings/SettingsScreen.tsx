@@ -38,13 +38,10 @@ import './spaceSettings'
 import './labSettings'
 import './flagSettings'
 import { useShownByFlags } from './flagGate'
+import { useFlag } from '../app/flags'
 import { OnOff } from '../design/parts/OnOff'
-import {
-  barRowHelp,
-  isBarPartRow,
-  LAYOUT_ROW,
-  ToolbarGroupHead,
-} from './toolbarRows'
+import { barRowHelp, isBarPartRow, LAYOUT_ROW } from './toolbarRows'
+import { ToolbarGroupHead } from './ToolbarGroupHead'
 import './readingSettings'
 import './lockSettings'
 import '../ai/aiSettings'
@@ -126,6 +123,9 @@ export function SettingsScreen({
   const categories = settingsRegistry.categories()
   const current = categories.find((c) => c.id === category)
 
+  // The new tool bar's wider breakpoint (2A.14): with toolbar.v8 off Settings looks as before.
+  const wide = useFlag('toolbar.v8')
+  const pick = (md: string, lg: string) => (wide ? lg : md)
   const visible = useVisibleSettings(db)
   const q = query.trim().toLowerCase()
   const shown =
@@ -160,10 +160,12 @@ export function SettingsScreen({
       <h1 className="text-[32px] leading-tight font-bold tracking-[-0.02em]">
         {t('settings.title')}
       </h1>
-      <div className="mt-6 flex flex-col gap-4 lg:grid lg:grid-cols-[170px_1fr] lg:gap-8">
+      <div
+        className={`mt-6 flex flex-col gap-4 ${pick('md:grid md:grid-cols-[170px_1fr] md:gap-8', 'lg:grid lg:grid-cols-[170px_1fr] lg:gap-8')}`}
+      >
         <nav
           aria-label={t('settings.categories')}
-          className="-mx-4 flex gap-1.5 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:gap-0.5 lg:px-0"
+          className={`-mx-4 flex gap-1.5 overflow-x-auto px-4 ${pick('md:mx-0 md:flex-col md:gap-0.5 md:px-0', 'lg:mx-0 lg:flex-col lg:gap-0.5 lg:px-0')}`}
         >
           {tabs.map((tab) => (
             <button
@@ -172,10 +174,10 @@ export function SettingsScreen({
               onClick={() => setCategory(tab.id)}
               aria-current={tab.id === category ? 'page' : undefined}
               aria-label={`${tab.label}, ${t('settings.count', { count: tab.count })}`}
-              className={`flex min-h-9 shrink-0 items-center gap-2 rounded-full border px-3 text-sm transition-colors lg:rounded-lg lg:border-transparent lg:px-2.5 ${
+              className={`flex min-h-9 shrink-0 items-center gap-2 rounded-full border px-3 text-sm transition-colors ${pick('md:rounded-lg md:border-transparent md:px-2.5', 'lg:rounded-lg lg:border-transparent lg:px-2.5')} ${
                 tab.id === category
-                  ? 'border-ink font-semibold lg:bg-hover'
-                  : 'border-line text-muted hover:bg-hover lg:text-ink'
+                  ? `border-ink font-semibold ${pick('md:bg-hover', 'lg:bg-hover')}`
+                  : `border-line text-muted hover:bg-hover ${pick('md:text-ink', 'lg:text-ink')}`
               }`}
             >
               <span className="flex-1 text-left">{tab.label}</span>

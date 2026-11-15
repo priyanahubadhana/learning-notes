@@ -222,3 +222,33 @@ test('Layout shortcut in Settings v3: one tap is one Undo step that gives back e
   await page.getByRole('button', { name: 'Undo', exact: true }).first().click()
   await expect.poll(state).toEqual(before)
 })
+
+test.describe('Settings layout upright on an iPad', () => {
+  test.use({ viewport: { width: 820, height: 1180 } })
+  const columns = async (page: Page) =>
+    page.evaluate(() => {
+      const row = document.querySelector('[data-setting-id]')!
+      return getComputedStyle(row.closest('.min-w-0')!.parentElement!).display
+    })
+
+  test('with toolbar.v8 OFF the sections column is beside the rows from 768 px, as before', async ({
+    page,
+  }) => {
+    await page.goto('/#/settings')
+    await expect(
+      page.locator('[data-setting-id="general.theme"]'),
+    ).toBeVisible()
+    expect(await columns(page)).toBe('grid')
+  })
+
+  test('with toolbar.v8 ON the rows get the full width upright (sections above)', async ({
+    page,
+  }) => {
+    await page.goto('/?flags=toolbar.v8#/settings')
+    await page.reload()
+    await expect(
+      page.locator('[data-setting-id="general.theme"]'),
+    ).toBeVisible()
+    expect(await columns(page)).toBe('flex')
+  })
+})

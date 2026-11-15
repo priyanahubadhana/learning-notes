@@ -6,6 +6,7 @@ import {
   type Level,
 } from '../../../settings/level'
 import type { ProFeatureId } from '../../../settings/proFeatures.gen'
+import { useFrameSize } from '../../shell/useFrameSize'
 import { prefStore, type Store } from '../store'
 
 /**
@@ -99,15 +100,6 @@ export function useBarPref(id: BarPrefId): boolean {
   return resolveBarPref(id, choice)
 }
 
-/** True while the screen is upright (taller than wide). */
-function subscribePortrait(cb: () => void): () => void {
-  const q = window.matchMedia?.('(orientation: portrait)')
-  q?.addEventListener('change', cb)
-  return () => q?.removeEventListener('change', cb)
-}
-const isPortrait = (): boolean =>
-  !!window.matchMedia?.('(orientation: portrait)').matches
-
 /**
  * Do the bar tools show their names? The setting says yes, except upright on
  * a Pencil-mode device: icons only there, and the names come back sideways
@@ -115,10 +107,7 @@ const isPortrait = (): boolean =>
  */
 export function useToolNames(pencilMode: boolean): boolean {
   const on = useBarPref('toolNames')
-  const portrait = useSyncExternalStore(
-    subscribePortrait,
-    isPortrait,
-    () => false,
-  )
+  const { width, height } = useFrameSize()
+  const portrait = height > width
   return on && !(pencilMode && portrait)
 }

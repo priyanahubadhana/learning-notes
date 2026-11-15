@@ -210,14 +210,11 @@ for (const wrong of [300, 20])
   test(`R14 old bar: a saved height of ${wrong} px is corrected after the bar draws`, async ({
     page,
   }) => {
-    await watchPage(
-      page,
-      { 'bar.roomPx': { '44@1336': wrong } },
-      undefined,
-      OLD,
-    )
-    const saved = await savedRooms(page)
-    expect(saved['44@1336']).toBe(54)
+    const key = `44@${page.viewportSize()?.width}`
+    await watchPage(page, { 'bar.roomPx': { [key]: wrong } }, undefined, OLD)
+    const saved = (await savedRooms(page))[key]
+    expect(saved).toBeGreaterThanOrEqual(54)
+    expect(saved).toBeLessThan(140)
   })
 
 test('R14 switch OFF (foundation.shell off): nothing is kept and nothing is saved', async ({

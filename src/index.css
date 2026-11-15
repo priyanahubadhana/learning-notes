@@ -750,6 +750,42 @@ html[data-note-line] .bn-editor {
     transparent 100%
   );
 }
+/*
+ * R12: a list that is a solid surface (a card, sheet or menu) is never masked:
+ * the page would show through its edge. Only its inside fades, with a soft
+ * edge in the surface's own colour (--scroll-fade-bg, set by scrollHints.ts).
+ * A surface laid out as a grid, with gaps or its own ::before / ::after is
+ * marked 'plain': solid, no fade (the handle still shows).
+ */
+[data-scroll-solid][data-scroll-more] {
+  mask-image: none;
+}
+[data-scroll-solid='fade'][data-scroll-more='top']::before,
+[data-scroll-solid='fade'][data-scroll-more='both']::before {
+  content: '';
+  display: block;
+  flex: none;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 28px;
+  margin-bottom: -28px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--scroll-fade-bg), transparent);
+}
+[data-scroll-solid='fade'][data-scroll-more='bottom']::after,
+[data-scroll-solid='fade'][data-scroll-more='both']::after {
+  content: '';
+  display: block;
+  flex: none;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  height: 28px;
+  margin-top: -28px;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--scroll-fade-bg), transparent);
+}
 /* Lists with our own handle hide the system scrollbar (a second, bigger bar). */
 [data-scroll-more] {
   scrollbar-width: none;

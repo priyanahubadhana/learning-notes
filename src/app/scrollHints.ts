@@ -110,10 +110,54 @@ const GUTTER = 'data-scroll-gutter'
 /** True in the new frame: the shared bar overlays the list's edge, so no gutter is added on the fly. */
 let barOn: () => boolean = () => false
 
+/**
+ * R12: the colour of a box that paints a solid background of its own, else
+ * null. A card, sheet or menu like that must stay solid: a mask on it would let
+ * the page show through its edge, so only its inside fades (index.css, a soft
+ * edge in the surface's own colour).
+ */
+export function solidOf(css: string): string | null {
+  const c = css.trim()
+  if (!c || c === 'transparent') return null
+  const inner = /(([^)]*))/.exec(c)?.[1] ?? ''
+  let alpha = '1'
+  if (inner.includes('/')) alpha = inner.split('/')[1].trim()
+  else if (/^(rgba|hsla)/.test(c) && inner.split(',').length === 4)
+    alpha = inner.split(',')[3].trim()
+  const a = alpha.endsWith('%') ? parseFloat(alpha) / 100 : parseFloat(alpha)
+  return Number.isNaN(a) || a >= 0.95 ? c : null
+}
+
+const SOLID = 'data-scroll-solid'
+
+/** The edge fade can be drawn inside a plain block or a column of items (no gaps, no ::before / ::after of its own). */
+function fadeable(el: HTMLElement): boolean {
+  const cs = getComputedStyle(el)
+  const flow =
+    cs.display === 'block' ||
+    cs.display === 'flow-root' ||
+    (cs.display === 'flex' && cs.flexDirection === 'column')
+  const gap = cs.rowGap !== 'normal' && parseFloat(cs.rowGap) > 0
+  return (
+    flow &&
+    !gap &&
+    // Its own fade (already drawn) does not count as a pseudo-element of its own.
+    (el.getAttribute(SOLID) === 'fade' ||
+      (getComputedStyle(el, '::before').content === 'none' &&
+        getComputedStyle(el, '::after').content === 'none'))
+  )
+}
+
 function mark(el: HTMLElement): void {
   const more = moreOf(el.scrollTop, el.scrollHeight, el.clientHeight)
   if (more) {
     el.setAttribute(MARK, more)
+    // Goes live with Phase 1 (foundation.shell): before that the old look stays.
+    const solid = barOn() ? solidOf(getComputedStyle(el).backgroundColor) : null
+    if (solid) {
+      el.setAttribute(SOLID, fadeable(el) ? 'fade' : 'plain')
+      el.style.setProperty('--scroll-fade-bg', solid)
+    } else el.removeAttribute(SOLID)
     if (!barOn()) el.setAttribute(GUTTER, '')
   } else el.removeAttribute(MARK)
 }

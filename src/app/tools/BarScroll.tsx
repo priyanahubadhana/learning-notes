@@ -7,6 +7,7 @@ import {
   type PointerEvent,
   type ReactNode,
 } from 'react'
+import { flushSync } from 'react-dom'
 import { t } from '../../i18n/t'
 import { useFlag } from '../flags'
 import { Icon } from './icons'
@@ -158,7 +159,9 @@ export function BarScroll({
         <div
           ref={scroller}
           data-slot="tools"
-          onScroll={measure}
+          // At once, not a frame later: the scroll cue takes room, so a late
+          // update moved the tools under a finger already pressing one.
+          onScroll={() => flushSync(measure)}
           className="flex min-w-0 flex-1 items-center gap-px overflow-x-auto"
           style={{
             scrollbarWidth: 'none',

@@ -215,6 +215,7 @@ export const esInk = {
   'ink.layers.deleted': 'Capa eliminada. Deshacer la devuelve.',
   'ink.layers.down': 'Bajar {name}',
   'ink.layers.draw': 'Dibujar en {name}',
+  'ink.layers.drawingHere': 'Dibujando aquí',
   'ink.layers.drawing': 'Dibujando aquí',
   'ink.layers.empty': 'Aún no hay capas. El primer trazo crea una.',
   'ink.layers.hiddenBadge': '{name} oculta',
@@ -228,6 +229,7 @@ export const esInk = {
   'ink.layers.mergeWarning':
     'Los dibujos de la capa superior pasan a la inferior. No se podrán separar después, pero puedes deshacer enseguida.',
   'ink.layers.merged': 'Capas fusionadas.',
+  'ink.layers.more': 'Más para {name}',
   'ink.layers.name': 'Nombre de la capa',
   'ink.layers.old': 'Esta página tiene {count} capas de una versión anterior.',
   'ink.layers.page': 'Página (el texto)',
@@ -460,6 +462,7 @@ export const esInk = {
   'paper.sheets': 'Hojas de esta página',
   'paper.size': 'Tamaño del papel',
   'paper.sizeA4': 'A4',
+  'paper.sizeFit': 'Ajustar a la página',
   'paper.sizeLetter': 'Carta',
   'paper.style': 'Estilo del papel',
   'paper.zoomFit': 'Ajustar al ancho',

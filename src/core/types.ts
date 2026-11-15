@@ -207,8 +207,8 @@ export interface Page extends BaseRecord {
    * the first change). See paper/grid.ts.
    */
   rows?: GridRow[]
-  /** Phase Q: sheet size. Unset = A4. */
-  sheet?: 'A4' | 'Letter'
+  /** Phase Q: sheet size. Unset = A4. 'fit' (v9 "Fit page") draws the A4 shape fitted to the screen. */
+  sheet?: 'A4' | 'Letter' | 'fit'
 }
 
 /**
@@ -606,7 +606,7 @@ export interface PageVersion extends BaseRecord {
   layout?: {
     boxes?: PaperBox[]
     inkBg?: 'lined' | 'grid' | 'dots'
-    sheet?: 'A4' | 'Letter'
+    sheet?: 'A4' | 'Letter' | 'fit'
   }
   /** Why the copy was taken (shown in History). */
   reason?: 'timed' | 'big' | 'leave' | 'before-restore' | 'claude'

@@ -92,6 +92,7 @@ const config = defineConfig({
         /toolbarV8Favs/,
         /toolbarV8BarEdit.spec/,
         /toolbarV9Polish/,
+        /toolbarV9Sheets/,
         /inkTools/,
         /toolbarV9Lasso/,
         /toolbarV9More/,

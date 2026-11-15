@@ -211,6 +211,7 @@ export const enLateInk = {
   'ink.layers.deleted': 'Layer deleted. Undo brings it back.',
   'ink.layers.down': 'Move {name} down',
   'ink.layers.draw': 'Draw on {name}',
+  'ink.layers.drawingHere': 'Drawing here',
   'ink.layers.drawing': 'Drawing here',
   'ink.layers.empty': 'No layers yet. The first stroke makes one.',
   'ink.layers.hiddenBadge': '{name} hidden',
@@ -224,6 +225,7 @@ export const enLateInk = {
   'ink.layers.mergeWarning':
     'The drawings of the top layer move into the layer below. They cannot be separated later, but you can Undo right away.',
   'ink.layers.merged': 'Layers merged.',
+  'ink.layers.more': 'More for {name}',
   'ink.layers.name': 'Layer name',
   'ink.layers.old': 'This page has {count} layers from an earlier version.',
   'ink.layers.page': 'Page (the text)',
@@ -445,6 +447,7 @@ export const enLateInk = {
   'paper.sheets': 'Sheets of this page',
   'paper.size': 'Paper size',
   'paper.sizeA4': 'A4',
+  'paper.sizeFit': 'Fit page',
   'paper.sizeLetter': 'Letter',
   'paper.style': 'Paper style',
   'paper.zoomFit': 'Fit width',

@@ -556,7 +556,7 @@ export function PaperFrame({
   const extra = narrow ? readingOrder(stored) : stored
 
   // The left panel shows this page's sheets as thumbnails.
-  const navSheet = page.sheet ?? 'A4'
+  const navSheet = page.sheet === 'Letter' ? 'Letter' : 'A4'
   useEffect(() => {
     if (flat || narrow) sheetNav.set(null)
     else

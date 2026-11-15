@@ -213,6 +213,7 @@ export const hiInk = {
   'ink.layers.deleted': 'लेयर हटाई गई। पूर्ववत करने पर वापस आ जाती है।',
   'ink.layers.down': '{name} नीचे ले जाएँ',
   'ink.layers.draw': '{name} पर बनाएँ',
+  'ink.layers.drawingHere': 'यहाँ बन रहा है',
   'ink.layers.drawing': 'यहाँ बन रहा है',
   'ink.layers.empty': 'अभी कोई लेयर नहीं। पहला स्ट्रोक एक बना देगा।',
   'ink.layers.hiddenBadge': '{name} छिपी',
@@ -226,6 +227,7 @@ export const hiInk = {
   'ink.layers.mergeWarning':
     'ऊपरी परत के चित्र नीचे की परत में चले जाएँगे। बाद में अलग नहीं होंगे, पर तुरंत पूर्ववत कर सकते हैं।',
   'ink.layers.merged': 'परतें मिल गईं।',
+  'ink.layers.more': '{name} के और विकल्प',
   'ink.layers.name': 'लेयर का नाम',
   'ink.layers.old': 'इस पेज में पुराने संस्करण की {count} परतें हैं।',
   'ink.layers.page': 'पेज (टेक्स्ट)',
@@ -455,6 +457,7 @@ export const hiInk = {
   'paper.sheets': 'इस पेज की शीट',
   'paper.size': 'कागज़ का आकार',
   'paper.sizeA4': 'A4',
+  'paper.sizeFit': 'पेज में फ़िट',
   'paper.sizeLetter': 'लेटर',
   'paper.style': 'कागज़ की शैली',
   'paper.zoomFit': 'चौड़ाई में फ़िट करें',

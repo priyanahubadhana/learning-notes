@@ -1,5 +1,5 @@
 import { useActiveStyles, useBlockNoteEditor } from '@blocknote/react'
-import { useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { ClearField } from '../../../../../design/parts/ClearField'
 import {
   CardGroup,
@@ -30,6 +30,7 @@ import { highlightChoice, textColourChoice } from '../../../main/pillChoices'
 import { Icon } from '../../../icons'
 import { runTool, findTool, toolLabel } from '../../../toolRegistry'
 import { useBarPref } from '../../barPrefs'
+import { CardTabs } from '../CardTabs'
 import {
   ALIGNMENTS,
   TEXT_SIZE_STEPS,
@@ -414,53 +415,6 @@ function LineHeightGroup() {
   )
 }
 
-/** The tab row: full width inside the card, 44 pt tall, arrows move between tabs. */
-function TabBar({
-  tabs,
-  value,
-  onPick,
-}: {
-  tabs: { id: FormatTabId; title: MessageKey }[]
-  value: FormatTabId
-  onPick: (id: FormatTabId) => void
-}) {
-  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    const i = tabs.findIndex((x) => x.id === value)
-    const step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0
-    if (!step) return
-    e.preventDefault()
-    const next = tabs[(i + step + tabs.length) % tabs.length]
-    onPick(next.id)
-    e.currentTarget
-      .querySelector<HTMLElement>(`[data-tab="${next.id}"]`)
-      ?.focus()
-  }
-  return (
-    <div
-      className="v8tabs"
-      role="tablist"
-      aria-label={t('v8.format.tabs')}
-      onKeyDown={onKey}
-    >
-      {tabs.map((x) => (
-        <button
-          key={x.id}
-          type="button"
-          role="tab"
-          data-tab={x.id}
-          data-testid={`v8-format-tab-${x.id}`}
-          aria-selected={value === x.id}
-          tabIndex={value === x.id ? 0 : -1}
-          className={value === x.id ? 'v8tab v8tab-sel' : 'v8tab'}
-          onClick={() => onPick(x.id)}
-        >
-          {t(x.title)}
-        </button>
-      ))}
-    </div>
-  )
-}
-
 /** TB-41 (v9): one card, a tab row, colours, fonts and sizes inside the tabs. */
 export default function FormatCard() {
   const fonts = useUnlocked('tb.textFonts')
@@ -472,7 +426,16 @@ export default function FormatCard() {
   const tab = tabs.find((x) => x.id === picked) ?? tabs[0]
   return (
     <div className="v8scroll v8thin" data-testid="v8-format">
-      <TabBar tabs={tabs} value={tab.id} onPick={setPicked} />
+      <CardTabs
+        tabs={tabs.map((x) => ({
+          id: x.id,
+          label: t(x.title),
+          testId: `v8-format-tab-${x.id}`,
+        }))}
+        value={tab.id}
+        onPick={(id) => setPicked(id as FormatTabId)}
+        label={t('v8.format.tabs')}
+      />
       <div role="tabpanel" className="v8tabpanel">
         {tab.id === 'text' ? (
           <>

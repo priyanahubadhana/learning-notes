@@ -296,8 +296,14 @@ export function PageView({
       label: t('paper.size'),
       icon: '▭',
       onSelect: () => {},
-      submenu: (['A4', 'Letter'] as const).map((size) => ({
-        label: t(size === 'A4' ? 'paper.sizeA4' : 'paper.sizeLetter'),
+      submenu: (['fit', 'A4', 'Letter'] as const).map((size) => ({
+        label: t(
+          size === 'fit'
+            ? 'paper.sizeFit'
+            : size === 'A4'
+              ? 'paper.sizeA4'
+              : 'paper.sizeLetter',
+        ),
         icon: '▭',
         checked: (page.sheet ?? 'A4') === size,
         onSelect: () => runTask(setPageSheet(db, page.id, size)),

@@ -12,8 +12,7 @@ import {
   TileGroup,
 } from '../../../../../design/parts/CardParts'
 import { OnOffChoice } from '../../../../../design/parts/OnOff'
-import { TabRow, type TabDef } from '../../../../../design/parts/TabRow'
-import { memoryTabSetStore } from '../../../../../design/parts/tabSets'
+import { CardTabs } from '../CardTabs'
 import { t, type MessageKey } from '../../../../../i18n/t'
 import { Icon, type IconName } from '../../../icons'
 import { InkPreview } from '../../../main/InkPreview'
@@ -51,7 +50,6 @@ import {
 import { Slider } from './Slider'
 import {
   DRAW_AS_CHOICES,
-  FEEL_TABS,
   TYPE_HINT,
   TYPE_LOOK,
   chooseColour,
@@ -330,7 +328,6 @@ function ColourCard() {
 
 // ---- Feel (TB-24, TB-25, TB-26) ----
 
-const feelStore = memoryTabSetStore()
 const FEEL_LABEL: Record<FeelTab, MessageKey> = {
   feel: 'v8.item.feel',
   aids: 'v8.pen.tab.aids',
@@ -340,26 +337,15 @@ const FEEL_LABEL: Record<FeelTab, MessageKey> = {
 
 function FeelCard() {
   const aids = useUnlocked('tb.penAids')
-  const catalog: TabDef[] = FEEL_TABS.map((id) => ({
-    id,
-    label: t(FEEL_LABEL[id]),
-    ...(id === 'aids' ? { pro: 'tb.penAids' } : {}),
-  }))
   const [tab, setTab] = useState<FeelTab>('feel')
   const shown = feelTabs(() => aids)
   const current = shown.includes(tab) ? tab : 'feel'
   return (
     <>
-      <TabRow
-        setKey="v8.penFeel"
-        store={feelStore}
-        catalog={catalog}
-        defaults={[...FEEL_TABS]}
+      <CardTabs
+        tabs={shown.map((id) => ({ id, label: t(FEEL_LABEL[id]) }))}
         value={current}
         onPick={(id) => setTab(id as FeelTab)}
-        variant="pill"
-        editable={false}
-        unlocked={() => aids}
         label={t('v8.pen.tabs')}
       />
       <div
@@ -461,6 +447,7 @@ function FeelPane() {
                 value={pen.sharpness}
                 min={0}
                 max={100}
+                unit="%"
                 testId="v8-pen-sharpness"
                 onChange={(sharpness) => penSettings.update({ sharpness })}
               />
@@ -470,6 +457,7 @@ function FeelPane() {
                   value={pen.flatness}
                   min={0}
                   max={100}
+                  unit="%"
                   testId="v8-pen-flatness"
                   onChange={(flatness) => penSettings.update({ flatness })}
                 />
@@ -479,6 +467,7 @@ function FeelPane() {
                 value={pen.stabilisation}
                 min={0}
                 max={100}
+                unit="%"
                 testId="v8-pen-stabilisation"
                 onChange={(stabilisation) =>
                   penSettings.update({ stabilisation })
@@ -493,6 +482,7 @@ function FeelPane() {
                 value={pen.pressure}
                 min={0}
                 max={100}
+                unit="%"
                 testId="v8-pen-pressure"
                 onChange={(pressure) => penSettings.update({ pressure })}
               />
@@ -528,6 +518,7 @@ function FeelPane() {
               value={pen.pressure}
               min={0}
               max={100}
+              unit="%"
               testId="v8-pen-pressure"
               onChange={(pressure) => penSettings.update({ pressure })}
             />
@@ -537,6 +528,7 @@ function FeelPane() {
               value={pen.stabilisation}
               min={0}
               max={100}
+              unit="%"
               testId="v8-pen-stabilisation"
               onChange={(stabilisation) =>
                 penSettings.update({ stabilisation })
@@ -701,7 +693,9 @@ function PagePane() {
       {layers ? (
         <>
           <CardGroup label={t('ink.layers')}>
-            <LayersCard hidePaper />
+            <div className="lyr9" data-testid="v8-feel-layers">
+              <LayersCard hidePaper look="v9" />
+            </div>
           </CardGroup>
           {ink ? <SheetSize pageId={ink.doc.pageId} /> : null}
         </>
@@ -710,9 +704,14 @@ function PagePane() {
   )
 }
 
-const SHEETS = ['A4', 'Letter'] as const
+const SHEETS = ['fit', 'A4', 'Letter'] as const
+const SHEET_LABEL = {
+  fit: 'paper.sizeFit',
+  A4: 'paper.sizeA4',
+  Letter: 'paper.sizeLetter',
+} as const
 
-/** Paper size of the open page (A4 or Letter); saved with the page. */
+/** Paper size of the open page (Fit page, A4 or Letter); saved with the page. */
 function SheetSize({ pageId }: { pageId: string }) {
   const page = useLiveQuery(() => db.pages.get(pageId), [pageId])
   const sheet = page?.sheet ?? 'A4'
@@ -724,7 +723,7 @@ function SheetSize({ pageId }: { pageId: string }) {
         value={sheet}
         options={SHEETS.map((s) => ({
           value: s,
-          label: t(s === 'A4' ? 'paper.sizeA4' : 'paper.sizeLetter'),
+          label: t(SHEET_LABEL[s]),
           testId: `v8-pen-sheet-${s}`,
         }))}
         onChange={(next) => void setPageSheet(db, pageId, next)}

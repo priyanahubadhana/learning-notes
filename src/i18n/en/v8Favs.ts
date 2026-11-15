@@ -21,10 +21,13 @@ export const enV8Favs = {
   'v8.favs.preset': 'Any preset of this tool',
   'v8.favs.resetDone': 'Favourites reset',
   'v8.favs.resetText':
-    'This takes every favourite off this row. You can undo it.',
+    'This takes every favourite off this row and puts the tools back in their usual order. You can undo it.',
   'v8.favs.resetTitle': 'Reset favourites?',
   'v8.favs.resetYes': 'Reset',
   'v8.favs.save': 'Save favourite',
   'v8.favs.start': 'Start from',
   'v8.favs.tool': 'Which tool?',
+  'v8.favs.toolHint': 'Tool',
+  'v8.favs.toolsNote':
+    'Tools can move but not be removed; favourites follow them.',
 } as const

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   ArrangeSheet,
   type ArrangeRow,
@@ -13,9 +13,15 @@ import {
 import { ClearField } from '../../../design/parts/ClearField'
 import { ConfirmDialog } from '../../../design/parts/Dialogs'
 import { OnOffChoice } from '../../../design/parts/OnOff'
+import { Sheet } from '../../../design/parts/Sheet'
 import { SheetBase } from '../../../design/parts/SheetBase'
+import { useFlag } from '../../flags'
 import { t, type MessageKey } from '../../../i18n/t'
 import { Icon } from '../icons'
+import { rowItemsFor } from './rowItems'
+import { useBarPref } from './barPrefs'
+import { orderItems, setToolOrder, toolOrder } from './toolOrder'
+import { ReorderList } from '../../../design/parts/drag/ReorderList'
 import { currentRunner } from '../toolRuntime'
 import { FavFace } from './PenFavChip'
 import { favName, justAdded, movedId, useFavs } from './favRow'
@@ -64,6 +70,73 @@ function keepOnly(base: Omit<Fav2, 'id' | 'name'>, keeps: readonly Keep[]) {
   return out as Omit<Fav2, 'id' | 'name'>
 }
 
+/**
+ * The frame of the Add form. In the new frame (v9) it docks right below the top
+ * bar, 440 px wide, with ✕ at the left and ✓ at the right and no footer buttons.
+ */
+function AddFrame({
+  shell,
+  anchor,
+  onClose,
+  onSave,
+  children,
+}: {
+  shell: boolean
+  anchor: HTMLElement | null
+  onClose: () => void
+  onSave: () => void
+  children: ReactNode
+}) {
+  if (shell)
+    return (
+      <Sheet
+        title={t('v8.row.add')}
+        opener={anchor}
+        onClose={onClose}
+        confirm={{
+          label: t('v8.favs.save'),
+          onConfirm: onSave,
+          onCancel: onClose,
+        }}
+        data-testid="v8-addsheet"
+      >
+        {children}
+      </Sheet>
+    )
+  return (
+    <SheetBase
+      title={t('v8.row.add')}
+      anchor={anchor}
+      onClose={onClose}
+      grow
+      data-testid="v8-addsheet"
+      footer={
+        <>
+          <button
+            type="button"
+            className="arr-btn"
+            data-testid="v8-add-cancel"
+            onClick={onClose}
+          >
+            <Icon name="close" size={14} /> {t('v8.favs.cancel')}
+          </button>
+          <span className="arr-spacer" />
+          <button
+            type="button"
+            className="arr-btn arr-primary"
+            data-testid="v8-add-save"
+            onClick={onSave}
+          >
+            <Icon name="check" size={14} /> {t('v8.favs.save')}
+          </button>
+        </>
+      }
+    >
+      {children}
+    </SheetBase>
+  )
+}
+
 /** The Add form (TB-52): tool, start, ticks, live preview, name, Save. */
 export function AddFavSheet({
   anchor,
@@ -74,6 +147,7 @@ export function AddFavSheet({
   tool: V8ToolId
   onClose: () => void
 }) {
+  const shell = useFlag('foundation.shell')
   const [tool, setTool] = useState<V8ToolId>(first)
   const [start, setStart] = useState<'current' | 'preset'>('current')
   const [preset, setPreset] = useState(0)
@@ -117,34 +191,7 @@ export function AddFavSheet({
   }
 
   return (
-    <SheetBase
-      title={t('v8.row.add')}
-      anchor={anchor}
-      onClose={onClose}
-      grow
-      data-testid="v8-addsheet"
-      footer={
-        <>
-          <button
-            type="button"
-            className="arr-btn"
-            data-testid="v8-add-cancel"
-            onClick={onClose}
-          >
-            <Icon name="close" size={14} /> {t('v8.favs.cancel')}
-          </button>
-          <span className="arr-spacer" />
-          <button
-            type="button"
-            className="arr-btn arr-primary"
-            data-testid="v8-add-save"
-            onClick={save}
-          >
-            <Icon name="check" size={14} /> {t('v8.favs.save')}
-          </button>
-        </>
-      }
-    >
+    <AddFrame shell={shell} anchor={anchor} onClose={onClose} onSave={save}>
       <div className="favs-preview" data-testid="v8-add-preview">
         <span className="v8chip v8chip-fav">
           <FavFace fav={draft} />
@@ -230,7 +277,7 @@ export function AddFavSheet({
           ))
         )}
       </CardGroup>
-    </SheetBase>
+    </AddFrame>
   )
 }
 
@@ -248,8 +295,36 @@ export function OrganiseFavSheet({
   onReset: () => void
   onDone: () => void
 }) {
+  const shell = useFlag('foundation.shell')
   const all = useFavs()
   const row = rowOf(all, tool)
+  // What the row was when the sheet opened: ✕ puts it back.
+  const opened = useRef(favs2.get())
+  const openedOrder = useRef(toolOrder.get()[tool])
+  const defaults = rowItemsFor(
+    tool,
+    useBarPref('eraserMenus'),
+    useBarPref('biggerLasso'),
+  )
+  const saved = toolOrder.useValue()[tool]
+  const tools = orderItems(defaults, saved)
+  const moveTool = (id: string, to: number) => {
+    const before = toolOrder.get()[tool]
+    const ids = tools.map((x) => x.id).filter((x) => x !== id)
+    ids.splice(to, 0, id)
+    setToolOrder(
+      tool,
+      ids,
+      defaults.map((x) => x.id),
+    )
+    const item = defaults.find((x) => x.id === id)
+    toast(t('v8.favs.moved', { name: item ? t(item.label) : id }), () =>
+      setToolOrder(tool, before),
+    )
+  }
+  const toolChip = (item: (typeof tools)[number]) => (
+    <Icon name={item.icon ?? 'circle'} size={16} />
+  )
   // Every favourite seen while the sheet is open, so a removed one can come back.
   const [seen] = useState(() => new Map<string, Fav2>())
   useEffect(() => {
@@ -279,6 +354,44 @@ export function OrganiseFavSheet({
 
   return (
     <ArrangeSheet
+      docked={shell}
+      onCancel={() => {
+        saveFavs(opened.current)
+        setToolOrder(tool, openedOrder.current)
+        onDone()
+      }}
+      fixed={
+        shell && tools.length > 0 ? (
+          <div className="arr-fixed" data-testid="v8-org-tools">
+            <ReorderList
+              items={[...tools]}
+              getId={(item) => item.id}
+              label={(item) => t(item.label)}
+              axis="y"
+              handle="grip"
+              showMoveButtons
+              onMove={moveTool}
+              aria-label={t('v8.favs.toolHint')}
+              testId="v8-org-tool-list"
+              className="arr-list"
+              renderItem={(item, ctx) => (
+                <div className="arr-row" data-testid="v8-org-tool">
+                  {ctx.grip}
+                  <span className="arr-tile" aria-hidden="true">
+                    {toolChip(item)}
+                  </span>
+                  <span className="arr-name">
+                    <span>{t(item.label)}</span>
+                    <small>{t('v8.favs.toolHint')}</small>
+                  </span>
+                  {ctx.moveButtons}
+                </div>
+              )}
+            />
+            <p className="arr-fixed-note">{t('v8.favs.toolsNote')}</p>
+          </div>
+        ) : null
+      }
       title={t('v8.row.organise')}
       help={t('v8.favs.orgHelp')}
       rows={rows}
@@ -287,6 +400,14 @@ export function OrganiseFavSheet({
       addLabel={t('v8.favs.addShort')}
       preview={(list) => (
         <span className="arr-chips">
+          {shell
+            ? tools.map((item) => (
+                <span key={item.id} className="v8chip">
+                  {toolChip(item)}
+                  <span className="v8chip-text">{t(item.label)}</span>
+                </span>
+              ))
+            : null}
           {list.map((r) => (
             <span key={r.id} className="v8chip v8chip-fav">
               {r.preview}
@@ -296,7 +417,7 @@ export function OrganiseFavSheet({
         </span>
       )}
       onReset={onReset}
-      isDefault={row.length === 0}
+      isDefault={row.length === 0 && !saved}
       onDone={onDone}
       anchor={anchor}
     />
@@ -319,8 +440,13 @@ export function ResetFavDialog({
       danger
       onConfirm={() => {
         const before = favs2.get()
+        const beforeOrder = toolOrder.get()[tool]
         saveFavs(resetRow(before, tool))
-        toast(t('v8.favs.resetDone'), () => saveFavs(before))
+        setToolOrder(tool, undefined)
+        toast(t('v8.favs.resetDone'), () => {
+          saveFavs(before)
+          setToolOrder(tool, beforeOrder)
+        })
         onClose()
       }}
       onCancel={onClose}

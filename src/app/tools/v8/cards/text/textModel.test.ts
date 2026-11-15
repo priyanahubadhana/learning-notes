@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { findTool } from '../../../toolRegistry'
 import { ROW_ITEMS } from '../../rowItems'
-import { formatSections, BOX_LOOKS } from './textModel'
+import { formatTabs, TEXT_SIZE_STEPS, BOX_LOOKS } from './textModel'
 
 const ids = (pro = false) =>
-  formatSections({ textFonts: pro, textMarks: pro }).flatMap((s) =>
-    s.tiles.map((x) => x.tool),
+  formatTabs({ textFonts: pro, textMarks: pro }).flatMap((s) =>
+    s.groups.flatMap((g) => g.tiles.map((x) => x.tool)),
   )
 
 describe('Text row (TB-40)', () => {
@@ -20,22 +20,20 @@ describe('Text row (TB-40)', () => {
   })
 })
 
-// T8 (why): the Advanced Font and Text size tiles ran the Reading tools, which
-// switched the page into Reading mode and put the reader's bar over the top bar.
-describe('Advanced Font and Text size tiles (T8)', () => {
-  it('stay in the note: Font jumps to its group, Text size is inert; neither runs a tool', () => {
-    const adv = formatSections({ textFonts: true, textMarks: true }).find(
-      (s) => s.id === 'advanced',
-    )
-    const byTool = (id: string) => adv?.tiles.find((x) => x.tool === id)
-    expect(byTool('font')?.jump).toBe('fonts')
-    expect(byTool('textSize')?.inert).toBe(true)
+// T8 (why): Font and Text size ran the Reading tools, which switched the page
+// into Reading mode and put the reader's bar over the top bar. They are no
+// tools of this card now: the card sets the note size and font itself.
+describe('Text size and Font (T8)', () => {
+  it('are not tool tiles; the three steps are real note sizes', () => {
+    expect(ids(true)).not.toContain('font')
+    expect(ids(true)).not.toContain('textSize')
+    expect(TEXT_SIZE_STEPS.map((x) => x.pct)).toEqual([90, 100, 130])
   })
 })
 
 describe('Format card (TB-41)', () => {
   it('Beginner has Text, Style, Paragraph in that order', () => {
-    const s = formatSections({ textFonts: false, textMarks: false })
+    const s = formatTabs({ textFonts: false, textMarks: false })
     expect(s.map((x) => x.id)).toEqual(['text', 'style', 'paragraph'])
   })
   it('has H1-H3, B/I/U/S, lists, indent, alignment, callout, divider', () => {
@@ -64,30 +62,21 @@ describe('Format card (TB-41)', () => {
     for (const id of ids(true))
       expect(id === 'mark:key' || findTool(id), id).toBeTruthy()
   })
-  it('Professional adds Advanced (fonts) and inline code only when unlocked', () => {
-    expect(ids()).not.toContain('font')
+  it('Advanced tab only with tb.textFonts; inline code only with tb.textMarks', () => {
     expect(ids()).not.toContain('code')
-    const pro = formatSections({ textFonts: true, textMarks: true })
+    const pro = formatTabs({ textFonts: true, textMarks: true })
     expect(pro.map((x) => x.id)).toEqual([
       'text',
       'style',
       'paragraph',
       'advanced',
     ])
-    expect(ids(true)).toContain('font')
     expect(ids(true)).toContain('code')
-    const oneOnly = formatSections({ textFonts: true, textMarks: false })
-    expect(oneOnly.flatMap((s) => s.tiles.map((x) => x.tool))).not.toContain(
-      'code',
-    )
-  })
-  it('Advanced (tb.textFonts) adds fonts in their own face and line height (TB-41)', () => {
-    const adv = (f: boolean) =>
-      formatSections({ textFonts: f, textMarks: false }).find(
-        (x) => x.id === 'advanced',
-      )
-    expect(adv(true)?.extras).toEqual(['fonts', 'lineHeight'])
-    expect(adv(false)).toBeUndefined()
+    const fontsOnly = formatTabs({ textFonts: true, textMarks: false })
+    expect(fontsOnly.length).toBe(4)
+    expect(
+      fontsOnly.flatMap((t) => t.groups.flatMap((g) => g.tiles.map((x) => x.tool))),
+    ).not.toContain('code')
   })
   it('no tile appears twice', () => {
     const all = ids(true)

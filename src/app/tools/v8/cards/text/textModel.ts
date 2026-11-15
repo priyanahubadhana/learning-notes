@@ -27,20 +27,24 @@ export interface FormatTile {
   icon?: IconName
   /** Does something once (a heading, indent, a divider): a button, not a switch. */
   action?: boolean
-  /** Scrolls to a group of the same card instead of running a tool (T8). */
-  jump?: 'fonts'
-  /** Does nothing for now (no note text-size control in this card; the card is rebuilt after Phase 1). */
-  inert?: true
   /** The editor style this tile shows as pressed. */
   style?: 'bold' | 'italic' | 'underline' | 'strike' | 'code'
 }
 
-export interface FormatSection {
-  id: 'text' | 'style' | 'paragraph' | 'advanced'
+export type FormatTabId = 'text' | 'style' | 'paragraph' | 'advanced'
+
+/** A row of tool tiles inside a tab (the other groups are drawn by the card). */
+export interface FormatGroup {
+  id: string
   title: MessageKey
+  columns: number
   tiles: FormatTile[]
-  /** Extra groups drawn under the tiles: fonts in their own face, line height (TB-41). */
-  extras?: ('fonts' | 'lineHeight')[]
+}
+
+export interface FormatTabDef {
+  id: FormatTabId
+  title: MessageKey
+  groups: FormatGroup[]
 }
 
 const tile = (
@@ -58,64 +62,116 @@ export interface FormatUnlocks {
   textMarks: boolean
 }
 
-/** Text · Style · Paragraph, then Advanced when a Professional switch is on. */
-export function formatSections(u: FormatUnlocks): FormatSection[] {
-  const style: FormatTile[] = [
+/** Beginner Text size: three steps of the note size (percent). */
+export const TEXT_SIZE_STEPS = [
+  { id: 'small', pct: 90, label: 'v8.format.size.small' },
+  { id: 'body', pct: 100, label: 'v8.format.size.body' },
+  { id: 'large', pct: 130, label: 'v8.format.size.large' },
+] as const satisfies readonly { id: string; pct: number; label: MessageKey }[]
+
+/**
+ * TB-41 (v9): three tabs, a fourth (Advanced) with `tb.textFonts`. The tool
+ * tiles of each tab; Text size, fonts, colours and line height are drawn by
+ * the card itself (they are not tools).
+ */
+export function formatTabs(u: FormatUnlocks): FormatTabDef[] {
+  const emphasis = [
     tile('bold', tl('bold'), 'bold', { style: 'bold' }),
     tile('italic', tl('italic'), 'italic', { style: 'italic' }),
     tile('underline', tl('underline'), 'underline', { style: 'underline' }),
     tile('strike', tl('strike'), 'strike', { style: 'strike' }),
   ]
+  const blocks = [
+    tile('callout', tl('callout'), 'icon', { icon: 'sparkles' }),
+    tile('divider', tl('divider'), 'icon', { icon: 'minus', action: true }),
+  ]
   if (u.textMarks)
-    style.push(tile('code', tl('code'), 'code', { style: 'code' }))
-  const sections: FormatSection[] = [
+    blocks.push(tile('code', tl('code'), 'code', { style: 'code' }))
+  const tabs: FormatTabDef[] = [
     {
       id: 'text',
       title: 'v8.format.text',
-      tiles: [
-        tile('heading1', tl('heading1'), 'h1', { action: true }),
-        tile('heading2', tl('heading2'), 'h2', { action: true }),
-        tile('heading3', tl('heading3'), 'h3', { action: true }),
+      groups: [
+        {
+          id: 'emphasis',
+          title: 'v8.format.g.emphasis',
+          columns: 4,
+          tiles: emphasis,
+        },
+        {
+          id: 'marks',
+          title: 'v8.format.g.marks',
+          columns: 4,
+          tiles: [tile('mark:key', 'v8.format.star', 'icon', { icon: 'star' })],
+        },
       ],
     },
-    { id: 'style', title: 'v8.format.style', tiles: style },
+    {
+      id: 'style',
+      title: 'v8.format.style',
+      groups: [
+        {
+          id: 'headings',
+          title: 'v8.format.g.headings',
+          columns: 3,
+          tiles: [
+            tile('heading1', tl('heading1'), 'h1', { action: true }),
+            tile('heading2', tl('heading2'), 'h2', { action: true }),
+            tile('heading3', tl('heading3'), 'h3', { action: true }),
+          ],
+        },
+        {
+          id: 'lists',
+          title: 'v8.format.g.lists',
+          columns: 3,
+          tiles: [
+            tile('bulletList', tl('bulletList'), 'icon', { icon: 'list' }),
+            tile('numberedList', tl('numberedList'), 'icon', {
+              icon: 'numbered',
+            }),
+            tile('checklist', tl('checklist'), 'icon', { icon: 'checklist' }),
+            tile('indent', tl('indent'), 'icon', {
+              icon: 'indent',
+              action: true,
+            }),
+            tile('outdent', tl('outdent'), 'icon', {
+              icon: 'outdent',
+              action: true,
+            }),
+          ],
+        },
+        {
+          id: 'blocks',
+          title: 'v8.format.g.blocks',
+          columns: 3,
+          tiles: blocks,
+        },
+      ],
+    },
     {
       id: 'paragraph',
       title: 'v8.format.paragraph',
-      tiles: [
-        tile('bulletList', tl('bulletList'), 'icon', { icon: 'list' }),
-        tile('mark:key', 'v8.format.star', 'icon', { icon: 'star' }),
-        tile('numberedList', tl('numberedList'), 'icon', { icon: 'numbered' }),
-        tile('checklist', tl('checklist'), 'icon', { icon: 'checklist' }),
-        tile('indent', tl('indent'), 'icon', { icon: 'indent', action: true }),
-        tile('outdent', tl('outdent'), 'icon', {
-          icon: 'outdent',
-          action: true,
-        }),
-        tile('alignLeft', tl('alignLeft'), 'icon', { icon: 'alignLeft' }),
-        tile('alignCenter', tl('alignCenter'), 'icon', { icon: 'alignCenter' }),
-        tile('alignRight', tl('alignRight'), 'icon', { icon: 'alignRight' }),
-        tile('callout', tl('callout'), 'icon', { icon: 'sparkles' }),
-        tile('divider', tl('divider'), 'icon', { icon: 'minus', action: true }),
+      groups: [
+        {
+          id: 'align',
+          title: 'v8.format.g.align',
+          columns: 3,
+          tiles: [
+            tile('alignLeft', tl('alignLeft'), 'icon', { icon: 'alignLeft' }),
+            tile('alignCenter', tl('alignCenter'), 'icon', {
+              icon: 'alignCenter',
+            }),
+            tile('alignRight', tl('alignRight'), 'icon', {
+              icon: 'alignRight',
+            }),
+          ],
+        },
       ],
     },
   ]
   if (u.textFonts)
-    sections.push({
-      id: 'advanced',
-      title: 'v8.format.advanced',
-      extras: ['fonts', 'lineHeight'],
-      tiles: [
-        tile('font', tl('font'), 'icon', { icon: 'font', jump: 'fonts' }),
-        tile('textSize', tl('textSize'), 'icon', {
-          icon: 'textSize',
-          inert: true,
-        }),
-        tile('color', tl('color'), 'icon', { icon: 'palette' }),
-        tile('highlight', tl('highlight'), 'icon', { icon: 'highlighter' }),
-      ],
-    })
-  return sections
+    tabs.push({ id: 'advanced', title: 'v8.format.advanced', groups: [] })
+  return tabs
 }
 
 export interface BoxLook {

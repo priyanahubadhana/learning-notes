@@ -74,6 +74,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-15 (day) · 2B.5b merged while several ipad-webkit tests still failed now and then (builder's call, against "red stops the line") (Opus manager).** Most were the createNotebook helper race (R9, fixed on chromium only in 2B.1), plus TB-23's missing divider locator. An Opus builder now fixes both as top priority (slice/fix-webkit-red); no other merge waits on webkit until it is green. Proposal for the owner at the phase end: merges need the task's ipad-webkit specs at 0 retries.
 - **2026-11-15 (night) · 2B.3 touched two files outside its brief (Opus manager; reviewer agreed):** a `textFirstTap` hook in `src/editor/tapSelect.ts` (unit-tested; inert with `textbox.v2` OFF) and one line in `playwright.config.ts` adding `/tb2-select/` to the ipad-webkit list (the brief requires ipad-webkit runs).
 - **2026-11-14 (night) · The ⋯ menus redesign (2A.2) also covers the v8 tool bar's ⋯ (MoreExtras) (Opus manager).** The builder found `toolbar.menu` only changed the old tray, which is hidden when `toolbar.v8` is ON, as in the "up to Phase 2A" preset the owner tests with. The owner's complaint (L3) is about the ⋯ menu they use, so the same design goes on both.
 - **2026-11-14 (night) · Up to four builders at once overnight (Opus manager).** The owner asked for Phases 1, 2A and the start of 2B overnight and approved the full team for 2B; ipad-webkit runs stay one at a time (R10), handed out by the manager.

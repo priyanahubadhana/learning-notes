@@ -1,14 +1,16 @@
 import type { IconName } from '../icons'
 import type { MessageKey } from '../../../i18n/t'
 import type { V8ToolId } from './registryV8'
+import { getBarPref } from './barPrefs'
 
 /**
  * What each tool shows in the tool row (second line). Slice 1b draws the
  * chips and opens an empty card; the card contents come with 1c to 1f, and
  * the Favourites chips with 1g. Order follows the spec (TB-21, TB-40).
  */
-/** erases = the Eraser's segmented "Erases" chips; flag = a chip that switches one setting. */
-export type ItemKind = 'menu' | 'toggle' | 'erases' | 'flag'
+/** erases = the Eraser's segmented chips; flag = a chip that switches one setting; lshape / lpicks = the Professional Lasso's chips. */
+export type ItemKind =
+  'menu' | 'toggle' | 'erases' | 'flag' | 'lshape' | 'lpicks'
 
 export interface RowItem {
   id: string
@@ -118,18 +120,50 @@ export function eraserRowItems(menus: boolean): readonly RowItem[] {
   return [menu('eraser', 'mode', 'v8.item.eraser', { icon: 'eraser' })]
 }
 
-/** The row's items now (only the Eraser changes with a setting). */
+export const cardIdOf = (item: RowItem): string => `${item.tool}.${item.id}`
+
+/**
+ * The Professional Lasso row (2A.11, mock v9): Free-hand / Rectangle and
+ * "Picks" right on the bar, then one Options menu. The Beginner row stays
+ * Shape ▾ and Actions ▾ (ROW_ITEMS.lasso).
+ */
+export const LASSO_PRO_ITEMS: readonly RowItem[] = [
+  {
+    id: 'lshape',
+    tool: 'lasso',
+    kind: 'lshape',
+    label: 'v8.item.shape',
+    icon: 'lasso',
+    card: 'pick',
+  },
+  {
+    id: 'lpicks',
+    tool: 'lasso',
+    kind: 'lpicks',
+    label: 'v8.lasso.picks',
+    icon: 'pen',
+    card: 'pick',
+  },
+  menu('lasso', 'opts', 'v8.item.options', { icon: 'sliders', card: 'panel' }),
+]
+
+/** The row's items now: the Eraser follows its setting, the Lasso its Professional look. */
 export const rowItemsFor = (
   tool: V8ToolId,
   eraserMenus: boolean,
+  lassoPro = false,
 ): readonly RowItem[] =>
-  tool === 'eraser' ? eraserRowItems(eraserMenus) : ROW_ITEMS[tool]
-
-export const cardIdOf = (item: RowItem): string => `${item.tool}.${item.id}`
+  tool === 'eraser'
+    ? eraserRowItems(eraserMenus)
+    : tool === 'lasso' && lassoPro
+      ? LASSO_PRO_ITEMS
+      : ROW_ITEMS[tool]
 
 /** The card a second tap on the active tool opens (TB-04). */
 export function firstCardOf(tool: V8ToolId): string {
   if (tool === 'insert') return 'insert'
+  // The Professional Lasso has no Shape menu on its bar: its first card is Options.
+  if (tool === 'lasso' && getBarPref('biggerLasso')) return 'lasso.opts'
   // The settings button in front (iconOnly) is never the "first card".
   const first = ROW_ITEMS[tool].find((i) => i.kind === 'menu' && !i.iconOnly)
   return first ? cardIdOf(first) : tool
@@ -143,6 +177,9 @@ export function cardInfo(
   title: MessageKey
   size: 'pick' | 'panel'
 } {
+  // The Lasso's folded chips: the picks open as a card of their own (2A.11).
+  if (id === 'lasso.picks') return { title: 'v8.lasso.picks', size: 'pick' }
+  if (id === 'lasso.opts') return { title: 'v8.lasso.options', size: 'panel' }
   // The Erases chips fold into this card on a narrow screen.
   if (id === 'eraser.options') return { title: 'v8.item.erases', size: 'pick' }
   if (id === 'eraser.mode' && !eraserMenus)

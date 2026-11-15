@@ -100,7 +100,7 @@ async function pickPicture(page: Page) {
 }
 
 for (const theme of ['day', 'night'] as const) {
-  test(`crops ${theme}: Colour picker, Lasso Actions`, async ({ page }) => {
+  test(`crops ${theme}: Colour picker, Lasso Options`, async ({ page }) => {
     await setUp(page, theme, true)
     await pickTool(page, 'shapes')
     await page.getByTestId('v8-chip-shapes.shape').click()
@@ -114,9 +114,9 @@ for (const theme of ['day', 'night'] as const) {
       .screenshot({ path: `${OUT}/1-colour-picker-${theme}.png` })
     await page.keyboard.press('Escape')
     await pickTool(page, 'lasso')
-    await page.getByTestId('v8-chip-lasso.actions').click()
+    await page.getByTestId('v8-chip-lasso.opts').click()
     await settle(page)
-    await card(page, 'lasso.actions').screenshot({
+    await card(page, 'lasso.opts').screenshot({
       path: `${OUT}/4-lasso-actions-groups-${theme}.png`,
     })
   })

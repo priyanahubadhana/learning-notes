@@ -201,7 +201,7 @@ const config = defineConfig({
         /settingsV3SearchF9/,
         // Toolbar v8 files. toolbarV8Paste needs the real clipboard permission, which WebKit lacks, so it
         // stays chromium only; toolbarV8PasteIpad covers the same behaviour here with a stubbed clipboard.
-        /toolbarV8(Bar|Frame|Pen|Row|Tools|Text|Insert|Tuck|PasteIpad|Round5).spec/,
+        /toolbarV8(Bar|Frame|Pen|Row|Tools|Text|Insert|Tuck|PasteIpad|Round5|Eraser).spec/,
         // 2A.cfg: the 2A specs also run on the iPad stand-in (toolbarV9 files match once they land).
         /toolbarV9(Names|Dark).spec/,
         /toolbarV8(Ninth|History).spec/,

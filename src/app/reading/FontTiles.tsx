@@ -37,10 +37,13 @@ export function FontTiles<T extends ReadingFont | 'default'>({
   value,
   none,
   onPick,
+  compact,
 }: {
   value: T
   none: 'app' | 'default'
   onPick: (font: T) => void
+  /** Four small "Aa" tiles in a row, each in its own face (the Format card). */
+  compact?: boolean
 }) {
   const customs = useLiveQuery(() => listFonts(db), [], [])
   const [sample, setSample] = useState(() => t('reading.fontSample'))
@@ -67,19 +70,21 @@ export function FontTiles<T extends ReadingFont | 'default'>({
 
   return (
     <div className="grid gap-1.5 px-1">
-      <input
-        type="text"
-        value={sample}
-        maxLength={80}
-        aria-label={t('font.sample')}
-        onChange={(e) => setSample(e.target.value)}
-        className="min-h-11 rounded-lg border border-line bg-bg px-2 text-sm"
-      />
+      {!compact && (
+        <input
+          type="text"
+          value={sample}
+          maxLength={80}
+          aria-label={t('font.sample')}
+          onChange={(e) => setSample(e.target.value)}
+          className="min-h-11 rounded-lg border border-line bg-bg px-2 text-sm"
+        />
+      )}
       <div
         role="radiogroup"
         aria-label={t('main.card.text.font')}
         data-card-chips="font"
-        className="grid grid-cols-2 gap-1"
+        className={`grid gap-1 ${compact ? 'grid-cols-4' : 'grid-cols-2'}`}
       >
         {tiles.map((tile) => {
           const on = tile.id === value
@@ -99,13 +104,21 @@ export function FontTiles<T extends ReadingFont | 'default'>({
                   : 'border-line text-ink hover:bg-hover'
               }`}
             >
-              <span className="text-[11px] font-semibold">{tile.name}</span>
+              <span
+                className={
+                  compact
+                    ? 'w-full truncate text-center text-[10px] font-semibold'
+                    : 'text-[11px] font-semibold'
+                }
+              >
+                {tile.name}
+              </span>
               <span
                 aria-hidden="true"
                 style={style(tile.id)}
-                className="w-full truncate text-sm"
+                className={`w-full truncate ${compact ? 'text-center text-lg' : 'text-sm'}`}
               >
-                {sample}
+                {compact ? 'Aa' : sample}
               </span>
             </button>
           )

@@ -424,9 +424,6 @@
   background: var(--color-hover);
   animation: ln-wiggle 0.3s ease-in-out infinite alternate;
 }
-.v8slot[data-dragging] {
-  z-index: 2;
-}
 .v8slot[data-dragging] .v8tool {
   animation: none;
   transform: scale(1.1);
@@ -441,7 +438,6 @@
   position: absolute;
   top: -4px;
   left: -4px;
-  z-index: 1;
   display: grid;
   place-items: center;
   width: 20px;

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react'
 import { t } from '../../../i18n/t'
+import { onRouted, PRIORITY } from '../../input/eventRouter'
 import { type IconName } from '../icons'
 import { findTool, toolLabel } from '../toolRegistry'
 import { metaOf } from '../toolRegistryMeta'
@@ -126,14 +127,14 @@ export function useEditDrag(): {
         // A click that follows the drop is swallowed; none comes after a cancel.
         window.setTimeout(() => (s.current.suppress = false), 0)
       }
-      window.addEventListener('pointermove', move)
-      window.addEventListener('pointerup', end)
-      window.addEventListener('pointercancel', end)
-      off.current = () => {
-        window.removeEventListener('pointermove', move)
-        window.removeEventListener('pointerup', end)
-        window.removeEventListener('pointercancel', end)
-      }
+      // Watch only: the router hands the pointer to us, never "handled".
+      const opts = { priority: PRIORITY.gesture, name: 'v8-bar-edit-drag' }
+      const offs = [
+        onRouted('pointermove', (ev) => void move(ev), opts),
+        onRouted('pointerup', (ev) => void end(ev), opts),
+        onRouted('pointercancel', (ev) => void end(ev), opts),
+      ]
+      off.current = () => offs.forEach((o) => o())
     },
   }
 }

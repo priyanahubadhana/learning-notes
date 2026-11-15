@@ -187,10 +187,10 @@ export function AttentionBanner({
       type="button"
       aria-label={t('popup.close')}
       onClick={dismiss}
-      className="-my-1 grid h-11 w-11 shrink-0 place-items-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-current"
+      className="absolute start-1 top-[env(safe-area-inset-top)] grid h-11 w-11 place-items-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-current"
     >
       <span
-        className={`grid h-[22px] w-[22px] place-items-center rounded-full ${bright ? 'bg-white/20' : 'bg-line/60'}`}
+        className={`grid h-[22px] w-[22px] place-items-center rounded-full ${bright ? 'bg-[color-mix(in_srgb,var(--color-on-accent)_30%,transparent)]' : 'bg-line'}`}
       >
         <X size={10} strokeWidth={2.4} aria-hidden />
       </span>
@@ -212,16 +212,14 @@ export function AttentionBanner({
       data-chrome
       data-testid="attention-banner"
       data-code={attention.code}
-      className={`fixed inset-x-0 top-0 z-40 flex min-h-11 items-center ${shellOn ? 'justify-between pl-1' : 'justify-center'} gap-2 px-4 pt-[env(safe-area-inset-top)] text-[13px] ${
+      className={`fixed inset-x-0 top-0 z-40 flex min-h-11 items-center ${shellOn ? 'relative px-12' : 'px-4'} justify-center gap-2 pt-[env(safe-area-inset-top)] text-[13px] ${
         bright
           ? 'bg-accent font-medium text-white'
           : 'border-b border-line bg-hover text-ink'
       }`}
     >
       {shellOn && closeButton}
-      <span className={shellOn ? 'min-w-0 flex-1 text-center' : undefined}>
-        {text}
-      </span>
+      <span>{text}</span>
       <button
         type="button"
         onClick={action.run}

@@ -63,6 +63,9 @@ test('banner: the ✕ is on the leading edge, the action on the trailing edge, a
   expect(b!.height).toBeLessThanOrEqual(48)
   await banner.getByRole('button', { name: 'Close' }).click()
   await expect(banner).toHaveCount(0)
-  // The action did not run: still on the home page, not in Settings.
-  expect(page.url()).not.toContain('settings')
+  // The action did not run: Settings did not open.
+  await page.waitForTimeout(400)
+  await expect(
+    page.getByRole('heading', { name: 'Settings', level: 1 }),
+  ).toBeHidden()
 })

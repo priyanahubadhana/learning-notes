@@ -20,14 +20,15 @@
 
 **HOLD (main chat, 15 Nov):** no merge or push to `build/next` until "owner test done" (owner's Phase 1 re-test). Webkit lent to the Journal repair (H) until the main chat says done.
 
-| Task  | Branch @ head (working copy)         | State                                                                                                               |
-| ----- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4) | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it)                      |
-| 2A.5  | `slice/2a5` ac433b20 (ln-2a5)        | PASS, webkit green, build/next merged in; merge into build/next blocked by the permission check, with the main chat |
-| 2A.14 | `slice/2a14` a63335f8 (ln-2a14)      | review PASS (Opus took over after the Layout-row FAILs); webkit running; then merge in the next window              |
-| rule  | 2A.14's settings rows + Layout       | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                                             |
-| wheel | `slice/tb2-phone-wheel`              | merged b2872d53, CI green (run 43704785412)                                                                         |
-| rest  | 2A.6–2A.13, 2A.15, 2A.16             | not started; next after the first three merge (shared tool bar files)                                               |
+| Task  | Branch @ head (working copy)                                                       | State                                                                                          |
+| ----- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)                                               | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it) |
+| 2A.5  | `slice/2a5` ac433b20 (ln-2a5)                                                      | PASS, webkit green; merge waits for the owner's answer on helper merges                        |
+| 2A.14 | `slice/2a14` a63335f8 (ln-2a14)                                                    | review PASS; webkit waits for the config task below (decision B)                               |
+| cfg   | add the 2A specs to the ipad-webkit list (playwright.config.ts, hot, merged alone) | first task after "owner test done" (decision B, main chat)                                     |
+| rule  | 2A.14's settings rows + Layout                                                     | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                        |
+| wheel | `slice/tb2-phone-wheel`                                                            | merged b2872d53, CI green (run 43704785412)                                                    |
+| rest  | 2A.6–2A.13, 2A.15, 2A.16                                                           | not started; next after the first three merge (shared tool bar files)                          |
 
 ## Waiting (each has its step)
 

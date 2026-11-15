@@ -105,6 +105,27 @@ const loopAround = (b: Box, pad = 5): Pt[] => {
   return corners.slice(1).flatMap((c, i) => line(corners[i], c, 10))
 }
 
+/** A box's corners `dx`/`dy` outside it: bottom right, bottom left, top left, top right. */
+const corners = (b: Box, dx: number, dy: number): Pt[] => [
+  [b.x + b.width + dx, b.y + b.height + dy],
+  [b.x - dx, b.y + b.height + dy],
+  [b.x - dx, b.y - dy],
+  [b.x + b.width + dx, b.y - dy],
+]
+
+/** The first of the points where a press is not on a button (fails if none). */
+async function firstOffButton(page: Page, pts: Pt[]): Promise<number> {
+  const k = await page.evaluate(
+    (ps) =>
+      ps.findIndex(
+        ([x, y]) => !document.elementFromPoint(x, y)?.closest('button'),
+      ),
+    pts,
+  )
+  if (k < 0) throw new Error('every start point is on a pill button')
+  return k
+}
+
 const marked = (page: Page) =>
   page.evaluate(() =>
     [...document.querySelectorAll('.bn-editor .ln-sel')]
@@ -191,21 +212,31 @@ for (const shape of ['free', 'rect'] as const) {
       const rows = [0, 2, 0, 2, 0]
       for (let i = 0; i < rows.length; i++) {
         const { phrase, box } = await rowPhrase(page, rows[i], 1 + (i % 2))
-        // Start where no pill button is (bottom right, else top left).
-        const br: Pt = [box.x + box.width + 5, box.y + box.height + 5]
-        const tl: Pt = [box.x - 5, box.y - 5]
-        const onButton = await page.evaluate(
-          ([x, y]) => !!document.elementFromPoint(x, y)?.closest('button'),
-          br,
-        )
+        // Start where no pill button is. The pill keeps 8 px above the words
+        // it formats (BUG-002), so it can lie over this whole phrase: then
+        // only the gaps between its buttons pass a touch to the page, and
+        // the loop starts in one of them (a press on a button is the button's).
         if (shape === 'free') {
-          const c: Pt[] = onButton
-            ? [tl, [br[0], tl[1]], br, [tl[0], br[1]], [tl[0] + 1, tl[1] + 2]]
-            : [br, [tl[0], br[1]], tl, [br[0], tl[1]], [br[0] - 1, br[1] - 2]]
-          const path = c.slice(1).flatMap((q, k) => line(c[k], q, 10))
+          const ring = corners(box, 5, 5)
+          const pts = ring.flatMap((q, k) => line(q, ring[(k + 1) % 4], 10))
+          const k = await firstOffButton(page, pts)
+          const path = [...pts.slice(k), ...pts.slice(0, k)]
+          path.push([pts[k][0] - 1, pts[k][1] - 2])
           await stroke(page, path, { id: 60 + i })
         } else {
-          const [from, to] = onButton ? [tl, br] : [br, tl]
+          // A rectangle starts at a corner: a corner a few px further out
+          // (still short of the next words' centres) may sit in a gap.
+          const tries: [Pt, Pt][] = []
+          for (let dy = 5; dy <= 10; dy++)
+            for (let dx = 5; dx <= 14; dx++) {
+              const c = corners(box, dx, dy)
+              for (let k = 0; k < 4; k++) tries.push([c[k], c[(k + 2) % 4]])
+            }
+          const k = await firstOffButton(
+            page,
+            tries.map(([from]) => from),
+          )
+          const [from, to] = tries[k]
           await stroke(page, line(from, to, 12), { id: 60 + i })
         }
         await expect

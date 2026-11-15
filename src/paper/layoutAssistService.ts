@@ -11,6 +11,7 @@ import {
 } from './boxService'
 import { layoutRows, migrateToRows, reconcile } from './grid'
 import { arrangeAll } from './layoutPlan'
+import { stillFull } from './v2/boxFull'
 
 /**
  * Layout Assist writes (bug batch 2, items 7 and 10): one transaction per
@@ -60,13 +61,21 @@ export async function applyLayout(
       if (cur && id !== MAIN_BOX && !fresh.includes(id) && !cur.locked)
         stored.set(id, clampBox({ ...cur, ...patch }, sheet.w))
     }
-    const boxes = [...stored.values()]
+    const all = [...stored.values()]
+    const finalRows = reconcile(rows, [
+      MAIN_BOX,
+      ...all.filter((b) => b.id !== MAIN_BOX).map((b) => b.id),
+    ])
+    // Full width (text box v2) is only true while the box spans its row.
+    const boxes = all.map((b) => {
+      if (!b.full || stillFull(finalRows, b.id)) return b
+      const rest = { ...b }
+      delete rest.full
+      return rest
+    })
     await db.pages.update(pageId, {
       boxes: boxes.length ? boxes : undefined,
-      rows: reconcile(rows, [
-        MAIN_BOX,
-        ...boxes.filter((b) => b.id !== MAIN_BOX).map((b) => b.id),
-      ]),
+      rows: finalRows,
       updatedAt: Date.now(),
     })
     return before
@@ -147,6 +156,44 @@ export async function applyNotebook(
     })
   }
   return out
+}
+
+/**
+ * Undo of `applyNotebook`: puts back only the layout (the rows and each box's
+ * x, y and width). Everything else done since stays. A page whose boxes no
+ * longer match the snapshot (a box added or deleted) is skipped; returns how
+ * many pages were skipped.
+ */
+export async function undoNotebookLayout(
+  db: LearningNotesDB,
+  all: readonly { pageId: string; before: GridBefore }[],
+): Promise<number> {
+  let skipped = 0
+  for (const { pageId, before } of all) {
+    const page = await db.pages.get(pageId)
+    const cur = page?.boxes ?? []
+    const snap = before.boxes ?? []
+    if (
+      !page ||
+      cur.length !== snap.length ||
+      !snap.every((b) => cur.some((c) => c.id === b.id))
+    ) {
+      skipped++
+      continue
+    }
+    const was = new Map(snap.map((b) => [b.id, b]))
+    await db.pages.update(pageId, {
+      rows: before.rows,
+      boxes: cur.length
+        ? cur.map((c) => {
+            const o = was.get(c.id)!
+            return { ...c, x: o.x, y: o.y, w: o.w }
+          })
+        : undefined,
+      updatedAt: Date.now(),
+    })
+  }
+  return skipped
 }
 
 /** Undo of `applyNotebook`. */

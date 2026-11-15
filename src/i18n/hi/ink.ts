@@ -113,6 +113,8 @@ export const hiInk = {
   'boxCard.quick': 'तुरंत रंग',
   'boxCard.save': 'मेरे रूप के रूप में सहेजें',
   'boxCard.saveName': 'मेरा रूप {n}',
+  'boxCard.undoSkipped':
+    'पूर्ववत ने {n} पन्नों को जैसा है वैसा छोड़ा, क्योंकि वे बाद में बदले गए।',
   'boxCard.sections': 'खंड',
   'boxCard.deleteLayout': 'लेआउट हटाएँ',
   'boxCard.fullWidth': 'पूरी चौड़ाई',

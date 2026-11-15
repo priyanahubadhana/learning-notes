@@ -1,5 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
 import { Glow } from '../../app/tools/v8/Glow'
 import {
@@ -38,7 +39,7 @@ import { updateBox } from '../boxService'
 import {
   applyLayout,
   applyNotebook,
-  restoreNotebook,
+  undoNotebookLayout,
 } from '../layoutAssistService'
 import { arrangeAll, noteRecentLayout, type GridInfo } from '../layoutPlan'
 import { placesOf } from '../grid'
@@ -124,6 +125,7 @@ export default function BoxCard({
   onClose: () => void
 }) {
   const phone = usePhone()
+  const { toast } = useContext(AppUiContext)
   const proBox = useUnlocked('tb.textBox')
   const proLayouts = useUnlocked('tb.layouts')
   const page = useLiveQuery(() => db.pages.get(pageId), [db, pageId])
@@ -243,7 +245,11 @@ export default function BoxCard({
       pushStep({
         label: t('layout.title'),
         kind: 'notebookLayout',
-        undo: () => quietAsync(() => restoreNotebook(db, before)),
+        undo: () =>
+          quietAsync(async () => {
+            const skipped = await undoNotebookLayout(db, before)
+            if (skipped) toast(t('boxCard.undoSkipped', { n: skipped }))
+          }),
         redo: () => quietAsync(() => applyNotebook(db, nb, presetId)),
       })
       noteRecentLayout(presetId)

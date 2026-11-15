@@ -588,3 +588,54 @@ test('TB-25: a wide box low on the page: the card is capped at the room there is
   expect(solid[1]).toBe('none')
   expect(solid[2]).not.toMatch(/rgba\(.*, 0(\.\d+)?\)/)
 })
+
+test('TB-28: Undo of "all pages" keeps edits made since: a box added on another page stays, that page is skipped and a toast says so', async ({
+  page,
+}) => {
+  await start(page, 'TB28keep')
+  const a = await addBox(page, 'Alpha')
+  const b = await addBox(page, 'Bravo')
+  await addPage(page, 'Paper', 'Second')
+  await typeInEditor(page, 'Main two')
+  const c = await addBox(page, 'Charlie')
+  const d = await addBox(page, 'Delta')
+  await openCard(page, d)
+  await page.getByTestId('bc-tab-layout').tap()
+  await tapSwitch(
+    card(page).getByRole('switch', {
+      name: 'Apply to all pages in the notebook',
+    }),
+  )
+  await page.getByTestId('bc-layout-two').tap()
+  await expect.poll(() => sameRow(c, d)).toBe(true)
+  await page.keyboard.press('Escape')
+  // An edit on the first page in between: a new box.
+  await openPage(page, 'TB28keep')
+  await expect.poll(() => sameRow(a, b)).toBe(true)
+  await addBox(page, 'Echo')
+  await expect(page.locator(EXTRA)).toHaveCount(3)
+  // Undo, where it was done: that page goes back, the edited page is left alone.
+  await openPage(page, 'Second')
+  await page.getByRole('button', { name: 'Undo' }).last().click()
+  await expect.poll(() => sameRow(c, d)).toBe(false)
+  await expect(page.locator('[data-toast]')).toContainText('Undo left 1 pages')
+  await openPage(page, 'TB28keep')
+  await expect(page.locator(EXTRA)).toHaveCount(3)
+  await expect.poll(() => sameRow(a, b)).toBe(true)
+})
+
+test('TB-27: a later layout that moves a box off its full row switches Full width off', async ({
+  page,
+}) => {
+  await start(page, 'TB27clear')
+  const a = await addBox(page, 'Alpha')
+  const b = await addBox(page, 'Bravo')
+  await openCard(page, b)
+  await tapSwitch(fullSwitch(page))
+  await expect(fullSwitch(page)).toHaveAttribute('aria-checked', 'true')
+  await page.getByTestId('bc-tab-layout').tap()
+  await page.getByTestId('bc-layout-two').tap()
+  await expect.poll(() => sameRow(a, b)).toBe(true)
+  await page.getByTestId('bc-tab-box').tap()
+  await expect(fullSwitch(page)).toHaveAttribute('aria-checked', 'false')
+})

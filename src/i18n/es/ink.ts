@@ -113,6 +113,8 @@ export const esInk = {
   'boxCard.quick': 'Colores rápidos',
   'boxCard.save': 'Guardar como mi aspecto',
   'boxCard.saveName': 'Mi aspecto {n}',
+  'boxCard.undoSkipped':
+    'Deshacer dejó {n} páginas como están, porque se editaron después.',
   'boxCard.sections': 'Secciones',
   'boxCard.deleteLayout': 'Eliminar diseño',
   'boxCard.fullWidth': 'Ancho completo',

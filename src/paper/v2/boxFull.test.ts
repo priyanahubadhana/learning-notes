@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { GridRow } from '../../core/types'
-import { narrow, widen } from './boxFull'
+import { narrow, stillFull, widen } from './boxFull'
 
 const geo = { sheetW: 210, left: 15, right: 15 }
 const grid = (): GridRow[] => [
@@ -48,5 +48,11 @@ describe('Full width (TB-27)', () => {
   })
   it('a box that is not in the rows changes nothing', () => {
     expect(widen(grid(), 'zzz', geo)).toBeNull()
+  })
+  it('a box in a row of two columns is no longer full width', () => {
+    expect(stillFull(grid(), 'a')).toBe(false)
+    expect(stillFull(grid(), 'main')).toBe(true)
+    const on = widen(grid(), 'b', geo)!
+    expect(stillFull(on.rows, 'b')).toBe(true)
   })
 })

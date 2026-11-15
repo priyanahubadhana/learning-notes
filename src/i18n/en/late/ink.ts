@@ -113,6 +113,8 @@ export const enLateInk = {
   'boxCard.quick': 'Quick colours',
   'boxCard.save': 'Save as my look',
   'boxCard.saveName': 'My look {n}',
+  'boxCard.undoSkipped':
+    'Undo left {n} pages as they are, because they were edited since.',
   'boxCard.sections': 'Sections',
   'boxCard.deleteLayout': 'Delete layout',
   'boxCard.fullWidth': 'Full width',

@@ -92,3 +92,9 @@ export function narrow(
     k === i ? [] : k === j ? [{ ...r, cols: merged }] : [r],
   )
 }
+
+/** Does the box still span its whole row? A box in a row of two or three columns does not. */
+export const stillFull = (rows: readonly GridRow[], id: string): boolean => {
+  const i = rowOf(rows, id)
+  return i < 0 || rows[i].cols.length === 1
+}

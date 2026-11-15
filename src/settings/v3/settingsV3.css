@@ -973,3 +973,35 @@
 .sv3-hit .sv3-line-help {
   display: block;
 }
+
+/* The tool bar rows (2A.14), as the approved picture: the switch or the 3 | 4 choice on the right. */
+.sv3-row[data-inline] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-4);
+  align-items: center;
+}
+.sv3-row[data-inline] > * {
+  grid-column: 1;
+}
+.sv3-row[data-inline] > .sv3-row-control {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  margin-top: 0;
+}
+@media (max-width: 640px) {
+  .sv3-row[data-inline='choice'] > .sv3-row-control {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: var(--space-3);
+  }
+}
+.sv3-row-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+.sv3-group-head {
+  padding-bottom: var(--space-3);
+}

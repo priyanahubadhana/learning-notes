@@ -243,4 +243,21 @@ export const enLateSettings = {
     'One tap sets the five tool bar rows below. Beginner: all off, 3 format tabs. Professional: all on, 4 format tabs. You can still change each row after. Neither is marked when the rows are mixed.',
   'settings.layoutShortcut.beginner': 'Beginner',
   'settings.layoutShortcut.professional': 'Professional',
+  'settings.toolbarGroup.title': 'Tool bar',
+  'settings.toolbarGroup.lead':
+    'Layout sets these five at once: Beginner = all off, 3 tabs. Professional = all on, 4 tabs.',
+  'settings.layoutShortcut.help': 'One tap sets the five rows below.',
+  'settings.layoutShortcut.help.custom':
+    'The rows below are mixed, so neither is chosen.',
+  'settings.toolNames.help.on': 'On: a name beside each tool icon.',
+  'settings.toolNames.help.off': 'Off: icons only.',
+  'settings.formatTabs.help.3': '3 tabs: Text, Style, Paragraph.',
+  'settings.formatTabs.help.4': '4 tabs: Text, Style, Paragraph, Advanced.',
+  'settings.backToPen.help.on':
+    'On: one button goes back to the tool you used before.',
+  'settings.backToPen.help.off': 'Off: no back button on the bar.',
+  'settings.eraserMenus.help.on': 'On: Mode, Size and Erases, each on the bar.',
+  'settings.eraserMenus.help.off': 'Off: one simple eraser menu.',
+  'settings.biggerLasso.help.on': 'On: Lasso choices in a menu.',
+  'settings.biggerLasso.help.off': 'Off: a short Lasso row.',
 }

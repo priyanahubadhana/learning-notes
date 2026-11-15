@@ -1,5 +1,14 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { Suspense, lazy, use, useEffect, useId, useRef, useState } from 'react'
+import {
+  Fragment,
+  Suspense,
+  lazy,
+  use,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from 'react'
 import { revealWhenReady } from '../editor/revealBlock'
 import { AppUiContext } from '../app/appUi'
 import type { LearningNotesDB } from '../core/db'
@@ -29,6 +38,13 @@ import './spaceSettings'
 import './labSettings'
 import './flagSettings'
 import { useShownByFlags } from './flagGate'
+import { OnOff } from '../design/parts/OnOff'
+import {
+  barRowHelp,
+  isBarPartRow,
+  LAYOUT_ROW,
+  ToolbarGroupHead,
+} from './toolbarRows'
 import './readingSettings'
 import './lockSettings'
 import '../ai/aiSettings'
@@ -144,10 +160,10 @@ export function SettingsScreen({
       <h1 className="text-[32px] leading-tight font-bold tracking-[-0.02em]">
         {t('settings.title')}
       </h1>
-      <div className="mt-6 flex flex-col gap-4 md:grid md:grid-cols-[170px_1fr] md:gap-8">
+      <div className="mt-6 flex flex-col gap-4 lg:grid lg:grid-cols-[170px_1fr] lg:gap-8">
         <nav
           aria-label={t('settings.categories')}
-          className="-mx-4 flex gap-1.5 overflow-x-auto px-4 md:mx-0 md:flex-col md:gap-0.5 md:px-0"
+          className="-mx-4 flex gap-1.5 overflow-x-auto px-4 lg:mx-0 lg:flex-col lg:gap-0.5 lg:px-0"
         >
           {tabs.map((tab) => (
             <button
@@ -156,10 +172,10 @@ export function SettingsScreen({
               onClick={() => setCategory(tab.id)}
               aria-current={tab.id === category ? 'page' : undefined}
               aria-label={`${tab.label}, ${t('settings.count', { count: tab.count })}`}
-              className={`flex min-h-9 shrink-0 items-center gap-2 rounded-full border px-3 text-sm transition-colors md:rounded-lg md:border-transparent md:px-2.5 ${
+              className={`flex min-h-9 shrink-0 items-center gap-2 rounded-full border px-3 text-sm transition-colors lg:rounded-lg lg:border-transparent lg:px-2.5 ${
                 tab.id === category
-                  ? 'border-ink font-semibold md:bg-hover'
-                  : 'border-line text-muted hover:bg-hover md:text-ink'
+                  ? 'border-ink font-semibold lg:bg-hover'
+                  : 'border-line text-muted hover:bg-hover lg:text-ink'
               }`}
             >
               <span className="flex-1 text-left">{tab.label}</span>
@@ -215,7 +231,12 @@ export function SettingsScreen({
             </p>
           )}
           {shown.map((s) => (
-            <SettingRow key={s.id} db={db} definition={s} category={category} />
+            <Fragment key={s.id}>
+              {s.id === LAYOUT_ROW && (category !== ALL || !q) && (
+                <ToolbarGroupHead />
+              )}
+              <SettingRow db={db} definition={s} category={category} />
+            </Fragment>
           ))}
           {shown.length === 0 && (
             <p className="py-6 text-muted">
@@ -361,38 +382,82 @@ function RowLayout({
       const cat = settingsRegistry.categories().find((x) => x.id === c)
       return cat ? t(cat.labelKey) : c
     })
+  // The tool bar parts: a switch (or the 3 | 4 choice) on the right, a short line that follows the value.
+  const side = isBarPartRow(definition.id)
+  const isSwitch =
+    side &&
+    definition.control.kind === 'segmented' &&
+    definition.id !== 'advanced.formatTabs'
+  const help = barRowHelp(definition.id, value) ?? t(definition.descriptionKey)
+  const control = (
+    <div className={side ? 'shrink-0' : 'mt-2.5'}>
+      {isSwitch ? (
+        <OnOff
+          label={t(definition.labelKey)}
+          describedBy={descId}
+          checked={value === 'on'}
+          onChange={(next) => onSave(next ? 'on' : 'off')}
+        />
+      ) : (
+        <>
+          {/* key: re-create the control when the saved value changes elsewhere */}
+          <Control
+            key={
+              definition.control.kind === 'labels'
+                ? 'labels'
+                : JSON.stringify(value)
+            }
+            definition={definition}
+            control={definition.control}
+            value={value}
+            onSave={onSave}
+            labelId={labelId}
+            descId={descId}
+          />
+          {extra}
+        </>
+      )}
+    </div>
+  )
+  const text = (
+    <>
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 id={labelId} className="font-semibold">
+          {t(definition.labelKey)}
+        </h2>
+        {side && !isDefault && (
+          <span
+            data-testid="row-changed"
+            aria-hidden
+            className="h-2 w-2 rounded-full bg-accent"
+          />
+        )}
+        <SettingSyncBadge definition={definition} />
+      </div>
+      <p id={descId} className="mt-0.5 text-[13px] text-muted">
+        {help}
+      </p>
+    </>
+  )
   return (
     <section
       data-setting-id={definition.id}
       aria-labelledby={labelId}
       className="border-b border-line py-4 last:border-b-0"
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 id={labelId} className="font-semibold">
-          {t(definition.labelKey)}
-        </h2>
-        <SettingSyncBadge definition={definition} />
-      </div>
-      <p id={descId} className="mt-0.5 text-[13px] text-muted">
-        {t(definition.descriptionKey)}
-      </p>
-      <div className="mt-2.5">
-        {/* key: re-create the control when the saved value changes elsewhere */}
-        <Control
-          key={
-            definition.control.kind === 'labels'
-              ? 'labels'
-              : JSON.stringify(value)
-          }
-          definition={definition}
-          control={definition.control}
-          value={value}
-          onSave={onSave}
-          labelId={labelId}
-          descId={descId}
-        />
-        {extra}
-      </div>
+      {side ? (
+        <div
+          className={`flex gap-4 ${isSwitch ? 'items-center' : 'flex-col gap-2 sm:flex-row sm:items-center'}`}
+        >
+          <div className="min-w-0 flex-1">{text}</div>
+          {control}
+        </div>
+      ) : (
+        <>
+          {text}
+          {control}
+        </>
+      )}
       {(otherCategories.length > 0 && definition.alsoIn) || !isDefault ? (
         <div className="mt-2 flex flex-wrap gap-x-3 text-xs text-muted">
           {definition.alsoIn && otherCategories.length > 0 && (

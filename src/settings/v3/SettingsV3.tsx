@@ -21,6 +21,7 @@ import { SectionReset } from './SectionReset'
 import { PreviewPane } from './PreviewPane'
 import { PreviewPill } from './PreviewPill'
 import { SettingRow } from './SettingRow'
+import { LAYOUT_ROW, ToolbarGroupHead } from '../toolbarRows'
 import type { Change } from './changeNote'
 import { ClearField } from '../../design/parts/ClearField'
 import { SearchResults } from './SearchResults'
@@ -267,6 +268,7 @@ function SettingsV3Body({
           {!searching &&
             rows.map((s) => (
               <Fragment key={s.id}>
+                {s.id === LAYOUT_ROW && <ToolbarGroupHead />}
                 <SettingRow
                   db={db}
                   definition={s}

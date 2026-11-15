@@ -14,36 +14,46 @@ const SIZES = [
 test.skip(!process.env.SHOTS, 'pictures are taken by hand (SHOTS=1)')
 test.use({ hasTouch: true })
 
-for (const level of ['beginner', 'professional'] as const)
-  for (const theme of ['light', 'dark'] as const)
-    for (const [size, width, height] of SIZES)
-      test(`layout ${level} ${theme} ${size}`, async ({ page }) => {
-        await page.setViewportSize({ width, height })
-        await page.emulateMedia({ colorScheme: theme })
-        await page.addInitScript(
-          (x) => {
-            localStorage.setItem(
-              'learning-notes:level',
-              JSON.stringify({ level: x.level, unlocked: [] }),
-            )
-            localStorage.setItem(
-              'learning-notes:theme',
-              JSON.stringify(x.theme === 'dark' ? 'night' : x.theme),
-            )
-          },
-          { level, theme },
-        )
-        await page.goto('/?flags=toolbar.v8#/settings')
-        await page.reload()
-        await page
-          .getByRole('tab', { name: /advanced/i })
-          .first()
-          .click()
-          .catch(() => {})
-        const row = page.locator('[data-setting-id="advanced.layoutShortcut"]')
-        await row.waitFor()
-        await row.scrollIntoViewIfNeeded()
-        await page.waitForTimeout(600)
-        mkdirSync(OUT, { recursive: true })
-        await page.screenshot({ path: `${OUT}/${level}-${theme}-${size}.png` })
-      })
+for (const screen of ['today', 'v3'] as const)
+  for (const level of ['beginner', 'professional'] as const)
+    for (const theme of ['light', 'dark'] as const)
+      for (const [size, width, height] of SIZES)
+        test(`layout ${screen} ${level} ${theme} ${size}`, async ({ page }) => {
+          await page.setViewportSize({ width, height })
+          await page.emulateMedia({ colorScheme: theme })
+          await page.addInitScript(
+            (x) => {
+              localStorage.setItem(
+                'learning-notes:level',
+                JSON.stringify({ level: x.level, unlocked: [] }),
+              )
+              localStorage.setItem(
+                'learning-notes:theme',
+                JSON.stringify(x.theme === 'dark' ? 'night' : x.theme),
+              )
+            },
+            { level, theme },
+          )
+          await page.goto(
+            screen === 'v3'
+              ? '/?flags=toolbar.v8,settings.v3#/settings/toolbar'
+              : '/?flags=toolbar.v8#/settings',
+          )
+          await page.reload()
+          if (screen === 'today')
+            await page
+              .getByRole('tab', { name: /advanced/i })
+              .first()
+              .click()
+              .catch(() => {})
+          const row = page.locator(
+            '[data-setting-id="advanced.layoutShortcut"]',
+          )
+          await row.waitFor()
+          await page.getByTestId('toolbar-group-head').scrollIntoViewIfNeeded()
+          await page.waitForTimeout(600)
+          mkdirSync(OUT, { recursive: true })
+          await page.screenshot({
+            path: `${OUT}/${screen}-${level}-${theme}-${size}.png`,
+          })
+        })

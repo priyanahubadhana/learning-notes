@@ -20,16 +20,8 @@ import { takeJustShown } from './experience'
 import { ShowInBeginner } from './ShowInBeginner'
 import { isProFeatureId } from '../level'
 import { RowPreview } from './RowPreview'
+import { barRowHelp, isBarPartRow, LAYOUT_ROWS } from '../toolbarRows'
 import { valueText, type Change } from './changeNote'
-
-/** The five rows the Layout shortcut sets. */
-const LAYOUT_ROWS = [
-  'advanced.toolNames',
-  'advanced.formatTabs',
-  'advanced.backToPen',
-  'advanced.eraserMenus',
-  'advanced.biggerLasso',
-]
 
 interface RowProps {
   db: LearningNotesDB
@@ -162,11 +154,21 @@ function RowBody({
       data-glow={glow > 0 ? 'on' : undefined}
       aria-labelledby={labelId}
       className="sv3-row"
+      data-inline={
+        isBarPartRow(definition.id)
+          ? definition.id === 'advanced.formatTabs'
+            ? 'choice'
+            : 'switch'
+          : undefined
+      }
     >
       <div className="sv3-row-head">
         <h3 id={labelId} className="sv3-row-name">
           {name}
         </h3>
+        {isBarPartRow(definition.id) && !isDefault && (
+          <span data-testid="row-changed" aria-hidden className="sv3-row-dot" />
+        )}
         <SettingSyncBadge definition={definition} />
         <WhyLink
           mark
@@ -178,7 +180,7 @@ function RowBody({
         </WhyLink>
       </div>
       <p id={descId} className="sv3-line-help">
-        {t(definition.descriptionKey)}
+        {barRowHelp(definition.id, value) ?? t(definition.descriptionKey)}
       </p>
       <div className="sv3-row-control">
         <RowControl

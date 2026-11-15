@@ -474,4 +474,22 @@ export const hiSettings = {
     'एक टैप से नीचे की पाँचों टूल बार पंक्तियाँ सेट होती हैं। शुरुआती: सब बंद, 3 फ़ॉर्मेट टैब। प्रोफ़ेशनल: सब चालू, 4 टैब। बाद में हर पंक्ति बदल सकते हैं। पंक्तियाँ मिली-जुली हों तो कोई चिह्नित नहीं होता।',
   'settings.layoutShortcut.beginner': 'शुरुआती',
   'settings.layoutShortcut.professional': 'प्रोफ़ेशनल',
+  'settings.toolbarGroup.title': 'टूल बार',
+  'settings.toolbarGroup.lead':
+    'लेआउट इन पाँचों को एक साथ सेट करता है: शुरुआती = सब बंद, 3 टैब। प्रोफ़ेशनल = सब चालू, 4 टैब।',
+  'settings.layoutShortcut.help':
+    'एक टैप से नीचे की पाँच पंक्तियाँ सेट होती हैं।',
+  'settings.layoutShortcut.help.custom':
+    'नीचे की पंक्तियाँ मिली-जुली हैं, इसलिए कोई चिह्नित नहीं है।',
+  'settings.toolNames.help.on': 'चालू: हर टूल आइकन के पास नाम।',
+  'settings.toolNames.help.off': 'बंद: सिर्फ़ आइकन।',
+  'settings.formatTabs.help.3': '3 टैब: टेक्स्ट, स्टाइल, पैराग्राफ़।',
+  'settings.formatTabs.help.4': '4 टैब: टेक्स्ट, स्टाइल, पैराग्राफ़, उन्नत।',
+  'settings.backToPen.help.on':
+    'चालू: एक बटन पहले वाले टूल पर वापस ले जाता है।',
+  'settings.backToPen.help.off': 'बंद: बार पर वापस जाने का बटन नहीं।',
+  'settings.eraserMenus.help.on': 'चालू: मोड, आकार और मिटाता है, बार पर।',
+  'settings.eraserMenus.help.off': 'बंद: एक सरल इरेज़र मेनू।',
+  'settings.biggerLasso.help.on': 'चालू: लैस्सो के विकल्प एक मेनू में।',
+  'settings.biggerLasso.help.off': 'बंद: छोटी लैस्सो पंक्ति।',
 }

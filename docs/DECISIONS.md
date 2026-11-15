@@ -77,6 +77,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-15 · 2A.14 Layout shortcut when the five rows are mixed (builder, safest option).** The Layout row (Beginner | Professional) shows neither button chosen when the rows are mixed (value "custom"; tapping a button sets all five). It never guesses the nearest one, so it never claims a look the bar does not have. One tap is one Undo step that gives each row its earlier value (rows become explicit on/off, no longer "follow my level"). Only with `toolbar.v8` on.
+
 - **2026-11-15 · P1.9 T8 Format › Advanced tiles (builder).** The Font and Text size tiles ran the Reading tools (Reading mode + the reader bar over the top bar). Font now scrolls to the fonts group below it; Text size does nothing for now (the Format card has no note text-size control; the card is rebuilt after Phase 1). Reading mode also ends with the last page screen. T4 "November 2026" twice: month pages already have a fixed id (sync L1), so the code cannot make a second one; the two rows are most likely old data from before that fix or two devices. Owner data not touched; a merge of duplicates would be a separate decision.
 
 - **2026-11-15 · 2B.9 Undo of "Apply to all pages in the notebook" works only from the page where it was done (builder, safest option).** A page's history knows only its own page, so the layout is one explicit Undo step on the page where it was applied. It puts back only the layout (rows, and each box's place and width) and never a box that was added or deleted since; a page whose boxes changed is skipped and a toast says how many. Full width is cleared on a box that a later layout moves off its row.

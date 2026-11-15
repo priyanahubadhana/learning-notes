@@ -145,3 +145,47 @@ test('the five tool bar settings have no rows with toolbar.v8 off, and rows with
   for (const id of NEW_ROWS)
     await expect(page.locator(`[data-setting-id="${id}"]`)).toHaveCount(1)
 })
+
+test('Layout shortcut: hidden with toolbar.v8 off; one tap sets all five rows; a single change after shows neither', async ({
+  page,
+}) => {
+  await page.goto('/#/settings')
+  await expect(page.locator('[data-setting-id="general.theme"]')).toBeVisible()
+  await expect(
+    page.locator('[data-setting-id="advanced.layoutShortcut"]'),
+  ).toHaveCount(0)
+  await page.goto('/?flags=toolbar.v8#/settings')
+  await page.reload()
+  await expect(page.locator('[data-setting-id="general.theme"]')).toBeVisible()
+  await page
+    .getByRole('tab', { name: /advanced/i })
+    .first()
+    .click()
+    .catch(() => {})
+  const row = page.locator('[data-setting-id="advanced.layoutShortcut"]')
+  await expect(row).toHaveCount(1)
+  const pressed = (id: string, name: string) =>
+    page
+      .locator(`[data-setting-id="${id}"]`)
+      .getByRole('button', { name, exact: true })
+  await pressed('advanced.layoutShortcut', 'Professional').click()
+  await expect(pressed('advanced.toolNames', 'On')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await expect(pressed('advanced.formatTabs', '4')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await pressed('advanced.layoutShortcut', 'Beginner').click()
+  await expect(pressed('advanced.toolNames', 'Off')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await pressed('advanced.toolNames', 'On').click()
+  for (const name of ['Beginner', 'Professional'])
+    await expect(pressed('advanced.layoutShortcut', name)).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+})

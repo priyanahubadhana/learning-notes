@@ -6,7 +6,8 @@ import { t } from '../../i18n/t'
 import { sectionIdsOf, sectionLabel } from './sections'
 import type { SettingDefinition } from '../registry'
 import { SettingSyncBadge } from '../SettingSyncBadge'
-import { setSetting } from '../settingsService'
+import { readDeviceSetting, setSetting } from '../settingsService'
+import { settingsRegistry } from '../builtinSettings'
 import { useDeviceSetting, useSyncedSetting } from '../useSetting'
 import { onFlags } from '../../app/flags'
 import { presetChangeItems } from './tryNew'
@@ -20,6 +21,15 @@ import { ShowInBeginner } from './ShowInBeginner'
 import { isProFeatureId } from '../level'
 import { RowPreview } from './RowPreview'
 import { valueText, type Change } from './changeNote'
+
+/** The five rows the Layout shortcut sets. */
+const LAYOUT_ROWS = [
+  'advanced.toolNames',
+  'advanced.formatTabs',
+  'advanced.backToPen',
+  'advanced.eraserMenus',
+  'advanced.biggerLasso',
+]
 
 interface RowProps {
   db: LearningNotesDB
@@ -76,6 +86,23 @@ function RowBody({
   // Every change is one Undo step with a toast (SET-B10).
   const commit = (next: JsonValue) => {
     const own = { id: definition.id, before: value, after: next }
+    if (definition.id === 'advanced.layoutShortcut') {
+      // One tap changes five rows: Undo gives each row its own earlier value.
+      const rows = LAYOUT_ROWS.map((rowId) => {
+        const d = settingsRegistry.get(rowId) as SettingDefinition
+        return { id: rowId, before: readDeviceSetting(d) as JsonValue, d }
+      })
+      onSave(next)
+      history.record({
+        label: name,
+        items: rows.map((r) => ({
+          id: r.id,
+          before: r.before,
+          after: readDeviceSetting(r.d) as JsonValue,
+        })),
+      })
+      return
+    }
     if (!definition.id.startsWith('tryNewPreset.')) {
       history.record({ label: name, items: [own] })
       onSave(next)

@@ -238,4 +238,9 @@ export const enLateSettings = {
   'settings.biggerLasso.label': 'Bigger Lasso',
   'settings.biggerLasso.description':
     'Show the Lasso shape and what it picks right on the bar, with its options menu. Off: a short Lasso row.',
+  'settings.layoutShortcut.label': 'Layout',
+  'settings.layoutShortcut.description':
+    'One tap sets the five tool bar rows below. Beginner: all off, 3 format tabs. Professional: all on, 4 format tabs. You can still change each row after. Neither is marked when the rows are mixed.',
+  'settings.layoutShortcut.beginner': 'Beginner',
+  'settings.layoutShortcut.professional': 'Professional',
 }

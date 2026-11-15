@@ -32,6 +32,8 @@ import {
 import { dateLocale, t, type DateStyle, type MessageKey } from '../i18n/t'
 import { freeTip } from '../app/tools/freeBar'
 import {
+  BAR_PREF_IDS,
+  BAR_PREF_STARTERS,
   getBarPref,
   setBarPref,
   type BarPrefId,
@@ -845,6 +847,42 @@ function barPartSetting(
   }
 }
 
+/** The Layout shortcut: Beginner or Professional values for all five parts at once. "custom" = a mix (no button chosen). */
+const LAYOUTS = ['beginner', 'professional'] as const
+type Layout = (typeof LAYOUTS)[number] | 'custom'
+export const layoutShortcutSetting: SettingDefinition<Layout> = {
+  id: 'advanced.layoutShortcut',
+  labelKey: 'settings.layoutShortcut.label',
+  descriptionKey: 'settings.layoutShortcut.description',
+  category: 'advanced',
+  alsoIn: ['toolbar'],
+  keywords: 'tool bar toolbar ribbon bar layout beginner professional shortcut',
+  scope: 'device',
+  defaultValue: 'beginner',
+  isValid: (v): v is Layout => v === 'custom' || LAYOUTS.includes(v as never),
+  control: {
+    kind: 'segmented',
+    options: LAYOUTS.map((value) => ({
+      value,
+      label: () => t(`settings.layoutShortcut.${value}` as MessageKey),
+    })),
+  },
+  derived: {
+    read: () => {
+      const on = BAR_PREF_IDS.map(getBarPref)
+      if (on.every((v) => !v)) return 'beginner'
+      if (on.every(Boolean)) return 'professional'
+      return 'custom'
+    },
+    write: (value) => {
+      if (value === 'custom') return
+      const set =
+        BAR_PREF_STARTERS[value === 'beginner' ? 'simple' : 'everything']
+      for (const id of BAR_PREF_IDS) setBarPref(id, set[id])
+    },
+  },
+}
+
 export const toolNamesSetting = barPartSetting(
   'toolNames',
   'names labels icons text under tooltip',
@@ -895,6 +933,7 @@ for (const definition of [
   barPlacementSetting,
   barSizeSetting,
   hoverTipsSetting,
+  layoutShortcutSetting,
   toolNamesSetting,
   formatTabsSetting,
   backToPenSetting,

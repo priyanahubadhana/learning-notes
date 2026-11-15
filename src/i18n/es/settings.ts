@@ -473,4 +473,9 @@ export const esSettings = {
   'settings.biggerLasso.label': 'Lazo más grande',
   'settings.biggerLasso.description':
     'Muestra en la barra la forma del lazo y lo que selecciona, con su menú de opciones. Apagado: una fila corta.',
+  'settings.layoutShortcut.label': 'Diseño',
+  'settings.layoutShortcut.description':
+    'Un toque ajusta las cinco filas de la barra de abajo. Principiante: todo apagado, 3 pestañas de formato. Profesional: todo encendido, 4 pestañas. Después puedes cambiar cada fila. Si las filas son mixtas, no se marca ninguno.',
+  'settings.layoutShortcut.beginner': 'Principiante',
+  'settings.layoutShortcut.professional': 'Profesional',
 }

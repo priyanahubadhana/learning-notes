@@ -469,4 +469,9 @@ export const hiSettings = {
   'settings.biggerLasso.label': 'बड़ा लैस्सो',
   'settings.biggerLasso.description':
     'लैस्सो का आकार और वह क्या चुनता है, विकल्प मेनू के साथ बार में ही दिखाएँ। बंद: छोटी लैस्सो पंक्ति।',
+  'settings.layoutShortcut.label': 'लेआउट',
+  'settings.layoutShortcut.description':
+    'एक टैप से नीचे की पाँचों टूल बार पंक्तियाँ सेट होती हैं। शुरुआती: सब बंद, 3 फ़ॉर्मेट टैब। प्रोफ़ेशनल: सब चालू, 4 टैब। बाद में हर पंक्ति बदल सकते हैं। पंक्तियाँ मिली-जुली हों तो कोई चिह्नित नहीं होता।',
+  'settings.layoutShortcut.beginner': 'शुरुआती',
+  'settings.layoutShortcut.professional': 'प्रोफ़ेशनल',
 }

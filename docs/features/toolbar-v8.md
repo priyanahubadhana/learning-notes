@@ -41,6 +41,8 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 | Eraser's three ▾ (`advanced.eraserMenus`)     | off            | on                 | `tb.eraserOptions`                  |
 | Bigger Lasso (`advanced.biggerLasso`)         | off            | on                 | `tb.lassoOptions`                   |
 
+- TB-S1 (owner, 15 Nov) When I tap Beginner or Professional in the **Layout** row (Settings › Writing › Advanced, above the five rows, only with `toolbar.v8` on) → all five rows are set at once: Beginner = all off, 3 format tabs; Professional = all on, 4 tabs; one Undo step puts every row back. When I then change a single row → the Layout row shows neither chosen (mixed). With the switch off the row is not listed.
+
 **Bar and tools**
 
 - TB-01 (v9) When I open a page with the flag on → the bar shows Text, Pen, Eraser, Shapes, Lasso, Insert, then Undo, Redo, ⋯, Minimise. Whether the tools show names is the setting **Show tool names** (Settings › Advanced; also found under Tool bar). The starter "Simple" (Beginner values) sets it off and "Everything on" (Professional) sets it on; until a person sets it, it follows Beginner or Professional (its own switch: the setting itself, so a Beginner can turn on names alone; no new Professional-list entry). Upright on a Pencil-mode device the bar shows icons only whatever the setting says; the names come back when the screen is turned sideways (owner, 15 Nov, E).

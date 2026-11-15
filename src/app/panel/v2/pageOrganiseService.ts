@@ -65,6 +65,7 @@ function subtreeOf(all: readonly Page[], rootId: string): Page[] {
 const NOT_COPIED = [
   'journalDate',
   'journalMonth',
+  'monthJoinDeclined',
   'templateRole',
   'favourite',
   'customTitle',

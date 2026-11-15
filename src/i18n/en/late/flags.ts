@@ -82,4 +82,7 @@ export const enLateFlags = {
   'flags.storage.safety.name': 'Storage safety',
   'flags.storage.safety.desc':
     'Calm notices when notes may not save, and a one-tap backup.',
+  'flags.journal.monthRepair.name': 'Journal month repair',
+  'flags.journal.monthRepair.desc':
+    'Joins two pages of the same month in the Journal into one, with Undo.',
 }

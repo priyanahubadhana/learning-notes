@@ -13,6 +13,7 @@ import { getSyncStatus, subscribeSync } from '../../sync/syncStatus'
 import { browserSnooze, pickAttention } from './attentionLevel'
 import { getSignals, subscribeSignals } from './attentionSignals'
 import { useFlag } from '../flags'
+import { useJournalRepair } from './useJournalRepair'
 
 const AttentionBanner = lazy(() =>
   import('./AttentionBanner').then((m) => ({ default: m.AttentionBanner })),
@@ -87,6 +88,8 @@ export function AttentionGate({ db }: { db: LearningNotesDB }) {
   const signals = useSyncExternalStore(subscribeSignals, getSignals)
   const safety = useFlag('storage.safety')
   useStorageSafety(safety)
+  // Not an alert, but this part is always mounted inside the toast context.
+  useJournalRepair(db, useFlag('journal.monthRepair'))
   const [now, setNow] = useState(() => Date.now())
   const found = pickAttention(
     { status, ...signals, ...(safety ? {} : SAFETY_OFF) },

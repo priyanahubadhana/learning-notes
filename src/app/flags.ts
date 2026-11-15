@@ -36,6 +36,7 @@ export const FLAG_IDS = [
   'safety.v2',
   'system.v2',
   'storage.safety',
+  'journal.monthRepair',
 ] as const
 
 export type FlagId = (typeof FLAG_IDS)[number]
@@ -80,6 +81,7 @@ export const PREVIEW_DEFAULT_ON: readonly FlagId[] = [
   'update.v2',
   'page.menus',
   'storage.safety',
+  'journal.monthRepair',
 ]
 
 /**

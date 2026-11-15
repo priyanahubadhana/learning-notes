@@ -225,4 +225,7 @@ export const esSidebar = {
   'tree.moveTop': 'Mover al nivel superior',
   'tree.moveUp': 'Subir',
   'tree.moved': 'Página movida.',
+  'journal.tidiedTwo': 'Diario ordenado: dos páginas de {month} unidas',
+  'journal.tidiedMany': 'Diario ordenado: {count} páginas de {month} unidas',
+  'journal.tidiedMonths': 'Diario ordenado: páginas de {count} meses unidas',
 }

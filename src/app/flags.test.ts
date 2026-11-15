@@ -24,9 +24,9 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks())
 
 describe('flags', () => {
-  it('lists 27 unique switches, each with a name and a description', () => {
-    expect(FLAG_IDS).toHaveLength(27)
-    expect(new Set(FLAG_IDS).size).toBe(27)
+  it('lists 28 unique switches, each with a name and a description', () => {
+    expect(FLAG_IDS).toHaveLength(28)
+    expect(new Set(FLAG_IDS).size).toBe(28)
     for (const id of FLAG_IDS) {
       expect(all[`flags.${id}.name`]).toBeTruthy()
       expect(all[`flags.${id}.desc`]).toBeTruthy()
@@ -125,6 +125,7 @@ describe('preview defaults (F5)', () => {
     'update.v2',
     'page.menus',
     'storage.safety',
+    'journal.monthRepair',
   ] as const
   const PREVIEW = 'build-next.learning-notes-app.pages.dev'
   const onHost = (hostname: string) => {

@@ -639,3 +639,55 @@ for (const flag of [false, true]) {
     await expect(boxes).toHaveCount(0)
   })
 }
+
+/**
+ * T5 (owner, Pencil): a Pencil press and drag on the page never selects a box
+ * and never jumps the page to its end (Text tool: the Pencil writes; Lasso:
+ * it draws the loop). Switch OFF and ON.
+ */
+for (const flag of [false, true])
+  for (const name of ['Text', 'Lasso'])
+    test(`T5 a Pencil drag with the ${name} tool on a long page: no box picked, no jump (switch ${flag ? 'ON' : 'OFF'})`, async ({
+      page,
+    }) => {
+      await installRealPen(page)
+      if (flag)
+        await page.addInitScript(() =>
+          localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+        )
+      await page.addInitScript(() =>
+        localStorage.setItem('learning-notes:advanced.autoSwitch', '"off"'),
+      )
+      await startInMode(page, 'pencil')
+      await page.goto('/')
+      await createNotebook(page, 'Paper', 'T5pen' + name + flag)
+      await typeInEditor(page, 'Line one')
+      for (let i = 0; i < 60; i++) {
+        await page.keyboard.press('Enter')
+        await page.keyboard.type('Row ' + i)
+      }
+      await page.waitForTimeout(900)
+      await page.evaluate(() => {
+        document.querySelector('[data-page-scroller]')!.scrollTop = 400
+      })
+      await tool(page, name).click()
+      await page.waitForTimeout(800)
+      const top = () =>
+        page.evaluate(
+          () => document.querySelector('[data-page-scroller]')!.scrollTop,
+        )
+      const s0 = await top()
+      const sheet = await rect(page, '[data-paper-sheet="1"]')
+      // In the margin beside the text, and across the text itself.
+      for (const x of [sheet.x + 8, sheet.x + sheet.width / 2]) {
+        await realPen(
+          page,
+          Array.from({ length: 10 }, (_, i) => ({ x, y: 300 + i * 25 })),
+        )
+        await page.waitForTimeout(700)
+      }
+      expect(await page.locator('[data-picked]').count()).toBe(0)
+      expect(Math.abs((await top()) - s0)).toBeLessThan(5)
+      // Nothing jumped to a new last line either.
+      await expect(page.locator('.ln-tap-below')).not.toBeFocused()
+    })

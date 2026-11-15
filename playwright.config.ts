@@ -130,6 +130,7 @@ const config = defineConfig({
         /tb2-group/,
         /tb2-card/,
         /tb2-pencil/,
+        /tb2-boxchip/,
         /boxPills/,
         /microBar/,
         /tableGap/,

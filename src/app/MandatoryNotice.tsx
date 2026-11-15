@@ -1,4 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
+import {
+  CirclePause,
+  Download,
+  RefreshCw,
+  ShieldCheck,
+  TriangleAlert,
+  WifiLow,
+} from 'lucide-react'
 import { t } from '../i18n/t'
 import { COUNTDOWN_S, flow } from './mandatoryFlow'
 import {
@@ -10,6 +18,7 @@ import { failureNote } from './failureNote'
 import { isPreviewHost } from './flags'
 import { onRouted } from './input/eventRouter'
 import type { UpdateReason } from './updateLevel'
+import { sizeText, timeLeftText } from './updateTexts'
 import { useUnlocked } from '../settings/level'
 
 /** Fades a block in (200 ms, scale .96 to 1); instant when motion is reduced. */
@@ -48,7 +57,7 @@ function Ring({ left }: { left: number }) {
           r={R}
           fill="none"
           strokeWidth={STROKE}
-          className="stroke-line"
+          className="stroke-neutral-fill"
         />
         <circle
           data-ring-arc
@@ -74,11 +83,73 @@ function Ring({ left }: { left: number }) {
 }
 
 const btn =
-  'min-h-[44px] min-w-[112px] rounded-xl px-5 text-sm font-semibold phone:w-full'
-const primaryBtn = `${btn} bg-accent text-white hover:opacity-90`
-const tonalBtn = `${btn} bg-hover text-ink hover:opacity-90`
+  'inline-flex min-h-[44px] min-w-[112px] items-center justify-center gap-2 rounded-xl px-5 text-[15px] font-semibold phone:w-full'
+const primaryBtn = `${btn} bg-accent text-on-accent hover:bg-accent-hover`
+const tonalBtn = `${btn} bg-neutral-fill text-ink hover:bg-hover`
 
-/** The full-screen must-have update notice (update.v2): countdown, download, install. */
+/** The round icon of a step (the picture: 56 px, soft accent or warning). */
+function StepIcon({
+  children,
+  warn,
+}: {
+  children: React.ReactNode
+  warn?: boolean
+}) {
+  return (
+    <div
+      aria-hidden="true"
+      data-update-icon
+      className={`flex h-14 w-14 items-center justify-center rounded-full ${warn ? 'bg-warn-soft text-warn' : 'bg-accent-soft text-accent'}`}
+    >
+      {children}
+    </div>
+  )
+}
+
+/** The failed step in plain words, for "Copy details". */
+function detailsText(s: MandatoryState): string {
+  if (s.phase === 'failed' && s.reason === 'unsaved')
+    return t('update.v2.detailUnsaved')
+  const f = mandatoryFailure.get()
+  return t(
+    f?.what === 'download'
+      ? 'update.v2.detailDownload'
+      : 'update.v2.detailRestart',
+    { s: String(Math.round((f?.waitedMs ?? 0) / 1000)) },
+  )
+}
+
+/** The line under the buttons: what "Not now" does, and Copy details. */
+function FailedLinks({
+  s,
+  canLeave,
+}: {
+  s: MandatoryState
+  canLeave: boolean
+}) {
+  // Mounted only on this screen, so "Copied" starts fresh each time.
+  const [copied, setCopied] = useState(false)
+  return (
+    <p className="mt-3.5 flex flex-wrap items-center justify-center gap-x-1 text-[13px] text-muted">
+      {canLeave && <span>{t('update.v2.leaveHint')} ·</span>}
+      <button
+        type="button"
+        data-update-copy
+        onClick={() => {
+          void navigator.clipboard
+            ?.writeText(detailsText(s))
+            .then(() => setCopied(true))
+            .catch(() => {})
+        }}
+        className="min-h-[44px] rounded-lg px-2 font-semibold text-accent"
+      >
+        {copied ? t('update.v2.copied') : t('update.v2.copyDetails')}
+      </button>
+    </p>
+  )
+}
+
+/** The must-have update notice (update.v2): every step has a way forward. */
 export default function MandatoryNotice({
   s,
   reason,
@@ -143,7 +214,11 @@ export default function MandatoryNotice({
       ? t('update.v2.installing')
       : s.phase === 'failed'
         ? failedText
-        : t('update.v2.title')
+        : s.phase === 'paused'
+          ? t('update.v2.pausedTitle')
+          : s.phase === 'downloading'
+            ? t('update.v2.downloading')
+            : t('update.v2.title')
 
   if (s.phase === 'offline') {
     // Never blocks the app: a small note; the countdown starts by itself.
@@ -160,6 +235,36 @@ export default function MandatoryNotice({
     )
   }
 
+  if (s.phase === 'waiting') {
+    // After "Not now": the app is open; a small pill offers Try again.
+    return (
+      <div
+        role="status"
+        data-update-waiting
+        style={{ bottom: 'max(24px, env(safe-area-inset-bottom))' }}
+        className={`fixed left-1/2 ${MANDATORY_TOP} flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-2.5 whitespace-nowrap rounded-full bg-surface-3 py-1.5 pl-4 pr-1.5 text-sm text-ink shadow-[0_0_0_1px_var(--color-line),var(--elev-3)]`}
+      >
+        <span aria-hidden="true" className="h-2 w-2 rounded-full bg-warn" />
+        {t('update.v2.waiting')}
+        <button
+          type="button"
+          onClick={() => flow()?.retry()}
+          className="inline-flex min-h-[44px] items-center rounded-full bg-accent px-4 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+        >
+          {t('update.v2.tryAgain')}
+        </button>
+      </div>
+    )
+  }
+
+  const canLeave = s.phase === 'failed' && !!flow()?.canDismiss()
+  const eta =
+    s.phase === 'downloading'
+      ? s.etaS
+        ? timeLeftText(s.etaS)
+        : t('update.v2.measuring')
+      : ''
+
   return (
     <div
       role="alertdialog"
@@ -169,13 +274,39 @@ export default function MandatoryNotice({
       data-mandatory-update
       data-phase={s.phase}
       onKeyDown={(e) => e.key === 'Escape' && e.preventDefault()}
-      className={`fixed inset-0 ${MANDATORY_TOP} flex items-center justify-center bg-bg px-4 text-ink`}
+      className={`fixed inset-0 ${MANDATORY_TOP} flex items-center justify-center overflow-y-auto bg-bg px-4 py-8 text-ink`}
     >
       <div
         ref={column}
-        className="flex w-full max-w-[420px] flex-col items-center gap-4 text-center"
+        className="flex w-full max-w-[420px] flex-col items-center text-center"
       >
-        <h1 id="req-update-title" className="text-[22px] font-semibold">
+        <div className="mb-[22px]">
+          {s.phase === 'countdown' && <Ring left={s.left} />}
+          {s.phase === 'downloading' && (
+            <StepIcon>
+              <Download size={26} strokeWidth={1.6} />
+            </StepIcon>
+          )}
+          {s.phase === 'installing' && (
+            <StepIcon>
+              <ShieldCheck size={26} strokeWidth={1.6} />
+            </StepIcon>
+          )}
+          {s.phase === 'paused' && (
+            <StepIcon>
+              <CirclePause size={24} strokeWidth={1.6} />
+            </StepIcon>
+          )}
+          {s.phase === 'failed' && (
+            <StepIcon warn>
+              <TriangleAlert size={26} strokeWidth={1.6} />
+            </StepIcon>
+          )}
+        </div>
+        <h1
+          id="req-update-title"
+          className="mb-1.5 text-[22px] font-semibold tracking-[-0.005em]"
+        >
           {title}
         </h1>
         {canExplain ? (
@@ -185,12 +316,16 @@ export default function MandatoryNotice({
             data-update-reason
             aria-haspopup="dialog"
             onClick={() => setExplain(true)}
-            className="min-h-[44px] rounded-xl px-3 text-[15px] underline decoration-dotted underline-offset-4"
+            className="min-h-[44px] rounded-xl px-3 text-[15px] text-ink-soft underline decoration-line-strong decoration-dotted underline-offset-4"
           >
             {reasonText}
           </button>
         ) : (
-          <p id="req-update-reason" data-update-reason className="text-[15px]">
+          <p
+            id="req-update-reason"
+            data-update-reason
+            className="mb-1.5 text-[15px] text-ink-soft underline decoration-line-strong decoration-dotted underline-offset-4"
+          >
             {reasonText}
           </p>
         )}
@@ -199,7 +334,7 @@ export default function MandatoryNotice({
             role="dialog"
             aria-label={reasonText}
             data-update-details
-            className="relative w-full rounded-xl border border-line bg-surface-3 p-4 pr-12 text-left text-[15px] shadow-[var(--elev-2)]"
+            className="relative mt-2 w-full rounded-xl border border-line bg-surface-3 p-4 pr-12 text-left text-[15px] shadow-[var(--elev-2)]"
           >
             <p>
               {t(
@@ -218,66 +353,101 @@ export default function MandatoryNotice({
             </button>
           </div>
         )}
-        <div
-          ref={phaseText}
-          className="flex w-full flex-col items-center gap-4"
-        >
+        <div ref={phaseText} className="flex w-full flex-col items-center">
           {s.phase === 'countdown' && (
             <>
-              <p className="text-[13px] text-ink-soft" aria-hidden="true">
-                {t('update.v2.countdown')}
+              <p
+                data-update-starts
+                className="text-[13px] tabular-nums text-muted"
+              >
+                {s.left === 1
+                  ? t('update.v2.startsIn1')
+                  : t('update.v2.startsIn', { s: s.left })}
               </p>
-              <Ring left={s.left} />
+              <p className="mt-2 text-[15px] text-ink-soft">
+                {t('update.v2.keptBody')}
+              </p>
             </>
           )}
           {s.phase === 'paused' && (
-            <p className="text-[15px]" data-update-paused>
-              {t('update.v2.paused')}
+            <p className="mt-2 text-[15px] text-ink-soft" data-update-paused>
+              {t('update.v2.pausedBody')}
             </p>
           )}
           {s.phase === 'downloading' && (
             <>
-              <p className="text-[13px] text-ink-soft" data-update-eta>
-                {t('update.v2.downloading')}
-                {s.etaS ? ` · ${t('update.v2.eta', { s: s.etaS })}` : ''}
-              </p>
-              <div className="flex w-full items-center gap-3">
+              <div className="mb-2.5 mt-[22px] flex w-full items-center gap-2.5">
                 <div
                   role="progressbar"
                   aria-label={t('update.v2.downloading')}
                   aria-valuemin={0}
                   aria-valuemax={100}
                   aria-valuenow={pct ?? undefined}
-                  className="h-1.5 flex-1 overflow-hidden rounded-full bg-line"
+                  className="h-1.5 flex-1 overflow-hidden rounded-full bg-neutral-fill"
                 >
                   <div
-                    className={`h-full bg-accent transition-[width] duration-300 motion-reduce:transition-none ${pct === null ? 'w-1/3' : ''}`}
+                    className={`h-full rounded-full bg-accent transition-[width] duration-300 motion-reduce:transition-none ${pct === null ? 'w-1/3' : ''}`}
                     style={pct === null ? undefined : { width: `${pct}%` }}
                   />
                 </div>
-                <span className="w-10 text-right text-[13px] tabular-nums">
+                <span
+                  data-update-percent
+                  className="min-w-[46px] rounded-full bg-accent-soft px-2 py-0.5 text-xs font-semibold tabular-nums text-accent"
+                >
                   {pct ?? 0}%
                 </span>
               </div>
+              <p
+                className="text-[13px] tabular-nums text-muted"
+                data-update-eta
+              >
+                {s.total > 0 ? `${sizeText(s.loaded, s.total)} · ` : ''}
+                {eta}
+              </p>
+              {s.slow && (
+                <div
+                  role="status"
+                  data-update-slow
+                  className="mt-4 flex w-full items-start gap-2.5 rounded-xl bg-neutral-fill px-3.5 py-3 text-left text-[13px] text-ink-soft"
+                >
+                  <WifiLow
+                    aria-hidden="true"
+                    size={18}
+                    strokeWidth={1.6}
+                    className="mt-px shrink-0 text-warn"
+                  />
+                  <span>
+                    {t('update.v2.slow', {
+                      k: Math.max(1, Math.round((s.bps ?? 0) / 1000)),
+                    })}
+                  </span>
+                </div>
+              )}
             </>
           )}
           {s.phase === 'installing' && (
-            <div
-              role="progressbar"
-              aria-label={t('update.v2.installing')}
-              className="h-1.5 w-full overflow-hidden rounded-full bg-line"
-            >
-              <div className="h-full w-1/3 bg-accent motion-safe:animate-pulse" />
-            </div>
-          )}
-          {s.phase === 'failed' && s.reason === 'unsaved' && (
-            <p className="text-[15px]">{t('update.req.failedSave')}</p>
-          )}
-          {s.phase === 'failed' && s.reason !== 'unsaved' && (
             <>
-              <p className="text-[15px]">{t('update.req.failed')}</p>
-              {isPreviewHost() && (
-                <p data-failure-note className="text-xs text-muted">
+              <div
+                role="progressbar"
+                aria-label={t('update.v2.installing')}
+                className="mb-2.5 mt-[22px] h-1.5 w-full overflow-hidden rounded-full bg-neutral-fill"
+              >
+                <div className="ml-[22%] h-full w-[36%] rounded-full bg-accent motion-safe:animate-pulse" />
+              </div>
+              <p className="text-[13px] text-muted">
+                {t('update.v2.installBody')}
+              </p>
+            </>
+          )}
+          {s.phase === 'failed' && (
+            <>
+              <p className="mt-2 text-[15px] text-ink-soft">
+                {s.reason === 'unsaved'
+                  ? t('update.req.failedSave')
+                  : t('update.v2.failedBody')}
+              </p>
+              {s.reason !== 'unsaved' && isPreviewHost() && (
+                <p data-failure-note className="mt-1 text-xs text-muted">
                   {failureNote(mandatoryFailure.get())}
                 </p>
               )}
@@ -287,45 +457,60 @@ export default function MandatoryNotice({
         <div aria-live="polite" role="status" className="sr-only">
           {announce}
         </div>
-        <div className="flex w-full flex-wrap justify-center gap-3 phone:flex-col">
-          {(s.phase === 'countdown' || s.phase === 'downloading') && (
-            <button
-              ref={primary}
-              type="button"
-              onClick={() => flow()?.cancel()}
-              className={tonalBtn}
-            >
-              {s.phase === 'countdown'
-                ? t('update.v2.notNow')
-                : t('dialog.cancel')}
-            </button>
-          )}
-          {(s.phase === 'paused' || s.phase === 'failed') && (
-            <button
-              ref={primary}
-              type="button"
-              onClick={() => flow()?.retry()}
-              className={primaryBtn}
-            >
-              {s.phase === 'paused'
-                ? t('update.v2.updateNow')
-                : t('update.v2.tryAgain')}
-            </button>
-          )}
-          {/* P1.8: a failure never keeps the person out of the app. Plain
-              button until the approved picture places it (owner, 15 Nov).
-              Not when another tab upgraded the notes (U11: no database). */}
-          {s.phase === 'failed' && flow()?.canDismiss() && (
-            <button
-              type="button"
-              data-update-dismiss
-              onClick={() => flow()?.dismiss()}
-              className={tonalBtn}
-            >
-              {t('update.v2.notNow')}
-            </button>
-          )}
-        </div>
+        {s.phase !== 'installing' && (
+          <div className="mt-[26px] flex w-full justify-center gap-3 phone:flex-col-reverse">
+            {(s.phase === 'countdown' || s.phase === 'downloading') && (
+              <button
+                ref={primary}
+                type="button"
+                onClick={() => flow()?.cancel()}
+                className={tonalBtn}
+              >
+                {s.phase === 'countdown'
+                  ? t('update.v2.notNow')
+                  : t('dialog.cancel')}
+              </button>
+            )}
+            {s.phase === 'countdown' && (
+              <button
+                type="button"
+                data-update-now
+                onClick={() => flow()?.startNow()}
+                className={primaryBtn}
+              >
+                {t('update.v2.updateNow')}
+              </button>
+            )}
+            {/* A failure never keeps the person out of the app. Not when
+                another tab upgraded the notes (U11: no database). */}
+            {canLeave && (
+              <button
+                type="button"
+                data-update-dismiss
+                onClick={() => flow()?.dismiss()}
+                className={tonalBtn}
+              >
+                {t('update.v2.notNow')}
+              </button>
+            )}
+            {(s.phase === 'paused' || s.phase === 'failed') && (
+              <button
+                ref={primary}
+                type="button"
+                onClick={() => flow()?.retry()}
+                className={primaryBtn}
+              >
+                {s.phase === 'failed' && (
+                  <RefreshCw aria-hidden="true" size={18} strokeWidth={1.6} />
+                )}
+                {s.phase === 'paused'
+                  ? t('update.v2.updateNow')
+                  : t('update.v2.tryAgain')}
+              </button>
+            )}
+          </div>
+        )}
+        {s.phase === 'failed' && <FailedLinks s={s} canLeave={canLeave} />}
       </div>
     </div>
   )

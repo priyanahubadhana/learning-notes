@@ -122,11 +122,12 @@ describe('P1.8 an honest time left', () => {
     // Listing the files and reading the offline copy took 5 s.
     t += 5000
     tick(0, 1000)
-    // Then half of the bytes came in 1 s: about 1 s is left, not 6.
-    t += 1000
+    // Half of the bytes came in 4 s: about 4 s left, shown as the step 5 (T1:
+    // after 3 s of measuring, rounded up). Not 9 s counted from the listing.
+    t += 4000
     tick(500, 1000)
     const s = mandatoryUpdate.get()
-    expect(s?.phase === 'downloading' && s.etaS).toBe(1)
+    expect(s?.phase === 'downloading' && s.etaS).toBe(5)
   })
 })
 
@@ -156,13 +157,13 @@ describe('P1.8 the failed screen has a way back to the app', () => {
         throw new Error('x')
       },
     })
-  it('Not now closes the screen; the next look for the update asks again', async () => {
+  it('Not now leaves a waiting pill (not a blocked screen); the next look for the update asks again', async () => {
     vi.useFakeTimers()
     startMandatoryUpdate(failing())
     await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
     expect(phase()).toBe('failed')
     flow()?.dismiss()
-    expect(mandatoryUpdate.get()).toBeNull()
+    expect(phase()).toBe('waiting')
     expect(mandatoryFailure.get()).toBeNull()
     // A later check that still finds the must-have version shows it again.
     startMandatoryUpdate(failing())

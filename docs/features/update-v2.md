@@ -95,6 +95,11 @@ Dialog set (alert, full-screen variant), Status pill stack (the update pill), Ba
 | Other-tab apply message                                          | `app/updateChannel.ts:16`                            | unchanged; also carries U11         |
 | Test hook `learning-notes:test-required-update`                  | `main.tsx:203`                                       | kept (e2e)                          |
 
+- UV-21 When the countdown runs → ring, "A must-have update", "Starts in N seconds", "Every note is kept. The app reopens on this page.", "Not now" (to Paused) and "Update now" (downloads at once). (picture P1-3 panel 5, e2e/updateScreens.spec.ts)
+- UV-22 When the download runs → icon, the size ("2.1 of 3.4 MB"), a percent pill, and the time left: "Working out the time…" for 3 seconds, then the speed of the last 5 seconds rounded UP to a step (5, 10, 15, 20, 30, 45 seconds, then minutes), moving at most one step a second (T1).
+- UV-23 When the speed stays under 50 KB/s for 8 seconds in a row (a line that sends nothing counts) → one calm note with the true speed; it goes away by itself when the speed is back (T2, T3).
+- UV-24 When the update did not finish → "Not now" (back to the notes), "Try again", "Copy details" ("Copied" shows); after "Not now" a small pill "Must-have update waiting" with "Try again" stays, and the next start asks again. No "Not now" when another tab already upgraded the notes (UV-11). Every stage has a way forward; Installing ends by itself in "did not finish" after 6 seconds.
+
 ## Won't do
 
 - No forced update for a normal version; no update while writing.

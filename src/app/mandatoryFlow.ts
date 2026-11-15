@@ -18,6 +18,7 @@ import {
 } from './mandatoryState'
 import type { UpdateRisk } from './autoUpdate'
 import { isOtherTabUpgrade } from './updates'
+import { createSpeedMeter } from './updateSpeed'
 import type { UpdateReason } from './updateLevel'
 
 export const COUNTDOWN_S = 5
@@ -88,6 +89,8 @@ export interface Flow {
    * Paused keeps the app blocked (docs/features/update-v2.md UV-5, line 132).
    */
   dismiss: () => void
+  /** "Update now" in the countdown: download at once. */
+  startNow: () => void
   /** False when the app must stay blocked (U11: another tab upgraded the notes). */
   canDismiss: () => boolean
 }
@@ -100,7 +103,12 @@ export const flow = (): Flow | null => current
 
 /** Starts the flow once; a second call while it runs does nothing. */
 export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
-  if (current && mandatoryUpdate.get() !== null) return current
+  if (
+    current &&
+    mandatoryUpdate.get() !== null &&
+    mandatoryUpdate.get()?.phase !== 'waiting'
+  )
+    return current
   // Closed with "Not now" after a failure: start over with the new look.
   stopWatching?.()
   stopWatching = undefined
@@ -119,9 +127,11 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
   let abort: AbortController | null = null
   let timer: unknown
   let installTimer: unknown
+  let tickTimer: unknown
   let stopped = false
 
   const countdown = (left: number) => {
+    clear(timer)
     set({ phase: 'countdown', left })
     if (left <= 0) {
       void run()
@@ -138,17 +148,38 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
     startedAt = now()
     // P1.8: the speed clock starts with the first progress call (the files
     // start coming), not while the list and the offline copy are read.
-    let firstByteAt: number | undefined
+    let started = false
+    const meter = createSpeedMeter()
+    let last = { loaded: 0, total: 0 }
+    const show = () => {
+      if (controller.signal.aborted || stopped) return
+      const r = v2 ? meter.add(now(), last.loaded, last.total) : undefined
+      set({
+        phase: 'downloading',
+        loaded: last.loaded,
+        total: last.total,
+        etaS: r?.etaS,
+        slow: r?.slow,
+        bps: r?.bps,
+      })
+    }
+    // The clock also ticks when nothing arrives: a stalled line is slow too.
+    const tick = () => {
+      if (controller.signal.aborted || stopped) return
+      if (started) show()
+      tickTimer = after(tick, 1000)
+    }
+    if (v2) tickTimer = after(tick, 1000)
     try {
       await download((loaded, total) => {
         if (controller.signal.aborted || stopped) return
-        firstByteAt ??= now()
-        const etaS = v2
-          ? etaSeconds(loaded, total, now() - firstByteAt)
-          : undefined
-        set({ phase: 'downloading', loaded, total, etaS })
+        started = true
+        last = { loaded, total }
+        show()
       }, controller.signal)
+      clear(tickTimer)
     } catch {
+      clear(tickTimer)
       if (controller.signal.aborted) return
       // Offline is not a failure: wait for the network (update.v2).
       if (v2 && !isOnline()) set({ phase: 'offline' })
@@ -216,20 +247,27 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
       if (phase !== 'countdown' && phase !== 'downloading') return
       stopped = true
       clear(timer)
+      clear(tickTimer)
       abort?.abort()
       set({ phase: 'paused' })
     },
     retry() {
       const phase = mandatoryUpdate.get()?.phase
-      if (phase !== 'paused' && phase !== 'failed') return
+      if (phase !== 'paused' && phase !== 'failed' && phase !== 'waiting')
+        return
       clear(installTimer)
+      void run()
+    },
+    startNow() {
+      if (mandatoryUpdate.get()?.phase !== 'countdown') return
+      clear(timer)
       void run()
     },
     dismiss() {
       if (mandatoryUpdate.get()?.phase !== 'failed' || !mayLeave()) return
       clear(installTimer)
       mandatoryFailure.set(null)
-      set(null)
+      set({ phase: 'waiting' })
     },
     canDismiss: () => mayLeave(),
   }
@@ -252,6 +290,7 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
       if (!online && (phase === 'countdown' || phase === 'downloading')) {
         stopped = true
         clear(timer)
+        clear(tickTimer)
         abort?.abort()
         set({ phase: 'offline' })
       } else if (online && phase === 'offline') {

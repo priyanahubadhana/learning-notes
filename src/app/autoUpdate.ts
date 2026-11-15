@@ -10,6 +10,7 @@
  * that would not save).
  */
 import { memStore } from './tools/store'
+import { restartRunning } from './restartNow'
 import { updateStatus } from './updateStatus'
 
 /** The first pause (no key, touch or pen) after which an update may apply. */
@@ -308,6 +309,8 @@ export function showUpdatingPill(
   updateStatus.set({ phase: 'updating' })
   after(() => {
     if (updateStatus.get().phase !== 'updating') return
+    // A restart that is still waiting for the new files keeps the words.
+    if (restartRunning()) return void showUpdatingPill(after)
     updateStatus.set({ phase: 'ready' })
     void import('../perf/slowMoments').then((m) =>
       m.noteSlowMoment(

@@ -240,6 +240,17 @@
   text-align: left;
   cursor: pointer;
 }
+.pcard-row-pic {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  flex: none;
+  color: var(--color-ink-soft);
+}
+.pcard-row-label {
+  flex: 1;
+  min-width: 0;
+}
 .pcard-row:hover {
   background: var(--card-well);
 }

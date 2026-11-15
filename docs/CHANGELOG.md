@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.7 Feel card as in mock v9 (switch toolbar.v8, OFF live)
+
+- What: Pro Feel has a Tip well (sharpness, flatness, stabilisation) and a Response well (pressure, tilt, speed, latency) with row pictures, split by hairlines; Beginner Feel unchanged; Aids Finger is a segmented control, gesture and Math rows have pictures; Page has four paper pictures, one paper choice (the Layers paper chips are hidden there), Paper size A4 / Letter and the Layers row
+- Why: TB-24, TB-25, audit rows "Pen > Feel" and "Feel > Math rows"; review fixes: plain slider rows inside the wells; a hairline between every Response row (a row's own border reset hid it)
+- Files: src/app/tools/v8/cards/pen/*, src/design/parts/CardParts.tsx (SwitchRow icon), Card.css, src/ink/LayersCard.tsx (hidePaper), i18n en/es/hi v8Pen, e2e/toolbarV8Feel(+Shots).spec.ts, toolbarV8Pen.spec.ts, screenshots/2a7/
+
 ### 15 Nov 2026: red on build/next fixed (lassoWords back to back, scrollBarPen SC-12)
 
 - What: scrollBarPen closes the side list its steps left docked before it checks the page bar; the Lasso back-to-back loops start in a gap between the pill buttons (free: any point of the loop; rectangle: a corner up to 14 by 10 px out) and fail loudly when none is free.

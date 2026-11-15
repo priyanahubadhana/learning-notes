@@ -19,6 +19,7 @@ export const enV8Pen = {
   'v8.pen.pickColour': 'Colour picker',
   'v8.pen.pressure.note': 'Press harder for a thicker line.',
   'v8.pen.ruler': 'Ruler',
+  'v8.pen.response': 'Response',
   'v8.pen.shapeHelp': 'Shape help',
   'v8.pen.sizeGroup': 'Size',
   'v8.pen.stabilisation.note': 'Smooths out a shaky hand.',
@@ -26,6 +27,7 @@ export const enV8Pen = {
   'v8.pen.tab.math': 'Math',
   'v8.pen.tab.page': 'Page',
   'v8.pen.tabs': 'Sections of Feel',
+  'v8.pen.tip': 'Tip',
   'v8.pen.type.highlighter': 'Highlighter',
   'v8.pen.typeGroup': 'Pen type',
 } as const

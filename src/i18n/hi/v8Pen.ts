@@ -18,6 +18,7 @@ export const hiV8Pen = {
   'v8.pen.pickColour': 'रंग चुनने वाला',
   'v8.pen.pressure.note': 'ज़्यादा दबाने पर रेखा मोटी होती है।',
   'v8.pen.ruler': 'पैमाना',
+  'v8.pen.response': 'प्रतिक्रिया',
   'v8.pen.shapeHelp': 'आकार में मदद',
   'v8.pen.sizeGroup': 'आकार',
   'v8.pen.stabilisation.note': 'काँपते हाथ की रेखा को सहज बनाता है।',
@@ -25,6 +26,7 @@ export const hiV8Pen = {
   'v8.pen.tab.math': 'गणित',
   'v8.pen.tab.page': 'पन्ना',
   'v8.pen.tabs': 'अनुभव के भाग',
+  'v8.pen.tip': 'नोक',
   'v8.pen.type.highlighter': 'हाइलाइटर',
   'v8.pen.typeGroup': 'कलम का प्रकार',
 } as const

@@ -1,0 +1,40 @@
+/* The Eraser's "Erases" chips on the bar (2A.8): a segmented group; the chosen
+   parts are filled with the accent so they read as on, in dark too. */
+.v8erases {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--r-md);
+  background: var(--color-neutral-fill);
+}
+.v8erases-label {
+  padding: 0 var(--space-2) 0 var(--space-3);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+}
+.v8erases-opt {
+  min-width: 44px;
+  min-height: 40px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: calc(var(--r-md) - 2px);
+  background: transparent;
+  color: var(--color-ink-soft);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-out);
+}
+.v8erases-opt[aria-checked='true'] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: 600;
+}
+.v8erases-opt:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

@@ -92,10 +92,8 @@ test('TB-30 Professional Eraser: Precise, the size ring and Options with go back
   await openCard(page, 'eraser.size')
   await expect(page.getByTestId('v8-eraser-ring')).toBeVisible()
   await page.keyboard.press('Escape')
-  await openCard(page, 'eraser.options')
-  const sw = card(page, 'eraser.options').getByRole('switch')
-  await expect(sw).toHaveCount(1)
-  await sw.click()
+  await expect(page.getByTestId('v8-eraser-erases')).toBeVisible()
+  await page.getByTestId('v8-eraser-back').click()
   expect((await stored(page, 'eraser')).returnAfter).toBe(true)
 })
 

@@ -7,7 +7,8 @@ import type { V8ToolId } from './registryV8'
  * chips and opens an empty card; the card contents come with 1c to 1f, and
  * the Favourites chips with 1g. Order follows the spec (TB-21, TB-40).
  */
-export type ItemKind = 'menu' | 'toggle'
+/** erases = the Eraser's segmented "Erases" chips; flag = a chip that switches one setting. */
+export type ItemKind = 'menu' | 'toggle' | 'erases' | 'flag'
 
 export interface RowItem {
   id: string
@@ -72,10 +73,22 @@ export const ROW_ITEMS: Record<V8ToolId, readonly RowItem[]> = {
   eraser: [
     menu('eraser', 'mode', 'v8.item.mode', { icon: 'eraser' }),
     menu('eraser', 'size', 'v8.item.size', { dot: 'size' }),
-    menu('eraser', 'options', 'v8.item.options', {
-      icon: 'sliders',
-      card: 'panel',
-    }),
+    // Chips on the bar, as in mock v9 (not a ▾): what it erases, and "back after one".
+    {
+      id: 'erases',
+      tool: 'eraser',
+      kind: 'erases',
+      label: 'v8.item.erases',
+      card: 'pick',
+    },
+    {
+      id: 'back',
+      tool: 'eraser',
+      kind: 'flag',
+      label: 'v8.item.back',
+      icon: 'history',
+      card: 'pick',
+    },
   ],
   shapes: [
     menu('shapes', 'shape', 'v8.item.shape', { icon: 'shapes' }),
@@ -128,6 +141,8 @@ export function cardInfo(
   title: MessageKey
   size: 'pick' | 'panel'
 } {
+  // The Erases chips fold into this card on a narrow screen.
+  if (id === 'eraser.options') return { title: 'v8.item.erases', size: 'pick' }
   if (id === 'eraser.mode' && !eraserMenus)
     return { title: 'v8.item.eraser', size: 'pick' }
   if (id === 'insert') return { title: 'v8.tool.insert', size: 'panel' }

@@ -23,7 +23,7 @@ import {
 import { createId } from '../core/ids'
 import type { InkLayer, Stroke } from '../core/inkTypes'
 import {
-  eraseTargets,
+  eraseScope,
   eraserSettings,
   ERASER_SIZES,
   highlighterSettings,
@@ -102,6 +102,7 @@ import {
   textRunsUnder,
 } from './textSnap'
 import { WordEraseSession } from './eraseText'
+import { isOn } from '../app/flags'
 import { MAX_LABEL, STRIDE } from '../core/inkTypes'
 import { selectGesture } from '../editor/gesture'
 import { mostlyInside } from './lassoMenu'
@@ -1851,15 +1852,15 @@ export class InkController {
     // The eraser only touches the active layer.
     // Highlights and typed words go as the Pencil rubs them (2A.8, T10): the
     // letters are measured once, the page changes once per frame.
-    const targets = eraseTargets(settings)
-    if (targets.hl || targets.text) {
+    const scope = eraseScope(settings, isOn('toolbar.v8'))
+    if (scope.hlWords || scope.text) {
       const root = this.env.editorEl()
       if (root) {
         g.words ??= new WordEraseSession(
           this.env.editor as never,
           root,
           this.env.wrap.getBoundingClientRect(),
-          targets,
+          { hl: scope.hlWords, text: scope.text },
         )
         g.words.move(from, w, radius)
       }
@@ -1867,8 +1868,8 @@ export class InkController {
     const active = eraserLayer(this.env.doc.layers, this.env.doc.chosenLayer)
     for (const p of this.selectable()) {
       if (active && p.layerId !== active.id) continue
-      if (!targets.pen && p.stroke.kind !== 'highlight') continue
-      if (!targets.hl && p.stroke.kind === 'highlight') continue
+      if (!scope.penInk && p.stroke.kind !== 'highlight') continue
+      if (!scope.hlInk && p.stroke.kind === 'highlight') continue
       const frame = this.layout.frame(p.blockId)
       const r = strokeRect(p.stroke, frame)
       if (!r || !intersects(r, area)) continue

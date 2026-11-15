@@ -3,6 +3,7 @@ export const enV8Tools = {
   'main.sel.paste': 'Paste',
   'main.sel.resize': 'Resize',
   'v8.eraser.modeGroup': 'Eraser type',
+  'v8.eraser.back': 'Back after one',
   'v8.eraser.erases': 'Erases',
   'v8.eraser.erases.hl': 'Highlighter',
   'v8.eraser.erases.text': 'Text',

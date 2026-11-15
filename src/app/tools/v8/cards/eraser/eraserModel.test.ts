@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
+  eraseScope,
   eraseTargets,
   eraserSettings,
   resetInkSettings,
@@ -49,12 +50,41 @@ describe('Eraser Erases (TB-30b)', () => {
   })
 })
 
+describe('Eraser scope follows the switch (review 2)', () => {
+  it("switch OFF: today's eraser, typed-word highlights untouched by default", () => {
+    expect(eraseScope(eraserSettings.get(), false)).toEqual({
+      hlInk: true,
+      penInk: true,
+      hlWords: false,
+      text: false,
+    })
+  })
+  it('switch OFF: "highlights only" still clears highlights on words', () => {
+    eraserSettings.update({ highlightsOnly: true, eraseText: true })
+    expect(eraseScope(eraserSettings.get(), false)).toEqual({
+      hlInk: true,
+      penInk: false,
+      hlWords: true,
+      text: false,
+    })
+  })
+  it('switch ON: the Highlighter clears words too; Text only when on', () => {
+    expect(eraseScope(eraserSettings.get(), true)).toEqual({
+      hlInk: true,
+      penInk: true,
+      hlWords: true,
+      text: false,
+    })
+  })
+})
+
 describe('Eraser row (TB-30, TB-30a)', () => {
-  it('three menus when the setting is on: Mode, Size, Options', () => {
+  it('Mode, Size, then Erases and Back after one on the bar', () => {
     expect(eraserRowItems(true).map((i) => i.id)).toEqual([
       'mode',
       'size',
-      'options',
+      'erases',
+      'back',
     ])
   })
   it('one Eraser menu when it is off', () => {
@@ -65,7 +95,7 @@ describe('Eraser row (TB-30, TB-30a)', () => {
   it('the Mode card is titled Eraser when it holds the sizes too', () => {
     expect(cardInfo('eraser.mode', false).title).toBe('v8.item.eraser')
     expect(cardInfo('eraser.mode', true).title).toBe('v8.item.mode')
-    expect(cardInfo('eraser.options', true).title).toBe('v8.item.options')
+    expect(cardInfo('eraser.options', true).title).toBe('v8.item.erases')
   })
   it('quick pickers close after a pick; Options and the Beginner card stay', () => {
     const menus = () => true

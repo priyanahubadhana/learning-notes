@@ -95,7 +95,7 @@ function ModeCard() {
         <CardNote>{t(k(`ink.eraser.${e.mode}.note`))}</CardNote>
       </CardGroup>
       {menus ? null : (
-        <CardGroup>
+        <CardGroup label={t('v8.item.size')}>
           <SizeTiles />
         </CardGroup>
       )}

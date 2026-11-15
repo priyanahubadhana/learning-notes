@@ -3,6 +3,7 @@ export const hiV8Tools = {
   'main.sel.paste': 'चिपकाएँ',
   'main.sel.resize': 'आकार बदलें',
   'v8.eraser.modeGroup': 'इरेज़र का प्रकार',
+  'v8.eraser.back': 'एक के बाद वापस',
   'v8.eraser.erases': 'क्या मिटाता है',
   'v8.eraser.erases.hl': 'हाइलाइटर',
   'v8.eraser.erases.text': 'टेक्स्ट',

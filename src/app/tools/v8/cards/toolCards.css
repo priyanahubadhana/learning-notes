@@ -172,8 +172,8 @@
 }
 
 /* Eraser › Options › Erases: a segmented control where several parts can be on.
-   The chosen part is lifted and in the accent, so it reads as "on" in dark too. */
+   The chosen part is filled with the accent, so it reads as "on" in dark too. */
 .pcard [data-testid='v8-eraser-erases'] .onoff-opt[aria-checked='true'] {
-  background: var(--color-surface-3);
-  color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
 }

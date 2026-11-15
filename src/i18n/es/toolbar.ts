@@ -105,6 +105,8 @@ export const esToolbar = {
   'v8.item.italic': 'Cursiva',
   'v8.item.mode': 'Modo',
   'v8.item.eraser': 'Borrador',
+  'v8.item.erases': 'Borra',
+  'v8.item.back': 'Volver tras uno',
   'v8.item.options': 'Opciones',
   'v8.item.shape': 'Forma',
   'v8.item.size': 'Tamaño',

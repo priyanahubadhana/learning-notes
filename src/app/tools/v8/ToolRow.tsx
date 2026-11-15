@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useActiveStyles, useBlockNoteEditor } from '@blocknote/react'
 import { CardTrigger } from '../../../design/parts/Card'
-import { t } from '../../../i18n/t'
+import { t, type MessageKey } from '../../../i18n/t'
 import { Icon } from '../icons'
 import { rowItemsFor, cardIdOf, type RowItem } from './rowItems'
 import { useBarPref } from './barPrefs'
@@ -13,6 +13,8 @@ import type { OpenCard } from './barState'
 import { useFold, type FoldSpec } from './useFold'
 import type { FoldResult } from './rowFold'
 import { displayInk } from '../../../design/ink'
+import { ErasesChips, BackAfterOne } from './EraserRowParts'
+import { ERASER_SIZES, eraserSettings } from '../main/inkSettings'
 import './toolbarV8.css'
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
@@ -20,6 +22,16 @@ const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 /** What a chip says, and how its dot looks, from the pen's saved settings. */
 function view(item: RowItem, pen: PenFace) {
   let text = t(item.label)
+  let eraserDot = 0
+  if (item.tool === 'eraser') {
+    // The chip says what is chosen now (mock v9): "Standard", "Medium".
+    const e = eraserSettings.get()
+    if (item.id === 'mode') text = t(`ink.eraser.${e.mode}` as MessageKey)
+    if (item.id === 'size') {
+      text = t(`v8.pen.size.${e.size}` as MessageKey)
+      eraserDot = Math.round(ERASER_SIZES[e.size] / 3)
+    }
+  }
   if (item.tool === 'pen' && item.id === 'type')
     text = t(`v8.pen.type.${pen.typeId}`)
   if (item.tool === 'pen' && item.id === 'size')
@@ -27,7 +39,7 @@ function view(item: RowItem, pen: PenFace) {
   return {
     text,
     colour: item.dot === 'colour' ? pen.colour : undefined,
-    dotPx: item.dot === 'size' ? dotPx(pen) : 0,
+    dotPx: item.dot === 'size' ? eraserDot || dotPx(pen) : 0,
   }
 }
 
@@ -91,6 +103,7 @@ export function ToolRow({
   const editor = useBlockNoteEditor()
   const active = useActiveStyles(editor as never) as Record<string, unknown>
   const items = rowItemsFor(tool, useBarPref('eraserMenus'))
+  eraserSettings.useValue() // the Eraser chips say what is chosen
   // What the row showed while no card was open. A chip that was already on the
   // row keeps its place while its card is open (the open chip may show its word,
   // but nothing else re-folds, so "⋯ n" does not jump and Format stays put).
@@ -103,7 +116,14 @@ export function ToolRow({
   const specs: FoldSpec[] = items.map((it, i) => ({
     id: it.id,
     priority: 100 - i,
-    fixedW: it.kind === 'toggle' ? 44 : undefined,
+    fixedW:
+      it.kind === 'toggle'
+        ? 44
+        : it.kind === 'erases'
+          ? 280
+          : it.kind === 'flag'
+            ? 130
+            : undefined,
     keepName: it === openItem && !frozen,
   }))
   const {
@@ -142,7 +162,11 @@ export function ToolRow({
     >
       <div className="v8row-items" ref={rowRef}>
         {shown.map((item) =>
-          item.kind === 'menu' ? (
+          item.kind === 'erases' ? (
+            <ErasesChips key={item.id} />
+          ) : item.kind === 'flag' ? (
+            <BackAfterOne key={item.id} />
+          ) : item.kind === 'menu' ? (
             <CardTrigger
               key={item.id}
               className="v8chip"
@@ -220,7 +244,14 @@ export function ToolRow({
             icon: item.icon,
             pressed: !!item.style && !!active[item.style],
             onPick: () => {
-              if (item.kind === 'menu')
+              if (item.kind === 'erases')
+                onToggleCard('eraser.options', card.anchor)
+              else if (item.kind === 'flag')
+                eraserSettings.update({
+                  returnAfter: !eraserSettings.get().returnAfter,
+                })
+              if (item.kind === 'flag') onCloseCard('fold.row')
+              else if (item.kind === 'menu')
                 onToggleCard(cardIdOf(item), card.anchor)
               else {
                 toggleStyle(item)

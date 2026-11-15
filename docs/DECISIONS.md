@@ -77,6 +77,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-15 · 2A.8 review 1 fixes (builder).** The approved picture wins: Pro row is Mode, Size, Erases chips, Back after one chip (no Options ▾; the Options card stays only as the fold-away fallback on a narrow screen). The new default eraser targets (Highlighter also clears highlights on typed words) apply only with toolbar.v8 ON; OFF is today's eraser. Erasing takes whole words. With the sidebar open the Mode and Size chips lose their names by the row's normal fold rule.
 - **2026-11-15 · 2A.8 Erases is a multi-select (builder, safest option).** Highlighter, Text, Pen can be on together (at least one), as in mock v9; default Highlighter + Pen = today's behaviour. Highlighter alone equals the old "highlights only".
 - **2026-11-15 · 2A.8 Highlighter target also clears snapped text highlights in every mode (builder).** Before, only "highlights only" did; the default eraser left them.
 - **2026-11-15 · 2A.8 Ink erase plus word erase in one stroke gives two Undo steps (builder).** The ink and the page text have separate histories (as before for highlights).

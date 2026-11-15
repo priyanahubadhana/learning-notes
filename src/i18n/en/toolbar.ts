@@ -17,6 +17,8 @@ export const enToolbar = {
   'v8.item.box': 'Box',
   'v8.item.colour': 'Colour',
   'v8.item.eraser': 'Eraser',
+  'v8.item.erases': 'Erases',
+  'v8.item.back': 'Back after one',
   'v8.item.options': 'Options',
   'v8.item.feel': 'Feel',
   'v8.item.format': 'Format',

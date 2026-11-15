@@ -71,9 +71,7 @@ for (const [dev, size] of Object.entries(SIZES)) {
         const tag = `${dev}-${theme}-${level}`
         await page.waitForTimeout(500)
         await page.screenshot({ path: `${OUT}/row-${tag}.png` })
-        const cards = pro
-          ? ['eraser.mode', 'eraser.size', 'eraser.options']
-          : ['eraser.mode']
+        const cards = pro ? ['eraser.mode', 'eraser.size'] : ['eraser.mode']
         for (const id of cards) {
           await page.getByTestId(`v8-chip-${id}`).click()
           await expect(page.getByTestId(`v8-card-${id}`)).toBeVisible()

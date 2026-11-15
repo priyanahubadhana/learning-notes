@@ -31,6 +31,8 @@ export interface Letter {
   h: number
   /** The browser could not measure it: it goes with its neighbours. */
   blind: boolean
+  /** The word it belongs to (whole words go together); -1 for a space. */
+  word: number
 }
 
 interface View {
@@ -66,6 +68,7 @@ interface Tr {
   setMeta: (key: string, value: unknown) => void
 }
 
+const WS = /\s/
 const MARK_SELECTOR = '[data-style-type="backgroundColor"]'
 
 /**
@@ -82,6 +85,8 @@ export function indexLetters(
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
   const range = document.createRange()
   const screenH = window.innerHeight || 4000
+  let word = 0
+  let block: Element | null = null
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
     const node = n as Text
     const text = node.data
@@ -92,9 +97,18 @@ export function indexLetters(
     // Off screen: the page cannot scroll under a rubbing eraser.
     if (nr.bottom < -40 || nr.top > screenH + 40) continue
     const base = view.posAtDOM(node, 0)
+    // A word goes on across a mark boundary, but never across blocks.
+    const here = node.parentElement?.closest('.bn-block-content') ?? null
+    if (here !== block) {
+      word++
+      block = here
+    }
     const first = out.length
     let lastGood = -1
     for (let i = 0; i < text.length; i++) {
+      const space = WS.test(text[i]!)
+      if (space) word++
+      const w = space ? -1 : word
       range.setStart(node, i)
       range.setEnd(node, i + 1)
       const cr = range.getClientRects()[0]
@@ -105,6 +119,7 @@ export function indexLetters(
           y: cr.top - box.top + cr.height / 2,
           h: cr.height,
           blind: false,
+          word: w,
         })
         lastGood = out.length - 1
       } else {
@@ -116,6 +131,7 @@ export function indexLetters(
           y: near ? near.y : nr.top - box.top + nr.height / 2,
           h: near ? near.h : nr.height,
           blind: true,
+          word: w,
         })
       }
     }
@@ -153,6 +169,8 @@ export function spansUnder(
     x1 = Math.max(x1, p.x)
     y1 = Math.max(y1, p.y)
   }
+  const fresh: number[] = []
+  const hitWords = new Set<number>()
   for (let i = 0; i < letters.length; i++) {
     if (taken.has(i)) continue
     const l = letters[i]!
@@ -160,12 +178,34 @@ export function spansUnder(
     let hit = false
     if (l.x >= x0 - r && l.x <= x1 + r && l.y >= y0 - r && l.y <= y1 + r)
       hit = distToPath({ x: l.x, y: l.y }, path) <= r
-    // A letter the browser could not measure goes with a letter just taken.
-    if (!hit && l.blind) hit = taken.has(i - 1)
     if (hit) {
-      taken.add(i)
-      hits.push({ from: l.pos, to: l.pos + 1 })
+      fresh.push(i)
+      if (l.word >= 0) hitWords.add(l.word)
     }
+  }
+  // Whole words: one letter touched takes its word (no cut letters at the
+  // ends); the space between two taken words, and a space the Pencil touched,
+  // go too (no thin mark between words). A letter the browser could not
+  // measure goes with the letter before it.
+  const take = (i: number) => {
+    if (taken.has(i)) return
+    taken.add(i)
+    hits.push({ from: letters[i]!.pos, to: letters[i]!.pos + 1 })
+  }
+  for (const i of fresh) take(i)
+  if (hitWords.size > 0)
+    letters.forEach((l, i) => {
+      if (l.word >= 0 && hitWords.has(l.word)) take(i)
+    })
+  for (let i = 1; i < letters.length - 1; i++) {
+    const l = letters[i]!
+    if (taken.has(i)) continue
+    if (
+      (l.word < 0 || l.blind) &&
+      taken.has(i - 1) &&
+      (l.blind || taken.has(i + 1))
+    )
+      take(i)
   }
   return mergeSpans(hits)
 }

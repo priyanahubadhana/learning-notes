@@ -1,12 +1,10 @@
-# 2A.8 eraser pictures (taken after the last source edit; chromium; light = day, dark = night)
+# 2A.8 eraser pictures (after the last source edit; chromium; day = light, night = dark)
 
-Compare with docs/mockups/toolbar-v9/toolbar-v9.html (eraser). Files: <what>-<device>-<theme>-<level>.png
+Compare with docs/mockups/toolbar-v9/toolbar-v9.html and settings-rows/1-ipad.png. Files: what-device-theme-level.png
 
-- row-*: the Eraser row (Beginner: one Eraser menu; Professional: Mode, Size, Options)
-- eraser-mode-*: Mode card (Beginner: type + sizes)
+- row-*: the Eraser row (Beginner: one Eraser menu; Professional: Mode, Size, Erases chips, Back after one)
+- eraser-mode-*: Mode card (Beginner: type + Size heading + sizes)
 - eraser-size-*: Size card with ring (Professional)
-- eraser-options-*: Options card, Erases segmented control (Professional)
-- devices: phone 390x844, ipad-upright 820x1180, ipad-sideways 1180x820
 
 - eraser-mode-ipad-sideways-day-beginner.png
 - eraser-mode-ipad-sideways-day-professional.png
@@ -20,12 +18,6 @@ Compare with docs/mockups/toolbar-v9/toolbar-v9.html (eraser). Files: <what>-<de
 - eraser-mode-phone-day-professional.png
 - eraser-mode-phone-night-beginner.png
 - eraser-mode-phone-night-professional.png
-- eraser-options-ipad-sideways-day-professional.png
-- eraser-options-ipad-sideways-night-professional.png
-- eraser-options-ipad-upright-day-professional.png
-- eraser-options-ipad-upright-night-professional.png
-- eraser-options-phone-day-professional.png
-- eraser-options-phone-night-professional.png
 - eraser-size-ipad-sideways-day-professional.png
 - eraser-size-ipad-sideways-night-professional.png
 - eraser-size-ipad-upright-day-professional.png

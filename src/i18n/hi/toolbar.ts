@@ -104,6 +104,8 @@ export const hiToolbar = {
   'v8.item.italic': 'तिरछा',
   'v8.item.mode': 'मोड',
   'v8.item.eraser': 'इरेज़र',
+  'v8.item.erases': 'क्या मिटाता है',
+  'v8.item.back': 'एक के बाद वापस',
   'v8.item.options': 'विकल्प',
   'v8.item.shape': 'आकृति',
   'v8.item.size': 'आकार',

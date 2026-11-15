@@ -501,3 +501,25 @@ export function highlighterPreview(h: HighlighterSettings): PreviewStroke {
 }
 
 export const PREVIEW_SIZE = { width: WIDTH, height: HEIGHT } as const
+
+/**
+ * What one erase stroke touches. Tool bar v9 (switch toolbar.v8 ON): the three
+ * targets, and the Highlighter also clears highlights on typed words. Switch
+ * OFF: exactly today's eraser (all ink; only highlights, ink and words, when
+ * "highlights only" is on).
+ */
+export function eraseScope(
+  s: EraserSettings,
+  v9: boolean,
+): { hlInk: boolean; penInk: boolean; hlWords: boolean; text: boolean } {
+  if (v9) {
+    const t = eraseTargets(s)
+    return { hlInk: t.hl, penInk: t.pen, hlWords: t.hl, text: t.text }
+  }
+  return {
+    hlInk: true,
+    penInk: !s.highlightsOnly,
+    hlWords: s.highlightsOnly,
+    text: false,
+  }
+}

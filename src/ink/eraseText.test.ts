@@ -95,6 +95,38 @@ describe('word eraser (2A.8, T10)', () => {
     expect(spans).toEqual([{ from: 100, to: 109 }])
   })
 
+  it('a touched letter takes its whole word, never a cut word', () => {
+    const root = page('Claude by hand')
+    const letters = indexLetters(root, { left: 0, top: 0 }, view, true)
+    // Only the letters "au" of Claude (x 25 to 45) are under the path.
+    const spans = spansUnder(
+      letters,
+      new Set<number>(),
+      [
+        { x: 28, y: 10 },
+        { x: 42, y: 10 },
+      ],
+      2,
+    )
+    expect(spans).toEqual([{ from: 100, to: 106 }])
+  })
+
+  it('two touched words take the space between them', () => {
+    const root = page('Claude by hand')
+    const letters = indexLetters(root, { left: 0, top: 0 }, view, true)
+    const spans = spansUnder(
+      letters,
+      new Set<number>(),
+      [
+        { x: 55, y: 10 },
+        { x: 75, y: 10 },
+      ],
+      2,
+    )
+    // The "e" and the "b" are touched: Claude, the space and by go; hand stays.
+    expect(spans).toEqual([{ from: 100, to: 109 }])
+  })
+
   it('highlights only measures just the highlighted words', () => {
     const root = document.createElement('div')
     root.innerHTML =

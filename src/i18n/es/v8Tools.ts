@@ -3,6 +3,7 @@ export const esV8Tools = {
   'main.sel.paste': 'Pegar',
   'main.sel.resize': 'Cambiar tamaño',
   'v8.eraser.modeGroup': 'Tipo de borrador',
+  'v8.eraser.back': 'Volver tras uno',
   'v8.eraser.erases': 'Borra',
   'v8.eraser.erases.hl': 'Resaltador',
   'v8.eraser.erases.text': 'Texto',

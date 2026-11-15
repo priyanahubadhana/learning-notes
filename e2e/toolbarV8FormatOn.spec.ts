@@ -180,4 +180,41 @@ test('T15 colour, highlight, size and font show the current value', async ({
   await tile(c, 'size-130').click()
   await expect(tile(c, 'size-130')).toHaveAttribute('aria-checked', 'true')
   await expect(tile(c, 'size-100')).toHaveAttribute('aria-checked', 'false')
+  // Font: the default tile is on, a picked one takes over, with the same check.
+  const fonts = c.locator("[data-card-chips='font'] [role='radio']")
+  await expect(fonts.first()).toHaveAttribute('aria-checked', 'true')
+  await fonts.nth(1).click()
+  await expect(fonts.nth(1)).toHaveAttribute('aria-checked', 'true')
+  await expect(fonts.first()).toHaveAttribute('aria-checked', 'false')
+  const badge = (l: Locator) =>
+    l.evaluate((e) => getComputedStyle(e, '::before').content)
+  expect(await badge(fonts.nth(1))).not.toBe('none')
+  expect(await badge(fonts.first())).toBe('none')
+  const fill = (l: Locator) =>
+    l.evaluate((e) => getComputedStyle(e).backgroundColor)
+  expect(await fill(fonts.nth(1))).not.toBe(await fill(fonts.first()))
+})
+
+test('T15 a list is on only on its own line and follows the cursor to another line', async ({
+  page,
+}) => {
+  await open(page)
+  const c0 = await openCard(page, 'style')
+  await tile(c0, 'bulletList').click()
+  await on(tile(c0, 'bulletList'))
+  await page.getByTestId('pcard-close').click()
+  await expect(card(page)).toHaveCount(0)
+  await page.getByText('The nucleus holds the DNA').click()
+  await page.keyboard.press('End')
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('Plain line')
+  const c = await openCard(page, 'style')
+  await on(tile(c, 'bulletList'))
+  await tile(c, 'bulletList').click()
+  await off(tile(c, 'bulletList'))
+  await page.locator('.ProseMirror[contenteditable="true"]').first().focus()
+  await page.keyboard.press('ArrowUp')
+  await on(tile(c, 'bulletList'))
+  await page.keyboard.press('ArrowDown')
+  await off(tile(c, 'bulletList'))
 })

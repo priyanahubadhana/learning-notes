@@ -88,6 +88,7 @@ const config = defineConfig({
         /updateV2/,
         /keyNames/,
         /toolbarV8Text/,
+        /toolbarV8FormatOn/,
         /inkTools/,
         /toolbarV9Lasso/,
         /updateFailureNote/,

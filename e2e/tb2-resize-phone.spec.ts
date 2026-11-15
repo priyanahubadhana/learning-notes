@@ -27,14 +27,22 @@ const dot = (box: Locator, how: string) =>
   box.locator(`[data-resize-handle="${how}"]`)
 const HOW = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']
 
-async function phoneBox(page: Page, name: string, lines: string[]) {
-  await page.addInitScript(() =>
-    localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
-  )
+async function phoneBox(
+  page: Page,
+  name: string,
+  lines: string[],
+  o: { flag?: boolean; tall?: boolean } = {},
+) {
+  if (o.flag !== false)
+    await page.addInitScript(() =>
+      localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+    )
   await startInMode(page, 'computer')
   await page.goto('/')
   await createNotebook(page, 'Paper', name)
   await typeInEditor(page, 'Main text')
+  // A long page, so it can scroll.
+  if (o.tall) for (let i = 0; i < 45; i++) await page.keyboard.press('Enter')
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(page.locator('[data-paper-sheet]')).toHaveCount(0)
   await page.getByRole('button', { name: 'Add a box here' }).click()
@@ -50,7 +58,7 @@ async function phoneBox(page: Page, name: string, lines: string[]) {
   // Select it: the first tap on a box selects it.
   const r = await rect(box)
   await page.mouse.click(r.x + r.width / 2, r.y + r.height / 2)
-  await expect(box).toHaveAttribute('data-picked', '')
+  if (o.flag !== false) await expect(box).toHaveAttribute('data-picked', '')
   return box
 }
 
@@ -155,6 +163,8 @@ test('phone: e makes the box narrower, left-aligned, inside the column; never un
     return 0
   }, word)
   expect(small.width).toBeGreaterThanOrEqual(wordW - 1)
+  // And not much more: the word, the frame and the padding, plus 40 px.
+  expect(small.width).toBeLessThanOrEqual(wordW + 70)
   // Far to the right: never wider than the column, never off the page.
   const e3 = await centre(dot(box, 'e'))
   await drag(page, e3, { x: 389, y: e3.y })
@@ -259,4 +269,67 @@ test('phone: Undo puts the size back in one step', async ({ page }) => {
   await expect
     .poll(async () => Math.abs((await rect(box)).width - f.width))
     .toBeLessThan(1.5)
+})
+
+test('phone: where two targets meet the nearest dot wins (the corner, not the side)', async ({
+  page,
+}) => {
+  const box = await phoneBox(page, 'P-near', ['Hi'])
+  const f = await rect(box)
+  const at = { x: f.x + f.width + 10, y: f.y + f.height + 2 }
+  await drag(page, at, { x: at.x, y: at.y + 50 })
+  expect((await rect(box)).height).toBeGreaterThan(f.height + 20)
+})
+
+test('phone: the height is kept after a reload', async ({ page }) => {
+  const box = await phoneBox(page, 'P-keeph', ['Alpha beta'])
+  const f = await rect(box)
+  const s = await centre(dot(box, 's'))
+  await drag(page, s, { x: s.x, y: s.y + 90 })
+  const h1 = (await rect(box)).height
+  expect(h1).toBeGreaterThan(f.height + 60)
+  await page.reload()
+  const again = page.locator(EXTRA).first()
+  await expect(again).toBeVisible()
+  expect(Math.abs((await rect(again)).height - h1)).toBeLessThan(1.5)
+})
+
+test('phone: a box that was never resized fills the column, even if it is narrower on the iPad', async ({
+  page,
+}) => {
+  const box = await phoneBox(page, 'P-fill', ['Alpha beta'])
+  const col = await page.evaluate(() => {
+    const m = document.querySelector('[data-paper]')!.getBoundingClientRect()
+    return m.width
+  })
+  expect((await rect(box)).width).toBeGreaterThan(col * 0.8)
+  // Narrower here, then the iPad width is untouched: after a reload it is still narrow.
+  const e = await centre(dot(box, 'e'))
+  await drag(page, e, { x: e.x - 90, y: e.y })
+  const narrow = (await rect(box)).width
+  await page.reload()
+  expect(
+    Math.abs((await rect(page.locator(EXTRA).first())).width - narrow),
+  ).toBeLessThan(1.5)
+})
+
+test('phone: a finger on the page outside the dots still scrolls it', async ({
+  page,
+}) => {
+  const box = await phoneBox(page, 'P-scroll', ['Alpha beta'], { tall: true })
+  const f = await rect(box)
+  const scroller = page.locator('[data-page-scroller]')
+  const top0 = await scroller.evaluate((el) => el.scrollTop)
+  await page.mouse.move(380, 300)
+  await page.mouse.wheel(0, -200)
+  await page.waitForTimeout(500)
+  expect(await scroller.evaluate((el) => el.scrollTop)).toBeLessThan(top0)
+  const g = await rect(box)
+  expect(Math.abs(g.width - f.width)).toBeLessThan(1.5)
+})
+
+test('phone: with the switch OFF there are no dots', async ({ page }) => {
+  const box = await phoneBox(page, 'P-off', ['Alpha beta'], { flag: false })
+  await expect(box).toBeVisible()
+  await expect(page.locator('[data-resize-handle]')).toHaveCount(0)
 })

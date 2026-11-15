@@ -154,10 +154,11 @@ test('TB-21 the east and south dots resize the box live', async ({ page }) => {
   const f = await rect(box)
   const e = await centre(dot(box, 'e'))
   await drag(page, e, { x: e.x + 140, y: e.y }, { up: false })
-  // Live: the box is already wider before the finger lifts. (One frame to
-  // draw, as the height check below: the old inflated minimum hid the lag.)
-  await page.waitForTimeout(120)
-  expect((await rect(box)).width).toBeGreaterThan(f.width + 100)
+  // Live: the box is already wider before the finger lifts (it needs a frame
+  // to draw; the old inflated minimum hid that).
+  await expect
+    .poll(async () => (await rect(box)).width)
+    .toBeGreaterThan(f.width + 100)
   await page.mouse.up()
   await page.waitForTimeout(500)
   expect((await rect(box)).width).toBeGreaterThan(f.width + 100)
@@ -190,6 +191,8 @@ test('TB-21 never smaller than its text: the longest word and every line stay', 
   const e = await centre(dot(box, 'e'))
   await drag(page, e, { x: f.x - 300, y: e.y })
   expect((await rect(box)).width).toBeGreaterThanOrEqual(wordW - 1)
+  // And not much more: the word, the frame and the padding, plus 40 px.
+  expect((await rect(box)).width).toBeLessThanOrEqual(wordW + 70)
   const clipped = await box
     .locator('[data-box-content]')
     .evaluate((c) => c.scrollWidth > c.clientWidth + 1)
@@ -441,4 +444,31 @@ test('TB-21 a column never gets narrower than its longest word', async ({
     return tops.length
   })
   expect(lines).toBe(1)
+})
+
+test('TB-21 upper limit: a short text narrows to its longest word, not to a larger minimum', async ({
+  page,
+}) => {
+  // Why: the editor's <style> text was counted as a word, so every minimum
+  // was about 137 mm; all other checks are lower limits and missed it.
+  const box = await oneBox(page, 'TB21up', ['Alpha beta', 'Gamma'])
+  const wordW = await box.evaluate((el) => {
+    const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+      const i = (n.textContent ?? '').indexOf('Alpha')
+      if (i < 0) continue
+      const r = document.createRange()
+      r.setStart(n, i)
+      r.setEnd(n, i + 5)
+      return r.getBoundingClientRect().width
+    }
+    return 0
+  })
+  expect(wordW).toBeGreaterThan(20)
+  const f = await rect(box)
+  const e = await centre(dot(box, 'e'))
+  await drag(page, e, { x: f.x - 300, y: e.y })
+  const w = (await rect(box)).width
+  expect(w).toBeGreaterThanOrEqual(wordW - 1)
+  expect(w).toBeLessThanOrEqual(wordW + 70)
 })

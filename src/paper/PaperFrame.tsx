@@ -546,8 +546,8 @@ export function PaperFrame({
     [rowsView],
   )
   const placedX = (b: PaperBox) => layout.get(b.id)?.x ?? b.x
-  /** What each box's width was saved as (the grid's own width is not it). */
-  const storedW = new Map(boxesOf(page).map((b) => [b.id, b.w]))
+  /** The width set on a phone (mm); a box never resized there fills the column. */
+  const phoneW = new Map(boxesOf(page).map((b) => [b.id, b.pw]))
   const stored = boxesOf(page)
     .filter((b) => b.id !== MAIN_BOX)
     .map(placed)
@@ -1399,13 +1399,13 @@ export function PaperFrame({
     setPreview(null)
     if (!d || e.type === 'pointercancel' || !d.moved) return
     if (d.phone?.w !== undefined) {
-      // The box's own width (mm): rows stay as they are; one write, one Undo.
+      // The phone width (mm), apart from the iPad width: rows stay as they are; one write, one Undo.
       const id = d.id
       const w = Math.round(d.phone.w * 10) / 10
       setLiveW({ id, w })
       // The saved width takes over once the write is in.
       window.setTimeout(() => setLiveW(null), 600)
-      onGridChange?.(baseRows, [{ id, patch: { w } }])
+      onGridChange?.(baseRows, [{ id, patch: { pw: w } }])
     }
     if (d.i !== null || d.north) {
       const places: BoxPatch[] = placesOf(d.rows, heightsMm, geo)
@@ -2029,7 +2029,7 @@ export function PaperFrame({
                           box.w,
                           liveW?.id === b.id
                             ? liveW.w
-                            : (storedW.get(b.id) ?? box.w),
+                            : (phoneW.get(b.id) ?? box.w),
                         )
                       : box.w,
                   }

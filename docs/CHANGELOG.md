@@ -4,7 +4,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 15 Nov 2026: 2B.5b text boxes resize on a phone (switch textbox.v2, OFF)
 
-- What: on a phone a selected box shows the same eight dots and the same hold, dead zone, nearest-handle and 44 pt rules as on the iPad. n/s change the height; e/w the width, left-aligned inside the single column, never under the longest word. The width is the box's own saved width (PaperBox.w), no new data. The minimum width no longer counts the editor's <style> text (it made every minimum 137 mm). tb2-resize live-width check waits one frame (the inflated minimum had hidden the lag); tb2-resize-shots now expects 8 dots on a phone.
+- What: on a phone a selected box shows the same eight dots and the same hold, dead zone, nearest-handle and 44 pt rules as on the iPad. n/s change the height; e/w the width, left-aligned inside the single column, never under the longest word. The width is a phone width (optional PaperBox.pw, apart from the iPad width); a box never resized on a phone fills the column. Tests now have upper limits on the minimum. The minimum width no longer counts the editor's <style> text (it made every minimum 137 mm). tb2-resize live-width check waits one frame (the inflated minimum had hidden the lag); tb2-resize-shots now expects 8 dots on a phone.
 - Why: owner, 15 Nov: "It must work. I want uniformity from the start."
 - Files: src/paper/PaperFrame.tsx (resize block, one lane), BoxFrame.tsx, src/paper/v2/boxResize.ts, e2e/tb2-resize-phone.spec.ts, tb2-resize-phone-shots.spec.ts.
 

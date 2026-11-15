@@ -90,7 +90,7 @@ for (const [name, vp, mode] of SIZES) {
       await page.waitForTimeout(400)
       await page.screenshot({ path: `${OUT()}/narrow-${name}-${label}.png` })
     }
-    if (!dots) return
+    if (!dots || name === 'phone') return // phone held pictures: 2b5b folder
     // Held and dragged: the dot grows while the finger is down.
     const s = (await box.locator('[data-resize-handle="s"]').boundingBox())!
     const sx = s.x + s.width / 2

@@ -2,7 +2,7 @@
 
 **RUNNING, full team for Phase 2A (owner answer 4A, 15 Nov):** one `phase-manager` (Opus, medium) runs up to 3 Sonnet builders; lean again after the phase. Rewritten 15 Nov, evening.
 
-**Now (phase-manager, 15 Nov late, restarted):** merging 2A.6, then 2A.8, then 2A.9 (one at a time, main merged into build/next with each). Next: 2A.7, 2A.10, 2A.11 (R21 first).
+**Now (phase-manager, 15 Nov late, restarted):** 2A.6 and 2A.8 merged, CI green. Merging 2A.9, then cfg2. 2A.7 and 2A.11 built; webkit with 2A.11.
 
 ## The order (details in phase-plan.md section 0)
 
@@ -18,17 +18,19 @@
 
 ## Phase 2A tasks (phase-manager, from 15 Nov; webkit turn handed out by the manager)
 
-| Task  | Branch @ head (working copy)                      | State                                                                                                                                                                                 |
-| ----- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)              | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it)                                                                                        |
-| 2A.5  | `slice/2a5` merged 80de703c (ln-2a5)              | MERGED; ipad-webkit 17/17; CI green                                                                                                                                                   |
-| 2A.14 | `slice/2a14` merged c2967488 (ln-2a14)            | MERGED; ipad-webkit 28/28; CI green (f0ab8d00, 0cdaed63)                                                                                                                              |
-| cfg   | `slice/2a-cfg-webkit` merged df188a67 (main chat) | MERGED; 2A specs on the ipad-webkit list                                                                                                                                              |
-| rule  | 2A.14's settings rows + Layout                    | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                                                                                                               |
-| 2A.6  | `slice/2a6` 025dca96 (ln-2a6)                     | re-review PASS; merging now (builder afd374fcf25ef2264); 3 points carry to 2A.16 (phone ★ before ⋯, no open Favourites picture, fixed 700 ms wait)                                    |
-| 2A.8  | `slice/2a8` 66238289 (ln-2a8)                     | 2 FAILs; Opus builder a64dc95c1de7b3551 fixed; re-review PASS; ipad-webkit after 2A.9, then merge                                                                                     |
-| 2A.9  | `slice/2a9` bc461d82 (ln-2a9)                     | review 1 FAIL fixed; ipad-webkit running now; then re-review (aa727769c61c77a7d); builder ab4a3353c97713e95. toolbarV8Text not on the ipad-webkit list (hot file; one cfg step later) |
-| rest  | 2A.7, 2A.10–2A.13, 2A.15, 2A.16                   | 2A.7 after 2A.6, 2A.10 after 2A.9; 2A.11 first fixes the inkTools lasso red (PENDING R21)                                                                                             |
+| Task  | Branch @ head (working copy)                      | State                                                                                                                                                                                                                        |
+| ----- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2A.4  | `slice/2a4` merged b7ba4ede (ln-2a4)              | MERGED, CI green; ipad-webkit 9/9 green by one-off local config (repo config does not list it)                                                                                                                               |
+| 2A.5  | `slice/2a5` merged 80de703c (ln-2a5)              | MERGED; ipad-webkit 17/17; CI green                                                                                                                                                                                          |
+| 2A.14 | `slice/2a14` merged c2967488 (ln-2a14)            | MERGED; ipad-webkit 28/28; CI green (f0ab8d00, 0cdaed63)                                                                                                                                                                     |
+| cfg   | `slice/2a-cfg-webkit` merged df188a67 (main chat) | MERGED; 2A specs on the ipad-webkit list                                                                                                                                                                                     |
+| rule  | 2A.14's settings rows + Layout                    | pictures owner-approved 15 Nov (docs/mockups/toolbar-v9/settings-rows/)                                                                                                                                                      |
+| 2A.6  | `slice/2a6` merged 920a3b4d (ln-2a6)              | MERGED; CI green (43725537965); 3 points carry to 2A.16 (phone ★ before ⋯, no open Favourites picture, fixed 700 ms wait)                                                                                                    |
+| 2A.8  | `slice/2a8` merged 99f8ba84 (ln-2a8)              | MERGED; CI green (43726453798); merged ToolRow.tsx reviewed PASS (Erases fold 310 px ok)                                                                                                                                     |
+| 2A.9  | `slice/2a9` bc461d82 (ln-2a9)                     | re-review PASS, webkit 22/22; merging now (builder ab4a3353c97713e95), then cfg step slice/2a-cfg2 (toolbarV8Text, inkTools, toolbarV9Lasso on the ipad-webkit list). To 2A.16: compact font tiles cut names ("Same as no…") |
+| 2A.7  | `slice/2a7` 7f15a2fc (ln-2a7)                     | built, chromium green; waits for the webkit turn; builder a1381c64855ab52cd                                                                                                                                                  |
+| 2A.11 | `slice/2a11` 33844b49 (ln-2a11)                   | built, chromium green; R21 fixed (forced click in pickTool); has webkit turn: root cause of 5 lasso webkit reds on base (lassoWords:185, ownerLasso:235/345/377); builder a960680fc4d73eba7                                  |
+| rest  | 2A.10, 2A.12, 2A.13, 2A.15, 2A.16                 | 2A.10 after 2A.9 merges                                                                                                                                                                                                      |
 
 ## Waiting (each has its step)
 

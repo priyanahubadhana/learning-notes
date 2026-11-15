@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test'
-import { createNotebook, showSidebar, sidebar, startInMode } from './helpers.ts'
+import {
+  addPage,
+  createNotebook,
+  showSidebar,
+  sidebar,
+  startInMode,
+} from './helpers.ts'
 
 /**
  * R9: on a touch device the "Name it" sheet must open every time a notebook
@@ -25,6 +31,17 @@ for (const [size, viewport] of [
       await expect(
         sidebar(page).getByRole('button', { name: 'First', exact: true }),
       ).toBeVisible()
+    })
+    test(`${size}: a new page is named through the sheet every time`, async ({
+      page,
+    }) => {
+      await startInMode(page, 'computer')
+      await page.goto('/')
+      await createNotebook(page, 'Paper', 'First')
+      await addPage(page, 'Paper', 'Second')
+      await expect(
+        page.getByRole('navigation', { name: 'Breadcrumb' }),
+      ).toContainText('Second')
     })
   })
 }

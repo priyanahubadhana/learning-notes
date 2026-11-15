@@ -19,6 +19,6 @@ Apply these to EVERY screen, together with docs/design/quality-standard.md.
    - Long-hold (with feedback) for moves.
    - Hold-to-unlock rings for locks.
 9. **Switches for on/off.** Segmented controls for choices, sliders for amounts, swatches for colours.
-10. **Clean management UIs.** Pick on top (visual tiles with mini previews), Manage below (rename inline, duplicate, reset, delete in danger red, Undo toast), ✓/✕ footer.
+10. **Clean management UIs.** Pick on top (visual tiles with mini previews), Manage below (rename inline, duplicate, reset, delete in danger red, Undo toast), ✕ (cancel) at the top left and ✓ (done) at the top right (owner, 15 Nov; was a footer). Quick pickers still close by themselves after a pick.
 11. **Premium look.** The existing tokens, glass bars, accent underline, Lucide 1.6 stroke icons, calm motion (150 ms), dark and light.
 12. **Questions before big mock-ups.** Recommended picks marked; plain words with small examples.

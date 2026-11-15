@@ -228,7 +228,9 @@ export function useAnchoredCard(opts: {
               card.offsetHeight + cut,
               window.innerHeight - 2 * CARD_EDGE,
             )
-          : card.offsetHeight,
+          : // T6: the card's own height, not the one it was capped to (maxHeight);
+            // measured capped it would fit uncapped, grow, and be capped again, every frame.
+            Math.max(card.offsetHeight, card.scrollHeight),
       }
       const view = {
         width: root.clientWidth,

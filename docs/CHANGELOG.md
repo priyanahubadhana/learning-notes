@@ -2,6 +2,14 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2B.11 the Pencil on paper, in a box, pinch zoom and the "+ box" tag, proved on the new layer (switch textbox.v2, OFF)
+
+- What: 15 e2e tests (e2e/tb2-pencil.spec.ts) for TB-36 to TB-41, with the browser's own Pencil input (installRealPen, L11) and the Scribble probe: Pen tool on empty paper makes a box with the ink inside; Text tool turns a shaky rectangle into a clean shape (one Undo), handwriting near it (on paper or in a box) cancels it, a ring round a digit gives the circled number; pinch zoom 100 to 400 % with the spring back, the Pencil never zooms; the "+ box" tag on mouse and Pencil hover only with the Text tool; the phone gap tap; TB-41 Pencil in a box: Text tool leaves it to Scribble (editable box under the stroke, no ink), Pen tool makes ink in that box and never converts. All pass with the switch ON on the existing code: no app code changed.
+- Why: tests first showed the kept behaviour already holds on the new layer. Moving the blocks behind the gesture router was not done (see the task report: pinch needs touch events with preventDefault, the router sees pointer events only).
+- Also (T5): the "Tap here to keep writing" line no longer takes a press that moved over 10 px as a tap (no new last line, no caret, no jump to the end), switch OFF and ON. 4 more e2e.
+- Also (T23): an empty box (no text, ink or picture) now goes when you leave it to the page title or any field outside the box, and is looked at again until a button or field in the box UI lets go of focus; whatever its style. (T6): the Box ▾ card of the Text tool no longer blinks: when the card was a little taller than the room above the box it was capped, measured capped, grown, capped again every frame; useAnchoredCard now measures its own full height. e2e: T23, tb2-boxchip (rect still for 2 s).
+- Files: e2e/tb2-pencil.spec.ts, e2e/tb2-boxchip.spec.ts, playwright.config.ts (ipad list), src/editor/PageEditor.tsx (one onClick guard), src/paper/usePaperBoxes.tsx, src/design/parts/useAnchoredCard.ts.
+
 ### 15 Nov 2026: polish sweep R12 (solid surfaces), R13 (lazy parts paint at once), Pages tab bar fade
 
 - What: R12: a scrolling box that paints a solid background is never masked by the scroll-hint fade; its edge fades inside it in its own colour (scrollHints.ts solidOf, index.css; grids, gaps and boxes with their own ::before / ::after stay solid with no fade). Goes live with foundation.shell. R13: new lazyNow (src/app/lazyNow.ts), a drop-in for lazy with preload(): a preloaded part draws in its own render, without React 19's 300 ms Suspense hold. The v8 bar's seven card bodies, selection bar and More list, the page More options sheet, the Name it sheet, hold menu, page strip, Edit toolbar sheet and keyboard bar are fetched once the screen is idle (prefetchAfterIdle; chunks are not in the first load). The Pages tab's Object bar fades in place (pm-fade) instead of sliding 6 px.
@@ -2072,3 +2080,8 @@ What: 6 scratch working copies removed with git and 9 folders in `.claude/worktr
 - What: a Lasso loop that holds whole boxes picks the boxes; one group pill (count, Group, Ungroup); picked boxes drop in page order with one Undo; Layout Assist opens on the page (zoomed out, wiggling boxes, Layouts strip, Done, coach line), a tile applies at once as one Undo.
 - Why: states picture panels 6a and 6b, TB-32 to TB-35.
 - Files: `src/paper/v2/boxGroup.tsx`, `layoutAssist.tsx`, `LayoutAssistLazy.tsx`, `src/paper/PaperFrame.tsx`, `src/paper/usePaperBoxes.tsx`, texts en/es/hi, `e2e/tb2-group*.spec.ts`.
+- 2026-11-15: HOW-WE-BUILD section 2: new rule (owner's OK): a full side-by-side check against the approved design before every first look.
+
+## 2026-11-15 Owner answers E, H, 5
+
+- What: E option 1 (upright Pencil mode icons only), H option 1 (merge the two November 2026 pages, backup first), 5 yes (Format 3 tabs Beginner, 4 Professional). Why: owner answers to the contradictions list. Files: docs/plans/contradictions-2026-11-15.md, docs/PENDING.md.

@@ -1,4 +1,5 @@
-import { useId } from 'react'
+import { useContext, useId } from 'react'
+import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
 import type { AnchoredMenuState } from '../../app/tools/useAnchoredMenu'
 import type { LearningNotesDB } from '../../core/db'
@@ -40,6 +41,7 @@ export default function BoxMoreHost({
   onLock: (locked: boolean) => void
 }) {
   const id = useId()
+  const { toast } = useContext(AppUiContext)
   // Beside or under the box, never over its words.
   const boxEl = document.querySelector(
     '[data-paper-box="' + CSS.escape(box.id) + '"]',
@@ -113,8 +115,8 @@ export default function BoxMoreHost({
         icon: 'layers',
         label: t('paper.group.group'),
         note: t('paper.box.groupNeed'),
-        disabled: true,
-        onSelect: () => {},
+        dim: true,
+        onSelect: () => toast(t('paper.box.groupTip')),
       },
     ],
     ...(canEdit

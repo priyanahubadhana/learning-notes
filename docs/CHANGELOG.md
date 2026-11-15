@@ -2036,3 +2036,9 @@ What: 6 scratch working copies removed with git and 9 folders in `.claude/worktr
 - What: on a phone the dim layer behind a ▾ sheet now covers the sticky "Search settings" bar.
 - Why: the dim layer (`.pcard-scrim`) had no layer number, so the bar (`--z-sticky: 1`) painted above it. The scrim now takes the sheet's layer number (`LAYERS.sheet`), reusing the sheet's one `zIndex` use: the ratchet stays 137.
 - Files: src/design/parts/Card.tsx, e2e/settingsV3SearchF9.spec.ts (SET-B04a), docs/features/settings-v3.md, docs/PENDING.md.
+
+## 2026-11-15, 2B.10: several boxes and Layout Assist (switch textbox.v2, OFF live)
+
+- What: a Lasso loop that holds whole boxes picks the boxes; one group pill (count, Group, Ungroup); picked boxes drop in page order with one Undo; Layout Assist opens on the page (zoomed out, wiggling boxes, Layouts strip, Done, coach line), a tile applies at once as one Undo.
+- Why: states picture panels 6a and 6b, TB-32 to TB-35.
+- Files: `src/paper/v2/boxGroup.tsx`, `layoutAssist.tsx`, `LayoutAssistLazy.tsx`, `src/paper/PaperFrame.tsx`, `src/paper/usePaperBoxes.tsx`, texts en/es/hi, `e2e/tb2-group*.spec.ts`.

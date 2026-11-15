@@ -110,6 +110,8 @@ import {
 } from './sheets'
 
 /** Item 7: the page scroll bar loads when a paper page shows (first-load size). */
+/** Text box v2: the group pill (task 2B.10) loads only with the switch ON. */
+const GroupPill = lazy(() => import('./v2/boxGroup'))
 const PageScrollBar = lazy(() =>
   import('./PageScrollBar').then((m) => ({ default: m.PageScrollBar })),
 )
@@ -903,7 +905,16 @@ export function PaperFrame({
     const leadTop = held?.orig.get(lead)
     const yTop = leadTop ? leadTop.y + dyMm : my
     let idx = rows.filter((row) => top(row) < yTop).length
-    for (const id of [lead, ...rest]) {
+    // Text box v2 (TB-33): several boxes keep their order on the page (top to
+    // bottom, then left to right), so they land as they were, not lead first.
+    const order = [lead, ...rest]
+    if (v2.current && held)
+      order.sort((p, q) => {
+        const a = held.orig.get(p)
+        const b = held.orig.get(q)
+        return a && b ? a.y - b.y || a.x - b.x : 0
+      })
+    for (const id of order) {
       const o = held?.orig.get(id)
       if (!o || id === MAIN_BOX) {
         rows = insertRow(rows, idx++, id, snap(my, step / k))
@@ -1407,13 +1418,37 @@ export function PaperFrame({
     // whatever it covers inside the boxes (words, ink, pictures) first.
     const rect = lassoSettings.get().shape === 'rect'
     const client = poly.map((q) => ({ x: q.x + p.left, y: q.y + p.top }))
-    if (lassoAcrossBoxes(client, rect)) return setPicked([])
     // One pass: every box found once, not one search per box.
     const frames = new Map<string, HTMLElement>()
     paperEl.current
       ?.querySelectorAll<HTMLElement>('[data-paper-box]')
       .forEach((el) => frames.set(el.dataset.paperBox ?? '', el))
+    // Text box v2 (TB-32): a loop that holds whole boxes picks those boxes,
+    // not the words inside them.
+    const whole = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect()
+      const x0 = r.left - p.left
+      const y0 = r.top - p.top
+      return [
+        { x: x0, y: y0 },
+        { x: x0 + r.width, y: y0 },
+        { x: x0, y: y0 + r.height },
+        { x: x0 + r.width, y: y0 + r.height },
+      ].every((c) => inPolygon(c, poly))
+    }
+    const v2On = isOn('textbox.v2')
+    const wholeIds = v2On
+      ? extra.filter((b) => {
+          const el = frames.get(b.id)
+          return !!el && whole(el)
+        })
+      : []
+    if (wholeIds.length) {
+      // Let go of any words picked earlier (an empty loop reaches nothing).
+      lassoAcrossBoxes([], false)
+    } else if (lassoAcrossBoxes(client, rect)) return setPicked([])
     const inLoop = extra.filter((b) => {
+      if (wholeIds.length) return wholeIds.includes(b)
       const el = frames.get(b.id)
       if (!el) return false
       // Where the box is on screen, in paper px (as the loop is).
@@ -1842,14 +1877,26 @@ export function PaperFrame({
       >
         <LoopLayer ref={loopLayer} />
         {guides && <GuideLines g={guides} k={k} />}
-        {onGroup && picked.length >= 1 && !liveBoxes && (
-          <GroupBar
-            picked={extra.filter((b) => picked.includes(b.id))}
-            layout={layout}
-            k={k}
-            onGroup={(ids, group) => onGroup(ids, group)}
-          />
-        )}
+        {onGroup &&
+          picked.length >= 1 &&
+          !liveBoxes &&
+          (isOn('textbox.v2') ? (
+            <Suspense fallback={null}>
+              <GroupPill
+                picked={extra.filter((b) => picked.includes(b.id))}
+                layout={layout}
+                k={k}
+                onGroup={(ids, group) => onGroup(ids, group)}
+              />
+            </Suspense>
+          ) : (
+            <GroupBar
+              picked={extra.filter((b) => picked.includes(b.id))}
+              layout={layout}
+              k={k}
+              onGroup={(ids, group) => onGroup(ids, group)}
+            />
+          ))}
         {ghost &&
           (() => {
             const g = layout.get(ghost.id)

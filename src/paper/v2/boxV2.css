@@ -89,3 +89,12 @@ html[data-box-drag] [data-box-bar] {
 [data-paper-box][data-dragging] [data-chrome] {
   top: -44px !important;
 }
+
+/*
+ * Layout Assist (task 2B.10): every box, the page's own text included, has a
+ * dashed outline while the page can be rearranged. States picture, panel 6b.
+ */
+[data-layout-mode] [data-layout-cover] {
+  border: 1.5px dashed var(--color-line-strong);
+  border-radius: 6px;
+}

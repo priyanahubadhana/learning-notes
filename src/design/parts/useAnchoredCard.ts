@@ -272,11 +272,8 @@ export function useAnchoredCard(opts: {
     ro.observe(card)
     ro.observe(document.documentElement)
     if (anchor instanceof HTMLElement) ro.observe(anchor)
-    const vv = window.visualViewport
-    vv?.addEventListener('resize', settle)
     return () => {
       ro.disconnect()
-      vv?.removeEventListener('resize', settle)
       cancelAnimationFrame(raf)
       clearTimeout(timer)
     }

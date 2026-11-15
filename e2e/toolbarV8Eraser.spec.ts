@@ -51,6 +51,8 @@ test('TB-30 Professional: Mode and Size menus, then Erases and Back after one as
   await expect(chip(page, 'eraser.size')).toBeVisible()
   await expect(page.getByTestId('v8-eraser-erases')).toBeVisible()
   await expect(page.getByTestId('v8-eraser-back')).toBeVisible()
+  // No Options ▾ any more.
+  await expect(chip(page, 'eraser.options')).toHaveCount(0)
   // The chips show what is chosen now.
   await expect(chip(page, 'eraser.mode')).toHaveAttribute(
     'aria-label',
@@ -99,6 +101,12 @@ test('TB-30b Erases chips on the bar; at least one stays on; Back after one', as
   const hl = page.getByTestId('v8-eraser-erases-hl')
   const text = page.getByTestId('v8-eraser-erases-text')
   const pen = page.getByTestId('v8-eraser-erases-pen')
+  // As the mock: each chip has its icon and a 44 pt hit area.
+  for (const c of [hl, text, pen]) {
+    await expect(c.locator('svg')).toHaveCount(1)
+    expect((await c.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+  }
+  await expect(text).toContainText('Text')
   // Default: Highlighter + Pen, as today.
   await expect(hl).toHaveAttribute('aria-checked', 'true')
   await expect(text).toHaveAttribute('aria-checked', 'false')
@@ -232,29 +240,50 @@ test('T10 highlights only: smooth rubbing, letters measured once, no gaps', asyn
   const { box, lh } = await highlightLines(page, 4)
   const marks = page.locator('.bn-editor [data-style-type="backgroundColor"]')
   await expect.poll(() => marks.count()).toBeGreaterThan(0)
-  const cutWords = () =>
-    page.evaluate(() => {
-      const block = document.querySelector('.bn-block-content')!
-      const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT)
-      let word: boolean[] = []
-      const words: boolean[][] = []
-      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-        const node = n as Text
-        const on = !!node.parentElement?.closest(
-          '[data-style-type="backgroundColor"]',
-        )
-        for (const ch of node.data) {
-          if (/s/.test(ch)) {
-            if (word.length) words.push(word)
-            word = []
-          } else word.push(on)
+  /** Words on line one that are part highlighted (cut letters); also counts the words seen there. */
+  const cutWords = (y: number) =>
+    page.evaluate(
+      ({ y, lh }) => {
+        const block = document.querySelector('.bn-block-content')!
+        const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT)
+        const range = document.createRange()
+        let word: boolean[] = []
+        const words: boolean[][] = []
+        const end = () => {
+          if (word.length) words.push(word)
+          word = []
         }
-      }
-      if (word.length) words.push(word)
-      return words.filter((w) => w.some(Boolean) && !w.every(Boolean)).length
-    })
+        for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+          const node = n as Text
+          const on = !!node.parentElement?.closest(
+            '[data-style-type="backgroundColor"]',
+          )
+          for (let i = 0; i < node.data.length; i++) {
+            if (/\s/.test(node.data[i]!)) {
+              end()
+              continue
+            }
+            range.setStart(node, i)
+            range.setEnd(node, i + 1)
+            const r = range.getClientRects()[0]
+            const cy = r ? r.top + r.height / 2 : -1e6
+            if (Math.abs(cy - y) < lh / 2) word.push(on)
+            else end()
+          }
+        }
+        end()
+        return {
+          words: words.length,
+          cut: words.filter((w) => w.some(Boolean) && !w.every(Boolean)).length,
+        }
+      },
+      { y, lh },
+    )
   const before = (await marks.allInnerTexts()).join('')
-  const cutBefore = await cutWords()
+  // Highlighting snaps to whole words, so line one starts with none cut.
+  const cutBefore = await cutWords(box.y + lh / 2)
+  expect(cutBefore.words).toBeGreaterThan(4)
+  expect(cutBefore.cut).toBe(0)
   await tool(page, 'Eraser').click({ force: true })
   await page.waitForTimeout(600)
 
@@ -351,7 +380,7 @@ test('T10 highlights only: smooth rubbing, letters measured once, no gaps', asyn
   )
   expect(left.inside).toBe(0)
   // Whole words: no word on line one is half highlighted (no cut letters).
-  expect(await cutWords()).toBeLessThanOrEqual(cutBefore)
+  expect((await cutWords(y)).cut).toBe(0)
   expect(left.outside).toBeGreaterThan(5)
   // One Undo puts the whole rub back.
   await tool(page, 'Undo').click()

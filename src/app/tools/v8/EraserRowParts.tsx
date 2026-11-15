@@ -1,12 +1,16 @@
 import { t, type MessageKey } from '../../../i18n/t'
-import { Icon } from '../icons'
+import { Icon, type IconName } from '../icons'
 import { eraseTargets, eraserSettings } from '../main/inkSettings'
 import { currentRunner } from '../toolRuntime'
 import { toggleErases, type EraseTarget } from './cards/eraser/eraserModel'
 import './eraserRow.css'
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
-const TARGETS: readonly EraseTarget[] = ['hl', 'text', 'pen']
+const TARGETS: readonly (readonly [EraseTarget, IconName])[] = [
+  ['hl', 'highlighter'],
+  ['text', 'type'],
+  ['pen', 'penLine'],
+]
 
 /** "Erases  Highlighter · Text · Pen" right on the bar (mock v9, TB-30b). */
 export function ErasesChips() {
@@ -21,7 +25,7 @@ export function ErasesChips() {
       <span className="v8erases-label" aria-hidden>
         {t('v8.eraser.erases')}
       </span>
-      {TARGETS.map((id) => (
+      {TARGETS.map(([id, icon]) => (
         <button
           key={id}
           type="button"
@@ -36,7 +40,8 @@ export function ErasesChips() {
               currentRunner().app?.toast(t('v8.eraser.needOne'))
           }}
         >
-          {t(`v8.eraser.erases.${id}` as MessageKey)}
+          <Icon name={icon} size={17} />
+          <span>{t(`v8.eraser.erases.${id}` as MessageKey)}</span>
         </button>
       ))}
     </div>

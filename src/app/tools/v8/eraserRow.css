@@ -16,8 +16,11 @@
   color: var(--color-ink-soft);
 }
 .v8erases-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
   min-width: 44px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 var(--space-2);
   border: 0;
   border-radius: calc(var(--r-md) - 2px);

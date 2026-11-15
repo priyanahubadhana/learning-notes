@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.8 review 2 fixes (switch toolbar.v8, OFF live)
+
+- What: Erases chips carry their icons (Highlighter, Text, Pen) and are 44 px tall, as the mock; the T10 "whole words" check now splits on real spaces, looks at line one only and must find no cut word (it failed when the eraser was made to cut letters, then passed).
+- Why: review 2 of 2A.8. Root reason: the old check had a typo (/s/ instead of /\s/) and only compared with the count before, so it could never fail.
+- Files: src/app/tools/v8/EraserRowParts.tsx, eraserRow.css, e2e/toolbarV8Eraser.spec.ts, screenshots/2a8/
+
 ### 15 Nov 2026: 2A.8 eraser as in mock v9 (switch toolbar.v8, OFF live)
 
 - What: Eraser row is Mode, Size, Options (three menus; one Eraser menu when "Eraser's three menus" is off); Options holds Erases (Highlighter, Text, Pen; never none) and "go back after one erase"; the old "highlights only" Mode tile and switch are gone from the new bar (the old switch still works on today's bar and equals Highlighter alone); the eraser can erase typed text; T10 fixed (letters measured once per stroke, one repaint per frame, spaces included).

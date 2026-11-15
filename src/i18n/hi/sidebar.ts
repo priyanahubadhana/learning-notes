@@ -221,4 +221,7 @@ export const hiSidebar = {
   'tree.moveTop': 'शीर्ष स्तर पर ले जाएँ',
   'tree.moveUp': 'ऊपर ले जाएँ',
   'tree.moved': 'पेज दूसरी जगह ले जाया गया।',
+  'journal.tidiedTwo': 'जर्नल व्यवस्थित: {month} के दो पेज जोड़े गए',
+  'journal.tidiedMany': 'जर्नल व्यवस्थित: {month} के {count} पेज जोड़े गए',
+  'journal.tidiedMonths': 'जर्नल व्यवस्थित: {count} महीनों के पेज जोड़े गए',
 }

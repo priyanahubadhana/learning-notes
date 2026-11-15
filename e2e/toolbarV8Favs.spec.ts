@@ -169,6 +169,36 @@ test('TB-53 to TB-55 Organise: rows with handle, arrows and menu; move and remov
   await expect(page.getByTestId('arrange-sheet')).toHaveCount(0)
 })
 
+test('TB-55 the "..." menu names its own row: Move to end on the middle row says that row moved', async ({
+  page,
+}) => {
+  await open(page, { favs: OLD })
+  await page.getByTestId('v8-organise').click()
+  await rows(page).nth(1).getByTestId('row-menu').click()
+  await page.getByTestId('menu-end').click()
+  await expect(rows(page).last()).toContainText('Brush pen')
+  await expect(page.getByText('Moved Brush pen')).toBeVisible()
+  await expect(page.getByText('Moved Highlighter')).toHaveCount(0)
+})
+
+test('TB-55 keyboard moves name the focused row, not the row last pressed', async ({
+  page,
+}) => {
+  await open(page, { favs: OLD })
+  await page.getByTestId('v8-organise').click()
+  // A press on the first row's arrow first, then Undo.
+  await rows(page).first().getByRole('button', { name: /down/i }).click()
+  await expect(page.getByText('Moved Ballpoint')).toBeVisible()
+  await toastUndo(page).click()
+  await expect(rows(page).first()).toContainText('Ballpoint')
+  // Now the keyboard moves the middle row down.
+  await page.locator('li.rord-item').nth(1).focus()
+  await page.keyboard.press('Alt+ArrowDown')
+  await expect(rows(page).last()).toContainText('Brush pen')
+  await expect(page.getByText('Moved Brush pen')).toBeVisible()
+  await expect(page.getByText('Moved Highlighter')).toHaveCount(0)
+})
+
 test('TB-54 dragging a row by its handle reorders the list and the row', async ({
   page,
 }) => {

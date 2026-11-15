@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ArrangeSheet,
   type ArrangeRow,
@@ -244,8 +244,6 @@ export function OrganiseFavSheet({
   const all = useFavs()
   const row = rowOf(all, tool)
   // Every favourite seen while the sheet is open, so a removed one can come back.
-  // The row last pressed (Safari does not focus a button on tap, so focus cannot tell).
-  const pressedRow = useRef('')
   const [seen] = useState(() => new Map<string, Fav2>())
   useEffect(() => {
     for (const f of row) seen.set(f.id, f)
@@ -257,17 +255,15 @@ export function OrganiseFavSheet({
     preview: <FavFace fav={f} />,
   }))
 
-  const change = (next: ArrangeRow[]) => {
+  const change = (next: ArrangeRow[], moved?: string) => {
     const before = favs2.get()
     const byId = seen
     const nextRow = next
       .map((r) => byId.get(r.id))
       .filter((f): f is Fav2 => !!f)
     saveFavs(withRow(before, tool, nextRow))
-    // The row whose arrow or menu was just used is the one that moved.
-    const pressed = pressedRow.current
-    const prefer = row.find((f) => pressed.includes(favName(f)))?.id
-    const id = movedId(row, nextRow, prefer)
+    // The sheet names the row whose arrow, menu, key or handle was used.
+    const id = movedId(row, nextRow, moved)
     if (id && nextRow.length === row.length)
       toast(t('v8.favs.moved', { name: favName(byId.get(id)!) }), () =>
         saveFavs(before),
@@ -275,36 +271,28 @@ export function OrganiseFavSheet({
   }
 
   return (
-    <div
-      style={{ display: 'contents' }}
-      onPointerDownCapture={(e) => {
-        pressedRow.current =
-          (e.target as Element).closest('.arr-row')?.textContent ?? ''
-      }}
-    >
-      <ArrangeSheet
-        title={t('v8.row.organise')}
-        help={t('v8.favs.orgHelp')}
-        rows={rows}
-        onChange={change}
-        onAdd={onAdd}
-        addLabel={t('v8.favs.addShort')}
-        preview={(list) => (
-          <span className="arr-chips">
-            {list.map((r) => (
-              <span key={r.id} className="v8chip v8chip-fav">
-                {r.preview}
-                <span className="v8chip-text">{r.label}</span>
-              </span>
-            ))}
-          </span>
-        )}
-        onReset={onReset}
-        isDefault={row.length === 0}
-        onDone={onDone}
-        anchor={anchor}
-      />
-    </div>
+    <ArrangeSheet
+      title={t('v8.row.organise')}
+      help={t('v8.favs.orgHelp')}
+      rows={rows}
+      onChange={change}
+      onAdd={onAdd}
+      addLabel={t('v8.favs.addShort')}
+      preview={(list) => (
+        <span className="arr-chips">
+          {list.map((r) => (
+            <span key={r.id} className="v8chip v8chip-fav">
+              {r.preview}
+              <span className="v8chip-text">{r.label}</span>
+            </span>
+          ))}
+        </span>
+      )}
+      onReset={onReset}
+      isDefault={row.length === 0}
+      onDone={onDone}
+      anchor={anchor}
+    />
   )
 }
 

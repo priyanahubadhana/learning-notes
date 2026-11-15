@@ -46,3 +46,51 @@
 - tool-bar-pencil-dark-ipad-sideways.png: Tool bar in pencil mode (64 px in every mode), dark, ipad-sideways 1180x820, taken after the last source edit
 - tool-bar-computer-dark-phone.png: Tool bar in computer mode (64 px in every mode), dark, phone 390x844, taken after the last source edit
 - tool-bar-pencil-dark-phone.png: Tool bar in pencil mode (64 px in every mode), dark, phone 390x844, taken after the last source edit
+- page-options-beginner-light-ipad-sideways.png: Page options as it opens (all folded), beginner, light, ipad-sideways 1180x820, taken after the last source edit
+- side-list-beginner-light-ipad-sideways.png: Side list open (own bar, page beside it), beginner, light, ipad-sideways 1180x820, taken after the last source edit
+- page-options-beginner-light-ipad-upright.png: Page options as it opens (all folded), beginner, light, ipad-upright 820x1180, taken after the last source edit
+- side-list-beginner-light-ipad-upright.png: Side list open (own bar, page beside it), beginner, light, ipad-upright 820x1180, taken after the last source edit
+- page-options-beginner-light-phone.png: Page options as it opens (all folded), beginner, light, phone 390x844, taken after the last source edit
+- side-list-beginner-light-phone.png: Side list open (own bar, page beside it), beginner, light, phone 390x844, taken after the last source edit
+- page-options-beginner-dark-ipad-upright.png: Page options as it opens (all folded), beginner, dark, ipad-upright 820x1180, taken after the last source edit
+- side-list-beginner-dark-ipad-upright.png: Side list open (own bar, page beside it), beginner, dark, ipad-upright 820x1180, taken after the last source edit
+- page-options-beginner-dark-ipad-sideways.png: Page options as it opens (all folded), beginner, dark, ipad-sideways 1180x820, taken after the last source edit
+- side-list-beginner-dark-ipad-sideways.png: Side list open (own bar, page beside it), beginner, dark, ipad-sideways 1180x820, taken after the last source edit
+- side-list-beginner-dark-phone.png: Side list open (own bar, page beside it), beginner, dark, phone 390x844, taken after the last source edit
+- page-options-beginner-dark-phone.png: Page options as it opens (all folded), beginner, dark, phone 390x844, taken after the last source edit
+- page-options-professional-light-ipad-upright.png: Page options as it opens (all folded), professional, light, ipad-upright 820x1180, taken after the last source edit
+- side-list-professional-light-ipad-upright.png: Side list open (own bar, page beside it), professional, light, ipad-upright 820x1180, taken after the last source edit
+- page-options-protect-open-light-ipad-upright.png: Page options, Protect opened (switches), light, ipad-upright 820x1180, taken after the last source edit
+- pin-an-action-light-ipad-upright.png: Pin an action (X top left, tick top right), light, ipad-upright 820x1180, taken after the last source edit
+- page-options-professional-light-ipad-sideways.png: Page options as it opens (all folded), professional, light, ipad-sideways 1180x820, taken after the last source edit
+- page-options-protect-open-light-ipad-sideways.png: Page options, Protect opened (switches), light, ipad-sideways 1180x820, taken after the last source edit
+- side-list-professional-light-ipad-sideways.png: Side list open (own bar, page beside it), professional, light, ipad-sideways 1180x820, taken after the last source edit
+- pin-an-action-light-ipad-sideways.png: Pin an action (X top left, tick top right), light, ipad-sideways 1180x820, taken after the last source edit
+- page-options-professional-light-phone.png: Page options as it opens (all folded), professional, light, phone 390x844, taken after the last source edit
+- page-options-protect-open-light-phone.png: Page options, Protect opened (switches), light, phone 390x844, taken after the last source edit
+- side-list-professional-light-phone.png: Side list open (own bar, page beside it), professional, light, phone 390x844, taken after the last source edit
+- pin-an-action-light-phone.png: Pin an action (X top left, tick top right), light, phone 390x844, taken after the last source edit
+- page-options-professional-dark-ipad-upright.png: Page options as it opens (all folded), professional, dark, ipad-upright 820x1180, taken after the last source edit
+- side-list-professional-dark-ipad-upright.png: Side list open (own bar, page beside it), professional, dark, ipad-upright 820x1180, taken after the last source edit
+- page-options-protect-open-dark-ipad-upright.png: Page options, Protect opened (switches), dark, ipad-upright 820x1180, taken after the last source edit
+- pin-an-action-dark-ipad-upright.png: Pin an action (X top left, tick top right), dark, ipad-upright 820x1180, taken after the last source edit
+- page-options-professional-dark-ipad-sideways.png: Page options as it opens (all folded), professional, dark, ipad-sideways 1180x820, taken after the last source edit
+- side-list-professional-dark-ipad-sideways.png: Side list open (own bar, page beside it), professional, dark, ipad-sideways 1180x820, taken after the last source edit
+- page-options-protect-open-dark-ipad-sideways.png: Page options, Protect opened (switches), dark, ipad-sideways 1180x820, taken after the last source edit
+- pin-an-action-dark-ipad-sideways.png: Pin an action (X top left, tick top right), dark, ipad-sideways 1180x820, taken after the last source edit
+- page-options-professional-dark-phone.png: Page options as it opens (all folded), professional, dark, phone 390x844, taken after the last source edit
+- page-options-protect-open-dark-phone.png: Page options, Protect opened (switches), dark, phone 390x844, taken after the last source edit
+- side-list-professional-dark-phone.png: Side list open (own bar, page beside it), professional, dark, phone 390x844, taken after the last source edit
+- pin-an-action-dark-phone.png: Pin an action (X top left, tick top right), dark, phone 390x844, taken after the last source edit
+- tool-bar-computer-light-ipad-upright.png: Tool bar in computer mode (64 px in every mode), light, ipad-upright 820x1180, taken after the last source edit
+- tool-bar-pencil-light-ipad-upright.png: Tool bar in pencil mode (64 px in every mode), light, ipad-upright 820x1180, taken after the last source edit
+- tool-bar-computer-light-ipad-sideways.png: Tool bar in computer mode (64 px in every mode), light, ipad-sideways 1180x820, taken after the last source edit
+- tool-bar-pencil-light-ipad-sideways.png: Tool bar in pencil mode (64 px in every mode), light, ipad-sideways 1180x820, taken after the last source edit
+- tool-bar-computer-light-phone.png: Tool bar in computer mode (64 px in every mode), light, phone 390x844, taken after the last source edit
+- tool-bar-pencil-light-phone.png: Tool bar in pencil mode (64 px in every mode), light, phone 390x844, taken after the last source edit
+- tool-bar-computer-dark-ipad-upright.png: Tool bar in computer mode (64 px in every mode), dark, ipad-upright 820x1180, taken after the last source edit
+- tool-bar-pencil-dark-ipad-upright.png: Tool bar in pencil mode (64 px in every mode), dark, ipad-upright 820x1180, taken after the last source edit
+- tool-bar-pencil-dark-ipad-sideways.png: Tool bar in pencil mode (64 px in every mode), dark, ipad-sideways 1180x820, taken after the last source edit
+- tool-bar-computer-dark-ipad-sideways.png: Tool bar in computer mode (64 px in every mode), dark, ipad-sideways 1180x820, taken after the last source edit
+- tool-bar-computer-dark-phone.png: Tool bar in computer mode (64 px in every mode), dark, phone 390x844, taken after the last source edit
+- tool-bar-pencil-dark-phone.png: Tool bar in pencil mode (64 px in every mode), dark, phone 390x844, taken after the last source edit

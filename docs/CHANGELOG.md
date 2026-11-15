@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2A.10 Format on states (switch toolbar.v8, OFF live)
+
+- What: every Format option that is a state shows accent fill + check for the current selection (lists, callout and key point added; others already had it).
+- Why: owner finding T15.
+- Files: src/app/tools/v8/cards/text/{FormatCard.tsx,textModel.ts,textCards.css}, e2e/toolbarV8FormatOn.spec.ts
+
 ### 15 Nov 2026: 2A.8 review 2 fixes (switch toolbar.v8, OFF live)
 
 - What: Erases chips carry their icons (Highlighter, Text, Pen) and are 44 px tall, as the mock; the T10 "whole words" check now splits on real spaces, looks at line one only and must find no cut word (it failed when the eraser was made to cut letters, then passed).

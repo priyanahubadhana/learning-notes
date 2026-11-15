@@ -62,7 +62,7 @@ test('T15 emphasis tiles show on with an accent fill and a check, and follow the
   await off(tile(c, 'underline'))
   // The check badge is drawn on an on tile only.
   const badge = (l: Locator) =>
-    l.evaluate((e) => getComputedStyle(e, '::after').content)
+    l.evaluate((e) => getComputedStyle(e, '::before').content)
   expect(await badge(tile(c, 'bold'))).not.toBe('none')
   expect(await badge(tile(c, 'underline'))).toBe('none')
   // Undo turns it off again.

@@ -220,7 +220,7 @@
 }
 
 /* 2A.10 (T15, v9): an option that is on shows the accent fill (from the tile) and a check badge. Colour swatches keep their ring. */
-.v8scroll .pcard-tile[data-selected]:not(:has(.pcard-swatch))::after {
+.v8scroll .pcard-tile[data-selected]:not(:has(.pcard-swatch))::before {
   content: '';
   position: absolute;
   top: 5px;
@@ -230,10 +230,9 @@
   border-radius: 50%;
   background: var(--color-accent);
 }
-.v8scroll .pcard-tile[data-selected]:not(:has(.pcard-swatch))::before {
+.v8scroll .pcard-tile[data-selected]:not(:has(.pcard-swatch))::after {
   content: '';
   position: absolute;
-  z-index: 1;
   top: 9px;
   right: 10px;
   width: 4px;

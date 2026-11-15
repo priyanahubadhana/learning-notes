@@ -1,6 +1,6 @@
 {
   "totals": {
-    "listeners": 361,
+    "listeners": 360,
     "zIndex": 136
   },
   "files": {
@@ -34,7 +34,7 @@
       "src/app/router.ts": 2,
       "src/app/rowPalmGuard.ts": 2,
       "src/app/scrollHints.ts": 11,
-      "src/app/softRefresh.ts": 4,
+      "src/app/softRefresh.ts": 3,
       "src/app/spaces/QuietCorner.tsx": 2,
       "src/app/tools/BarScroll.tsx": 1,
       "src/app/tools/HoverName.tsx": 4,

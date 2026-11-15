@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: P1.8 the must-have update download on a real iPad (behind update.v2)
+
+- What: (1) the file list (precache.json) no longer names empty chunks: 29 files of 0 bytes that the build never writes; the live preview answers 404 for them, so every download, Pretend included, failed at once ("after 0 s") and Try again looped. (2) A 404 for a file that a newer published version no longer lists is skipped. (3) The offline copy (Workbox) fetches new files one at a time; the page now fetches them 6 at a time first (they are then taken from the browser), for the pill too. (4) The time left starts counting when the files start coming, not while the list and the offline copy are read. (5) "slow connection" only below 150 kB/s with 8 s or more left (it was "8 s or more left", true for any big update). (6) The failed screen has "Not now", back to the app (plain button until the mock-up).
+- Why: owner test 15 Nov, T1 T2 T3 P1-3; proof: all 29 zero-size entries of the live list answer 404 text/html, the other 631 answer 200 with the right type.
+- Files: src/app/precacheRules.ts, updateProgress.ts, mandatoryFlow.ts, MandatoryNotice.tsx; tests src/app/updateDownload.p18.test.ts, updateFollow.p18.test.ts, e2e/updateDownload.spec.ts; docs/features/update-v2.md.
+
 ### 15 Nov 2026: polish sweep R12 (solid surfaces), R13 (lazy parts paint at once), Pages tab bar fade
 
 - What: R12: a scrolling box that paints a solid background is never masked by the scroll-hint fade; its edge fades inside it in its own colour (scrollHints.ts solidOf, index.css; grids, gaps and boxes with their own ::before / ::after stay solid with no fade). Goes live with foundation.shell. R13: new lazyNow (src/app/lazyNow.ts), a drop-in for lazy with preload(): a preloaded part draws in its own render, without React 19's 300 ms Suspense hold. The v8 bar's seven card bodies, selection bar and More list, the page More options sheet, the Name it sheet, hold menu, page strip, Edit toolbar sheet and keyboard bar are fetched once the screen is idle (prefetchAfterIdle; chunks are not in the first load). The Pages tab's Object bar fades in place (pm-fade) instead of sliding 6 px.

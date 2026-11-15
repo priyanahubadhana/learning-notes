@@ -10,7 +10,7 @@
  * writes or deletes notes: saves are flushed first and a save that cannot be
  * written holds the update back instead.
  */
-import { cachedPaths, listFiles, type Listed } from './updateProgress'
+import { downloadNewFiles } from './updateProgress'
 import {
   mandatoryFailure,
   mandatoryMeta,
@@ -24,9 +24,7 @@ export const COUNTDOWN_S = 5
 export const INSTALL_MAX_MS = 30_000
 /** The restart is forced if the service worker has not done it by now. */
 export const FORCE_RESTART_MS = 6_000
-const PARALLEL = 4
-/** No byte from any file for this long: the download is stopped (Try again). */
-export const STALL_MS = 20_000
+export { downloadNewFiles, STALL_MS } from './updateProgress'
 /** update.v2: how long a change that is not saved yet may delay the install. */
 export const SAVE_WAIT_MS = 5000
 const SAVE_POLL_MS = 500
@@ -75,73 +73,15 @@ export interface MandatoryDeps {
   now?: () => number
 }
 
-/** Fetches every new file of the build (not yet cached), counting bytes. */
-export async function downloadNewFiles(
-  onProgress: (loaded: number, total: number) => void,
-  signal: AbortSignal,
-  files: () => Promise<Listed[]> = listFiles,
-  have: () => Promise<Set<string>> = cachedPaths,
-  get: typeof fetch = (input, init) => fetch(input, init),
-): Promise<void> {
-  const [listed, before] = await Promise.all([files(), have()])
-  const todo = listed.filter((f) => !before.has(f.u))
-  const total = todo.reduce((sum, f) => sum + f.s, 0)
-  let loaded = 0
-  onProgress(0, total)
-  if (todo.length === 0) return
-  const queue = [...todo]
-  // Watchdog: any byte resets it; silence for STALL_MS stops the whole download.
-  const stop = new AbortController()
-  const link = () => stop.abort()
-  signal.onabort = link
-  let dead: (e: Error) => void = () => {}
-  const dying = new Promise<never>((_, rej) => (dead = rej))
-  dying.catch(() => {})
-  const fail = (why: string) => {
-    stop.abort()
-    dead(new Error(why))
-  }
-  let watchdog = setTimeout(() => fail('stalled'), STALL_MS)
-  const alive = () => {
-    clearTimeout(watchdog)
-    watchdog = setTimeout(() => fail('stalled'), STALL_MS)
-  }
-  const worker = async () => {
-    for (let f = queue.shift(); f; f = queue.shift()) {
-      const res = await get(f.u, { cache: 'reload', signal: stop.signal })
-      alive()
-      if (!res.ok) throw new Error(`${f.u}: ${res.status}`)
-      const reader = res.body?.getReader()
-      if (!reader) {
-        loaded += (await res.arrayBuffer()).byteLength
-        alive()
-        onProgress(loaded, total)
-        continue
-      }
-      for (;;) {
-        const { done, value } = await reader.read()
-        alive()
-        if (done) break
-        loaded += value.byteLength
-        onProgress(loaded, total)
-      }
-    }
-  }
-  try {
-    await Promise.race([
-      Promise.all(Array.from({ length: PARALLEL }, worker)),
-      dying,
-    ])
-  } finally {
-    clearTimeout(watchdog)
-    signal.onabort = null
-    stop.abort()
-  }
-}
-
 export interface Flow {
   cancel: () => void
   retry: () => void
+  /**
+   * P1.8 "Not now" on the failed screen: back to the app. The next look for
+   * updates that still finds the must-have version shows the notice again.
+   * Paused keeps the app blocked (docs/features/update-v2.md UV-5, line 132).
+   */
+  dismiss: () => void
 }
 
 let current: Flow | null = null
@@ -152,7 +92,10 @@ export const flow = (): Flow | null => current
 
 /** Starts the flow once; a second call while it runs does nothing. */
 export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
-  if (current) return current
+  if (current && mandatoryUpdate.get() !== null) return current
+  // Closed with "Not now" after a failure: start over with the new look.
+  stopWatching?.()
+  stopWatching = undefined
   const after = deps.after ?? ((run, ms) => setTimeout(run, ms))
   const clear =
     deps.clear ?? ((h) => clearTimeout(h as ReturnType<typeof setTimeout>))
@@ -182,12 +125,17 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
     stopped = false
     const controller = (abort = new AbortController())
     set({ phase: 'downloading', loaded: 0, total: 0 })
+    mandatoryFailure.set(null)
     startedAt = now()
+    // P1.8: the speed clock starts with the first progress call (the files
+    // start coming), not while the list and the offline copy are read.
+    let firstByteAt: number | undefined
     try {
       await download((loaded, total) => {
         if (controller.signal.aborted || stopped) return
+        firstByteAt ??= now()
         const etaS = v2
-          ? etaSeconds(loaded, total, now() - startedAt)
+          ? etaSeconds(loaded, total, now() - firstByteAt)
           : undefined
         set({ phase: 'downloading', loaded, total, etaS })
       }, controller.signal)
@@ -267,6 +215,12 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
       if (phase !== 'paused' && phase !== 'failed') return
       clear(installTimer)
       void run()
+    },
+    dismiss() {
+      if (mandatoryUpdate.get()?.phase !== 'failed') return
+      clear(installTimer)
+      mandatoryFailure.set(null)
+      set(null)
     },
   }
   if (v2) {

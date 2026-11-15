@@ -312,6 +312,18 @@ export default function MandatoryNotice({
                 : t('update.v2.tryAgain')}
             </button>
           )}
+          {/* P1.8: a failure never keeps the person out of the app. Plain
+              button until the approved picture places it (owner, 15 Nov). */}
+          {s.phase === 'failed' && (
+            <button
+              type="button"
+              data-update-dismiss
+              onClick={() => flow()?.dismiss()}
+              className={tonalBtn}
+            >
+              {t('update.v2.notNow')}
+            </button>
+          )}
         </div>
       </div>
     </div>

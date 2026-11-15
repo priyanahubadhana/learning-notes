@@ -67,7 +67,7 @@ const config = defineConfig({
     },
     {
       name: 'webkit',
-      testIgnore: /visual\//,
+      testIgnore: [/visual\//, /tb2-resize-phone-swipe/], // 2B.5b: a real swipe, chromium only
       use: {
         ...devices['Desktop Safari'],
         viewport: { width: 1336, height: 720 },
@@ -78,7 +78,7 @@ const config = defineConfig({
       // Stand-in for the owner's iPad: WebKit, touch, iPad size. Only the
       // Pencil/Scribble/keyboard specs of Phase A run here (CI time).
       name: 'ipad-webkit',
-      testIgnore: /visual\//,
+      testIgnore: [/visual\//, /tb2-resize-phone-swipe/], // 2B.5b: a real swipe, chromium only
       testMatch: [
         /parts-gallery/,
         /pageMenusPaste/,

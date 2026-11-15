@@ -1,7 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import { expect, test } from '@playwright/test'
 import { savedInk } from './inkHelpers.ts'
 
 /**
@@ -17,66 +16,15 @@ test.use({
   deviceScaleFactor: 3,
 })
 
-const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
-const rect = async (l: Locator) => (await l.boundingBox())!
-const centre = async (l: Locator) => {
-  const r = await rect(l)
-  return { x: r.x + r.width / 2, y: r.y + r.height / 2 }
-}
-const dot = (box: Locator, how: string) =>
-  box.locator(`[data-resize-handle="${how}"]`)
-const HOW = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']
-
-async function phoneBox(
-  page: Page,
-  name: string,
-  lines: string[],
-  o: { flag?: boolean; tall?: boolean } = {},
-) {
-  if (o.flag !== false)
-    await page.addInitScript(() =>
-      localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
-    )
-  await startInMode(page, 'computer')
-  await page.goto('/')
-  await createNotebook(page, 'Paper', name)
-  await typeInEditor(page, 'Main text')
-  // A long page, so it can scroll.
-  if (o.tall) for (let i = 0; i < 45; i++) await page.keyboard.press('Enter')
-  await page.setViewportSize({ width: 390, height: 844 })
-  await expect(page.locator('[data-paper-sheet]')).toHaveCount(0)
-  await page.getByRole('button', { name: 'Add a box here' }).click()
-  const box = page.locator(EXTRA).first()
-  await expect(box.locator('.bn-editor')).toBeFocused()
-  for (const [i, l] of lines.entries()) {
-    if (i > 0) await page.keyboard.press('Enter')
-    await page.keyboard.type(l)
-  }
-  await page.waitForTimeout(700)
-  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
-  await page.waitForTimeout(900)
-  // Select it: the first tap on a box selects it.
-  const r = await rect(box)
-  await page.mouse.click(r.x + r.width / 2, r.y + r.height / 2)
-  if (o.flag !== false) await expect(box).toHaveAttribute('data-picked', '')
-  return box
-}
-
-async function drag(
-  page: Page,
-  from: { x: number; y: number },
-  to: { x: number; y: number },
-  o: { hold?: number; up?: boolean } = {},
-) {
-  await page.mouse.move(from.x, from.y)
-  await page.mouse.down()
-  await page.waitForTimeout(o.hold ?? 160)
-  await page.mouse.move(to.x, to.y, { steps: 8 })
-  if (o.up !== false) {
-    await page.mouse.up()
-    await page.waitForTimeout(500)
-  }
-}
+import {
+  EXTRA,
+  centre,
+  dot,
+  drag,
+  phoneBox,
+  rect,
+  HOW,
+} from './tb2-resize-phone-helpers.ts'
 
 test('phone: a selected box shows the 8 dots, 44 pt targets outside the box, on top', async ({
   page,
@@ -332,31 +280,4 @@ test('phone: with the switch OFF there are no dots', async ({ page }) => {
   const box = await phoneBox(page, 'P-off', ['Alpha beta'], { flag: false })
   await expect(box).toBeVisible()
   await expect(page.locator('[data-resize-handle]')).toHaveCount(0)
-})
-
-test('phone: a real touch swipe on the page outside the dots scrolls it (chromium; WebKit cannot synthesize a swipe)', async ({
-  page,
-  browserName,
-}) => {
-  const box = await phoneBox(page, 'P-swipe', ['Alpha beta'], { tall: true })
-  const f = await rect(box)
-  const scroller = page.locator('[data-page-scroller]')
-  // Up first, so there is room to move down.
-  await scroller.evaluate((el) => (el.scrollTop = 0))
-  const top0 = await scroller.evaluate((el) => el.scrollTop)
-  if (browserName === 'chromium') {
-    const cdp = await page.context().newCDPSession(page)
-    await cdp.send('Input.synthesizeScrollGesture', {
-      x: 380,
-      y: 600,
-      yDistance: -300,
-      gestureSourceType: 'touch',
-      speed: 800,
-    })
-    await page.waitForTimeout(500)
-    expect(await scroller.evaluate((el) => el.scrollTop)).toBeGreaterThan(top0)
-  }
-  const g = await page.locator(EXTRA).first().boundingBox()
-  expect(g).not.toBeNull()
-  expect(f.width).toBeGreaterThan(0)
 })

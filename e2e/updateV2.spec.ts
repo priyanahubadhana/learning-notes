@@ -451,3 +451,53 @@ test('P1.3 a file that never arrives ends in Try again, never stuck', async ({
     notice(page).getByRole('button', { name: /Try again|Retry/ }),
   ).toBeVisible()
 })
+
+test('T29 Airplane mode in the countdown: the note stays 10 s and both buttons work', async ({
+  page,
+  context,
+}) => {
+  test.setTimeout(60_000)
+  // Safari in Airplane mode keeps saying "online" and sends no events.
+  await page.addInitScript(() => {
+    Object.defineProperty(Navigator.prototype, 'onLine', { get: () => true })
+    const add = window.addEventListener.bind(window)
+    window.addEventListener = ((type: string, ...rest: unknown[]) =>
+      type === 'offline' || type === 'online'
+        ? undefined
+        : (add as (...a: unknown[]) => void)(type, ...rest)) as typeof add
+  })
+  await page.route('**/precache.json*', (r) =>
+    r.fulfill({
+      json: {
+        files: [
+          { u: '/__t29-a.bin', s: 1000 },
+          { u: '/__t29-b.bin', s: 1000 },
+          { u: '/__t29-c.bin', s: 1000 },
+        ],
+      },
+    }),
+  )
+  await page.goto(FLAG)
+  await createNotebook(page, 'Test NB', 'First page')
+  await pretend(page)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'countdown')
+  await context.setOffline(true)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
+    timeout: 15_000,
+  })
+  // Stays: sampled over 10 s, it never changes or goes.
+  for (let i = 0; i < 10; i++) {
+    await page.waitForTimeout(1000)
+    await expect(notice(page)).toHaveAttribute('data-phase', 'failed')
+  }
+  const again = notice(page).getByRole('button', { name: 'Try again' })
+  const notNow = notice(page).getByRole('button', { name: 'Not now' })
+  await expect(again).toBeVisible()
+  await expect(notNow).toBeVisible()
+  await again.click()
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
+    timeout: 15_000,
+  })
+  await notice(page).getByRole('button', { name: 'Not now' }).click()
+  await expect(page.locator('[data-update-waiting]')).toBeVisible()
+})

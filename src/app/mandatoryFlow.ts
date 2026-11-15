@@ -181,6 +181,10 @@ export function startMandatoryUpdate(deps: MandatoryDeps): Flow {
     } catch {
       clear(tickTimer)
       if (controller.signal.aborted) return
+      // T29: a download that cannot go on is over. A late progress report from
+      // a parallel file must never replace the "did not finish" note.
+      stopped = true
+      controller.abort()
       // Offline is not a failure: wait for the network (update.v2).
       if (v2 && !isOnline()) set({ phase: 'offline' })
       else {

@@ -503,7 +503,7 @@
   --card-shadow: 0 18px 48px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
   --card-scrim: rgba(0, 0, 0, 0.55);
 }
-/* Toolbar v9 look (task 2A.5): only while toolbar.v8 is ON (ToolbarV8 sets data-v9 on the root).
+/* Toolbar v9 look (task 2A.5): only while toolbar.v8 is ON (ShowToolbarPill sets data-v9 on the root).
  * With the switch OFF none of these exist and the parts keep today's look (their var() fallbacks). */
 :root[data-v9] {
   --v9-well: var(--card-well);
@@ -512,7 +512,7 @@
   --v9-thumb: var(--color-surface-0);
   --v9-thumb-sh: var(--elev-1);
   --v9-knob: var(--color-surface-0);
-  --v9-preview: var(--color-surface-0);
+  --v9-preview: var(--card-well);
 }
 :root[data-v9][data-theme='night'] {
   --v9-track: rgba(255, 255, 255, 0.17);

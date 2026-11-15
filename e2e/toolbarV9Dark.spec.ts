@@ -39,10 +39,15 @@ test('2A.5 at night the default ink is light and the saved colour is untouched',
   await open(page, 'night')
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'night')
   await expect(dot(page)).toHaveCSS('background-color', 'rgb(236, 236, 238)')
+  // Pick black on purpose: it is saved as the plain default, not as the light ink.
+  await page.getByTestId('v8-chip-pen.colour').click()
+  await page.getByTestId('v8-pen-colour-black').click()
   const saved = await page.evaluate(
     () => localStorage.getItem('learning-notes:ink.pen') ?? '',
   )
-  expect(saved).not.toContain('ececee')
+  expect(saved.toLowerCase()).toContain('#1d1d1f')
+  expect(saved.toLowerCase()).not.toContain('ececee')
+  await expect(dot(page)).toHaveCSS('background-color', 'rgb(236, 236, 238)')
 })
 
 test('2A.5 by day the default ink is dark again, same saved colour', async ({
@@ -109,4 +114,75 @@ test('2A.5 with the switch OFF at night: old white-ish knob, no tile well, dark 
 test('2A.5 with the switch ON the root says so (data-v9)', async ({ page }) => {
   await open(page, 'night')
   await expect(page.locator('html')).toHaveAttribute('data-v9', '')
+})
+
+test('2A.5 the flag sets data-v9 on every screen, bar mounted or not, and OFF removes it', async ({
+  page,
+}) => {
+  await startInTheme(page, 'night')
+  await startInMode(page, 'touch')
+  await page.goto('/?flags=toolbar.v8')
+  // Before any notebook is open (no tool bar on screen): already set.
+  await expect(page.locator('html')).toHaveAttribute('data-v9', '')
+  await page.goto('/')
+  await expect(page.locator('body')).toBeVisible()
+  await expect(page.locator('html')).not.toHaveAttribute('data-v9', '')
+})
+
+test('2A.5 at night: raised segmented thumb, 6 px filled slider track, light ink in pictures and preview', async ({
+  page,
+}) => {
+  await open(page, 'night')
+  // Raised segmented thumb (the shared choice control, in a well).
+  const seg = await page.evaluate(() => {
+    const c = document.createElement('div')
+    c.className = 'onoff-choice'
+    c.innerHTML =
+      '<button class="onoff-opt" aria-checked="true">A</button><button class="onoff-opt" aria-checked="false">B</button>'
+    document.body.append(c)
+    const on = getComputedStyle(c.firstElementChild!)
+    return {
+      well: getComputedStyle(c).backgroundColor,
+      thumb: on.backgroundColor,
+      shadow: on.boxShadow,
+    }
+  })
+  expect(seg.thumb).toBe('rgb(74, 73, 85)')
+  expect(seg.shadow).not.toBe('none')
+  expect(seg.well).not.toBe('rgba(0, 0, 0, 0)')
+  // Type card: sample strokes are light.
+  await page.getByTestId('v8-chip-pen.type').click()
+  const sample = page.getByTestId('v8-pen-type-ballpoint').locator('svg path')
+  await expect(sample).toHaveCSS('stroke', 'rgb(236, 236, 238)')
+  await page.keyboard.press('Escape')
+  // Size card: size pictures light, wedge slider keeps its own wedge.
+  await page.getByTestId('v8-chip-pen.size').click()
+  const size = page.getByTestId('v8-card-pen.size')
+  await expect(page.getByTestId('v8-pen-size-0').locator('svg line')).toHaveCSS(
+    'stroke',
+    'rgb(236, 236, 238)',
+  )
+  const wedge = page.getByTestId('v8-pen-exact')
+  if (await wedge.count()) {
+    const w = await wedge.evaluate((el) => ({
+      track: getComputedStyle(el, '::-webkit-slider-runnable-track')
+        .backgroundImage,
+      own: getComputedStyle(el).backgroundImage,
+    }))
+    expect(w.own).toContain('gradient')
+    expect(w.track).toBe('none')
+  }
+  await page.keyboard.press('Escape')
+  // Feel card: preview in a well, light line, a 6 px filled slider track.
+  await page.getByTestId('v8-chip-pen.feel').click()
+  const feel = page.getByTestId('v8-card-pen.feel')
+  const prev = feel.locator('[data-ink-preview]')
+  await expect(prev).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.055)')
+  await expect(prev.locator('path')).toHaveCSS('fill', 'rgb(236, 236, 238)')
+  const track = await feel.getByTestId('v8-pen-pressure').evaluate((el) => {
+    const t = getComputedStyle(el, '::-webkit-slider-runnable-track')
+    return { h: t.height, bg: t.backgroundImage }
+  })
+  expect(track.h).toBe('6px')
+  expect(track.bg).toContain('linear-gradient')
 })

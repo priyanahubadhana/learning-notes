@@ -1,3 +1,4 @@
+import { useV9Root } from '../../../design/v9Root'
 import type { ReactNode } from 'react'
 import { MinimiseChip } from '../../shell/MinimiseChip'
 import { useFlag } from '../../flags'
@@ -14,6 +15,8 @@ import { showFromPill } from './useTuck'
  */
 export function ShowToolbarPill({ fallback }: { fallback: ReactNode }) {
   const v8 = useFlag('toolbar.v8')
+  // App level: the v9 look follows the flag on every screen, bar mounted or not (2A.5).
+  useV9Root(v8)
   const off = useShowBarButton()
   const tucked = tuckState.useValue().tucked
   if (!v8) return off ? <>{fallback}</> : null

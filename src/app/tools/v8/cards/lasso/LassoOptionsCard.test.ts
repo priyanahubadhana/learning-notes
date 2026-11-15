@@ -18,8 +18,9 @@ const { LassoOptionsCard } = await import('./LassoOptionsCard')
 const hint = (list: unknown[] | null) => {
   layers = list
   const html = renderToStaticMarkup(createElement(LassoOptionsCard))
-  return /<span class="fgroup-hint">([^<]*)<\/span>/g
-    .exec(html.slice(html.indexOf('Layers')))?.[1]
+  return /<span class="fgroup-hint">([^<]*)<\/span>/g.exec(
+    html.slice(html.indexOf('Layers')),
+  )?.[1]
 }
 
 describe('Lasso Options card: the "N layers" hint under Layers (2A.11)', () => {

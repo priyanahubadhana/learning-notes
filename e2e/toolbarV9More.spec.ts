@@ -180,3 +180,38 @@ test('the Search tile opens search; Make blank is one short label', async ({
   await page.getByTestId('v8-more-search').click()
   await expect(card(page)).toHaveCount(0)
 })
+
+test('real use: reload, turn the screen both ways, open every fold, scroll the card', async ({
+  page,
+}) => {
+  await open(page, 'professional', { width: 820, height: 1180 })
+  await page.reload()
+  await expect(page.getByTestId('v8-more')).toBeVisible()
+  for (const size of [
+    { width: 1180, height: 820 },
+    { width: 820, height: 1180 },
+  ]) {
+    await page.setViewportSize(size)
+    await expect(page.getByTestId('v8-backspace')).toBeVisible()
+    await more(page)
+    for (const name of [
+      'Marks and study',
+      'Copy and paste',
+      'View',
+      'Page',
+      'Tool bar',
+    ])
+      await card(page).getByRole('button', { name, exact: true }).click()
+    await card(page).evaluate((el) => {
+      const sc =
+        el.querySelector<HTMLElement>('[data-scroll], .pcard-body') ?? el
+      sc.scrollTop = sc.scrollHeight
+    })
+    await expect(
+      card(page).getByRole('button', { name: 'Tool bar', exact: true }),
+    ).toBeVisible()
+    await card(page).getByTestId('pcard-close').click()
+    await expect(card(page)).toHaveCount(0)
+    await expect(page.getByTestId('v8-more')).toBeVisible()
+  }
+})

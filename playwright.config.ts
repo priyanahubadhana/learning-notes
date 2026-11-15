@@ -86,6 +86,7 @@ const config = defineConfig({
         /pencilIsolation/,
         /storageSafety.spec/,
         /updateV2/,
+        /keyNames/,
         /updateFailureNote/,
         /updateDownload/,
         /security-m1-/,

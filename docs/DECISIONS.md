@@ -77,6 +77,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-16 · P1.11 hot file playwright.config.ts (manager OK).** One entry `/keyNames/` added to the ipad-webkit list only, so the T31 key-name spec also runs on the iPad size.
 - **2026-11-15 · Task H Undo holds on every device (manager's decision, review 1).** The "keep apart" mark is an optional page field `monthJoinDeclined` (src/core/types.ts, hot file, manager OK); optional, so no database version change. It is kept in full backups (checkRows) and not copied by Duplicate. Unit test "Undo holds on every device" uses two and three simulated devices.
 - **2026-11-15 · Task H e2e scope (builder).** The e2e checks the saved backup; the count check is unit-tested only, because a mismatch needs a fault injected between the moves and the Trash step, which the app has no way to do from the page.
 - **2026-11-15 · Task H hot file playwright.config.ts (manager OK).** Two entries added to the ipad-webkit list only: `journalMonthRepair` and `journal.spec`, so the Journal specs also run on the iPad.

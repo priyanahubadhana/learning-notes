@@ -10,13 +10,34 @@
 }
 
 /* Group titles keep a gap above and below (mock fav-3). */
-.sheet-base .pcard-group + .pcard-group {
+.sheet-base .pcard-group + .pcard-group,
+.fb-sheet .pcard-group + .pcard-group {
   margin-top: var(--space-5);
 }
-.sheet-base .pcard-glabel {
+.sheet-base .pcard-glabel,
+.fb-sheet .pcard-glabel {
   margin: 0 0 var(--space-2);
   padding: 0 var(--space-1);
 }
 .arr-chips .v8chip-fav {
   min-height: 32px;
+}
+
+/* Organise (new frame): the tools of the row stay put, above the favourites. */
+.arr-fixed {
+  margin-bottom: var(--space-3);
+  padding: var(--space-1);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-line);
+  border-radius: var(--r-md);
+}
+.arr-fixed .arr-row {
+  padding-left: var(--space-2);
+}
+.arr-fixed-note {
+  margin: 0;
+  padding: var(--space-1) var(--space-2) var(--space-2);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-muted);
 }

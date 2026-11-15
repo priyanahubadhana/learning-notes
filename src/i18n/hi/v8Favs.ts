@@ -27,4 +27,6 @@ export const hiV8Favs = {
   'v8.favs.save': 'पसंदीदा सहेजें',
   'v8.favs.start': 'यहाँ से शुरू करें',
   'v8.favs.tool': 'कौन सा टूल?',
+  'v8.favs.toolHint': 'टूल',
+  'v8.favs.toolsNote': 'टूल पंक्ति में ही रहते हैं; पसंदीदा उनके बाद आते हैं।',
 } as const

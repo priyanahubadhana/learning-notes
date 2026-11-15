@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { Icon, type IconName } from '../app/tools/icons'
 import { ActionRow, ChipRow } from '../app/tools/main/cardParts'
@@ -29,8 +29,16 @@ import {
 const PAPERS = ['blank', 'lined', 'grid', 'dots'] as const
 
 /** `hidePaper`: the paper is chosen elsewhere (Feel > Page), not twice. */
-export function LayersCard({ hidePaper = false }: { hidePaper?: boolean }) {
+export function LayersCard({
+  hidePaper = false,
+  look,
+}: {
+  hidePaper?: boolean
+  /** `v9`: the rows of the approved tool bar picture (picture, name, strokes, eye, lock, ⋯). */
+  look?: 'v9'
+}) {
   const ink = useInk()
+  const [more, setMore] = useState<string | null>(null)
   const { toast, choose } = useContext(AppUiContext)
   if (!ink)
     return <p className="px-2 text-sm text-ink-soft">{t('ink.layers.empty')}</p>
@@ -102,11 +110,46 @@ export function LayersCard({ hidePaper = false }: { hidePaper?: boolean }) {
           </button>
         </div>
       )}
-      <ul className="grid gap-0.5" data-layers>
+      <ul className={look === 'v9' ? 'lyr9-list' : 'grid gap-0.5'} data-layers>
         {layers.map((layer, i) => {
           const name = layer.name
           const strokes = doc.strokesOf(layer.id).length
           const drawing = active?.id === layer.id
+          if (look === 'v9')
+            return (
+              <V9Row
+                key={layer.id}
+                name={name}
+                id={layer.id}
+                strokes={strokes}
+                drawing={drawing}
+                hidden={!!layer.hidden}
+                locked={!!layer.locked}
+                open={more === layer.id}
+                first={i === 0}
+                last={i === layers.length - 1}
+                onDraw={() => {
+                  doc.chooseLayer(layer.id)
+                  bumpInk()
+                }}
+                onHide={() => doc.patchLayer(setHidden(layer, !layer.hidden))}
+                onLock={() => doc.patchLayer(setLocked(layer, !layer.locked))}
+                onMore={() => setMore(more === layer.id ? null : layer.id)}
+                onMove={(dir) => {
+                  const m = moved(doc.layers, layer.id, dir)
+                  if (m) doc.patchLayer(m)
+                }}
+                onDelete={() => {
+                  controller.commit({
+                    ...emptyEdit(),
+                    layers: [{ before: layer, after: removed(layer) }],
+                  })
+                  if (doc.chosenLayer === layer.id) doc.chooseLayer(null)
+                  bumpInk()
+                  toast(t('ink.layers.deleted'), undo)
+                }}
+              />
+            )
           return (
             <li
               key={layer.id}
@@ -194,7 +237,11 @@ export function LayersCard({ hidePaper = false }: { hidePaper?: boolean }) {
         })}
         <li
           data-layer-page
-          className="flex min-h-11 items-center gap-2 rounded-lg border border-dashed border-line px-3 text-sm text-ink-soft"
+          className={
+            look === 'v9'
+              ? 'lyr9-page'
+              : 'flex min-h-11 items-center gap-2 rounded-lg border border-dashed border-line px-3 text-sm text-ink-soft'
+          }
         >
           <span aria-hidden className="w-4" />
           {t('ink.layers.page')}
@@ -206,7 +253,11 @@ export function LayersCard({ hidePaper = false }: { hidePaper?: boolean }) {
           data-layer-add
           onMouseDown={keepFocus}
           onClick={add}
-          className="flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm hover:bg-hover"
+          className={
+            look === 'v9'
+              ? 'lyr9-act'
+              : 'flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm hover:bg-hover'
+          }
         >
           <Icon name="plus" />
           {t('ink.layers.addTwo')}
@@ -218,13 +269,17 @@ export function LayersCard({ hidePaper = false }: { hidePaper?: boolean }) {
           data-layer-merge
           onMouseDown={keepFocus}
           onClick={() => void merge(top.id, second.id)}
-          className="flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm hover:bg-hover"
+          className={
+            look === 'v9'
+              ? 'lyr9-act'
+              : 'flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm hover:bg-hover'
+          }
         >
           <Icon name="layers" />
           {t('ink.layers.mergeInto', { from: top.name, into: second.name })}
         </button>
       )}
-      <hr className="my-0.5 border-line" />
+      {look === 'v9' ? null : <hr className="my-0.5 border-line" />}
       {!hidePaper && (
         <ChipRow
           id="paper"
@@ -256,6 +311,7 @@ function IconBtn({
   onClick,
   pressed,
   disabled,
+  expanded,
 }: {
   id: string
   icon: IconName
@@ -263,6 +319,7 @@ function IconBtn({
   onClick: () => void
   pressed?: boolean
   disabled?: boolean
+  expanded?: boolean
 }) {
   return (
     <button
@@ -270,6 +327,7 @@ function IconBtn({
       data-layer-action={id}
       aria-label={label}
       aria-pressed={pressed}
+      aria-expanded={expanded}
       disabled={disabled}
       onMouseDown={keepFocus}
       onClick={onClick}
@@ -277,5 +335,108 @@ function IconBtn({
     >
       <Icon name={icon} />
     </button>
+  )
+}
+
+/** One layer row in the approved look: picture, name and strokes, eye, lock and ⋯ (move, delete). */
+function V9Row(p: {
+  id: string
+  name: string
+  strokes: number
+  drawing: boolean
+  hidden: boolean
+  locked: boolean
+  open: boolean
+  first: boolean
+  last: boolean
+  onDraw: () => void
+  onHide: () => void
+  onLock: () => void
+  onMore: () => void
+  onMove: (dir: 'up' | 'down') => void
+  onDelete: () => void
+}) {
+  const { name } = p
+  return (
+    <li
+      data-layer={p.id}
+      data-layer-active={p.drawing ? '' : undefined}
+      className="lyr9-row"
+    >
+      <div className="lyr9-main">
+        <button
+          type="button"
+          data-layer-draw
+          aria-pressed={p.drawing}
+          aria-label={t('ink.layers.draw', { name })}
+          className="lyr9-draw"
+          onMouseDown={keepFocus}
+          onClick={p.onDraw}
+        >
+          <span className="lyr9-pic" data-on={p.drawing ? '' : undefined}>
+            <Icon name={p.drawing ? 'penLine' : 'layers'} size={15} />
+          </span>
+          <span className="lyr9-text">
+            <span className="lyr9-name">
+              {name}
+              {p.drawing ? (
+                <small className="lyr9-here">
+                  {' · '}
+                  {t('ink.layers.drawingHere')}
+                </small>
+              ) : null}
+            </span>
+            <small>{t('ink.layers.strokes', { count: p.strokes })}</small>
+          </span>
+        </button>
+        <IconBtn
+          id="visibility"
+          icon={p.hidden ? 'eyeOff' : 'eye'}
+          label={t(p.hidden ? 'ink.layers.show' : 'ink.layers.hide', { name })}
+          pressed={!p.hidden}
+          onClick={p.onHide}
+        />
+        <IconBtn
+          id="lock"
+          icon="lock"
+          label={t(p.locked ? 'ink.layers.unlock' : 'ink.layers.lock', {
+            name,
+          })}
+          pressed={p.locked}
+          onClick={p.onLock}
+        />
+        <IconBtn
+          id="more"
+          icon="more"
+          label={t('ink.layers.more', { name })}
+          expanded={p.open}
+          onClick={p.onMore}
+        />
+      </div>
+      {p.open ? (
+        <div className="lyr9-sub">
+          <IconBtn
+            id="up"
+            icon="chevronUp"
+            label={t('ink.layers.up', { name })}
+            disabled={p.first}
+            onClick={() => p.onMove('up')}
+          />
+          <IconBtn
+            id="down"
+            icon="chevronDown"
+            label={t('ink.layers.down', { name })}
+            disabled={p.last}
+            onClick={() => p.onMove('down')}
+          />
+          <IconBtn
+            id="delete"
+            icon="trash"
+            label={t('ink.layers.delete', { name })}
+            onClick={p.onDelete}
+          />
+        </div>
+      ) : null}
+    </li>
   )
 }

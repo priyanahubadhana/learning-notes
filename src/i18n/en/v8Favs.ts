@@ -27,4 +27,6 @@ export const enV8Favs = {
   'v8.favs.save': 'Save favourite',
   'v8.favs.start': 'Start from',
   'v8.favs.tool': 'Which tool?',
+  'v8.favs.toolHint': 'Tool',
+  'v8.favs.toolsNote': 'Tools stay on the row; favourites follow them.',
 } as const

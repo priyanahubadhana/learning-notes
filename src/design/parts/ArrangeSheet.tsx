@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { AnchoredMenu } from '../../app/tools/AnchoredMenu'
 import { useAnchoredMenu } from '../../app/tools/useAnchoredMenu'
 import { ReorderList } from './drag/ReorderList'
+import { Sheet } from './Sheet'
 import { SheetBase } from './SheetBase'
 import { moveRow, previewChips, removeRow, restoreRow } from './arrangeLogic'
 import { tp } from './tp'
@@ -38,6 +39,14 @@ export type ArrangeSheetProps = {
   phone?: boolean
   /** Gallery: freeze one row in the lifted look. */
   frozenLifted?: string
+  /**
+   * New frame (v9): docked right below the top bar, ✕ at the left and ✓ at the
+   * right of the header, and no Done button in the footer. ✕ calls `onCancel`.
+   */
+  docked?: boolean
+  onCancel?(): void
+  /** Rows that stay in place (not movable), shown above the list: the tools of a row. */
+  fixed?: ReactNode
 }
 
 const UNDO_MS = 6000
@@ -200,29 +209,22 @@ export function ArrangeSheet(props: ArrangeSheetProps) {
           {props.addLabel ?? tp('parts.arrange.add')}
         </button>
       ) : null}
-      <button
-        type="button"
-        className="arr-btn arr-primary"
-        data-testid="arrange-done"
-        data-autofocus=""
-        onClick={props.onDone}
-      >
-        {tp('parts.arrange.done')}
-      </button>
+      {props.docked ? null : (
+        <button
+          type="button"
+          className="arr-btn arr-primary"
+          data-testid="arrange-done"
+          data-autofocus=""
+          onClick={props.onDone}
+        >
+          {tp('parts.arrange.done')}
+        </button>
+      )}
     </>
   )
 
-  return (
-    <SheetBase
-      id={sheetId}
-      title={props.title}
-      mode={mode}
-      anchor={props.anchor}
-      phone={props.phone}
-      onClose={props.onDone}
-      footer={footer}
-      data-testid="arrange-sheet"
-    >
+  const body = (
+    <>
       <p className="arr-help">{props.help ?? tp('parts.arrange.help')}</p>
       <div className="arr-well" data-testid="arrange-preview">
         <span className="arr-well-label">{tp('parts.arrange.preview')}</span>
@@ -243,6 +245,7 @@ export function ArrangeSheet(props: ArrangeSheetProps) {
           </span>
         )}
       </div>
+      {props.fixed}
       {rows.length === 0 ? (
         <div className="arr-empty" data-testid="arrange-empty">
           <p>{tp('parts.arrange.emptyTitle')}</p>
@@ -321,6 +324,40 @@ export function ArrangeSheet(props: ArrangeSheetProps) {
       <div className="rord-live" role="status" aria-live="polite">
         {live}
       </div>
+    </>
+  )
+  if (props.docked)
+    return (
+      <Sheet
+        id={sheetId}
+        title={props.title}
+        mode={mode}
+        phone={props.phone}
+        opener={props.anchor}
+        onClose={props.onDone}
+        confirm={{
+          label: tp('parts.arrange.done'),
+          onConfirm: props.onDone,
+          onCancel: props.onCancel ?? props.onDone,
+        }}
+        footer={footer}
+        data-testid="arrange-sheet"
+      >
+        {body}
+      </Sheet>
+    )
+  return (
+    <SheetBase
+      id={sheetId}
+      title={props.title}
+      mode={mode}
+      anchor={props.anchor}
+      phone={props.phone}
+      onClose={props.onDone}
+      footer={footer}
+      data-testid="arrange-sheet"
+    >
+      {body}
     </SheetBase>
   )
 }

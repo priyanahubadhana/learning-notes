@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: 2A.16 part B, sheets and Feel card as tool bar v9 (switches foundation.shell, toolbar.v8, OFF live)
+
+- What: (1) Add favourite and Organise dock on the right (440 px, below the top bar, full width under it on a phone) through the shared Sheet; ✕ left, ✓ right, no footer buttons on Add; Organise keeps Reset and Add favourite in its footer. ✕ on Organise puts the row back as it was. Organise lists the whole row: the tools (fixed) then the favourites (movable). (2) Feel card: the four tabs are one full-width segmented control (shared CardTabs, also used by Format); slider values are "%" chips; the Page tab shows Layers in the v9 look (picture, name, strokes, eye, lock, ⋯ for move and delete).
+- Why: the first look found both different from docs/mockups/toolbar-v9/toolbar-v9.html. Not done: "Fit page" in Paper size and moving tools inside Organise need new stored page/row values (reported).
+- Files: src/design/parts/ArrangeSheet.tsx, src/app/tools/v8/FavSheets.tsx, src/app/tools/v8/cards/CardTabs.tsx, src/app/tools/v8/cards/pen/*, src/app/tools/v8/cards/text/FormatCard.tsx, src/ink/LayersCard.tsx, e2e/toolbarV9Sheets.spec.ts, e2e/sheetsPictures.spec.ts
+
 ### 16 Nov 2026: 2A.16 part 1, carried polish (switch toolbar.v8, OFF live)
 
 - What: (1) phone: the star chip stands before the ⋯ chip (checked at 360, 390, 430 px; it already held, now guarded by a test). (2) The 700 ms of 2A.6: the change glow is the spec's 700 ms (TB-70), guarded by a test; the fixed 700 ms sleep in the pen-row pictures is now a wait for the sidebar to close. (3) Compact font tiles: names wrap instead of being cut, and the check mark sits in the lower right corner, never over a name. (4) A card measures again after the screen turns (anchor watched, again one frame and 250 ms later), so it equals a fresh load. (5) Escape leaves edit mode with the keyboard: test.

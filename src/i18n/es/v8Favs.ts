@@ -27,4 +27,7 @@ export const esV8Favs = {
   'v8.favs.save': 'Guardar favorito',
   'v8.favs.start': 'Empezar desde',
   'v8.favs.tool': '¿Qué herramienta?',
+  'v8.favs.toolHint': 'Herramienta',
+  'v8.favs.toolsNote':
+    'Las herramientas se quedan en la fila; los favoritos van detrás.',
 } as const

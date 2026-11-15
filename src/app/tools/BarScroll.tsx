@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type PointerEvent,
@@ -54,7 +55,8 @@ export function BarScroll({
     setO((old) => (JSON.stringify(old) === JSON.stringify(next) ? old : next))
   }, [])
 
-  useEffect(() => {
+  // Measured before the first paint: the scroll handle must not appear a frame later (R14).
+  useLayoutEffect(() => {
     measure()
     const el = scroller.current
     if (!el) return

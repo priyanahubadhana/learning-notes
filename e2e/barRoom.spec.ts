@@ -38,9 +38,10 @@ async function watchPage(
   page: Page,
   keys: Record<string, unknown> = {},
   setup?: (page: Page) => Promise<void>,
+  on = ON,
 ) {
   await startInMode(page, 'touch')
-  await page.goto(`/?flags=${ON}`)
+  await page.goto(`/?flags=${on}`)
   await createNotebook(page, 'Heart', 'First')
   await setup?.(page)
   await page.evaluate(
@@ -50,6 +51,7 @@ async function watchPage(
     },
     [keys, 'learning-notes:'] as const,
   )
+  // The old bar (R14) has no file of its own; the editor's own late arrival is the test.
   await page.route('**/assets/ToolbarV8*.js', async (route) => {
     await new Promise((ok) => setTimeout(ok, 4000))
     await route.continue()
@@ -149,3 +151,49 @@ test('Home, Settings and Library keep no room', async ({ page }) => {
     }
   }
 })
+
+/** R14: the OLD bar (toolbar.v8 OFF) also arrives late; the page below must not drop. */
+const OLD = 'foundation.shell'
+
+test('R14 old bar: the room shows and the page never moves', async ({
+  page,
+}) => {
+  const seen = await watchPage(page, {}, undefined, OLD)
+  expect(seen.room).toBe(true)
+  expect(seen.tops.length).toBe(1)
+})
+
+test.describe('R14 old bar on an iPad-sized screen with large (Pencil) buttons', () => {
+  test.use({ viewport: { width: 820, height: 1180 }, hasTouch: true })
+  test('the page below never moves', async ({ page }) => {
+    const seen = await watchPage(
+      page,
+      { 'advanced.barSize': 'large' },
+      undefined,
+      OLD,
+    )
+    expect(seen.room).toBe(true)
+    expect(seen.tops.length).toBe(1)
+  })
+})
+
+test.describe('R14 old bar on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+  test('the page below never moves', async ({ page }) => {
+    const seen = await watchPage(page, {}, undefined, OLD)
+    expect(seen.tops.length).toBe(1)
+  })
+})
+
+for (const [name, keys] of [
+  ['floating', { 'advanced.barPlacement': 'free' }],
+  ['at the bottom', { 'advanced.barPlacement': 'bottom' }],
+  ['on auto-hide', { 'advanced.barAutoHide': 'on' }],
+  ['with the ribbon open', { 'toolbar.ribbon': true }],
+] as const)
+  test(`R14 old bar ${name}: no room is kept`, async ({ page }) => {
+    const seen = await watchPage(page, keys, undefined, OLD)
+    expect(seen.room).toBe(false)
+    if ('advanced.barPlacement' in keys)
+      expect(seen.slot).toBeLessThanOrEqual(4)
+  })

@@ -12,6 +12,7 @@ import {
 } from '../../../design/parts/CardParts'
 import { ClearField } from '../../../design/parts/ClearField'
 import { ConfirmDialog } from '../../../design/parts/Dialogs'
+import { OnOffChoice } from '../../../design/parts/OnOff'
 import { SheetBase } from '../../../design/parts/SheetBase'
 import { t, type MessageKey } from '../../../i18n/t'
 import { Icon } from '../icons'
@@ -179,24 +180,25 @@ export function AddFavSheet({
       </CardGroup>
       {presets.length > 0 ? (
         <CardGroup label={t('v8.favs.start')}>
-          <TileGroup label={t('v8.favs.start')} columns={2}>
-            <Tile
-              label={t('v8.favs.current')}
-              selected={start === 'current'}
-              testId="v8-add-current"
-              onSelect={() => setStart('current')}
-            >
-              <FavFace fav={{ id: 'cur', ...currentSetup(tool, keeps) }} />
-            </Tile>
-            <Tile
-              label={t('v8.favs.preset')}
-              selected={start === 'preset'}
-              testId="v8-add-preset"
-              onSelect={() => setStart('preset')}
-            >
-              <FavFace fav={{ id: 'pre', ...presets[preset] }} />
-            </Tile>
-          </TileGroup>
+          <OnOffChoice<'current' | 'preset'>
+            label={t('v8.favs.start')}
+            block
+            testId="v8-add-start"
+            value={start}
+            onChange={setStart}
+            options={[
+              {
+                value: 'current',
+                label: t('v8.favs.current'),
+                testId: 'v8-add-current',
+              },
+              {
+                value: 'preset',
+                label: t('v8.favs.preset'),
+                testId: 'v8-add-preset',
+              },
+            ]}
+          />
           {start === 'preset' ? (
             <TileGroup label={t('v8.favs.preset')} columns={3}>
               {presets.map((p, i) => (

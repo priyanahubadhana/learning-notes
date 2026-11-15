@@ -97,7 +97,7 @@ test('TB-52 the name field has a clear button; Cancel and the close button leave
   expect(await pref(page, 'toolbar.favourites2')).toEqual([])
 })
 
-test('TB-52 upright iPad: the Add form grows to show its preview; both start tiles have a picture', async ({
+test('TB-52 upright iPad: the Add form grows to show its preview; "Start from" is a segmented choice', async ({
   page,
 }) => {
   await open(page, { size: { width: 820, height: 1180 } })
@@ -110,10 +110,19 @@ test('TB-52 upright iPad: the Add form grows to show its preview; both start til
   await expect(page.getByTestId('v8-add-preview')).toBeInViewport({
     ratio: 1,
   })
-  for (const id of ['v8-add-current', 'v8-add-preset'])
-    await expect(
-      page.getByTestId(id).locator('.pcard-tile-face > *'),
-    ).not.toHaveCount(0)
+  const start = page.getByTestId('v8-add-start')
+  await expect(start).toHaveAttribute('role', 'radiogroup')
+  await expect(start.getByRole('radio')).toHaveCount(2)
+  await expect(page.getByTestId('v8-add-preset')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await page.getByTestId('v8-add-current').click()
+  await expect(page.getByTestId('v8-add-current')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await expect(page.getByTestId('v8-add-preset-0')).toHaveCount(0)
 })
 
 test('TB-50 a favourite can be saved for another tool and shows on that tool row only', async ({

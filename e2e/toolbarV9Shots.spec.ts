@@ -52,6 +52,12 @@ async function run(
     await page.keyboard.press('Escape')
     await page.waitForTimeout(300)
   }
+  if (await page.getByTestId('v8-chip-pen.size').isVisible()) {
+    await page.getByTestId('v8-chip-pen.size').click()
+    await shot('size')
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(300)
+  }
   if (await page.getByTestId('v8-chip-pen.colour').isVisible()) {
     await page.getByTestId('v8-chip-pen.colour').click()
     await shot('colour')

@@ -108,11 +108,11 @@ test('U5 Not now pauses the countdown; the app stays blocked', async ({
 }) => {
   await start(page)
   await pretend(page)
-  await expect(notice(page)).toContainText('Downloading starts in')
+  await expect(notice(page)).toContainText('Starts in')
   await notice(page).getByRole('button', { name: 'Not now' }).click()
   await expect(notice(page)).toHaveAttribute('data-phase', 'paused')
   await expect(notice(page)).toContainText(
-    'Paused. The app needs this update to keep your notes safe.',
+    'The app needs this update to keep your notes safe.',
   )
   await page.waitForTimeout(1200)
   await expect(notice(page)).toHaveAttribute('data-phase', 'paused')
@@ -335,7 +335,7 @@ test('U2 the About test button pretends a must-have update', async ({
 }) => {
   await openAbout(page)
   await page.locator('[data-about-pretend]').click()
-  await expect(notice(page)).toContainText('Downloading starts in')
+  await expect(notice(page)).toContainText('Starts in')
 })
 
 test('P1.3 the About test button reloads on the same page and keeps the offline copy', async ({

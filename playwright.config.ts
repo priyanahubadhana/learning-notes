@@ -87,6 +87,7 @@ const config = defineConfig({
         /storageSafety.spec/,
         /updateV2/,
         /updateFailureNote/,
+        /updateDownload/,
         /security-m1-/,
         /chromeIsolation/,
         /penTapChrome/,

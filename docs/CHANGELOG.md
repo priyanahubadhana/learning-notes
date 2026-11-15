@@ -8,6 +8,18 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: owner-approved picture toolbar-v9; "lasso rebuilt from the live lasso" (contradictions-2026-11-15 line 7); nothing from today's Lasso dropped.
 - Files: src/app/tools/v8/LassoRowParts.tsx, lassoRow.css, rowItems.ts, ToolRow.tsx, cards/lasso/*, cards/autoClose.ts, i18n en/es/hi, e2e/toolbarV9Lasso.spec.ts, toolbarV9LassoShots.spec.ts, inkTools.spec.ts, toolbarV8Tools/Tenth specs, screenshots/2a11/.
 
+### 15 Nov 2026: 2A.8 review 2 fixes (switch toolbar.v8, OFF live)
+
+- What: Erases chips carry their icons (Highlighter, Text, Pen) and are 44 px tall, as the mock; the T10 "whole words" check now splits on real spaces, looks at line one only and must find no cut word (it failed when the eraser was made to cut letters, then passed).
+- Why: review 2 of 2A.8. Root reason: the old check had a typo (/s/ instead of /\s/) and only compared with the count before, so it could never fail.
+- Files: src/app/tools/v8/EraserRowParts.tsx, eraserRow.css, e2e/toolbarV8Eraser.spec.ts, screenshots/2a8/
+
+### 15 Nov 2026: 2A.8 eraser as in mock v9 (switch toolbar.v8, OFF live)
+
+- What: Eraser row is Mode, Size, Options (three menus; one Eraser menu when "Eraser's three menus" is off); Options holds Erases (Highlighter, Text, Pen; never none) and "go back after one erase"; the old "highlights only" Mode tile and switch are gone from the new bar (the old switch still works on today's bar and equals Highlighter alone); the eraser can erase typed text; T10 fixed (letters measured once per stroke, one repaint per frame, spaces included).
+- Why: owner answer B (15 Nov), contradiction 4, T10. Measured on chromium, 80 moves: measuring calls 12956 to 327, p95 per move 4.5 ms to 0.4 ms.
+- Files: src/ink/eraseText.ts(+css, test), controller.ts, inkSettings.ts (eraseHl, eraseText, erasePen; no Dexie), v8 eraser cards, rowItems, autoClose, i18n en/es/hi, docs/features/toolbar-v8.md (TB-30 to TB-30d), e2e/toolbarV8Eraser(.Shots).spec.ts
+
 ### 15 Nov 2026: 2A.14 third review fixes (switch toolbar.v8, OFF live)
 
 - What: Settings v3 below 1024 px gives the rows the full width with toolbar.v8 on (off: unchanged); the "?" sits right after the row name on the tool bar rows; "Back to pen on the bar" is now "Back to last tool" (en, es, hi, spec).
@@ -19,6 +31,14 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
+
+### 15 Nov 2026 (late): 2A.8 and 2A.9 review 1 FAIL
+
+- What: 2A.8 (eraser row to the approved picture, live-bar leak) and 2A.9 (formatTabs pref, test restore, font tiles) fix lists sent; 2A.6 fixes done. Why: review. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
+
+### 15 Nov 2026 (late): 2A.5 merged; 2A.6, 2A.8, 2A.9 built
+
+- What: 2A.5 dark mode merged (80de703c, webkit 17/17); 2A.6 pen row review 1 FAIL; 2A.8 eraser and 2A.9 Format card built on chromium; R21 lasso red logged. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/PENDING.md.
 
 ### 15 Nov 2026 (late): 2A.cfg and 2A.14 merged
 

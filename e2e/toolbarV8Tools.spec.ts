@@ -64,45 +64,37 @@ const stored = (page: Page, key: string) =>
     key,
   )
 
-test('TB-30 Beginner Eraser: two types and three sizes, nothing else; a pick closes the card', async ({
+// v9 (2A.8): the Eraser's own tests are in toolbarV8Eraser.spec.ts.
+test('TB-30 Beginner Eraser: two types and three sizes in one card, nothing else; the type pick keeps it open', async ({
   page,
 }) => {
   await open(page, 'eraser')
   await openCard(page, 'eraser.mode')
   const tiles = card(page, 'eraser.mode').getByRole('radio')
-  await expect(tiles).toHaveCount(2)
+  await expect(tiles).toHaveCount(5)
   await expect(tiles.nth(0)).toContainText('Standard')
   await expect(tiles.nth(1)).toContainText('Whole stroke')
   await expect(card(page, 'eraser.mode').getByRole('switch')).toHaveCount(0)
   await page.getByTestId('v8-eraser-mode-stroke').click()
-  await expect(card(page, 'eraser.mode')).toHaveCount(0)
   expect((await stored(page, 'eraser')).mode).toBe('stroke')
-  await openCard(page, 'eraser.size')
-  await expect(card(page, 'eraser.size').getByRole('radio')).toHaveCount(3)
   await page.getByTestId('v8-eraser-size-2').click()
-  await expect(card(page, 'eraser.size')).toHaveCount(0)
   expect((await stored(page, 'eraser')).size).toBe(2)
 })
 
-test('TB-30 Professional Eraser brings back Precise, highlights only, go back after one erase and the size ring', async ({
+test('TB-30 Professional Eraser: Precise, the size ring and Options with go back after one erase', async ({
   page,
 }) => {
   await open(page, 'eraser', 'professional', ['tb.eraserOptions'])
   await openCard(page, 'eraser.mode')
   await expect(card(page, 'eraser.mode').getByRole('radio')).toHaveCount(3)
-  const sw = card(page, 'eraser.mode').getByRole('switch')
-  await expect(sw).toHaveCount(2)
-  await sw.nth(0).click()
-  await sw.nth(1).click()
-  const e = await stored(page, 'eraser')
-  expect(e.highlightsOnly).toBe(true)
-  expect(e.returnAfter).toBe(true)
-  // A Professional card stays open after a pick.
   await page.getByTestId('v8-eraser-mode-precise').click()
-  await expect(card(page, 'eraser.mode')).toBeVisible()
-  await page.keyboard.press('Escape')
+  await expect(card(page, 'eraser.mode')).toHaveCount(0)
   await openCard(page, 'eraser.size')
   await expect(page.getByTestId('v8-eraser-ring')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByTestId('v8-eraser-erases')).toBeVisible()
+  await page.getByTestId('v8-eraser-back').click()
+  expect((await stored(page, 'eraser')).returnAfter).toBe(true)
 })
 
 test('TB-31 Shapes has its own slot; the card has sections, no sideways strip; Beginner has no aids', async ({

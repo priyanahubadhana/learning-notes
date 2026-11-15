@@ -1,0 +1,5 @@
+/* Typed words the eraser is rubbing out show faint until the Pencil lifts (2A.8). */
+::highlight(ink-erasing) {
+  color: var(--color-ink-soft);
+  text-decoration: line-through;
+}

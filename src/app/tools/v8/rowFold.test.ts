@@ -70,3 +70,36 @@ describe('foldRow', () => {
     expect(foldRow(row, 199, opts).folded).toEqual(['c', 'd'])
   })
 })
+
+describe('foldRow with a stub (the favourites ★ n)', () => {
+  const favs = { id: 'favs', full: 120, short: 120, priority: 1, stub: 44 }
+  it('keeps the favourites with their names while the others lose theirs', () => {
+    // a, b: 100 full / 44 short. Full = 100+100+120+16 = 336; short = 44+44+120+16 = 224.
+    const r = foldRow(
+      [item('a', 100, 44, 4), item('b', 100, 44, 3), favs],
+      250,
+      opts,
+    )
+    expect(r).toEqual({ names: false, shown: ['a', 'b', 'favs'], folded: [] })
+  })
+  it('folds only the favourites into their own stub, no ⋯ n', () => {
+    // short 224 > 200; without favs: 44+44+8 + stub 44+8 = 148 fits.
+    const r = foldRow(
+      [item('a', 100, 44, 4), item('b', 100, 44, 3), favs],
+      200,
+      opts,
+    )
+    expect(r.shown).toEqual(['a', 'b'])
+    expect(r.folded).toEqual(['favs'])
+  })
+  it('folds options into ⋯ n after the favourites are gone', () => {
+    // a 44 + stub 52 + more 52 = 148 fits in 150; b must fold.
+    const r = foldRow(
+      [item('a', 100, 44, 4), item('b', 100, 60, 3), favs],
+      150,
+      opts,
+    )
+    expect(r.shown).toEqual(['a'])
+    expect(r.folded).toEqual(['b', 'favs'])
+  })
+})

@@ -292,7 +292,12 @@ export const ERASER_SIZES = [8, 18, 32] as const
 export interface EraserSettings {
   mode: EraserMode
   size: 0 | 1 | 2
+  /** Old switch (today's bar): when on, only highlights go (wins over the three below). */
   highlightsOnly: boolean
+  /** Tool bar v9 "Erases": what the eraser takes. At least one is on. */
+  eraseHl: boolean
+  eraseText: boolean
+  erasePen: boolean
   /** Item 4: after one erase, go back to the tool used before. */
   returnAfter: boolean
 }
@@ -301,6 +306,9 @@ const ERASER_DEFAULTS: EraserSettings = {
   mode: 'standard',
   size: 1,
   highlightsOnly: false,
+  eraseHl: true,
+  eraseText: false,
+  erasePen: true,
   returnAfter: false,
 }
 
@@ -311,9 +319,33 @@ export const eraserSettings = modelStore<EraserSettings>(
     mode: pick(ERASER_MODES, 'standard'),
     size: size3,
     highlightsOnly: flag(false),
+    eraseHl: flag(true),
+    eraseText: flag(false),
+    erasePen: flag(true),
     returnAfter: flag(false),
   },
 )
+
+export interface EraseTargets {
+  hl: boolean
+  text: boolean
+  pen: boolean
+}
+
+/**
+ * What the eraser takes now. The old "Erase highlights only" switch still
+ * works (it wins while it is on); the v9 bar writes the three flags and turns
+ * the old switch off.
+ */
+export function eraseTargets(
+  s: EraserSettings = eraserSettings.get(),
+): EraseTargets {
+  if (s.highlightsOnly) return { hl: true, text: false, pen: false }
+  // Never nothing: a damaged saved value falls back to the default.
+  if (!s.eraseHl && !s.eraseText && !s.erasePen)
+    return { hl: true, text: false, pen: true }
+  return { hl: s.eraseHl, text: s.eraseText, pen: s.erasePen }
+}
 
 // ---- Lasso ----
 
@@ -469,3 +501,25 @@ export function highlighterPreview(h: HighlighterSettings): PreviewStroke {
 }
 
 export const PREVIEW_SIZE = { width: WIDTH, height: HEIGHT } as const
+
+/**
+ * What one erase stroke touches. Tool bar v9 (switch toolbar.v8 ON): the three
+ * targets, and the Highlighter also clears highlights on typed words. Switch
+ * OFF: exactly today's eraser (all ink; only highlights, ink and words, when
+ * "highlights only" is on).
+ */
+export function eraseScope(
+  s: EraserSettings,
+  v9: boolean,
+): { hlInk: boolean; penInk: boolean; hlWords: boolean; text: boolean } {
+  if (v9) {
+    const t = eraseTargets(s)
+    return { hlInk: t.hl, penInk: t.pen, hlWords: t.hl, text: t.text }
+  }
+  return {
+    hlInk: true,
+    penInk: !s.highlightsOnly,
+    hlWords: s.highlightsOnly,
+    text: false,
+  }
+}

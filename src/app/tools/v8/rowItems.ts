@@ -8,8 +8,9 @@ import { getBarPref } from './barPrefs'
  * chips and opens an empty card; the card contents come with 1c to 1f, and
  * the Favourites chips with 1g. Order follows the spec (TB-21, TB-40).
  */
-/** lshape / lpicks = the Professional Lasso's segmented chips on the bar. */
-export type ItemKind = 'menu' | 'toggle' | 'lshape' | 'lpicks'
+/** erases = the Eraser's segmented chips; flag = a chip that switches one setting; lshape / lpicks = the Professional Lasso's chips. */
+export type ItemKind =
+  'menu' | 'toggle' | 'erases' | 'flag' | 'lshape' | 'lpicks'
 
 export interface RowItem {
   id: string
@@ -21,6 +22,8 @@ export interface RowItem {
   dot?: 'size' | 'colour'
   /** Only the icon shows, never the name (the Box settings button). */
   iconOnly?: boolean
+  /** Dot-only chip: the name is its label, never printed (the Pen size and colour). */
+  noName?: boolean
   /** Card width rule: pick = choose one thing, panel = adjust several. */
   card: 'pick' | 'panel'
   /** Toggles only: the text style it switches. */
@@ -67,13 +70,29 @@ export const ROW_ITEMS: Record<V8ToolId, readonly RowItem[]> = {
   ],
   pen: [
     menu('pen', 'type', 'v8.item.type', { icon: 'penTool' }),
-    menu('pen', 'size', 'v8.item.size', { dot: 'size' }),
-    menu('pen', 'colour', 'v8.item.colour', { dot: 'colour' }),
+    menu('pen', 'size', 'v8.item.size', { dot: 'size', noName: true }),
+    menu('pen', 'colour', 'v8.item.colour', { dot: 'colour', noName: true }),
     menu('pen', 'feel', 'v8.item.feel', { icon: 'sliders', card: 'panel' }),
   ],
   eraser: [
     menu('eraser', 'mode', 'v8.item.mode', { icon: 'eraser' }),
     menu('eraser', 'size', 'v8.item.size', { dot: 'size' }),
+    // Chips on the bar, as in mock v9 (not a ▾): what it erases, and "back after one".
+    {
+      id: 'erases',
+      tool: 'eraser',
+      kind: 'erases',
+      label: 'v8.item.erases',
+      card: 'pick',
+    },
+    {
+      id: 'back',
+      tool: 'eraser',
+      kind: 'flag',
+      label: 'v8.item.back',
+      icon: 'history',
+      card: 'pick',
+    },
   ],
   shapes: [
     menu('shapes', 'shape', 'v8.item.shape', { icon: 'shapes' }),
@@ -89,6 +108,16 @@ export const ROW_ITEMS: Record<V8ToolId, readonly RowItem[]> = {
   ],
   // Insert has no row of its own: its card hangs from the Insert button.
   insert: [],
+}
+
+/**
+ * The Eraser's row (2A.8, TB-30): three menus (Mode, Size, Options) when the
+ * setting "Eraser's three menus" is on, else one simple Eraser menu whose
+ * card holds the type and the size.
+ */
+export function eraserRowItems(menus: boolean): readonly RowItem[] {
+  if (menus) return ROW_ITEMS.eraser
+  return [menu('eraser', 'mode', 'v8.item.eraser', { icon: 'eraser' })]
 }
 
 export const cardIdOf = (item: RowItem): string => `${item.tool}.${item.id}`
@@ -118,12 +147,17 @@ export const LASSO_PRO_ITEMS: readonly RowItem[] = [
   menu('lasso', 'opts', 'v8.item.options', { icon: 'sliders', card: 'panel' }),
 ]
 
-/** The row's items now: the Lasso changes with its Professional look. */
+/** The row's items now: the Eraser follows its setting, the Lasso its Professional look. */
 export const rowItemsFor = (
   tool: V8ToolId,
-  lassoPro: boolean,
+  eraserMenus: boolean,
+  lassoPro = false,
 ): readonly RowItem[] =>
-  tool === 'lasso' && lassoPro ? LASSO_PRO_ITEMS : ROW_ITEMS[tool]
+  tool === 'eraser'
+    ? eraserRowItems(eraserMenus)
+    : tool === 'lasso' && lassoPro
+      ? LASSO_PRO_ITEMS
+      : ROW_ITEMS[tool]
 
 /** The card a second tap on the active tool opens (TB-04). */
 export function firstCardOf(tool: V8ToolId): string {
@@ -136,13 +170,20 @@ export function firstCardOf(tool: V8ToolId): string {
 }
 
 /** Title key and width rule of any v8 card id. */
-export function cardInfo(id: string): {
+export function cardInfo(
+  id: string,
+  eraserMenus = true,
+): {
   title: MessageKey
   size: 'pick' | 'panel'
 } {
   // The Lasso's folded chips: the picks open as a card of their own (2A.11).
   if (id === 'lasso.picks') return { title: 'v8.lasso.picks', size: 'pick' }
   if (id === 'lasso.opts') return { title: 'v8.lasso.options', size: 'panel' }
+  // The Erases chips fold into this card on a narrow screen.
+  if (id === 'eraser.options') return { title: 'v8.item.erases', size: 'pick' }
+  if (id === 'eraser.mode' && !eraserMenus)
+    return { title: 'v8.item.eraser', size: 'pick' }
   if (id === 'insert') return { title: 'v8.tool.insert', size: 'panel' }
   if (id === 'more.alltools')
     return { title: 'v8.allTools.title', size: 'panel' }

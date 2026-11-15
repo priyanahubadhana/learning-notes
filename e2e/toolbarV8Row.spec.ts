@@ -39,7 +39,10 @@ test('TB-21 the Pen row reads Type, Size, Colour, Feel, then plus and list', asy
   await expect(page.getByTestId('v8-chip-pen.type')).toContainText(
     'Fountain pen',
   )
-  await expect(page.getByTestId('v8-chip-pen.size')).toContainText('Medium')
+  await expect(page.getByTestId('v8-chip-pen.size')).toHaveAttribute(
+    'aria-label',
+    /Medium/,
+  )
   const feel = (await page.getByTestId('v8-chip-pen.feel').boundingBox())!
   const add = (await page.getByTestId('v8-add').boundingBox())!
   const org = (await page.getByTestId('v8-organise').boundingBox())!

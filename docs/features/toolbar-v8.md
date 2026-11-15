@@ -64,9 +64,12 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 **Pen (one tool, types inside)**
 
 - TB-20 When I open Pen › Type ▾ → six tiles (Fountain pen, Ballpoint, Brush pen, Pencil, Marker, Highlighter) each with a sample stroke in my colour and a three-word hint; picking one closes the card after 190 ms and the chip glows.
-- TB-21 Pen row order is Type ▾ → Size ▾ → Colour ▾ → Feel ▾ → Favourites (T2).
+- TB-21 When I tap Pen → its row reads Type ▾ → Size ▾ → Colour ▾ → Feel ▾ → my Favourites → "+" → "☰" (T2); Beginner and Professional alike. The Type chip shows a small drawing of the pen (its band in my colour) and the type's name (v9).
+- TB-21a When I look at the Size chip → it is one round dot in my pen colour, 6, 9 or 13 px for Thin, Medium, Thick, with no word (the name is its label for screen readers and for a long press); it changes at once when I pick a size (v9).
+- TB-21b When I look at the Colour chip → it is one round 22 px dot of my colour with a thin ring, so a dark colour stays visible on dark glass; no word (v9).
+- TB-21c When I have saved pens or highlighters → they show on the Pen row after Feel ▾, each as a small sample stroke in its colour and type plus its type's name; the one that matches my current pen has a ring; tapping one sets type, size and colour in one step and its chip glows. If the row is too narrow, names go first, then the favourites fold into "⋯ n" where each one stays tappable; the row never scrolls sideways (v9, TB-08). Saving and sorting favourites is TB-52 and TB-53.
 - TB-22 When I open Size ▾ → three size tiles drawn at real thickness; Professional adds a live preview and the wedge "Exact thickness" slider and Line style (Pro: `tb.penStroke`).
-- TB-23 When I open Colour ▾ → six round swatches; the chip shows one dot of the current colour; Professional adds Colour picker and Custom colours, up to 6, newest first (Pro: `tb.customColours`).
+- TB-23 When I open Colour ▾ → six round swatches; the chip shows one dot of the current colour (TB-21b); Professional adds Colour picker and Custom colours, up to 6, newest first (Pro: `tb.customColours`).
 - TB-24 When I open Feel ▾ → sections Feel · Aids · Math · Page; Beginner Feel = Pressure, Stabilisation, collapsed Fine-tune; Professional adds tip sharpness, flatness, tilt, speed thickness, latency (Pro: `tb.penFeel`), writing aids (Pro: `tb.penAids`), layers, paper size, zoom (Pro: `tb.layers`).
 - TB-25 When I choose A4 in Page → the grid and paper style stay visible (T4).
 - TB-26 Highlighter options: opacity, snap to lines, behind ink, highlight eraser, save to notes (Pro: `tb.highlighter`).

@@ -60,8 +60,10 @@ export const barDraft: Store<string[] | null> = memStore<string[] | null>(null)
 
 /** A tool a person may add: Professional tools only once their switch is on. */
 export function toolAvailable(id: string): boolean {
+  // The six tools of the bar can always be added back (the bar shows them all today).
+  if (isCore(id)) return true
   const meta = metaOf(id)
-  if (!meta) return isCore(id)
+  if (!meta) return false
   const unlock = meta.unlock as ProFeatureId | undefined
   if (unlock) return isUnlocked(unlock)
   return meta.level === 'beginner' || getLevel() === 'professional'

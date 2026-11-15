@@ -153,8 +153,8 @@ test('S5-22 dragging moves a tool and the others slide aside while the finger is
   const insert = (await tool(page, 'insert').boundingBox())!
   const shapes = (await tool(page, 'shapes').boundingBox())!
   await page.mouse.move(
-    insert.x + insert.width / 2,
-    insert.y + insert.height / 2,
+    insert.x + insert.width * 0.75,
+    insert.y + insert.height * 0.75,
   )
   await page.mouse.down()
   await page.mouse.move(shapes.x + 10, shapes.y + shapes.height / 2, {
@@ -180,7 +180,8 @@ test('S5-22 dropping a tool on More tools removes it; a locked tool cannot be dr
     ['lasso', true],
   ] as const) {
     const b = (await tool(page, id).boundingBox())!
-    await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2)
+    // Press the lower right of the tool: the minus sits on its upper left corner.
+    await page.mouse.move(b.x + b.width * 0.75, b.y + b.height * 0.75)
     await page.mouse.down()
     await page.mouse.move(target.x, target.y, { steps: 8 })
     await page.mouse.up()

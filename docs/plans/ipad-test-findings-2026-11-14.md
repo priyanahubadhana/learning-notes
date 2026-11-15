@@ -204,3 +204,7 @@ Running list, in the order the owner reports. The owner asked to note everything
 - **Owner decisions (16 Nov):** T29 fix, but after the remaining tests. T30: B, the new Page options panel stays in Phase 2A and is tested with the new tool bar (steps 7–9 move to the 2A test). T31: hide key names on touch everywhere. I1: A, the ✕ looks small but is easy to tap (finger-size tap area), premium look, by the design rules.
 - **Owner (16 Nov):** the Pencil look at the new text box moves to the 2A first look, tested together with the new tool bar. Phase 1 re-test is finished: pass 1–3, 5, 6, 10; T29 to fix; 7–9 move to 2A (T30).
 - **Owner (16 Nov):** one combined test when the new tool bar (2A) is done: Phase 1 fixes (T29, T31, ✕ on notices), the 2A tool bar, Page options steps 7–9, and the Pencil look at the new text box. Phase 1 goes live after that test.
+
+## Combined first look (2A + Phase 1 fixes + Pencil look), sent 16 Nov
+
+Version: build/next 9642f0d5, CI run 43773655339 green. Preset: "Up to Phase 2B" (Phase 1, 2A tool bar, new text box). Results go below as the owner reports them; nothing changes until the discussion at the end.

@@ -37,7 +37,7 @@ async function startEditing(page: Page, on = 'pen') {
   const box = (await tool(page, on).boundingBox())!
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
   await page.mouse.down()
-  await page.waitForTimeout(900)
+  await page.waitForTimeout(1300)
   await page.mouse.up()
   await expect(editBar(page)).toBeVisible()
 }
@@ -60,6 +60,22 @@ test('S5-22 touch and hold a tool opens edit mode with the top bar, cancel and d
   // Holding did not choose a tool, and the tool row is not shown while editing.
   await expect(page.getByTestId('v8-row')).toHaveCount(0)
   await expect(tool(page, 'text')).toHaveAttribute('data-active', 'true')
+})
+
+test('S5-22 touch and hold the free space of the bar opens edit mode sooner', async ({
+  page,
+}) => {
+  await open(page)
+  const bar = (await page.getByTestId('v8-bar').boundingBox())!
+  const more = (await page.getByTestId('v8-more').boundingBox())!
+  const undo = (await tool(page, 'insert').boundingBox())!
+  // Between the tools and the right-hand buttons there is free space.
+  const x = (undo.x + undo.width + more.x) / 2
+  await page.mouse.move(x, bar.y + bar.height / 2)
+  await page.mouse.down()
+  await page.waitForTimeout(800)
+  await page.mouse.up()
+  await expect(editBar(page)).toBeVisible()
 })
 
 test('S5-23 Text, Pen, Eraser, Backspace, New line and More are locked; the others show a minus', async ({

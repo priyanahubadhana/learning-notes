@@ -42,13 +42,8 @@ const MoreMenuV2 = lazyNow(() => import('./cards/more/MoreMenuV2'))
 import type { OpenCard } from './barState'
 import { type V8ToolId } from './registryV8'
 import { barDraft, barTools, isCore, isLocked, startEdit } from './barEdit'
-import {
-  EditSlot,
-  FixedSlot,
-  barToolIcon,
-  barToolName,
-  type EditDrag,
-} from './BarEditParts'
+import { EditSlot, FixedSlot } from './BarEditParts'
+import { barToolIcon, barToolName, type EditDrag } from './barEditUi'
 import { runTool } from '../toolRegistry'
 import { useFold, type FoldSpec } from './useFold'
 import './toolbarV8.css'
@@ -88,8 +83,13 @@ const KEEP: Record<string, number> = {
   nl: 90,
 }
 
-/** How long a press on the bar stays still before edit mode opens (S5-22). */
+/**
+ * How long a press stays still before edit mode opens (S5-22): on the bar's
+ * free space soon; on a tool later, after its name has shown (TB-02) and a
+ * slide to another tool (TB-09) did not start.
+ */
 export const EDIT_HOLD_MS = 600
+export const EDIT_HOLD_TOOL_MS = 900
 
 export interface ToolBarProps {
   editDrag: EditDrag
@@ -438,12 +438,15 @@ export function ToolBar({
     stopEditHold()
     editHold.current.x = e.clientX
     editHold.current.y = e.clientY
-    editHold.current.timer = window.setTimeout(() => {
-      editHold.current.timer = 0
-      hold.reset()
-      onCloseCard('fold.bar')
-      startEdit()
-    }, EDIT_HOLD_MS)
+    editHold.current.timer = window.setTimeout(
+      () => {
+        editHold.current.timer = 0
+        hold.reset()
+        onCloseCard('fold.bar')
+        startEdit()
+      },
+      b ? EDIT_HOLD_TOOL_MS : EDIT_HOLD_MS,
+    )
   }
   const holdMove = (e: PointerEvent<HTMLElement>) => {
     const h = editHold.current

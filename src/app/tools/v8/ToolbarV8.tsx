@@ -18,7 +18,8 @@ import {
 } from './barState'
 import { NEWLINE_CARD, ToolBar } from './ToolBar'
 import { barDraft, cancelEdit } from './barEdit'
-import { EditBanner, EditTray, useEditDrag } from './BarEditParts'
+import { EditBanner, EditTray } from './BarEditParts'
+import { useEditDrag } from './barEditUi'
 import { ToolRow } from './ToolRow'
 import { isPenCard } from './cards/pen/penModel'
 import { cardAutoClose } from './cards/autoClose'
@@ -64,9 +65,13 @@ export default function ToolbarV8() {
   const draft = barDraft.useValue()
   const editing = draft !== null
   const drag = useEditDrag()
-  useEffect(() => {
-    if (editing) setCard(null)
-  }, [editing])
+  useEffect(
+    () =>
+      barDraft.subscribe(() => {
+        if (barDraft.get() !== null) setCard(null)
+      }),
+    [],
+  )
   // Leaving the page in the middle of an edit keeps the old bar.
   useEffect(() => cancelEdit, [])
 

@@ -8,6 +8,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: 2A.16 fix list; why-notes: (3) the tile name was one truncated line and the check sat at the top right over it; (4) the bar moves its chips after the page resized, and a chip that only moves tells no observer.
 - Files: src/app/reading/FontTiles.tsx, src/app/tools/v8/cards/text/textCards.css, src/design/parts/useAnchoredCard.ts, e2e/toolbarV9Polish.spec.ts, e2e/penRowShots.spec.ts
 
+### 16 Nov 2026: 2A.13 review 2 fixes (switch toolbar.v8, OFF live)
+
+- What: Organise names the row a move was made on (the "..." menu and keyboard moves gave the wrong name); the shared Arrange sheet now passes the moved row's id. The Add form grows on an upright iPad (opt-in `grow` on the shared sheet) so the live preview stays in view; "Start from" is the shared segmented choice, as the v9 mock shows (review 3). New tests for each; pictures retaken.
+- Why: review 2 of 2A.13 (Safari pressed-row memory was reset by the menu and never set by keys).
+- Files: src/design/parts/ArrangeSheet.tsx, src/design/parts/SheetBase.tsx, src/design/parts/SheetBase.css, src/app/tools/v8/FavSheets.tsx (uses OnOffChoice), e2e/toolbarV8Favs.spec.ts, docs/screens/2a13/.
+
 ### 15 Nov 2026: 2A.15 Edit the tool bar on the bar (switch toolbar.v8, OFF live)
 
 - What: touch and hold a tool (after its name shows) or the bar's free space opens edit mode: top bar with cancel and done, a minus on removable tools, a lock on Text, Pen, Eraser, Backspace, New line and More, live drag, a "More tools" tray (tap or drag up to add, drop on it to remove); Done saves on this device with a toast and Undo; cancel keeps the old bar. Your layouts stay hidden (no button on the new bar; LayoutButton, layoutSync and data untouched).
@@ -79,6 +85,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 ### 16 Nov 2026: 2A.12 merged
 
 - What: 2A.12 fast-forwarded into build/next with main (94e83c12); 2A.15 review 3 PASS (89b05330); webkit turn to 2A.13. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
+- What: 2A.12 (94e83c12) and 2A.15 (2b9379ab) merged, CI green; 2A.13 ready at 64a5d4a4; 2A.16 part 1 built; 2A.13 review 2 FAIL, Opus takeover, review 3 PASS. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
 
 ### 16 Nov 2026: 2A.12 PASS, 2A.15 to Opus
 
@@ -2263,3 +2270,9 @@ What: 6 scratch working copies removed with git and 9 folders in `.claude/worktr
 ## 2026-11-15 Owner answers E, H, 5
 
 - What: E option 1 (upright Pencil mode icons only), H option 1 (merge the two November 2026 pages, backup first), 5 yes (Format 3 tabs Beginner, 4 Professional). Why: owner answers to the contradictions list. Files: docs/plans/contradictions-2026-11-15.md, docs/PENDING.md.
+
+## 2026-11-15 - 2A.13 Favourites: Add form and Organise (toolbar.v8, OFF)
+
+What: "+" opens the Add form (tool, preset or current setup, ticks, preview, name, Save); the list button opens Organise on the shared Arrange sheet (drag, arrows, menu, remove with Undo, Reset with confirm). Favourites show on every tool row. New local key `toolbar.favourites2`, migrated once from `toolbar.favourites` (old key kept in step for pens).
+Why: the two buttons were placeholders (T13, T18). Also: a row menu inside a floating sheet was covered by it and closed it (AnchoredMenu lift, SheetBase counts its menu as inside).
+Files: src/app/tools/v8/{favs2,favRow,FavSheets,PenFavChip,ToolRow}, AnchoredMenu.tsx, SheetBase.tsx, i18n v8Favs (en, es, hi), e2e/toolbarV8Favs.spec.ts, e2e/favsShots.spec.ts.

@@ -237,6 +237,10 @@
   flex: 1;
 }
 .arr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   min-height: 44px;
   padding: 0 var(--space-4);
   border: 1px solid var(--color-line-strong);

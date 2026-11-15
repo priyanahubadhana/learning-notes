@@ -89,6 +89,7 @@ const config = defineConfig({
         /keyNames/,
         /toolbarV8Text/,
         /toolbarV8FormatOn/,
+        /toolbarV8Favs/,
         /toolbarV8BarEdit.spec/,
         /toolbarV9Polish/,
         /inkTools/,

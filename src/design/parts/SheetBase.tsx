@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { overlay, placeBeside, trapFocus } from '../../app/overlay'
+import { lastInputWasKey } from './inputModality'
 import { tp } from './tp'
 import './SheetBase.css'
 
@@ -23,6 +24,8 @@ export interface SheetBaseProps {
   anchor?: HTMLElement | null
   /** Inline only: draw the phone shape (full height, grab bar). */
   phone?: boolean
+  /** Floating: grow to the screen's bottom edge instead of stopping at 640 px (long forms). */
+  grow?: boolean
   id?: string
   'data-testid'?: string
 }
@@ -57,11 +60,19 @@ export function SheetBase(props: SheetBaseProps) {
       id,
       layer: 'sheet',
       close: () => closeRef.current(),
-      inside: (n) => el.contains(n),
+      // A menu opened from a button inside the sheet (a row's "...") belongs to it.
+      inside: (n) => {
+        if (el.contains(n)) return true
+        const menu = n.closest('[role="menu"]')
+        return !!menu?.id && !!el.querySelector(`[aria-controls="${menu.id}"]`)
+      },
       opener,
     })
     const release = trapFocus(el, opener)
-    el.querySelector<HTMLElement>('[data-autofocus]')?.focus()
+    // Focus goes to the first control for the keyboard only; after a tap the
+    // sheet itself takes it, so no ring is drawn on a button.
+    if (lastInputWasKey())
+      el.querySelector<HTMLElement>('[data-autofocus]')?.focus()
     if (!el.contains(document.activeElement)) el.focus()
     return () => {
       release()
@@ -88,12 +99,23 @@ export function SheetBase(props: SheetBaseProps) {
       className="sheet-base"
       data-mode={mode}
       data-phone={props.phone ? '' : undefined}
+      data-grow={props.grow ? '' : undefined}
       data-testid={props['data-testid'] ?? 'sheet-base'}
       role="dialog"
       aria-modal={mode === 'floating' ? 'true' : undefined}
       aria-labelledby={`${id}-title`}
       tabIndex={-1}
-      style={pos ? { left: pos.left, top: pos.top } : undefined}
+      style={
+        pos
+          ? {
+              left: pos.left,
+              top: pos.top,
+              ...(props.grow
+                ? { maxHeight: `calc(100dvh - ${pos.top}px - var(--space-4))` }
+                : {}),
+            }
+          : undefined
+      }
     >
       <span className="sheet-base-grab" aria-hidden="true" />
       <header className="sheet-base-head">

@@ -3,62 +3,75 @@ import { Card } from '../../../design/parts/Card'
 import { CardGroup, Tile, TileGroup } from '../../../design/parts/CardParts'
 import { t } from '../../../i18n/t'
 import { Icon } from '../icons'
+import { penSettings } from '../main/inkSettings'
+import { metaOf } from '../toolRegistryMeta'
 import { FavPic } from './PenPictures'
-import {
-  chooseFavourite,
-  favIsActive,
-  favLabel,
-  favName,
-  type FavItem,
-} from './penRow'
+import { chooseFav, favLabel, favName, justAdded } from './favRow'
+import { favIsOn, type Fav2 } from './favs2'
+import type { PenTypeId } from './penFace'
+import { v8Icon } from './registryV8'
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
-/** One saved pen or highlighter on the Pen row (TB-21c). */
-function FavChip({ item, mode }: { item: FavItem; mode: string }) {
-  // Glows once when tapped (TB-70); the key restarts the one-shot animation.
-  const [glow, setGlow] = useState(0)
+/** A pen draws its sample stroke; every other tool shows its own icon. */
+export function FavFace({ fav }: { fav: Fav2 }) {
+  if (fav.tool !== 'pen')
+    return (
+      <span className="v8favwell" aria-hidden>
+        <Icon name={v8Icon(fav.tool, metaOf(fav.tool)?.icon)} size={16} />
+      </span>
+    )
+  const typeId: PenTypeId = fav.hl ? 'highlighter' : (fav.type ?? 'fountain')
+  return (
+    <FavPic typeId={typeId} colour={fav.colour ?? penSettings.get().colour} />
+  )
+}
+
+/** One favourite on the row (TB-21c, TB-50). */
+function FavChip({ item, n }: { item: Fav2; n: number }) {
+  // Glows once when tapped or just saved (TB-52, TB-70); the key restarts it.
+  const [glow, setGlow] = useState(() => (justAdded.get() === item.id ? 1 : 0))
   return (
     <button
       type="button"
       data-chrome
-      data-testid={`v8-fav-${item.id.slice(3)}`}
+      data-testid={`v8-fav-${n}`}
       className="v8chip v8chip-fav"
       aria-label={favLabel(item)}
-      aria-pressed={favIsActive(item.fav, mode)}
+      aria-pressed={favIsOn(item)}
       onMouseDown={keepFocus}
       onClick={() => {
-        chooseFavourite(item)
+        chooseFav(item)
         setGlow((n) => n + 1)
       }}
     >
       {glow ? <span key={glow} className="pcard-glow" aria-hidden /> : null}
-      <FavPic typeId={item.typeId} colour={item.fav.colour} />
+      <FavFace fav={item} />
       <span className="v8chip-text">{favName(item)}</span>
     </button>
   )
 }
 
 /** The favourites on the row; they keep their names when other chips lose theirs. */
-export function FavGroup({ items, mode }: { items: FavItem[]; mode: string }) {
+export function FavGroup({ items }: { items: Fav2[] }) {
   return (
     <>
-      {items.map((f) => (
-        <FavChip key={f.id} item={f} mode={mode} />
+      {items.map((f, i) => (
+        <FavChip key={f.id} item={f} n={i} />
       ))}
     </>
   )
 }
 
 /** The favourites drawn only to measure their width as one group. */
-export function FavMeasure({ items }: { items: FavItem[] }) {
+export function FavMeasure({ items }: { items: Fav2[] }) {
   return (
     <>
       {(['full', 'short'] as const).map((m) => (
         <span key={m} className="v8favgroup" data-m-id="favs" data-m-mode={m}>
           {items.map((f) => (
             <span key={f.id} className="v8chip v8chip-fav">
-              <FavPic typeId={f.typeId} colour={f.fav.colour} />
+              <FavFace fav={f} />
               <span className="v8chip-text">{favName(f)}</span>
             </span>
           ))}
@@ -71,14 +84,12 @@ export function FavMeasure({ items }: { items: FavItem[] }) {
 /** "★ n": the favourites that did not fit, in a card of picture tiles (v9). */
 export function FavStar({
   items,
-  mode,
   open,
   card,
   onToggle,
   onClose,
 }: {
-  items: FavItem[]
-  mode: string
+  items: Fav2[]
   open: boolean
   card: { anchor: HTMLElement } | null
   onToggle: (el: HTMLElement) => void
@@ -113,16 +124,16 @@ export function FavStar({
         >
           <CardGroup>
             <TileGroup label={t('v8.fav.title')} columns={2}>
-              {items.map((f) => (
+              {items.map((f, i) => (
                 <Tile
                   key={f.id}
                   label={favLabel(f)}
-                  selected={favIsActive(f.fav, mode)}
-                  testId={`v8-favtile-${f.id.slice(3)}`}
-                  onSelect={() => chooseFavourite(f)}
+                  selected={favIsOn(f)}
+                  testId={`v8-favtile-${i}`}
+                  onSelect={() => chooseFav(f)}
                 >
                   <span className="v8tiletype">
-                    <FavPic typeId={f.typeId} colour={f.fav.colour} />
+                    <FavFace fav={f} />
                     <small>{favName(f)}</small>
                   </span>
                 </Tile>

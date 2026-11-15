@@ -20,8 +20,8 @@ export type ArrangeSheetProps = {
   help?: string
   rows: ArrangeRow[]
   preview?: (rows: ArrangeRow[]) => ReactNode
-  /** Applied live; one history step per action. */
-  onChange(rows: ArrangeRow[]): void
+  /** Applied live; one history step per action. `moved` names the row a move was made on. */
+  onChange(rows: ArrangeRow[], moved?: string): void
   onAdd?(): void
   addLabel?: string
   onReset?(): void
@@ -145,7 +145,7 @@ export function ArrangeSheet(props: ArrangeSheetProps) {
     }
   }, [])
 
-  const move = (id: string, to: number) => onChange(moveRow(rows, id, to))
+  const move = (id: string, to: number) => onChange(moveRow(rows, id, to), id)
 
   const remove = (id: string) => {
     const doIt = () => {

@@ -58,7 +58,35 @@ Address: https://build-next.learning-notes-app.pages.dev . Write down the step n
 16. Use the app for ten minutes as you normally would. **You should see:** no freeze (F7). If it freezes, note what you had just tapped.
 17. In "Test a phase", switch Off. **You should see:** the old screens come back at once.
 
-## Re-check round (after fixes P1.1 and P1.2, 14 Nov)
+## Re-test round (after P1.8 and P1.9, 15 Nov)
+
+iPad, Safari, about 15 minutes. Address: https://build-next.learning-notes-app.pages.dev . Write down the step number and what you saw for anything that does not match. Never clear the website's data.
+
+1. **Newest version.** Settings › Help & tour › About this app. **You should see:** version `8105fcb`. If not: Check for updates now, then tap the pill; or close the tab and open the address again.
+2. **Turn the phase on.** Settings › Try new features › "Test a phase": choose "Phase 1", switch "Test this phase" On. **You should see:** the new frame at once.
+3. **Update timer.** About this app › "Pretend a must-have update". **You should see:** "A must-have update", "Starts in 5 seconds" counting down, then a bar with MB and the time left; the app reopens on the same page, notes kept.
+4. **Slow, then Try again.** Tap Pretend again and, during the countdown, turn on Airplane mode. **You should see:** a calm note (slow connection, or "Nothing was installed and nothing was lost") with "Try again" and "Not now". Turn Airplane mode off, tap Try again. **You should see:** it finishes.
+5. **Never stuck.** Pretend once more, tap "Not now". **You should see:** your notes open as they are; a small "Must-have update waiting" stays.
+6. **Side list.** Scroll the left list of notebooks and pages. **You should see:** its own scroll bar, separate from the page's.
+7. **Sheets below the top bar.** Tap the three dots at the top of a page. **You should see:** the sheet starts under the top bar; the top bar stays visible.
+8. **Page options folded.** In that sheet. **You should see:** "Page options" with folded groups (Page, View, Share, Protect, Tools); tap one to open it.
+9. **Pin an action.** Tap "+ Pin an action", pick one. **You should see:** ✓ keeps it on your bar; ✕ goes back with nothing changed.
+10. **Computer and Pencil mode.** Tap the mode button in the top bar; switch Computer, then Pencil, then Computer. **You should see:** sizes change in place; the page does not jump or scroll.
+
+## 10-minute Pencil look: new text box (Phase 2B, owner answer 5A, 15 Nov)
+
+Optional, after the re-test. The text box is not finished (steps 12 and 13 and a few known bugs wait: slash with Scribble, writing over a selected word, one redo step, phone dots), and the tool bar around it is still the old one. Use a test page, not an important one.
+
+How to switch it on: keep "Test a phase" on "Phase 1" (do not pick "Up to Phase 2B": that also turns on the unfinished tool bar). Below it in Try new features, switch **"New text box"** On (switch `textbox.v2`). To stop, switch it Off.
+
+1. **Select.** Tap a text box once with the Pencil. **You should see:** one clear border with eight dots; no keyboard.
+2. **Cursor.** Tap again inside. **You should see:** the cursor lands exactly where you tapped; no jump.
+3. **Word.** Double-tap a word. **You should see:** that word selected; nothing deleted.
+4. **Move.** Drag the ≡ tab. **You should see:** only the box moves and glides into place; no ink, no scroll.
+5. **Resize.** Drag a dot. **You should see:** the box resizes; never smaller than its text.
+6. **Write.** Write with Scribble in the box, then pinch to zoom. **You should see:** the text appears; the Pencil never zooms; the bars stay in place.
+
+## Earlier re-check round (after fixes P1.1 and P1.2, 14 Nov; done)
 
 Same address, iPad, Safari, about 10 minutes. First check Settings › Help & tour › About this app shows the version Claude names. Write down the step and what you saw.
 

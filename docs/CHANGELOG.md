@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026 (evening): Phase 1 re-test steps
+
+- What: phase-1.md gets the re-test round after P1.8 and P1.9 (10 steps, preview at 8105fcb, CI green) and the optional 10-minute Pencil look at the new text box (switch "New text box" on with the Phase 1 preset; 6 steps).
+- Why: plan step 1.1; owner answer 5A.
+- Files: docs/plans/phases/phase-1.md, docs/CHANGELOG.md.
+
 ### 15 Nov 2026: P1.9 the frame matches panels 1, 2, 3, 4 and 6 of the Phase 1 fixes picture (switch foundation.shell, OFF live)
 
 - What: (1) the side list (stepped aside on an upright iPad) now docks beside the rail with its own bar (title and ✕) instead of lying over the top bar; the page narrows and the top bar goes compact; the same bar on the sideways list and the phone drawer; only the list scrolls. (2) Right-side sheets start below the top bar, 440 px wide, 12 px from the edges, dim only the page area, close with ✕, a tap outside or Esc. (3) Page options: tiles on top, Share/Protect/Tools (and Page/View) folded with a grey line, switches for Lock editing and Pause reviews. (4) Pin an action: ✕ left, ✓ right, round ticks, a draft until ✓. (6) The old tool bar is 64 px in Computer, Touch and Pencil.

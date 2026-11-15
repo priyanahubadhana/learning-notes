@@ -369,9 +369,14 @@ test('SH-08 iPad portrait 820: the sidebar sits on the rail and the panel opens 
   await withPage(page)
   await page.setViewportSize({ width: 820, height: 1180 })
   // P1.9 T4: the list the steps opened stays beside the page until it is closed (it no longer has a scrim to tap).
-  if (await side(page).isVisible())
-    await side(page).getByTestId('sb-head-close').click()
-  await expect(side(page)).toBeHidden()
+  // The frame re-reads its size a moment after the resize (useFrameSize), so a
+  // docked list can still be drawn for that moment and then step aside by
+  // itself: a one-time check raced it. Retry until the list is closed.
+  await expect(async () => {
+    if (await side(page).isVisible())
+      await side(page).getByTestId('sb-head-close').click({ timeout: 2_000 })
+    await expect(side(page)).toBeHidden({ timeout: 1_000 })
+  }).toPass({ timeout: 15_000 })
   expect(await mainWidth(page)).toBeGreaterThanOrEqual(600)
   const before = await mainWidth(page)
   await top(page).getByTestId('panel-toggle').click()

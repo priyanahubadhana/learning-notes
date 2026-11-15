@@ -119,15 +119,22 @@
 .v8lstack .fgroup-body {
   padding-top: var(--space-2);
 }
-/* Inside the Layers fold: the groups keep the card's gap and one left edge. */
+/* Inside the Layers fold: the groups keep the card's gap and one left edge.
+   The shared Layers parts pad their text rows; here boxes, text and icons all
+   start on the fold's edge (Pen > Feel > Page keeps its own look). */
 .v8llayers {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-}
-.v8llayers {
   padding-inline: 4px;
 }
 .v8llayers > * {
   margin-inline: 0;
+}
+.v8llayers > p:not(.pcard-note),
+.v8llayers [data-layer-add],
+.v8llayers [data-layer-merge],
+.v8llayers [data-card-action],
+.v8llayers [data-card-chips] {
+  padding-inline-start: 0;
 }

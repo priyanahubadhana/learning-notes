@@ -172,3 +172,67 @@ test('Professional Lasso Options card hangs under its chip and stays inside the 
   expect(c.y + c.height).toBeLessThanOrEqual(vp.height)
   expect(c.x + c.width).toBeLessThanOrEqual(vp.width)
 })
+
+/** The left edge a person sees: a box's border, else its first text or icon. */
+const layersEdges = (page: Page) =>
+  page.getByTestId('v8-lasso-layers').evaluate((root) => {
+    const seen = (el: Element) => {
+      const s = getComputedStyle(el)
+      if (parseFloat(s.borderLeftWidth) > 0 || el.tagName === 'HR')
+        return el.getBoundingClientRect().left
+      const icon = el.querySelector('svg')
+      if (icon) return icon.getBoundingClientRect().left
+      const range = document.createRange()
+      range.selectNodeContents(el)
+      return range.getBoundingClientRect().left
+    }
+    const out: Record<string, number> = {}
+    const pick = (name: string, sel: string) => {
+      const el = root.querySelector(sel)
+      if (el) out[name] = Math.round(seen(el) * 10) / 10
+    }
+    pick('empty', ':scope > p:not(.pcard-note)')
+    pick('layer', '[data-layer]')
+    pick('page', '[data-layer-page]')
+    pick('add', '[data-layer-add]')
+    pick('merge', '[data-layer-merge]')
+    pick('line', 'hr')
+    pick('paper', '[data-chip]')
+    pick('asDrawn', '[data-card-action="asDrawn"]')
+    pick('note', '.pcard-note')
+    return out
+  })
+
+test('Options card Layers fold: every part starts on one left edge', async ({
+  page,
+}) => {
+  await open(page, 'professional')
+  await chip(page, 'lasso.opts').click()
+  const c = card(page, 'lasso.opts')
+  await c.getByRole('button', { name: /Layers/ }).click()
+  const edges = await layersEdges(page)
+  expect(Object.keys(edges).length).toBeGreaterThanOrEqual(7)
+  const values = Object.values(edges)
+  expect(
+    Math.max(...values) - Math.min(...values),
+    JSON.stringify(edges),
+  ).toBeLessThanOrEqual(1)
+  // With layers the rows and Merge keep that edge too.
+  await c.getByRole('button', { name: 'Add Layer 2' }).click()
+  await c.getByRole('button', { name: 'Add Layer 2' }).click()
+  const more = await layersEdges(page)
+  expect(more.layer, JSON.stringify(more)).toBeDefined()
+  for (const v of Object.values(more))
+    expect(Math.abs(v - values[0]!), JSON.stringify(more)).toBeLessThanOrEqual(
+      1,
+    )
+  // The same edge as the note under the menu picture, higher in the card.
+  const note = await c
+    .locator('.pcard-note')
+    .first()
+    .evaluate((el) => el.getBoundingClientRect().left)
+  expect(
+    Math.abs(values[0]! - note),
+    JSON.stringify(edges),
+  ).toBeLessThanOrEqual(1)
+})

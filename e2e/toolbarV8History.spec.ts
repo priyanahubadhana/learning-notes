@@ -54,10 +54,24 @@ test('TB-01b flag on: the top bar pair undoes and redoes typing', async ({
   await expect(page.locator('.bn-editor')).toContainText('Second line')
 })
 
-test('TB-01b flag on: a page path part still goes back', async ({ page }) => {
+test('TB-01b flag on: tapping the first part of the page path leaves the page', async ({
+  page,
+}) => {
   await open(page, 'foundation.shell,toolbar.v8')
-  const crumbs = top(page).locator('.sh-crumbs button')
-  await expect(crumbs.first()).toBeVisible()
+  await expect(page.locator('.bn-editor')).toBeVisible()
+  await top(page).locator('.sh-crumbs button').first().click()
+  await expect(page.locator('.bn-editor')).toHaveCount(0)
+})
+
+test('TB-01b flag on: swipe back (browser back) leaves the page; forward returns', async ({
+  page,
+}) => {
+  await open(page, 'foundation.shell,toolbar.v8')
+  await expect(page.locator('.bn-editor')).toBeVisible()
+  await page.goBack()
+  await expect(page.locator('.bn-editor')).toHaveCount(0)
+  await page.goForward()
+  await expect(page.locator('.bn-editor')).toBeVisible()
 })
 
 test('TB-01b flag off: the arrows stay and the tool bar keeps its pair', async ({

@@ -2,7 +2,7 @@
 
 **RUNNING, full team for Phase 2A (owner answer 4A, 15 Nov):** one `phase-manager` (Opus, medium) runs up to 3 Sonnet builders; lean again after the phase. Rewritten 15 Nov, evening.
 
-**Now (phase-manager, 16 Nov):** build/next 94e83c12 (2A.12 fast-forwarded, main merged), CI running. Open: 2A.15 holds the webkit turn, then review 3; 2A.13 paused (webkit after 2A.15, then re-review); 2A.16 starts after 2A.15 merges (same files). Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
+**Now (phase-manager, 16 Nov):** build/next 2b9379ab CI green (2A.15 in). 2A.13 at 64a5d4a4 waits for the main chat fast-forward; 2A.16 part 1 on webkit, then the side-by-side check with v9. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 
 ## The order (details in phase-plan.md section 0)
 
@@ -25,10 +25,10 @@
 | 2A.7                         | `slice/2a7` merged 8dff525e                             | MERGED (main chat fast-forward); review round 3 PASS (Opus took over)                                                                                                                                |
 | 2A.11                        | `slice/2a11` merged 49fb5339                            | MERGED (main chat fast-forward); CI green; webkit 41/41; review round 3 PASS (Opus took over)                                                                                                        |
 | 2A.10                        | `slice/2a10` merged cd432703                            | MERGED (main chat fast-forward, with main docs); CI green; webkit 30/30                                                                                                                              |
-| 2A.12                        | `slice/2a12` merged 50f3e830                            | MERGED (main chat fast-forward; with main as 94e83c12); review round 3 PASS (Opus took over); webkit 14/14; CI running; icon choice in DECISIONS                                                     |
-| 2A.13                        | `slice/2a13` 8a5f3f5f (ln-2a13)                         | review 1 fixes pushed (chromium 73); config commit d601cb0b (playwright.config.ts) merges alone; holds the webkit turn now, then re-review; builder a7333d6761eb2688c                                |
-| 2A.15                        | `slice/2a15` 89b05330 (ln-2a15)                         | review 3 PASS (Opus builder a5e95078f97b3180e); chromium 17/17, webkit 17/17; merging build/next in, then main chat fast-forward                                                                     |
-| rest                         | 2A.16                                                   | list: phone ★ before ⋯; open Favourites picture; 700 ms wait (2A.6); font names cut in compact tiles, check overlaps them (2A.9/2A.10); shared Card keeps old place when the screen turns (Card.tsx) |
+| 2A.12                        | `slice/2a12` merged 50f3e830                            | MERGED (main chat fast-forward; with main as 94e83c12); review round 3 PASS (Opus took over); webkit 14/14; CI green; icon choice in DECISIONS                                                       |
+| 2A.13                        | `slice/2a13` 64a5d4a4 (ln-2a13)                         | review 3 PASS (Opus aefde9a9e59736093); Start from = mock segmented control; build/next merged in (18 ahead, carries playwright.config.ts d601cb0b); webkit 30/30; sent to main chat to fast-forward |
+| 2A.15                        | `slice/2a15` merged 45c00518                            | MERGED (main chat fast-forward, with main as 2b9379ab); CI green; webkit 17/17                                                                                                                       |
+| 2A.16                        | `slice/2a16` 918e3fe1 (ln-2a16)                         | part 1 polish built (builder ad83581a2f372fdd8): font tiles, Card turn, Escape test, ★/700 ms tests; chromium 11/11; 367 pictures; webkit now; then merge 2A.13 in and reviewer side-by-side with v9 |
 
 ## Waiting (each has its step)
 

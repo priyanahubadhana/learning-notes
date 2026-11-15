@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: 2B.11 the Pencil on paper, in a box, pinch zoom and the "+ box" tag, proved on the new layer (switch textbox.v2, OFF)
+
+- What: 15 e2e tests (e2e/tb2-pencil.spec.ts) for TB-36 to TB-41, with the browser's own Pencil input (installRealPen, L11) and the Scribble probe: Pen tool on empty paper makes a box with the ink inside; Text tool turns a shaky rectangle into a clean shape (one Undo), handwriting near it (on paper or in a box) cancels it, a ring round a digit gives the circled number; pinch zoom 100 to 400 % with the spring back, the Pencil never zooms; the "+ box" tag on mouse and Pencil hover only with the Text tool; the phone gap tap; TB-41 Pencil in a box: Text tool leaves it to Scribble (editable box under the stroke, no ink), Pen tool makes ink in that box and never converts. All pass with the switch ON on the existing code: no app code changed.
+- Why: tests first showed the kept behaviour already holds on the new layer. Moving the blocks behind the gesture router was not done (see the task report: pinch needs touch events with preventDefault, the router sees pointer events only).
+- Files: e2e/tb2-pencil.spec.ts, playwright.config.ts (ipad list).
+
 ### 15 Nov 2026: R14 the page no longer drops 90 px a moment after load on iPad
 
 - What: the part that grew was the OLD tool bar (toolbar.v8 OFF) in the bar slot under the top bar: the slot went 0, then one button row (68 px with large buttons), then 90 px when the bar's scroll handle (22 px, BarScroll) was measured a frame after the bar drew. Fix: the room F8 kept for the new bar is now kept for the old bar too, as tall as the old bar was last time on this screen (remembered per button size and screen width in the display preference bar.roomPx; its plain height the first time; behind foundation.shell), and BarScroll measures before the first paint so the handle is never a frame late. Same rule as F8: nothing is kept where no bar shows. No change to App.tsx or Shell.tsx.

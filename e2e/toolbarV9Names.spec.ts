@@ -45,7 +45,8 @@ test('TB-01 Professional with "Show tool names" off shows icons only; the name s
 }) => {
   await open(page, { level: 'professional', names: 'off' })
   await expect(tool(page, 'pen').locator('.v8tool-name')).toHaveCount(0)
-  await expect(tool(page, 'pen')).toHaveAttribute('title', 'Pen')
+  await tool(page, 'pen').hover()
+  await expect(page.getByTestId('v8-hover-tip')).toHaveText('Pen')
   const box = (await tool(page, 'pen').boundingBox())!
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
   await page.mouse.down()

@@ -78,13 +78,21 @@ export interface ToolBarProps {
 }
 
 /** A name shown above a held tool, so a finger can read it (TB-02). */
-function NameTip({ el, text }: { el: HTMLElement; text: string }) {
+function NameTip({
+  el,
+  text,
+  testId = 'v8-tip',
+}: {
+  el: HTMLElement
+  text: string
+  testId?: string
+}) {
   const r = el.getBoundingClientRect()
   return createPortal(
     <div
       className="v8tip z-(--z-menu)"
       role="tooltip"
-      data-testid="v8-tip"
+      data-testid={testId}
       style={{
         left: r.left + r.width / 2,
         top: r.bottom + 6,
@@ -281,6 +289,10 @@ export function ToolBar({
   const editor = useBlockNoteEditor() as unknown as Editor | null
   const tools = v8Tools()
   const hold = useToolHold(onTool)
+  // PC: the mouse over an icon shows its name when the bar shows none (TB-02).
+  const [hover, setHover] = useState<{ id: V8ToolId; el: HTMLElement } | null>(
+    null,
+  )
   const backspace = useBackspace(editor)
   const nlHold = useNewLineHold(
     (el) => onToggleCard(NEWLINE_CARD, el),
@@ -382,7 +394,11 @@ export function ToolBar({
             data-testid={`v8-tool-${x.id}`}
             className={btn}
             aria-label={t(TOOL_NAME[x.id])}
-            title={showNames ? undefined : t(TOOL_NAME[x.id])}
+            onPointerEnter={(e) => {
+              if (e.pointerType === 'mouse')
+                setHover({ id: x.id, el: e.currentTarget })
+            }}
+            onPointerLeave={() => setHover(null)}
             aria-pressed={insert ? undefined : on}
             aria-haspopup={insert ? 'dialog' : undefined}
             aria-expanded={insert ? card?.id === 'insert' : undefined}
@@ -584,6 +600,13 @@ export function ToolBar({
           )),
         )}
       </div>
+      {hover && !hold.tip && !showNames ? (
+        <NameTip
+          el={hover.el}
+          text={t(TOOL_NAME[hover.id])}
+          testId="v8-hover-tip"
+        />
+      ) : null}
       {hold.tip && !showNames ? (
         <NameTip el={hold.tip.el} text={t(TOOL_NAME[hold.tip.id])} />
       ) : null}

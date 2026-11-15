@@ -5,7 +5,7 @@ Each run covers light and dark, Beginner and Professional, iPad sideways, iPad u
 
 ## Section 7 check (HOW-WE-BUILD)
 
-- Dark pictures: every file with night or dark in its name has a dark background (mean brightness below 110 of 255, measured with sharp on all 451 files); every light one is bright. No light-as-dark picture.
+- Dark pictures: every file with night or dark in its name has a dark background (mean brightness below 110 of 255, measured with sharp on all 463 files); every light one is bright. No light-as-dark picture.
 - iPad upright has the sidebar closed in the pen row, format and bar pictures (the shots hide it first); one shared scroll bar, no key names (touch mode), pictures show no toast and no tip.
 - Opened and looked at: 2a9-format text tab (phone night Professional, iPad upright day Professional): font names whole, check mark at the lower right, no overlap.
 - Not in this set: Settings rows (2A.14 settings), sepia and PC (release bar).
@@ -501,3 +501,18 @@ Regenerate: `SHOTS=1 SHOTS_OUT=screenshots/2a16/<folder> npx playwright test e2e
 - format-text-phone-day-professional.png
 - format-text-phone-night-beginner.png
 - format-text-phone-night-professional.png
+
+## zz (12 pictures, folder `zz/`)
+
+- pen-row-ipad-side-day-beginner.png
+- pen-row-ipad-side-day-professional.png
+- pen-row-ipad-side-night-beginner.png
+- pen-row-ipad-side-night-professional.png
+- pen-row-ipad-up-day-beginner.png
+- pen-row-ipad-up-day-professional.png
+- pen-row-ipad-up-night-beginner.png
+- pen-row-ipad-up-night-professional.png
+- pen-row-phone-day-beginner.png
+- pen-row-phone-day-professional.png
+- pen-row-phone-night-beginner.png
+- pen-row-phone-night-professional.png

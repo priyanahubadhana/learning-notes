@@ -9,6 +9,18 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Also (T5): the "Tap here to keep writing" line no longer takes a press that moved over 10 px as a tap (no new last line, no caret, no jump to the end), switch OFF and ON. 4 more e2e.
 - Also (T23): an empty box (no text, ink or picture) now goes when you leave it to the page title or any field outside the box, and is looked at again until a button or field in the box UI lets go of focus; whatever its style. (T6): the Box ▾ card of the Text tool no longer blinks: when the card was a little taller than the room above the box it was capped, measured capped, grown, capped again every frame; useAnchoredCard now measures its own full height. e2e: T23, tb2-boxchip (rect still for 2 s).
 - Files: e2e/tb2-pencil.spec.ts, e2e/tb2-boxchip.spec.ts, playwright.config.ts (ipad list), src/editor/PageEditor.tsx (one onClick guard), src/paper/usePaperBoxes.tsx, src/design/parts/useAnchoredCard.ts.
+### 15 Nov 2026: P1.8 finish, the must-have update screens match panel 5 (behind update.v2)
+
+- What: icons, size line, percent pill, "Starts in N seconds", "Update now", Paused, Installing and "did not finish" bodies, "Not now" + "Try again" + "Copy details", and a "Must-have update waiting" pill after "Not now" (above the phone tab bar). Time left shows after 3 s from the last 5 s, rounded up in steps; the slow note only after 8 s under 50 KB/s, with the true speed.
+- Why: owner rule "it can never get stuck" and T1-T3, P1-3.
+- Files: src/app/updateSpeed.ts, updateTexts.ts, mandatoryFlow.ts, mandatoryState.ts, MandatoryNotice.tsx, MandatoryUpdate.tsx, src/i18n/*/updateV2.ts, e2e/updateScreens.spec.ts, e2e/updateScreensShots.spec.ts, docs/mockups/p1-update-shots/.
+- Old assertions replaced because the approved picture changed words or behaviour (titles, "Starts in", Paused split, time-left step, "Not now" leaves a pill): e2e/updateV2.spec.ts U2 and U5, two tests in src/app/updateDownload.p18.test.ts.
+
+### 15 Nov 2026: P1.8 the must-have update download on a real iPad (behind update.v2)
+
+- What: (1) the file list (precache.json) no longer names empty chunks: 29 files of 0 bytes that the build never writes; the live preview answers 404 for them, so every download, Pretend included, failed at once ("after 0 s") and Try again looped. (2) A 404 for a file that a newer published version no longer lists is skipped. (3) The offline copy (Workbox) fetches new files one at a time; the page now fetches them 6 at a time first (they are then taken from the browser), for the pill too. (4) The time left starts counting when the files start coming, not while the list and the offline copy are read. (5) "slow connection" only below 150 kB/s with 8 s or more left (it was "8 s or more left", true for any big update). (6) The failed screen has "Not now", back to the app (plain button until the mock-up).
+- Why: owner test 15 Nov, T1 T2 T3 P1-3; proof: all 29 zero-size entries of the live list answer 404 text/html, the other 631 answer 200 with the right type.
+- Files: src/app/precacheRules.ts, updateProgress.ts, mandatoryFlow.ts, MandatoryNotice.tsx; tests src/app/updateDownload.p18.test.ts, updateFollow.p18.test.ts, e2e/updateDownload.spec.ts; docs/features/update-v2.md.
 
 ### 15 Nov 2026: polish sweep R12 (solid surfaces), R13 (lazy parts paint at once), Pages tab bar fade
 

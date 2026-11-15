@@ -13,7 +13,7 @@ export const PRECACHE_EXTENSIONS = [
   'wasm',
   'woff2',
 ] as const
-/** Not saved: the 404 page, and the on-device text reader (loads on first use). */
+/** Not saved: empty files (see isPrecached), the 404 page, and the on-device text reader (loads on first use). */
 export const PRECACHE_IGNORES = ['404.html', '**/tesseract-core*']
 export const PRECACHE_MAX_BYTES = 4 * 1024 * 1024
 export const PRECACHE_GLOB = `**/*.{${PRECACHE_EXTENSIONS.join(',')}}`
@@ -24,5 +24,7 @@ export function isPrecached(fileName: string, size: number): boolean {
   if (!(PRECACHE_EXTENSIONS as readonly string[]).includes(ext)) return false
   if (fileName === '404.html' || /(^|\/)tesseract-core[^/]*$/.test(fileName))
     return false
-  return size <= PRECACHE_MAX_BYTES
+  // P1.8: an empty chunk (a part that only had styles) is in the bundle list
+  // but never written to the build; the live server answers 404 for it.
+  return size > 0 && size <= PRECACHE_MAX_BYTES
 }

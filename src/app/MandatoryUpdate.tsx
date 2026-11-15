@@ -14,7 +14,8 @@ export default function MandatoryUpdate() {
   const primary = useRef<HTMLButtonElement>(null)
   const meta = mandatoryMeta.useValue()
   // update.v2: while offline the app stays usable (a small note, no block).
-  const active = s !== null && !(meta.v2 && s.phase === 'offline')
+  const active =
+    s !== null && !(meta.v2 && (s.phase === 'offline' || s.phase === 'waiting'))
 
   // Block the app behind: no taps, no typing, no focus.
   useEffect(() => {

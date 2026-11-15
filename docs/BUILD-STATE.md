@@ -2,7 +2,7 @@
 
 **RUNNING, full team for Phase 2A (owner answer 4A, 15 Nov):** one `phase-manager` (Opus, medium) runs up to 3 Sonnet builders; lean again after the phase. Rewritten 15 Nov, evening.
 
-**Now (phase-manager, 16 Nov):** build/next 94e83c12 CI green (2A.12 in). 2A.15 at 45c00518 waits for the main chat fast-forward; 2A.13 PASS, small mock fix then merge; 2A.16 starts after 2A.15 merges. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
+**Now (phase-manager, 16 Nov):** build/next 2b9379ab CI green (2A.15 in). 2A.13 at 64a5d4a4 waits for the main chat fast-forward; 2A.16 part 1 on webkit, then the side-by-side check with v9. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 
 ## The order (details in phase-plan.md section 0)
 
@@ -18,17 +18,17 @@
 
 ## Phase 2A tasks (phase-manager, from 15 Nov; webkit turn handed out by the manager)
 
-| Task                         | Branch @ head (working copy)                            | State                                                                                                                                                                                                              |
-| ---------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 2A.4, 2A.5, 2A.14, cfg, cfg2 | merged b7ba4ede, 80de703c, c2967488, df188a67, d1c5da37 | MERGED, CI green, webkit green; cfg2 put toolbarV8Text, inkTools, toolbarV9Lasso on ipad-webkit                                                                                                                    |
-| 2A.6, 2A.8, 2A.9             | merged 920a3b4d, 99f8ba84, 4357bf6c                     | MERGED, CI green; merged ToolRow.tsx reviewed PASS                                                                                                                                                                 |
-| 2A.7                         | `slice/2a7` merged 8dff525e                             | MERGED (main chat fast-forward); review round 3 PASS (Opus took over)                                                                                                                                              |
-| 2A.11                        | `slice/2a11` merged 49fb5339                            | MERGED (main chat fast-forward); CI green; webkit 41/41; review round 3 PASS (Opus took over)                                                                                                                      |
-| 2A.10                        | `slice/2a10` merged cd432703                            | MERGED (main chat fast-forward, with main docs); CI green; webkit 30/30                                                                                                                                            |
-| 2A.12                        | `slice/2a12` merged 50f3e830                            | MERGED (main chat fast-forward; with main as 94e83c12); review round 3 PASS (Opus took over); webkit 14/14; CI green; icon choice in DECISIONS                                                                     |
-| 2A.13                        | `slice/2a13` a2d2d7f7 (ln-2a13)                         | review 2 FAIL (wrong row in move toast); Opus builder aefde9a9e59736093 took over; review 3 PASS; webkit 13/13; "Start from" to the mock segmented control, then merge build/next in; config d601cb0b merges alone |
-| 2A.15                        | `slice/2a15` 45c00518 (ln-2a15)                         | review 3 PASS; build/next merged in (fast-forward, 13 ahead); chromium 236/236; sent to main chat to fast-forward                                                                                                  |
-| rest                         | 2A.16                                                   | list: phone ★ before ⋯; open Favourites picture; 700 ms wait (2A.6); font names cut in compact tiles, check overlaps them (2A.9/2A.10); shared Card keeps old place when the screen turns (Card.tsx)               |
+| Task                         | Branch @ head (working copy)                            | State                                                                                                                                                                                                |
+| ---------------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2A.4, 2A.5, 2A.14, cfg, cfg2 | merged b7ba4ede, 80de703c, c2967488, df188a67, d1c5da37 | MERGED, CI green, webkit green; cfg2 put toolbarV8Text, inkTools, toolbarV9Lasso on ipad-webkit                                                                                                      |
+| 2A.6, 2A.8, 2A.9             | merged 920a3b4d, 99f8ba84, 4357bf6c                     | MERGED, CI green; merged ToolRow.tsx reviewed PASS                                                                                                                                                   |
+| 2A.7                         | `slice/2a7` merged 8dff525e                             | MERGED (main chat fast-forward); review round 3 PASS (Opus took over)                                                                                                                                |
+| 2A.11                        | `slice/2a11` merged 49fb5339                            | MERGED (main chat fast-forward); CI green; webkit 41/41; review round 3 PASS (Opus took over)                                                                                                        |
+| 2A.10                        | `slice/2a10` merged cd432703                            | MERGED (main chat fast-forward, with main docs); CI green; webkit 30/30                                                                                                                              |
+| 2A.12                        | `slice/2a12` merged 50f3e830                            | MERGED (main chat fast-forward; with main as 94e83c12); review round 3 PASS (Opus took over); webkit 14/14; CI green; icon choice in DECISIONS                                                       |
+| 2A.13                        | `slice/2a13` 64a5d4a4 (ln-2a13)                         | review 3 PASS (Opus aefde9a9e59736093); Start from = mock segmented control; build/next merged in (18 ahead, carries playwright.config.ts d601cb0b); webkit 30/30; sent to main chat to fast-forward |
+| 2A.15                        | `slice/2a15` merged 45c00518                            | MERGED (main chat fast-forward, with main as 2b9379ab); CI green; webkit 17/17                                                                                                                       |
+| 2A.16                        | `slice/2a16` 918e3fe1 (ln-2a16)                         | part 1 polish built (builder ad83581a2f372fdd8): font tiles, Card turn, Escape test, ★/700 ms tests; chromium 11/11; 367 pictures; webkit now; then merge 2A.13 in and reviewer side-by-side with v9 |
 
 ## Waiting (each has its step)
 

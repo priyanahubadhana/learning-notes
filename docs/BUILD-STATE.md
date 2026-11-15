@@ -18,13 +18,14 @@
 
 ## Phase 2A tasks (phase-manager, from 15 Nov; webkit turn handed out by the manager)
 
-| Task  | Branch @ head (working copy)    | State                                                                       |
-| ----- | ------------------------------- | --------------------------------------------------------------------------- |
-| 2A.4  | `slice/2a4` 6b4eb1c5 (ln-2a4)   | review PASS (after 1 FAIL); next webkit turn (toolbarV8History), then merge |
-| 2A.5  | `slice/2a5` 086ace27 (ln-2a5)   | review FAIL 1 (5 fixes) sent to its builder; then webkit (toolbarV9Dark)    |
-| 2A.14 | `slice/2a14` fa5e41e0 (ln-2a14) | FAIL 1 fixes pushed; reviewer re-check running; then webkit (5 files)       |
-| wheel | `slice/tb2-phone-wheel`         | merged b2872d53, CI green (run 43704785412)                                 |
-| rest  | 2A.6–2A.13, 2A.15, 2A.16        | not started; next after the first three merge (shared tool bar files)       |
+| Task  | Branch @ head (working copy)    | State                                                                      |
+| ----- | ------------------------------- | -------------------------------------------------------------------------- |
+| 2A.4  | `slice/2a4` 6b4eb1c5 (ln-2a4)   | review PASS (after 1 FAIL); has the webkit turn now (15 Nov), then merge   |
+| 2A.5  | `slice/2a5` 086ace27 (ln-2a5)   | review FAIL 1 (5 fixes) with its builder; webkit after 2A.4                |
+| 2A.14 | `slice/2a14` fa5e41e0 (ln-2a14) | FAIL 1 fixes pushed; reviewer re-check running; webkit after 2A.5          |
+| rule  | 2A.14's 5 new settings rows     | no approved picture: stay behind `toolbar.v8`; 2A not done until owner OKs |
+| wheel | `slice/tb2-phone-wheel`         | merged b2872d53, CI green (run 43704785412)                                |
+| rest  | 2A.6–2A.13, 2A.15, 2A.16        | not started; next after the first three merge (shared tool bar files)      |
 
 ## Waiting (each has its step)
 

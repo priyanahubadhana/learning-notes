@@ -142,3 +142,10 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - **Tap beside a box = a new box side by side (owner, 14 Nov, Phase 2B planning):** today and in Phase 2B a tap makes the new box under the first, and you drag it beside to make columns. Idea: a tap on the empty paper right beside a box, at the same height, makes the new box next to it at once. Not built: the owner chose the simple rule first. _(Likely phase: after the Phase 2B first look, ask the owner)_
 
 - **From P1.5 (Fable, 15 Nov night):** guard a palm resting on the page's scroll bar while writing; move the ~30 e2e specs still using made-up pen events to `e2e/realPen.ts`; a gentle glide after a Pencil scroll.
+
+## Settings, later (owner, 15 Nov 2026)
+
+- Saved setups (named layouts like "Pencil notes" and "Study", switch with one tap): later, after the basic Settings is final and tested on the iPad. Too much testing for now.
+- Share or back up a setup as a file, with a tick list on import that merges: later.
+- Settings file for experts: later; maybe a read-only "copy my settings" first.
+- App suggestions ("add the Highlighter to the tool bar?"): later, only as quiet suggestions the user accepts; the app never moves things by itself.

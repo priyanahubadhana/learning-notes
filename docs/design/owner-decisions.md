@@ -360,4 +360,4 @@ Settings v4 (claude.ai/artifact/PL5zc6xh2np4CXwTYgr5sw) NOT approved: too many c
 
 Settings v3-plus (claude.ai/artifact/UV3fX4TMDJss4XmzXcScah), owner answers 15 Nov: Reduce glass keeps 2 choices (Auto, Solid). Test tools live in Advanced and are found by search at any level. Beginner also gets an "Advanced features" entry that switches on / shows all settings, just in case. Owner asked for deep research on making Settings simpler before approving.
 
-Settings design questions (docs/research/reports, "Full customisation kept simple", 15 Nov): owner said yes to Claude's pick on 1, 2, 4, 5, 7, 8, 9, 12; 13 later. Still being discussed: 3, 6, 10, 11, 14, 15.
+Settings design questions (docs/research/reports, "Full customisation kept simple", 15 Nov): owner said yes to Claude's pick on 1, 2, 4, 5, 7, 8, 9, 12; 13 later. 11, 14, 15 later (docs/IDEAS.md). Still being discussed: 3, 6, 10.

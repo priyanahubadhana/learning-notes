@@ -546,6 +546,8 @@ export function PaperFrame({
     [rowsView],
   )
   const placedX = (b: PaperBox) => layout.get(b.id)?.x ?? b.x
+  /** The width set on a phone (mm); a box never resized there fills the column. */
+  const phoneW = new Map(boxesOf(page).map((b) => [b.id, b.pw]))
   const stored = boxesOf(page)
     .filter((b) => b.id !== MAIN_BOX)
     .map(placed)
@@ -1172,11 +1174,20 @@ export function PaperFrame({
     minW: number
     floor?: { l: number; r: number }
     held: boolean
+    /** Text box v2 on a phone (2B.5b): the side, the box's width (mm) and the column's. */
+    phone?: {
+      dir: 'e' | 'w' | null
+      w0: number
+      colW: number
+      up: boolean
+      w?: number
+    }
     holdTimer?: number
     handle: HTMLElement
     last: { x: number; y: number }
   } | null>(null)
   const [liveH, setLiveH] = useState<{ id: string; h: number } | null>(null)
+  const [liveW, setLiveW] = useState<{ id: string; w: number } | null>(null)
   const resizeDown = (b: PaperBox, how: ResizeHow, e: ReactPointerEvent) => {
     if (e.button !== 0) return
     e.preventDefault()
@@ -1214,7 +1225,8 @@ export function PaperFrame({
     if (lone) i = 0
     if (isFree && how.includes('w')) i = 0
     const rc0 = layout.get(b.id)
-    const north = how.includes('n') && !!row && ci === 0
+    const phone = !!m && narrow && !!el
+    const north = !phone && how.includes('n') && !!row && ci === 0
     const top0 = layout.get(b.id)?.y ?? b.y
     const floorY =
       row && north
@@ -1225,7 +1237,7 @@ export function PaperFrame({
           ).get(b.id)?.y ?? top0)
         : top0
     const minW =
-      m && isFree && el && content
+      m && (isFree || phone) && el && content
         ? Math.max(FREE_MIN_W, m.minWidthPx(el, content) / k)
         : FREE_MIN_W
     resizing.current = {
@@ -1244,6 +1256,14 @@ export function PaperFrame({
             )
           : undefined,
       held: !m,
+      phone: phone
+        ? {
+            dir: how.includes('e') ? 'e' : how.includes('w') ? 'w' : null,
+            w0: el!.getBoundingClientRect().width / k,
+            colW: box.w,
+            up: how.includes('n'),
+          }
+        : undefined,
       handle,
       last: { x: e.clientX, y: e.clientY },
       free: isFree
@@ -1264,8 +1284,8 @@ export function PaperFrame({
       h0: (el?.getBoundingClientRect().height ?? 0) / k,
       minH: (content?.getBoundingClientRect().height ?? 0) / k,
       rowId: i !== null && row ? row.id : null,
-      i,
-      vert: how.includes('s') || north,
+      i: phone ? null : i,
+      vert: how.includes('s') || north || (phone && how.includes('n')),
       rows: baseRows,
       moved: false,
     }
@@ -1291,6 +1311,13 @@ export function PaperFrame({
     if (!d || !r) return
     if (!d.moved && Math.hypot(px - d.x0, py - d.y0) < TAP_PX) return
     d.moved = true
+    if (d.phone?.dir) {
+      // A phone has one column: the width is the box's own, left-aligned.
+      const dx = (px - d.x0) / k
+      const want = d.phone.dir === 'e' ? d.phone.w0 + dx : d.phone.w0 - dx
+      d.phone.w = Math.min(d.phone.colW, Math.max(d.minW, want))
+      setLiveW({ id: d.id, w: d.phone.w })
+    }
     if (d.i !== null) {
       const at =
         ((px - r.left) / k - geo.left) /
@@ -1353,7 +1380,8 @@ export function PaperFrame({
       setPreview(d.rows)
       setLiveH({ id: d.id, h: d.h })
     } else if (d.vert) {
-      d.h = Math.max(d.minH, d.h0 + (py - d.y0) / k)
+      const dy = (py - d.y0) / k
+      d.h = Math.max(d.minH, d.h0 + (d.phone?.up ? -dy : dy))
       setLiveH({ id: d.id, h: d.h })
     }
   }
@@ -1366,14 +1394,35 @@ export function PaperFrame({
     }
     if (d?.moved) lastDragEnd.current = e.timeStamp
     setLiveH(null)
+    if (!d || e.type === 'pointercancel' || d.phone?.w === undefined)
+      setLiveW(null)
     setPreview(null)
     if (!d || e.type === 'pointercancel' || !d.moved) return
+    if (d.phone?.w !== undefined) {
+      // The phone width (mm), apart from the iPad width: rows stay as they are; one write, one Undo.
+      const id = d.id
+      const w = Math.round(d.phone.w * 10) / 10
+      setLiveW({ id, w })
+      // The saved width takes over once the write is in.
+      window.setTimeout(() => setLiveW(null), 600)
+      // Width and height in ONE write: two writes raced on WebKit (a corner
+      // drag lost its height).
+      const h =
+        d.vert && d.h !== undefined
+          ? d.h <= d.minH + 0.5
+            ? undefined
+            : Math.round(d.h * 10) / 10
+          : undefined
+      onGridChange?.(baseRows, [
+        { id, patch: d.vert && d.h !== undefined ? { pw: w, h } : { pw: w } },
+      ])
+    }
     if (d.i !== null || d.north) {
       const places: BoxPatch[] = placesOf(d.rows, heightsMm, geo)
       setHeldRows(d.rows)
       onGridChange?.(d.rows, places)
     }
-    if (d.vert && d.h !== undefined)
+    if (d.vert && d.h !== undefined && d.phone?.w === undefined)
       onBoxHeight?.(
         d.id,
         d.h <= d.minH + 0.5 ? undefined : Math.round(d.h * 10) / 10,
@@ -1980,7 +2029,22 @@ export function PaperFrame({
             onDragMove={dragMove}
             onDragEnd={dragEnd}
             onEmptyDelete={onDeleteBox ? () => onDeleteBox(b) : undefined}
-            stacked={narrow ? { x: box.x, w: box.w } : null}
+            stacked={
+              narrow
+                ? {
+                    x: box.x,
+                    // Text box v2 (2B.5b): a box may be narrower than the column.
+                    w: isOn('textbox.v2')
+                      ? Math.min(
+                          box.w,
+                          liveW?.id === b.id
+                            ? liveW.w
+                            : (phoneW.get(b.id) ?? box.w),
+                        )
+                      : box.w,
+                  }
+                : null
+            }
             bar={
               picked.length === 1 && picked[0] === b.id
                 ? renderBar?.(b)

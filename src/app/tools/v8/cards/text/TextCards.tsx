@@ -126,14 +126,28 @@ function FormatCard() {
                   label={tileName(tile)}
                   selected={!!tile.style && !!active[tile.style]}
                   testId={`v8-format-${tile.tool}`}
-                  onSelect={() => runTool(tile.tool)}
+                  onSelect={() => {
+                    // T8: Font and Text size stay in the note (no Reading mode).
+                    if (tile.inert) return
+                    if (tile.jump) {
+                      document
+                        .querySelector(`[data-v8-group="${tile.jump}"]`)
+                        ?.scrollIntoView({ block: 'nearest' })
+                      return
+                    }
+                    runTool(tile.tool)
+                  }}
                 >
                   <Face tile={tile} />
                 </Tile>
               ))}
             </TileGroup>
           </CardGroup>
-          {s.extras?.includes('fonts') ? <FontsGroup /> : null}
+          {s.extras?.includes('fonts') ? (
+            <div data-v8-group="fonts">
+              <FontsGroup />
+            </div>
+          ) : null}
           {s.extras?.includes('lineHeight') ? <LineHeightGroup /> : null}
         </Fragment>
       ))}

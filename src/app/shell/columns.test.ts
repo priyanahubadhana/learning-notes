@@ -3,6 +3,7 @@ import {
   COLUMN_WIDTH,
   columnsFor,
   effectiveSidebarWidth,
+  isCompact,
   isPhone,
   MIN_PAGE_W,
   PANEL_COST,
@@ -77,11 +78,18 @@ describe('columnsFor (SH-07, SH-08)', () => {
     expect(c.steppedAside).toBe(true)
   })
 
-  it('opens the stepped-aside sidebar over the page', () => {
+  it('P1.9 T4: the stepped-aside sidebar the user opened docks beside the rail (the page narrows)', () => {
     const c = columnsFor(at({ width: 1024, panelOpen: true, sideOver: true }))
-    expect(c.sidebar).toBe('over')
-    expect(c.panel).toBe('docked')
-    expect(columnsFor(at({ width: 820, sideOver: true })).sidebar).toBe('over')
+    expect(c.sidebar).toBe('docked')
+    expect(c.panel).toBe('over') // no room for both beside the page
+    const up = columnsFor(at({ width: 820, sideOver: true }))
+    expect(up.sidebar).toBe('docked')
+    expect(up.panel).toBe('hidden')
+    expect(up.steppedAside).toBe(true)
+    // Wide screens already dock it: nothing changes.
+    expect(columnsFor(at({ width: 1366, sideOver: true })).sidebar).toBe(
+      'docked',
+    )
   })
 
   it('a wider sidebar gives way sooner', () => {
@@ -116,5 +124,19 @@ describe('effectiveSidebarWidth', () => {
   it("maps today's saved default (260) to 288 and keeps a chosen width", () => {
     expect(effectiveSidebarWidth(260)).toBe(COLUMN_WIDTH)
     expect(effectiveSidebarWidth(340)).toBe(340)
+  })
+})
+
+describe('isCompact (P1.9 T4: a narrow page column)', () => {
+  it('a list docked beside the page on an upright iPad makes the top bar compact', () => {
+    const open = at({ width: 820, sideOver: true })
+    expect(isCompact(columnsFor(open), 820, COLUMN_WIDTH)).toBe(true)
+    const closed = at({ width: 820 })
+    expect(isCompact(columnsFor(closed), 820, COLUMN_WIDTH)).toBe(false)
+  })
+  it('is never compact on a phone or with room to spare', () => {
+    const phone = at({ width: 390, height: 844 })
+    expect(isCompact(columnsFor(phone), 390, COLUMN_WIDTH)).toBe(false)
+    expect(isCompact(columnsFor(at({})), 1366, COLUMN_WIDTH)).toBe(false)
   })
 })

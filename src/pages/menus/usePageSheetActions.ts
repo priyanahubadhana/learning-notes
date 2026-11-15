@@ -30,7 +30,12 @@ export interface PageSheetInput {
   deviceMode: MenuItem
   copyItem: MenuItem
   lockItem: MenuItem[]
-  extras: { section: SheetSection; item: MenuItem | null }[]
+  extras: {
+    section: SheetSection
+    item: MenuItem | null
+    /** An on/off thing: the new frame draws a switch with this state. */
+    toggle?: { on: boolean; label: string }
+  }[]
   saveTemplate?: () => void
   onReview?: () => void
   openPrompts?: () => void
@@ -105,6 +110,7 @@ export function usePageSheetActions(i: PageSheetInput): PageSheetActions {
               label: x.item.label,
               run: x.item.onSelect,
               children: subs(x.item),
+              toggle: x.toggle,
             },
           ]
         : [],

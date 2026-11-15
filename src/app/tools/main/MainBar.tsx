@@ -11,6 +11,7 @@ import {
 import { applyPageMode } from '../../../editor/editPolicy'
 import { setKeyboard } from '../../../editor/keyboardPolicy'
 import { AnchoredMenu } from '../AnchoredMenu'
+import { useFlag as useFlagOn } from '../../flags'
 import { Icon, type IconName } from '../icons'
 import { TOOL_ICON } from './mainToolIcons'
 import { resolveBar } from './barOrder'
@@ -79,6 +80,9 @@ export function MainBarRow({
   const pinned = pillPinned.useValue()
   const showing = shownPill(opened, pinned, active)
   const min = Math.max(px, 44)
+  // P1.9 R19 (new frame): the bar keeps its 64 px; the icons grow with the mode (18 / 20 / 24).
+  const shellOn = useFlagOn('foundation.shell')
+  const iconPx = shellOn ? (px >= 54 ? 24 : px >= 44 ? 20 : 18) : 20
   const hold = useHoldSlide((tool) => openToolPill(tool as never))
 
   const toolButton = (tool: MainTool) => {
@@ -120,7 +124,7 @@ export function MainBarRow({
         }}
         className={`${BUTTON} ${on ? 'bg-hover !text-accent' : ''}`}
       >
-        <Icon name={TOOL_ICON[tool]} />
+        <Icon name={TOOL_ICON[tool]} size={iconPx} />
         {(on || showing === tool) && (
           // Not colour alone: a bar under the icon says "selected".
           <span
@@ -176,7 +180,10 @@ export function MainBarRow({
         </div>
       )}
       <LayoutButton px={min} />
-      <BarScroll className="flex-1 phone:order-last phone:basis-full">
+      <BarScroll
+        className="flex-1 phone:order-last phone:basis-full"
+        minPx={54}
+      >
         {resolveBar(order, list, extras).map((token) => {
           const id = token.slice(2)
           if (token.startsWith('m:')) return toolButton(id as MainTool)

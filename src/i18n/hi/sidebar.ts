@@ -129,6 +129,7 @@ export const hiSidebar = {
   'sidebar.group.quick': 'त्वरित पहुँच',
   'sidebar.group.study': 'अध्ययन',
   'sidebar.groups': 'साइडबार के समूह',
+  'sidebar.closeList': 'सूची बंद करें',
   'sidebar.label': 'साइडबार',
   'sidebar.newNotebook.title': 'नई नोटबुक',
   'sidebar.notebooks': 'नोटबुक',

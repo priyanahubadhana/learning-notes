@@ -197,7 +197,7 @@ test('SH-08 the pages panel docks beside the page at 288 px', async ({
   expect(Math.round(box?.width ?? 0)).toBe(286) // 288 less its 1 px card border on each side
 })
 
-test('SH-07/08 at 1024 the open panel takes the place of the sidebar, which opens over the page', async ({
+test('SH-07/08 at 1024 the open panel takes the place of the sidebar, which docks beside the page when opened (P1.9 T4)', async ({
   page,
 }) => {
   await withPage(page, { width: 1024, height: 768 })
@@ -206,7 +206,7 @@ test('SH-07/08 at 1024 the open panel takes the place of the sidebar, which open
   await expect(side(page)).toBeHidden()
   await top(page).getByRole('button', { name: 'Open menu' }).click()
   await expect(side(page)).toBeVisible()
-  await expect(page.getByTestId('shell-scrim')).toBeVisible()
+  await expect(page.getByTestId('shell-scrim')).toHaveCount(0) // P1.9 T4: no scrim, never over the top bar
   await page.keyboard.press('Escape')
   await expect(side(page)).toBeHidden()
 })
@@ -368,6 +368,9 @@ test('SH-08 iPad portrait 820: the sidebar sits on the rail and the panel opens 
 }) => {
   await withPage(page)
   await page.setViewportSize({ width: 820, height: 1180 })
+  // P1.9 T4: the list the steps opened stays beside the page until it is closed (it no longer has a scrim to tap).
+  if (await side(page).isVisible())
+    await side(page).getByTestId('sb-head-close').click()
   await expect(side(page)).toBeHidden()
   expect(await mainWidth(page)).toBeGreaterThanOrEqual(600)
   const before = await mainWidth(page)
@@ -378,7 +381,7 @@ test('SH-08 iPad portrait 820: the sidebar sits on the rail and the panel opens 
   await expect(page.getByTestId('left-panel')).toBeHidden()
   await top(page).getByRole('button', { name: 'Open menu' }).click()
   await expect(side(page)).toBeVisible()
-  await expect(page.getByTestId('shell-scrim')).toBeVisible()
+  await expect(page.getByTestId('shell-scrim')).toHaveCount(0) // P1.9 T4: no scrim, never over the top bar
 })
 
 test('SH-08 iPad portrait 820 and 768: the sidebar is closed on first open, with and without Home v2', async ({

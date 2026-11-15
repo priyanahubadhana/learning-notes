@@ -38,6 +38,7 @@ import {
 } from '../settings/deviceModeSettings'
 import { historyState } from '../core/historySteps'
 import { useFlag } from '../app/flags'
+import { OLD_BAR_H } from './barRoomRule'
 import { tuckState } from '../app/tools/v8/tuck'
 import { ScrollBar } from '../design/parts/ScrollBar'
 import { padHistoryState } from './writePad/padHistory'
@@ -315,6 +316,17 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
       aria-label={t('bar.label')}
       onKeyDown={arrowKeys}
       {...focusHandlers}
+      // P1.9 R19: one height in every mode, so nothing below moves when the mode changes.
+      style={
+        shellOn && !toolbarV8 && place !== 'free'
+          ? {
+              minHeight: OLD_BAR_H,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }
+          : undefined
+      }
       className={
         place === 'free'
           ? 'relative rounded-2xl border border-ink-soft bg-bg px-1.5 py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.16)]'

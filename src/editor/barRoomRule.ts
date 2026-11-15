@@ -48,7 +48,16 @@ export const barRoomHeight = (
   v8: boolean,
   buttonPx: number,
   remembered: number | null = null,
-): number | null => (v8 ? null : (remembered ?? Math.max(buttonPx, 44) + 10))
+  floor = 0,
+): number | null =>
+  v8 ? null : Math.max(floor, remembered ?? Math.max(buttonPx, 44) + 10)
+
+/**
+ * P1.9 R19 (new frame): the old bar is 64 px tall in Computer, Touch and
+ * Pencil mode (Pencil's 54 px buttons plus the pill's 10 px frame), so the
+ * first Pencil touch moves nothing below it; only the buttons inside grow.
+ */
+export const OLD_BAR_H = 64
 
 /** Which screen the remembered height belongs to. */
 export const roomKey = (buttonPx: number, width: number): string =>

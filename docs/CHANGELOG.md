@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026: P1.9 the frame matches panels 1, 2, 3, 4 and 6 of the Phase 1 fixes picture (switch foundation.shell, OFF live)
+
+- What: (1) the side list (stepped aside on an upright iPad) now docks beside the rail with its own bar (title and ✕) instead of lying over the top bar; the page narrows and the top bar goes compact; the same bar on the sideways list and the phone drawer; only the list scrolls. (2) Right-side sheets start below the top bar, 440 px wide, 12 px from the edges, dim only the page area, close with ✕, a tap outside or Esc. (3) Page options: tiles on top, Share/Protect/Tools (and Page/View) folded with a grey line, switches for Lock editing and Pause reviews. (4) Pin an action: ✕ left, ✓ right, round ticks, a draft until ✓. (6) The old tool bar is 64 px in Computer, Touch and Pencil.
+- Why: owner's iPad test, 14 Nov (T4, T21, T22, R19); picture docs/mockups/phase1-fixes/phase1-fixes.html.
+- Files: src/app/shell/ (columns, Shell, ColumnSlots, css), src/notebooks/Sidebar.tsx, src/design/parts/Sheet.* and FoldGroup._, src/pages/menus/_, src/pages/PageView.tsx (2 lines), src/editor/DockedBar.tsx, BarRoom.tsx, barRoomRule.ts, i18n (en, es, hi), e2e/p1FrameCovers.spec.ts.
+- Tests changed on purpose (the owner changed the design): the shell tests that expected the sidebar OVER the page with a scrim (columns, columnsView, shell unit tests) now expect it docked.
+
 ### 15 Nov 2026: 2B.11 the Pencil on paper, in a box, pinch zoom and the "+ box" tag, proved on the new layer (switch textbox.v2, OFF)
 
 - What: 15 e2e tests (e2e/tb2-pencil.spec.ts) for TB-36 to TB-41, with the browser's own Pencil input (installRealPen, L11) and the Scribble probe: Pen tool on empty paper makes a box with the ink inside; Text tool turns a shaky rectangle into a clean shape (one Undo), handwriting near it (on paper or in a box) cancels it, a ring round a digit gives the circled number; pinch zoom 100 to 400 % with the spring back, the Pencil never zooms; the "+ box" tag on mouse and Pencil hover only with the Text tool; the phone gap tap; TB-41 Pencil in a box: Text tool leaves it to Scribble (editable box under the stroke, no ink), Pen tool makes ink in that box and never converts. All pass with the switch ON on the existing code: no app code changed.

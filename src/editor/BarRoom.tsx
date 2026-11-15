@@ -5,6 +5,7 @@ import { useBarSettings } from '../settings/deviceModeSettings'
 import { readingView } from '../app/reading/readingState'
 import {
   barRoomHeight,
+  OLD_BAR_H,
   barRoomWanted,
   editorDecided,
   isRoomMap,
@@ -77,7 +78,12 @@ export function BarRoom({ pageRoute }: { pageRoute: boolean }) {
     })
   )
     return null
-  const height = barRoomHeight(v8, bar.buttonPx, remembered[key] ?? null)
+  const height = barRoomHeight(
+    v8,
+    bar.buttonPx,
+    remembered[key] ?? null,
+    shell ? OLD_BAR_H : 0,
+  )
   return (
     <div
       aria-hidden

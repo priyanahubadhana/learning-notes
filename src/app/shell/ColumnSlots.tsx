@@ -1,5 +1,4 @@
 import type { CSSProperties, ReactNode, Ref } from 'react'
-import { t } from '../../i18n/t'
 import { COLUMN_WIDTH, type Columns } from './columns'
 
 type WidthVar = CSSProperties & { '--sidebar-width'?: string }
@@ -7,8 +6,7 @@ type WidthVar = CSSProperties & { '--sidebar-width'?: string }
 /**
  * SH-07: the sidebar's place at the start of the row. Docked or hidden it
  * stays in the row; as a phone drawer the sidebar slides in by itself (its
- * own markup). The stepped-aside sidebar opened over the page is drawn by
- * `OverSide`, after the page, so it paints above it.
+ * own markup). A stepped-aside sidebar the user opened docks here too (T4).
  */
 export function SideSlot({
   cols,
@@ -19,40 +17,11 @@ export function SideSlot({
   width: number
   render: (o: { hidden: boolean }) => ReactNode
 }) {
-  if (cols.sidebar === 'over') return null
   const style: WidthVar = { '--sidebar-width': `${width}px` }
   return (
     <div className="sh-sidewrap" data-state={cols.sidebar} style={style}>
       {render({ hidden: cols.sidebar === 'hidden' })}
     </div>
-  )
-}
-
-/** The sidebar opened over the page (641-1179 while the panel is docked), with its scrim. */
-export function OverSide({
-  cols,
-  render,
-  onClose,
-}: {
-  cols: Columns
-  render: (o: { hidden: boolean }) => ReactNode
-  onClose: () => void
-}) {
-  if (cols.sidebar !== 'over') return null
-  return (
-    <>
-      <button
-        type="button"
-        className="sh-scrim"
-        tabIndex={-1}
-        aria-label={t('nav.closeMenu')}
-        data-testid="shell-scrim"
-        onClick={onClose}
-      />
-      <div className="sh-overwrap" data-state="over">
-        {render({ hidden: false })}
-      </div>
-    </>
   )
 }
 

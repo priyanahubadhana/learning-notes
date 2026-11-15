@@ -1,4 +1,6 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { lazyNow } from '../../lazyNow'
+import { prefetchAfterIdle } from '../../idlePrefetch'
 import { Card } from '../../../design/parts/Card'
 import { t } from '../../../i18n/t'
 import { applyLayerVars } from '../../overlay'
@@ -13,7 +15,7 @@ import {
   v8Tool,
   type OpenCard,
 } from './barState'
-import { NEWLINE_CARD, ToolBar } from './ToolBar'
+import { NEWLINE_CARD, ToolBar, preloadMoreParts } from './ToolBar'
 import { ToolRow } from './ToolRow'
 import { isPenCard } from './cards/pen/penModel'
 import { cardAutoClose } from './cards/autoClose'
@@ -25,16 +27,17 @@ import { useTuckWatcher } from './useTuckWatcher'
 import type { V8ToolId } from './registryV8'
 import './toolbarV8.css'
 
-// The Pen cards load when the first one opens (keeps the first load small).
-const PenCardBody = lazy(() => import('./cards/pen/PenCards'))
-const EraserCardBody = lazy(() => import('./cards/eraser/EraserCards'))
-const ShapesCardBody = lazy(() => import('./cards/shapes/ShapesCards'))
-const LassoCardBody = lazy(() => import('./cards/lasso/LassoCards'))
-const TextCardBody = lazy(() => import('./cards/text/TextCards'))
-const InsertCardBody = lazy(() => import('./cards/insert/InsertCards'))
-const AllToolsCardBody = lazy(() => import('./cards/alltools/AllToolsCard'))
-const SelectionBarV8 = lazy(() => import('./SelectionBarV8'))
-const SelCardBody = lazy(() =>
+// The cards load apart (keeps the first load small) and are fetched ahead once
+// the bar is up and the browser is idle, so a tap draws them at once (R13).
+const PenCardBody = lazyNow(() => import('./cards/pen/PenCards'))
+const EraserCardBody = lazyNow(() => import('./cards/eraser/EraserCards'))
+const ShapesCardBody = lazyNow(() => import('./cards/shapes/ShapesCards'))
+const LassoCardBody = lazyNow(() => import('./cards/lasso/LassoCards'))
+const TextCardBody = lazyNow(() => import('./cards/text/TextCards'))
+const InsertCardBody = lazyNow(() => import('./cards/insert/InsertCards'))
+const AllToolsCardBody = lazyNow(() => import('./cards/alltools/AllToolsCard'))
+const SelectionBarV8 = lazyNow(() => import('./SelectionBarV8'))
+const SelCardBody = lazyNow(() =>
   import('./SelectionBarV8').then((m) => ({ default: m.SelCardBody })),
 )
 
@@ -74,6 +77,22 @@ export default function ToolbarV8() {
   const root = useRef<HTMLDivElement>(null)
   useTuckWatcher()
 
+  useEffect(() => {
+    prefetchAfterIdle([
+      ...[
+        PenCardBody,
+        EraserCardBody,
+        ShapesCardBody,
+        LassoCardBody,
+        TextCardBody,
+        InsertCardBody,
+        AllToolsCardBody,
+        SelectionBarV8,
+        SelCardBody,
+      ].map((part) => part.preload),
+      preloadMoreParts,
+    ])
+  }, [])
   // The shared stacking table as --z-* variables (the name tip uses --z-menu).
   useEffect(() => applyLayerVars(), [])
   // Rings on keyboard focus only: a tap or click that opens a card marks the

@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: 2A.11 merged
+
+- What: 2A.11 fast-forwarded by the main chat (49fb5339), CI green; 2A.12, 2A.13, 2A.15 resumed; webkit turn to 2A.15. Why: plan step 2. Files: docs/BUILD-STATE.md.
+
 ### 15 Nov 2026 (night): 2A.7 and 2A.10 merged; 2A.11 PASS; 2A.13, 2A.15 started
 
 - What: 2A.7 (8dff525e) and 2A.10 (cd432703) fast-forwarded by the main chat, CI green; 2A.11 passed round 3; 2A.12 and 2A.15 fix lists; 2A.13 data decision (new local favourites key). Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.

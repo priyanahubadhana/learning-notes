@@ -2,7 +2,7 @@
 
 **RUNNING, full team for Phase 2A (owner answer 4A, 15 Nov):** one `phase-manager` (Opus, medium) runs up to 3 Sonnet builders; lean again after the phase. Rewritten 15 Nov, evening.
 
-**Now (phase-manager, 16 Nov early):** build/next 49fb5339 CI green (2A.6–2A.11 in). Open: 2A.12 (Opus fixing), 2A.13 building, 2A.15 fixing review 1; webkit free (next: 2A.15). Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
+**Now (phase-manager, 16 Nov):** build/next 49fb5339 CI green (2A.4–2A.11, 2A.14 in). Open: 2A.12 (Opus fixing 2 v9 gaps), 2A.13 building, 2A.15 fixing review 1 and holds the webkit turn; 2A.16 waits for 2A.12 and 2A.15 (same files). Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 
 ## The order (details in phase-plan.md section 0)
 
@@ -23,7 +23,7 @@
 | 2A.4, 2A.5, 2A.14, cfg, cfg2 | merged b7ba4ede, 80de703c, c2967488, df188a67, d1c5da37 | MERGED, CI green, webkit green; cfg2 put toolbarV8Text, inkTools, toolbarV9Lasso on ipad-webkit                                                                                                      |
 | 2A.6, 2A.8, 2A.9             | merged 920a3b4d, 99f8ba84, 4357bf6c                     | MERGED, CI green; merged ToolRow.tsx reviewed PASS                                                                                                                                                   |
 | 2A.7                         | `slice/2a7` merged 8dff525e                             | MERGED (main chat fast-forward); review round 3 PASS (Opus took over)                                                                                                                                |
-| 2A.11                        | `slice/2a11` 49fb5339 (ln-2a11)                         | review round 3 PASS (Opus aaee2ab8d730201a5); webkit 41/41; fast-forward asked of the main chat                                                                                                      |
+| 2A.11                        | `slice/2a11` merged 49fb5339                            | MERGED (main chat fast-forward); CI green; webkit 41/41; review round 3 PASS (Opus took over)                                                                                                        |
 | 2A.10                        | `slice/2a10` merged cd432703                            | MERGED (main chat fast-forward, with main docs); CI green; webkit 30/30                                                                                                                              |
 | 2A.12                        | `slice/2a12` c12f1b27+ (ln-2a12)                        | 2 FAILs; Opus builder ae5c48c6f7a69c095 fixed shots, now closing 2 v9 gaps (icons, Key point hint); webkit 37/37; then re-review, then fast-forward (must include origin/main)                       |
 | 2A.13                        | `slice/2a13` (ln-2a13)                                  | building: "+" Add form, then ☰ Organise; new local key (DECISIONS); builder a7333d6761eb2688c                                                                                                       |

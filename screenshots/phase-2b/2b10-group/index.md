@@ -1,6 +1,6 @@
 # 2B.10 first-look pictures (switch textbox.v2 ON)
 
-Taken after the last source edit, on `chromium` (the iPad-webkit set follows when the webkit turn is free). Theme set on the page and checked before each shot.
+Taken after the last source edit, on `chromium` and `ipad-webkit` (same file names in each folder). Theme set on the page and checked before each shot.
 Approved picture: docs/mockups/textbox-2b/states.html panels 6a and 6b.
 
 | File                                                                         | What it shows                                                                                                                           |

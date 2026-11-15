@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 15 Nov 2026 (night): 2A.9 and cfg2 merged; red1 root cause
+
+- What: 2A.9 Format tabs merged (4357bf6c), cfg2 puts toolbarV8Text, inkTools, toolbarV9Lasso on ipad-webkit; Opus found the cause of 3 webkit reds (test setup after P1.9 and BUG-002), review PASS; 2A.7 review 1 FAIL. Why: plan step 2, red first. Files: docs/BUILD-STATE.md, docs/IDEAS.md.
+
 ### 15 Nov 2026 (late): 2A.6 and 2A.8 merged; 2A.7, 2A.11 built
 
 - What: 2A.6 pen row (920a3b4d) and 2A.8 eraser (99f8ba84) merged, CI green, merged ToolRow.tsx reviewed PASS; 2A.7 Feel card and 2A.11 lasso built (R21 cause: forced click in pickTool). Why: plan step 2. Files: docs/BUILD-STATE.md, docs/metrics/tasks.csv.

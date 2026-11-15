@@ -11,7 +11,9 @@ import {
 import type { Editor } from '../../../editor/barActions'
 import { useFlag } from '../../flags'
 import { t, type MessageKey } from '../../../i18n/t'
-import { useLevel } from '../../../settings/level'
+import { deviceModeSetting } from '../../../settings/builtinSettings'
+import { useDeviceSetting } from '../../../settings/useSetting'
+import { useToolNames } from './barPrefs'
 import { Icon, type IconName } from '../icons'
 import { TOOL_HOLD_MS, newLineExtras, newLineHoldMs } from '../main/mainTools'
 import {
@@ -274,7 +276,7 @@ export function ToolBar({
   onToggleCard,
   onCloseCard,
 }: ToolBarProps) {
-  const level = useLevel()
+  const [deviceMode] = useDeviceSetting(deviceModeSetting)
   const history = historyState.useValue()
   const editor = useBlockNoteEditor() as unknown as Editor | null
   const tools = v8Tools()
@@ -286,7 +288,7 @@ export function ToolBar({
       if (editor) addLineAfterCursor(editor)
     },
   )
-  const names = level === 'professional'
+  const names = useToolNames(deviceMode === 'pencil')
 
   const specs: FoldSpec[] = [
     ...tools.map((x) => ({
@@ -380,6 +382,7 @@ export function ToolBar({
             data-testid={`v8-tool-${x.id}`}
             className={btn}
             aria-label={t(TOOL_NAME[x.id])}
+            title={showNames ? undefined : t(TOOL_NAME[x.id])}
             aria-pressed={insert ? undefined : on}
             aria-haspopup={insert ? 'dialog' : undefined}
             aria-expanded={insert ? card?.id === 'insert' : undefined}

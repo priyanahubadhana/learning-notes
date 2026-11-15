@@ -223,4 +223,19 @@ export const enLateSettings = {
   'settings.toolbarShow.description':
     'Turn the tool bar on or off. Turning it off asks first. Turn it back on here, in the page ⋯ menu (Show tool bar) or with the Show tool bar button in the top bar.',
   'settings.welcomeAgain': 'Show the welcome again',
+  'settings.toolNames.label': 'Show tool names',
+  'settings.toolNames.description':
+    'Show the name next to each tool icon on the tool bar. Off: icons only; hold or hover an icon to see its name. Upright on a Pencil device the bar shows icons only.',
+  'settings.formatTabs.label': 'Format tabs',
+  'settings.formatTabs.description':
+    'How many tabs the Format card has: 3 (Text, Style, Paragraph) or 4 (adds Advanced).',
+  'settings.backToPen.label': 'Back to pen on the bar',
+  'settings.backToPen.description':
+    'Show a button on the bar that goes back to the tool you used before.',
+  'settings.eraserMenus.label': "Eraser's three menus",
+  'settings.eraserMenus.description':
+    'Show the eraser mode, size and "erases" menus on the bar. Off: one simple eraser menu.',
+  'settings.biggerLasso.label': 'Bigger Lasso',
+  'settings.biggerLasso.description':
+    'Show the Lasso shape and what it picks right on the bar, with its options menu. Off: a short Lasso row.',
 }

@@ -248,7 +248,7 @@ for (const vp of [
 ]) {
   test.describe(`${vp.width}x${vp.height}`, () => {
     test.use({ viewport: vp })
-    test(`TB-42 the Box card never covers the selected box (${vp.width}x${vp.height})`, async ({
+    test(`TB-42 (v9) the Box card hangs under its Box button (${vp.width}x${vp.height})`, async ({
       page,
     }) => {
       await open(page)
@@ -262,20 +262,14 @@ for (const vp of [
       await expect(c).toBeVisible()
       await page.waitForTimeout(300)
       const cr = (await c.boundingBox())!
-      const br = await page.evaluate(() => {
-        const el = document.querySelector('[data-paper-box]')
-        const r = el?.getBoundingClientRect()
-        return r ? { x: r.x, y: r.y, width: r.width, height: r.height } : null
-      })
-      expect(br).not.toBeNull()
-      const apart =
-        cr.x >= br!.x + br!.width ||
-        cr.x + cr.width <= br!.x ||
-        cr.y >= br!.y + br!.height ||
-        cr.y + cr.height <= br!.y
-      expect(apart).toBe(true)
+      // v9: like every other card it sits under the bar, whole on the screen.
       expect(cr.x).toBeGreaterThanOrEqual(0)
       expect(cr.x + cr.width).toBeLessThanOrEqual(vp.width)
+      expect(cr.y).toBeGreaterThan(0)
+      if (await trigger.isVisible()) {
+        const a = (await trigger.boundingBox())!
+        expect(cr.y).toBeGreaterThanOrEqual(a.y + a.height - 1)
+      }
     })
   })
 }

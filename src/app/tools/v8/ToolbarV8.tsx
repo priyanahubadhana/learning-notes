@@ -20,7 +20,6 @@ import { ToolRow } from './ToolRow'
 import { isPenCard } from './cards/pen/penModel'
 import { cardAutoClose } from './cards/autoClose'
 import { isShapeDraw } from './cards/shapes/shapesModel'
-import { activeBox } from '../../../paper/activeBox'
 import { penSettings } from '../main/inkSettings'
 import { cardInfo } from './rowItems'
 import { useTuckWatcher } from './useTuckWatcher'
@@ -40,25 +39,6 @@ const SelectionBarV8 = lazyNow(() => import('./SelectionBarV8'))
 const SelCardBody = lazyNow(() =>
   import('./SelectionBarV8').then((m) => ({ default: m.SelCardBody })),
 )
-
-/** The selected text box's rect: the Box card hangs around it, never over it. */
-const activeBoxRect = () => {
-  const at = activeBox.get()
-  const r = at
-    ? document
-        .querySelector(`[data-paper-box="${at.boxId}"]`)
-        ?.getBoundingClientRect()
-    : null
-  if (!r) return null
-  // The frame and the handles sit just outside the box: keep clear of them too.
-  const pad = 24
-  return {
-    left: r.left - pad,
-    top: r.top - pad,
-    width: r.width + 2 * pad,
-    height: r.height + 2 * pad,
-  }
-}
 
 /** The picked picture's rect: the Edit picture card keeps clear of it. */
 const pickedPictureRect = () =>
@@ -166,9 +146,6 @@ export default function ToolbarV8() {
     setCard((c) => (c && c.id === id ? null : c))
 
   const info = card ? cardInfo(card.id) : null
-  /** The Box card stays 8 px under the bar (its tool line and Text row). */
-  const barBottom = () =>
-    (root.current?.getBoundingClientRect().bottom ?? 0) + 8
 
   return (
     <div ref={root} className="v8" data-testid="toolbar-v8" data-tool={tool}>
@@ -204,8 +181,6 @@ export default function ToolbarV8() {
           size={info.size}
           autoClose={cardAutoClose(card.id)}
           avoid={card.id === 'sel.picture' ? pickedPictureRect : undefined}
-          around={card.id === 'text.box' ? activeBoxRect : undefined}
-          clearTop={card.id === 'text.box' ? barBottom : undefined}
           title={t(info.title)}
           testId={`v8-card-${card.id}`}
           onClose={() => onCloseCard(card.id)}

@@ -458,4 +458,19 @@ export const esSettings = {
   'theme.night': 'Noche',
   'theme.pick': 'Elegir un tema',
   'theme.sepia': 'Sepia',
+  'settings.toolNames.label': 'Mostrar nombres de herramientas',
+  'settings.toolNames.description':
+    'Muestra el nombre junto a cada icono de la barra. Apagado: solo iconos; mantén pulsado o pasa el cursor para ver el nombre. En vertical con Lápiz la barra muestra solo iconos.',
+  'settings.formatTabs.label': 'Pestañas de Formato',
+  'settings.formatTabs.description':
+    'Cuántas pestañas tiene la tarjeta Formato: 3 (Texto, Estilo, Párrafo) o 4 (añade Avanzado).',
+  'settings.backToPen.label': 'Volver al lápiz en la barra',
+  'settings.backToPen.description':
+    'Muestra en la barra un botón que vuelve a la herramienta anterior.',
+  'settings.eraserMenus.label': 'Los tres menús del borrador',
+  'settings.eraserMenus.description':
+    'Muestra en la barra los menús de modo, tamaño y "borra" del borrador. Apagado: un menú sencillo.',
+  'settings.biggerLasso.label': 'Lazo más grande',
+  'settings.biggerLasso.description':
+    'Muestra en la barra la forma del lazo y lo que selecciona, con su menú de opciones. Apagado: una fila corta.',
 }

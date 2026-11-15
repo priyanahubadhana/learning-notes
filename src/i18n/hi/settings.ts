@@ -454,4 +454,19 @@ export const hiSettings = {
   'theme.night': 'रात',
   'theme.pick': 'थीम चुनें',
   'theme.sepia': 'सेपिया',
+  'settings.toolNames.label': 'औज़ारों के नाम दिखाएँ',
+  'settings.toolNames.description':
+    'टूल बार में हर आइकन के पास उसका नाम दिखाएँ। बंद: सिर्फ़ आइकन; नाम देखने के लिए आइकन को दबाए रखें या उस पर कर्सर रखें। पेंसिल डिवाइस पर सीधी स्क्रीन में सिर्फ़ आइकन दिखते हैं।',
+  'settings.formatTabs.label': 'फ़ॉर्मैट टैब',
+  'settings.formatTabs.description':
+    'फ़ॉर्मैट कार्ड में कितने टैब हों: 3 (टेक्स्ट, स्टाइल, पैराग्राफ़) या 4 (एडवांस्ड जुड़ता है)।',
+  'settings.backToPen.label': 'बार में पेन पर वापसी',
+  'settings.backToPen.description':
+    'बार में एक बटन दिखाएँ जो पिछले औज़ार पर लौटाता है।',
+  'settings.eraserMenus.label': 'इरेज़र के तीन मेनू',
+  'settings.eraserMenus.description':
+    'बार में इरेज़र के मोड, आकार और "मिटाता है" मेनू दिखाएँ। बंद: एक सरल इरेज़र मेनू।',
+  'settings.biggerLasso.label': 'बड़ा लैस्सो',
+  'settings.biggerLasso.description':
+    'लैस्सो का आकार और वह क्या चुनता है, विकल्प मेनू के साथ बार में ही दिखाएँ। बंद: छोटी लैस्सो पंक्ति।',
 }

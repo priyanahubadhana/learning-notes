@@ -31,6 +31,11 @@ import {
 } from '../i18n/languages'
 import { dateLocale, t, type DateStyle, type MessageKey } from '../i18n/t'
 import { freeTip } from '../app/tools/freeBar'
+import {
+  getBarPref,
+  setBarPref,
+  type BarPrefId,
+} from '../app/tools/v8/barPrefs'
 import { peekWasOff } from '../app/tools/peekFlag'
 import { isPathStyle, PATH_STYLES, type PathStyle } from '../pages/pathStyle'
 import {
@@ -815,6 +820,74 @@ export const reduceGlassSetting: SettingDefinition<GlassChoice> = {
   },
 }
 
+// ---- Tool bar v9: each Beginner / Professional difference is its own setting ----
+
+/** One on / off part of the v9 tool bar. A starter or a person sets it; until then it follows Beginner or Professional. */
+function barPartSetting(
+  id: BarPrefId,
+  keywords: string,
+): SettingDefinition<OnOff> {
+  return {
+    id: `advanced.${id}`,
+    labelKey: `settings.${id}.label` as MessageKey,
+    descriptionKey: `settings.${id}.description` as MessageKey,
+    category: 'advanced',
+    alsoIn: ['toolbar'],
+    keywords: 'tool bar toolbar ribbon bar ' + keywords,
+    scope: 'device',
+    defaultValue: 'off',
+    isValid: isOnOff,
+    control: { kind: 'segmented', options: onOffOptions() },
+    derived: {
+      read: () => (getBarPref(id) ? 'on' : 'off'),
+      write: (value) => setBarPref(id, value === 'on'),
+    },
+  }
+}
+
+export const toolNamesSetting = barPartSetting(
+  'toolNames',
+  'names labels icons text under tooltip',
+)
+export const backToPenSetting = barPartSetting(
+  'backToPen',
+  'back previous last tool pen',
+)
+export const eraserMenusSetting = barPartSetting(
+  'eraserMenus',
+  'eraser mode size erases menus',
+)
+export const biggerLassoSetting = barPartSetting(
+  'biggerLasso',
+  'lasso shape picks options',
+)
+
+const FORMAT_TABS = ['3', '4'] as const
+export const formatTabsSetting: SettingDefinition<
+  (typeof FORMAT_TABS)[number]
+> = {
+  id: 'advanced.formatTabs',
+  labelKey: 'settings.formatTabs.label',
+  descriptionKey: 'settings.formatTabs.description',
+  category: 'advanced',
+  alsoIn: ['toolbar'],
+  keywords: 'tool bar toolbar ribbon bar format tabs text style paragraph',
+  scope: 'device',
+  defaultValue: '3',
+  isValid: isOneOf<(typeof FORMAT_TABS)[number]>(FORMAT_TABS),
+  control: {
+    kind: 'segmented',
+    options: FORMAT_TABS.map((value) => ({
+      value,
+      label: () => value,
+    })),
+  },
+  derived: {
+    read: () => (getBarPref('formatTabs') ? '4' : '3'),
+    write: (value) => setBarPref('formatTabs', value === '4'),
+  },
+}
+
 for (const definition of [
   theme,
   reduceGlassSetting,
@@ -822,6 +895,11 @@ for (const definition of [
   barPlacementSetting,
   barSizeSetting,
   hoverTipsSetting,
+  toolNamesSetting,
+  formatTabsSetting,
+  backToPenSetting,
+  eraserMenusSetting,
+  biggerLassoSetting,
   shortcutHintsSetting,
   barAutoHideSetting,
   showRefreshSetting,

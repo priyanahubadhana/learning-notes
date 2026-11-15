@@ -19,6 +19,9 @@ import { useFlag } from '../../flags'
 import { t, type MessageKey } from '../../../i18n/t'
 import { Icon } from '../icons'
 import { rowItemsFor } from './rowItems'
+import { useBarPref } from './barPrefs'
+import { orderItems, setToolOrder, toolOrder } from './toolOrder'
+import { ReorderList } from '../../../design/parts/drag/ReorderList'
 import { currentRunner } from '../toolRuntime'
 import { FavFace } from './PenFavChip'
 import { favName, justAdded, movedId, useFavs } from './favRow'
@@ -297,7 +300,28 @@ export function OrganiseFavSheet({
   const row = rowOf(all, tool)
   // What the row was when the sheet opened: ✕ puts it back.
   const opened = useRef(favs2.get())
-  const tools = rowItemsFor(tool, true)
+  const openedOrder = useRef(toolOrder.get()[tool])
+  const defaults = rowItemsFor(
+    tool,
+    useBarPref('eraserMenus'),
+    useBarPref('biggerLasso'),
+  )
+  const saved = toolOrder.useValue()[tool]
+  const tools = orderItems(defaults, saved)
+  const moveTool = (id: string, to: number) => {
+    const before = toolOrder.get()[tool]
+    const ids = tools.map((x) => x.id).filter((x) => x !== id)
+    ids.splice(to, 0, id)
+    setToolOrder(
+      tool,
+      ids,
+      defaults.map((x) => x.id),
+    )
+    const item = defaults.find((x) => x.id === id)
+    toast(t('v8.favs.moved', { name: item ? t(item.label) : id }), () =>
+      setToolOrder(tool, before),
+    )
+  }
   const toolChip = (item: (typeof tools)[number]) => (
     <Icon name={item.icon ?? 'circle'} size={16} />
   )
@@ -333,22 +357,37 @@ export function OrganiseFavSheet({
       docked={shell}
       onCancel={() => {
         saveFavs(opened.current)
+        setToolOrder(tool, openedOrder.current)
         onDone()
       }}
       fixed={
         shell && tools.length > 0 ? (
           <div className="arr-fixed" data-testid="v8-org-tools">
-            {tools.map((item) => (
-              <div key={item.id} className="arr-row">
-                <span className="arr-tile" aria-hidden="true">
-                  {toolChip(item)}
-                </span>
-                <span className="arr-name">
-                  <span>{t(item.label)}</span>
-                  <small>{t('v8.favs.toolHint')}</small>
-                </span>
-              </div>
-            ))}
+            <ReorderList
+              items={[...tools]}
+              getId={(item) => item.id}
+              label={(item) => t(item.label)}
+              axis="y"
+              handle="grip"
+              showMoveButtons
+              onMove={moveTool}
+              aria-label={t('v8.favs.toolHint')}
+              testId="v8-org-tool-list"
+              className="arr-list"
+              renderItem={(item, ctx) => (
+                <div className="arr-row" data-testid="v8-org-tool">
+                  {ctx.grip}
+                  <span className="arr-tile" aria-hidden="true">
+                    {toolChip(item)}
+                  </span>
+                  <span className="arr-name">
+                    <span>{t(item.label)}</span>
+                    <small>{t('v8.favs.toolHint')}</small>
+                  </span>
+                  {ctx.moveButtons}
+                </div>
+              )}
+            />
             <p className="arr-fixed-note">{t('v8.favs.toolsNote')}</p>
           </div>
         ) : null
@@ -378,7 +417,7 @@ export function OrganiseFavSheet({
         </span>
       )}
       onReset={onReset}
-      isDefault={row.length === 0}
+      isDefault={row.length === 0 && !saved}
       onDone={onDone}
       anchor={anchor}
     />
@@ -401,8 +440,13 @@ export function ResetFavDialog({
       danger
       onConfirm={() => {
         const before = favs2.get()
+        const beforeOrder = toolOrder.get()[tool]
         saveFavs(resetRow(before, tool))
-        toast(t('v8.favs.resetDone'), () => saveFavs(before))
+        setToolOrder(tool, undefined)
+        toast(t('v8.favs.resetDone'), () => {
+          saveFavs(before)
+          setToolOrder(tool, beforeOrder)
+        })
         onClose()
       }}
       onCancel={onClose}

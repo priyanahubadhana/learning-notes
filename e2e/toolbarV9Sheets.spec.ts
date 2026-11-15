@@ -249,3 +249,70 @@ test('Feel › Page (Professional): Layers sit in one well, a row has the pictur
       await expect(row.locator(`[data-layer-action="${a}"]`)).toHaveCount(1)
   }
 })
+
+// ---- Organise moves the tools; Fit page ----
+
+const chipX = async (page: Page, id: string) =>
+  (await page.getByTestId(`v8-chip-pen.${id}`).boundingBox())!.x
+
+test('Organise: a tool moves, the bar follows, it survives a reload, and Reset puts the default order back', async ({
+  page,
+}) => {
+  await open(page, { size: { width: 1500, height: 900 } })
+  expect(await chipX(page, 'type')).toBeLessThan(await chipX(page, 'size'))
+  await page.getByTestId('v8-organise').click()
+  await expect(page.getByTestId('v8-org-tool')).toHaveCount(4)
+  // No remove for a tool: only moving.
+  await expect(
+    page.getByTestId('v8-org-tools').getByRole('button', { name: /remove/i }),
+  ).toHaveCount(0)
+  await page
+    .getByTestId('v8-org-tool')
+    .first()
+    .getByRole('button', { name: /down/i })
+    .click()
+  await page.getByTestId('fb-sheet-ok').click()
+  expect(await chipX(page, 'size')).toBeLessThan(await chipX(page, 'type'))
+  expect((await pref(page, 'toolbar.v9.toolOrder')).pen[0]).toBe('size')
+  await page.reload()
+  await page.getByTestId('v8-tool-pen').click()
+  expect(await chipX(page, 'size')).toBeLessThan(await chipX(page, 'type'))
+  // Reset restores the default order.
+  await page.getByTestId('v8-organise').click()
+  await page.getByTestId('arrange-reset').click()
+  await page.getByRole('button', { name: 'Reset', exact: true }).last().click()
+  await page.getByTestId('fb-sheet-ok').click()
+  expect(await chipX(page, 'type')).toBeLessThan(await chipX(page, 'size'))
+  expect((await pref(page, 'toolbar.v9.toolOrder'))?.pen).toBeUndefined()
+})
+
+test('Organise: ✕ puts the tool order back too', async ({ page }) => {
+  await open(page, { size: { width: 1500, height: 900 } })
+  await page.getByTestId('v8-organise').click()
+  await page
+    .getByTestId('v8-org-tool')
+    .first()
+    .getByRole('button', { name: /down/i })
+    .click()
+  await page.getByTestId('fb-sheet-close').click()
+  expect(await chipX(page, 'type')).toBeLessThan(await chipX(page, 'size'))
+})
+
+test('Feel › Page: "Fit page" is a paper size; choosing it is saved with the page', async ({
+  page,
+}) => {
+  await feel(page, 'professional')
+  const card = page.getByTestId('v8-card-pen.feel')
+  await card.getByRole('tab', { name: 'Page' }).click()
+  const size = card.getByRole('radiogroup', { name: 'Paper size' })
+  await expect(size.getByRole('radio')).toHaveText(['Fit page', 'A4', 'Letter'])
+  await expect(page.getByTestId('v8-pen-sheet-A4')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+  await page.getByTestId('v8-pen-sheet-fit').click()
+  await expect(page.getByTestId('v8-pen-sheet-fit')).toHaveAttribute(
+    'aria-checked',
+    'true',
+  )
+})

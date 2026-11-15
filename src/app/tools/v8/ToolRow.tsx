@@ -4,6 +4,7 @@ import { CardTrigger } from '../../../design/parts/Card'
 import { t, type MessageKey } from '../../../i18n/t'
 import { Icon } from '../icons'
 import { rowItemsFor, cardIdOf, type RowItem } from './rowItems'
+import { orderItems, toolOrder } from './toolOrder'
 import { useBarPref } from './barPrefs'
 import { LassoPickChips, LassoShapeChips } from './LassoRowParts'
 import { dotPx, usePenFace, type PenFace } from './penFace'
@@ -141,10 +142,9 @@ export function ToolRow({
   })
   const editor = useBlockNoteEditor()
   const active = useActiveStyles(editor as never) as Record<string, unknown>
-  const items = rowItemsFor(
-    tool,
-    useBarPref('eraserMenus'),
-    useBarPref('biggerLasso'),
+  const items = orderItems(
+    rowItemsFor(tool, useBarPref('eraserMenus'), useBarPref('biggerLasso')),
+    toolOrder.useValue()[tool],
   )
   eraserSettings.useValue() // the Eraser chips say what is chosen
   // What the row showed while no card was open. A chip that was already on the

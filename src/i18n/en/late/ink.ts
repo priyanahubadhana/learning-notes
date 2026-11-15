@@ -447,6 +447,7 @@ export const enLateInk = {
   'paper.sheets': 'Sheets of this page',
   'paper.size': 'Paper size',
   'paper.sizeA4': 'A4',
+  'paper.sizeFit': 'Fit page',
   'paper.sizeLetter': 'Letter',
   'paper.style': 'Paper style',
   'paper.zoomFit': 'Fit width',

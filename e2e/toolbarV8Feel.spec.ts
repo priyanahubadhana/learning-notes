@@ -107,7 +107,7 @@ test('TB-24 Page: four paper pictures, one paper choice, Paper size and Layers',
   await expect(card(page).locator('[data-card-chips="paper"]')).toHaveCount(0)
   await expect(card(page).locator('[data-layer-add]')).toBeVisible()
   const size = card(page).getByRole('radiogroup', { name: 'Paper size' })
-  await expect(size.getByRole('radio')).toHaveText(['A4', 'Letter'])
+  await expect(size.getByRole('radio')).toHaveText(['Fit page', 'A4', 'Letter'])
   await expect(page.getByTestId('v8-pen-sheet-A4')).toHaveAttribute(
     'aria-checked',
     'true',

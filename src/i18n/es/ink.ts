@@ -462,6 +462,7 @@ export const esInk = {
   'paper.sheets': 'Hojas de esta página',
   'paper.size': 'Tamaño del papel',
   'paper.sizeA4': 'A4',
+  'paper.sizeFit': 'Ajustar a la página',
   'paper.sizeLetter': 'Carta',
   'paper.style': 'Estilo del papel',
   'paper.zoomFit': 'Ajustar al ancho',

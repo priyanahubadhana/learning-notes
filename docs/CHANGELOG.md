@@ -5,8 +5,8 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 ### 16 Nov 2026: 2A.16 part B, sheets and Feel card as tool bar v9 (switches foundation.shell, toolbar.v8, OFF live)
 
 - What: (1) Add favourite and Organise dock on the right (440 px, below the top bar, full width under it on a phone) through the shared Sheet; ✕ left, ✓ right, no footer buttons on Add; Organise keeps Reset and Add favourite in its footer. ✕ on Organise puts the row back as it was. Organise lists the whole row: the tools (fixed) then the favourites (movable). (2) Feel card: the four tabs are one full-width segmented control (shared CardTabs, also used by Format); slider values are "%" chips; the Page tab shows Layers in the v9 look (picture, name, strokes, eye, lock, ⋯ for move and delete).
-- Why: the first look found both different from docs/mockups/toolbar-v9/toolbar-v9.html. Not done: "Fit page" in Paper size and moving tools inside Organise need new stored page/row values (reported).
-- Files: src/design/parts/ArrangeSheet.tsx, src/app/tools/v8/FavSheets.tsx, src/app/tools/v8/cards/CardTabs.tsx, src/app/tools/v8/cards/pen/*, src/app/tools/v8/cards/text/FormatCard.tsx, src/ink/LayersCard.tsx, e2e/toolbarV9Sheets.spec.ts, e2e/sheetsPictures.spec.ts
+- Why: the first look found both different from docs/mockups/toolbar-v9/toolbar-v9.html. Later the same day, on the owner's word: "Fit page" is a stored paper size (Page.sheet = 'fit', default unchanged), and Organise moves the tools of a row (toolbar.v9.toolOrder, this device; Reset restores the order). Logged in DECISIONS.
+- Files: src/design/parts/ArrangeSheet.tsx, src/app/tools/v8/FavSheets.tsx, src/app/tools/v8/cards/CardTabs.tsx, src/app/tools/v8/cards/pen/*, src/app/tools/v8/cards/text/FormatCard.tsx, src/ink/LayersCard.tsx, src/app/tools/v8/toolOrder.ts, src/core/types.ts, src/paper/boxes.ts, e2e/toolbarV9Sheets.spec.ts, e2e/sheetsPictures.spec.ts
 
 ### 16 Nov 2026: 2A.16 part 1, carried polish (switch toolbar.v8, OFF live)
 

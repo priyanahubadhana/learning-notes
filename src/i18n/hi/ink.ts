@@ -457,6 +457,7 @@ export const hiInk = {
   'paper.sheets': 'इस पेज की शीट',
   'paper.size': 'कागज़ का आकार',
   'paper.sizeA4': 'A4',
+  'paper.sizeFit': 'पेज में फ़िट',
   'paper.sizeLetter': 'लेटर',
   'paper.style': 'कागज़ की शैली',
   'paper.zoomFit': 'चौड़ाई में फ़िट करें',

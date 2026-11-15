@@ -21,7 +21,7 @@ export const esV8Favs = {
   'v8.favs.preset': 'Cualquier ajuste de esta herramienta',
   'v8.favs.resetDone': 'Favoritos restablecidos',
   'v8.favs.resetText':
-    'Esto quita todos los favoritos de esta fila. Puedes deshacerlo.',
+    'Esto quita todos los favoritos de esta fila y devuelve las herramientas a su orden habitual. Puedes deshacerlo.',
   'v8.favs.resetTitle': '¿Restablecer favoritos?',
   'v8.favs.resetYes': 'Restablecer',
   'v8.favs.save': 'Guardar favorito',
@@ -29,5 +29,5 @@ export const esV8Favs = {
   'v8.favs.tool': '¿Qué herramienta?',
   'v8.favs.toolHint': 'Herramienta',
   'v8.favs.toolsNote':
-    'Las herramientas se quedan en la fila; los favoritos van detrás.',
+    'Las herramientas se pueden mover pero no quitar; los favoritos van detrás.',
 } as const

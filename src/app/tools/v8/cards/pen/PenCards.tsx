@@ -704,9 +704,14 @@ function PagePane() {
   )
 }
 
-const SHEETS = ['A4', 'Letter'] as const
+const SHEETS = ['fit', 'A4', 'Letter'] as const
+const SHEET_LABEL = {
+  fit: 'paper.sizeFit',
+  A4: 'paper.sizeA4',
+  Letter: 'paper.sizeLetter',
+} as const
 
-/** Paper size of the open page (A4 or Letter); saved with the page. */
+/** Paper size of the open page (Fit page, A4 or Letter); saved with the page. */
 function SheetSize({ pageId }: { pageId: string }) {
   const page = useLiveQuery(() => db.pages.get(pageId), [pageId])
   const sheet = page?.sheet ?? 'A4'
@@ -718,7 +723,7 @@ function SheetSize({ pageId }: { pageId: string }) {
         value={sheet}
         options={SHEETS.map((s) => ({
           value: s,
-          label: t(s === 'A4' ? 'paper.sizeA4' : 'paper.sizeLetter'),
+          label: t(SHEET_LABEL[s]),
           testId: `v8-pen-sheet-${s}`,
         }))}
         onChange={(next) => void setPageSheet(db, pageId, next)}

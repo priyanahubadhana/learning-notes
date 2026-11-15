@@ -98,3 +98,7 @@ The plan these answer: [phase-plan.md](phase-plan.md) section 0 ("What's next").
 ---
 
 Decided by Claude, no answer needed (logged in docs/DECISIONS.md, 15 Nov): the page top bar keeps its < > arrows in Phase 1 and loses them in the same step that adds Undo and Redo there (Phase 2A, under the tool bar's switch), so there is never a moment with neither; the tool bar edit-in-place of Settings v5 (S5-22) is built with the tool bar (Phase 2A); "Your layouts" stays hidden in the tool bar as in Settings (not dropped, docs/IDEAS.md).
+
+## Owner's answers (15 Nov, evening)
+
+1A, 3A (rule change: owner may switch Phase 1 on after the re-test; the full release bar before anyone else; written into rules/phase-end.md after this phase), 4A (full team, up to 3 builders, for the 2A and Settings rebuilds), 5A, 6A. Asked to explain: 2, 7, 8.

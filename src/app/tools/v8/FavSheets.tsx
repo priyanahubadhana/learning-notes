@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   ArrangeSheet,
   type ArrangeRow,
@@ -239,8 +239,10 @@ export function OrganiseFavSheet({
   const all = useFavs()
   const row = rowOf(all, tool)
   // Every favourite seen while the sheet is open, so a removed one can come back.
-  const seen = useRef(new Map<string, Fav2>())
-  for (const f of row) seen.current.set(f.id, f)
+  const [seen] = useState(() => new Map<string, Fav2>())
+  useEffect(() => {
+    for (const f of row) seen.set(f.id, f)
+  })
   const rows: ArrangeRow[] = row.map((f) => ({
     id: f.id,
     label: favName(f),
@@ -250,7 +252,7 @@ export function OrganiseFavSheet({
 
   const change = (next: ArrangeRow[]) => {
     const before = favs2.get()
-    const byId = seen.current
+    const byId = seen
     const nextRow = next
       .map((r) => byId.get(r.id))
       .filter((f): f is Fav2 => !!f)

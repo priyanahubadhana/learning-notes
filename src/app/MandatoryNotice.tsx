@@ -131,10 +131,8 @@ function useNotesCentre(): number | null {
     }
     const ro = new ResizeObserver(read)
     ro.observe(el)
-    window.addEventListener('resize', read)
     return () => {
       ro.disconnect()
-      window.removeEventListener('resize', read)
     }
   }, [])
   return x

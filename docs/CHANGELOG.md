@@ -57,6 +57,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - What: a Layout row (Beginner | Professional) above the five tool bar rows in Settings; one tap sets all five (Beginner = all off, 3 tabs; Professional = all on, 4 tabs); one Undo step.
 - Why: owner decision, 15 Nov.
 - Files: src/settings/builtinSettings.ts, flagGate.ts, v3/SettingRow.tsx, i18n en/es/hi settings, e2e/toolbarV9Names.spec.ts, docs/features/toolbar-v8.md, docs/DECISIONS.md.
+
 ### 16 Nov 2026: 2A.11 merged
 
 - What: 2A.11 fast-forwarded by the main chat (49fb5339), CI green; 2A.12, 2A.13, 2A.15 resumed; webkit turn to 2A.15. Why: plan step 2. Files: docs/BUILD-STATE.md.
@@ -2232,3 +2233,9 @@ What: 6 scratch working copies removed with git and 9 folders in `.claude/worktr
 ## 2026-11-15 Owner answers E, H, 5
 
 - What: E option 1 (upright Pencil mode icons only), H option 1 (merge the two November 2026 pages, backup first), 5 yes (Format 3 tabs Beginner, 4 Professional). Why: owner answers to the contradictions list. Files: docs/plans/contradictions-2026-11-15.md, docs/PENDING.md.
+
+## 2026-11-15 - 2A.13 Favourites: Add form and Organise (toolbar.v8, OFF)
+
+What: "+" opens the Add form (tool, preset or current setup, ticks, preview, name, Save); the list button opens Organise on the shared Arrange sheet (drag, arrows, menu, remove with Undo, Reset with confirm). Favourites show on every tool row. New local key `toolbar.favourites2`, migrated once from `toolbar.favourites` (old key kept in step for pens).
+Why: the two buttons were placeholders (T13, T18). Also: a row menu inside a floating sheet was covered by it and closed it (AnchoredMenu lift, SheetBase counts its menu as inside).
+Files: src/app/tools/v8/{favs2,favRow,FavSheets,PenFavChip,ToolRow}, AnchoredMenu.tsx, SheetBase.tsx, i18n v8Favs (en, es, hi), e2e/toolbarV8Favs.spec.ts, e2e/favsShots.spec.ts.

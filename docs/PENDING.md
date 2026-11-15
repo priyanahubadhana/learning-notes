@@ -96,3 +96,5 @@ Branches and commit ids of every parked part: docs/BUILD-STATE.md.
 
 - **2A next window (manager, 16 Nov):** add the 2A specs (toolbarV9Names, toolbarV9Dark, toolbarV8Ninth, toolbarV8History, settingsV3) to the ipad-webkit list in playwright.config.ts as a small task merged alone, so CI covers them on iPad; then 2A.14's webkit run and merge (slice/2a14 a63335f8, review PASS). One-off local configs are refused by the safety check, so they are no longer used.
   Owner deleted one 'November 2026' page by hand on 16 Nov; the Journal repair (journal.monthRepair, preview only) stays as a guard against new duplicates.
+
+- **Live site check fix ready (16 Nov):** slice/live-check-sha af19a586 (the check compares live with the newest commit that changes what ships; passes now). Not merged on purpose: a push to main with non-docs files redeploys the live app (same app, new version number), which needs the owner's yes. Merge it together with task 0.7 (Phase 1 go-live).

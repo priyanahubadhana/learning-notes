@@ -1,4 +1,5 @@
 import { t } from '../../../i18n/t'
+import { displayInk } from '../../../design/ink'
 import {
   HIGHLIGHT_WIDTHS,
   PREVIEW_SIZE,
@@ -17,19 +18,22 @@ export function InkPreview({ kind }: { kind: 'pen' | 'highlighter' }) {
   const pen = penSettings.useValue()
   const h = highlighterSettings.useValue()
   const stroke = kind === 'pen' ? penPreview(pen) : highlighterPreview(h)
-  const colour = kind === 'pen' ? pen.colour : h.colour
+  const colour = displayInk(kind === 'pen' ? pen.colour : h.colour)
   return (
     <svg
       role="img"
       aria-label={t('ink.preview.label')}
       data-ink-preview={kind}
       viewBox={`0 0 ${PREVIEW_SIZE.width} ${PREVIEW_SIZE.height}`}
-      className="h-14 w-full rounded-lg border border-line bg-white"
+      className="h-14 w-full rounded-lg border border-line"
+      style={{ background: 'var(--v9-preview, #fff)' }}
     >
       <path
         d={stroke.d}
-        fill={stroke.fill === 'none' ? 'none' : colour}
-        stroke={stroke.stroke ? colour : 'none'}
+        style={{
+          fill: stroke.fill === 'none' ? 'none' : colour,
+          stroke: stroke.stroke ? colour : 'none',
+        }}
         strokeWidth={stroke.stroke?.width}
         strokeDasharray={stroke.stroke?.dash}
         strokeLinecap={stroke.stroke?.cap}

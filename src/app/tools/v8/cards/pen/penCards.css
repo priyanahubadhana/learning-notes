@@ -40,12 +40,58 @@
   font-variant-numeric: tabular-nums;
 }
 .v8range {
+  appearance: none;
+  -webkit-appearance: none;
   width: 100%;
   min-height: 44px;
   margin: 0;
   background: transparent;
   accent-color: var(--color-accent);
   touch-action: pan-y;
+}
+/* v9: a 6 px track that fills with the accent up to the knob; the knob is white (raised). */
+.v8range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent) var(--p, 50%),
+    var(--v9-track, var(--card-track)) var(--p, 50%)
+  );
+}
+.v8range::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent) var(--p, 50%),
+    var(--v9-track, var(--card-track)) var(--p, 50%)
+  );
+}
+.v8range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -9px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--v9-knob, #fff);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+/* The wedge slider draws its own wedge on the input: the plain track stays clear. */
+.v8range[data-wedge]::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.v8range[data-wedge]::-moz-range-track {
+  background: transparent;
+}
+.v8range::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--v9-knob, #fff);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 .v8range[data-wedge] {
   background: linear-gradient(

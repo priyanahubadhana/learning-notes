@@ -160,9 +160,9 @@ test('TB-33 Colour card: names start with a capital and the selection colour has
   await drawAndLoop(page)
   await page.getByTestId('v8-sel-colour').click()
   const c = card(page, 'sel.colour')
-  for (const name of ['Black', 'Blue', 'Red', 'Green', 'Orange', 'Purple'])
+  for (const name of ['Auto ink', 'Blue', 'Red', 'Green', 'Orange', 'Purple'])
     await expect(c.getByRole('radio', { name })).toBeVisible()
-  await expect(c.getByRole('radio', { name: 'Black' })).toHaveAttribute(
+  await expect(c.getByRole('radio', { name: 'Auto ink' })).toHaveAttribute(
     'aria-checked',
     'true',
   )

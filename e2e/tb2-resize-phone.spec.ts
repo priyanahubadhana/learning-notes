@@ -225,7 +225,7 @@ test('phone: where two targets meet the nearest dot wins (the corner, not the si
   const box = await phoneBox(page, 'P-near', ['Hi'])
   const f = await rect(box)
   const at = { x: f.x + f.width + 10, y: f.y + f.height + 2 }
-  await drag(page, at, { x: at.x, y: at.y + 50 })
+  await drag(page, at, { x: at.x, y: at.y + 50 }, { hold: 300 })
   expect((await rect(box)).height).toBeGreaterThan(f.height + 20)
 })
 

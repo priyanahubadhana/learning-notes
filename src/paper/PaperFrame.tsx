@@ -1405,14 +1405,24 @@ export function PaperFrame({
       setLiveW({ id, w })
       // The saved width takes over once the write is in.
       window.setTimeout(() => setLiveW(null), 600)
-      onGridChange?.(baseRows, [{ id, patch: { pw: w } }])
+      // Width and height in ONE write: two writes raced on WebKit (a corner
+      // drag lost its height).
+      const h =
+        d.vert && d.h !== undefined
+          ? d.h <= d.minH + 0.5
+            ? undefined
+            : Math.round(d.h * 10) / 10
+          : undefined
+      onGridChange?.(baseRows, [
+        { id, patch: d.vert && d.h !== undefined ? { pw: w, h } : { pw: w } },
+      ])
     }
     if (d.i !== null || d.north) {
       const places: BoxPatch[] = placesOf(d.rows, heightsMm, geo)
       setHeldRows(d.rows)
       onGridChange?.(d.rows, places)
     }
-    if (d.vert && d.h !== undefined)
+    if (d.vert && d.h !== undefined && d.phone?.w === undefined)
       onBoxHeight?.(
         d.id,
         d.h <= d.minH + 0.5 ? undefined : Math.round(d.h * 10) / 10,

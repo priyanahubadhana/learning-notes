@@ -26,7 +26,7 @@ export function InkPreview({ kind }: { kind: 'pen' | 'highlighter' }) {
       data-ink-preview={kind}
       viewBox={`0 0 ${PREVIEW_SIZE.width} ${PREVIEW_SIZE.height}`}
       className="h-14 w-full rounded-lg border border-line"
-      style={{ background: 'var(--color-surface-0)' }}
+      style={{ background: 'var(--v9-preview, #fff)' }}
     >
       <path
         d={stroke.d}

@@ -56,7 +56,7 @@
   background: linear-gradient(
     90deg,
     var(--color-accent) var(--p, 50%),
-    var(--card-track) var(--p, 50%)
+    var(--v9-track, var(--card-track)) var(--p, 50%)
   );
 }
 .v8range::-moz-range-track {
@@ -65,7 +65,7 @@
   background: linear-gradient(
     90deg,
     var(--color-accent) var(--p, 50%),
-    var(--card-track) var(--p, 50%)
+    var(--v9-track, var(--card-track)) var(--p, 50%)
   );
 }
 .v8range::-webkit-slider-thumb {
@@ -75,7 +75,7 @@
   margin-top: -9px;
   border: 0;
   border-radius: 50%;
-  background: var(--card-knob);
+  background: var(--v9-knob, #fff);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 .v8range::-moz-range-thumb {
@@ -83,7 +83,7 @@
   height: 24px;
   border: 0;
   border-radius: 50%;
-  background: var(--card-knob);
+  background: var(--v9-knob, #fff);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 .v8range[data-wedge] {

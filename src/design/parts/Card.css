@@ -253,7 +253,7 @@
   width: 40px;
   height: 24px;
   border-radius: var(--r-pill);
-  background: var(--card-track);
+  background: var(--v9-track, var(--card-well-2));
   transition: background-color var(--dur-2) var(--ease-out);
 }
 .pcard-switch::after {
@@ -264,7 +264,7 @@
   width: 20px;
   height: 20px;
   border-radius: var(--r-pill);
-  background: var(--card-knob);
+  background: var(--v9-knob, var(--color-surface-0));
   box-shadow: var(--elev-1);
   transition: transform var(--card-dur-pop) var(--ease-spring);
 }
@@ -290,7 +290,7 @@
   padding: 10px 4px 8px;
   border: 0;
   border-radius: var(--r-md);
-  background: var(--card-well);
+  background: var(--v9-tile, transparent);
   color: var(--color-ink);
   font: inherit;
   cursor: pointer;

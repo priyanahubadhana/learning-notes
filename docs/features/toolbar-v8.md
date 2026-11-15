@@ -104,9 +104,9 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 
 **Dark mode, v9 (task 2A.5, picture docs/mockups/toolbar-v9/toolbar-v9.html in dark)**
 
-- TB-95 When the page is dark and the pen colour is the default black → the colour chip, swatch, size and type pictures and the Feel preview draw it in the light ink (`--ink-auto`); the saved colour and stored strokes do not change, and on light paper it is dark again (resolved when drawn).
-- TB-96 When I look at a switcher, tile or choice control in dark → it sits in a tonal well (`--card-well`) and the chosen part is a raised thumb (`--card-thumb`, `--card-thumb-sh`); sliders show a 6 px track filled to the knob.
-- TB-97 When a switch is on or off in dark → its knob is white (`--card-knob`).
+- TB-95 When the page is dark and the pen colour is the default black → the colour chip, swatch, size and type pictures and the Feel preview draw it in the light ink (`--ink-auto`, light only under `data-v9` at night); the saved colour and stored strokes do not change, and on light paper it is dark again (resolved when drawn).
+- TB-96 When I look at a switcher, tile or choice control in dark → it sits in a tonal well (`--card-well`) and the chosen part is a raised thumb (`--v9-thumb`, `--v9-thumb-sh`); sliders show a 6 px track filled to the knob.
+- TB-97 When a switch is on or off in dark → its knob is white (`--v9-knob`). All of TB-95 to TB-97 exist only while toolbar.v8 is ON (the bar sets `data-v9` on the root); with it OFF every screen looks as before.
 
 **Selection bars and BUG-002**
 

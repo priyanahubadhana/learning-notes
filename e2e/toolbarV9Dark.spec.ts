@@ -70,3 +70,43 @@ test('2A.5 at night a switch knob is white, a tile sits in a well', async ({
   const bg = await tile.evaluate((el) => getComputedStyle(el).backgroundColor)
   expect(bg).not.toBe('rgba(0, 0, 0, 0)')
 })
+
+/** With toolbar.v8 OFF nothing of 2A.5 shows: old knob, no tile well, old ink. */
+test('2A.5 with the switch OFF at night: old white-ish knob, no tile well, dark ink', async ({
+  page,
+}) => {
+  await startInTheme(page, 'night')
+  await startInMode(page, 'touch')
+  await page.goto('/')
+  await createNotebook(page, 'Biology', 'First')
+  const r = await page.evaluate(() => {
+    const root = document.documentElement
+    const sw = document.createElement('span')
+    sw.className = 'pcard-switch'
+    const tile = document.createElement('button')
+    tile.className = 'pcard-tile'
+    const opt = document.createElement('div')
+    opt.className = 'onoff-choice'
+    document.body.append(sw, tile, opt)
+    return {
+      v9: root.hasAttribute('data-v9'),
+      ink: getComputedStyle(root).getPropertyValue('--ink-auto').trim(),
+      knob: getComputedStyle(sw, '::after').backgroundColor,
+      tile: getComputedStyle(tile).backgroundColor,
+      choice: getComputedStyle(opt).backgroundColor,
+      surface: getComputedStyle(root)
+        .getPropertyValue('--color-surface-0')
+        .trim(),
+    }
+  })
+  expect(r.v9).toBe(false)
+  expect(r.ink).toBe('#1d1d1f')
+  expect(r.tile).toBe('rgba(0, 0, 0, 0)')
+  expect(r.knob).not.toBe('rgb(255, 255, 255)')
+  expect(r.choice).toBe('rgb(42, 41, 49)')
+})
+
+test('2A.5 with the switch ON the root says so (data-v9)', async ({ page }) => {
+  await open(page, 'night')
+  await expect(page.locator('html')).toHaveAttribute('data-v9', '')
+})

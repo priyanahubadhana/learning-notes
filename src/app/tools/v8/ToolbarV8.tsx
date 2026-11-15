@@ -95,6 +95,12 @@ export default function ToolbarV8() {
   }, [])
   // The shared stacking table as --z-* variables (the name tip uses --z-menu).
   useEffect(() => applyLayerVars(), [])
+  // The v9 dark look (wells, white knobs, light default ink) exists only while this bar is on (2A.5).
+  useEffect(() => {
+    const root = document.documentElement
+    root.setAttribute('data-v9', '')
+    return () => root.removeAttribute('data-v9')
+  }, [])
   // Rings on keyboard focus only: a tap or click that opens a card marks the
   // pointer as the last input, and any key clears it (toolCards.css).
   useEffect(() => {

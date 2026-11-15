@@ -1,6 +1,6 @@
 # Settings v5: user stories
 
-Status: draft for the Settings v5 plan (15 Nov 2026). Not approved as a build spec yet.
+Status: approved with Settings v5 (owner, 15 Nov 2026).
 
 Sources:
 

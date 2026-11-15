@@ -365,3 +365,7 @@ Settings design questions (docs/research/reports, "Full customisation kept simpl
 Settings v5 (15 Nov): "Your layouts" hidden for now (owner chose A, later); it returns after the owner passes the Settings and tool bar test, with edit, rename and delete (docs/IDEAS.md). Manager, never drop: recount all 169 v3 feature switches into v5; keep the per-setting "this device / everywhere" menu; keep "Turn on all in this group". The old "Reset to Beginner" button is kept, named "Reset to Beginner layout" (owner, 15 Nov).
 
 Settings v5 stories review (15 Nov), owner yes to the picks: tapping the Current starter after changes asks "Go back to Simple? (n changes)" with Undo; changing My experience later asks "Also apply the matching starter?" (No changes only the label); the button is named "Reset to Simple starter" (replaces "Reset to Beginner layout"). Owner: make the pictures cleaner to the design principles (Fable).
+
+## Settings v5: APPROVED by owner (15 Nov 2026)
+
+Pictures: docs/mockups/settings-v5/shots/ (1–8 iPad and dark, 9–16 phone); source docs/mockups/settings-v5/settings-v5.html. Stories: docs/features/settings-v5-stories.md. Replaces Settings v3 as the build reference. "Your layouts" hidden until after the owner's test. "Reset group" lives under More › Reset. Before the build: recount all 169 v3 feature switches into v5 (the mock shows 113).

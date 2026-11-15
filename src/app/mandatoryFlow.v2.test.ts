@@ -319,3 +319,62 @@ describe('P1.8 picture: Update now, the waiting pill, true numbers', () => {
     expect(mandatoryUpdate.get()).toMatchObject({ slow: false })
   })
 })
+
+describe('T29 a failed download stays until the person chooses', () => {
+  const failing = (over: Partial<MandatoryDeps> = {}) =>
+    deps({
+      download: async () => {
+        throw new Error('dead line')
+      },
+      ...over,
+    })
+
+  it('a late progress report from the dead download cannot replace the note', async () => {
+    vi.useFakeTimers()
+    let late: (l: number, t: number) => void = () => {}
+    startMandatoryUpdate(
+      deps({
+        download: async (progress) => {
+          late = progress
+          throw new Error('dead line')
+        },
+      }),
+    )
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    expect(phase()).toBe('failed')
+    late(5, 10)
+    await vi.advanceTimersByTimeAsync(5000)
+    expect(phase()).toBe('failed')
+  })
+  it('the network flapping never clears it (iPad Airplane mode)', async () => {
+    vi.useFakeTimers()
+    const n = net(true)
+    startMandatoryUpdate(failing({ ...n }))
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    expect(phase()).toBe('failed')
+    n.set(false)
+    n.set(true)
+    n.set(false)
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(phase()).toBe('failed')
+  })
+  it('a repeated look for updates keeps it, and nothing else ends it', async () => {
+    vi.useFakeTimers()
+    startMandatoryUpdate(failing())
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    for (let i = 0; i < 3; i++) startMandatoryUpdate(failing())
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(phase()).toBe('failed')
+  })
+  it('Try again and Not now still work after the wait', async () => {
+    vi.useFakeTimers()
+    const f = startMandatoryUpdate(failing())
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000 + 20_000)
+    f.retry()
+    expect(phase()).toBe('downloading')
+    await vi.advanceTimersByTimeAsync(0)
+    expect(phase()).toBe('failed')
+    f.dismiss()
+    expect(phase()).toBe('waiting')
+  })
+})

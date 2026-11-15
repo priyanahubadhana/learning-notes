@@ -34,6 +34,7 @@ import { pageLink, resultStripItems } from './v2/strips'
 import { usePref } from '../app/usePref'
 import { isScope, scopeCounts, type Scope } from './v2/scope'
 import { ts, type TsKey } from './v2/ts'
+import { useKeyName } from '../app/keyNames'
 
 /** Recent pages shown before typing. */
 const RECENT = 6
@@ -98,6 +99,7 @@ export function SearchPopup({
   const [text, setText] = useState('')
   const [chip, setChip] = useState<Chip>(initialChip)
   // Flag search.v2: chips by level, a ✕ in the box, a strip on a result row.
+  const keyName = useKeyName()
   const v2 = useFlag('search.v2')
   const libraryOn = useFlag('library.v2')
   useLevel() // re-draw when Beginner / Professional or an unlock changes
@@ -645,9 +647,9 @@ export function SearchPopup({
                             {row.coming ?? row.where}
                           </span>
                         </span>
-                        {row.shortcut && (
+                        {keyName(row.shortcut) && (
                           <kbd className="shrink-0 rounded border border-line px-1.5 font-mono text-[11px] text-muted">
-                            {row.shortcut}
+                            {keyName(row.shortcut)}
                           </kbd>
                         )}
                       </button>

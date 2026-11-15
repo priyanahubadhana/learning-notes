@@ -14,6 +14,7 @@ import { isReadOnlyGate } from '../core/readOnlyGate'
 import { runTask } from '../app/errors'
 import { SidebarGroup } from '../app/SidebarGroup'
 import { altShortcutLabel, shortcutLabel } from '../app/keys'
+import { useKeyName } from '../app/keyNames'
 import {
   ConfirmDialog,
   IconButton,
@@ -179,6 +180,7 @@ export function Sidebar({
   // Touch and Pencil: names are typed in the "Name it" sheet, rows show only ⋯.
   const touch = touchUi()
   // New app frame: a finger or Pencil has no keys to press, so no shortcut labels.
+  const keyName = useKeyName()
   const keys = !(shell && touch)
   const rename = (nb: Notebook) =>
     touch
@@ -452,7 +454,7 @@ export function Sidebar({
                     date: shortDayLabel(dateKey(new Date())),
                   })}
                 </span>
-                {keys && (
+                {keys && keyName(altShortcutLabel('T')) && (
                   <kbd className="shrink-0 rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
                     {altShortcutLabel('T')}
                   </kbd>
@@ -473,7 +475,7 @@ export function Sidebar({
                 <Icon name="search" size={18} />
               </span>
               <span className="flex-1">{t('search.sidebar')}</span>
-              {keys && (
+              {keys && keyName(shortcutLabel('K')) && (
                 <kbd className="rounded border border-line bg-side px-1 font-mono text-[11px] text-muted">
                   {shortcutLabel('K')}
                 </kbd>

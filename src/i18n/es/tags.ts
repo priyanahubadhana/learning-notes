@@ -10,6 +10,7 @@ export const esTags = {
   'links.noPage': 'Ninguna página llamada «{query}»',
   'links.none':
     'Aún no hay páginas que enlacen aquí. Escribe [[ en cualquier página y elige «{page}».',
+  'links.open': 'Abrir',
   'links.openHint': 'Abrir ({key} cuando el cursor está junto a él)',
   'links.pages': 'Páginas',
   'links.picker': 'Enlazar a una página',

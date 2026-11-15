@@ -7,6 +7,7 @@ import { welcomeOpen } from '../onboarding/onboardingState'
 import { dateKey, shortDayLabel } from '../journal/dates'
 import { lastBackupAt } from '../share/backupReminder'
 import { shortcutShiftLabel } from '../app/keys'
+import { useKeyName } from '../app/keyNames'
 import { getAppActions } from '../app/tools/toolRuntime'
 import { touchUi } from '../app/touchUi'
 import { useFlag } from '../app/flags'
@@ -23,6 +24,7 @@ function isInstalled(): boolean {
 
 /** How safe the notes on this device are, and how to install the app. */
 export function DeviceSection({ db }: { db: LearningNotesDB }) {
+  const keyName = useKeyName()
   const [isProtected, setProtected] = useState<boolean>()
   useEffect(() => {
     void isStorageProtected().then(setProtected)
@@ -95,7 +97,7 @@ export function DeviceSection({ db }: { db: LearningNotesDB }) {
           onClick={() => getAppActions()?.openControlPanel()}
           className="min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
         >
-          {touchUi()
+          {touchUi() || !keyName(shortcutShiftLabel('K'))
             ? t('bar.search')
             : t('settings.controlPanel', { key: shortcutShiftLabel('K') })}
         </button>

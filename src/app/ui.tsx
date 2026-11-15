@@ -15,6 +15,7 @@ import { PopupHeader } from './tools/PopupClose'
 import { t } from '../i18n/t'
 import { touchUi } from './touchUi'
 import { useKeyboardInset } from '../settings/deviceModeSettings'
+import { useKeyName } from './keyNames'
 import type { ChoiceRequest, ToastAction } from './appUi'
 import { aboveTabBar } from './aboveTabBar'
 import { toastBottom } from './toastTiming'
@@ -225,6 +226,7 @@ export function MenuPopover({
   onDone?: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
+  const keyName = useKeyName()
   const nested = !!opener
   const top = nested
     ? Math.max(8, Math.min(anchor.top, window.innerHeight - 260))
@@ -376,7 +378,9 @@ export function MenuPopover({
               </span>
             )}
           </span>
-          {item.hint && <span className="text-xs text-muted">{item.hint}</span>}
+          {keyName(item.hint) && (
+            <span className="text-xs text-muted">{keyName(item.hint)}</span>
+          )}
           {item.submenu && (
             <span aria-hidden className="text-muted">
               ▸

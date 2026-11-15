@@ -451,3 +451,122 @@ test('P1.3 a file that never arrives ends in Try again, never stuck', async ({
     notice(page).getByRole('button', { name: /Try again|Retry/ }),
   ).toBeVisible()
 })
+
+test('T29 Airplane mode in the countdown: the note stays 10 s and both buttons work', async ({
+  page,
+  context,
+}) => {
+  test.setTimeout(60_000)
+  // Safari in Airplane mode keeps saying "online" and sends no events.
+  await page.addInitScript(() => {
+    Object.defineProperty(Navigator.prototype, 'onLine', { get: () => true })
+    const add = window.addEventListener.bind(window)
+    window.addEventListener = ((type: string, ...rest: unknown[]) =>
+      type === 'offline' || type === 'online'
+        ? undefined
+        : (add as (...a: unknown[]) => void)(type, ...rest)) as typeof add
+  })
+  await page.route('**/precache.json*', (r) =>
+    r.fulfill({
+      json: {
+        files: [
+          { u: '/__t29-a.bin', s: 1000 },
+          { u: '/__t29-b.bin', s: 1000 },
+          { u: '/__t29-c.bin', s: 1000 },
+        ],
+      },
+    }),
+  )
+  await page.goto(FLAG)
+  await createNotebook(page, 'Test NB', 'First page')
+  await pretend(page)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'countdown')
+  await context.setOffline(true)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
+    timeout: 15_000,
+  })
+  // Stays: sampled over 10 s, it never changes or goes.
+  for (let i = 0; i < 10; i++) {
+    await page.waitForTimeout(1000)
+    await expect(notice(page)).toHaveAttribute('data-phase', 'failed')
+  }
+  const again = notice(page).getByRole('button', { name: 'Try again' })
+  const notNow = notice(page).getByRole('button', { name: 'Not now' })
+  await expect(again).toBeVisible()
+  await expect(notNow).toBeVisible()
+  await again.click()
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
+    timeout: 15_000,
+  })
+  await notice(page).getByRole('button', { name: 'Not now' }).click()
+  await expect(page.locator('[data-update-waiting]')).toBeVisible()
+})
+
+test('T29 offline with no file list: failed with Try again, never installing, never a restart', async ({
+  page,
+  context,
+}) => {
+  test.setTimeout(90_000)
+  await page.addInitScript(() => {
+    Object.defineProperty(Navigator.prototype, 'onLine', { get: () => true })
+    const add = window.addEventListener.bind(window)
+    window.addEventListener = ((type: string, ...rest: unknown[]) =>
+      type === 'offline' || type === 'online'
+        ? undefined
+        : (add as (...a: unknown[]) => void)(type, ...rest)) as typeof add
+  })
+  // No route mock: /precache.json is really unreachable once offline.
+  await page.goto(FLAG)
+  await createNotebook(page, 'Test NB', 'First page')
+  await page.evaluate(() => {
+    const w = window as never as { __seen: string[]; __still: boolean }
+    w.__still = true // a restart would drop this
+    w.__seen = []
+    new MutationObserver(() => {
+      const p = document
+        .querySelector('[data-mandatory-update]')
+        ?.getAttribute('data-phase')
+      if (p && w.__seen.at(-1) !== p) w.__seen.push(p)
+    }).observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+    })
+  })
+  // "real": a restart is a plain page reload.
+  await pretend(page, { real: true })
+  await expect(notice(page)).toHaveAttribute('data-phase', 'countdown')
+  await context.setOffline(true)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
+    timeout: 15_000,
+  })
+  await page.waitForTimeout(8000)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed')
+  // Back online, a newer version is found and a new worker takes over: the
+  // note stays until the person chooses (nothing restarts by itself).
+  await context.setOffline(false)
+  await page.route('**/version.json*', (r) =>
+    r.fulfill({ json: { commit: 'zzzzzzz' } }),
+  )
+  await page.evaluate(() => {
+    const sw = navigator.serviceWorker
+    sw.dispatchEvent(new Event('controllerchange'))
+    sw.dispatchEvent(new Event('controllerchange'))
+    document.dispatchEvent(new Event('visibilitychange'))
+    window.dispatchEvent(new Event('focus'))
+  })
+  await page.waitForTimeout(24_000)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed')
+  const w = await page.evaluate(() => {
+    const x = window as never as { __seen: string[]; __still: boolean }
+    return { seen: x.__seen, still: x.__still }
+  })
+  expect(w.still).toBe(true)
+  expect(w.seen).not.toContain('installing')
+  await expect(
+    notice(page).getByRole('button', { name: 'Try again' }),
+  ).toBeVisible()
+  await expect(
+    notice(page).getByRole('button', { name: 'Not now' }),
+  ).toBeVisible()
+})

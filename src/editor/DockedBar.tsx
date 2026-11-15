@@ -488,7 +488,13 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
                 </MenuItem>
                 <MenuItem
                   px={buttonPx}
-                  hint={isApple() ? '⌘⇧V' : 'Ctrl+Shift+V'}
+                  hint={
+                    shortcutHints
+                      ? isApple()
+                        ? '⌘⇧V'
+                        : 'Ctrl+Shift+V'
+                      : undefined
+                  }
                   onClick={() => {
                     void pastePlainFromClipboard(editor, toast)
                     setPanel(null)

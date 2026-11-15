@@ -185,3 +185,8 @@ Running list, in the order the owner reports. The owner asked to note everything
 5. **New rule (owner's OK):** before any phase's first look, a reviewer compares every screen of the phase side by side with the approved design, light and dark, lists every difference, and they are fixed first.
 
 - **P1.9 progress (15 Nov):** T8/T8c fixed: the Format › Advanced Font and Text size tiles were opening the Reading tools; now Font scrolls to the fonts group, and Reading ends with the page screen, so the tool bar can never stay hidden. Text size has no control in today's Format card, so it does nothing for now (a dead tile until the Format card is rebuilt to mock v8 right after Phase 1). R19 kept as it was, waiting for the mock-up. The double "November 2026" is most likely old data from before month pages got a fixed id (pageService.ts:152-156), not a code bug: merging the two needs the owner's decision (possible data change). The cut list title (T4): the fixed overlay ignores the "Drive is disconnected" banner's height.
+
+**Owner comments on the tool bar comparison page (15 Nov, for the 2A rebuild to mock v8):**
+
+- **Pen bar:** the colour needs no name, just the dot; the size needs no name ("Medium"), show it visually (a dot of that size). The user picks by sight.
+- **Eraser bar:** add a choice of what the eraser works on, Highlighter / Text / Pen, like the Lasso bar's Select.

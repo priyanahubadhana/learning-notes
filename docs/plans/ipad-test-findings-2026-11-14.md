@@ -166,3 +166,5 @@ Running list, in the order the owner reports. The owner asked to note everything
 | P1-4 | Phase 1 step 4, Settings with the iPad upright | likely pass (owner's words unclear: "it should be useful with fast"; to confirm) | |
 | P1-5 | Phase 1 step 5, reload a page: Settings scrolled to the bottom reloads at the top; owner: no issue | pass (owner) | Settings does not keep its scroll place on reload; fine by the owner |
 | 2A-1 | Phase 2A step 1, the tool bar ⋯ menu (2A.2 redesign) | **pass** (owner: "I like it, no issue") | |
+| T21 | "Pin an action" sheet (T21-pin-an-action.png): wants a ✓ (confirm) and ✕ (cancel) at the top, like other places, for uniformity | design, noted | A choice sheet that changes the bar should confirm with ✓ and cancel with ✕, the same everywhere |
+| T22 | Page options sheet (T22-page-options.png): the groups (Share, Protect, Tools) should fold with a ▾ arrow, folded by default so only a few options show, like the new ⋯ menu; clearer and in line with the theme | design, noted | Same pattern as the approved 2A.2 ⋯ menu (folded groups). Also seen in both pictures: the sheet covers the right end of the top bar (as in T4) |

@@ -162,3 +162,6 @@ Running list, in the order the owner reports. The owner asked to note everything
   | P1-2 | Phase 1 step 2: new notebook, name written with the Pencil | **pass** | L12 is fixed on the device |
 
 **Owner, 15 Nov 10:35:** next we do the Phase 1 and 2A fixes from this test, then move on; meanwhile building continues on the text box and the Pencil (2B).
+| P1-3 | Phase 1 step 3, Pretend a must-have update: failed again (P1-3-pretend-failed-0s.png). The preview note says "the download failed after 0 s". No way back to the app from that screen; Try again returns to the same screen; it did not reopen the same page | **fail** (L13 still open) | The reason line works: the download fails at once (0 s), not the restart. Likely a file the update asks for is not on the server (e.g. a newer version deployed meanwhile, or the file list names files the server does not have); together with T1-T3 (slow, wrong timer, "slow connection"). Also needed: a way out of the failed screen ("Not now" back to the app) |
+| P1-4 | Phase 1 step 4, Settings with the iPad upright | likely pass (owner's words unclear: "it should be useful with fast"; to confirm) | |
+| P1-5 | Phase 1 step 5, reload a page: Settings scrolled to the bottom reloads at the top; owner: no issue | pass (owner) | Settings does not keep its scroll place on reload; fine by the owner |

@@ -1,4 +1,8 @@
-P1.12 close ✕ pictures (chromium, switch foundation.shell ON)
-p112-toast-{light,dark,phone}.png : shell toast with Undo (parts gallery)
-p112-banner-{light,dark,phone}.png : "Backups are failing" banner, top 120 px
-Dark pictures re-shot with the app theme "night" set (data-theme checked). p112-_-phone-dark and p112-_-dark are the real dark ones; the older p112-*-dark were light (replaced). Sepia, PC and ipad-webkit: not taken yet.
+# P1.12 close ✕ pictures
+
+Taken after the last source edit, chromium, switch foundation.shell ON. Each one opened and checked. The dark ones have the app theme set to night.
+
+- p112-toast-{day,night}-{ipad,phone}.png: shell toast with Undo (parts gallery)
+- p112-banner-{day,night}-{ipad,phone}.png: "Backups are failing" banner, top 120 px
+
+Not taken: sepia, PC, ipad-webkit.

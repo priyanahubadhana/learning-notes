@@ -212,7 +212,7 @@ export function AttentionBanner({
       data-chrome
       data-testid="attention-banner"
       data-code={attention.code}
-      className={`fixed inset-x-0 top-0 z-40 flex min-h-11 items-center ${shellOn ? 'relative px-12' : 'px-4'} justify-center gap-2 pt-[env(safe-area-inset-top)] text-[13px] ${
+      className={`fixed inset-x-0 top-0 z-40 flex min-h-11 items-center ${shellOn ? 'px-12' : 'px-4'} justify-center gap-2 pt-[env(safe-area-inset-top)] text-[13px] ${
         bright
           ? 'bg-accent font-medium text-white'
           : 'border-b border-line bg-hover text-ink'

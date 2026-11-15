@@ -6,6 +6,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - What: touch and hold a tool (after its name shows) or the bar's free space opens edit mode: top bar with cancel and done, a minus on removable tools, a lock on Text, Pen, Eraser, Backspace, New line and More, live drag, a "More tools" tray (tap or drag up to add, drop on it to remove); Done saves on this device with a toast and Undo; cancel keeps the old bar. Your layouts stay hidden (no button on the new bar; LayoutButton, layoutSync and data untouched).
 - Review 1 fixes: the tray offers every tool the old Edit toolbar sheet offered (usual ones first, the rest behind All tools, grouped, scrollable) and Reset to default (asks first, Undo); phone keeps Shapes and Insert in ⋯ More; lock label; small minus that never covers the next tool.
+- Review 2 fixes (16 Nov, Opus takeover): the minus is drawn 20 px at the tool corner with a 44 pt hit area (::before), the 44 pt test is back; a still tap removes, a press that moves drags the tool (new test); Escape leaves edit mode through the overlay manager (a Reset question takes Escape first; new test); the phone edit bar stays one row (no Minimise, Undo or Redo there; test); the tray never offers a tool without level facts except Revise marks; known tools worked out once.
 - Why: Settings v5 S5-22, S5-23; toolbar-v8 TB-61 hide.
 - Files: src/app/tools/v8/{barEdit.ts,barEditUi.ts,BarEditParts.tsx,ToolBar.tsx,ToolbarV8.tsx,toolbarV8.css}, src/i18n/*/v8BarEdit.ts, e2e/toolbarV8BarEdit.spec.ts
 

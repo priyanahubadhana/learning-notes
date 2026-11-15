@@ -3,6 +3,7 @@
 Compare with docs/mockups/settings-v5/settings-v5.html (Editing the tool bar) and docs/mockups/toolbar-v9/toolbar-v9.html. Files: what-device-theme-level.png
 
 - Review 1 fixes: sidebar closed on iPad upright, pointer parked away, phone keeps Shapes and Insert in More with a note, Reset to default and All tools in the tray, small minus on the tool corner
+- Review 2 fixes (retaken 16 Nov): minus drawn 20 px at the corner with a 44 pt hit area (it also drags); phone edit bar one row, no Minimise, Undo or Redo
 
 - bar-ipad-sideways-day-beginner.png
 - bar-ipad-sideways-day-professional.png

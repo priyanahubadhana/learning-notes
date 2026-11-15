@@ -1,14 +1,14 @@
 # 2A.16 picture set: every bar and card of the v9 tool bar
 
-Taken by chromium after the last source edit (commit 91fb95e0), switch toolbar.v8 ON, real notebook data, tips and toasts closed.
+Taken by chromium after the last source edit (the commit named in the report (after merging 2A.13)), switch toolbar.v8 ON, real notebook data, tips and toasts closed.
 Each run covers light and dark, Beginner and Professional, iPad sideways, iPad upright and phone (names say day/night or light/dark, ipad-landscape/sideways, ipad-portrait/upright, phone).
 
 ## Section 7 check (HOW-WE-BUILD)
 
-- Dark pictures: every file with night or dark in its name has a dark background (mean brightness below 110 of 255, measured with sharp on all 367 files); every light one is bright. No light-as-dark picture.
+- Dark pictures: every file with night or dark in its name has a dark background (mean brightness below 110 of 255, measured with sharp on all 403 files); every light one is bright. No light-as-dark picture.
 - iPad upright has the sidebar closed in the pen row, format and bar pictures (the shots hide it first); one shared scroll bar, no key names (touch mode), pictures show no toast and no tip.
 - Opened and looked at: 2a9-format text tab (phone night Professional, iPad upright day Professional): font names whole, check mark at the lower right, no overlap.
-- Not in this set (own tasks): Favourites sheets and Organise (2A.13), Settings rows (2A.14 settings), sepia and PC (release bar).
+- Not in this set: Settings rows (2A.14 settings), sepia and PC (release bar).
 
 Regenerate: `SHOTS=1 SHOTS_OUT=screenshots/2a16/<folder> npx playwright test e2e/<spec> --project=chromium` (specs listed per folder below).
 
@@ -117,6 +117,45 @@ Regenerate: `SHOTS=1 SHOTS_OUT=screenshots/2a16/<folder> npx playwright test e2e
 - more-professional-light-ipad-upright-copy.png
 - more-professional-light-ipad-upright.png
 - more-professional-light-phone.png
+
+## 2A.13 Favourites (sheets, Organise, row) (36 pictures, folder `2a13-favourites/`)
+
+- add-ipad-side-day-beginner.png
+- add-ipad-side-day-professional.png
+- add-ipad-side-night-beginner.png
+- add-ipad-side-night-professional.png
+- add-ipad-up-day-beginner.png
+- add-ipad-up-day-professional.png
+- add-ipad-up-night-beginner.png
+- add-ipad-up-night-professional.png
+- add-phone-day-beginner.png
+- add-phone-day-professional.png
+- add-phone-night-beginner.png
+- add-phone-night-professional.png
+- organise-ipad-side-day-beginner.png
+- organise-ipad-side-day-professional.png
+- organise-ipad-side-night-beginner.png
+- organise-ipad-side-night-professional.png
+- organise-ipad-up-day-beginner.png
+- organise-ipad-up-day-professional.png
+- organise-ipad-up-night-beginner.png
+- organise-ipad-up-night-professional.png
+- organise-phone-day-beginner.png
+- organise-phone-day-professional.png
+- organise-phone-night-beginner.png
+- organise-phone-night-professional.png
+- row-ipad-side-day-beginner.png
+- row-ipad-side-day-professional.png
+- row-ipad-side-night-beginner.png
+- row-ipad-side-night-professional.png
+- row-ipad-up-day-beginner.png
+- row-ipad-up-day-professional.png
+- row-ipad-up-night-beginner.png
+- row-ipad-up-night-professional.png
+- row-phone-day-beginner.png
+- row-phone-day-professional.png
+- row-phone-night-beginner.png
+- row-phone-night-professional.png
 
 ## 2A.14 Layouts (24 pictures, folder `2a14-layout/`)
 

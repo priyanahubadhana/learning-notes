@@ -85,6 +85,7 @@ import {
   readingView,
   startReading,
   stopReading,
+  pageOpened,
 } from '../app/reading/readingState'
 import {
   surfaceStyle,
@@ -161,6 +162,8 @@ export function PageView({
   useEffect(() => setPageReloader(onReload), [onReload])
   // The page's more-menu sheet is fetched ahead, so a tap paints it at once (R13).
   useEffect(() => preloadAhead([PageSheet.preload]), [])
+  // T8c: Reading mode ends with the last page screen, so it cannot hide the tool bar for good.
+  useEffect(() => pageOpened(), [])
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
   const notebook = useLiveQuery(
     () => getNotebook(db, page.notebookId),

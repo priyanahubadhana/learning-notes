@@ -20,6 +20,19 @@ describe('Text row (TB-40)', () => {
   })
 })
 
+// T8 (why): the Advanced Font and Text size tiles ran the Reading tools, which
+// switched the page into Reading mode and put the reader's bar over the top bar.
+describe('Advanced Font and Text size tiles (T8)', () => {
+  it('stay in the note: they jump to their group, never run a tool', () => {
+    const adv = formatSections({ textFonts: true, textMarks: true }).find(
+      (s) => s.id === 'advanced',
+    )
+    const byTool = (id: string) => adv?.tiles.find((x) => x.tool === id)
+    expect(byTool('font')?.jump).toBe('fonts')
+    expect(byTool('textSize')?.jump).toBe('lineHeight')
+  })
+})
+
 describe('Format card (TB-41)', () => {
   it('Beginner has Text, Style, Paragraph in that order', () => {
     const s = formatSections({ textFonts: false, textMarks: false })

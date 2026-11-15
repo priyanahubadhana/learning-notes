@@ -291,3 +291,21 @@ test('TB-42 a Box look is picked and shows as chosen', async ({ page }) => {
     'true',
   )
 })
+
+// T8 (why): Advanced › Font and Text size ran the Reading tools, which put the
+// page into Reading mode with the reader's bar over the top bar.
+test('T8 Advanced Font and Text size stay in the note: no Reading mode, the tool bar stays', async ({
+  page,
+}) => {
+  await open(page, 'professional', ['tb.textFonts'])
+  await chip(page, 'text.format').click()
+  const c = card(page, 'text.format')
+  await c.getByTestId('v8-format-font').click()
+  await c.getByTestId('v8-format-textSize').click()
+  await c.locator('[data-card-chips="font"] [data-chip]').nth(1).click()
+  await expect(page.getByTestId('reading-frame')).toHaveAttribute(
+    'data-view',
+    'off',
+  )
+  await expect(page.getByTestId('v8-row')).toBeVisible()
+})

@@ -55,7 +55,8 @@ export const MODE_PRESETS: Record<DeviceMode, ModePreset> = {
   },
   pencil: {
     placement: 'top',
-    size: 'large',
+    // R19: same size as Touch, so the automatic switch moves nothing.
+    size: 'normal',
     hoverTips: 'off',
     shortcutHints: 'off',
     autoHide: 'off',

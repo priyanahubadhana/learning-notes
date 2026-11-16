@@ -410,8 +410,9 @@ test('C4: a quick, small scratch-out that ends where it began still deletes what
   const box = await lineBox(page)
   await pickBox(page, box)
   const c = await charBox(page, I.six)
-  const left = c.x - 3
-  const right = c.x + c.width + 4
+  // Inside the 6's own box: the comma right after it is not touched.
+  const left = c.x - 2
+  const right = c.x + c.width - 1
   const mid = c.y + c.height / 2
   // Four quick strokes over the 6, back to where the tip came down: from
   // start to end it has not moved at all, like a tap; its path has.
@@ -492,22 +493,29 @@ const whole = (ms: number[]) => ms.map(Math.round).join(', ')
 /**
  * The browser makes each event a little after the driver sends it (measured
  * 16 Nov on ipad-webkit: 12 ms in the middle, 56 ms at worst; 1 ms on
- * chromium). The driver sends that much early, learnt from the runs so far,
- * plus 25 ms, so a tap asked at 250 ms or a gap asked at 500 ms reaches the
- * page at or just under it, not over.
+ * chromium). The driver sends that much early: the delay that 9 of the last
+ * 40 presses (or gaps) in 10 stayed under. So a tap asked at 250 ms or a gap
+ * asked at 500 ms reaches the page at or just under it, seldom over.
  */
 class Lead {
-  hold = 35
-  gap = 35
+  hold = 30
+  gap = 30
+  private delays: [number[], number[]] = [[], []]
   learn(asked: number[], ms: number[]) {
-    const mean = (odd: number) => {
-      const d = ms.map((v, i) => v - asked[i]).filter((_, i) => i % 2 === odd)
-      return d.length ? d.reduce((a, b) => a + b, 0) / d.length : -25
+    ms.forEach((v, i) => {
+      // What the browser added to the time the driver really waited.
+      const sent = asked[i] - (i % 2 === 0 ? this.hold : this.gap)
+      const kept = this.delays[i % 2]
+      kept.push(v - sent)
+      if (kept.length > 40) kept.shift()
+    })
+    const most = (kept: number[], old: number) => {
+      if (kept.length < 6) return old
+      const by = [...kept].sort((a, b) => a - b)
+      return Math.min(120, Math.max(0, by[Math.floor(by.length * 0.9)]))
     }
-    const ease = (old: number, off: number) =>
-      Math.min(120, Math.max(0, old + 0.3 * (off + 25)))
-    this.hold = ease(this.hold, mean(0))
-    this.gap = ease(this.gap, mean(1))
+    this.hold = most(this.delays[0], this.hold)
+    this.gap = most(this.delays[1], this.gap)
   }
 }
 

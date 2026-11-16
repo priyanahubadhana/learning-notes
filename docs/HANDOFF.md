@@ -35,7 +35,7 @@ Check each with `git fetch -q origin && git log --oneline origin/build/next..ori
 
 - TB-24 (e2e/tb2-bar.spec.ts) fails on a clean build/next checkout on this PC but passes in CI: find out why before the release.
 - Under heavy local load, cBoxes C12 and c45 C14 failed once each, then passed alone. Watch CI.
-- Stray working copies to tidy later (deletes need the owner): the scratchpad worktree `wtcb`, ../ln-c45x (branch esc/c45-fix), ../ln-c45, ../ln-cboxes, ../ln-c36, ../ln-c2, and the power-cut leftovers listed in docs/PENDING.md.
+- Stray working copies to tidy later (deletes need the owner): `ln-c21-base/` inside this repo (untracked, made by the C21 helper; not committed), the scratchpad worktree `wtcb`, ../ln-c45x (branch esc/c45-fix), ../ln-c45, ../ln-cboxes, ../ln-c36, ../ln-c2, and the power-cut leftovers listed in docs/PENDING.md.
 
 ## Owner preferences learned this week
 

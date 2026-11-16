@@ -102,3 +102,5 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
   - (1) Keep the separate "All cards" and "Summary" icons.
   - (2) Phase 1 does **not** go live now. Everything is released together only after full testing and once all the bugs are fixed, because releasing again and again caused confusion. Task 0.7 waits for that.
 - **Weekly limit:** 88% used on 16 Nov (resets 20 Nov, 00:30 IST). Only the two text box builders are running.
+- **TB-24 (e2e/tb2-bar.spec.ts) red on a clean build/next checkout on this PC** (box builder, 16 Nov), while CI run 43799715681 is green. Check whether CI runs it, and fix the root cause (stop the line), before the next release.
+- **C box group:** `slice/c-boxes` 82336aaf: C8, C10 (incl. the tool bar part, keyboardPolicy.ts), C11, C12, C13, C15, C16. Under review. Builder decision: Delete box on a page's first box empties it with one Undo (the first box always stays).

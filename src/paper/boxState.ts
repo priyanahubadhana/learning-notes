@@ -22,7 +22,12 @@ export type BoxEvent =
   /** A tap on a box's frame or grip (Shift/Cmd adds to the selection). */
   | { type: 'frameTap'; id: string; add?: boolean }
   /** The caret went into a box's text (a tap inside, or a new box). */
-  | { type: 'caretIn'; id: string }
+  | {
+      type: 'caretIn'
+      id: string
+      /** Text box v2 (C16): typing here unselects every other box. */
+      exclusive?: boolean
+    }
   /** The caret left the box's text (focus moved elsewhere). */
   | { type: 'caretOut'; id?: string }
   /** A tap on bare paper, or Escape. */
@@ -46,6 +51,15 @@ export function boxReducer(state: BoxState, e: BoxEvent): BoxState {
     case 'caretIn':
       // Already typing here: the same state (no redraw of the whole paper).
       if (state.kind === 'typing' && state.id === e.id) return state
+      if (
+        e.exclusive &&
+        !(
+          state.kind === 'selected' &&
+          state.ids.length === 1 &&
+          state.ids[0] === e.id
+        )
+      )
+        return IDLE
       // Typing in a box that is not picked is plain typing (idle): the bar
       // and handles belong to a picked box.
       if (

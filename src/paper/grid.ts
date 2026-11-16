@@ -113,6 +113,16 @@ let counter = 0
 export const newRowId = () =>
   'r' + Date.now().toString(36) + (counter++).toString(36)
 
+/**
+ * C13: the last column's right edge may leave room at the page's right (the
+ * fractions then sum to less than 1). That is kept while no column went away.
+ */
+const keepsRoom = (before: number, fracs: readonly number[]): boolean =>
+  fracs.length === before &&
+  fracs.length > 1 &&
+  sum(fracs) < 1 - 1e-6 &&
+  fracs.every((f) => f >= MIN_FRAC - 1e-9)
+
 /** Tidies: empty columns and rows go, fractions sum to 1 again. */
 function tidy(rows: GridRow[]): GridRow[] {
   const out: GridRow[] = []
@@ -123,14 +133,20 @@ function tidy(rows: GridRow[]): GridRow[] {
     const fracs =
       row.cols.length === 1 && cols.length === 1
         ? [Math.min(1, Math.max(MIN_FRAC, cols[0].w || 1))]
-        : normaliseFracs(cols.map((c) => c.w))
+        : keepsRoom(
+              row.cols.length,
+              cols.map((c) => c.w),
+            )
+          ? cols.map((c) => c.w)
+          : normaliseFracs(cols.map((c) => c.w))
     const next: GridRow = {
       ...row,
       cols: cols.map((c, i) => ({ ...c, w: round(fracs[i]) })),
     }
     // Only a lone box can be free: a row with columns is the page grid again.
     if (cols.length !== 1) {
-      delete next.x
+      // C13: a row of columns may keep a left offset (its first column's left edge pulled in).
+      if (cols.length < 2 || row.cols.length < 2) delete next.x
       delete next.wmm
       delete next.auto
     }
@@ -249,7 +265,9 @@ export function layoutRows(
   for (const row of rows) {
     const n = row.cols.length
     if (n === 0) continue
-    const avail = contentW - COL_GAP * (n - 1)
+    // C13: a row whose first column's left edge was pulled in starts at `x`.
+    const off = isFreeRow(row) ? 0 : Math.max(0, (row.x ?? g.left) - g.left)
+    const avail = contentW - off - COL_GAP * (n - 1)
     const free = isFreeRow(row) && row.cols[0].boxIds.length >= 1
     const colH = row.cols.map(
       (c) =>
@@ -262,7 +280,7 @@ export function layoutRows(
     const end = sheet * period + g.sheetH - g.bottom
     if (start >= end - 1e-6 || (rowH <= usable && start + rowH > end))
       start = (sheet + 1) * period + g.top
-    let x = g.left
+    let x = g.left + off
     if (free) {
       // A free box: at its own left edge, as wide as it was set or as its text.
       const id0 = row.cols[0].boxIds[0]
@@ -345,6 +363,12 @@ export function insertAt(
   }
   if (zone === 'left' || zone === 'right') {
     if (row.cols.length >= MAX_COLS) return newRow(zone === 'right')
+    // A free box that gets a neighbour is a row of columns again.
+    if (isFreeRow(row)) {
+      delete row.x
+      delete row.wmm
+      delete row.auto
+    }
     const n = row.cols.length
     const share = 1 / (n + 1)
     const cols = row.cols.map((c) => ({ ...c, w: c.w * (1 - share) }))

@@ -67,10 +67,16 @@ export function GridDividers({
           paperEl.current,
           row,
           d.i,
-          (width - COL_GAP * (row.cols.length - 1)) * k,
+          (width -
+            Math.max(0, (row.x ?? left) - left) -
+            COL_GAP * (row.cols.length - 1)) *
+            k,
         )
     }
-    const to = ((x - r.left) / k - left) / Math.max(1, width)
+    // A row with a left offset (C13) measures from where its first column starts.
+    const rowOf = d.rows.find((rw) => rw.id === d.rowId)
+    const off = Math.max(0, (rowOf?.x ?? left) - left)
+    const to = ((x - r.left) / k - left - off) / Math.max(1, width - off)
     const next = d.rows.map((row) =>
       row.id === d.rowId ? resizeCols(row, d.i, to, true, d.floor) : row,
     )

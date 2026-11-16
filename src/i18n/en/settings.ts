@@ -61,6 +61,14 @@ export const enSettings = {
   'font.sample': 'Try your own words',
   'font.tooBig': 'This font file is too big (the limit is 10 MB).',
   'keys.backspace': 'Backspace',
+  'keys.close': 'Close the mini keyboard',
+  'keys.errNetwork':
+    'Speaking needs the internet and it is not reachable. Use the keyboard’s mic.',
+  'keys.errNoMic': 'No microphone was found. Use the keyboard’s mic.',
+  'keys.errLanguage':
+    'This language cannot be dictated here. Use the keyboard’s mic.',
+  'keys.errOther':
+    'Speaking stopped and could not restart. Use the keyboard’s mic.',
   'keys.denied':
     'The microphone is not allowed. Allow it in the browser settings, or use the keyboard microphone.',
   'keys.enter': 'New line',

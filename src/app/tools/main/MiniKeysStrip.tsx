@@ -17,12 +17,11 @@ import { Icon } from '../icons'
 import { currentRunner } from '../toolRuntime'
 import {
   DEFAULT_KEYS_PLACE,
-  finalText,
   miniKeysOn,
   miniKeysPlace,
   speechCtor,
-  type Recognition,
 } from './miniKeys'
+import { startDictation, type DictationError } from './dictation'
 import { BackspaceButton } from './MainBar'
 import { clampInside, positionOf, snapPlace, vertical } from './pillPlace'
 import { keepFocus } from './pillKit'
@@ -34,6 +33,14 @@ import { reducedMotion } from './pillRoom'
  * its grip and it snaps to the nearest edge, like the pills; the place is
  * remembered. The buttons never take focus, so the caret stays in the page.
  */
+
+const ERROR_TEXT = {
+  denied: 'keys.denied',
+  network: 'keys.errNetwork',
+  noMic: 'keys.errNoMic',
+  language: 'keys.errLanguage',
+  other: 'keys.errOther',
+} as const satisfies Record<DictationError, string>
 
 const BTN =
   'grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink select-none'
@@ -56,7 +63,6 @@ function Strip({ editor }: { editor: Editor }) {
   // The newest drag point (state alone can lag behind a quick pointer up).
   const dragAt = useRef<{ x: number; y: number } | null>(null)
   const [listening, setListening] = useState(false)
-  const rec = useRef<Recognition | null>(null)
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -75,7 +81,6 @@ function Strip({ editor }: { editor: Editor }) {
     watch.observe(el)
     return () => watch.disconnect()
   }, [isVertical])
-  useEffect(() => () => rec.current?.stop(), [])
 
   const pos = useMemo(() => positionOf(place, size, room), [place, size, room])
   const at = drag ? clampInside(drag.x, drag.y, size, room) : pos
@@ -108,10 +113,15 @@ function Strip({ editor }: { editor: Editor }) {
     setDrag(null)
   }
 
+  const [heard, setHeard] = useState('')
+  const dictation = useRef<{ stop: () => void } | null>(null)
+  useEffect(() => () => dictation.current?.stop(), [])
+
   const mic = useCallback(() => {
     const toast = (m: string) => currentRunner().app?.toast(m)
-    if (rec.current) {
-      rec.current.stop()
+    if (dictation.current) {
+      dictation.current.stop()
+      dictation.current = null
       return
     }
     const Ctor = speechCtor()
@@ -121,32 +131,52 @@ function Strip({ editor }: { editor: Editor }) {
       toast(t('keys.useKeyboardMic'))
       return
     }
-    const r = new Ctor()
-    r.lang = document.documentElement.lang || 'en'
-    r.continuous = true
-    r.interimResults = false
-    r.onresult = (e) => {
-      const text = finalText(e)
-      if (text) editor.insertInlineContent(text + ' ')
-    }
-    r.onerror = (e) => {
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        toast(t('keys.denied'))
-        setKeyboard(editor, true)
-      }
-    }
-    r.onend = () => {
-      rec.current = null
-      setListening(false)
-    }
-    rec.current = r
-    try {
-      r.start()
-      setListening(true)
-    } catch {
-      rec.current = null
-    }
+    dictation.current = startDictation({
+      ctor: Ctor,
+      lang: document.documentElement.lang || 'en',
+      insert: (text) => editor.insertInlineContent(text),
+      interim: setHeard,
+      listening: setListening,
+      closed: () => {
+        dictation.current = null
+        setHeard('')
+      },
+      error: (kind) => {
+        toast(t(ERROR_TEXT[kind]))
+        if (kind === 'denied' || kind === 'noMic') setKeyboard(editor, true)
+      },
+    })
   }, [editor])
+
+  /**
+   * Buttons act when the tip lifts on them (a Pencil or a finger), not on
+   * "click": a Pencil tap may never send one (C17). A click that follows is
+   * ignored; a click with no touch before it (keyboard, VoiceOver) acts.
+   */
+  const lastAct = useRef(0)
+  const tap = (action: () => void) => ({
+    onMouseDown: keepFocus,
+    onPointerDown: (e: PointerEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+      e.preventDefault()
+    },
+    onPointerUp: (e: PointerEvent<HTMLButtonElement>) => {
+      const r = e.currentTarget.getBoundingClientRect()
+      if (
+        e.clientX < r.left ||
+        e.clientX > r.right ||
+        e.clientY < r.top ||
+        e.clientY > r.bottom
+      )
+        return
+      lastAct.current = performance.now()
+      action()
+    },
+    onClick: () => {
+      if (performance.now() - lastAct.current < 700) return
+      action()
+    },
+  })
 
   const micLabel = listening ? t('keys.micStop') : t('keys.mic')
   return createPortal(
@@ -190,9 +220,7 @@ function Strip({ editor }: { editor: Editor }) {
         data-pen-own
         aria-label={micLabel}
         aria-pressed={listening}
-        onMouseDown={keepFocus}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={mic}
+        {...tap(mic)}
         className={`${BTN} ${listening ? 'bg-hover !text-accent' : ''}`}
       >
         <Icon name="mic" />
@@ -202,14 +230,34 @@ function Strip({ editor }: { editor: Editor }) {
         data-keys="enter"
         data-pen-own
         aria-label={t('keys.enter')}
-        onMouseDown={keepFocus}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={() => addLineAfterCursor(editor)}
+        {...tap(() => addLineAfterCursor(editor))}
         className={BTN}
       >
         <Icon name="newLine" />
       </button>
       <BackspaceButton editor={editor} min={44} />
+      <button
+        type="button"
+        data-keys="close"
+        data-pen-own
+        aria-label={t('keys.close')}
+        {...tap(() => {
+          dictation.current?.stop()
+          miniKeysOn.set(false)
+        })}
+        className={BTN}
+      >
+        <Icon name="close" />
+      </button>
+      {listening && heard && (
+        <span
+          data-keys="heard"
+          aria-live="polite"
+          className="max-w-40 truncate px-2 text-xs text-ink-soft"
+        >
+          {heard}
+        </span>
+      )}
     </div>,
     document.body,
   )

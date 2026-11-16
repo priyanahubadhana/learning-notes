@@ -22,6 +22,7 @@ export interface SavedStroke {
   pts: number[]
   bw: number
   shape?: string
+  flat?: boolean
   fill?: boolean
 }
 interface SavedChunk {

@@ -26,6 +26,7 @@ export const DEFAULT_BAR: readonly string[] = [...V8_TOOL_IDS]
 export const EXTRA_IDS = [
   'highlighter',
   'camera',
+  'mic',
   'audio',
   'zoom',
   'find',

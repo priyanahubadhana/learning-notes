@@ -1,3 +1,5 @@
+import { useLayoutEffect, useRef, useState, type RefObject } from 'react'
+import { useLongPress } from '../../useLongPress'
 import { t, type MessageKey } from '../../../i18n/t'
 import { Icon, type IconName } from '../icons'
 import { eraseTargets, eraserSettings } from '../main/inkSettings'
@@ -48,11 +50,52 @@ export function ErasesChips() {
   )
 }
 
+/**
+ * True while the row's items do not all fit: the name then gives way (icon
+ * only) so no text is ever cut. It comes back once the label fits again
+ * (the label's width is remembered, so the row does not flicker).
+ */
+function useTight(ref: RefObject<HTMLElement | null>) {
+  const [tight, setTight] = useState(false)
+  const labelW = useRef(0)
+  useLayoutEffect(() => {
+    const chip = ref.current
+    const row = chip?.parentElement
+    if (!chip || !row) return
+    const check = () => {
+      const kids = [...row.children].filter(
+        (c) => !c.classList.contains('v8measure'),
+      ) as HTMLElement[]
+      const gap = parseFloat(getComputedStyle(row).columnGap) || 0
+      const used =
+        kids.reduce((n, c) => n + c.offsetWidth, 0) +
+        gap * Math.max(0, kids.length - 1)
+      const label = chip.querySelector<HTMLElement>('.v8chip-label')
+      if (label) labelW.current = label.offsetWidth + 6
+      setTight((was) =>
+        was
+          ? used + labelW.current > row.clientWidth
+          : used > row.clientWidth + 0.5,
+      )
+    }
+    check()
+    const ro = new ResizeObserver(check)
+    ro.observe(row)
+    return () => ro.disconnect()
+  })
+  return tight
+}
+
 /** "Back after one": go back to the previous tool after one erase. */
 export function BackAfterOne() {
   const on = eraserSettings.useValue().returnAfter
+  const ref = useRef<HTMLButtonElement>(null)
+  const tight = useTight(ref)
+  const name = t('v8.item.back')
+  const press = useLongPress(() => currentRunner().app?.toast(name))
   return (
     <button
+      ref={ref}
       type="button"
       data-chrome
       className="v8chip"
@@ -61,9 +104,10 @@ export function BackAfterOne() {
       data-testid="v8-eraser-back"
       onMouseDown={keepFocus}
       onClick={() => eraserSettings.update({ returnAfter: !on })}
+      {...press}
     >
       <Icon name="history" size={18} />
-      <span>{t('v8.item.back')}</span>
+      {tight ? null : <span className="v8chip-label">{name}</span>}
     </button>
   )
 }

@@ -100,7 +100,7 @@ const config = defineConfig({
         /toolbarV9Lasso/,
         /toolbarV9More/,
         /toolbarC36/,
-        /cBoxes/,
+        /cBoxes(C21|Shots)?.spec.ts$/,
         /duplicateBox/,
         /updateFailureNote/,
         /updateDownload/,

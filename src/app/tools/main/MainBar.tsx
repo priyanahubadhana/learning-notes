@@ -42,6 +42,7 @@ import {
 } from './newLineGesture'
 import { openToolPill, selectTool } from './selectTool'
 import { miniKeysOn } from './miniKeys'
+import { noteTyped } from '../../../editor/typedSignal'
 import { REPEAT_AFTER_MS, backspaceStep } from './backspaceHold'
 
 /**
@@ -357,6 +358,7 @@ export function BackspaceButton({
         stop()
         // The first press deletes at once; a hold starts repeating later.
         deleteBackward(editor, 'char')
+        noteTyped()
         const r = run.current
         r.start = Date.now()
         r.active = true
@@ -364,6 +366,7 @@ export function BackspaceButton({
           if (!r.active) return
           const { unit, next } = backspaceStep(Date.now() - r.start)
           if (!deleteBackward(editor, unit)) return stop()
+          noteTyped()
           r.timer = window.setTimeout(step, next)
         }
         r.timer = window.setTimeout(step, REPEAT_AFTER_MS)

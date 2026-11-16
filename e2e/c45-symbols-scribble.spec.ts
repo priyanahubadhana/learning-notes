@@ -263,7 +263,8 @@ async function scribbleOver(page: Page, i: number) {
   const pts: Pt[] = []
   for (let k = 0; k <= 8; k++) {
     pts.push({
-      x: c.x - 4 + (k % 2 ? c.width + 8 : 0),
+      // From just left of the character to just past its right edge.
+      x: c.x - 3 + (k % 2 ? c.width + 4 : 0),
       y: c.y + 3 + ((c.height - 6) * k) / 8,
     })
   }

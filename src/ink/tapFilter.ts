@@ -1,3 +1,4 @@
+import { gapMs, tapHoldMs, tapMovePx } from '../app/tapTiming'
 import type { Pt } from './geometry'
 
 /**
@@ -46,9 +47,13 @@ export function travelOf(pts: readonly Pt[]): number {
 export const isTap = (ms: number, travel: number): boolean =>
   ms < TAP_MS && travel < TAP_PX
 
-/** Short enough to be half of a double tap. */
+/**
+ * Short enough to be half of a double tap. C14 (switch textbox.v2): the one
+ * page timing (tapTiming.ts), a Pencil tap up to 250 ms and 8 px. A single
+ * Pen tap still draws its dot (isTap is unchanged); a second tap takes it back.
+ */
 export const isShort = (ms: number, travel: number): boolean =>
-  ms < SHORT_MS && travel < SHORT_PX
+  ms < tapHoldMs(SHORT_MS) && travel < tapMovePx(SHORT_PX)
 
 /**
  * Is `now` (where and when the second stroke BEGAN) the second tap of a
@@ -56,7 +61,7 @@ export const isShort = (ms: number, travel: number): boolean =>
  */
 export const isDoubleTap = (last: TapMark | null, now: TapMark): boolean =>
   !!last &&
-  now.at - last.at < DOUBLE_MS &&
+  now.at - last.at < gapMs(DOUBLE_MS) &&
   Math.hypot(now.x - last.x, now.y - last.y) < DOUBLE_PX
 
 /**

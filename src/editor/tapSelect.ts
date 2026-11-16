@@ -2,6 +2,7 @@ import { TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { isOn } from '../app/flags'
+import { gapMs } from '../app/tapTiming'
 import { activeTool } from '../app/tools/main/mainTools'
 import { keepSelection } from './ownSelection'
 import { noteTapSelected } from './penGuard'
@@ -35,7 +36,8 @@ import type { AppSchema } from './schema'
 
 type Editor = AppSchema['BlockNoteEditor']
 
-/** Real iPad timing (owner, 7 Nov): taps up to this far apart add up. */
+/** Real iPad timing (owner, 7 Nov): taps up to this far apart add up (switch
+ * textbox.v2: the one page timing of tapTiming.ts, C14). */
 const TAP_MS = 450
 /** Taps this close together (px) count as the same spot. */
 const TAP_PX = 12
@@ -221,7 +223,7 @@ export function nextTapCount(
 ): number {
   if (
     last &&
-    now - last.at < TAP_MS &&
+    now - last.at < gapMs(TAP_MS) &&
     Math.hypot(x - last.x, y - last.y) <= TAP_PX
   ) {
     return last.count + 1

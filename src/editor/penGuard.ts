@@ -3,6 +3,7 @@ import { Plugin } from 'prosemirror-state'
 import type { Transaction } from 'prosemirror-state'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { inputMachine } from '../app/inputMachine'
+import { gapMs, sharedTiming, tapHoldMs, tapMovePx } from '../app/tapTiming'
 import { scribbleFree } from './penMode'
 import { scribbleInput } from './scribbleDelete'
 import type { AppSchema } from './schema'
@@ -52,6 +53,8 @@ export interface PenState {
   lastKeyAt: number
   /** When a tap last selected text on purpose (ms). */
   selectedAt?: number
+  /** When a Pencil tap on the text last ended (ms; C14). */
+  tapAt?: number
 }
 
 export const penState: PenState = {
@@ -87,6 +90,15 @@ export function noteTapSelected(now: number = clock()): void {
 const penBusy = (pen: { down: boolean; upAt: number }, now: number): boolean =>
   pen.down || now - pen.upAt < PEN_AFTER_MS
 
+/**
+ * C14 (switch textbox.v2): a Pencil tap never deletes. Between the taps of a
+ * double or triple tap and a moment after (the tap gap + 200 ms), a delete
+ * with no key pressed is refused. Writing is not: a tap places the caret
+ * for Scribble.
+ */
+export const tapGraceOn = (pen: { tapAt?: number }, now: number): boolean =>
+  sharedTiming() && now - (pen.tapAt ?? -1e9) < gapMs(450) + 200
+
 /** Pure rule: should this input be refused? */
 export function refuseDelete(
   inputType: string,
@@ -114,10 +126,16 @@ const WRITING = new Set([
 export function refuseInput(
   inputType: string,
   now: number,
-  pen: { down: boolean; upAt: number; selectedAt?: number },
+  pen: { down: boolean; upAt: number; selectedAt?: number; tapAt?: number },
   lastKeyAt: number,
   scribbleOn: boolean,
 ): boolean {
+  if (
+    inputType.startsWith('delete') &&
+    tapGraceOn(pen, now) &&
+    now - lastKeyAt > KEY_RECENT_MS
+  )
+    return true
   // Grace after a tap-selection: no deleting and no writing, Scribble or not.
   if (
     selectGraceOn(pen, now) &&
@@ -174,6 +192,8 @@ export function refuseTransaction(
   // Undo and Redo, and a real key press, are the user's own doing.
   if (tr.getMeta('history$') !== undefined) return false
   if (now - pen.lastKeyAt <= KEY_RECENT_MS) return false
+  // C14: nothing is removed in the moments around a Pencil tap.
+  if (tapGraceOn(pen, now)) return true
   // Grace after a tap-selection: nothing may remove what is selected. (With
   // no selection to look at, any removal; a collapsed caret uses the rules
   // below.)
@@ -222,6 +242,7 @@ export function watchPenGuard(
   // Only a Pencil gesture that began in the page text counts: a tap on the
   // bar or a menu (Delete, Undo) is the user asking, so it is never held back.
   let gesturePointer: number | null = null
+  let downAt: { t: number; x: number; y: number } | null = null
 
   const onPointer = (e: PointerEvent) => {
     // A press on a bar, menu or button (Delete, Cut ...) is the person asking:
@@ -229,13 +250,18 @@ export function watchPenGuard(
     if (
       e.type === 'pointerdown' &&
       !(e.target instanceof Node && dom.contains(e.target))
-    )
+    ) {
       penState.selectedAt = -1e9
+      // Only a press outside every editor (another box's text is not a bar).
+      if (!(e.target instanceof Element && e.target.closest('.bn-editor')))
+        penState.tapAt = -1e9
+    }
     if (e.pointerType !== 'pen') return
     if (e.type === 'pointerdown') {
       if (e.target instanceof Node && dom.contains(e.target)) {
         penState.down = true
         gesturePointer = e.pointerId
+        downAt = { t: clock(), x: e.clientX, y: e.clientY }
         // A Pencil lift that never comes is dropped after 4 s without movement.
         inputMachine.begin(e, 'penGuard', () => {
           penState.down = false
@@ -251,6 +277,15 @@ export function watchPenGuard(
       penState.down = false
       penState.upAt = clock()
       gesturePointer = null
+      // A quick press that barely moved was a tap (C14).
+      if (
+        e.type === 'pointerup' &&
+        downAt &&
+        penState.upAt - downAt.t <= tapHoldMs(300) &&
+        Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) <= tapMovePx(12)
+      )
+        penState.tapAt = penState.upAt
+      downAt = null
     }
   }
   const onKey = () => {

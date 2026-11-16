@@ -372,3 +372,131 @@ test('C4: a delete aimed at the scribbled spot itself still works (nothing refus
   await iPadDelete(page)
   await expect.poll(() => boxText(box)).toContain('Text ① → , a/b')
 })
+
+/**
+ * One Pencil tap held `hold` ms that drifts `drift` px while down (real
+ * browser input), as a hand makes it.
+ */
+async function slowTap(
+  page: Page,
+  at: { x: number; y: number },
+  hold: number,
+  drift: number,
+) {
+  // The pen label stays on for the whole run (penOn): no page call in between.
+  await page.mouse.move(at.x - 2, at.y - 4)
+  await page.mouse.move(at.x, at.y)
+  await page.mouse.down()
+  await page.waitForTimeout(Math.max(0, hold / 2 - 15))
+  await page.mouse.move(at.x + drift * 0.6, at.y + drift * 0.8)
+  await page.waitForTimeout(Math.max(0, hold / 2 - 15))
+  await page.mouse.up()
+}
+
+/** Playwright's pointer counts as the Pencil while on (no page call between taps). */
+const penOn = (page: Page, on = true) =>
+  page.evaluate((v) => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = v
+  }, on)
+
+/** Records every pointer down and up time in the page. */
+const watchPresses = (page: Page) =>
+  page.evaluate(() => {
+    const w = window as unknown as { __presses?: number[] }
+    w.__presses = []
+    for (const t of ['pointerdown', 'pointerup'])
+      document.addEventListener(
+        t,
+        () => w.__presses!.push(performance.now()),
+        true,
+      )
+  })
+
+/**
+ * The test driver's timing drifts under load (seen: a 220 ms tap held 326
+ * ms, a 370 ms gap 618 ms). Only runs whose real timing is in the spec
+ * (each tap up to 250 ms, each gap up to 500 ms) must select; every run must
+ * leave the text as it was. 10-20 ms of slack: the page's clock here and the
+ * app's own read the same press a few ms apart.
+ */
+const inSpec = (ms: number[]) =>
+  ms.every((v, i) => (i % 2 === 0 ? v <= 240 : v <= 480))
+
+/** The real press lengths and gaps (ms) the page saw, for the log. */
+const pressLog = (page: Page) =>
+  page.evaluate(() => {
+    const w = window as unknown as { __presses?: number[] }
+    const out = w.__presses ?? []
+    w.__presses = []
+    return out.map((t, i) => (i ? Math.round(t - out[i - 1]) : 0)).slice(1)
+  })
+
+for (const n of [2, 3] as const) {
+  test(`C14: 50 Pencil ${n === 2 ? 'double' : 'triple'} taps (150-250 ms taps, 5 px drift, 400-450 ms apart) all select; nothing is deleted`, async ({
+    page,
+  }) => {
+    test.setTimeout(400_000)
+    await start(page, 'C14x' + n)
+    await watchPresses(page)
+    const box = await lineBox(page)
+    await pickBox(page, box)
+    const before = await boxText(box)
+    // "Text" (a word), then the arrow and "6" (symbols, a digit), in turn.
+    const spots = [1, I.arrow, I.six]
+    let counted = 0
+    for (let r = 0; r < 50; r++) {
+      const i = spots[r % spots.length]
+      const at = await charPoint(page, i, r % 2 ? 'right' : 'left')
+      await pressLog(page)
+      await penOn(page)
+      for (let k = 0; k < n; k++) {
+        // About 60 ms of driver time comes on top: about 400-450 ms in the page.
+        if (k > 0) await page.waitForTimeout(300 + ((r + k) % 2) * 40)
+        // 150-220 ms asked; the driver adds up to about 40 ms.
+        await slowTap(page, at, 150 + ((r * 37 + k * 53) % 71), 5)
+      }
+      await penOn(page, false)
+      const want = n === 3 ? LINE : i === 1 ? 'Text' : LINE[i]
+      const ms = await pressLog(page)
+      if (inSpec(ms)) {
+        counted++
+        await expect
+          .poll(() => selected(page), `repeat ${r}, press/gap ms: ${ms}`)
+          .toBe(want)
+      }
+      await page.waitForTimeout(150)
+      expect(await boxText(box), `repeat ${r}`).toBe(before)
+      await page.waitForTimeout(650)
+    }
+    expect(counted, 'runs with in-spec timing').toBeGreaterThanOrEqual(35)
+  })
+}
+
+test('C14: a double tap on a word that is already selected never deletes it', async ({
+  page,
+}) => {
+  await start(page, 'C14sel')
+  await watchPresses(page)
+  const box = await lineBox(page)
+  await pickBox(page, box)
+  const before = await boxText(box)
+  const at = await charPoint(page, 1, 'right')
+  for (let r = 0; r < 10; r++) {
+    await pressLog(page)
+    await penOn(page)
+    await slowTap(page, at, 200, 5)
+    await page.waitForTimeout(340)
+    await slowTap(page, at, 210, 6)
+    await penOn(page, false)
+    const ms = await pressLog(page)
+    if (inSpec(ms))
+      await expect
+        .poll(() => selected(page), `repeat ${r}, press/gap ms: ${ms}`)
+        .toBe('Text')
+    // What a stray scratch-out would send right after the taps.
+    await iPadDelete(page)
+    await page.waitForTimeout(200)
+    expect(await boxText(box), `repeat ${r}`).toBe(before)
+    await page.waitForTimeout(650)
+  }
+})

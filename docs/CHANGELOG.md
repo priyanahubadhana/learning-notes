@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: C4, C5, C14 text box taps, symbols and scribble (switch textbox.v2, OFF live)
+
+- What: C5: symbols (→ , / ①, runs like "//") can be selected: a tap puts the cursor on its side, a double tap selects the symbol run, a triple tap the line, and the Lasso Text pick takes them in; a box's lines are one block, so the Lasso takes the whole block only when every word and symbol is inside. C4: a Pencil scribble over text clears the old selection, and the delete the iPad sends then removes only what is under the scribble (one Undo). C14: one tap timing (500 ms between taps; a Pencil tap up to 250 ms and 8 px) for text taps and ink taps; deletes are refused around a Pencil tap.
+- Why: owner's combined test, 16 Nov (docs/plans/combined-test-2026-11-16.md). Causes: the word splitter skipped symbols; the Lasso's "most of the middle row" rule took the whole box; iPadOS sends its scratch-out as a plain delete that Safari applies to the selection the page holds; ink taps had to be under 150 ms / 3 px / 300 ms apart while text taps allowed 450 ms.
+- Files: src/editor/textTokens.ts, tapSelect.ts, lassoWords.ts, scribbleDelete.ts, penGuard.ts, ownSelection.ts, PageEditor.tsx, src/ink/controller.ts, src/ink/tapFilter.ts, src/app/tapTiming.ts; tests textTokens.test.ts, scribbleDelete.test.ts, src/app/tapTiming.test.ts, e2e/c45-symbols-scribble.spec.ts.
+
 ### 16 Nov 2026: scrollFrame sidebar test follows the approved side-list bar (P1.9-1, T4)
 
 - What: e2e/scrollFrame.spec.ts:166 now checks the list under the side list's own bar (test id sb-list) as the one scroller: a row, the empty top strip and the edge strip scroll it; the bar itself does not scroll. Arrows and ends are checked on that list as before.

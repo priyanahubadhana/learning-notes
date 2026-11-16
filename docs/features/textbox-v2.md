@@ -216,7 +216,7 @@ No new input from outside; preset names go through the existing text limits (80 
 Tests: `e2e/cBoxes.spec.ts`. Pictures: `screenshots/c-boxes/INDEX.md`.
 
 - **C8** "Delete box" on the page's first box empties it (it cannot go); one Undo on the toast brings the text back.
-- **C10** typing pauses while a resize dot is dragged or a card or list is open; keys go nowhere; the caret returns to the same place afterwards (`src/paper/typingPause.ts`). Tool bar taps while typing are not covered yet.
+- **C10** typing pauses while a resize dot is dragged or a card or list is open; keys go nowhere; the caret returns to the same place afterwards (`src/paper/typingPause.ts`). Tool bar taps and cards pause typing too (the keyboard policy also stops pulling a key into the text meanwhile).
 - **C11** typing shows a thin border and no dots; one tap outside leaves the box selected; a second tap selects nothing.
 - **C12** the first box's frame takes its real height (fill and padding included).
 - **C13** the last column's right dot and the first column's left dot set that column's width; the freed space stays empty (a row's fractions may sum to less than 1).

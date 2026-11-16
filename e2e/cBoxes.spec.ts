@@ -19,6 +19,7 @@ import {
   twoBoxes,
 } from './cBoxesHelpers.ts'
 import { lassoAround } from './groupHelpers.ts'
+import { card, openNote, openPill, option } from './mainBarHelpers.ts'
 
 /**
  * The text box fixes of the owner's iPad test, 16 Nov 2026 (switch
@@ -45,7 +46,13 @@ async function caretBox(page: Page, name: string) {
   await pick(page, box)
   await tapTextEnd(page, box)
   await expect(box.locator('.bn-editor')).toBeFocused()
-  for (let i = 0; i < 6; i++) await page.keyboard.press('ArrowLeft')
+  // The caret goes to offset 5 (after "Hello"), checked, not assumed.
+  for (let i = 0; i < 10; i++) {
+    const at = await page.evaluate(() => getSelection()?.anchorOffset ?? -1)
+    if (at === 5) break
+    await page.keyboard.press(at > 5 ? 'ArrowLeft' : 'ArrowRight')
+  }
+  expect(await page.evaluate(() => getSelection()?.anchorOffset)).toBe(5)
   await expect(box).toHaveAttribute('data-typing', '')
   await tapOut(page)
   await expect(box.locator('.bn-editor')).not.toBeFocused()
@@ -132,6 +139,49 @@ test('C10 a card pauses typing (keys go nowhere); closing it puts the caret back
   await page.keyboard.type('Y')
   await expect(box.locator('.bn-editor')).toContainText('HelloY world')
   await expect(box.locator('.bn-editor')).not.toContainText('Z')
+})
+
+const V2 = { flags: ['textbox.v2'] }
+const main = (page: Page) => page.locator('[data-paper-box="main"] .bn-editor')
+
+test('C10 the tool bar: a card pauses typing (no key lands in the text behind); closing it puts the caret back', async ({
+  page,
+}) => {
+  await openNote(page, 'touch', V2)
+  for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowLeft')
+  await openPill(page, 'Text', 'text')
+  await option(page, /^Text style/).click()
+  await expect(card(page)).toBeVisible()
+  await page.keyboard.type('Z')
+  expect(await typed(page)).toBe(false)
+  await expect(main(page)).not.toContainText('Z')
+  await page.keyboard.press('Escape')
+  await expect(card(page)).toBeHidden()
+  await expect(main(page)).toBeFocused()
+  await page.keyboard.type('Y')
+  await expect(main(page)).toContainText('The nucleus holds the YDNA')
+})
+
+test('C10 the tool bar: with words selected a card still applies, keys are not typed over them, and the selection is back when it closes', async ({
+  page,
+}) => {
+  await openNote(page, 'touch', V2)
+  await page.keyboard.press('Control+a')
+  await openPill(page, 'Text', 'text')
+  await option(page, 'Choose a text colour').click()
+  await page.keyboard.type('Z')
+  await expect(main(page)).toContainText('The nucleus holds the DNA')
+  await expect(main(page)).not.toContainText('Z')
+  await card(page).getByRole('button', { name: 'Blue', exact: true }).click()
+  await expect(
+    page.locator('.bn-editor [data-style-type="textColor"][data-value="blue"]'),
+  ).toHaveCount(1)
+  await page.keyboard.press('Escape')
+  await expect(card(page)).toBeHidden()
+  await expect(main(page)).toBeFocused()
+  expect(await page.evaluate(() => getSelection()?.toString())).toContain(
+    'The nucleus holds the DNA',
+  )
 })
 
 test('C11 typing: thin border and no dots; one tap outside: selected; a second: nothing', async ({

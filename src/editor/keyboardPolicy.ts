@@ -1,3 +1,4 @@
+import { typingPaused } from './typingPaused'
 import { activeTool } from '../app/tools/main/mainTools'
 import { tapTwiceActive } from './penMode'
 import { deselect } from './ownSelection'
@@ -194,6 +195,7 @@ export function watchKeyboardPolicy(editor: Editor): () => void {
     const view = editor.prosemirrorView
     if (
       view &&
+      !typingPaused() &&
       !view.state.selection.empty &&
       !dom.contains(doc.activeElement) &&
       !(doc.activeElement instanceof HTMLInputElement) &&

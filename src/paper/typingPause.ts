@@ -1,4 +1,5 @@
 import { Selection } from 'prosemirror-state'
+import { setTypingPaused } from '../editor/typingPaused'
 import { onRouted } from '../app/input/eventRouter'
 import { allBoxEditors } from './activeBox'
 
@@ -50,17 +51,30 @@ export function pauseTyping(boxId?: string): boolean {
   if (id && v) {
     held = { boxId: id, sel: v.state.selection.toJSON(), at: Date.now() }
     ;(el as HTMLElement).blur()
+    // Why: a blurred editor still takes keys while the page's selection sits in it.
+    // The editor keeps its own selection and gets it back at the resume.
+    window.getSelection()?.removeAllRanges()
+    setTypingPaused(true)
     return true
   }
-  return !!held && (!boxId || held.boxId === boxId) && fresh()
+  const held2 = !!held && (!boxId || held.boxId === boxId) && fresh()
+  if (held2) setTypingPaused(true)
+  return held2
 }
 
 const fresh = () => !!held && Date.now() - held.at < KEEP_MS
 
 /** The pause ends: the caret returns to where it was. Returns the box id. */
 export function resumeTyping(): string | null {
+  setTypingPaused(false)
   const h = held
   if (!h || !fresh()) return null
+  // The user already put the caret somewhere else (a new box, a field): that wins.
+  const now = document.activeElement
+  if (now?.closest('[contenteditable="true"], input, textarea, select')) {
+    held = null
+    return null
+  }
   let result: string | null = null
   for (const ed of allBoxEditors()) {
     const v: View | undefined = ed.prosemirrorView
@@ -80,6 +94,7 @@ export function resumeTyping(): string | null {
 
 /** The caret is given up on purpose (the second tap outside, another box). */
 export function forgetCaret(): void {
+  setTypingPaused(false)
   held = null
 }
 
@@ -87,18 +102,21 @@ export function forgetCaret(): void {
 export const heldBox = () => (fresh() ? (held?.boxId ?? null) : null)
 
 /**
- * Cards and lists that take over the screen: while one is open, a tap in it
- * pauses typing; when the last one is gone the caret comes back.
+ * Cards and lists that take over the screen (the box card, the tool bar's
+ * cards, menus): while one is open, a tap in it pauses typing; when the last
+ * one is gone the caret comes back.
  */
-const PANEL = '[data-box-style-panel], [role="dialog"], [role="menu"]'
-/** A tap on the box bar itself: a pause that ends when no card or list followed. */
-const BAR = '[data-box-bar]'
+const PANEL =
+  '[data-box-style-panel], [data-pill-card], [role="dialog"], [role="menu"]'
+/** A tap on a bar: typing is paused while the finger is down and until no card or list followed. */
+const BAR = '[data-box-bar], [data-main-bar], [data-options-pill]'
 export function watchPanels(onResume?: (boxId: string) => void): () => void {
   let paused = false
+  let pressed = false
   let timer = 0
   const open = () => !!document.querySelector(PANEL)
   const poll = () => {
-    if (open()) return
+    if (pressed || open()) return
     window.clearInterval(timer)
     timer = 0
     if (!paused) return
@@ -107,17 +125,24 @@ export function watchPanels(onResume?: (boxId: string) => void): () => void {
     if (id) onResume?.(id)
   }
   const down = (e: PointerEvent) => {
+    pressed = true
     const t = e.target instanceof Element ? e.target : null
     if (!t || t.closest('[data-paper-box] [data-box-content]')) return
-    const bar = !!t.closest(BAR)
-    if (!bar && !t.closest(PANEL)) return
+    if (!t.closest(BAR) && !t.closest(PANEL)) return
     if (!pauseTyping()) return
     paused = true
-    if (!timer) timer = window.setInterval(poll, bar ? 400 : 200)
+    if (!timer) timer = window.setInterval(poll, 150)
   }
-  const off = onRouted('pointerdown', down, { name: 'typingPause' })
+  const up = () => {
+    pressed = false
+  }
+  const offDown = onRouted('pointerdown', down, { name: 'typingPause' })
+  const offUp = onRouted('pointerup', up, { name: 'typingPauseUp' })
+  const offCancel = onRouted('pointercancel', up, { name: 'typingPauseCancel' })
   return () => {
-    off()
+    offDown()
+    offUp()
+    offCancel()
     window.clearInterval(timer)
   }
 }

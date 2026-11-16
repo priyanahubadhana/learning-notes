@@ -210,3 +210,15 @@ No new input from outside; preset names go through the existing text limits (80 
 5. **Delete with a box selected shows a toast with Undo** although the toast rule removes plain "done" toasts: it is destructive, so the rule allows it.
 6. Foundation folders (`src/app/input/`, `selection/`, `overlay/`) are not on `main` yet; the slice is blocked until slice 0 parts 0c–0g step 1 are merged.
 7. New code goes in `src/paper/v2/` so flag OFF keeps today's files untouched; they are removed after release.
+
+## Owner iPad test fixes, 16 Nov 2026 (C8, C10 to C13, C15, C16)
+
+Tests: `e2e/cBoxes.spec.ts`. Pictures: `screenshots/c-boxes/INDEX.md`.
+
+- **C8** "Delete box" on the page's first box empties it (it cannot go); one Undo on the toast brings the text back.
+- **C10** typing pauses while a resize dot is dragged or a card or list is open; keys go nowhere; the caret returns to the same place afterwards (`src/paper/typingPause.ts`). Tool bar taps while typing are not covered yet.
+- **C11** typing shows a thin border and no dots; one tap outside leaves the box selected; a second tap selects nothing.
+- **C12** the first box's frame takes its real height (fill and padding included).
+- **C13** the last column's right dot and the first column's left dot set that column's width; the freed space stays empty (a row's fractions may sum to less than 1).
+- **C15** the top dot works from any box; past the free space above, the box keeps growing downward; a box under another grows downward.
+- **C16** one selected box at a time: Shift no longer adds; typing in another box unselects the first; only the Lasso picks several.

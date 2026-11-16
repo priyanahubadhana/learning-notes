@@ -1,6 +1,7 @@
 import { CardGroup } from '../../../../../design/parts/CardParts'
 import { t } from '../../../../../i18n/t'
 import { useUnlocked } from '../../../../../settings/level'
+import { startEdit } from '../../barEdit'
 import { requestHideToolBar } from '../../../toolbarVisibility'
 import { Icon, type IconName } from '../../../icons'
 import { runTool } from '../../../toolRegistry'
@@ -63,6 +64,15 @@ export default function MoreExtras({
           onPick={onAllTools}
         />
       ) : null}
+      <Row
+        icon="sliders"
+        label={t('v8.more.editBar')}
+        testId="v8-more-editbar"
+        onPick={() => {
+          onClose()
+          startEdit()
+        }}
+      />
       <Row
         icon="settings"
         label={t('tool.settings')}

@@ -80,6 +80,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 ## Decisions to review
 
 - **2026-11-16 · C4, C5, C14 text box taps (builder; manager OK for the two hot items).** (1) Symbols are their own runs: a double tap picks the run on the tapped side; `- ' ’ _` join words only between letters. (2) A scribble deletes the words and symbols whose middle is inside its area (whole words, as the iPad does); a delete aimed there already is left to the browser. (3) One tap timing behind textbox.v2: 500 ms between taps; a Pencil tap up to 250 ms and 8 px for ink double taps; a single Pen tap still draws its dot (90 ms rule kept) so handwriting dots are not lost; text taps keep their 300 ms and 12 px. (4) Deletes with no key are refused for the tap gap + 200 ms after a Pencil tap; writing is not. (5) Manager OK: the preview Tap speed row (Quick 350, Normal 500, Relaxed 700) lives in src/settings/flagSettings.ts (Try new features), not builtinSettings.ts, so the hot file was not touched; it is removed before release. (6) Manager OK: playwright.config.ts adds /c45-symbols-scribble/ to ipad-webkit.
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
+- **2026-11-16 · C2 ipad-webkit list (builder, manager-approved).** Added `/eraserShapes/` to the ipad-webkit list in playwright.config.ts so the eraser-on-shapes Pencil test also runs on the iPad stand-in. Test config only.
 - **2026-11-15 · 2A.15 Tool bar list (builder).** The tools on the new bar are one device preference `toolbar.v9.tools` (a list of ids, cleaned when read, not synced, no Dexie or Supabase change); Text, Pen and Eraser come back if missing. The tray offers the six bar tools and eight registry tools (Highlighter, Camera, Audio, Zoom, Find, Table, Link, Read aloud). Hold on a tool opens edit after 900 ms (its name shows at 350 ms and slide-to-pick stays); hold on free space after 600 ms. Settings "Customise" (S5-24) can call `startEdit()` from barEdit.ts.
 - **2026-11-15 · 2A.12 ⋯ card View, Page, Tool bar folds (builder, safest option).** Built only from tools that exist today and run through the registry: View = Line focus (Pro adds Theme, Zoom); Page = Share, Save & restore (Pro only); Tool bar = Tool bar on or off. Left out because they have no app action or stored setting yet: Focus mode dim, Grid lines, Dark mode switch, Zoom in/out/Fit width, Export PDF, Duplicate page, Move page, Version history, Keyboard stays hidden, Done, Reset position, Where things live, Toolbar layouts and Edit toolbar rows (Settings is a top tile). Print stays "coming". Review 1: Keyboard and Search are top tiles; Settings and All tools moved under the Tool bar fold (still reachable); Quiz me, Flashcards, Review today are the existing Study now, All cards, Due today (no separate quiz action exists); Copy, Cut, Paste are tiles (Paste uses the bar paste path). Make blank label is the long existing text.
 - **2026-11-15 · 2A.10 Format on states (builder).** Callout stays a one-tap insert (each tap adds a callout block, no toggle off); its tile shows on while the cursor is in a callout. Beginner Body size shows on: it is the current state.
@@ -123,6 +125,9 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 - **2026-11-14 (evening) · P1.3 download watchdog: only a 20 s "no byte at all" limit, no per-file limit (manager, safest option).** A per-file limit would stop a slow but moving download and Try again would fetch everything again.
 - **2026-11-14 (evening) · P1.3 About "Pretend a must-have update" ends with a plain reload on the same page, never drops the offline copy (manager, safest option).** A real must-have update keeps its existing ending.
+- **2026-11-16 · C9 Record audio stays a Professional tool (reviewer, follows v9).** In the edit "More tools" tray, Mic shows for everyone; Record audio shows only when "Insert more" (Professional) is on, as v9 lists Audio under Professional. In Beginner, the owner will not see Record audio.
+- **2026-11-16 · C13 and C14 fixes (manager picks).** C13: every visible resize dot does something (the last box's right edge narrows or widens it; the top edge works from any box in a row). C14: a tap never deletes; one tap timing (500 ms between taps, a Pencil tap up to 250 ms and 8 px); a preview-only "Tap speed" choice for the owner's iPad test, removed before release.
+
 - **2026-11-16 · 2A.12 icons differ from v9 (phase manager, reviewer PASS).** All cards uses the library icon (v9 shows the same cards icon as Make card) so the three study tiles look different; Summary uses fileText (v9: book). A test checks the three icons differ. Listed for the owner first look.
 - **2026-11-16 · 2A.15 minus badge (reviewer decision, follows settings-v5.html 3374-3376, 12388).** Drawn 20 px at -5/-5 with a 44x44 tap area; a still tap removes, a press that moves drags. Phone edit bar is one row: no Minimise, Undo or Redo.
 - **2026-11-16 · 2A.13 Organise move toasts and Add form (review 3 PASS, Opus takeover).** Shared ArrangeSheet passes the moved row id (optional second argument); SheetBase gets an opt-in `grow` used only by the Add form on upright iPad. "Start from" follows the mock's segmented control, not picture tiles (phase manager, approved picture first).
@@ -1026,8 +1031,11 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (remote sign-out, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
+
 ## Decisions to review (contextual strips, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - Alt text is stored as the picture's caption (BlockNote shows the caption under the picture and uses it as alt); a separate hidden alt prop needs a schema change. Review if you want them apart.
 - Compact bar: words keep the mini toolbar (no ContextBar for text); the row floats over the page so the layout never moves.
 - Minimum picture width 48 px (was 64). Smaller = 40 % less, Bigger = 1.5x.
@@ -1042,6 +1050,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (copy side, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - Ctrl/Cmd+C keeps BlockNote's own copy (it already writes our lossless `blocknote/html`) and then replaces `text/plain` with clean Markdown and `text/html` with our own rich HTML, only when whole blocks are copied; words inside one block stay BlockNote's, so they paste into a line.
 - Button copies (Lasso, mini bar, block menu) use a one-shot copy event so the lossless format travels too; if the browser refuses, they fall back to HTML + Markdown without it.
 - Pictures in the rich HTML of a plain Copy are kept only when they are web or data addresses; "Copy as… Rich text" embeds app pictures as data URLs (same as Copy page with pictures).
@@ -1049,6 +1058,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Clean up with AI, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - Offered only when AI is on and a key exists (otherwise the chooser looks as before). A rich paste of 40+ characters, or a plain multi-line paste of 200+, up to 24,000 characters; longer text is refused with "paste less" (the answer must fit in one reply of at most 8,000 tokens).
 - The instructions are the library prompt "Clean up pasted text" (starter id own.cleanup, purpose Write). If the owner deletes the row the shipped text is used; editing it in the dialog saves a new version in the library.
 - The model's answer is never inserted without the preview. A local check lists numbers of the original that are not in the answer, next to the AI's own "Not placed" list.
@@ -1056,6 +1066,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Vimeo, Loom and video files, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - Vimeo: `dnt=1` (do not track) and the private-link hash of unlisted videos are kept; Loom frames use `hide_owner=true`. Frames use a sandbox (scripts, same-origin, presentation, popups; no forms, no top navigation).
 - Direct video files must be https and end in .mp4 or .webm; the file loads from its own host only after Play (no preload before). No CORS or download proxy.
 - Timestamps and screenshots stay YouTube only (they depend on the YouTube player messages).
@@ -1063,6 +1074,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Ink scrolls natively, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **No setting and no old path kept.** The task allowed a setting with the old path as fallback if the redesign was too risky; it was not (all ink, paper, book and Lasso specs pass in Chromium, WebKit and the iPad stand-in), and two code paths would double the bugs. If the iPad shows a problem, the previous version is the commit before this one.
 - **Tiles of 640 px, at most 8 slots per box, one tile above and below the screen, 160 px scroll step.** Chosen by measurement: creating and removing canvases while scrolling cost 6-18 % late frames; reusing slots with a transform gave 1 %. A big sheet at 2x pixel ratio is about 10 MB per tile canvas, so 8 slots stay inside the 160 MB canvas budget (it still falls back to 1x if the budget says no).
 - **Geometry is cached while scrolling** and read fresh 150 ms after the scroll stops and on every other redraw. A box dragged during a scroll could show its ink tiles for the wrong band for 150 ms; ink moves with its box either way.
@@ -1071,12 +1083,14 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (As text box, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - Offered for rich pastes only (the same ones the chooser already appears for) and never for an address or a database. The box starts 120 mm wide (or what fits) at the caret's x and just under its line; on the stacked phone layout it goes first in reading order. Its height grows with the content like any box.
 - The pasted content is made by the same parsers as the normal paste, then stored as the box's blocks in one transaction with the box; Undo is the toast (removes the box with History copy via `removeBox`).
 - A locked page refuses with the usual lock message and nothing is made.
 
 ## Decisions to review (database pages, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - No new Dexie version or table: the database engine, relations, rollups, formulas, tags and stars (number with stars format, max up to 10) already existed; "stars 1-10" is that format, not a new type.
 - "Database page" = a page holding one full-width database block (not a new page kind), so every database feature works in notes and as a page. Offered as the last row of the new-page list.
 - Search: row values go into the row's existing title entry (no new entry kind), index version 5 rebuilds once; option/tag renames show in search after the row is next saved. Checkboxes and computed columns are not searched.
@@ -1086,6 +1100,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (prompt gaps and Lock editing, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - Icons: 66 Lucide icons, drawn only in the skill preview; saved text (pages, mind map, database, cards) uses the emoji of the icon because those are plain text. Unknown names are dropped. Not a full icon picker.
 - Prompts on note pages: in the page ⋯ menu only (note pages have no AI button row). Insert goes to the end of the page ("below"), not at the caret.
 - Reading handwriting with a saved prompt: one device preference (ai.readPrompt) shared by Convert to text and the Write pad; applies to handwriting, never to maths; no cost line there (as before).
@@ -1094,6 +1109,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (prompt library and skills, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - Library = one `Database` with `kind: 'promptLibrary'`, found by workspace and kind (not a fixed id, so two devices that both create it before syncing end up with two; the oldest is used, the other stays as an ordinary database). Columns are found by `config.key`, so the owner can rename or reorder them. Seeds are added once per starter id; ids seen on this device are remembered (pref `prompts.seeded`); a deleted starter stays deleted on this device but would come back on a fresh device.
 - Prompt text is stored in a Text cell (up to 20,000 characters), versions and ratings as JSON text cells (30 versions, 100 ratings kept). Subject tags are one comma-separated text cell, not Tag records (filtering and search work in memory, a database filter on tags is not offered).
 - "Stars" on a prompt = average of the 1-5 ratings of its results. The owner's "stars 1-10" is used for the key points of a skill result (database column, max 10), as decided.
@@ -1133,17 +1149,18 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (boxes like GoodNotes, 9 Nov)
 
-| Decision                                                                                                                                              | Why                                                                       | Change it if                                               |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Handles change the **width** only (height follows the text)                                                                                           | A box's height is its text; a free height would clip or pad text          | You want fixed-size boxes                                  |
-| The frame is four thin strips just outside the box (the ink pad covers the inside)                                                                    | Inside, the Lasso must keep selecting ink and lines                       | The strips are hard to hit on the iPad                     |
-| Bar "Font" opens the page font card; "Size" sets Title/Heading/Body for the box                                                                       | Font and size are page-wide settings today, no per-box field              | You want a font per box (needs a box field and sync check) |
-| A drop pushes only the boxes it covers (cascading down), never locked boxes or the default box; the dropped box gives way to those                    | Predictable, nothing disappears                                           | You want everything below to move                          |
-| "n boxes moved" Undo toast only when more than one box changed                                                                                        | A single move needs no toast                                              | You want Undo on every move                                |
-| Snap guides 1.5 mm; y snaps to the line spacing unless a box edge is near                                                                             | Helps, never fights the hand                                              | Too sticky or too weak                                     |
-| Empty-box repair: an empty extra box within 12 mm of the default box or another box is removed on open; empty orphan lines too when the page has text | Fixes the stacked "Enter text" bug without touching anything with content | A deliberately empty box beside another is removed         |
-| Backspace/Delete in an empty box removes it; Delete with a box selected removes it (toast Undo; History copy if it had lines)                         | An empty box must always be deletable                                     | You want a confirm                                         |
-| Page-wide Cut/Delete empties every box (they stay, one empty line each) and Undo restores                                                             | The boxes themselves are the layout                                       | You want the boxes removed too                             |
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
+  | Decision                                                                                                                                              | Why                                                                       | Change it if                                               |
+  | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------- |
+  | Handles change the **width** only (height follows the text)                                                                                           | A box's height is its text; a free height would clip or pad text          | You want fixed-size boxes                                  |
+  | The frame is four thin strips just outside the box (the ink pad covers the inside)                                                                    | Inside, the Lasso must keep selecting ink and lines                       | The strips are hard to hit on the iPad                     |
+  | Bar "Font" opens the page font card; "Size" sets Title/Heading/Body for the box                                                                       | Font and size are page-wide settings today, no per-box field              | You want a font per box (needs a box field and sync check) |
+  | A drop pushes only the boxes it covers (cascading down), never locked boxes or the default box; the dropped box gives way to those                    | Predictable, nothing disappears                                           | You want everything below to move                          |
+  | "n boxes moved" Undo toast only when more than one box changed                                                                                        | A single move needs no toast                                              | You want Undo on every move                                |
+  | Snap guides 1.5 mm; y snaps to the line spacing unless a box edge is near                                                                             | Helps, never fights the hand                                              | Too sticky or too weak                                     |
+  | Empty-box repair: an empty extra box within 12 mm of the default box or another box is removed on open; empty orphan lines too when the page has text | Fixes the stacked "Enter text" bug without touching anything with content | A deliberately empty box beside another is removed         |
+  | Backspace/Delete in an empty box removes it; Delete with a box selected removes it (toast Undo; History copy if it had lines)                         | An empty box must always be deletable                                     | You want a confirm                                         |
+  | Page-wide Cut/Delete empties every box (they stay, one empty line each) and Undo restores                                                             | The boxes themselves are the layout                                       | You want the boxes removed too                             |
 
 ## Design system (owner-approved 9 Nov): 9 rules added to rules/architecture.md; Sepia kept, Inter loads after the page, violet everywhere
 
@@ -1154,6 +1171,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (design tokens, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - Colour values changed from system.md so every pair passes AA (the test found them): Day success #1D7A50 → #1A7248 (on its soft fill); Night muted #8F8D9B → #9A98A6 (on surface-3), Night line-strong #6E6C7A → #7F7D8C (3:1 on menus and dialogs); Sepia values were mine (system.md has none): accent #5F37D4, danger #A8321F, muted #6F614B.
 - "Text on glass" is tested over the wash colours, the paper and blurred text (at most 20 % ink) under a bar, not over pure white or black: the glass sits over canvas and paper, never over raw black or white.
 - Radius, type and shadow tokens are named `--r-*`, `t-*`, `--elev-*` (not Tailwind's `rounded-*`, `text-*`, `shadow-*`) so current screens do not shift before their redesign.
@@ -1162,6 +1180,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Drive stays connected, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - Instead of a separate "exchange the code" function, Supabase Auth (which already holds the client secret) does the code exchange and returns `provider_refresh_token`; one function `drive-token` (store, token, revoke) keeps it. Fewer secrets, no new redirect address. The refresh token passes through the owner's own browser once, at sign-in, and is never kept there.
 - One function, not two: smaller setup. It runs with `--no-verify-jwt` and checks the signed-in owner (and the owner email) itself, so the new publishable keys cannot break it.
 - Token locked with AES-GCM using a Supabase secret (`DRIVE_TOKEN_KEY`) on top of a table with RLS on, no policy and no rights for browser roles. A leaked database dump alone cannot be used.
@@ -1180,6 +1199,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Design step 2, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **Toasts are solid, not glass.** The request said glass; docs/design/system.md (owner-approved) says solid surface-3. I followed the doc. Say if you want glass toasts.
 - **Icon rail = the strip of spaces.** Hiding the sidebar (button in the top bar) leaves the 56 px strip of spaces as the rail; I did not build a second 72 px rail of notebook icons or an automatic collapse on tablet widths. Say if you want that.
 - **Strip of spaces is flat glass (no blur)** so the blur budget stays at 3 (sidebar, bars, and one menu or the palette).
@@ -1190,6 +1210,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Accounts, 9 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **Email code over magic link.** An iPad web app cannot receive a link (it opens in Safari, separate storage), so the code is typed inside the app. No magic link is offered. Research: docs/research/accounts-2026-11.md.
 - **Passwords: 15 to 128 characters, no other rules** (NIST 800-63B-4). Checked in the app; Supabase minimum length should also be 15 (owner step). A password cannot be removed once set (Supabase has no way); it can be changed. It is tracked by a has_password flag in user_metadata (user-writable, used only as a label).
 - **Disconnect rules:** only Google or the email identity can be disconnected, and only while the other remains. Linking uses Supabase "manual linking" (beta; an advisory about unverified provider emails exists, we only link Google). The server also refuses the last identity.
@@ -1202,6 +1223,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Account gate, Q3a, 12 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **Replaces "Existing signed-out devices are not locked out"** (Accounts, 9 Nov): owner chose (a). A device with no stored session is read-only with a top bar and a sign-in sheet. Reading, search, export, review and settings still work.
 - **"Signed in" = a session is stored on the device, not a fresh token.** So offline with an expired token, or a failed renewal, never gates (the stay-signed-in fix and single refresher are untouched). Signing out here, or the server ending the session, gates again (the "You were signed out" lock still shows first and the bar waits behind it).
 - **Enforced where it is safe, not at the database.** A blanket database block would break first-run seeding and reading (last-opened stamps, search index). So: the editor, title, boxes and menus use the edit lock; page and notebook create, rename, move, delete and Delete forever are refused in their services. Not blocked: cards review, tasks, habits, databases cells, settings, ink/paper boxes drawing outside the page editor, imports other than pages/notebooks. If you want those frozen too, say so.
@@ -1212,29 +1234,35 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Pencil double tap, 11 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **Grace period 600 ms** after a tap selects text, nothing may delete, replace or write over the selection (no key pressed). Chosen just above the 500 ms Pencil-lift window and the 450 ms tap gap; short enough that real Scribble writing still works a moment later. Applies even when Scribble is free (Text tool). Side effect: dictation or autocorrect inside that 600 ms is also refused. Change: SELECT_GRACE_MS in src/editor/penGuard.ts.
 
 ## Decisions to review (CI fix, 11 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **pictureStrip e2e:** the test now clicks the editor bottom-right instead of (5,5), because the owner new handle design puts the picture corner handle over the top-left. Behaviour was intentionally changed, not a bug.
 - **Tap-below button** moved 24 px lower so the first box handles do not cover it; text wrap uses break-word instead of anywhere (performance).
 
 ## Decisions to review (Security audit, 12 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **Supabase refresh-token rotation + reuse detection must be ON (dashboard, owner).** Authentication > Sessions > "Detect and revoke potentially compromised refresh tokens". The client already handles rotation: each renewal stores the new refresh token, one renewal at a time (single refresher + Web Locks), a token spent by another tab adopts that tab's session. Known edge: if the server rotates but the reply is lost (network drop), the next try sends the old token; inside Supabase's reuse interval (10 s default) this is allowed, after it the session is revoked and the person signs in again (no data lost). Judged acceptable; keep the reuse interval at its default or higher.
 - **Lock delay (2026-11-12):** 3 free tries, then 30 s, 1 min, 5 min, 15 min, 1 h (cap), stored in localStorage on the device (not in synced settings, so another device cannot reset it). Someone who clears browser storage resets it: the lock stays an honestly labelled privacy screen. With sync on, setting a PIN/password shows a nudge for 12+ characters, not a block (a hard rule would lock out existing short codes).
 - **Remote pictures (12 Nov):** old notes that already hold a web picture now show the "Load remote image" card until tapped (one tap, or it copies itself into the app when the server allows). Chosen over silent loading because a picture address tells its owner when and from where a note was opened. Animated GIFs copied this way become still pictures (the canvas copy); tapping when copying is impossible still plays the original. The card has no screen-reader text yet (BlockNote sets an empty alt). EPUB chapters with web pictures still load them inside the reader frame (the foliate frames run no scripts; the CSP still allows https images); not changed because the foliate code is vendored. Database cells holding a web picture address are unchanged (not in the audit scope).
 
 ## Decisions to review (PDF page by page, 11 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **Page by page uses scroll-snap, not a one-page viewer.** Same column and layout as the continuous scroll, with the page scaled to fit the screen and snapping to page edges. Keeps ink, highlights, Find and the position locator unchanged. Trade-off: a fast fling can pass over several pages before it settles (Safari decides); the Page Flip slider and Contents land exactly. Other option: render one page at a time (more code, new ink and highlight paths). This replaces the earlier decision that a PDF is always continuous (Builder H, d).
 
 ## Decisions to review (Bookerly-style font, 11 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **Literata stands in for Bookerly.** Bookerly is Amazon's licensed font and cannot be bundled (₹0, licence). Literata is OFL, already in the app, and was designed for long reading on screens, so it is the closest free match. Other options: Source Serif 4 (also bundled, a bit more formal) or Charter (system, not on every device). The default stays "Book default" (the book's own font); the new tile is opt-in. Not applied to PDFs (their letters are pictures).
 
 ## Decisions to review (reading progress and favourites sync, 11 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **They ride on the page record, not on the `settings` table.** The page already syncs and the book and the star belong to it; a settings row per book would have been a second place to keep in step, and backups and Delete forever already cover pages. Cost: a true conflict on a page now needs the small field rule (`mergePageReading`), which is the only table-specific rule in the merge. The rest of the page still follows the newer clock.
 - **"Last read" = the most recent `openedAt`**, not the furthest place. The furthest place is kept apart (`furthest`, shown by "Sync to furthest page read"). So reading page 20 on the PC after reading page 80 on the iPad moves your place to 20 everywhere, as a Kindle does with "Sync to furthest" as the escape.
 - **A star or a read does not change `updatedAt`** (like progress before), so it does not reorder lists that show the last edit.
@@ -1242,12 +1270,14 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Drive status, 11 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **The server is asked, the flag is only a memory.** The status line and the consent choice now follow what the server says when it can be reached. Other option: also count the rows by a direct SQL check by hand (still the quickest way to look: Supabase › Table editor › drive_tokens).
 - **Not confirmed from here:** why a Google sign-in on the owner's live project returned no refresh token at first (the owner later saw "stays connected"). The diagnostics line (Settings › Advanced › Slow moments, kind drive) is the evidence to read if it happens again.
 - I touched `connectors/supabase.ts` in two small places only (the flag when a server pass works, and the new check); no sign-in or session code.
 
 ## Decisions to review (Claude connector B, 11 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **Own OAuth, not Supabase's built-in OAuth server.** The built-in one exists (dynamic registration, PKCE, refresh tokens) but must be switched on in the dashboard, could not be confirmed as out of beta, issues ordinary project-wide Supabase tokens (not limited to the connector address), and still needs a consent screen in the app. Ours is small, tested, hashed, scoped and can be cut off in one SQL line. Switching later is possible.
 - **The consent screen lives in the app (`#/connect`), not in the function.** Edge Functions on the default address serve HTML as plain text. The function redirects there; the page calls `/oauth/consent` signed in as the person.
 - **The spec takes text as inline Markdown strings; no pictures or files, no `cardList` or `dayRecord`.** Pictures need uploads (a later decision); the others are made by the app.
@@ -1256,6 +1286,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (build night 1, 12 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - Night 1 work was released to the live app on 12 Nov after a fully green test run, with every new part switched off (owner's release rule). The next release waits for the end-of-run full check because it includes a new on-device table (Dexie version 24, aiJobs), which cannot be rolled back by a switch.
 - aiJobs is device-local: not synced, not in backup files; "Delete all data" removes it.
 - Shell: phone = width under 640 or height under 512; a page shows two Undo/Redo pairs until the toolbar slice removes one; Device mode is hidden from the phone top bar (stays in the gear menu).
@@ -1264,6 +1295,7 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (slice 4 gate 3 fixes, 13 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **Home v2 "More" button, count tiles and cover due badges are later.** Gate 3 item 12 (mock: sliders + "More" first in the filter row; tiles for notebooks, pages, cards due; "due" badge on the cover). The "More" button has nothing to open until the notebook More sheet is wired to Home, the tiles need a cross-notebook count query (cost to check at 500+ notebooks), and the due badge is today beside the name (not on the cover). Left out on purpose so this slice stays inside the bundle limit; re-plan with Home v2 (slice 5).
 - **"Open in new place" opens a new browser tab** until the side panel exists (SR-B10).
 - **"This page" search scope** keeps hits on the open page and shows the number of matches; the previous / next arrows ("3 of 12") wait for the editor find slice.
@@ -1282,6 +1314,7 @@ Research (docs/plans/ai-build-best-practices-2026-11-13.md) puts the useful limi
 
 ## Decisions to review (slice 12 rest fixes, 14 Nov)
 
+- **2026-11-16 · C2 filled shapes lose their fill on the first touch (builder, to review).** A filled oval or rectangle that the Standard or Precise eraser touches becomes plain ink pieces (outline only, no tint inside), because the pieces are open lines. Untouched shapes keep the fill; Undo brings it back. Pieces carry a new optional mark `flat` so they still draw the shape way (even width, square ends at the cut). Owner to confirm or ask for the fill to stay.
 - **PM-20 keeps "Add to favourites" and "Comment" (owner rule: never drop features).** Add to favourites is built on the text strip: it stars the open page (Remove from favourites when starred, with a toast); Beginner finds it in ⋯. **Comment is built but hidden** (`COMMENTS = false` in `src/editor/menus/PageStrip.tsx`) because the app has no comment entry point yet; turn it on and give `onAction('comment')` a handler when comments exist. The spec line stays.
 - **Phone strip with names under the icons:** the items now share the bar's width (names wrap), so 4 items + ⋯ fit 390 px with nothing cut off (`.cs[data-labels]` in ContextStrip.css).
 
@@ -1364,3 +1397,4 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 - **2026-11-15 · P1.9 ipad-webkit list (builder, manager OK).** Added `/p1FrameCovers/` to the ipad-webkit list in playwright.config.ts (one line). Not run yet: P1.8 holds webkit.
 
 - **2026-11-15 · P1.9 review 1 (builder).** (a) Pin an action: the picture does not say what ✕ does; it now goes back to Page options without changes (✓ keeps; Esc and a tap outside close the sheet and keep the bar as it was; on Page options ✕ closes). (b) Page and View stay as extra folded groups beside Share, Protect and Tools (nothing dropped; the picture shows only three). (c) The list opened beside an upright page is 300 px wide (picture), not the 288 docked default. (d) Export uses the upload icon. (e) The old bar's strip is 54 px in every mode (icons 18/20/24), so the bar and the page do not move when a Pencil touch switches the mode (a test found 10 px of jump at 820 px).
+- **2026-11-16 · C8 and C13 (manager picks, built).** C8: "Delete box" on the page's first box empties it and resets its fill and style to the default, so it looks deleted; one Undo brings back the text and the look. C13: the right dot of the last box and the left dot of the first box move that edge with the finger; the freed space stays empty (right: the row's fractions may sum to under 1; left: a row of columns may keep a left offset `x`). Stored rows with room are accepted by `isGridRows`.

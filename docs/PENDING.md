@@ -103,3 +103,5 @@ Branches and commit ids of every parked part: docs/BUILD-STATE.md.
   Owner deleted one 'November 2026' page by hand on 16 Nov; the Journal repair (journal.monthRepair, preview only) stays as a guard against new duplicates.
 
 - **Live site check fix ready (16 Nov):** slice/live-check-sha af19a586 (the check compares live with the newest commit that changes what ships; passes now). Not merged on purpose: a push to main with non-docs files redeploys the live app (same app, new version number), which needs the owner's yes. Merge it together with task 0.7 (Phase 1 go-live).
+
+- **START HERE (16 Nov, end of day):** the owner's combined test is half done and 5 bugs are open (C2–C6). Everything needed to resume is in [plans/combined-test-2026-11-16.md](plans/combined-test-2026-11-16.md).

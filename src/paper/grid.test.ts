@@ -230,3 +230,34 @@ describe('zoneOf and the stored shape', () => {
     expect(isGridRows('x')).toBe(false)
   })
 })
+
+describe('room at the right of a row (C13)', () => {
+  it('a last column narrower than its share keeps its width; the room stays empty', () => {
+    const r = reconcile([row('r', [0.5, ['a']], [0.3, ['b']])], ['a', 'b'])
+    expect(r[0].cols.map((c) => c.w)).toEqual([0.5, 0.3])
+    const out = layoutRows(r, { a: 20, b: 20 }, G)
+    expect(out.get('b')!.x + out.get('b')!.w).toBeLessThan(210 - 15 - 20)
+  })
+  it('a column that goes away still brings the row back to 100 %', () => {
+    const r = removeBox(
+      [row('r', [0.4, ['a']], [0.3, ['b']], [0.3, ['c']])],
+      'a',
+    )
+    expect(r[0].cols.reduce((n, c) => n + c.w, 0)).toBeCloseTo(1, 5)
+  })
+})
+
+describe('left offset of a row (C13)', () => {
+  it('a row with x starts there; its columns keep their right edges', () => {
+    const r: GridRow = { ...row('r', [0.5, ['a']], [0.5, ['b']]), x: 45 }
+    const out = layoutRows([r], { a: 20, b: 20 }, G)
+    expect(out.get('a')!.x).toBe(45)
+    expect(out.get('b')!.x + out.get('b')!.w).toBeCloseTo(210 - 15, 0)
+  })
+  it('a free box that gets a neighbour is a row of columns again (no offset)', () => {
+    const free: GridRow = { ...row('r', [1, ['a']]), x: 40, auto: true }
+    const { rows } = insertAt([free], 'a', 'right', 'b')
+    expect(rows[0].x).toBeUndefined()
+    expect(rows[0].auto).toBeUndefined()
+  })
+})

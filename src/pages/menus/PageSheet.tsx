@@ -74,6 +74,12 @@ export default function PageSheet({
     ? tileIds(pins, known, all)
     : cleanPins(pins ?? [], known)
   const [draft, setDraft] = useState<string[]>([])
+  // The order when Arrange opened: ✕ puts it back (moves are saved live).
+  const [arrangeFrom, setArrangeFrom] = useState<string[]>([])
+  const openArrange = () => {
+    setArrangeFrom(livePins)
+    setView('arrange')
+  }
   const notebook = useLiveQuery(
     () => db.notebooks.get(page.notebookId),
     [db, page.notebookId],
@@ -163,7 +169,9 @@ export default function PageSheet({
       ? t('pageMenus.sheet.moveTo')
       : view === 'pins'
         ? t('pageMenus.sheet.pinAdd').replace(/^\+\s*/, '')
-        : t('pageMenus.sheet.title')
+        : view === 'arrange'
+          ? t('pageMenus.sheet.arrange')
+          : t('pageMenus.sheet.title')
 
   return (
     <Sheet
@@ -176,17 +184,26 @@ export default function PageSheet({
             : undefined
       }
       confirm={
-        shell && view === 'pins'
+        shell && view === 'arrange'
           ? {
               label: t('parts.fb.confirm'),
-              // ✕ leaves without changes: back to Page options (P1.9 T21).
-              onCancel: () => setView('main'),
-              onConfirm: () => {
-                savePins(draft)
+              onCancel: () => {
+                savePins(arrangeFrom)
                 setView('main')
               },
+              onConfirm: () => setView('main'),
             }
-          : undefined
+          : shell && view === 'pins'
+            ? {
+                label: t('parts.fb.confirm'),
+                // ✕ leaves without changes: back to Page options (P1.9 T21).
+                onCancel: () => setView('main'),
+                onConfirm: () => {
+                  savePins(draft)
+                  setView('main')
+                },
+              }
+            : undefined
       }
       onClose={onClose}
       opener={opener}
@@ -268,7 +285,7 @@ export default function PageSheet({
           press={press}
           onToggle={(r) => r.toggle && r.run?.()}
           onPin={openPins}
-          onArrange={() => setView('arrange')}
+          onArrange={openArrange}
         />
       )}
       {view === 'main' && !shell && (
@@ -303,7 +320,7 @@ export default function PageSheet({
                   className="ps-tile ps-tile--add"
                   data-testid="ps-arrange"
                   aria-label={t('pageMenus.sheet.arrange')}
-                  onClick={() => setView('arrange')}
+                  onClick={openArrange}
                 >
                   <Icon name="sliders" size={20} />
                   <span className="ps-tile__name">
@@ -347,6 +364,7 @@ export default function PageSheet({
         <div className="ps-arrange">
           <ArrangeSheet
             mode="inline"
+            bare={shell}
             title={t('pageMenus.sheet.arrange')}
             rows={pinRows}
             onChange={(next) => savePins(next.map((r) => r.id))}

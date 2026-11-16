@@ -469,6 +469,7 @@ export const enLateToolbar = {
   'tool.print': 'Print / PDF',
   'tool.quote': 'Quote',
   'tool.readAloud': 'Read aloud',
+  'tool.mic': 'Mic',
   'tool.readerFull': 'Full-screen reader',
   'tool.readingMode': 'Reading mode',
   'tool.redo': 'Redo',

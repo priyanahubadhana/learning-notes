@@ -80,6 +80,7 @@ const config = defineConfig({
       name: 'ipad-webkit',
       testIgnore: [/visual\//, /tb2-resize-phone-swipe/], // 2B.5b: a real swipe, chromium only
       testMatch: [
+        /eraserShapes/,
         /parts-gallery/,
         /c45-symbols-scribble/, // C4, C5, C14 (combined test 16 Nov)
         /pageMenusPaste/,
@@ -97,6 +98,8 @@ const config = defineConfig({
         /inkTools/,
         /toolbarV9Lasso/,
         /toolbarV9More/,
+        /toolbarC36/,
+        /cBoxes/,
         /updateFailureNote/,
         /updateDownload/,
         /security-m1-/,

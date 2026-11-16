@@ -313,6 +313,12 @@ export const TOOL_META: Readonly<Record<string, ToolMeta>> = {
     favourite: true,
     icon: 'penLine',
   },
+  mic: {
+    level: 'beginner',
+    places: ['toolbar'],
+    favourite: false,
+    icon: 'mic',
+  },
   audio: {
     level: 'professional',
     unlock: 'tb.insertMore',

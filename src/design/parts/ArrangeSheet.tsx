@@ -45,6 +45,8 @@ export type ArrangeSheetProps = {
    */
   docked?: boolean
   onCancel?(): void
+  /** Inside a sheet that already has the header (✕ and ✓): only the list, no second sheet. */
+  bare?: boolean
   /** Rows that stay in place (not movable), shown above the list: the tools of a row. */
   fixed?: ReactNode
 }
@@ -326,6 +328,15 @@ export function ArrangeSheet(props: ArrangeSheetProps) {
       </div>
     </>
   )
+  if (props.bare)
+    return (
+      <div data-testid="arrange-sheet">
+        {body}
+        {props.onReset || props.onAdd ? (
+          <div className="arr-bare-foot">{footer}</div>
+        ) : null}
+      </div>
+    )
   if (props.docked)
     return (
       <Sheet

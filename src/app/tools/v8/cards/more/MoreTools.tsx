@@ -5,6 +5,7 @@ import { t, type MessageKey } from '../../../../../i18n/t'
 import { useLevel, useUnlocked } from '../../../../../settings/level'
 import { Icon, type IconName } from '../../../icons'
 import { findTool, runTool } from '../../../toolRegistry'
+import { startEdit } from '../../barEdit'
 
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
@@ -79,6 +80,20 @@ export default function MoreTools({
         BAR,
         'settings',
         <>
+          <button
+            type="button"
+            data-chrome
+            data-testid="v8-more-editbar"
+            className="v8fold-row"
+            onMouseDown={keepFocus}
+            onClick={() => {
+              onClose()
+              startEdit()
+            }}
+          >
+            <Icon name="sliders" size={18} />
+            <span>{t('v8.more.editBar')}</span>
+          </button>
           <button
             type="button"
             data-chrome

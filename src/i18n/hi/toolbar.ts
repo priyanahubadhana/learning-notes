@@ -519,6 +519,7 @@ export const hiToolbar = {
   'tool.print': 'प्रिंट / PDF',
   'tool.quote': 'उद्धरण',
   'tool.readAloud': 'ज़ोर से पढ़ें',
+  'tool.mic': 'माइक',
   'tool.readerFull': 'पूरी स्क्रीन का रीडर',
   'tool.readingMode': 'पठन मोड',
   'tool.redo': 'फिर से करें',

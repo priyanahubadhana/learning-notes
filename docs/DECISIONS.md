@@ -124,6 +124,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 - **2026-11-14 (evening) · P1.3 download watchdog: only a 20 s "no byte at all" limit, no per-file limit (manager, safest option).** A per-file limit would stop a slow but moving download and Try again would fetch everything again.
 - **2026-11-14 (evening) · P1.3 About "Pretend a must-have update" ends with a plain reload on the same page, never drops the offline copy (manager, safest option).** A real must-have update keeps its existing ending.
+- **2026-11-16 · YouTube notes via Claude Code:** the owner has not decided between one notebook per video and one per subject. Safe default for now: one new notebook per video (the connector can only create, never move or delete, so this mixes nothing up). Pages can be regrouped later in the app.
+
 - **2026-11-16 · C9 Record audio stays a Professional tool (reviewer, follows v9).** In the edit "More tools" tray, Mic shows for everyone; Record audio shows only when "Insert more" (Professional) is on, as v9 lists Audio under Professional. In Beginner, the owner will not see Record audio.
 - **2026-11-16 · C13 and C14 fixes (manager picks).** C13: every visible resize dot does something (the last box's right edge narrows or widens it; the top edge works from any box in a row). C14: a tap never deletes; one tap timing (500 ms between taps, a Pencil tap up to 250 ms and 8 px); a preview-only "Tap speed" choice for the owner's iPad test, removed before release.
 

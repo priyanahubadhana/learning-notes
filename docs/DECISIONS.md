@@ -77,6 +77,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-17 · TB-23 column-divider test may now press a box dot (reviewer, slice/full-fix2).** e2e/tb2-resize.spec.ts:313: since C21 the press over the divider lands on the right box's west dot, so TB-23 may test a dot resize, not the divider itself. Merged as is (the behaviour already on build/next; the test still checks both boxes resize live). Follow-up: give the divider its own press point in a later fix slice (PENDING TB23-DIV).
+
 - **2026-11-16 · C19/C14/C4 tap tests repeat late runs (reviewer OK).** A run the PC delivered late (judged by the page's own event time stamps, the rule the 50-run tests already use) is repeated, at most 3 times; every on-time run must still select and the "nothing deleted" check covers every run. The C14 "already selected" test is looser than before (it failed on any late run). Owner: the iPad re-test is the real proof (edit menu no longer flashes).
 
 - **2026-11-16 · C21 free boxes may sit side by side (reviewer).** Moving a box (with textbox.v2 on) can now place it beside another box, but the page layout dialog still stacks boxes one under another. Safe default: keep this split; owner to confirm on the re-test.

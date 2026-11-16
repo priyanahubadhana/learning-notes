@@ -57,19 +57,10 @@ export function pauseTyping(boxId?: string): boolean {
     setTypingPaused(true)
     return true
   }
-  // Why: a caret put away long ago (a tap on the paper, then a menu opened) is
-  // not typing: the keyboard must not come back after the menu. Only a caret
-  // that left a moment before this press (the blur came first) is brought back.
-  const held2 =
-    !!held &&
-    (!boxId || held.boxId === boxId) &&
-    Date.now() - held.at < JUST_LEFT_MS
+  const held2 = !!held && (!boxId || held.boxId === boxId) && fresh()
   if (held2) setTypingPaused(true)
   return held2
 }
-
-/** A caret that left this recently (ms) still counts as the one being typed in. */
-const JUST_LEFT_MS = 300
 
 const fresh = () => !!held && Date.now() - held.at < KEEP_MS
 

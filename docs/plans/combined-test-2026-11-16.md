@@ -23,7 +23,7 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
 
 ## Open bugs (fix these next)
 
-Claude's pick is marked; the owner's answers were still open when the session ended (token limit). If the owner hasn't answered, use the pick and log it in DECISIONS "to review".
+**Owner answers (16 Nov): yes to all four picks:** C2 A, C3 A, C5 A, and A for the order (fixes start now; the owner tests parts B–D meanwhile; fixes merge into the test version only after the owner finishes B–D).
 
 **C2. Eraser on shapes (Standard and Precise).** Erasing part of a shape removes the whole oval, or bends the rectangle into a slanted shape (the remaining corners get joined by a straight line). Whole stroke is fine. Likely cause: a shape is stored as a few corner points, and the eraser drops a point. Fix (pick A): when Standard or Precise touches a shape, turn the shape into ordinary ink first, then cut only what the tip touches. Alternative B: the eraser removes whole shapes only.
 

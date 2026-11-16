@@ -120,3 +120,10 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
 - **C18 (same screenshot, to check):** the box shows a cursor and the 8 dots at the same time (with a dashed outline); C11 says typing = thin border, no dots. It may be the mic strip taking the focus. Check it.
 - **C17, more (owner):** the mic worked well in the early tests (the old tool bar), so this is a regression. Now: the mic strip can't be set in place ("fix"), and tapping the mic again doesn't stop the recording. "That tool itself is not working." Compare with the live app (main), where it worked: likely one of the new tap or focus changes (tapSelect.ts and penGuard.ts Pencil cancels, the C10 typing pause, keyboardPolicy.ts) swallows the strip's input.
 - **C18 confirmed (owner):** while writing in a box, the 8 resize dots still show. Typing must show the thin border only (C11).
+- **C19 (owner, re-test of item 5):**
+  - Double and triple taps still work only sometimes. "Relaxed" tap speed felt best.
+  - In the middle of a word: the first tap places the cursor, then a double tap often fails, and a pop-up flashes. At word ends and corners it works.
+  - The owner wants a bigger tap radius: a second tap slightly off, but on the same word, still counts.
+  - Manager's guess: iPadOS treats a tap on the caret as "show the edit menu".
+  - Fix (manager's picks): default tap speed Relaxed (700 ms); a second or third tap counts within 24 px or on the same word; a tap on or near the caret never loses the multi-tap, and no edit menu flashes. Tests: 50 runs mid-word at 0–20 px offsets, all select. Builder: `slice/c19-taps` (Fable).
+- **C20 (owner):** Duplicate box gives a copy of a different size (the text is the same). A duplicate must keep everything: width, height, fill, border, padding, font and paper settings, lock state and fields. It is only placed 10 mm lower and to the right (src/paper/boxService.ts ~254, clampBox).

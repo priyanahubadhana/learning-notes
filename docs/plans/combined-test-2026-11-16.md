@@ -65,4 +65,5 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
 - **C11 (owner, 8:40–8:41, Goodnotes reference screenshots):** text box states like Goodnotes.
   - (1) While typing in a box, show a thin border around the box with no resize dots.
   - (2) While a box is in typing mode, a tap just outside it ends typing (the cursor goes) and leaves the box selected, with its resize handles and the box bar.
-    This changes the approved states picture (docs/mockups/textbox-2b/states.html: today the typing state also shows the 8 dots), so it needs a small picture for the owner's OK first. Open question: does a second tap outside then deselect the box completely? (Claude's pick: yes, as in Goodnotes.)
+    This changes the approved states picture (docs/mockups/textbox-2b/states.html: today the typing state also shows the 8 dots), so it needs a small picture for the owner's OK first. Open question: does a second tap outside then deselect the box completely? Owner: yes, a second tap outside deselects the box completely.
+- **C12 (owner, 8:42, screenshot):** the selected box's frame (border and 8 dots) is shorter than the box itself: the box's coloured fill goes on about 140 px below the frame's bottom edge, with a small extra grey tab at the right edge. The frame must always match the box's real size, including its fill and padding.

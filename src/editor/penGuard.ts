@@ -4,6 +4,7 @@ import type { Transaction } from 'prosemirror-state'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { inputMachine } from '../app/inputMachine'
 import { scribbleFree } from './penMode'
+import { scribbleInput } from './scribbleDelete'
 import type { AppSchema } from './schema'
 
 /**
@@ -256,6 +257,9 @@ export function watchPenGuard(
     penState.lastKeyAt = clock()
   }
   const onBeforeInput = (e: Event) => {
+    // C4: a delete right after a scribble goes to what the scribble covered.
+    scribbleInput(dom, e, penState.lastKeyAt)
+    if (e.defaultPrevented) return
     const input = e as InputEvent
     const scribbleOn = scribbleFree()
     if (

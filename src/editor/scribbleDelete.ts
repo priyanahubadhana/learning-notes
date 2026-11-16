@@ -1,9 +1,9 @@
 import { TextSelection } from 'prosemirror-state'
 import { isOn } from '../app/flags'
 import { onGestureReset } from '../app/gestureReset'
+import { onRouted } from '../app/input/eventRouter'
 import { activeTool } from '../app/tools/main/mainTools'
 import { wordsInRegion, type Box } from './lassoWords'
-import { penState } from './penGuard'
 import type { AppSchema } from './schema'
 import { posNear } from './tapSelect'
 import { tokenAround } from './textTokens'
@@ -58,6 +58,17 @@ export function strokeBox(pts: { x: number; y: number }[], grow = 0): Box {
 /** Is [a, b] inside [from, to] (one position of slack for a space)? */
 export const within = (a: number, b: number, span: [number, number]): boolean =>
   a >= span[0] - 1 && b <= span[1] + 1
+
+/** Each editor's delete check, asked by the Pencil guard's beforeinput. */
+const inputHooks = new WeakMap<Element, (e: Event, lastKeyAt: number) => void>()
+
+/**
+ * Called first by penGuard.ts for every beforeinput of `dom`: a delete right
+ * after a scribble is turned into deleting what the scribble covered.
+ */
+export function scribbleInput(dom: Element, e: Event, lastKeyAt: number): void {
+  inputHooks.get(dom)?.(e, lastKeyAt)
+}
 
 export function watchScribbleDelete(editor: Editor): () => void {
   const dom = editor.domElement
@@ -153,13 +164,12 @@ export function watchScribbleDelete(editor: Editor): () => void {
     stroke = null
   }
 
-  const onBeforeInput = (e: Event) => {
+  const onBeforeInput = (e: Event, lastKeyAt: number) => {
     const input = e as InputEvent
     if (!input.inputType?.startsWith('delete') || !mark || !on()) return
     const now = Date.now()
     const m = mark
-    if (now - m.at > SCRIBBLE_MS || now - penState.lastKeyAt <= KEY_RECENT_MS)
-      return
+    if (now - m.at > SCRIBBLE_MS || now - lastKeyAt <= KEY_RECENT_MS) return
     mark = null
     const view = editor.prosemirrorView
     if (!view) return
@@ -188,22 +198,21 @@ export function watchScribbleDelete(editor: Editor): () => void {
     view.dispatch(tr.scrollIntoView())
   }
 
-  doc.addEventListener('pointerdown', onDown, true)
-  doc.addEventListener('pointermove', onMove, true)
-  doc.addEventListener('pointerup', onEnd, true)
-  doc.addEventListener('pointercancel', onEnd, true)
-  // Before the Pencil guard (penGuard.ts) and ProseMirror see the delete.
-  dom.addEventListener('beforeinput', onBeforeInput, true)
+  const offs = [
+    onRouted('pointerdown', onDown, { name: 'scribbleDelete' }),
+    onRouted('pointermove', onMove, { name: 'scribbleDelete' }),
+    onRouted('pointerup', onEnd, { name: 'scribbleDelete' }),
+    onRouted('pointercancel', onEnd, { name: 'scribbleDelete' }),
+  ]
+  // The Pencil guard's beforeinput listener asks here first (penGuard.ts).
+  inputHooks.set(dom, onBeforeInput)
   const offReset = onGestureReset(() => {
     stroke = null
     mark = null
   })
   return () => {
     offReset()
-    doc.removeEventListener('pointerdown', onDown, true)
-    doc.removeEventListener('pointermove', onMove, true)
-    doc.removeEventListener('pointerup', onEnd, true)
-    doc.removeEventListener('pointercancel', onEnd, true)
-    dom.removeEventListener('beforeinput', onBeforeInput, true)
+    for (const off of offs) off()
+    if (inputHooks.get(dom) === onBeforeInput) inputHooks.delete(dom)
   }
 }

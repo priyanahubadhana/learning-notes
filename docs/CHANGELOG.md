@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: C4/C14 Pencil tests send taps on one clock (ipad-webkit reds)
+
+- What: the test Pencil has a tap-run driver, `realPenTaps` (e2e/realPen.ts): the tip hovers in once, then every down and up is sent at its own time; the drift and the way back are sent alongside. The C4, C5 and C14 tests use it. The C14 tests log the measured timing (event time stamps) against the timing asked. No app change; the 35 of 50 bar and every check stay.
+- Why: two ipad-webkit reds (C14 triple taps 31 to 33 runs in the spec; C4 "ten scribbles" lost a double tap). Cause, measured: the old driver waited for the browser's answer to each hover move, and WebKit answered 150 to 260 ms late right after a caret or selection change, while the page's own listeners ran 1 to 13 ms. Taps asked 90 ms apart arrived 290 to 580 ms apart, past the app's 500 ms. Now: 50 of 50 runs in the spec, all select; measured minus asked: median 11 to 13 ms, worst 41 ms.
+- Files: e2e/realPen.ts, e2e/c45-symbols-scribble.spec.ts.
+
 ### 16 Nov 2026: C4, C5, C14 text box taps, symbols and scribble (switch textbox.v2, OFF live)
 
 - What: C5: symbols (→ , / ①, runs like "//") can be selected: a tap puts the cursor on its side, a double tap selects the symbol run, a triple tap the line, and the Lasso Text pick takes them in; a box's lines are one block, so the Lasso takes the whole block only when every word and symbol is inside. C4: a Pencil scribble over text clears the old selection, and the delete the iPad sends then removes only what is under the scribble (one Undo). C14: one tap timing (500 ms between taps; a Pencil tap up to 250 ms and 8 px) for text taps and ink taps; deletes are refused around a Pencil tap.

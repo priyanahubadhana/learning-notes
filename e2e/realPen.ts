@@ -75,3 +75,61 @@ export async function realPen(page: Page, path: Pt[]): Promise<void> {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })
 }
+
+/** One tap of a run: how long the tip stays down, the pause before it, its drift (ms, px). */
+export type PenTap = { hold: number; gap?: number; drift?: number }
+
+/** Waits until `t` on this process's clock (the last 20 ms without a timer: Windows timers are 15 ms coarse). */
+async function until(t: number): Promise<void> {
+  const far = t - performance.now() - 20
+  if (far > 0) await new Promise((done) => setTimeout(done, far))
+  while (performance.now() < t) await new Promise((done) => setImmediate(done))
+}
+
+/**
+ * A run of Pencil taps at one spot with a hand's own timing (C14).
+ *
+ * Why: the taps used to be driven call by call (hover, hover, down, up), and
+ * each call waits for the browser's answer. WebKit answers a hover move only
+ * after its next repaint, which took 150-260 ms whenever the page had just
+ * changed (a caret, a selection): measured 16 Nov, the page's own listeners
+ * ran 1-13 ms. Taps asked 90 ms apart reached the page 290-580 ms apart, so
+ * a double or triple tap sometimes fell outside the app's 500 ms. A Pencil
+ * does not wait for a repaint between two taps.
+ *
+ * Here the tip hovers in once, before the run. Every down and up is then
+ * sent at its own time on one clock, counted from the run's first down; the
+ * drift while the tip is down and the way back between two taps are sent
+ * alongside, so their answers never hold a down or an up back.
+ */
+export async function realPenTaps(
+  page: Page,
+  at: Pt,
+  taps: PenTap[],
+): Promise<void> {
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
+  // The hover a Pencil sends before it touches (no button, pressure 0).
+  await page.mouse.move(at.x - 3, at.y - 6)
+  await page.mouse.move(at.x, at.y)
+  let back: Promise<void> = Promise.resolve()
+  let next = performance.now()
+  for (const tap of taps) {
+    // The pause before this tap, counted from when the last lift was sent.
+    await Promise.all([until(next + (tap.gap ?? 0)), back])
+    const down = performance.now()
+    await page.mouse.down()
+    const drift = tap.drift
+      ? page.mouse.move(at.x + tap.drift * 0.6, at.y + tap.drift * 0.8)
+      : Promise.resolve()
+    await Promise.all([until(down + tap.hold), drift])
+    next = performance.now()
+    await page.mouse.up()
+    back = tap.drift ? page.mouse.move(at.x, at.y) : Promise.resolve()
+  }
+  await back
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
+}

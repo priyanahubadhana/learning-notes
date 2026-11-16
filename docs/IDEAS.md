@@ -155,3 +155,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - 15 Nov (reviewer, red1): a small e2e for the docked side list with a narrowed tool bar ("More options (N)" label; one scroll bar per edge). No test covers it today.
 
 - **Page options: add any action (owner, 16 Nov):** in Page options › Arrange pinned actions, a "+ Add" like the tool bar's + favourite, so the user can pin any action and customise the row fully. Later; parked for tokens.
+
+- **Mic in the text box (owner, 16 Nov):** a mic option in the text box with a choice: "Type my words" (speech to text) or "Record audio" (keeps the recording). Needs a picture first. Voice is faster than typing.

@@ -1,9 +1,13 @@
 // @vitest-environment jsdom
 import { SPLASH_MAX_MS, showUpdatingPill } from './autoUpdate'
 import { updateStatus } from './updateStatus'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   FALLBACK_MAX_MS,
+  pressRestart,
+  resetRestartForTests,
+  SLOW_AFTER_MS,
+  WATCHDOG_MS,
   restartIntoNewFiles,
   restartRunning,
   WORKER_WAIT_MAX_MS,
@@ -55,18 +59,24 @@ const never = () => new Promise<never>(() => {})
 
 function deps(c: ReturnType<typeof clock>, over: Partial<RestartDeps>) {
   const reload = vi.fn()
+  const reloadFresh = vi.fn()
+  const report = vi.fn()
   const d: RestartDeps = {
     getRegistration: async () => undefined,
     clearOld: async () => {},
     flush: async () => {},
     reload,
+    reloadFresh,
+    report,
     after: c.after,
     ...over,
   }
-  return { d, reload }
+  return { d, reload, reloadFresh, report }
 }
 
 describe('an update restart always finishes (T27)', () => {
+  beforeEach(resetRestartForTests)
+
   it('no worker: clears the old files, then reloads', async () => {
     const c = clock()
     const clearOld = vi.fn(async () => {})
@@ -196,11 +206,11 @@ describe('an update restart always finishes (T27)', () => {
     })
     void restartIntoNewFiles(d)
     showUpdatingPill(c.after)
-    await c.advance(SPLASH_MAX_MS * 6)
+    await c.advance(SPLASH_MAX_MS * 2)
     expect(restartRunning()).toBe(true)
     expect(updateStatus.get().phase).toBe('updating')
     w.set('activated')
-    await c.advance(SPLASH_MAX_MS * 2)
+    await c.advance(SPLASH_MAX_MS * 4)
     expect(restartRunning()).toBe(false)
     expect(updateStatus.get().phase).toBe('ready')
   })
@@ -211,5 +221,123 @@ describe('an update restart always finishes (T27)', () => {
     void restartIntoNewFiles(d)
     await c.advance(FALLBACK_MAX_MS * 5)
     expect(reload).toHaveBeenCalledTimes(1)
+  })
+
+  it('C22: the worker wait is 15 s at most', () => {
+    expect(WORKER_WAIT_MAX_MS).toBe(15_000)
+  })
+
+  it('C22: a worker that never activates: "slow" at 5 s, then the reload at the limit', async () => {
+    const c = clock()
+    const w = fakeWorker('installing')
+    const { d, reload, report } = deps(c, {
+      getRegistration: async () => ({ installing: w, waiting: null }),
+    })
+    void restartIntoNewFiles(d)
+    await c.advance(SLOW_AFTER_MS + 1)
+    expect(report).toHaveBeenLastCalledWith('slow')
+    expect(reload).not.toHaveBeenCalled()
+    await c.advance(WORKER_WAIT_MAX_MS + FALLBACK_MAX_MS * 2)
+    expect(reload).toHaveBeenCalledTimes(1)
+  })
+
+  it('C22: "Restart now" stops the waiting and reloads at once', async () => {
+    const c = clock()
+    const w = fakeWorker('installing')
+    const { d, reload } = deps(c, {
+      getRegistration: async () => ({ installing: w, waiting: null }),
+    })
+    void restartIntoNewFiles(d)
+    await c.advance(SLOW_AFTER_MS + 1)
+    pressRestart()
+    await c.advance(10)
+    expect(reload).toHaveBeenCalledTimes(1)
+    await c.advance(WATCHDOG_MS + FALLBACK_MAX_MS * 3) // let this run end
+  })
+
+  it('C22: a reload ignored once is asked again with a fresh address', async () => {
+    const c = clock()
+    const { d, reload, reloadFresh, report } = deps(c, {})
+    void restartIntoNewFiles(d)
+    await c.advance(100)
+    expect(reload).toHaveBeenCalledTimes(1)
+    expect(reloadFresh).not.toHaveBeenCalled()
+    await c.advance(WATCHDOG_MS + 10)
+    expect(reloadFresh).toHaveBeenCalledTimes(1)
+    expect(report).not.toHaveBeenCalledWith('failed')
+    await c.advance(WATCHDOG_MS) // ends this run
+    expect(report).toHaveBeenCalledWith('failed')
+  })
+
+  it('C22: ignored twice: "failed" is shown, the restart is free again, Tap to try again works', async () => {
+    const c = clock()
+    const { d, reload, reloadFresh, report } = deps(c, {})
+    void restartIntoNewFiles(d)
+    await c.advance(100 + WATCHDOG_MS * 2 + 10)
+    expect(report).toHaveBeenLastCalledWith('failed')
+    expect(restartRunning()).toBe(false)
+    pressRestart()
+    await c.advance(100)
+    expect(reload).toHaveBeenCalledTimes(2)
+    expect(reloadFresh).toHaveBeenCalledTimes(1)
+    await c.advance(WATCHDOG_MS * 2 + 10)
+  })
+
+  it('C22: typed notes are saved before every reload, including the repeats', async () => {
+    const c = clock()
+    const flush = vi.fn(async () => {})
+    const { d, reload, reloadFresh } = deps(c, { flush })
+    void restartIntoNewFiles(d)
+    await c.advance(100)
+    expect(flush).toHaveBeenCalledTimes(1)
+    expect(reload).toHaveBeenCalledTimes(1)
+    await c.advance(WATCHDOG_MS + 10)
+    expect(flush).toHaveBeenCalledTimes(2)
+    expect(reloadFresh).toHaveBeenCalledTimes(1)
+    await c.advance(WATCHDOG_MS)
+  })
+
+  it('C22: a worker that never activates, Restart now tapped: the old files are kept (clearOld not called)', async () => {
+    const c = clock()
+    const w = fakeWorker('installing')
+    const clearOld = vi.fn(async () => {})
+    const { d, reload } = deps(c, {
+      clearOld,
+      getRegistration: async () => ({ installing: w, waiting: null }),
+    })
+    void restartIntoNewFiles(d)
+    await c.advance(SLOW_AFTER_MS + 1)
+    pressRestart()
+    await c.advance(10)
+    expect(reload).toHaveBeenCalledTimes(1)
+    expect(clearOld).not.toHaveBeenCalled()
+    await c.advance(WATCHDOG_MS * 3)
+  })
+
+  it('C22: the 15 s timeout with a worker still installing keeps the old files too', async () => {
+    const c = clock()
+    const w = fakeWorker('installing')
+    const clearOld = vi.fn(async () => {})
+    const { d, reload } = deps(c, {
+      clearOld,
+      getRegistration: async () => ({ installing: w, waiting: null }),
+    })
+    void restartIntoNewFiles(d)
+    await c.advance(WORKER_WAIT_MAX_MS + 10)
+    expect(reload).toHaveBeenCalledTimes(1)
+    expect(clearOld).not.toHaveBeenCalled()
+    await c.advance(WATCHDOG_MS * 3)
+  })
+
+  it('C22: Restart now tapped while the reload watchdog runs asks again at once', async () => {
+    const c = clock()
+    const { d, reload, reloadFresh } = deps(c, {})
+    void restartIntoNewFiles(d)
+    await c.advance(100)
+    expect(reload).toHaveBeenCalledTimes(1)
+    pressRestart()
+    await c.advance(100)
+    expect(reloadFresh).toHaveBeenCalledTimes(1)
+    await c.advance(WATCHDOG_MS * 3)
   })
 })

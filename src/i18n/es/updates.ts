@@ -12,6 +12,8 @@ export const esUpdates = {
   'upd.updated': 'Actualizado a la versión {version}',
   'upd.updating': 'Reiniciando con la nueva versión…',
   'update.auto.done': 'Actualizado a la última versión',
+  'upd.restartFailed': 'No se pudo reiniciar. Toca para intentarlo de nuevo',
+  'upd.restartNow': 'Reiniciar ahora',
   'update.now': 'Actualizar',
   'update.ready': 'Hay una versión nueva lista.',
   'update.req.body':

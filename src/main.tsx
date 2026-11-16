@@ -268,10 +268,12 @@ subscribeDeviceSettings(() => {
   if (updateWaiting()) repeatUpdateOffer()
 })
 // Tests: pretend a new version was found (the restart is a plain reload).
-window.addEventListener('learning-notes:test-update', () =>
+// detail.stuck: the apply step does nothing (only the forced restart acts).
+window.addEventListener('learning-notes:test-update', (e) =>
   offerUpdate(() => {
     resetGestures('manual')
-    location.reload()
+    if (!(e as CustomEvent<{ stuck?: boolean } | null>).detail?.stuck)
+      location.reload()
   }),
 )
 
@@ -324,6 +326,15 @@ watchUpdateTriggers(window, lookQuietly)
     window.requestIdleCallback(start, { timeout: 3000 })
   } else {
     setTimeout(start, 1500)
+  }
+}
+
+// C22: a restart that had to ask twice leaves `_r` in the address; remove it.
+{
+  const u = new URL(location.href)
+  if (u.searchParams.has('_r')) {
+    u.searchParams.delete('_r')
+    history.replaceState(history.state, '', u.href)
   }
 }
 

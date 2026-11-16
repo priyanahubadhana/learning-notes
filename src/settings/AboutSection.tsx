@@ -10,6 +10,7 @@ import {
   updateWaiting,
   applyWaitingUpdate,
 } from '../app/updates'
+import { pressRestart } from '../app/restartNow'
 import { t, type MessageKey } from '../i18n/t'
 import { useFlag } from '../app/flags'
 import { UPDATE_LEVEL } from '../app/updateLevel'
@@ -37,7 +38,7 @@ export function AboutSection() {
     [],
   )
   const [auto] = useDeviceSetting(autoUpdateSetting)
-  const phase = updateStatus.useValue().phase
+  const { phase, restart } = updateStatus.useValue()
   const ready = aboutReady({
     auto: auto === 'on',
     phase,
@@ -86,6 +87,16 @@ export function AboutSection() {
         {status === 'current' && t('about.current')}
         {status === 'failed' && t('about.failed')}
       </p>
+      {phase === 'updating' && restart && (
+        <button
+          type="button"
+          data-about-restart
+          onClick={pressRestart}
+          className="mr-2 mt-3 min-h-11 rounded-lg border border-line px-3 hover:bg-hover"
+        >
+          {restart === 'failed' ? t('upd.restartFailed') : t('upd.restartNow')}
+        </button>
+      )}
       {status === 'ready' && (ready === 'auto' || ready === 'closed') && (
         <button
           type="button"

@@ -1,9 +1,48 @@
 # Handoff
 
-**START HERE:** the build is **RUNNING, lean** (restart approved by the owner, 14 Nov 2026). Read docs/BUILD-STATE.md (it says what is live, what is paused and the next task), then docs/PENDING.md. The plan is docs/plans/phase-plan.md; how helpers work is docs/HOW-WE-BUILD.md. Only BUILD-STATE says whether the build is paused; this file never does.
+**START HERE (written 16 Nov 2026, 14:35 IST, just before the weekly Claude limit ran out; it resets 20 Nov, 00:30 IST).** Read this file, then docs/plans/combined-test-2026-11-16.md (every bug C2–C22 with its cause, fix and owner answers), then docs/BUILD-STATE.md. Only BUILD-STATE says whether the build is paused; this file never does.
 
-This file keeps only live notes. Everything older was moved to docs/ARCHIVE.md on 14 Nov 2026 under "HANDOFF entries archived 14 Nov 2026" (search that heading). Old carried-over items are looked at when the phase they belong to is planned.
+Older notes are in docs/ARCHIVE.md under "HANDOFF entries archived 14 Nov 2026" (search that heading only).
 
-- **NOW:** Phase 0 (reset) is mostly done: rules and files cleaned, the real app's check green (0.3), the clash cleared (0.4), the fast test set (0.8) and the two safety programs (0.12) done on 14 Nov. Task 0.5 (scroll fix) is pushed and waits for its merge into `build/next`; 0.6 (test preset) is next. Then Phase 1 (the frame and Settings). Fable's audit of 14 Nov (evening): docs/plans/audit-2026-11-14.md.
-- **Owner's tests:** docs/plans/ipad-checklist-first-preview.md (parts 1 and 2 done; findings F1 to F9 in docs/plans/ipad-test-findings-2026-11-14.md) and the older list in docs/plans/owner-checks-pending.md.
-- **Files and restart:** `npm run dev` (https on the Wi-Fi for the iPad); browser tests run on the built app (`npm run test:e2e` builds first); never upload to Cloudflare by hand.
+## Where things stand
+
+- **Owner's rule (16 Nov):** nothing goes into the live app (`main`, task 0.7) until every bug is fixed and the owner has tested it all. Then Phase 1, the tool bar and the text box go live together, on the owner's yes.
+- **Test version:** `build/next` 2aa4267d, preview https://build-next.learning-notes-app.pages.dev, CI green up to C17. The owner tests on the iPad with Settings › Try new features › Test a phase › "Up to Phase 2B".
+- **Owner has passed:** combined test parts A–D; on re-test: C2 eraser, the tool bar fixes (C3, C6, C7, C9), Delete box, one selected box at a time, resize never types, and the mic strip (C17).
+- **Merged into build/next, waiting for the owner's re-test:** C4, C5, C14 (Scribble, symbols, tap timing), C12, C13, C15, C16, C8, C10, C11 (box group), C17, C18 (strip part), C20 (first part).
+
+## Unfinished helpers when the limit hit (they stopped; restart each from its branch)
+
+Check each with `git fetch -q origin && git log --oneline origin/build/next..origin/slice/<name>`. "none" means it never pushed: start again from origin/build/next.
+
+| Bug        | What                                                                                                                                                                         | Branch                                      | Who                                  | Brief                                    |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------ | ---------------------------------------- |
+| C21        | Box move and resize on the iPad: hover starts a resize, snap guide shakes, can't move up into free space, can't shrink with the Pencil, the middle side handles don't resize | `slice/c21-resize` (working copy ../ln-c21) | Opus builder (took over from Sonnet) | plan file C21 + "C21 more"               |
+| C19        | Double tap mid-word fails after the caret is placed; a pop-up flashes; bigger tap radius; Relaxed 700 ms as the default                                                      | `slice/c19-taps`                            | Fable                                | plan file C19                            |
+| C18b, C20b | Scribble text must count as typing (no dots); a duplicate always goes below and is selected; grey ink left in a box (check)                                                  | `slice/c18b`                                | Sonnet builder                       | plan file "Re-test (owner, 14:27–14:28)" |
+| C22        | Update must never get stuck: 15 s wait, "Restart now" after 5 s, a watchdog reload, never block the app                                                                      | `slice/c22-update` (../ln-c22)              | Sonnet builder                       | plan file C22                            |
+
+## How to continue
+
+1. Restart the four helpers above (one task each; Sonnet builds, Opus for C21, Fable for C19). Each one: tests first, real Pencil input (e2e/realPen.ts), `--global-timeout=1200000`, its own PW_PORT, only one ipad-webkit run at a time (check `tasklist | findstr /i webkit`).
+2. Review each slice once (`reviewer`). The main chat then merges it into build/next in C:\Users\pc\Downloads\ln-buildnext, because helpers can't push to build/next. Merge `origin/main` in each time; in DECISIONS.md clashes, keep both sides. Add each new spec to the ipad-webkit testMatch in playwright.config.ts (manager-approved), and run it there once.
+3. Wait for CI (`gh run watch <id>`; `node scripts/ci-sort.mjs --run <id>` sorts failures).
+4. Send the owner a short re-test list of just the open items (C18, C19, C20, C21, C22, and the Tap speed choice).
+5. When everything passes: ask the owner's yes for go-live (task 0.7 with the live-check fix `slice/live-check-sha` af19a586).
+6. After that: Phase 2B finish (2B.12, 2B.13, R15, T25, T26, R18, R20), then the Settings v5 rebuild.
+
+## Known loose ends
+
+- TB-24 (e2e/tb2-bar.spec.ts) fails on a clean build/next checkout on this PC but passes in CI: find out why before the release.
+- Under heavy local load, cBoxes C12 and c45 C14 failed once each, then passed alone. Watch CI.
+- Stray working copies to tidy later (deletes need the owner): the scratchpad worktree `wtcb`, ../ln-c45x (branch esc/c45-fix), ../ln-c45, ../ln-cboxes, ../ln-c36, ../ln-c2, and the power-cut leftovers listed in docs/PENDING.md.
+
+## Owner preferences learned this week
+
+- Start every message with Status, Time left and Needs you; use plain words.
+- Pictures (PNG with tiny captions) for quick OKs; no build without an approved picture.
+- Note test findings and discuss them at the end; park ideas in docs/IDEAS.md.
+
+## Files and restart
+
+`npm run dev` serves https on the Wi-Fi for the iPad. Browser tests run on the built app (`npm run test:e2e` builds first). Never upload to Cloudflare by hand. Never run npm ci or npm install in a linked working copy.

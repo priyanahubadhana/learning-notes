@@ -1182,6 +1182,7 @@ export class InkController {
     }
     const tool = this.env.tool()
     e.preventDefault()
+    this.leaveField()
     try {
       this.pad.setPointerCapture(e.pointerId)
     } catch {
@@ -1233,6 +1234,20 @@ export class InkController {
     this.addPoint(g, e, frame)
     this.armHold(g)
     this.requestDraw()
+  }
+
+  /**
+   * A stroke or a lasso starts while a text field (a new page's title) still
+   * has the focus: let it go first. Why (PR-3): the press does not move the
+   * focus (the pad sits in a user-select: none layer and cannot take it), so
+   * the browser keeps the field's caret and scrolls the page back to it, to
+   * the top, as the press starts.
+   */
+  private leaveField(): void {
+    const a = this.pad.ownerDocument.activeElement
+    const field =
+      a instanceof HTMLInputElement || a instanceof HTMLTextAreaElement
+    if (field && !this.env.wrap.contains(a)) a.blur()
   }
 
   lockedMessage = 'Unlock a layer to draw'
@@ -1999,6 +2014,7 @@ export class InkController {
     doc.getSelection()?.removeAllRanges()
     const a = doc.activeElement as HTMLElement | null
     if (a && a.isContentEditable) a.blur()
+    this.leaveField()
   }
 
   private lassoDownInner(e: PointerEvent): void {

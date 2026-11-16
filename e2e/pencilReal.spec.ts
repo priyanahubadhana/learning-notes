@@ -292,10 +292,11 @@ test.describe('the pages panel and the note page', () => {
     await page.goto(ON)
     await createNotebook(page, 'Heart', 'Cardiology')
     const main = page.locator('main[data-page-scroller]')
-    // A new page leaves the title focused; a focused title makes the page jump to the top when ink starts (open: see CHANGELOG). This test is about the drag, so start with no field focused.
-    await page.evaluate(() =>
-      (document.activeElement as HTMLElement | null)?.blur(),
-    )
+    // A new page leaves the title focused. Keep it so: a press that left the
+    // focus in the title made the page jump to the top (bug PR-3).
+    expect(
+      await page.evaluate(() => document.activeElement?.tagName ?? ''),
+    ).toMatch(/INPUT|TEXTAREA/)
     await main.evaluate((el) => {
       const filler = document.createElement('div')
       filler.style.height = '5000px'

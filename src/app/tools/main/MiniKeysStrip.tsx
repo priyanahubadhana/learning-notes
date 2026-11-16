@@ -13,6 +13,7 @@ import { createPortal } from 'react-dom'
 import { t } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
 import { addLineAfterCursor } from '../../../editor/lineActions'
+import { noteTyped } from '../../../editor/typedSignal'
 import { setKeyboard } from '../../../editor/keyboardPolicy'
 import { Icon } from '../icons'
 import { currentRunner } from '../toolRuntime'
@@ -42,9 +43,6 @@ const ERROR_TEXT = {
   language: 'keys.errLanguage',
   other: 'keys.errOther',
 } as const satisfies Record<DictationError, string>
-
-/** No key is pressed, so tell the paper that text is being typed (C18: border only, no dots). */
-const noteTyped = () => document.dispatchEvent(new Event('ln-typed'))
 
 const BTN =
   'grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink select-none'

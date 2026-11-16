@@ -1,4 +1,5 @@
 import { frameCss, padOf } from '../core/boxStyle'
+import { onTyped } from '../editor/typedSignal'
 import {
   forgetCaret,
   noteCaret,
@@ -687,12 +688,12 @@ export function PaperFrame({
       const id = boxOfText(document.activeElement)
       if (id) send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
     }
-    document.addEventListener('ln-typed', typed)
+    const offTyped = onTyped(typed)
     document.addEventListener('focusout', out)
     return () => {
       window.clearTimeout(later)
       document.removeEventListener('pointerdown', down, true)
-      document.removeEventListener('ln-typed', typed)
+      offTyped()
       document.removeEventListener('keydown', key, true)
       document.removeEventListener('focusout', out)
     }

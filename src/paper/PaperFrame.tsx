@@ -681,10 +681,18 @@ export function PaperFrame({
     }
     document.addEventListener('pointerdown', down, true)
     document.addEventListener('keydown', key, true)
+    // C18: words typed by the mini keyboard (mic, Enter, Backspace) are typing
+    // too, though no key is pressed: only the thin border, no dots.
+    const typed = () => {
+      const id = boxOfText(document.activeElement)
+      if (id) send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
+    }
+    document.addEventListener('ln-typed', typed)
     document.addEventListener('focusout', out)
     return () => {
       window.clearTimeout(later)
       document.removeEventListener('pointerdown', down, true)
+      document.removeEventListener('ln-typed', typed)
       document.removeEventListener('keydown', key, true)
       document.removeEventListener('focusout', out)
     }

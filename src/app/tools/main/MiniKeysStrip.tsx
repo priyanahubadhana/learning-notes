@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type PointerEvent,
+  type ReactNode,
 } from 'react'
 import { startGripDrag } from '../gripDrag'
 import { createPortal } from 'react-dom'
@@ -42,8 +43,63 @@ const ERROR_TEXT = {
   other: 'keys.errOther',
 } as const satisfies Record<DictationError, string>
 
+/** No key is pressed, so tell the paper that text is being typed (C18: border only, no dots). */
+const noteTyped = () => document.dispatchEvent(new Event('ln-typed'))
+
 const BTN =
   'grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink select-none'
+
+/**
+ * A strip button acts when the tip lifts on it (a Pencil or a finger), not on
+ * "click": a Pencil tap may never send one (C17). A click that follows is
+ * ignored; a click with no touch before it (keyboard, VoiceOver) acts.
+ */
+function KeyButton({
+  action,
+  className,
+  children,
+  ...rest
+}: {
+  action: () => void
+  className: string
+  children: ReactNode
+  'data-keys': string
+  'aria-label': string
+  'aria-pressed'?: boolean
+}) {
+  const lastAct = useRef(0)
+  return (
+    <button
+      type="button"
+      data-pen-own
+      {...rest}
+      onMouseDown={keepFocus}
+      onPointerDown={(e) => {
+        e.stopPropagation()
+        e.preventDefault()
+      }}
+      onPointerUp={(e) => {
+        const r = e.currentTarget.getBoundingClientRect()
+        if (
+          e.clientX < r.left ||
+          e.clientX > r.right ||
+          e.clientY < r.top ||
+          e.clientY > r.bottom
+        )
+          return
+        lastAct.current = performance.now()
+        action()
+      }}
+      onClick={() => {
+        if (performance.now() - lastAct.current < 700) return
+        action()
+      }}
+      className={className}
+    >
+      {children}
+    </button>
+  )
+}
 
 export function MiniKeys({ editor }: { editor: Editor }) {
   const on = miniKeysOn.useValue()
@@ -134,7 +190,10 @@ function Strip({ editor }: { editor: Editor }) {
     dictation.current = startDictation({
       ctor: Ctor,
       lang: document.documentElement.lang || 'en',
-      insert: (text) => editor.insertInlineContent(text),
+      insert: (text) => {
+        editor.insertInlineContent(text)
+        noteTyped()
+      },
       interim: setHeard,
       listening: setListening,
       closed: () => {
@@ -147,36 +206,6 @@ function Strip({ editor }: { editor: Editor }) {
       },
     })
   }, [editor])
-
-  /**
-   * Buttons act when the tip lifts on them (a Pencil or a finger), not on
-   * "click": a Pencil tap may never send one (C17). A click that follows is
-   * ignored; a click with no touch before it (keyboard, VoiceOver) acts.
-   */
-  const lastAct = useRef(0)
-  const tap = (action: () => void) => ({
-    onMouseDown: keepFocus,
-    onPointerDown: (e: PointerEvent<HTMLButtonElement>) => {
-      e.stopPropagation()
-      e.preventDefault()
-    },
-    onPointerUp: (e: PointerEvent<HTMLButtonElement>) => {
-      const r = e.currentTarget.getBoundingClientRect()
-      if (
-        e.clientX < r.left ||
-        e.clientX > r.right ||
-        e.clientY < r.top ||
-        e.clientY > r.bottom
-      )
-        return
-      lastAct.current = performance.now()
-      action()
-    },
-    onClick: () => {
-      if (performance.now() - lastAct.current < 700) return
-      action()
-    },
-  })
 
   const micLabel = listening ? t('keys.micStop') : t('keys.mic')
   return createPortal(
@@ -214,41 +243,38 @@ function Strip({ editor }: { editor: Editor }) {
       >
         <Icon name="grip" />
       </button>
-      <button
-        type="button"
+      <KeyButton
         data-keys="mic"
-        data-pen-own
         aria-label={micLabel}
         aria-pressed={listening}
-        {...tap(mic)}
+        action={mic}
         className={`${BTN} ${listening ? 'bg-hover !text-accent' : ''}`}
       >
         <Icon name="mic" />
-      </button>
-      <button
-        type="button"
+      </KeyButton>
+      <KeyButton
         data-keys="enter"
-        data-pen-own
         aria-label={t('keys.enter')}
-        {...tap(() => addLineAfterCursor(editor))}
+        action={() => {
+          addLineAfterCursor(editor)
+          noteTyped()
+        }}
         className={BTN}
       >
         <Icon name="newLine" />
-      </button>
+      </KeyButton>
       <BackspaceButton editor={editor} min={44} />
-      <button
-        type="button"
+      <KeyButton
         data-keys="close"
-        data-pen-own
         aria-label={t('keys.close')}
-        {...tap(() => {
+        action={() => {
           dictation.current?.stop()
           miniKeysOn.set(false)
-        })}
+        }}
         className={BTN}
       >
         <Icon name="close" />
-      </button>
+      </KeyButton>
       {listening && heard && (
         <span
           data-keys="heard"

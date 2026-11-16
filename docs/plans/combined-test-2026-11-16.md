@@ -17,7 +17,7 @@ Read this first when continuing. It holds everything needed to pick up the owner
 | A. New tool bar  | 1–10  | Pass, except C2–C6 below. Owner: "smooth and great" otherwise. |
 | B. Page options  | 11–12 | Not tested yet                                                 |
 | C. Phase 1 fixes | 13–15 | Not tested yet                                                 |
-| D. Pencil look   | 16–19 | Not tested yet                                                 |
+| D. Pencil look   | 16–19 | Pass (owner, 16 Nov); C11–C16 found along the way              |
 
 The full step list is in the 16 Nov chat message "Your combined test is ready"; short form: 11 ⋯ at the top of a page opens a panel from the right below the top bar; 12 tiles plus folded groups, + Pin an action ✓/✕; 13 Pretend a must-have update + Airplane mode: the note stays, Try again works; 14 no key names on the iPad; 15 notices ✕ left, Undo right; 16–19 text box: tap = border with 8 dots, second tap = cursor, double-tap = word, ≡ moves, dots resize, Scribble + pinch.
 
@@ -92,3 +92,9 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
 - **C3, C6, C7, C9:** `slice/c36-toolbar` 01f21cd7. Review PASS (C7 ✕-cancel fixed). Chromium: 5/5 new tests. ipad-webkit: 65/65 related specs. At the merge, add `toolbarC36.spec.ts` to ipad-webkit's testMatch (playwright.config.ts, manager-approved) and run it there once.
 - **C2:** `slice/c2-eraser-shapes` 1ab91f01. Review fixes checked by the manager (shape-way pieces, pixel test 4/4 chromium and ipad-webkit, removed checks replaced by stronger ones). PASS.
 - **Split, 16 Nov:** C4, C5 and C14 on `slice/c45-scribble-symbols`; C8, C10–C13 and C15 on `slice/c-boxes` (new builder); C2 on `slice/c2-eraser-shapes`; C16 on hold for the owner's A/B/C answer.
+
+## 16 Nov, later
+
+- **Part D passed** (owner: "Part D, I done … all pass"). The combined test is finished. Small choices: the − in edit mode passes; "Back to tool hides while editing" was explained; the "All cards" and "Summary" icons are not checked yet.
+- **C16 answer: A** (one selected box at a time; several only with a Lasso). Given to the box builder (`slice/c-boxes`).
+- **Merged into build/next f2fdcda8:** C2 (eraser) and C3, C6, C7, C9 (tool bar), plus main. ipad-webkit 9/9 on the two new specs; push guard green; CI running.

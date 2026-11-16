@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { snapBox, SNAP_MM, type GRect } from './guides'
+import { holdOf, snapBox, SNAP_MM, type GRect } from './guides'
 
 const other: GRect = { id: 'a', x: 40, y: 50, w: 60, h: 20 }
 
@@ -50,5 +50,38 @@ describe('smart guides', () => {
     const b: GRect = { x: 90, y: 10, w: 20, h: 10 }
     const r = snapBox({ x: 49.2, y: 10, w: 20, h: 10 }, [a, b], 210)
     expect(r.dx).toBeCloseTo(0.8)
+  })
+})
+
+describe('C21: the snap holds until the box is clearly away (no flicker)', () => {
+  const other = { id: 'o', x: 100, y: 10, w: 40, h: 20 }
+  const box = (x: number) => ({ x, y: 60, w: 10, h: 10 })
+  // Snap in within 2 mm, let go only past 4 mm.
+  const pull = { snap: 2, release: 4 }
+
+  it('snaps in within the snap distance and says where it holds', () => {
+    const r = snapBox(box(101.5), [other], 1000, pull.snap)
+    expect(r.dx).toBeCloseTo(-1.5)
+    expect(holdOf(r, box(101.5))).toEqual({ x: 100 })
+  })
+
+  it('stays snapped past the snap distance, up to the release distance', () => {
+    const hold = { x: 100 }
+    for (const x of [102.5, 103.5, 97])
+      expect(
+        snapBox(box(x), [other], 1000, pull.snap, { ...hold, ...pull }).dx,
+      ).toBeCloseTo(100 - x)
+  })
+
+  it('lets go past the release distance, and a jitter back does not snap again', () => {
+    const r = snapBox(box(104.5), [other], 1000, pull.snap, {
+      x: 100,
+      ...pull,
+    })
+    expect(r.dx).toBe(0)
+    expect(r.guides).toHaveLength(0)
+    expect(holdOf(r, box(104.5))).toEqual({})
+    // Back to 3 mm away: outside the snap distance, so still free.
+    expect(snapBox(box(103), [other], 1000, pull.snap, { ...pull }).dx).toBe(0)
   })
 })

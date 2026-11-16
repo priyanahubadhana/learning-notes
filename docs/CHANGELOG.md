@@ -14,6 +14,19 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: review of b70f56a4: the raw listener slipped past the check:ratchet count and the "no raw listeners" rule. `beforeinput` is not a routed type; `input` does the same job, so the router was not changed.
 - Files: src/paper/PaperFrame.tsx, pickSignal.ts, usePaperBoxes.tsx; test e2e/miniKeysPen.spec.ts (C18 now also sends the `input` that follows).
 
+### 16 Nov 2026: C21 box move and resize with the Apple Pencil
+
+- What (switch textbox.v2): a hovering Pencil never resizes; a resize whose lift was lost ends at the next hover move; only the pressing pointer counts, and the resize follows it even when the tip leaves the dot (shared event router). One resize update per frame; the new height stays drawn at the lift until the saved one arrives. Smart guides snap within 6 px and let go only past 12 px (no flicker). A free box moved up beside another free box stays there when they do not overlap (layoutRows option "beside").
+- Why: owner's iPad test C21: drag up refused, shaking resize, flickering guide line, hover shrank a box.
+- Also covers the owner's 14:28 note (the middle side dots did nothing): every dot keeps following the Pencil when Safari drops the pointer capture; Pencil tests for all 8 dots of a free box and of boxes in columns.
+- Files: src/paper/PaperFrame.tsx, grid.ts, guides.ts; tests src/paper/grid.test.ts, guides.test.ts, e2e/cBoxesC21.spec.ts, e2e/realPen.ts.
+
+### 16 Nov 2026: C21 review fix: a box move whose lift was lost ends at the next hover move
+
+- What: the ≡ move (dragMove) now ends on a move with no button pressed, like the resize; the box is dropped where the last real move put it, never where the hovering Pencil is. The kept-height timer is cleared when the frame goes.
+- Why: spec C21 "Hover never resizes or moves".
+- Files: src/paper/PaperFrame.tsx; test e2e/cBoxesC21.spec.ts.
+
 ### 16 Nov 2026: C14/C4 taps timed by event time stamps; a tap is told by its whole path (review fixes)
 
 - What: every tap time in the app is now the event's own time stamp (`stampOf` in src/app/tapTiming.ts): text taps, the ink layer's double tap, the Pencil guard and the scribble mark. Switch on, taps exactly 500 ms apart still add up. The Pencil guard counts a press as a tap by the whole path of the tip (up to 16 px, moves under 2 px are sensor noise), not by the distance from start to end. The C14 tests now cover taps of 150 to 250 ms and gaps of 400 to 500 ms and need all 50 runs to select; a run the PC delivered late is repeated (at most 10), never excused.

@@ -113,6 +113,23 @@ function Pill({
     return () => watch.disconnect()
   }, [tool, isVertical])
 
+  // Why: opening a card can change the pill's own height (it wraps in a narrow
+  // screen); the observer above answers a frame late, so the card was placed
+  // for the old height and sat over the pill for a frame (BUG-002, ipad-webkit).
+  // Measured after every commit, before the paint, so card and pill agree.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- runs after every draw on purpose; setSize bails out when the size is unchanged
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    setSize((old) =>
+      Math.abs(old.width - r.width) < 0.5 &&
+      Math.abs(old.height - r.height) < 0.5
+        ? old
+        : { width: r.width, height: r.height },
+    )
+  })
+
   const pos = useMemo(() => positionOf(place, size, room), [place, size, room])
 
   // Follows the rule for every pop-up (closes on a tap outside, Esc, another

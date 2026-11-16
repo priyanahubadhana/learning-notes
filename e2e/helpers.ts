@@ -120,7 +120,7 @@ export async function rowAction(page: Page, name: string, action: string) {
 
 /** Chooses an item in the open page's ⋯ menu. */
 export async function pageAction(page: Page, name: string) {
-  await page.getByRole('button', { name: 'More options' }).click()
+  await page.getByRole('button', { name: 'More options', exact: true }).click()
   await page.getByRole('menuitem', { name: new RegExp(name) }).click()
 }
 
@@ -631,7 +631,7 @@ export async function pageSubAction(
   parent: string,
   child: string | RegExp,
 ) {
-  await page.getByRole('button', { name: 'More options' }).click()
+  await page.getByRole('button', { name: 'More options', exact: true }).click()
   await page.getByRole('menuitem', { name: new RegExp(parent) }).click()
   await page
     .getByRole('menu', { name: parent })

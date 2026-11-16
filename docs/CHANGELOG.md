@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: ipad-webkit fixes: kept bar room, pop-up card over its pill, format bar after a turn (slice/webkit-fix)
+
+- What: (1) BarRoom does not save the 22 px scroll handle as the screen's bar height when a docked side list narrowed the page column (the room was too tall at the next start and the page jumped up 22 px; barRoom R14 test). (2) OptionsPill measures its own size before paint after every draw, so its card is never placed for the old pill height (BUG-002 card test, 390x844). (3) MiniToolbar places again on a scroll within 1 s of a turn when the bar was already placed (WebKit scrolls after the reflow; BUG-002 1180x820 turn test).
+- Test change (same promise): e2e/helpers.ts pageAction now finds the page menu button by its exact name "More options"; the new tool bar (2A) has buttons named "More options (2)" that the loose match also hit on iPad width. No test loosened, skipped or deleted.
+- Files: src/editor/BarRoom.tsx, src/app/tools/main/OptionsPill.tsx, src/app/tools/main/MiniToolbar.tsx, e2e/helpers.ts.
+
 ### 16 Nov 2026: C19 tests wait past the new 700 ms tap gap (no product change)
 
 - What: e2e waits between separate taps raised (520 to 800 ms, 600 to 800, 700 to 900) in tb2-select (TB-01 next tap), tb2-bar-firsttap (bar tap) and tb2-taps (TB-04 runs).

@@ -13,6 +13,7 @@ import {
   withRoom,
 } from './barRoomRule'
 import { useBarLayout } from './useBarLayout'
+import { COMPACT_PAGE_W, PHONE_MAX_W } from '../app/shell/columns'
 
 /** The bar's height last measured per screen (a display convenience, R14). */
 const rooms = prefStore('bar.roomPx', isRoomMap, {})
@@ -45,7 +46,19 @@ export function BarRoom({ pageRoute }: { pageRoute: boolean }) {
     const ro = new ResizeObserver(() => {
       // The button rows plus the pill's frame (10 px); a selection's extra row is not part of it.
       const row = slot.querySelector('[data-pill="short"] [data-main-bar]')
-      const h = row ? Math.round(row.getBoundingClientRect().height) + 10 : 0
+      let h = row ? Math.round(row.getBoundingClientRect().height) + 10 : 0
+      // Why: a docked side list narrows the page column on an iPad, so the bar
+      // overflows and shows its 22 px scroll handle; saved as the screen's height,
+      // the room was too tall on the next start (list closed) and the page jumped
+      // up (ipad-webkit barRoom R14). A narrowed column's handle is not counted.
+      const handle = row?.querySelector('[data-bar-track]')
+      if (
+        h > 0 &&
+        handle &&
+        window.innerWidth > PHONE_MAX_W &&
+        slot.clientWidth < COMPACT_PAGE_W
+      )
+        h -= Math.round(handle.getBoundingClientRect().height) + 2
       // The key is read now, so a turned screen saves under its new width.
       const now = roomKey(buttonPx, window.innerWidth)
       if (h > 0 && rooms.get()[now] !== h)

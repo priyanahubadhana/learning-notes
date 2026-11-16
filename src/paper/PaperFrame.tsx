@@ -8,6 +8,7 @@ import {
 } from './typingPause'
 import { PICK_BOX, textFirstTap } from '../editor/tapSelect'
 import { isOn } from '../app/flags'
+import { onRouted } from '../app/input/eventRouter'
 import { isUiEvent } from '../app/uiGuard'
 import {
   lazy,
@@ -1407,14 +1408,12 @@ export function PaperFrame({
         if (resizing.current === d && ev.pointerId === d.pointerId)
           resizeEnd(ev)
       }
-      window.addEventListener('pointermove', onMove)
-      window.addEventListener('pointerup', onUp)
-      window.addEventListener('pointercancel', onUp)
-      d.unlisten = () => {
-        window.removeEventListener('pointermove', onMove)
-        window.removeEventListener('pointerup', onUp)
-        window.removeEventListener('pointercancel', onUp)
-      }
+      const offs = [
+        onRouted('pointermove', onMove, { name: 'box-resize' }),
+        onRouted('pointerup', onUp, { name: 'box-resize' }),
+        onRouted('pointercancel', onUp, { name: 'box-resize' }),
+      ]
+      d.unlisten = () => offs.forEach((off) => off())
     }
     // Text box v2: the resize commits after a 120 ms hold; the dot grows then.
     if (m) {
@@ -1568,13 +1567,15 @@ export function PaperFrame({
     hovered = false,
   ) => {
     const d0 = resizing.current
+    // C21: already ended (the page-wide lift came first): the kept size stays.
+    if (!d0) return
     // Another pointer's lift (a second finger) does not end this resize.
-    if (d0 && e.pointerId !== d0.pointerId && e.type !== 'pointerdown') return
+    if (e.pointerId !== d0.pointerId && e.type !== 'pointerdown') return
     if (resizeFrame.current) {
       cancelAnimationFrame(resizeFrame.current)
       resizeFrame.current = 0
       // The newest point is drawn before the commit (a hover adds none).
-      if (d0?.held && !hovered) resizeAt(d0.last.x, d0.last.y)
+      if (d0.held && !hovered) resizeAt(d0.last.x, d0.last.y)
     }
     const d = resizing.current
     resizing.current = null

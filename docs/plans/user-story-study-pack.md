@@ -79,3 +79,8 @@ See the chat of 16 Nov; answers go here.
 - **Notebook view like GoodNotes:** covers in a grid, with a sidebar of folders (the four levels); pages link to each other like Obsidian.
 - **Recall tab like RemNote:** a whole recall area, with a visual canvas (as in the mind map) both there and in the Mind map tab.
 - **Find:** not a new screen. Extend the existing search (it already has type, notebook, tag, card status, changed date and saved searches) with: source type, several tags at once (all must match), date range, and the full path on each result.
+
+## Owner answers, round 4 (16 Nov) and what already exists
+
+- **Form:** fills the basics on its own (title, source, tags, place); below it, an editable part to check, change or accept suggestions.
+- **Already in the app (checked 16 Nov):** Library covers (books, videos, articles) with cover or list view; databases with table, board, gallery, calendar and list views, column filters and formulas; search with filters and saved searches. New in this story: covers for notebooks themselves (GoodNotes style), a form view, source-type columns, multi-tag search, the four-level sidebar.

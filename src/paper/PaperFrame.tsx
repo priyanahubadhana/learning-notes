@@ -1,5 +1,7 @@
 import { frameCss, padOf } from '../core/boxStyle'
+import { onRouted } from '../app/input/eventRouter'
 import { onTyped } from '../editor/typedSignal'
+import { takePick } from './pickSignal'
 import {
   forgetCaret,
   noteCaret,
@@ -682,6 +684,15 @@ export function PaperFrame({
     }
     document.addEventListener('pointerdown', down, true)
     document.addEventListener('keydown', key, true)
+    // C18: text put in with no key (Scribble, dictation, a paste of words) is
+    // typing too. Heard through the shared input layer: 'input' follows every
+    // beforeinput and carries inputType ('beforeinput' is not a routed type).
+    const offInput = onRouted('input', (e) => {
+      if (!(e instanceof InputEvent) || !/^(insert|delete)/.test(e.inputType))
+        return
+      const id = boxOfText(document.activeElement)
+      if (id) send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
+    })
     // C18: words typed by the mini keyboard (mic, Enter, Backspace) are typing
     // too, though no key is pressed: only the thin border, no dots.
     const typed = () => {
@@ -694,6 +705,7 @@ export function PaperFrame({
       window.clearTimeout(later)
       document.removeEventListener('pointerdown', down, true)
       offTyped()
+      offInput()
       document.removeEventListener('keydown', key, true)
       document.removeEventListener('focusout', out)
     }
@@ -713,6 +725,14 @@ export function PaperFrame({
     if (isOn('textbox.v2')) forgetCaret()
     send({ type: 'frameTap', id, add: several })
   }
+  // C20: a duplicated box comes up selected (frame and dots), without a caret.
+  useEffect(() => {
+    const id = takePick(extra.map((b) => b.id))
+    if (!id) return
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    selectBox(id, false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [extra])
   // A first tap on a box's text selects the box (tapSelect.ts, item 11).
   useEffect(() => {
     const on = (e: Event) => {

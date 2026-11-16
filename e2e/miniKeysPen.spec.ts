@@ -255,3 +255,35 @@ test('C18 deleting with the strip also shows only the thin border: no dots', asy
   await expect(box).toHaveAttribute('data-typing', '')
   await expect(box.locator('[data-resize-handle]')).toHaveCount(0)
 })
+
+test('C18 text put in with no key (Scribble, dictation: an insertText input event) counts as typing', async ({
+  page,
+}) => {
+  await start(page, 'C18c')
+  const box = await addBox(page, ['Hello'])
+  await pick(page, box)
+  await expect(box.locator('[data-resize-handle]')).toHaveCount(8)
+  await box.locator('.bn-editor').focus()
+  await expect(box).not.toHaveAttribute('data-typing', '')
+  await page.evaluate(() => {
+    const el = document.activeElement as HTMLElement
+    el.dispatchEvent(
+      new InputEvent('beforeinput', {
+        inputType: 'insertText',
+        data: 'x',
+        bubbles: true,
+        cancelable: true,
+      }),
+    )
+    // The browser follows a beforeinput with an input once the text is in.
+    el.dispatchEvent(
+      new InputEvent('input', {
+        inputType: 'insertText',
+        data: 'x',
+        bubbles: true,
+      }),
+    )
+  })
+  await expect(box).toHaveAttribute('data-typing', '')
+  await expect(box.locator('[data-resize-handle]')).toHaveCount(0)
+})

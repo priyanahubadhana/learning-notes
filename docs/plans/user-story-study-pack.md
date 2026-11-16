@@ -85,3 +85,24 @@ See the chat of 16 Nov; answers go here.
 - **Form:** fills the basics on its own (title, source, tags, place); below it, an editable part to check, change or accept suggestions.
 - **Already in the app (checked 16 Nov):** Library covers (books, videos, articles) with cover or list view; databases with table, board, gallery, calendar and list views, column filters and formulas; search with filters and saved searches. New in this story: covers for notebooks themselves (GoodNotes style), a form view, source-type columns, multi-tag search, the four-level sidebar.
 - **Notebook covers: yes** (owner, 16 Nov), GoodNotes style. Owner idea: keep the app's own user stories as a notebook inside the app, made with these same principles.
+
+## Owner vision and corrections, round 5 (16 Nov) — these replace earlier lines where they differ
+
+**Why the app exists:** I learn from videos, articles, books, NotebookLM, Audible, Kindle and AI tools; I understand, make notes, then study. GoodNotes has the Pencil but not the depth; Notion has the depth but not the Pencil. This app is both: easy to recall, easy to understand, visual, interactive. The in-app AI, a connector or my own API key turns a source into a visual study pack after a few questions; I read it like a book, recall it, find it in a sorted database.
+
+**Principles**
+
+- **Everything the AI makes is fully editable** with the same tools the user has (like a UI builder; Photoshop-level control), in the app's premium design.
+- **Accuracy first:** say what the source says; mark what was added; no invented facts.
+- **AI learns from my edits:** I fix and add what it missed, tell it so, and next time it needs fewer changes.
+- **Same power everywhere:** the in-app AI, the connector (Claude Code, Claude) and an API key can each use every feature of the app, not only pages, blocks and cards.
+
+**Questionnaire changes**
+
+- Q1 Goal: **Study and remember** · **My presets** (saved custom goals; add as many as I want) · **Custom** (type it).
+- "What is important to you" and "How important is it" become **two questions** (six in all).
+- Not one page per video: **as many pages as the answers need**. Tabs are switched on from the answers, never only one.
+- "Fit one paper page" means each section must not spill awkwardly onto the next page; it does not limit the count of pages.
+- Short notes have no fixed length; each short note can **open its detailed note** (tap to jump to the full depth) or be edited.
+
+**Page layout:** two modes, a default in Settings: **paper pages** (GoodNotes) and **one long page** that scrolls forever (Notion), with + Add page at the top to start a new page.

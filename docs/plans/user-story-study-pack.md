@@ -71,3 +71,11 @@ See the chat of 16 Nov; answers go here.
 - **How well I know it:** the app asks me (one tap) instead of guessing, because it lacks the full picture.
 - **Other sources:** same five questions for articles, PDFs and my own notes.
 - **No mock-ups until the limit resets on 20 Nov;** the cheapest way first.
+
+## Owner answers, round 3 (16 Nov)
+
+- Four levels, page may sit under a Subject without a Topic: yes. Save for later: no cards, "Make cards" button: yes. Smart source types (Tana supertags / Capacities types): yes.
+- **Database views like Notion:** table, board, gallery, sort, filter, formulas, plus a **form** to add items that sort into the database by their type.
+- **Notebook view like GoodNotes:** covers in a grid, with a sidebar of folders (the four levels); pages link to each other like Obsidian.
+- **Recall tab like RemNote:** a whole recall area, with a visual canvas (as in the mind map) both there and in the Mind map tab.
+- **Find:** not a new screen. Extend the existing search (it already has type, notebook, tag, card status, changed date and saved searches) with: source type, several tags at once (all must match), date range, and the full path on each result.

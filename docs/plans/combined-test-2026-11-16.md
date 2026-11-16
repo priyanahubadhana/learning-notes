@@ -136,3 +136,11 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
   - Fix: moves and resizes follow the finger or Pencil smoothly (one update per frame, no layout jumps). The guide line and snap have a dead zone (snap within 6 px, release only past 12 px). Hover never resizes or moves. A box can be moved into any free space it fits in, up or down. Shrinking works down to the text height with the Pencil.
   - Tests: real Pencil drags with hover moves before the touch; the box size never changes on hover; size changes are monotonic during a steady drag (no shake); move up into a gap is accepted.
 - **Merged into build/next (16 Nov, afternoon):** C17 mic strip, C18 no dots while typing (strip text), C20 duplicate keeps size (`slice/c17-mic` 1a25f221; review fixes done). Chromium: 43/43 mic, duplicate and box specs. /duplicateBox/ added to ipad-webkit. Still open: C19 (Fable, slice/c19-taps), C21 (Opus, slice/c21-resize). Owner chose A: the duplicate sits just below the original, 10 mm to the right.
+- **C22 (owner, 14:15, screenshot): the update got stuck** on "Updating… the app restarts by itself" with the notice "Restarting into the new version…" (Settings › About this app, update level 2; last check 2:14:18 PM). Owner: "make sure that update doesn't get stuck ever."
+  - Code (src/app/restartNow.ts): it waits up to 60 s for the new worker, then clears and reloads; nothing on screen shows progress, and if `location.reload()` doesn't take effect nothing tries again.
+  - Fix (manager's picks):
+    1. The worker wait drops to 15 s.
+    2. After 5 s the notice shows a "Restart now" button (saves first, then reloads).
+    3. A watchdog: if the page is still there 4 s after a reload was asked for, it reloads again with a fresh address; after a second miss it shows "Couldn't restart. Tap to try again" (never silent).
+    4. If the new version still isn't ready after the restart, the app opens normally on the old version and tries again next time: an update never blocks the app.
+  - Tests: fake worker that never activates; reload ignored once and twice; notes typed during the wait are saved.

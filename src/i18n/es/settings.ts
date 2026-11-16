@@ -64,6 +64,15 @@ export const esSettings = {
   'font.tooBig':
     'Este archivo de fuente es demasiado grande (el límite es 10 MB).',
   'keys.backspace': 'Borrar',
+  'keys.close': 'Cerrar el miniteclado',
+  'keys.errNetwork':
+    'Hablar necesita internet y no hay conexión. Usa el micrófono del teclado.',
+  'keys.errNoMic':
+    'No se encontró ningún micrófono. Usa el micrófono del teclado.',
+  'keys.errLanguage':
+    'Este idioma no se puede dictar aquí. Usa el micrófono del teclado.',
+  'keys.errOther':
+    'El dictado se detuvo y no pudo reiniciarse. Usa el micrófono del teclado.',
   'keys.denied':
     'El micrófono no está permitido. Permítelo en los ajustes del navegador o usa el micrófono del teclado.',
   'keys.enter': 'Nueva línea',

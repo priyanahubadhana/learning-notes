@@ -98,6 +98,7 @@ const config = defineConfig({
         /toolbarV9Lasso/,
         /toolbarV9More/,
         /toolbarC36/,
+        /cBoxes/,
         /updateFailureNote/,
         /updateDownload/,
         /security-m1-/,

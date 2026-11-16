@@ -309,10 +309,16 @@ test('TB-23 a column divider resizes both boxes live; under 4 px is a tap', asyn
   await page.mouse.down()
   await page.waitForTimeout(160)
   await page.mouse.move(d2.x + 90, d2.y, { steps: 8 })
-  // Live: both have changed before the lift (a frame later).
-  await page.waitForTimeout(120)
-  expect((await rect(a)).width).toBeGreaterThan(wa0 + 40)
-  expect((await rect(b)).width).toBeLessThan(wb0 - 40)
+  // Live: both have changed before the lift (the button is still down).
+  // Why a poll: the press lands on the right box's left dot, which lies over
+  // the divider, and since C21 a dot resize draws once per frame; a frame can
+  // take 150 ms on a slow runner, so a fixed 120 ms wait missed it.
+  await expect
+    .poll(async () => (await rect(a)).width, { timeout: 3000 })
+    .toBeGreaterThan(wa0 + 40)
+  await expect
+    .poll(async () => (await rect(b)).width, { timeout: 3000 })
+    .toBeLessThan(wb0 - 40)
   await page.mouse.up()
 })
 

@@ -142,10 +142,12 @@ test('resize, background and back, type, resize again: the picture stays, Undo r
     set('visible')
     document.dispatchEvent(new Event('visibilitychange'))
   })
+  // Since C12 the frame is as tall as the box: the east dot's 44 pt target covers
+  // the last 6 px of the editor edge, so click 16 px in.
   // Bottom-right of the editor: the picture's corner handle sits at the top-left.
   const eb = (await page.locator('.bn-editor').boundingBox())!
   await page.locator('.bn-editor').click({
-    position: { x: eb.width - 6, y: eb.height - 6 },
+    position: { x: eb.width - 16, y: eb.height - 6 },
   })
   await page.keyboard.type('hello')
 

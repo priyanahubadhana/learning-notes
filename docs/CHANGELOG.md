@@ -2,6 +2,16 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: six e2e failures on build/next fixed (slice/full-fix2, no product change)
+
+- Why: all six were tests whose timing or spot no longer matched approved behaviour; the app was right.
+- pictureStrip "resize, background and back": since C12 (docs/features/textbox-v2.md, C12) the first box's frame is as tall as the box, so the east dot's 44 pt target covers the last 6 px of the editor; the click now lands 16 px in (same promise: click bottom-right of the editor, type, picture stays).
+- tb2-select-shots (3 tests): the next shot's tap at the same spot came inside the 700 ms tap gap (C19) and counted as a second tap; wait 800 ms. Phone now expects 8 dots (2B.5b, entry of 15 Nov in ARCHIVE.md/this file).
+- tb2-bar "locked box": after Unlock the C10 caret returns to the text (docs/features/textbox-v2.md line 219) and C11 hides dots while typing; the test puts the caret away, then expects dots.
+- tb2-resize TB-23: the press lands on the right box's west dot over the divider; since C21 a dot resize draws once per frame, so the live width is polled (button still down) instead of a fixed 120 ms.
+- cBoxes C12 (WebKit): frame/box match is polled (resize observer lags a frame).
+- Files: e2e/pictureStrip.spec.ts, e2e/tb2-select-shots.spec.ts, e2e/tb2-bar.spec.ts, e2e/tb2-resize.spec.ts, e2e/cBoxes.spec.ts.
+
 ### 16 Nov 2026: ipad-webkit fixes: kept bar room, pop-up card over its pill, format bar after a turn (slice/webkit-fix)
 
 - What: (1) BarRoom does not save the 22 px scroll handle as the screen's bar height when a docked side list narrowed the page column (the room was too tall at the next start and the page jumped up 22 px; barRoom R14 test). (2) OptionsPill measures its own size before paint after every draw, so its card is never placed for the old pill height (BUG-002 card test, 390x844). (3) After a turn the page below moved 150 to 400 ms late because BarScroll's observer answered late on WebKit (its 22 px handle stayed): BarScroll now also measures at once on the window resize, and MiniToolbar places a bar that was already placed again every frame for 1 s after a turn (BUG-002 1180x820 turn test). miniBarBounds prepare() sets pencil.offer to no, so the one-time Pencil offer cannot cover the bar.

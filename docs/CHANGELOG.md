@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: C24 Scribble over a whole word with the caret mid-word (slice/c24-scratch, switch textbox.v2)
+
+- Why: the iPad sends a delete aimed at a letter or two beside the caret. The C4 check "aimed at the scribbled spot already" passed because that small range sat inside the stroke span, so the browser deleted only those letters (and `mark` was already cleared for the second delete).
+- Fix (src/editor/scribbleDelete.ts): the browser acts alone only when the target ranges cover the whole span (new `covers`); otherwise the app deletes the whole span (one Undo step) and a second delete within 600 ms (no key pressed) is swallowed.
+- Tests: scribbleDelete.test.ts (cover check); e2e/c45-symbols-scribble.spec.ts C24 x3 (near-left, left-then-right, no ranges).
+
 ### 17 Nov 2026: six e2e failures on build/next fixed (slice/full-fix2, no product change)
 
 - Why: all six were tests whose timing or spot no longer matched approved behaviour; the app was right.

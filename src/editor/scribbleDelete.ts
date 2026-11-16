@@ -26,7 +26,10 @@ import { tokenAround } from './textTokens'
  *  2. is remembered (the area it covered) for a moment after it ends;
  *  3. a delete that arrives then, with no key pressed, removes only the
  *     words and symbols under the stroke (one Undo step); a delete aimed
- *     there already (its target range is inside) is left to the browser.
+ *     there already (its target ranges cover them) is left to the browser;
+ *     one that only touches part of them (C24: a letter beside the caret) is
+ *     replaced by deleting them all, and a second delete right after is
+ *     swallowed.
  * No stroke of the Text tool is ever kept as ink: nothing here draws.
  * Only a real iPad can show that Scribble's recogniser fires and its grey
  * strokes fade; the browser tests play what it sends.
@@ -41,6 +44,8 @@ export const SCRIBBLE_MS = 2500
 /** The stroke's area is grown by this much (px) to find what it covers. */
 const REACH_PX = 0
 const KEY_RECENT_MS = 500
+/** A second delete this soon (ms) after ours belongs to the same scribble. */
+const FOLLOW_MS = 600
 
 /** The stroke area (client px) as a box. */
 export function strokeBox(pts: { x: number; y: number }[], grow = 0): Box {
@@ -59,6 +64,20 @@ export function strokeBox(pts: { x: number; y: number }[], grow = 0): Box {
 /** Is [a, b] inside [from, to] (one position of slack for a space)? */
 export const within = (a: number, b: number, span: [number, number]): boolean =>
   a >= span[0] - 1 && b <= span[1] + 1
+
+/**
+ * Do the delete's target ranges together cover the whole scribbled span (one
+ * position of slack for a space)? A range that only sits inside the span (a
+ * letter or two beside the caret, C24) does not: the browser would leave the
+ * rest of the word.
+ */
+export const covers = (
+  ranges: [number, number][],
+  span: [number, number],
+): boolean =>
+  ranges.length > 0 &&
+  Math.min(...ranges.map((r) => r[0])) <= span[0] + 1 &&
+  Math.max(...ranges.map((r) => r[1])) >= span[1] - 1
 
 /** Each editor's delete check, asked by the Pencil guard's beforeinput. */
 const inputHooks = new WeakMap<Element, (e: Event, lastKeyAt: number) => void>()
@@ -81,6 +100,9 @@ export function watchScribbleDelete(editor: Editor): () => void {
     moved: boolean
   } | null = null
   let mark: { pts: { x: number; y: number }[]; at: number } | null = null
+  // When our own delete ran: the iPad's second delete of the same scribble
+  // (the other side of the caret) must not take more text (C24).
+  let handledAt = -Infinity
 
   const on = () => isOn('textbox.v2') && activeTool.get() === 'text'
   const inText = (t: EventTarget | null) =>
@@ -167,32 +189,47 @@ export function watchScribbleDelete(editor: Editor): () => void {
 
   const onBeforeInput = (e: Event, lastKeyAt: number) => {
     const input = e as InputEvent
-    if (!input.inputType?.startsWith('delete') || !mark || !on()) return
+    if (!input.inputType?.startsWith('delete') || !on()) return
     // The events' own time stamps, as the Pencil guard keeps them (C14).
     const now = stampOf(e)
+    if (!mark) {
+      if (now - handledAt <= FOLLOW_MS && now - lastKeyAt > KEY_RECENT_MS) {
+        e.preventDefault()
+        e.stopImmediatePropagation()
+      }
+      return
+    }
     const m = mark
     if (now - m.at > SCRIBBLE_MS || now - lastKeyAt <= KEY_RECENT_MS) return
     mark = null
     const view = editor.prosemirrorView
     if (!view) return
     const span = spanUnder(m.pts)
-    // Aimed at the scribbled spot already: the browser's own delete is right.
+    // Aimed at the whole scribbled spot already: the browser's own delete is
+    // right. A target only inside it (a letter beside the caret) is not.
     const targets =
       typeof input.getTargetRanges === 'function' ? input.getTargetRanges() : []
     if (span && targets.length > 0) {
-      const ok = targets.every((r) => {
-        try {
-          const a = view.posAtDOM(r.startContainer, r.startOffset)
-          const b = view.posAtDOM(r.endContainer, r.endOffset)
-          return a !== b && within(a, b, span)
-        } catch {
-          return false
-        }
-      })
-      if (ok) return
+      const spans: [number, number][] = []
+      try {
+        for (const r of targets)
+          spans.push([
+            view.posAtDOM(r.startContainer, r.startOffset),
+            view.posAtDOM(r.endContainer, r.endOffset),
+          ])
+      } catch {
+        spans.length = 0
+      }
+      if (
+        spans.length > 0 &&
+        spans.every(([a, b]) => a !== b && within(a, b, span)) &&
+        covers(spans, span)
+      )
+        return
     }
     e.preventDefault()
     e.stopImmediatePropagation()
+    handledAt = now
     if (!span) return
     // One step (one Undo): the words go, the caret stays where they were.
     const tr = view.state.tr.delete(span[0], span[1])

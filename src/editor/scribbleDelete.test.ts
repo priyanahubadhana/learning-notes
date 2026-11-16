@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { strokeBox, within } from './scribbleDelete'
+import { covers, strokeBox, within } from './scribbleDelete'
 
 describe('scribble delete (C4)', () => {
   it('the stroke area is the box round its points', () => {
@@ -16,5 +16,32 @@ describe('scribble delete (C4)', () => {
     expect(within(10, 11, [10, 11])).toBe(true)
     expect(within(9, 12, [10, 11])).toBe(true) // a space either side
     expect(within(1, 5, [10, 11])).toBe(false) // the old selection "Text"
+  })
+})
+
+describe('scribble delete cover check (C24)', () => {
+  it('ranges beside the caret do not cover the word; the whole word does', () => {
+    expect(covers([[8, 10]], [5, 14])).toBe(false) // 2 letters left of caret
+    expect(
+      covers(
+        [
+          [8, 10],
+          [10, 12],
+        ],
+        [5, 14],
+      ),
+    ).toBe(false)
+    expect(covers([[5, 14]], [5, 14])).toBe(true)
+    expect(covers([[4, 15]], [5, 14])).toBe(true)
+    expect(
+      covers(
+        [
+          [5, 9],
+          [9, 14],
+        ],
+        [5, 14],
+      ),
+    ).toBe(true)
+    expect(covers([], [5, 14])).toBe(false)
   })
 })

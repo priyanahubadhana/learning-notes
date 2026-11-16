@@ -814,3 +814,104 @@ for (const n of [2, 3] as const) {
     if (n === 2) c19far(n, false)
   })
 }
+
+/**
+ * C24 (owner re-test 17 Nov): a scratch-out over a whole word while the
+ * caret sits in the MIDDLE of it must delete the whole word. The iPad sends a
+ * delete whose target is a letter or two beside the caret (inside the
+ * scribbled word), and sometimes a second one for the other side.
+ */
+const C24_LINE = 'Text wonderful end'
+const C24_AT = 5
+const C24_WORD = 'wonderful'
+
+/** A zigzag over the whole word, left edge to right edge. */
+async function scribbleWord(page: Page) {
+  const a = await charBox(page, C24_AT)
+  const z = await charBox(page, C24_AT + C24_WORD.length - 1)
+  const pts: Pt[] = []
+  for (let k = 0; k <= 10; k++) {
+    pts.push({
+      x: k % 2 ? z.x + z.width + 1 : a.x - 1,
+      y: a.y + 3 + ((a.height - 6) * k) / 10,
+    })
+  }
+  await realPen(page, pts)
+}
+
+type Sent = 'near-left' | 'left-then-right' | 'no-ranges'
+
+/** Plays what iPadOS sends; returns whether each event was refused. */
+const iPadWordDelete = (page: Page, mode: Sent) =>
+  page.evaluate(
+    ({ sel, mode }) => {
+      const ed = document.querySelector<HTMLElement>(sel + ' .bn-editor')!
+      const s = window.getSelection()!
+      const c = (window as unknown as { __c24?: [Node, number] }).__c24
+      if (c && !ed.contains(s.anchorNode)) s.collapse(c[0], c[1])
+      const send = (type: string, side: 'left' | 'right') => {
+        const ev = new InputEvent('beforeinput', {
+          inputType: type,
+          bubbles: true,
+          cancelable: true,
+        })
+        if (mode === 'no-ranges') {
+          Object.defineProperty(ev, 'getTargetRanges', { value: () => [] })
+        } else {
+          const n = s.anchorNode ?? ed
+          const o = s.anchorOffset
+          const r = document.createRange()
+          if (side === 'left') {
+            r.setStart(n, Math.max(0, o - 2))
+            r.setEnd(n, o)
+          } else {
+            r.setStart(n, o)
+            r.setEnd(n, o + 2)
+          }
+          Object.defineProperty(ev, 'getTargetRanges', { value: () => [r] })
+        }
+        ed.dispatchEvent(ev)
+        if (!ev.defaultPrevented)
+          document.execCommand(
+            type === 'deleteContentBackward' ? 'delete' : 'forwardDelete',
+          )
+        return ev.defaultPrevented
+      }
+      const out = [send('deleteContentBackward', 'left')]
+      if (mode === 'left-then-right')
+        out.push(send('deleteContentForward', 'right'))
+      return out
+    },
+    { sel: EXTRA, mode },
+  )
+
+for (const mode of ['near-left', 'left-then-right', 'no-ranges'] as const) {
+  test(`C24: scratch-out over a whole word with the caret mid-word deletes it all (${mode})`, async ({
+    page,
+  }) => {
+    await start(page, 'C24' + mode)
+    const box = await lineBox(page, C24_LINE)
+    await pickBox(page, box)
+    // The caret in the middle of the word, by a Pencil tap.
+    await taps(page, 1, await charPoint(page, C24_AT + 4, 'left'))
+    await page.waitForTimeout(RUN_APART)
+    await page.evaluate(() => {
+      const s = window.getSelection()!
+      ;(window as unknown as { __c24: [Node, number] }).__c24 = [
+        s.anchorNode!,
+        s.anchorOffset,
+      ]
+    })
+    await scribbleWord(page)
+    await page.waitForTimeout(150)
+    await iPadWordDelete(page, mode)
+    await expect.poll(() => boxText(box)).toContain('Text  end')
+    const text = await boxText(box)
+    expect(text).not.toContain('wond')
+    expect(text).not.toMatch(/ul|ful|der/)
+    expect(text).toContain('First filler line')
+    expect(text).toContain('Last filler line')
+    await page.keyboard.press('ControlOrMeta+z')
+    await expect.poll(() => boxText(box)).toContain(C24_LINE)
+  })
+}

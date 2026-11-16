@@ -76,8 +76,18 @@ export async function realPen(page: Page, path: Pt[]): Promise<void> {
   })
 }
 
-/** One tap of a run: how long the tip stays down, the pause before it, its drift (ms, px). */
-export type PenTap = { hold: number; gap?: number; drift?: number }
+/**
+ * One tap of a run: how long the tip stays down, the pause before it, its
+ * drift while down (ms, px), and how far off the run's spot it lands (px;
+ * a hand's second tap is seldom on the first, C19).
+ */
+export type PenTap = {
+  hold: number
+  gap?: number
+  drift?: number
+  dx?: number
+  dy?: number
+}
 
 /** Waits until `t` on this process's clock (the last 20 ms without a timer: Windows timers are 15 ms coarse). */
 async function until(t: number): Promise<void> {
@@ -119,7 +129,15 @@ export async function realPenTaps(
   await page.mouse.move(at.x, at.y)
   let back: Promise<void> = Promise.resolve()
   let next = performance.now()
+  let tip = at
   for (const tap of taps) {
+    // Where this tap lands: the hover there goes alongside the pause.
+    const spot = { x: at.x + (tap.dx ?? 0), y: at.y + (tap.dy ?? 0) }
+    if (spot.x !== tip.x || spot.y !== tip.y) {
+      const before = back
+      back = before.then(() => page.mouse.move(spot.x, spot.y))
+      tip = spot
+    }
     // The pause before this tap, counted from when the last lift was sent.
     await Promise.all([
       until(next + Math.max(0, (tap.gap ?? 0) - lead.gap)),
@@ -128,12 +146,12 @@ export async function realPenTaps(
     const down = performance.now()
     await page.mouse.down()
     const drift = tap.drift
-      ? page.mouse.move(at.x + tap.drift * 0.6, at.y + tap.drift * 0.8)
+      ? page.mouse.move(spot.x + tap.drift * 0.6, spot.y + tap.drift * 0.8)
       : Promise.resolve()
     await Promise.all([until(down + Math.max(0, tap.hold - lead.hold)), drift])
     next = performance.now()
     await page.mouse.up()
-    back = tap.drift ? page.mouse.move(at.x, at.y) : Promise.resolve()
+    back = tap.drift ? page.mouse.move(spot.x, spot.y) : Promise.resolve()
   }
   await back
   await page.evaluate(() => {

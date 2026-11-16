@@ -41,6 +41,14 @@ type Editor = AppSchema['BlockNoteEditor']
 const TAP_MS = 450
 /** Taps this close together (px) count as the same spot. */
 const TAP_PX = 12
+/**
+ * C19 (switch textbox.v2; owner's iPad re-test, 16 Nov): a hand's second tap
+ * lands a little off the first. Taps this close (px) are the same spot, and
+ * so is any tap on the same word as the one before.
+ */
+export const TAP_WIDE_PX = 24
+/** A Pencil tap this close (px) to the text cursor is "on the cursor" (C19). */
+const CARET_NEAR_PX = 24
 /** A Pencil that drifts further than this between down and up is not a tap. */
 const MOVE_PX = 12
 /** A press held longer than this is a hold (holdSelect.ts), not a tap. */
@@ -285,11 +293,15 @@ export function nextTapCount(
   now: number,
   x: number,
   y: number,
+  /** The tap is on the same word as the one before (C19). */
+  sameWord = false,
 ): number {
   if (
     last &&
     withinGap(now - last.at, TAP_MS) &&
-    Math.hypot(x - last.x, y - last.y) <= TAP_PX
+    (sameWord ||
+      Math.hypot(x - last.x, y - last.y) <=
+        (isOn('textbox.v2') ? TAP_WIDE_PX : TAP_PX))
   ) {
     return last.count + 1
   }
@@ -374,6 +386,8 @@ export const TAP_SELECTED = 'lnTapSelected'
 export const tapSelected = (e: Event): boolean =>
   (e as Event & { [TAP_SELECTED]?: boolean })[TAP_SELECTED] === true
 
+const TOUCH_NAMES = ['touchstart', 'touchend'] as const
+
 export function watchTapSelect(
   editor: Editor,
   onSelected: () => void,
@@ -416,11 +430,67 @@ export function watchTapSelect(
     !target.closest('a, button, input, textarea, select') &&
     [null, dom].includes(target.closest('[contenteditable="false"]'))
 
+  /** The word or symbol run at (x, y), as a document range (C19). */
+  const wordAt = (x: number, y: number, pad: HTMLElement | null) => {
+    const view = editor.prosemirrorView
+    if (!view) return null
+    try {
+      return lookThrough(pad, () => {
+        const hit = posNear(view, x, y)
+        if (hit === null) return null
+        const pos = snapToChar(view, hit, x, y).caret
+        return rangeForTaps(view, pos, 2, y, x)
+      })
+    } catch {
+      return null
+    }
+  }
+  /**
+   * Which tap of a run this is (C19, switch textbox.v2): a tap further than
+   * 24 px from the one before still adds up when it is on the same word.
+   */
+  const countAt = (
+    at: number,
+    x: number,
+    y: number,
+    pad: HTMLElement | null,
+  ): number => {
+    const near = nextTapCount(last, at, x, y)
+    if (near > 1 || !last || !isOn('textbox.v2')) return near
+    if (!withinGap(at - last.at, TAP_MS)) return 1
+    const a = wordAt(last.x, last.y, pad)
+    const b = a && wordAt(x, y, pad)
+    return nextTapCount(last, at, x, y, !!b && a[0] === b[0] && a[1] === b[1])
+  }
+  /**
+   * Is the Pencil tap at (x, y) on or next to the text cursor (or an end of
+   * the selection) of this editor, while it has the focus (C19)?
+   */
+  const onCaret = (x: number, y: number): boolean => {
+    const view = editor.prosemirrorView
+    if (!view || !isOn('textbox.v2') || !view.hasFocus()) return false
+    try {
+      const sel = view.state.selection
+      return [sel.head, sel.anchor].some((p) => {
+        const c = view.coordsAtPos(p)
+        return (
+          Math.abs(x - c.left) <= CARET_NEAR_PX &&
+          y >= c.top - 8 &&
+          y <= c.bottom + 8
+        )
+      })
+    } catch {
+      return false
+    }
+  }
+  // C19: until this time stamp, the lift of a Pencil tap on the cursor is ours.
+  let ownTouchEndUntil = 0
+
   /** Is this Pencil touch a second (or later) tap on the words? */
   const ours = (target: EventTarget | null, at: number, x: number, y: number) =>
     activeTool.get() === 'text' &&
     inText(target) &&
-    nextTapCount(last, at, x, y) >= 2
+    countAt(at, x, y, null) >= 2
 
   const onDown = (e: PointerEvent) => {
     caretTap++
@@ -448,7 +518,7 @@ export function watchTapSelect(
     }
     // C14: the event's own time stamp, not when this listener ran.
     const now = stampOf(e)
-    const count = nextTapCount(last, now, e.clientX, e.clientY)
+    const count = countAt(now, e.clientX, e.clientY, pad)
     const shift = count > 1 && last ? last.shift : boxShift(dom, tool)
     down = {
       id: e.pointerId,
@@ -483,6 +553,22 @@ export function watchTapSelect(
   // tap (and Scribble's dot) start there, so that touch is cancelled too.
   const onTouchStart = (e: TouchEvent) => {
     if (!e.cancelable) return
+    if (e.type === 'touchend') {
+      // C19: the lift of a Pencil tap on the text cursor. iPadOS reads a tap
+      // on the cursor as "show the edit menu" (Paste, Select): the menu
+      // flashed, and it took the next tap of a double tap. Only the lift is
+      // cancelled, and only for a tap: a touch that starts a Scribble stroke
+      // at the cursor is never held back. The cursor is placed here (onUp).
+      if (stampOf(e) >= ownTouchEndUntil) return
+      ownTouchEndUntil = 0
+      if (
+        Array.from(e.changedTouches).some(
+          (t) => (t as Touch & { touchType?: string }).touchType === 'stylus',
+        )
+      )
+        e.preventDefault()
+      return
+    }
     const touch = Array.from(e.changedTouches).find(
       (t) => (t as Touch & { touchType?: string }).touchType === 'stylus',
     )
@@ -527,7 +613,18 @@ export function watchTapSelect(
     // The first caret tap is the browser's own (Text tool) or the ink pad's
     // (Lasso); in a paper box under the Lasso it is placed here.
     const inBox = !!dom.closest('[data-paper-box]:not([data-paper-box="main"])')
-    if (level === 1 && !inBox) return
+    // C19: a Pencil tap on the cursor is placed here too, and its lift and
+    // its mouse events are kept from the browser (no edit menu).
+    const caretTapped =
+      level === 1 &&
+      e.pointerType === 'pen' &&
+      start.tool === 'text' &&
+      onCaret(start.x, start.y)
+    if (caretTapped) {
+      ownTouchEndUntil = stampOf(e) + 300
+      ownMouseUntil = stampOf(e) + 700
+    }
+    if (level === 1 && !inBox && !caretTapped) return
     // Under the Lasso the ink pad covers the words: every hit test (the tap's
     // spot and the line's edges) looks through it, or WebKit finds no text at
     // the edges and a triple tap selects the whole paragraph.
@@ -622,10 +719,9 @@ export function watchTapSelect(
   }
   doc.addEventListener('pointerup', onUp, true)
   doc.addEventListener('pointercancel', onCancel, true)
-  doc.addEventListener('touchstart', onTouchStart, {
-    capture: true,
-    passive: false,
-  })
+  // touchend too (C19): the lift of a Pencil tap on the cursor.
+  for (const n of TOUCH_NAMES)
+    doc.addEventListener(n, onTouchStart, { capture: true, passive: false })
   // The watchdog (R7-6): a tap whose lift was lost in the background, or a
   // stale count, must not swallow or miscount the next taps.
   const offReset = onGestureReset(() => {
@@ -648,6 +744,6 @@ export function watchTapSelect(
     for (const n of mouseNames) doc.removeEventListener(n, onMouse, true)
     doc.removeEventListener('pointerup', onUp, true)
     doc.removeEventListener('pointercancel', onCancel, true)
-    doc.removeEventListener('touchstart', onTouchStart, true)
+    for (const n of TOUCH_NAMES) doc.removeEventListener(n, onTouchStart, true)
   }
 }

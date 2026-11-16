@@ -62,7 +62,6 @@ test('C20 a resized, coloured, locked box duplicates at the same size, 10 mm low
   await page.waitForTimeout(1200)
   const first = page.locator(EXTRA).first()
   await expect(first).toBeVisible()
-  const before = await rect(first)
   await pick(page, first)
   await page.getByRole('button', { name: 'Box actions' }).last().click()
   await page.getByText('Duplicate box').first().click()
@@ -70,10 +69,13 @@ test('C20 a resized, coloured, locked box duplicates at the same size, 10 mm low
   const a = page.locator(EXTRA).nth(0)
   const b = page.locator(EXTRA).nth(1)
   const ra = await rect(a)
+  // A box as wide as its text reports its width after it is drawn.
+  await expect
+    .poll(async () => Math.abs((await rect(b)).width - ra.width))
+    .toBeLessThan(1)
   const rb = await rect(b)
   expect(Math.abs(rb.width - ra.width)).toBeLessThan(1)
   expect(Math.abs(rb.height - ra.height)).toBeLessThan(1)
-  expect(Math.abs(ra.width - before.width)).toBeLessThan(1)
   const mm = (await rect(page.locator('[data-paper-sheet="1"]'))).width / 210
   expect(Math.abs(rb.x - ra.x - 10 * mm)).toBeLessThan(3)
   // Rows stack: the copy sits right below the original (never on top of it).

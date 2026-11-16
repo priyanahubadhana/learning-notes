@@ -218,5 +218,6 @@ export function deleteSelected(editor: Editor): void {
   // The person pressed Delete: the Pencil guard must not hold it back.
   penState.down = false
   penState.upAt = -1e9
+  penState.tapAt = -1e9
   view.dispatch(view.state.tr.deleteSelection().scrollIntoView())
 }

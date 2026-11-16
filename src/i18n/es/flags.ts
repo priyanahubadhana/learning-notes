@@ -5,6 +5,12 @@ export const esFlags = {
     'Partes nuevas de la app, apagadas hasta que las pruebes.',
   'flags.preset.phase.name': 'Probar una fase',
   'flags.preset.phase.desc': 'Elige la fase que quieres probar.',
+  'flags.tapSpeed.name': 'Velocidad de toque',
+  'flags.tapSpeed.desc':
+    'Lo rápido que deben seguirse los toques para contar como doble o triple toque. Solo para pruebas.',
+  'flags.tapSpeed.quick': 'Rápida',
+  'flags.tapSpeed.normal': 'Normal',
+  'flags.tapSpeed.relaxed': 'Tranquila',
   'flags.preset.on.name': 'Probar esta fase',
   'flags.preset.on.desc':
     'Sí: esta fase funciona y las siguientes siguen apagadas. No: todo lo nuevo se apaga.',

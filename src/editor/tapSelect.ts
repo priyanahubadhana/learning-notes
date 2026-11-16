@@ -1,10 +1,13 @@
 import { TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
+import { isOn } from '../app/flags'
+import { gapMs, stampNow, stampOf, withinGap } from '../app/tapTiming'
 import { activeTool } from '../app/tools/main/mainTools'
 import { keepSelection } from './ownSelection'
 import { noteTapSelected } from './penGuard'
 import { wordAround } from './penSelect'
+import { tokenAround, type Lean } from './textTokens'
 import type { AppSchema } from './schema'
 
 /**
@@ -33,7 +36,8 @@ import type { AppSchema } from './schema'
 
 type Editor = AppSchema['BlockNoteEditor']
 
-/** Real iPad timing (owner, 7 Nov): taps up to this far apart add up. */
+/** Real iPad timing (owner, 7 Nov): taps up to this far apart add up (switch
+ * textbox.v2: the one page timing of tapTiming.ts, C14). */
 const TAP_MS = 450
 /** Taps this close together (px) count as the same spot. */
 const TAP_PX = 12
@@ -148,7 +152,13 @@ export function visualLineRange(
   const away = (r: { top: number; bottom: number }) =>
     y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0
   const row = rows.reduce((a, b) => (away(b) < away(a) ? b : a))
-  const mid = (row.top + row.bottom) / 2
+  // C5 (switch textbox.v2): the tap's own height when it is on the row. A
+  // tall glyph (①) makes WebKit's caret box reach into the next row, and its
+  // middle there took part of the next line.
+  const mid =
+    isOn('textbox.v2') && y >= row.top && y <= row.bottom
+      ? y
+      : (row.top + row.bottom) / 2
   const clamp = (p: number) => Math.min(end, Math.max(start, p))
   const left = probe(view, el, box.left + 1, mid)
   const right = probe(view, el, box.right - 1, mid)
@@ -156,7 +166,31 @@ export function visualLineRange(
   let a = clamp(left.pos)
   let b = clamp(right.pos)
   if (a > b) [a, b] = [b, a]
-  return a === b ? whole : [a, b]
+  if (a === b) return whole
+  return isOn('textbox.v2') ? withinBreaks($pos, pos, a, b) : [a, b]
+}
+
+/**
+ * C5 (switch textbox.v2): a box's lines are one paragraph with line breaks,
+ * and WebKit's hit test past a line's end can answer a place on the next
+ * line. A visual line never crosses a line break around the tapped spot.
+ */
+function withinBreaks(
+  $pos: ReturnType<EditorView['state']['doc']['resolve']>,
+  pos: number,
+  a: number,
+  b: number,
+): [number, number] {
+  let from = a
+  let to = b
+  const start = $pos.start()
+  $pos.parent.forEach((child, offset) => {
+    if (child.isText) return
+    const at = start + offset
+    if (at < pos && at + child.nodeSize > from) from = at + child.nodeSize
+    if (at >= pos && at < to) to = at
+  })
+  return from < to ? [from, to] : [a, b]
 }
 
 /**
@@ -168,6 +202,7 @@ export function rangeForTaps(
   pos: number,
   taps: number,
   y = 0,
+  x?: number,
 ): [number, number] | null {
   const $pos = view.state.doc.resolve(pos)
   if (!$pos.parent.inlineContent) return null
@@ -183,8 +218,65 @@ export function rangeForTaps(
     undefined,
     ' ',
   )
-  const word = wordAround(text, $pos.parentOffset)
+  // C5 (switch textbox.v2): symbols count too, and the character on the
+  // tap's side of the caret is the one tapped ("6," tapped on the comma
+  // picks the comma, not the 6).
+  const symbols = isOn('textbox.v2')
+  const word = symbols
+    ? tokenAround(text, $pos.parentOffset, true, leanAt(view, pos, x, y))
+    : wordAround(text, $pos.parentOffset)
   return word ? [$pos.start() + word[0], $pos.start() + word[1]] : null
+}
+
+/**
+ * The character the tap at (x, y) is on, near caret `pos` (C5). WebKit's
+ * hit test is off by one around a wide glyph (an arrow, ①): a tap on the
+ * right half of ① gave the caret before it. The characters' own boxes
+ * decide: the caret goes to the nearer side of the tapped character, and
+ * `lean` says on which side of the caret that character is.
+ */
+export function snapToChar(
+  view: Pick<EditorView, 'state' | 'domAtPos'>,
+  pos: number,
+  x: number,
+  y: number,
+): { caret: number; lean: Lean } {
+  const none = { caret: pos, lean: 'any' as Lean }
+  if (typeof document === 'undefined') return none
+  try {
+    const $pos = view.state.doc.resolve(pos)
+    if (!$pos.parent.inlineContent) return none
+    const start = $pos.start()
+    const end = $pos.end()
+    for (const p of [pos, pos - 1, pos + 1, pos - 2]) {
+      if (p < start || p + 1 > end) continue
+      const a = view.domAtPos(p, 1)
+      const b = view.domAtPos(p + 1, -1)
+      const r = document.createRange()
+      r.setStart(a.node, a.offset)
+      r.setEnd(b.node, b.offset)
+      const box = r.getBoundingClientRect()
+      if (box.width === 0) continue
+      if (x < box.left || x > box.right) continue
+      if (y < box.top - 2 || y > box.bottom + 2) continue
+      const el = a.node.nodeType === 1 ? a.node : a.node.parentElement
+      const rtl =
+        el instanceof Element && getComputedStyle(el).direction === 'rtl'
+      const firstHalf = x < box.left + box.width / 2 !== rtl
+      return firstHalf
+        ? { caret: p, lean: 'after' }
+        : { caret: p + 1, lean: 'before' }
+    }
+  } catch {
+    // The hit test's own position stands.
+  }
+  return none
+}
+
+/** Which side of caret `pos` the tap at (x, y) was on (none known: 'any'). */
+function leanAt(view: LineView, pos: number, x?: number, y?: number): Lean {
+  if (x === undefined || y === undefined) return 'any'
+  return snapToChar(view as unknown as EditorView, pos, x, y).lean
 }
 
 /** Counts taps (pure, tested): same spot and quick enough add up. */
@@ -196,7 +288,7 @@ export function nextTapCount(
 ): number {
   if (
     last &&
-    now - last.at < TAP_MS &&
+    withinGap(now - last.at, TAP_MS) &&
     Math.hypot(x - last.x, y - last.y) <= TAP_PX
   ) {
     return last.count + 1
@@ -308,9 +400,11 @@ export function watchTapSelect(
   // until its click has passed, the mouse events of the tap never reach them:
   // the tap counter here is the only one.
   let ownMouseUntil = 0
+  // Counts caret taps and presses: a late caret fix-up stands back for a newer tap.
+  let caretTap = 0
   const mouseNames = ['mousedown', 'mouseup', 'click', 'dblclick']
   const onMouse = (e: Event) => {
-    if (Date.now() >= ownMouseUntil) return
+    if (stampOf(e) >= ownMouseUntil) return
     if (!inText(e.target)) return
     e.preventDefault()
     e.stopImmediatePropagation()
@@ -323,12 +417,13 @@ export function watchTapSelect(
     [null, dom].includes(target.closest('[contenteditable="false"]'))
 
   /** Is this Pencil touch a second (or later) tap on the words? */
-  const ours = (target: EventTarget | null, x: number, y: number) =>
+  const ours = (target: EventTarget | null, at: number, x: number, y: number) =>
     activeTool.get() === 'text' &&
     inText(target) &&
-    nextTapCount(last, Date.now(), x, y) >= 2
+    nextTapCount(last, at, x, y) >= 2
 
   const onDown = (e: PointerEvent) => {
+    caretTap++
     // Finger, Pencil and mouse count alike (owner, 10 Nov, items 11 and 20).
     if (e.button > 0) return
     const tool = activeTool.get()
@@ -351,7 +446,8 @@ export function watchTapSelect(
       down = null
       return
     }
-    const now = Date.now()
+    // C14: the event's own time stamp, not when this listener ran.
+    const now = stampOf(e)
     const count = nextTapCount(last, now, e.clientX, e.clientY)
     const shift = count > 1 && last ? last.shift : boxShift(dom, tool)
     down = {
@@ -364,7 +460,15 @@ export function watchTapSelect(
       tool,
     }
     const level = tapLevel(count, shift, strictFor(tool))
-    ownMouseUntil = level >= 2 ? now + 700 : 0
+    // C5 (switch textbox.v2): a Pencil caret tap in a box is placed here
+    // (onUp); WebKit's own mousedown would put it on the wrong side of a wide
+    // glyph, so the tap's mouse events are held back too.
+    const ownCaret =
+      level === 1 &&
+      e.pointerType === 'pen' &&
+      isOn('textbox.v2') &&
+      !!dom.closest('[data-paper-box]:not([data-paper-box="main"])')
+    ownMouseUntil = level >= 2 || ownCaret ? now + 700 : 0
     // The tap that selects a box types nothing and shows no keyboard; the
     // taps after the first on the Pencil are held off (R6-18).
     if (level <= 0) {
@@ -384,7 +488,7 @@ export function watchTapSelect(
     )
     if (
       touch &&
-      (ours(e.target, touch.clientX, touch.clientY) ||
+      (ours(e.target, stampOf(e), touch.clientX, touch.clientY) ||
         (down && down.count === 1 && down.shift >= 1))
     ) {
       e.preventDefault()
@@ -397,14 +501,14 @@ export function watchTapSelect(
     // A drag or a hold (press-and-hold selects, holdSelect.ts) is not a tap.
     if (
       Math.hypot(e.clientX - start.x, e.clientY - start.y) > MOVE_PX ||
-      Date.now() - start.at > TAP_HOLD_MS
+      stampOf(e) - start.at > TAP_HOLD_MS
     ) {
       last = null
       return
     }
     const count = start.count
     const level = tapLevel(count, start.shift, strictFor(start.tool))
-    last = { ...start, at: Date.now(), x: e.clientX, y: e.clientY }
+    last = { ...start, at: stampOf(e), x: e.clientX, y: e.clientY }
     const view = editor.prosemirrorView
     if (!view) return
     if (level <= 0) {
@@ -428,8 +532,17 @@ export function watchTapSelect(
     // spot and the line's edges) looks through it, or WebKit finds no text at
     // the edges and a triple tap selects the whole paragraph.
     const pad = padOf(e.target)
-    const pos = lookThrough(pad, () => posNear(view, e.clientX, e.clientY))
-    if (pos === null) return
+    // C14 (switch textbox.v2): where the tip touched down; a Pencil drifts a
+    // few px before it lifts, onto the next character.
+    const tip = isOn('textbox.v2')
+      ? { x: start.x, y: start.y }
+      : { x: e.clientX, y: e.clientY }
+    const hit = lookThrough(pad, () => posNear(view, tip.x, tip.y))
+    if (hit === null) return
+    // C5 (switch textbox.v2): next to the character actually tapped.
+    const pos = isOn('textbox.v2')
+      ? lookThrough(pad, () => snapToChar(view, hit, tip.x, tip.y)).caret
+      : hit
     if (level === 1) {
       // The caret goes exactly where the tap landed (Lasso, picked box).
       setTimeout(() => {
@@ -440,17 +553,45 @@ export function watchTapSelect(
           ),
         )
         view.dom.focus({ preventScroll: true })
+        // C5 (switch textbox.v2): WebKit's focus puts back the browser's last
+        // selection (the previous tap's caret) over the one set here; the
+        // browser's copy is set again after the focus.
         keepSelection()
+        // The browser's copy is put right once the tap run is over (no next
+        // tap within the tap gap), unless another
+        // tap began meanwhile (its own selection wins).
+        const mine = ++caretTap
+        if (isOn('textbox.v2'))
+          setTimeout(
+            () => {
+              if (mine !== caretTap) return
+              const sel = view.state.selection
+              if (!sel.empty || sel.head !== pos) return
+              try {
+                const d = view.domAtPos(pos)
+                const s = doc.getSelection()
+                if (
+                  !s ||
+                  (s.anchorNode === d.node && s.anchorOffset === d.offset)
+                )
+                  return
+                s.collapse(d.node, d.offset)
+              } catch {
+                // The editor's own selection is set; the browser copy is cosmetic.
+              }
+            },
+            gapMs(450) + 20,
+          )
       }, 0)
       return
     }
     const range = lookThrough(pad, () =>
-      rangeForTaps(view, pos, level, e.clientY),
+      rangeForTaps(view, pos, level, tip.y, tip.x),
     )
     if (!range) return
     ;(e as PointerEvent & { [TAP_SELECTED]?: boolean })[TAP_SELECTED] = true
     // Grace period: nothing may erase or replace this selection for a moment.
-    noteTapSelected()
+    noteTapSelected(stampOf(e))
     // After the browser's own tap handling, so ours is what stays.
     setTimeout(() => {
       const d = view.state.doc
@@ -495,7 +636,7 @@ export function watchTapSelect(
     down: down ? `#${down.id} count ${down.count}` : null,
     lastCount: last?.count ?? 0,
     lastShift: last?.shift ?? 0,
-    lastAgoMs: last ? Date.now() - last.at : null,
+    lastAgoMs: last ? Math.round(stampNow() - last.at) : null,
     editable: dom.getAttribute('contenteditable'),
     inert: dom.hasAttribute('inert'),
     focused: dom.contains(doc.activeElement),

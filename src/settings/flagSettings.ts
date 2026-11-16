@@ -11,6 +11,12 @@ import {
   type FlagId,
   type PresetId,
 } from '../app/flags'
+import {
+  TAP_SPEEDS,
+  TAP_SPEED_KEY,
+  tapSpeed,
+  type TapSpeed,
+} from '../app/tapTiming'
 import type { MessageKey } from '../i18n/t'
 import type { SettingDefinition } from './registry'
 import { settingsRegistry } from './builtinSettings'
@@ -95,8 +101,43 @@ const phaseSwitch: SettingDefinition<OnOff> = {
   },
 }
 
+/**
+ * C14, preview only (manager OK, 16 Nov): how far apart taps may be and
+ * still add up (Quick 350, Normal 500, Relaxed 700 ms; tapTiming.ts). The
+ * owner tries them on the iPad; the pick becomes the default and this row
+ * is removed before release.
+ */
+const tapSpeedSetting: SettingDefinition<string> = {
+  id: 'tryNew.tapSpeed',
+  labelKey: 'flags.tapSpeed.name' as MessageKey,
+  descriptionKey: 'flags.tapSpeed.desc' as MessageKey,
+  category: 'tryNew',
+  keywords: 'tap speed double triple tap pencil timing try new features',
+  scope: 'device',
+  defaultValue: 'normal',
+  isValid: (v): v is string => typeof v === 'string' && v in TAP_SPEEDS,
+  control: {
+    kind: 'segmented',
+    options: (Object.keys(TAP_SPEEDS) as TapSpeed[]).map((value) => ({
+      value,
+      label: () => t(`flags.tapSpeed.${value}` as MessageKey),
+    })),
+  },
+  derived: {
+    read: tapSpeed,
+    write: (value) => {
+      try {
+        localStorage.setItem(TAP_SPEED_KEY, JSON.stringify(value))
+      } catch {
+        // Private mode: Normal stays.
+      }
+    },
+  },
+}
+
 settingsRegistry.register(phaseSetting as SettingDefinition)
 settingsRegistry.register(phaseSwitch as SettingDefinition)
+settingsRegistry.register(tapSpeedSetting as SettingDefinition)
 
 for (const id of FLAG_IDS) {
   settingsRegistry.register(flagSetting(id) as SettingDefinition)

@@ -697,7 +697,9 @@ export class InkController {
       strokes: this.strokeTotal(),
       layers: this.env.doc.layers.length,
       chosenLayer: this.env.doc.chosenLayer,
-      lastTap: this.lastTap ? Date.now() - this.lastTap.at : null,
+      lastTap: this.lastTap
+        ? Math.round(performance.now() - this.lastTap.at)
+        : null,
       fingerTap: this.fingerTap?.id ?? null,
       taps: { ...this.taps },
       cancels: { ...this.cancels },
@@ -1537,8 +1539,10 @@ export class InkController {
     if (!first) return true
     const travel = travelOf(g.world)
     // The double-tap window runs from the first stroke's end to the second's start.
-    const began = { at: Date.now() - ms, x: first.x, y: first.y }
-    const now = { at: Date.now(), x: first.x, y: first.y }
+    // C14: by the events' own time stamps (g.t0 is the press's), not by when
+    // this ran: a busy page must not stretch the gap between two taps.
+    const began = { at: g.t0, x: first.x, y: first.y }
+    const now = { at: g.t0 + ms, x: first.x, y: first.y }
     if (isShort(ms, travel) && isDoubleTap(this.lastTap, began)) {
       this.takeBackTap()
       this.lastTap = null
@@ -2208,9 +2212,15 @@ export class InkController {
         ? this.wordsInRegion(region)
         : null
     // Lines taken in whole (most of the line, or every word, inside).
+    // C5 (switch textbox.v2): a text box's lines are one block, so "most of
+    // the block's middle row inside" took a loop round "① → 6" as the whole
+    // box. A block counts as whole only when every word and symbol is inside.
+    const strict = isOn('textbox.v2')
     const wholeLines =
       !words ||
-      words.blocks.every((id) => blocks.includes(id) || words.full.includes(id))
+      words.blocks.every(
+        (id) => words.full.includes(id) || (!strict && blocks.includes(id)),
+      )
     if (found.length > 0) {
       this.select(found.map((p) => p.stroke.id))
       // Ink and words or pictures in one loop: the mixed menu.

@@ -71,6 +71,7 @@ import {
 import { watchPenSelect } from './penSelect'
 import { watchKeyboardPolicy } from './keyboardPolicy'
 import { watchTapSelect } from './tapSelect'
+import { watchScribbleDelete } from './scribbleDelete'
 import { watchHoldSelect } from './holdSelect'
 import { watchHoldMenu, type HoldPoint } from './holdMenuWatch'
 import { HoldMenuLazy } from './HoldMenuLazy'
@@ -830,6 +831,8 @@ function LoadedPageEditor({
       const stopMenu = watchHoldMenu(editor, setHoldAt, {
         rightClick: menusOnRef.current,
       })
+      // C4: a scribble deletes what is under it, not the old selection.
+      const stopScribble = watchScribbleDelete(editor)
       // The Pencil must never delete text by itself (iPadOS Scribble).
       const stopGuard = watchPenGuard(editor, () =>
         toastRef.current(t('pen.guard.removed'), {
@@ -845,6 +848,7 @@ function LoadedPageEditor({
         stopHold()
         stopMenu()
         stopGuard()
+        stopScribble()
       }
     }
     if (editor.domElement) {

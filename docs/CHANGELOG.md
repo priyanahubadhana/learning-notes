@@ -2,6 +2,24 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: C14/C4 taps timed by event time stamps; a tap is told by its whole path (review fixes)
+
+- What: every tap time in the app is now the event's own time stamp (`stampOf` in src/app/tapTiming.ts): text taps, the ink layer's double tap, the Pencil guard and the scribble mark. Switch on, taps exactly 500 ms apart still add up. The Pencil guard counts a press as a tap by the whole path of the tip (up to 16 px, moves under 2 px are sensor noise), not by the distance from start to end. The C14 tests now cover taps of 150 to 250 ms and gaps of 400 to 500 ms and need all 50 runs to select; a run the PC delivered late is repeated (at most 10), never excused.
+- Why: review of b3acdba6. `Date.now()` inside a listener is when the page got round to the event, so a busy page made a tap a hold and a 400 ms gap too long. A quick scratch-out that ended where it began looked like a tap, and its delete was refused by the tap grace (shown by the new test "a quick, small scratch-out").
+- Files: src/app/tapTiming.ts, src/editor/tapSelect.ts, penGuard.ts, scribbleDelete.ts, src/ink/tapFilter.ts, controller.ts; tests src/editor/tapStamp.test.ts, penGuard.test.ts, e2e/c45-symbols-scribble.spec.ts, e2e/realPen.ts.
+
+### 16 Nov 2026: C4/C14 Pencil tests send taps on one clock (ipad-webkit reds)
+
+- What: the test Pencil has a tap-run driver, `realPenTaps` (e2e/realPen.ts): the tip hovers in once, then every down and up is sent at its own time; the drift and the way back are sent alongside. The C4, C5 and C14 tests use it. The C14 tests log the measured timing (event time stamps) against the timing asked. No app change; the 35 of 50 bar and every check stay.
+- Why: two ipad-webkit reds (C14 triple taps 31 to 33 runs in the spec; C4 "ten scribbles" lost a double tap). Cause, measured: the old driver waited for the browser's answer to each hover move, and WebKit answered 150 to 260 ms late right after a caret or selection change, while the page's own listeners ran 1 to 13 ms. Taps asked 90 ms apart arrived 290 to 580 ms apart, past the app's 500 ms. Now: 50 of 50 runs in the spec, all select; measured minus asked: median 11 to 13 ms, worst 41 ms.
+- Files: e2e/realPen.ts, e2e/c45-symbols-scribble.spec.ts.
+
+### 16 Nov 2026: C4, C5, C14 text box taps, symbols and scribble (switch textbox.v2, OFF live)
+
+- What: C5: symbols (→ , / ①, runs like "//") can be selected: a tap puts the cursor on its side, a double tap selects the symbol run, a triple tap the line, and the Lasso Text pick takes them in; a box's lines are one block, so the Lasso takes the whole block only when every word and symbol is inside. C4: a Pencil scribble over text clears the old selection, and the delete the iPad sends then removes only what is under the scribble (one Undo). C14: one tap timing (500 ms between taps; a Pencil tap up to 250 ms and 8 px) for text taps and ink taps; deletes are refused around a Pencil tap.
+- Why: owner's combined test, 16 Nov (docs/plans/combined-test-2026-11-16.md). Causes: the word splitter skipped symbols; the Lasso's "most of the middle row" rule took the whole box; iPadOS sends its scratch-out as a plain delete that Safari applies to the selection the page holds; ink taps had to be under 150 ms / 3 px / 300 ms apart while text taps allowed 450 ms.
+- Files: src/editor/textTokens.ts, tapSelect.ts, lassoWords.ts, scribbleDelete.ts, penGuard.ts, ownSelection.ts, PageEditor.tsx, src/ink/controller.ts, src/ink/tapFilter.ts, src/app/tapTiming.ts; tests textTokens.test.ts, scribbleDelete.test.ts, src/app/tapTiming.test.ts, e2e/c45-symbols-scribble.spec.ts.
+
 ### 16 Nov 2026: scrollFrame sidebar test follows the approved side-list bar (P1.9-1, T4)
 
 - What: e2e/scrollFrame.spec.ts:166 now checks the list under the side list's own bar (test id sb-list) as the one scroller: a row, the empty top strip and the edge strip scroll it; the bar itself does not scroll. Arrows and ends are checked on that list as before.

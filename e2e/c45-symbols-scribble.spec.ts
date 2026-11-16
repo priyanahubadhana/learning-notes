@@ -615,17 +615,26 @@ const c14Selected = () =>
     await pickBox(page, box)
     const before = await boxText(box)
     const at = await charPoint(page, 1, 'right')
-    for (let r = 0; r < 10; r++) {
+    // Ten double taps in the spec, each of which must select. As in the
+    // 50-run tests, a run the PC delivered late is repeated, never excused
+    // (at most 3); late or not, nothing may be deleted.
+    let done = 0
+    let late = 0
+    for (let r = 0; done < 10; r++) {
       await pressLog(page)
       await realPenTaps(page, at, [
         { hold: 200, drift: 5 },
         { gap: 400, hold: 210, drift: 6 },
       ])
       const { ms } = await pressLog(page)
-      expect(inSpec(ms), `repeat ${r}, press/gap ms: ${whole(ms)}`).toBe(true)
-      await expect
-        .poll(() => selected(page), `repeat ${r}, press/gap ms: ${whole(ms)}`)
-        .toBe('Text')
+      const said = `repeat ${r}, press/gap ms: ${whole(ms)}`
+      if (inSpec(ms)) {
+        done++
+        await expect.poll(() => selected(page), said).toBe('Text')
+      } else {
+        late++
+        expect(late, `late runs (${said})`).toBeLessThanOrEqual(3)
+      }
       // What a stray scratch-out would send right after the taps.
       await iPadDelete(page)
       await page.waitForTimeout(200)

@@ -82,6 +82,7 @@ const config = defineConfig({
       testMatch: [
         /eraserShapes/,
         /parts-gallery/,
+        /updateStuck/, // C22
         /c45-symbols-scribble/, // C4, C5, C14 (combined test 16 Nov)
         /pageMenusPaste/,
         /pageMenusPlace/,

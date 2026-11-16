@@ -12,6 +12,8 @@ export const enLateUpdates = {
   'upd.updated': 'Updated to version {version}',
   'upd.updating': 'Restarting into the new version…',
   'update.auto.done': 'Updated to the latest version',
+  'upd.restartFailed': "Couldn't restart. Tap to try again",
+  'upd.restartNow': 'Restart now',
   'update.req.body':
     'This update changes how your notes are stored, so it is needed to keep going. Your notes stay safe.',
   'update.req.countdown':

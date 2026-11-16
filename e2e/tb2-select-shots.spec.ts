@@ -38,6 +38,9 @@ async function shoot(
   await page.keyboard.press('Escape')
   await expect(box).not.toHaveAttribute('data-picked', '')
   await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
+  // Why: the next tap is made at the same spot as the last shot's. Within the
+  // tap gap (700 ms since C19) it would count as that tap's second, not a first.
+  await page.waitForTimeout(800)
   await box.evaluate((e) => e.scrollIntoView({ block: 'center' }))
   const r = (await box.boundingBox())!
   await page.evaluate(
@@ -61,10 +64,8 @@ async function shoot(
   )
   await expect(box).toHaveAttribute('data-picked', '')
   // The whole box is selected: 8 dots and the tab, no caret.
-  // (On a phone the boxes stack in a column: no dots, as in the spec.)
-  await expect(box.locator('[data-resize-handle]')).toHaveCount(
-    vp.width < 480 ? 0 : 8,
-  )
+  // (2B.5b, docs/CHANGELOG.md: dots and the same rules on a phone too.)
+  await expect(box.locator('[data-resize-handle]')).toHaveCount(8)
   if (vp.width >= 480)
     await expect(box.locator('[data-box-grip]')).toBeVisible()
   await expect(box.locator('.bn-editor')).not.toBeFocused()

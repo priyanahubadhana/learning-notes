@@ -101,11 +101,6 @@ async function prepare(page: Page, size: { width: number; height: number }) {
     localStorage.setItem('learning-notes:pencil.offer', JSON.stringify('no')),
   )
   await page.setViewportSize(size)
-  // These taps are pen events: answer the one-time "Use Pencil mode?" offer
-  // (R8-2) up front, or its card can land over the bar at random.
-  await page.addInitScript(() =>
-    localStorage.setItem('learning-notes:pencil.offer', JSON.stringify('no')),
-  )
   await openNote(page)
   await page.keyboard.press('Escape')
   await page.waitForTimeout(650)

@@ -102,7 +102,7 @@ test('C20 a resized, coloured, locked box duplicates at the same size, 10 mm low
   // Every stored setting (look, colour, lock, height, phone width, any other field) is kept; only the place differs.
   const keep = (b: Record<string, unknown>) => {
     const { id, x, y, ...rest } = b
-    void id, x, y
+    ;(void id, x, y)
     return rest
   }
   expect(keep(two)).toEqual(keep(one))

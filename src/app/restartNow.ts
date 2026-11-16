@@ -1,8 +1,9 @@
 // An update restart that always finishes (T27). While a new worker is still
 // installing or waiting, the old files are NOT dropped (the browser queues
 // that behind the install, so no reload would come): wait for the worker,
-// activate it, reload. The last-resort path gets at most FALLBACK_MAX_MS for
-// unregister and cache clear, then reloads anyway.
+// activate it, reload. If it does not finish, only reload (old files kept).
+// Only with no worker at all do unregister and cache clear run (at most
+// FALLBACK_MAX_MS), then the reload.
 
 import { updateStatus } from './updateStatus'
 
@@ -54,6 +55,7 @@ function within<T>(
 function finish(d: RestartDeps, w: WorkerLike): Promise<boolean> {
   return new Promise((resolve) => {
     skipWait = () => resolve(false)
+    again = null
     let asked = false
     const look = () => {
       if (w.state === 'installed' && !asked) {
@@ -70,21 +72,25 @@ function finish(d: RestartDeps, w: WorkerLike): Promise<boolean> {
 
 let running = false
 let skipWait: (() => void) | null = null
+let again: (() => void) | null = null
 let retry: (() => void) | null = null
-/** True from the start of a restart until the page reloads. */
+/** True from the start of a restart until the page reloads (or, if the
+ *  reload is ignored, until the second try also failed: about 8 s later). */
 export const restartRunning = (): boolean => running
 
 /** Tests only: forget a restart that was left running. */
 export function resetRestartForTests(): void {
   running = false
   skipWait = null
+  again = null
   retry = null
 }
 
 /** "Restart now" / "Tap to try again": stops the waiting, or starts again. */
 export function pressRestart(): void {
-  if (running) skipWait?.()
-  else retry?.()
+  if (!running) retry?.()
+  else if (skipWait) skipWait()
+  else again?.()
 }
 
 export async function restartIntoNewFiles(d: RestartDeps): Promise<void> {
@@ -97,23 +103,37 @@ export async function restartIntoNewFiles(d: RestartDeps): Promise<void> {
     if (running) d.report?.('slow')
   }, SLOW_AFTER_MS)
   const reload = async () => {
+    skipWait = null
     await within(d, d.flush(), FALLBACK_MAX_MS)
     d.reload()
-    // Still here after a while: the reload was ignored. Save again, ask with
-    // a fresh address; a second miss is shown, never silent.
-    d.after(async () => {
+    let asked = false
+    // "Restart now" during the wait below: ask with a fresh address at once.
+    const fresh = async () => {
+      if (asked) return
+      asked = true
+      again = null
       await within(d, d.flush(), FALLBACK_MAX_MS)
       d.reloadFresh()
       d.after(() => {
         running = false
         d.report?.('failed')
       }, WATCHDOG_MS)
-    }, WATCHDOG_MS)
+    }
+    again = () => void fresh()
+    // Still here after a while: the reload was ignored. Save again, ask with
+    // a fresh address; a second miss is shown, never silent.
+    d.after(() => void fresh(), WATCHDOG_MS)
   }
   try {
     const reg = await within(d, d.getRegistration(), FALLBACK_MAX_MS)
     const w = reg?.installing ?? reg?.waiting
-    if (w && (await finish(d, w))) return await reload()
+    if (w) {
+      // Timeout or "Restart now" with the worker unfinished: only reload. The
+      // old worker keeps serving the old version (works offline); the update
+      // is tried again next time. The old files are never dropped here.
+      await finish(d, w)
+      return await reload()
+    }
     await within(d, d.clearOld(), FALLBACK_MAX_MS)
   } catch {
     // Restart anyway.

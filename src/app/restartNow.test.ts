@@ -296,4 +296,48 @@ describe('an update restart always finishes (T27)', () => {
     expect(reloadFresh).toHaveBeenCalledTimes(1)
     await c.advance(WATCHDOG_MS)
   })
+
+  it('C22: a worker that never activates, Restart now tapped: the old files are kept (clearOld not called)', async () => {
+    const c = clock()
+    const w = fakeWorker('installing')
+    const clearOld = vi.fn(async () => {})
+    const { d, reload } = deps(c, {
+      clearOld,
+      getRegistration: async () => ({ installing: w, waiting: null }),
+    })
+    void restartIntoNewFiles(d)
+    await c.advance(SLOW_AFTER_MS + 1)
+    pressRestart()
+    await c.advance(10)
+    expect(reload).toHaveBeenCalledTimes(1)
+    expect(clearOld).not.toHaveBeenCalled()
+    await c.advance(WATCHDOG_MS * 3)
+  })
+
+  it('C22: the 15 s timeout with a worker still installing keeps the old files too', async () => {
+    const c = clock()
+    const w = fakeWorker('installing')
+    const clearOld = vi.fn(async () => {})
+    const { d, reload } = deps(c, {
+      clearOld,
+      getRegistration: async () => ({ installing: w, waiting: null }),
+    })
+    void restartIntoNewFiles(d)
+    await c.advance(WORKER_WAIT_MAX_MS + 10)
+    expect(reload).toHaveBeenCalledTimes(1)
+    expect(clearOld).not.toHaveBeenCalled()
+    await c.advance(WATCHDOG_MS * 3)
+  })
+
+  it('C22: Restart now tapped while the reload watchdog runs asks again at once', async () => {
+    const c = clock()
+    const { d, reload, reloadFresh } = deps(c, {})
+    void restartIntoNewFiles(d)
+    await c.advance(100)
+    expect(reload).toHaveBeenCalledTimes(1)
+    pressRestart()
+    await c.advance(100)
+    expect(reloadFresh).toHaveBeenCalledTimes(1)
+    await c.advance(WATCHDOG_MS * 3)
+  })
 })

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: C22 update restart keeps the old files when the new worker is not ready (review fixes)
+
+- What: on the 15 s limit or "Restart now" with a new worker still installing, the restart only reloads (old worker and saved copies stay, so the app opens offline and the update is tried next time). The old files are cleared only when there is no worker at all. "Restart now" now also works during the 8 s check after a reload. The button sits outside the announced status text. On a phone the notice is narrower so it no longer covers the zoom "-" button.
+- Why: review of ead8983b; clearing the old files and then failing to reload left the app unable to open offline (spec item 4: never block the app).
+- Files: src/app/restartNow.ts, UpdatePill.tsx; test src/app/restartNow.test.ts (3 new).
+
 ### 16 Nov 2026: C14/C4 taps timed by event time stamps; a tap is told by its whole path (review fixes)
 
 - What: every tap time in the app is now the event's own time stamp (`stampOf` in src/app/tapTiming.ts): text taps, the ink layer's double tap, the Pencil guard and the scribble mark. Switch on, taps exactly 500 ms apart still add up. The Pencil guard counts a press as a tap by the whole path of the tip (up to 16 px, moves under 2 px are sensor noise), not by the distance from start to end. The C14 tests now cover taps of 150 to 250 ms and gaps of 400 to 500 ms and need all 50 runs to select; a run the PC delivered late is repeated (at most 10), never excused.

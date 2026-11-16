@@ -7,7 +7,7 @@ Older notes are in docs/ARCHIVE.md under "HANDOFF entries archived 14 Nov 2026" 
 ## Where things stand
 
 - **Owner's rule (16 Nov):** nothing goes into the live app (`main`, task 0.7) until every bug is fixed and the owner has tested it all. Then Phase 1, the tool bar and the text box go live together, on the owner's yes.
-- **Test version:** `build/next` 5aab1273 (16 Nov 17:45: C18b/C20b, C19, C21, C22 merged after one review each and their fixes), preview https://build-next.learning-notes-app.pages.dev. The owner tests on the iPad with Settings › Try new features › Test a phase › "Up to Phase 2B".
+- **Test version:** `build/next` 00431173 (17 Nov; app same as 5aab1273/59533e16 preview; re-test list in docs/plans/combined-test-2026-11-16.md) (16 Nov 17:45: C18b/C20b, C19, C21, C22 merged after one review each and their fixes), preview https://build-next.learning-notes-app.pages.dev. The owner tests on the iPad with Settings › Try new features › Test a phase › "Up to Phase 2B".
 - **Owner has passed:** combined test parts A–D; on re-test: C2 eraser, the tool bar fixes (C3, C6, C7, C9), Delete box, one selected box at a time, resize never types, and the mic strip (C17).
 - **Merged into build/next, waiting for the owner's re-test:** C4, C5, C14 (Scribble, symbols, tap timing), C12, C13, C15, C16, C8, C10, C11 (box group), C17, C18 (strip part), C20 (first part).
 

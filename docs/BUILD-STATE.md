@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-**RESUMED 16 Nov 17:00 IST (owner's yes; Opus + Sonnet only until 19 Nov). build/next 7668d2d5 (16 Nov ~20:00): C18b/C20b, C19, C21, C22 merged after review + fixes; 13 old full-set chromium failures fixed (slice/full-fix, reviewed PASS; PR-3 jump-to-top app fix by Opus); C19 test waits past the 700 ms gap. Test-list patterns for cBoxes/updateStuck fixed (they caught helper files, so ipad-webkit never ran on CI). NOW: ~15 ipad-webkit failures from the full CI run (taps C14/C19, eraserShapes, lassoWords, barRoom, lazyTapPaint, miniBarBounds) being re-run locally, then fixed. pencil-webkit shard hits the 45 min CI limit (738 tests per shard). Local WebKit was blocked by Windows Smart App Control; the owner turned it off 16 Nov ~20:30, WebKit works again. Then the owner's re-test list. No go-live until everything passes.**
+**RESUMED 16 Nov 17:00 IST (owner's yes; Opus + Sonnet only until 19 Nov). build/next 00431173 (17 Nov; app same as preview 59533e16): C18b/C20b, C19, C21, C22 merged after review; old failures fixed (tests only, reviewed PASS). Full CI 43947701514: all shards finished; 29 reds (3 chromium TB-04, 26 ipad-webkit) all pass here (31/31 with 1 retry) = CI-only (late tap delivery on slow runners), listed below. NOW: owner iPad re-test, list in docs/plans/combined-test-2026-11-16.md "Re-test list (17 Nov)". Then go-live ask (task 0.7). Open: PENDING TB23-DIV, CI-TIMING.**
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 
@@ -93,6 +93,7 @@ Settings v5 (Phase 1S); tool bar v9 cards (2A.4–2A.16); things inside a page a
 ## Tests to know about
 
 - CI-only (pass locally on both engines, 17 Nov run 43923017272; note, do not edit): ipad-webkit tb2-move TB-11/TB-14/TB-16, tb2-taps TB-04 (also chromium :176/:204/:220), tb2-pencil TB-37 shape cancel, paperInk rule 9, pageMenusSheet PM-64 (also chromium, passed on retry).
+- CI-only, run 43947701514 (17 Nov; all pass here, do not edit): ipad-webkit c45-symbols-scribble timed taps :560/:623/:665/:741 (gaps asked 448 ms arrived 1000-1600 ms); cBoxesC21:73; eraserShapes:186 (both); lassoWords:206; lazyTapPaint:124 (paint within 150 ms); tb2-resize:405; tb2-taps:204; toolbarV8Favs:301; toolbarV9Polish:169 (5); tb2-move :98/:207/:247; tb2-pencil TB-37; chromium tb2-taps :176/:204/:220.
 - R15: undoHistory "50 random steps" red on ipad-webkit about 1 run in 5 (step 3).
 - The phone wheel test is red on ipad-webkit until it moves (question 7).
 - 7 desktop-only shell/leftPanel specs fail on ipad-webkit (step 1.3).

@@ -90,4 +90,5 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
 ## Ready to merge (after the owner finishes Part D)
 
 - **C3, C6, C7, C9:** `slice/c36-toolbar` 01f21cd7. Review PASS (C7 ✕-cancel fixed). Chromium: 5/5 new tests. ipad-webkit: 65/65 related specs. At the merge, add `toolbarC36.spec.ts` to ipad-webkit's testMatch (playwright.config.ts, manager-approved) and run it there once.
+- **C2:** `slice/c2-eraser-shapes` 1ab91f01. Review fixes checked by the manager (shape-way pieces, pixel test 4/4 chromium and ipad-webkit, removed checks replaced by stronger ones). PASS.
 - **Split, 16 Nov:** C4, C5 and C14 on `slice/c45-scribble-symbols`; C8, C10–C13 and C15 on `slice/c-boxes` (new builder); C2 on `slice/c2-eraser-shapes`; C16 on hold for the owner's A/B/C answer.

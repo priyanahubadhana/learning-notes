@@ -143,7 +143,11 @@ export async function pick(page: Page, box: Locator) {
 
 /** One tap on bare paper below every box. */
 export async function tapOut(page: Page) {
-  const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
+  // Phones draw no sheets: the column is the first box.
+  const sheetEl = page.locator('[data-paper-sheet="1"]')
+  const sheet = await rect(
+    (await sheetEl.count()) ? sheetEl : page.locator('[data-paper-box="main"]'),
+  )
   // Under the lowest box, at the right of the page.
   const bottom = await page.evaluate(() =>
     Math.max(

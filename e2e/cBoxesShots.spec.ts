@@ -10,7 +10,11 @@ import { columns, pick, start, tapOut, tapTextEnd } from './cBoxesHelpers.ts'
  * and dark, on an iPad upright, an iPad sideways and a phone. Written to
  * screenshots/c-boxes/<project>/ (see its INDEX.md).
  */
-test.use({ hasTouch: true, deviceScaleFactor: 2 })
+test.use({
+  viewport: { width: 1336, height: 1100 },
+  hasTouch: true,
+  deviceScaleFactor: 2,
+})
 
 const OUT = () => 'screenshots/c-boxes/' + test.info().project.name
 const THEMES: [string, string][] = [
@@ -42,9 +46,10 @@ for (const [tname, theme] of THEMES)
       await start(page, 'Shots')
       const { a } = await columns(page)
       await look(page, theme, size)
+      await a.scrollIntoViewIfNeeded()
       const file = (state: string) => `${OUT()}/${state}-${tname}-${sname}.png`
-      await tapOut(page)
-      await tapOut(page)
+      await out(page, sname)
+      await out(page, sname)
       await page.screenshot({ path: file('3-none') })
       await pick(page, a).catch(() => undefined)
       await page.screenshot({ path: file('2-selected') })
@@ -53,3 +58,11 @@ for (const [tname, theme] of THEMES)
       await page.screenshot({ path: file('1-typing') })
       await expect(page.locator('[data-paper-box]').first()).toBeVisible()
     })
+
+/** Deselect: a tap on bare paper; on a phone (a tap there makes a new box) Escape. */
+async function out(page: Page, size: string) {
+  if (size !== 'phone') return tapOut(page)
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(300)
+}

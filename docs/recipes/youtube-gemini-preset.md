@@ -1,8 +1,8 @@
 # YouTube → Gemini → Learning Notes (owner, 16 Nov 2026)
 
-Flow: in the app, Copy prompt (it adds the ln-notes/1 format) with the preset below → paste into Gemini with the YouTube link → paste Gemini's answer back with Paste notes (or bring it to Claude, who builds a zip: `notes.md` + `images/` from the owner's screenshot plugin, file names matching the `[mm:ss]` slots). One page per video; tag the page with the tags Gemini suggests (auto-tags on import: parked in IDEAS.md).
+Flow (owner, 16 Nov): the owner gives Gemini the YouTube link plus the prompt below, then pastes Gemini's answer (and screenshots) into Claude Code. Claude Code creates the notebook with the learning-notes connector (`create_notebook`). No app changes for now. Connector limits today: no mind map block (written as a nested list), no tags, no pictures, no databases.
 
-## Preset text (paste into a saved preset; at most 2,000 characters)
+## Prompt for Gemini (paste it with the YouTube link)
 
 ```
 Source: a YouTube video (usually 10 to 60 minutes). Watch all of it, including what is on screen (slides, diagrams, code, formulas), not only the speech.

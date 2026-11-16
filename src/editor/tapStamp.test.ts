@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { setFlag } from '../app/flags'
 import { toolState } from '../app/gestureReset'
-import { stampOf, withinGap } from '../app/tapTiming'
+import { stampOf, TAP_SPEED_KEY, withinGap } from '../app/tapTiming'
 import type { AppSchema } from './schema'
 import { watchTapSelect } from './tapSelect'
 
@@ -61,6 +61,7 @@ afterEach(() => {
   stop()
   vi.restoreAllMocks()
   setFlag('textbox.v2', false)
+  localStorage.removeItem(TAP_SPEED_KEY)
   document.body.replaceChildren()
 })
 
@@ -103,8 +104,9 @@ describe('tap timing by the events own time stamps (C14)', () => {
 })
 
 describe('withinGap and stampOf', () => {
-  it('switch on: taps up to 500 ms apart add up, 500 itself included', () => {
+  it('switch on, Normal picked: taps up to 500 ms apart add up, 500 itself included', () => {
     setFlag('textbox.v2', true)
+    localStorage.setItem(TAP_SPEED_KEY, '"normal"')
     expect(withinGap(500, 450)).toBe(true)
     expect(withinGap(500.5, 450)).toBe(false)
   })

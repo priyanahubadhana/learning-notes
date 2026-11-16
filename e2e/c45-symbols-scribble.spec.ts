@@ -36,6 +36,11 @@ test.use({
 
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 const LINE = 'Text ① → 6, a/b'
+/**
+ * The pause (ms) after which taps start a new run: longer than the tap gap
+ * (C19: Relaxed, 700 ms, when nothing is picked).
+ */
+const RUN_APART = 900
 const rect = async (l: Locator) => (await l.boundingBox())!
 
 async function start(page: Page, name: string) {
@@ -54,7 +59,7 @@ async function start(page: Page, name: string) {
 }
 
 /** A text box below the main text holding LINE; the box is not picked. */
-async function lineBox(page: Page) {
+async function lineBox(page: Page, line = LINE) {
   await typeInEditor(page, 'Main text')
   const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
   const main = await rect(page.locator('[data-paper-box="main"]'))
@@ -66,10 +71,10 @@ async function lineBox(page: Page) {
   await page.keyboard.type('First filler line')
   await page.keyboard.press('Enter')
   // insertText: a typed "/" would open the slash list.
-  await page.keyboard.insertText(LINE)
+  await page.keyboard.insertText(line)
   // WebKit drops an Enter sent in the same moment as insertText: wait for
   // the line to land, then check the box really has three lines.
-  await expect(box.locator('.bn-editor')).toContainText(LINE)
+  await expect(box.locator('.bn-editor')).toContainText(line)
   // WebKit opens the "/" list for an inserted slash too: close it first.
   if (await page.locator('.bn-suggestion-menu').isVisible())
     await page.keyboard.press('Escape')
@@ -173,7 +178,7 @@ const boxText = (box: Locator) => box.locator('.bn-editor').innerText()
 async function pickBox(page: Page, box: Locator) {
   await realPen(page, [await charPoint(page, 0, 'left')])
   await expect(box).toHaveAttribute('data-picked', '')
-  await page.waitForTimeout(600)
+  await page.waitForTimeout(RUN_APART)
 }
 
 const I = {
@@ -196,7 +201,7 @@ test('C5: one Pencil tap on a symbol puts the cursor on that side of it, never a
       await expect
         .poll(() => caretIn(page), `${name} ${side}`)
         .toBe(side === 'left' ? i : i + 1)
-      await page.waitForTimeout(600)
+      await page.waitForTimeout(RUN_APART)
     }
   }
 })
@@ -211,7 +216,7 @@ test('C5: a Pencil double tap selects the symbol itself (→ ① , /), a word st
     for (const side of ['left', 'right'] as const) {
       await taps(page, 2, await charPoint(page, i, side))
       await expect.poll(() => selected(page), `${name} ${side}`).toBe(LINE[i])
-      await page.waitForTimeout(600)
+      await page.waitForTimeout(RUN_APART)
     }
   }
   await taps(page, 2, await charPoint(page, 1, 'right'))
@@ -230,7 +235,7 @@ test('C5: a Pencil triple tap on a symbol selects the whole line', async ({
   for (const i of [I.arrow, I.circled, I.slash]) {
     await taps(page, 3, await charPoint(page, i, 'left'))
     await expect.poll(() => selected(page), LINE[i]).toBe(LINE)
-    await page.waitForTimeout(700)
+    await page.waitForTimeout(RUN_APART)
   }
   expect(await boxText(box)).toContain(LINE)
 })
@@ -332,7 +337,7 @@ test('C4: a scribble over "6" while "Text" is selected clears that selection and
   await expect.poll(() => boxText(box)).toContain('Text ① → , a/b')
   expect(await boxText(box)).not.toContain('6,')
   // No ink in the box: nothing saved, nothing painted.
-  await page.waitForTimeout(600)
+  await page.waitForTimeout(RUN_APART)
   expect((await savedInk(page)).strokes.length).toBe(inkBefore)
   expect(await painted(page, 'live')).toBe(0)
   // One Undo puts the 6 back.
@@ -344,6 +349,7 @@ test('C4: ten scribbles in a row each delete only what is under them', async ({
   page,
 }) => {
   await start(page, 'C4many')
+  await watchPresses(page)
   const box = await lineBox(page)
   await pickBox(page, box)
   // Each round: select "Text", scribble over the symbol at the end, delete.
@@ -351,9 +357,22 @@ test('C4: ten scribbles in a row each delete only what is under them', async ({
     const before = await boxText(box)
     const line = before.split('\n').find((l) => l.startsWith('Text'))!
     if (line.trim() === 'Text') break
-    await taps(page, 2, await charPoint(page, 1, 'right'))
-    await expect.poll(() => selected(page), 'round ' + round).toBe('Text')
-    await page.waitForTimeout(700)
+    // Why the timing is read: this double tap failed now and then on a busy
+    // PC, cause unknown. If the PC delivered the taps late (a tap over 250
+    // ms, a gap over the 700 ms tap gap), the double tap is made again; a
+    // double tap that arrived in time must select, and its timing is shown.
+    let ms: number[] = []
+    for (let again = 0; again < 3; again++) {
+      await pressLog(page)
+      await taps(page, 2, await charPoint(page, 1, 'right'))
+      ms = (await pressLog(page)).ms
+      if (ms.every((v, k) => (k % 2 === 0 ? v <= 250 : v <= 700))) break
+      await page.waitForTimeout(RUN_APART)
+    }
+    await expect
+      .poll(() => selected(page), `round ${round}, press/gap ms: ${whole(ms)}`)
+      .toBe('Text')
+    await page.waitForTimeout(RUN_APART)
     const last = line.trimEnd().length - 1
     const gone = line[last]
     await scribbleOver(page, last)
@@ -372,7 +391,7 @@ test('C4: ten scribbles in a row each delete only what is under them', async ({
     expect(line.slice(after.length).trim()).not.toMatch(/\s/)
     expect(after.startsWith('Text')).toBe(true)
     expect(gone).not.toBe(' ')
-    await page.waitForTimeout(700)
+    await page.waitForTimeout(RUN_APART)
   }
   expect(await boxText(box)).toContain('Text')
   expect(await boxText(box)).toContain('First filler line')
@@ -537,7 +556,7 @@ function driverProof(runs: { asked: number[]; ms: number[] }[], late: number) {
   )
 }
 
-for (const n of [2, 3] as const) {
+const c14 = (n: 2 | 3) =>
   test(`C14: 50 Pencil ${n === 2 ? 'double' : 'triple'} taps (150-250 ms taps, 5 px drift, 400-500 ms apart) all select; nothing is deleted`, async ({
     page,
   }) => {
@@ -594,37 +613,204 @@ for (const n of [2, 3] as const) {
       }
       await page.waitForTimeout(150)
       expect(await boxText(box), `repeat ${r}`).toBe(before)
-      await page.waitForTimeout(650)
+      await page.waitForTimeout(RUN_APART)
     }
     driverProof(runs, late)
     expect(runs.length, 'runs in the spec, each one selected').toBe(50)
   })
-}
 
-test('C14: a double tap on a word that is already selected never deletes it', async ({
-  page,
-}) => {
-  await start(page, 'C14sel')
-  await watchPresses(page)
-  const box = await lineBox(page)
-  await pickBox(page, box)
-  const before = await boxText(box)
-  const at = await charPoint(page, 1, 'right')
-  for (let r = 0; r < 10; r++) {
-    await pressLog(page)
-    await realPenTaps(page, at, [
-      { hold: 200, drift: 5 },
-      { gap: 400, hold: 210, drift: 6 },
-    ])
-    const { ms } = await pressLog(page)
-    expect(inSpec(ms), `repeat ${r}, press/gap ms: ${whole(ms)}`).toBe(true)
-    await expect
-      .poll(() => selected(page), `repeat ${r}, press/gap ms: ${whole(ms)}`)
-      .toBe('Text')
-    // What a stray scratch-out would send right after the taps.
-    await iPadDelete(page)
-    await page.waitForTimeout(200)
-    expect(await boxText(box), `repeat ${r}`).toBe(before)
-    await page.waitForTimeout(650)
-  }
-})
+const c14Selected = () =>
+  test('C14: a double tap on a word that is already selected never deletes it', async ({
+    page,
+  }) => {
+    await start(page, 'C14sel')
+    await watchPresses(page)
+    const box = await lineBox(page)
+    await pickBox(page, box)
+    const before = await boxText(box)
+    const at = await charPoint(page, 1, 'right')
+    // Ten double taps in the spec, each of which must select. As in the
+    // 50-run tests, a run the PC delivered late is repeated, never excused
+    // (at most 3); late or not, nothing may be deleted.
+    let done = 0
+    let late = 0
+    for (let r = 0; done < 10; r++) {
+      await pressLog(page)
+      await realPenTaps(page, at, [
+        { hold: 200, drift: 5 },
+        { gap: 400, hold: 210, drift: 6 },
+      ])
+      const { ms } = await pressLog(page)
+      const said = `repeat ${r}, press/gap ms: ${whole(ms)}`
+      if (inSpec(ms)) {
+        done++
+        await expect.poll(() => selected(page), said).toBe('Text')
+      } else {
+        late++
+        expect(late, `late runs (${said})`).toBeLessThanOrEqual(3)
+      }
+      // What a stray scratch-out would send right after the taps.
+      await iPadDelete(page)
+      await page.waitForTimeout(200)
+      expect(await boxText(box), `repeat ${r}`).toBe(before)
+      await page.waitForTimeout(RUN_APART)
+    }
+  })
+
+/** C19: a long word, so a tap 20 px off the one before is still on it. */
+const WORD = 'understanding'
+const WORD_LINE = 'Text ' + WORD
+
+const c19 = (n: 2 | 3) =>
+  test(`C19: 50 Pencil ${n === 2 ? 'double' : 'triple'} taps in the middle of a word, right after a tap put the cursor there, each next tap 0-20 px off and up to 650 ms later: all select; nothing is deleted`, async ({
+    page,
+  }) => {
+    test.setTimeout(500_000)
+    await start(page, 'C19x' + n)
+    await watchPresses(page)
+    const box = await lineBox(page, WORD_LINE)
+    await pickBox(page, box)
+    const before = await boxText(box)
+    const w0 = WORD_LINE.indexOf(WORD)
+    const lead = new Lead()
+    let done = 0
+    // As in C14: a run the PC delivered late is repeated, never excused.
+    let late = 0
+    for (let r = 0; done < 50; r++) {
+      // A letter in the middle of the word, its left or right half.
+      const i = w0 + 4 + (r % 5)
+      const side = r % 2 ? 'right' : 'left'
+      const at = await charPoint(page, i, side)
+      // 1. One tap puts the cursor there; then nothing for a while.
+      await realPenTaps(page, at, [{ hold: 80 }])
+      await expect
+        .poll(() => caretIn(page), `repeat ${r}: the cursor`)
+        .toBe(side === 'left' ? i : i + 1)
+      await page.waitForTimeout(RUN_APART)
+      // 2. A double (triple) tap on the cursor: taps of 120 to 220 ms, the
+      // next one 0 to 20 px off (left or right, a little up or down), 300
+      // to 650 ms later.
+      await pressLog(page)
+      const off = ((r * 7) % 21) * (r % 2 ? 1 : -1)
+      const run: PenTap[] = []
+      const asked: number[] = []
+      for (let k = 0; k < n; k++) {
+        const gap = k > 0 ? 300 + ((r * 53 + k * 131) % 351) : 0
+        const hold = 120 + ((r * 37 + k * 53) % 101)
+        if (k > 0) asked.push(gap)
+        asked.push(hold)
+        run.push({
+          gap,
+          hold,
+          drift: 3,
+          dx: k === 1 ? off : k === 2 ? off / 2 : 0,
+          dy: k === 0 ? 0 : ((r + k) % 3) - 1,
+        })
+      }
+      await realPenTaps(page, at, run, lead)
+      const { ms } = await pressLog(page)
+      expect(ms.length, `repeat ${r}: every down and up arrived`).toBe(
+        asked.length,
+      )
+      lead.learn(asked, ms)
+      const said = `repeat ${r}, ${off} px off, press/gap ms: ${whole(ms)}`
+      if (ms.every((v, k) => (k % 2 === 0 ? v <= 250 : v <= 700))) {
+        done++
+        await expect
+          .poll(() => selected(page), said)
+          .toBe(n === 2 ? WORD : WORD_LINE)
+      } else {
+        late++
+        expect(late, `late runs (${said})`).toBeLessThanOrEqual(10)
+      }
+      await page.waitForTimeout(150)
+      expect(await boxText(box), `repeat ${r}`).toBe(before)
+      await page.waitForTimeout(RUN_APART)
+    }
+    expect(done, 'runs in the spec, each one selected').toBe(50)
+  })
+
+/**
+ * C19: taps 28-40 px from the one before (25-40 px once the tip's 3 px drift is counted; past the 24 px gap) still add up
+ * when they are on the same word, and must not when they are on another.
+ * `same`: start at the word's 2nd letter (left half), the next taps 28-40 px along it.
+ * Otherwise start on the "x" of "Text", the next tap 28-40 px on, which lands
+ * in "understanding": a new word, so only a cursor move and no selection.
+ */
+const c19far = (n: 2 | 3, same: boolean) =>
+  test(`C19: 20 Pencil ${same ? (n === 2 ? 'double' : 'triple') : 'double'} taps 28-40 px from the one before, ${same ? 'on the same word: all select' : 'on a different word: none counts, nothing is selected'}; nothing is deleted`, async ({
+    page,
+  }) => {
+    test.setTimeout(400_000)
+    await start(page, `C19far${same ? 's' : 'o'}${n}`)
+    await watchPresses(page)
+    const box = await lineBox(page, WORD_LINE)
+    await pickBox(page, box)
+    const before = await boxText(box)
+    const w0 = WORD_LINE.indexOf(WORD)
+    const i = same ? w0 + 1 : w0 - 3
+    const lead = new Lead()
+    let done = 0
+    let late = 0
+    for (let r = 0; done < 20; r++) {
+      const at = await charPoint(page, i, 'left')
+      await realPenTaps(page, at, [{ hold: 80 }])
+      await expect.poll(() => caretIn(page), `repeat ${r}: the cursor`).toBe(i)
+      await page.waitForTimeout(RUN_APART)
+      await pressLog(page)
+      const far = 28 + ((r * 5) % 13)
+      const run: PenTap[] = []
+      const asked: number[] = []
+      for (let k = 0; k < (same ? n : 2); k++) {
+        const gap = k > 0 ? 300 + ((r * 53 + k * 131) % 351) : 0
+        const hold = 120 + ((r * 37 + k * 53) % 101)
+        if (k > 0) asked.push(gap)
+        asked.push(hold)
+        run.push({ gap, hold, drift: 3, dx: k === 0 ? 0 : far, dy: 0 })
+      }
+      await realPenTaps(page, at, run, lead)
+      const { ms } = await pressLog(page)
+      expect(ms.length, `repeat ${r}: every down and up arrived`).toBe(
+        asked.length,
+      )
+      lead.learn(asked, ms)
+      const said = `repeat ${r}, ${far} px off, press/gap ms: ${whole(ms)}`
+      if (ms.every((v, k) => (k % 2 === 0 ? v <= 250 : v <= 700))) {
+        done++
+        if (same) {
+          await expect
+            .poll(() => selected(page), said)
+            .toBe(n === 2 ? WORD : WORD_LINE)
+        } else {
+          await page.waitForTimeout(400)
+          expect(await selected(page), said).toBe('')
+        }
+      } else {
+        late++
+        expect(late, `late runs (${said})`).toBeLessThanOrEqual(10)
+      }
+      await page.waitForTimeout(150)
+      expect(await boxText(box), `repeat ${r}`).toBe(before)
+      await page.waitForTimeout(RUN_APART)
+    }
+    expect(done, 'runs in the spec').toBe(20)
+  })
+
+/**
+ * The tests that time real taps run in two rows, each row one test after
+ * the other. Why: all four 50-run tests at once (one per worker) starved the
+ * test driver itself: a tap asked at 205 ms was sent after 105 ms, the next
+ * at 330 ms, and more than 10 runs of 50 had to be repeated (16 Nov,
+ * ipad-webkit, first run with the C19 tests). Two at a time is the load the
+ * timing was measured under.
+ */
+for (const n of [2, 3] as const) {
+  test.describe(`timed Pencil ${n === 2 ? 'double' : 'triple'} taps`, () => {
+    test.describe.configure({ mode: 'default' })
+    c14(n)
+    if (n === 2) c14Selected()
+    c19(n)
+    c19far(n, true)
+    if (n === 2) c19far(n, false)
+  })
+}

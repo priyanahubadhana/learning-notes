@@ -23,8 +23,10 @@ describe('one tap timing (C14)', () => {
     expect(tapMovePx(3)).toBe(3)
     expect(isShort(200, 5)).toBe(false)
   })
-  it('switch on: 500 ms between taps, a tap up to 250 ms and 8 px', () => {
+  it('switch on, Normal picked: 500 ms between taps, a tap up to 250 ms and 8 px', () => {
     setFlag('textbox.v2', true)
+    // C19: Relaxed is the speed when nothing is picked (tapNear.test.ts).
+    localStorage.setItem(TAP_SPEED_KEY, '"normal"')
     expect(gapMs(450)).toBe(500)
     expect(gapMs(300)).toBe(500)
     expect(isShort(240, 7)).toBe(true)
@@ -39,17 +41,18 @@ describe('one tap timing (C14)', () => {
     // A single Pen tap still draws its dot (only a second tap takes it back).
     expect(isTap(200, 5)).toBe(false)
   })
-  it('the preview "Tap speed" pick: Quick 350, Relaxed 700; junk = Normal', () => {
+  it('the preview "Tap speed" pick: Quick 350, Relaxed 700; junk = none picked (Relaxed, C19)', () => {
     setFlag('textbox.v2', true)
     localStorage.setItem(TAP_SPEED_KEY, '"quick"')
     expect(gapMs(450)).toBe(350)
     localStorage.setItem(TAP_SPEED_KEY, '"relaxed"')
     expect(gapMs(450)).toBe(700)
     localStorage.setItem(TAP_SPEED_KEY, '{bad')
-    expect(tapSpeed()).toBe('normal')
+    expect(tapSpeed()).toBe('relaxed')
   })
   it('a Pencil tap never deletes: deletes are refused for the gap + 200 ms', () => {
     setFlag('textbox.v2', true)
+    localStorage.setItem(TAP_SPEED_KEY, '"normal"')
     const pen = { down: false, upAt: 0, tapAt: 1000 }
     expect(tapGraceOn(pen, 1600)).toBe(true)
     expect(tapGraceOn(pen, 1800)).toBe(false)

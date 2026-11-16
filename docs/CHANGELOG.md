@@ -27,6 +27,18 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: spec C21 "Hover never resizes or moves".
 - Files: src/paper/PaperFrame.tsx; test e2e/cBoxesC21.spec.ts.
 
+### 16 Nov 2026: C19 same-word rule beyond 24 px tested in the real editor
+
+- What: three e2e tests in e2e/c45-symbols-scribble.spec.ts: 20 real Pencil double and 20 triple taps whose later taps land 25-40 px (tip drift counted) from the one before but on the same word "understanding" all select it (word, line); 20 double taps the same distance away on a different word select nothing and delete nothing.
+- Why: the same-word rule (src/editor/tapSelect.ts countAt/wordAt) had unit tests only.
+- Files: e2e/c45-symbols-scribble.spec.ts.
+
+### 16 Nov 2026: C19 double and triple taps in the middle of a word (switch textbox.v2, OFF live)
+
+- What: (1) The tap speed is Relaxed (700 ms between taps) when nothing is picked; the preview "Tap speed" row still offers Quick and Normal. (2) A second or third tap counts when it lands within 24 px of the one before (it was 12 px), or anywhere on the same word. (3) A Pencil tap on or next to the text cursor (24 px) is handled by the app: its lift and its mouse events are kept from the browser, the cursor is placed by the app, and the tap counts as the first of a double tap. Only the lift of a tap is cancelled, never the touch-down, so a Scribble stroke that starts at the cursor still writes.
+- Why: owner's iPad re-test, 16 Nov (C19): double and triple taps worked only sometimes, worst in the middle of a word right after a tap put the cursor there, and a pop-up flashed. Likely cause: iPadOS reads a tap on the cursor as "show the edit menu", and the menu takes the next tap. The iPad's own edit menu cannot run in a browser test: the tests prove the tap counting, the 24 px and same-word rule and that the lift is cancelled; only the real iPad proves the menu no longer flashes.
+- Files: src/editor/tapSelect.ts, src/app/tapTiming.ts, src/settings/flagSettings.ts; tests src/editor/tapNear.test.ts, tapStamp.test.ts, src/app/tapTiming.test.ts, e2e/c45-symbols-scribble.spec.ts (two C19 tests, 50 runs each), e2e/realPen.ts (a tap may land off the spot).
+
 ### 16 Nov 2026: C14/C4 taps timed by event time stamps; a tap is told by its whole path (review fixes)
 
 - What: every tap time in the app is now the event's own time stamp (`stampOf` in src/app/tapTiming.ts): text taps, the ink layer's double tap, the Pencil guard and the scribble mark. Switch on, taps exactly 500 ms apart still add up. The Pencil guard counts a press as a tap by the whole path of the tip (up to 16 px, moves under 2 px are sensor noise), not by the distance from start to end. The C14 tests now cover taps of 150 to 250 ms and gaps of 400 to 500 ms and need all 50 runs to select; a run the PC delivered late is repeated (at most 10), never excused.

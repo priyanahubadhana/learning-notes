@@ -14,6 +14,7 @@ import {
 import {
   TAP_SPEEDS,
   TAP_SPEED_KEY,
+  DEFAULT_TAP_SPEED,
   tapSpeed,
   type TapSpeed,
 } from '../app/tapTiming'
@@ -114,7 +115,7 @@ const tapSpeedSetting: SettingDefinition<string> = {
   category: 'tryNew',
   keywords: 'tap speed double triple tap pencil timing try new features',
   scope: 'device',
-  defaultValue: 'normal',
+  defaultValue: DEFAULT_TAP_SPEED,
   isValid: (v): v is string => typeof v === 'string' && v in TAP_SPEEDS,
   control: {
     kind: 'segmented',

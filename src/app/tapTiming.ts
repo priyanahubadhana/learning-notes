@@ -8,7 +8,7 @@ import { isOn } from './flags'
  * drifts more, so double and triple taps worked only sometimes.
  *
  * Now, with the switch on:
- *  - taps up to `gapMs()` apart add up (500 ms; the preview "Tap speed"
+ *  - taps up to `gapMs()` apart add up (700 ms, C19; the preview "Tap speed"
  *    choice can make it 350 or 700);
  *  - a Pencil tap may last up to 250 ms and move up to 8 px.
  * With the switch off the old numbers hold. Pure reads, tested.
@@ -20,13 +20,19 @@ export type TapSpeed = keyof typeof TAP_SPEEDS
 /** Preview only: the owner's "Tap speed" pick (removed before release). */
 export const TAP_SPEED_KEY = 'learning-notes:preview.tapSpeed'
 
-/** The tap speed picked on this device (Normal when none). */
+/**
+ * The tap speed when none is picked (C19, owner's iPad re-test 16 Nov:
+ * "Relaxed felt best"; with Normal, double and triple taps still failed).
+ */
+export const DEFAULT_TAP_SPEED: TapSpeed = 'relaxed'
+
+/** The tap speed picked on this device (Relaxed when none). */
 export function tapSpeed(): TapSpeed {
   try {
     const v = JSON.parse(localStorage.getItem(TAP_SPEED_KEY) ?? 'null')
-    return v in TAP_SPEEDS ? (v as TapSpeed) : 'normal'
+    return v in TAP_SPEEDS ? (v as TapSpeed) : DEFAULT_TAP_SPEED
   } catch {
-    return 'normal'
+    return DEFAULT_TAP_SPEED
   }
 }
 

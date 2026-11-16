@@ -1358,10 +1358,3 @@ html[data-box-drag] {
   flex: 1;
   min-width: 0;
 }
-
-/* C26 (17 Nov, owner): "Tap here to keep writing" is gone: only an empty page
-   has a hint. Inside a box frame the empty tap line is not drawn at all (it made
-   the default box look tall). */
-[data-paper-box] .ln-tap-below:not([data-hint]) {
-  display: none;
-}

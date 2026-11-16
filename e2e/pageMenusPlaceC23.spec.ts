@@ -203,10 +203,7 @@ test('C26: no slash hint on an empty line once the box has text and no "Tap here
     return el ? getComputedStyle(el, '::after').content : 'none'
   })
   expect(['none', 'normal', '""']).toContain(hint)
-  // Owner 17 Nov: "Tap here to keep writing" never shows inside a box frame.
-  await expect(
-    page.locator('[data-paper-box] .ln-tap-below:visible'),
-  ).toHaveCount(0)
+  // Owner 17 Nov: "Tap here to keep writing" is gone everywhere.
   await expect(page.getByText('Tap here to keep writing')).toHaveCount(0)
 })
 

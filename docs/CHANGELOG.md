@@ -6,7 +6,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - C23: Delete box sits in a fixed footer of the box ⋯ card (never scrolled away, even in a short window); the card is placed wholly inside the page frame (or wholly beside it), never across its edge (listPlace frame argument, BoxMoreHost, AnchoredMenu footer).
 - C25: every menu card uses the z-index token --z-pop (was a raw 50), so it sits above every scroll bar (bars in a drawer or sheet were drawn at 61 or 81).
-- C26: no "Enter text or type '/'" on an empty line once a box has text (PageEditor sets data-has-text; index.css). Owner decision 17 Nov, changes TB-42: "Tap here to keep writing" is gone everywhere; only an empty page shows its one hint. The tap line stays as an unlabelled tap area (screen-reader label kept) and is not drawn inside a box. tb2-taps TB-42 tests updated to this rule (spec change by the owner, not a weakening). Files: PageEditor.tsx, index.css, e2e/pageMenusPlaceC23.spec.ts, e2e/tb2-taps.spec.ts, docs/features/textbox-v2.md.
+- C26: no "Enter text or type '/'" on an empty line once a box has text (PageEditor sets data-has-text; index.css). Owner decision 17 Nov, changes TB-42: "Tap here to keep writing" is gone everywhere; only an empty page shows its one hint. The tap line stays as an unlabelled tap area (screen-reader label kept); its size is unchanged (box sizes are C27). tb2-taps TB-42 tests updated to this rule (spec change by the owner, not a weakening). Files: PageEditor.tsx, index.css, e2e/pageMenusPlaceC23.spec.ts, e2e/tb2-taps.spec.ts, docs/features/textbox-v2.md.
 
 ### 17 Nov 2026: six e2e failures on build/next fixed (slice/full-fix2, no product change)
 

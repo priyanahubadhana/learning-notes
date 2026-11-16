@@ -50,6 +50,19 @@ function densify(pts: readonly number[], gap: number): number[] {
   return out
 }
 
+/**
+ * C2: a snapped shape (rectangle, oval, triangle, line, arrow) as ordinary ink:
+ * the same outline with a point at least every `gap`, and no shape or fill
+ * mark. A shape is stored as a few corner points and drawn closed, so cutting
+ * it as it is would join the leftover ends with a straight line.
+ */
+export function shapeToInk(stroke: Stroke, gap: number): Stroke {
+  const { shape: _shape, fill: _fill, ...ink } = stroke
+  void _shape
+  void _fill
+  return { ...ink, pts: densify(stroke.pts, gap) }
+}
+
 /** Does any part of the stroke come within `radius` of the path? */
 export function touches(
   stroke: Stroke,
@@ -107,6 +120,17 @@ export function eraseStroke(
     return touchesBox(stroke, path, radius) ? [] : [stroke]
   }
   const reach = mode === 'standard' ? radius * STANDARD_REACH : radius
+  // Standard and Precise on a shape: it turns into ink where the tip touches
+  // it, and the rest stays exactly where it was. Untouched, it stays a shape.
+  if (stroke.shape) {
+    if (!touches(stroke, path, reach)) return [stroke]
+    return eraseStroke(
+      shapeToInk(stroke, Math.max(reach / 2, 1e-6)),
+      path,
+      radius,
+      mode,
+    )
+  }
   const pts = densify(stroke.pts, Math.max(reach / 2, 1e-6))
   const runs: number[][] = []
   let run: number[] = []

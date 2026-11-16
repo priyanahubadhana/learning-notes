@@ -106,3 +106,32 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
 - **C box group:** `slice/c-boxes` 82336aaf: C8, C10 (incl. the tool bar part, keyboardPolicy.ts), C11, C12, C13, C15, C16. Under review. Builder decision: Delete box on a page's first box empties it with one Undo (the first box always stays).
 - **Merged into build/next 535695f8:** box group C8, C10–C13, C15, C16 (`slice/c-boxes` e4778dcc), with /cBoxes/ on ipad-webkit. ipad-webkit 20/20 (one flaky C13 retry came while another webkit run was going; 10/10 alone with no retries). Owner can re-test.
 - **C4, C5, C14** (`slice/c45-scribble-symbols` 87523cea): C5 passes on ipad-webkit; 2 reds left (C14 triple taps 31/35, C4 "ten scribbles" sometimes). Opus tried twice, so this went to Fable (16 Nov). The Tap speed row is in flagSettings.ts.
+- **Merged into build/next b0fe6c4a:** C4, C5, C14 (`slice/c45-scribble-symbols` a85c6154; Fable fixed the test driver; event.timeStamp tap timing; whole-path scratch-out). All C2–C16 fixes are now in the test version. ipad-webkit on the merged code: c45 + cBoxes 32/32 with --retries=0. Watch: in one heavier 4-spec run, C14 "double tap never deletes" and C12 "first box frame" failed once each, then passed 6/6 alone and in the next full run. If CI shows them, fix the cause (load sensitivity).
+- **CI green** (run 43819906898, build/next with the Tap speed id fix). **Next:** the owner re-tests C2–C16 on the iPad (reload the test page; preset "Up to Phase 2B"; Settings › Try new features › Tap speed to try Quick, Normal or Relaxed).
+
+## Re-test findings (owner, 16 Nov, 12:55)
+
+- **C17 (screenshot):** the floating mic strip (⠿ mic ↵ ⌫, top right of the page) is shown with a red glow, but:
+  - (1) the Apple Pencil can't tap its buttons;
+  - (2) it has no ✕ to close it;
+  - (3) the mic doesn't type anything. The owner expects it to type like the Apple keyboard's mic.
+  - Code (manager): src/app/tools/main/MiniKeysStrip.tsx `mic()` uses Safari's SpeechRecognition (continuous, final results only); other errors are silent; buttons use onClick, which a Pencil tap may never fire (Pencil pointerdowns are cancelled in tapSelect.ts and the ink pad).
+  - Fix (manager's pick): Pencil and finger both work on every strip button (act on pointerup, not click); a ✕ closes the strip (and the mic tool reopens it); the mic types words into the text at the cursor as you speak (show interim words, then the final text). Restart when Safari ends a session early. Show a clear message for every error (no permission, no network, not supported) with the way out: "use the keyboard's mic". The red glow only while it's really listening.
+- **C18 (same screenshot, to check):** the box shows a cursor and the 8 dots at the same time (with a dashed outline); C11 says typing = thin border, no dots. It may be the mic strip taking the focus. Check it.
+- **C17, more (owner):** the mic worked well in the early tests (the old tool bar), so this is a regression. Now: the mic strip can't be set in place ("fix"), and tapping the mic again doesn't stop the recording. "That tool itself is not working." Compare with the live app (main), where it worked: likely one of the new tap or focus changes (tapSelect.ts and penGuard.ts Pencil cancels, the C10 typing pause, keyboardPolicy.ts) swallows the strip's input.
+- **C18 confirmed (owner):** while writing in a box, the 8 resize dots still show. Typing must show the thin border only (C11).
+- **C19 (owner, re-test of item 5):**
+  - Double and triple taps still work only sometimes. "Relaxed" tap speed felt best.
+  - In the middle of a word: the first tap places the cursor, then a double tap often fails, and a pop-up flashes. At word ends and corners it works.
+  - The owner wants a bigger tap radius: a second tap slightly off, but on the same word, still counts.
+  - Manager's guess: iPadOS treats a tap on the caret as "show the edit menu".
+  - Fix (manager's picks): default tap speed Relaxed (700 ms); a second or third tap counts within 24 px or on the same word; a tap on or near the caret never loses the multi-tap, and no edit menu flashes. Tests: 50 runs mid-word at 0–20 px offsets, all select. Builder: `slice/c19-taps` (Fable).
+- **C20 (owner):** Duplicate box gives a copy of a different size (the text is the same). A duplicate must keep everything: width, height, fill, border, padding, font and paper settings, lock state and fields. It is only placed 10 mm lower and to the right (src/paper/boxService.ts ~254, clampBox).
+- **Re-test results (owner, 13:14):** pass: Delete box; one selected box at a time; resizing doesn't type into the text. Everything else passes apart from the open bugs (C17–C21).
+- **C21 (owner, two screenshots): box move and resize on the iPad are broken in practice.**
+  1. Dragging a box (≡) up into space that is visibly free is refused (it snaps back; "Box moved" shows).
+  2. Resizing isn't smooth: it shakes, and the pink guide line keeps popping in and out (the snap flips on and off).
+  3. Just hovering the Pencil over a dot (no touch) starts resizing and the box shrinks. Resizing must start only on a real touch (pen hover sends pointermove with no buttons pressed).
+  4. Making a box smaller shakes badly; with the Pencil the owner couldn't do it at all.
+  - Fix: moves and resizes follow the finger or Pencil smoothly (one update per frame, no layout jumps). The guide line and snap have a dead zone (snap within 6 px, release only past 12 px). Hover never resizes or moves. A box can be moved into any free space it fits in, up or down. Shrinking works down to the text height with the Pencil.
+  - Tests: real Pencil drags with hover moves before the touch; the box size never changes on hover; size changes are monotonic during a steady drag (no shake); move up into a gap is accepted.

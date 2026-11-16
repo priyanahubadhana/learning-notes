@@ -379,3 +379,11 @@ Pictures: docs/mockups/toast-close/ (1–4). Rule: ✕ on the leading edge, Undo
 ## Text box states like Goodnotes (C11), approved 16 Nov 2026
 
 Pictures: docs/mockups/textbox-2b/c11-shots/ (1-typing, 2-selected, 3-none). While typing: a thin border and no dots. One tap just outside: typing ends, the box stays selected (8 dots, ≡ handle, box bar). A second tap outside: nothing selected. Replaces the typing state in docs/mockups/textbox-2b/states.html. The frame always matches the box's fill (C12).
+
+## Box size and hints (owner, 17 Nov 2026; picture docs/design/refs/c27-new-box-one-line.png)
+
+Replaces TB-10's "starts narrow, grows to the right" and TB-42's "Tap here to keep writing". The look stays Goodnotes (C11 states, C12 frame).
+
+- **New box (tap empty paper with the Text tool):** as wide as the whole line, one line tall, like a Notion block. It grows downward only as you write. It can still be made narrower or taller with its dots and moved beside another box (C21).
+- **First box on a page:** the same rule: one line tall when empty, as tall as its text after that, grows as you write; stretch it by hand if wanted. Tapping the paper under it with the Text tool makes a new box the same way.
+- **Hints:** "Tap here to keep writing" is gone everywhere. Only an empty page shows one hint ("Type, or tap anywhere…"), and the "Type here" text in an empty box goes the moment you start writing.

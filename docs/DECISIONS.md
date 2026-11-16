@@ -75,6 +75,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 - **2026-11-12 · Text tool shape thresholds.** Score = 1 minus (mean distance of the stroke to the clean outline, as a share of 8 % of its size); convert at 0.55 or more (about 4.5 % average error). Blank paper needs a stroke at least 60 px across for a line or arrow and 48 px for a rectangle or circle (smaller is a letter or a dash). A stroke within 80 px and 1.2 s of another pen stroke is handwriting; a shape waits 0.4 s and is dropped if a stroke starts within 80 px of it. A circle round a digit skips the size, wait and neighbour rules (the digit under it is the proof). Strokes made with the Text tool are never drawn, so Undo of a shape returns the page to before it (there are no "original strokes" to show); Undo of a circled number returns the digit. Other options: a stricter score, no wait.
 
+- **2026-11-17 · Owner decision: box size and hints (C26, C27).** New and first boxes are one line tall and full line width, growing as you write; TB-10 "starts narrow" and TB-42 "Tap here to keep writing" are replaced. Details: docs/design/owner-decisions.md "Box size and hints".
+
 ## Decisions to review
 
 - **2026-11-17 · C27 approved picture = owner's own reference screenshot (Opus).** The owner sent a phone screenshot of the size they want plus clear words (one line, full line width, grows as you write). Taken as the approved picture instead of making a new mock-up; the build follows it and the owner checks it on the iPad.

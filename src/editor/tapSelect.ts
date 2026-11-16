@@ -1,10 +1,12 @@
 import { TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
+import { isOn } from '../app/flags'
 import { activeTool } from '../app/tools/main/mainTools'
 import { keepSelection } from './ownSelection'
 import { noteTapSelected } from './penGuard'
 import { wordAround } from './penSelect'
+import { tokenAround, type Lean } from './textTokens'
 import type { AppSchema } from './schema'
 
 /**
@@ -168,6 +170,7 @@ export function rangeForTaps(
   pos: number,
   taps: number,
   y = 0,
+  x?: number,
 ): [number, number] | null {
   const $pos = view.state.doc.resolve(pos)
   if (!$pos.parent.inlineContent) return null
@@ -183,8 +186,30 @@ export function rangeForTaps(
     undefined,
     ' ',
   )
-  const word = wordAround(text, $pos.parentOffset)
+  // C5 (switch textbox.v2): symbols count too, and the character on the
+  // tap's side of the caret is the one tapped ("6," tapped on the comma
+  // picks the comma, not the 6).
+  const symbols = isOn('textbox.v2')
+  const word = symbols
+    ? tokenAround(text, $pos.parentOffset, true, leanAt(view, pos, x))
+    : wordAround(text, $pos.parentOffset)
   return word ? [$pos.start() + word[0], $pos.start() + word[1]] : null
+}
+
+/** Which side of caret `pos` the tap at `x` was on (none known: 'any'). */
+function leanAt(view: LineView, pos: number, x?: number): Lean {
+  if (x === undefined) return 'any'
+  try {
+    const at = view.coordsAtPos(pos)
+    if (Math.abs(x - at.left) < 0.5) return 'any'
+    // Right-to-left text has its characters the other way round.
+    const el = view.nodeDOM(view.state.doc.resolve(pos).before())
+    const rtl =
+      el instanceof Element && getComputedStyle(el).direction === 'rtl'
+    return x < at.left !== rtl ? 'before' : 'after'
+  } catch {
+    return 'any'
+  }
 }
 
 /** Counts taps (pure, tested): same spot and quick enough add up. */
@@ -445,7 +470,7 @@ export function watchTapSelect(
       return
     }
     const range = lookThrough(pad, () =>
-      rangeForTaps(view, pos, level, e.clientY),
+      rangeForTaps(view, pos, level, e.clientY, e.clientX),
     )
     if (!range) return
     ;(e as PointerEvent & { [TAP_SELECTED]?: boolean })[TAP_SELECTED] = true

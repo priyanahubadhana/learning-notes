@@ -2208,9 +2208,15 @@ export class InkController {
         ? this.wordsInRegion(region)
         : null
     // Lines taken in whole (most of the line, or every word, inside).
+    // C5 (switch textbox.v2): a text box's lines are one block, so "most of
+    // the block's middle row inside" took a loop round "① → 6" as the whole
+    // box. A block counts as whole only when every word and symbol is inside.
+    const strict = isOn('textbox.v2')
     const wholeLines =
       !words ||
-      words.blocks.every((id) => blocks.includes(id) || words.full.includes(id))
+      words.blocks.every(
+        (id) => words.full.includes(id) || (!strict && blocks.includes(id)),
+      )
     if (found.length > 0) {
       this.select(found.map((p) => p.stroke.id))
       // Ink and words or pictures in one loop: the mixed menu.

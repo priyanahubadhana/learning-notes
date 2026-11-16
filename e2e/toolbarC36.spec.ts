@@ -81,7 +81,6 @@ test('C3 tight bar: icon only, name on long-press, still works', async ({
   const back = page.getByTestId('v8-eraser-back')
   await expect(back).toBeVisible()
   await expect(back.locator('.v8chip-label')).toHaveCount(0)
-  await expect(back).toHaveAttribute('title', 'Back after one')
   // Long-press says the full name.
   const b = (await back.boundingBox())!
   await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2)

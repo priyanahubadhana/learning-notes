@@ -101,7 +101,6 @@ export function BackAfterOne() {
       className="v8chip"
       aria-pressed={on}
       aria-label={t('ink.eraser.returnAfter')}
-      title={name}
       data-testid="v8-eraser-back"
       onMouseDown={keepFocus}
       onClick={() => eraserSettings.update({ returnAfter: !on })}

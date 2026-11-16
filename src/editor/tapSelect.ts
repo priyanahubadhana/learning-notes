@@ -152,7 +152,13 @@ export function visualLineRange(
   const away = (r: { top: number; bottom: number }) =>
     y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0
   const row = rows.reduce((a, b) => (away(b) < away(a) ? b : a))
-  const mid = (row.top + row.bottom) / 2
+  // C5 (switch textbox.v2): the tap's own height when it is on the row. A
+  // tall glyph (①) makes WebKit's caret box reach into the next row, and its
+  // middle there took part of the next line.
+  const mid =
+    isOn('textbox.v2') && y >= row.top && y <= row.bottom
+      ? y
+      : (row.top + row.bottom) / 2
   const clamp = (p: number) => Math.min(end, Math.max(start, p))
   const left = probe(view, el, box.left + 1, mid)
   const right = probe(view, el, box.right - 1, mid)
@@ -193,25 +199,60 @@ export function rangeForTaps(
   // picks the comma, not the 6).
   const symbols = isOn('textbox.v2')
   const word = symbols
-    ? tokenAround(text, $pos.parentOffset, true, leanAt(view, pos, x))
+    ? tokenAround(text, $pos.parentOffset, true, leanAt(view, pos, x, y))
     : wordAround(text, $pos.parentOffset)
   return word ? [$pos.start() + word[0], $pos.start() + word[1]] : null
 }
 
-/** Which side of caret `pos` the tap at `x` was on (none known: 'any'). */
-function leanAt(view: LineView, pos: number, x?: number): Lean {
-  if (x === undefined) return 'any'
+/**
+ * The character the tap at (x, y) is on, near caret `pos` (C5). WebKit's
+ * hit test is off by one around a wide glyph (an arrow, ①): a tap on the
+ * right half of ① gave the caret before it. The characters' own boxes
+ * decide: the caret goes to the nearer side of the tapped character, and
+ * `lean` says on which side of the caret that character is.
+ */
+export function snapToChar(
+  view: Pick<EditorView, 'state' | 'domAtPos'>,
+  pos: number,
+  x: number,
+  y: number,
+): { caret: number; lean: Lean } {
+  const none = { caret: pos, lean: 'any' as Lean }
+  if (typeof document === 'undefined') return none
   try {
-    const at = view.coordsAtPos(pos)
-    if (Math.abs(x - at.left) < 0.5) return 'any'
-    // Right-to-left text has its characters the other way round.
-    const el = view.nodeDOM(view.state.doc.resolve(pos).before())
-    const rtl =
-      el instanceof Element && getComputedStyle(el).direction === 'rtl'
-    return x < at.left !== rtl ? 'before' : 'after'
+    const $pos = view.state.doc.resolve(pos)
+    if (!$pos.parent.inlineContent) return none
+    const start = $pos.start()
+    const end = $pos.end()
+    for (const p of [pos, pos - 1, pos + 1, pos - 2]) {
+      if (p < start || p + 1 > end) continue
+      const a = view.domAtPos(p, 1)
+      const b = view.domAtPos(p + 1, -1)
+      const r = document.createRange()
+      r.setStart(a.node, a.offset)
+      r.setEnd(b.node, b.offset)
+      const box = r.getBoundingClientRect()
+      if (box.width === 0) continue
+      if (x < box.left || x > box.right) continue
+      if (y < box.top - 2 || y > box.bottom + 2) continue
+      const el = a.node.nodeType === 1 ? a.node : a.node.parentElement
+      const rtl =
+        el instanceof Element && getComputedStyle(el).direction === 'rtl'
+      const firstHalf = x < box.left + box.width / 2 !== rtl
+      return firstHalf
+        ? { caret: p, lean: 'after' }
+        : { caret: p + 1, lean: 'before' }
+    }
   } catch {
-    return 'any'
+    // The hit test's own position stands.
   }
+  return none
+}
+
+/** Which side of caret `pos` the tap at (x, y) was on (none known: 'any'). */
+function leanAt(view: LineView, pos: number, x?: number, y?: number): Lean {
+  if (x === undefined || y === undefined) return 'any'
+  return snapToChar(view as unknown as EditorView, pos, x, y).lean
 }
 
 /** Counts taps (pure, tested): same spot and quick enough add up. */
@@ -455,8 +496,17 @@ export function watchTapSelect(
     // spot and the line's edges) looks through it, or WebKit finds no text at
     // the edges and a triple tap selects the whole paragraph.
     const pad = padOf(e.target)
-    const pos = lookThrough(pad, () => posNear(view, e.clientX, e.clientY))
-    if (pos === null) return
+    // C14 (switch textbox.v2): where the tip touched down; a Pencil drifts a
+    // few px before it lifts, onto the next character.
+    const tip = isOn('textbox.v2')
+      ? { x: start.x, y: start.y }
+      : { x: e.clientX, y: e.clientY }
+    const hit = lookThrough(pad, () => posNear(view, tip.x, tip.y))
+    if (hit === null) return
+    // C5 (switch textbox.v2): next to the character actually tapped.
+    const pos = isOn('textbox.v2')
+      ? lookThrough(pad, () => snapToChar(view, hit, tip.x, tip.y)).caret
+      : hit
     if (level === 1) {
       // The caret goes exactly where the tap landed (Lasso, picked box).
       setTimeout(() => {
@@ -472,7 +522,7 @@ export function watchTapSelect(
       return
     }
     const range = lookThrough(pad, () =>
-      rangeForTaps(view, pos, level, e.clientY, e.clientX),
+      rangeForTaps(view, pos, level, tip.y, tip.x),
     )
     if (!range) return
     ;(e as PointerEvent & { [TAP_SELECTED]?: boolean })[TAP_SELECTED] = true

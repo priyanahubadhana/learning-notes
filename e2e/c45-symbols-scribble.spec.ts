@@ -109,10 +109,20 @@ async function charPoint(page: Page, i: number, side: 'left' | 'right') {
 
 /** Pencil taps in a row (real browser input), about 90 ms apart. */
 async function taps(page: Page, n: number, at: { x: number; y: number }) {
+  // One pen label for the run: no page call between the taps (WebKit is slow).
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
   for (let i = 0; i < n; i++) {
     if (i > 0) await page.waitForTimeout(90)
-    await realPen(page, [at])
+    await page.mouse.move(at.x - 2, at.y - 4)
+    await page.mouse.move(at.x, at.y)
+    await page.mouse.down()
+    await page.mouse.up()
   }
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
 }
 
 /** What the page's own selection holds (drawn as `ln-sel`). */

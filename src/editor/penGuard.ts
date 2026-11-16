@@ -3,7 +3,7 @@ import { Plugin } from 'prosemirror-state'
 import type { Transaction } from 'prosemirror-state'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { inputMachine } from '../app/inputMachine'
-import { gapMs, sharedTiming, tapHoldMs, tapMovePx } from '../app/tapTiming'
+import { gapMs, sharedTiming } from '../app/tapTiming'
 import { scribbleFree } from './penMode'
 import { scribbleInput } from './scribbleDelete'
 import type { AppSchema } from './schema'
@@ -280,9 +280,10 @@ export function watchPenGuard(
       // A quick press that barely moved was a tap (C14).
       if (
         e.type === 'pointerup' &&
+        // The text tap's own limits (tapSelect.ts): any press it counts as a tap.
         downAt &&
-        penState.upAt - downAt.t <= tapHoldMs(300) &&
-        Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) <= tapMovePx(12)
+        penState.upAt - downAt.t <= 300 &&
+        Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) <= 12
       )
         penState.tapAt = penState.upAt
       downAt = null

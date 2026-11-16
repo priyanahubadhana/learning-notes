@@ -240,6 +240,15 @@ test('locked box: lock on the tab, no dots, text still edits; Unlock brings the 
   ).toBeDisabled()
   await more(page).getByRole('menuitem', { name: 'Unlock' }).click()
   await expect(box).not.toHaveAttribute('data-locked', '')
+  // Why: C10 (docs/features/textbox-v2.md line 219): a list pauses typing and
+  // the caret put away earlier comes back when it closes; while it is in the
+  // text there are no dots (C11). Put it away again, then the dots are there.
+  await expect
+    .poll(async () => {
+      await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+      return box.locator('[data-resize-handle]').count()
+    })
+    .toBeGreaterThan(0)
   await expect(box.locator('[data-resize-handle]').first()).toBeVisible()
 })
 

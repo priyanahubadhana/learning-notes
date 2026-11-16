@@ -25,6 +25,7 @@ export type RoutedType =
   | 'touchmove'
   | 'focusin'
   | 'focusout'
+  | 'resize'
   | 'background'
   | 'foreground'
 
@@ -56,6 +57,8 @@ export interface RoutedEventMap {
   touchmove: TouchEvent
   focusin: FocusEvent
   focusout: FocusEvent
+  /** The window's own resize (a turn, split screen). Heard on window; a `scope` delivers nothing. */
+  resize: UIEvent
   background: AppSwitchEvent
   foreground: AppSwitchEvent
 }
@@ -148,6 +151,7 @@ const DOM_EVENTS: Record<
   focusin: { where: 'doc', feeds: ['focusin'] },
   focusout: { where: 'doc', feeds: ['focusout'] },
   visibilitychange: { where: 'doc', feeds: ['background', 'foreground'] },
+  resize: { where: 'win', feeds: ['resize'] },
   pagehide: { where: 'win', feeds: ['background'] },
   pageshow: { where: 'win', feeds: ['foreground'] },
   blur: { where: 'win', feeds: ['background'] },
@@ -216,6 +220,10 @@ export function createEventRouter(targets?: RouterTargets): EventRouter {
           reason: hidden ? 'hidden' : 'visible',
           event: e,
         })
+        return
+      }
+      if (domType === 'resize') {
+        deliver('resize', e)
         return
       }
       if (info.where === 'win') {

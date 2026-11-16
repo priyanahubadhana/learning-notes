@@ -96,6 +96,10 @@ const apart = (a: Box, b: Box) =>
   b.y + b.height <= a.y
 
 async function prepare(page: Page, size: { width: number; height: number }) {
+  // The one-time Pencil offer would cover the bar and steal taps.
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:pencil.offer', JSON.stringify('no')),
+  )
   await page.setViewportSize(size)
   // These taps are pen events: answer the one-time "Use Pencil mode?" offer
   // (R8-2) up front, or its card can land over the bar at random.

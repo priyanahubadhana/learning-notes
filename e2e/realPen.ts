@@ -140,3 +140,49 @@ export async function realPenTaps(
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })
 }
+
+/**
+ * A Pencil drag as an iPad sends it (C21): the tip hovers in (moves with no
+ * button, pressure 0), touches down, rests `hold` ms (the 120 ms lift of a box
+ * or a dot), then moves along `path` one point at a time and lifts at the
+ * last. `step` runs after each move with its index (a test reads the page
+ * there). With `lift: false` the tip stays down at the end.
+ */
+export async function realPenDrag(
+  page: Page,
+  path: Pt[],
+  o: {
+    hold?: number
+    step?: (i: number) => Promise<void>
+    lift?: boolean
+  } = {},
+): Promise<void> {
+  const [first, ...rest] = path
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
+  await page.mouse.move(first.x - 12, first.y - 16)
+  await page.mouse.move(first.x - 4, first.y - 6, { steps: 3 })
+  await page.mouse.move(first.x, first.y)
+  await page.mouse.down()
+  await page.waitForTimeout(o.hold ?? 180)
+  for (const [i, p] of rest.entries()) {
+    await page.mouse.move(p.x, p.y)
+    if (o.step) await o.step(i)
+  }
+  if (o.lift !== false) await page.mouse.up()
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
+}
+
+/** The Pencil hovering along `path` without touching (pointermove, no button). */
+export async function realPenHover(page: Page, path: Pt[]): Promise<void> {
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
+  for (const p of path) await page.mouse.move(p.x, p.y, { steps: 2 })
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
+}

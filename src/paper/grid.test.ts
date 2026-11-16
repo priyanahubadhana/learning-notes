@@ -261,3 +261,46 @@ describe('left offset of a row (C13)', () => {
     expect(rows[0].auto).toBeUndefined()
   })
 })
+
+describe('C21: a free box sits beside another free box when they do not overlap', () => {
+  const free = (id: string, x: number, y: number, wmm = 40): GridRow => ({
+    id: 'r' + id,
+    x,
+    y,
+    wmm,
+    cols: [{ w: 1, boxIds: [id] }],
+  })
+  const H = { R: 30, L: 10, M: 12 }
+  const B = { ...G, beside: true }
+
+  it('a box moved up beside a taller box keeps its own top', () => {
+    const at = layoutRows([free('R', 120, 20), free('L', 20, 25)], H, B)
+    expect(at.get('R')!.y).toBe(20)
+    expect(at.get('L')!.y).toBe(25)
+  })
+
+  it('a box that would cover another one still goes under it', () => {
+    const at = layoutRows([free('R', 120, 20), free('L', 130, 25)], H, B)
+    expect(at.get('L')!.y).toBeGreaterThanOrEqual(20 + 30)
+  })
+
+  it('a full-width row after them starts under both', () => {
+    const at = layoutRows(
+      [free('R', 120, 20), free('L', 20, 25), row('m', [1, ['M']])],
+      H,
+      B,
+    )
+    expect(at.get('M')!.y).toBeGreaterThanOrEqual(20 + 30)
+  })
+
+  it('without the switch nothing changes (each row under the one before)', () => {
+    const at = layoutRows([free('R', 120, 20), free('L', 20, 25)], H, G)
+    expect(at.get('L')!.y).toBeGreaterThanOrEqual(50)
+  })
+
+  it('a box above another one in the list but lower on the page does not push it', () => {
+    // Reading order: L (higher) first, then R beside it, lower.
+    const at = layoutRows([free('L', 20, 20), free('R', 120, 22)], H, B)
+    expect(at.get('R')!.y).toBe(22)
+  })
+})

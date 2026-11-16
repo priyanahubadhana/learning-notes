@@ -84,3 +84,4 @@ See the chat of 16 Nov; answers go here.
 
 - **Form:** fills the basics on its own (title, source, tags, place); below it, an editable part to check, change or accept suggestions.
 - **Already in the app (checked 16 Nov):** Library covers (books, videos, articles) with cover or list view; databases with table, board, gallery, calendar and list views, column filters and formulas; search with filters and saved searches. New in this story: covers for notebooks themselves (GoodNotes style), a form view, source-type columns, multi-tag search, the four-level sidebar.
+- **Notebook covers: yes** (owner, 16 Nov), GoodNotes style. Owner idea: keep the app's own user stories as a notebook inside the app, made with these same principles.

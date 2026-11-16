@@ -161,3 +161,8 @@ Reload the test page; preset "Up to Phase 2B"; Pencil.
 4. **C21:** move a box up into free space: it stays. Resize with the Pencil, bigger and smaller, also with the middle side handles: smooth, no shaking, guide line steady. Hover the Pencil over a dot without touching: nothing changes. Note: boxes can now sit side by side, but the page layout dialog still stacks them; say if that is OK.
 5. **C22:** when an update shows, "Restart now" appears after about 5 s and restarts; it never gets stuck. Offline: the app still opens.
 6. **PR-3:** with the cursor in the page title, start writing or a lasso on the page: the page does not jump to the top.
+
+## Re-test findings (owner, 17 Nov)
+
+- **C23:** the box's ⋯ menu shows no Delete option.
+- **C24:** Scribble with the cursor in the middle of a word: scribbling over the whole word changes only one or two letters on one side of the cursor.

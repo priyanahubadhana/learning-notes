@@ -100,6 +100,7 @@ const config = defineConfig({
         /toolbarV9More/,
         /toolbarC36/,
         /cBoxes/,
+        /duplicateBox/,
         /updateFailureNote/,
         /updateDownload/,
         /security-m1-/,

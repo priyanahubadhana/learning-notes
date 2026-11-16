@@ -108,7 +108,7 @@ const phaseSwitch: SettingDefinition<OnOff> = {
  * is removed before release.
  */
 const tapSpeedSetting: SettingDefinition<string> = {
-  id: 'tryNew.tapSpeed',
+  id: 'preview.tapSpeed', // not a flag switch: kept out of the tryNew.* count
   labelKey: 'flags.tapSpeed.name' as MessageKey,
   descriptionKey: 'flags.tapSpeed.desc' as MessageKey,
   category: 'tryNew',

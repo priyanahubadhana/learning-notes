@@ -94,12 +94,12 @@ export async function dropOn(
  * Three boxes: A (brown) on the left, B (green) on the right and C (blue)
  * under B. Each has `lines` lines of text. Returns them, all unselected.
  */
-export async function columns(page: Page, lines = 3) {
+export async function columns(page: Page, lines = 3, top = 60) {
   const text = (n: string) =>
     Array.from({ length: lines }, (_, i) => n + (i + 1))
-  const a = await addBox(page, text('Brown '), 0.3, 60)
-  const b = await addBox(page, text('Green '), 0.3, 200)
-  const c = await addBox(page, text('Blue '), 0.3, 340)
+  const a = await addBox(page, text('Brown '), 0.3, top)
+  const b = await addBox(page, text('Green '), 0.3, top + 140)
+  const c = await addBox(page, text('Blue '), 0.3, top + 280)
   await dropOn(page, b, a, 0.9, 0.5)
   await expect(page.locator('[data-grid-divider]').first()).toBeVisible()
   await dropOn(page, c, b, 0.5, 0.93)

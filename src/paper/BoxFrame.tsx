@@ -166,6 +166,7 @@ export function BoxFrame({
       data-auto={autoMaxW ? '' : undefined}
       data-picked={picked ? '' : undefined}
       data-typing={typing ? '' : undefined}
+      data-hide-side={v2On && typing ? '' : undefined}
       data-empty-focused={emptyFocused ? '' : undefined}
       onFocusCapture={() => window.setTimeout(checkEmpty, 0)}
       onBlurCapture={() => window.setTimeout(checkEmpty, 0)}

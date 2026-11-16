@@ -989,6 +989,11 @@ html[data-note-line] .bn-editor {
   pointer-events: none !important;
 }
 
+/* C11: typing in a box shows its thin border only: no ⠿ and + beside it. */
+[data-paper-box][data-hide-side] .bn-side-menu {
+  display: none !important;
+}
+
 /* A page push at a sheet gap must land at once (BlockNote animates margins). */
 [data-paper-box] .bn-block-outer {
   transition: none;

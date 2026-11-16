@@ -1263,12 +1263,20 @@ export function PaperFrame({
     if (row && how.includes('e') && ci < row.cols.length - 1) i = ci
     else if (row && how.includes('w') && ci > 0) i = ci - 1
     const isFree = !!row && isFreeRow(row)
-    if (isFree && how.includes('w')) i = 0
+    // C13: the left dot of a lone box (not free yet) frees it: it sets x and the width.
+    const loneW =
+      !!row &&
+      !isFree &&
+      row.cols.length === 1 &&
+      how.includes('w') &&
+      !how.includes('e')
+    const freeLike = isFree || loneW
+    if (freeLike && how.includes('w')) i = 0
     if (isFree && row && row.cols.length === 1 && how.includes('e')) i = 0
     const rc0 = layout.get(b.id)
     // C13: the outer dots of a row always do something.
     let edge: NonNullable<typeof resizing.current>['edge']
-    if (row && !isFree && ci >= 0 && !(m && narrow && el)) {
+    if (row && !freeLike && ci >= 0 && !(m && narrow && el)) {
       const outerE = how.includes('e') && ci === row.cols.length - 1
       const outerW = how.includes('w') && ci === 0
       const first = layout.get(row.cols[ci].boxIds[0])
@@ -1278,7 +1286,12 @@ export function PaperFrame({
         edge = {
           ci,
           left: first.x,
-          avail: Math.max(1, contentW - COL_GAP * (row.cols.length - 1)),
+          avail: Math.max(
+            1,
+            contentW -
+              Math.max(0, (row.x ?? geo.left) - geo.left) -
+              COL_GAP * (row.cols.length - 1),
+          ),
           others: row.cols.reduce((n, c, j) => (j === ci ? n : n + c.w), 0),
           mirror: outerW && !outerE,
           edge0: first.x + first.w,
@@ -1301,13 +1314,13 @@ export function PaperFrame({
           ).get(b.id)?.y ?? top0)
         : top0
     const minW =
-      m && (isFree || phone) && el && content
+      m && (freeLike || phone) && el && content
         ? Math.max(FREE_MIN_W, m.minWidthPx(el, content) / k)
         : FREE_MIN_W
     resizing.current = {
       minW,
       floor:
-        m && row && i !== null && !isFree && !edge
+        m && row && i !== null && !freeLike && !edge
           ? m.floorFor(
               paperEl.current!,
               row,
@@ -1330,7 +1343,7 @@ export function PaperFrame({
         : undefined,
       handle,
       last: { x: e.clientX, y: e.clientY },
-      free: isFree
+      free: freeLike
         ? how.includes('e')
           ? 'e'
           : how.includes('w')
@@ -1417,27 +1430,55 @@ export function PaperFrame({
                     wmm: Math.round(Math.max(d.minW, d.right0 - x) * 10) / 10,
                   })
                 })()
-              : d.edge
+              : d.edge?.mirror
                 ? (() => {
+                    // The left edge follows the finger; the right edges stay; the room stays empty at the left.
                     const g = d.edge!
-                    const right = g.mirror ? g.edge0 - (px - d.x0) / k : atMm
-                    const w = (right - g.left) / g.avail
+                    const w0 = row.cols[g.ci].w * g.avail
+                    const least = Math.max(FREE_MIN_W, MIN_FRAC * g.avail)
+                    const newLeft = Math.min(
+                      Math.max(geo.left, g.left + (px - d.x0) / k),
+                      g.left + w0 - least,
+                    )
+                    const moved = newLeft - g.left
+                    const avail1 = g.avail - moved
+                    const { x: _x, ...rest } = row
+                    void _x
                     return {
-                      ...row,
-                      cols: row.cols.map((c, j) =>
-                        j === g.ci
-                          ? {
-                              ...c,
-                              w: Math.min(
-                                Math.max(MIN_FRAC, 1 - g.others),
-                                Math.max(MIN_FRAC, w),
-                              ),
-                            }
-                          : c,
-                      ),
+                      ...rest,
+                      ...(newLeft > geo.left + 0.05
+                        ? { x: Math.round(newLeft * 10) / 10 }
+                        : {}),
+                      cols: row.cols.map((c, j) => ({
+                        ...c,
+                        w:
+                          j === g.ci
+                            ? (c.w * g.avail - moved) / avail1
+                            : (c.w * g.avail) / avail1,
+                      })),
                     }
                   })()
-                : resizeCols(row, d.i!, at, true, d.floor),
+                : d.edge
+                  ? (() => {
+                      const g = d.edge!
+                      const right = atMm
+                      const w = (right - g.left) / g.avail
+                      return {
+                        ...row,
+                        cols: row.cols.map((c, j) =>
+                          j === g.ci
+                            ? {
+                                ...c,
+                                w: Math.min(
+                                  Math.max(MIN_FRAC, 1 - g.others),
+                                  Math.max(MIN_FRAC, w),
+                                ),
+                              }
+                            : c,
+                        ),
+                      }
+                    })()
+                  : resizeCols(row, d.i!, at, true, d.floor),
       )
       setPreview(d.rows)
     }

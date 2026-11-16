@@ -105,6 +105,106 @@ test('C8 Delete box on the first box of the page empties it; one Undo brings the
   await expect(page.locator('[data-paper-box="main"]')).toContainText('Beta')
 })
 
+test('C8 Delete box on a styled first box also resets its fill; one Undo brings text and fill back', async ({
+  page,
+}) => {
+  await start(page, 'C8c', false)
+  await styleMain(page, 'C8c')
+  const main = page.locator('[data-paper-box="main"]')
+  const fill = () => main.evaluate((el) => getComputedStyle(el).backgroundColor)
+  await main.locator('.bn-editor').click()
+  await page.keyboard.type('Alpha')
+  await page.waitForTimeout(900)
+  const styled = await fill()
+  expect(styled).not.toBe('rgba(0, 0, 0, 0)')
+  const more = await centre(page.locator('[data-main-chrome] button').last())
+  await page.mouse.click(more.x, more.y)
+  await page.getByRole('menuitem', { name: 'Delete box' }).click()
+  await expect(main).not.toContainText('Alpha')
+  await expect.poll(fill).toBe('rgba(0, 0, 0, 0)')
+  await page
+    .locator('[data-toast]')
+    .getByRole('button', { name: 'Undo' })
+    .click()
+  await expect(main).toContainText('Alpha')
+  await expect.poll(fill).toBe(styled)
+})
+
+test('C11 a tap on a box frame or its ≡ tab never moves it and shows no "Box moved" toast', async ({
+  page,
+}) => {
+  await start(page, 'C11tap')
+  const box = await addBox(page, ['Tap me'])
+  const before = await rect(box)
+  await pick(page, box)
+  const g = await centre(box.locator('[data-box-grip]'))
+  await page.mouse.click(g.x, g.y)
+  await page.waitForTimeout(700)
+  await expect(page.locator('[data-toast]')).toHaveCount(0)
+  const after = await rect(box)
+  expect(
+    Math.abs(after.x - before.x) + Math.abs(after.y - before.y),
+  ).toBeLessThan(1.5)
+})
+
+test('C11 typing hides the ⠿ and + beside the box', async ({ page }) => {
+  await start(page, 'C11side')
+  const box = await addBox(page, ['Side menu'])
+  await pick(page, box)
+  await tapTextEnd(page, box)
+  await expect(box).toHaveAttribute('data-typing', '')
+  await page.keyboard.type(' more')
+  await page.waitForTimeout(500)
+  await expect(box.locator('.bn-side-menu:visible')).toHaveCount(0)
+})
+
+test('C13 the left dot of the first box moves its LEFT edge with the finger; the right edge stays; the room stays empty', async ({
+  page,
+}) => {
+  await start(page, 'C13w')
+  const { a, b } = await twoBoxes(page)
+  await pick(page, a)
+  const a0 = await rect(a)
+  const b0 = await rect(b)
+  const p = await centre(ring(a, 'w'))
+  await drag(page, p, { x: p.x + 60, y: p.y })
+  const a1 = await rect(a)
+  expect(a1.x - a0.x).toBeGreaterThan(50)
+  expect(a1.x - a0.x).toBeLessThan(70)
+  expect(Math.abs(a1.x + a1.width - (a0.x + a0.width))).toBeLessThan(2)
+  expect(Math.abs((await rect(b)).x - b0.x)).toBeLessThan(4)
+  expect(Math.abs((await rect(b)).width - b0.width)).toBeLessThan(4)
+  // Back out again: the left edge follows the finger the other way.
+  const p1 = await centre(ring(a, 'w'))
+  await drag(page, p1, { x: p1.x - 60, y: p1.y })
+  expect(Math.abs((await rect(a)).x - a0.x)).toBeLessThan(3)
+  // It stays after a reload.
+  await drag(page, await centre(ring(a, 'w')), { x: p.x + 60, y: p.y })
+  await page.waitForTimeout(900)
+  await page.reload()
+  await page.waitForTimeout(1500)
+  const again = await rect(page.locator(EXTRA).first())
+  expect(again.x - a0.x).toBeGreaterThan(40)
+})
+
+test('C13 the left dot of a lone box moves its left edge with the finger', async ({
+  page,
+}) => {
+  await start(page, 'C13lone')
+  const a = await addBox(page, ['Alone'])
+  await pick(page, a)
+  // A box as wide as its text is first made wider, so its left edge has room.
+  const e = await centre(ring(a, 'e'))
+  await drag(page, e, { x: e.x + 200, y: e.y })
+  await pick(page, a)
+  const a0 = await rect(a)
+  const p = await centre(ring(a, 'w'))
+  await drag(page, p, { x: p.x + 50, y: p.y })
+  const a1 = await rect(a)
+  expect(a1.x - a0.x).toBeGreaterThan(40)
+  expect(Math.abs(a1.x + a1.width - (a0.x + a0.width))).toBeLessThan(3)
+})
+
 test('C10 a resize drag puts the caret away; at the lift it is back exactly where it was', async ({
   page,
 }) => {

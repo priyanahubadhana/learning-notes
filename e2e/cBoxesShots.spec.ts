@@ -11,7 +11,7 @@ import { columns, pick, start, tapOut, tapTextEnd } from './cBoxesHelpers.ts'
  * screenshots/c-boxes/<project>/ (see its INDEX.md).
  */
 test.use({
-  viewport: { width: 1336, height: 1100 },
+  viewport: { width: 1336, height: 1400 },
   hasTouch: true,
   deviceScaleFactor: 2,
 })
@@ -44,19 +44,30 @@ for (const [tname, theme] of THEMES)
     test('C-boxes pictures: ' + tname + ' ' + sname, async ({ page }) => {
       mkdirSync(OUT(), { recursive: true })
       await start(page, 'Shots')
-      const { a } = await columns(page)
+      // Room above the first box for its bar.
+      const { a } = await columns(page, 3, 260)
+      // The "Box moved" toast of the drop that made the layout is gone.
+      await expect(page.locator('[data-toast]')).toHaveCount(0, {
+        timeout: 20_000,
+      })
       await look(page, theme, size)
       await a.scrollIntoViewIfNeeded()
       const file = (state: string) => `${OUT()}/${state}-${tname}-${sname}.png`
       await out(page, sname)
       await out(page, sname)
+      await expect(a).not.toHaveAttribute('data-picked', '')
       await page.screenshot({ path: file('3-none') })
-      await pick(page, a).catch(() => undefined)
+      // A phone has no frame strips: the first tap on a box's text selects it.
+      if (sname === 'phone') await tapTextEnd(page, a)
+      else await pick(page, a)
+      await expect(a).toHaveAttribute('data-picked', '')
+      await expect(a).not.toHaveAttribute('data-typing', '')
+      await page.waitForTimeout(400)
       await page.screenshot({ path: file('2-selected') })
       await tapTextEnd(page, a)
+      await expect(a).toHaveAttribute('data-typing', '')
       await page.waitForTimeout(500)
       await page.screenshot({ path: file('1-typing') })
-      await expect(page.locator('[data-paper-box]').first()).toBeVisible()
     })
 
 /** Deselect: a tap on bare paper; on a phone (a tap there makes a new box) Escape. */

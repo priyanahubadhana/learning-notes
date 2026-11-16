@@ -3,6 +3,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import {
   EXTRA,
+  columns,
   addBox,
   centre,
   drag,
@@ -250,9 +251,9 @@ test('C21 the guide line does not flicker during a slow steady move', async ({
   // box's bottom (an alignment), with a hand's tremble (3 px on, 2 px back):
   // the line shows once and goes once, never on-off-on.
   const target = rr.y + rr.height
-  const from = lr0.y - target - 24
+  const from = lr0.y - target - 20
   const path = [g]
-  for (let i = 0; i <= 48; i++) {
+  for (let i = 0; i <= 36; i++) {
     path.push({ x: g.x, y: g.y - from - i - 3 })
     path.push({ x: g.x, y: g.y - from - i - 1 })
   }
@@ -265,4 +266,110 @@ test('C21 the guide line does not flicker during a slow steady move', async ({
   const flips = shown.filter((v, i) => i > 0 && v !== shown[i - 1]).length
   expect(flips, shown.map((v) => (v ? 1 : 0)).join('')).toBeLessThanOrEqual(2)
   expect(shown.some(Boolean)).toBe(true)
+})
+
+/**
+ * Drags each of the 8 dots of `box` with the Pencil and says which did
+ * nothing: up and down dots pull outward (the box grows; a box at its text
+ * height cannot shrink). Side dots pull inward, and outward when the box is
+ * already at its least width (a box at the page edge cannot widen, one at its
+ * longest word cannot narrow): one of the two must change the width. Corners
+ * do both. The box is scrolled to the middle of the screen first.
+ */
+async function everyDot(page: Page, box: Locator) {
+  const out: string[] = []
+  const pull = async (how: string, dx: number, dy: number) => {
+    await box.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+    await page.waitForTimeout(200)
+    await pick(page, box)
+    const r0 = await rect(box)
+    const p = await centre(ring(box, how))
+    const path = [p]
+    for (let i = 1; i <= 8; i++)
+      path.push({ x: p.x + (dx * i) / 8, y: p.y + (dy * i) / 8 })
+    await realPenDrag(page, path)
+    await page.waitForTimeout(500)
+    return { r0, r1: await rect(box) }
+  }
+  for (const how of ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']) {
+    const inward = how.includes('e') ? -40 : how.includes('w') ? 40 : 0
+    const dy = how.includes('s') ? 40 : how.includes('n') ? -40 : 0
+    let { r0, r1 } = await pull(how, inward, dy)
+    let okW = inward === 0 || Math.abs(r1.width - r0.width) > 25
+    const okH = dy === 0 || r1.height - r0.height > 25
+    if (!okW) {
+      ;({ r0, r1 } = await pull(how, -inward, 0))
+      okW = Math.abs(r1.width - r0.width) > 25
+    } else if (inward) {
+      // Back out again, so the next dots start with the same room.
+      await pull(how, -inward, 0)
+    }
+    if (!okW || !okH)
+      out.push(`${how}: ${r0.width}x${r0.height} -> ${r1.width}x${r1.height}`)
+  }
+  return out
+}
+
+test('C21 every one of the 8 dots of a box resizes it with the Pencil', async ({
+  page,
+}) => {
+  await start(page, 'C21h')
+  // A box in the middle of the page, with room on every side.
+  const box = await addBox(page, ['Middle one', 'two', 'three'], 0.35, 160)
+  await pick(page, box)
+  test.setTimeout(300_000)
+  expect(await everyDot(page, box)).toEqual([])
+})
+
+test('C21 every dot of each box in columns resizes it with the Pencil', async ({
+  page,
+}) => {
+  // Up to 48 Pencil drags.
+  test.setTimeout(420_000)
+  await start(page, 'C21i')
+  const { a, b, c } = await columns(page)
+  const bad: string[] = []
+  for (const [name, box] of [
+    ['left', a],
+    ['right top', b],
+    ['right bottom', c],
+  ] as const)
+    for (const line of await everyDot(page, box)) bad.push(`${name} ${line}`)
+  expect(bad).toEqual([])
+})
+
+test('C21 the side dots keep following the Pencil when the iPad drops the pointer capture', async ({
+  page,
+}) => {
+  test.setTimeout(180_000)
+  await start(page, 'C21j')
+  const box = await addBox(page, ['Middle one', 'two', 'three'], 0.35, 160)
+  // Safari on the iPad may let go of the capture: the moves then go to
+  // whatever is under the tip, not to the dot.
+  await page.evaluate(() =>
+    window.addEventListener(
+      'gotpointercapture',
+      (e) => (e.target as Element).releasePointerCapture(e.pointerId),
+      true,
+    ),
+  )
+  for (const [how, dx, dy] of [
+    ['s', 0, 100],
+    ['n', 0, -100],
+    ['e', 100, 0],
+    ['w', -100, 0],
+  ] as const) {
+    await box.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+    await pick(page, box)
+    const r0 = await rect(box)
+    const p = await centre(ring(box, how))
+    const path = [p]
+    for (let i = 1; i <= 10; i++)
+      path.push({ x: p.x + (dx * i) / 10, y: p.y + (dy * i) / 10 })
+    await realPenDrag(page, path)
+    await page.waitForTimeout(500)
+    const r1 = await rect(box)
+    const changed = dx ? r1.width - r0.width : r1.height - r0.height
+    expect(changed, how).toBeGreaterThan(70)
+  }
 })

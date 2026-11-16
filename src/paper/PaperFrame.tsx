@@ -352,7 +352,16 @@ export function PaperFrame({
       // The default box's height for the grid: its editor (the text, not the
       // stretch the ink tools give the box) and the bottom margin.
       const ed = el.querySelector<HTMLElement>('.bn-editor')
-      const real = Math.round(el.getBoundingClientRect().height)
+      // The frame ends where the text and the box's own bottom padding end: the
+      // "Tap here to keep writing" line under the text is not part of the box
+      // (it made the frame, and the side dots, 80 px too tall).
+      const real = Math.round(
+        ed
+          ? ed.getBoundingClientRect().bottom -
+              el.getBoundingClientRect().top +
+              (parseFloat(getComputedStyle(el).paddingBottom) || 0)
+          : el.getBoundingClientRect().height,
+      )
       setMainRealH((h) => (h === real ? h : real))
       reportHeight(
         MAIN_BOX,

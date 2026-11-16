@@ -157,3 +157,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - **Page options: add any action (owner, 16 Nov):** in Page options › Arrange pinned actions, a "+ Add" like the tool bar's + favourite, so the user can pin any action and customise the row fully. Later; parked for tokens.
 
 - **Mic in the text box (owner, 16 Nov):** a mic option in the text box with a choice: "Type my words" (speech to text) or "Record audio" (keeps the recording). Needs a picture first. Voice is faster than typing.
+
+- **Full "knowledge pack" from any video or page (owner, 16 Nov):** owner wrote a 15-part prompt (overview, notes, quick notes, cards, mind maps, pictures, tables, highlights, sticky notes, code, uses, links, glossary, quiz, explore next) with a zip of JSON files. Today the app reads only ln-notes/1 Markdown and ln-skill/1 JSON, so the zip as written would not import. Parts with no home yet: sticky notes, quiz (beyond cards), a separate glossary, Mermaid diagrams. Discuss after the owner's answers; needs a picture and a plan before any build.

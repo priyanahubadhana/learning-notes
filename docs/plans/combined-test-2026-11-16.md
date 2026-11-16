@@ -98,3 +98,7 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
 - **Part D passed** (owner: "Part D, I done … all pass"). The combined test is finished. Small choices: the − in edit mode passes; "Back to tool hides while editing" was explained; the "All cards" and "Summary" icons are not checked yet.
 - **C16 answer: A** (one selected box at a time; several only with a Lasso). Given to the box builder (`slice/c-boxes`).
 - **Merged into build/next f2fdcda8:** C2 (eraser) and C3, C6, C7, C9 (tool bar), plus main. ipad-webkit 9/9 on the two new specs; push guard green; CI running.
+- **Owner answers (16 Nov, after the test):**
+  - (1) Keep the separate "All cards" and "Summary" icons.
+  - (2) Phase 1 does **not** go live now. Everything is released together only after full testing and once all the bugs are fixed, because releasing again and again caused confusion. Task 0.7 waits for that.
+- **Weekly limit:** 88% used on 16 Nov (resets 20 Nov, 00:30 IST). Only the two text box builders are running.

@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-**RUNNING (16 Nov): fixing C2–C6 from the combined test; see docs/plans/combined-test-2026-11-16.md.** RUNNING, full team for Phase 2A (owner answer 4A, 15 Nov):** one `phase-manager` (Opus, medium) runs up to 3 Sonnet builders; lean again after the phase. Rewritten 15 Nov, evening.
+**RUNNING (16 Nov): the combined test is finished; fixing the text box bugs (C4, C5, C14 on slice/c45-scribble-symbols; C8, C10–C13, C15, C16 on slice/c-boxes). C2 and the tool bar fixes are merged (build/next f2fdcda8). Owner: no release until all bugs are fixed and tested. See docs/plans/combined-test-2026-11-16.md.**
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

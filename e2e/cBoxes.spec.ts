@@ -321,11 +321,19 @@ test('C12 the frame of the first box matches its fill and padding', async ({
   await main.locator('.bn-editor').click()
   await page.keyboard.type(' more')
   await expect(page.locator('[data-main-frame]')).toBeVisible()
-  const m = await rect(main)
-  const f = await rect(page.locator('[data-main-frame]'))
-  expect(Math.abs(f.y - m.y)).toBeLessThan(1.5)
-  expect(Math.abs(f.y + f.height - (m.y + m.height))).toBeLessThan(1.5)
-  expect(Math.abs(f.width - m.width)).toBeLessThan(1.5)
+  // Why a poll: the frame follows the box through a resize observer, which
+  // answers a frame or two after the text grew (WebKit).
+  await expect
+    .poll(async () => {
+      const m = await rect(main)
+      const f = await rect(page.locator('[data-main-frame]'))
+      return Math.max(
+        Math.abs(f.y - m.y),
+        Math.abs(f.y + f.height - (m.y + m.height)),
+        Math.abs(f.width - m.width),
+      )
+    })
+    .toBeLessThan(1.5)
 })
 
 test('C12 the frame of a styled box matches its fill', async ({ page }) => {

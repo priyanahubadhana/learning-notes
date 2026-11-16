@@ -11,7 +11,6 @@ import {
 } from './typingPause'
 import { PICK_BOX, textFirstTap } from '../editor/tapSelect'
 import { isOn } from '../app/flags'
-import { onRouted } from '../app/input/eventRouter'
 import { isUiEvent } from '../app/uiGuard'
 import {
   lazy,

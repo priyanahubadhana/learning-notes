@@ -100,12 +100,16 @@ async function until(t: number): Promise<void> {
  * Here the tip hovers in once, before the run. Every down and up is then
  * sent at its own time on one clock, counted from the run's first down; the
  * drift while the tip is down and the way back between two taps are sent
- * alongside, so their answers never hold a down or an up back.
+ * alongside, so their answers never hold a down or an up back. `lead` (ms)
+ * is how much earlier each lift and each next down is sent: the browser
+ * makes the event a little after it is sent, and the caller knows how much
+ * from the time stamps of the runs before.
  */
 export async function realPenTaps(
   page: Page,
   at: Pt,
   taps: PenTap[],
+  lead: { hold: number; gap: number } = { hold: 0, gap: 0 },
 ): Promise<void> {
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = true
@@ -117,13 +121,16 @@ export async function realPenTaps(
   let next = performance.now()
   for (const tap of taps) {
     // The pause before this tap, counted from when the last lift was sent.
-    await Promise.all([until(next + (tap.gap ?? 0)), back])
+    await Promise.all([
+      until(next + Math.max(0, (tap.gap ?? 0) - lead.gap)),
+      back,
+    ])
     const down = performance.now()
     await page.mouse.down()
     const drift = tap.drift
       ? page.mouse.move(at.x + tap.drift * 0.6, at.y + tap.drift * 0.8)
       : Promise.resolve()
-    await Promise.all([until(down + tap.hold), drift])
+    await Promise.all([until(down + Math.max(0, tap.hold - lead.hold)), drift])
     next = performance.now()
     await page.mouse.up()
     back = tap.drift ? page.mouse.move(at.x, at.y) : Promise.resolve()

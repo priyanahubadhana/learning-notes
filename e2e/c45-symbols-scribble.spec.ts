@@ -402,6 +402,51 @@ test('C4: a delete aimed at the scribbled spot itself still works (nothing refus
   await expect.poll(() => boxText(box)).toContain('Text ① → , a/b')
 })
 
+test('C4: a quick, small scratch-out that ends where it began still deletes what is under it', async ({
+  page,
+}) => {
+  await start(page, 'C4quick')
+  await watchPresses(page)
+  const box = await lineBox(page)
+  await pickBox(page, box)
+  const c = await charBox(page, I.six)
+  const left = c.x - 3
+  const right = c.x + c.width + 4
+  const mid = c.y + c.height / 2
+  // Four quick strokes over the 6, back to where the tip came down: from
+  // start to end it has not moved at all, like a tap; its path has.
+  await pressLog(page)
+  await penOn(page)
+  await page.mouse.move(left, mid - 4)
+  await page.mouse.down()
+  for (const [x, y] of [
+    [right, mid],
+    [left, mid + 4],
+    [right, mid],
+    [left, mid - 4],
+  ])
+    await page.mouse.move(x, y)
+  await page.mouse.up()
+  await penOn(page, false)
+  const { ms } = await pressLog(page)
+  test.info().annotations.push({
+    type: 'scratch-out',
+    description: `held ${Math.round(ms[0])} ms (a tap may last 300 ms)`,
+  })
+  await page.waitForTimeout(150)
+  await iPadDelete(page)
+  await expect.poll(() => boxText(box)).toContain('Text ① → , a/b')
+  // One Undo puts the 6 back.
+  await page.keyboard.press('ControlOrMeta+z')
+  await expect.poll(() => boxText(box)).toContain(LINE)
+})
+
+/** Playwright's pointer counts as the Pencil while on. */
+const penOn = (page: Page, on = true) =>
+  page.evaluate((v) => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = v
+  }, on)
+
 /**
  * Records every pointer down and up in the page: when the browser made the
  * event (`timeStamp`, the hand's own timing) and when the page got to it.
@@ -419,14 +464,12 @@ const watchPresses = (page: Page) =>
   })
 
 /**
- * Only runs whose real timing is in the spec (each tap up to 250 ms, each gap
- * up to 500 ms) must select; every run must leave the text as it was. 10-20
- * ms of slack: the page's clock here and the app's own read the same press a
- * few ms apart. The taps are sent on one clock (realPenTaps), so a run is out
- * of the spec only when the PC stalls.
+ * Is this run's real timing in the spec (C14): each tap up to 250 ms, each
+ * gap up to 500 ms, by the events' own time stamps? The app times taps by
+ * the same time stamps, so every such run must select.
  */
 const inSpec = (ms: number[]) =>
-  ms.every((v, i) => (i % 2 === 0 ? v <= 240 : v <= 480))
+  ms.every((v, i) => (i % 2 === 0 ? v <= 250 : v <= 500))
 
 /**
  * The press lengths and gaps (ms) of the last run: `ms` by the events' own
@@ -440,16 +483,46 @@ const pressLog = async (page: Page) => {
     return got
   })
   const gaps = (k: 0 | 1) =>
-    out.map((v, i) => (i ? Math.round(v[k] - out[i - 1][k]) : 0)).slice(1)
+    out.map((v, i) => (i ? v[k] - out[i - 1][k] : 0)).slice(1)
   return { ms: gaps(0), seen: gaps(1) }
 }
 
-/** How far the measured timing was from the timing asked (ms), for the report. */
-function driverProof(off: number[], counted: number) {
-  const by = [...off].map(Math.abs).sort((a, b) => a - b)
+const whole = (ms: number[]) => ms.map(Math.round).join(', ')
+
+/**
+ * The browser makes each event a little after the driver sends it (measured
+ * 16 Nov on ipad-webkit: 12 ms in the middle, 56 ms at worst; 1 ms on
+ * chromium). The driver sends that much early, learnt from the runs so far,
+ * plus 25 ms, so a tap asked at 250 ms or a gap asked at 500 ms reaches the
+ * page at or just under it, not over.
+ */
+class Lead {
+  hold = 35
+  gap = 35
+  learn(asked: number[], ms: number[]) {
+    const mean = (odd: number) => {
+      const d = ms.map((v, i) => v - asked[i]).filter((_, i) => i % 2 === odd)
+      return d.length ? d.reduce((a, b) => a + b, 0) / d.length : -25
+    }
+    const ease = (old: number, off: number) =>
+      Math.min(120, Math.max(0, old + 0.3 * (off + 25)))
+    this.hold = ease(this.hold, mean(0))
+    this.gap = ease(this.gap, mean(1))
+  }
+}
+
+/** The timing the page really got, against the timing asked, for the report. */
+function driverProof(runs: { asked: number[]; ms: number[] }[], late: number) {
+  const span = (odd: number) => {
+    const v = runs.flatMap((r) => r.ms.filter((_, i) => i % 2 === odd))
+    return `${Math.round(Math.min(...v))}-${Math.round(Math.max(...v))} ms`
+  }
+  const off = runs
+    .flatMap((r) => r.ms.map((v, i) => Math.abs(v - r.asked[i])))
+    .sort((a, b) => a - b)
   const at = (q: number) =>
-    by[Math.min(by.length - 1, Math.floor(by.length * q))]
-  const text = `in-spec runs ${counted}/50; measured minus asked, ${by.length} presses and gaps: median ${at(0.5)} ms, 90% within ${at(0.9)} ms, worst ${at(1)} ms`
+    Math.round(off[Math.min(off.length - 1, Math.floor(off.length * q))])
+  const text = `${runs.length} runs in the spec, all selected; ${late} late runs repeated; taps measured ${span(0)}, gaps ${span(1)}; measured against asked: median ${at(0.5)} ms, 90% within ${at(0.9)} ms, worst ${at(1)} ms`
   test.info().annotations.push({ type: 'pencil timing', description: text })
   console.log(
     `${test.info().project.name} ${test.info().title.slice(0, 28)}: ${text}`,
@@ -457,7 +530,7 @@ function driverProof(off: number[], counted: number) {
 }
 
 for (const n of [2, 3] as const) {
-  test(`C14: 50 Pencil ${n === 2 ? 'double' : 'triple'} taps (150-250 ms taps, 5 px drift, 400-450 ms apart) all select; nothing is deleted`, async ({
+  test(`C14: 50 Pencil ${n === 2 ? 'double' : 'triple'} taps (150-250 ms taps, 5 px drift, 400-500 ms apart) all select; nothing is deleted`, async ({
     page,
   }) => {
     test.setTimeout(400_000)
@@ -468,42 +541,55 @@ for (const n of [2, 3] as const) {
     const before = await boxText(box)
     // "Text" (a word), then the arrow and "6" (symbols, a digit), in turn.
     const spots = [1, I.arrow, I.six]
-    let counted = 0
-    const off: number[] = []
-    for (let r = 0; r < 50; r++) {
+    const lead = new Lead()
+    const runs: { asked: number[]; ms: number[] }[] = []
+    // A run the PC delivered late (out of the spec by the events' own time
+    // stamps) proves nothing about the app: it is repeated, never excused.
+    // More than 10 of them and the driver is not a Pencil: the test fails.
+    let late = 0
+    for (let r = 0; runs.length < 50; r++) {
       const i = spots[r % spots.length]
       const at = await charPoint(page, i, r % 2 ? 'right' : 'left')
       await pressLog(page)
-      // Taps of 150-200 ms with 5 px of drift, 400-420 ms apart (the spec
-      // allows taps to 250 ms and gaps to 500 ms).
+      // The whole range of the spec: taps of 150 to 250 ms with 5 px of
+      // drift, 400 to 500 ms apart.
       const run: PenTap[] = []
       const asked: number[] = []
       for (let k = 0; k < n; k++) {
-        const gap = k > 0 ? 400 + ((r + k) % 2) * 20 : 0
-        const hold = 150 + ((r * 37 + k * 53) % 51)
+        const gap = k > 0 ? 400 + ((r * 29 + k * 61) % 101) : 0
+        const hold = 150 + ((r * 37 + k * 53) % 101)
         if (k > 0) asked.push(gap)
         asked.push(hold)
         run.push({ gap, hold, drift: 5 })
       }
-      await realPenTaps(page, at, run)
+      await realPenTaps(page, at, run, lead)
       const want = n === 3 ? LINE : i === 1 ? 'Text' : LINE[i]
       const { ms, seen } = await pressLog(page)
-      ms.forEach((v, k) => off.push(v - (asked[k] ?? v)))
+      expect(ms.length, `repeat ${r}: every down and up arrived`).toBe(
+        asked.length,
+      )
+      lead.learn(asked, ms)
       if (inSpec(ms)) {
-        counted++
+        runs.push({ asked, ms })
         await expect
           .poll(
             () => selected(page),
-            `repeat ${r}, press/gap ms: ${ms} (the page got to them: ${seen})`,
+            `repeat ${r}, press/gap ms: ${whole(ms)} (asked ${asked}; the page got to them: ${whole(seen)})`,
           )
           .toBe(want)
+      } else {
+        late++
+        expect(
+          late,
+          `late runs (repeat ${r}: ${whole(ms)}, asked ${asked})`,
+        ).toBeLessThanOrEqual(10)
       }
       await page.waitForTimeout(150)
       expect(await boxText(box), `repeat ${r}`).toBe(before)
       await page.waitForTimeout(650)
     }
-    driverProof(off, counted)
-    expect(counted, 'runs with in-spec timing').toBeGreaterThanOrEqual(35)
+    driverProof(runs, late)
+    expect(runs.length, 'runs in the spec, each one selected').toBe(50)
   })
 }
 
@@ -523,10 +609,10 @@ test('C14: a double tap on a word that is already selected never deletes it', as
       { gap: 400, hold: 210, drift: 6 },
     ])
     const { ms } = await pressLog(page)
-    if (inSpec(ms))
-      await expect
-        .poll(() => selected(page), `repeat ${r}, press/gap ms: ${ms}`)
-        .toBe('Text')
+    expect(inSpec(ms), `repeat ${r}, press/gap ms: ${whole(ms)}`).toBe(true)
+    await expect
+      .poll(() => selected(page), `repeat ${r}, press/gap ms: ${whole(ms)}`)
+      .toBe('Text')
     // What a stray scratch-out would send right after the taps.
     await iPadDelete(page)
     await page.waitForTimeout(200)

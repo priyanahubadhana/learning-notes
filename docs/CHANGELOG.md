@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: C14/C4 taps timed by event time stamps; a tap is told by its whole path (review fixes)
+
+- What: every tap time in the app is now the event's own time stamp (`stampOf` in src/app/tapTiming.ts): text taps, the ink layer's double tap, the Pencil guard and the scribble mark. Switch on, taps exactly 500 ms apart still add up. The Pencil guard counts a press as a tap by the whole path of the tip (up to 16 px, moves under 2 px are sensor noise), not by the distance from start to end. The C14 tests now cover taps of 150 to 250 ms and gaps of 400 to 500 ms and need all 50 runs to select; a run the PC delivered late is repeated (at most 10), never excused.
+- Why: review of b3acdba6. `Date.now()` inside a listener is when the page got round to the event, so a busy page made a tap a hold and a 400 ms gap too long. A quick scratch-out that ended where it began looked like a tap, and its delete was refused by the tap grace (shown by the new test "a quick, small scratch-out").
+- Files: src/app/tapTiming.ts, src/editor/tapSelect.ts, penGuard.ts, scribbleDelete.ts, src/ink/tapFilter.ts, controller.ts; tests src/editor/tapStamp.test.ts, penGuard.test.ts, e2e/c45-symbols-scribble.spec.ts, e2e/realPen.ts.
+
 ### 16 Nov 2026: C4/C14 Pencil tests send taps on one clock (ipad-webkit reds)
 
 - What: the test Pencil has a tap-run driver, `realPenTaps` (e2e/realPen.ts): the tip hovers in once, then every down and up is sent at its own time; the drift and the way back are sent alongside. The C4, C5 and C14 tests use it. The C14 tests log the measured timing (event time stamps) against the timing asked. No app change; the 35 of 50 bar and every check stay.

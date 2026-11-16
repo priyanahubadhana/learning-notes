@@ -159,9 +159,17 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
   }, [open, hasSelection, measure, view?.state.selection])
   useEffect(() => {
     if (!open) return
-    document.addEventListener('scroll', measure, true)
+    // Why: after a turn WebKit scrolls the page a moment after the reflow, so the
+    // bar kept the old place and covered its words (BUG-002 turn test,
+    // ipad-webkit). A scroll just after a resize is part of the turn: place again.
+    let turned = 0
+    const scrolled = () =>
+      measure(Date.now() - turned < 1000 ? 'resize' : undefined)
+    document.addEventListener('scroll', scrolled, true)
     // The page reflows after the resize event: measure again once it has.
     const resized = () => {
+      // Only a bar already placed is turned with the page.
+      if (anchor.current) turned = Date.now()
       measure('resize')
       requestAnimationFrame(() =>
         requestAnimationFrame(() => measure('resize')),
@@ -169,7 +177,7 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
     }
     window.addEventListener('resize', resized)
     return () => {
-      document.removeEventListener('scroll', measure, true)
+      document.removeEventListener('scroll', scrolled, true)
       window.removeEventListener('resize', resized)
     }
   }, [open, measure])

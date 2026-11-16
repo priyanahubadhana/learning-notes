@@ -208,4 +208,5 @@ Running list, in the order the owner reports. The owner asked to note everything
 ## Combined first look (2A + Phase 1 fixes + Pencil look), sent 16 Nov
 
 Version: build/next 9642f0d5, CI run 43773655339 green. Preset: "Up to Phase 2B" (Phase 1, 2A tool bar, new text box). Results go below as the owner reports them; nothing changes until the discussion at the end.
+
 - **C1 (owner, 7:38):** pen size dots: the middle and the big dot look almost the same. Make the big dot clearly bigger (and/or the small one a bit smaller), with the middle one still clearly bigger than the small one. Screenshot shows the OLD pen strip (Layer 1 ▾, dots, colour row) and the old top bar with < >, so the "Up to Phase 2B" preset was probably not on yet.

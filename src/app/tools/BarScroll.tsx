@@ -94,7 +94,15 @@ export function BarScroll({
     const watch = new ResizeObserver(measure)
     watch.observe(el)
     for (const child of el.children) watch.observe(child)
-    return () => watch.disconnect()
+    // Why: the observer answers a few hundred ms late on WebKit after a turn, so
+    // the scroll handle stayed 22 px too long and the page below moved late
+    // (BUG-002 turn test, ipad-webkit). The window's own resize measures at once.
+    const turned = () => flushSync(measure)
+    window.addEventListener('resize', turned)
+    return () => {
+      window.removeEventListener('resize', turned)
+      watch.disconnect()
+    }
   }, [measure, children])
 
   // The mouse wheel scrolls the bar sideways (bug batch 1, item 49).

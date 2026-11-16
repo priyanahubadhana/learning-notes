@@ -159,25 +159,27 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
   }, [open, hasSelection, measure, view?.state.selection])
   useEffect(() => {
     if (!open) return
-    // Why: after a turn WebKit scrolls the page a moment after the reflow, so the
-    // bar kept the old place and covered its words (BUG-002 turn test,
-    // ipad-webkit). A scroll just after a resize is part of the turn: place again.
-    let turned = 0
-    const scrolled = () =>
-      measure(Date.now() - turned < 1000 ? 'resize' : undefined)
-    document.addEventListener('scroll', scrolled, true)
-    // The page reflows after the resize event: measure again once it has.
+    document.addEventListener('scroll', measure, true)
+    // Why: after a turn WebKit keeps moving the page for a few hundred ms with
+    // no resize or scroll event (the kept bar room shrinks), so the bar kept
+    // the place for the old layout and covered its words (BUG-002 turn test,
+    // ipad-webkit). A bar already placed follows its words every frame for 1 s.
+    let frame = 0
     const resized = () => {
-      // Only a bar already placed is turned with the page.
-      if (anchor.current) turned = Date.now()
+      cancelAnimationFrame(frame)
       measure('resize')
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => measure('resize')),
-      )
+      if (!anchor.current) return
+      const until = performance.now() + 1000
+      const follow = () => {
+        measure('resize')
+        if (performance.now() < until) frame = requestAnimationFrame(follow)
+      }
+      frame = requestAnimationFrame(follow)
     }
     window.addEventListener('resize', resized)
     return () => {
-      document.removeEventListener('scroll', scrolled, true)
+      cancelAnimationFrame(frame)
+      document.removeEventListener('scroll', measure, true)
       window.removeEventListener('resize', resized)
     }
   }, [open, measure])

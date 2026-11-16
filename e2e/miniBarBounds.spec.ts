@@ -96,6 +96,10 @@ const apart = (a: Box, b: Box) =>
   b.y + b.height <= a.y
 
 async function prepare(page: Page, size: { width: number; height: number }) {
+  // The one-time Pencil offer would cover the bar and steal taps.
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:pencil.offer', JSON.stringify('no')),
+  )
   await page.setViewportSize(size)
   await openNote(page)
   await page.keyboard.press('Escape')

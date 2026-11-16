@@ -32,6 +32,12 @@ test.beforeEach(async ({ page }) => {
 })
 
 const height = async (box: Locator) => (await rect(box)).height
+/** A box's place on the first sheet (px from the sheet's top left). */
+const onSheet = async (box: Locator) => {
+  const r = await rect(box)
+  const s = await rect(box.page().locator('[data-paper-sheet="1"]'))
+  return { ...r, x: r.x - s.x, y: r.y - s.y }
+}
 
 /** A selected box with three lines, grown 220 px taller than its text with the mouse. */
 async function tallBox(page: Page, name: string) {
@@ -184,26 +190,27 @@ test('C21 a box moves up into free space beside another box, and stays there aft
   page,
 }) => {
   const { right, left } = await besideLayout(page, 'C21e')
-  const rr = await rect(right)
-  const lr0 = await rect(left)
   await pick(page, left)
+  // Measured on the sheet (the page may scroll a little during the drag).
+  const rr = await onSheet(right)
+  const lr0 = await onSheet(left)
   const g = await centre(left.locator('[data-box-grip]'))
   const up = lr0.y - (rr.y + 10)
   const path = [g]
   for (let i = 1; i <= 12; i++) path.push({ x: g.x, y: g.y - (up * i) / 12 })
   await realPenDrag(page, path)
   await page.waitForTimeout(900)
-  const lr1 = await rect(left)
-  // Beside the right box (their tops within a few px of where it was put),
-  // not pushed under it.
+  const lr1 = await onSheet(left)
+  // Beside the right box (its top where it was put, on the nearest paper
+  // line), not pushed under it.
   expect(lr1.y).toBeLessThan(rr.y + rr.height)
-  expect(Math.abs(lr1.y - (rr.y + 10))).toBeLessThan(14)
-  expect(Math.abs((await rect(right)).y - rr.y)).toBeLessThan(2)
+  expect(Math.abs(lr1.y - (rr.y + 10))).toBeLessThan(30)
+  expect(Math.abs((await onSheet(right)).y - rr.y)).toBeLessThan(2)
   await page.waitForTimeout(600)
   await page.reload()
   await page.waitForTimeout(1500)
   const boxes = page.locator(EXTRA)
-  const ys = await Promise.all([0, 1].map(async (i) => rect(boxes.nth(i))))
+  const ys = await Promise.all([0, 1].map(async (i) => onSheet(boxes.nth(i))))
   const l = ys.find((r) => r.x < rr.x - 20)!
   expect(Math.abs(l.y - lr1.y)).toBeLessThan(3)
 })

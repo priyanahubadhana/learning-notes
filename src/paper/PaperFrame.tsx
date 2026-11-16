@@ -66,7 +66,7 @@ import {
   type Zone,
 } from './grid'
 import { GridDividers } from './GridDividers'
-import { snapBox, type SnapResult } from './guides'
+import { holdOf, snapBox, type SnapResult } from './guides'
 import {
   bigEnough,
   circleDigit,
@@ -272,6 +272,7 @@ export function PaperFrame({
       ),
     [widths, k],
   )
+  const besideOn = isOn('textbox.v2')
   const geo: Geometry = useMemo(
     () => ({
       autoW: widthsMm,
@@ -282,8 +283,10 @@ export function PaperFrame({
       right: sheet.w - box.x - box.w,
       top: box.y,
       bottom: MARGIN,
+      // C21: free boxes sit beside each other (text box v2).
+      beside: besideOn,
     }),
-    [sheet.w, sheet.h, k, box.x, box.w, box.y, widthsMm],
+    [sheet.w, sheet.h, k, box.x, box.w, box.y, widthsMm, besideOn],
   )
   const baseRows = useMemo(
     () =>
@@ -780,6 +783,8 @@ export function PaperFrame({
     /** The (snapped) move in mm, noted by applyMove for the drop. */
     dxMm?: number
     dyMm?: number
+    /** C21: where the last snap holds the box (mm), so the guide line does not flicker. */
+    snapHold?: { x?: number; y?: number }
     /** The scroller and where it was, for edge auto-scroll. */
     scroller?: HTMLElement | null
     scroll0?: number
@@ -1014,16 +1019,18 @@ export function PaperFrame({
       const others = [...now]
         .filter(([id]) => !d.ids.includes(id))
         .map(([id, r]) => ({ id, x: r.x, y: r.y, w: r.w, h: r.h }))
-      const sn = snapBox(
-        {
-          x: lead.x + d.dxMm,
-          y: lead.y + d.dyMm,
-          w: rc?.w ?? lead.w,
-          h: rc?.h ?? DEFAULT_H_MM,
-        },
-        others,
-        sheet.w,
-      )
+      const moving = {
+        x: lead.x + d.dxMm,
+        y: lead.y + d.dyMm,
+        w: rc?.w ?? lead.w,
+        h: rc?.h ?? DEFAULT_H_MM,
+      }
+      // C21: snap within 6 px, let go only past 12 px (a dead zone).
+      const sn = snapBox(moving, others, sheet.w, SNAP_IN_PX / k, {
+        ...d.snapHold,
+        release: SNAP_OUT_PX / k,
+      })
+      d.snapHold = holdOf(sn, moving)
       snapped = sn
       if (sn.dx || sn.dy) {
         d.dxMm += sn.dx
@@ -1036,6 +1043,7 @@ export function PaperFrame({
         ? snapped
         : null,
     )
+    if (!snapped) d.snapHold = undefined
     const live = new Map<string, PaperBox>()
     for (const id of d.ids) {
       const o = d.orig.get(id)!
@@ -1227,13 +1235,32 @@ export function PaperFrame({
     holdTimer?: number
     handle: HTMLElement
     last: { x: number; y: number }
+    /** C21: the pointer that pressed the dot; only its moves count. */
+    pointerId: number
+    /** C21: the page-wide listeners that follow it (a lost capture still ends the resize). */
+    unlisten?: () => void
   } | null>(null)
+  /** C21: one resize update per frame. */
+  const resizeFrame = useRef(0)
+  /** C21: the size shown at the lift, kept until the saved size is drawn. */
+  const keptH = useRef<{ id: string; h: number; from?: PaperBox } | null>(null)
   const [liveH, setLiveH] = useState<{ id: string; h: number } | null>(null)
+  // C21: the saved box has arrived: the kept height gives way to it.
+  useEffect(() => {
+    const kept = keptH.current
+    if (!kept || resizing.current) return
+    const now = extra.find((x) => x.id === kept.id)
+    if (now && now.h === kept.from?.h) return
+    keptH.current = null
+    setLiveH((cur) => (cur === kept ? null : cur))
+  }, [extra])
   const [liveW, setLiveW] = useState<{ id: string; w: number } | null>(null)
   const resizeDown = (b: PaperBox, how: ResizeHow, e: ReactPointerEvent) => {
     if (e.button !== 0) return
     e.preventDefault()
     e.stopPropagation()
+    // C21: a resize whose lift never came ends here first.
+    if (resizing.current) resizeEnd(e)
     const handle = e.currentTarget as HTMLElement
     try {
       handle.setPointerCapture(e.pointerId)
@@ -1367,6 +1394,27 @@ export function PaperFrame({
       vert: how.includes('s') || north || flip || (phone && how.includes('n')),
       rows: baseRows,
       moved: false,
+      pointerId: e.pointerId,
+    }
+    {
+      // C21: the dot follows the pointer even if the capture is lost (the tip
+      // left the dot), and the lift ends it wherever it lands.
+      const d = resizing.current
+      const onMove = (ev: PointerEvent) => {
+        if (resizing.current === d) resizeMove(ev)
+      }
+      const onUp = (ev: PointerEvent) => {
+        if (resizing.current === d && ev.pointerId === d.pointerId)
+          resizeEnd(ev)
+      }
+      window.addEventListener('pointermove', onMove)
+      window.addEventListener('pointerup', onUp)
+      window.addEventListener('pointercancel', onUp)
+      d.unlisten = () => {
+        window.removeEventListener('pointermove', onMove)
+        window.removeEventListener('pointerup', onUp)
+        window.removeEventListener('pointercancel', onUp)
+      }
     }
     // Text box v2: the resize commits after a 120 ms hold; the dot grows then.
     if (m) {
@@ -1378,11 +1426,22 @@ export function PaperFrame({
       }, m.HOLD_MS)
     }
   }
-  const resizeMove = (e: ReactPointerEvent) => {
+  const resizeMove = (e: ReactPointerEvent | PointerEvent) => {
     const d = resizing.current
-    if (!d) return
+    if (!d || e.pointerId !== d.pointerId) return
+    // C21: a move with no button pressed is a hovering Pencil (or a mouse
+    // whose lift was lost): the resize is over, it never resizes.
+    if (e.pointerType !== 'touch' && e.buttons === 0) {
+      resizeEnd(e, true)
+      return
+    }
     d.last = { x: e.clientX, y: e.clientY }
-    if (d.held) resizeAt(e.clientX, e.clientY)
+    if (!d.held || resizeFrame.current) return
+    // C21: one update per frame, at the newest point.
+    resizeFrame.current = requestAnimationFrame(() => {
+      resizeFrame.current = 0
+      if (resizing.current === d) resizeAt(d.last.x, d.last.y)
+    })
   }
   const resizeAt = (px: number, py: number) => {
     const d = resizing.current
@@ -1503,12 +1562,26 @@ export function PaperFrame({
       setLiveH({ id: d.id, h: d.h })
     }
   }
-  const resizeEnd = (e: ReactPointerEvent) => {
+  const resizeEnd = (
+    e: ReactPointerEvent | PointerEvent,
+    /** C21: ended by a hover move: the size stays as the last real move left it. */
+    hovered = false,
+  ) => {
+    const d0 = resizing.current
+    // Another pointer's lift (a second finger) does not end this resize.
+    if (d0 && e.pointerId !== d0.pointerId && e.type !== 'pointerdown') return
+    if (resizeFrame.current) {
+      cancelAnimationFrame(resizeFrame.current)
+      resizeFrame.current = 0
+      // The newest point is drawn before the commit (a hover adds none).
+      if (d0?.held && !hovered) resizeAt(d0.last.x, d0.last.y)
+    }
     const d = resizing.current
     resizing.current = null
     if (d) {
       window.clearTimeout(d.holdTimer)
       d.handle.removeAttribute('data-held')
+      d.unlisten?.()
     }
     if (d?.moved) lastDragEnd.current = e.timeStamp
     // C10: the caret that was put away comes back, where it was.
@@ -1516,7 +1589,31 @@ export function PaperFrame({
       const id = resumeTyping()
       if (id) send({ type: 'caretIn', id, exclusive: true })
     }
-    setLiveH(null)
+    // C21: the new height stays drawn until the saved one arrives (no jump back).
+    const keep =
+      !!d &&
+      d.moved &&
+      e.type !== 'pointercancel' &&
+      d.vert &&
+      d.h !== undefined &&
+      d.phone?.w === undefined
+    if (keep) {
+      const kept = {
+        id: d.id,
+        h: d.h!,
+        from: extra.find((x) => x.id === d.id),
+      }
+      keptH.current = kept
+      setLiveH(kept)
+      window.setTimeout(() => {
+        if (keptH.current !== kept) return
+        keptH.current = null
+        setLiveH((cur) => (cur === kept ? null : cur))
+      }, 1500)
+    } else {
+      keptH.current = null
+      setLiveH(null)
+    }
     if (!d || e.type === 'pointercancel' || d.phone?.w === undefined)
       setLiveW(null)
     setPreview(null)
@@ -2603,6 +2700,9 @@ function GuideLines({ g, k }: { g: SnapResult; k: number }) {
 
 /** A press that moves less than this (px) is a tap. */
 const TAP_PX = 4
+/** C21: a smart guide pulls a moved box in within 6 px and lets go only past 12 px. */
+const SNAP_IN_PX = 6
+const SNAP_OUT_PX = 12
 
 /** One box changed by a drop (with what it was, for Undo). */
 export type BoxChange = BoxPatch & {

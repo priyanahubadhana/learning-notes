@@ -171,3 +171,4 @@ Reload the test page; preset "Up to Phase 2B"; Pencil.
 - **C26:** "Tap here to keep writing" (and the "Enter text or type '/'" line) inside a box should go away once the box is in use.
 - **C27:** a new box is far too big by default (owner could not see why it would not move: it fills the space). It should be small, like Goodnotes; owner sends a Goodnotes screenshot. Waits for that picture (no build without a picture).
 - Owner: "Fix this and make sure there is no bug left. Recheck till Phase 2B." → a bug sweep of everything up to Phase 2B after these fixes.
+- **C27 (owner, 17 Nov, reference picture docs/design/refs/c27-new-box-one-line.png):** a new box is one line tall and spans the whole line (like a Notion block); it grows downward only as text is written. Not bigger by default. The owner's picture is the approved reference.

@@ -375,3 +375,7 @@ Tool bar settings (2A.14, 15 Nov): the 5 rows (Show tool names, Format tabs 3/4,
 ## Close ✕ on notices (I1): APPROVED by owner (16 Nov 2026)
 
 Pictures: docs/mockups/toast-close/ (1–4). Rule: ✕ on the leading edge, Undo or the action on the trailing edge, message between; ✕ drawn 10 px in a faint 22 px circle, tap area 44 × 44. The update notice keeps its "Later" button (no ✕).
+
+## Text box states like Goodnotes (C11), approved 16 Nov 2026
+
+Pictures: docs/mockups/textbox-2b/c11-shots/ (1-typing, 2-selected, 3-none). While typing: a thin border and no dots. One tap just outside: typing ends, the box stays selected (8 dots, ≡ handle, box bar). A second tap outside: nothing selected. Replaces the typing state in docs/mockups/textbox-2b/states.html. The frame always matches the box's fill (C12).

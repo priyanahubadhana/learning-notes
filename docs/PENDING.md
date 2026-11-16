@@ -40,6 +40,8 @@ Preview address: https://build-next.learning-notes-app.pages.dev (the parts you 
 
 Branches and commit ids of every parked part: docs/BUILD-STATE.md.
 
+- **After the 20 Nov limit reset (owner OK 16 Nov):** make the "App user stories" notebook in the app via the connector: epics first (about 15 pages, one line + status ✅/🔄/🆕 each), owner checks, then stories per epic. Base: docs/plans/user-story-study-pack.md. Then pictures and the plan with Fable. Do not use the owner's API credit.
+
 ## Open problems (each one has a phase)
 
 | ID      | Problem                                                                                                                                                                                                           | Phase | State                                                                                                                                       |

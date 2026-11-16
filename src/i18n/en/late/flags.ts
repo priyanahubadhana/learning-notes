@@ -5,6 +5,12 @@ export const enLateFlags = {
     'New parts of the app, switched off until you try them.',
   'flags.preset.phase.name': 'Test a phase',
   'flags.preset.phase.desc': 'Pick the phase you want to try.',
+  'flags.tapSpeed.name': 'Tap speed',
+  'flags.tapSpeed.desc':
+    'How quickly taps must follow each other to count as a double or triple tap. For testing only.',
+  'flags.tapSpeed.quick': 'Quick',
+  'flags.tapSpeed.normal': 'Normal',
+  'flags.tapSpeed.relaxed': 'Relaxed',
   'flags.preset.on.name': 'Test this phase',
   'flags.preset.on.desc':
     'On: this phase works, later parts stay off. Off: every new part is off.',

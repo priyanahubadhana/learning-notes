@@ -61,8 +61,24 @@ async function lineBox(page: Page) {
   await page.keyboard.press('Enter')
   // insertText: a typed "/" would open the slash list.
   await page.keyboard.insertText(LINE)
+  // WebKit drops an Enter sent in the same moment as insertText: wait for
+  // the line to land, then check the box really has three lines.
+  await expect(box.locator('.bn-editor')).toContainText(LINE)
+  // WebKit opens the "/" list for an inserted slash too: close it first.
+  if (await page.locator('.bn-suggestion-menu').isVisible())
+    await page.keyboard.press('Escape')
   await page.keyboard.press('Enter')
+  // Two real line breaks (not the editor's trailing one) before the last
+  // line is typed: WebKit can run the Enter after the typing otherwise.
+  await expect
+    .poll(
+      () =>
+        box.locator('.bn-editor br:not(.ProseMirror-trailingBreak)').count(),
+      'two line breaks',
+    )
+    .toBe(2)
   await page.keyboard.type('Last filler line')
+  await expect(box.locator('.bn-editor')).toContainText('Last filler line')
   await page.waitForTimeout(700)
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   await page.waitForTimeout(1000)
@@ -397,14 +413,34 @@ async function slowTap(
   hold: number,
   drift: number,
 ) {
-  // The pen label stays on for the whole run (penOn): no page call in between.
-  await page.mouse.move(at.x - 2, at.y - 4)
+  // As few driver calls as a tap needs (each one costs time, more on
+  // WebKit): back to the spot, down, the hold, the drift, up. The pen label
+  // stays on for the whole run (penOn).
   await page.mouse.move(at.x, at.y)
   await page.mouse.down()
-  await page.waitForTimeout(Math.max(0, hold / 2 - 15))
+  await page.waitForTimeout(Math.max(0, hold))
   await page.mouse.move(at.x + drift * 0.6, at.y + drift * 0.8)
-  await page.waitForTimeout(Math.max(0, hold / 2 - 15))
   await page.mouse.up()
+}
+
+/**
+ * The driver's own delay, learnt from what the page saw (ms): each press and
+ * each gap comes out this much longer than asked (measured 16 Nov: about 30
+ * and 60 ms on chromium, more on WebKit). The next taps ask that much less,
+ * so the page sees the timing a hand makes.
+ */
+class DriverLag {
+  hold = 30
+  gap = 60
+  learn(asked: number[], seen: number[]) {
+    const ease = (old: number, d: number) =>
+      Math.min(250, Math.max(0, old * 0.6 + d * 0.4))
+    seen.forEach((v, i) => {
+      if (asked[i] === undefined) return
+      if (i % 2 === 0) this.hold = ease(this.hold, v - asked[i])
+      else this.gap = ease(this.gap, v - asked[i])
+    })
+  }
 }
 
 /** Playwright's pointer counts as the Pencil while on (no page call between taps). */
@@ -458,20 +494,29 @@ for (const n of [2, 3] as const) {
     // "Text" (a word), then the arrow and "6" (symbols, a digit), in turn.
     const spots = [1, I.arrow, I.six]
     let counted = 0
+    const lag = new DriverLag()
     for (let r = 0; r < 50; r++) {
       const i = spots[r % spots.length]
       const at = await charPoint(page, i, r % 2 ? 'right' : 'left')
       await pressLog(page)
       await penOn(page)
+      // What the page should see: taps of 150-200 ms, 400-420 ms apart (the driver's jitter
+      // adds up to 60 ms; the spec allows taps to 250 ms and gaps to 500 ms).
+      const asked: number[] = []
       for (let k = 0; k < n; k++) {
-        // About 60 ms of driver time comes on top: about 400-450 ms in the page.
-        if (k > 0) await page.waitForTimeout(300 + ((r + k) % 2) * 40)
-        // 150-220 ms asked; the driver adds up to about 40 ms.
-        await slowTap(page, at, 150 + ((r * 37 + k * 53) % 71), 5)
+        if (k > 0) {
+          const gap = 400 + ((r + k) % 2) * 20
+          asked.push(gap)
+          await page.waitForTimeout(Math.max(0, gap - lag.gap))
+        }
+        const hold = 150 + ((r * 37 + k * 53) % 51)
+        asked.push(hold)
+        await slowTap(page, at, Math.max(0, hold - lag.hold), 5)
       }
       await penOn(page, false)
       const want = n === 3 ? LINE : i === 1 ? 'Text' : LINE[i]
       const ms = await pressLog(page)
+      lag.learn(asked, ms)
       if (inSpec(ms)) {
         counted++
         await expect
@@ -482,7 +527,7 @@ for (const n of [2, 3] as const) {
       expect(await boxText(box), `repeat ${r}`).toBe(before)
       await page.waitForTimeout(650)
     }
-    expect(counted, 'runs with in-spec timing').toBeGreaterThanOrEqual(20)
+    expect(counted, 'runs with in-spec timing').toBeGreaterThanOrEqual(35)
   })
 }
 

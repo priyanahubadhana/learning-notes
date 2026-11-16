@@ -5,6 +5,12 @@ export const hiFlags = {
     'ऐप के नए हिस्से, जब तक आप आज़माएँ नहीं तब तक बंद।',
   'flags.preset.phase.name': 'एक चरण आज़माएँ',
   'flags.preset.phase.desc': 'जो चरण आज़माना है उसे चुनें।',
+  'flags.tapSpeed.name': 'टैप की गति',
+  'flags.tapSpeed.desc':
+    'डबल या ट्रिपल टैप गिने जाने के लिए टैप कितनी जल्दी एक के बाद एक होने चाहिए। केवल परीक्षण के लिए।',
+  'flags.tapSpeed.quick': 'तेज़',
+  'flags.tapSpeed.normal': 'सामान्य',
+  'flags.tapSpeed.relaxed': 'आराम से',
   'flags.preset.on.name': 'यह चरण आज़माएँ',
   'flags.preset.on.desc':
     'चालू: यह चरण काम करता है, आगे के हिस्से बंद रहते हैं। बंद: सभी नए हिस्से बंद।',

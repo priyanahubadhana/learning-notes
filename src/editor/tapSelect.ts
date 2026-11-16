@@ -400,6 +400,8 @@ export function watchTapSelect(
   // until its click has passed, the mouse events of the tap never reach them:
   // the tap counter here is the only one.
   let ownMouseUntil = 0
+  // Counts caret taps and presses: a late caret fix-up stands back for a newer tap.
+  let caretTap = 0
   const mouseNames = ['mousedown', 'mouseup', 'click', 'dblclick']
   const onMouse = (e: Event) => {
     if (Date.now() >= ownMouseUntil) return
@@ -421,6 +423,7 @@ export function watchTapSelect(
     nextTapCount(last, Date.now(), x, y) >= 2
 
   const onDown = (e: PointerEvent) => {
+    caretTap++
     // Finger, Pencil and mouse count alike (owner, 10 Nov, items 11 and 20).
     if (e.button > 0) return
     const tool = activeTool.get()
@@ -549,7 +552,35 @@ export function watchTapSelect(
           ),
         )
         view.dom.focus({ preventScroll: true })
+        // C5 (switch textbox.v2): WebKit's focus puts back the browser's last
+        // selection (the previous tap's caret) over the one set here; the
+        // browser's copy is set again after the focus.
         keepSelection()
+        // The browser's copy is put right once the tap run is over (no next
+        // tap within the tap gap), unless another
+        // tap began meanwhile (its own selection wins).
+        const mine = ++caretTap
+        if (isOn('textbox.v2'))
+          setTimeout(
+            () => {
+              if (mine !== caretTap) return
+              const sel = view.state.selection
+              if (!sel.empty || sel.head !== pos) return
+              try {
+                const d = view.domAtPos(pos)
+                const s = doc.getSelection()
+                if (
+                  !s ||
+                  (s.anchorNode === d.node && s.anchorOffset === d.offset)
+                )
+                  return
+                s.collapse(d.node, d.offset)
+              } catch {
+                // The editor's own selection is set; the browser copy is cosmetic.
+              }
+            },
+            gapMs(450) + 20,
+          )
       }, 0)
       return
     }

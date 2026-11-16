@@ -106,3 +106,16 @@ See the chat of 16 Nov; answers go here.
 - Short notes have no fixed length; each short note can **open its detailed note** (tap to jump to the full depth) or be edited.
 
 **Page layout:** two modes, a default in Settings: **paper pages** (GoodNotes) and **one long page** that scrolls forever (Notion), with + Add page at the top to start a new page.
+
+## ⚠️ Before planning or building anything from this file (owner rule, 16 Nov)
+
+Whoever plans this (Fable, Opus or any helper) first rechecks every line here against the rules already in place: CLAUDE.md, `rules/`, docs/plans/phase-plan.md, docs/design/owner-decisions.md, docs/DECISIONS.md, docs/features/ (the existing specs) and docs/design/quality-standard.md. List every contradiction as an easy question for the owner (what, why, options, pick), all at once, and fix this file from the answers before any plan is written. Known open contradictions are listed below until answered.
+
+### Known contradictions (16 Nov, waiting for the owner)
+
+1. In-app AI and API use vs "AI only after the owner approves the cost".
+2. New scope vs "build only what the phase plan lists" and "no release until all bugs are fixed" (and "working app first", "text box & Pencil top priority").
+3. "Connector can do everything" vs connector safety: no delete, big changes to the Inbox.
+4. Four levels (Notebook › Subject › Topic › Page) vs today's notebooks with sub-pages and spaces.
+5. Tabs chosen by the answers vs today: Notes · Summary · Review fixed, others off by default per notebook.
+6. One long scrolling page vs paper pages and the BlockNote editor.

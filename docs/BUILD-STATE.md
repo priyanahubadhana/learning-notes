@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-**RESUMED 16 Nov 17:00 IST on the owner's yes (lean mode, main chat manages). Now: one review each for C21, C18b/C20b, C22 and C19 (all pushed), then the main chat merges each into build/next; then the owner re-tests. No go-live until everything passes.**
+**RESUMED 16 Nov 17:00 IST (owner's yes; Opus + Sonnet only until 19 Nov). C18b/C20b, C19, C21, C22 reviewed once, fixed, merged into build/next 5aab1273 (17:45). CI fast set + a hand-started full run (43864630404) running; then the owner's re-test list. Local WebKit won't launch since the 16:52 reboot: ipad-webkit runs on CI until fixed. No go-live until everything passes.**
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

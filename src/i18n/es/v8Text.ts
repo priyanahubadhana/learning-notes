@@ -57,5 +57,6 @@ export const esV8Text = {
   'v8.more.groupBar': 'Barra de herramientas',
   'v8.more.hideBar': 'Ocultar barra de herramientas',
   'v8.more.editBar': 'Editar barra de herramientas',
+  'v8.tool.recordAudio': 'Grabar audio',
   'v8.more.title': 'Más',
 }

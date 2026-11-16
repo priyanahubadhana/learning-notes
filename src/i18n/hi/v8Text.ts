@@ -55,5 +55,6 @@ export const hiV8Text = {
   'v8.more.groupBar': 'टूल बार',
   'v8.more.hideBar': 'टूल बार छिपाएँ',
   'v8.more.editBar': 'टूल बार संपादित करें',
+  'v8.tool.recordAudio': 'ऑडियो रिकॉर्ड करें',
   'v8.more.title': 'और',
 }

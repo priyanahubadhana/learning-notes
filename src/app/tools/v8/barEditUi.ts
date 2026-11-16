@@ -25,6 +25,7 @@ const CORE_NAME = {
 /** The name of any tool that can sit on the bar. */
 export function barToolName(id: string): string {
   if (isCore(id)) return t(CORE_NAME[id as V8ToolId])
+  if (id === 'audio') return t('v8.tool.recordAudio')
   const def = findTool(id)
   return def ? toolLabel(def) : id
 }

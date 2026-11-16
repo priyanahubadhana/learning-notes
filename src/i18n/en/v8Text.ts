@@ -56,5 +56,6 @@ export const enV8Text = {
   'v8.more.groupBar': 'Tool bar',
   'v8.more.hideBar': 'Hide tool bar',
   'v8.more.editBar': 'Edit tool bar',
+  'v8.tool.recordAudio': 'Record audio',
   'v8.more.title': 'More',
 }

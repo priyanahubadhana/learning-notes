@@ -159,3 +159,43 @@ test('C7 Page options › Arrange pinned actions: one header, one ✕, ✓, no f
   await page.getByTestId('fb-sheet-close').click()
   await expect(sheet.getByTestId('ps-arrange')).toBeVisible()
 })
+
+test('C9 edit-the-bar tray offers Mic and Record audio; Mic opens the dictation strip', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1500, height: 900 })
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'learning-notes:level',
+      JSON.stringify({
+        level: 'professional',
+        unlocked: ['tb.allTools', 'tb.insertMore'],
+      }),
+    )
+  })
+  await startInMode(page, 'touch')
+  await page.goto(`/?flags=${FLAGS}`)
+  await createNotebook(page, 'Biology', 'First')
+  await hideSidebar(page)
+  await typeInEditor(page, 'Hello')
+  // Not on the bar by default.
+  await expect(page.getByTestId('v8-tool-mic')).toHaveCount(0)
+  await expect(page.getByTestId('v8-tool-audio')).toHaveCount(0)
+  await page.getByTestId('v8-more').click()
+  await page
+    .getByRole('dialog', { name: 'More' })
+    .getByRole('button', { name: 'Tool bar', exact: true })
+    .click()
+  await page.getByTestId('v8-more-editbar').click()
+  await expect(page.getByTestId('v8-edit-tile-mic')).toContainText('Mic')
+  await expect(page.getByTestId('v8-edit-tile-audio')).toContainText(
+    'Record audio',
+  )
+  await page.getByTestId('v8-edit-tile-mic').click()
+  await page.getByTestId('v8-edit-tile-audio').click()
+  await page.getByTestId('v8-edit-done').click()
+  await expect(page.getByTestId('v8-tool-audio')).toBeVisible()
+  await expect(page.locator('[data-mini-keys]')).toHaveCount(0)
+  await page.getByTestId('v8-tool-mic').click()
+  await expect(page.locator('[data-mini-keys]')).toBeVisible()
+})

@@ -528,6 +528,7 @@ export const esToolbar = {
   'tool.print': 'Imprimir / PDF',
   'tool.quote': 'Cita',
   'tool.readAloud': 'Leer en voz alta',
+  'tool.mic': 'Micrófono',
   'tool.readerFull': 'Lector a pantalla completa',
   'tool.readingMode': 'Modo lectura',
   'tool.redo': 'Rehacer',

@@ -542,7 +542,7 @@ function driverProof(runs: { asked: number[]; ms: number[] }[], late: number) {
   )
 }
 
-for (const n of [2, 3] as const) {
+const c14 = (n: 2 | 3) =>
   test(`C14: 50 Pencil ${n === 2 ? 'double' : 'triple'} taps (150-250 ms taps, 5 px drift, 400-500 ms apart) all select; nothing is deleted`, async ({
     page,
   }) => {
@@ -604,41 +604,41 @@ for (const n of [2, 3] as const) {
     driverProof(runs, late)
     expect(runs.length, 'runs in the spec, each one selected').toBe(50)
   })
-}
 
-test('C14: a double tap on a word that is already selected never deletes it', async ({
-  page,
-}) => {
-  await start(page, 'C14sel')
-  await watchPresses(page)
-  const box = await lineBox(page)
-  await pickBox(page, box)
-  const before = await boxText(box)
-  const at = await charPoint(page, 1, 'right')
-  for (let r = 0; r < 10; r++) {
-    await pressLog(page)
-    await realPenTaps(page, at, [
-      { hold: 200, drift: 5 },
-      { gap: 400, hold: 210, drift: 6 },
-    ])
-    const { ms } = await pressLog(page)
-    expect(inSpec(ms), `repeat ${r}, press/gap ms: ${whole(ms)}`).toBe(true)
-    await expect
-      .poll(() => selected(page), `repeat ${r}, press/gap ms: ${whole(ms)}`)
-      .toBe('Text')
-    // What a stray scratch-out would send right after the taps.
-    await iPadDelete(page)
-    await page.waitForTimeout(200)
-    expect(await boxText(box), `repeat ${r}`).toBe(before)
-    await page.waitForTimeout(RUN_APART)
-  }
-})
+const c14Selected = () =>
+  test('C14: a double tap on a word that is already selected never deletes it', async ({
+    page,
+  }) => {
+    await start(page, 'C14sel')
+    await watchPresses(page)
+    const box = await lineBox(page)
+    await pickBox(page, box)
+    const before = await boxText(box)
+    const at = await charPoint(page, 1, 'right')
+    for (let r = 0; r < 10; r++) {
+      await pressLog(page)
+      await realPenTaps(page, at, [
+        { hold: 200, drift: 5 },
+        { gap: 400, hold: 210, drift: 6 },
+      ])
+      const { ms } = await pressLog(page)
+      expect(inSpec(ms), `repeat ${r}, press/gap ms: ${whole(ms)}`).toBe(true)
+      await expect
+        .poll(() => selected(page), `repeat ${r}, press/gap ms: ${whole(ms)}`)
+        .toBe('Text')
+      // What a stray scratch-out would send right after the taps.
+      await iPadDelete(page)
+      await page.waitForTimeout(200)
+      expect(await boxText(box), `repeat ${r}`).toBe(before)
+      await page.waitForTimeout(RUN_APART)
+    }
+  })
 
 /** C19: a long word, so a tap 20 px off the one before is still on it. */
 const WORD = 'understanding'
 const WORD_LINE = 'Text ' + WORD
 
-for (const n of [2, 3] as const) {
+const c19 = (n: 2 | 3) =>
   test(`C19: 50 Pencil ${n === 2 ? 'double' : 'triple'} taps in the middle of a word, right after a tap put the cursor there, each next tap 0-20 px off and up to 650 ms later: all select; nothing is deleted`, async ({
     page,
   }) => {
@@ -705,5 +705,21 @@ for (const n of [2, 3] as const) {
       await page.waitForTimeout(RUN_APART)
     }
     expect(done, 'runs in the spec, each one selected').toBe(50)
+  })
+
+/**
+ * The tests that time real taps run in two rows, each row one test after
+ * the other. Why: all four 50-run tests at once (one per worker) starved the
+ * test driver itself: a tap asked at 205 ms was sent after 105 ms, the next
+ * at 330 ms, and more than 10 runs of 50 had to be repeated (16 Nov,
+ * ipad-webkit, first run with the C19 tests). Two at a time is the load the
+ * timing was measured under.
+ */
+for (const n of [2, 3] as const) {
+  test.describe(`timed Pencil ${n === 2 ? 'double' : 'triple'} taps`, () => {
+    test.describe.configure({ mode: 'default' })
+    c14(n)
+    if (n === 2) c14Selected()
+    c19(n)
   })
 }

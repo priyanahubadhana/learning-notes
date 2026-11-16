@@ -166,7 +166,31 @@ export function visualLineRange(
   let a = clamp(left.pos)
   let b = clamp(right.pos)
   if (a > b) [a, b] = [b, a]
-  return a === b ? whole : [a, b]
+  if (a === b) return whole
+  return isOn('textbox.v2') ? withinBreaks($pos, pos, a, b) : [a, b]
+}
+
+/**
+ * C5 (switch textbox.v2): a box's lines are one paragraph with line breaks,
+ * and WebKit's hit test past a line's end can answer a place on the next
+ * line. A visual line never crosses a line break around the tapped spot.
+ */
+function withinBreaks(
+  $pos: ReturnType<EditorView['state']['doc']['resolve']>,
+  pos: number,
+  a: number,
+  b: number,
+): [number, number] {
+  let from = a
+  let to = b
+  const start = $pos.start()
+  $pos.parent.forEach((child, offset) => {
+    if (child.isText) return
+    const at = start + offset
+    if (at < pos && at + child.nodeSize > from) from = at + child.nodeSize
+    if (at >= pos && at < to) to = at
+  })
+  return from < to ? [from, to] : [a, b]
 }
 
 /**
@@ -432,7 +456,15 @@ export function watchTapSelect(
       tool,
     }
     const level = tapLevel(count, shift, strictFor(tool))
-    ownMouseUntil = level >= 2 ? now + 700 : 0
+    // C5 (switch textbox.v2): a Pencil caret tap in a box is placed here
+    // (onUp); WebKit's own mousedown would put it on the wrong side of a wide
+    // glyph, so the tap's mouse events are held back too.
+    const ownCaret =
+      level === 1 &&
+      e.pointerType === 'pen' &&
+      isOn('textbox.v2') &&
+      !!dom.closest('[data-paper-box]:not([data-paper-box="main"])')
+    ownMouseUntil = level >= 2 || ownCaret ? now + 700 : 0
     // The tap that selects a box types nothing and shows no keyboard; the
     // taps after the first on the Pencil are held off (R6-18).
     if (level <= 0) {

@@ -104,3 +104,5 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
 - **Weekly limit:** 88% used on 16 Nov (resets 20 Nov, 00:30 IST). Only the two text box builders are running.
 - **TB-24 (e2e/tb2-bar.spec.ts) red on a clean build/next checkout on this PC** (box builder, 16 Nov), while CI run 43799715681 is green. Check whether CI runs it, and fix the root cause (stop the line), before the next release.
 - **C box group:** `slice/c-boxes` 82336aaf: C8, C10 (incl. the tool bar part, keyboardPolicy.ts), C11, C12, C13, C15, C16. Under review. Builder decision: Delete box on a page's first box empties it with one Undo (the first box always stays).
+- **Merged into build/next 535695f8:** box group C8, C10–C13, C15, C16 (`slice/c-boxes` e4778dcc), with /cBoxes/ on ipad-webkit. ipad-webkit 20/20 (one flaky C13 retry came while another webkit run was going; 10/10 alone with no retries). Owner can re-test.
+- **C4, C5, C14** (`slice/c45-scribble-symbols` 87523cea): C5 passes on ipad-webkit; 2 reds left (C14 triple taps 31/35, C4 "ten scribbles" sometimes). Opus tried twice, so this went to Fable (16 Nov). The Tap speed row is in flagSettings.ts.

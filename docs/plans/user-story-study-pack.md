@@ -61,3 +61,13 @@ Status: draft for the owner to read and change. Not planned, not built. Sources:
 ## Open questions
 
 See the chat of 16 Nov; answers go here.
+
+## Owner answers, round 2 (16 Nov)
+
+- **Four levels:** Notebook → Subject → Topic → Page. Each level opens and closes like a toggle (heading, subheading, sub-subheading).
+- **Find anything (library database):** one place to search all notebooks, subjects, topics and pages. Filter by **source type** (YouTube video, article, PDF, my notes…), **date** (range), and **several tags at once** (pages that have all of them). Search inside titles and text; each result shows its path (Notebook › Subject › Topic › Page) so I can find the video again.
+- **Database columns:** Title, Tags, Goal, Depth, **Source** (type + link), Due / not due (from the review schedule), plus the place in the four levels.
+- **Slides:** a visual, PowerPoint-style deck made by the AI. Swipe through to understand and recall, instead of scrolling the notes.
+- **How well I know it:** the app asks me (one tap) instead of guessing, because it lacks the full picture.
+- **Other sources:** same five questions for articles, PDFs and my own notes.
+- **No mock-ups until the limit resets on 20 Nov;** the cheapest way first.

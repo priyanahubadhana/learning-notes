@@ -255,7 +255,11 @@ export function BoxFrame({
           data-box-frame={i}
           className={
             'pointer-events-none absolute inset-x-0 rounded-md border border-dashed border-transparent group-data-picked:border-solid group-data-picked:border-accent group-data-picked:border-[1.5px]' +
-            (typing ? ' !border-solid !border-line-strong' : '') +
+            (typing
+              ? v2On
+                ? ' !border-solid !border-accent !border-[1px]'
+                : ' !border-solid !border-line-strong'
+              : '') +
             (dragging ? ' !border-solid !border-accent' : '')
           }
           style={{ top: s.top, height: s.height, background: colour }}
@@ -266,6 +270,7 @@ export function BoxFrame({
         // B3-1: only on the selected box, one 44 pt target each.
         className={
           'pointer-events-none invisible absolute z-20 flex items-center group-data-picked:visible ' +
+          (v2On ? 'group-data-typing:!invisible ' : '') +
           (narrowBox
             ? 'left-1/2 -translate-x-1/2 gap-1'
             : 'left-0 right-0 justify-end pr-7')
@@ -353,6 +358,7 @@ export function BoxFrame({
         picked &&
         (!stacked || v2On) &&
         !box.locked &&
+        !(v2On && typing) &&
         !dragging && <ResizeDots onResize={onResize} />}
       {picked && !typing && !dragging && bar && (
         <BarHolder below={shown.y * k < BAR_ROOM_PX}>{bar}</BarHolder>

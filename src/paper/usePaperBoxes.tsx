@@ -299,7 +299,24 @@ export function usePaperBoxes(
 
   const duplicate = (box: PaperBox) =>
     runTask(duplicateBox(db, pageId, box.id).then((id) => id && setFresh(id)))
+  /**
+   * C8: "Delete box" on the page's first box (it cannot go, the page always
+   * has one) empties it: one edit in its own editor, so the page saves it as
+   * it saves typing; the toast's Undo (and the editor's own Undo) puts it all back.
+   */
+  const emptyMain = (): boolean => {
+    const ed = boxEditors.get(pageId, MAIN_BOX)
+    if (!ed) return false
+    const before = ed.document
+    ed.replaceBlocks(before, [{ type: 'paragraph' }])
+    toast(t('paper.box.deleted'), {
+      label: t('paper.box.undo'),
+      onSelect: () => ed.replaceBlocks(ed.document, before),
+    })
+    return true
+  }
   const remove = (box: PaperBox) => {
+    if (box.id === MAIN_BOX && emptyMain()) return Promise.resolve()
     const since = stamp()
     return runTask(
       removeBox(db, pageId, box.id).then((removed) => {

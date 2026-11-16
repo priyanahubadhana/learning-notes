@@ -230,3 +230,19 @@ describe('zoneOf and the stored shape', () => {
     expect(isGridRows('x')).toBe(false)
   })
 })
+
+describe('room at the right of a row (C13)', () => {
+  it('a last column narrower than its share keeps its width; the room stays empty', () => {
+    const r = reconcile([row('r', [0.5, ['a']], [0.3, ['b']])], ['a', 'b'])
+    expect(r[0].cols.map((c) => c.w)).toEqual([0.5, 0.3])
+    const out = layoutRows(r, { a: 20, b: 20 }, G)
+    expect(out.get('b')!.x + out.get('b')!.w).toBeLessThan(210 - 15 - 20)
+  })
+  it('a column that goes away still brings the row back to 100 %', () => {
+    const r = removeBox(
+      [row('r', [0.4, ['a']], [0.3, ['b']], [0.3, ['c']])],
+      'a',
+    )
+    expect(r[0].cols.reduce((n, c) => n + c.w, 0)).toBeCloseTo(1, 5)
+  })
+})

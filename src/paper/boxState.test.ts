@@ -53,3 +53,43 @@ describe('box states', () => {
     expect(run({ type: 'pick', ids: [] })).toEqual(IDLE)
   })
 })
+
+describe('box states, text box v2 (C16): one selected box at a time', () => {
+  it('typing in another box unselects the picked one', () => {
+    expect(
+      run(
+        { type: 'frameTap', id: 'a' },
+        { type: 'caretIn', id: 'b', exclusive: true },
+      ),
+    ).toEqual(IDLE)
+  })
+  it('typing in the picked box still types', () => {
+    expect(
+      run(
+        { type: 'frameTap', id: 'a' },
+        { type: 'caretIn', id: 'a', exclusive: true },
+      ),
+    ).toEqual({ kind: 'typing', id: 'a' })
+  })
+  it('several boxes picked by the Lasso: typing in one of them unselects the rest', () => {
+    expect(
+      run(
+        { type: 'pick', ids: ['a', 'b'] },
+        { type: 'caretIn', id: 'a', exclusive: true },
+      ),
+    ).toEqual(IDLE)
+  })
+})
+
+describe('box states, text box v2 (C11): typing, outside once, outside twice', () => {
+  it('the caret leaving a typing box leaves it selected; a clear then selects nothing', () => {
+    let s = run(
+      { type: 'frameTap', id: 'a' },
+      { type: 'caretIn', id: 'a', exclusive: true },
+    )
+    expect(s.kind).toBe('typing')
+    s = boxReducer(s, { type: 'caretOut' })
+    expect(s).toEqual({ kind: 'selected', ids: ['a'] })
+    expect(boxReducer(s, { type: 'clear' })).toEqual(IDLE)
+  })
+})

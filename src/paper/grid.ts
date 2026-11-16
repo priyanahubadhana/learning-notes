@@ -113,6 +113,16 @@ let counter = 0
 export const newRowId = () =>
   'r' + Date.now().toString(36) + (counter++).toString(36)
 
+/**
+ * C13: the last column's right edge may leave room at the page's right (the
+ * fractions then sum to less than 1). That is kept while no column went away.
+ */
+const keepsRoom = (before: number, fracs: readonly number[]): boolean =>
+  fracs.length === before &&
+  fracs.length > 1 &&
+  sum(fracs) < 1 - 1e-6 &&
+  fracs.every((f) => f >= MIN_FRAC - 1e-9)
+
 /** Tidies: empty columns and rows go, fractions sum to 1 again. */
 function tidy(rows: GridRow[]): GridRow[] {
   const out: GridRow[] = []
@@ -123,7 +133,12 @@ function tidy(rows: GridRow[]): GridRow[] {
     const fracs =
       row.cols.length === 1 && cols.length === 1
         ? [Math.min(1, Math.max(MIN_FRAC, cols[0].w || 1))]
-        : normaliseFracs(cols.map((c) => c.w))
+        : keepsRoom(
+              row.cols.length,
+              cols.map((c) => c.w),
+            )
+          ? cols.map((c) => c.w)
+          : normaliseFracs(cols.map((c) => c.w))
     const next: GridRow = {
       ...row,
       cols: cols.map((c, i) => ({ ...c, w: round(fracs[i]) })),

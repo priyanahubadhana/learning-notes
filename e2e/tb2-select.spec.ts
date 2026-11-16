@@ -177,7 +177,7 @@ test('TB-01: the next tap puts the caret within 1 character, 20 spots, no jump a
   for (let n = 0; n < 20; n++) {
     const i = 2 + ((n * 3) % (LINE.length - 4))
     const p = await charPoint(page, i, 1)
-    await page.waitForTimeout(520)
+    await page.waitForTimeout(800)
     await tapAt(page, p.x, p.y, 'touch')
     await expect
       .poll(async () => {
@@ -199,11 +199,11 @@ test('keyboard rule: a Pencil tap that places the caret keeps the keyboard down;
   const p = await charPoint(page, 6)
   await tapAt(page, p.x, p.y, 'touch')
   await expect(box).toHaveAttribute('data-picked', '')
-  await page.waitForTimeout(520)
+  await page.waitForTimeout(800)
   await tapAt(page, p.x, p.y, 'pen')
   await expect.poll(async () => (await state(page)).caret).toBe(true)
   expect((await state(page)).inputMode).toBe('none')
-  await page.waitForTimeout(520)
+  await page.waitForTimeout(800)
   const q = await charPoint(page, 9)
   await tapAt(page, q.x, q.y, 'touch')
   await expect.poll(async () => (await state(page)).inputMode).not.toBe('none')
@@ -278,7 +278,7 @@ test('TB-05: the padding of a box counts as the box: first tap selects, next put
   await tapAt(page, x, y, 'touch', pad)
   await expect(box).toHaveAttribute('data-picked', '')
   expect((await state(page)).focused).toBe(false)
-  await page.waitForTimeout(520)
+  await page.waitForTimeout(800)
   await tapAt(page, x, y, 'touch', pad)
   await expect.poll(async () => (await state(page)).focused).toBe(true)
   await expect(page.locator(EXTRA)).toHaveCount(1)

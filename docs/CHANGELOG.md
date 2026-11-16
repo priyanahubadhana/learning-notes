@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: C19 tests wait past the new 700 ms tap gap (no product change)
+
+- What: e2e waits between separate taps raised (520 to 800 ms, 600 to 800, 700 to 900) in tb2-select (TB-01 next tap), tb2-bar-firsttap (bar tap) and tb2-taps (TB-04 runs).
+- Why: the spec now says Relaxed 700 ms (same-word taps count); the tests meant a fresh tap, but 520/600 ms apart on the same word is now a double tap (no caret, no bar), and a wait of exactly 700 ms raced the gap under load on CI. The checks themselves are unchanged.
+- Files: e2e/tb2-select.spec.ts, e2e/tb2-bar-firsttap.spec.ts, e2e/tb2-taps.spec.ts.
+
 ### 16 Nov 2026: C22 update restart keeps the old files when the new worker is not ready (review fixes)
 
 - What: on the 15 s limit or "Restart now" with a new worker still installing, the restart only reloads (old worker and saved copies stay, so the app opens offline and the update is tried next time). The old files are cleared only when there is no worker at all. "Restart now" now also works during the 8 s check after a reload. The button sits outside the announced status text. On a phone the notice is narrower so it no longer covers the zoom "-" button.

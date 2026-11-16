@@ -142,7 +142,7 @@ test('textbox.v2 ON: a bar tap within the selecting tap’s 350 ms works', async
   await expect(page.locator('[data-box-bar]')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(box).not.toHaveAttribute('data-picked', '')
-  await page.waitForTimeout(600)
+  await page.waitForTimeout(800)
   const ms = await page.evaluate(async (sel) => {
     const ed = document.querySelector(sel)!
     const n = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT).nextNode()!

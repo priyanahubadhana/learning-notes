@@ -61,6 +61,12 @@ export interface Stroke {
   bw: number
   /** Set when the stroke was snapped to a perfect shape. */
   shape?: ShapeKind
+  /**
+   * C2: a piece cut from a snapped shape. Drawn the shape way (even width, no
+   * smoothing) with square ends at the cut. Optional, so older data and sync
+   * stay as they are.
+   */
+  flat?: true
   /** Closed shapes: fill the inside with the colour. */
   fill?: true
   /**

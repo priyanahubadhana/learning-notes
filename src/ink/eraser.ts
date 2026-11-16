@@ -31,14 +31,22 @@ export function distToPath(p: Pt, path: readonly Pt[]): number {
 }
 
 /** Points of a stroke with extra points added so none are further apart than `gap`. */
-function densify(pts: readonly number[], gap: number): number[] {
+function densify(
+  pts: readonly number[],
+  gap: number,
+  near?: (x: number, y: number, slack: number) => boolean,
+): number[] {
   if (pts.length <= STRIDE) return pts.slice()
   const out: number[] = pts.slice(0, STRIDE)
   for (let i = STRIDE; i < pts.length; i += STRIDE) {
     const a = i - STRIDE
     const dx = pts[i] - pts[a]
     const dy = pts[i + 1] - pts[a + 1]
-    const steps = Math.min(64, Math.ceil(Math.hypot(dx, dy) / gap))
+    const len = Math.hypot(dx, dy)
+    // Far from the eraser a segment keeps its own points (nothing there is cut).
+    const far =
+      near && !near(pts[a], pts[a + 1], len) && !near(pts[i], pts[i + 1], len)
+    const steps = far ? 1 : Math.min(64, Math.ceil(len / gap))
     for (let s = 1; s < steps; s++) {
       const k = s / steps
       for (let c = 0; c < STRIDE; c++) {
@@ -50,17 +58,27 @@ function densify(pts: readonly number[], gap: number): number[] {
   return out
 }
 
+/** Is a point within `reach` (plus a segment's own length) of the eraser's path? */
+const nearPath =
+  (path: readonly Pt[], reach: number) =>
+  (x: number, y: number, slack: number): boolean =>
+    distToPath({ x, y }, path) <= reach + slack
+
 /**
  * C2: a snapped shape (rectangle, oval, triangle, line, arrow) as ordinary ink:
  * the same outline with a point at least every `gap`, and no shape or fill
  * mark. A shape is stored as a few corner points and drawn closed, so cutting
  * it as it is would join the leftover ends with a straight line.
  */
-export function shapeToInk(stroke: Stroke, gap: number): Stroke {
+export function shapeToInk(
+  stroke: Stroke,
+  gap: number,
+  near?: (x: number, y: number, slack: number) => boolean,
+): Stroke {
   const { shape: _shape, fill: _fill, ...ink } = stroke
   void _shape
   void _fill
-  return { ...ink, pts: densify(stroke.pts, gap) }
+  return { ...ink, flat: true, pts: densify(stroke.pts, gap, near) }
 }
 
 /** Does any part of the stroke come within `radius` of the path? */
@@ -125,13 +143,17 @@ export function eraseStroke(
   if (stroke.shape) {
     if (!touches(stroke, path, reach)) return [stroke]
     return eraseStroke(
-      shapeToInk(stroke, Math.max(reach / 2, 1e-6)),
+      shapeToInk(stroke, Math.max(reach / 2, 1e-6), nearPath(path, reach)),
       path,
       radius,
       mode,
     )
   }
-  const pts = densify(stroke.pts, Math.max(reach / 2, 1e-6))
+  const pts = densify(
+    stroke.pts,
+    Math.max(reach / 2, 1e-6),
+    stroke.flat ? nearPath(path, reach) : undefined,
+  )
   const runs: number[][] = []
   let run: number[] = []
   let touched = false
@@ -147,6 +169,24 @@ export function eraseStroke(
   }
   if (!touched) return [stroke]
   if (run.length > 0) runs.push(run)
+  // A closed shape (start = end) cut elsewhere: its start corner is in the
+  // middle of the outline, so the last and first runs are one piece.
+  const closed =
+    stroke.flat === true &&
+    pts.length > STRIDE &&
+    pts[0] === pts[pts.length - STRIDE] &&
+    pts[1] === pts[pts.length - STRIDE + 1]
+  if (closed && runs.length > 1 && runs[0].length > 0) {
+    const startsAtFirst = runs[0][0] === pts[0] && runs[0][1] === pts[1]
+    const last = runs[runs.length - 1]
+    const endsAtLast =
+      last[last.length - STRIDE] === pts[pts.length - STRIDE] &&
+      last[last.length - STRIDE + 1] === pts[pts.length - STRIDE + 1]
+    if (startsAtFirst && endsAtLast) {
+      runs[0] = [...last, ...runs[0].slice(STRIDE)]
+      runs.pop()
+    }
+  }
   const minLen = mode === 'standard' ? radius * STANDARD_MIN_PIECE : 0
   const pieces: Stroke[] = []
   for (const r of runs) {
@@ -154,7 +194,11 @@ export function eraseStroke(
     // A one-point piece is a speck, unless the stroke was a dot to begin with.
     if (count < 2 && stroke.pts.length > STRIDE) continue
     if (minLen > 0 && lengthOf(r) < minLen) continue
-    pieces.push({ ...stroke, id: createId(), pts: r.map(trim) })
+    pieces.push({
+      ...stroke,
+      id: createId(),
+      pts: stroke.flat ? r : r.map(trim),
+    })
   }
   return pieces
 }

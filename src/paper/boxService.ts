@@ -20,7 +20,13 @@ import {
   placeInOrder,
   sheetOf,
 } from './boxes'
-import { insertRow, migrateToRows, reconcile } from './grid'
+import {
+  insertRow,
+  isFreeRow,
+  layoutRows,
+  migrateToRows,
+  reconcile,
+} from './grid'
 import { SAFE_TOP_MM } from './safeGap'
 
 /**
@@ -282,13 +288,54 @@ export async function duplicateBox(
       }),
     )
     const sheet = sheetOf(page)
+    // C20: on a page with a box grid the place and width a box shows come
+    // from its row, not from its stored x and w. The copy gets the width the
+    // original shows and sits 10 mm lower and to the right, as a free box.
+    // (A new row alone would be a full-width row: a copy of another size.)
+    const rows = page.rows
+    const main = boxesOf(page)[0]
+    const shown = rows
+      ? layoutRows(
+          rows,
+          {},
+          {
+            autoW: {},
+            sheetW: sheet.w,
+            sheetH: sheet.h,
+            gapMm: 0,
+            left: main.x,
+            right: sheet.w - main.x - main.w,
+            top: main.y,
+            bottom: MARGIN,
+          },
+        ).get(id)
+      : undefined
+    const free = rows?.find(
+      (r) => isFreeRow(r) && r.cols[0].boxIds.includes(id),
+    )
+    const at = shown ?? box
+    // A box as wide as its text stays so (its width is not stored).
+    const auto = !!free?.auto && free.wmm === undefined
+    const w = auto ? box.w : (free?.wmm ?? at.w)
     const copy = clampBox(
-      { ...box, id: copyId, x: box.x + 10, y: box.y + 10 },
+      { ...box, id: copyId, x: at.x + 10, y: at.y + 10, w },
       sheet.w,
     )
-    delete copy.locked
     delete copy.group
     await writeBoxes(db, pageId, (boxes) => [...boxes, copy])
+    if (rows)
+      await db.pages.update(pageId, {
+        rows: (await getLive(db.pages, pageId)).rows?.map((r) =>
+          r.cols.some((c) => c.boxIds.includes(copyId))
+            ? {
+                ...r,
+                x: copy.x,
+                y: round((free?.y ?? at.y) + 10),
+                ...(auto ? { auto: true as const } : { wmm: copy.w }),
+              }
+            : r,
+        ),
+      })
   })
   return copyId
 }

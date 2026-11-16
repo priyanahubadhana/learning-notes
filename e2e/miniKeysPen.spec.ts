@@ -192,21 +192,12 @@ for (const via of ['pencil', 'finger'] as const) {
     const path = [from, { x: 400, y: 300 }, { x: 60, y: 400 }]
     if (via === 'pencil') await realPen(page, path)
     else {
-      const cdp = await page.context().newCDPSession(page)
-      const pt = (p: { x: number; y: number }) => [{ x: p.x, y: p.y, id: 1 }]
-      await cdp.send('Input.dispatchTouchEvent', {
-        type: 'touchStart',
-        touchPoints: pt(path[0]),
-      })
-      for (const p of path.slice(1))
-        await cdp.send('Input.dispatchTouchEvent', {
-          type: 'touchMove',
-          touchPoints: pt(p),
-        })
-      await cdp.send('Input.dispatchTouchEvent', {
-        type: 'touchEnd',
-        touchPoints: [],
-      })
+      // A finger and a mouse reach the page the same way (no CDP on WebKit).
+      await page.mouse.move(path[0].x, path[0].y)
+      await page.mouse.down()
+      for (const q of path.slice(1))
+        await page.mouse.move(q.x, q.y, { steps: 6 })
+      await page.mouse.up()
     }
     await expect(strip(page)).toHaveAttribute('data-edge', 'left')
     expect(

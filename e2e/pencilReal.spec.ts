@@ -29,7 +29,9 @@ async function openMenu(page: Page) {
   await page.getByRole('button', { name: 'Toolbar menu' }).first().click()
   const edit = page.getByRole('button', { name: /^Edit toolbar/ }).first()
   await expect(edit).toBeVisible()
-  await expect(page.locator('[data-scrollbar-root]')).toHaveCount(1)
+  await expect(
+    page.locator('[data-scrollbar-root][data-layer="tray"]'),
+  ).toHaveCount(1)
   // Every click that lands outside the bar and the menu: "the tap fell through".
   await page.evaluate(() => {
     const w = window as unknown as { __stray: string[] }
@@ -60,7 +62,7 @@ test('PR-1 a real Pencil tap on the ⋯ menu bar track scrolls the menu, which s
   page,
 }) => {
   const { tray, edit } = await openMenu(page)
-  const t = await box(page, '[data-scrollbar-track]')
+  const t = await box(page, '[data-layer="tray"] [data-scrollbar-track]')
   await realPen(page, [{ x: t.x + t.width / 2, y: t.y + t.height * 0.85 }])
   await expect.poll(() => scrollTop(page, TRAY)).toBeGreaterThan(20)
   await expect(tray).toBeVisible()
@@ -72,7 +74,7 @@ test('PR-1 a real Pencil drag of the ⋯ menu bar thumb scrolls the menu, which 
   page,
 }) => {
   const { tray } = await openMenu(page)
-  const t = await box(page, '[data-scrollbar-thumb]')
+  const t = await box(page, '[data-layer="tray"] [data-scrollbar-thumb]')
   const at = { x: t.x + t.width / 2, y: t.y + t.height / 2 }
   await realPen(page, [
     at,
@@ -95,7 +97,7 @@ test('PR-1 a real Pencil tap on the ⋯ menu bar arrow scrolls the menu one step
     filler.style.height = '3000px'
     el.appendChild(filler)
   })
-  const a = await box(page, '[data-scrollbar-arrow="down"]')
+  const a = await box(page, '[data-layer="tray"] [data-scrollbar-arrow="down"]')
   const step = await tray.evaluate((el) => el.clientHeight)
   await realPen(page, [{ x: a.x + a.width / 2, y: a.y + a.height / 2 }])
   await expect.poll(() => scrollTop(page, TRAY)).toBeGreaterThan(20)
@@ -109,12 +111,12 @@ test('PR-1 a finger tap on the ⋯ menu bar arrow and track also keeps the menu 
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   const { tray } = await openMenu(page)
-  const a = await box(page, '[data-scrollbar-arrow="down"]')
+  const a = await box(page, '[data-layer="tray"] [data-scrollbar-arrow="down"]')
   await page.touchscreen.tap(a.x + a.width / 2, a.y + a.height / 2)
   await expect.poll(() => scrollTop(page, TRAY)).toBeGreaterThan(20)
   await expect(tray).toBeVisible()
   await tray.evaluate((el) => (el.scrollTop = 0))
-  const t = await box(page, '[data-scrollbar-track]')
+  const t = await box(page, '[data-layer="tray"] [data-scrollbar-track]')
   await page.touchscreen.tap(t.x + t.width / 2, t.y + t.height * 0.85)
   await expect.poll(() => scrollTop(page, TRAY)).toBeGreaterThan(20)
   await expect(tray).toBeVisible()
@@ -199,8 +201,10 @@ test('PR-4 with "Pencil picks the Pen tool" on, a Pencil press on a scroll bar o
   await page.getByRole('button', { name: 'Toolbar menu' }).first().click()
   const tray = page.locator(TRAY)
   await expect(tray).toBeVisible()
-  await expect(page.locator('[data-scrollbar-root]')).toHaveCount(1)
-  const t = await box(page, '[data-scrollbar-track]')
+  await expect(
+    page.locator('[data-scrollbar-root][data-layer="tray"]'),
+  ).toHaveCount(1)
+  const t = await box(page, '[data-layer="tray"] [data-scrollbar-track]')
   await realPen(page, [{ x: t.x + t.width / 2, y: t.y + t.height * 0.85 }])
   await expect.poll(() => scrollTop(page, TRAY)).toBeGreaterThan(20)
   const b = (await tray.boundingBox())!
@@ -288,6 +292,10 @@ test.describe('the pages panel and the note page', () => {
     await page.goto(ON)
     await createNotebook(page, 'Heart', 'Cardiology')
     const main = page.locator('main[data-page-scroller]')
+    // A new page leaves the title focused; a focused title makes the page jump to the top when ink starts (open: see CHANGELOG). This test is about the drag, so start with no field focused.
+    await page.evaluate(() =>
+      (document.activeElement as HTMLElement | null)?.blur(),
+    )
     await main.evaluate((el) => {
       const filler = document.createElement('div')
       filler.style.height = '5000px'

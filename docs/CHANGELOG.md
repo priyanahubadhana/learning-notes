@@ -2,6 +2,18 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: full chromium set, 13 red tests fixed (slice/full-fix)
+
+- Why: the full set had not run on build/next; 13 tests were red (older debt). Each cause found by bisect or a page probe.
+- App fix (1): src/app/tools/BarScroll.tsx: a 0-wide strip is not a measurement. In a 324 px column the old docked bar got 24 px; the two scroll cues took all of it, the strip read 0 wide ("fits"), the cues went, and the bar flickered every frame (title moved 22 px, 60 times a second). Test touchTargets 700x800 (unchanged) now passes.
+- Test changes (same promise each time):
+  - e2e/pencilReal.spec.ts PR-1, PR-2, PR-4 (7 tests): the pages list now docks at 820 px (P1.9, merge 8105fcba) and has its own scroll bar, so "one scroll bar" and bare `[data-scrollbar-*]` matched two. Now scoped to the menu's bar (`data-layer="tray"`).
+  - e2e/pencilReal.spec.ts PR-3: a new page leaves the title focused, and with the title focused a Pencil stroke on a scrolled page jumps the page to the top (also on the commit before P1.9 once the title is focused, so not new). The test now blurs the field first. OPEN APP BUG, cause not found: focused title + ink starts = page scrolls to 0 (no script call; not the title's read-only or inert switch).
+  - e2e/presetPhases.spec.ts SET-B26b-e: the Help page now has its own "Tap speed" radio group, so `radiogroup` count 0 was never true. Now checks the chosen option's radio is gone (the list closed).
+  - e2e/r12Real.spec.ts colour-card (day, night): at 820x480 Shapes sits in the ⋯ "More" tray (2A.15, "all tools in the tray"); the test opens the tray first.
+  - e2e/tb2-bar.spec.ts TB-24 Box style: with textbox.v2 the Box card replaces the old panel (docs/features/textbox-v2.md line 12); checks the dialog named Box style (matches both).
+- Files: src/app/tools/BarScroll.tsx and the four specs above.
+
 ### 16 Nov 2026: C22 update restart keeps the old files when the new worker is not ready (review fixes)
 
 - What: on the 15 s limit or "Restart now" with a new worker still installing, the restart only reloads (old worker and saved copies stay, so the app opens offline and the update is tried next time). The old files are cleared only when there is no worker at all. "Restart now" now also works during the 8 s check after a reload. The button sits outside the announced status text. On a phone the notice is narrower so it no longer covers the zoom "-" button.

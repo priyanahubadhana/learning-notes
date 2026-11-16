@@ -153,7 +153,8 @@ test('TB-24: Box style opens the style card', async ({ page }) => {
   const box = await addBox(page, 'Styled')
   await pick(page, box)
   await bar(page).getByRole('button', { name: 'Box style' }).click()
-  await expect(page.locator('[data-box-style-panel]')).toBeVisible()
+  // The Box card (textbox.v2, docs/features/textbox-v2.md line 12: it replaces the old panel) and the old panel are both a dialog named Box style.
+  await expect(page.getByRole('dialog', { name: 'Box style' })).toBeVisible()
 })
 
 test('TB-30: ⋯ opens a 248 px list: Lock in place, Duplicate, Move up, Move down, Group (dimmed), Delete', async ({

@@ -150,3 +150,14 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
   - **C20 more:** the duplicate appeared to the right of the original in the same row (owner chose A, below), and it showed no frame, so you can't see which box is the copy. Fix: the copy goes below the original as chosen, and it is selected (frame and dots) right after Duplicate.
   - **C21 more:** the middle side handles (pill shapes) don't resize. This goes to the C21 builder.
   - Grey Pencil ink stayed inside the box next to "Was artok" (screenshot 2). Check: is it Scribble writing that wasn't turned into text and was kept as ink (C4 says never keep scribble strokes as ink inside a text box)?
+
+## Re-test list (17 Nov 2026), build/next 00431173 (same app as the preview, 59533e16)
+
+Reload the test page; preset "Up to Phase 2B"; Pencil.
+
+1. **C18:** write in a box with the Pencil (Scribble): thin border only, no dots, no ⠿/+ while writing. No grey ink left in the box.
+2. **C19:** in the middle of a word: tap once (cursor), then double tap: the word is selected; triple tap: the line. A second tap slightly off on the same word still counts. No edit menu flashes. Default tap speed is Relaxed 700 ms (Settings › Try new features › Tap speed to try others; tell us which one to keep).
+3. **C20:** Duplicate a box: the copy goes below, same size and look, and it is selected (frame and dots).
+4. **C21:** move a box up into free space: it stays. Resize with the Pencil, bigger and smaller, also with the middle side handles: smooth, no shaking, guide line steady. Hover the Pencil over a dot without touching: nothing changes. Note: boxes can now sit side by side, but the page layout dialog still stacks them; say if that is OK.
+5. **C22:** when an update shows, "Restart now" appears after about 5 s and restarts; it never gets stuck. Offline: the app still opens.
+6. **PR-3:** with the cursor in the page title, start writing or a lasso on the page: the page does not jump to the top.

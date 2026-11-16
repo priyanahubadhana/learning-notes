@@ -85,3 +85,4 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
     3. Shrinking always works, down to the text's own height.
     4. A dot never silently does nothing (C13).
   - Tests: drag every dot of each box in a "one box left, two stacked boxes right" layout, after typing and after a reload.
+- **C16 (owner, 8:51 screenshot 2):** two boxes are selected at once (brown and green, each with dots, ≡ and ⋯), which is confusing. Rule: only one box is selected at a time. Selecting or typing in a box unselects any other box. Several boxes are selected only on purpose, where it is needed: Lasso around boxes, or a "Select several" mode (layout work). Fix (manager's pick, logged): as above, and the one box bar acts on the selected box only. Test: tap box A, then box B, and only B shows dots; Lasso around both still selects both.

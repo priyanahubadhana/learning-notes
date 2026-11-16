@@ -2,12 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
-
 ### 16 Nov 2026: C18/C20 text put in with no key is heard through the shared input layer (review fix)
 
 - What: PaperFrame no longer adds its own raw `beforeinput` listener. Text put in by Scribble or dictation is heard with `onRouted('input', …)` (the `input` event follows every `beforeinput` and carries `inputType`), so the thin border (no dots) still shows. `keydown` is unchanged. A failed "Duplicate box" now clears an older "select this box" wish.
 - Why: review of b70f56a4: the raw listener slipped past the check:ratchet count and the "no raw listeners" rule. `beforeinput` is not a routed type; `input` does the same job, so the router was not changed.
 - Files: src/paper/PaperFrame.tsx, pickSignal.ts, usePaperBoxes.tsx; test e2e/miniKeysPen.spec.ts (C18 now also sends the `input` that follows).
+
 ### 16 Nov 2026: C14/C4 taps timed by event time stamps; a tap is told by its whole path (review fixes)
 
 - What: every tap time in the app is now the event's own time stamp (`stampOf` in src/app/tapTiming.ts): text taps, the ink layer's double tap, the Pencil guard and the scribble mark. Switch on, taps exactly 500 ms apart still add up. The Pencil guard counts a press as a tap by the whole path of the tip (up to 16 px, moves under 2 px are sensor noise), not by the distance from start to end. The C14 tests now cover taps of 150 to 250 ms and gaps of 400 to 500 ms and need all 50 runs to select; a run the PC delivered late is repeated (at most 10), never excused.

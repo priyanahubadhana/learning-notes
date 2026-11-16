@@ -991,6 +991,12 @@ export function PaperFrame({
   const dragMove = (e: ReactPointerEvent) => {
     if (!drag.current) return
     const held = drag.current
+    // C21: a move with no button pressed is a hovering Pencil (its lift was
+    // lost): the move is over, the box stays where the last real move put it.
+    if (e.pointerType !== 'touch' && e.buttons === 0) {
+      dragEnd(e, true)
+      return
+    }
     if (held.clock) {
       held.last = { x: e.clientX, y: e.clientY }
       if (!held.held) return
@@ -1116,10 +1122,27 @@ export function PaperFrame({
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
   }, [])
-  const dragEnd = (e: ReactPointerEvent) => {
+  const dragEnd = (
+    ev: ReactPointerEvent,
+    /** C21: ended by a hover move: dropped at the last real move, not here. */
+    hovered = false,
+  ) => {
     document.documentElement.removeAttribute('data-box-drag')
     if (frame.current) cancelAnimationFrame(frame.current)
     frame.current = 0
+    const e: {
+      clientX: number
+      clientY: number
+      type: string
+      timeStamp: number
+    } = hovered
+      ? {
+          clientX: (pending.current ?? lastPt.current ?? ev).clientX,
+          clientY: (pending.current ?? lastPt.current ?? ev).clientY,
+          type: ev.type,
+          timeStamp: ev.timeStamp,
+        }
+      : ev
     pending.current = null
     const d = drag.current
     drag.current = null
@@ -1255,6 +1278,9 @@ export function PaperFrame({
   /** C21: the size shown at the lift, kept until the saved size is drawn. */
   const keptH = useRef<{ id: string; h: number; from?: PaperBox } | null>(null)
   const [liveH, setLiveH] = useState<{ id: string; h: number } | null>(null)
+  /** C21: the 1.5 s timer of the kept height; cleared when the frame goes. */
+  const keptTimer = useRef(0)
+  useEffect(() => () => window.clearTimeout(keptTimer.current), [])
   // C21: the saved box has arrived: the kept height gives way to it.
   useEffect(() => {
     const kept = keptH.current
@@ -1615,7 +1641,8 @@ export function PaperFrame({
       }
       keptH.current = kept
       setLiveH(kept)
-      window.setTimeout(() => {
+      window.clearTimeout(keptTimer.current)
+      keptTimer.current = window.setTimeout(() => {
         if (keptH.current !== kept) return
         keptH.current = null
         setLiveH((cur) => (cur === kept ? null : cur))

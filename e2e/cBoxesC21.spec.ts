@@ -216,6 +216,54 @@ test('C21 a box moves up into free space beside another box, and stays there aft
   expect(Math.abs(l.y - lr1.y)).toBeLessThan(3)
 })
 
+test('C21 a move whose lift never arrives ends: the hover after it never moves the box', async ({
+  page,
+}) => {
+  const { left } = await besideLayout(page, 'C21g')
+  await pick(page, left)
+  const g = await centre(left.locator('[data-box-grip]'))
+  // The iPad sometimes loses the Pencil's lift: the page never hears it.
+  await page.evaluate(() => {
+    const eat = (e: Event) => {
+      e.stopImmediatePropagation()
+      window.removeEventListener('pointerup', eat, true)
+    }
+    window.addEventListener('pointerup', eat, true)
+  })
+  const y0 = (await onSheet(left)).y
+  await realPenDrag(page, [g, { x: g.x, y: g.y + 30 }, { x: g.x, y: g.y + 60 }])
+  await page.waitForTimeout(400)
+  // Safari may give the hovering tip a pointer id of its own, not the one of
+  // the press: the watch for "a move with no button" on that id never sees it.
+  await page.evaluate(() => {
+    const id = Object.getOwnPropertyDescriptor(
+      PointerEvent.prototype,
+      'pointerId',
+    )!.get!
+    Object.defineProperty(PointerEvent.prototype, 'pointerId', {
+      configurable: true,
+      get(this: PointerEvent) {
+        return this.pointerType === 'pen' && this.buttons === 0
+          ? 99
+          : id.call(this)
+      },
+    })
+  })
+  // The tip hovers on, over the grip, well within the 4 s safety end: the box
+  // must not follow it (checked at once, before that safety could end it).
+  await realPenHover(
+    page,
+    [70, 90, 120, 150].map((dy) => ({ x: g.x, y: g.y + dy })),
+  )
+  await page.waitForTimeout(300)
+  const y1 = (await onSheet(left)).y
+  expect(Math.abs(y1 - (y0 + 60))).toBeLessThan(25)
+  // Past the 4 s safety end: still dropped at the last real move.
+  await page.waitForTimeout(4800)
+  const y2 = (await onSheet(left)).y
+  expect(Math.abs(y2 - (y0 + 60))).toBeLessThan(25)
+})
+
 test('C21 a box dropped where it would cover another box is not placed over it', async ({
   page,
 }) => {

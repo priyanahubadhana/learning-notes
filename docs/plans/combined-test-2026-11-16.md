@@ -74,3 +74,14 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
   2. One tap timing for the whole page: taps up to 500 ms apart add up; a Pencil tap may last up to 250 ms and move up to 8 px.
   3. Preview only: a "Tap speed" choice (Quick 350 ms, Normal 500 ms, Relaxed 700 ms) under Settings › Try new features, so the owner can try values on the iPad and pick one. The picked value becomes the default; the choice is removed before release.
   4. Tests with real Pencil-style input (e2e/realPen.ts): taps of 150–250 ms with 5 px drift, double and triple taps at 400–500 ms gaps, 50 repeats; a double tap on a selected word never deletes it.
+- **C15 (owner, 8:51, two screenshots):** up and down resizing of boxes that sit in columns doesn't work well; left and right does. Layout: brown box on the left; on the right, the green box with the blue box under it.
+  - Green box: its bottom dot can't be dragged down, because the blue box is under it.
+  - Blue box: its top edge can't be dragged up.
+  - Brown box: its bottom dot can't be dragged down. Its fill already goes about 140 px below its frame (C12 again), so the size the frame starts from is likely wrong.
+  - Owner: every box should always be adjustable in every direction, in one predictable way.
+  - Fix (manager's pick, logged):
+    1. Bottom edge down: the box grows and pushes every box below it in that column down.
+    2. Top edge up: the box grows into the free space above it. If there is none, the box and everything below it move down, so the box still grows.
+    3. Shrinking always works, down to the text's own height.
+    4. A dot never silently does nothing (C13).
+  - Tests: drag every dot of each box in a "one box left, two stacked boxes right" layout, after typing and after a reload.

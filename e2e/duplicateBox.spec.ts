@@ -101,8 +101,8 @@ test('C20 a resized, coloured, locked box duplicates at the same size, 10 mm low
   const [one, two] = stored.filter((x) => x.id !== 'main')
   // Every stored setting (look, colour, lock, height, phone width, any other field) is kept; only the place differs.
   const keep = (b: Record<string, unknown>) => {
-    const { id, x, y, ...rest } = b
-    ;(void id, x, y)
+    const rest = { ...b }
+    for (const k of ['id', 'x', 'y']) delete rest[k]
     return rest
   }
   expect(keep(two)).toEqual(keep(one))

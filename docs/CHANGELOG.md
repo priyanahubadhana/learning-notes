@@ -6,6 +6,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - What (switch textbox.v2): a hovering Pencil never resizes; a resize whose lift was lost ends at the next hover move; only the pressing pointer counts, and the resize follows it even when the tip leaves the dot (shared event router). One resize update per frame; the new height stays drawn at the lift until the saved one arrives. Smart guides snap within 6 px and let go only past 12 px (no flicker). A free box moved up beside another free box stays there when they do not overlap (layoutRows option "beside").
 - Why: owner's iPad test C21: drag up refused, shaking resize, flickering guide line, hover shrank a box.
+- Also covers the owner's 14:28 note (the middle side dots did nothing): every dot keeps following the Pencil when Safari drops the pointer capture; Pencil tests for all 8 dots of a free box and of boxes in columns.
 - Files: src/paper/PaperFrame.tsx, grid.ts, guides.ts; tests src/paper/grid.test.ts, guides.test.ts, e2e/cBoxesC21.spec.ts, e2e/realPen.ts.
 
 ### 16 Nov 2026: C14/C4 taps timed by event time stamps; a tap is told by its whole path (review fixes)

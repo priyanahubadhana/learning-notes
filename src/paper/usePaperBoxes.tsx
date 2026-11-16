@@ -39,6 +39,7 @@ import { BoxBar } from './BoxBar'
 import { BoxBarV2Lazy, BoxCardV2Lazy, BoxMoreV2Lazy } from './v2/BoxBarV2Lazy'
 import { prefetchBoxBarV2 } from './v2/boxBarV2Load'
 import { isOn } from '../app/flags'
+import { pickWhenShown } from './pickSignal'
 import { clearPageWide, pageWideClip, pageWideRange } from './pageWide'
 
 const DOTS: Record<string, string> = {
@@ -298,7 +299,9 @@ export function usePaperBoxes(
     })
 
   const duplicate = (box: PaperBox) =>
-    runTask(duplicateBox(db, pageId, box.id).then((id) => id && setFresh(id)))
+    runTask(
+      duplicateBox(db, pageId, box.id).then((id) => id && pickWhenShown(id)),
+    )
   /**
    * C8: "Delete box" on the page's first box (it cannot go, the page always
    * has one) empties it: one edit in its own editor, so the page saves it as
@@ -374,7 +377,9 @@ export function usePaperBoxes(
       icon: '⧉',
       onSelect: () =>
         runTask(
-          duplicateBox(db, pageId, box.id).then((id) => id && setFresh(id)),
+          duplicateBox(db, pageId, box.id).then(
+            (id) => id && pickWhenShown(id),
+          ),
         ),
     },
     {

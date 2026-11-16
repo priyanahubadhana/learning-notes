@@ -1,5 +1,6 @@
 import { frameCss, padOf } from '../core/boxStyle'
 import { onTyped } from '../editor/typedSignal'
+import { takePick } from './pickSignal'
 import {
   forgetCaret,
   noteCaret,
@@ -667,8 +668,16 @@ export function PaperFrame({
           250,
         )
     }
-    const key = (e: KeyboardEvent) => {
-      if (e.key.length !== 1 || e.metaKey || e.ctrlKey) return
+    // A key typed, or any text put in (Scribble, dictation, a paste of words:
+    // beforeinput) is typing, though no key may be pressed (C18).
+    const key = (e: Event) => {
+      if (e instanceof KeyboardEvent) {
+        if (e.key.length !== 1 || e.metaKey || e.ctrlKey) return
+      } else if (
+        !(e instanceof InputEvent) ||
+        !/^(insert|delete)/.test(e.inputType)
+      )
+        return
       const id = boxOfText(document.activeElement)
       if (id) send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
     }
@@ -681,7 +690,8 @@ export function PaperFrame({
       }, 0)
     }
     document.addEventListener('pointerdown', down, true)
-    document.addEventListener('keydown', key, true)
+    for (const type of ['keydown', 'beforeinput'])
+      document.addEventListener(type, key, true)
     // C18: words typed by the mini keyboard (mic, Enter, Backspace) are typing
     // too, though no key is pressed: only the thin border, no dots.
     const typed = () => {
@@ -694,7 +704,8 @@ export function PaperFrame({
       window.clearTimeout(later)
       document.removeEventListener('pointerdown', down, true)
       offTyped()
-      document.removeEventListener('keydown', key, true)
+      for (const type of ['keydown', 'beforeinput'])
+        document.removeEventListener(type, key, true)
       document.removeEventListener('focusout', out)
     }
   }, [send])
@@ -713,6 +724,14 @@ export function PaperFrame({
     if (isOn('textbox.v2')) forgetCaret()
     send({ type: 'frameTap', id, add: several })
   }
+  // C20: a duplicated box comes up selected (frame and dots), without a caret.
+  useEffect(() => {
+    const id = takePick(extra.map((b) => b.id))
+    if (!id) return
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    selectBox(id, false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [extra])
   // A first tap on a box's text selects the box (tapSelect.ts, item 11).
   useEffect(() => {
     const on = (e: Event) => {

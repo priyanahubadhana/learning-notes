@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test } from '@playwright/test'
-import { EXTRA, addBox, pick, rect, start } from './cBoxesHelpers.ts'
+import { EXTRA, addBox, pick, rect, start, twoBoxes } from './cBoxesHelpers.ts'
 
 /**
  * C20: Duplicate box keeps everything (width, height, fill, border, padding,
@@ -109,4 +109,33 @@ test('C20 a resized, coloured, locked box duplicates at the same size, 10 mm low
   expect(Object.keys(keep(two))).toEqual(
     expect.arrayContaining(['w', 'h', 'style', 'locked', 'colour', 'pw']),
   )
+})
+
+test('C20 in a row of two boxes the copy goes below, 10 mm to the right, same size, selected', async ({
+  page,
+}) => {
+  await start(page, 'C20row')
+  const { a, b } = await twoBoxes(page)
+  const ra = await rect(a)
+  const rb0 = await rect(b)
+  await pick(page, a)
+  await page.getByRole('button', { name: 'Box actions' }).last().click()
+  await page.getByText('Duplicate box').first().click()
+  const boxes = page.locator(EXTRA)
+  await expect(boxes).toHaveCount(3)
+  // The copy is the box that is neither of the two.
+  const copy = page.locator(`${EXTRA}[data-picked]`)
+  await expect(copy).toHaveCount(1)
+  await expect(copy.locator('[data-resize-handle]')).toHaveCount(8)
+  await expect(copy.locator('.bn-editor')).not.toBeFocused()
+  const rc = await rect(copy)
+  const mm = (await rect(page.locator('[data-paper-sheet="1"]'))).width / 210
+  // Below the whole row (never in it), 10 mm right of the original, same size.
+  expect(rc.y).toBeGreaterThanOrEqual(
+    Math.max(ra.y + ra.height, rb0.y + rb0.height) - 2,
+  )
+  expect(Math.abs(rc.x - ra.x - 10 * mm)).toBeLessThan(4)
+  await expect
+    .poll(async () => Math.abs((await rect(copy)).width - ra.width))
+    .toBeLessThan(2)
 })

@@ -154,10 +154,12 @@ test('C7 Page options › Arrange pinned actions: one header, one ✕, ✓, no f
   await expect(sheet.getByTestId('ps-arrange')).toBeVisible()
   const after = (await order()).filter((i) => i !== 'add')
   expect(after).toEqual([before[1], before[0], ...before.slice(2)])
-  // ✕ goes back to Page options too.
+  // ✕ cancels: the order from when Arrange opened comes back.
   await sheet.getByTestId('ps-arrange').click()
+  await sheet.getByTestId('move-down').first().click()
   await page.getByTestId('fb-sheet-close').click()
   await expect(sheet.getByTestId('ps-arrange')).toBeVisible()
+  expect((await order()).filter((i) => i !== 'add')).toEqual(after)
 })
 
 test('C9 edit-the-bar tray offers Mic and Record audio; Mic opens the dictation strip', async ({

@@ -349,6 +349,7 @@ test('C4: ten scribbles in a row each delete only what is under them', async ({
   page,
 }) => {
   await start(page, 'C4many')
+  await watchPresses(page)
   const box = await lineBox(page)
   await pickBox(page, box)
   // Each round: select "Text", scribble over the symbol at the end, delete.
@@ -356,8 +357,21 @@ test('C4: ten scribbles in a row each delete only what is under them', async ({
     const before = await boxText(box)
     const line = before.split('\n').find((l) => l.startsWith('Text'))!
     if (line.trim() === 'Text') break
-    await taps(page, 2, await charPoint(page, 1, 'right'))
-    await expect.poll(() => selected(page), 'round ' + round).toBe('Text')
+    // Why the timing is read: this double tap failed now and then on a busy
+    // PC, cause unknown. If the PC delivered the taps late (a tap over 250
+    // ms, a gap over the 700 ms tap gap), the double tap is made again; a
+    // double tap that arrived in time must select, and its timing is shown.
+    let ms: number[] = []
+    for (let again = 0; again < 3; again++) {
+      await pressLog(page)
+      await taps(page, 2, await charPoint(page, 1, 'right'))
+      ms = (await pressLog(page)).ms
+      if (ms.every((v, k) => (k % 2 === 0 ? v <= 250 : v <= 700))) break
+      await page.waitForTimeout(RUN_APART)
+    }
+    await expect
+      .poll(() => selected(page), `round ${round}, press/gap ms: ${whole(ms)}`)
+      .toBe('Text')
     await page.waitForTimeout(RUN_APART)
     const last = line.trimEnd().length - 1
     const gone = line[last]

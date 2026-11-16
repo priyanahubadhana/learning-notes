@@ -235,3 +235,23 @@ test('C18 words from the mic show only the thin border: no dots while typing', a
   await expect(box).toHaveAttribute('data-typing', '')
   await expect(box.locator('[data-resize-handle]')).toHaveCount(0)
 })
+
+test('C18 deleting with the strip also shows only the thin border: no dots', async ({
+  page,
+}) => {
+  await installRealPen(page)
+  await fakeSpeech(page)
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:toolbar.miniKeys', 'true'),
+  )
+  await start(page, 'C18b')
+  const box = await addBox(page, ['Hello'])
+  await pick(page, box)
+  await expect(box.locator('[data-resize-handle]')).toHaveCount(8)
+  await box.locator('.bn-editor').focus()
+  await page.keyboard.press('End')
+  await realPen(page, [await center(page, 'backspace')])
+  await expect(box.locator('.bn-editor')).toContainText('Hell')
+  await expect(box).toHaveAttribute('data-typing', '')
+  await expect(box.locator('[data-resize-handle]')).toHaveCount(0)
+})

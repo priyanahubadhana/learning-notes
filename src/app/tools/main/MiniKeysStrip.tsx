@@ -44,6 +44,13 @@ const ERROR_TEXT = {
   other: 'keys.errOther',
 } as const satisfies Record<DictationError, string>
 
+const BUBBLE = {
+  left: 'left-full ml-2 top-1/2 -translate-y-1/2',
+  right: 'right-full mr-2 top-1/2 -translate-y-1/2',
+  top: 'top-full mt-2 left-1/2 -translate-x-1/2',
+  bottom: 'bottom-full mb-2 left-1/2 -translate-x-1/2',
+} as const
+
 const BTN =
   'grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink select-none'
 
@@ -277,7 +284,8 @@ function Strip({ editor }: { editor: Editor }) {
         <span
           data-keys="heard"
           aria-live="polite"
-          className="max-w-40 truncate px-2 text-xs text-ink-soft"
+          // A bubble beside the strip: the strip itself keeps its size.
+          className={`pointer-events-none absolute max-w-48 truncate rounded-xl border border-ink-soft bg-bg px-3 py-1.5 text-xs text-ink-soft ${BUBBLE[place.edge]}`}
         >
           {heard}
         </span>

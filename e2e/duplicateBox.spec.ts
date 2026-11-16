@@ -39,6 +39,8 @@ test('C20 a resized, coloured, locked box duplicates at the same size, 10 mm low
                           w: 77,
                           h: 61,
                           locked: true,
+                          colour: 'yellow',
+                          pw: 60,
                           style: {
                             bg: 'lime',
                             border: 'blue',
@@ -97,6 +99,14 @@ test('C20 a resized, coloured, locked box duplicates at the same size, 10 mm low
       }),
   )
   const [one, two] = stored.filter((x) => x.id !== 'main')
-  for (const k of ['w', 'h', 'style', 'locked'])
-    expect(two[k], k).toEqual(one[k])
+  // Every stored setting (look, colour, lock, height, phone width, any other field) is kept; only the place differs.
+  const keep = (b: Record<string, unknown>) => {
+    const { id, x, y, ...rest } = b
+    void id, x, y
+    return rest
+  }
+  expect(keep(two)).toEqual(keep(one))
+  expect(Object.keys(keep(two))).toEqual(
+    expect.arrayContaining(['w', 'h', 'style', 'locked', 'colour', 'pw']),
+  )
 })

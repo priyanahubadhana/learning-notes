@@ -204,51 +204,51 @@ test('C12 the frame of a styled box matches its fill', async ({ page }) => {
   }
 })
 
-test('C13 every dot of the left and the right box in a row does something', async ({
-  page,
-}) => {
-  test.setTimeout(90_000)
-  await start(page, 'C13')
-  const { a, b } = await twoBoxes(page)
-  // The way each dot is pulled: sides inward, top up, bottom down.
-  // A box that is already narrow is widened instead, so it never hits its least width.
-  const step = (how: string, width: number) => ({
-    dx: how.includes('e')
-      ? width > 200
-        ? -60
-        : 60
-      : how.includes('w')
-        ? width > 200
-          ? 60
-          : -60
-        : 0,
-    dy: how.includes('n') ? -40 : how.includes('s') ? 40 : 0,
-  })
-  for (const [name, box] of [
-    ['right', b],
-    ['left', a],
-  ] as const) {
-    for (const how of HOW) {
-      await pick(page, box)
-      const before = await rect(box)
-      const c = await centre(ring(box, how))
-      const { dx, dy } = step(how, before.width)
-      await drag(page, c, { x: c.x + dx, y: c.y + dy })
-      const after = await rect(box)
-      // A side dot changes the width, a top or bottom dot the height.
-      if (dx)
-        expect(
-          Math.abs(after.width - before.width),
-          `${name} box, dot ${how}: width`,
-        ).toBeGreaterThan(2)
-      if (dy)
-        expect(
-          Math.abs(after.height - before.height),
-          `${name} box, dot ${how}: height`,
-        ).toBeGreaterThan(2)
-    }
-  }
-})
+for (const side of ['right', 'left'] as const)
+  test(
+    'C13 every dot of the ' + side + ' box in a row does something',
+    async ({ page }) => {
+      await start(page, 'C13' + side)
+      const { a, b } = await twoBoxes(page)
+      const box = side === 'right' ? b : a
+      // The way each dot is pulled: sides inward, top up, bottom down.
+      // A box that is already narrow is widened instead, so it never hits its least width.
+      const step = (how: string, width: number) => ({
+        dx: how.includes('e')
+          ? width > 200
+            ? -60
+            : 60
+          : how.includes('w')
+            ? width > 200
+              ? 60
+              : -60
+            : 0,
+        dy: how.includes('n') ? -40 : how.includes('s') ? 40 : 0,
+      })
+      const name = side
+      {
+        for (const how of HOW) {
+          await pick(page, box)
+          const before = await rect(box)
+          const c = await centre(ring(box, how))
+          const { dx, dy } = step(how, before.width)
+          await drag(page, c, { x: c.x + dx, y: c.y + dy })
+          const after = await rect(box)
+          // A side dot changes the width, a top or bottom dot the height.
+          if (dx)
+            expect(
+              Math.abs(after.width - before.width),
+              `${name} box, dot ${how}: width`,
+            ).toBeGreaterThan(2)
+          if (dy)
+            expect(
+              Math.abs(after.height - before.height),
+              `${name} box, dot ${how}: height`,
+            ).toBeGreaterThan(2)
+        }
+      }
+    },
+  )
 
 test('C13 the right edge of the last box narrows and widens it; the freed space stays empty', async ({
   page,
@@ -275,13 +275,9 @@ test('C13 the right edge of the last box narrows and widens it; the freed space 
   )
 })
 
-test('C15 one box left, two stacked right: every dot of every box works, after typing and after a reload', async ({
-  page,
-}) => {
-  test.setTimeout(90_000)
-  await start(page, 'C15')
+async function c15(page: Page, name: string) {
+  await start(page, name)
   const { a, b, c } = await columns(page)
-  const all = () => [a, b, c]
   const grow = async (box: Locator, how: 's' | 'n', dy: number) => {
     await pick(page, box)
     const h0 = (await rect(box)).height
@@ -289,24 +285,38 @@ test('C15 one box left, two stacked right: every dot of every box works, after t
     await drag(page, p, { x: p.x, y: p.y + dy })
     return (await rect(box)).height - h0
   }
-  // Bottom edge down: the box grows; the box under it is pushed down.
+  return { a, b, c, grow }
+}
+
+test('C15 bottom dots: every box grows, the box under it is pushed down; shrinking works', async ({
+  page,
+}) => {
+  const { a, b, c, grow } = await c15(page, 'C15a')
   const cy0 = (await rect(c)).y
   expect(await grow(b, 's', 60)).toBeGreaterThan(50)
   expect((await rect(c)).y).toBeGreaterThan(cy0 + 50)
   expect(await grow(a, 's', 60)).toBeGreaterThan(50)
   expect(await grow(c, 's', 60)).toBeGreaterThan(50)
-  // Top edge up: the box grows, from any box, and nothing overlaps.
+  expect(await grow(c, 's', -40)).toBeLessThan(-30)
+  expect(await grow(a, 's', -2000)).toBeLessThan(-30)
+  expect((await rect(a)).height).toBeGreaterThan(30)
+})
+
+test('C15 top dots: every box grows from its top edge, from any box, and nothing overlaps', async ({
+  page,
+}) => {
+  const { a, b, c, grow } = await c15(page, 'C15b')
   expect(await grow(a, 'n', -50)).toBeGreaterThan(40)
   expect(await grow(b, 'n', -50)).toBeGreaterThan(40)
   expect(await grow(c, 'n', -50)).toBeGreaterThan(40)
   const [rb, rc] = await rects([b, c])
   expect(rc.y).toBeGreaterThanOrEqual(rb.y + rb.height - 1)
-  // Shrinking works, down to the text.
-  expect(await grow(c, 's', -40)).toBeLessThan(-30)
-  expect(await grow(a, 's', -2000)).toBeLessThan(-30)
-  const small = await rect(a)
-  expect(small.height).toBeGreaterThan(30)
-  // Typing more lines still lets the bottom dot grow the box.
+})
+
+test('C15 after typing more lines the bottom dot still grows the box; after a reload too', async ({
+  page,
+}) => {
+  const { a, b, c, grow } = await c15(page, 'C15c')
   await pick(page, b)
   await tapTextEnd(page, b)
   await expect(b.locator('.bn-editor')).toBeFocused()
@@ -316,15 +326,14 @@ test('C15 one box left, two stacked right: every dot of every box works, after t
   await expect(b).toHaveAttribute('data-typing', '')
   await tapOut(page)
   expect(await grow(b, 's', 50)).toBeGreaterThan(40)
-  // After a reload the sizes are the same and a dot still works.
-  const before = await rects(all())
+  const before = await rects([a, b, c])
   await page.waitForTimeout(900)
   await page.reload()
   await page.waitForTimeout(1500)
   const boxes = page.locator(EXTRA)
   const after = await rects([boxes.nth(0), boxes.nth(1), boxes.nth(2)])
-  for (const i of [0, 1, 2])
-    expect(Math.abs(after[i].height - before[i].height)).toBeLessThan(3)
+  for (const k of [0, 1, 2])
+    expect(Math.abs(after[k].height - before[k].height)).toBeLessThan(3)
   expect(await grow(boxes.nth(1), 's', 40)).toBeGreaterThan(30)
 })
 

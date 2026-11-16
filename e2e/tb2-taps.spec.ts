@@ -241,7 +241,7 @@ test('TB-04: a tap a second after the run puts a caret again (Scribble can write
   await expect(box.locator('.bn-editor')).toBeFocused()
 })
 
-test('TB-42: an empty page shows one hint; "Tap here to keep writing" waits for text; typing removes the hint', async ({
+test('TB-42 (owner 17 Nov): only an empty page shows a hint; typing removes it and no "Tap here to keep writing" ever shows', async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -257,10 +257,10 @@ test('TB-42: an empty page shows one hint; "Tap here to keep writing" waits for 
   await expect(below).toHaveCount(0)
   await typeInEditor(page, 'Hello')
   await expect(hint).toHaveCount(0)
-  await expect(below).toBeVisible()
+  await expect(page.getByText('Tap here to keep writing')).toHaveCount(0)
 })
 
-test('TB-42 phone: the line below is the one hint on an empty page, then it says "keep writing"', async ({
+test('TB-42 phone: the line below is the one hint on an empty page, then no words', async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -274,7 +274,8 @@ test('TB-42 phone: the line below is the one hint on an empty page, then it says
   await expect(one).toHaveCount(1)
   await expect(one).toHaveText('Type, or tap anywhere to start writing')
   await typeInEditor(page, 'Hello')
-  await expect(one).toHaveText('Tap here to keep writing')
+  await expect(page.getByText('Tap here to keep writing')).toHaveCount(0)
+  await expect(one).toHaveText('')
 })
 
 test('TB-42: drawing on an empty page removes the hint at once', async ({

@@ -1112,6 +1112,12 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   content: none !important;
 }
 
+/* C26 (17 Nov): once the box has any text (PageEditor sets data-has-text), an
+   empty line has no "Enter text or type '/'" hint: it is for an empty box. */
+.bn-container[data-has-text] .bn-block-content::after {
+  content: none !important;
+}
+
 /* Item 7 (10 Nov): the page has its own scroll bar (paper/PageScrollBar.tsx).
    Its gutter is reserved here so the bar never covers the paper, and the
    system bar hides so there are not two. With the new app frame on
@@ -1193,6 +1199,7 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
    accent dashed frame and "Type here" (not the page hint) until the first
    character. The text comes from BoxFrame (--type-here, in the chosen language). */
 [data-paper-box]:not([data-paper-box='main'])
+  .bn-container:not([data-has-text])
   .bn-block-content[data-is-empty-and-focused]:has(
     .ProseMirror-trailingBreak:only-child
   )::after {
@@ -1350,4 +1357,11 @@ html[data-box-drag] {
 .srv2-dialog .clr-wrap {
   flex: 1;
   min-width: 0;
+}
+
+/* C26 (17 Nov, owner): "Tap here to keep writing" is gone: only an empty page
+   has a hint. Inside a box frame the empty tap line is not drawn at all (it made
+   the default box look tall). */
+[data-paper-box] .ln-tap-below:not([data-hint]) {
+  display: none;
 }

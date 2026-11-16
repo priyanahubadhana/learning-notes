@@ -19,21 +19,33 @@ export function placeList(
   width: number,
   view: { width: number; height: number },
   upLine = view.height / 2,
+  frame?: { left: number; right: number },
 ): { right: number; bottom: number; above?: number } | null {
+  // C23: with the page frame known, the list never straddles its edge: it
+  // sits wholly inside it, or wholly outside it, beside the page.
+  const lo = Math.max(GAP, frame ? frame.left : GAP)
+  const hi = Math.min(view.width - GAP, frame ? frame.right : view.width - GAP)
   const right = Math.min(
-    Math.max(box.left + width, width + GAP),
-    view.width - GAP,
+    Math.max(box.left + width, lo + width),
+    Math.max(hi, lo + width),
   )
   const top = Math.min(Math.max(box.top, GAP), view.height - GAP - LIST_H)
   if (top < GAP) return null
-  if (box.right + GAP + width <= view.width - GAP)
+  if (box.right + GAP + width <= hi)
     return { right: box.right + GAP + width, bottom: top - 4 }
-  if (box.left - GAP - width >= GAP)
+  if (box.left - GAP - width >= lo)
     return { right: box.left - GAP, bottom: top - 4 }
   if (box.bottom + GAP + MIN_UNDER <= view.height - GAP)
     return { right, bottom: box.bottom + GAP - 4 }
   if (box.top - GAP - MIN_UNDER >= GAP && box.top - GAP > upLine)
     return { right, bottom: 0, above: box.top - GAP }
+  if (frame) {
+    // Beside the page, outside its border (never across it).
+    if (frame.right + GAP + width <= view.width - GAP)
+      return { right: frame.right + GAP + width, bottom: top - 4 }
+    if (frame.left - GAP - width >= GAP)
+      return { right: frame.left - GAP, bottom: top - 4 }
+  }
   return null
 }
 

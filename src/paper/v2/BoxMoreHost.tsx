@@ -11,6 +11,16 @@ import { moveStep, neighbourOf } from './boxOrder'
 import { bottomBar, placeList } from './listPlace'
 import { MORE_LIST_W } from './BoxMoreList'
 
+/** The page frame the box lives in: its sheet, else the page's own scroller (a phone). */
+function frameOf(boxEl: Element) {
+  const f =
+    boxEl.closest('[data-paper-sheets]') ??
+    boxEl.closest('[data-page-scroller]')
+  if (!f) return undefined
+  const r = f.getBoundingClientRect()
+  return { left: r.left, right: r.right }
+}
+
 /**
  * TB-30 (switch textbox.v2): the ⋯ list of one box. Both ⋯ buttons open it:
  * the one on the Object bar and the one beside the ≡ tab. It stands in for
@@ -52,6 +62,7 @@ export default function BoxMoreHost({
         MORE_LIST_W,
         { width: window.innerWidth, height: window.innerHeight - bottomBar() },
         window.innerHeight / 2,
+        frameOf(boxEl),
       )
     : null
   const menu: AnchoredMenuState = {
@@ -119,19 +130,18 @@ export default function BoxMoreHost({
         onSelect: () => toast(t('paper.box.groupTip')),
       },
     ],
-    ...(canEdit
-      ? [
-          [
-            {
-              id: 'delete',
-              icon: 'trash',
-              label: t('paper.box.delete'),
-              danger: true,
-              onSelect: onDelete,
-            } satisfies MoreRow,
-          ],
-        ]
-      : []),
   ]
-  return <BoxMoreList menu={menu} groups={groups} />
+  // C23: Delete box stays in view under the scrolling rows, never scrolled away.
+  const footer: MoreRow[] = canEdit
+    ? [
+        {
+          id: 'delete',
+          icon: 'trash',
+          label: t('paper.box.delete'),
+          danger: true,
+          onSelect: onDelete,
+        },
+      ]
+    : []
+  return <BoxMoreList menu={menu} groups={groups} footer={footer} />
 }

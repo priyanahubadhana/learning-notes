@@ -42,3 +42,22 @@ describe('placeList (the ⋯ list never covers its box)', () => {
     expect(placeList(box(56, 574, 278, 65), 248, phone, 600)).toBeNull()
   })
 })
+
+describe('placeList with a page frame (C23: never across its edge)', () => {
+  const frame = { left: 396, right: 753 }
+  it('sits inside the frame, under the box, when beside does not fit', () => {
+    const p = placeList(box(421, 483, 306, 170), 248, view, 590, frame)!
+    expect(p.right).toBeLessThanOrEqual(frame.right)
+    expect(p.right - 248).toBeGreaterThanOrEqual(frame.left)
+  })
+  it('goes wholly beside the page when it cannot fit inside', () => {
+    const p = placeList(
+      box(421, 100, 306, 1000),
+      248,
+      { width: 1180, height: 820 },
+      410,
+      frame,
+    )!
+    expect(p.right - 248).toBeGreaterThanOrEqual(frame.right)
+  })
+})

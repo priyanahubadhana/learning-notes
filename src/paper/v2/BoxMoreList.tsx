@@ -28,10 +28,32 @@ export const MORE_LIST_W = 248
 export function BoxMoreList({
   menu,
   groups,
+  footer,
 }: {
   menu: AnchoredMenuState
   groups: MoreRow[][]
+  /** C23: rows that stay in view under the scrolling groups (Delete box). */
+  footer?: MoreRow[]
 }) {
+  const row = (r: MoreRow) => (
+    <button
+      key={r.id}
+      type="button"
+      role="menuitem"
+      data-box-more={r.id}
+      disabled={r.disabled}
+      aria-disabled={r.dim ? true : undefined}
+      onClick={() => {
+        menu.close()
+        r.onSelect()
+      }}
+      className={`flex min-h-11 w-full items-center gap-2 rounded-md px-3 text-start text-sm hover:bg-hover disabled:opacity-50 disabled:hover:bg-transparent ${r.dim ? 'opacity-50' : ''} ${r.danger ? 'text-danger' : 'text-ink'}`}
+    >
+      <Icon name={r.icon} size={18} />
+      <span className="flex-1">{r.label}</span>
+      {r.note && <small className="text-xs text-muted">{r.note}</small>}
+    </button>
+  )
   return (
     <AnchoredMenu
       menu={menu}
@@ -39,29 +61,19 @@ export function BoxMoreList({
       width={MORE_LIST_W}
       bottomReserve={bottomBar()}
       solid
+      footer={
+        footer?.length ? (
+          <>
+            <hr className="my-1 border-line" />
+            {footer.map(row)}
+          </>
+        ) : undefined
+      }
     >
       {groups.map((rows, g) => (
         <div key={g}>
           {g > 0 && <hr className="my-1 border-line" />}
-          {rows.map((r) => (
-            <button
-              key={r.id}
-              type="button"
-              role="menuitem"
-              data-box-more={r.id}
-              disabled={r.disabled}
-              aria-disabled={r.dim ? true : undefined}
-              onClick={() => {
-                menu.close()
-                r.onSelect()
-              }}
-              className={`flex min-h-11 w-full items-center gap-2 rounded-md px-3 text-start text-sm hover:bg-hover disabled:opacity-50 disabled:hover:bg-transparent ${r.dim ? 'opacity-50' : ''} ${r.danger ? 'text-danger' : 'text-ink'}`}
-            >
-              <Icon name={r.icon} size={18} />
-              <span className="flex-1">{r.label}</span>
-              {r.note && <small className="text-xs text-muted">{r.note}</small>}
-            </button>
-          ))}
+          {rows.map(row)}
         </div>
       ))}
     </AnchoredMenu>

@@ -5,8 +5,8 @@
  */
 let wanted: string | null = null
 
-export const pickWhenShown = (id: string): void => {
-  wanted = id
+export const pickWhenShown = (id: string | null | undefined): void => {
+  wanted = id || null // a failed copy clears an older wish
 }
 
 /** The wished id if it is among `ids` (and then forgets it). */

@@ -275,6 +275,14 @@ test('C18 text put in with no key (Scribble, dictation: an insertText input even
         cancelable: true,
       }),
     )
+    // The browser follows a beforeinput with an input once the text is in.
+    el.dispatchEvent(
+      new InputEvent('input', {
+        inputType: 'insertText',
+        data: 'x',
+        bubbles: true,
+      }),
+    )
   })
   await expect(box).toHaveAttribute('data-typing', '')
   await expect(box.locator('[data-resize-handle]')).toHaveCount(0)

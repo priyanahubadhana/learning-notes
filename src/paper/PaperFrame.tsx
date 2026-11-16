@@ -1,4 +1,5 @@
 import { frameCss, padOf } from '../core/boxStyle'
+import { onRouted } from '../app/input/eventRouter'
 import { onTyped } from '../editor/typedSignal'
 import { takePick } from './pickSignal'
 import {
@@ -668,16 +669,8 @@ export function PaperFrame({
           250,
         )
     }
-    // A key typed, or any text put in (Scribble, dictation, a paste of words:
-    // beforeinput) is typing, though no key may be pressed (C18).
-    const key = (e: Event) => {
-      if (e instanceof KeyboardEvent) {
-        if (e.key.length !== 1 || e.metaKey || e.ctrlKey) return
-      } else if (
-        !(e instanceof InputEvent) ||
-        !/^(insert|delete)/.test(e.inputType)
-      )
-        return
+    const key = (e: KeyboardEvent) => {
+      if (e.key.length !== 1 || e.metaKey || e.ctrlKey) return
       const id = boxOfText(document.activeElement)
       if (id) send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
     }
@@ -690,8 +683,16 @@ export function PaperFrame({
       }, 0)
     }
     document.addEventListener('pointerdown', down, true)
-    for (const type of ['keydown', 'beforeinput'])
-      document.addEventListener(type, key, true)
+    document.addEventListener('keydown', key, true)
+    // C18: text put in with no key (Scribble, dictation, a paste of words) is
+    // typing too. Heard through the shared input layer: 'input' follows every
+    // beforeinput and carries inputType ('beforeinput' is not a routed type).
+    const offInput = onRouted('input', (e) => {
+      if (!(e instanceof InputEvent) || !/^(insert|delete)/.test(e.inputType))
+        return
+      const id = boxOfText(document.activeElement)
+      if (id) send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
+    })
     // C18: words typed by the mini keyboard (mic, Enter, Backspace) are typing
     // too, though no key is pressed: only the thin border, no dots.
     const typed = () => {
@@ -704,8 +705,8 @@ export function PaperFrame({
       window.clearTimeout(later)
       document.removeEventListener('pointerdown', down, true)
       offTyped()
-      for (const type of ['keydown', 'beforeinput'])
-        document.removeEventListener(type, key, true)
+      offInput()
+      document.removeEventListener('keydown', key, true)
       document.removeEventListener('focusout', out)
     }
   }, [send])

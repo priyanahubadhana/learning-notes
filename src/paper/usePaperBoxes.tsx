@@ -299,9 +299,7 @@ export function usePaperBoxes(
     })
 
   const duplicate = (box: PaperBox) =>
-    runTask(
-      duplicateBox(db, pageId, box.id).then((id) => id && pickWhenShown(id)),
-    )
+    runTask(duplicateBox(db, pageId, box.id).then(pickWhenShown))
   /**
    * C8: "Delete box" on the page's first box (it cannot go, the page always
    * has one) empties it: one edit in its own editor, so the page saves it as
@@ -376,11 +374,7 @@ export function usePaperBoxes(
       label: t('paper.box.duplicate'),
       icon: '⧉',
       onSelect: () =>
-        runTask(
-          duplicateBox(db, pageId, box.id).then(
-            (id) => id && pickWhenShown(id),
-          ),
-        ),
+        runTask(duplicateBox(db, pageId, box.id).then(pickWhenShown)),
     },
     {
       label: t('paper.box.colour'),

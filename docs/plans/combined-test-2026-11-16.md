@@ -127,3 +127,11 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
   - Manager's guess: iPadOS treats a tap on the caret as "show the edit menu".
   - Fix (manager's picks): default tap speed Relaxed (700 ms); a second or third tap counts within 24 px or on the same word; a tap on or near the caret never loses the multi-tap, and no edit menu flashes. Tests: 50 runs mid-word at 0–20 px offsets, all select. Builder: `slice/c19-taps` (Fable).
 - **C20 (owner):** Duplicate box gives a copy of a different size (the text is the same). A duplicate must keep everything: width, height, fill, border, padding, font and paper settings, lock state and fields. It is only placed 10 mm lower and to the right (src/paper/boxService.ts ~254, clampBox).
+- **Re-test results (owner, 13:14):** pass: Delete box; one selected box at a time; resizing doesn't type into the text. Everything else passes apart from the open bugs (C17–C21).
+- **C21 (owner, two screenshots): box move and resize on the iPad are broken in practice.**
+  1. Dragging a box (≡) up into space that is visibly free is refused (it snaps back; "Box moved" shows).
+  2. Resizing isn't smooth: it shakes, and the pink guide line keeps popping in and out (the snap flips on and off).
+  3. Just hovering the Pencil over a dot (no touch) starts resizing and the box shrinks. Resizing must start only on a real touch (pen hover sends pointermove with no buttons pressed).
+  4. Making a box smaller shakes badly; with the Pencil the owner couldn't do it at all.
+  - Fix: moves and resizes follow the finger or Pencil smoothly (one update per frame, no layout jumps). The guide line and snap have a dead zone (snap within 6 px, release only past 12 px). Hover never resizes or moves. A box can be moved into any free space it fits in, up or down. Shrinking works down to the text height with the Pencil.
+  - Tests: real Pencil drags with hover moves before the touch; the box size never changes on hover; size changes are monotonic during a steady drag (no shake); move up into a gap is accepted.

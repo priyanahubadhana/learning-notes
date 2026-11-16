@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 16 Nov 2026: C19 same-word rule beyond 24 px tested in the real editor
+
+- What: three e2e tests in e2e/c45-symbols-scribble.spec.ts: 20 real Pencil double and 20 triple taps whose later taps land 25-40 px (tip drift counted) from the one before but on the same word "understanding" all select it (word, line); 20 double taps the same distance away on a different word select nothing and delete nothing.
+- Why: the same-word rule (src/editor/tapSelect.ts countAt/wordAt) had unit tests only.
+- Files: e2e/c45-symbols-scribble.spec.ts.
+
 ### 16 Nov 2026: C19 double and triple taps in the middle of a word (switch textbox.v2, OFF live)
 
 - What: (1) The tap speed is Relaxed (700 ms between taps) when nothing is picked; the preview "Tap speed" row still offers Quick and Normal. (2) A second or third tap counts when it lands within 24 px of the one before (it was 12 px), or anywhere on the same word. (3) A Pencil tap on or next to the text cursor (24 px) is handled by the app: its lift and its mouse events are kept from the browser, the cursor is placed by the app, and the tap counts as the first of a double tap. Only the lift of a tap is cancelled, never the touch-down, so a Scribble stroke that starts at the cursor still writes.

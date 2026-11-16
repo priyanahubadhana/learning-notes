@@ -731,6 +731,72 @@ const c19 = (n: 2 | 3) =>
   })
 
 /**
+ * C19: taps 28-40 px from the one before (25-40 px once the tip's 3 px drift is counted; past the 24 px gap) still add up
+ * when they are on the same word, and must not when they are on another.
+ * `same`: start at the word's 2nd letter (left half), the next taps 28-40 px along it.
+ * Otherwise start on the "x" of "Text", the next tap 28-40 px on, which lands
+ * in "understanding": a new word, so only a cursor move and no selection.
+ */
+const c19far = (n: 2 | 3, same: boolean) =>
+  test(`C19: 20 Pencil ${same ? (n === 2 ? 'double' : 'triple') : 'double'} taps 28-40 px from the one before, ${same ? 'on the same word: all select' : 'on a different word: none counts, nothing is selected'}; nothing is deleted`, async ({
+    page,
+  }) => {
+    test.setTimeout(400_000)
+    await start(page, `C19far${same ? 's' : 'o'}${n}`)
+    await watchPresses(page)
+    const box = await lineBox(page, WORD_LINE)
+    await pickBox(page, box)
+    const before = await boxText(box)
+    const w0 = WORD_LINE.indexOf(WORD)
+    const i = same ? w0 + 1 : w0 - 3
+    const lead = new Lead()
+    let done = 0
+    let late = 0
+    for (let r = 0; done < 20; r++) {
+      const at = await charPoint(page, i, 'left')
+      await realPenTaps(page, at, [{ hold: 80 }])
+      await expect.poll(() => caretIn(page), `repeat ${r}: the cursor`).toBe(i)
+      await page.waitForTimeout(RUN_APART)
+      await pressLog(page)
+      const far = 28 + ((r * 5) % 13)
+      const run: PenTap[] = []
+      const asked: number[] = []
+      for (let k = 0; k < (same ? n : 2); k++) {
+        const gap = k > 0 ? 300 + ((r * 53 + k * 131) % 351) : 0
+        const hold = 120 + ((r * 37 + k * 53) % 101)
+        if (k > 0) asked.push(gap)
+        asked.push(hold)
+        run.push({ gap, hold, drift: 3, dx: k === 0 ? 0 : far, dy: 0 })
+      }
+      await realPenTaps(page, at, run, lead)
+      const { ms } = await pressLog(page)
+      expect(ms.length, `repeat ${r}: every down and up arrived`).toBe(
+        asked.length,
+      )
+      lead.learn(asked, ms)
+      const said = `repeat ${r}, ${far} px off, press/gap ms: ${whole(ms)}`
+      if (ms.every((v, k) => (k % 2 === 0 ? v <= 250 : v <= 700))) {
+        done++
+        if (same) {
+          await expect
+            .poll(() => selected(page), said)
+            .toBe(n === 2 ? WORD : WORD_LINE)
+        } else {
+          await page.waitForTimeout(400)
+          expect(await selected(page), said).toBe('')
+        }
+      } else {
+        late++
+        expect(late, `late runs (${said})`).toBeLessThanOrEqual(10)
+      }
+      await page.waitForTimeout(150)
+      expect(await boxText(box), `repeat ${r}`).toBe(before)
+      await page.waitForTimeout(RUN_APART)
+    }
+    expect(done, 'runs in the spec').toBe(20)
+  })
+
+/**
  * The tests that time real taps run in two rows, each row one test after
  * the other. Why: all four 50-run tests at once (one per worker) starved the
  * test driver itself: a tap asked at 205 ms was sent after 105 ms, the next
@@ -744,5 +810,7 @@ for (const n of [2, 3] as const) {
     c14(n)
     if (n === 2) c14Selected()
     c19(n)
+    c19far(n, true)
+    if (n === 2) c19far(n, false)
   })
 }

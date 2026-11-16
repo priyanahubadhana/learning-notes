@@ -1,6 +1,6 @@
 # Box fixes C8 to C16: first-look pictures (switch textbox.v2 ON)
 
-Made by `e2e/cBoxesShots.spec.ts` after the last source edit. Folders: `chromium/` and `ipad-webkit/`.
+Made by `e2e/cBoxesShots.spec.ts` after the last source edit, with the five preview switches on (foundation.shell, toolbar.v8, toolbar.menu, page.menus, textbox.v2) and brown, green and blue box fills. Folders: `chromium/` and `ipad-webkit/`.
 Each picture: `<state>-<light|dark>-<ipad-upright|ipad-sideways|phone>.png`. Page: one box left (Brown), two stacked right (Green, Blue).
 
 | State               | File prefix   | What to see                                                              |

@@ -26,9 +26,15 @@ export const centre = async (l: Locator) => {
   return { x: r.x + r.width / 2, y: r.y + r.height / 2 }
 }
 
-export async function start(page: Page, name: string, typeMain = true) {
-  await page.addInitScript(() =>
-    localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+export async function start(
+  page: Page,
+  name: string,
+  typeMain = true,
+  flags: string[] = ['textbox.v2'],
+) {
+  await page.addInitScript(
+    (f) => localStorage.setItem('learning-notes:flags', JSON.stringify(f)),
+    flags,
   )
   await startInMode(page, 'computer')
   await page.goto('/')
@@ -214,4 +220,46 @@ export async function rects(boxes: Locator[]) {
 export async function tapTextEnd(page: Page, box: Locator) {
   const t = await rect(box.locator('.bn-inline-content').first())
   await page.mouse.click(t.x + t.width - 1, t.y + t.height / 2)
+}
+
+/** Gives the boxes of the page called `title` these colours (in page order), then reloads. */
+export async function colourBoxes(
+  page: Page,
+  title: string,
+  colours: string[],
+) {
+  await page.waitForTimeout(800)
+  await page.evaluate(
+    ([t, cols]) =>
+      new Promise<void>((resolve, reject) => {
+        const open = indexedDB.open('learning-notes')
+        open.onerror = () => reject(open.error)
+        open.onsuccess = () => {
+          const db = open.result
+          const tx = db.transaction('pages', 'readwrite')
+          const store = tx.objectStore('pages')
+          const all = store.getAll()
+          all.onsuccess = () => {
+            for (const p of all.result)
+              if (p.title === t)
+                store.put({
+                  ...p,
+                  boxes: (p.boxes ?? []).map((b: { id: string }, i: number) =>
+                    b.id === 'main'
+                      ? b
+                      : { ...b, colour: cols[i % cols.length] },
+                  ),
+                  updatedAt: Date.now(),
+                })
+          }
+          tx.oncomplete = () => {
+            db.close()
+            resolve()
+          }
+        }
+      }),
+    [title, colours] as [string, string[]],
+  )
+  await page.reload()
+  await page.waitForTimeout(1500)
 }

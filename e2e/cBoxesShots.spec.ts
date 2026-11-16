@@ -2,7 +2,26 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { mkdirSync } from 'node:fs'
-import { columns, pick, start, tapOut, tapTextEnd } from './cBoxesHelpers.ts'
+import {
+  EXTRA,
+  colourBoxes,
+  columns,
+  pick,
+  start,
+  tapOut,
+  tapTextEnd,
+} from './cBoxesHelpers.ts'
+
+/** The five preview switches of the first look (the preview preset). */
+const FLAGS = [
+  'foundation.shell',
+  'toolbar.v8',
+  'toolbar.menu',
+  'page.menus',
+  'textbox.v2',
+]
+// The owner's boxes: brown, green and blue fills.
+const FILLS = ['#8b5a2b', '#3a9d5d', '#3b6fd4']
 
 /**
  * First-look pictures of the box fixes C8 to C16 (switch textbox.v2 ON): the
@@ -43,9 +62,11 @@ for (const [tname, theme] of THEMES)
   for (const [sname, size] of SIZES)
     test('C-boxes pictures: ' + tname + ' ' + sname, async ({ page }) => {
       mkdirSync(OUT(), { recursive: true })
-      await start(page, 'Shots')
+      await start(page, 'Shots', true, FLAGS)
       // Room above the first box for its bar.
-      const { a } = await columns(page, 3, 260)
+      await columns(page, 3, 260)
+      await colourBoxes(page, 'Shots', FILLS)
+      const a = page.locator(EXTRA).first()
       // The "Box moved" toast of the drop that made the layout is gone.
       await expect(page.locator('[data-toast]')).toHaveCount(0, {
         timeout: 20_000,

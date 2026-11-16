@@ -62,3 +62,7 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
   - While dragging a text box's resize dots, the text is not active; when the dot is let go, the cursor goes back exactly where it was.
   - The same for the tool bar: while tapping tools in the text bar, keystrokes or Pencil input must not land in the text behind it (the owner saw it "typing in the back").
   - Any tap on a bar, card or panel pauses text input; closing it puts the cursor back where it was, and the selection too if there was one.
+- **C11 (owner, 8:40–8:41, Goodnotes reference screenshots):** text box states like Goodnotes.
+  - (1) While typing in a box, show a thin border around the box with no resize dots.
+  - (2) While a box is in typing mode, a tap just outside it ends typing (the cursor goes) and leaves the box selected, with its resize handles and the box bar.
+    This changes the approved states picture (docs/mockups/textbox-2b/states.html: today the typing state also shows the 8 dots), so it needs a small picture for the owner's OK first. Open question: does a second tap outside then deselect the box completely? (Claude's pick: yes, as in Goodnotes.)

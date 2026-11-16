@@ -36,6 +36,7 @@ import {
 import { NOTE_SIZES, applyNoteStyle, noteSize } from './textStyle'
 import { ALIGNS, alignOf, setAlign, setList } from './textOps'
 import { useEditorRedraw } from './useEditorRedraw'
+import { onRouted } from '../../input/eventRouter'
 
 /**
  * The mini toolbar: a small bar that floats near a selection made by a
@@ -176,11 +177,11 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       }
       frame = requestAnimationFrame(follow)
     }
-    window.addEventListener('resize', resized)
+    const stopResize = onRouted('resize', resized, { name: 'miniToolbar' })
     return () => {
       cancelAnimationFrame(frame)
       document.removeEventListener('scroll', measure, true)
-      window.removeEventListener('resize', resized)
+      stopResize()
     }
   }, [open, measure])
   // A tap on the page away from the selection, or Esc, dismisses it (the

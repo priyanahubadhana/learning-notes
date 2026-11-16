@@ -10,6 +10,7 @@ import {
 import { flushSync } from 'react-dom'
 import { t } from '../../i18n/t'
 import { useFlag } from '../flags'
+import { PRIORITY, onRouted } from '../input/eventRouter'
 import { Icon } from './icons'
 import {
   NONE,
@@ -97,10 +98,17 @@ export function BarScroll({
     // Why: the observer answers a few hundred ms late on WebKit after a turn, so
     // the scroll handle stayed 22 px too long and the page below moved late
     // (BUG-002 turn test, ipad-webkit). The window's own resize measures at once.
-    const turned = () => flushSync(measure)
-    window.addEventListener('resize', turned)
+    // Heard through the one router listener; runs before the format bar's
+    // (normal priority) so that bar is placed for the settled layout.
+    const stop = onRouted(
+      'resize',
+      () => {
+        flushSync(measure)
+      },
+      { priority: PRIORITY.normal + 1, name: 'barScroll' },
+    )
     return () => {
-      window.removeEventListener('resize', turned)
+      stop()
       watch.disconnect()
     }
   }, [measure, children])

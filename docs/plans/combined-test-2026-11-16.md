@@ -86,3 +86,8 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
     4. A dot never silently does nothing (C13).
   - Tests: drag every dot of each box in a "one box left, two stacked boxes right" layout, after typing and after a reload.
 - **C16 (owner, 8:51 screenshot 2):** two boxes are selected at once (brown and green, each with dots, ≡ and ⋯), which is confusing. Rule: only one box is selected at a time. Selecting or typing in a box unselects any other box. Several boxes are selected only on purpose, where it is needed: Lasso around boxes, or a "Select several" mode (layout work). Fix (manager's pick, logged): as above, and the one box bar acts on the selected box only. Test: tap box A, then box B, and only B shows dots; Lasso around both still selects both.
+
+## Ready to merge (after the owner finishes Part D)
+
+- **C3, C6, C7, C9:** `slice/c36-toolbar` 01f21cd7. Review PASS (C7 ✕-cancel fixed). Chromium: 5/5 new tests. ipad-webkit: 65/65 related specs. At the merge, add `toolbarC36.spec.ts` to ipad-webkit's testMatch (playwright.config.ts, manager-approved) and run it there once.
+- **Split, 16 Nov:** C4, C5 and C14 on `slice/c45-scribble-symbols`; C8, C10–C13 and C15 on `slice/c-boxes` (new builder); C2 on `slice/c2-eraser-shapes`; C16 on hold for the owner's A/B/C answer.

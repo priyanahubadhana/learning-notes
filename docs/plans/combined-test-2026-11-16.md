@@ -144,3 +144,9 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
     3. A watchdog: if the page is still there 4 s after a reload was asked for, it reloads again with a fresh address; after a second miss it shows "Couldn't restart. Tap to try again" (never silent).
     4. If the new version still isn't ready after the restart, the app opens normally on the old version and tries again next time: an update never blocks the app.
   - Tests: fake worker that never activates; reload ignored once and twice; notes typed during the wait are saved.
+- **Re-test (owner, 14:27–14:28, two screenshots):**
+  - Mic strip: **pass**.
+  - **C18 still fails:** writing in a box with the Pencil (Scribble) shows the cursor together with the dashed frame, the dots and the ⠿/+ beside the box. Scribble text arrives as input events with no keydown or pointerdown on the text, so "typing" never starts. Fix: any text input into a box (beforeinput or input, including Scribble and dictation) counts as typing.
+  - **C20 more:** the duplicate appeared to the right of the original in the same row (owner chose A, below), and it showed no frame, so you can't see which box is the copy. Fix: the copy goes below the original as chosen, and it is selected (frame and dots) right after Duplicate.
+  - **C21 more:** the middle side handles (pill shapes) don't resize. This goes to the C21 builder.
+  - Grey Pencil ink stayed inside the box next to "Was artok" (screenshot 2). Check: is it Scribble writing that wasn't turned into text and was kept as ink (C4 says never keep scribble strokes as ink inside a text box)?

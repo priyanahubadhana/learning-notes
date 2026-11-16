@@ -77,6 +77,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-16 · C19/C14/C4 tap tests repeat late runs (reviewer OK).** A run the PC delivered late (judged by the page's own event time stamps, the rule the 50-run tests already use) is repeated, at most 3 times; every on-time run must still select and the "nothing deleted" check covers every run. The C14 "already selected" test is looser than before (it failed on any late run). Owner: the iPad re-test is the real proof (edit menu no longer flashes).
+
 - **2026-11-16 · C21 free boxes may sit side by side (reviewer).** Moving a box (with textbox.v2 on) can now place it beside another box, but the page layout dialog still stacks boxes one under another. Safe default: keep this split; owner to confirm on the re-test.
 
 - **2026-11-16 · YouTube notes via Claude Code:** the owner has not decided between one notebook per video and one per subject. Safe default for now: one new notebook per video (the connector can only create, never move or delete, so this mixes nothing up). Pages can be regrouped later in the app.

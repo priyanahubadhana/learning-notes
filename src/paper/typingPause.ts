@@ -1,4 +1,5 @@
 import { Selection } from 'prosemirror-state'
+import { onRouted } from '../app/input/eventRouter'
 import { allBoxEditors } from './activeBox'
 
 /**
@@ -105,7 +106,7 @@ export function watchPanels(onResume?: (boxId: string) => void): () => void {
     const id = resumeTyping()
     if (id) onResume?.(id)
   }
-  const down = (e: Event) => {
+  const down = (e: PointerEvent) => {
     const t = e.target instanceof Element ? e.target : null
     if (!t || t.closest('[data-paper-box] [data-box-content]')) return
     const bar = !!t.closest(BAR)
@@ -114,9 +115,9 @@ export function watchPanels(onResume?: (boxId: string) => void): () => void {
     paused = true
     if (!timer) timer = window.setInterval(poll, bar ? 400 : 200)
   }
-  document.addEventListener('pointerdown', down, true)
+  const off = onRouted('pointerdown', down, { name: 'typingPause' })
   return () => {
-    document.removeEventListener('pointerdown', down, true)
+    off()
     window.clearInterval(timer)
   }
 }

@@ -77,6 +77,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-16 · C21 free boxes may sit side by side (reviewer).** Moving a box (with textbox.v2 on) can now place it beside another box, but the page layout dialog still stacks boxes one under another. Safe default: keep this split; owner to confirm on the re-test.
+
 - **2026-11-16 · YouTube notes via Claude Code:** the owner has not decided between one notebook per video and one per subject. Safe default for now: one new notebook per video (the connector can only create, never move or delete, so this mixes nothing up). Pages can be regrouped later in the app.
 
 - **2026-11-16 · C9 Record audio stays a Professional tool (reviewer, follows v9).** In the edit "More tools" tray, Mic shows for everyone; Record audio shows only when "Insert more" (Professional) is on, as v9 lists Audio under Professional. In Beginner, the owner will not see Record audio.

@@ -8,6 +8,25 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Why: the spec now says Relaxed 700 ms (same-word taps count); the tests meant a fresh tap, but 520/600 ms apart on the same word is now a double tap (no caret, no bar), and a wait of exactly 700 ms raced the gap under load on CI. The checks themselves are unchanged.
 - Files: e2e/tb2-select.spec.ts, e2e/tb2-bar-firsttap.spec.ts, e2e/tb2-taps.spec.ts.
 
+### 16 Nov 2026: a Pencil press on a scrolled page no longer jumps to the top when the title is focused (PR-3, slice/full-fix)
+
+- What: a new page leaves its title focused. A Pencil stroke or lasso on a scrolled note page then jumped the page to the top. Not new (also before P1.9).
+- Why: the ink pad sits in a `user-select: none` layer and cannot take the focus, so the press left the focus (and the caret) in the title; the browser then scrolled the page back to the caret, at the top. No script scrolled it (probe: the jump comes right after the pointerdown, from the browser itself).
+- Fix: src/ink/controller.ts `leaveField()`: when a stroke (`down`) or a lasso (`freshStart`) starts, a focused input or text area outside the ink layer lets go of the focus first (the lasso already did this for the page text).
+- Test: e2e/pencilReal.spec.ts PR-3 no longer blurs the title first; it checks the title is focused, then the stroke. Red before the fix (scrollTop 0, expected 600), green after.
+
+### 16 Nov 2026: full chromium set, 13 red tests fixed (slice/full-fix)
+
+- Why: the full set had not run on build/next; 13 tests were red (older debt). Each cause found by bisect or a page probe.
+- App fix (1): src/app/tools/BarScroll.tsx: a 0-wide strip is not a measurement. In a 324 px column the old docked bar got 24 px; the two scroll cues took all of it, the strip read 0 wide ("fits"), the cues went, and the bar flickered every frame (title moved 22 px, 60 times a second). Test touchTargets 700x800 (unchanged) now passes.
+- Test changes (same promise each time):
+  - e2e/pencilReal.spec.ts PR-1, PR-2, PR-4 (7 tests): the pages list now docks at 820 px (P1.9, merge 8105fcba) and has its own scroll bar, so "one scroll bar" and bare `[data-scrollbar-*]` matched two. Now scoped to the menu's bar (`data-layer="tray"`).
+  - e2e/pencilReal.spec.ts PR-3: see the entry above (the app bug is fixed; the test keeps the title focused).
+  - e2e/presetPhases.spec.ts SET-B26b-e: the Help page now has its own "Tap speed" radio group, so `radiogroup` count 0 was never true. Now checks the chosen option's radio is gone (the list closed).
+  - e2e/r12Real.spec.ts colour-card (day, night): at 820x480 Shapes sits in the ⋯ "More" tray (2A.15, "all tools in the tray"); the test opens the tray first.
+  - e2e/tb2-bar.spec.ts TB-24 Box style: with textbox.v2 the Box card replaces the old panel (docs/features/textbox-v2.md line 12); checks the dialog named Box style (matches both).
+- Files: src/app/tools/BarScroll.tsx and the four specs above.
+
 ### 16 Nov 2026: C22 update restart keeps the old files when the new worker is not ready (review fixes)
 
 - What: on the 15 s limit or "Restart now" with a new worker still installing, the restart only reloads (old worker and saved copies stay, so the app opens offline and the update is tried next time). The old files are cleared only when there is no worker at all. "Restart now" now also works during the 8 s check after a reload. The button sits outside the announced status text. On a phone the notice is narrower so it no longer covers the zoom "-" button.

@@ -84,7 +84,16 @@ const surfaces: Surface[] = [
     root: '[data-testid="v8-card-shapes.colour"]',
     open: async (page) => {
       await inApp(page, V8)
-      await page.locator('[data-testid="v8-tool-shapes"]').click()
+      // Shapes sits in the ⋯ tray when the bar is short (2A.15 "all tools in the tray").
+      const shapes = page.locator('[data-testid="v8-tool-shapes"]')
+      if (await shapes.isVisible()) await shapes.click()
+      else {
+        await page.getByTestId('v8-more').click()
+        await page
+          .getByRole('dialog', { name: 'More' })
+          .getByRole('button', { name: 'Shapes' })
+          .click()
+      }
       await page.locator('[data-testid="v8-chip-shapes.colour"]').click()
     },
   },

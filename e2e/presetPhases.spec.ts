@@ -98,8 +98,10 @@ test('SET-B26b to B26e the new Settings: shared ▾ list and one switch; reload 
   const sw = () => rows.nth(1).getByRole('switch')
   const choose = async (label: string) => {
     await rows.first().locator('.sv3-select').click()
-    await page.getByRole('radio', { name: label, exact: true }).click()
-    await expect(page.getByRole('radiogroup')).toHaveCount(0)
+    const option = page.getByRole('radio', { name: label, exact: true })
+    await option.click()
+    // The list closed (the page keeps its own "Tap speed" radio group, so a bare radiogroup count is not the list).
+    await expect(option).toHaveCount(0)
   }
   await expect(rows).toHaveCount(2)
   await expect(rows.first()).toContainText('Test a phase')

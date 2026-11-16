@@ -49,6 +49,11 @@ export function BarScroll({
   const measure = useCallback(() => {
     const el = scroller.current
     if (!el) return
+    // Why: in a column so narrow that the two scroll cues take all the room,
+    // the strip measures 0 wide, which read as "fits", took the cues away, the
+    // strip grew back, and the bar flickered every frame (touchTargets 700x800).
+    // A 0-wide strip is not a measurement: keep what was last known.
+    if (el.clientWidth <= 0) return
     const edges = [...el.children].map((c) => ({
       left: (c as HTMLElement).offsetLeft - el.offsetLeft,
       right:

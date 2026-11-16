@@ -1,6 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
+import { addBox, pick, start } from './cBoxesHelpers.ts'
 import { openNote, pref } from './mainBarHelpers.ts'
 import { installRealPen, realPen } from './realPen.ts'
 
@@ -215,3 +216,31 @@ for (const via of ['pencil', 'finger'] as const) {
     await expect(strip(page)).toHaveAttribute('data-edge', 'left')
   })
 }
+
+test('C18 words from the mic show only the thin border: no dots while typing', async ({
+  page,
+}) => {
+  await installRealPen(page)
+  await fakeSpeech(page)
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:toolbar.miniKeys', 'true'),
+  )
+  await start(page, 'C18')
+  const box = await addBox(page, ['Hello'])
+  await pick(page, box)
+  await expect(box).toHaveAttribute('data-picked', '')
+  await expect(box.locator('[data-resize-handle]')).toHaveCount(8)
+  // The caret is in the box (no key, no tap on its text): still "selected".
+  await box.locator('.bn-editor').focus()
+  await expect(strip(page)).toBeVisible()
+  await realPen(page, [await center(page, 'mic')])
+  await expect.poll(() => page.evaluate(() => window.__fakes.length)).toBe(1)
+  await last(page, 'f.onstart()')
+  await last(
+    page,
+    `f.onresult({resultIndex:0,results:[{isFinal:true,0:{transcript:'spoken'}}]})`,
+  )
+  await expect(box.locator('.bn-editor')).toContainText('spoken')
+  await expect(box).toHaveAttribute('data-typing', '')
+  await expect(box.locator('[data-resize-handle]')).toHaveCount(0)
+})

@@ -92,6 +92,7 @@ Settings v5 (Phase 1S); tool bar v9 cards (2A.4–2A.16); things inside a page a
 
 ## Tests to know about
 
+- CI-only (pass locally on both engines, 17 Nov run 43923017272; note, do not edit): ipad-webkit tb2-move TB-11/TB-14/TB-16, tb2-taps TB-04 (also chromium :176/:204/:220), tb2-pencil TB-37 shape cancel, paperInk rule 9, pageMenusSheet PM-64 (also chromium, passed on retry).
 - R15: undoHistory "50 random steps" red on ipad-webkit about 1 run in 5 (step 3).
 - The phone wheel test is red on ipad-webkit until it moves (question 7).
 - 7 desktop-only shell/leftPanel specs fail on ipad-webkit (step 1.3).

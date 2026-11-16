@@ -2,7 +2,7 @@ import { TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { isOn } from '../app/flags'
-import { gapMs } from '../app/tapTiming'
+import { gapMs, stampNow, stampOf, withinGap } from '../app/tapTiming'
 import { activeTool } from '../app/tools/main/mainTools'
 import { keepSelection } from './ownSelection'
 import { noteTapSelected } from './penGuard'
@@ -288,7 +288,7 @@ export function nextTapCount(
 ): number {
   if (
     last &&
-    now - last.at < gapMs(TAP_MS) &&
+    withinGap(now - last.at, TAP_MS) &&
     Math.hypot(x - last.x, y - last.y) <= TAP_PX
   ) {
     return last.count + 1
@@ -404,7 +404,7 @@ export function watchTapSelect(
   let caretTap = 0
   const mouseNames = ['mousedown', 'mouseup', 'click', 'dblclick']
   const onMouse = (e: Event) => {
-    if (Date.now() >= ownMouseUntil) return
+    if (stampOf(e) >= ownMouseUntil) return
     if (!inText(e.target)) return
     e.preventDefault()
     e.stopImmediatePropagation()
@@ -417,10 +417,10 @@ export function watchTapSelect(
     [null, dom].includes(target.closest('[contenteditable="false"]'))
 
   /** Is this Pencil touch a second (or later) tap on the words? */
-  const ours = (target: EventTarget | null, x: number, y: number) =>
+  const ours = (target: EventTarget | null, at: number, x: number, y: number) =>
     activeTool.get() === 'text' &&
     inText(target) &&
-    nextTapCount(last, Date.now(), x, y) >= 2
+    nextTapCount(last, at, x, y) >= 2
 
   const onDown = (e: PointerEvent) => {
     caretTap++
@@ -446,7 +446,8 @@ export function watchTapSelect(
       down = null
       return
     }
-    const now = Date.now()
+    // C14: the event's own time stamp, not when this listener ran.
+    const now = stampOf(e)
     const count = nextTapCount(last, now, e.clientX, e.clientY)
     const shift = count > 1 && last ? last.shift : boxShift(dom, tool)
     down = {
@@ -487,7 +488,7 @@ export function watchTapSelect(
     )
     if (
       touch &&
-      (ours(e.target, touch.clientX, touch.clientY) ||
+      (ours(e.target, stampOf(e), touch.clientX, touch.clientY) ||
         (down && down.count === 1 && down.shift >= 1))
     ) {
       e.preventDefault()
@@ -500,14 +501,14 @@ export function watchTapSelect(
     // A drag or a hold (press-and-hold selects, holdSelect.ts) is not a tap.
     if (
       Math.hypot(e.clientX - start.x, e.clientY - start.y) > MOVE_PX ||
-      Date.now() - start.at > TAP_HOLD_MS
+      stampOf(e) - start.at > TAP_HOLD_MS
     ) {
       last = null
       return
     }
     const count = start.count
     const level = tapLevel(count, start.shift, strictFor(start.tool))
-    last = { ...start, at: Date.now(), x: e.clientX, y: e.clientY }
+    last = { ...start, at: stampOf(e), x: e.clientX, y: e.clientY }
     const view = editor.prosemirrorView
     if (!view) return
     if (level <= 0) {
@@ -590,7 +591,7 @@ export function watchTapSelect(
     if (!range) return
     ;(e as PointerEvent & { [TAP_SELECTED]?: boolean })[TAP_SELECTED] = true
     // Grace period: nothing may erase or replace this selection for a moment.
-    noteTapSelected()
+    noteTapSelected(stampOf(e))
     // After the browser's own tap handling, so ours is what stays.
     setTimeout(() => {
       const d = view.state.doc
@@ -635,7 +636,7 @@ export function watchTapSelect(
     down: down ? `#${down.id} count ${down.count}` : null,
     lastCount: last?.count ?? 0,
     lastShift: last?.shift ?? 0,
-    lastAgoMs: last ? Date.now() - last.at : null,
+    lastAgoMs: last ? Math.round(stampNow() - last.at) : null,
     editable: dom.getAttribute('contenteditable'),
     inert: dom.hasAttribute('inert'),
     focused: dom.contains(doc.activeElement),

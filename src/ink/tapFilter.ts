@@ -1,4 +1,4 @@
-import { gapMs, tapHoldMs, tapMovePx } from '../app/tapTiming'
+import { tapHoldMs, tapMovePx, withinGap } from '../app/tapTiming'
 import type { Pt } from './geometry'
 
 /**
@@ -61,7 +61,7 @@ export const isShort = (ms: number, travel: number): boolean =>
  */
 export const isDoubleTap = (last: TapMark | null, now: TapMark): boolean =>
   !!last &&
-  now.at - last.at < gapMs(DOUBLE_MS) &&
+  withinGap(now.at - last.at, DOUBLE_MS) &&
   Math.hypot(now.x - last.x, now.y - last.y) < DOUBLE_PX
 
 /**

@@ -3,7 +3,7 @@ import { Plugin } from 'prosemirror-state'
 import type { Transaction } from 'prosemirror-state'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { inputMachine } from '../app/inputMachine'
-import { gapMs, sharedTiming } from '../app/tapTiming'
+import { gapMs, sharedTiming, stampNow, stampOf } from '../app/tapTiming'
 import { scribbleFree } from './penMode'
 import { scribbleInput } from './scribbleDelete'
 import type { AppSchema } from './schema'
@@ -63,7 +63,48 @@ export const penState: PenState = {
   lastKeyAt: -1e9,
   selectedAt: -1e9,
 }
-const clock: () => number = () => Date.now()
+/**
+ * Now, on the clock of the events' time stamps (C14): every time kept here
+ * is an event's own time stamp, so a listener that runs late on a busy page
+ * does not move it.
+ */
+const clock: () => number = stampNow
+
+/** A press this short (ms) is a tap, when the tip barely moved. */
+const TAP_PRESS_MS = 300
+/** The furthest (px, along its whole path) the tip may travel during a tap. */
+export const TAP_PATH_PX = 16
+/** Tip moves shorter than this (px) are the sensor's own noise, not travel. */
+const PATH_STEP_PX = 2
+
+/** The tip's path so far: its length and the last point counted. */
+export interface TipPath {
+  len: number
+  x: number
+  y: number
+}
+
+/** The path after the tip reached (x, y); `end` counts the last bit too. */
+export function tipPathTo(
+  path: TipPath,
+  x: number,
+  y: number,
+  end = false,
+): TipPath {
+  const d = Math.hypot(x - path.x, y - path.y)
+  if (d < PATH_STEP_PX && !end) return path
+  return { len: path.len + d, x, y }
+}
+
+/**
+ * Was this press a tap (C14)? Short, and the tip travelled almost nowhere
+ * along its WHOLE path. Why the path: a quick scratch-out over a small
+ * glyph goes back and forth and ends near where it began; by the distance
+ * from start to end it looked like a tap, and the delete it asked for was
+ * refused by the tap grace (C4, "ten scribbles").
+ */
+export const wasPenTap = (heldMs: number, pathPx: number): boolean =>
+  heldMs <= TAP_PRESS_MS && pathPx <= TAP_PATH_PX
 
 // The watchdog: a Pencil gesture whose lift was lost in the background must
 // not keep refusing every deletion (R7-5 family).
@@ -72,7 +113,7 @@ onGestureReset(() => {
 })
 registerToolState('penGuard', () => ({
   down: penState.down,
-  upAgoMs: penState.upAt > 0 ? clock() - penState.upAt : null,
+  upAgoMs: penState.upAt > 0 ? Math.round(clock() - penState.upAt) : null,
 }))
 
 /** A tap just selected text: the grace period is on. */
@@ -228,6 +269,13 @@ export const penTransactionGuard = createExtension({
   ],
 })
 
+const POINTER_TYPES = [
+  'pointerdown',
+  'pointermove',
+  'pointerup',
+  'pointercancel',
+]
+
 export function watchPenGuard(
   editor: Editor,
   offerUndo: () => void,
@@ -242,7 +290,7 @@ export function watchPenGuard(
   // Only a Pencil gesture that began in the page text counts: a tap on the
   // bar or a menu (Delete, Undo) is the user asking, so it is never held back.
   let gesturePointer: number | null = null
-  let downAt: { t: number; x: number; y: number } | null = null
+  let downAt: { t: number; path: TipPath } | null = null
 
   const onPointer = (e: PointerEvent) => {
     // A press on a bar, menu or button (Delete, Cut ...) is the person asking:
@@ -257,11 +305,19 @@ export function watchPenGuard(
         penState.tapAt = -1e9
     }
     if (e.pointerType !== 'pen') return
+    if (e.type === 'pointermove') {
+      if (downAt && e.pointerId === gesturePointer)
+        downAt.path = tipPathTo(downAt.path, e.clientX, e.clientY)
+      return
+    }
     if (e.type === 'pointerdown') {
       if (e.target instanceof Node && dom.contains(e.target)) {
         penState.down = true
         gesturePointer = e.pointerId
-        downAt = { t: clock(), x: e.clientX, y: e.clientY }
+        downAt = {
+          t: stampOf(e),
+          path: { len: 0, x: e.clientX, y: e.clientY },
+        }
         // A Pencil lift that never comes is dropped after 4 s without movement.
         inputMachine.begin(e, 'penGuard', () => {
           penState.down = false
@@ -275,22 +331,23 @@ export function watchPenGuard(
       e.pointerId === gesturePointer
     ) {
       penState.down = false
-      penState.upAt = clock()
+      penState.upAt = stampOf(e)
       gesturePointer = null
       // A quick press that barely moved was a tap (C14).
       if (
         e.type === 'pointerup' &&
-        // The text tap's own limits (tapSelect.ts): any press it counts as a tap.
         downAt &&
-        penState.upAt - downAt.t <= 300 &&
-        Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) <= 12
+        wasPenTap(
+          penState.upAt - downAt.t,
+          tipPathTo(downAt.path, e.clientX, e.clientY, true).len,
+        )
       )
         penState.tapAt = penState.upAt
       downAt = null
     }
   }
-  const onKey = () => {
-    penState.lastKeyAt = clock()
+  const onKey = (e: Event) => {
+    penState.lastKeyAt = stampOf(e)
   }
   const onBeforeInput = (e: Event) => {
     // C4: a delete right after a scribble goes to what the scribble covered.
@@ -301,7 +358,7 @@ export function watchPenGuard(
     if (
       refuseInput(
         input.inputType,
-        clock(),
+        stampOf(e),
         penState,
         penState.lastKeyAt,
         scribbleOn,
@@ -325,13 +382,13 @@ export function watchPenGuard(
     size = next
   })
 
-  for (const type of ['pointerdown', 'pointerup', 'pointercancel']) {
+  for (const type of POINTER_TYPES) {
     doc.addEventListener(type, onPointer as EventListener, true)
   }
   doc.addEventListener('keydown', onKey, true)
   dom.addEventListener('beforeinput', onBeforeInput, true)
   return () => {
-    for (const type of ['pointerdown', 'pointerup', 'pointercancel']) {
+    for (const type of POINTER_TYPES) {
       doc.removeEventListener(type, onPointer as EventListener, true)
     }
     doc.removeEventListener('keydown', onKey, true)

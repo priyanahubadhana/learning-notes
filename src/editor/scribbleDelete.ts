@@ -2,6 +2,7 @@ import { TextSelection } from 'prosemirror-state'
 import { isOn } from '../app/flags'
 import { onGestureReset } from '../app/gestureReset'
 import { onRouted } from '../app/input/eventRouter'
+import { stampOf } from '../app/tapTiming'
 import { activeTool } from '../app/tools/main/mainTools'
 import { wordsInRegion, type Box } from './lassoWords'
 import type { AppSchema } from './schema'
@@ -156,18 +157,19 @@ export function watchScribbleDelete(editor: Editor): () => void {
       stroke.moved = true
       dropOldSelection(a)
     }
-    if (stroke.moved) mark = { pts: stroke.pts, at: Date.now() }
+    if (stroke.moved) mark = { pts: stroke.pts, at: stampOf(e) }
   }
   const onEnd = (e: PointerEvent) => {
     if (!stroke || e.pointerId !== stroke.id) return
-    if (stroke.moved) mark = { pts: stroke.pts, at: Date.now() }
+    if (stroke.moved) mark = { pts: stroke.pts, at: stampOf(e) }
     stroke = null
   }
 
   const onBeforeInput = (e: Event, lastKeyAt: number) => {
     const input = e as InputEvent
     if (!input.inputType?.startsWith('delete') || !mark || !on()) return
-    const now = Date.now()
+    // The events' own time stamps, as the Pencil guard keeps them (C14).
+    const now = stampOf(e)
     const m = mark
     if (now - m.at > SCRIBBLE_MS || now - lastKeyAt <= KEY_RECENT_MS) return
     mark = null

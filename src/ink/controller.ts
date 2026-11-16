@@ -697,7 +697,9 @@ export class InkController {
       strokes: this.strokeTotal(),
       layers: this.env.doc.layers.length,
       chosenLayer: this.env.doc.chosenLayer,
-      lastTap: this.lastTap ? Date.now() - this.lastTap.at : null,
+      lastTap: this.lastTap
+        ? Math.round(performance.now() - this.lastTap.at)
+        : null,
       fingerTap: this.fingerTap?.id ?? null,
       taps: { ...this.taps },
       cancels: { ...this.cancels },
@@ -1537,8 +1539,10 @@ export class InkController {
     if (!first) return true
     const travel = travelOf(g.world)
     // The double-tap window runs from the first stroke's end to the second's start.
-    const began = { at: Date.now() - ms, x: first.x, y: first.y }
-    const now = { at: Date.now(), x: first.x, y: first.y }
+    // C14: by the events' own time stamps (g.t0 is the press's), not by when
+    // this ran: a busy page must not stretch the gap between two taps.
+    const began = { at: g.t0, x: first.x, y: first.y }
+    const now = { at: g.t0 + ms, x: first.x, y: first.y }
     if (isShort(ms, travel) && isDoubleTap(this.lastTap, began)) {
       this.takeBackTap()
       this.lastTap = null

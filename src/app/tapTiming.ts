@@ -42,3 +42,28 @@ export const tapHoldMs = (old: number): number => (sharedTiming() ? 250 : old)
 
 /** The furthest (px) a Pencil may drift during a tap. */
 export const tapMovePx = (old: number): number => (sharedTiming() ? 8 : old)
+
+/**
+ * Are two taps `ms` apart one run? Switch on: up to the tap gap, the gap
+ * itself included ("up to 500 ms"); switch off: under `old`, as before.
+ */
+export const withinGap = (ms: number, old: number): boolean =>
+  sharedTiming() ? ms <= TAP_SPEEDS[tapSpeed()] : ms < old
+
+/**
+ * When the hand did it (C14): the browser's own time stamp of an event, on
+ * the page's clock (ms since the page opened).
+ *
+ * Why: taps were timed with `Date.now()` inside the listener, which is when
+ * the page got round to the event. On a busy page (a repaint, a sync, a long
+ * note) the listener runs late, so a 200 ms tap read as a hold and two taps
+ * 400 ms apart read as two single taps. The time stamp is set when the
+ * Pencil touched, however late the listener runs. Tap times are compared
+ * only with other time stamps, or with `stampNow()` (the same clock) where
+ * no event is at hand.
+ */
+export const stampOf = (e: { timeStamp: number }): number =>
+  e.timeStamp > 0 ? e.timeStamp : stampNow()
+
+/** Now, on the clock of the events' time stamps. */
+export const stampNow = (): number => performance.now()

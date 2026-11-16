@@ -51,3 +51,8 @@ The full step list is in the 16 Nov chat message "Your combined test is ready"; 
 3. Helpers can't push to build/next (the safety layer refuses), so the main chat fast-forwards build/next for them. Merge main into build/next with each merge.
 4. Rules learned this session: never run npm ci or npm install in a linked working copy (it emptied the main packages); every manual Playwright run uses --global-timeout=1200000; only one ipad-webkit run at a time; builders never touch main; pictures always with all five preview switches on (foundation.shell, toolbar.v8, toolbar.menu, page.menus, textbox.v2).
 5. Then the owner finishes parts B–D, and Phase 1 goes live on the owner's yes (task 0.7 plus the live-check fix).
+
+## Results added later on 16 Nov
+
+- **Part B (Page options) and Part C (Phase 1 fixes): all pass** (owner, 8:23). Only Part D (Pencil look) is left to test.
+- **C7 (manager, from the owner's 8:23 screenshot):** "Arrange pinned actions" inside Page options still has a "Done" button at the bottom and two ✕ stacked (one for Page options, one for Arrange). By the 15 Nov rule, ✕ goes on the left and ✓ on the right of the sheet's header, with no footer Done and one ✕. Small fix; it can go with C3/C6.

@@ -386,4 +386,4 @@ Replaces TB-10's "starts narrow, grows to the right" and TB-42's "Tap here to ke
 
 - **New box (tap empty paper with the Text tool):** as wide as the whole line, one line tall, like a Notion block. It grows downward only as you write. It can still be made narrower or taller with its dots and moved beside another box (C21).
 - **First box on a page:** the same rule: one line tall when empty, as tall as its text after that, grows as you write; stretch it by hand if wanted. Tapping the paper under it with the Text tool makes a new box the same way.
-- **Hints:** "Tap here to keep writing" is gone everywhere. Only an empty page shows one hint ("Type, or tap anywhere…"), and the "Type here" text in an empty box goes the moment you start writing.
+- **Hints (owner, 17 Nov 2026, second word):** "Tap here to keep writing" is gone everywhere. "Type here" is gone from every new box. Only the first box of an empty page shows one hint ("Type, or tap anywhere…"), and it goes the moment you start writing.

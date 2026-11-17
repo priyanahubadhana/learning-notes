@@ -289,7 +289,7 @@ const FMT=()=>{const st=[['Title','font-size:20px;font-weight:750'],['Heading 1'
  return '<div class="card" style="left:300px;top:100px;top:96px" data-p><div class="hd"><b>Format</b><button class="b" aria-label="Close">'+ic('x')+'</button></div><div class="seg"><span>Text</span><span class="on">Style</span><span>Paragraph</span><span>Advanced</span></div>'
  +'<div class="rows stylelist">'+st.map(([n,c],i)=>'<div class="row" style="'+c+'"><span>'+n+'</span>'+(i==4?'<span style="color:var(--accent);font-size:14px">✓</span>':'')+'</div>').join('')+'</div>'
  +'<h4>Marks</h4><div class="tiles" style="grid-template-columns:repeat(2,1fr)">'+tile('Link','link')+tile('Key point','star')+'</div>'
- +'<h4>Blocks</h4><div class="tiles" style="grid-template-columns:repeat(4,1fr)">'+tile('Plain block','type')+tile('Callout','pal')+tile('Divider','alC')+tile('Inline code','code')+'</div></div>';};
+ +'<h4>Toggles (used most)</h4><div class="tiles" style="grid-template-columns:repeat(2,1fr)">'+tile('Toggle heading','tog')+tile('Toggle list','tog')+'</div>'+'<h4>Blocks</h4><div class="tiles" style="grid-template-columns:repeat(4,1fr)">'+tile('Plain block','type')+tile('Callout','pal')+tile('Divider','alC')+tile('Inline code','code')+'</div></div>';};
 const F=[];
 const bx=(o={})=>box(BL,BT,620,o.h||200);
 F.push(frame(1,'The one bar sits above the selected box, outside it. It never covers the words and stays inside the page frame.',W,330,bx()+bar({css:tp}),'iPad upright'));

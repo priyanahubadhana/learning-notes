@@ -47,3 +47,4 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 2026-11-17T15:30+05:30,re-test,sweep-2b,opus,421384,1,,,,85 rows checked; 2 fixes; off-model (Opus built)
 2026-11-17T16:30+05:30,re-test,preview-phase-default,sonnet,49997,1,1,0,0.2,phase under test ON by default on the preview
 2026-11-17T19:00+05:30,re-test,c30-c29-c4,sonnet,238295,1,1,0,2.4,C4 strict scratch edge; C30 first tap by where it lands; C29 no Type here
+2026-11-17T23:30+05:30,re-test,c31-c32-tb41,sonnet,296115,2,2,0,2.9,C31 tab move threshold 12px; C32 dots follow by distance; TB-41/TB-21 test fixes; round 2 after look reject

@@ -52,8 +52,12 @@ test('Q-2: while typing the first box shows only its thin frame', async ({
   await start(page, 'Typing hides')
   await page.locator('[data-paper-box="main"] .bn-editor').click()
   await expect(page.locator('[data-main-frame]')).toBeVisible()
-  await expect(page.locator('[data-main-chrome] [data-box-grip]')).toHaveCount(0)
-  await expect(page.locator('[data-main-chrome] [data-box-menu]')).toHaveCount(0)
+  await expect(page.locator('[data-main-chrome] [data-box-grip]')).toHaveCount(
+    0,
+  )
+  await expect(page.locator('[data-main-chrome] [data-box-menu]')).toHaveCount(
+    0,
+  )
   await expect(
     page.locator('[data-main-chrome] [data-resize-handle]'),
   ).toHaveCount(0)

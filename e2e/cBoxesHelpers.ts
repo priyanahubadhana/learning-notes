@@ -305,16 +305,19 @@ export async function selectMain(page: Page) {
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   await page.keyboard.press('Escape')
   await page.waitForTimeout(800)
-  const end = await main.locator('.bn-inline-content').first().evaluate((el) => {
-    const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
-    let last: Text | null = null
-    for (let n = w.nextNode(); n; n = w.nextNode()) last = n as Text
-    const r = document.createRange()
-    r.setStart(last!, last!.length - 1)
-    r.setEnd(last!, last!.length)
-    const b = r.getBoundingClientRect()
-    return { right: b.right, mid: (b.top + b.bottom) / 2 }
-  })
+  const end = await main
+    .locator('.bn-inline-content')
+    .first()
+    .evaluate((el) => {
+      const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+      let last: Text | null = null
+      for (let n = w.nextNode(); n; n = w.nextNode()) last = n as Text
+      const r = document.createRange()
+      r.setStart(last!, last!.length - 1)
+      r.setEnd(last!, last!.length)
+      const b = r.getBoundingClientRect()
+      return { right: b.right, mid: (b.top + b.bottom) / 2 }
+    })
   await page.mouse.click(end.right + 160, end.mid)
   await expect(page.locator('[data-main-chrome] [data-box-grip]')).toBeVisible()
 }

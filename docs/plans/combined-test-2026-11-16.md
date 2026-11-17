@@ -172,3 +172,10 @@ Reload the test page; preset "Up to Phase 2B"; Pencil.
 - **C27:** a new box is far too big by default (owner could not see why it would not move: it fills the space). It should be small, like Goodnotes; owner sends a Goodnotes screenshot. Waits for that picture (no build without a picture).
 - Owner: "Fix this and make sure there is no bug left. Recheck till Phase 2B." → a bug sweep of everything up to Phase 2B after these fixes.
 - **C27 (owner, 17 Nov, reference picture docs/design/refs/c27-new-box-one-line.png):** a new box is one line tall and spans the whole line (like a Notion block); it grows downward only as text is written. Not bigger by default. The owner's picture is the approved reference.
+
+## Bug sweep to Phase 2B (owner ask 17 Nov), found so far
+
+- S1: a selected box shows two ⋯ buttons (on the box bar and beside the ≡ tab), each opening a different menu ("Box actions" vs the old Box style/Copy/Cut list). One box, one ⋯, one menu (TB-08 "the same ⋯ as every other box").
+- S2: the page's first box opens the old (pre-v2) menu from its ⋯ even with textbox.v2 on.
+- S3 (check): a box at the right edge squeezed so its text wraps one letter per line (TB-10). Being checked in the C23 takeover.
+- S4: textBoxFree "one tap makes a small box" fails (72 px vs < 60); replaced by C27's one-line full-width rule, so the C27 slice owns that test.

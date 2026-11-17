@@ -179,3 +179,8 @@ Reload the test page; preset "Up to Phase 2B"; Pencil.
 - S2: the page's first box opens the old (pre-v2) menu from its ⋯ even with textbox.v2 on.
 - S3 (check): a box at the right edge squeezed so its text wraps one letter per line (TB-10). Being checked in the C23 takeover.
 - S4: textBoxFree "one tap makes a small box" fails (72 px vs < 60); replaced by C27's one-line full-width rule, so the C27 slice owns that test.
+- S3 confirmed (C23 takeover): a box made near the sheet's right edge comes out ~21 px wide, so its text wraps one letter per line (breaks TB-10). C27 slice (new box = full line width) should remove the cause; re-check after C27.
+- S5: with the sidebar page ⋯ menu open, the row's help tip ("this row's actions…") still shows, peeking out behind the card. Tips hide while a menu is open.
+- S6: textTool:156 "Type here" hint test red on slice/c23-menus base (C26/C27 area); C27 owns it.
+- C23/C25/C26 merged into build/next 17 Nov (Opus takeover a8008553, reviewed on screenshots).
+- **P1 (owner, 17 Nov): the app feels laggy and sluggish on the iPad, e.g. switching tabs.** Measure first (iPad-like CPU throttle, WebKit): page tabs Notes/Summary/Review, switching pages in the sidebar, main sections (Home/Library/Notebooks/Review), tool switching, opening menus and cards, typing. Find the causes, fix the biggest ones, show before/after numbers. Opus owns it, after C27 is merged.

@@ -34,6 +34,9 @@ for (const [size, w, h] of SIZES)
       await selectMain(page)
       await page.waitForTimeout(300)
       await shot(page, `${size}-${label}-selected`)
+      // Q-1: the selected first box has its bar under it; end the selection so
+      // the tap that makes the box lands on empty paper.
+      await page.keyboard.press('Escape')
       const b = await addBox(page, ['Beside', 'box'], 0.62, 60)
       await narrowBox(page, b, 'w', 300)
       await selectMain(page)

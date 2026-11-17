@@ -3054,14 +3054,19 @@ function MainChrome({
   // the tab of every other box near the top does. It never covers them.
   const [below, setBelow] = useState(false)
   useLayoutEffect(() => {
-    const top = root.current?.getBoundingClientRect().top
-    const tabs = document
-      .querySelector('[data-page-tabs]')
-      ?.getBoundingClientRect()
-    if (top == null || !tabs || tabs.bottom > top) return
-    const crowded = top - tabs.bottom < TOUCH_PX + 24
-    setBelow((b) => (b === crowded ? b : crowded))
-  })
+    const measure = () => {
+      const top = root.current?.getBoundingClientRect().top
+      const tabs = document
+        .querySelector('[data-page-tabs]')
+        ?.getBoundingClientRect()
+      if (top == null || !tabs || tabs.bottom > top) return
+      const crowded = top - tabs.bottom < TOUCH_PX + 24
+      setBelow((b) => (b === crowded ? b : crowded))
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [at.y, k, height, typing, styled])
   // Polish 2B: with textbox.v2 the frame has the same small gap round the
   // words as every other box; it grows outward, the words stay.
   const v2 = isOn('textbox.v2') && !styled

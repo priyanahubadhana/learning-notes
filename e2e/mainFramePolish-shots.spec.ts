@@ -2,7 +2,7 @@
 /// <reference lib="dom" />
 import { mkdirSync } from 'node:fs'
 import { test, type Page } from '@playwright/test'
-import { addBox, narrowBox, start } from './cBoxesHelpers.ts'
+import { addBox, narrowBox, selectMain, start } from './cBoxesHelpers.ts'
 
 /** Polish 2B pictures: the first box selected, typing, and with a box beside it. */
 test.use({ hasTouch: true, deviceScaleFactor: 2 })
@@ -31,16 +31,12 @@ for (const [size, w, h] of SIZES)
       await main.locator('.bn-editor').click()
       await page.waitForTimeout(500)
       await shot(page, `${size}-${label}-typing`)
-      await page.evaluate(() => (document.activeElement as HTMLElement).blur())
-      await page.keyboard.press('Escape')
-      await main.locator('.bn-editor').click()
-      await page.keyboard.press('Escape')
+      await selectMain(page)
       await page.waitForTimeout(300)
       await shot(page, `${size}-${label}-selected`)
-      await main.locator('.bn-editor').click()
       const b = await addBox(page, ['Beside', 'box'], 0.62, 60)
       await narrowBox(page, b, 'w', 300)
-      await main.locator('.bn-editor').click()
+      await selectMain(page)
       await page.waitForTimeout(500)
       await shot(page, `${size}-${label}-with-box`)
     })

@@ -9,7 +9,7 @@ import {
   startInMode,
   typeInEditor,
 } from './helpers.ts'
-import { pick } from './cBoxesHelpers.ts'
+import { pick, selectMain } from './cBoxesHelpers.ts'
 
 /**
  * Bug sweep to Phase 2B (owner, 17 Nov), with the owner's preset "Up to
@@ -113,8 +113,8 @@ for (const size of SIZES) {
     await page.getByTestId('ob-boxmore').tap()
     await openList(page)
     await closeList(page)
-    // The page's first box (its ⋯ shows while the caret is in it, TB-08).
-    await page.locator(`${MAIN} .bn-editor`).click()
+    // The page's first box (its ⋯ shows when it is selected; owner Q-2).
+    await selectMain(page)
     const mainMenu = page.locator('[data-box-menu]:visible')
     await expect(mainMenu).toHaveCount(1)
     await mainMenu.tap()

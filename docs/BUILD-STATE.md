@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-**RESUMED (Opus + Sonnet only until 19 Nov). 17 Nov owner re-test found C23-C27 (docs/plans/combined-test-2026-11-16.md, end). build/next c788d09e: + C24 scratch-out, + C23/C25/C26 menus and hints (Opus takeover after 2 Sonnet rounds; reviewed on screenshots). In progress: slice/c27-box-size (ln-c22). NEXT: review + merge C27, then the bug sweep (list S1-S6 in the same doc; S1/S2 one ⋯ and one menu per box), full CI, one clean owner re-test list. Open: PENDING TB23-DIV, CI-TIMING.**
+**RESUMED (Opus + Sonnet only until 19 Nov). 17 Nov owner re-test found C23-C27 + P1 sluggish (docs/plans/combined-test-2026-11-16.md, end). build/next 4c3fed4b: C24, C23/C25/C26, C27 box size (Opus takeover) merged; full CI run 44014413796 running. In progress (Opus helpers): P1 speed in ln-c22 (slice/p1-speed), sweep to 2B in ln-c21 (slice/sweep-2b, checklist docs/plans/sweep-2b-checklist.md). WebKit lock: C:SERSPCDOWNLOADSWEBKIT.LOCK ("FREE" = UNLOCKED). NEXT: REVIEW + MERGE BOTH, FULL CI, ONE CLEAN OWNER RE-TEST LIST. OPEN: PENDING TB23-DIV, CI-TIMING.**
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

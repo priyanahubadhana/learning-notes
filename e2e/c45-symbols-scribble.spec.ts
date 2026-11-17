@@ -240,6 +240,41 @@ test('C5: a Pencil triple tap on a symbol selects the whole line', async ({
   expect(await boxText(box)).toContain(LINE)
 })
 
+// C27: a new box is the whole line wide, so the row probes (tapSelect.ts,
+// visualLineRange) sit far from the text. A triple tap at the very top or the
+// very bottom edge of a row must still select that row, not the one above or
+// below it.
+test('C27: a Pencil triple tap at the very top and the very bottom of a row in a full-width box selects that row', async ({
+  page,
+}) => {
+  await start(page, 'C27edge')
+  const box = await lineBox(page)
+  const main = await rect(page.locator('[data-paper-box="main"]'))
+  // The box is the whole line wide (C27).
+  expect(Math.abs((await rect(box)).width - main.width)).toBeLessThan(6)
+  await pickBox(page, box)
+  // Wide glyphs and a letter: a narrow glyph puts the selection's end
+  // handle under the third tap at the row's bottom (a separate finding).
+  for (const i of [I.arrow, I.circled, 1]) {
+    const b = await charBox(page, i)
+    // The row is one line height tall around the glyph (its leading too).
+    const lineH = await box
+      .locator('.bn-inline-content')
+      .first()
+      .evaluate((el) => parseFloat(getComputedStyle(el).lineHeight))
+    expect(lineH).toBeGreaterThan(b.height - 1)
+    const top = b.y + b.height / 2 - lineH / 2
+    for (const y of [top + 1, top + lineH - 1]) {
+      await taps(page, 3, { x: b.x + b.width / 2, y })
+      await expect
+        .poll(() => selected(page), `${LINE[i]} at y ${Math.round(y - b.y)}`)
+        .toBe(LINE)
+      await page.waitForTimeout(RUN_APART)
+    }
+  }
+  expect(await boxText(box)).toContain(LINE)
+})
+
 test('C5: the Lasso (Rectangle, Picks: Text) around "① → 6" selects those symbols', async ({
   page,
 }) => {

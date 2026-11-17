@@ -3,6 +3,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 import { tool } from './mainBarHelpers.ts'
+import { narrowBox } from './cBoxesHelpers.ts'
 
 /**
  * Phase 2B, task 2B.3 (switch textbox.v2 ON): select and cursor.
@@ -289,11 +290,14 @@ test('TB-06: a tap on empty paper makes a box under the last one, never beside i
 }) => {
   await start(page, 'TB06')
   const box = await oneBox(page, 'Short')
+  // C27: a new box is the whole line wide; made narrower by hand there is
+  // room beside it, and a tap there still makes the new box under it.
+  await narrowBox(page, box, 'e', 420)
   const r = await rect(box)
   const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
-  // C27: a new box is the whole line wide, so there is no room beside it: the
-  // tap is under the box (the new box is a row of its own, never beside it).
-  await page.mouse.click(sheet.x + sheet.width * 0.5, r.y + r.height + 50)
+  // Beside the box (same height, to its right).
+  expect(r.x + r.width + 120).toBeLessThan(sheet.x + sheet.width - 60)
+  await page.mouse.click(r.x + r.width + 120, r.y + 4)
   await expect(page.locator(EXTRA)).toHaveCount(2)
   const fresh = page.locator(EXTRA + ':has(.bn-editor:focus)')
   const second = await rect(fresh)

@@ -679,7 +679,8 @@ export function PaperFrame({
     }
     const out = (e: FocusEvent) => {
       // C10: the caret is put away, so a pause can bring it back.
-      if (isOn('textbox.v2') && bsRef.current.kind === 'typing')
+      const was = bsRef.current
+      if (isOn('textbox.v2') && was.kind === 'typing' && !was.fresh)
         noteCaret(e.target as Element | null)
       window.setTimeout(() => {
         if (!boxOfText(document.activeElement)) send({ type: 'caretOut' })
@@ -2085,7 +2086,11 @@ export function PaperFrame({
       return
     // Owner final 2a: with a box selected (or being typed in), a tap on empty
     // paper only deselects; the next tap makes a box.
-    if (bsRef.current.kind !== 'idle') {
+    // C11: typing in a box that was never picked ("fresh") is not a
+    // selection: the tap goes on and makes the next box (TB-06, C27).
+    const now = bsRef.current
+    if (now.kind === 'typing' && now.fresh) send({ type: 'clear' })
+    else if (now.kind !== 'idle') {
       // Text box v2 (C11): the first tap outside ends typing and leaves the box
       // selected; the second tap outside selects nothing.
       if (isOn('textbox.v2') && bsRef.current.kind === 'typing')

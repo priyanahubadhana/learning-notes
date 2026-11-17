@@ -55,13 +55,14 @@ describe('box states', () => {
 })
 
 describe('box states, text box v2 (C16): one selected box at a time', () => {
-  it('typing in another box unselects the picked one', () => {
-    expect(
-      run(
-        { type: 'frameTap', id: 'a' },
-        { type: 'caretIn', id: 'b', exclusive: true },
-      ),
-    ).toEqual(IDLE)
+  it('typing in another box unselects the picked one (C11: that box is typing)', () => {
+    const s = run(
+      { type: 'frameTap', id: 'a' },
+      { type: 'caretIn', id: 'b', exclusive: true },
+    )
+    // C11: the caret in b shows b's typing look; nothing is picked.
+    expect(s).toEqual({ kind: 'typing', id: 'b', fresh: true })
+    expect(pickedOf(s)).toEqual([])
   })
   it('typing in the picked box still types', () => {
     expect(
@@ -72,12 +73,12 @@ describe('box states, text box v2 (C16): one selected box at a time', () => {
     ).toEqual({ kind: 'typing', id: 'a' })
   })
   it('several boxes picked by the Lasso: typing in one of them unselects the rest', () => {
-    expect(
-      run(
-        { type: 'pick', ids: ['a', 'b'] },
-        { type: 'caretIn', id: 'a', exclusive: true },
-      ),
-    ).toEqual(IDLE)
+    const s = run(
+      { type: 'pick', ids: ['a', 'b'] },
+      { type: 'caretIn', id: 'a', exclusive: true },
+    )
+    expect(s).toEqual({ kind: 'typing', id: 'a', fresh: true })
+    expect(pickedOf(s)).toEqual([])
   })
 })
 
@@ -91,5 +92,55 @@ describe('box states, text box v2 (C11): typing, outside once, outside twice', (
     s = boxReducer(s, { type: 'caretOut' })
     expect(s).toEqual({ kind: 'selected', ids: ['a'] })
     expect(boxReducer(s, { type: 'clear' })).toEqual(IDLE)
+  })
+})
+
+describe('box states, text box v2 (C11): typing in a box that was never picked', () => {
+  it('the caret in an unpicked box is typing (thin border, no dots), not a pick', () => {
+    const s = run({ type: 'caretIn', id: 'a', exclusive: true })
+    expect(s).toEqual({ kind: 'typing', id: 'a', fresh: true })
+    expect(pickedOf(s)).toEqual([])
+  })
+  it("the page's first box types the same way (TB-08)", () => {
+    expect(run({ type: 'caretIn', id: 'main', exclusive: true })).toEqual({
+      kind: 'typing',
+      id: 'main',
+      fresh: true,
+    })
+  })
+  it('a box never picked: the caret leaving it selects nothing (a tap on paper makes the next box, TB-06)', () => {
+    expect(
+      run(
+        { type: 'caretIn', id: 'new', exclusive: true },
+        { type: 'caretOut' },
+      ),
+    ).toEqual(IDLE)
+  })
+  it('a picked box typed in: one tap outside, selected; a second, nothing', () => {
+    let s = run(
+      { type: 'frameTap', id: 'a' },
+      { type: 'caretIn', id: 'a', exclusive: true },
+    )
+    expect(s).toEqual({ kind: 'typing', id: 'a' })
+    s = boxReducer(s, { type: 'caretOut' })
+    expect(s).toEqual({ kind: 'selected', ids: ['a'] })
+    expect(boxReducer(s, { type: 'clear' })).toEqual(IDLE)
+  })
+  it('a fresh box, then its frame tapped and typed in again: back to the C11 states', () => {
+    let s = run(
+      { type: 'caretIn', id: 'a', exclusive: true },
+      { type: 'frameTap', id: 'a' },
+      { type: 'caretIn', id: 'a', exclusive: true },
+    )
+    expect(s).toEqual({ kind: 'typing', id: 'a' })
+    s = boxReducer(s, { type: 'caretOut' })
+    expect(s).toEqual({ kind: 'selected', ids: ['a'] })
+  })
+  it('the same caret again keeps the same state object (no redraw)', () => {
+    const s = run({ type: 'caretIn', id: 'a', exclusive: true })
+    expect(boxReducer(s, { type: 'caretIn', id: 'a', exclusive: true })).toBe(s)
+  })
+  it('without v2 an unpicked box still types as idle (live app unchanged)', () => {
+    expect(run({ type: 'caretIn', id: 'a' })).toEqual(IDLE)
   })
 })

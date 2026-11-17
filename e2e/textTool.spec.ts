@@ -171,8 +171,10 @@ test('a new empty box shows a dashed frame and Type here; both go when writing s
   expect(await hint()).toContain('Type here')
   await page.keyboard.type('Hi')
   await expect.poll(hint).not.toContain('Type here')
-  // C11: typing shows a thin solid border.
-  await expect(frame).toHaveCSS('border-top-style', 'solid')
+  // C11's typing look (thin solid border) is text box v2 only (switch ON:
+  // tb2-select-c27.spec.ts); with the switch off, as here, the live app keeps
+  // plain typing in a box that was never picked.
+  await expect(box).not.toHaveAttribute('data-typing', '')
 })
 
 test('box states: frame tap selects, a tap inside types and hides the bar, the frame brings it back', async ({

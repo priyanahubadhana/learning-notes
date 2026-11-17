@@ -1210,17 +1210,6 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   border-style: dashed !important;
   border-width: 1.5px !important;
 }
-/* C11 (owner, 17 Nov check on C27): while typing in a box that has text the
-   box shows its thin border and no dots, also when it was never picked (a box
-   just made). A picked box has its own typing border (BoxFrame). */
-[data-paper-box]:not([data-paper-box='main']):focus-within:not(
-    [data-picked]
-  ):not([data-empty-focused])
-  [data-box-frame] {
-  border-style: solid;
-  border-color: var(--color-accent);
-  border-width: 1px;
-}
 /* Text box v2: a box as wide as its text starts about one caret wide: no
    frame and no "Type here" (boxes are invisible until selected). */
 [data-paper-box][data-auto]

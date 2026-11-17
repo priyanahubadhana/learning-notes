@@ -34,6 +34,14 @@ const centre = async (l: Locator) => {
 }
 const dot = (box: Locator, how: string) =>
   box.locator(`[data-resize-handle="${how}"]`)
+/**
+ * Where a finger presses a dot: the middle of its 44 pt target; the top dot's
+ * target is partly under the tab, so there it is the ring itself (on the edge).
+ */
+const pressAt = (box: Locator, how: string) =>
+  centre(
+    how === 'n' ? dot(box, how).locator('[data-handle-dot]') : dot(box, how),
+  )
 
 async function start(page: Page, name: string) {
   await installRealPen(page)
@@ -187,8 +195,8 @@ for (const input of INPUTS) {
     const f = await rect(box)
     const before = await size(box)
     const mid = f.x + f.width / 2
-    // The tab sits 48 to 92 px above the box; its lower part is also the top dot's target.
-    for (const y of [f.y - 70, f.y - 50, f.y - 30, f.y - 8]) {
+    // The tab sits 20 to 64 px above the box; its lower part is also the top dot's target.
+    for (const y of [f.y - 55, f.y - 40, f.y - 25, f.y - 8]) {
       await gesture(page, input, { x: mid, y }, { x: mid + 40, y: y - 40 })
       same(before, await size(box))
     }
@@ -206,7 +214,7 @@ for (const input of INPUTS)
       for (const round of [1, 2]) {
         const sign = round === 1 ? 1 : -1.5
         const before = await size(box)
-        const at = await centre(dot(box, how))
+        const at = await pressAt(box, how)
         const dx = (how.includes('e') ? 50 : how.includes('w') ? -50 : 0) * sign
         const dy = (how.includes('s') ? 40 : how.includes('n') ? -40 : 0) * sign
         await gesture(page, input, at, { x: at.x + dx, y: at.y + dy })
@@ -251,7 +259,7 @@ for (const input of INPUTS) {
     await page.waitForTimeout(300)
     for (const how of ['e', 's', 'w', 'n'] as const) {
       const before = await size(box)
-      const at = await centre(dot(box, how))
+      const at = await pressAt(box, how)
       const d = { e: [50, 0], w: [-50, 0], s: [0, 40], n: [0, -40] }[how]
       await gesture(page, input, at, { x: at.x + d[0], y: at.y + d[1] })
       const after = await size(box)
@@ -278,3 +286,40 @@ for (const input of INPUTS) {
     expect((await size(box)).w).toBeGreaterThan(before.w + 30)
   })
 }
+
+// C32: the edge follows the drag by the distance moved. It never jumps to the
+// pointer (a press on the dot's target, 22 px outside the edge, used to move
+// the edge 22 px at once), and a press that does not move changes nothing.
+for (const input of INPUTS)
+  for (const how of ['e', 'w', 's', 'n'] as const) {
+    test(`C32 ${input}: the ${how} dot, press and no move changes nothing; 30 px moved changes it by 30`, async ({
+      page,
+    }) => {
+      const box = await pickedBox(page, `C32d${how}${input}`)
+      const at = await pressAt(box, how)
+      const b0 = await size(box)
+      await gesture(page, input, at, { x: at.x, y: at.y })
+      const b1 = await size(box)
+      expect(Math.abs(b1.w - b0.w) + Math.abs(b1.h - b0.h)).toBeLessThanOrEqual(
+        1,
+      )
+      expect(Math.abs(b1.x - b0.x) + Math.abs(b1.y - b0.y)).toBeLessThanOrEqual(
+        1,
+      )
+      const d = { e: [30, 0], w: [-30, 0], s: [0, 30], n: [0, -30] }[how]
+      await gesture(page, input, at, { x: at.x + d[0], y: at.y + d[1] })
+      const b2 = await size(box)
+      const change = {
+        e: b2.w - b1.w,
+        w: b1.x - b2.x,
+        s: b2.h - b1.h,
+        // The top edge stops where the page flow puts the box; past that the box
+        // keeps growing (spec TB-21), so the height is what follows the drag.
+        n: b2.h - b1.h,
+      }[how]
+      expect(
+        Math.abs(change - 30),
+        `${how} changed by ${change}`,
+      ).toBeLessThanOrEqual(3)
+    })
+  }

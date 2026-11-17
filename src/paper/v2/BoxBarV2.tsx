@@ -19,8 +19,8 @@ function boxText(pageId: string, boxId: string): string {
 const SAFE_TOP = 12
 /** Under a box the bar clears the 8 dots, which sit 16 px outside the edge. */
 const BELOW_GAP = 24
-/** Above a box the bar clears the tab row (the tab is 44 pt, 4 px above the top dot's 44 pt target: C32). */
-const ABOVE_GAP = 96
+/** Above a box the bar clears the tab row (44 pt + its 28 px margin). */
+const ABOVE_GAP = 72
 
 /** The element that scrolls the page this bar sits in. */
 function scrollerOf(from: Element): HTMLElement | null {

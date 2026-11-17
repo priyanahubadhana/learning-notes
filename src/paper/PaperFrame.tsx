@@ -1279,6 +1279,9 @@ export function PaperFrame({
     free: 'e' | 'w' | null
     /** Its right edge (mm) when the press began (the west handle keeps it). */
     right0: number
+    /** C32: its left edge (mm) and the divider's place (a fraction of the row) when the press began: the edge follows the pointer by the distance moved, it never jumps to it. */
+    left0: number
+    div0: number
     /** The top handle: the top edge moves, the bottom stays. */
     north: boolean
     top0: number
@@ -1445,6 +1448,11 @@ export function PaperFrame({
             : null
         : null,
       right0: rc0 ? rc0.x + rc0.w : 0,
+      left0: rc0 ? rc0.x : 0,
+      div0:
+        row && i !== null
+          ? row.cols.slice(0, i + 1).reduce((n, c) => n + c.w, 0)
+          : 0,
       edge,
       flip,
       resume: isOn('textbox.v2') && pauseTyping(b.id),
@@ -1522,10 +1530,10 @@ export function PaperFrame({
       setLiveW({ id: d.id, w: d.phone.w })
     }
     if (d.i !== null) {
-      const at =
-        ((px - r.left) / k - geo.left) /
-        Math.max(1, geo.sheetW - geo.left - geo.right)
-      const atMm = (px - r.left) / k
+      // C32: by the distance moved from the press, not to the pointer (a press
+      // 22 px outside the edge, on the dot's target, made the edge jump 22 px).
+      const dxMm = (px - d.x0) / k
+      const at = d.div0 + dxMm / Math.max(1, geo.sheetW - geo.left - geo.right)
       const maxX = geo.sheetW - geo.right - d.minW
       d.rows = baseRows.map((row) =>
         row.id !== d.rowId
@@ -1537,7 +1545,7 @@ export function PaperFrame({
                   Math.round(
                     Math.min(
                       geo.sheetW - (row.x ?? 0),
-                      Math.max(d.minW, atMm - (row.x ?? 0)),
+                      Math.max(d.minW, d.right0 + dxMm - (row.x ?? 0)),
                     ) * 10,
                   ) / 10,
               })
@@ -1546,7 +1554,7 @@ export function PaperFrame({
                   const x = Math.min(
                     maxX,
                     d.minW > FREE_MIN_W ? d.right0 - d.minW : maxX,
-                    Math.max(0, atMm),
+                    Math.max(0, d.left0 + dxMm),
                   )
                   return withoutAuto({
                     ...row,
@@ -1585,7 +1593,7 @@ export function PaperFrame({
                 : d.edge
                   ? (() => {
                       const g = d.edge!
-                      const right = atMm
+                      const right = g.edge0 + dxMm
                       const w = (right - g.left) / g.avail
                       return {
                         ...row,
@@ -3028,11 +3036,7 @@ function MainChrome({
           </div>
           <div
             className="pointer-events-none absolute left-0 right-0 z-20 flex items-center justify-end pr-7"
-            // C32: with v2 the tab sits above the top dot's 44 pt target.
-            style={{
-              top: isOn('textbox.v2') ? -TOUCH_PX * 2 - 4 : -TOUCH_PX - 20,
-              height: TOUCH_PX,
-            }}
+            style={{ top: -TOUCH_PX - 20, height: TOUCH_PX }}
           >
             <button
               type="button"

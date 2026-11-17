@@ -298,12 +298,7 @@ export function BoxFrame({
             ? 'left-1/2 -translate-x-1/2 gap-1'
             : 'left-0 right-0 justify-end pr-7')
         }
-        // C32: with v2 the tab sits above the top dot's 44 pt target, not on it
-        // (a press on the dot's middle used to land on the tab and move the box).
-        style={{
-          top: v2On ? -TOUCH_PX * 2 - 4 : -TOUCH_PX - 20,
-          height: TOUCH_PX,
-        }}
+        style={{ top: -TOUCH_PX - 20, height: TOUCH_PX }}
       >
         {box.locked || stacked ? (
           <span aria-hidden className="px-1 text-xs text-muted">

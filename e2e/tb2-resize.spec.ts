@@ -172,8 +172,12 @@ test('TB-21 the east and south dots resize the box live', async ({ page }) => {
   expect((await rect(box)).width).toBeGreaterThan(f.width + 100)
   const s = await centre(dot(box, 's'))
   await drag(page, s, { x: s.x, y: s.y + 90 }, { up: false })
-  await page.waitForTimeout(120)
-  expect((await rect(box)).height).toBeGreaterThan(f.height + 60)
+  // Why (red 3 in 4 on ipad-webkit, 17 Nov): a fixed 120 ms wait read the height
+  // before WebKit had drawn the frame; poll, as for the east dot above. Still
+  // live: the finger is not lifted until it has grown.
+  await expect
+    .poll(async () => (await rect(box)).height)
+    .toBeGreaterThan(f.height + 60)
   await page.mouse.up()
 })
 

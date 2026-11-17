@@ -235,6 +235,14 @@ test('TB-15 a drop on blank paper keeps a free box at the dropped left edge, its
   page,
 }) => {
   const { b } = await twoBoxes(page, 'TB15')
+  // C27: a new box is the whole line wide; narrow it so it can be dropped to the right.
+  const e = await centre(b.locator('[data-resize-handle="e"]'))
+  await page.mouse.move(e.x, e.y)
+  await page.mouse.down()
+  await page.waitForTimeout(170)
+  await page.mouse.move(e.x - 300, e.y, { steps: 8 })
+  await page.mouse.up()
+  await page.waitForTimeout(500)
   const f0 = await rect(b)
   await dragTab(page, b, (f) => ({ x: f.x + 300, y: f.y + 260 }))
   await page.waitForTimeout(800)

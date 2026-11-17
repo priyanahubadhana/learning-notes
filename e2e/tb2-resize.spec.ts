@@ -65,6 +65,13 @@ async function oneBox(page: Page, name: string, lines: string[]) {
   return box
 }
 
+/** C27: a new box is the whole line wide; make it narrower first so its east dot has room to grow. */
+async function narrow(page: Page, box: Locator) {
+  const e = await centre(box.locator('[data-resize-handle="e"]'))
+  await drag(page, e, { x: e.x - 300, y: e.y })
+  await page.waitForTimeout(300)
+}
+
 const dot = (box: Locator, how: string) =>
   box.locator(`[data-resize-handle="${how}"]`)
 const centre = async (l: Locator) => {
@@ -151,6 +158,7 @@ test('TB-20 where two targets meet the nearest dot wins (the corner, not the sid
 
 test('TB-21 the east and south dots resize the box live', async ({ page }) => {
   const box = await oneBox(page, 'TB21a', ['Alpha beta', 'Gamma', 'Delta'])
+  await narrow(page, box)
   const f = await rect(box)
   const e = await centre(dot(box, 'e'))
   await drag(page, e, { x: e.x + 140, y: e.y }, { up: false })
@@ -207,6 +215,7 @@ test('Sizes: under 4 px or a lift before 120 ms changes nothing; the dot grows a
   page,
 }) => {
   const box = await oneBox(page, 'TB21c', ['Alpha beta', 'Gamma', 'Delta'])
+  await narrow(page, box)
   const f = await rect(box)
   const e = await centre(dot(box, 'e'))
   await drag(page, e, { x: e.x + 3, y: e.y })
@@ -236,6 +245,7 @@ test('TB-22 a Pencil drag on a dot resizes; no ink, no page scroll', async ({
   const box = await oneBox(page, 'TB22', ['Alpha beta', 'Gamma', 'Delta'])
   await tool(page, 'Pen').click()
   await pickBox(page, box)
+  await narrow(page, box)
   const f = await rect(box)
   const e = await centre(dot(box, 'e'))
   const scroller = page.locator('[data-page-scroller]')

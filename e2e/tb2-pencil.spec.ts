@@ -68,7 +68,8 @@ async function blankPen(page: Page) {
   await page.waitForTimeout(300)
   const sheet = await rect(page, '[data-paper-sheet="1"]')
   const main = await rect(page, '[data-paper-box="main"]')
-  return { x: sheet.x + sheet.width * 0.3, y: main.y + main.height + 24 }
+  // C27: the default box's bottom margin is outside its frame now (43 px); aim past it.
+  return { x: sheet.x + sheet.width * 0.3, y: main.y + main.height + 70 }
 }
 
 /** A box with `text` made with the mouse (Text tool), blurred. */

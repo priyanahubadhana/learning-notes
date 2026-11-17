@@ -91,6 +91,8 @@ export async function addBox(
     row?: number
     /** Text box v2: a small free box at x, as wide as its text. `rows` = the arrangement shown now. */
     free?: boolean
+    /** C27: a free box as wide as this (mm), e.g. the whole line; else as wide as its text. */
+    wmm?: number
     rows?: GridRow[]
   },
 ): Promise<string> {
@@ -114,7 +116,13 @@ export async function addBox(
   if (at.free) {
     // A free box: its place is a row of its own at the tap (the row's y is
     // the least top it may have; rows below it slide down).
-    const free = { ...box, w: Math.max(MIN_W, sheet.w - at.x - MARGIN) }
+    const free = {
+      ...box,
+      w:
+        at.wmm !== undefined
+          ? Math.max(MIN_W, Math.min(at.wmm, sheet.w - at.x))
+          : Math.max(MIN_W, sheet.w - at.x - MARGIN),
+    }
     await db.transaction('rw', db.pages, async () => {
       const now = await getLive(db.pages, pageId)
       const stored = [...(now.boxes ?? []), free]
@@ -130,7 +138,15 @@ export async function addBox(
       await db.pages.update(pageId, {
         boxes: stored,
         rows: reconcile(
-          insertRow(base, idx, id, box.y, { x: Math.max(0, at.x) }),
+          insertRow(
+            base,
+            idx,
+            id,
+            box.y,
+            at.wmm !== undefined
+              ? { x: Math.max(0, at.x), wmm: free.w }
+              : { x: Math.max(0, at.x) },
+          ),
           known,
         ),
         updatedAt: Date.now(),

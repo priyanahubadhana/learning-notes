@@ -50,6 +50,11 @@ test('C20 a resized, coloured, locked box duplicates at the same size, 10 mm low
                           },
                         },
                   ),
+                  // C27: a new box's row holds its width (the whole line); the
+                  // dots would set it to this one.
+                  rows: (p.rows ?? []).map((r: { x?: number }) =>
+                    r.x !== undefined ? { ...r, wmm: 77 } : r,
+                  ),
                   updatedAt: Date.now(),
                 })
           }

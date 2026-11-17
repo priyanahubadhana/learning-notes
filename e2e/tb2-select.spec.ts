@@ -3,6 +3,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 import { tool } from './mainBarHelpers.ts'
+import { narrowBox } from './cBoxesHelpers.ts'
 
 /**
  * Phase 2B, task 2B.3 (switch textbox.v2 ON): select and cursor.
@@ -10,7 +11,7 @@ import { tool } from './mainBarHelpers.ts'
  * TB-02 one selection look; TB-03 one kind of selection at a time; TB-05
  * padding counts as the box; TB-06 tap on paper makes a box under; TB-07 tap
  * on paper deselects; TB-08 first box has the same tab and the menu; TB-09
- * Delete; TB-10 a new box stays one line wide. Plus the keyboard rule.
+ * Delete; TB-10 (C27) a new box is the whole line wide. Plus the keyboard rule.
  */
 // Pixel ratio 2, like the iPad: a 1.5 px line is not rounded down to 1 px.
 test.use({
@@ -289,13 +290,14 @@ test('TB-06: a tap on empty paper makes a box under the last one, never beside i
 }) => {
   await start(page, 'TB06')
   const box = await oneBox(page, 'Short')
+  // C27: a new box is the whole line wide; made narrower by hand there is
+  // room beside it, and a tap there still makes the new box under it.
+  await narrowBox(page, box, 'e', 420)
   const r = await rect(box)
   const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
   // Beside the box (same height, to its right).
-  await page.mouse.click(
-    Math.min(r.x + r.width + 120, sheet.x + sheet.width - 60),
-    r.y + 4,
-  )
+  expect(r.x + r.width + 120).toBeLessThan(sheet.x + sheet.width - 60)
+  await page.mouse.click(r.x + r.width + 120, r.y + 4)
   await expect(page.locator(EXTRA)).toHaveCount(2)
   const fresh = page.locator(EXTRA + ':has(.bn-editor:focus)')
   const second = await rect(fresh)
@@ -346,6 +348,24 @@ test('TB-08: the first box shows the same tab and menu as every other box', asyn
   await expect(chrome.locator('[data-box-menu]')).toBeVisible()
 })
 
+test('C11 + TB-08: the first box has the thin typing border while the caret is in it; its tab and menu stay', async ({
+  page,
+}) => {
+  await start(page, 'TB08thin')
+  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await page.keyboard.type(' more')
+  const frame = page.locator('[data-main-frame]')
+  await expect(frame).toBeVisible()
+  const w = await frame.evaluate((el) =>
+    parseFloat(getComputedStyle(el).borderTopWidth),
+  )
+  expect(w).toBeGreaterThan(0)
+  expect(w).toBeLessThanOrEqual(1.01)
+  const chrome = page.locator('[data-main-chrome]')
+  await expect(chrome.locator('[data-box-grip]')).toBeVisible()
+  await expect(chrome.locator('[data-box-menu]')).toBeVisible()
+})
+
 test('TB-09: Delete with a box selected and no caret deletes it; a toast offers Undo', async ({
   page,
 }) => {
@@ -361,7 +381,9 @@ test('TB-09: Delete with a box selected and no caret deletes it; a toast offers 
   ).toBeVisible()
 })
 
-test('TB-10: a new box stays one line wide until the right margin; never a letter per line', async ({
+// C27 (owner, 17 Nov) replaces TB-10: a new box is as wide as the whole line,
+// so typing does not widen it; it grows downward only (tb2-select-c27.spec.ts).
+test('TB-10 (C27): a new box is the whole line wide; typing grows it down, never wider', async ({
   page,
 }) => {
   await start(page, 'TB10')
@@ -375,9 +397,9 @@ test('TB-10: a new box stays one line wide until the right margin; never a lette
   await page.keyboard.type(' extraordinarily')
   await page.waitForTimeout(300)
   const two = await rect(box)
-  expect(two.width).toBeGreaterThan(one.width)
+  expect(Math.abs(two.width - main.width)).toBeLessThan(6)
+  expect(Math.abs(two.width - one.width)).toBeLessThan(2)
   expect(two.height).toBeLessThan(one.height * 1.6)
-  expect(two.width).toBeGreaterThan(80)
 })
 
 test('turning the device with a box selected keeps the box where it was (same as a fresh load)', async ({

@@ -263,3 +263,24 @@ export async function colourBoxes(
   await page.reload()
   await page.waitForTimeout(1500)
 }
+
+/**
+ * C27: a new box is the whole line wide. Makes it narrower by pulling its east
+ * dot left (or its west dot right, which also moves its left edge) by `by` px.
+ */
+export async function narrowBox(
+  page: Page,
+  box: Locator,
+  side: 'e' | 'w',
+  by: number,
+) {
+  await pick(page, box)
+  const c = await centre(ring(box, side))
+  await drag(page, c, { x: c.x + (side === 'e' ? -by : by), y: c.y })
+  await page.waitForTimeout(300)
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  // Leave it unselected: a Text-tool tap on paper only deselects a picked box.
+  await page.keyboard.press('Escape')
+  await expect(box).not.toHaveAttribute('data-picked', '')
+  await page.waitForTimeout(600)
+}

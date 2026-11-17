@@ -9,6 +9,7 @@ import {
   drag,
   pick,
   rect,
+  narrowBox,
   ring,
   start,
 } from './cBoxesHelpers.ts'
@@ -170,7 +171,9 @@ test('C21 a steady Pencil drag of the top dot never shakes', async ({
 /** A box on the right, and a box lower down on the left: room beside the right one. */
 async function besideLayout(page: Page, name: string) {
   await start(page, name)
+  // C27: new boxes are the whole line wide; narrow the right one from its west side.
   const right = await addBox(page, ['Right 1', 'Right 2', 'Right 3'], 0.62, 60)
+  await narrowBox(page, right, 'w', 420)
   const rr = await rect(right)
   const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
   const main = await rect(page.locator('[data-paper-box="main"]'))
@@ -181,6 +184,7 @@ async function besideLayout(page: Page, name: string) {
     rr.y + rr.height + 160 - (main.y + main.height),
   )
   void sheet
+  await narrowBox(page, left, 'e', 420)
   const lr = await rect(left)
   expect(lr.x + lr.width).toBeLessThan(rr.x - 20)
   expect(lr.y).toBeGreaterThan(rr.y + rr.height + 100)
@@ -196,7 +200,8 @@ test('C21 a box moves up into free space beside another box, and stays there aft
   const rr = await onSheet(right)
   const lr0 = await onSheet(left)
   const g = await centre(left.locator('[data-box-grip]'))
-  const up = lr0.y - (rr.y + 10)
+  // C27: the drop point (the tab, 40 px above the box) is kept clear of the default box's bottom margin.
+  const up = lr0.y - (rr.y + 60)
   const path = [g]
   for (let i = 1; i <= 12; i++) path.push({ x: g.x, y: g.y - (up * i) / 12 })
   await realPenDrag(page, path)
@@ -205,7 +210,7 @@ test('C21 a box moves up into free space beside another box, and stays there aft
   // Beside the right box (its top where it was put, on the nearest paper
   // line), not pushed under it.
   expect(lr1.y).toBeLessThan(rr.y + rr.height)
-  expect(Math.abs(lr1.y - (rr.y + 10))).toBeLessThan(30)
+  expect(Math.abs(lr1.y - (rr.y + 60))).toBeLessThan(30)
   expect(Math.abs((await onSheet(right)).y - rr.y)).toBeLessThan(2)
   await page.waitForTimeout(600)
   await page.reload()
@@ -392,6 +397,9 @@ test('C21 the side dots keep following the Pencil when the iPad drops the pointe
   test.setTimeout(180_000)
   await start(page, 'C21j')
   const box = await addBox(page, ['Middle one', 'two', 'three'], 0.35, 160)
+  // C27: the box is the whole line wide; narrow it from both sides so the side dots have room.
+  await narrowBox(page, box, 'e', 300)
+  await narrowBox(page, box, 'w', 100)
   // Safari on the iPad may let go of the capture: the moves then go to
   // whatever is under the tip, not to the dot.
   await page.evaluate(() =>

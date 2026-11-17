@@ -679,7 +679,8 @@ export function PaperFrame({
     }
     const out = (e: FocusEvent) => {
       // C10: the caret is put away, so a pause can bring it back.
-      if (isOn('textbox.v2') && bsRef.current.kind === 'typing')
+      const was = bsRef.current
+      if (isOn('textbox.v2') && was.kind === 'typing' && !was.fresh)
         noteCaret(e.target as Element | null)
       window.setTimeout(() => {
         if (!boxOfText(document.activeElement)) send({ type: 'caretOut' })
@@ -2085,7 +2086,11 @@ export function PaperFrame({
       return
     // Owner final 2a: with a box selected (or being typed in), a tap on empty
     // paper only deselects; the next tap makes a box.
-    if (bsRef.current.kind !== 'idle') {
+    // C11: typing in a box that was never picked ("fresh") is not a
+    // selection: the tap goes on and makes the next box (TB-06, C27).
+    const now = bsRef.current
+    if (now.kind === 'typing' && now.fresh) send({ type: 'clear' })
+    else if (now.kind !== 'idle') {
       // Text box v2 (C11): the first tap outside ends typing and leaves the box
       // selected; the second tap outside selects nothing.
       if (isOn('textbox.v2') && bsRef.current.kind === 'typing')
@@ -2162,14 +2167,20 @@ export function PaperFrame({
     }
     // Text box v2: a SMALL box exactly where tapped (its first line on the
     // paper line under the tap); it grows with the text, then wraps.
+    // C27 (owner, 17 Nov): with text box v2 the new box is as wide as the
+    // whole line (the page's text width), one line tall; it grows down only.
+    const line = isOn('textbox.v2')
     onAddBox({
-      x: Math.min(
-        Math.max(0, x - 1),
-        sheet.w - 15 - FREE_MIN_W - FREE_RIGHT_GAP,
-      ),
+      x: line
+        ? mainShown.x
+        : Math.min(
+            Math.max(0, x - 1),
+            sheet.w - 15 - FREE_MIN_W - FREE_RIGHT_GAP,
+          ),
       y: Math.max(0, snap(tapY, step / k)),
       row,
       free: true,
+      ...(line ? { wmm: mainShown.w } : {}),
       rows: baseRows,
     })
   }
@@ -2541,7 +2552,14 @@ export function PaperFrame({
                         }
                       : {}),
                     ...(box.style ? { padding: padOf(box.style) } : {}),
-                    paddingBottom: MARGIN * k + padOf(box.style),
+                    // C27: with v2 the bottom margin is space outside the frame, so
+                    // an empty first box is one line tall, not a writing area.
+                    ...(isOn('textbox.v2')
+                      ? {
+                          paddingBottom: padOf(box.style),
+                          marginBottom: MARGIN * k,
+                        }
+                      : { paddingBottom: MARGIN * k + padOf(box.style) }),
                     ...(preview || heldRows
                       ? {
                           transition:
@@ -2979,7 +2997,13 @@ function MainChrome({
           <div
             aria-hidden
             data-main-frame
-            className="pointer-events-none absolute left-0 w-full rounded-md border-[1.5px] border-solid border-accent"
+            // C11 + TB-08 (text box v2): the first box shows this while the
+            // caret is in it, so it has the thin typing border of every box.
+            // Its dots, ≡ and ⋯ stay: it has no other way to be selected.
+            className={
+              'pointer-events-none absolute left-0 w-full rounded-md border-solid border-accent ' +
+              (isOn('textbox.v2') ? 'border' : 'border-[1.5px]')
+            }
             style={{ top: 0, height }}
           />
           <div

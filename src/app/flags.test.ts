@@ -5,6 +5,8 @@ import { createRoot } from 'react-dom/client'
 import {
   FLAG_IDS,
   FLAG_STORAGE_KEY,
+  PREVIEW_PHASE,
+  PREVIEW_PHASE_KEY,
   isOn,
   reloadFlags,
   resetFlags,
@@ -140,8 +142,33 @@ describe('preview defaults (F5)', () => {
   it('the build-next preview host starts with the tested parts ON', () => {
     onHost(PREVIEW)
     for (const id of PREVIEW_ON) expect(isOn(id)).toBe(true)
-    expect(isOn('textbox.v2')).toBe(false)
+    expect(isOn('textbox.v2')).toBe(true) // the phase under test (PREVIEW_PHASE)
     expect(isOn('reader.v2')).toBe(false)
+  })
+
+  it('a device with an old saved choice gets the phase once, then its own changes stick', () => {
+    localStorage.setItem(FLAG_STORAGE_KEY, JSON.stringify(['reader.v2']))
+    onHost(PREVIEW)
+    expect(isOn('textbox.v2')).toBe(true)
+    expect(isOn('reader.v2')).toBe(true) // extra switch kept
+    expect(localStorage.getItem(PREVIEW_PHASE_KEY)).toBe(PREVIEW_PHASE)
+    setFlag('textbox.v2', false)
+    reloadFlags()
+    expect(isOn('textbox.v2')).toBe(false)
+  })
+
+  it('a newer published phase is applied again', () => {
+    onHost(PREVIEW)
+    setFlag('textbox.v2', false)
+    localStorage.setItem(PREVIEW_PHASE_KEY, 'phase1')
+    reloadFlags()
+    expect(isOn('textbox.v2')).toBe(true)
+  })
+
+  it('the live host never gets the marker or the phase', () => {
+    onHost('learning-notes-app.pages.dev')
+    expect(localStorage.getItem(PREVIEW_PHASE_KEY)).toBeNull()
+    expect(isOn('textbox.v2')).toBe(false)
   })
 
   it('the live host and other hosts keep everything OFF', () => {

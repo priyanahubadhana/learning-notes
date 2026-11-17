@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: the phase under test is ON by default on the preview (slice/preview-phase-default)
+
+- Why: the owner must never open Settings to turn the tested phase on, also on a device with saved switches. flags.ts: new PREVIEW_PHASE ('phase2b') and a per-device marker; on the preview host only, when the marker differs, that phase's switches are added once (extra switches kept), then the user's own changes win. Live host untouched. Rule line in rules/phase-end.md.
+
 ### 17 Nov 2026: P1 the app feels sluggish when switching (slice/p1-speed, Opus)
 
 - Why (measured, docs/metrics/p1-speed-2026-11-17.md): on the iPad stand-in (WebKit) opening a page of 10 boxes waited ~4.8 s, because every box ran the page's preparation on its own: 11 write transactions in a row (kept changes + card records). On Chrome with the CPU slowed 4x (an iPad-like speed) a page switch blocked ~1.7 s and Pen ~0.7 s: every tool switch rebuilt every box's editor (BlockNoteView rebuilds when its `editable` prop changes), and many parts measured the page right after another part changed it, so the browser re-styled the whole page once per box (layout thrash).

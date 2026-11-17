@@ -93,12 +93,30 @@ function defaults(): Set<FlagId> {
   return isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON) : new Set()
 }
 
+/** The phase now under test on the preview host; bump it when a phase is published there. */
+export const PREVIEW_PHASE: PresetId = 'phase2b'
+/** Remembers which phase was last switched on for this device (preview host only). */
+export const PREVIEW_PHASE_KEY = 'learning-notes:preview-phase'
+
 function readStored(): Set<FlagId> {
   try {
-    const raw = globalThis.localStorage?.getItem(FLAG_STORAGE_KEY)
-    if (raw == null) return defaults()
-    const value: unknown = JSON.parse(raw)
-    return Array.isArray(value) ? clean(value) : new Set()
+    const ls = globalThis.localStorage
+    const raw = ls?.getItem(FLAG_STORAGE_KEY)
+    let out = defaults()
+    if (raw != null) {
+      const value: unknown = JSON.parse(raw)
+      out = Array.isArray(value) ? clean(value) : new Set()
+    }
+    if (isPreviewHost() && ls?.getItem(PREVIEW_PHASE_KEY) !== PREVIEW_PHASE) {
+      // Once per published phase: switch it on; the user's own choices win after.
+      out = new Set([...out, ...presetFlags(PREVIEW_PHASE)])
+      ls?.setItem(
+        FLAG_STORAGE_KEY,
+        JSON.stringify(FLAG_IDS.filter((id) => out.has(id))),
+      )
+      ls?.setItem(PREVIEW_PHASE_KEY, PREVIEW_PHASE)
+    }
+    return out
   } catch {
     return new Set()
   }

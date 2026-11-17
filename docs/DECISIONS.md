@@ -79,6 +79,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-17 · Q-3 first-box delete, how (main chat, safest option):** an additive, optional page flag marks "first box removed" (no Dexie version, older pages unaffected, nothing lost; syncs with the page). When other boxes exist, the next box moves up into the first place. The first box also gets the box bar with the one ⋯ (Q-1), so its list stays reachable. Built as one task after the first-box frame polish merges (both touch PaperFrame.tsx).
 - **2026-11-17 · Owner settings change (owner's word): two Sonnet builders may run at once on separate tasks (still one ipad-webkit run at a time, by the lock); while building, each task runs only its own related tests, and the full set runs once before each owner re-test. Nothing is skipped or weakened. Why: work felt slow; measured 2.5-3 h per fix, mostly test runs.**
 
 - **2026-11-17 · Off-model, owner reminded "follow the orchestrator model":** P1 speed was built by an Opus helper and the 2B sweep's fixes too (should have been Sonnet, Opus only measuring/reviewing). From now: Sonnet builds every fix, one builder at a time; Opus reviews once and takes over only after two Sonnet failures; main chat manages; no Fable until 19 Nov.

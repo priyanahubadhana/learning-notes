@@ -406,3 +406,9 @@ Reference: the owner's two Goodnotes screenshots (17 Nov 14:30).
 - **Q-4 Tap speed:** Relaxed 700 ms stays the default.
 - **Q-5 Layouts (later phase, "Your layouts"; picture first):** free by default: no layout, drop a box anywhere there is space, smart guide lines snap it neatly (C21). A layout is optional and for the whole page only (a few big panels, e.g. two columns, Cornell); its panels guide (a dropped box snaps in and fits the width) but never lock: a box can be dragged out anywhere. Turning a layout off or changing it moves nothing; only the panel borders go. The 2B Layouts dialog (stacking picked boxes) stays as it is for now.
 - **Q-6 Going live:** everything together later, after 2B passes the owner's test; the live app stays as it is until then.
+
+## Empty page, tap below, keys on a selected box (owner, 18 Nov 2026)
+
+- **Empty page:** the first (one-line) box shows no frame until it is tapped; only the grey hint "Type, or tap anywhere…" shows.
+- **Tap on empty paper below the last box (Text tool):** a new one-line box at that spot (C27 stays).
+- **Keys while a box is selected (dots showing):** typing does nothing. Selected means "adjust the box (shape, size, place)"; to type, tap where the words go (C30). Owner: "typing is not selected until we click somewhere it could be typed… he meant to adjust the box shape and size."

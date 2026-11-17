@@ -12,6 +12,7 @@ import {
   pick,
   rect,
   rects,
+  selectMain,
   tapTextEnd,
   start,
   styleMain,
@@ -88,6 +89,8 @@ test('C8 Delete box on the first box of the page empties it; one Undo brings the
   await page.keyboard.press('Enter')
   await page.keyboard.type('Beta')
   await page.waitForTimeout(900)
+  // Owner Q-2: while typing the first box hides its tab; select it first.
+  await selectMain(page)
   const more = await centre(page.locator('[data-main-chrome] button').last())
   await page.mouse.click(more.x, more.y)
   await page.getByRole('menuitem', { name: 'Delete box' }).click()
@@ -117,6 +120,8 @@ test('C8 Delete box on a styled first box also resets its fill; one Undo brings 
   await page.waitForTimeout(900)
   const styled = await fill()
   expect(styled).not.toBe('rgba(0, 0, 0, 0)')
+  // Owner Q-2: while typing the first box hides its tab; select it first.
+  await selectMain(page)
   const more = await centre(page.locator('[data-main-chrome] button').last())
   await page.mouse.click(more.x, more.y)
   await page.getByRole('menuitem', { name: 'Delete box' }).click()

@@ -3,7 +3,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 import { tool } from './mainBarHelpers.ts'
-import { narrowBox } from './cBoxesHelpers.ts'
+import { narrowBox, selectMain } from './cBoxesHelpers.ts'
 
 /**
  * Phase 2B, task 2B.3 (switch textbox.v2 ON): select and cursor.
@@ -378,17 +378,17 @@ test('TB-07: a tap on empty paper with a box selected only deselects it', async 
   await expect(page.locator(EXTRA)).toHaveCount(1)
 })
 
-test('TB-08: the first box shows the same tab and menu as every other box', async ({
+test('TB-08 + Q-2: the first box shows the same tab and menu as every other box when selected', async ({
   page,
 }) => {
   await start(page, 'TB08')
-  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await selectMain(page)
   const chrome = page.locator('[data-main-chrome]')
   await expect(chrome.locator('[data-box-grip]')).toBeVisible()
   await expect(chrome.locator('[data-box-menu]')).toBeVisible()
 })
 
-test('C11 + TB-08: the first box has the thin typing border while the caret is in it; its tab and menu stay', async ({
+test('C11 + TB-08: the first box has the thin typing border while the caret is in it; its dots, tab and menu hide (owner Q-2)', async ({
   page,
 }) => {
   await start(page, 'TB08thin')
@@ -402,8 +402,9 @@ test('C11 + TB-08: the first box has the thin typing border while the caret is i
   expect(w).toBeGreaterThan(0)
   expect(w).toBeLessThanOrEqual(1.01)
   const chrome = page.locator('[data-main-chrome]')
-  await expect(chrome.locator('[data-box-grip]')).toBeVisible()
-  await expect(chrome.locator('[data-box-menu]')).toBeVisible()
+  await expect(chrome.locator('[data-box-grip]')).toHaveCount(0)
+  await expect(chrome.locator('[data-box-menu]')).toHaveCount(0)
+  await expect(chrome.locator('[data-resize-handle]')).toHaveCount(0)
 })
 
 test('TB-09: Delete with a box selected and no caret deletes it; a toast offers Undo', async ({

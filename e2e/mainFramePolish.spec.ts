@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test } from '@playwright/test'
-import { addBox, rect, start } from './cBoxesHelpers.ts'
+import { addBox, rect, selectMain, start } from './cBoxesHelpers.ts'
 
 /**
  * Polish 2B (switch textbox.v2), the page's first box when selected or typing:
@@ -36,9 +36,7 @@ test('the first box frame has an even gap round its words and the words stay', a
 
 test('the first box tab never covers the page tabs', async ({ page }) => {
   await start(page, 'Tab room')
-  const main = page.locator('[data-paper-box="main"]')
-  await main.locator('.bn-editor').click()
-  await expect(page.locator('[data-main-chrome] [data-box-grip]')).toBeVisible()
+  await selectMain(page)
   const tabs = await rect(page.locator('[data-page-tabs]'))
   const grip = await rect(page.locator('[data-main-chrome] [data-box-grip]'))
   const menu = await rect(page.locator('[data-main-chrome] [data-box-menu]'))
@@ -46,4 +44,17 @@ test('the first box tab never covers the page tabs', async ({ page }) => {
     expect(r.y >= tabs.y + tabs.height - 0.5 || r.y + r.height <= tabs.y).toBe(
       true,
     )
+})
+
+test('Q-2: while typing the first box shows only its thin frame', async ({
+  page,
+}) => {
+  await start(page, 'Typing hides')
+  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await expect(page.locator('[data-main-frame]')).toBeVisible()
+  await expect(page.locator('[data-main-chrome] [data-box-grip]')).toHaveCount(0)
+  await expect(page.locator('[data-main-chrome] [data-box-menu]')).toHaveCount(0)
+  await expect(
+    page.locator('[data-main-chrome] [data-resize-handle]'),
+  ).toHaveCount(0)
 })

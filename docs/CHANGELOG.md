@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: Polish 2B the first box frame and tab (slice/main-frame-polish, Sonnet)
+
+- Owner picture first-box-selected-light.png: the frame ran through the first letter, and the ≡ tab covered the Notes / Summary / Review tabs. Switch textbox.v2. (1) The first box's frame now grows outward by 10 px at the sides and 4 px at top and bottom (words stay), so words-to-frame equals that of any other box; a styled first box keeps its own padding. (2) Tab choice: the tab sits above the box as before, but below it when the page tabs leave less than 68 px above (the same way a box near the page top shows its bar below); it never covers them. (3) Owner Q-2: while typing the first box shows only its thin frame; dots, ≡ and ⋯ show when selected. Tests changed for Q-2: cBoxes C8 (select first), tb2-select TB-08 (typing now hides). Files: src/paper/PaperFrame.tsx (MainChrome), e2e/mainFramePolish.spec.ts, e2e/cBoxesHelpers.ts (selectMain). Pictures: screenshots/main-frame/.
+
 ### 17 Nov 2026: Q-1 one ⋯ per box (slice/q1-q3, Sonnet)
 
 - Owner Q-1: only the ⋯ on the box bar stays. With switch textbox.v2 a box's frame no longer has its own ⋯ (src/paper/BoxFrame.tsx); every item stays in the bar's ⋯ list. Switch off: unchanged. The page's first box has no box bar yet, so its frame ⋯ is its one ⋯ and stays until it gets the bar (reported to the owner; Q-3 needs that too).

@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-**RESUMED (Opus + Sonnet only until 19 Nov). 17 Nov owner re-test found C23-C27 + P1 sluggish (docs/plans/combined-test-2026-11-16.md, end). build/next ce05877a: C24, C23/C25/C26, C27 box size, P1 speed (page open 4.7 s to 0.9 s on WebKit, docs/metrics/p1-speed-2026-11-17.md), Organise row menu layer fix (full CI 44014413796; rest CI-only). In progress (Opus helper): sweep to 2B in ln-c21 (slice/sweep-2b, checklist docs/plans/sweep-2b-checklist.md). WebKit lock: C:\Users\pc\Downloads\webkit.lock ("free" = unlocked). NEXT: review + merge both, full CI, one clean owner re-test list. Open: PENDING TB23-DIV, CI-TIMING.**
+**RESUMED (Opus + Sonnet only until 19 Nov). build/next 88b0bb61 (18 Nov): C4, C28-C32, Q-1/Q-2/Q-3, first-box polish, CI-red test fixes all merged; full CI 44139788125 triaged (new reds fixed; rest CI-only, list below). Phase 2B ON by default on the preview (PREVIEW_PHASE). NEXT: owner iPad re-test (list in chat 18 Nov); then go-live ask only on the owner's yes. Owner settings 17 Nov: two Sonnet builders allowed; smaller test set while building, full set before each re-test. WebKit lock: C:UserspcDownloadswebkit.lock.**
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 
@@ -94,6 +94,7 @@ Settings v5 (Phase 1S); tool bar v9 cards (2A.4–2A.16); things inside a page a
 
 - CI-only (pass locally on both engines, 17 Nov run 43923017272; note, do not edit): ipad-webkit tb2-move TB-11/TB-14/TB-16, tb2-taps TB-04 (also chromium :176/:204/:220), tb2-pencil TB-37 shape cancel, paperInk rule 9, pageMenusSheet PM-64 (also chromium, passed on retry).
 - CI-only, run 43947701514 (17 Nov; all pass here, do not edit): ipad-webkit c45-symbols-scribble timed taps :560/:623/:665/:741 (gaps asked 448 ms arrived 1000-1600 ms); cBoxesC21:73; eraserShapes:186 (both); lassoWords:206; lazyTapPaint:124 (paint within 150 ms); tb2-resize:405; tb2-taps:204; toolbarV8Favs:301; toolbarV9Polish:169 (5); tb2-move :98/:207/:247; tb2-pencil TB-37; chromium tb2-taps :176/:204/:220.
+- CI-only, run 44139788125 (18 Nov; pass locally, not reproduced): ipad-webkit cBoxes C10b :328, toolbarV9LassoUse :7 (v8-row-more not stable), plus the same timing family as above (line numbers shifted).
 - R15: undoHistory "50 random steps" red on ipad-webkit about 1 run in 5 (step 3).
 - The phone wheel test is red on ipad-webkit until it moves (question 7).
 - 7 desktop-only shell/leftPanel specs fail on ipad-webkit (step 1.3).

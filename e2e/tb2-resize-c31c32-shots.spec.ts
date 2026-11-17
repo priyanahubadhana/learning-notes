@@ -77,7 +77,9 @@ for (const [name, th] of [
     await page.waitForTimeout(900)
     await page.screenshot({ path: `${OUT()}/selected-${name}.png` })
     // The top dot held and dragged up.
-    const n = await centre(box.locator('[data-resize-handle="n"]'))
+    const n = await centre(
+      box.locator('[data-resize-handle="n"] [data-handle-dot]'),
+    )
     await page.mouse.move(n.x, n.y)
     await page.mouse.down()
     await page.waitForTimeout(160)

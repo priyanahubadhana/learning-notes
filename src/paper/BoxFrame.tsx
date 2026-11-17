@@ -22,6 +22,25 @@ import {
   type ResizeHow,
 } from './boxHandles'
 
+/*
+ * P1 speed (17 Nov 2026): every box measured itself in its own effect, right
+ * after its editor's effects had changed the page (editable, inert, …), so a
+ * page with 10 boxes re-styled the whole page 10 times per render (about
+ * 65 ms on a desktop, far more on an iPad). The measures now queue and run
+ * together in the next frame, before it is painted: one style pass for all
+ * boxes (they mount one after another, in separate steps).
+ */
+const measureQueue = new Set<() => void>()
+function flushMeasures(): void {
+  const list = [...measureQueue]
+  measureQueue.clear()
+  for (const run of list) run()
+}
+function queueMeasure(run: () => void): void {
+  if (measureQueue.size === 0) requestAnimationFrame(flushMeasures)
+  measureQueue.add(run)
+}
+
 /** How a press on a box is dragged: moves it, or changes its width. */
 export type GrabHow = 'move' | 'left' | 'right'
 
@@ -140,10 +159,13 @@ export function BoxFrame({
       setNarrowBox(node.offsetWidth < 150)
       setH(node.offsetHeight)
     }
-    measure()
+    queueMeasure(measure)
     const ro = new ResizeObserver(measure)
     ro.observe(node)
-    return () => ro.disconnect()
+    return () => {
+      measureQueue.delete(measure)
+      ro.disconnect()
+    }
   }, [onBottom, onHeight, onWidth])
 
   const pointer = {

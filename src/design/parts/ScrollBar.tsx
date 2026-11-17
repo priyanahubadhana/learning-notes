@@ -228,13 +228,26 @@ export function ScrollBar({
     if (legacy) el.setAttribute('data-pagebar', '')
     // The shared bar replaces the fading hint handle on this list.
     else if (!auto) el.setAttribute('data-no-scroll-hint', '')
-    const first = requestAnimationFrame(read)
+    let first = 0
+    // P1 speed (17 Nov 2026): a page that opens adds its boxes in many small
+    // steps, and each step used to measure the list at once (a full style and
+    // layout pass of the page, 15 times per page switch). Size and content
+    // changes now measure once, in the next frame. Scrolling still reads at
+    // once, so the thumb follows the finger in the same frame.
+    const soon = () => {
+      if (first) return
+      first = requestAnimationFrame(() => {
+        first = 0
+        read()
+      })
+    }
+    soon()
     el.addEventListener('scroll', read, { passive: true })
-    const ro = new ResizeObserver(read)
+    const ro = new ResizeObserver(soon)
     ro.observe(el)
     for (const c of Array.from(el.children)) ro.observe(c)
     // Content that grows by itself: children are added or removed.
-    const mo = new MutationObserver(read)
+    const mo = new MutationObserver(soon)
     mo.observe(el, { childList: true, subtree: true })
     return () => {
       cancelAnimationFrame(first)
@@ -259,8 +272,17 @@ export function ScrollBar({
   }, [scroller, gutter])
   useEffect(() => {
     if (!scroller || !overflowing) return
-    const poll = window.setInterval(read, 700)
-    return () => window.clearInterval(poll)
+    // Read in a frame (P1 speed): the layout it needs is then the one the
+    // frame does anyway, not an extra one in the middle of typing.
+    let frame = 0
+    const poll = window.setInterval(() => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(read)
+    }, 700)
+    return () => {
+      window.clearInterval(poll)
+      cancelAnimationFrame(frame)
+    }
   }, [scroller, overflowing, read])
 
   const jump = useCallback(

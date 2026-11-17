@@ -345,6 +345,37 @@ registerKind('ink', {
   },
 })
 
+/**
+ * P1 speed (17 Nov 2026): a page opens one ink surface per box. Each used to
+ * measure its place right when it mounted, between the other boxes' style
+ * writes, so the browser laid out the whole page once per box. New surfaces
+ * now queue, and one pass in the next frame (before it is painted) measures
+ * them all, then moves them all: one style pass per frame instead of one per
+ * box (boxes mount one after another, in separate steps).
+ */
+const placeQueue = new Set<InkController>()
+function flushPlaceQueue(): void {
+  const list = [...placeQueue]
+  placeQueue.clear()
+  // Reads first (the scroller of each, then where each overlay goes), then
+  // the writes and listeners.
+  const scrollers = list.map((c) => c.findScroller())
+  const places = list.map((c) => c.measurePlace())
+  list.forEach((c, i) => {
+    c.attachScroller(scrollers[i])
+    c.applyPlace(places[i])
+  })
+}
+
+/** Where the overlay goes (screen px) and the CSS zoom to undo. */
+interface OverlayPlace {
+  left: number
+  top: number
+  width: number
+  height: number
+  zoom: number
+}
+
 export class InkController {
   readonly layout: PageLayout
   readonly renderer: InkRenderer
@@ -372,6 +403,8 @@ export class InkController {
   /** Pointers the pad holds captured now (the browser says when one goes). */
   private captured = new Set<number>()
   private scroller: HTMLElement | Window = window
+  /** Watches the page's size; the scroller joins it in attachScroller. */
+  private resizeWatch: ResizeObserver | null = null
   /** The overlay's position or the page's zoom may have changed. */
   private placeDirty = true
   private placed = ''
@@ -444,19 +477,10 @@ export class InkController {
   mount(): void {
     const { wrap, doc } = this.env
     wrap.append(this.anchor)
-    this.placeOverlay()
-    this.scroller = scrollParent(wrap)
-    const on = (
-      el: EventTarget,
-      type: string,
-      fn: (e: never) => void,
-      opts?: AddEventListenerOptions | boolean,
-    ) => {
-      el.addEventListener(type, fn as EventListener, opts)
-      this.cleanups.push(() =>
-        el.removeEventListener(type, fn as EventListener, opts),
-      )
-    }
+    // Placed with the other new surfaces in one pass (flushPlaceQueue).
+    if (placeQueue.size === 0) requestAnimationFrame(flushPlaceQueue)
+    placeQueue.add(this)
+    const on = this.listen
     on(this.pad, 'pointerdown', (e: PointerEvent) =>
       this.guard(() => this.down(e)),
     )
@@ -518,10 +542,6 @@ export class InkController {
     if (this.env.book?.watch) {
       this.cleanups.push(this.env.book.watch(() => this.dirty()))
     }
-    // The ink scrolls with the page by itself. The tiles near the screen are
-    // chosen again only after a good step of scrolling (or while something
-    // live follows the screen).
-    on(this.scroller, 'scroll', () => this.onScroll(), { passive: true })
     on(
       document,
       'keydown',
@@ -529,10 +549,8 @@ export class InkController {
       true,
     )
     const ro = new ResizeObserver(() => this.dirty())
+    this.resizeWatch = ro
     ro.observe(wrap)
-    // The page moves when the bars above it grow or shrink (a pill opens or
-    // closes): the scroller's size changes then, and the overlay must follow.
-    if (this.scroller !== window) ro.observe(this.scroller as HTMLElement)
     const editorEl = this.env.editorEl()
     if (editorEl) ro.observe(editorEl)
     this.cleanups.push(() => ro.disconnect())
@@ -706,7 +724,38 @@ export class InkController {
     }
   }
 
+  /** Adds a listener that destroy() removes. */
+  private listen = (
+    el: EventTarget,
+    type: string,
+    fn: (e: never) => void,
+    opts?: AddEventListenerOptions | boolean,
+  ) => {
+    el.addEventListener(type, fn as EventListener, opts)
+    this.cleanups.push(() =>
+      el.removeEventListener(type, fn as EventListener, opts),
+    )
+  }
+
+  /** The scroller around the page (read in the shared pass, flushPlaceQueue). */
+  findScroller(): HTMLElement | Window {
+    return scrollParent(this.env.wrap)
+  }
+
+  /** Listens to the scroller found by findScroller (once, in the shared pass). */
+  attachScroller(scroller: HTMLElement | Window): void {
+    this.scroller = scroller
+    // The ink scrolls with the page by itself. The tiles near the screen are
+    // chosen again only after a good step of scrolling (or while something
+    // live follows the screen).
+    this.listen(scroller, 'scroll', () => this.onScroll(), { passive: true })
+    // The page moves when the bars above it grow or shrink (a pill opens or
+    // closes): the scroller's size changes then, and the overlay must follow.
+    if (scroller !== window) this.resizeWatch?.observe(scroller as HTMLElement)
+  }
+
   destroy(): void {
+    placeQueue.delete(this)
     liveInk.delete(this)
     releaseOwner(this)
     cancelAnimationFrame(this.raf)
@@ -928,7 +977,11 @@ export class InkController {
    * numbers; the overlay is zoomed back so its units are screen px.
    */
   private placeOverlay(): void {
-    this.placeDirty = false
+    this.applyPlace(this.measurePlace())
+  }
+
+  /** The read half of placeOverlay (no style writes). */
+  measurePlace(): OverlayPlace {
     const { wrap } = this.env
     const wr = wrap.getBoundingClientRect()
     const ar = this.anchor.getBoundingClientRect()
@@ -945,15 +998,21 @@ export class InkController {
     if (Math.abs(zoom - 1) < 0.004) zoom = 1
     const left = Math.round((wr.left - ar.left) * 100) / 100
     const top = Math.round((wr.top - ar.top) * 100) / 100
-    const key = `${left}|${top}|${Math.round(wr.width * 100)}|${Math.round(wr.height * 100)}|${zoom}`
+    return { left, top, width: wr.width, height: wr.height, zoom }
+  }
+
+  /** The write half of placeOverlay (no layout reads). */
+  applyPlace({ left, top, width, height, zoom }: OverlayPlace): void {
+    this.placeDirty = false
+    const key = `${left}|${top}|${Math.round(width * 100)}|${Math.round(height * 100)}|${zoom}`
     if (key === this.placed) return
     this.placed = key
     const st = this.overlay.style
     st.zoom = zoom === 1 ? '' : String(1 / zoom)
     st.left = `${left}px`
     st.top = `${top}px`
-    st.width = `${wr.width}px`
-    st.height = `${wr.height}px`
+    st.width = `${width}px`
+    st.height = `${height}px`
   }
 
   private redraw(): void {

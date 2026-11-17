@@ -148,10 +148,23 @@ function fadeable(el: HTMLElement): boolean {
   )
 }
 
+/*
+ * P1 speed (17 Nov 2026): the scan below reads the size of every list right
+ * after the one before was marked. Writing an attribute (even the same value)
+ * makes the browser work out the styles again before the next read, so a scan
+ * re-styled the page once per list. Writes now happen only on a real change.
+ */
+function setAttr(el: HTMLElement, name: string, value: string): void {
+  if (el.getAttribute(name) !== value) el.setAttribute(name, value)
+}
+function dropAttr(el: HTMLElement, name: string): void {
+  if (el.hasAttribute(name)) el.removeAttribute(name)
+}
+
 function mark(el: HTMLElement): void {
   const more = moreOf(el.scrollTop, el.scrollHeight, el.clientHeight)
   if (more) {
-    el.setAttribute(MARK, more)
+    setAttr(el, MARK, more)
     // Goes live with Phase 1 (foundation.shell): before that the old look stays.
     const solid = barOn() ? solidOf(getComputedStyle(el).backgroundColor) : null
     if (solid) {
@@ -160,11 +173,12 @@ function mark(el: HTMLElement): void {
       const own =
         el.getAttribute(SOLID) === 'edge' ||
         getComputedStyle(el).backgroundImage === 'none'
-      el.setAttribute(SOLID, fadeable(el) ? 'fade' : own ? 'edge' : 'plain')
-      el.style.setProperty('--scroll-fade-bg', solid)
-    } else el.removeAttribute(SOLID)
-    if (!barOn()) el.setAttribute(GUTTER, '')
-  } else el.removeAttribute(MARK)
+      setAttr(el, SOLID, fadeable(el) ? 'fade' : own ? 'edge' : 'plain')
+      if (el.style.getPropertyValue('--scroll-fade-bg') !== solid)
+        el.style.setProperty('--scroll-fade-bg', solid)
+    } else dropAttr(el, SOLID)
+    if (!barOn()) setAttr(el, GUTTER, '')
+  } else dropAttr(el, MARK)
 }
 
 /**
@@ -311,12 +325,12 @@ export function installScrollHints(
     for (let i = 0; i < limit; i++) {
       const el = all[i]
       if (!isOn()) {
-        el.removeAttribute(MARK)
-        el.removeAttribute(GUTTER)
+        dropAttr(el, MARK)
+        dropAttr(el, GUTTER)
       } else if (el.scrollHeight - el.clientHeight > 1 && scrolls(el)) {
         mark(el)
       } else {
-        el.removeAttribute(MARK)
+        dropAttr(el, MARK)
       }
     }
     if (!isOn()) hide()

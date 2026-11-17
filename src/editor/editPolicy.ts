@@ -71,3 +71,50 @@ export function applyPageMode(
   pageMode.set(mode)
   for (const fn of [...applied]) fn()
 }
+
+type ModeTarget = Parameters<typeof applyPageMode>[1]
+
+/**
+ * P1 speed (17 Nov 2026): a page has one editor per box. When the tool
+ * changed, each editor applied the mode in turn, and each editor's switch
+ * reads the page's selection right after the editor before it had changed
+ * the page, so the browser worked out the page's styles once per box (about
+ * 60 ms on a desktop, several times that on an iPad). The editors of one
+ * render now queue their mode and it is applied to all of them together,
+ * before the next paint: the page changes first (focus, inert), then every
+ * editor's typing switch. The result is the same as applyPageMode on each.
+ */
+const modeQueue = new Map<ModeTarget['editor'], [PageMode, ModeTarget]>()
+
+function flushModes(): void {
+  const list = [...modeQueue.values()]
+  modeQueue.clear()
+  if (list.length === 0) return
+  const active = document.activeElement
+  for (const [mode, { content, title }] of list) {
+    if (
+      (mode === 'ink' || mode === 'select') &&
+      content &&
+      active instanceof HTMLElement &&
+      content.contains(active)
+    )
+      active.blur()
+    if (content) content.toggleAttribute('inert', mode === 'ink')
+    if (title) {
+      title.readOnly = mode === 'ink'
+      title.toggleAttribute('inert', mode === 'ink')
+    }
+  }
+  for (const [mode, { editor }] of list) editor.isEditable = editableIn(mode)
+  pageMode.set(list[list.length - 1][0])
+  for (const fn of [...applied]) fn()
+}
+
+/** applyPageMode for an editor of the page, batched with the page's other editors. */
+export function queuePageMode(mode: PageMode, el: ModeTarget): () => void {
+  if (modeQueue.size === 0) queueMicrotask(flushModes)
+  modeQueue.set(el.editor, [mode, el])
+  return () => {
+    if (modeQueue.get(el.editor)?.[1] === el) modeQueue.delete(el.editor)
+  }
+}

@@ -131,6 +131,7 @@ const config = defineConfig({
         /aiPicker/,
         /openNotebook/,
         /startSpeed/,
+        /p1-speed/, // P1 speed (17 Nov): tool and page switches on the iPad stand-in
         /startSeeding/,
         /tryNewFeatures/,
         /presetPhases/,

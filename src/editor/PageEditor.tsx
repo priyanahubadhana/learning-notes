@@ -63,7 +63,7 @@ import { attachEditor } from '../core/historySteps'
 import { handleScrollToSelection } from './scrollPolicy'
 import { penTransactionGuard, watchPenGuard } from './penGuard'
 import {
-  applyPageMode,
+  queuePageMode,
   editableIn,
   pageMode,
   pageModeFor,
@@ -191,6 +191,24 @@ const PictureChooser = lazy(() => import('../images/PictureChooser'))
 const SlashCommandList = lazy(() => import('./menus/SlashCommandList'))
 const PicturePlacement = lazy(() => import('../images/PicturePlacement'))
 
+/**
+ * P1 speed (17 Nov 2026): each box of a page has its own editor, and each ran
+ * the page's preparation (kept changes, card records) on its own: 11 write
+ * steps one after another for a page of 10 boxes, seconds on iPad Safari.
+ * Boxes that open together now share one run.
+ */
+const preparing = new Map<string, Promise<void>>()
+function preparePage(db: LearningNotesDB, pageId: string): Promise<void> {
+  let run = preparing.get(pageId)
+  if (!run) {
+    run = recoverStash(db, pageId)
+      .then(() => syncCardRecords(db, pageId))
+      .finally(() => preparing.delete(pageId))
+    preparing.set(pageId, run)
+  }
+  return run
+}
+
 export function PageEditor(props: PageEditorProps) {
   const { db, pageId } = props
   const [loaded, setLoaded] = useState<{
@@ -253,8 +271,7 @@ export function PageEditor(props: PageEditorProps) {
     // Also adds any missing card records (e.g. older data saved before
     // blocks and cards were saved together); writes nothing otherwise.
     // Changes kept when the tab was last closed come back first.
-    recoverStash(db, pageId)
-      .then(() => syncCardRecords(db, pageId))
+    preparePage(db, pageId)
       .then(() => listBlocks(db, pageId))
       .then(async (all) => {
         const records = await blocksOfBox(db, pageId, all, props.boxId)
@@ -404,6 +421,12 @@ function LoadedPageEditor({
   const policyOn = policyEnabled.useValue()
   const wanted = pageModeFor({ tool, frozen, reading: false })
   const mode = !policyOn && wanted === 'ink' ? 'edit' : wanted
+  // P1 speed (17 Nov 2026): BlockNoteView rebuilds its whole ProseMirror view
+  // (destroy + createView) whenever its `editable` prop changes, which made
+  // every tool switch (Text ↔ Pen) rebuild every box on the page. The prop
+  // keeps its first value; queuePageMode (below) switches editing on and off
+  // in place, which is all the prop did besides the rebuild.
+  const [mountEditable] = useState(() => editableIn(mode))
   // The main bar and ribbon are hidden while reading (the reader has its own controls).
   const inReading = !!reading
   const docked = isDocked(bar.placement, !!readOnly, inReading)
@@ -899,7 +922,8 @@ function LoadedPageEditor({
   useEffect(() => {
     const content = (editor.domElement as HTMLElement | undefined) ?? null
     content?.setAttribute('data-page-content', '')
-    applyPageMode(mode, {
+    // Applied together with the page's other box editors (P1 speed).
+    return queuePageMode(mode, {
       editor,
       content,
       title: null,
@@ -957,7 +981,7 @@ function LoadedPageEditor({
       >
         <BlockNoteView
           editor={editor}
-          editable={editableIn(mode)}
+          editable={mountEditable}
           onChange={onEditorChange}
           theme={editorColorScheme(theme)}
           slashMenu={false}

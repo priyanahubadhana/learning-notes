@@ -4,9 +4,10 @@ import { expect, test, type Locator, type Page } from '@playwright/test'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /**
- * Text box v2 (owner, 11 Nov): one tap with the Text tool makes a SMALL box
- * exactly where tapped; it grows with the text up to a little before the right
- * margin and then wraps; a user-set width is kept; an empty box disappears.
+ * Text box v2 (owner, 11 Nov): one tap with the Text tool makes a box where
+ * tapped; a user-set width is kept; an empty box disappears. Owner, 17 Nov
+ * ("Box size and hints"): the new box is as wide as the whole line and one
+ * line tall (it replaced "small, grows to the right"; it grows downward).
  */
 test.use({ viewport: { width: 1336, height: 1100 }, hasTouch: true })
 
@@ -23,7 +24,12 @@ test.beforeEach(({ browserName }, info) => {
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 const box = async (l: Locator) => (await l.boundingBox())!
 
-async function start(page: Page, name: string) {
+async function start(page: Page, name: string, v2 = false) {
+  // The owner's 17 Nov box rule belongs to text box v2.
+  if (v2)
+    await page.addInitScript(() =>
+      localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+    )
   await startInMode(page, 'computer')
   await page.goto('/')
   await createNotebook(page, 'Paper', name)
@@ -39,17 +45,19 @@ async function tapBlank(page: Page, fx: number, dy: number) {
   return { x, y, sheet }
 }
 
-test('one tap makes a small box exactly where tapped; empty ones disappear', async ({
+test('one tap makes a box as wide as the line, one line tall, at the tap row; empty ones disappear', async ({
   page,
 }) => {
-  await start(page, 'Small')
+  await start(page, 'Small', true)
   const at = await tapBlank(page, 0.4, 70)
   const b = page.locator(EXTRA)
   await expect(b).toHaveCount(1)
   await expect(b.locator('.bn-editor')).toBeFocused()
   const r = await box(b)
-  expect(Math.abs(r.x - at.x)).toBeLessThan(14)
-  expect(r.width).toBeLessThan(60)
+  const main0 = await box(page.locator('[data-paper-box="main"]'))
+  expect(Math.abs(r.x - main0.x)).toBeLessThan(6)
+  expect(Math.abs(r.width - main0.width)).toBeLessThan(6)
+  expect(r.height).toBeLessThan(64)
   expect(r.y).toBeLessThan(at.y + 4)
   expect(r.y + r.height).toBeGreaterThan(at.y - 4)
   // Left empty and tapped away: it disappears.

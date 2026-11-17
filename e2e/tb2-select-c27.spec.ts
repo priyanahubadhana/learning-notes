@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { mkdirSync } from 'node:fs'
+import { pick } from './cBoxesHelpers.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /**
@@ -97,6 +98,16 @@ for (const vp of SIZES) {
       expect(Math.abs(grown.width - empty.width)).toBeLessThan(2)
       expect(Math.abs(grown.x - empty.x)).toBeLessThan(2)
       await expect(box).not.toContainText('Type here')
+      // C11: while typing the box shows a thin border and no dots.
+      const frame = box.locator('[data-box-frame]').first()
+      await expect(frame).toHaveCSS('border-top-style', 'solid')
+      await expect(frame).not.toHaveCSS('border-top-color', 'rgba(0, 0, 0, 0)')
+      const bw = await frame.evaluate((el) =>
+        parseFloat(getComputedStyle(el).borderTopWidth),
+      )
+      expect(bw).toBeLessThanOrEqual(1.01)
+      expect(bw).toBeGreaterThan(0)
+      await shot(page, vp, 'typing-border')
     })
 
     test(`C27: the first box on a fresh page is one line tall, then as tall as its text (${vp.name})`, async ({
@@ -133,7 +144,8 @@ test('C27: a box sized by hand keeps its size after a reload', async ({
   await page.waitForTimeout(400)
   const before = await rect(box)
   // Narrower and taller by its dots: the bottom-right (se) dot.
-  await page.locator(EXTRA).click({ position: { x: 20, y: 10 } })
+  await page.keyboard.press('Escape')
+  await pick(page, box)
   const dot = box.locator('[data-resize-handle="se"] [data-handle-dot]')
   const d = await rect(dot)
   const x = d.x + d.width / 2

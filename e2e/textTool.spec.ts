@@ -153,20 +153,26 @@ test('Advanced radius and padding show on the real box; the grid gaps do not cha
   expect(after.width).toBeGreaterThanOrEqual(before.width)
 })
 
-test('boxes are invisible until selected: a new empty box has no frame and no Type here', async ({
+// C27 (owner, 17 Nov): a new box is the whole line wide, not "as wide as its
+// text", so the empty box shows its dashed accent frame and "Type here" (TB-06,
+// C11); both go when writing starts.
+test('a new empty box shows a dashed frame and Type here; both go when writing starts', async ({
   page,
 }) => {
   await start(page, 'Frame')
   const box = await newBox(page, 1, '')
-  await expect(box.locator('[data-box-frame]').first()).toHaveCSS(
-    'border-top-color',
-    'rgba(0, 0, 0, 0)',
-  )
-  const hint = await box
-    .locator('.bn-block-content')
-    .first()
-    .evaluate((el) => getComputedStyle(el, '::after').content)
-  expect(hint).not.toContain('Type here')
+  const frame = box.locator('[data-box-frame]').first()
+  await expect(frame).toHaveCSS('border-top-style', 'dashed')
+  const hint = () =>
+    box
+      .locator('.bn-block-content')
+      .first()
+      .evaluate((el) => getComputedStyle(el, '::after').content)
+  expect(await hint()).toContain('Type here')
+  await page.keyboard.type('Hi')
+  await expect.poll(hint).not.toContain('Type here')
+  // C11: typing shows a thin solid border.
+  await expect(frame).toHaveCSS('border-top-style', 'solid')
 })
 
 test('box states: frame tap selects, a tap inside types and hides the bar, the frame brings it back', async ({

@@ -1043,7 +1043,12 @@ export function PaperFrame({
     const d = held
     if (!d || d.ids.length === 0) return
     if (d.clock && !d.held) return
-    if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < TAP_PX)
+    // C31: a finger rests and slips a little on the tab: that is a touch, not a
+    // move (a slip dropped on another box made it a column and changed its width).
+    if (
+      !d.moved &&
+      Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < MOVE_TAP_PX
+    )
       return
     d.moved = true
     lastPt.current = { clientX: e.clientX, clientY: e.clientY }
@@ -2780,6 +2785,8 @@ function GuideLines({ g, k }: { g: SnapResult; k: number }) {
 
 /** A press that moves less than this (px) is a tap. */
 const TAP_PX = 4
+/** C31: the tab moves a box only after the pointer has gone this far (px), as a tap (spec: 12 px). */
+const MOVE_TAP_PX = 12
 /** C21: a smart guide pulls a moved box in within 6 px and lets go only past 12 px. */
 const SNAP_IN_PX = 6
 const SNAP_OUT_PX = 12
@@ -3021,7 +3028,11 @@ function MainChrome({
           </div>
           <div
             className="pointer-events-none absolute left-0 right-0 z-20 flex items-center justify-end pr-7"
-            style={{ top: -TOUCH_PX - 20, height: TOUCH_PX }}
+            // C32: with v2 the tab sits above the top dot's 44 pt target.
+            style={{
+              top: isOn('textbox.v2') ? -TOUCH_PX * 2 - 4 : -TOUCH_PX - 20,
+              height: TOUCH_PX,
+            }}
           >
             <button
               type="button"

@@ -98,7 +98,11 @@ export function AnchoredMenu({
         width,
         // Opened from a sheet or dialog (the Organise sheet's "..."): above it.
         // C25: above every scroll bar (a bar in a drawer or sheet is drawn above it).
-        zIndex: 'var(--z-pop)',
+        // With the overlay switch a sheet sits far above --z-pop, so a menu
+        // opened from a sheet or dialog takes the dialog layer (full CI 17 Nov).
+        zIndex: opener?.closest('[role="dialog"]')
+          ? 'var(--z-dialog)'
+          : 'var(--z-pop)',
       }}
       className={`fixed glass rounded-xl p-1 text-ink ${solid ? 'flex flex-col' : 'overflow-y-auto'}`}
     >

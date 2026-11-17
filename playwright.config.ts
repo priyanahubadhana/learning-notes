@@ -87,6 +87,7 @@ const config = defineConfig({
         /pageMenusPaste/,
         /pageMenusPlace/,
         /pencilIsolation/,
+        /mainFramePolish.spec/,
         /storageSafety.spec/,
         /updateV2/,
         /keyNames/,

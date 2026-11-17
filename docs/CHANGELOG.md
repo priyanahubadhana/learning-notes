@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: C30b the first box follows the first-tap rule (slice/c28-c30b, Sonnet)
+
+- Owner: "Yes, same as every box". Switch textbox.v2, Text tool. A first tap on or near the first box's words (about 1.75 letters, `nearText`) gives the caret at once; a tap in its empty part selects it (the same frame, dots, tab and menu it shows with the caret, no new look), with no caret; a tap in the empty part of a selected first box keeps it selected; an empty page keeps the caret at once. The first box had no "selected" state: now `mainPicked` in src/paper/PaperFrame.tsx (cleared by a tap elsewhere, Escape, or the caret), set by src/paper/v2/index.ts `mainEmptyPart`. Pencil tap-twice rule (src/editor/keyboardPolicy.ts) no longer holds the first box's first words tap back under v2, as no other box has it.
+- Tests: e2e/mainFirstTapC30b.spec.ts (Pencil and finger). Pictures: screenshots/c28-c30b/.
+
 ### 17 Nov 2026: C28 free paper takes a moved and a pasted box (slice/c28-c30b, Sonnet)
 
 - Owner: "there is visual space available, but it does not allow me to paste and adjust a box there." Causes: (1) src/paper/PaperFrame.tsx `dropAt` tested the pointer (the tab, about 44 px above the box) against the first box's layout rect, which is taller than its text, so a drop beside or just under the first box joined its row. Now (switch textbox.v2) the first box takes a drop only over its real height (`mainRealH`) and not when the carried box's own top is below it. (2) src/editor/pasteBox.ts "As text box" made a plain box that went to the end of the page; with v2 it is now a free box at the paste spot, in row order, as wide as the free paper to the next box on its right. Existing layout rules unchanged.

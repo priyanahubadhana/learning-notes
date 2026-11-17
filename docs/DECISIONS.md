@@ -79,6 +79,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-17 · C27 merged (build/next 4c3fed4b).** Opus takeover: a caret in a box that was never picked is a "fresh" typing state (thin border, no dots, no bar; leaving it selects nothing; one Text-tool tap on paper makes the next box). Literal C11 for every box would have made adding a box 3 taps (188 tests broke). Pick taken (safest, keeps every feature): the page's first box shows the thin 1 px typing border but keeps its dots, ≡ and ⋯ while typing, because it has no other way to be resized, moved or opened. Owner to confirm on re-test. New bug found, not fixed yet (sweep list): a fast third tap on a short word lands on the 44 pt selection handle.
 - **2026-11-17 · C27 review FAIL → Opus takeover (Sonnet failed twice).** Reviewer found: a typing-border CSS patch without the textbox.v2 guard (would change the live app), the real cause in boxState.ts (typing in an unpicked box stays idle), one weakened TB-06 test, no test for the tap-edge fix. Pick taken: the page's first box follows the same C11 typing state as every box (TB-08), so it also shows the thin border while typing; owner to confirm on re-test.
 
 - **2026-11-17 · C27 approved picture = owner's own reference screenshot (Opus).** The owner sent a phone screenshot of the size they want plus clear words (one line, full line width, grows as you write). Taken as the approved picture instead of making a new mock-up; the build follows it and the owner checks it on the iPad.

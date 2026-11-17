@@ -258,6 +258,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 ### 16 Nov 2026: 2A.12 merged
 
 - What: 2A.12 fast-forwarded into build/next with main (94e83c12); 2A.15 review 3 PASS (89b05330); webkit turn to 2A.13. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
+
+### 17 Nov 2026: user stories and features, through Phase 2B
+
+- What: new plain-words list of every feature, user story and open problem through Phase 2B, with ids F-, US-, P-, Q- for the owner comments. Why: owner ask 17 Nov. Files: docs/plans/user-stories-2b.md, docs/INDEX.md.
+
 - What: 2A.12 (94e83c12) and 2A.15 (2b9379ab) merged, CI green; 2A.13 ready at 64a5d4a4; 2A.16 part 1 built; 2A.13 review 2 FAIL, Opus takeover, review 3 PASS. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
 
 ### 16 Nov 2026: 2A.12 PASS, 2A.15 to Opus

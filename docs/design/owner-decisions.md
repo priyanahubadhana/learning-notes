@@ -420,6 +420,7 @@ Reference: the owner's two Goodnotes screenshots (17 Nov 14:30).
 ## Selected box: one bar like Goodnotes (owner, 18 Nov 2026; picture first, not built yet)
 
 Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2edf8f-image.png).
+
 - **One bar** when a box is selected: the text look (colour, size, font, B/I, align, list, fill) and the box actions together, replacing today's box bar + text format bar. Phone: a shorter bar, the rest under ⋯.
 - **Box actions in the bar:** Cut, **Paste ▾** (tap = paste; ▾ = paste options: keep look, match style, plain text, like Settings), Delete, ⋯. Duplicate moves into ⋯. The ⋯ list keeps every item (Copy, Duplicate, Box style…), nothing dropped.
 - **New in ⋯:** Lock box (a locked box cannot be moved, resized or deleted until unlocked). Front/Back: not chosen.

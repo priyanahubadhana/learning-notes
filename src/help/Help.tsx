@@ -248,13 +248,22 @@ function Bubble({
           )
         },
       )
-      node.style.visibility = hit ? 'hidden' : ''
+      // Sweep 2B (S5): no tip while a menu is open; it showed behind the
+      // sidebar page ⋯ menu (Safari keeps no focus on a tapped button, so
+      // the tip's own blur never hid it). A tip inside that menu stays.
+      const owner = document.querySelector(
+        `[aria-describedby="${CSS.escape(bubbleId)}"]`,
+      )
+      const menu = [...document.querySelectorAll('[role="menu"]')].some(
+        (m) => !owner || !m.contains(owner),
+      )
+      node.style.visibility = hit || menu ? 'hidden' : ''
     }
     check()
     const mo = new MutationObserver(check)
     mo.observe(document.body, { childList: true, subtree: true })
     return () => mo.disconnect()
-  }, [box])
+  }, [box, bubbleId])
   const image = tipImage(id)
   return createPortal(
     <span

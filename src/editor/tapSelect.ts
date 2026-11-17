@@ -312,6 +312,21 @@ export function nextTapCount(
   return 1
 }
 
+/**
+ * Set on the pointerdown of a press on a selection handle that is really the
+ * next tap of a run on the words (sweep 2B, switch textbox.v2): on a short
+ * word the handles sit over the row's top and bottom edge, and a fast third
+ * tap landed on one, so the line was never selected. The handle stands back.
+ */
+const HANDLE_TAP = 'lnHandleTap'
+/** The selection handle under a press (switch textbox.v2), else null. */
+const handleOf = (target: EventTarget | null): HTMLElement | null =>
+  isOn('textbox.v2') && target instanceof HTMLElement
+    ? target.closest<HTMLElement>('[data-sel-handle]')
+    : null
+export const handleTapped = (e: Event): boolean =>
+  (e as Event & { [HANDLE_TAP]?: boolean })[HANDLE_TAP] === true
+
 /** A tap that selects a box is under way: the ink pad must not place a caret. */
 let boxTapUntil = 0
 export const boxTapPending = (): boolean => Date.now() < boxTapUntil
@@ -408,6 +423,8 @@ export function watchTapSelect(
     /** 1 when the first tap of the run found its box not active (it selects the box). */
     shift: number
     tool: string
+    /** Sweep 2B: the press landed on a selection handle. */
+    handle?: boolean
   }
   const strictFor = (tool: string) => tool === 'text' && textFirstTap.on
   let down: Tap | null = null
@@ -507,9 +524,14 @@ export function watchTapSelect(
     }
     // Under the Lasso the ink pad covers the words: look through it.
     const pad = padOf(e.target)
-    const target = pad
-      ? lookThrough(pad, () => doc.elementFromPoint(e.clientX, e.clientY))
-      : e.target
+    // Sweep 2B: a press on a selection handle may be the next tap on the words.
+    const handle = handleOf(e.target)
+    const target =
+      pad || handle
+        ? lookThrough(pad ?? handle, () =>
+            doc.elementFromPoint(e.clientX, e.clientY),
+          )
+        : e.target
     if (!inText(target)) {
       down = null
       return
@@ -522,7 +544,12 @@ export function watchTapSelect(
     }
     // C14: the event's own time stamp, not when this listener ran.
     const now = stampOf(e)
-    const count = countAt(now, e.clientX, e.clientY, pad)
+    const count = countAt(now, e.clientX, e.clientY, pad ?? handle)
+    // A handle press that adds to a run is a tap: the handle stands back. A
+    // first press stays the handle's (a drag); lifted where it began, it is
+    // a tap on the words under it, like any other.
+    if (handle && count >= 2)
+      (e as PointerEvent & { [HANDLE_TAP]?: boolean })[HANDLE_TAP] = true
     const shift = count > 1 && last ? last.shift : boxShift(dom, tool)
     down = {
       id: e.pointerId,
@@ -532,6 +559,7 @@ export function watchTapSelect(
       count,
       shift,
       tool,
+      handle: !!handle,
     }
     const level = tapLevel(count, shift, strictFor(tool))
     // C5 (switch textbox.v2): a Pencil caret tap in a box is placed here
@@ -599,6 +627,8 @@ export function watchTapSelect(
     const count = start.count
     const level = tapLevel(count, start.shift, strictFor(start.tool))
     last = { ...start, at: stampOf(e), x: e.clientX, y: e.clientY }
+    // A lone tap on a handle starts a run but moves no caret (as before).
+    if (start.handle && level === 1) return
     const view = editor.prosemirrorView
     if (!view) return
     if (level <= 0) {
@@ -631,8 +661,9 @@ export function watchTapSelect(
     if (level === 1 && !inBox && !caretTapped) return
     // Under the Lasso the ink pad covers the words: every hit test (the tap's
     // spot and the line's edges) looks through it, or WebKit finds no text at
-    // the edges and a triple tap selects the whole paragraph.
-    const pad = padOf(e.target)
+    // the edges and a triple tap selects the whole paragraph. The same for a
+    // selection handle the tap landed on (sweep 2B).
+    const pad = padOf(e.target) ?? handleOf(e.target)
     // C14 (switch textbox.v2): where the tip touched down; a Pencil drifts a
     // few px before it lifts, onto the next character.
     const tip = isOn('textbox.v2')

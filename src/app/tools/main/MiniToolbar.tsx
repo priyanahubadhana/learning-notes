@@ -20,7 +20,7 @@ import { runEditorCommand } from '../editorCommands'
 import { Icon, type IconName } from '../icons'
 import { runTool } from '../toolRegistry'
 import { CHROME_SELECTOR } from '../../penTap'
-import { tapSelected } from '../../../editor/tapSelect'
+import { handleTapped, tapSelected } from '../../../editor/tapSelect'
 import { currentRunner } from '../toolRuntime'
 import { highlightChoice, textColourChoice } from './pillChoices'
 import { miniToolbarOpen, openCard, openPillTool } from './mainTools'
@@ -636,6 +636,8 @@ function Handle({
         onPointerDown={(e) => {
           e.preventDefault()
           e.stopPropagation()
+          // Sweep 2B: the next tap of a run on the words, not a drag.
+          if (handleTapped(e.nativeEvent)) return
           dragging.current = true
           const at0 = edge()
           grab.current = at0

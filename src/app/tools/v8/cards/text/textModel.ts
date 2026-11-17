@@ -34,6 +34,8 @@ export interface FormatTile {
   block?: string
   /** The Revise mark label that shows this tile as on (Key point). */
   mark?: string
+  /** Own action (not a tool of the registry): the toggles the owner uses most. */
+  act?: 'toggleHeading' | 'toggleList'
 }
 
 export type FormatTabId = 'text' | 'style' | 'paragraph' | 'advanced'
@@ -132,6 +134,24 @@ export function formatTabs(u: FormatUnlocks): FormatTabDef[] {
       id: 'style',
       title: 'v8.format.style',
       groups: [
+        // Owner 18 Nov: toggles first, wherever possible (box bar mock, approved).
+        {
+          id: 'toggles',
+          title: 'v8.format.g.toggles',
+          columns: 2,
+          tiles: [
+            tile('toggleHeading', 'v8.format.toggleHeading', 'icon', {
+              icon: 'toggleHeading',
+              action: true,
+              act: 'toggleHeading',
+            }),
+            tile('toggleList', 'v8.format.toggleList', 'icon', {
+              icon: 'toggle',
+              block: 'toggleListItem',
+              act: 'toggleList',
+            }),
+          ],
+        },
         {
           id: 'headings',
           title: 'v8.format.g.headings',

@@ -185,6 +185,7 @@ export function BoxFrame({
       ref={el}
       data-paper-box={box.id}
       data-locked={box.locked ? '' : undefined}
+      data-line={box.line}
       data-auto={autoMaxW ? '' : undefined}
       data-picked={picked ? '' : undefined}
       data-typing={typing ? '' : undefined}
@@ -386,7 +387,8 @@ export function BoxFrame({
         !box.locked &&
         !(v2On && typing) &&
         !dragging && <ResizeDots onResize={onResize} />}
-      {picked && !typing && !dragging && bar && (
+      {/* The one bar (textbox.v2) steps aside itself while a caret blinks in the box. */}
+      {picked && (!typing || v2On) && !dragging && bar && (
         <BarHolder below={shown.y * k < BAR_ROOM_PX}>{bar}</BarHolder>
       )}
     </div>

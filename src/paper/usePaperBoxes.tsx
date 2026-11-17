@@ -39,8 +39,15 @@ import {
 } from './boxService'
 import type { BoxChange } from './PaperFrame'
 import { BoxBar } from './BoxBar'
-import { BoxBarV2Lazy, BoxCardV2Lazy, BoxMoreV2Lazy } from './v2/BoxBarV2Lazy'
+import {
+  BoxBarV2Lazy,
+  BoxCardV2Lazy,
+  BoxMoreV2Lazy,
+  TextOptionsV2Lazy,
+} from './v2/BoxBarV2Lazy'
+import { BOX_LAYOUT_EVENT, TEXT_OPTIONS_EVENT } from './v2/oneBarBus'
 import { prefetchBoxBarV2 } from './v2/boxBarV2Load'
+import { applyNoteStyle } from '../app/tools/main/textStyle'
 import { isOn } from '../app/flags'
 import { pickWhenShown } from './pickSignal'
 import { clearPageWide, pageWideClip, pageWideRange } from './pageWide'
@@ -134,7 +141,11 @@ export function usePaperBoxes(
   // Text box v2: the box bar's code comes in while the page opens, so the
   // first tap that selects a box shows its bar at once.
   useEffect(() => {
-    if (isOn('textbox.v2')) prefetchBoxBarV2()
+    if (isOn('textbox.v2')) {
+      prefetchBoxBarV2()
+      // The note font (Easy to read by default) is written onto the page.
+      applyNoteStyle()
+    }
   }, [])
 
   // Item 6/9: an accidental box left empty is removed when the caret leaves
@@ -283,10 +294,28 @@ export function usePaperBoxes(
   // The Box style panel (bug batch 2, item 8): a lazy panel, opened by an event
   // from the Box bar, the Text strip or the box menu.
   const [styleFor, setStyleFor] = useState<string | null>(null)
+  // Which tab the Box card opens on (⋯ › Layout… opens it on Layout).
+  const [styleStart, setStyleStart] = useState<'presets' | 'layout'>('presets')
+  // ⋯ › Text options… (box bar part A): the Text tool's Format card.
+  const [textFor, setTextFor] = useState<string | null>(null)
   useEffect(() => {
-    const on = (e: Event) => setStyleFor((e as CustomEvent<string>).detail)
+    const on = (e: Event) => {
+      setStyleStart('presets')
+      setStyleFor((e as CustomEvent<string>).detail)
+    }
+    const onLayoutTab = (e: Event) => {
+      setStyleStart('layout')
+      setStyleFor((e as CustomEvent<string>).detail)
+    }
+    const onText = (e: Event) => setTextFor((e as CustomEvent<string>).detail)
     window.addEventListener(BOX_STYLE_EVENT, on)
-    return () => window.removeEventListener(BOX_STYLE_EVENT, on)
+    window.addEventListener(BOX_LAYOUT_EVENT, onLayoutTab)
+    window.addEventListener(TEXT_OPTIONS_EVENT, onText)
+    return () => {
+      window.removeEventListener(BOX_STYLE_EVENT, on)
+      window.removeEventListener(BOX_LAYOUT_EVENT, onLayoutTab)
+      window.removeEventListener(TEXT_OPTIONS_EVENT, onText)
+    }
   }, [])
   // Layout mode v2 (owner, 11 Nov): a full-screen pop-up with a live preview,
   // opened from the toolbar's Layout button, the Text strip and the box menu.
@@ -438,6 +467,8 @@ export function usePaperBoxes(
     })
   }
   const remove = (box: PaperBox) => {
+    // A locked box cannot be deleted until it is unlocked (box bar part A).
+    if (box.locked) return toast(t('onebar.locked'))
     if (box.id === MAIN_BOX) return runTask(removeMain(box))
     const since = stamp()
     return runTask(
@@ -550,9 +581,9 @@ export function usePaperBoxes(
           pageId={pageId}
           box={box}
           canEdit={editable}
-          onDuplicate={() => editable && duplicate(box)}
           onDelete={() => remove(box)}
           onMenu={(at) => setMenuFor({ box, at })}
+          onLine={(line) => onBoxChange(box.id, { line })}
         />
       ) : (
         <BoxBar
@@ -618,6 +649,7 @@ export function usePaperBoxes(
               pageId={pageId}
               boxId={styleFor}
               getGrid={() => gridView.current}
+              start={styleStart}
               onClose={() => setStyleFor(null)}
             />
           ) : (
@@ -628,6 +660,13 @@ export function usePaperBoxes(
               onClose={() => setStyleFor(null)}
             />
           ))}
+        {textFor && isOn('textbox.v2') && (
+          <TextOptionsV2Lazy
+            pageId={pageId}
+            boxId={textFor}
+            onClose={() => setTextFor(null)}
+          />
+        )}
       </>
     ),
   }

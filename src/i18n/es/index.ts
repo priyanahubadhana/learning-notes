@@ -44,6 +44,7 @@ import { esV8Pen } from './v8Pen'
 import { esV8Favs } from './v8Favs'
 import { esV8Tools } from './v8Tools'
 import { esV8Text } from './v8Text'
+import { esOneBar } from './oneBar'
 
 export const es: Record<string, string> = {
   ...esAccounts,
@@ -91,4 +92,5 @@ export const es: Record<string, string> = {
   ...esStorageSafety,
   ...esV8Tools,
   ...esV8Text,
+  ...esOneBar,
 }

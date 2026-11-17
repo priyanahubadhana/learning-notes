@@ -56,9 +56,28 @@ describe('Format card (TB-41)', () => {
     ])
       expect(ids()).toContain(id)
   })
-  it('every tile is a real tool (or the key-point star)', () => {
+  // Owner 18 Nov (box bar mock approved): the two toggles are the card's own
+  // actions (tile.act), not registry tools; every other tile is still a tool.
+  it('every tile is a real tool (or the key-point star, or a toggle)', () => {
+    const own = new Set(
+      formatTabs({ advanced: true, textMarks: true }).flatMap((s) =>
+        s.groups.flatMap((g) =>
+          g.tiles.filter((x) => x.act).map((x) => x.tool),
+        ),
+      ),
+    )
+    expect([...own].sort()).toEqual(['toggleHeading', 'toggleList'])
     for (const id of ids(true))
-      expect(id === 'mark:key' || findTool(id), id).toBeTruthy()
+      expect(id === 'mark:key' || own.has(id) || findTool(id), id).toBeTruthy()
+  })
+  it('Toggle heading and Toggle list come first on the Style tab (owner 18 Nov)', () => {
+    const style = formatTabs({ advanced: false, textMarks: false }).find(
+      (x) => x.id === 'style',
+    )!
+    expect(style.groups[0].tiles.map((x) => x.tool)).toEqual([
+      'toggleHeading',
+      'toggleList',
+    ])
   })
   it('Advanced tab only with tb.textFonts; inline code only with tb.textMarks', () => {
     expect(ids()).not.toContain('code')

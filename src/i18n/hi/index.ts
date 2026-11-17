@@ -44,6 +44,7 @@ import { hiV8Pen } from './v8Pen'
 import { hiV8Favs } from './v8Favs'
 import { hiV8Tools } from './v8Tools'
 import { hiV8Text } from './v8Text'
+import { hiOneBar } from './oneBar'
 
 export const hi: Record<string, string> = {
   ...hiAccounts,
@@ -91,4 +92,5 @@ export const hi: Record<string, string> = {
   ...hiStorageSafety,
   ...hiV8Tools,
   ...hiV8Text,
+  ...hiOneBar,
 }

@@ -185,6 +185,7 @@ export async function updateBox(
   if (patch.locked === undefined && 'locked' in patch) delete next.locked
   if (patch.colour === undefined && 'colour' in patch) delete next.colour
   if (patch.style === undefined && 'style' in patch) delete next.style
+  if (patch.line === undefined && 'line' in patch) delete next.line
   if (patch.h === undefined && 'h' in patch) delete next.h
   if (patch.full === undefined && 'full' in patch) delete next.full
   if (patch.gone === undefined && 'gone' in patch) delete next.gone

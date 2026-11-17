@@ -243,6 +243,8 @@ export interface PaperBox {
   y: number
   w: number
   locked?: true
+  /** Line spacing of this box (the one bar, box bar part A); unset = the normal spacing. Optional: no Dexie version. */
+  line?: 'tight' | 'loose'
   colour?: string
   /** Bug batch 2, item 8: background, border, corners, shadow, padding (core/boxStyle.ts). */
   style?: import('./boxStyle').BoxStyle

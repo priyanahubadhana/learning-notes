@@ -59,7 +59,7 @@
   font-size: 14px;
   color: var(--color-muted);
 }
-.bc-seg button[aria-pressed='true'] {
+.bc-seg button[aria-selected='true'] {
   background: var(--color-surface-2);
   color: var(--color-ink);
   font-weight: 600;

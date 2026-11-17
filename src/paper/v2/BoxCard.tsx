@@ -116,12 +116,15 @@ export default function BoxCard({
   pageId,
   boxId,
   getGrid,
+  start,
   onClose,
 }: {
   db: LearningNotesDB
   pageId: string
   boxId: string
   getGrid: () => GridInfo
+  /** The tab it opens on (⋯ › Layout… opens it on Layout). */
+  start?: 'presets' | 'layout'
   onClose: () => void
 }) {
   const phone = usePhone()
@@ -131,7 +134,9 @@ export default function BoxCard({
   const page = useLiveQuery(() => db.pages.get(pageId), [db, pageId])
   const box = page ? boxesOf(page).find((b) => b.id === boxId) : undefined
   const style = cleanStyle(box?.style) ?? {}
-  const [section, setSection] = useState<'box' | 'layout'>('box')
+  const [section, setSection] = useState<'presets' | 'advanced' | 'layout'>(
+    start ?? 'presets',
+  )
   const [own, setOwn] = useState<OwnPreset[]>([])
   const [dflt, setDflt] = useState<BoxStyle | undefined>(undefined)
   const [editing, setEditing] = useState<string | null>(null)
@@ -274,21 +279,28 @@ export default function BoxCard({
       fitInside
       onClose={onClose}
     >
-      <div role="group" aria-label={t('boxCard.sections')} className="bc-seg">
-        {(['box', 'layout'] as const).map((id) => (
+      <div role="tablist" aria-label={t('boxCard.sections')} className="bc-seg">
+        {(['presets', 'advanced', 'layout'] as const).map((id) => (
           <button
             key={id}
             type="button"
-            aria-pressed={section === id}
-            data-testid={`bc-tab-${id}`}
+            role="tab"
+            aria-selected={section === id}
+            data-testid={id === 'presets' ? 'bc-tab-box' : `bc-tab-${id}`}
             onClick={() => setSection(id)}
           >
-            {t(id === 'box' ? 'boxCard.box' : 'layout.title')}
+            {t(
+              id === 'presets'
+                ? 'onebar.card.presets'
+                : id === 'advanced'
+                  ? 'v8.format.advanced'
+                  : 'layout.title',
+            )}
           </button>
         ))}
       </div>
 
-      {section === 'box' ? (
+      {section === 'presets' ? (
         <>
           <CardGroup label={t('boxCard.look')}>
             <Glow k={JSON.stringify(style)}>
@@ -363,106 +375,6 @@ export default function BoxCard({
                       </Tile>
                     ))}
                   </TileGroup>
-                </Glow>
-              </CardGroup>
-              <CardGroup label={t('boxStyle.bg')}>
-                <Glow k={style.bg ?? 'none'}>
-                  <TileGroup label={t('boxStyle.bg')} columns={6}>
-                    {COLOUR_TOKENS.map((c) => (
-                      <Tile
-                        key={c}
-                        label={name('boxStyle.sw.' + c)}
-                        selected={(style.bg ?? 'none') === c}
-                        testId={`bc-bg-${c}`}
-                        onSelect={() => patch({ bg: c })}
-                      >
-                        <span
-                          className="v8boxprev v8boxprev-sm"
-                          style={preview({ bg: c })}
-                        />
-                      </Tile>
-                    ))}
-                  </TileGroup>
-                </Glow>
-              </CardGroup>
-              <CardGroup label={t('boxStyle.border')}>
-                <Glow k={style.border ?? 'none'}>
-                  <TileGroup label={t('boxStyle.border')} columns={6}>
-                    {COLOUR_TOKENS.map((c) => (
-                      <Tile
-                        key={c}
-                        label={name('boxStyle.sw.' + c)}
-                        selected={(style.border ?? 'none') === c}
-                        testId={`bc-border-${c}`}
-                        onSelect={() => patch({ border: c })}
-                      >
-                        <span
-                          className="v8boxprev v8boxprev-sm"
-                          style={preview({ bg: c })}
-                        />
-                      </Tile>
-                    ))}
-                  </TileGroup>
-                </Glow>
-              </CardGroup>
-              <CardGroup label={t('boxStyle.borderW')}>
-                <Glow k={style.borderW ?? 0}>
-                  <TileGroup label={t('boxStyle.borderW')} columns={4}>
-                    {BORDER_WIDTHS.map((w) => (
-                      <Tile
-                        key={w}
-                        label={`${w} px`}
-                        selected={(style.borderW ?? 0) === w}
-                        testId={`bc-borderw-${w}`}
-                        onSelect={() => patch({ borderW: w })}
-                      >
-                        <span className="v8num">{w}</span>
-                      </Tile>
-                    ))}
-                  </TileGroup>
-                </Glow>
-              </CardGroup>
-              <CardGroup label={t('boxStyle.radius')}>
-                <Glow k={style.radius ?? 0}>
-                  <TileGroup label={t('boxStyle.radius')} columns={5}>
-                    {RADII.map((r) => (
-                      <Tile
-                        key={r}
-                        label={`${r} px`}
-                        selected={(style.radius ?? 0) === r}
-                        testId={`bc-radius-${r}`}
-                        onSelect={() => patch({ radius: r })}
-                      >
-                        <span className="v8num">{r}</span>
-                      </Tile>
-                    ))}
-                  </TileGroup>
-                </Glow>
-              </CardGroup>
-              <CardGroup label={t('boxStyle.pad')}>
-                <Glow k={style.pad ?? 0}>
-                  <TileGroup label={t('boxStyle.pad')} columns={5}>
-                    {PADS.map((p) => (
-                      <Tile
-                        key={p}
-                        label={`${p} px`}
-                        selected={(style.pad ?? 0) === p}
-                        testId={`bc-pad-${p}`}
-                        onSelect={() => patch({ pad: p })}
-                      >
-                        <span className="v8num">{p}</span>
-                      </Tile>
-                    ))}
-                  </TileGroup>
-                </Glow>
-              </CardGroup>
-              <CardGroup>
-                <Glow k={style.shadow ? 1 : 0}>
-                  <SwitchRow
-                    label={t('boxStyle.shadow')}
-                    checked={!!style.shadow}
-                    onChange={(on) => patch({ shadow: on })}
-                  />
                 </Glow>
               </CardGroup>
               <CardGroup>
@@ -577,6 +489,114 @@ export default function BoxCard({
                 >
                   {t('boxStyle.reset')}
                 </button>
+              </CardGroup>
+            </>
+          )}
+        </>
+      ) : section === 'advanced' ? (
+        <>
+          {!proBox && <CardNote>{t('onebar.card.advancedNote')}</CardNote>}
+          {proBox && (
+            <>
+              <CardGroup label={t('boxStyle.bg')}>
+                <Glow k={style.bg ?? 'none'}>
+                  <TileGroup label={t('boxStyle.bg')} columns={6}>
+                    {COLOUR_TOKENS.map((c) => (
+                      <Tile
+                        key={c}
+                        label={name('boxStyle.sw.' + c)}
+                        selected={(style.bg ?? 'none') === c}
+                        testId={`bc-bg-${c}`}
+                        onSelect={() => patch({ bg: c })}
+                      >
+                        <span
+                          className="v8boxprev v8boxprev-sm"
+                          style={preview({ bg: c })}
+                        />
+                      </Tile>
+                    ))}
+                  </TileGroup>
+                </Glow>
+              </CardGroup>
+              <CardGroup label={t('boxStyle.border')}>
+                <Glow k={style.border ?? 'none'}>
+                  <TileGroup label={t('boxStyle.border')} columns={6}>
+                    {COLOUR_TOKENS.map((c) => (
+                      <Tile
+                        key={c}
+                        label={name('boxStyle.sw.' + c)}
+                        selected={(style.border ?? 'none') === c}
+                        testId={`bc-border-${c}`}
+                        onSelect={() => patch({ border: c })}
+                      >
+                        <span
+                          className="v8boxprev v8boxprev-sm"
+                          style={preview({ bg: c })}
+                        />
+                      </Tile>
+                    ))}
+                  </TileGroup>
+                </Glow>
+              </CardGroup>
+              <CardGroup label={t('boxStyle.borderW')}>
+                <Glow k={style.borderW ?? 0}>
+                  <TileGroup label={t('boxStyle.borderW')} columns={4}>
+                    {BORDER_WIDTHS.map((w) => (
+                      <Tile
+                        key={w}
+                        label={`${w} px`}
+                        selected={(style.borderW ?? 0) === w}
+                        testId={`bc-borderw-${w}`}
+                        onSelect={() => patch({ borderW: w })}
+                      >
+                        <span className="v8num">{w}</span>
+                      </Tile>
+                    ))}
+                  </TileGroup>
+                </Glow>
+              </CardGroup>
+              <CardGroup label={t('boxStyle.radius')}>
+                <Glow k={style.radius ?? 0}>
+                  <TileGroup label={t('boxStyle.radius')} columns={5}>
+                    {RADII.map((r) => (
+                      <Tile
+                        key={r}
+                        label={`${r} px`}
+                        selected={(style.radius ?? 0) === r}
+                        testId={`bc-radius-${r}`}
+                        onSelect={() => patch({ radius: r })}
+                      >
+                        <span className="v8num">{r}</span>
+                      </Tile>
+                    ))}
+                  </TileGroup>
+                </Glow>
+              </CardGroup>
+              <CardGroup label={t('boxStyle.pad')}>
+                <Glow k={style.pad ?? 0}>
+                  <TileGroup label={t('boxStyle.pad')} columns={5}>
+                    {PADS.map((p) => (
+                      <Tile
+                        key={p}
+                        label={`${p} px`}
+                        selected={(style.pad ?? 0) === p}
+                        testId={`bc-pad-${p}`}
+                        onSelect={() => patch({ pad: p })}
+                      >
+                        <span className="v8num">{p}</span>
+                      </Tile>
+                    ))}
+                  </TileGroup>
+                </Glow>
+              </CardGroup>
+              <CardGroup>
+                <Glow k={style.shadow ? 1 : 0}>
+                  <SwitchRow
+                    label={t('boxStyle.shadow')}
+                    checked={!!style.shadow}
+                    onChange={(on) => patch({ shadow: on })}
+                  />
+                </Glow>
               </CardGroup>
             </>
           )}

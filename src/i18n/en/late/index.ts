@@ -51,6 +51,7 @@ import { enV8Pen } from '../v8Pen'
 import { enV8Favs } from '../v8Favs'
 import { enV8Tools } from '../v8Tools'
 import { enV8Text } from '../v8Text'
+import { enLateOneBar } from './oneBar'
 
 export const enLate = {
   ...enSettings,
@@ -105,4 +106,5 @@ export const enLate = {
   ...enLateStorageSafety,
   ...enV8Tools,
   ...enV8Text,
+  ...enLateOneBar,
 }

@@ -1,4 +1,5 @@
 import { isOneOf } from '../../../settings/registry'
+import { isOn } from '../../flags'
 import { ensureFont } from '../../reading/fonts'
 import {
   fontStack,
@@ -38,7 +39,11 @@ export function applyNoteStyle(
     : document.documentElement,
 ): void {
   if (!root) return
-  const font = noteFont.get()
+  // Owner 18 Nov (box bar part A): with the new text box, Easy to read
+  // (Atkinson Hyperlegible) is the font of a note until another is picked.
+  const picked = noteFont.get()
+  const font: NoteFont =
+    picked === 'default' && isOn('textbox.v2') ? 'atkinson' : picked
   const size = noteSize.get()
   const line = noteLine.get()
   void ensureFont(font)

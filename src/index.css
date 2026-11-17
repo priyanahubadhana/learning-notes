@@ -545,6 +545,17 @@ html[data-note-line] .bn-editor {
   line-height: var(--note-line);
 }
 
+/* The one bar (box bar part A): a star list, and a box's own line spacing. */
+.bn-block-content[data-content-type='bulletListItem'][data-marker='star']::before {
+  content: '★';
+}
+[data-paper-box][data-line='tight'] .bn-editor {
+  line-height: 1.35;
+}
+[data-paper-box][data-line='loose'] .bn-editor {
+  line-height: 1.95;
+}
+
 /* The mini toolbar replaces the iOS copy/paste callout on the page text. */
 .bn-editor {
   -webkit-touch-callout: none;

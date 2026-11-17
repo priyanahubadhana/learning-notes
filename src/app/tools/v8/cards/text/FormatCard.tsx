@@ -233,6 +233,45 @@ function LinkField({ onDone }: { onDone: () => void }) {
   )
 }
 
+/** The toggles (Toggle heading, Toggle list): own actions on the lines the cursor is in. */
+function runToggle(editor: BnEditor, act: 'toggleHeading' | 'toggleList') {
+  const blocks = targetBlocks(editor)
+  if (act === 'toggleList') {
+    const same = blocks.every((b) => b.type === 'toggleListItem')
+    for (const b of blocks)
+      editor.updateBlock(
+        b,
+        (same ? { type: 'paragraph' } : { type: 'toggleListItem' }) as never,
+      )
+  } else {
+    for (const b of blocks) {
+      const level = Number((b.props as Record<string, unknown>).level ?? 1)
+      const on =
+        b.type === 'heading' &&
+        !!(b.props as Record<string, unknown>).isToggleable
+      editor.updateBlock(
+        b,
+        (on
+          ? { type: 'paragraph' }
+          : { type: 'heading', props: { level, isToggleable: true } }) as never,
+      )
+    }
+  }
+  editor.focus()
+}
+
+function toggleHeadingOn(editor: BnEditor): boolean {
+  try {
+    const p = editor.getTextCursorPosition().block.props as Record<
+      string,
+      unknown
+    >
+    return !!p.isToggleable
+  } catch {
+    return false
+  }
+}
+
 function ToolGroup({ group, link }: { group: FormatGroup; link?: boolean }) {
   const editor = useBlockNoteEditor()
   const active = useActiveStyles(editor as never) as Record<string, unknown>
@@ -243,41 +282,52 @@ function ToolGroup({ group, link }: { group: FormatGroup; link?: boolean }) {
     /* no cursor yet */
   }
   const isOn = (tile: FormatTile): boolean =>
-    (!!tile.style && !!active[tile.style]) ||
-    (!!tile.block && tile.block === blockType) ||
-    (!!tile.mark && active.mark === tile.mark)
+    tile.act === 'toggleHeading'
+      ? blockType === 'heading' && toggleHeadingOn(editor as never)
+      : (!!tile.style && !!active[tile.style]) ||
+        (!!tile.block && tile.block === blockType) ||
+        (!!tile.mark && active.mark === tile.mark)
   const [linking, setLinking] = useState(false)
   if (group.id === 'headings') return <StyleRows group={group} />
+  const first = group.id === 'toggles' ? { 'data-format-first': '' } : {}
   return (
-    <CardGroup label={t(group.title)}>
-      <TileGroup label={t(group.title)} multi columns={group.columns}>
-        {group.tiles.map((tile) => (
-          <Tile
-            key={tile.tool}
-            multi={!tile.action}
-            action={tile.action}
-            label={tileName(tile)}
-            selected={isOn(tile)}
-            testId={`v8-format-${tile.tool}`}
-            onSelect={() => runTool(tile.tool)}
-          >
-            <Face tile={tile} />
-          </Tile>
-        ))}
-        {link ? (
-          <Tile
-            action
-            pressed={linking}
-            label={t('tool.link')}
-            testId="v8-format-link"
-            onSelect={() => setLinking((v) => !v)}
-          >
-            <Icon name="link" size={22} />
-          </Tile>
+    <div {...first}>
+      <CardGroup label={t(group.title)}>
+        <TileGroup label={t(group.title)} multi columns={group.columns}>
+          {group.tiles.map((tile) => (
+            <Tile
+              key={tile.tool}
+              multi={!tile.action}
+              action={tile.action}
+              label={tileName(tile)}
+              selected={isOn(tile)}
+              testId={`v8-format-${tile.tool}`}
+              onSelect={() =>
+                tile.act
+                  ? runToggle(editor as never, tile.act)
+                  : runTool(tile.tool)
+              }
+            >
+              <Face tile={tile} />
+            </Tile>
+          ))}
+          {link ? (
+            <Tile
+              action
+              pressed={linking}
+              label={t('tool.link')}
+              testId="v8-format-link"
+              onSelect={() => setLinking((v) => !v)}
+            >
+              <Icon name="link" size={22} />
+            </Tile>
+          ) : null}
+        </TileGroup>
+        {link && linking ? (
+          <LinkField onDone={() => setLinking(false)} />
         ) : null}
-      </TileGroup>
-      {link && linking ? <LinkField onDone={() => setLinking(false)} /> : null}
-    </CardGroup>
+      </CardGroup>
+    </div>
   )
 }
 
@@ -416,13 +466,18 @@ function LineHeightGroup() {
 }
 
 /** TB-41 (v9): one card, a tab row, colours, fonts and sizes inside the tabs. */
-export default function FormatCard() {
+export default function FormatCard({
+  startTab = 'text',
+}: {
+  /** The tab it opens on (the one bar's Text options opens on Style). */
+  startTab?: FormatTabId
+}) {
   const fonts = useUnlocked('tb.textFonts')
   const marks = useUnlocked('tb.textMarks')
   // The "Format tabs 3 / 4" setting (Settings, Layout row): 4 adds Advanced.
   const advanced = useBarPref('formatTabs')
   const tabs = formatTabs({ advanced, textMarks: marks })
-  const [picked, setPicked] = useState<FormatTabId>('text')
+  const [picked, setPicked] = useState<FormatTabId>(startTab)
   const tab = tabs.find((x) => x.id === picked) ?? tabs[0]
   return (
     <div className="v8scroll v8thin" data-testid="v8-format">

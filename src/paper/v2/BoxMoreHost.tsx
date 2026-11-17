@@ -18,6 +18,10 @@ import {
   placeList,
 } from './listPlace'
 import { MORE_LIST_W } from './BoxMoreList'
+import { usePhone } from '../../design/parts/useAnchoredCard'
+import { openBoxStyle } from '../boxStyleBus'
+import { openBoxLayout, openOneBarPop, openTextOptions } from './oneBarBus'
+import { copyBox, cutBox } from './oneBarOps'
 
 /**
  * TB-30 (switch textbox.v2): the ⋯ list of one box. Both ⋯ buttons open it:
@@ -49,6 +53,7 @@ export default function BoxMoreHost({
   onLock: (locked: boolean) => void
 }) {
   const id = useId()
+  const phone = usePhone()
   const { toast } = useContext(AppUiContext)
   // Beside or under the box, never over its words.
   const boxEl = document.querySelector(
@@ -114,14 +119,55 @@ export default function BoxMoreHost({
   const move = (step: 'up' | 'down') =>
     runTask(moveStep(db, pageId, getGrid(), box.id, step).then(() => {}))
   const locked = !!box.locked
+  const copy = async () => {
+    if (!(await copyBox(pageId, box.id))) toast(t('paper.box.copyFailed'))
+  }
+  const cut = async () => {
+    if (!(await cutBox(pageId, box.id, onDelete)))
+      toast(t('paper.box.copyFailed'))
+  }
+  // Phone: the bar is shorter, so Font, List, Cut and Paste live here.
+  const phoneRows: MoreRow[] = phone
+    ? [
+        {
+          id: 'font',
+          icon: 'font',
+          label: t('onebar.more.font'),
+          onSelect: () => openOneBarPop(box.id, 'font'),
+        },
+        {
+          id: 'list',
+          icon: 'list',
+          label: t('onebar.more.list'),
+          onSelect: () => openOneBarPop(box.id, 'list'),
+        },
+        ...(canEdit
+          ? [
+              {
+                id: 'cut',
+                icon: 'scissors',
+                label: t('pic.act.cut'),
+                disabled: locked,
+                onSelect: () => void cut(),
+              } as MoreRow,
+            ]
+          : []),
+        {
+          id: 'pasteMore',
+          icon: 'clipboard',
+          label: t('onebar.more.paste'),
+          onSelect: () => openOneBarPop(box.id, 'paste'),
+        },
+      ]
+    : []
   const groups: MoreRow[][] = [
+    ...(phoneRows.length ? [phoneRows] : []),
     [
       {
-        id: 'lock',
-        icon: locked ? 'lockOpen' : 'lockKeyhole',
-        label: locked ? t('paper.box.unlock') : t('paper.box.lock'),
-        disabled: !canEdit,
-        onSelect: () => onLock(!locked),
+        id: 'copy',
+        icon: 'clipboard',
+        label: t('pic.act.copy'),
+        onSelect: () => void copy(),
       },
       {
         id: 'duplicate',
@@ -129,6 +175,39 @@ export default function BoxMoreHost({
         label: t('paper.box.duplicate'),
         onSelect: onDuplicate,
       },
+      {
+        id: 'lock',
+        icon: locked ? 'lockOpen' : 'lockKeyhole',
+        label: locked ? t('paper.box.unlock') : t('paper.box.lock'),
+        disabled: !canEdit,
+        onSelect: () => onLock(!locked),
+      },
+    ],
+    [
+      {
+        id: 'style',
+        icon: 'palette',
+        label: t('onebar.more.style'),
+        disabled: !canEdit,
+        onSelect: () => openBoxStyle(box.id),
+      },
+      {
+        id: 'layout',
+        icon: 'grid',
+        label: t('onebar.more.layout'),
+        disabled: !canEdit,
+        onSelect: () => openBoxLayout(box.id),
+      },
+    ],
+    [
+      {
+        id: 'text',
+        icon: 'type',
+        label: t('onebar.more.text'),
+        onSelect: () => openTextOptions(box.id),
+      },
+    ],
+    [
       {
         id: 'up',
         icon: 'chevronUp',
@@ -143,8 +222,6 @@ export default function BoxMoreHost({
         disabled: !canEdit || locked || !neighbourOf(rows, box.id, 'down'),
         onSelect: () => move('down'),
       },
-    ],
-    [
       // One box is picked, so Group waits for two or more (the group pill).
       {
         id: 'group',
@@ -164,6 +241,7 @@ export default function BoxMoreHost({
           icon: 'trash',
           label: t('paper.box.delete'),
           danger: true,
+          disabled: locked,
           onSelect: onDelete,
         },
       ]

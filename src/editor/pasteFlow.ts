@@ -701,3 +701,15 @@ export function pasteHandler({
   )
   return ok ? true : defaultPasteHandler()
 }
+
+/**
+ * The one bar's "Paste ▾ › Keep look" (box bar part A): paste with the look of
+ * the copy, whatever the "Paste as" setting says, with no chooser.
+ */
+export function pasteAs(editor: Editor, data: PasteData): boolean {
+  const plan = planPaste(data)
+  if (!plan) return false
+  const choices = choicesFor(plan, { box: !!boxHost(editor) })
+  void run(editor, plan, choices, 'keep')
+  return true
+}

@@ -191,13 +191,24 @@ test('switching tools keeps every box editor (no rebuild) and still turns typing
 }) => {
   await start(page)
   await tool(page, 'Text').click()
-  // Tag each editor element; a rebuilt editor would be a new element.
-  const tagged = await page.evaluate(() => {
-    const all = [...document.querySelectorAll('[data-paper-box] .bn-editor')]
-    all.forEach((el, i) => el.setAttribute('data-p1-tag', String(i)))
+  // Mark every block of every box (a JS property the editor leaves alone). A
+  // rebuilt editor draws its blocks again as new elements, without the mark;
+  // before the fix every tool switch did that for all 23 blocks.
+  const BLOCKS = '[data-paper-box] .bn-editor .bn-block-outer'
+  const marked = await page.evaluate((sel) => {
+    const all = [...document.querySelectorAll(sel)]
+    for (const el of all) (el as unknown as { __p1: boolean }).__p1 = true
     return all.length
-  })
-  expect(tagged).toBe(EDITORS)
+  }, BLOCKS)
+  expect(marked).toBe(BOXES * 2 + 3)
+  const redrawn = () =>
+    page.evaluate(
+      (sel) =>
+        [...document.querySelectorAll(sel)].filter(
+          (el) => !(el as unknown as { __p1?: boolean }).__p1,
+        ).length,
+      BLOCKS,
+    )
   const editable = () =>
     page.evaluate(() =>
       [...document.querySelectorAll('[data-paper-box] .bn-editor')].map((e) =>
@@ -211,10 +222,8 @@ test('switching tools keeps every box editor (no rebuild) and still turns typing
   await tool(page, 'Eraser').click()
   await tool(page, 'Lasso').click()
   await tool(page, 'Text').click()
-  await expect(page.locator('[data-p1-tag]')).toHaveCount(EDITORS)
-  await expect(
-    page.locator('[data-paper-box] .bn-editor:not([data-p1-tag])'),
-  ).toHaveCount(0)
+  await expect(page.locator(BLOCKS)).toHaveCount(BOXES * 2 + 3)
+  expect(await redrawn()).toBe(0)
 })
 
 test('page tabs, tools and a page switch answer within generous budgets', async ({

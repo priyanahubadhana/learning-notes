@@ -231,9 +231,10 @@ export function ScrollBar({
     let first = 0
     // P1 speed (17 Nov 2026): a page that opens adds its boxes in many small
     // steps, and each step used to measure the list at once (a full style and
-    // layout pass of the page, 15 times per page switch). Size and content
-    // changes now measure once, in the next frame. Scrolling still reads at
-    // once, so the thumb follows the finger in the same frame.
+    // layout pass of the page, 15 times per page switch). Content changes now
+    // measure once, in the next frame. Scrolling and size changes still read
+    // at once (the browser reports those after its own layout, once a frame),
+    // so the thumb follows the finger and the window in the same frame.
     const soon = () => {
       if (first) return
       first = requestAnimationFrame(() => {
@@ -243,7 +244,7 @@ export function ScrollBar({
     }
     soon()
     el.addEventListener('scroll', read, { passive: true })
-    const ro = new ResizeObserver(soon)
+    const ro = new ResizeObserver(read)
     ro.observe(el)
     for (const c of Array.from(el.children)) ro.observe(c)
     // Content that grows by itself: children are added or removed.

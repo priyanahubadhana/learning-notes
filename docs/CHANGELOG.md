@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: P1 the app feels sluggish when switching (slice/p1-speed, Opus)
+
+- Why (measured, docs/metrics/p1-speed-2026-11-17.md): on the iPad stand-in (WebKit) opening a page of 10 boxes waited ~4.8 s, because every box ran the page's preparation on its own: 11 write transactions in a row (kept changes + card records). On Chrome with the CPU slowed 4x (an iPad-like speed) a page switch blocked ~1.7 s and Pen ~0.7 s: every tool switch rebuilt every box's editor (BlockNoteView rebuilds when its `editable` prop changes), and many parts measured the page right after another part changed it, so the browser re-styled the whole page once per box (layout thrash).
+- Fixes (pure speed, no visible change, no switch needed): boxes of a page share one preparation and the card check only reads unless a card is missing (PageEditor.tsx `preparePage`, cardService.ts); the editor's `editable` prop keeps its first value and the tool's mode reaches all box editors in one pass (PageEditor.tsx, editPolicy.ts `queuePageMode`); box measures, ink overlay placement and the scroller lookup run once per frame for all boxes (BoxFrame.tsx, ink/controller.ts); the keyboard inset is read once per viewport change (deviceModeSettings.ts); the shared scroll bar reads once per frame on size and content changes and polls inside a frame (ScrollBar.tsx); the scroll hints write attributes only when they change (scrollHints.ts).
+- Tests: e2e/p1-speed.spec.ts (tool switches keep every box editor and still turn typing off and on; generous time budgets for tabs, tools and a page switch in a notebook of 20 pages × 10 boxes; also on ipad-webkit, playwright.config.ts one line); cardService.test.ts (no write transaction when nothing is missing).
+- Left (not fixed, measured): on Chrome each box editor's switch still re-styles the page because of `:has()` rules (ours `body:has([data-ink-pad])` together with BlockNote's `.bn-suggestion-node:has(...)`); BlockNote's own editor creation reads the selection once per box on Chrome. Both noted in the metrics file.
+
 ### 17 Nov 2026: C24 Scribble over a whole word with the caret mid-word (slice/c24-scratch, switch textbox.v2)
 
 - Why: the iPad sends a delete aimed at a letter or two beside the caret. The C4 check "aimed at the scribbled spot already" passed because that small range sat inside the stroke span, so the browser deleted only those letters (and `mark` was already cleared for the second delete).

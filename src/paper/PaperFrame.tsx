@@ -3000,6 +3000,11 @@ function LazyMount({
   )
 }
 
+/** Polish 2B: the gap (px) the first box's frame grows outward,
+ * so words-to-frame equals that of every other box (10 sides, 7 top). */
+const MAIN_FRAME_GAP_X = 10
+const MAIN_FRAME_GAP_Y = 4
+
 /**
  * B3-6: ⠿ and ⋯ of the page's own text box (the first box), one 44 pt target
  * each, one touch target above its top edge. In Layout mode a cover over the
@@ -3035,8 +3040,34 @@ function MainChrome({
     onPointerUp: onDragEnd,
     onPointerCancel: onDragEnd,
   }
+  const root = useRef<HTMLDivElement>(null)
+  // Polish 2B: the tab sits above the box; when the page's own tabs (Notes /
+  // Summary / Review) are too near above, it sits below the box instead, as
+  // the tab of every other box near the top does. It never covers them.
+  const [below, setBelow] = useState(false)
+  useLayoutEffect(() => {
+    const top = root.current?.getBoundingClientRect().top
+    const tabs = document
+      .querySelector('[data-page-tabs]')
+      ?.getBoundingClientRect()
+    if (top == null || !tabs || tabs.bottom > top) return
+    const crowded = top - tabs.bottom < TOUCH_PX + 24
+    setBelow((b) => (b === crowded ? b : crowded))
+  })
+  // Polish 2B: with textbox.v2 the frame has the same small gap round the
+  // words as every other box; it grows outward, the words stay.
+  const v2 = isOn('textbox.v2')
+  const gap = v2 ? MAIN_FRAME_GAP_Y : 0
+  const gapX = v2 ? MAIN_FRAME_GAP_X : 0
+  const frameBox = {
+    top: -gap,
+    left: -gapX,
+    width: `calc(100% + ${2 * gapX}px)`,
+    height: height + 2 * gap,
+  }
   return (
     <div
+      ref={root}
       data-main-chrome
       className="absolute"
       style={{ left: at.x * k, top: at.y * k, width: at.w * k }}
@@ -3061,18 +3092,21 @@ function MainChrome({
               'pointer-events-none absolute left-0 w-full rounded-md border-solid border-accent ' +
               (isOn('textbox.v2') ? 'border' : 'border-[1.5px]')
             }
-            style={{ top: 0, height }}
+            style={frameBox}
           />
           <div
             data-main-handles
             className="pointer-events-none absolute left-0 w-full"
-            style={{ top: 0, height }}
+            style={frameBox}
           >
             <ResizeDots onResize={onResize} />
           </div>
           <div
             className="pointer-events-none absolute left-0 right-0 z-20 flex items-center justify-end pr-7"
-            style={{ top: -TOUCH_PX - 20, height: TOUCH_PX }}
+            style={{
+              top: below ? height + gap + 20 : -TOUCH_PX - 20 - gap,
+              height: TOUCH_PX,
+            }}
           >
             <button
               type="button"

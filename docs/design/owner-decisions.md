@@ -433,3 +433,4 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 - **Pin (owner, 18 Nov):** a pinned bar stays where it was put, for every box, until unpinned: also when nothing is selected or while typing. It never hides by itself.
 - **Docking (artifact comment, frame 9):** like the mic bar, the bar can be dragged to any of the four sides (top, bottom, left, right), lying horizontal or vertical.
 - **No room near the box (artifact comment, frame 10):** only when the box leaves no room around it (e.g. it fills the page) does the bar go wherever there is free space, horizontal or vertical, e.g. the gap under the top tool bar.
+- **Docked or pinned bar stays (owner, 18 Nov):** on every page and after closing the app, until the user undocks or unpins it.

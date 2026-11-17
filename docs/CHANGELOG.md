@@ -2,6 +2,16 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 18 Nov 2026: box bar part A, the one bar of a selected box (slice/box-bar-a, Sonnet; switch textbox.v2)
+
+- What: one bar over a selected box replaces the box bar and the text bar (owner decisions 18 Nov, mock docs/mockups/box-bar/index.html): text colour, size (number, slider, minus/plus, any number), Aa font list (Easy to read = Atkinson Hyperlegible, Classic = Literata, Handwritten = Patrick Hand, More fonts keeps every other font), B/I strip, align strip (with line spacing), list strip (Bullets, Numbers, Checklist, Star, Toggle), fill square (Box style card, now tabs Presets / Advanced / Layout), Cut, Paste with options (Keep look, Match style, Plain text), Delete, then the list. The list holds Copy, Duplicate, Lock box, Box style, Layout, Text options (the Text tool Format card, Toggle heading and Toggle list first, with a Make toggle switch), Move up/down, Group, Delete. A phone gets a shorter bar (so does any page column under 640 px); Font, List, Cut, Paste live under the list.
+- Placement (src/paper/v2/oneBarPlace.ts, pure and unit tested): above the box, else below, only when the box leaves no room in free space; keeps off other boxes, inside the page frame, 12 px from the screen top. The bar holder no longer takes taps.
+- Lock box already existed (PaperBox.locked, no new field); Delete and Cut of a locked box are now off and the delete handler refuses it.
+- Stored data: optional fields only, no Dexie version: PaperBox.line (tight/loose), text styles fontSize and fontFace (in the words), bullet prop marker "star".
+- Fonts: the three are the app's own @fontsource files (SIL OFL, texts in public/licenses/fonts-OFL.txt, listed in docs/LICENCES-FONTS.md); nothing loads from a font service. With the switch on, a note without a chosen font shows Easy to read (src/app/tools/main/textStyle.ts). Note: the bundled Atkinson is "Atkinson Hyperlegible Next".
+- Hot files touched: src/editor/schema.tsx (two styles, bullet marker), src/paper/BoxFrame.tsx (data-line; bar shown while words are selected), src/paper/boxService.ts (line), src/editor/pasteFlow.ts (pasteAs), src/index.css, src/app/tools/main/textStyle.ts (font default).
+- Tests: e2e/tb2-bar-a.spec.ts (20 tests), unit oneBarPlace/oneBarModel. Old tests changed with the 18 Nov citation: tb2-bar (bar buttons, list rows, Copy/Duplicate under the list, one bar with words selected), tb2-card (Advanced tab), sweep2b (list rows), q1-q3-shots (Delete via the list on a narrow page), textModel.test (toggle tiles).
+
 ### 18 Nov 2026: C33 first box one line tall, C34 empty part selects, letters ignored on a selected box (slice/c33-c34, Sonnet)
 
 - C33 cause (iPad, Pencil mode: the Lasso is the default tool): the ink "room" (src/ink/controller.ts ensureRoom) stretched the first box to a screenful (870 px) with any ink tool on. With textbox.v2 the first box on paper no longer gets that room. Also the editor's spare trailing block (30 px, "bn-trailing-block") gave a gap under the last text line: src/index.css drops it after a text block (switch via data-box-v2 on the paper).

@@ -226,6 +226,7 @@ const config = defineConfig({
         // Task H: the Journal and its month repair (manager OK, 15 Nov).
         /journalMonthRepair/,
         /noticeClose/,
+        /sweep2b/, // bug sweep to Phase 2B (17 Nov)
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

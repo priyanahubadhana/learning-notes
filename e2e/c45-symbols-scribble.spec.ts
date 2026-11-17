@@ -290,6 +290,62 @@ test('C27: a Pencil triple tap at the very top and the very bottom of a row in a
   expect(await boxText(box)).toContain(ROW)
 })
 
+// Sweep 2B (found in the C27 takeover, 17 Nov): on a short word the
+// selection's handles, which appear after the double tap, sit over the
+// row's top and bottom edge; a fast third tap there landed on a handle and
+// the line was never selected. While the taps of a run can still add up,
+// the handles let a tap through to the words.
+test('Sweep 2B: a fast Pencil triple tap on a short word selects the row, also at its top and bottom edge (never caught by a selection handle)', async ({
+  page,
+}) => {
+  await start(page, 'S2Bshort')
+  const ROW = 'Text is ok'
+  const box = await lineBox(page, ROW)
+  // The owner's set-up: Pencil mode (a computer also shows the editor's own
+  // bar over selected words, which a fast third click can meet).
+  await page.getByTestId('device-mode-button').click()
+  await page
+    .getByRole('menu', { name: 'Device mode' })
+    .getByRole('menuitemradio', { name: /Pencil/ })
+    .click()
+  await expect(page.getByRole('menu', { name: 'Device mode' })).toHaveCount(0)
+  await page.waitForTimeout(600)
+  // Only the handles are under test here. The editor's block button (⠿) can
+  // flash over the words during a Pencil tap run on ipad-webkit and take a
+  // tap too: a separate finding (S7, docs/plans/sweep-2b-checklist.md).
+  await page.addStyleTag({
+    content: '.bn-side-menu { display: none !important; }',
+  })
+  await pickBox(page, box)
+  await watchPresses(page)
+  const lineH = await box
+    .locator('.bn-inline-content')
+    .first()
+    .evaluate((el) => parseFloat(getComputedStyle(el).lineHeight))
+  // 'is' and 'ok': two letters each, the handles cover them side to side.
+  for (const i of [5, 6, 8, 9]) {
+    const b = await charBox(page, i)
+    const top = b.y + b.height / 2 - lineH / 2
+    for (const y of [top + 1, b.y + b.height / 2, top + lineH - 1]) {
+      let late = 0
+      for (;;) {
+        await pressLog(page)
+        await taps(page, 3, { x: b.x + b.width / 2, y })
+        const { ms } = await pressLog(page)
+        if (inSpec(ms)) break
+        late++
+        expect(late, `late runs: ${whole(ms)}`).toBeLessThanOrEqual(5)
+        await page.waitForTimeout(RUN_APART)
+      }
+      await expect
+        .poll(() => selected(page), `${ROW[i]} at y ${Math.round(y - b.y)}`)
+        .toBe(ROW)
+      await page.waitForTimeout(RUN_APART)
+    }
+  }
+  expect(await boxText(box)).toContain(ROW)
+})
+
 test('C5: the Lasso (Rectangle, Picks: Text) around "① → 6" selects those symbols', async ({
   page,
 }) => {

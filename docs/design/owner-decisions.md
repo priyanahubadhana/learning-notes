@@ -397,3 +397,12 @@ Reference: the owner's two Goodnotes screenshots (17 Nov 14:30).
 - **A tap in the empty part of a box that is already selected:** it stays selected (no cursor).
 - **Double and triple taps (TB-04) keep today's count:** in a box that was not active, the first tap only puts the cursor (or selects the box); the word/line count starts with the next tap.
 - **The page's first box follows the same rule.**
+
+## Open questions Q-1 to Q-6 answered (owner, 17 Nov 2026)
+
+- **Q-1 One ⋯ per box:** only the ⋯ on the box bar stays; the ⋯ on the frame goes (replaces the two-⋯ look of the approved picture).
+- **Q-2 First box while typing:** hides its dots and ≡ tab like every box; they show when it is selected (empty-part tap, C30b).
+- **Q-3 Delete on the first box:** deletes it. If other boxes exist, the next one moves up and becomes first; if none, the page has no box until the user makes a new one (tap on the page). One Undo brings it back.
+- **Q-4 Tap speed:** Relaxed 700 ms stays the default.
+- **Q-5 Layouts (later phase, "Your layouts"; picture first):** free by default: no layout, drop a box anywhere there is space, smart guide lines snap it neatly (C21). A layout is optional and for the whole page only (a few big panels, e.g. two columns, Cornell); its panels guide (a dropped box snaps in and fits the width) but never lock: a box can be dragged out anywhere. Turning a layout off or changing it moves nothing; only the panel borders go. The 2B Layouts dialog (stacking picked boxes) stays as it is for now.
+- **Q-6 Going live:** everything together later, after 2B passes the owner's test; the live app stays as it is until then.

@@ -604,29 +604,18 @@ export function PaperFrame({
   const [mainPicked, setMainPicked] = useState(false)
   useEffect(() => {
     if (!mainPicked) return
-    const gone = (e: Event) => {
-      const t = e.target instanceof Element ? e.target : null
-      if (!t?.closest('[data-paper-box="main"], [data-main-chrome]'))
-        setMainPicked(false)
-    }
-    const key = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMainPicked(false)
-    }
-    document.addEventListener('pointerdown', gone, true)
-    window.addEventListener('keydown', key)
-    return () => {
-      document.removeEventListener('pointerdown', gone, true)
-      window.removeEventListener('keydown', key)
-    }
+    const offs = [
+      onRouted('pointerdown', (e) => {
+        const t = e.target instanceof Element ? e.target : null
+        if (!t?.closest('[data-paper-box="main"], [data-main-chrome]'))
+          setMainPicked(false)
+      }),
+      onRouted('keydown', (e) => {
+        if (e.key === 'Escape') setMainPicked(false)
+      }),
+    ]
+    return () => offs.forEach((off) => off())
   }, [mainPicked])
-  useEffect(() => {
-    const on = (e: Event) => {
-      const id = (e as CustomEvent<{ id: string }>).detail.id
-      setMainPicked(id === MAIN_BOX)
-    }
-    window.addEventListener(PICK_BOX, on)
-    return () => window.removeEventListener(PICK_BOX, on)
-  }, [])
   useEffect(() => {
     const el = boxEl.current
     if (!el || flat) return
@@ -779,6 +768,8 @@ export function PaperFrame({
     const on = (e: Event) => {
       const d = (e as CustomEvent<{ id: string; add: boolean }>).detail
       if (extra.some((b) => b.id === d.id)) selectBox(d.id, d.add)
+      // C30b: the page's first box is picked by a tap in its empty part.
+      setMainPicked(d.id === MAIN_BOX)
     }
     window.addEventListener(PICK_BOX, on)
     return () => window.removeEventListener(PICK_BOX, on)

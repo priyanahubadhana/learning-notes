@@ -66,7 +66,35 @@ async function addBox(
   await page.waitForTimeout(800)
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   await page.waitForTimeout(900)
-  return page.locator(EXTRA).nth(n)
+  const made = page.locator(EXTRA).nth(n)
+  if (sheet) {
+    // C27: a new box is the whole line wide; pull it in from the side away from
+    // where it was meant to sit, so two boxes can stand side by side.
+    const r = (await made.boundingBox())!
+    const left = fx < 0.4
+    await page.mouse.click(r.x - 5, r.y + r.height / 2)
+    await expect(made).toHaveAttribute('data-picked', '')
+    const d = (await made
+      .locator(`[data-resize-handle="${left ? 'e' : 'w'}"]`)
+      .boundingBox())!
+    const x = d.x + d.width / 2
+    const y = d.y + d.height / 2
+    await page.mouse.move(x, y)
+    await page.mouse.down()
+    await page.waitForTimeout(170)
+    await page.mouse.move(
+      x + (left ? -1 : 1) * r.width * (left ? 0.62 : 0.5),
+      y,
+      { steps: 8 },
+    )
+    await page.mouse.up()
+    await page.waitForTimeout(400)
+    await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+    await page.keyboard.press('Escape')
+    await expect(made).not.toHaveAttribute('data-picked', '')
+    await page.waitForTimeout(500)
+  }
+  return made
 }
 
 for (const [name, vp, mode] of SIZES) {

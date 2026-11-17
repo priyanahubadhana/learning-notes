@@ -163,9 +163,13 @@ export function visualLineRange(
   // C5 (switch textbox.v2): the tap's own height when it is on the row. A
   // tall glyph (①) makes WebKit's caret box reach into the next row, and its
   // middle there took part of the next line.
+  // C27: kept off the row's top and bottom edge: in a box as wide as the line
+  // the probes sit far from the text, and a tap at the very edge of the row
+  // answered the row above.
+  const edge = (row.bottom - row.top) * 0.3
   const mid =
     isOn('textbox.v2') && y >= row.top && y <= row.bottom
-      ? y
+      ? Math.min(Math.max(y, row.top + edge), row.bottom - edge)
       : (row.top + row.bottom) / 2
   const clamp = (p: number) => Math.min(end, Math.max(start, p))
   const left = probe(view, el, box.left + 1, mid)

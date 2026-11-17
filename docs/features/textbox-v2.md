@@ -52,7 +52,7 @@ Beginner and Professional unless marked. **Pro** lines name their unlock switch 
 - TB-07 When I tap empty paper with any tool while a box is selected → the box deselects; nothing else happens.
 - TB-08 When the page's first (default) box is selected → it shows the same ≡ tab and ⋯ as every other box (B3-6).
 - TB-09 When I press Delete or Backspace with a box selected and no caret → the box is deleted and a toast offers Undo.
-- TB-10 When I type in a new box → it stays one line wide until it nears the right margin; it never wraps letter by letter; its minimum width is its longest word.
+- TB-10 A new box is as wide as the whole line (the page text width, like a Notion block) and one line tall; it grows downward only as I write, never wider; the first box on a page is one line tall when empty, then as tall as its text. A box I sized by hand keeps its size. Its dots still make it narrower or taller and it can be moved beside another box. (owner, 17 Nov; replaces "starts narrow, grows to the right")
 
 **Move (T2)**
 

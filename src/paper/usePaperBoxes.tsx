@@ -68,6 +68,7 @@ export function usePaperBoxes(
     y: number
     row?: number
     free?: boolean
+    wmm?: number
     rows?: GridRow[]
   }) => void
   /** Phones: a new box in the reading order (after a box id, 'start' or 'end'). */
@@ -269,6 +270,7 @@ export function usePaperBoxes(
     y: number
     row?: number
     free?: boolean
+    wmm?: number
     rows?: GridRow[]
   }) => {
     if (activeTool.get() !== 'text') return

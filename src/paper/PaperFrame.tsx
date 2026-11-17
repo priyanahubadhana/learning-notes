@@ -2162,14 +2162,20 @@ export function PaperFrame({
     }
     // Text box v2: a SMALL box exactly where tapped (its first line on the
     // paper line under the tap); it grows with the text, then wraps.
+    // C27 (owner, 17 Nov): with text box v2 the new box is as wide as the
+    // whole line (the page's text width), one line tall; it grows down only.
+    const line = isOn('textbox.v2')
     onAddBox({
-      x: Math.min(
-        Math.max(0, x - 1),
-        sheet.w - 15 - FREE_MIN_W - FREE_RIGHT_GAP,
-      ),
+      x: line
+        ? mainShown.x
+        : Math.min(
+            Math.max(0, x - 1),
+            sheet.w - 15 - FREE_MIN_W - FREE_RIGHT_GAP,
+          ),
       y: Math.max(0, snap(tapY, step / k)),
       row,
       free: true,
+      ...(line ? { wmm: mainShown.w } : {}),
       rows: baseRows,
     })
   }
@@ -2541,7 +2547,14 @@ export function PaperFrame({
                         }
                       : {}),
                     ...(box.style ? { padding: padOf(box.style) } : {}),
-                    paddingBottom: MARGIN * k + padOf(box.style),
+                    // C27: with v2 the bottom margin is space outside the frame, so
+                    // an empty first box is one line tall, not a writing area.
+                    ...(isOn('textbox.v2')
+                      ? {
+                          paddingBottom: padOf(box.style),
+                          marginBottom: MARGIN * k,
+                        }
+                      : { paddingBottom: MARGIN * k + padOf(box.style) }),
                     ...(preview || heldRows
                       ? {
                           transition:

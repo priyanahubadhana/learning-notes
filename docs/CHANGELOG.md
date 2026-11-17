@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: C27 new box is the whole line wide, one line tall (slice/c27-box-size)
+
+- Owner decision 17 Nov, replaces TB-10 ("starts narrow, grows to the right"): a Text-tool tap on empty paper (text box v2 ON) makes a box at the text's left edge, as wide as the page text width, one line tall, growing downward only. addBox takes wmm (stored as the row's width, so the dots still resize it and it can sit beside another box). The default box's bottom margin is now space outside its frame (margin, not padding) so an empty first box is one line tall; layout heights are unchanged. Triple-tap line selection keeps its probe off the row's edge (tapSelect.ts), as a full-width box exposed it. Hand-sized boxes keep their size (no data change). TB-10 test in tb2-select.spec.ts updated to the new rule (owner spec change); new e2e/tb2-select-c27.spec.ts; pictures in screenshots/c27/. Files: PaperFrame.tsx, boxService.ts, usePaperBoxes.tsx, docs/features/textbox-v2.md.
+
 ### 17 Nov 2026: C23 box menu, C25 menus above scroll bars, C26 hints (slice/c23-menus)
 
 - C23: Delete box sits in a fixed footer of the box ⋯ card (never scrolled away, even in a short window); the card is placed wholly inside the page frame (or wholly beside it), never across its edge (listPlace frame argument, BoxMoreHost, AnchoredMenu footer).

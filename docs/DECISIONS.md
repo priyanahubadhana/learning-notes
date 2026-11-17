@@ -79,6 +79,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-17 · C27 review FAIL → Opus takeover (Sonnet failed twice).** Reviewer found: a typing-border CSS patch without the textbox.v2 guard (would change the live app), the real cause in boxState.ts (typing in an unpicked box stays idle), one weakened TB-06 test, no test for the tap-edge fix. Pick taken: the page's first box follows the same C11 typing state as every box (TB-08), so it also shows the thin border while typing; owner to confirm on re-test.
+
 - **2026-11-17 · C27 approved picture = owner's own reference screenshot (Opus).** The owner sent a phone screenshot of the size they want plus clear words (one line, full line width, grows as you write). Taken as the approved picture instead of making a new mock-up; the build follows it and the owner checks it on the iPad.
 
 - **2026-11-17 · Re-test sent with CI red only on CI-only timing tests (Opus).** Full CI 43947701514 had 29 reds; every one passes on this PC (ipad-webkit 31/31, chromium earlier), and the timed-tap tests report the runner delivered taps 2-3x late. No test edited. Follow-up PENDING CI-TIMING: run the timing-sensitive specs only where the timing is real (local or a faster runner); this is a CI rule change, so it waits for the owner and the phase end.

@@ -116,8 +116,11 @@ export function watchScribbleDelete(editor: Editor): () => void {
     const view = editor.prosemirrorView
     if (!view || pts.length === 0) return null
     const box = strokeBox(pts, REACH_PX)
+    // Why strict: a word whose centre is exactly on the stroke's edge is not
+    // under it. With whole-pixel box layout (C27) the comma after "6" had its
+    // centre on the edge of a stroke ending 1 px past the 6, and went too (C4).
     const inBox = (x: number, y: number) =>
-      x >= box.x && x <= box.x + box.w && y >= box.y && y <= box.y + box.h
+      x > box.x && x < box.x + box.w && y > box.y && y < box.y + box.h
     const found = wordsInRegion(view, inBox, box)
     if (found) return [found.from, found.to] as [number, number]
     // Scribble may take the Pencil after a few points: the token at its start.

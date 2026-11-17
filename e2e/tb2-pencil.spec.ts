@@ -538,7 +538,11 @@ test.describe('TB-41 the Pencil in a box follows the tool', () => {
     )
     await tool(page, 'Pen').click()
     await page.waitForTimeout(700)
-    await realPen(page, wavy(b.x + 30, b.y + b.height / 2, 120, 6, 10))
+    // Why: with the Text tool the box has a spare line under the words (the
+    // 'keep writing' line); with the Pen it is gone, so the box is shorter.
+    // Measure again, or the stroke lands under the box (TB-41 re-test, C27).
+    const pb = (await box.boundingBox())!
+    await realPen(page, wavy(pb.x + 30, pb.y + pb.height / 2, 120, 6, 10))
     await expect
       .poll(async () => (await savedInk(page)).strokes.length, {
         timeout: 8000,

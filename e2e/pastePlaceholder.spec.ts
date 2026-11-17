@@ -67,7 +67,9 @@ for (const [name, html] of CASES) {
     const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
     const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
     await page.mouse.click(
-      sheet.x + sheet.width * 0.5,
+      // Clear of the first box's ≡ tab, which sits in the middle just below it
+      // (Polish 2B), so the tap lands on the paper.
+      sheet.x + sheet.width * 0.3,
       main.y + main.height + 60,
     )
     const extra = page.locator('[data-paper-box]:not([data-paper-box="main"])')

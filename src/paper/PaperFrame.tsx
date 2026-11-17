@@ -3064,8 +3064,9 @@ function MainChrome({
       setBelow((b) => (b === crowded ? b : crowded))
     }
     measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
+    const ro = new ResizeObserver(measure)
+    ro.observe(document.documentElement)
+    return () => ro.disconnect()
   }, [at.y, k, height, typing, styled])
   // Polish 2B: with textbox.v2 the frame has the same small gap round the
   // words as every other box; it grows outward, the words stay.

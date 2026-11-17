@@ -2599,7 +2599,9 @@ export function PaperFrame({
             className={
               flat
                 ? undefined
-                : 'rounded-md outline-1 outline-dashed outline-transparent focus-within:outline-line'
+                : isOn('textbox.v2')
+                  ? 'rounded-md'
+                  : 'rounded-md outline-1 outline-dashed outline-transparent focus-within:outline-line'
             }
             style={
               flat

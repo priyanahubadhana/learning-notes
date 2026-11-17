@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 18 Nov 2026: Typing in the first box shows one frame (slice/main-typing-line, Sonnet)
+
+- Cause: the first box's wrapper still had the old box guide (a dashed 1 px outline that shows on focus-within, src/paper/PaperFrame.tsx), so with the switch ON the thin solid frame had a faint dashed one inside it. Fix: with textbox.v2 ON the wrapper has no dashed outline. Switch OFF keeps it. Layout mode's dashed cover (boxV2.css), the empty new-box dashed frame (index.css) and drop-target lines are other rules and stay.
+- Test: e2e/mainFramePolish.spec.ts "typing in the first box shows exactly one visible frame". Pictures: screenshots/main-frame/ (typing, retaken).
+
 ### 17 Nov 2026: Q-3 Delete on the first box deletes it; Q-1 the first box has the bar (slice/q1-q3, Sonnet)
 
 - Owner Q-1 and Q-3 (decisions logged in docs/DECISIONS.md "Q-3 first-box delete, how"). Switch textbox.v2. (1) The first box now has the box bar like every box, shown when it is selected; its frame no longer has a ⋯ (src/paper/PaperFrame.tsx MainChrome, src/paper/v2/BoxBarV2.tsx: the bar finds the first box through its chrome, stays clear of the page tabs and of the tab when that sits under the box). (2) "Delete box" on the first box really deletes it (src/paper/usePaperBoxes.tsx `removeMain`): the next box in page order moves up (its text and look go into the first box, its own box is removed); with no other box the first box carries `gone` (new optional mark on its stored PaperBox, src/core/types.ts; no Dexie version, travels with the page record, History and Undo) and the page shows no box (hidden, not focusable) until a tap on the page makes one. One toast Undo puts back the text, the look and the moved box. Cut and the ⋯ list Delete work the same.

@@ -62,3 +62,44 @@ test('Q-2: while typing the first box shows only its thin frame', async ({
     page.locator('[data-main-chrome] [data-resize-handle]'),
   ).toHaveCount(0)
 })
+
+test('Q-2: typing in the first box shows exactly one visible frame (no dashed inner line)', async ({
+  page,
+}) => {
+  await start(page, 'One frame')
+  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await expect(page.locator('[data-main-frame]')).toBeVisible()
+  // Every element in and round the first box that draws a line of its own.
+  const lines = await page.evaluate(() => {
+    const root = document.querySelector('[data-paper-box="main"]')!
+    const out: string[] = []
+    const all = [root, ...Array.from(root.querySelectorAll('*'))]
+    for (const el of all) {
+      for (const pseudo of [null, '::before', '::after']) {
+        const cs = getComputedStyle(el, pseudo)
+        const border = ['Top', 'Right', 'Bottom', 'Left'].some(
+          (s) =>
+            parseFloat(cs.getPropertyValue(`border-${s.toLowerCase()}-width`)) >
+              0 &&
+            cs.getPropertyValue(`border-${s.toLowerCase()}-style`) !== 'none',
+        )
+        const outline =
+          cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0
+        if ((border || outline) && (pseudo || cs.display !== 'none'))
+          out.push(
+            `${el.tagName}.${(el as HTMLElement).className}${pseudo ?? ''} b=${border} o=${cs.outlineStyle}`,
+          )
+      }
+    }
+    return out
+  })
+  const dashed = await page.evaluate(() => {
+    const root = document.querySelector('[data-paper-box="main"]')!
+    return [root, ...Array.from(root.querySelectorAll('*'))].filter((el) => {
+      const cs = getComputedStyle(el)
+      return cs.borderTopStyle === 'dashed' || cs.outlineStyle === 'dashed'
+    }).length
+  })
+  expect(dashed, lines.join('\n')).toBe(0)
+  await expect(page.locator('[data-main-frame]')).toHaveCount(1)
+})

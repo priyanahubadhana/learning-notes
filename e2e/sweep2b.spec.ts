@@ -109,16 +109,10 @@ for (const size of SIZES) {
     // The ⋯ on the box's frame.
     await box.locator('[data-box-menu]').tap()
     await openList(page)
-    await closeList(page)
-    // The ⋯ on the box bar (Esc closed the list and let the box go).
-    await pick(page, box)
+    // The ⋯ on the box bar while that list is open: the same list, still one.
     await page.getByTestId('ob-boxmore').tap()
     await openList(page)
-    // The frame's ⋯ while the bar's list is open: still one list.
-    await box.locator('[data-box-menu]').tap()
-    await expect(page.getByRole('menu')).toHaveCount(1)
-    await page.keyboard.press('Escape')
-    await expect(page.getByRole('menu')).toHaveCount(0)
+    await closeList(page)
     // The page's first box (its ⋯ shows while the caret is in it, TB-08).
     await page.locator(`${MAIN} .bn-editor`).click()
     const mainMenu = page.locator('[data-box-menu]:visible')

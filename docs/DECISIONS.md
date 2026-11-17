@@ -79,6 +79,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - **2026-11-17 · Q-3 first-box delete, how (main chat, safest option):** an additive, optional page flag marks "first box removed" (no Dexie version, older pages unaffected, nothing lost; syncs with the page). When other boxes exist, the next box moves up into the first place. The first box also gets the box bar with the one ⋯ (Q-1), so its list stays reachable. Built as one task after the first-box frame polish merges (both touch PaperFrame.tsx).
@@ -999,9 +1001,13 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (remote sign-out, 9 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 ## Decisions to review (contextual strips, 9 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1019,6 +1025,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (copy side, 9 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - Ctrl/Cmd+C keeps BlockNote's own copy (it already writes our lossless `blocknote/html`) and then replaces `text/plain` with clean Markdown and `text/html` with our own rich HTML, only when whole blocks are copied; words inside one block stay BlockNote's, so they paste into a line.
@@ -1027,6 +1035,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Toggles are written as `<details>` in Markdown, cards as `**Q:** … / **A:** …`; database, mind map and day record blocks have no text form and are left out of the text formats.
 
 ## Decisions to review (Clean up with AI, 9 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1037,6 +1047,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Vimeo, Loom and video files, 9 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - Vimeo: `dnt=1` (do not track) and the private-link hash of unlisted videos are kept; Loom frames use `hide_owner=true`. Frames use a sandbox (scripts, same-origin, presentation, popups; no forms, no top navigation).
@@ -1045,6 +1057,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - CSP `frame-src` now lists three hosts (YouTube no-cookie, Vimeo player, Loom); `media-src` already allowed https.
 
 ## Decisions to review (Ink scrolls natively, 9 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1056,6 +1070,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (As text box, 9 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - Offered for rich pastes only (the same ones the chooser already appears for) and never for an address or a database. The box starts 120 mm wide (or what fits) at the caret's x and just under its line; on the stacked phone layout it goes first in reading order. Its height grows with the content like any box.
@@ -1063,6 +1079,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - A locked page refuses with the usual lock message and nothing is made.
 
 ## Decisions to review (database pages, 9 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1075,6 +1093,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (prompt gaps and Lock editing, 9 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - Icons: 66 Lucide icons, drawn only in the skill preview; saved text (pages, mind map, database, cards) uses the emoji of the icon because those are plain text. Unknown names are dropped. Not a full icon picker.
@@ -1084,6 +1104,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Not run: iPad WebKit e2e for this work.
 
 ## Decisions to review (prompt library and skills, 9 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1126,6 +1148,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (boxes like GoodNotes, 9 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 | Decision                                                                                                                                              | Why                                                                       | Change it if                                               |
@@ -1149,6 +1173,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (design tokens, 9 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - Colour values changed from system.md so every pair passes AA (the test found them): Day success #1D7A50 → #1A7248 (on its soft fill); Night muted #8F8D9B → #9A98A6 (on surface-3), Night line-strong #6E6C7A → #7F7D8C (3:1 on menus and dialogs); Sepia values were mine (system.md has none): accent #5F37D4, danger #A8321F, muted #6F614B.
@@ -1158,6 +1184,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Old chart slot 4 (purple) became blue and the tag colour map swapped, so a violet tag still draws as chart 1 (the accent).
 
 ## Decisions to review (Drive stays connected, 9 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1179,6 +1207,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Design step 2, 9 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - **Toasts are solid, not glass.** The request said glass; docs/design/system.md (owner-approved) says solid surface-3. I followed the doc. Say if you want glass toasts.
@@ -1190,6 +1220,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **2026-11-09 · Drive lasting connection confirmed live** by the owner (Settings › Account: "Drive: stays connected"). Fix: remove the old Google grant, then Set up lasting connection.
 
 ## Decisions to review (Accounts, 9 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1205,6 +1237,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Account gate, Q3a, 12 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - **Replaces "Existing signed-out devices are not locked out"** (Accounts, 9 Nov): owner chose (a). A device with no stored session is read-only with a top bar and a sign-in sheet. Reading, search, export, review and settings still work.
@@ -1217,11 +1251,15 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Pencil double tap, 11 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - **Grace period 600 ms** after a tap selects text, nothing may delete, replace or write over the selection (no key pressed). Chosen just above the 500 ms Pencil-lift window and the 450 ms tap gap; short enough that real Scribble writing still works a moment later. Applies even when Scribble is free (Text tool). Side effect: dictation or autocorrect inside that 600 ms is also refused. Change: SELECT_GRACE_MS in src/editor/penGuard.ts.
 
 ## Decisions to review (CI fix, 11 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1229,6 +1267,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **Tap-below button** moved 24 px lower so the first box handles do not cover it; text wrap uses break-word instead of anywhere (performance).
 
 ## Decisions to review (Security audit, 12 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1238,17 +1278,23 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (PDF page by page, 11 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - **Page by page uses scroll-snap, not a one-page viewer.** Same column and layout as the continuous scroll, with the page scaled to fit the screen and snapping to page edges. Keeps ink, highlights, Find and the position locator unchanged. Trade-off: a fast fling can pass over several pages before it settles (Safari decides); the Page Flip slider and Contents land exactly. Other option: render one page at a time (more code, new ink and highlight paths). This replaces the earlier decision that a PDF is always continuous (Builder H, d).
 
 ## Decisions to review (Bookerly-style font, 11 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - **Literata stands in for Bookerly.** Bookerly is Amazon's licensed font and cannot be bundled (₹0, licence). Literata is OFL, already in the app, and was designed for long reading on screens, so it is the closest free match. Other options: Source Serif 4 (also bundled, a bit more formal) or Charter (system, not on every device). The default stays "Book default" (the book's own font); the new tile is opt-in. Not applied to PDFs (their letters are pictures).
 
 ## Decisions to review (reading progress and favourites sync, 11 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1259,6 +1305,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Drive status, 11 Nov)
 
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
+
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 - **The server is asked, the flag is only a memory.** The status line and the consent choice now follow what the server says when it can be reached. Other option: also count the rows by a direct SQL check by hand (still the quickest way to look: Supabase › Table editor › drive_tokens).
@@ -1266,6 +1314,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - I touched `connectors/supabase.ts` in two small places only (the flag when a server pass works, and the new check); no sign-in or session code.
 
 ## Decisions to review (Claude connector B, 11 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
@@ -1276,6 +1326,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **Slice 2 is not safe for real notes yet:** the tools do nothing, but escrow, Inbox, audit log, rate limits and a Revoke list are later slices. Until then, disconnect by deleting rows in `oauth_tokens`.
 
 ## Decisions to review (build night 1, 12 Nov)
+
+- **2026-11-18 · Box bar part A (main chat):** in computer mode, BlockNote's own toolbar over selected words stays for now (it holds Make blank, Make card, Revise marks, Add to summary), so a second bar can show there. Moving those into Text options and hiding it is for the owner to decide. Size on a whole box scales every block by one ratio, so headings stay bigger.
 
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 

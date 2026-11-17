@@ -322,7 +322,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 18 Nov 2026: mock-up, one bar for a selected box
 
-- What: picture for the owner's OK of the one Goodnotes-style bar (strips, Paste ▾, Box style, ⋯ with Lock box, moved and pinned bar, box near the top, phone). Why: owner decision 18 Nov. Files: docs/mockups/box-bar/index.html.
+- What: picture for the owner's OK of the one Goodnotes-style bar (strips, Paste ▾, Box style, ⋯ with Lock box, moved and pinned bar, box near the top, phone). Why: owner decision 18 Nov. Update: Size and Aa frames, docking (four sides, pinned stays on every page and after closing), pinned with nothing selected or typing, no-room case. Update 2: uniformity check vs the Text tool row, Text-tool size frame, missing options added. Update 3: owner answers (lists, fonts, colour tap, size scope), simpler bar. Files: docs/mockups/box-bar/index.html, uniformity.md.
 
 ### 17 Nov 2026: user stories and features, through Phase 2B
 

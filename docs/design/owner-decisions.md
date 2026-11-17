@@ -412,3 +412,7 @@ Reference: the owner's two Goodnotes screenshots (17 Nov 14:30).
 - **Empty page:** the first (one-line) box shows no frame until it is tapped; only the grey hint "Type, or tap anywhere…" shows.
 - **Tap on empty paper below the last box (Text tool):** a new one-line box at that spot (C27 stays).
 - **Keys while a box is selected (dots showing):** typing does nothing. Selected means "adjust the box (shape, size, place)"; to type, tap where the words go (C30). Owner: "typing is not selected until we click somewhere it could be typed… he meant to adjust the box shape and size."
+- **Hint tap (18 Nov):** on an empty page the grey hint line counts as text for "near": a tap on or near it gives the cursor; only a tap clearly away from it selects the box.
+- **Hold (18 Nov):** hold on selected words = the strip (Cut, Copy, Paste…), approved; hold ≡ ~0.1 s = lift and move, approved; keyboard shortcuts as normal, approved. How a box is selected and shows its bar (today: tap its empty part) waits for the owner's Goodnotes example.
+- **Empty box made by mistake (18 Nov):** a new box left empty (no text, nothing pasted, no picture or other item put in) vanishes at once, with no visible delay, the moment the user taps away or picks another tool. A box with anything in it stays.
+- **Tap below makes a box only with the Text tool (18 Nov):** Pen, Highlighter, Eraser, Lasso and the rest never make a box.

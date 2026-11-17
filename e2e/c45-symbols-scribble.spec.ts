@@ -248,15 +248,18 @@ test('C27: a Pencil triple tap at the very top and the very bottom of a row in a
   page,
 }) => {
   await start(page, 'C27edge')
-  const box = await lineBox(page)
+  // A long word: after the double tap the selection's handles (44 pt each)
+  // sit at the word's ends, away from the third tap. On a short word a fast
+  // handle takes the third tap (a separate finding).
+  const ROW = 'Text extraordinarily wonderful'
+  const box = await lineBox(page, ROW)
   const main = await rect(page.locator('[data-paper-box="main"]'))
   // The box is the whole line wide (C27).
   expect(Math.abs((await rect(box)).width - main.width)).toBeLessThan(6)
   await pickBox(page, box)
-  // Letters in the middle of a word: after the double tap the selection's
-  // handles sit at the word's ends, away from the third tap (a tap on a
-  // handle is a handle drag, not a tap: a separate finding).
-  for (const i of [1, 2]) {
+  await watchPresses(page)
+  // The middle of 'extraordinarily'.
+  for (const i of [9, 10]) {
     const b = await charBox(page, i)
     // The row is one line height tall around the glyph (its leading too).
     const lineH = await box
@@ -266,14 +269,25 @@ test('C27: a Pencil triple tap at the very top and the very bottom of a row in a
     expect(lineH).toBeGreaterThan(b.height - 1)
     const top = b.y + b.height / 2 - lineH / 2
     for (const y of [top + 1, top + lineH - 1]) {
-      await taps(page, 3, { x: b.x + b.width / 2, y })
+      // As in C14: a run the PC delivered late (by the events' own time
+      // stamps) proves nothing about the app; it is repeated, never excused.
+      let late = 0
+      for (;;) {
+        await pressLog(page)
+        await taps(page, 3, { x: b.x + b.width / 2, y })
+        const { ms } = await pressLog(page)
+        if (inSpec(ms)) break
+        late++
+        expect(late, `late runs: ${whole(ms)}`).toBeLessThanOrEqual(5)
+        await page.waitForTimeout(RUN_APART)
+      }
       await expect
-        .poll(() => selected(page), `${LINE[i]} at y ${Math.round(y - b.y)}`)
-        .toBe(LINE)
+        .poll(() => selected(page), `${ROW[i]} at y ${Math.round(y - b.y)}`)
+        .toBe(ROW)
       await page.waitForTimeout(RUN_APART)
     }
   }
-  expect(await boxText(box)).toContain(LINE)
+  expect(await boxText(box)).toContain(ROW)
 })
 
 test('C5: the Lasso (Rectangle, Picks: Text) around "① → 6" selects those symbols', async ({

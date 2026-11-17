@@ -10,7 +10,7 @@ import {
   startInMode,
   typeInEditor,
 } from './helpers.ts'
-import { pick } from './cBoxesHelpers.ts'
+import { pick, selectMain } from './cBoxesHelpers.ts'
 
 /**
  * Bug sweep to Phase 2B: pictures for the owner's quick OK, with the preset
@@ -107,7 +107,7 @@ for (const [tname, theme] of THEMES)
       await shot(page, `box-list-${tname}-${vp.name}`)
       await page.keyboard.press('Escape')
       if (!phone) {
-        await page.locator('[data-paper-box="main"] .bn-editor').click()
+        await selectMain(page)
         await page.locator('[data-box-menu]:visible').tap()
         await expect(
           page.getByRole('menu', { name: 'Box actions' }),

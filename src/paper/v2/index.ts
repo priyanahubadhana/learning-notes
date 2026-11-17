@@ -36,7 +36,7 @@ const TEXT_BLOCK =
  * ("main") follows the first-tap rule too. A tap in its empty part (not on or
  * near a written line) while no caret is in it gives its box (the page's
  * first box has no other state than "caret in it"), so it is selected
- * without a caret. A page with no text yet keeps the caret at once.
+ * without a caret. C34 (18 Nov): that holds on an empty page too.
  */
 function mainEmptyPart(
   target: Element | null,
@@ -45,7 +45,9 @@ function mainEmptyPart(
   const main = target?.closest('[data-paper-box="main"]')
   const ed = main?.querySelector<HTMLElement>('.ProseMirror')
   if (!main || !ed || main.contains(document.activeElement)) return null
-  if (!ed.textContent?.trim() || nearText(ed, e.clientX, e.clientY)) return null
+  // C34 (owner 18 Nov): an empty page is no exception: its first box is
+  // selected by a tap away from the caret spot (C30b kept the caret there).
+  if (nearText(ed, e.clientX, e.clientY)) return null
   const type = target
     ?.closest('[data-content-type]')
     ?.getAttribute('data-content-type')
@@ -168,6 +170,36 @@ export function installBoxV2(): () => void {
     // A picked box: its empty part keeps it selected (no caret).
   }
 
+  /**
+   * Owner 18 Nov: while a box is selected (dots showing, no caret) typed
+   * letters do nothing: "selected" means adjust the box; typing needs a tap
+   * where the words go. Why: Safari keeps the page's selection in the editor
+   * that lost focus, so a letter typed with a box selected still landed in the
+   * old text. Shortcuts (Cmd/Ctrl), Delete, Backspace, Escape, Enter and keys
+   * on a focused button or field are not letters and stay as they are.
+   */
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key.length !== 1 || e.metaKey || e.ctrlKey || e.altKey) return
+    const at = document.activeElement
+    if (
+      at &&
+      at !== document.body &&
+      at.closest(
+        '[contenteditable="true"], input, textarea, select, button, a, [role="menuitem"], [role="button"], [tabindex]',
+      )
+    )
+      return
+    if (
+      !document.querySelector(
+        '[data-paper-box][data-picked], [data-main-chrome] [data-box-grip]',
+      )
+    )
+      return
+    e.preventDefault()
+    e.stopImmediatePropagation()
+  }
+  window.addEventListener('keydown', onKey, true)
+
   const onCancel = (e: PointerEvent) => {
     if (tap && e.pointerId === tap.id) tap = null
   }
@@ -212,6 +244,7 @@ export function installBoxV2(): () => void {
     childList: true,
   })
   return () => {
+    window.removeEventListener('keydown', onKey, true)
     for (const off of offs) off()
     router.destroy()
     textFirstTap.on = false

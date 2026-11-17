@@ -237,11 +237,15 @@ export async function openPage(page: Page, title: string) {
 export async function typeInEditor(page: Page, text: string) {
   // In Pencil mode the Lasso's pad lies over the page; the app places the
   // caret on the click, but Playwright would wait for the pad to move.
+  // C34 (owner 18 Nov): with text box v2 a tap in the empty part of the first
+  // box selects it, even on an empty page; the caret spot is the left end of
+  // its line. So the click lands there (it is the same on every page).
   const editor = page.locator('.bn-editor')
+  const at = { position: { x: 6, y: 8 } }
   try {
-    await editor.click({ timeout: 1500 })
+    await editor.click({ timeout: 1500, ...at })
   } catch {
-    await editor.click({ force: true })
+    await editor.click({ force: true, ...at })
   }
   await page.keyboard.type(text)
   await waitForSaved(page)

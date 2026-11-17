@@ -858,11 +858,17 @@ export class InkController {
     if (this.env.growRoom === false) return
     const { doc, wrap } = this.env
     const tool = this.env.tool()
+    // C33 (owner 18 Nov, textbox.v2): the page's first box on paper is as tall
+    // as its text, with a tool on or not. Why: the ink room (a screenful) made
+    // an empty first box (and its frame) 3 lines or more tall on the iPad.
+    const onPaper =
+      isOn('textbox.v2') && !!wrap.closest('[data-paper-box="main"]')
     const inking =
-      tool === 'pen' ||
-      tool === 'highlighter' ||
-      tool === 'eraser' ||
-      tool === 'lasso'
+      !onPaper &&
+      (tool === 'pen' ||
+        tool === 'highlighter' ||
+        tool === 'eraser' ||
+        tool === 'lasso')
     const key = `${doc.version}|${this.layout.version}|${inking}`
     if (key === this.roomKey) return
     this.roomKey = key
@@ -879,7 +885,10 @@ export class InkController {
       this.scroller === window
         ? window.innerHeight
         : (this.scroller as HTMLElement).clientHeight
-    const want = Math.max(scrollerH, bottom > 0 ? bottom + 240 : 0)
+    const want = Math.max(
+      onPaper ? 0 : scrollerH,
+      bottom > 0 ? bottom + 240 : 0,
+    )
     const have = parseFloat(wrap.style.minHeight) || 0
     if (Math.abs(want - have) > 8)
       wrap.style.minHeight = `${Math.round(want)}px`

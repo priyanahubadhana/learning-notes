@@ -9,7 +9,9 @@ import { installRealPen, realPen } from './realPen.ts'
  * "First tap in a box"), switch textbox.v2, Text tool: the page's first box
  * follows the first-tap rule too. A first tap on or near its words gives the
  * caret at once; a tap in its empty part selects it (frame, dots, tab, menu),
- * with no caret. An empty page keeps the caret at once. Pencil and finger.
+ * with no caret. C34 (18 Nov): an empty page too (no caret kept there any
+ * more); only a tap at the caret spot (left edge, to 1.75 letters) types.
+ * Pencil and finger.
  */
 test.use({
   viewport: { width: 1180, height: 820 },
@@ -65,7 +67,8 @@ async function tapAt(page: Page, x: number, y: number, how: 'pen' | 'finger') {
 /** A page with the words "Hello world" in its first box, no caret in it. */
 async function mainWithWords(page: Page, name: string) {
   await start(page, name, false, PRESET_2B)
-  await page.locator(MAIN + ' .bn-editor').click()
+  // C34: the click lands at the caret spot (the line's left end).
+  await page.locator(MAIN + ' .bn-editor').click({ position: { x: 6, y: 8 } })
   await page.keyboard.type('Hello world')
   await page.waitForTimeout(700)
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
@@ -131,13 +134,19 @@ for (const how of ['pen', 'finger'] as const) {
     await expect(chrome(page)).toHaveCount(0)
   })
 
-  test(`C30b (${how}): an empty page keeps the caret at once on the first tap`, async ({
+  test(`C34 (${how}): on an empty page a tap away from the caret spot selects the first box (C30b kept the caret; that went); a tap at the caret spot types`, async ({
     page,
   }) => {
     await start(page, `MainEmpty ${how}`, false, PRESET_2B)
     const main = page.locator(MAIN)
     const r = await rect(main)
     await tapAt(page, r.x + r.width / 2, r.y + 12, how)
+    await expect(chrome(page).locator('[data-box-grip]')).toBeVisible()
+    expect(await typingIn(main)).toBe(false)
+    await page.keyboard.press('Escape')
+    await expect(chrome(page)).toHaveCount(0)
+    // The caret spot: the line's left edge, up to about 1.75 letters.
+    await tapAt(page, r.x + 6, r.y + 12, how)
     expect(await typingIn(main)).toBe(true)
   })
 }

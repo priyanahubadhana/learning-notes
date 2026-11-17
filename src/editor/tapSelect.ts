@@ -387,7 +387,21 @@ export function nearText(dom: HTMLElement, x: number, y: number): boolean {
     // A letter is about 0.6 em wide: 1.75 letters is about 1.05 em.
     const reach = 1.05 * fs
     range.selectNodeContents(el)
-    for (const r of range.getClientRects()) {
+    const rects = [...range.getClientRects()].filter(
+      (r) => r.width > 0 && r.height > 0,
+    )
+    // C34 (owner 18 Nov): an empty line has no words to be near. Its own box
+    // counts: from its left edge (where the caret stands) to 1.75 letters
+    // past it, on its own row. The rest of the box is empty part.
+    if (!rects.length && !el.textContent) {
+      const b = el.getBoundingClientRect()
+      if (b.height === 0) continue
+      if (Math.abs(y - (b.top + b.bottom) / 2) > Math.max(lh, b.height) / 2)
+        continue
+      if (x >= b.left && x <= b.left + reach) return true
+      continue
+    }
+    for (const r of rects) {
       if (r.width === 0 || r.height === 0) continue
       if (Math.abs(y - (r.top + r.bottom) / 2) > lh / 2) continue
       if (x >= r.left - reach && x <= r.right + reach) return true

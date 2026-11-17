@@ -1358,3 +1358,26 @@ html[data-box-drag] {
   flex: 1;
   min-width: 0;
 }
+
+/* C33 (owner 18 Nov, switch textbox.v2): a box is as tall as its text. The
+   editor's spare "trailing block" (30 px, a click adds a line) stays only
+   after a block that is no text (a table, a picture), where it is the way to
+   go on writing; after a text block Enter does the same, so it takes no room. */
+[data-paper][data-box-v2]
+  [data-paper-box]
+  .bn-block-outer:has(
+    > .bn-block
+      > .bn-block-content:is(
+        [data-content-type='paragraph'],
+        [data-content-type='heading'],
+        [data-content-type='quote'],
+        [data-content-type='bulletListItem'],
+        [data-content-type='numberedListItem'],
+        [data-content-type='checkListItem'],
+        [data-content-type='toggleListItem']
+      )
+  )
+  + .bn-trailing-block {
+  height: 0;
+  overflow: hidden;
+}

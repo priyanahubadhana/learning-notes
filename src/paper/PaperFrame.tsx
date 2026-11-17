@@ -2474,6 +2474,8 @@ export function PaperFrame({
           ref={paperEl}
           data-paper
           data-has-boxes={extra.length > 0 ? '' : undefined}
+          // C33: lets the style sheet drop the editor's spare line under a box.
+          data-box-v2={isOn('textbox.v2') ? '' : undefined}
           data-layout-mode={layoutMode ? '' : undefined}
           data-sheet={page.sheet ?? 'A4'}
           style={

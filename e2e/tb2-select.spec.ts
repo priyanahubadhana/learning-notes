@@ -348,6 +348,24 @@ test('TB-08: the first box shows the same tab and menu as every other box', asyn
   await expect(chrome.locator('[data-box-menu]')).toBeVisible()
 })
 
+test('C11 + TB-08: the first box has the thin typing border while the caret is in it; its tab and menu stay', async ({
+  page,
+}) => {
+  await start(page, 'TB08thin')
+  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await page.keyboard.type(' more')
+  const frame = page.locator('[data-main-frame]')
+  await expect(frame).toBeVisible()
+  const w = await frame.evaluate((el) =>
+    parseFloat(getComputedStyle(el).borderTopWidth),
+  )
+  expect(w).toBeGreaterThan(0)
+  expect(w).toBeLessThanOrEqual(1.01)
+  const chrome = page.locator('[data-main-chrome]')
+  await expect(chrome.locator('[data-box-grip]')).toBeVisible()
+  await expect(chrome.locator('[data-box-menu]')).toBeVisible()
+})
+
 test('TB-09: Delete with a box selected and no caret deletes it; a toast offers Undo', async ({
   page,
 }) => {

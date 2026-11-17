@@ -253,9 +253,10 @@ test('C27: a Pencil triple tap at the very top and the very bottom of a row in a
   // The box is the whole line wide (C27).
   expect(Math.abs((await rect(box)).width - main.width)).toBeLessThan(6)
   await pickBox(page, box)
-  // Wide glyphs and a letter: a narrow glyph puts the selection's end
-  // handle under the third tap at the row's bottom (a separate finding).
-  for (const i of [I.arrow, I.circled, 1]) {
+  // Letters in the middle of a word: after the double tap the selection's
+  // handles sit at the word's ends, away from the third tap (a tap on a
+  // handle is a handle drag, not a tap: a separate finding).
+  for (const i of [1, 2]) {
     const b = await charBox(page, i)
     // The row is one line height tall around the glyph (its leading too).
     const lineH = await box

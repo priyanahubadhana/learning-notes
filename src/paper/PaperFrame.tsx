@@ -2997,7 +2997,13 @@ function MainChrome({
           <div
             aria-hidden
             data-main-frame
-            className="pointer-events-none absolute left-0 w-full rounded-md border-[1.5px] border-solid border-accent"
+            // C11 + TB-08 (text box v2): the first box shows this while the
+            // caret is in it, so it has the thin typing border of every box.
+            // Its dots, ≡ and ⋯ stay: it has no other way to be selected.
+            className={
+              'pointer-events-none absolute left-0 w-full rounded-md border-solid border-accent ' +
+              (isOn('textbox.v2') ? 'border' : 'border-[1.5px]')
+            }
             style={{ top: 0, height }}
           />
           <div

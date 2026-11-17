@@ -27,6 +27,33 @@ const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 const OWN_TAP =
   '[data-box-grip], [data-box-menu], [data-resize-handle], [data-box-band], [data-chrome], [data-layout-cover], a, button'
 
+/** Block types whose empty part is no "empty paper" (tables, pictures, code...). */
+const TEXT_BLOCK =
+  /^(paragraph|heading|bulletListItem|numberedListItem|checkListItem|toggleListItem|quote)$/
+
+/**
+ * C30b (owner 17 Nov: "Yes, same as every box"): the page's first box
+ * ("main") follows the first-tap rule too. A tap in its empty part (not on or
+ * near a written line) while no caret is in it gives its box (the page's
+ * first box has no other state than "caret in it"), so it is selected
+ * without a caret. A page with no text yet keeps the caret at once.
+ */
+function mainEmptyPart(
+  target: Element | null,
+  e: PointerEvent,
+): Element | null {
+  const main = target?.closest('[data-paper-box="main"]')
+  const ed = main?.querySelector<HTMLElement>('.ProseMirror')
+  if (!main || !ed || main.contains(document.activeElement)) return null
+  if (!ed.textContent?.trim() || nearText(ed, e.clientX, e.clientY)) return null
+  const type = target
+    ?.closest('[data-content-type]')
+    ?.getAttribute('data-content-type')
+  if (target?.closest('[contenteditable="false"]')) return null
+  if (type && !TEXT_BLOCK.test(type)) return null
+  return main
+}
+
 const editors = (root: ParentNode = document) =>
   root.querySelectorAll<HTMLElement>('[data-paper-box] .ProseMirror')
 
@@ -87,12 +114,13 @@ export function installBoxV2(): () => void {
     tap = null
     if (e.button > 0 || activeTool.get() !== 'text') return
     const target = e.target instanceof Element ? e.target : null
-    const box = target?.closest(EXTRA)
+    const box = target?.closest(EXTRA) ?? mainEmptyPart(target, e)
     if (!box || target?.closest(OWN_TAP)) return
     const picked = box.hasAttribute('data-picked')
     // A tap on the words: tapSelect runs the first-tap rule (textFirstTap).
     // (The empty trailing block under the text is not words: it counts as padding.)
     if (
+      box.getAttribute('data-paper-box') !== 'main' &&
       target?.closest('.ProseMirror') &&
       !target.closest('[contenteditable="false"]')
     )

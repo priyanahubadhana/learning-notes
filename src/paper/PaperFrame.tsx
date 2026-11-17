@@ -599,10 +599,41 @@ export function PaperFrame({
   const [hover, setHover] = useState<{ x: number; y: number } | null>(null)
   // B3-6: the page's own text box shows ⠿ and ⋯ while the caret is in it.
   const [mainFocus, setMainFocus] = useState(false)
+  // C30b (switch textbox.v2): a first tap in the empty part of the first box
+  // selects it (the same frame, dots, tab and menu as with the caret).
+  const [mainPicked, setMainPicked] = useState(false)
+  useEffect(() => {
+    if (!mainPicked) return
+    const gone = (e: Event) => {
+      const t = e.target instanceof Element ? e.target : null
+      if (!t?.closest('[data-paper-box="main"], [data-main-chrome]'))
+        setMainPicked(false)
+    }
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMainPicked(false)
+    }
+    document.addEventListener('pointerdown', gone, true)
+    window.addEventListener('keydown', key)
+    return () => {
+      document.removeEventListener('pointerdown', gone, true)
+      window.removeEventListener('keydown', key)
+    }
+  }, [mainPicked])
+  useEffect(() => {
+    const on = (e: Event) => {
+      const id = (e as CustomEvent<{ id: string }>).detail.id
+      setMainPicked(id === MAIN_BOX)
+    }
+    window.addEventListener(PICK_BOX, on)
+    return () => window.removeEventListener(PICK_BOX, on)
+  }, [])
   useEffect(() => {
     const el = boxEl.current
     if (!el || flat) return
-    const on = () => setMainFocus(true)
+    const on = () => {
+      setMainFocus(true)
+      setMainPicked(false)
+    }
     const off = (e: FocusEvent) => {
       if (el.contains(e.relatedTarget as Node | null)) return
       window.setTimeout(() => {
@@ -2240,6 +2271,7 @@ export function PaperFrame({
     (extra.length > 0 ||
       (narrow && !!onAddBoxInOrder) ||
       mainFocus ||
+      mainPicked ||
       layoutMode) && (
       <div
         ref={layerRef}
@@ -2303,23 +2335,24 @@ export function PaperFrame({
               </div>
             )
           })()}
-        {!narrow && ((mainFocus && !!onBoxMenu) || layoutMode) && (
-          <MainChrome
-            at={mainShown}
-            k={k}
-            layoutMode={layoutMode}
-            onGrab={(e) => grab(box, 'move', e)}
-            onDragMove={dragMove}
-            onDragEnd={dragEnd}
-            onMenu={(at) => onBoxMenu?.(box, at)}
-            height={mainRealH || (heightsMm[MAIN_BOX] ?? 40) * k}
-            onResize={{
-              down: (how, e) => resizeDown(box, how, e),
-              move: resizeMove,
-              end: resizeEnd,
-            }}
-          />
-        )}
+        {!narrow &&
+          (((mainFocus || mainPicked) && !!onBoxMenu) || layoutMode) && (
+            <MainChrome
+              at={mainShown}
+              k={k}
+              layoutMode={layoutMode}
+              onGrab={(e) => grab(box, 'move', e)}
+              onDragMove={dragMove}
+              onDragEnd={dragEnd}
+              onMenu={(at) => onBoxMenu?.(box, at)}
+              height={mainRealH || (heightsMm[MAIN_BOX] ?? 40) * k}
+              onResize={{
+                down: (how, e) => resizeDown(box, how, e),
+                move: resizeMove,
+                end: resizeEnd,
+              }}
+            />
+          )}
         {extra.map((b) => (
           <BoxFrame
             key={b.id}

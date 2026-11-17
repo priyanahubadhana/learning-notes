@@ -521,8 +521,11 @@ test('C16 only one box is selected: tap A then B, only B has dots, the grip and 
   // Typing in A (a first tap selects it, a second types) unselects B.
   await pick(page, b)
   const ra = await rect(a)
-  await page.mouse.click(ra.x + ra.width / 2, ra.y + ra.height / 2)
-  await page.mouse.click(ra.x + ra.width / 2, ra.y + ra.height / 2)
+  // C32: the selected box B's tab now sits 48 to 92 px above B, over the middle
+  // of A (the boxes are 36 px apart); tap A's left part, which the tab never covers.
+  const ax = ra.x + ra.width * 0.2
+  await page.mouse.click(ax, ra.y + ra.height / 2)
+  await page.mouse.click(ax, ra.y + ra.height / 2)
   await expect(b).not.toHaveAttribute('data-picked', '')
   await tapOut(page)
   await tapOut(page)

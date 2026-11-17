@@ -310,6 +310,10 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - What: 2A.12 fast-forwarded into build/next with main (94e83c12); 2A.15 review 3 PASS (89b05330); webkit turn to 2A.13. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
 
+### 18 Nov 2026: mock-up, one bar for a selected box
+
+- What: picture for the owner's OK of the one Goodnotes-style bar (strips, Paste ▾, Box style, ⋯ with Lock box, moved and pinned bar, box near the top, phone). Why: owner decision 18 Nov. Files: docs/mockups/box-bar/index.html.
+
 ### 17 Nov 2026: user stories and features, through Phase 2B
 
 - What: new plain-words list of every feature, user story and open problem through Phase 2B, with ids F-, US-, P-, Q- for the owner comments. Why: owner ask 17 Nov. Files: docs/plans/user-stories-2b.md, docs/INDEX.md.

@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Selected box bar</title>
+<style>
+:root{--canvas:#f2f1f6;--surface:#fff;--ink:#18171c;--ink-soft:#4d4b55;--muted:#6b6976;--line:#e7e5ee;--accent:#6941e0;--accent-soft:rgba(105,65,224,.11);--danger:#c0352b;--glass:rgba(255,255,255,.92);--glass-line:rgba(24,23,28,.08);--well:rgba(24,23,28,.045);--track:rgba(24,23,28,.14);--paper:#fff;--paper-line:rgba(40,60,120,.075);--sh-card:0 18px 44px -10px rgba(24,23,28,.24),0 2px 8px rgba(24,23,28,.07);--sh-bar:0 1px 2px rgba(24,23,28,.05),0 8px 24px -12px rgba(24,23,28,.18);--dev-bg:#ece9f7;
+--c-auto:#1d1c24;--c-blue:#2f6fe4;--c-red:#d8453b;--c-green:#1f8a55;--c-amber:#d99a0b;--c-purple:#6941e0;--f-yellow:#fff3c4;--f-blue:#e3edff;--f-green:#e1f5e9;--f-pink:#fde4ee;--f-purple:#ece6ff;--hl-yellow:rgba(250,204,21,.45)}
+:root[data-theme=dark]{--canvas:#0d0c11;--surface:#16151b;--ink:#ecebf2;--ink-soft:#bdbbc8;--muted:#9a98a6;--line:#2a2931;--accent:#a594ff;--accent-soft:rgba(160,140,255,.17);--danger:#ff7a6b;--glass:rgba(34,33,42,.94);--glass-line:rgba(255,255,255,.09);--well:rgba(255,255,255,.06);--track:rgba(255,255,255,.17);--paper:#17161c;--paper-line:rgba(255,255,255,.045);--sh-card:0 24px 60px -12px rgba(0,0,0,.7),0 2px 10px rgba(0,0,0,.35);--sh-bar:0 10px 30px -14px rgba(0,0,0,.6);--dev-bg:#1a1626;
+--c-auto:#eceaf4;--c-blue:#6ea8ff;--c-red:#ff7b72;--c-green:#5fd39a;--c-amber:#f5c04a;--c-purple:#a594ff;--f-yellow:#3d3418;--f-blue:#1d2a42;--f-green:#1b3326;--f-pink:#3b1f2a;--f-purple:#2a2343;--hl-yellow:rgba(250,204,21,.3)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--canvas);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
+header{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;justify-content:space-between;padding:12px 16px;background:var(--glass);border-bottom:1px solid var(--line)}
+header h1{font-size:17px;margin:0;letter-spacing:-.01em}
+header p{margin:0;color:var(--muted);font-size:13px}
+.tog{min-height:44px;min-width:44px;padding:0 16px;border-radius:22px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+main{max-width:1180px;margin:0 auto;padding:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:24px}
+figure{margin:0;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:14px;min-width:0}
+figcaption{font-size:14px;color:var(--ink-soft);margin:0 2px 12px}
+figcaption b{color:var(--ink);margin-right:6px}
+.fit{width:100%;overflow:hidden;border-radius:14px;background:var(--dev-bg)}
+.stage{transform-origin:0 0;position:relative}
+.page{position:relative;background-color:var(--paper);border:1px solid var(--line);border-radius:10px;background-image:linear-gradient(var(--paper-line) 1px,transparent 1px);background-size:100% 28px}
+.page::before{content:attr(data-label);position:absolute;top:6px;right:10px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.box{position:absolute;border:1.5px solid var(--accent);border-radius:6px;padding:14px 18px;font-size:17px;line-height:1.55;color:var(--ink)}
+.box .t{font-weight:650;font-size:19px}
+.box p{margin:6px 0 0;color:var(--ink-soft)}
+.dot{position:absolute;width:10px;height:10px;border-radius:50%;background:#fff;border:1.5px solid var(--accent);margin:-5px 0 0 -5px}
+.bar{position:absolute;display:flex;align-items:center;height:52px;padding:4px 6px 4px 2px;background:var(--glass);border:1px solid var(--glass-line);border-radius:26px;box-shadow:var(--sh-bar);z-index:5}
+.it{position:relative;display:flex;flex:none}
+.b{min-width:44px;height:44px;display:grid;place-items:center;border:0;background:transparent;color:var(--ink);border-radius:22px;font:inherit;cursor:pointer;padding:0 4px;position:relative}
+.b.on{background:var(--accent-soft);color:var(--accent)}
+.b.w{display:flex;align-items:center;justify-content:center;gap:2px;padding:0 10px}
+.b.danger{color:var(--danger)}
+.b svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.b svg.s{width:13px;height:13px}
+.sep{width:1px;height:26px;background:var(--line);margin:0 4px;flex:none;align-self:center}
+.grip{width:24px;height:44px;display:grid;place-items:center;color:var(--muted);cursor:grab}
+.grip svg{width:16px;height:16px;fill:currentColor;stroke:none}
+.grip.act{color:var(--accent)}
+.circ{width:24px;height:24px;border-radius:50%;border:2px solid var(--paper);box-shadow:0 0 0 1px var(--line);display:block}
+.sz{background:var(--well);border-radius:14px;padding:2px 10px;font-weight:650;font-size:14px;min-width:40px;text-align:center}
+.fillsq{width:22px;height:22px;border-radius:6px;border:1px solid var(--line);background:var(--f-yellow);display:block}
+.pop{position:absolute;top:calc(100% + 10px);z-index:20;background:var(--surface);border:1px solid var(--glass-line);border-radius:18px;box-shadow:var(--sh-card);padding:6px;display:flex;gap:2px;white-space:nowrap}
+.pop::before,.card::before{content:"";position:absolute;top:-6px;left:var(--nx,50%);width:12px;height:12px;background:var(--surface);border-left:1px solid var(--glass-line);border-top:1px solid var(--glass-line);transform:translateX(-50%) rotate(45deg);border-radius:3px 0 0 0}
+.pop.col{flex-direction:column;gap:0;min-width:230px}
+.pop .b{border-radius:14px}
+.pop .b.l{display:flex;justify-content:flex-start;gap:12px;padding:0 12px;font-size:15px;font-weight:500;width:100%;text-align:left}
+.pop .b.l small{color:var(--muted);font-size:12px;margin-left:auto}
+.pop .b.l.dis{opacity:.4}
+.pop hr{border:0;border-top:1px solid var(--line);margin:4px 8px;width:calc(100% - 16px)}
+.sw{display:flex;gap:6px;padding:4px 6px}
+.sw i{width:44px;height:44px;border-radius:50%;display:grid;place-items:center}
+.sw i::after{content:"";width:28px;height:28px;border-radius:50%;background:var(--c);box-shadow:0 0 0 1px var(--line)}
+.sw i.on{outline:2px solid var(--accent);outline-offset:-3px}
+.pop .lbl{font-size:12px;color:var(--muted);padding:6px 12px 2px;font-weight:600}
+.card{position:absolute;top:calc(100% + 10px);z-index:20;width:350px;background:var(--surface);border:1px solid var(--glass-line);border-radius:20px;box-shadow:var(--sh-card);padding:12px;white-space:normal}
+.card .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.card .hd b{font-size:16px;margin-left:6px}
+.seg{display:flex;background:var(--well);border-radius:12px;padding:3px;margin-bottom:10px}
+.seg span{flex:1;min-height:38px;display:grid;place-items:center;border-radius:10px;font-weight:600;font-size:14px;color:var(--ink-soft)}
+.seg span.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.tile{min-height:56px;border-radius:12px;border:1px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:600;padding:4px;text-align:center;color:var(--ink)}
+.tile.on{outline:2px solid var(--accent);outline-offset:1px}
+.card h4{margin:10px 6px 6px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sws{display:flex;flex-wrap:wrap;gap:0 2px}
+.sws i{width:44px;height:44px;display:grid;place-items:center;position:relative}
+.sws i::after{content:"";width:30px;height:30px;border-radius:9px;background:var(--c);border:1px solid var(--line)}
+.sws i.on::before{content:"";position:absolute;inset:3px;border:2px solid var(--accent);border-radius:12px}
+.rows{background:var(--well);border-radius:14px;padding:0 12px}
+.row{display:flex;align-items:center;justify-content:space-between;min-height:48px;border-bottom:1px solid var(--line);font-size:15px}
+.row:last-child{border-bottom:0}
+.step{display:flex;background:var(--surface);border-radius:10px;border:1px solid var(--line)}
+.step span{width:44px;height:36px;display:grid;place-items:center;font-size:18px;font-weight:600}
+.step span+span{border-left:1px solid var(--line)}
+.step .off{opacity:.3}
+.cdot{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);display:inline-block;vertical-align:middle;margin-right:6px}
+.tg{width:51px;height:31px;border-radius:16px;background:var(--track);position:relative}
+.tg i{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding:0 4px;font-size:14px}
+.foot .lnk{min-height:44px;display:flex;align-items:center;color:var(--accent);font-weight:600}
+.foot .cb{display:flex;align-items:center;gap:8px;min-height:44px;color:var(--ink-soft)}
+.cb u{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--muted);display:inline-block}
+.pin-tip{position:absolute;z-index:6;background:var(--ink);color:var(--paper);font-size:12px;padding:5px 10px;border-radius:8px;font-weight:600}
+section.notes{margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px}
+section.notes>div{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 22px}
+section.notes h2{font-size:18px;margin:0 0 10px;letter-spacing:-.01em}
+section.notes li{margin:7px 0}
+.never li::marker{color:var(--danger)}
+.sheetnote{color:var(--muted);font-size:13px;margin:14px 2px 0}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>One bar for a selected box</h1><p>Mock-up for the owner's OK. Not built yet. No stored data changes.</p></div>
+  <button class="tog" id="tog" aria-pressed="false">Dark</button>
+</header>
+<main>
+  <div class="grid" id="frames"></div>
+  <p class="sheetnote">Small pop-ups (strips, colours, Paste, Box style, ⋯) open right under their button and may cover words while open; the bar itself never does. Each pop-up closes with a tap outside or its ✕, and always stays inside the page frame.</p>
+
+  <section class="notes">
+    <div>
+      <h2>We will prove (plain words)</h2>
+      <ol>
+        <li>Tap a box: one bar shows above it, with colour, size, font, B/I, align, list, fill, Cut, Paste, Delete and ⋯.</li>
+        <li>The old box bar and the old text bar are gone: no second bar anywhere.</li>
+        <li>Each button opens its small strip right under it, and closes with a tap outside or ✕.</li>
+        <li>Paste ▾ offers Keep look, Match style and Plain text; a plain tap pastes the way Settings says.</li>
+        <li>Box style has Presets and Advanced, every option of today's card is still there; changes show at once and one Undo reverses each.</li>
+        <li>⋯ keeps every old item (Copy, Duplicate, Box style, Move up/down, Group, Delete) and adds Lock box; a locked box cannot be moved, resized or deleted.</li>
+        <li>Move the bar and pin it: it stays where I put it, on every box, after a reload.</li>
+        <li>Box near the page top, near either edge, iPad turned, phone: the bar finds a free side and stays fully inside the page.</li>
+        <li>Phone: a shorter bar; the rest is under ⋯; every target is 44 pt or more.</li>
+        <li>Light and dark both readable; the same words in Beginner and Professional.</li>
+      </ol>
+    </div>
+    <div class="never">
+      <h2>Must never happen</h2>
+      <ul>
+        <li>The bar never sits inside the box over the words.</li>
+        <li>The bar never goes past the page frame (off the paper or off the screen).</li>
+        <li>No feature of today's box bar, Box style card or ⋯ list is lost.</li>
+        <li>No typing, selecting or drawing by accident when I tap the bar.</li>
+      </ul>
+      <h2 style="margin-top:20px">Left open for the plan</h2>
+      <ul style="color:var(--muted)">
+        <li>Front / Back: not chosen (owner). Not shown.</li>
+        <li>How Size and Font (Aa) open: shown only as buttons here; they will reuse our shared list parts.</li>
+        <li>Today's Professional-only Box style options keep their own unlock switch; shown together here.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<script>
+const I={
+ cut:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/>',
+ paste:'<rect x="6" y="5" width="12" height="16" rx="2"/><path d="M9 5V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1M9 12h6M9 16h4"/>',
+ trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+ more:'<circle cx="12" cy="12" r="9"/><circle cx="8" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="16" cy="12" r=".6"/>',
+ chev:'<path d="M6 9l6 6 6-6"/>',
+ alL:'<path d="M4 6h16M4 10h10M4 14h16M4 18h10"/>',
+ alC:'<path d="M4 6h16M7 10h10M4 14h16M7 18h10"/>',
+ alR:'<path d="M4 6h16M10 10h10M4 14h16M10 18h10"/>',
+ spc:'<path d="M12 4v16M9 7l3-3 3 3M9 17l3 3 3-3M4 8h3M4 12h3M4 16h3"/>',
+ bul:'<circle cx="5" cy="7" r="1.2"/><circle cx="5" cy="12" r="1.2"/><circle cx="5" cy="17" r="1.2"/><path d="M10 7h10M10 12h10M10 17h10"/>',
+ num:'<path d="M10 7h10M10 12h10M10 17h10M4 5.5l1.5-1v4M4 14h3l-3 3.5h3"/>',
+ hl:'<path d="M5 19l3-1 9-9-3-3-9 9zM14 6l3 3"/>',
+ copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
+ dup:'<rect x="4" y="4" width="12" height="12" rx="2"/><rect x="8" y="8" width="12" height="12" rx="2"/>',
+ lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+ pal:'<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M4 14l5-4 4 3 3-2 4 3"/>',
+ up:'<path d="M12 19V5M6 11l6-6 6 6"/>',
+ dn:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+ grp:'<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/><path d="M11 7h4v6"/>',
+ pin:'<path d="M9 3h6l-1 6 3 3H7l3-3zM12 12v9"/>',
+ x:'<path d="M6 6l12 12M18 6L6 18"/>'
+};
+const ic=(k,c='')=>`<svg class="${c}" viewBox="0 0 24 24">${I[k]}</svg>`;
+const GRIP='<svg viewBox="0 0 16 16"><circle cx="5" cy="3" r="1.4"/><circle cx="11" cy="3" r="1.4"/><circle cx="5" cy="8" r="1.4"/><circle cx="11" cy="8" r="1.4"/><circle cx="5" cy="13" r="1.4"/><circle cx="11" cy="13" r="1.4"/></svg>';
+const B=(label,inner,on)=>`<button class="b${on?' on':''}" aria-label="${label}">${inner}</button>`;
+const row=(label,icon,extra='',cls='')=>`<button class="b l ${cls}">${icon.startsWith('<')?icon:ic(icon)}<span>${label}</span>${extra}</button>`;
+const step=off=>`<div class="step"><span class="${off?'off':''}">−</span><span>+</span></div>`;
+
+function stylecard(tab){
+ const tiles=[['Note','--f-yellow'],['Callout','--f-purple'],['Outline','--paper'],['Soft card','--f-blue'],['Shadow card','--f-green'],['Sticky note','--f-yellow']];
+ const sws=[['None','--paper'],['White','--paper'],['White with border','--paper'],['Yellow','--f-yellow'],['Pale blue','--f-blue'],['Lime','--f-green'],['Peach','--f-pink'],['Red','--c-red'],['Accent','--accent'],['Slate','--muted'],['Dark','--c-auto'],['Line','--line']];
+ const body=tab==='p'?`
+  <h4>Styles</h4><div class="tiles">${tiles.map((t,i)=>`<div class="tile${i==0?' on':''}" style="background:var(${t[1]});${t[0]=='Outline'?'border:2px solid var(--ink);':''}${t[0]=='Shadow card'?'box-shadow:0 6px 14px -4px rgba(0,0,0,.3)':''}">${t[0]}</div>`).join('')}</div>
+  <h4>Fill</h4><div class="sws">${sws.map((s,i)=>`<i style="--c:var(${s[1]})" class="${i==3?'on':''}" title="${s[0]}"></i>`).join('')}</div>
+  <h4>My presets (up to 8)</h4>
+  <div class="rows"><div class="row"><span>Preset 1</span><span style="color:var(--muted)">Rename · <span style="color:var(--danger)">Delete</span></span></div><div class="row" style="color:var(--accent);font-weight:600"><span>+ Save current as preset</span></div></div>`
+ :`<div class="rows">
+  <div class="row"><span>Background</span><span><i class="cdot" style="background:var(--f-yellow)"></i>›</span></div>
+  <div class="row"><span>Border colour</span><span><i class="cdot" style="background:var(--c-auto)"></i>›</span></div>
+  <div class="row"><span>4 pt Corner radius</span>${step()}</div>
+  <div class="row"><span>Shadow</span><div class="tg"><i></i></div></div>
+  <div class="row"><span>0 pt Border width</span>${step(1)}</div>
+  <div class="row"><span>12 pt Padding</span>${step()}</div></div>`;
+ return `<div class="card" data-p><div class="hd"><b>Box style</b><button class="b" aria-label="Close">${ic('x')}</button></div>
+  <div class="seg"><span class="${tab==='p'?'on':''}">Presets</span><span class="${tab==='a'?'on':''}">Advanced</span></div>${body}
+  <div class="foot"><span class="cb"><u></u>Use for new boxes</span><span class="lnk">Reset</span></div></div>`;
+}
+const POP={
+ bi:()=>`<div class="pop" data-p>${B('Bold','<b style="font-size:18px">B</b>')}${B('Italic','<i style="font-size:18px;font-family:Georgia,serif">I</i>')}${B('Underline','<span style="font-size:17px;text-decoration:underline">U</span>')}${B('Strike','<span style="font-size:17px;text-decoration:line-through">S</span>')}${B('Highlight',ic('hl')+'<span style="position:absolute;bottom:6px;width:18px;height:4px;border-radius:2px;background:var(--hl-yellow)"></span>')}</div>`,
+ al:()=>`<div class="pop" data-p>${B('Align left',ic('alL'),1)}${B('Centre',ic('alC'))}${B('Align right',ic('alR'))}<span class="sep"></span>${B('Line spacing',ic('spc'))}</div>`,
+ li:()=>`<div class="pop" data-p>${B('Bullets',ic('bul'))}${B('Numbers',ic('num'))}</div>`,
+ col:()=>`<div class="pop col" data-p style="min-width:0"><div class="lbl">Text colour</div><div class="sw"><i style="--c:var(--c-auto)" class="on"></i><i style="--c:var(--c-blue)"></i><i style="--c:var(--c-red)"></i></div><div class="sw"><i style="--c:var(--c-green)"></i><i style="--c:var(--c-amber)"></i><i style="--c:var(--c-purple)"></i></div><div class="lbl" style="font-weight:500">Auto · Blue · Red · Green · Amber · Purple</div></div>`,
+ paste:()=>`<div class="pop col" data-p>${row('Paste (keep look)','paste')}${row('Match style','paste')}${row('Plain text','paste')}<hr><div class="lbl" style="font-weight:500">Tapping Paste itself uses your Settings choice.</div></div>`,
+ more:()=>`<div class="pop col" data-p style="min-width:250px">${row('Copy','copy')}${row('Duplicate','dup')}${row('Lock box','lock','<small>new</small>')}${row('Box style…','pal')}<hr>${row('Move up','up')}${row('Move down','dn')}${row('Group','grp','<small>2+ boxes</small>','dis')}<hr>${row('Delete box','trash','','danger')}</div>`,
+ phone:()=>`<div class="pop col" data-p style="min-width:250px">${row('Font','<b style="font-size:16px;width:21px">Aa</b>')}${row('List','bul')}${row('Cut','cut')}${row('Copy','copy')}${row('Paste ▾','paste')}${row('Duplicate','dup')}${row('Lock box','lock')}${row('Box style…','pal')}${row('Move up / down','up')}<hr>${row('Delete box','trash','','danger')}</div>`
+};
+function bar(o={}){
+ const op=o.open;
+ const it=(k,btn,pop)=>`<div class="it">${btn}${op===k?pop:''}</div>`;
+ const grip=`<div class="grip${o.moved?' act':''}" aria-label="Move bar (drag)">${GRIP}</div>`;
+ const pin=o.moved?B('Pin bar here',ic('pin'),o.pinned):'';
+ const col=B('Text colour','<i class="circ" style="background:var(--c-purple)"></i>',op==='col');
+ const sz=B('Size','<span class="sz">16</span>');
+ if(o.phone) return `<div class="bar" style="${o.css}">${grip}${it('col',col,POP.col())}${it('sz',sz,'')}
+  ${it('bi',B('Bold and italic','<span><b>B</b><i style="font-family:Georgia,serif">I</i></span>'),POP.bi())}
+  ${it('al',B('Align',ic('alL')),POP.al())}${it('fill',B('Box style','<i class="fillsq"></i>'),'')}
+  ${it('more',B('More',ic('more'),op==='more'),POP.phone())}</div>`;
+ return `<div class="bar" style="${o.css}">${grip}${pin}${it('col',col,POP.col())}${it('sz',sz,'')}
+  ${it('font',B('Font','<b style="font-size:17px;font-family:Georgia,serif">Aa</b>'),'')}
+  ${it('bi',B('Bold and italic','<span><b>B</b><i style="font-family:Georgia,serif">I</i></span>',op==='bi'),POP.bi())}
+  ${it('al',B('Align',ic('alL'),op==='al'),POP.al())}
+  ${it('li',B('List',ic('bul'),op==='li'),POP.li())}
+  ${it('fill',B('Box style','<i class="fillsq"></i>',op==='fill'),stylecard(o.tab||'p'))}
+  <span class="sep"></span>${it('cut',B('Cut',ic('cut')),'')}
+  ${it('paste',`<button class="b w${op==='paste'?' on':''}" aria-label="Paste, more options">${ic('paste')}${ic('chev','s')}</button>`,POP.paste())}
+  ${it('del',`<button class="b danger" aria-label="Delete box">${ic('trash')}</button>`,'')}
+  ${it('more',B('More',ic('more'),op==='more'),POP.more())}</div>`;
+}
+function box(l,t,w,h){
+ const d=[[0,0],[w/2,0],[w,0],[0,h/2],[w,h/2],[0,h],[w/2,h],[w,h]].map(p=>`<i class="dot" style="left:${p[0]}px;top:${p[1]}px"></i>`).join('');
+ return `<div class="box" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px"><div class="t">How to read books</div><p>1. Ask what the author wants to say.<br>2. Find the main idea of each chapter.<br>3. Test it with your own example.</p>${d}</div>`;
+}
+const W=740,BL=40,BT=96;
+function frame(n,cap,w,h,inner,label){
+ return `<figure><figcaption><b>${n}</b>${cap}</figcaption><div class="fit"><div class="stage" data-w="${w}" data-h="${h}" style="width:${w}px;height:${h}px"><div class="page" data-label="${label||''}" style="width:${w}px;height:${h}px">${inner}</div></div></div></figure>`;
+}
+const tp=`left:${BL}px;top:${BT-62}px`;
+const F=[];
+F.push(frame(1,'The one bar sits above the selected box, outside it. It never covers the words and stays inside the page frame.',W,330,box(BL,BT,620,200)+bar({css:tp}),'iPad upright'));
+F.push(frame(2,'B/I strip open under its button: Bold, Italic, Underline, Strike, Highlight.',W,330,box(BL,BT,620,200)+bar({css:tp,open:'bi'})));
+F.push(frame(3,'Align strip: left, centre, right, line spacing.',W,330,box(BL,BT,620,200)+bar({css:tp,open:'al'})));
+F.push(frame(4,'List strip: bullets, numbers.',W,330,box(BL,BT,620,200)+bar({css:tp,open:'li'})));
+F.push(frame(5,"Text colour picker with today's colours: Auto, Blue, Red, Green, Amber, Purple.",W,400,box(BL,BT,620,240)+bar({css:tp,open:'col'})));
+F.push(frame(6,'Paste ▾ open: Paste (keep look), Match style, Plain text.',W,400,box(BL,BT,620,260)+bar({css:tp,open:'paste'})));
+F.push(frame(7,'Box style from the fill square, Presets tab: styles, fill colours, my presets (up to 8: save, rename, delete), use for new boxes, Reset.',W,720,box(BL,BT,620,560)+bar({css:tp,open:'fill',tab:'p'})));
+F.push(frame('7b','Box style, Advanced tab: background, border colour, round corner −/+, shadow on/off, border −/+, padding −/+. Same card and footer.',W,640,box(BL,BT,620,480)+bar({css:tp,open:'fill',tab:'a'})));
+F.push(frame(8,'⋯ open: Copy, Duplicate, Lock box (new), Box style…, Move up, Move down, Group (when 2+ boxes are picked), Delete box. Cut, Paste and Delete also stay in the bar.',W,520,box(BL,BT,620,380)+bar({css:tp,open:'more'})));
+F.push(frame(9,'The bar MOVED and PINNED: grab the grip to move it, tap the pin to keep it there for every box. Here it rests in the gutter under the box.',W,400,box(BL,40,620,240)+bar({css:`left:50%;transform:translateX(-50%);top:316px`,moved:1,pinned:1})+`<div class="pin-tip" style="left:${BL}px;top:292px;display:none">Pinned</div>`,'iPad upright, bar pinned'));
+F.push(frame(10,'A box near the top of the page: no room above, so the bar sits under the box. Still outside the words, still inside the page.',W,330,box(BL,14,620,150)+bar({css:`left:${BL}px;top:178px`}),'Box at page top'));
+F.push(frame(11,'Phone: a shorter bar (colour, size, B/I, align, fill, ⋯). Font, list, Cut, Copy, Paste, Duplicate, Lock, Box style, Move and Delete are under ⋯.',390,620,box(16,100,358,380)+bar({css:'left:8px;top:38px',phone:1,open:'more'}),'Phone'));
+document.getElementById('frames').innerHTML=F.join('');
+
+function clamp(){
+ document.querySelectorAll('.stage').forEach(st=>{
+  const W=+st.dataset.w,base=st.getBoundingClientRect();
+  st.querySelectorAll('.pop,.card').forEach(p=>{
+   const host=p.parentElement.getBoundingClientRect(),pw=p.getBoundingClientRect().width,hw=host.width,hostL=host.left-base.left;
+   let abs=Math.max(10,Math.min(W-pw-10,hostL+hw/2-pw/2));
+   p.style.left=(abs-hostL)+'px';
+   p.style.setProperty('--nx',(hw/2-(abs-hostL))+'px');
+  });
+ });
+}
+function fit(){
+ document.querySelectorAll('.fit').forEach(f=>{
+  const st=f.firstElementChild,w=+st.dataset.w,h=+st.dataset.h;
+  const sc=Math.min(1,(f.clientWidth-12)/w);
+  st.style.transform='scale('+sc+')';st.style.margin='6px';
+  f.style.height=(h*sc+12)+'px';
+ });
+}
+function run(){document.querySelectorAll('.stage').forEach(s=>s.style.transform='none');clamp();fit();}
+window.addEventListener('resize',fit);
+const tog=document.getElementById('tog'),root=document.documentElement;
+function setTheme(t){root.dataset.theme=t;tog.textContent=t==='dark'?'Light':'Dark';tog.setAttribute('aria-pressed',t==='dark')}
+setTheme(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+tog.onclick=()=>setTheme(root.dataset.theme==='dark'?'light':'dark');
+run();
+</script>
+</body>
+</html>

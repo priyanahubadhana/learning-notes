@@ -406,3 +406,26 @@ Reference: the owner's two Goodnotes screenshots (17 Nov 14:30).
 - **Q-4 Tap speed:** Relaxed 700 ms stays the default.
 - **Q-5 Layouts (later phase, "Your layouts"; picture first):** free by default: no layout, drop a box anywhere there is space, smart guide lines snap it neatly (C21). A layout is optional and for the whole page only (a few big panels, e.g. two columns, Cornell); its panels guide (a dropped box snaps in and fits the width) but never lock: a box can be dragged out anywhere. Turning a layout off or changing it moves nothing; only the panel borders go. The 2B Layouts dialog (stacking picked boxes) stays as it is for now.
 - **Q-6 Going live:** everything together later, after 2B passes the owner's test; the live app stays as it is until then.
+
+## Empty page, tap below, keys on a selected box (owner, 18 Nov 2026)
+
+- **Empty page:** the first (one-line) box shows no frame until it is tapped; only the grey hint "Type, or tap anywhere…" shows.
+- **Tap on empty paper below the last box (Text tool):** a new one-line box at that spot (C27 stays).
+- **Keys while a box is selected (dots showing):** typing does nothing. Selected means "adjust the box (shape, size, place)"; to type, tap where the words go (C30). Owner: "typing is not selected until we click somewhere it could be typed… he meant to adjust the box shape and size."
+- **Hint tap (18 Nov):** on an empty page the grey hint line counts as text for "near": a tap on or near it gives the cursor; only a tap clearly away from it selects the box.
+- **Hold (18 Nov):** hold on selected words = the strip (Cut, Copy, Paste…), approved; hold ≡ ~0.1 s = lift and move, approved; keyboard shortcuts as normal, approved. How a box is selected and shows its bar (today: tap its empty part) waits for the owner's Goodnotes example.
+- **Empty box made by mistake (18 Nov):** a new box left empty (no text, nothing pasted, no picture or other item put in) vanishes at once, with no visible delay, the moment the user taps away or picks another tool. A box with anything in it stays.
+- **Tap below makes a box only with the Text tool (18 Nov):** Pen, Highlighter, Eraser, Lasso and the rest never make a box.
+
+## Selected box: one bar like Goodnotes (owner, 18 Nov 2026; picture first, not built yet)
+
+Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2edf8f-image.png).
+
+- **One bar** when a box is selected: the text look (colour, size, font, B/I, align, list, fill) and the box actions together, replacing today's box bar + text format bar. Phone: a shorter bar, the rest under ⋯.
+- **Box actions in the bar:** Cut, **Paste ▾** (tap = paste; ▾ = paste options: keep look, match style, plain text, like Settings), Delete, ⋯. Duplicate moves into ⋯. The ⋯ list keeps every item (Copy, Duplicate, Box style…), nothing dropped.
+- **New in ⋯:** Lock box (a locked box cannot be moved, resized or deleted until unlocked). Front/Back: not chosen.
+- **Font colour options** in the bar too; the owner will share more Goodnotes examples of how the options open.
+- Next: mock-up picture for the owner's OK, then plan, then build (after the current re-test fixes).
+- **How the bar's buttons open (owner, 18 Nov; refs docs/design/refs/goodnotes-bar/):** each button opens a small strip right under it: B/I → Bold, Italic, Underline, Strike, Highlight; align → left, centre, right, line spacing; list → bullets, numbers. The fill square opens "Box style" with Presets (colour tiles) and Advanced (background colour, border colour, round corner −/+, shadow on/off, border −/+, padding −/+). Today's Box style card features all stay (nothing dropped).
+- **Owner's improvement over Goodnotes:** the bar can be moved and pinned (like our other tool bars), so it stays put; one way of working across the app.
+- **Must never happen:** the bar never sits inside the box over the words, and never goes past the page frame (off the paper or screen).

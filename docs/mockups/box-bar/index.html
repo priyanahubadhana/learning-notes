@@ -104,6 +104,18 @@ figcaption b{color:var(--ink);margin-right:6px}
 .tbar i{width:22px;height:22px;border-radius:6px;background:var(--well);display:block}
 .caret{display:inline-block;width:2px;height:20px;background:var(--accent);vertical-align:-4px;margin-left:2px}
 .box.idle{border:1px solid var(--line)}
+.cgrid{display:grid;grid-template-columns:repeat(5,44px);gap:2px;padding:2px 6px}
+.cgrid i{width:44px;height:44px;display:grid;place-items:center}
+.cgrid i::after{content:"";width:28px;height:28px;border-radius:50%;background:var(--c);box-shadow:0 0 0 1px var(--line)}
+.cgrid i.on{outline:2px solid var(--accent);outline-offset:-3px;border-radius:50%}
+.cgrid.h i::after{border-radius:8px;width:30px;height:24px}
+.tool{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:0;height:56px;padding:0 8px;background:var(--surface);border-bottom:1px solid var(--line);border-radius:10px 10px 0 0;z-index:4}
+.tool .it{margin-right:0}
+.tool .b.v{font-weight:600;font-size:14px;gap:4px;padding:0 8px;display:flex;align-items:center;min-width:44px;justify-content:center}
+.tool .b.v svg.s{width:12px;height:12px}
+.tool .tab{background:var(--accent-soft);color:var(--accent);border-radius:22px;padding:0 14px;height:44px;display:flex;align-items:center;gap:6px;font-weight:700;margin:0 6px}
+.tool .sp{flex:1}
+.stylelist .b.l.cur{font-weight:700}
 .pin-tip{position:absolute;z-index:6;background:var(--ink);color:var(--paper);font-size:12px;padding:5px 10px;border-radius:8px;font-weight:600}
 section.notes{margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px}
 section.notes>div{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 22px}
@@ -135,6 +147,7 @@ section.notes li{margin:7px 0}
         <li>Drag the bar to any of the four sides, horizontal or vertical, and pin it: it stays there on every page and after closing the app, for every box, also with nothing selected and while typing; it never hides until I unpin it.</li>
         <li>The bar sits beside the box (above, or below if no room); only when the box leaves no room around it does the bar go to any free space, such as the gap under the top tool bar; always inside the page.</li><li>iPad turned and phone: the bar still stays inside the page.</li>
         <li>Phone: a shorter bar; the rest is under ⋯; every target is 44 pt or more.</li>
+        <li>The same control looks and works the same in the Text tool and the box bar (size strip, colours, lists, align, font, Box style).</li>
         <li>Light and dark both readable; the same words in Beginner and Professional.</li>
       </ol>
     </div>
@@ -149,6 +162,7 @@ section.notes li{margin:7px 0}
       <h2 style="margin-top:20px">Left open for the plan</h2>
       <ul style="color:var(--muted)">
         <li>Front / Back: not chosen (owner). Not shown.</li>
+        <li>Size and font today apply to the whole note (Text tool); in the bar they act on the selected box. See uniformity.md.</li>
         <li>Today's Professional-only Box style options keep their own unlock switch; shown together here.</li>
       </ul>
     </div>
@@ -177,12 +191,25 @@ const I={
  dn:'<path d="M12 5v14M6 13l6 6 6-6"/>',
  grp:'<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/><path d="M11 7h4v6"/>',
  pin:'<path d="M9 3h6l-1 6 3 3H7l3-3zM12 12v9"/>',
- x:'<path d="M6 6l12 12M18 6L6 18"/>'
+ x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+ chk:'<rect x="3" y="4" width="5" height="5" rx="1"/><rect x="3" y="14" width="5" height="5" rx="1"/><path d="M11 7h10M11 17h10"/>',
+ out:'<path d="M4 6h16M12 12h8M4 18h16M8 9l-4 3 4 3"/>',
+ ind:'<path d="M4 6h16M12 12h8M4 18h16M4 9l4 3-4 3"/>',
+ jus:'<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>',
+ type:'<path d="M5 6V4h14v2M12 4v16M9 20h6"/>',
+ code:'<path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/>',
+ link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+ grid:'<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>'
 };
 const ic=(k,c='')=>`<svg class="${c}" viewBox="0 0 24 24">${I[k]}</svg>`;
 const GRIP='<svg viewBox="0 0 16 16"><circle cx="5" cy="3" r="1.4"/><circle cx="11" cy="3" r="1.4"/><circle cx="5" cy="8" r="1.4"/><circle cx="11" cy="8" r="1.4"/><circle cx="5" cy="13" r="1.4"/><circle cx="11" cy="13" r="1.4"/></svg>';
 const B=(label,inner,on)=>`<button class="b${on?' on':''}" aria-label="${label}">${inner}</button>`;
 const row=(label,icon,extra='',cls='')=>`<button class="b l ${cls}">${icon.startsWith('<')?icon:ic(icon)}<span>${label}</span>${extra}</button>`;
+const TC=['var(--c-auto)','#9b9a97','#64473a','#e03e3e','#d9730d','#dfab01','#4d6461','#0b6e99','#6940a5','#ad1a72'];
+const HC=['var(--paper)','#fff3a8','#f6e9d9','#fbe4e4','#e5f2e3','#e3edff','#efe6fb','#fbe6f1','#ebeced','#e9e5e3'];
 const step=off=>`<div class="step"><span class="${off?'off':''}">−</span><span>+</span></div>`;
 
 function stylecard(tab){
@@ -205,15 +232,15 @@ function stylecard(tab){
   <div class="foot"><span class="cb"><u></u>Use for new boxes</span><span class="lnk">Reset</span></div></div>`;
 }
 const POP={
- size:()=>`<div class="pop grp" data-p><span class="bignum">16</span><div class="sl"><i></i></div>${step()}</div>`,
- font:()=>`<div class="pop col" data-p style="min-width:240px"><div class="fgrp"><button class="b l" style="font-weight:650"><span>Default font</span><span style="margin-left:auto;color:var(--accent)">✓</span></button></div><div class="fgrp"><button class="b l"><span>Modern</span></button><button class="b l" style="font-family:Georgia,serif"><span>Classic</span></button><button class="b l" style="font-family:ui-monospace,Menlo,monospace"><span>Technical</span></button></div><div class="fgrp" style="margin-bottom:0"><button class="b l"><span>More fonts…</span></button></div></div>`,
- bi:()=>`<div class="pop" data-p>${B('Bold','<b style="font-size:18px">B</b>')}${B('Italic','<i style="font-size:18px;font-family:Georgia,serif">I</i>')}${B('Underline','<span style="font-size:17px;text-decoration:underline">U</span>')}${B('Strike','<span style="font-size:17px;text-decoration:line-through">S</span>')}${B('Highlight',ic('hl')+'<span style="position:absolute;bottom:6px;width:18px;height:4px;border-radius:2px;background:var(--hl-yellow)"></span>')}</div>`,
- al:()=>`<div class="pop" data-p>${B('Align left',ic('alL'),1)}${B('Centre',ic('alC'))}${B('Align right',ic('alR'))}<span class="sep"></span>${B('Line spacing',ic('spc'))}</div>`,
- li:()=>`<div class="pop" data-p>${B('Bullets',ic('bul'))}${B('Numbers',ic('num'))}</div>`,
- col:()=>`<div class="pop col" data-p style="min-width:0"><div class="lbl">Text colour</div><div class="sw"><i style="--c:var(--c-auto)" class="on"></i><i style="--c:var(--c-blue)"></i><i style="--c:var(--c-red)"></i></div><div class="sw"><i style="--c:var(--c-green)"></i><i style="--c:var(--c-amber)"></i><i style="--c:var(--c-purple)"></i></div><div class="lbl" style="font-weight:500">Auto · Blue · Red · Green · Amber · Purple</div></div>`,
+ size:(n,u)=>`<div class="pop grp" data-p><span class="bignum">${n||16}${u||''}</span><div class="sl"><i></i></div>${step()}</div>`,
+ font:()=>`<div class="pop col" data-p style="min-width:250px"><div class="fgrp"><button class="b l" style="font-weight:650"><span>Default font</span><span style="margin-left:auto;color:var(--accent)">✓</span></button></div><div class="fgrp"><button class="b l"><span>Modern</span></button><button class="b l" style="font-family:Georgia,serif"><span>Classic</span></button><button class="b l" style="font-family:ui-monospace,Menlo,monospace"><span>Technical</span></button></div><div class="fgrp" style="margin-bottom:0"><button class="b l"><span>More fonts…</span></button></div><div class="lbl" style="font-weight:500;white-space:normal">More fonts keeps today's others: OpenDyslexic, Literata, Source Serif, Atkinson.</div></div>`,
+ bi:()=>`<div class="pop col" data-p style="min-width:0"><div style="display:flex;gap:2px">${B('Bold','<b style="font-size:18px">B</b>')}${B('Italic','<i style="font-size:18px;font-family:Georgia,serif">I</i>')}${B('Underline','<span style="font-size:17px;text-decoration:underline">U</span>')}${B('Strike','<span style="font-size:17px;text-decoration:line-through">S</span>')}${B('Highlight',ic('hl')+'<span style="position:absolute;bottom:6px;width:18px;height:4px;border-radius:2px;background:var(--hl-yellow)"></span>')}${B('Key point',ic('star'))}</div><div class="lbl">Highlight colour</div><div class="cgrid h">${HC.map((c,i)=>`<i style="--c:${c}" class="${i==1?'on':''}"></i>`).join('')}</div></div>`,
+ al:()=>`<div class="pop" data-p>${B('Align left',ic('alL'),1)}${B('Centre',ic('alC'))}${B('Align right',ic('alR'))}${B('Justify',ic('jus'))}<span class="sep"></span>${B('Line spacing',ic('spc'))}</div>`,
+ li:()=>`<div class="pop" data-p>${B('Bullets',ic('bul'))}${B('Numbers',ic('num'))}${B('Checklist',ic('chk'))}<span class="sep"></span>${B('Outdent',ic('out'))}${B('Indent',ic('ind'))}</div>`,
+ col:()=>`<div class="pop col" data-p style="min-width:0"><div class="lbl">Text colour</div><div class="cgrid">${TC.map((c,i)=>`<i style="--c:${c}" class="${i==0?'on':''}"></i>`).join('')}</div><div class="lbl" style="font-weight:500">Default · Gray · Brown · Red · Orange · Yellow · Green · Blue · Purple · Pink</div></div>`,
  paste:()=>`<div class="pop col" data-p>${row('Paste (keep look)','paste')}${row('Match style','paste')}${row('Plain text','paste')}<hr><div class="lbl" style="font-weight:500">Tapping Paste itself uses your Settings choice.</div></div>`,
- more:()=>`<div class="pop col" data-p style="min-width:250px">${row('Copy','copy')}${row('Duplicate','dup')}${row('Lock box','lock','<small>new</small>')}${row('Box style…','pal')}<hr>${row('Move up','up')}${row('Move down','dn')}${row('Group','grp','<small>2+ boxes</small>','dis')}<hr>${row('Delete box','trash','','danger')}</div>`,
- phone:()=>`<div class="pop col" data-p style="min-width:250px">${row('Font','<b style="font-size:16px;width:21px">Aa</b>')}${row('List','bul')}${row('Cut','cut')}${row('Copy','copy')}${row('Paste ▾','paste')}${row('Duplicate','dup')}${row('Lock box','lock')}${row('Box style…','pal')}${row('Move up / down','up')}<hr>${row('Delete box','trash','','danger')}</div>`
+ more:()=>`<div class="pop col" data-p style="min-width:260px">${row('Copy','copy')}${row('Duplicate','dup')}${row('Lock box','lock','<small>new</small>')}${row('Box style…','pal')}${row('Layout…','grid')}<hr>${row('Text style…','type','<small>Title, H1–H3, Body</small>')}${row('More text options…','code','<small>link, callout, spacing</small>')}<hr>${row('Move up','up')}${row('Move down','dn')}${row('Group','grp','<small>2+ boxes</small>','dis')}<hr>${row('Delete box','trash','','danger')}</div>`,
+ phone:()=>`<div class="pop col" data-p style="min-width:260px">${row('Font','<b style="font-size:16px;width:21px">Aa</b>')}${row('List','bul')}${row('Cut','cut')}${row('Copy','copy')}${row('Paste ▾','paste')}${row('Duplicate','dup')}${row('Lock box','lock')}${row('Box style…','pal')}${row('Layout…','grid')}${row('Text style…','type')}${row('More text options…','code')}${row('Move up / down','up')}<hr>${row('Delete box','trash','','danger')}</div>`
 };
 function bar(o={}){
  const op=o.open;
@@ -248,6 +275,18 @@ function frame(n,cap,w,h,inner,label){
  return `<figure><figcaption><b>${n}</b>${cap}</figcaption><div class="fit"><div class="stage" data-w="${w}" data-h="${h}" style="width:${w}px;height:${h}px"><div class="page" data-label="${label||''}" style="width:${w}px;height:${h}px">${inner}</div></div></div></figure>`;
 }
 const tp=`left:${BL}px;top:${BT-62}px`;
+const TT=(open)=>{const b=(l,inner,k,on)=>'<div class="it">'+'<button class="b v'+(on?' on':'')+'" aria-label="'+l+'">'+inner+'</button>'+(open===k?POP.size(100,'%'):'')+'</div>';const ch=ic('chev','s');
+ return '<div class="tool">'+b('Tool settings',ic('gear'),'')+'<span class="tab">'+'<b style="font-family:Georgia,serif;font-size:17px">Aa</b> Text</span><span class="sep"></span>'
+ +b('Text style','Body'+ch,'')+b('Font','<b style="font-family:Georgia,serif">Aa</b>'+ch,'')+b('Text size','100%'+ch,'size',open==='size')+b('Line spacing',ic('spc')+ch,'')
+ +b('Bold','<b>B</b>','')+b('Italic','<i style="font-family:Georgia,serif">I</i>','')+b('Underline','<u>U</u>','')
+ +b('Text colour','<i class="circ" style="background:var(--c-purple)"></i>'+ch,'')+b('Highlight colour',ic('hl')+ch,'')+b('List',ic('bul')+ch,'')+b('Align',ic('alL')+ch,'')+b('Key point',ic('star'),'')
+ +'<span class="sep"></span>'+b('Box style','<i class="fillsq"></i>','')+b('Layout',ic('grid'),'')+'<span class="sp"></span>'+b('Favourites',ic('star')+'<small>2</small>','')+b('Edit bar',ic('plus'),'')+'</div>';};
+const FMT=()=>{const st=[['Title','font-size:20px;font-weight:750'],['Heading 1','font-size:18px;font-weight:700'],['Heading 2','font-size:16px;font-weight:700'],['Heading 3','font-size:15px;font-weight:700'],['Body','font-size:14px'],['Quote','font-style:italic'],['Code block','font-family:ui-monospace,Menlo,monospace;font-size:13px']];
+ const tile=(n,i)=>'<div class="tile" style="gap:2px;align-content:center">'+ic(i).replace('<svg','<svg style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8"')+'<span>'+n+'</span></div>';
+ return '<div class="card" style="left:300px;top:100px;top:96px" data-p><div class="hd"><b>Format</b><button class="b" aria-label="Close">'+ic('x')+'</button></div><div class="seg"><span>Text</span><span class="on">Style</span><span>Paragraph</span><span>Advanced</span></div>'
+ +'<div class="rows stylelist">'+st.map(([n,c],i)=>'<div class="row" style="'+c+'"><span>'+n+'</span>'+(i==4?'<span style="color:var(--accent);font-size:14px">✓</span>':'')+'</div>').join('')+'</div>'
+ +'<h4>Marks</h4><div class="tiles" style="grid-template-columns:repeat(2,1fr)">'+tile('Link','link')+tile('Key point','star')+'</div>'
+ +'<h4>Blocks</h4><div class="tiles" style="grid-template-columns:repeat(4,1fr)">'+tile('Plain block','type')+tile('Callout','pal')+tile('Divider','alC')+tile('Inline code','code')+'</div></div>';};
 const F=[];
 const bx=(o={})=>box(BL,BT,620,o.h||200);
 F.push(frame(1,'The one bar sits above the selected box, outside it. It never covers the words and stays inside the page frame.',W,330,bx()+bar({css:tp}),'iPad upright'));
@@ -255,12 +294,14 @@ F.push(frame(2,'B/I strip open under its button: Bold, Italic, Underline, Strike
 F.push(frame(3,'Align strip: left, centre, right, line spacing.',W,330,bx()+bar({css:tp,open:'al'})));
 F.push(frame(4,'List strip: bullets, numbers.',W,330,bx()+bar({css:tp,open:'li'})));
 F.push(frame(5,"Size open: the number, a slider and −/+ (as in the owner's picture 8).",W,330,bx()+bar({css:tp,open:'sz'})));
+F.push(frame(6,"Top tool bar, Text tool: the Text size control opens the SAME size strip as the box bar (number, slider, −/+). Beside it: gear, Style, Font, Line spacing, B/I/U, colours, list, align, Key point, Box style, Layout, favourites, + (Edit bar).",980,300,TT('size')+'<div class="box idle" style="left:60px;top:120px;width:860px;height:150px"><div class="t">How to read books</div><p>1. Ask what the author wants to say. 2. Find the main idea of each chapter.</p></div>','iPad sideways, Text tool'));
 F.push(frame(6,"Aa open: a font list with the current font ✓, then Modern, Classic, Technical, and More fonts… (as in the owner's picture 9).",W,400,bx({h:260})+bar({css:tp,open:'font'})));
-F.push(frame(7,"Text colour picker with today's colours: Auto, Blue, Red, Green, Amber, Purple.",W,400,bx({h:240})+bar({css:tp,open:'col'})));
+F.push(frame(7,"Text colour picker with today's ten colours (the same as the Text tool's colour card): Default, Gray, Brown, Red, Orange, Yellow, Green, Blue, Purple, Pink.",W,400,bx({h:240})+bar({css:tp,open:'col'})));
 F.push(frame(8,'Paste ▾ open: Paste (keep look), Match style, Plain text.',W,400,bx({h:260})+bar({css:tp,open:'paste'})));
 F.push(frame(9,'Box style from the fill square, Presets tab: styles, fill colours, my presets (up to 8: save, rename, delete), use for new boxes, Reset.',W,720,bx({h:560})+bar({css:tp,open:'fill',tab:'p'})));
 F.push(frame(10,'Box style, Advanced tab: background, border colour, round corner −/+, shadow on/off, border −/+, padding −/+. Same card and footer.',W,640,bx({h:480})+bar({css:tp,open:'fill',tab:'a'})));
 F.push(frame(11,'⋯ open: Copy, Duplicate, Lock box (new), Box style…, Move up, Move down, Group (when 2+ boxes are picked), Delete box. Cut, Paste and Delete also stay in the bar.',W,520,bx({h:380})+bar({css:tp,open:'more'})));
+F.push(frame(12,'⋯ › More text options…: the same Format card the Text tool opens from its Style / Aa options (Style list, Blocks, Marks, Paragraph and Advanced tabs).',W,560,bx({h:420})+bar({css:tp})+FMT(),'Same card as the Text tool'));
 F.push(frame(12,'Docking, horizontal: like the mic bar, drag the grip to any of the four sides (top, bottom, left, right). Dashed zones show where it can land; here it is docked at the bottom with the pin on. A docked or pinned bar stays put on every page and after closing the app, until I undock or unpin it.',W,520,
  `<div class="zone" style="left:10px;top:10px;width:718px;height:56px">Top</div><div class="zone" style="left:10px;top:76px;width:56px;height:360px">Left</div><div class="zone" style="right:10px;top:76px;width:56px;height:360px">Right</div>`+
  box(90,86,560,350)+bar({css:'left:50%;transform:translateX(-50%);top:452px',moved:1,pinned:1}),'Bar docked at the bottom'));

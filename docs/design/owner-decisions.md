@@ -426,3 +426,6 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 - **New in ⋯:** Lock box (a locked box cannot be moved, resized or deleted until unlocked). Front/Back: not chosen.
 - **Font colour options** in the bar too; the owner will share more Goodnotes examples of how the options open.
 - Next: mock-up picture for the owner's OK, then plan, then build (after the current re-test fixes).
+- **How the bar's buttons open (owner, 18 Nov; refs docs/design/refs/goodnotes-bar/):** each button opens a small strip right under it: B/I → Bold, Italic, Underline, Strike, Highlight; align → left, centre, right, line spacing; list → bullets, numbers. The fill square opens "Box style" with Presets (colour tiles) and Advanced (background colour, border colour, round corner −/+, shadow on/off, border −/+, padding −/+). Today's Box style card features all stay (nothing dropped).
+- **Owner's improvement over Goodnotes:** the bar can be moved and pinned (like our other tool bars), so it stays put; one way of working across the app.
+- **Must never happen:** the bar never sits inside the box over the words, and never goes past the page frame (off the paper or screen).

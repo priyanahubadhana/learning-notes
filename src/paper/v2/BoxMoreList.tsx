@@ -29,8 +29,11 @@ export function BoxMoreList({
   menu,
   groups,
   footer,
+  bottomReserve,
 }: {
   menu: AnchoredMenuState
+  /** Screen height at the bottom the list must not use (default: a bottom bar). */
+  bottomReserve?: number
   groups: MoreRow[][]
   /** C23: rows that stay in view under the scrolling groups (Delete box). */
   footer?: MoreRow[]
@@ -59,7 +62,7 @@ export function BoxMoreList({
       menu={menu}
       label={t('paper.box.menu')}
       width={MORE_LIST_W}
-      bottomReserve={bottomBar()}
+      bottomReserve={bottomReserve ?? bottomBar()}
       solid
       footer={
         footer?.length ? (

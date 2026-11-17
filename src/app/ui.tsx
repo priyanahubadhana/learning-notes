@@ -20,7 +20,7 @@ import type { ChoiceRequest, ToastAction } from './appUi'
 import { aboveTabBar } from './aboveTabBar'
 import { toastBottom } from './toastTiming'
 import { Glyph, Icon } from './tools/icons'
-import { placeClear, type Rect } from './menuPlace'
+import { placeClear, type Frame, type Rect } from './menuPlace'
 
 /** Small UI building blocks shared across features. */
 
@@ -222,8 +222,8 @@ export function MenuPopover({
   items: MenuItem[]
   /** C23: the menu never covers this (a box and its bar). */
   keepClear?: Rect | Rect[]
-  /** C23: the menu never crosses these left/right edges (a page frame). */
-  within?: { left: number; right: number }
+  /** C23: the menu never crosses these edges (a page frame or a panel). */
+  within?: Frame
   onClose: () => void
   /** Accessible name of the list (a submenu is named after its item). */
   label?: string
@@ -293,7 +293,7 @@ export function MenuPopover({
         ? { left: pr.left, right: pr.right }
         : undefined)
     const spot = placeClear(
-      { w, h },
+      { w, h, minH: Math.min(h, 220) },
       { x: x0, y },
       { left: ox, top: oy, right: ox + vw, bottom: oy + vh },
       lim,
@@ -301,7 +301,8 @@ export function MenuPopover({
     )
     el.style.left = spot.x + 'px'
     el.style.top = spot.y + 'px'
-    el.style.maxHeight = room + 'px'
+    // A little shorter where room is tight (the rows scroll; Delete stays).
+    el.style.maxHeight = (spot.h < h ? spot.h : room) + 'px'
   })
   // Esc gives the focus back to the button that opened the menu.
   const [returnTo] = useState(
@@ -420,6 +421,8 @@ export function MenuPopover({
         // C25: above every scroll bar.
         zIndex: 'var(--z-pop)',
       }}
+      // Cards are solid (C23 review): nothing under the menu shows through.
+      data-solid
       className={`fixed ${nested ? 'w-64' : 'w-52'} glass flex flex-col rounded-xl p-1 text-ink`}
     >
       <PopupHeader onClose={onDone ?? onClose} />

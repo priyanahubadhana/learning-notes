@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: C23 rework 3 (Opus): solid menu cards, menus never across the sheet's top or bottom (slice/c23-menus)
+
+- Why see-through: MenuPopover used the 72 % glass fill; in WebKit the sidebar rows (and on the page the "100 %" zoom pill, which looked like a stepper in the Layout row) showed through. Now `data-solid` (the existing solid-card rule in tokens.css): opaque, nothing shows through.
+- Why across the frame: the frame given to box menus had only left/right edges. frameOfBox now also gives the sheet's top/bottom and the page's visible area; placeClear (shared by the legacy box menu and, on paper sheets, the v2 Box actions list) keeps the card wholly inside the sheet or wholly above/below it, inside the page area (never over the app bars), clear of the box and each bar; where room is tight the card is a little shorter (rows scroll, Delete stays in its footer).
+- Tests: e2e/pageMenusPlaceC23b.spec.ts (card opaque, on top at every row, no overlapping parts in a row, never across a sheet edge); src/app/menuPlace.test.ts (frame top/bottom, tight frame).
+- Files: src/app/ui.tsx, src/app/menuPlace.ts, src/paper/v2/listPlace.ts, src/paper/v2/BoxMoreHost.tsx, src/paper/v2/BoxMoreList.tsx, src/paper/usePaperBoxes.tsx.
+
 ### 17 Nov 2026: C23 box menu, C25 menus above scroll bars, C26 hints (slice/c23-menus)
 
 - C23: Delete box sits in a fixed footer of the box ⋯ card (never scrolled away, even in a short window); the card is placed wholly inside the page frame (or wholly beside it), never across its edge (listPlace frame argument, BoxMoreHost, AnchoredMenu footer).

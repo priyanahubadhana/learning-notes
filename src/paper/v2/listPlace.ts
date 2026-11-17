@@ -64,7 +64,36 @@ export function frameOfBox(boxEl: Element) {
     boxEl.closest('[data-page-scroller]')
   if (!f) return undefined
   const r = f.getBoundingClientRect()
-  return { left: r.left, right: r.right }
+  // C23: the sheet the box is on also gives the frame's top and bottom edge.
+  const b = boxEl.getBoundingClientRect()
+  const mid = (b.top + b.bottom) / 2
+  const sheets = [...f.querySelectorAll('[data-paper-sheet]')].map((e) =>
+    e.getBoundingClientRect(),
+  )
+  const s =
+    sheets.find((q) => mid >= q.top && mid <= q.bottom) ??
+    sheets.find((q) => b.top < q.bottom && b.bottom > q.top)
+  // The page's visible area: a box menu never covers the bars around it.
+  const v = boxEl.closest('[data-page-scroller]')?.getBoundingClientRect()
+  return {
+    left: r.left,
+    right: r.right,
+    ...(s ? { top: s.top, bottom: s.bottom } : {}),
+    ...(v ? { clipTop: v.top, clipBottom: v.bottom } : {}),
+  }
+}
+
+/** Each bar of the box on its own (C23: a menu may sit between them). */
+export function barRects(): Box[] {
+  return [...document.querySelectorAll('[data-box-bar-holder], [data-box-bar]')]
+    .map((b) => b.getBoundingClientRect())
+    .filter((q) => q.width && q.height)
+    .map((q) => ({
+      left: q.left,
+      right: q.right,
+      top: q.top,
+      bottom: q.bottom,
+    }))
 }
 
 /** The box and its own bar together: a menu never covers either (C23). */

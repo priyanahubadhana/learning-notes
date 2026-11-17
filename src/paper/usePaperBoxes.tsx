@@ -6,7 +6,7 @@ import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { activeTool } from '../app/tools/main/mainTools'
 import { MenuPopover, type MenuItem } from '../app/ui'
-import { boxWithBar, frameOfBox } from './v2/listPlace'
+import { barRects, boxWithBar, frameOfBox } from './v2/listPlace'
 import type { LearningNotesDB } from '../core/db'
 import type { GridRow, PaperBox } from '../core/types'
 import { triggerFirstUse } from '../help/firstUse'
@@ -65,7 +65,8 @@ const clearOf = (id: string) => {
   const el = boxEl(id)
   if (!el) return undefined
   const r = el.getBoundingClientRect()
-  return [boxWithBar(el), r]
+  // Best: clear of the box and its bars as one block; else of each one.
+  return [boxWithBar(el), ...barRects(), r]
 }
 /** C23: the page frame, whose edge its menu never crosses. */
 const frameOf = (id: string) => {

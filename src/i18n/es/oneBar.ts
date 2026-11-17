@@ -55,4 +55,12 @@ export const esOneBar = {
   'onebar.card.advancedNote':
     'Más opciones del cuadro llegan con el modo Profesional.',
   'v8.format.makeToggle': 'Hacer desplegable',
+  'onebar.move': 'Mover la barra',
+  'onebar.pin': 'Fijar la barra aquí',
+  'onebar.unpin': 'Soltar la barra',
+  'onebar.zone.top': 'Arriba',
+  'onebar.zone.bottom': 'Abajo',
+  'onebar.zone.left': 'Izquierda',
+  'onebar.zone.right': 'Derecha',
+  'onebar.size.next': 'Tamaño de lo que escribas',
 } as const

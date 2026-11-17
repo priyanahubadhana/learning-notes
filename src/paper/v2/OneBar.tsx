@@ -46,7 +46,10 @@ import {
   SizePop,
 } from './oneBarPops'
 import '../../design/parts/partsMisc.css'
+import { DockZones, useGripDrag } from './oneBarDock'
+import type { BarPlace } from './oneBarDockModel'
 import './oneBar.css'
+import './oneBarB.css'
 
 /**
  * Box bar part A (switch textbox.v2): the ONE bar of a selected box. Text
@@ -57,31 +60,52 @@ import './oneBar.css'
  * phone the bar is shorter and Font, List, Cut, Paste and Delete live under ⋯.
  * Approved picture: docs/mockups/box-bar/index.html.
  */
+/** What the bar stands for when no box is the target (a pinned bar, nothing selected). */
+const NO_BOX: PaperBox = { id: '', x: 0, y: 0, w: 0 }
+
 export default function OneBarView({
   pageId,
-  box,
+  box: boxProp,
   canEdit,
   compact,
   onDelete,
   onMenu,
   onLine,
+  mover,
 }: {
   pageId: string
-  box: PaperBox
+  /** The box the bar acts on; none = a pinned bar with nothing selected (box buttons off). */
+  box: PaperBox | undefined
   canEdit: boolean
   /** A narrow page (a phone, or a column under 640 px): the short bar. */
   compact: boolean
   onDelete: () => void
   onMenu: (at: DOMRect) => void
   onLine: (line: 'tight' | 'loose' | undefined) => void
+  /** Moving, docking and pinning (part B); left out, the grip is only a picture. */
+  mover?: {
+    place: BarPlace | null
+    vertical: boolean
+    dock?: string
+    onLive: (at: { left: number; top: number } | null) => void
+    onDrop: (p: Pick<BarPlace, 'side' | 'left' | 'top'>) => void
+    onPin: () => void
+  }
 }) {
+  const box = boxProp ?? NO_BOX
+  const off = !boxProp
   const { toast } = useContext(AppUiContext)
   const root = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState<OneBarPop | null>(null)
   const [, redraw] = useReducer((n: number) => n + 1, 0)
   const phone = usePhone()
   const short = compact || phone
-  const ed = editorOf(pageId, box.id)
+  const ed = off ? undefined : editorOf(pageId, box.id)
+  const drag = useGripDrag({
+    bar: () => root.current,
+    onLive: mover?.onLive ?? (() => {}),
+    onDrop: mover?.onDrop ?? (() => {}),
+  })
 
   // The strips show what the words have now: draw again when they change.
   useEffect(() => {
@@ -183,6 +207,7 @@ export default function OneBarView({
       aria-expanded={open === id}
       aria-pressed={open === id}
       data-testid={`ob-${id}`}
+      disabled={off}
       onClick={() => toggle(id)}
     >
       {inner}
@@ -276,6 +301,7 @@ export default function OneBarView({
       className="pm-ob__btn ob1-btn"
       aria-label={t('boxStyle.title')}
       data-testid="ob-style"
+      disabled={off}
       onClick={() => {
         setOpen(null)
         openBoxStyle(box.id)
@@ -292,6 +318,7 @@ export default function OneBarView({
         className="pm-ob__btn ob1-btn"
         aria-label={t('onebar.paste')}
         data-testid="ob-pastenow"
+        disabled={off}
         onClick={() => void paste('settings')}
       >
         <Icon name="clipboard" size={20} />
@@ -303,6 +330,7 @@ export default function OneBarView({
         aria-haspopup="dialog"
         aria-expanded={open === 'paste'}
         data-testid="ob-paste"
+        disabled={off}
         onClick={() => toggle('paste')}
       >
         <Icon name="chevronDown" size={14} />
@@ -319,6 +347,7 @@ export default function OneBarView({
       aria-label={t('paper.box.menu')}
       aria-haspopup="menu"
       data-testid="ob-boxmore"
+      disabled={off}
       data-popup-trigger=""
       onClick={(e) => {
         setOpen(null)
@@ -337,6 +366,9 @@ export default function OneBarView({
       data-testid="object-bar"
       data-kind="box"
       data-short={short ? '' : undefined}
+      data-vertical={mover?.vertical ? '' : undefined}
+      data-dock={mover?.dock}
+      data-off={off ? '' : undefined}
       className="pm-ob ob1"
       // With the caret or words in the box, a press keeps them where they are.
       // A box only picked has no caret: the press focuses the button as before
@@ -349,16 +381,48 @@ export default function OneBarView({
           e.preventDefault()
       }}
     >
-      <span className="ob1-grip" aria-hidden="true">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
-          <circle cx="5" cy="3" r="1.4" />
-          <circle cx="11" cy="3" r="1.4" />
-          <circle cx="5" cy="8" r="1.4" />
-          <circle cx="11" cy="8" r="1.4" />
-          <circle cx="5" cy="13" r="1.4" />
-          <circle cx="11" cy="13" r="1.4" />
-        </svg>
-      </span>
+      {mover ? (
+        <button
+          type="button"
+          className={`ob1-grip ob1-grip--drag${mover.place ? ' is-moved' : ''}`}
+          aria-label={t('onebar.move')}
+          data-testid="ob-grip"
+          {...drag.gripProps}
+        >
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+            <circle cx="5" cy="3" r="1.4" />
+            <circle cx="11" cy="3" r="1.4" />
+            <circle cx="5" cy="8" r="1.4" />
+            <circle cx="11" cy="8" r="1.4" />
+            <circle cx="5" cy="13" r="1.4" />
+            <circle cx="11" cy="13" r="1.4" />
+          </svg>
+        </button>
+      ) : (
+        <span className="ob1-grip" aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
+            <circle cx="5" cy="3" r="1.4" />
+            <circle cx="11" cy="3" r="1.4" />
+            <circle cx="5" cy="8" r="1.4" />
+            <circle cx="11" cy="8" r="1.4" />
+            <circle cx="5" cy="13" r="1.4" />
+            <circle cx="11" cy="13" r="1.4" />
+          </svg>
+        </span>
+      )}
+      {mover?.place && (
+        <button
+          type="button"
+          className="pm-ob__btn ob1-btn ob1-keep"
+          aria-label={mover.place.pinned ? t('onebar.unpin') : t('onebar.pin')}
+          aria-pressed={mover.place.pinned}
+          data-testid="ob-pin"
+          onClick={mover.onPin}
+        >
+          <Icon name={mover.place.pinned ? 'pinOff' : 'pin'} size={20} />
+        </button>
+      )}
+
       {colour}
       {sizeItem}
       {!short && font}
@@ -375,7 +439,7 @@ export default function OneBarView({
               className="pm-ob__btn ob1-btn"
               aria-label={t('pic.act.cut')}
               data-testid="ob-cut"
-              disabled={locked}
+              disabled={locked || off}
               onClick={() => void cut()}
             >
               <Icon name="scissors" size={20} />
@@ -388,7 +452,7 @@ export default function OneBarView({
               className="pm-ob__btn pm-ob__btn--danger ob1-btn"
               aria-label={t('paper.box.delete')}
               data-testid="ob-delete"
-              disabled={locked}
+              disabled={locked || off}
               onClick={onDelete}
             >
               <Icon name="trash" size={20} />
@@ -428,6 +492,7 @@ export default function OneBarView({
           </Pop>
         </span>
       )}
+      {drag.dragging && <DockZones zone={drag.zone} />}
     </div>
   )
 }

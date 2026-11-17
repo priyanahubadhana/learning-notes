@@ -3,11 +3,13 @@ import type BoxBarV2Type from './BoxBarV2'
 import type BoxCardType from './BoxCard'
 import type BoxMoreHostType from './BoxMoreHost'
 import type TextOptionsHostType from './TextOptionsHost'
+import type PinnedBoxBarType from './PinnedBoxBar'
 import { loadBar, loadCard, loadedV2, loadMore } from './boxBarV2Load'
 
 const Bar = lazy(loadBar)
 const More = lazy(loadMore)
 const Card = lazy(loadCard)
+const Pinned = lazy(() => import('./PinnedBoxBar'))
 const TextOptions = lazy(() => import('./TextOptionsHost'))
 
 /** The v2 box bar, loaded only when switch textbox.v2 is on. */
@@ -51,6 +53,17 @@ export function TextOptionsV2Lazy(
   return (
     <Suspense fallback={null}>
       <TextOptions {...props} />
+    </Suspense>
+  )
+}
+
+/** The moved, docked or pinned bar (box bar part B); loads when a place is kept. */
+export function PinnedBoxBarLazy(
+  props: ComponentProps<typeof PinnedBoxBarType>,
+) {
+  return (
+    <Suspense fallback={null}>
+      <Pinned {...props} />
     </Suspense>
   )
 }

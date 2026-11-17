@@ -128,6 +128,8 @@ export function watchPanels(onResume?: (boxId: string) => void): () => void {
     pressed = true
     const t = e.target instanceof Element ? e.target : null
     if (!t || t.closest('[data-paper-box] [data-box-content]')) return
+    // The one bar (box bar part B) acts on the box being typed in: a press on it, or on its strips, keeps the caret.
+    if (t.closest('.ob1')) return
     if (!t.closest(BAR) && !t.closest(PANEL)) return
     if (!pauseTyping()) return
     paused = true

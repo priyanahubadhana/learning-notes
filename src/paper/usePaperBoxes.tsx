@@ -43,11 +43,14 @@ import {
   BoxBarV2Lazy,
   BoxCardV2Lazy,
   BoxMoreV2Lazy,
+  PinnedBoxBarLazy,
   TextOptionsV2Lazy,
 } from './v2/BoxBarV2Lazy'
+import { barMoved, barPin } from './v2/oneBarPlaceStore'
 import { listenOneBar } from './v2/oneBarBus'
 import { prefetchBoxBarV2 } from './v2/boxBarV2Load'
 import { applyNoteStyle } from '../app/tools/main/textStyle'
+import { watchNextSize } from '../app/tools/main/nextSizeWatch'
 import { isOn } from '../app/flags'
 import { pickWhenShown } from './pickSignal'
 import { clearPageWide, pageWideClip, pageWideRange } from './pageWide'
@@ -145,6 +148,7 @@ export function usePaperBoxes(
       prefetchBoxBarV2()
       // The note font (Easy to read by default) is written onto the page.
       applyNoteStyle()
+      return watchNextSize()
     }
   }, [])
 
@@ -298,6 +302,9 @@ export function usePaperBoxes(
   const [styleStart, setStyleStart] = useState<'presets' | 'layout'>('presets')
   // ⋯ › Text options… (box bar part A): the Text tool's Format card.
   const [textFor, setTextFor] = useState<string | null>(null)
+  // A moved, docked or pinned bar (box bar part B) is the page's, not a box's.
+  const pin = barPin.useValue()
+  const moved = barMoved.useValue()
   useEffect(() => {
     const on = (e: Event) => {
       setStyleStart('presets')
@@ -659,6 +666,16 @@ export function usePaperBoxes(
               onClose={() => setStyleFor(null)}
             />
           ))}
+        {isOn('textbox.v2') && (pin || moved) && (
+          <PinnedBoxBarLazy
+            db={db}
+            pageId={pageId}
+            canEdit={editable}
+            onDelete={remove}
+            onMenu={(box, at) => setMenuFor({ box, at })}
+            onLine={(box, line) => onBoxChange(box.id, { line })}
+          />
+        )}
         {textFor && isOn('textbox.v2') && (
           <TextOptionsV2Lazy
             pageId={pageId}

@@ -6,6 +6,7 @@ import {
   isReadingFont,
   type ReadingFont,
 } from '../../reading/readingPrefs'
+import { SIZE_MAX, SIZE_MIN } from '../../../design/parts/sizeModel'
 import { prefStore } from '../store'
 /** "default", a built-in font, or an imported one (`custom:<id>`). */
 export type NoteFont = Exclude<ReadingFont, 'app'> | 'default'
@@ -26,6 +27,17 @@ export const noteSize = prefStore<number>(
   (v): v is number => (NOTE_SIZES as readonly unknown[]).includes(v),
   100,
 )
+/**
+ * The Text tool's size for what is written next, in px (box bar part B, with
+ * textbox.v2): any whole number; it replaces today's five steps there.
+ */
+export const nextSize = prefStore<number | null>(
+  'text.nextSize',
+  (v): v is number | null =>
+    v === null || (typeof v === 'number' && v >= SIZE_MIN && v <= SIZE_MAX),
+  null,
+)
+
 export const noteLine = prefStore<NoteLine>(
   'text.line',
   isOneOf(NOTE_LINES),

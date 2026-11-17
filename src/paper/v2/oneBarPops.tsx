@@ -11,15 +11,8 @@ import { fontStack, type ReadingFont } from '../../app/reading/readingPrefs'
 import { Icon, type IconName } from '../../app/tools/icons'
 import { COLOR_NAMES, TEXT_HEX, colorLabel } from '../../editor/colorData'
 import { t, type MessageKey } from '../../i18n/t'
-import {
-  FONT_QUICK,
-  LIST_CHOICES,
-  SIZE_MAX,
-  SIZE_MIN,
-  clampSize,
-  stepSize,
-  type OneBarList,
-} from './oneBarModel'
+import { SizeStrip } from '../../design/parts/SizeStrip'
+import { FONT_QUICK, LIST_CHOICES, type OneBarList } from './oneBarModel'
 import { frameOfBox } from './listPlace'
 
 /**
@@ -146,61 +139,7 @@ export function SizePop({
   value: number
   onSet: (px: number) => void
 }) {
-  const [draft, setDraft] = useState<string | null>(null)
-  const commit = () => {
-    if (draft === null) return
-    const n = Number(draft)
-    setDraft(null)
-    if (draft.trim() !== '' && Number.isFinite(n)) onSet(clampSize(n))
-  }
-  return (
-    <>
-      <input
-        type="number"
-        inputMode="numeric"
-        className="ob1-num"
-        aria-label={t('onebar.size.number')}
-        min={SIZE_MIN}
-        max={SIZE_MAX}
-        value={draft ?? String(value)}
-        onChange={(e) => setDraft(e.target.value)}
-        onBlur={commit}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') commit()
-        }}
-      />
-      <input
-        type="range"
-        className="ob1-slider"
-        aria-label={t('onebar.size.slider')}
-        min={SIZE_MIN}
-        max={96}
-        step={1}
-        value={Math.min(96, value)}
-        onChange={(e) => onSet(clampSize(Number(e.target.value)))}
-      />
-      <span className="ob1-step">
-        <button
-          type="button"
-          className="ob1-b"
-          aria-label={t('onebar.size.smaller')}
-          disabled={value <= SIZE_MIN}
-          onClick={() => onSet(stepSize(value, -1))}
-        >
-          −
-        </button>
-        <button
-          type="button"
-          className="ob1-b"
-          aria-label={t('onebar.size.larger')}
-          disabled={value >= SIZE_MAX}
-          onClick={() => onSet(stepSize(value, 1))}
-        >
-          +
-        </button>
-      </span>
-    </>
-  )
+  return <SizeStrip value={value} onSet={onSet} />
 }
 
 export function FontPop({

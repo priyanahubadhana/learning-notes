@@ -124,7 +124,8 @@ test('TB-24: one bar over a selected box: Cut, Delete, Box style, ⋯ (Copy and 
   // bar into ⋯; the bar gained the text look buttons. Tests/tb2-bar-a covers the rest.
   for (const n of ['Cut', 'Delete box', 'Box style', 'Box actions'])
     await expect(bar(page).getByRole('button', { name: n })).toBeVisible()
-  await expect(bar(page).getByRole('button')).toHaveCount(12)
+  // Box bar part B (owner decisions 18 Nov, moving and docking): the grip is a button too, so 13.
+  await expect(bar(page).getByRole('button')).toHaveCount(13)
   // Copy (under ⋯) copies the text; Cut copies it and removes the box.
   await bar(page).getByRole('button', { name: 'Box actions' }).click()
   await more(page).getByRole('menuitem', { name: 'Copy' }).click()

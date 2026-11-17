@@ -54,4 +54,12 @@ export const enLateOneBar = {
   'onebar.card.presets': 'Presets',
   'onebar.card.advancedNote': 'More box options come with Professional mode.',
   'v8.format.makeToggle': 'Make toggle',
+  'onebar.move': 'Move bar',
+  'onebar.pin': 'Pin bar here',
+  'onebar.unpin': 'Unpin bar',
+  'onebar.zone.top': 'Top',
+  'onebar.zone.bottom': 'Bottom',
+  'onebar.zone.left': 'Left',
+  'onebar.zone.right': 'Right',
+  'onebar.size.next': 'Size for what you write next',
 } as const

@@ -54,4 +54,12 @@ export const hiOneBar = {
   'onebar.card.advancedNote':
     'बॉक्स के और विकल्प प्रोफ़ेशनल मोड में मिलते हैं।',
   'v8.format.makeToggle': 'खुलने वाला बनाएँ',
+  'onebar.move': 'बार को खिसकाएँ',
+  'onebar.pin': 'बार यहाँ टिकाएँ',
+  'onebar.unpin': 'बार को छोड़ें',
+  'onebar.zone.top': 'ऊपर',
+  'onebar.zone.bottom': 'नीचे',
+  'onebar.zone.left': 'बाएँ',
+  'onebar.zone.right': 'दाएँ',
+  'onebar.size.next': 'आगे लिखने का आकार',
 } as const

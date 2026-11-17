@@ -27,6 +27,8 @@ import {
   noteLine,
   noteSize,
 } from '../../../main/textStyle'
+import { isOn } from '../../../../flags'
+import { NextSizeStrip } from '../../../main/NextSizeStrip'
 import { highlightChoice, textColourChoice } from '../../../main/pillChoices'
 import { Icon } from '../../../icons'
 import { runTool, findTool, toolLabel } from '../../../toolRegistry'
@@ -424,6 +426,8 @@ function ColourGroup({ kind }: { kind: 'textColor' | 'backgroundColor' }) {
 
 /** Beginner: three steps; with tb.textFonts: five sizes and compact font tiles. */
 function SizeGroups({ fonts }: { fonts: boolean }) {
+  // Box bar part B (switch textbox.v2): one size strip, same as the box bar.
+  const v2 = isOn('textbox.v2')
   const size = noteSize.useValue()
   const font = noteFont.useValue()
   const pick = (n: number) => {
@@ -433,21 +437,25 @@ function SizeGroups({ fonts }: { fonts: boolean }) {
   if (!fonts)
     return (
       <CardGroup label={t('v8.format.g.textSize')}>
-        <TileGroup label={t('v8.format.g.textSize')} columns={3}>
-          {TEXT_SIZE_STEPS.map((s) => (
-            <Tile
-              key={s.id}
-              label={t(s.label)}
-              selected={size === s.pct}
-              testId={`v8-format-tsize-${s.id}`}
-              onSelect={() => pick(s.pct)}
-            >
-              <span className="v8num" style={{ fontSize: 12 + s.pct / 10 }}>
-                Aa
-              </span>
-            </Tile>
-          ))}
-        </TileGroup>
+        {v2 ? (
+          <NextSizeStrip />
+        ) : (
+          <TileGroup label={t('v8.format.g.textSize')} columns={3}>
+            {TEXT_SIZE_STEPS.map((s) => (
+              <Tile
+                key={s.id}
+                label={t(s.label)}
+                selected={size === s.pct}
+                testId={`v8-format-tsize-${s.id}`}
+                onSelect={() => pick(s.pct)}
+              >
+                <span className="v8num" style={{ fontSize: 12 + s.pct / 10 }}>
+                  Aa
+                </span>
+              </Tile>
+            ))}
+          </TileGroup>
+        )}
       </CardGroup>
     )
   return (
@@ -464,21 +472,25 @@ function SizeGroups({ fonts }: { fonts: boolean }) {
         />
       </CardGroup>
       <CardGroup label={t('v8.format.g.textSize')}>
-        <TileGroup label={t('v8.format.g.textSize')} columns={5}>
-          {NOTE_SIZES.map((n) => (
-            <Tile
-              key={n}
-              label={`${n}%`}
-              selected={size === n}
-              testId={`v8-format-size-${n}`}
-              onSelect={() => pick(n)}
-            >
-              <span className="v8num" style={{ fontSize: 8 + n / 10 }}>
-                Aa
-              </span>
-            </Tile>
-          ))}
-        </TileGroup>
+        {v2 ? (
+          <NextSizeStrip />
+        ) : (
+          <TileGroup label={t('v8.format.g.textSize')} columns={5}>
+            {NOTE_SIZES.map((n) => (
+              <Tile
+                key={n}
+                label={`${n}%`}
+                selected={size === n}
+                testId={`v8-format-size-${n}`}
+                onSelect={() => pick(n)}
+              >
+                <span className="v8num" style={{ fontSize: 8 + n / 10 }}>
+                  Aa
+                </span>
+              </Tile>
+            ))}
+          </TileGroup>
+        )}
       </CardGroup>
     </>
   )

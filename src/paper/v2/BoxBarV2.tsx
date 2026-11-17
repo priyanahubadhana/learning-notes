@@ -3,6 +3,7 @@ import { onRouted } from '../../app/input/eventRouter'
 import type { PaperBox } from '../../core/types'
 import { frameOfBox } from './listPlace'
 import OneBarView from './OneBar'
+import { barMoved, barPin, dropBar, placeFor } from './oneBarPlaceStore'
 import { placeOneBar, SAFE, type Rect } from './oneBarPlace'
 import './oneBar.css'
 
@@ -63,6 +64,10 @@ export default function BoxBarV2({
   onLine: (line: 'tight' | 'loose' | undefined) => void
 }) {
   const wrap = useRef<HTMLDivElement>(null)
+  // Moved, docked or pinned: the page's bar (PinnedBoxBar) stands in for this one.
+  const place = placeFor(barPin.useValue(), barMoved.useValue(), box.id)
+  // True while the grip is held: the bar follows the finger, not its place.
+  const held = useRef(false)
   // The ⋯ list is a lazy piece: fetch it now, so the first ⋯ tap shows it at once.
   useEffect(() => {
     void import('./BoxMoreHost')
@@ -86,6 +91,7 @@ export default function BoxBarV2({
     if (!el || typeof IntersectionObserver === 'undefined') return
     let moved = false
     const fit = () => {
+      if (held.current) return
       el.style.translate = '0 0'
       const r = el.getBoundingClientRect()
       const frameEl = el.closest('[data-paper-box], [data-main-chrome]')
@@ -163,7 +169,7 @@ export default function BoxBarV2({
     }
   })
 
-  if (typing) return null
+  if (typing || place) return null
   return (
     <div ref={wrap} data-box-bar data-ui>
       <OneBarView
@@ -174,6 +180,22 @@ export default function BoxBarV2({
         onDelete={onDelete}
         onMenu={onMenu}
         onLine={onLine}
+        mover={{
+          place: null,
+          vertical: false,
+          onLive: (at) => {
+            const el = wrap.current
+            held.current = !!at
+            if (!el || !at) return
+            const r = el.getBoundingClientRect()
+            const [tx = 0, ty = 0] = el.style.translate
+              .split(' ')
+              .map((v) => parseFloat(v) || 0)
+            el.style.translate = `${tx + at.left - r.left}px ${ty + at.top - r.top}px`
+          },
+          onDrop: (p) => dropBar(box.id, p),
+          onPin: () => {},
+        }}
       />
     </div>
   )

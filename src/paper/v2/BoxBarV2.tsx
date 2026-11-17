@@ -93,18 +93,26 @@ export default function BoxBarV2({
     const fit = () => {
       el.style.translate = '0 0'
       const r = el.getBoundingClientRect()
-      const frame = el.closest('[data-paper-box]')
-      const box = frame?.getBoundingClientRect()
+      const frame = el.closest('[data-paper-box], [data-main-chrome]')
+      // The first box's chrome has no height: its frame is the box.
+      const mainChrome = !!frame?.matches('[data-main-chrome]')
+      const box = (
+        mainChrome ? frame?.querySelector('[data-main-frame]') : frame
+      )?.getBoundingClientRect()
       if (!frame || !box) return
       // Above the box (clear of its tab row), else under it (clear of its dots),
       // always off other text and off the Add-a-box button; the top 12 px of
       // the screen stay free. Nothing fits: the top of the screen.
       const others = [
         ...document.querySelectorAll(
-          '[data-paper-box] .bn-block-content, [data-paper-add-end]',
+          '[data-paper-box] .bn-block-content, [data-paper-add-end], [data-page-tabs]',
         ),
       ]
-        .filter((n) => !frame.contains(n))
+        .filter(
+          (n) =>
+            !frame.contains(n) &&
+            !(mainChrome && n.closest('[data-paper-box="main"]')),
+        )
         .map((n) => n.getBoundingClientRect())
         .filter((o) => o.height > 0)
       // The room is what the page shows (a bottom bar is not room).
@@ -117,7 +125,13 @@ export default function BoxBarV2({
         top + r.height <= room - SAFE_TOP &&
         !others.some((o) => o.top < top + r.height && o.bottom > top)
       const above = box.top - ABOVE_GAP - r.height
-      const below = box.bottom + BELOW_GAP
+      // The first box's tab may sit under the box (tabs crowd it above): the
+      // bar then goes under the tab, never over it.
+      const tab = mainChrome
+        ? frame?.querySelector('[data-box-grip]')?.getBoundingClientRect()
+        : undefined
+      const below =
+        tab && tab.top > box.bottom ? tab.bottom + 12 : box.bottom + BELOW_GAP
       const add = document
         .querySelector('[data-paper-add-end]')
         ?.getBoundingClientRect()

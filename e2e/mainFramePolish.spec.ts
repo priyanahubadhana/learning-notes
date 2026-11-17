@@ -39,7 +39,8 @@ test('the first box tab never covers the page tabs', async ({ page }) => {
   await selectMain(page)
   const tabs = await rect(page.locator('[data-page-tabs]'))
   const grip = await rect(page.locator('[data-main-chrome] [data-box-grip]'))
-  const menu = await rect(page.locator('[data-main-chrome] [data-box-menu]'))
+  // Q-1: the first box's ⋯ is on its bar.
+  const menu = await rect(page.getByTestId('ob-boxmore'))
   for (const r of [grip, menu])
     expect(r.y >= tabs.y + tabs.height - 0.5 || r.y + r.height <= tabs.y).toBe(
       true,

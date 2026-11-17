@@ -385,7 +385,9 @@ test('TB-08 + Q-2: the first box shows the same tab and menu as every other box 
   await selectMain(page)
   const chrome = page.locator('[data-main-chrome]')
   await expect(chrome.locator('[data-box-grip]')).toBeVisible()
-  await expect(chrome.locator('[data-box-menu]')).toBeVisible()
+  // Q-1: the ⋯ is on its bar, like every box; the frame has none.
+  await expect(chrome.locator('[data-box-menu]')).toHaveCount(0)
+  await expect(page.getByTestId('ob-boxmore')).toBeVisible()
 })
 
 test('C11 + TB-08: the first box has the thin typing border while the caret is in it; its dots, tab and menu hide (owner Q-2)', async ({

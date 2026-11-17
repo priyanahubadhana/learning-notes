@@ -2,7 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { addBox, pick, start } from './cBoxesHelpers.ts'
+import { addBox, pick, selectMain, start } from './cBoxesHelpers.ts'
 
 /**
  * First-look pictures of Q-1 (one ⋯ per box: the bar's), iPad upright, light
@@ -34,6 +34,31 @@ for (const [label, theme] of [
     await expect(page.getByTestId('ob-boxmore')).toBeVisible()
     await expect(box.locator('[data-box-menu]')).toHaveCount(0)
     await shot(page, `bar-one-more-${label}`)
+    // The first box has the bar too (Q-1).
+    await selectMain(page)
+    await expect(page.getByTestId('ob-boxmore')).toBeVisible()
+    await expect(page.locator('[data-box-menu]')).toHaveCount(0)
+    await shot(page, `first-box-bar-${label}`)
+    // Q-3: Delete on the first box; the next box moves up.
+    await page
+      .locator('[data-box-bar]')
+      .getByRole('button', { name: 'Delete box' })
+      .click()
+    await expect(page.locator('[data-paper-box="main"]')).toContainText('Alpha')
+    await page.waitForTimeout(600)
+    await shot(page, `after-delete-next-up-${label}`)
+    // With no other box the page has no box.
+    await selectMain(page)
+    await page
+      .locator('[data-box-bar]')
+      .getByRole('button', { name: 'Delete box' })
+      .click()
+    await expect(page.locator('[data-paper-box="main"]')).toHaveAttribute(
+      'data-main-gone',
+      '',
+    )
+    await page.waitForTimeout(600)
+    await shot(page, `after-delete-no-box-${label}`)
     mkdirSync(OUT, { recursive: true })
     writeFileSync(
       `${OUT}/INDEX.md`,

@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: Q-3 Delete on the first box deletes it; Q-1 the first box has the bar (slice/q1-q3, Sonnet)
+
+- Owner Q-1 and Q-3 (decisions logged in docs/DECISIONS.md "Q-3 first-box delete, how"). Switch textbox.v2. (1) The first box now has the box bar like every box, shown when it is selected; its frame no longer has a ⋯ (src/paper/PaperFrame.tsx MainChrome, src/paper/v2/BoxBarV2.tsx: the bar finds the first box through its chrome, stays clear of the page tabs and of the tab when that sits under the box). (2) "Delete box" on the first box really deletes it (src/paper/usePaperBoxes.tsx `removeMain`): the next box in page order moves up (its text and look go into the first box, its own box is removed); with no other box the first box carries `gone` (new optional mark on its stored PaperBox, src/core/types.ts; no Dexie version, travels with the page record, History and Undo) and the page shows no box (hidden, not focusable) until a tap on the page makes one. One toast Undo puts back the text, the look and the moved box. Cut and the ⋯ list Delete work the same.
+- Why the first box's text goes through its editor: the page saves that editor as typing; changing its stored blocks behind it would be written back.
+- Tests: e2e/cBoxes.spec.ts (the two C8 tests rewritten as Q-3, two new: next box moves up, Undo after it), sweep2b, tb2-select, mainFramePolish. Pictures: screenshots/q1-q3/.
+- Not mine: e2e/paperPage.spec.ts "a tap on empty paper makes a box" is red on the base before my change too.
+
 ### 17 Nov 2026: Q-1 one ⋯ per box (slice/q1-q3, Sonnet)
 
 - Owner Q-1: only the ⋯ on the box bar stays. With switch textbox.v2 a box's frame no longer has its own ⋯ (src/paper/BoxFrame.tsx); every item stays in the bar's ⋯ list. Switch off: unchanged. The page's first box has no box bar yet, so its frame ⋯ is its one ⋯ and stays until it gets the bar (reported to the owner; Q-3 needs that too).

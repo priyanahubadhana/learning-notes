@@ -187,6 +187,7 @@ export async function updateBox(
   if (patch.style === undefined && 'style' in patch) delete next.style
   if (patch.h === undefined && 'h' in patch) delete next.h
   if (patch.full === undefined && 'full' in patch) delete next.full
+  if (patch.gone === undefined && 'gone' in patch) delete next.gone
   await writeBoxes(db, pageId, (boxes) =>
     boxes.some((b) => b.id === id)
       ? boxes.map((b) => (b.id === id ? next : b))
@@ -210,6 +211,27 @@ export async function setGroup(
     pageId,
     ids.map((id) => ({ id, patch: { group } })),
   )
+}
+
+/**
+ * Owner Q-3: the box that moves up when the first box is deleted: the first
+ * other box in the page's order (the grid's rows, else the stored order).
+ */
+export async function nextAfterMain(
+  db: LearningNotesDB,
+  pageId: string,
+): Promise<PaperBox | null> {
+  const page = await getLive(db.pages, pageId)
+  const all = boxesOf(page)
+  const rows = page.rows ?? migrateToRows(all)
+  for (const r of rows)
+    for (const c of r.cols)
+      for (const id of c.boxIds) {
+        if (id === MAIN_BOX) continue
+        const b = all.find((x) => x.id === id)
+        if (b) return b
+      }
+  return null
 }
 
 /** The live blocks of one box, in page order. */

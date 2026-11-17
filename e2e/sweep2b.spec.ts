@@ -111,12 +111,11 @@ for (const size of SIZES) {
     await page.getByTestId('ob-boxmore').tap()
     await openList(page)
     await closeList(page)
-    // The page's first box has no bar yet, so its frame ⋯ stays (its one ⋯,
-    // Q-1); it shows when the box is selected (owner Q-2).
+    // The page's first box has the bar too (Q-1): its ⋯ is the bar's, shown
+    // when the box is selected (owner Q-2); its frame has none.
     await selectMain(page)
-    const mainMenu = page.locator('[data-box-menu]:visible')
-    await expect(mainMenu).toHaveCount(1)
-    await mainMenu.tap()
+    await expect(page.locator('[data-box-menu]')).toHaveCount(0)
+    await page.getByTestId('ob-boxmore').tap()
     await openList(page)
     await closeList(page)
   })

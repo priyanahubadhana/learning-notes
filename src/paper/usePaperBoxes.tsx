@@ -12,6 +12,7 @@ import type { GridRow, PaperBox } from '../core/types'
 import { triggerFirstUse } from '../help/firstUse'
 import { t } from '../i18n/t'
 import { BOX_COLOURS, MAIN_BOX } from './boxes'
+import { wakeBox } from './wakeBox'
 import { type GridInfo } from './layoutPlan'
 import { NARROW_PX } from './sheets'
 import { LayoutAssistLazy } from './v2/LayoutAssistLazy'
@@ -30,6 +31,7 @@ import {
   removeIfEmptyBox,
   duplicateBox,
   setGroup,
+  nextAfterMain,
   removeBox,
   restoreBox,
   updateBox,
@@ -318,31 +320,80 @@ export function usePaperBoxes(
 
   const duplicate = (box: PaperBox) =>
     runTask(duplicateBox(db, pageId, box.id).then(pickWhenShown))
+  /** The same blocks without ids, so an editor makes them as new lines. */
+  const plain = (blocks: readonly object[]): object[] =>
+    blocks.map((blk) => {
+      const { children, ...rest } = blk as Record<string, unknown>
+      delete rest.id
+      return { ...rest, children: plain((children as object[]) ?? []) }
+    })
+  /** A box's editor; a far box wakes first (its editor is made on demand). */
+  const editorOf = async (id: string) => {
+    wakeBox(id)
+    for (let i = 0; i < 30; i++) {
+      const ed = boxEditors.get(pageId, id)
+      if (ed) return ed
+      await new Promise((r) => setTimeout(r, 50))
+    }
+    return undefined
+  }
   /**
-   * C8: "Delete box" on the page's first box (it cannot go, the page always
-   * has one) empties it: one edit in its own editor, so the page saves it as
-   * it saves typing; the toast's Undo (and the editor's own Undo) puts it all back.
+   * Owner Q-3: "Delete box" on the page's first box deletes it. The next box
+   * moves up and becomes the first box (its text and look); with no other box
+   * the page shows no first box (the box's `gone` mark) until the user makes a
+   * box. It is done in the first box's own editor, so the page saves it as it
+   * saves typing. The toast's Undo puts all of it back in one step.
    */
-  const emptyMain = (box: PaperBox): boolean => {
+  const removeMain = async (box: PaperBox) => {
     const ed = boxEditors.get(pageId, MAIN_BOX)
-    if (!ed) return false
+    if (!ed) return
     const before = ed.document
-    const { style, colour } = box
-    ed.replaceBlocks(before, [{ type: 'paragraph' }])
-    // It also goes back to the plain default look, so it reads as deleted.
-    if (style || colour)
-      onBoxChange(MAIN_BOX, { style: undefined, colour: undefined })
+    const { style, colour, h, locked } = box
+    const next = await nextAfterMain(db, pageId)
+    let moved: Awaited<ReturnType<typeof removeBox>> = null
+    if (next) {
+      const from = await editorOf(next.id)
+      if (!from) return
+      const doc = plain(from.document)
+      moved = await removeBox(db, pageId, next.id)
+      ed.replaceBlocks(
+        before,
+        (doc.length ? doc : [{ type: 'paragraph' }]) as typeof before,
+      )
+      onBoxChange(MAIN_BOX, {
+        style: next.style,
+        colour: next.colour,
+        h: next.h,
+        locked: next.locked,
+        gone: undefined,
+      })
+    } else {
+      ed.replaceBlocks(before, [{ type: 'paragraph' }])
+      onBoxChange(MAIN_BOX, {
+        style: undefined,
+        colour: undefined,
+        h: undefined,
+        locked: undefined,
+        gone: true,
+      })
+    }
     toast(t('paper.box.deleted'), {
       label: t('paper.box.undo'),
       onSelect: () => {
         ed.replaceBlocks(ed.document, before)
-        if (style || colour) onBoxChange(MAIN_BOX, { style, colour })
+        onBoxChange(MAIN_BOX, {
+          style,
+          colour,
+          h,
+          locked,
+          gone: undefined,
+        })
+        if (moved) runTask(restoreBox(db, pageId, moved))
       },
     })
-    return true
   }
   const remove = (box: PaperBox) => {
-    if (box.id === MAIN_BOX && emptyMain(box)) return Promise.resolve()
+    if (box.id === MAIN_BOX) return runTask(removeMain(box))
     const since = stamp()
     return runTask(
       removeBox(db, pageId, box.id).then((removed) => {
@@ -367,12 +418,10 @@ export function usePaperBoxes(
         view.state.tr.setSelection(new AllSelection(view.state.doc)),
       )
     document.execCommand('copy')
-    if (cut && box.id !== MAIN_BOX) void remove(box)
+    if (cut) void remove(box)
   }
-  // Every box has the same menu; the page's first box cannot be deleted.
-  const items = (box: PaperBox): MenuItem[] =>
-    allItems(box).filter((i) => !(box.id === MAIN_BOX && i.danger))
-  const allItems = (box: PaperBox): MenuItem[] => [
+  // Every box has the same menu (Q-3: the first box can be deleted too).
+  const items = (box: PaperBox): MenuItem[] => [
     {
       label: t('boxStyle.title'),
       icon: 'palette',

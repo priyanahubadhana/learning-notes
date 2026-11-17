@@ -108,7 +108,7 @@ for (const [tname, theme] of THEMES)
       await page.keyboard.press('Escape')
       if (!phone) {
         await selectMain(page)
-        await page.locator('[data-box-menu]:visible').tap()
+        await page.getByTestId('ob-boxmore').tap()
         await expect(
           page.getByRole('menu', { name: 'Box actions' }),
         ).toBeVisible()

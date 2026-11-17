@@ -2327,7 +2327,8 @@ export function PaperFrame({
             )
           })()}
         {!narrow &&
-          (((mainFocus || mainPicked) && !!onBoxMenu) || layoutMode) && (
+          (((mainFocus || mainPicked) && !!onBoxMenu && !box.gone) ||
+            (layoutMode && !box.gone)) && (
             <MainChrome
               at={mainShown}
               k={k}
@@ -2338,6 +2339,7 @@ export function PaperFrame({
               onDragMove={dragMove}
               onDragEnd={dragEnd}
               onMenu={(at) => onBoxMenu?.(box, at)}
+              bar={renderBar?.(box)}
               height={mainRealH || (heightsMm[MAIN_BOX] ?? 40) * k}
               onResize={{
                 down: (how, e) => resizeDown(box, how, e),
@@ -2590,6 +2592,10 @@ export function PaperFrame({
           <div
             ref={boxEl}
             data-paper-box="main"
+            // Owner Q-3: a deleted first box with no box after it: the page shows
+            // no first box (its one empty line stays only as the page's anchor).
+            data-main-gone={box.gone && !flat ? '' : undefined}
+            inert={box.gone && !flat ? true : undefined}
             className={
               flat
                 ? undefined
@@ -2599,6 +2605,7 @@ export function PaperFrame({
               flat
                 ? undefined
                 : {
+                    ...(box.gone ? { visibility: 'hidden' as const } : {}),
                     marginLeft: mainShown.x * k,
                     width: mainShown.w * k,
                     marginTop: mainShown.y * k - total,
@@ -3023,8 +3030,11 @@ function MainChrome({
   onDragMove,
   onDragEnd,
   onMenu,
+  bar,
   onResize,
 }: {
+  /** Q-1: the box bar (with the one ⋯) over the selected first box. */
+  bar?: ReactNode
   onResize: {
     down: (how: ResizeHow, e: ReactPointerEvent) => void
     move: (e: ReactPointerEvent) => void
@@ -3070,7 +3080,8 @@ function MainChrome({
   }, [at.y, k, height, typing, styled])
   // Polish 2B: with textbox.v2 the frame has the same small gap round the
   // words as every other box; it grows outward, the words stay.
-  const v2 = isOn('textbox.v2') && !styled
+  const v2On = isOn('textbox.v2')
+  const v2 = v2On && !styled
   const gap = v2 ? MAIN_FRAME_GAP_Y : 0
   const gapX = v2 ? MAIN_FRAME_GAP_X : 0
   const frameBox = {
@@ -3135,19 +3146,32 @@ function MainChrome({
                 >
                   ≡
                 </button>
-                <button
-                  type="button"
-                  data-box-menu
-                  aria-label={t('paper.box.menu')}
-                  aria-haspopup="menu"
-                  onClick={(e) =>
-                    onMenu(e.currentTarget.getBoundingClientRect())
-                  }
-                  style={TOUCH_STYLE}
-                  className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
-                >
-                  ⋯
-                </button>
+                {!v2On && (
+                  <button
+                    type="button"
+                    data-box-menu
+                    aria-label={t('paper.box.menu')}
+                    aria-haspopup="menu"
+                    onClick={(e) =>
+                      onMenu(e.currentTarget.getBoundingClientRect())
+                    }
+                    style={TOUCH_STYLE}
+                    className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
+                  >
+                    ⋯
+                  </button>
+                )}
+                {v2On && bar && (
+                  // Q-1: with text box v2 the bar's ⋯ is the first box's only
+                  // ⋯. The bar places itself clear of the tab and the text.
+                  <div
+                    data-main-bar
+                    className="pointer-events-auto absolute left-0"
+                    style={{ top: 0 }}
+                  >
+                    {bar}
+                  </div>
+                )}
               </div>
             </>
           )}

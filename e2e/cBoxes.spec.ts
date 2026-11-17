@@ -80,7 +80,14 @@ test('C8 Delete box on a box with a list removes the whole box; one Undo brings 
   await expect(page.locator(EXTRA)).toContainText('second')
 })
 
-test('C8 Delete box on the first box of the page empties it; one Undo brings the text back', async ({
+/** The first box's bar Delete (its own bar, owner Q-1). */
+const deleteMain = (page: Page) =>
+  page
+    .locator('[data-box-bar]')
+    .getByRole('button', { name: 'Delete box' })
+    .click()
+
+test('Q-3 (was C8) Delete box on the first box with no other box: the page has no box; one Undo brings the text back', async ({
   page,
 }) => {
   await start(page, 'C8b', false)
@@ -89,26 +96,30 @@ test('C8 Delete box on the first box of the page empties it; one Undo brings the
   await page.keyboard.press('Enter')
   await page.keyboard.type('Beta')
   await page.waitForTimeout(900)
-  // Owner Q-2: while typing the first box hides its tab; select it first.
   await selectMain(page)
-  const more = await centre(page.locator('[data-main-chrome] button').last())
-  await page.mouse.click(more.x, more.y)
-  await page.getByRole('menuitem', { name: 'Delete box' }).click()
-  await expect(page.locator('[data-paper-box="main"]')).not.toContainText(
-    'Alpha',
+  await deleteMain(page)
+  const main = page.locator('[data-paper-box="main"]')
+  await expect(main).toHaveAttribute('data-main-gone', '')
+  await expect(main).not.toBeVisible()
+  await expect(page.locator('[data-main-chrome]')).toHaveCount(0)
+  await expect(page.locator(EXTRA)).toHaveCount(0)
+  // The page still holds no words after a reload; a tap on the page makes a box.
+  await page.waitForTimeout(900)
+  await page.reload()
+  await expect(page.locator('[data-paper-box="main"]')).toHaveAttribute(
+    'data-main-gone',
+    '',
   )
-  await expect(page.locator('[data-paper-box="main"]')).not.toContainText(
-    'Beta',
-  )
-  await page
-    .locator('[data-toast]')
-    .getByRole('button', { name: 'Undo' })
-    .click()
-  await expect(page.locator('[data-paper-box="main"]')).toContainText('Alpha')
-  await expect(page.locator('[data-paper-box="main"]')).toContainText('Beta')
+  await page.waitForTimeout(600)
+  const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
+  await page.mouse.click(sheet.x + sheet.width * 0.4, sheet.y + 200)
+  await expect(page.locator(EXTRA)).toHaveCount(1)
+  await expect(page.locator(EXTRA).locator('.bn-editor')).toBeFocused()
+  await page.keyboard.type('Fresh')
+  await expect(page.locator(EXTRA)).toContainText('Fresh')
 })
 
-test('C8 Delete box on a styled first box also resets its fill; one Undo brings text and fill back', async ({
+test('Q-3 one Undo after deleting the first box with no other box brings the text and its look back', async ({
   page,
 }) => {
   await start(page, 'C8c', false)
@@ -120,19 +131,68 @@ test('C8 Delete box on a styled first box also resets its fill; one Undo brings 
   await page.waitForTimeout(900)
   const styled = await fill()
   expect(styled).not.toBe('rgba(0, 0, 0, 0)')
-  // Owner Q-2: while typing the first box hides its tab; select it first.
   await selectMain(page)
-  const more = await centre(page.locator('[data-main-chrome] button').last())
-  await page.mouse.click(more.x, more.y)
-  await page.getByRole('menuitem', { name: 'Delete box' }).click()
-  await expect(main).not.toContainText('Alpha')
-  await expect.poll(fill).toBe('rgba(0, 0, 0, 0)')
+  await deleteMain(page)
+  await expect(main).toHaveAttribute('data-main-gone', '')
   await page
     .locator('[data-toast]')
     .getByRole('button', { name: 'Undo' })
     .click()
+  await expect(main).not.toHaveAttribute('data-main-gone', '')
   await expect(main).toContainText('Alpha')
   await expect.poll(fill).toBe(styled)
+})
+
+test('Q-3 Delete box on the first box moves the next box up as the first box; one Undo brings both back', async ({
+  page,
+}) => {
+  await start(page, 'Q3next', false)
+  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await page.keyboard.type('Alpha')
+  await page.waitForTimeout(900)
+  const two = await addBox(page, ['Beta line'])
+  await expect(two).toContainText('Beta line')
+  await selectMain(page)
+  await deleteMain(page)
+  const main = page.locator('[data-paper-box="main"]')
+  await expect(main).toContainText('Beta line')
+  await expect(main).not.toContainText('Alpha')
+  await expect(page.locator(EXTRA)).toHaveCount(0)
+  await expect(main).not.toHaveAttribute('data-main-gone', '')
+  // It is the first box now: saved and still there after a reload.
+  await page.waitForTimeout(1200)
+  await page.reload()
+  await expect(page.locator('[data-paper-box="main"]')).toContainText(
+    'Beta line',
+  )
+  await expect(page.locator(EXTRA)).toHaveCount(0)
+  await page.reload()
+  await page.waitForTimeout(600)
+})
+
+test('Q-3 Undo after the next box moved up brings the first box and the other box back', async ({
+  page,
+}) => {
+  await start(page, 'Q3undo', false)
+  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await page.keyboard.type('Alpha')
+  await page.waitForTimeout(900)
+  await addBox(page, ['Beta line'])
+  await selectMain(page)
+  await deleteMain(page)
+  await expect(page.locator('[data-paper-box="main"]')).toContainText(
+    'Beta line',
+  )
+  await page
+    .locator('[data-toast]')
+    .getByRole('button', { name: 'Undo' })
+    .click()
+  await expect(page.locator('[data-paper-box="main"]')).toContainText('Alpha')
+  await expect(page.locator('[data-paper-box="main"]')).not.toContainText(
+    'Beta',
+  )
+  await expect(page.locator(EXTRA)).toHaveCount(1)
+  await expect(page.locator(EXTRA)).toContainText('Beta line')
 })
 
 test('C11 a tap on a box frame or its ≡ tab never moves it and shows no "Box moved" toast', async ({

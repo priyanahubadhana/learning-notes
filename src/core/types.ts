@@ -261,6 +261,12 @@ export interface PaperBox {
   }
   /** Text box v2 (2B.5b): the width in mm set on a phone; absent = the whole column. */
   pw?: number
+  /**
+   * Owner Q-3 (17 Nov): only on the page's first box (id 'main'): it was deleted
+   * and no other box took its place, so the page shows no first box. Its text
+   * is empty. Unset = shown. It travels with the boxes (History, Undo).
+   */
+  gone?: true
 }
 
 /** What a source page is: a book, an article, a video, … */

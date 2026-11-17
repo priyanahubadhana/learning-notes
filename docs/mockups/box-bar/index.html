@@ -84,6 +84,26 @@ figcaption b{color:var(--ink);margin-right:6px}
 .foot .lnk{min-height:44px;display:flex;align-items:center;color:var(--accent);font-weight:600}
 .foot .cb{display:flex;align-items:center;gap:8px;min-height:44px;color:var(--ink-soft)}
 .cb u{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--muted);display:inline-block}
+.sl{position:relative;width:190px;height:44px}
+.sl::before{content:"";position:absolute;left:0;right:0;top:20px;height:4px;border-radius:2px;background:var(--track)}
+.sl::after{content:"";position:absolute;left:0;width:38%;top:20px;height:4px;border-radius:2px;background:var(--accent)}
+.sl i{position:absolute;left:38%;top:8px;width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.35);z-index:1}
+.pop .bignum{background:var(--well);border-radius:16px;padding:10px 14px;font-size:16px;font-weight:650;min-width:52px;text-align:center}
+.pop.grp{gap:8px;align-items:center;padding:8px 10px}
+.pop .fgrp{background:var(--well);border-radius:14px;width:100%;margin-bottom:8px}
+.pop .fgrp .b.l{border-radius:0;border-bottom:1px solid var(--line)}
+.pop .fgrp .b.l:last-child{border-bottom:0}
+.bar.v{flex-direction:column;height:auto;width:56px;padding:2px 5px;border-radius:28px}
+.bar.v .grip{width:44px;height:24px}
+.bar.v .sep{width:26px;height:1px;margin:4px 0}
+.bar.v .b.w{padding:0}
+.bar.off .it{opacity:.38}
+.bar.off .it.keep{opacity:1}
+.zone{position:absolute;border:1.5px dashed var(--accent);border-radius:14px;background:var(--accent-soft);display:grid;place-items:center;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);z-index:1}
+.tbar{position:absolute;left:0;right:0;top:0;height:48px;background:var(--surface);border-bottom:1px solid var(--line);border-radius:10px 10px 0 0;display:flex;align-items:center;gap:22px;padding:0 20px;color:var(--muted);font-size:12px;font-weight:600;z-index:2}
+.tbar i{width:22px;height:22px;border-radius:6px;background:var(--well);display:block}
+.caret{display:inline-block;width:2px;height:20px;background:var(--accent);vertical-align:-4px;margin-left:2px}
+.box.idle{border:1px solid var(--line)}
 .pin-tip{position:absolute;z-index:6;background:var(--ink);color:var(--paper);font-size:12px;padding:5px 10px;border-radius:8px;font-weight:600}
 section.notes{margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px}
 section.notes>div{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px 22px}
@@ -108,12 +128,12 @@ section.notes li{margin:7px 0}
       <ol>
         <li>Tap a box: one bar shows above it, with colour, size, font, B/I, align, list, fill, Cut, Paste, Delete and ⋯.</li>
         <li>The old box bar and the old text bar are gone: no second bar anywhere.</li>
-        <li>Each button opens its small strip right under it, and closes with a tap outside or ✕.</li>
+        <li>Each button opens its small strip right under it (size: number, slider, −/+; Aa: font list with the current font ✓ and More fonts…), and closes with a tap outside or ✕.</li>
         <li>Paste ▾ offers Keep look, Match style and Plain text; a plain tap pastes the way Settings says.</li>
         <li>Box style has Presets and Advanced, every option of today's card is still there; changes show at once and one Undo reverses each.</li>
         <li>⋯ keeps every old item (Copy, Duplicate, Box style, Move up/down, Group, Delete) and adds Lock box; a locked box cannot be moved, resized or deleted.</li>
-        <li>Move the bar and pin it: it stays where I put it, on every box, after a reload.</li>
-        <li>Box near the page top, near either edge, iPad turned, phone: the bar finds a free side and stays fully inside the page.</li>
+        <li>Drag the bar to any of the four sides, horizontal or vertical, and pin it: it stays there on every page and after closing the app, for every box, also with nothing selected and while typing; it never hides until I unpin it.</li>
+        <li>The bar sits beside the box (above, or below if no room); only when the box leaves no room around it does the bar go to any free space, such as the gap under the top tool bar; always inside the page.</li><li>iPad turned and phone: the bar still stays inside the page.</li>
         <li>Phone: a shorter bar; the rest is under ⋯; every target is 44 pt or more.</li>
         <li>Light and dark both readable; the same words in Beginner and Professional.</li>
       </ol>
@@ -129,7 +149,6 @@ section.notes li{margin:7px 0}
       <h2 style="margin-top:20px">Left open for the plan</h2>
       <ul style="color:var(--muted)">
         <li>Front / Back: not chosen (owner). Not shown.</li>
-        <li>How Size and Font (Aa) open: shown only as buttons here; they will reuse our shared list parts.</li>
         <li>Today's Professional-only Box style options keep their own unlock switch; shown together here.</li>
       </ul>
     </div>
@@ -186,6 +205,8 @@ function stylecard(tab){
   <div class="foot"><span class="cb"><u></u>Use for new boxes</span><span class="lnk">Reset</span></div></div>`;
 }
 const POP={
+ size:()=>`<div class="pop grp" data-p><span class="bignum">16</span><div class="sl"><i></i></div>${step()}</div>`,
+ font:()=>`<div class="pop col" data-p style="min-width:240px"><div class="fgrp"><button class="b l" style="font-weight:650"><span>Default font</span><span style="margin-left:auto;color:var(--accent)">✓</span></button></div><div class="fgrp"><button class="b l"><span>Modern</span></button><button class="b l" style="font-family:Georgia,serif"><span>Classic</span></button><button class="b l" style="font-family:ui-monospace,Menlo,monospace"><span>Technical</span></button></div><div class="fgrp" style="margin-bottom:0"><button class="b l"><span>More fonts…</span></button></div></div>`,
  bi:()=>`<div class="pop" data-p>${B('Bold','<b style="font-size:18px">B</b>')}${B('Italic','<i style="font-size:18px;font-family:Georgia,serif">I</i>')}${B('Underline','<span style="font-size:17px;text-decoration:underline">U</span>')}${B('Strike','<span style="font-size:17px;text-decoration:line-through">S</span>')}${B('Highlight',ic('hl')+'<span style="position:absolute;bottom:6px;width:18px;height:4px;border-radius:2px;background:var(--hl-yellow)"></span>')}</div>`,
  al:()=>`<div class="pop" data-p>${B('Align left',ic('alL'),1)}${B('Centre',ic('alC'))}${B('Align right',ic('alR'))}<span class="sep"></span>${B('Line spacing',ic('spc'))}</div>`,
  li:()=>`<div class="pop" data-p>${B('Bullets',ic('bul'))}${B('Numbers',ic('num'))}</div>`,
@@ -198,15 +219,15 @@ function bar(o={}){
  const op=o.open;
  const it=(k,btn,pop)=>`<div class="it">${btn}${op===k?pop:''}</div>`;
  const grip=`<div class="grip${o.moved?' act':''}" aria-label="Move bar (drag)">${GRIP}</div>`;
- const pin=o.moved?B('Pin bar here',ic('pin'),o.pinned):'';
+ const pin=o.moved?`<div class="it keep">${B('Pin bar here',ic('pin'),o.pinned)}</div>`:'';
  const col=B('Text colour','<i class="circ" style="background:var(--c-purple)"></i>',op==='col');
- const sz=B('Size','<span class="sz">16</span>');
+ const sz=B('Size','<span class="sz">16</span>',op==='sz');
  if(o.phone) return `<div class="bar" style="${o.css}">${grip}${it('col',col,POP.col())}${it('sz',sz,'')}
   ${it('bi',B('Bold and italic','<span><b>B</b><i style="font-family:Georgia,serif">I</i></span>'),POP.bi())}
   ${it('al',B('Align',ic('alL')),POP.al())}${it('fill',B('Box style','<i class="fillsq"></i>'),'')}
   ${it('more',B('More',ic('more'),op==='more'),POP.phone())}</div>`;
- return `<div class="bar" style="${o.css}">${grip}${pin}${it('col',col,POP.col())}${it('sz',sz,'')}
-  ${it('font',B('Font','<b style="font-size:17px;font-family:Georgia,serif">Aa</b>'),'')}
+ return `<div class="bar${o.vert?' v':''}${o.off?' off':''}" style="${o.css}">${grip}${pin}${it('col',col,POP.col())}${it('sz',sz,POP.size())}
+  ${it('font',B('Font','<b style="font-size:17px;font-family:Georgia,serif">Aa</b>',op==='font'),POP.font())}
   ${it('bi',B('Bold and italic','<span><b>B</b><i style="font-family:Georgia,serif">I</i></span>',op==='bi'),POP.bi())}
   ${it('al',B('Align',ic('alL'),op==='al'),POP.al())}
   ${it('li',B('List',ic('bul'),op==='li'),POP.li())}
@@ -221,23 +242,38 @@ function box(l,t,w,h){
  return `<div class="box" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px"><div class="t">How to read books</div><p>1. Ask what the author wants to say.<br>2. Find the main idea of each chapter.<br>3. Test it with your own example.</p>${d}</div>`;
 }
 const W=740,BL=40,BT=96;
+let FN=0;
 function frame(n,cap,w,h,inner,label){
+ FN++;n=FN;
  return `<figure><figcaption><b>${n}</b>${cap}</figcaption><div class="fit"><div class="stage" data-w="${w}" data-h="${h}" style="width:${w}px;height:${h}px"><div class="page" data-label="${label||''}" style="width:${w}px;height:${h}px">${inner}</div></div></div></figure>`;
 }
 const tp=`left:${BL}px;top:${BT-62}px`;
 const F=[];
-F.push(frame(1,'The one bar sits above the selected box, outside it. It never covers the words and stays inside the page frame.',W,330,box(BL,BT,620,200)+bar({css:tp}),'iPad upright'));
-F.push(frame(2,'B/I strip open under its button: Bold, Italic, Underline, Strike, Highlight.',W,330,box(BL,BT,620,200)+bar({css:tp,open:'bi'})));
-F.push(frame(3,'Align strip: left, centre, right, line spacing.',W,330,box(BL,BT,620,200)+bar({css:tp,open:'al'})));
-F.push(frame(4,'List strip: bullets, numbers.',W,330,box(BL,BT,620,200)+bar({css:tp,open:'li'})));
-F.push(frame(5,"Text colour picker with today's colours: Auto, Blue, Red, Green, Amber, Purple.",W,400,box(BL,BT,620,240)+bar({css:tp,open:'col'})));
-F.push(frame(6,'Paste ▾ open: Paste (keep look), Match style, Plain text.',W,400,box(BL,BT,620,260)+bar({css:tp,open:'paste'})));
-F.push(frame(7,'Box style from the fill square, Presets tab: styles, fill colours, my presets (up to 8: save, rename, delete), use for new boxes, Reset.',W,720,box(BL,BT,620,560)+bar({css:tp,open:'fill',tab:'p'})));
-F.push(frame('7b','Box style, Advanced tab: background, border colour, round corner −/+, shadow on/off, border −/+, padding −/+. Same card and footer.',W,640,box(BL,BT,620,480)+bar({css:tp,open:'fill',tab:'a'})));
-F.push(frame(8,'⋯ open: Copy, Duplicate, Lock box (new), Box style…, Move up, Move down, Group (when 2+ boxes are picked), Delete box. Cut, Paste and Delete also stay in the bar.',W,520,box(BL,BT,620,380)+bar({css:tp,open:'more'})));
-F.push(frame(9,'The bar MOVED and PINNED: grab the grip to move it, tap the pin to keep it there for every box. Here it rests in the gutter under the box.',W,400,box(BL,40,620,240)+bar({css:`left:50%;transform:translateX(-50%);top:316px`,moved:1,pinned:1})+`<div class="pin-tip" style="left:${BL}px;top:292px;display:none">Pinned</div>`,'iPad upright, bar pinned'));
-F.push(frame(10,'A box near the top of the page: no room above, so the bar sits under the box. Still outside the words, still inside the page.',W,330,box(BL,14,620,150)+bar({css:`left:${BL}px;top:178px`}),'Box at page top'));
-F.push(frame(11,'Phone: a shorter bar (colour, size, B/I, align, fill, ⋯). Font, list, Cut, Copy, Paste, Duplicate, Lock, Box style, Move and Delete are under ⋯.',390,620,box(16,100,358,380)+bar({css:'left:8px;top:38px',phone:1,open:'more'}),'Phone'));
+const bx=(o={})=>box(BL,BT,620,o.h||200);
+F.push(frame(1,'The one bar sits above the selected box, outside it. It never covers the words and stays inside the page frame.',W,330,bx()+bar({css:tp}),'iPad upright'));
+F.push(frame(2,'B/I strip open under its button: Bold, Italic, Underline, Strike, Highlight.',W,330,bx()+bar({css:tp,open:'bi'})));
+F.push(frame(3,'Align strip: left, centre, right, line spacing.',W,330,bx()+bar({css:tp,open:'al'})));
+F.push(frame(4,'List strip: bullets, numbers.',W,330,bx()+bar({css:tp,open:'li'})));
+F.push(frame(5,"Size open: the number, a slider and −/+ (as in the owner's picture 8).",W,330,bx()+bar({css:tp,open:'sz'})));
+F.push(frame(6,"Aa open: a font list with the current font ✓, then Modern, Classic, Technical, and More fonts… (as in the owner's picture 9).",W,400,bx({h:260})+bar({css:tp,open:'font'})));
+F.push(frame(7,"Text colour picker with today's colours: Auto, Blue, Red, Green, Amber, Purple.",W,400,bx({h:240})+bar({css:tp,open:'col'})));
+F.push(frame(8,'Paste ▾ open: Paste (keep look), Match style, Plain text.',W,400,bx({h:260})+bar({css:tp,open:'paste'})));
+F.push(frame(9,'Box style from the fill square, Presets tab: styles, fill colours, my presets (up to 8: save, rename, delete), use for new boxes, Reset.',W,720,bx({h:560})+bar({css:tp,open:'fill',tab:'p'})));
+F.push(frame(10,'Box style, Advanced tab: background, border colour, round corner −/+, shadow on/off, border −/+, padding −/+. Same card and footer.',W,640,bx({h:480})+bar({css:tp,open:'fill',tab:'a'})));
+F.push(frame(11,'⋯ open: Copy, Duplicate, Lock box (new), Box style…, Move up, Move down, Group (when 2+ boxes are picked), Delete box. Cut, Paste and Delete also stay in the bar.',W,520,bx({h:380})+bar({css:tp,open:'more'})));
+F.push(frame(12,'Docking, horizontal: like the mic bar, drag the grip to any of the four sides (top, bottom, left, right). Dashed zones show where it can land; here it is docked at the bottom with the pin on. A docked or pinned bar stays put on every page and after closing the app, until I undock or unpin it.',W,520,
+ `<div class="zone" style="left:10px;top:10px;width:718px;height:56px">Top</div><div class="zone" style="left:10px;top:76px;width:56px;height:360px">Left</div><div class="zone" style="right:10px;top:76px;width:56px;height:360px">Right</div>`+
+ box(90,86,560,350)+bar({css:'left:50%;transform:translateX(-50%);top:452px',moved:1,pinned:1}),'Bar docked at the bottom'));
+F.push(frame(13,'Docking, vertical: the same bar lying upright on the right side, pin on.',W,640,
+ box(40,40,580,560)+bar({css:'right:8px;top:24px',moved:1,pinned:1,vert:1}),'Bar docked on the right'));
+F.push(frame(14,'Pinned, nothing selected: the bar stays put and its buttons look disabled (grip and pin still work). It never hides until unpinned.',W,330,
+ `<div class="box idle" style="left:${BL}px;top:20px;width:620px;height:190px"><div class="t">How to read books</div><p>1. Ask what the author wants to say.<br>2. Find the main idea of each chapter.<br>3. Test it with your own example.</p></div>`+bar({css:'left:50%;transform:translateX(-50%);top:244px',moved:1,pinned:1,off:1}),'Nothing selected, bar pinned'));
+F.push(frame(15,'Pinned, while typing: the bar stays in the same place and works on the box being typed in.',W,330,
+ `<div class="box" style="left:${BL}px;top:20px;width:620px;height:190px"><div class="t">How to read books</div><p>1. Ask what the author wants to say.<br>2. Find the main idea of each chapter.<br>3. Test it with your own<span class="caret"></span></p></div>`+bar({css:'left:50%;transform:translateX(-50%);top:244px',moved:1,pinned:1}),'Typing, bar pinned'));
+F.push(frame(16,'Not pinned, box near the top: the bar sits beside the box (above, or below when there is no room above). Outside the words, inside the page.',W,330,box(BL,14,620,150)+bar({css:`left:${BL}px;top:178px`}),'Box at page top'));
+F.push(frame(17,'No room around the box (it fills the page): only then does the bar go to any free space, here the gap under the top tool bar. It could also lie upright in a free side gap.',W,560,
+ `<div class="tbar"><i></i><i></i><i></i><i></i><span>Top tool bar</span></div>`+box(12,124,716,420)+bar({css:'left:50%;transform:translateX(-50%);top:56px'}),'Box fills the page'));
+F.push(frame(18,'Phone: a shorter bar (colour, size, B/I, align, fill, ⋯). Font, list, Cut, Copy, Paste, Duplicate, Lock, Box style, Move and Delete are under ⋯.',390,620,box(16,100,358,380)+bar({css:'left:8px;top:38px',phone:1,open:'more'}),'Phone'));
 document.getElementById('frames').innerHTML=F.join('');
 
 function clamp(){

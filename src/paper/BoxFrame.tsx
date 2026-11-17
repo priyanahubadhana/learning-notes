@@ -298,7 +298,12 @@ export function BoxFrame({
             ? 'left-1/2 -translate-x-1/2 gap-1'
             : 'left-0 right-0 justify-end pr-7')
         }
-        style={{ top: -TOUCH_PX - 20, height: TOUCH_PX }}
+        // C32: with v2 the tab sits above the top dot's 44 pt target, not on it
+        // (a press on the dot's middle used to land on the tab and move the box).
+        style={{
+          top: v2On ? -TOUCH_PX * 2 - 4 : -TOUCH_PX - 20,
+          height: TOUCH_PX,
+        }}
       >
         {box.locked || stacked ? (
           <span aria-hidden className="px-1 text-xs text-muted">
@@ -384,14 +389,16 @@ export function BoxFrame({
         !(v2On && typing) &&
         !dragging && <ResizeDots onResize={onResize} />}
       {picked && !typing && !dragging && bar && (
-        <BarHolder below={shown.y * k < BAR_ROOM_PX}>{bar}</BarHolder>
+        <BarHolder below={shown.y * k < BAR_ROOM_PX} v2={v2On}>
+          {bar}
+        </BarHolder>
       )}
     </div>
   )
 }
 
 /** A box this near the top of the paper shows its bar below it (no room above). */
-const BAR_ROOM_PX = 150
+const BAR_ROOM_PX = 180
 
 /**
  * Holds the box bar ABOVE the box (above the grip row), pulled left if it
@@ -400,9 +407,11 @@ const BAR_ROOM_PX = 150
  */
 function BarHolder({
   below,
+  v2,
   children,
 }: {
   below: boolean
+  v2: boolean
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -423,7 +432,7 @@ function BarHolder({
       className={
         'absolute left-0 z-20 ' + (below ? 'top-full mt-9' : 'bottom-full')
       }
-      style={below ? undefined : { marginBottom: TOUCH_PX + 28 }}
+      style={below ? undefined : { marginBottom: TOUCH_PX + (v2 ? 52 : 28) }}
     >
       {children}
     </div>

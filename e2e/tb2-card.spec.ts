@@ -65,7 +65,7 @@ async function addBox(page: Page, text: string) {
   return boxes.nth(before)
 }
 
-/** A finger tap on the words of a box: the first tap selects it. */
+/** A finger tap in the empty part of a box selects it (owner 17 Nov, "First tap in a box"). */
 async function pick(page: Page, box: Locator) {
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
   await page.keyboard.press('Escape')
@@ -77,7 +77,8 @@ async function pick(page: Page, box: Locator) {
     r.setStart(n, 1)
     r.setEnd(n, 2)
     const b = r.getBoundingClientRect()
-    return { x: b.x + 1, y: b.y + b.height / 2 }
+    // The empty part of the box (owner 17 Nov): a tap on the words puts the caret.
+    return { x: ed.getBoundingClientRect().right - 14, y: b.y + b.height / 2 }
   })
   await page.evaluate(({ x, y }) => {
     const el = document.elementFromPoint(x, y)!

@@ -7,7 +7,8 @@ import { narrowBox } from './cBoxesHelpers.ts'
 
 /**
  * Phase 2B, task 2B.3 (switch textbox.v2 ON): select and cursor.
- * TB-01 first tap selects the box, the next puts the caret exactly there;
+ * TB-01 (owner 17 Nov, "First tap in a box") a tap on or near the words puts the
+ * caret exactly there, a tap in the empty part selects the box;
  * TB-02 one selection look; TB-03 one kind of selection at a time; TB-05
  * padding counts as the box; TB-06 tap on paper makes a box under; TB-07 tap
  * on paper deselects; TB-08 first box has the same tab and the menu; TB-09
@@ -125,6 +126,23 @@ const state = (page: Page) =>
     }
   })
 
+/**
+ * A point in the empty part of the box (C30): on the first line, well past its
+ * last letter, inside the right edge (clear of the corner dots).
+ */
+async function emptyPart(page: Page, box: Locator) {
+  const r = await rect(box)
+  const p = await charPoint(page, 3)
+  // A narrow box (its words reach its edge): the room under the last line.
+  const last = await rect(box.locator('.bn-inline-content').last())
+  const below = last.y + last.height
+  const room = r.y + r.height - below
+  return {
+    x: r.x + r.width - 60,
+    y: room >= 24 ? below + room / 2 : p.y,
+  }
+}
+
 /** The screen point at the left edge of character `i` of the box's first text node. */
 const charPoint = (page: Page, i: number, para = 0) =>
   page.evaluate(
@@ -148,7 +166,8 @@ const charPoint = (page: Page, i: number, para = 0) =>
 
 const LINE = 'Alpha beta gamma delta epsilon zeta eta theta iota kappa lambda'
 
-test('TB-01: the first tap selects the box and nothing else; the keyboard stays closed', async ({
+// Owner 17 Nov (replaces "the first tap selects the box"): by where it lands.
+test('TB-01 (owner 17 Nov): a first tap on the words puts the caret there at once; a first tap in the empty part selects the box and nothing else', async ({
   page,
 }) => {
   await start(page, 'TB01')
@@ -161,18 +180,31 @@ test('TB-01: the first tap selects the box and nothing else; the keyboard stays 
     await expect(box).not.toHaveAttribute('data-picked', '')
     const at = await charPoint(page, 12)
     await tapAt(page, at.x, at.y, kind)
+    await expect
+      .poll(
+        async () => (await state(page)).caret,
+        kind + ': caret on the words',
+      )
+      .toBe(true)
+    await expect(box).not.toHaveAttribute('data-picked', '')
+    // The empty part of the (not selected) box selects it; no caret, no keyboard.
+    await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+    await page.waitForTimeout(1000)
+    const e = await emptyPart(page, box)
+    await tapAt(page, e.x, e.y, kind)
     await expect(box).toHaveAttribute('data-picked', '')
     const s = await state(page)
     expect(s.focused, kind + ': no caret, so no keyboard').toBe(false)
   }
 })
 
-test('TB-01: the next tap puts the caret within 1 character, 20 spots, no jump after typing', async ({
+test('TB-01: a tap on the words puts the caret within 1 character, 20 spots, no jump after typing', async ({
   page,
 }) => {
   await start(page, 'TB01b')
   const box = await oneBox(page, [LINE, LINE, LINE].join('|'))
-  const at0 = await charPoint(page, 3)
+  // The empty part selects the box first (owner 17 Nov); the taps then land on its words.
+  const at0 = await emptyPart(page, box)
   await tapAt(page, at0.x, at0.y, 'touch')
   await expect(box).toHaveAttribute('data-picked', '')
   for (let n = 0; n < 20; n++) {
@@ -198,7 +230,8 @@ test('keyboard rule: a Pencil tap that places the caret keeps the keyboard down;
   await start(page, 'KB')
   const box = await oneBox(page, LINE)
   const p = await charPoint(page, 6)
-  await tapAt(page, p.x, p.y, 'touch')
+  const e = await emptyPart(page, box)
+  await tapAt(page, e.x, e.y, 'touch')
   await expect(box).toHaveAttribute('data-picked', '')
   await page.waitForTimeout(800)
   await tapAt(page, p.x, p.y, 'pen')
@@ -216,6 +249,7 @@ test('TB-02: Select tool tap selects the whole box: 1.5 px accent border, no lin
   await start(page, 'TB02')
   const box = await oneBox(page, LINE)
   await tool(page, 'Lasso').click()
+  // Under the Lasso a tap on the words still selects the box.
   const p = await charPoint(page, 5)
   await tapAt(page, p.x, p.y, 'touch')
   await expect(box).toHaveAttribute('data-picked', '')
@@ -259,13 +293,13 @@ test('TB-03: selecting a box clears the text selection elsewhere', async ({
   expect(
     await page.evaluate(() => window.getSelection()!.toString()),
   ).toContain('Main text')
-  const p = await charPoint(page, 5)
+  const p = await emptyPart(page, box)
   await tapAt(page, p.x, p.y, 'touch')
   await expect(box).toHaveAttribute('data-picked', '')
   expect(await page.evaluate(() => window.getSelection()!.toString())).toBe('')
 })
 
-test('TB-05: the padding of a box counts as the box: first tap selects, next puts the caret', async ({
+test('TB-05 (owner 17 Nov): the padding of a box counts as the box: first tap selects, a second in the empty part keeps it selected, a tap on the words puts the caret', async ({
   page,
 }) => {
   await start(page, 'TB05')
@@ -281,6 +315,11 @@ test('TB-05: the padding of a box counts as the box: first tap selects, next put
   expect((await state(page)).focused).toBe(false)
   await page.waitForTimeout(800)
   await tapAt(page, x, y, 'touch', pad)
+  await page.waitForTimeout(500)
+  await expect(box).toHaveAttribute('data-picked', '')
+  expect((await state(page)).focused).toBe(false)
+  const w = await charPoint(page, 5)
+  await tapAt(page, w.x, w.y, 'touch')
   await expect.poll(async () => (await state(page)).focused).toBe(true)
   await expect(page.locator(EXTRA)).toHaveCount(1)
 })
@@ -330,7 +369,8 @@ test('TB-07: a tap on empty paper with a box selected only deselects it', async 
 }) => {
   await start(page, 'TB07')
   const box = await oneBox(page, LINE)
-  const p = await charPoint(page, 5)
+  // The empty part selects the box (owner 17 Nov); the words take the caret.
+  const p = await emptyPart(page, box)
   await tapAt(page, p.x, p.y, 'touch')
   await expect(box).toHaveAttribute('data-picked', '')
   await tapEmptyPaper(page)
@@ -371,7 +411,8 @@ test('TB-09: Delete with a box selected and no caret deletes it; a toast offers 
 }) => {
   await start(page, 'TB09')
   const box = await oneBox(page, LINE)
-  const p = await charPoint(page, 5)
+  // The empty part selects the box (owner 17 Nov); the words take the caret.
+  const p = await emptyPart(page, box)
   await tapAt(page, p.x, p.y, 'touch')
   await expect(box).toHaveAttribute('data-picked', '')
   await page.keyboard.press('Delete')
@@ -415,7 +456,8 @@ test('turning the device with a box selected keeps the box where it was (same as
     const b = await rect(box)
     return { x: (b.x - s.x) / s.width, w: b.width / s.width }
   }
-  const p = await charPoint(page, 5)
+  // The empty part selects the box (owner 17 Nov); the words take the caret.
+  const p = await emptyPart(page, box)
   await tapAt(page, p.x, p.y, 'touch')
   await expect(box).toHaveAttribute('data-picked', '')
   const before = await frac()

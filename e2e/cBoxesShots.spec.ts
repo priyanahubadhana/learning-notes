@@ -9,6 +9,7 @@ import {
   pick,
   start,
   tapOut,
+  tapEmptyPart,
   tapTextEnd,
 } from './cBoxesHelpers.ts'
 
@@ -79,7 +80,7 @@ for (const [tname, theme] of THEMES)
       await expect(a).not.toHaveAttribute('data-picked', '')
       await page.screenshot({ path: file('3-none') })
       // A phone has no frame strips: the first tap on a box's text selects it.
-      if (sname === 'phone') await tapTextEnd(page, a)
+      if (sname === 'phone') await tapEmptyPart(page, a)
       else await pick(page, a)
       await expect(a).toHaveAttribute('data-picked', '')
       await expect(a).not.toHaveAttribute('data-typing', '')

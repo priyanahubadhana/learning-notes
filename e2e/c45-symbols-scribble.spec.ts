@@ -174,9 +174,15 @@ const caretIn = (page: Page) =>
 
 const boxText = (box: Locator) => box.locator('.bn-editor').innerText()
 
-/** The first tap picks the box; the next run starts fresh. */
+/**
+ * A tap in the box's empty part picks the box; the next run starts fresh.
+ * (Owner 17 Nov, "First tap in a box": a first tap on the words puts the
+ * caret there, so the box is picked from its empty part.)
+ */
 async function pickBox(page: Page, box: Locator) {
-  await realPen(page, [await charPoint(page, 0, 'left')])
+  const r = await rect(box)
+  const c = await charPoint(page, 0, 'left')
+  await realPen(page, [{ x: r.x + r.width - 60, y: c.y }])
   await expect(box).toHaveAttribute('data-picked', '')
   await page.waitForTimeout(RUN_APART)
 }

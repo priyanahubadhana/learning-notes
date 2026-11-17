@@ -346,6 +346,15 @@ export function boxShift(dom: HTMLElement, tool: string): number {
   const box = dom.closest('[data-paper-box]')
   if (!box || (tool === 'text' && !textFirstTap.on)) return 0
   if (box.getAttribute('data-paper-box') === 'main') return 0
+  // C30 (owner 17 Nov): a box with the caret in it (or its words selected
+  // by taps, which keep the typing look) is active already.
+  if (
+    tool === 'text' &&
+    isOn('textbox.v2') &&
+    (dom.contains(dom.ownerDocument.activeElement) ||
+      box.hasAttribute('data-typing'))
+  )
+    return 0
   return box.hasAttribute('data-picked') ? 0 : 1
 }
 
@@ -365,12 +374,59 @@ export function tapLevel(
   return count === 1 ? 1 - shift : count
 }
 
+/**
+ * C30 (owner 17 Nov): is (x, y) on a written line of the editor, or up to about
+ * 1.75 letters (measured in that line's font size) before or past its words?
+ */
+export function nearText(dom: HTMLElement, x: number, y: number): boolean {
+  const range = dom.ownerDocument.createRange()
+  for (const el of dom.querySelectorAll<HTMLElement>('.bn-inline-content')) {
+    const st = getComputedStyle(el)
+    const fs = parseFloat(st.fontSize) || 16
+    const lh = parseFloat(st.lineHeight) || fs * 1.5
+    // A letter is about 0.6 em wide: 1.75 letters is about 1.05 em.
+    const reach = 1.05 * fs
+    range.selectNodeContents(el)
+    for (const r of range.getClientRects()) {
+      if (r.width === 0 || r.height === 0) continue
+      if (Math.abs(y - (r.top + r.bottom) / 2) > lh / 2) continue
+      if (x >= r.left - reach && x <= r.right + reach) return true
+    }
+  }
+  return false
+}
+
+/**
+ * C30 (switch textbox.v2, Text tool): will a first tap here put the caret in
+ * the box at once? On or near the words of a box (not the page's first) that
+ * is not selected, and not on a link (a link tap selects the box, as before).
+ */
+export function firstTapCaret(
+  target: Element | null,
+  x: number,
+  y: number,
+): boolean {
+  if (!isOn('textbox.v2') || activeTool.get() !== 'text') return false
+  const dom = target?.closest<HTMLElement>('.ProseMirror')
+  return (
+    !!dom &&
+    !!dom.closest('[data-paper-box]:not([data-paper-box="main"])') &&
+    !target?.closest('a') &&
+    nearText(dom, x, y)
+  )
+}
+
 /** Is this editor in a paper box that is picked now? */
 const isPicked = (dom: HTMLElement): boolean =>
   !!dom.closest('[data-paper-box][data-picked]')
 
 /** The browser's own mouse events of a box-selecting tap are cancelled. */
-function swallowCaret(dom: HTMLElement, hit: EventTarget | null) {
+function swallowCaret(
+  dom: HTMLElement,
+  hit: EventTarget | null,
+  /** C30: only the lift and click on a link are held (the caret is placed). */
+  linksOnly = false,
+) {
   const doc = dom.ownerDocument
   const stop = (ev: Event) => {
     // Why: the tap's own mouse events land in this editor (Safari may move
@@ -379,10 +435,13 @@ function swallowCaret(dom: HTMLElement, hit: EventTarget | null) {
     // bar, its ⋯ list) answers at once.
     const to = ev.target instanceof Node ? ev.target : null
     if (to && !dom.contains(to) && to !== hit) return
+    if (linksOnly && !(to instanceof Element && to.closest('a'))) return
     ev.preventDefault()
     ev.stopPropagation()
   }
-  const names = ['mousedown', 'mouseup', 'click']
+  const names = linksOnly
+    ? ['mouseup', 'click']
+    : ['mousedown', 'mouseup', 'click']
   const off = () => {
     window.clearTimeout(timer)
     for (const n of names) doc.removeEventListener(n, stop, true)
@@ -425,6 +484,8 @@ export function watchTapSelect(
     tool: string
     /** Sweep 2B: the press landed on a selection handle. */
     handle?: boolean
+    /** C30: what the first tap does, by where it landed. */
+    first?: 'caret' | 'box'
   }
   const strictFor = (tool: string) => tool === 'text' && textFirstTap.on
   let down: Tap | null = null
@@ -550,7 +611,33 @@ export function watchTapSelect(
     // a tap on the words under it, like any other.
     if (handle && count >= 2)
       (e as PointerEvent & { [HANDLE_TAP]?: boolean })[HANDLE_TAP] = true
-    const shift = count > 1 && last ? last.shift : boxShift(dom, tool)
+    let shift = count > 1 && last ? last.shift : boxShift(dom, tool)
+    // C30 (owner 17 Nov, switch textbox.v2, Text tool): the first tap in a
+    // box goes by where it lands. On or near the words of a box that is not
+    // selected: the caret, at once. In the empty part of a selected box: it
+    // stays selected. The word/line count still starts with the next tap.
+    let first: 'caret' | 'box' | undefined
+    if (
+      isOn('textbox.v2') &&
+      tool === 'text' &&
+      count === 1 &&
+      dom.closest('[data-paper-box]:not([data-paper-box="main"])')
+    ) {
+      const near = nearText(dom, e.clientX, e.clientY)
+      // A tap on a link keeps the old way (it selects the box and opens no
+      // link; the caret and the link follow with the next tap).
+      const onLink = target instanceof Element && !!target.closest('a')
+      if (shift >= 1 && near && !onLink) first = 'caret'
+      else if (
+        shift === 0 &&
+        !near &&
+        isPicked(dom) &&
+        !dom.contains(doc.activeElement)
+      ) {
+        first = 'box'
+        shift = 1
+      }
+    }
     down = {
       id: e.pointerId,
       x: e.clientX,
@@ -560,8 +647,14 @@ export function watchTapSelect(
       shift,
       tool,
       handle: !!handle,
+      first,
     }
-    const level = tapLevel(count, shift, strictFor(tool))
+    const level =
+      first === 'caret'
+        ? 1
+        : first === 'box'
+          ? 0
+          : tapLevel(count, shift, strictFor(tool))
     // C5 (switch textbox.v2): a Pencil caret tap in a box is placed here
     // (onUp); WebKit's own mousedown would put it on the wrong side of a wide
     // glyph, so the tap's mouse events are held back too.
@@ -580,6 +673,9 @@ export function watchTapSelect(
     } else if (e.pointerType === 'pen' && count >= 2 && e.cancelable) {
       e.preventDefault()
     }
+    // C30: a first tap that puts the caret in a box opens no link: Safari may
+    // send the tap's click to a link next to the words.
+    if (first === 'caret') swallowCaret(dom, e.target, true)
   }
   // Safari reports the Pencil as a touch of type "stylus": its own double
   // tap (and Scribble's dot) start there, so that touch is cancelled too.
@@ -625,7 +721,12 @@ export function watchTapSelect(
       return
     }
     const count = start.count
-    const level = tapLevel(count, start.shift, strictFor(start.tool))
+    const level =
+      start.first === 'caret'
+        ? 1
+        : start.first === 'box'
+          ? 0
+          : tapLevel(count, start.shift, strictFor(start.tool))
     last = { ...start, at: stampOf(e), x: e.clientX, y: e.clientY }
     // A lone tap on a handle starts a run but moves no caret (as before).
     if (start.handle && level === 1) return

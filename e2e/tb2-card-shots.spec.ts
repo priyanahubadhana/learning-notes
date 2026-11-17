@@ -59,7 +59,7 @@ async function pick(page: Page) {
           }),
         )
     },
-    { x: r.x + 30, y: r.y + r.height / 2 },
+    { x: r.x + r.width - 30, y: r.y + r.height / 2 },
   )
   await expect(box).toHaveAttribute('data-picked', '')
   await page.waitForTimeout(500)

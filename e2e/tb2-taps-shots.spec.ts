@@ -138,10 +138,10 @@ async function wordShots(
       }, WORD())
     const at = await where()
     expect(at).not.toBeNull()
-    // First tap selects the box; then a double-tap selects the word.
+    // First tap (owner 17 Nov) puts the caret on the words; then a double-tap selects the word.
     await send(page, 'pointerdown', at!.x, at!.y)
     await send(page, 'pointerup', at!.x, at!.y)
-    await expect(box).toHaveAttribute('data-picked', '')
+    await expect(box.locator('.bn-editor')).toBeFocused()
     await page.waitForTimeout(700)
     // The box may have moved when it was selected: measure the word again.
     const at2 = (await where())!

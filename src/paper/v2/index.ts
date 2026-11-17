@@ -3,7 +3,7 @@ import {
   PRIORITY,
   type RouterTargets,
 } from '../../app/input/eventRouter'
-import { PICK_BOX, textFirstTap } from '../../editor/tapSelect'
+import { PICK_BOX, nearText, textFirstTap } from '../../editor/tapSelect'
 import { activeTool } from '../../app/tools/main/mainTools'
 import { selection } from '../../app/selection/store'
 import { clearBoxes, inputModeFor, isTap, selectBoxes } from './boxSelection'
@@ -122,6 +122,12 @@ export function installBoxV2(): () => void {
       `[data-paper-box="${CSS.escape(t.box)}"]`,
     )
     if (!box) return
+    // C30 (owner 17 Nov): a tap in the padding right next to the words puts
+    // the caret there, picked or not; anywhere else in the empty part, an
+    // unpicked box is selected and a picked one stays selected.
+    const ed = box.querySelector<HTMLElement>('.ProseMirror')
+    if (ed && nearText(ed, e.clientX, e.clientY))
+      return placeCaretNearest(box, e.clientX, e.clientY)
     if (t.kind === 'select') {
       // One selection, one kind: words selected elsewhere stop being selected.
       ;(document.activeElement as HTMLElement | null)?.blur?.()
@@ -131,7 +137,7 @@ export function installBoxV2(): () => void {
       )
       return
     }
-    placeCaretNearest(box, e.clientX, e.clientY)
+    // A picked box: its empty part keeps it selected (no caret).
   }
 
   const onCancel = (e: PointerEvent) => {

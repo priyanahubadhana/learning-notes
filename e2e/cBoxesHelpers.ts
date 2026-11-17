@@ -222,6 +222,17 @@ export async function tapTextEnd(page: Page, box: Locator) {
   await page.mouse.click(t.x + t.width - 1, t.y + t.height / 2)
 }
 
+/**
+ * A tap in the empty part of a box, on its first line, near its right edge
+ * (owner 17 Nov, "First tap in a box": it selects the box; a tap on the words
+ * puts the caret).
+ */
+export async function tapEmptyPart(page: Page, box: Locator) {
+  const t = await rect(box.locator('.bn-inline-content').first())
+  const b = await rect(box)
+  await page.mouse.click(b.x + b.width - 16, t.y + t.height / 2)
+}
+
 /** Gives the boxes of the page called `title` these colours (in page order), then reloads. */
 export async function colourBoxes(
   page: Page,

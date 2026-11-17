@@ -29,7 +29,7 @@ async function theme(page: Page, th: string) {
   await expect(page.locator('html')).toHaveAttribute('data-theme', th)
 }
 
-/** Nothing selected, then a finger tap on the words of the box selects it. */
+/** Nothing selected, then a finger tap in the empty part of the box selects it (owner 17 Nov). */
 async function pick(page: Page) {
   const box = page.locator(EXTRA)
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
@@ -54,7 +54,7 @@ async function pick(page: Page) {
           }),
         )
     },
-    { x: r.x + 30, y: r.y + r.height / 2 },
+    { x: r.x + r.width - 30, y: r.y + r.height / 2 },
   )
   await expect(box).toHaveAttribute('data-picked', '')
   await page.waitForTimeout(700)

@@ -179,10 +179,55 @@ export function usePaperBoxes(
         }
         runTask(removeIfEmptyBox(db, pageId, id).then(() => {}))
       }
+      // Owner 18 Nov (textbox.v2): an empty box goes at once when the user taps
+      // away (the caret goes nowhere in particular): no wait, no flash.
+      const to = e.relatedTarget as Element | null
+      if (
+        isOn('textbox.v2') &&
+        !to?.closest?.('button, input, select, textarea, [role="menu"]')
+      )
+        return void vanishNow(id)
       window.setTimeout(check, 600)
     }
+    /**
+     * Owner 18 Nov: the box is hidden on the spot (the next frame), the store
+     * removes it right after; if it turns out to hold something (ink the page
+     * does not show yet) it comes back.
+     */
+    const vanishNow = (id: string, keepPicked = true) => {
+      const live = document.querySelector<HTMLElement>(
+        '[data-paper-box="' + CSS.escape(id) + '"]',
+      )
+      if (!live || (keepPicked && live.hasAttribute('data-picked'))) return
+      const ed = live.querySelector('.bn-editor')
+      if (
+        (ed?.textContent ?? '').trim() !== '' ||
+        live.querySelector(
+          '.bn-block-content:not([data-content-type="paragraph"])',
+        )
+      )
+        return
+      live.style.display = 'none'
+      runTask(
+        removeIfEmptyBox(db, pageId, id).then((gone) => {
+          if (!gone && live.isConnected) live.style.display = ''
+        }),
+      )
+    }
+    // Picking another tool also ends an empty box at once.
+    const offTool = isOn('textbox.v2')
+      ? activeTool.subscribe(() => {
+          for (const b of document.querySelectorAll(BOX)) {
+            const id = b.getAttribute('data-paper-box')
+            if (id) vanishNow(id)
+          }
+        })
+      : undefined
     document.addEventListener('focusout', out, true)
-    return () => document.removeEventListener('focusout', out, true)
+    return () => {
+      offTool?.()
+      document.removeEventListener('focusout', out, true)
+    }
   }, [db, pageId, editable])
 
   // Cut and Delete of a page-wide selection (Ctrl+A, third step): every box

@@ -96,7 +96,7 @@ test('owner 18 Nov: an empty page shows its hint and no frame until the first bo
   await expect(page.locator('[data-paper-hint]')).toBeVisible()
   await expect(page.locator('[data-main-frame]')).toHaveCount(0)
   const r = await rect(page.locator(MAIN))
-  await page.mouse.click(r.x + r.width / 2, r.y + 8)
+  await page.mouse.click(r.x + r.width - 80, r.y + 8)
   await page.waitForTimeout(500)
   await expect(page.locator('[data-main-frame]')).toBeVisible()
 })
@@ -107,7 +107,7 @@ test('owner 18 Nov: typed letters do nothing while the first box is selected; Es
   await start(page, 'KeysMain', false, PRESET_2B)
   const main = page.locator(MAIN)
   const r = await rect(main)
-  await page.mouse.click(r.x + r.width / 2, r.y + 8)
+  await page.mouse.click(r.x + r.width - 80, r.y + 8)
   await expect(chrome(page).locator('[data-box-grip]')).toBeVisible()
   await page.keyboard.type('hello')
   await page.waitForTimeout(400)
@@ -135,3 +135,164 @@ test('owner 18 Nov: typed letters do nothing while another box is selected; Dele
   await page.keyboard.press('Delete')
   await expect(page.locator(EXTRA)).toHaveCount(0)
 })
+
+/* ---- Review round (owner 18 Nov) ---- */
+
+test('review: the empty page hint sits inside the first box, on its line', async ({
+  page,
+}) => {
+  await start(page, 'HintIn', false, PRESET_2B)
+  await page.waitForTimeout(700)
+  const b = await rect(page.locator(MAIN))
+  const h = await rect(page.locator('[data-paper-hint]'))
+  expect(h.y).toBeGreaterThanOrEqual(b.y - 1)
+  expect(h.y + h.height).toBeLessThanOrEqual(b.y + b.height + 1)
+  expect(h.x).toBeGreaterThanOrEqual(b.x - 1)
+  expect(h.x).toBeLessThan(b.x + 20)
+  // Still no frame on an empty page.
+  await expect(page.locator('[data-main-frame]')).toHaveCount(0)
+})
+
+test('owner 18 Nov, hint tap: a tap on or near the hint gives the caret; a tap clearly away selects the box', async ({
+  page,
+}) => {
+  await start(page, 'HintTap', false, PRESET_2B)
+  await page.waitForTimeout(700)
+  const main = page.locator(MAIN)
+  const b = await rect(main)
+  const h = await rect(page.locator('[data-paper-hint]'))
+  const typing = () => main.evaluate((m) => m.contains(document.activeElement))
+  await page.mouse.click(h.x + h.width / 2, h.y + h.height / 2)
+  await page.waitForTimeout(400)
+  expect(await typing()).toBe(true)
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(500)
+  // Just past the hint's end (about 1.5 letters): still near.
+  await page.mouse.click(h.x + h.width + 12, h.y + h.height / 2)
+  await page.waitForTimeout(400)
+  expect(await typing()).toBe(true)
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(500)
+  // Clearly away: selects, no caret.
+  await page.mouse.click(b.x + b.width - 30, h.y + h.height / 2)
+  await expect(chrome(page).locator('[data-box-grip]')).toBeVisible()
+  expect(await typing()).toBe(false)
+})
+
+test('review: the page tabs keep their ⋯ beside them, not wrapped under', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 834, height: 1194 })
+  await start(page, 'TabsRow', false, PRESET_2B)
+  await page.waitForTimeout(700)
+  const tabs = await rect(page.locator('[data-page-tabs]'))
+  const more = await rect(page.locator('[data-page-tabs-menu]'))
+  expect(more.y).toBeLessThan(tabs.y + tabs.height)
+  expect(more.x).toBeGreaterThan(tabs.x + tabs.width - 2)
+})
+
+test('review: a selected first box hides the block handle (⠿ and +)', async ({
+  page,
+}) => {
+  await start(page, 'Handle', false, PRESET_2B)
+  const main = page.locator(MAIN)
+  await page.locator(MAIN + ' .bn-editor').click({ position: { x: 6, y: 8 } })
+  await page.keyboard.type('Hello world')
+  await page.waitForTimeout(500)
+  await page.mouse.move(300, 300)
+  await page.locator(MAIN + ' .bn-inline-content').hover()
+  await page.waitForTimeout(400)
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  await page.keyboard.press('Escape')
+  const r = await rect(main)
+  await page.mouse.click(r.x + r.width - 80, r.y + 8)
+  await expect(chrome(page).locator('[data-box-grip]')).toBeVisible()
+  await page.locator(MAIN + ' .bn-inline-content').hover()
+  await page.waitForTimeout(400)
+  const visible = await page.evaluate(
+    () =>
+      [...document.querySelectorAll('.bn-side-menu')].filter(
+        (e) => getComputedStyle(e).display !== 'none',
+      ).length,
+  )
+  expect(visible).toBe(0)
+})
+
+/** Add an empty box under the first one (Text tool) and return it. */
+async function emptyBox(page: Page) {
+  const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
+  const main = await rect(page.locator(MAIN))
+  await page.mouse.click(sheet.x + sheet.width * 0.3, main.y + main.height + 60)
+  const box = page.locator(EXTRA)
+  await expect(box).toHaveCount(1)
+  await expect(box.locator('.bn-editor')).toBeFocused()
+  return box
+}
+
+test('owner 18 Nov: an empty box is gone on the very next frame when the caret leaves it', async ({
+  page,
+}) => {
+  await start(page, 'VanishTap', true)
+  await emptyBox(page)
+  const gone = await page.evaluate(async () => {
+    const box = document.querySelector(
+      '[data-paper-box]:not([data-paper-box="main"])',
+    ) as HTMLElement
+    ;(document.activeElement as HTMLElement).blur()
+    await new Promise((r) => requestAnimationFrame(() => r(null)))
+    return !box.isConnected || getComputedStyle(box).display === 'none'
+  })
+  expect(gone).toBe(true)
+  await expect(page.locator(EXTRA)).toHaveCount(0)
+})
+
+test('owner 18 Nov: an empty box is gone on the very next frame when another tool is picked', async ({
+  page,
+}) => {
+  await start(page, 'VanishTool', true)
+  await emptyBox(page)
+  const gone = await page.evaluate(async () => {
+    const box = document.querySelector(
+      '[data-paper-box]:not([data-paper-box="main"])',
+    ) as HTMLElement
+    ;(
+      document.querySelector('[data-bar-tool="pen"]') as HTMLElement | null
+    )?.click()
+    await new Promise((r) => requestAnimationFrame(() => r(null)))
+    return !box.isConnected || getComputedStyle(box).display === 'none'
+  })
+  expect(gone).toBe(true)
+})
+
+test('owner 18 Nov: a box with a word in it stays when the caret leaves it', async ({
+  page,
+}) => {
+  await start(page, 'VanishKeep', true)
+  const box = await emptyBox(page)
+  await page.keyboard.type('Stay')
+  await page.waitForTimeout(500)
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  await page.waitForTimeout(1500)
+  await expect(page.locator(EXTRA)).toHaveCount(1)
+  await expect(box).toContainText('Stay')
+})
+
+for (const name of ['pen', 'highlighter', 'eraser', 'lasso'])
+  test(`owner 18 Nov: with the ${name} tool a tap below the last box makes no box`, async ({
+    page,
+  }) => {
+    await start(page, 'Only text ' + name, true)
+    const tool = page.locator(`[data-bar-tool="${name}"]`).first()
+    await tool.click()
+    await page.waitForTimeout(400)
+    const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
+    const main = await rect(page.locator(MAIN))
+    await page.mouse.click(
+      sheet.x + sheet.width * 0.3,
+      main.y + main.height + 80,
+    )
+    await page.waitForTimeout(700)
+    await expect(page.locator(EXTRA)).toHaveCount(0)
+  })

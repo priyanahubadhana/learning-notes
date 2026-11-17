@@ -2552,8 +2552,23 @@ export function PaperFrame({
                 >
                   <p
                     data-paper-hint
-                    className="absolute inset-x-0 mx-auto w-max max-w-[80%] text-center text-sm text-muted"
-                    style={{ top: box.y * k + step * 5 }}
+                    className={
+                      isOn('textbox.v2')
+                        ? 'absolute text-sm text-muted'
+                        : 'absolute inset-x-0 mx-auto w-max max-w-[80%] text-center text-sm text-muted'
+                    }
+                    // C33 review (18 Nov): the hint sits inside the first box, on
+                    // its own line, where the caret goes (not below the frame).
+                    style={
+                      isOn('textbox.v2')
+                        ? {
+                            left: mainShown.x * k,
+                            top: mainShown.y * k + 3,
+                            maxWidth: mainShown.w * k,
+                            lineHeight: '24px',
+                          }
+                        : { top: box.y * k + step * 5 }
+                    }
                   >
                     {t(
                       isOn('textbox.v2') ? 'textTool.hintV2' : 'textTool.hint',
@@ -2597,6 +2612,11 @@ export function PaperFrame({
             // Owner Q-3: a deleted first box with no box after it: the page shows
             // no first box (its one empty line stays only as the page's anchor).
             data-main-gone={box.gone && !flat ? '' : undefined}
+            // C33 review: a selected first box hides the block handle (⠿ and +),
+            // which lay over its left dot.
+            data-main-picked={
+              mainPicked && !mainFocus && isOn('textbox.v2') ? '' : undefined
+            }
             inert={box.gone && !flat ? true : undefined}
             className={
               flat

@@ -1381,3 +1381,12 @@ html[data-box-drag] {
   height: 0;
   overflow: hidden;
 }
+
+/* C33 review (18 Nov, textbox.v2): a selected box (dots showing) hides the block
+   handle (⠿ and +): it lay over the box's left middle dot. A tap on the words
+   brings it back with the caret. */
+[data-paper-box][data-picked] .bn-side-menu,
+[data-paper-box][data-main-picked] .bn-side-menu,
+[data-paper][data-box-v2]:has([data-picked], [data-main-picked]) .bn-side-menu {
+  display: none;
+}

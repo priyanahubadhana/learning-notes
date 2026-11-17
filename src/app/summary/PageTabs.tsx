@@ -45,12 +45,13 @@ export function Segments<T extends PageTab = PageTab>({
     ...extras.map((id) => ({ id, label: EXTRA_TAB_LABEL[id] })),
   ]
   return (
-    <div className={`flex flex-wrap items-center gap-1 ${className}`}>
+    // Why: a wrapping row let the ⋯ drop under the tabs, near the first box (C33 review). The tabs scroll sideways instead; the ⋯ stays beside them.
+    <div className={`flex flex-nowrap items-center gap-1 ${className}`}>
       <div
         role="group"
         aria-label={t('summary.seg.label')}
         data-page-tabs
-        className="inline-flex max-w-full flex-nowrap overflow-x-auto rounded-xl border border-line bg-soft p-0.5 [scrollbar-width:none]"
+        className="inline-flex min-w-0 max-w-full flex-nowrap overflow-x-auto rounded-xl border border-line bg-soft p-0.5 [scrollbar-width:none]"
       >
         {shown.map(({ id, label }) => (
           <button
@@ -72,7 +73,7 @@ export function Segments<T extends PageTab = PageTab>({
           aria-haspopup="menu"
           data-page-tabs-menu
           onClick={(e) => setMenu(e.currentTarget.getBoundingClientRect())}
-          className="min-h-9 min-w-9 any-pointer-coarse:min-h-11 any-pointer-coarse:min-w-11 rounded-lg text-lg text-ink-soft hover:bg-hover hover:text-ink"
+          className="min-h-9 min-w-9 shrink-0 any-pointer-coarse:min-h-11 any-pointer-coarse:min-w-11 rounded-lg text-lg text-ink-soft hover:bg-hover hover:text-ink"
         >
           ⋯
         </button>

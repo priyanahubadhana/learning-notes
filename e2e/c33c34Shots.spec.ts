@@ -37,7 +37,7 @@ for (const [tname, theme] of [
     await page.screenshot({ path: `${out}/1-empty-${tname}.png` })
     const r = await rect(page.locator(MAIN))
     // Away from the caret spot: selected, no caret (C34).
-    await page.mouse.click(r.x + r.width / 2, r.y + 12)
+    await page.mouse.click(r.x + r.width / 2, r.y + 1)
     await expect(
       page.locator('[data-main-chrome] [data-box-grip]'),
     ).toBeVisible()
@@ -53,3 +53,15 @@ for (const [tname, theme] of [
     await page.waitForTimeout(700)
     await page.screenshot({ path: `${out}/2-three-lines-${tname}.png` })
   })
+
+// Pencil mode (the Lasso is the first tool): the empty page keeps its one-line box and no frame.
+test('C33/C34 pictures: Pencil mode, empty page', async ({ page }, info) => {
+  const out = `screenshots/c33-c34/${info.project.name}`
+  mkdirSync(out, { recursive: true })
+  await startInMode(page, 'pencil')
+  await start(page, 'Shots', false, FLAGS)
+  await page.waitForTimeout(900)
+  await page.screenshot({ path: `${out}/4-pencil-empty-light.png` })
+  const r = await rect(page.locator(MAIN))
+  expect(r.height).toBeLessThan(60)
+})

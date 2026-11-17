@@ -140,7 +140,7 @@ for (const how of ['pen', 'finger'] as const) {
     await start(page, `MainEmpty ${how}`, false, PRESET_2B)
     const main = page.locator(MAIN)
     const r = await rect(main)
-    await tapAt(page, r.x + r.width / 2, r.y + 12, how)
+    await tapAt(page, r.x + r.width - 80, r.y + 12, how)
     await expect(chrome(page).locator('[data-box-grip]')).toBeVisible()
     expect(await typingIn(main)).toBe(false)
     await page.keyboard.press('Escape')

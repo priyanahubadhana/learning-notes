@@ -20,6 +20,7 @@ import type { ChoiceRequest, ToastAction } from './appUi'
 import { aboveTabBar } from './aboveTabBar'
 import { toastBottom } from './toastTiming'
 import { Glyph, Icon } from './tools/icons'
+import { placeClear, type Rect } from './menuPlace'
 
 /** Small UI building blocks shared across features. */
 
@@ -214,9 +215,15 @@ export function MenuPopover({
   label,
   opener,
   onDone,
+  keepClear,
+  within,
 }: {
   anchor: DOMRect
   items: MenuItem[]
+  /** C23: the menu never covers this (a box and its bar). */
+  keepClear?: Rect | Rect[]
+  /** C23: the menu never crosses these left/right edges (a page frame). */
+  within?: { left: number; right: number }
   onClose: () => void
   /** Accessible name of the list (a submenu is named after its item). */
   label?: string
@@ -249,7 +256,16 @@ export function MenuPopover({
     const ox = vv?.offsetLeft ?? 0
     const oy = vv?.offsetTop ?? 0
     const room = vh - 16
-    const h = Math.min(el.scrollHeight, room)
+    // The card's own height, as if nothing scrolled (the rows scroll inside it).
+    const natural = [...el.children].reduce(
+      (n, c) =>
+        n +
+        (c.hasAttribute('data-menu-rows')
+          ? c.scrollHeight
+          : (c as HTMLElement).offsetHeight),
+      8,
+    )
+    const h = Math.min(natural, room)
     const w = el.offsetWidth
     let y: number
     if (nested) y = anchor.top
@@ -257,12 +273,34 @@ export function MenuPopover({
     else if (anchor.top - 6 - h >= oy + 8) y = anchor.top - 6 - h
     else y = oy + vh - h - 8
     y = Math.max(oy + 8, Math.min(y, oy + vh - h - 8))
-    const x = Math.max(
+    const x0 = Math.max(
       ox + 8,
       Math.min(anchor.left + (nested ? 12 : 0), ox + vw - w - 8),
     )
-    el.style.left = x + 'px'
-    el.style.top = y + 'px'
+    // A menu opened from the side panel stays on the panel's side of its border.
+    const panel = nested
+      ? null
+      : document
+          .elementFromPoint(
+            anchor.left + anchor.width / 2,
+            anchor.top + anchor.height / 2,
+          )
+          ?.closest('aside')
+    const pr = panel?.getBoundingClientRect()
+    const lim =
+      within ??
+      (pr && pr.width >= w + 16
+        ? { left: pr.left, right: pr.right }
+        : undefined)
+    const spot = placeClear(
+      { w, h },
+      { x: x0, y },
+      { left: ox, top: oy, right: ox + vw, bottom: oy + vh },
+      lim,
+      keepClear,
+    )
+    el.style.left = spot.x + 'px'
+    el.style.top = spot.y + 'px'
     el.style.maxHeight = room + 'px'
   })
   // Esc gives the focus back to the button that opened the menu.
@@ -297,6 +335,71 @@ export function MenuPopover({
     return () => document.removeEventListener('keydown', onKey)
   }, [])
 
+  const row = (item: MenuItem) => (
+    <button
+      key={item.label}
+      type="button"
+      role={item.checked !== undefined ? 'menuitemradio' : 'menuitem'}
+      aria-checked={item.checked}
+      aria-haspopup={item.submenu ? 'menu' : undefined}
+      aria-expanded={item.submenu ? sub?.item === item : undefined}
+      disabled={item.disabled}
+      onClick={(e) => {
+        if (item.submenu) {
+          const el = e.currentTarget
+          setSub(
+            sub?.item === item
+              ? null
+              : { item, at: el.getBoundingClientRect(), el },
+          )
+          return
+        }
+        onClose()
+        onDone?.()
+        item.onSelect()
+      }}
+      className={`flex min-h-11 w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none enabled:hover:bg-hover enabled:focus:bg-hover disabled:text-muted ${
+        item.danger ? 'text-danger' : ''
+      }`}
+    >
+      <span
+        aria-hidden
+        className={`w-5 text-center ${item.danger ? 'text-danger' : 'text-muted'}`}
+      >
+        {item.checked !== undefined ? (
+          item.checked ? (
+            <Icon name="check" size={16} />
+          ) : (
+            ''
+          )
+        ) : (
+          <Glyph icon={item.icon} />
+        )}
+      </span>
+      {item.swatch && (
+        <span
+          aria-hidden
+          className="size-3 shrink-0 rounded-full"
+          style={{ background: item.swatch }}
+        />
+      )}
+      <span className="flex-1">
+        {item.label}
+        {item.description && (
+          <span className="block text-xs text-muted">{item.description}</span>
+        )}
+      </span>
+      {keyName(item.hint) && (
+        <span className="text-xs text-muted">{keyName(item.hint)}</span>
+      )}
+      {item.submenu && (
+        <span aria-hidden className="text-muted">
+          ▸
+        </span>
+      )}
+    </button>
+  )
+
   // In the body, not in the sidebar: a scrolling sidebar would hide it behind the page.
   return createPortal(
     <div
@@ -314,80 +417,21 @@ export function MenuPopover({
         top,
         // A long menu scrolls inside the screen instead of running off it.
         maxHeight: window.innerHeight - top - 8,
+        // C25: above every scroll bar.
+        zIndex: 'var(--z-pop)',
       }}
-      className={`fixed z-50 ${nested ? 'w-64' : 'w-52'} glass overflow-y-auto rounded-xl p-1 text-ink`}
+      className={`fixed ${nested ? 'w-64' : 'w-52'} glass flex flex-col rounded-xl p-1 text-ink`}
     >
       <PopupHeader onClose={onDone ?? onClose} />
-      {/* Destructive items are red and come last. */}
-      {[
-        ...items.filter((i) => !i.danger || i.inPlace),
-        ...items.filter((i) => i.danger && !i.inPlace),
-      ].map((item) => (
-        <button
-          key={item.label}
-          type="button"
-          role={item.checked !== undefined ? 'menuitemradio' : 'menuitem'}
-          aria-checked={item.checked}
-          aria-haspopup={item.submenu ? 'menu' : undefined}
-          aria-expanded={item.submenu ? sub?.item === item : undefined}
-          disabled={item.disabled}
-          onClick={(e) => {
-            if (item.submenu) {
-              const el = e.currentTarget
-              setSub(
-                sub?.item === item
-                  ? null
-                  : { item, at: el.getBoundingClientRect(), el },
-              )
-              return
-            }
-            onClose()
-            onDone?.()
-            item.onSelect()
-          }}
-          className={`flex min-h-11 w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none enabled:hover:bg-hover enabled:focus:bg-hover disabled:text-muted ${
-            item.danger ? 'text-danger' : ''
-          }`}
-        >
-          <span
-            aria-hidden
-            className={`w-5 text-center ${item.danger ? 'text-danger' : 'text-muted'}`}
-          >
-            {item.checked !== undefined ? (
-              item.checked ? (
-                <Icon name="check" size={16} />
-              ) : (
-                ''
-              )
-            ) : (
-              <Glyph icon={item.icon} />
-            )}
-          </span>
-          {item.swatch && (
-            <span
-              aria-hidden
-              className="size-3 shrink-0 rounded-full"
-              style={{ background: item.swatch }}
-            />
-          )}
-          <span className="flex-1">
-            {item.label}
-            {item.description && (
-              <span className="block text-xs text-muted">
-                {item.description}
-              </span>
-            )}
-          </span>
-          {keyName(item.hint) && (
-            <span className="text-xs text-muted">{keyName(item.hint)}</span>
-          )}
-          {item.submenu && (
-            <span aria-hidden className="text-muted">
-              ▸
-            </span>
-          )}
-        </button>
-      ))}
+      {/* Destructive items are red and come last, in a footer that never scrolls away (C23). */}
+      <div data-menu-rows className="min-h-0 flex-1 overflow-y-auto">
+        {items.filter((i) => !i.danger || i.inPlace).map(row)}
+      </div>
+      {items.some((i) => i.danger && !i.inPlace) && (
+        <div data-menu-footer>
+          {items.filter((i) => i.danger && !i.inPlace).map(row)}
+        </div>
+      )}
       {sub?.item.submenu &&
         createPortal(
           <MenuPopover

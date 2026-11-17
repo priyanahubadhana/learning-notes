@@ -8,18 +8,8 @@ import { t } from '../../i18n/t'
 import type { GridInfo } from '../layoutPlan'
 import { BoxMoreList, type MoreRow } from './BoxMoreList'
 import { moveStep, neighbourOf } from './boxOrder'
-import { bottomBar, placeList } from './listPlace'
+import { bottomBar, boxWithBar, frameOfBox, placeList } from './listPlace'
 import { MORE_LIST_W } from './BoxMoreList'
-
-/** The page frame the box lives in: its sheet, else the page's own scroller (a phone). */
-function frameOf(boxEl: Element) {
-  const f =
-    boxEl.closest('[data-paper-sheets]') ??
-    boxEl.closest('[data-page-scroller]')
-  if (!f) return undefined
-  const r = f.getBoundingClientRect()
-  return { left: r.left, right: r.right }
-}
 
 /**
  * TB-30 (switch textbox.v2): the ⋯ list of one box. Both ⋯ buttons open it:
@@ -58,11 +48,11 @@ export default function BoxMoreHost({
   )
   const spot = boxEl
     ? placeList(
-        boxEl.getBoundingClientRect(),
+        boxWithBar(boxEl),
         MORE_LIST_W,
         { width: window.innerWidth, height: window.innerHeight - bottomBar() },
         window.innerHeight / 2,
-        frameOf(boxEl),
+        frameOfBox(boxEl),
       )
     : null
   const menu: AnchoredMenuState = {

@@ -55,3 +55,31 @@ export function bottomBar(): number {
   const top = at?.closest('nav')?.getBoundingClientRect().top
   return top && top < innerHeight ? innerHeight - top : 0
 }
+
+/** The page frame a box lives in: its sheet, else the page's own scroller (a phone). */
+export function frameOfBox(boxEl: Element) {
+  const f =
+    boxEl.closest('[data-paper]')?.querySelector('[data-paper-sheets]') ??
+    document.querySelector('[data-paper-sheets]') ??
+    boxEl.closest('[data-page-scroller]')
+  if (!f) return undefined
+  const r = f.getBoundingClientRect()
+  return { left: r.left, right: r.right }
+}
+
+/** The box and its own bar together: a menu never covers either (C23). */
+export function boxWithBar(boxEl: Element): Box {
+  const r = boxEl.getBoundingClientRect()
+  const u = { left: r.left, right: r.right, top: r.top, bottom: r.bottom }
+  document
+    .querySelectorAll('[data-box-bar-holder], [data-box-bar]')
+    .forEach((b) => {
+      const q = b.getBoundingClientRect()
+      if (!q.width || !q.height) return
+      u.left = Math.min(u.left, q.left)
+      u.right = Math.max(u.right, q.right)
+      u.top = Math.min(u.top, q.top)
+      u.bottom = Math.max(u.bottom, q.bottom)
+    })
+  return u
+}

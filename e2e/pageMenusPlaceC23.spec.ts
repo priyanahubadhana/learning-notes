@@ -211,12 +211,18 @@ test('C23: with little room (a short window) Delete box still shows, the other r
   page,
 }, info) => {
   await start(page, { width: 1180, height: 820 })
-  const card = await openBoxMenu(page)
+  const box = await boxWithText(page)
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   await page.setViewportSize({ width: 1180, height: 430 })
+  await box.scrollIntoViewIfNeeded()
   await page.waitForTimeout(400)
-  await page.locator('[data-box-menu]').first().click({ force: true })
+  const r = (await box.boundingBox())!
+  await page.mouse.click(r.x - 5, r.y + r.height / 2)
+  await page
+    .locator('[data-box-menu], [data-testid="ob-boxmore"]')
+    .first()
+    .click()
   const menu = page.getByRole('menu', { name: 'Box actions' })
-  if (!(await menu.isVisible())) await card.page().keyboard.press('Escape')
   await expect(menu).toBeVisible()
   const d = (await page.locator('[data-box-more="delete"]').boundingBox())!
   const c = (await menu.boundingBox())!

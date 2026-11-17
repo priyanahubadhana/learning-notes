@@ -6,6 +6,7 @@ import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { activeTool } from '../app/tools/main/mainTools'
 import { MenuPopover, type MenuItem } from '../app/ui'
+import { boxWithBar, frameOfBox } from './v2/listPlace'
 import type { LearningNotesDB } from '../core/db'
 import type { GridRow, PaperBox } from '../core/types'
 import { triggerFirstUse } from '../help/firstUse'
@@ -57,6 +58,20 @@ const DOTS: Record<string, string> = {
  */
 /** The time an action starts (a toast's Undo checks nothing newer happened). */
 const stamp = (): number => Date.now()
+const boxEl = (id: string) =>
+  document.querySelector('[data-paper-box="' + CSS.escape(id) + '"]')
+/** C23: the box and its bar, which its menu never covers. */
+const clearOf = (id: string) => {
+  const el = boxEl(id)
+  if (!el) return undefined
+  const r = el.getBoundingClientRect()
+  return [boxWithBar(el), r]
+}
+/** C23: the page frame, whose edge its menu never crosses. */
+const frameOf = (id: string) => {
+  const el = boxEl(id)
+  return el ? frameOfBox(el) : undefined
+}
 
 export function usePaperBoxes(
   db: LearningNotesDB,
@@ -484,6 +499,8 @@ export function usePaperBoxes(
           ) : (
             <MenuPopover
               anchor={menuFor.at}
+              keepClear={clearOf(menuFor.box.id)}
+              within={frameOf(menuFor.box.id)}
               items={items(menuFor.box)}
               onClose={() => setMenuFor(null)}
             />

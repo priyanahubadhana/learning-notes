@@ -328,7 +328,7 @@ test('the box ⋯ list: Group is dimmed and a tap says how to group', async ({
 }) => {
   const { b } = await threeBoxes(page, 'TB32g')
   await pickBox(page, b)
-  await b.locator('[data-box-menu]').click()
+  await b.getByTestId('ob-boxmore').click()
   const row = page.locator('[data-box-more="group"]')
   await expect(row).toBeVisible()
   await expect(row).toHaveAttribute('aria-disabled', 'true')

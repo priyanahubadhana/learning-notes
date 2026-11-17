@@ -155,11 +155,9 @@ test('TB-12 while a box is dragged a tap on another box, the Lasso, a new box, t
   expect(await pen.evaluate((e) => getComputedStyle(e).pointerEvents)).toBe(
     'none',
   )
-  expect(
-    await b
-      .locator('[data-box-menu]')
-      .evaluate((e) => getComputedStyle(e).visibility),
-  ).toBe('hidden')
+  // Q-1 (17 Nov): no ⋯ on the frame; the bar (and its ⋯) is not shown while dragging.
+  await expect(b.locator('[data-box-menu]')).toHaveCount(0)
+  await expect(b.getByTestId('ob-boxmore')).toHaveCount(0)
   // A second finger taps: another box, the Lasso tool, blank paper (a new box).
   const ar = await rect(a)
   await page.touchscreen.tap(ar.x + ar.width / 2, ar.y + ar.height / 2)

@@ -509,9 +509,11 @@ test('C16 only one box is selected: tap A then B, only B has dots, the grip and 
   await expect(dots(a)).toHaveCount(0)
   await expect(a).not.toHaveAttribute('data-picked', '')
   await expect(b.locator('[data-box-grip]')).toBeVisible()
-  await expect(b.locator('[data-box-menu]')).toBeVisible()
+  // Q-1 (17 Nov): the bar's ⋯ is the only ⋯ of a box.
+  await expect(b.locator('[data-box-menu]')).toHaveCount(0)
+  await expect(b.getByTestId('ob-boxmore')).toBeVisible()
   await expect(a.locator('[data-box-grip]')).toBeHidden()
-  await expect(a.locator('[data-box-menu]')).toBeHidden()
+  await expect(a.getByTestId('ob-boxmore')).toBeHidden()
   // Shift does not add a second box either.
   await page.keyboard.down('Shift')
   await page.mouse.click(ra0.x - 4, ra0.y + ra0.height / 2)

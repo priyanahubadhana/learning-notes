@@ -320,17 +320,20 @@ export function BoxFrame({
             ≡
           </button>
         )}
-        <button
-          type="button"
-          data-box-menu
-          aria-label={t('paper.box.menu')}
-          aria-haspopup="menu"
-          onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
-          style={TOUCH_STYLE}
-          className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
-        >
-          ⋯
-        </button>
+        {!v2On && (
+          // Q-1 (17 Nov): with text box v2 the bar's ⋯ is the only one.
+          <button
+            type="button"
+            data-box-menu
+            aria-label={t('paper.box.menu')}
+            aria-haspopup="menu"
+            onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
+            style={TOUCH_STYLE}
+            className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
+          >
+            ⋯
+          </button>
+        )}
       </div>
       {!stacked &&
         // The frame itself, as four thin strips: a tap selects the box, a

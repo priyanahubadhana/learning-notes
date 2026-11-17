@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: Q-1 one ⋯ per box (slice/q1-q3, Sonnet)
+
+- Owner Q-1: only the ⋯ on the box bar stays. With switch textbox.v2 a box's frame no longer has its own ⋯ (src/paper/BoxFrame.tsx); every item stays in the bar's ⋯ list. Switch off: unchanged. The page's first box has no box bar yet, so its frame ⋯ is its one ⋯ and stays until it gets the bar (reported to the owner; Q-3 needs that too).
+- Tests changed, citing Q-1: e2e/tb2-bar.spec.ts, tb2-group.spec.ts, tb2-move.spec.ts, cBoxes.spec.ts (C16), sweep2b.spec.ts (S1/S2) now use the bar's ⋯ and expect no frame ⋯ on a box. Pictures: screenshots/q1-q3/.
+
 ### 17 Nov 2026: C30b the first box follows the first-tap rule (slice/c28-c30b, Sonnet)
 
 - Owner: "Yes, same as every box". Switch textbox.v2, Text tool. A first tap on or near the first box's words (about 1.75 letters, `nearText`) gives the caret at once; a tap in its empty part selects it (the same frame, dots, tab and menu it shows with the caret, no new look), with no caret; a tap in the empty part of a selected first box keeps it selected; an empty page keeps the caret at once. The first box had no "selected" state: now `mainPicked` in src/paper/PaperFrame.tsx (cleared by a tap elsewhere, Escape, or the caret), set by src/paper/v2/index.ts `mainEmptyPart`. Pencil tap-twice rule (src/editor/keyboardPolicy.ts) no longer holds the first box's first words tap back under v2, as no other box has it.

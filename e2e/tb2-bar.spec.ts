@@ -190,7 +190,8 @@ test('TB-30: the ⋯ beside the ≡ tab opens the same list', async ({ page }) =
   await start(page, 'TB30t')
   const box = await addBox(page, 'Tabbed')
   await pick(page, box)
-  await box.locator('[data-box-menu]').click()
+  // Q-1 (17 Nov): the bar's ⋯ is the only ⋯ of a box.
+  await box.getByTestId('ob-boxmore').click()
   await expect(
     more(page).getByRole('menuitem', { name: 'Lock in place' }),
   ).toBeVisible()
@@ -387,7 +388,7 @@ test('a narrow box: the ⋯ list stands beside it and never covers its words', a
   // The ≡-tab ⋯ opens it in the same place.
   await more(page).getByRole('button', { name: 'Close' }).click()
   await expect(more(page)).toHaveCount(0)
-  await box.locator('[data-box-menu]').click()
+  await box.getByTestId('ob-boxmore').click()
   expect(hit(await rect(more(page)), await rect(box))).toBe(false)
 })
 

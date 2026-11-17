@@ -106,14 +106,12 @@ for (const size of SIZES) {
     await page.evaluate(() => (document.activeElement as HTMLElement).blur())
     await page.waitForTimeout(400)
     await pick(page, box)
-    // The ⋯ on the box's frame.
-    await box.locator('[data-box-menu]').tap()
-    await openList(page)
-    // The ⋯ on the box bar while that list is open: the same list, still one.
+    // Q-1 (17 Nov): a box with a bar has no ⋯ on its frame; the bar's ⋯ is the only one.
+    await expect(box.locator('[data-box-menu]')).toHaveCount(0)
     await page.getByTestId('ob-boxmore').tap()
     await openList(page)
     await closeList(page)
-    // The page's first box (its ⋯ shows while the caret is in it, TB-08).
+    // The page's first box has no bar yet, so its frame ⋯ stays (its one ⋯).
     await page.locator(`${MAIN} .bn-editor`).click()
     const mainMenu = page.locator('[data-box-menu]:visible')
     await expect(mainMenu).toHaveCount(1)

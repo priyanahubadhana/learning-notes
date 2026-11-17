@@ -79,6 +79,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-17 · Box bar never covers words; the first box's bar goes above (main chat, Opus review of Q-1/Q-3):** the first box's bar floats ABOVE the box, over the Notes / Summary / Review tabs while the box is selected (temporary). It goes below only when above would be off-screen, and never over another box's words. The ≡ tab may stay where the polish put it if it covers no words. Test: e2e/cBoxes.spec.ts "Q-1 the first box bar floats above it".
+- **2026-11-17 · paperPage "a tap on empty paper makes a box" red (Sonnet, root cause):** the test was stale, not the app. With the caret in the first box and the page tabs near, the polish puts its ≡ tab under the box; the test tapped 60 px under the box, which hit that tab. The tap is now 150 px under the box; same assertions.
 - **2026-11-17 · Q-3 first-box delete, how (main chat, safest option):** an additive, optional page flag marks "first box removed" (no Dexie version, older pages unaffected, nothing lost; syncs with the page). When other boxes exist, the next box moves up into the first place. The first box also gets the box bar with the one ⋯ (Q-1), so its list stays reachable. Built as one task after the first-box frame polish merges (both touch PaperFrame.tsx).
 - **2026-11-17 · Owner settings change (owner's word): two Sonnet builders may run at once on separate tasks (still one ipad-webkit run at a time, by the lock); while building, each task runs only its own related tests, and the full set runs once before each owner re-test. Nothing is skipped or weakened. Why: work felt slow; measured 2.5-3 h per fix, mostly test runs.**
 

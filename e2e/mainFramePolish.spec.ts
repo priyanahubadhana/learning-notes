@@ -39,12 +39,11 @@ test('the first box tab never covers the page tabs', async ({ page }) => {
   await selectMain(page)
   const tabs = await rect(page.locator('[data-page-tabs]'))
   const grip = await rect(page.locator('[data-main-chrome] [data-box-grip]'))
-  // Q-1: the first box's ⋯ is on its bar.
-  const menu = await rect(page.getByTestId('ob-boxmore'))
-  for (const r of [grip, menu])
-    expect(r.y >= tabs.y + tabs.height - 0.5 || r.y + r.height <= tabs.y).toBe(
-      true,
-    )
+  // Q-1 (review decision 17 Nov): the first box's bar (with its ⋯) floats over the
+  // page tabs while the box is selected, on purpose; only the ≡ tab keeps clear.
+  expect(
+    grip.y >= tabs.y + tabs.height - 0.5 || grip.y + grip.height <= tabs.y,
+  ).toBe(true)
 })
 
 test('Q-2: while typing the first box shows only its thin frame', async ({

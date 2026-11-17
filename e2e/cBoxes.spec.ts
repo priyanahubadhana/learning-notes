@@ -170,6 +170,45 @@ test('Q-3 Delete box on the first box moves the next box up as the first box; on
   await page.waitForTimeout(600)
 })
 
+test('Q-1 the first box bar floats above it (over the page tabs) and never covers the words of any box', async ({
+  page,
+}) => {
+  await start(page, 'Q1bar')
+  await addBox(page, ['Alpha under'], 0.3, 20)
+  await selectMain(page)
+  const bar = page.locator('[data-box-bar]')
+  await expect(bar).toBeVisible()
+  const b = await rect(bar)
+  const main = await rect(page.locator('[data-main-frame]'))
+  // Above the first box.
+  expect(b.y + b.height).toBeLessThanOrEqual(main.y + 1)
+  // No box's words, and not the ≡ tab, under the bar.
+  const words = await page
+    .locator('[data-paper-box] .bn-inline-content')
+    .evaluateAll((els) =>
+      els
+        .filter((e) => (e.textContent ?? '').trim() !== '')
+        .map((e) => {
+          const r = e.getBoundingClientRect()
+          return { x: r.x, y: r.y, w: r.width, h: r.height }
+        }),
+    )
+  expect(words.length).toBeGreaterThan(1)
+  const over = (r: { x: number; y: number; w: number; h: number }) =>
+    r.x < b.x + b.width &&
+    r.x + r.w > b.x &&
+    r.y < b.y + b.height &&
+    r.y + r.h > b.y
+  expect(words.filter(over)).toEqual([])
+  const tab = await rect(page.locator('[data-main-chrome] [data-box-grip]'))
+  expect(
+    tab.x < b.x + b.width &&
+      tab.x + tab.width > b.x &&
+      tab.y < b.y + b.height &&
+      tab.y + tab.height > b.y,
+  ).toBe(false)
+})
+
 test('Q-3 Undo after the next box moved up brings the first box and the other box back', async ({
   page,
 }) => {

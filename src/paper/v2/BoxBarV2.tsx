@@ -105,7 +105,7 @@ export default function BoxBarV2({
       // the screen stay free. Nothing fits: the top of the screen.
       const others = [
         ...document.querySelectorAll(
-          '[data-paper-box] .bn-block-content, [data-paper-add-end], [data-page-tabs]',
+          '[data-paper-box] .bn-block-content, [data-paper-add-end]',
         ),
       ]
         .filter(

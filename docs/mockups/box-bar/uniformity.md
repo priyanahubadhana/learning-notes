@@ -8,7 +8,7 @@ The visible bar is the same short Goodnotes set as before: colour, size, Aa, B/I
 | --- | --- | --- |
 | Gear, Text tab (Aa), + (Edit bar) | No: they belong to the tool row | n/a |
 | Style ▾, Key point, Link, callout, spacing, Justify, Advanced (Format card) | ⋯ › Text options… (one entry) opens the same Format card | Same card |
-| Font ▾ | Aa strip: current font ✓, Modern (Inter), Classic (Literata), Technical (JetBrains Mono), More fonts… (Atkinson Hyperlegible, OpenDyslexic, today's others). System fallbacks in the mock, no web fonts loaded | Same list in both |
+| Font ▾ | Aa strip: current font ✓, Easy to read (Atkinson Hyperlegible), Classic (Literata), Handwritten (Patrick Hand), More fonts… (Inter, Lexend, JetBrains Mono, Caveat, OpenDyslexic, today's others). System fallbacks in the mock, no web fonts loaded | Same list in both |
 | Size ▾ | Size strip: number, slider, −/+ | Same strip. Acts on the selected box or words in the bar; in the Text tool it sets the size for what you write next (any number) |
 | Line spacing ▾ | Spacing button in the align strip | Same; acts on the selected box or words |
 | Bold, Italic, Underline, Strike, Highlight | B/I strip (5 buttons) | Same |

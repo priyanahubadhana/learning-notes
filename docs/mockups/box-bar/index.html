@@ -140,7 +140,7 @@ section.notes li{margin:7px 0}
       <ol>
         <li>Tap a box: one bar shows above it, with colour, size, font, B/I, align, list, fill, Cut, Paste, Delete and ⋯.</li>
         <li>The old box bar and the old text bar are gone: no second bar anywhere.</li>
-        <li>Each button opens its small strip right under it (size: number, slider, −/+; Aa: Modern, Classic, Technical and More fonts…; list: Bullets, Numbers, Checklist, Star, Toggle), and closes with a tap outside or ✕.</li>
+        <li>Each button opens its small strip right under it (size: number, slider, −/+; Aa: Easy to read, Classic, Handwritten and More fonts…; list: Bullets, Numbers, Checklist, Star, Toggle), and closes with a tap outside or ✕.</li>
         <li>Paste ▾ offers Keep look, Match style and Plain text; a plain tap pastes the way Settings says.</li>
         <li>Box style has Presets and Advanced, every option of today's card is still there; changes show at once and one Undo reverses each.</li>
         <li>⋯ keeps every old item (Copy, Duplicate, Box style, Move up/down, Group, Delete) and adds Lock box; a locked box cannot be moved, resized or deleted.</li>
@@ -232,11 +232,11 @@ function stylecard(tab){
   <div class="seg"><span class="${tab==='p'?'on':''}">Presets</span><span class="${tab==='a'?'on':''}">Advanced</span></div>${body}
   <div class="foot"><span class="cb"><u></u>Use for new boxes</span><span class="lnk">Reset</span></div></div>`;
 }
-const FM={m:'Inter,-apple-system,"Segoe UI",system-ui,sans-serif',c:'Literata,"Iowan Old Style",Georgia,serif',t:'"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace'};
+const FM={m:'"Atkinson Hyperlegible",Verdana,"Trebuchet MS",sans-serif',c:'Literata,"Iowan Old Style",Georgia,serif',t:'"Patrick Hand","Bradley Hand","Segoe Print",cursive'};
 const FR=(n,f,fam,on)=>`<button class="b l"><span style="font-family:${fam};font-size:16px">${n}</span>${on?'':`<small style="margin-left:8px">${f}</small>`}${on?'<span style="margin-left:auto;color:var(--accent)">✓</span>':''}</button>`;
 const POP={
  size:(n,u)=>`<div class="pop grp" data-p><span class="bignum">${n||16}${u||''}</span><div class="sl"><i></i></div>${step()}</div>`,
- font:()=>`<div class="pop col" data-p style="min-width:260px"><div class="fgrp">${FR('Inter','Inter',FM.m,1,'current')}</div><div class="fgrp">${FR('Modern','Inter',FM.m)}${FR('Classic','Literata',FM.c)}${FR('Technical','JetBrains Mono',FM.t)}</div><div class="fgrp" style="margin-bottom:0"><button class="b l"><span>More fonts…</span></button></div><div class="lbl" style="font-weight:500;white-space:normal">More fonts: Atkinson Hyperlegible, OpenDyslexic and the others.</div></div>`,
+ font:()=>`<div class="pop col" data-p style="min-width:260px"><div class="fgrp">${FR('Atkinson Hyperlegible','',FM.m,1,'current')}</div><div class="fgrp">${FR('Easy to read','Atkinson Hyperlegible',FM.m)}${FR('Classic','Literata',FM.c)}${FR('Handwritten','Patrick Hand',FM.t)}</div><div class="fgrp" style="margin-bottom:0"><button class="b l"><span>More fonts…</span></button></div><div class="lbl" style="font-weight:500;white-space:normal">More fonts: Inter, Lexend, JetBrains Mono, Caveat, OpenDyslexic and the others.</div></div>`,
  bi:()=>`<div class="pop" data-p>${B('Bold','<b style="font-size:18px">B</b>')}${B('Italic','<i style="font-size:18px;font-family:Georgia,serif">I</i>')}${B('Underline','<span style="font-size:17px;text-decoration:underline">U</span>')}${B('Strike','<span style="font-size:17px;text-decoration:line-through">S</span>')}${B('Highlight',ic('hl')+'<span style="position:absolute;bottom:6px;width:18px;height:4px;border-radius:2px;background:var(--hl-yellow)"></span>')}</div>`,
  al:()=>`<div class="pop" data-p>${B('Align left',ic('alL'),1)}${B('Centre',ic('alC'))}${B('Align right',ic('alR'))}<span class="sep"></span>${B('Line spacing',ic('spc'))}</div>`,
  li:()=>`<div class="pop" data-p>${B('Bullets',ic('bul'))}${B('Numbers',ic('num'))}${B('Checklist',ic('chk'))}${B('Star list',ic('star'))}${B('Toggle list',ic('tog'))}</div>`,
@@ -298,7 +298,7 @@ F.push(frame(3,'Align strip: left, centre, right, line spacing.',W,330,bx()+bar(
 F.push(frame(4,'List strip: Bullets, Numbers, Checklist, Star, Toggle. (Tab and Shift+Tab still indent.)',W,330,bx()+bar({css:tp,open:'li'})));
 F.push(frame(5,"Size open: the number, a slider and −/+ (as in the owner's picture 8). Size acts on the selected box or words.",W,330,bx()+bar({css:tp,open:'sz'})));
 F.push(frame(6,"Top tool bar, Text tool: its size control opens the SAME size strip (number, slider, −/+, any number). Here it sets the size for what you write next. A tap on a colour button opens the colours, as in the box bar.",980,300,TT('size')+'<div class="box idle" style="left:60px;top:120px;width:860px;height:150px"><div class="t">How to read books</div><p>1. Ask what the author wants to say. 2. Find the main idea of each chapter.</p></div>','iPad sideways, Text tool'));
-F.push(frame(6,"Aa open: current font ✓, then Modern, Classic, Technical (each in its own look, font name in small grey), and More fonts… (as in the owner's picture 9).",W,400,bx({h:260})+bar({css:tp,open:'font'})));
+F.push(frame(6,"Aa open: current font ✓, then Easy to read (Atkinson Hyperlegible), Classic (Literata), Handwritten (Patrick Hand), each in a look close to its font, font name in small grey, and More fonts… (as in the owner's picture 9).",W,400,bx({h:260})+bar({css:tp,open:'font'})));
 F.push(frame(7,"Text colour: a tap on the circle opens today's ten colours (the same as the Text tool's colour card): Default, Gray, Brown, Red, Orange, Yellow, Green, Blue, Purple, Pink.",W,400,bx({h:240})+bar({css:tp,open:'col'})));
 F.push(frame(8,'Paste ▾ open: Paste (keep look), Match style, Plain text.',W,400,bx({h:260})+bar({css:tp,open:'paste'})));
 F.push(frame(9,'Box style from the fill square, Presets tab: styles, fill colours, my presets (up to 8: save, rename, delete), use for new boxes, Reset.',W,720,bx({h:560})+bar({css:tp,open:'fill',tab:'p'})));

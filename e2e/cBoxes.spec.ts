@@ -91,7 +91,9 @@ test('Q-3 (was C8) Delete box on the first box with no other box: the page has n
   page,
 }) => {
   await start(page, 'C8b', false)
-  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await page
+    .locator('[data-paper-box="main"] .bn-editor')
+    .click({ position: { x: 6, y: 8 } })
   await page.keyboard.type('Alpha')
   await page.keyboard.press('Enter')
   await page.keyboard.type('Beta')
@@ -126,7 +128,7 @@ test('Q-3 one Undo after deleting the first box with no other box brings the tex
   await styleMain(page, 'C8c')
   const main = page.locator('[data-paper-box="main"]')
   const fill = () => main.evaluate((el) => getComputedStyle(el).backgroundColor)
-  await main.locator('.bn-editor').click()
+  await main.locator('.bn-editor').click({ position: { x: 6, y: 8 } })
   await page.keyboard.type('Alpha')
   await page.waitForTimeout(900)
   const styled = await fill()
@@ -147,7 +149,9 @@ test('Q-3 Delete box on the first box moves the next box up as the first box; on
   page,
 }) => {
   await start(page, 'Q3next', false)
-  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await page
+    .locator('[data-paper-box="main"] .bn-editor')
+    .click({ position: { x: 6, y: 8 } })
   await page.keyboard.type('Alpha')
   await page.waitForTimeout(900)
   const two = await addBox(page, ['Beta line'])
@@ -213,7 +217,9 @@ test('Q-3 Undo after the next box moved up brings the first box and the other bo
   page,
 }) => {
   await start(page, 'Q3undo', false)
-  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await page
+    .locator('[data-paper-box="main"] .bn-editor')
+    .click({ position: { x: 6, y: 8 } })
   await page.keyboard.type('Alpha')
   await page.waitForTimeout(900)
   await addBox(page, ['Beta line'])
@@ -422,7 +428,7 @@ test('C12 the frame of the first box matches its fill and padding', async ({
   await start(page, 'C12')
   await styleMain(page, 'C12')
   const main = page.locator('[data-paper-box="main"]')
-  await main.locator('.bn-editor').click()
+  await main.locator('.bn-editor').click({ position: { x: 6, y: 8 } })
   await page.keyboard.type(' more')
   await expect(page.locator('[data-main-frame]')).toBeVisible()
   // Why a poll: the frame follows the box through a resize observer, which

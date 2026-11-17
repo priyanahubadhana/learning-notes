@@ -88,7 +88,7 @@ const config = defineConfig({
         /pageMenusPlace/,
         /pencilIsolation/,
         /mainFramePolish.spec/,
-        /c33c34/, // C33, C34
+        /c33c34/, // C33, C34 (and its pictures)
         /storageSafety.spec/,
         /updateV2/,
         /keyNames/,

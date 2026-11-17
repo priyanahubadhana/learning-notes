@@ -198,7 +198,6 @@ export function installBoxV2(): () => void {
     e.preventDefault()
     e.stopImmediatePropagation()
   }
-  window.addEventListener('keydown', onKey, true)
 
   const onCancel = (e: PointerEvent) => {
     if (tap && e.pointerId === tap.id) tap = null
@@ -235,6 +234,7 @@ export function installBoxV2(): () => void {
     router.subscribe('pointerup', (e) => void onUp(e), first),
     router.subscribe('pointercancel', (e) => void onCancel(e), first),
     router.subscribe('click', (e) => void stopClick(e), first),
+    router.subscribe('keydown', (e) => void onKey(e), first),
   ]
   watch.observe(document.body, { childList: true, subtree: true })
   mirror.observe(document.body, {
@@ -244,7 +244,6 @@ export function installBoxV2(): () => void {
     childList: true,
   })
   return () => {
-    window.removeEventListener('keydown', onKey, true)
     for (const off of offs) off()
     router.destroy()
     textFirstTap.on = false

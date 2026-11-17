@@ -130,17 +130,16 @@ const state = (page: Page) =>
  * A point in the empty part of the box (C30): on the first line, well past its
  * last letter, inside the right edge (clear of the corner dots).
  */
-async function emptyPart(page: Page, box: Locator) {
+async function emptyPart(_page: Page, box: Locator) {
   const r = await rect(box)
-  const p = await charPoint(page, 3)
   // A narrow box (its words reach its edge): the room under the last line.
   const last = await rect(box.locator('.bn-inline-content').last())
   const below = last.y + last.height
   const room = r.y + r.height - below
-  return {
-    x: r.x + r.width - 60,
-    y: room >= 24 ? below + room / 2 : p.y,
-  }
+  if (room >= 24) return { x: r.x + r.width - 60, y: below + room / 2 }
+  // C33 (18 Nov): a box is as tall as its text, so there is no room under the
+  // last line: the empty part is the padding inside the right edge (as TB-05).
+  return { x: r.x + r.width - 2, y: r.y + r.height / 2 }
 }
 
 /** The screen point at the left edge of character `i` of the box's first text node. */

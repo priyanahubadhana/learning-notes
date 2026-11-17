@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 18 Nov 2026: C33 first box one line tall, C34 empty part selects, letters ignored on a selected box (slice/c33-c34, Sonnet)
+
+- C33 cause (iPad, Pencil mode: the Lasso is the default tool): the ink "room" (src/ink/controller.ts ensureRoom) stretched the first box to a screenful (870 px) with any ink tool on. With textbox.v2 the first box on paper no longer gets that room. Also the editor's spare trailing block (30 px, "bn-trailing-block") gave a gap under the last text line: src/index.css drops it after a text block (switch via data-box-v2 on the paper).
+- C34: a tap in the first box's empty part selects it on an empty page too (src/paper/v2/index.ts; C30b kept the caret, that goes). Rule chosen: an empty line's caret spot is its own left edge to 1.75 letters (about 1.05 em) past it, on its row (src/editor/tapSelect.ts nearText); the rest of the box, the frame and the dots area select. e2e helper typeInEditor and mainFirstTapC30b now click at the left end of the line.
+- Owner 18 Nov: letters typed while a box is selected do nothing (Safari typed into the old text; router keydown in src/paper/v2/index.ts). Cmd/Ctrl shortcuts, Delete, Backspace, Escape and keys on buttons stay. An empty page shows no frame (already so; test added).
+- Tests: e2e/c33c34.spec.ts, e2e/mainFirstTapC30b.spec.ts (C34). Pictures: screenshots/c33-c34/.
+
 ### 18 Nov 2026: CI reds of run 44139788125, tests only (slice/ci-reds-18nov, Sonnet)
 
 - No app change. pastePlaceholder.spec.ts "new empty box" (chromium): the tap 60 px under the first box landed on its ≡ tab (the tab sits in the middle just below the box since Polish 2B), so no box was made; the tap now goes at 30% of the sheet, clear of the tab. tb2-resize-shots / tb2-resize-phone-shots (ipad-webkit): the tap in the middle of the box was meant to select it, but under C30 (owner 17 Nov) a tap on or near the words puts the caret there; with the CI font the text fills the line. New helper selectByMiddleTap (e2e/cBoxesHelpers.ts): middle tap, then one tap outside if the box is typing (C11), so it is selected with any font.

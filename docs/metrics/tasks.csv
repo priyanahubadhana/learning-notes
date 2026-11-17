@@ -53,3 +53,4 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 2026-11-18T03:00+05:30,re-test,q1-one-more,sonnet,100284,1,1,0,0.3,Q-1 frame ⋯ removed for extra boxes
 2026-11-18T05:00+05:30,re-test,q1-q3,sonnet,225959,2,2,0,1.6,Q-1 first box gets bar; Q-3 delete first box (optional gone mark); round 2 bar covered words
 2026-11-18T07:00+05:30,re-test,ci-reds-18nov,sonnet,105150,1,1,0,0.4,two stale tests after C30/polish; two not reproduced (CI-only)
+2026-11-18T09:00+05:30,re-test,c33-c34,sonnet,231350,2,2,0,1.6,first box one line + hint inside; border tap selects; empty box vanishes; Text tool only; round 2 after look reject

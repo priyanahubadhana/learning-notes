@@ -8,7 +8,15 @@ import { t } from '../../i18n/t'
 import type { GridInfo } from '../layoutPlan'
 import { BoxMoreList, type MoreRow } from './BoxMoreList'
 import { moveStep, neighbourOf } from './boxOrder'
-import { bottomBar, placeList } from './listPlace'
+import { placeClear } from '../../app/menuPlace'
+import {
+  barRects,
+  bottomBar,
+  boxWithBar,
+  frameOfBox,
+  LIST_H,
+  placeList,
+} from './listPlace'
 import { MORE_LIST_W } from './BoxMoreList'
 
 /**
@@ -46,21 +54,49 @@ export default function BoxMoreHost({
   const boxEl = document.querySelector(
     '[data-paper-box="' + CSS.escape(box.id) + '"]',
   )
-  const spot = boxEl
-    ? placeList(
-        boxEl.getBoundingClientRect(),
-        MORE_LIST_W,
-        { width: window.innerWidth, height: window.innerHeight - bottomBar() },
-        window.innerHeight / 2,
-      )
-    : null
+  const frame = boxEl ? frameOfBox(boxEl) : undefined
+  // C23 review: on a paper sheet the list sits wholly inside the sheet or
+  // wholly outside it (never across its top or bottom edge), clear of the box
+  // and each of its bars, a little shorter when room is tight.
+  const sheetSpot =
+    boxEl && frame?.top !== undefined
+      ? placeClear(
+          { w: MORE_LIST_W, h: LIST_H, minH: 220 },
+          { x: boxEl.getBoundingClientRect().right + 8, y: frame.top },
+          {
+            left: 0,
+            top: 0,
+            right: window.innerWidth,
+            bottom: window.innerHeight - bottomBar(),
+          },
+          frame,
+          [boxWithBar(boxEl), ...barRects(), boxEl.getBoundingClientRect()],
+        )
+      : null
+  const spot = sheetSpot
+    ? null
+    : boxEl
+      ? placeList(
+          boxWithBar(boxEl),
+          MORE_LIST_W,
+          {
+            width: window.innerWidth,
+            height: window.innerHeight - bottomBar(),
+          },
+          window.innerHeight / 2,
+          frame,
+        )
+      : null
   const menu: AnchoredMenuState = {
-    at: !spot
-      ? at
-      : spot.above !== undefined
-        ? // The shared menu opens upwards and ends 4 px above this top.
-          new DOMRect(spot.right - 1, spot.above + 4, 1, 0)
-        : new DOMRect(spot.right - 1, 0, 1, spot.bottom),
+    at: sheetSpot
+      ? // Opens downwards from this top, its right edge here.
+        new DOMRect(sheetSpot.x + MORE_LIST_W - 1, 0, 1, sheetSpot.y - 4)
+      : !spot
+        ? at
+        : spot.above !== undefined
+          ? // The shared menu opens upwards and ends 4 px above this top.
+            new DOMRect(spot.right - 1, spot.above + 4, 1, 0)
+          : new DOMRect(spot.right - 1, 0, 1, spot.bottom),
     opener: null,
     id,
     open: true,
@@ -119,19 +155,29 @@ export default function BoxMoreHost({
         onSelect: () => toast(t('paper.box.groupTip')),
       },
     ],
-    ...(canEdit
-      ? [
-          [
-            {
-              id: 'delete',
-              icon: 'trash',
-              label: t('paper.box.delete'),
-              danger: true,
-              onSelect: onDelete,
-            } satisfies MoreRow,
-          ],
-        ]
-      : []),
   ]
-  return <BoxMoreList menu={menu} groups={groups} />
+  // C23: Delete box stays in view under the scrolling rows, never scrolled away.
+  const footer: MoreRow[] = canEdit
+    ? [
+        {
+          id: 'delete',
+          icon: 'trash',
+          label: t('paper.box.delete'),
+          danger: true,
+          onSelect: onDelete,
+        },
+      ]
+    : []
+  return (
+    <BoxMoreList
+      menu={menu}
+      groups={groups}
+      footer={footer}
+      bottomReserve={
+        sheetSpot
+          ? Math.max(0, window.innerHeight - sheetSpot.y - 8 - sheetSpot.h)
+          : undefined
+      }
+    />
+  )
 }

@@ -102,7 +102,7 @@ Beginner and Professional unless marked. **Pro** lines name their unlock switch 
 
 **Hints (T1)**
 
-- TB-42 On an empty page → one writing hint only ("Type, or tap anywhere…"); "Tap here to keep writing" waits until the page has something to continue; the hint goes the moment I type or draw. Two hints never show together. (owner, 14 Nov; picture `docs/mockups/textbox-2b/states.html` panel 7)
+- TB-42 On an empty page → one writing hint only ("Type, or tap anywhere…"); "Tap here to keep writing" is gone everywhere (owner, 17 Nov: only an empty page shows a hint); the hint goes the moment I type or draw. Two hints never show together. (owner, 14 Nov; picture `docs/mockups/textbox-2b/states.html` panel 7)
 
 ### States
 

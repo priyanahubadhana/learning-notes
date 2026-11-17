@@ -8,6 +8,19 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Fix (src/editor/scribbleDelete.ts): the browser acts alone only when the target ranges cover the whole span (new `covers`); otherwise the app deletes the whole span (one Undo step) and a second delete within 600 ms (no key pressed) is swallowed.
 - Tests: scribbleDelete.test.ts (cover check); e2e/c45-symbols-scribble.spec.ts C24 x3 (near-left, left-then-right, no ranges).
 
+### 17 Nov 2026: C23 rework 3 (Opus): solid menu cards, menus never across the sheet's top or bottom (slice/c23-menus)
+
+- Why see-through: MenuPopover used the 72 % glass fill; in WebKit the sidebar rows (and on the page the "100 %" zoom pill, which looked like a stepper in the Layout row) showed through. Now `data-solid` (the existing solid-card rule in tokens.css): opaque, nothing shows through.
+- Why across the frame: the frame given to box menus had only left/right edges. frameOfBox now also gives the sheet's top/bottom and the page's visible area; placeClear (shared by the legacy box menu and, on paper sheets, the v2 Box actions list) keeps the card wholly inside the sheet or wholly above/below it, inside the page area (never over the app bars), clear of the box and each bar; where room is tight the card is a little shorter (rows scroll, Delete stays in its footer).
+- Tests: e2e/pageMenusPlaceC23b.spec.ts (card opaque, on top at every row, no overlapping parts in a row, never across a sheet edge); src/app/menuPlace.test.ts (frame top/bottom, tight frame).
+- Files: src/app/ui.tsx, src/app/menuPlace.ts, src/paper/v2/listPlace.ts, src/paper/v2/BoxMoreHost.tsx, src/paper/v2/BoxMoreList.tsx, src/paper/usePaperBoxes.tsx.
+
+### 17 Nov 2026: C23 box menu, C25 menus above scroll bars, C26 hints (slice/c23-menus)
+
+- C23: Delete box sits in a fixed footer of the box ⋯ card (never scrolled away, even in a short window); the card is placed wholly inside the page frame (or wholly beside it), never across its edge (listPlace frame argument, BoxMoreHost, AnchoredMenu footer).
+- C25: every menu card uses the z-index token --z-pop (was a raw 50), so it sits above every scroll bar (bars in a drawer or sheet were drawn at 61 or 81).
+- C26: no "Enter text or type '/'" on an empty line once a box has text (PageEditor sets data-has-text; index.css). Owner decision 17 Nov, changes TB-42: "Tap here to keep writing" is gone everywhere; only an empty page shows its one hint. The tap line stays as an unlabelled tap area (screen-reader label kept); its size is unchanged (box sizes are C27). tb2-taps TB-42 tests updated to this rule (spec change by the owner, not a weakening). Files: PageEditor.tsx, index.css, e2e/pageMenusPlaceC23.spec.ts, e2e/tb2-taps.spec.ts, docs/features/textbox-v2.md.
+
 ### 17 Nov 2026: six e2e failures on build/next fixed (slice/full-fix2, no product change)
 
 - Why: all six were tests whose timing or spot no longer matched approved behaviour; the app was right.

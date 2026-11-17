@@ -19,21 +19,33 @@ export function placeList(
   width: number,
   view: { width: number; height: number },
   upLine = view.height / 2,
+  frame?: { left: number; right: number },
 ): { right: number; bottom: number; above?: number } | null {
+  // C23: with the page frame known, the list never straddles its edge: it
+  // sits wholly inside it, or wholly outside it, beside the page.
+  const lo = Math.max(GAP, frame ? frame.left : GAP)
+  const hi = Math.min(view.width - GAP, frame ? frame.right : view.width - GAP)
   const right = Math.min(
-    Math.max(box.left + width, width + GAP),
-    view.width - GAP,
+    Math.max(box.left + width, lo + width),
+    Math.max(hi, lo + width),
   )
   const top = Math.min(Math.max(box.top, GAP), view.height - GAP - LIST_H)
   if (top < GAP) return null
-  if (box.right + GAP + width <= view.width - GAP)
+  if (box.right + GAP + width <= hi)
     return { right: box.right + GAP + width, bottom: top - 4 }
-  if (box.left - GAP - width >= GAP)
+  if (box.left - GAP - width >= lo)
     return { right: box.left - GAP, bottom: top - 4 }
   if (box.bottom + GAP + MIN_UNDER <= view.height - GAP)
     return { right, bottom: box.bottom + GAP - 4 }
   if (box.top - GAP - MIN_UNDER >= GAP && box.top - GAP > upLine)
     return { right, bottom: 0, above: box.top - GAP }
+  if (frame) {
+    // Beside the page, outside its border (never across it).
+    if (frame.right + GAP + width <= view.width - GAP)
+      return { right: frame.right + GAP + width, bottom: top - 4 }
+    if (frame.left - GAP - width >= GAP)
+      return { right: frame.left - GAP, bottom: top - 4 }
+  }
   return null
 }
 
@@ -42,4 +54,61 @@ export function bottomBar(): number {
   const at = document.elementFromPoint(innerWidth / 2, innerHeight - 2)
   const top = at?.closest('nav')?.getBoundingClientRect().top
   return top && top < innerHeight ? innerHeight - top : 0
+}
+
+/** The page frame a box lives in: its sheet, else the page's own scroller (a phone). */
+export function frameOfBox(boxEl: Element) {
+  const f =
+    boxEl.closest('[data-paper]')?.querySelector('[data-paper-sheets]') ??
+    document.querySelector('[data-paper-sheets]') ??
+    boxEl.closest('[data-page-scroller]')
+  if (!f) return undefined
+  const r = f.getBoundingClientRect()
+  // C23: the sheet the box is on also gives the frame's top and bottom edge.
+  const b = boxEl.getBoundingClientRect()
+  const mid = (b.top + b.bottom) / 2
+  const sheets = [...f.querySelectorAll('[data-paper-sheet]')].map((e) =>
+    e.getBoundingClientRect(),
+  )
+  const s =
+    sheets.find((q) => mid >= q.top && mid <= q.bottom) ??
+    sheets.find((q) => b.top < q.bottom && b.bottom > q.top)
+  // The page's visible area: a box menu never covers the bars around it.
+  const v = boxEl.closest('[data-page-scroller]')?.getBoundingClientRect()
+  return {
+    left: r.left,
+    right: r.right,
+    ...(s ? { top: s.top, bottom: s.bottom } : {}),
+    ...(v ? { clipTop: v.top, clipBottom: v.bottom } : {}),
+  }
+}
+
+/** Each bar of the box on its own (C23: a menu may sit between them). */
+export function barRects(): Box[] {
+  return [...document.querySelectorAll('[data-box-bar-holder], [data-box-bar]')]
+    .map((b) => b.getBoundingClientRect())
+    .filter((q) => q.width && q.height)
+    .map((q) => ({
+      left: q.left,
+      right: q.right,
+      top: q.top,
+      bottom: q.bottom,
+    }))
+}
+
+/** The box and its own bar together: a menu never covers either (C23). */
+export function boxWithBar(boxEl: Element): Box {
+  const r = boxEl.getBoundingClientRect()
+  const u = { left: r.left, right: r.right, top: r.top, bottom: r.bottom }
+  document
+    .querySelectorAll('[data-box-bar-holder], [data-box-bar]')
+    .forEach((b) => {
+      const q = b.getBoundingClientRect()
+      if (!q.width || !q.height) return
+      u.left = Math.min(u.left, q.left)
+      u.right = Math.max(u.right, q.right)
+      u.top = Math.min(u.top, q.top)
+      u.bottom = Math.max(u.bottom, q.bottom)
+    })
+  return u
 }

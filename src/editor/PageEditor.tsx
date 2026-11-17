@@ -21,6 +21,7 @@ import {
 import {
   Suspense,
   lazy,
+  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -503,9 +504,21 @@ function LoadedPageEditor({
   // only when sync is on.
   const lastEdit = useRef(0)
   const applying = useRef(false)
+  /** C26: a box with text shows no "Enter text or type '/'" hint (index.css). */
+  const markHasText = useCallback(() => {
+    const wrap = editor.domElement?.closest('.bn-container')
+    wrap?.toggleAttribute(
+      'data-has-text',
+      (editor.domElement?.textContent ?? '').trim() !== '',
+    )
+  }, [editor])
+  useEffect(() => {
+    markHasText()
+  })
   const onEditorChange = () => {
     if (!applying.current) lastEdit.current = Date.now()
     sync.changed()
+    markHasText()
   }
   useEffect(() => {
     if (readOnly || !isTracking()) return
@@ -1083,10 +1096,12 @@ function LoadedPageEditor({
               if (Math.hypot(e.clientX - x, e.clientY - y) > 10) return
               focusEndLine(editor)
             }}
+            data-hint={waitForText ? '' : undefined}
+            aria-label={t('bar.tapBelow')}
             className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
           >
-            {/* Empty page (TB-42): the line below is the one hint, in its own words. */}
-            {t(waitForText ? 'textTool.hintV2' : 'bar.tapBelow')}
+            {/* Only an empty page has a hint (TB-42, owner 17 Nov): the line below is a tap area, with no words of its own once the page has text. */}
+            {waitForText ? t('textTool.hintV2') : null}
           </button>
         )}
       {docked && (layout.short === 'bottom' || layout.ribbon === 'bottom') && (

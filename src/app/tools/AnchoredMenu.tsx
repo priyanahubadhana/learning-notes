@@ -16,6 +16,7 @@ export function AnchoredMenu({
   focusFirst = true,
   bottomReserve = 0,
   solid = false,
+  footer,
   children,
 }: {
   menu: AnchoredMenuState
@@ -31,6 +32,8 @@ export function AnchoredMenu({
    * card (R12).
    */
   solid?: boolean
+  /** Solid cards only: a row that stays put under the scrolling rows (C23: Delete). */
+  footer?: ReactNode
   children: ReactNode
 }) {
   const panel = useRef<HTMLDivElement>(null)
@@ -94,15 +97,19 @@ export function AnchoredMenu({
         ...vertical,
         width,
         // Opened from a sheet or dialog (the Organise sheet's "..."): above it.
-        zIndex: opener?.closest('[role="dialog"]') ? 'var(--z-dialog)' : 50,
+        // C25: above every scroll bar (a bar in a drawer or sheet is drawn above it).
+        zIndex: 'var(--z-pop)',
       }}
       className={`fixed glass rounded-xl p-1 text-ink ${solid ? 'flex flex-col' : 'overflow-y-auto'}`}
     >
       <PopupHeader title={label} onClose={close} />
       {solid ? (
-        <div data-menu-rows className="min-h-0 flex-1 overflow-y-auto">
-          {children}
-        </div>
+        <>
+          <div data-menu-rows className="min-h-0 flex-1 overflow-y-auto">
+            {children}
+          </div>
+          {footer && <div data-menu-footer>{footer}</div>}
+        </>
       ) : (
         children
       )}

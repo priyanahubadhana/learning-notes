@@ -2,6 +2,14 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: Bug sweep to Phase 2B (Opus, slice/sweep-2b)
+
+- What: every owner finding C2–C27, sweep item S1–S6 and spec line TB-01–TB-42 checked against a spec (file:line) or a picture; list and results in docs/plans/sweep-2b-checklist.md.
+- Fixed: (1) a fast third Pencil tap on a short word that landed on a selection handle now selects the line (src/editor/tapSelect.ts: a handle press that adds to a tap run is a tap on the words under it; MiniToolbar.tsx: the handle stands back; a lone handle press is still a drag; switch textbox.v2). (2) S5: a help tip hides while a menu it is not inside is open (src/help/Help.tsx; Safari keeps no focus on a tapped button, so blur never hid it).
+- Already true, now guarded by tests: S1/S2 (every box ⋯, first box included, opens the one v2 list), S3 (box at the right edge is the whole line wide).
+- Open: S7, the editor's ⠿ block button can flash over the words during a Pencil tap run (ipad-webkit) and take a tap. Next slice.
+- Tests: e2e/sweep2b.spec.ts (S1/S2, S3, S5), e2e/c45-symbols-scribble.spec.ts "Sweep 2B" (red first on both engines), pictures e2e/sweep2b-shots.spec.ts → screenshots/sweep-2b/. playwright.config.ts: /sweep2b/ on ipad-webkit.
+
 ### 17 Nov 2026: C24 Scribble over a whole word with the caret mid-word (slice/c24-scratch, switch textbox.v2)
 
 - Why: the iPad sends a delete aimed at a letter or two beside the caret. The C4 check "aimed at the scribbled spot already" passed because that small range sat inside the stroke span, so the browser deleted only those letters (and `mark` was already cleared for the second delete).

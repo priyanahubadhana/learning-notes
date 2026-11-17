@@ -936,9 +936,21 @@ export function PaperFrame({
     let zone: Zone = 'bottom'
     for (const [id, rc] of now) {
       if (ids.includes(id)) continue
-      if (mx >= rc.x && mx <= rc.x + rc.w && my >= rc.y && my <= rc.y + rc.h) {
+      let rh = rc.h
+      if (v2.current && id === MAIN_BOX && mainRealH) {
+        // C28: the first box takes a drop only over its real height (its
+        // layout rect is taller than its text), and not when the carried
+        // box itself sits below that: the free paper under it takes the box.
+        rh = Math.min(rh, mainRealH / k)
+        const lead = held?.orig.get(ids[0])
+        const carriedTop = lead
+          ? lead.y + (held?.dyMm ?? (cy - held!.y0) / k)
+          : my
+        if (carriedTop >= rc.y + rh) continue
+      }
+      if (mx >= rc.x && mx <= rc.x + rc.w && my >= rc.y && my <= rc.y + rh) {
         target = id
-        zone = zoneOf((mx - rc.x) / rc.w, (my - rc.y) / rc.h)
+        zone = zoneOf((mx - rc.x) / rc.w, (my - rc.y) / rh)
         break
       }
     }

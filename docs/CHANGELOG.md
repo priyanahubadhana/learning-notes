@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 17 Nov 2026: C28 free paper takes a moved and a pasted box (slice/c28-c30b, Sonnet)
+
+- Owner: "there is visual space available, but it does not allow me to paste and adjust a box there." Causes: (1) src/paper/PaperFrame.tsx `dropAt` tested the pointer (the tab, about 44 px above the box) against the first box's layout rect, which is taller than its text, so a drop beside or just under the first box joined its row. Now (switch textbox.v2) the first box takes a drop only over its real height (`mainRealH`) and not when the carried box's own top is below it. (2) src/editor/pasteBox.ts "As text box" made a plain box that went to the end of the page; with v2 it is now a free box at the paste spot, in row order, as wide as the free paper to the next box on its right. Existing layout rules unchanged.
+- Tests: e2e/freeSpaceC28.spec.ts (move beside, move just under the first box, paste beside; Pencil and mouse). Beside and under failed before the fix.
+
 ### 17 Nov 2026: C31 the tab never changes a box's size, C32 the top dot works, TB-41 test (slice/c31-c32, Sonnet)
 
 - TB-41 (e2e/tb2-pencil.spec.ts "Text tool, then Pen tool", red on chromium and build/next): the TEST was wrong, the app is right. With the Text tool a box has a spare line under its words, so it is 30 px taller; the test measured it then and drew the stroke at that middle, which after choosing the Pen (spare line gone) lay under the box. It now measures again after choosing the Pen.

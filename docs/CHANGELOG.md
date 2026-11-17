@@ -2,6 +2,14 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 18 Nov 2026: box bar part B, move, dock and pin the bar; one size strip (slice/box-bar-b, Sonnet; switch textbox.v2)
+
+- Move: drag the bar by its grip anywhere in the page. Dock: drop it in a dashed zone on the top, bottom, left or right of the page; top and bottom lie flat, left and right stand upright (src/paper/v2/oneBarDockModel.ts, pure and unit tested; oneBarDock.tsx).
+- Pin: a docked bar is pinned; a bar dropped elsewhere shows a pin button. A pinned or docked place is a device setting (toolbar.boxBarPin, never page data). It stays for every box and every page, after a reload and after the app is closed, with nothing selected (box buttons off, grip and pin on) and while typing (it acts on the box being typed in). The page's bar is src/paper/v2/PinnedBoxBar.tsx; a box's own bar steps aside while a place applies. A press on the one bar no longer pauses typing (src/paper/typingPause.ts, one line).
+- Text tool size (switch textbox.v2): the Text strip's Size and the Format card open the SAME size strip as the box bar (src/design/parts/SizeStrip.tsx: number, slider, minus/plus, any number). It sets the size for what is written next (pref text.nextSize; the first letter typed in a box gets it, src/app/tools/main/nextSizeWatch.ts). With the switch off the five steps stay.
+- Not done: more fonts Inter and JetBrains Mono. The font packages are not installed and no npm install is allowed in this task; needs the owner's OK to add @fontsource/inter and @fontsource/jetbrains-mono (both SIL OFL, no cost).
+- Tests: e2e/tb2-bar-b.spec.ts, tb2-bar-b-size.spec.ts, unit oneBarDockModel. tb2-bar TB-24 count is 13 (the grip is a button). Pictures: screenshots/box-bar-b/.
+
 ### 18 Nov 2026: box bar part A, the one bar of a selected box (slice/box-bar-a, Sonnet; switch textbox.v2)
 
 - What: one bar over a selected box replaces the box bar and the text bar (owner decisions 18 Nov, mock docs/mockups/box-bar/index.html): text colour, size (number, slider, minus/plus, any number), Aa font list (Easy to read = Atkinson Hyperlegible, Classic = Literata, Handwritten = Patrick Hand, More fonts keeps every other font), B/I strip, align strip (with line spacing), list strip (Bullets, Numbers, Checklist, Star, Toggle), fill square (Box style card, now tabs Presets / Advanced / Layout), Cut, Paste with options (Keep look, Match style, Plain text), Delete, then the list. The list holds Copy, Duplicate, Lock box, Box style, Layout, Text options (the Text tool Format card, Toggle heading and Toggle list first, with a Make toggle switch), Move up/down, Group, Delete. A phone gets a shorter bar (so does any page column under 640 px); Font, List, Cut, Paste live under the list.

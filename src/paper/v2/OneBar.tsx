@@ -46,7 +46,8 @@ import {
   SizePop,
 } from './oneBarPops'
 import '../../design/parts/partsMisc.css'
-import { DockZones, useGripDrag } from './oneBarDock'
+import { DockZones } from './oneBarDock'
+import { useGripDrag } from './oneBarGrip'
 import type { BarPlace } from './oneBarDockModel'
 import './oneBar.css'
 import './oneBarB.css'

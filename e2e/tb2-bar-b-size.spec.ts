@@ -65,7 +65,7 @@ test('S3. the size is for what is written next', async ({ page }) => {
   await expect(ed).toBeFocused()
   await page.keyboard.press('End')
   await page.keyboard.type(' next')
-  await expect(
-    ed.locator('[data-look-size="30"]').first(),
-  ).toContainText('next')
+  await expect(ed.locator('[data-look-size="30"]').first()).toContainText(
+    'next',
+  )
 })

@@ -1,11 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import {
-  createNotebook,
-  startInMode,
-  typeInEditor,
-} from './helpers.ts'
+import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /**
  * Phase 2B, box bar part A (switch textbox.v2 ON): the ONE bar of a selected
@@ -120,7 +116,8 @@ const look = (box: Locator, prop: 'fontFamily' | 'fontSize') =>
     const n = w.nextNode()
     return n?.parentElement ? getComputedStyle(n.parentElement)[p] : ''
   }, prop)
-export const sizeOf = async (box: Locator) => parseFloat(await look(box, 'fontSize'))
+export const sizeOf = async (box: Locator) =>
+  parseFloat(await look(box, 'fontSize'))
 
 async function ready(page: Page, text = 'Alpha beta', gap = 60) {
   await start(page, 'Bar' + Math.random().toString(36).slice(2, 6))

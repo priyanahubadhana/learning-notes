@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-**RESUMED (Opus + Sonnet only until 19 Nov). 17 Nov owner re-test found C23-C27 (docs/plans/combined-test-2026-11-16.md, end). build/next a5302074: + C24 scratch-out mid-word (reviewed, merged, pushed). In progress: slice/c23-menus (C23 box/page menus, C25 menus above scroll bars, C26 hints; rework round 2 in ln-c21), slice/c27-box-size (one-line full-width boxes, owner decision 17 Nov; ln-c22, built on c23). NEXT: review + merge both, then the Phase 1-2B bug sweep the owner asked for, full CI, then one clean re-test list. Open: PENDING TB23-DIV, CI-TIMING.**
+**RESUMED (Opus + Sonnet only until 19 Nov). 17 Nov owner re-test found C23-C27 (docs/plans/combined-test-2026-11-16.md, end). build/next c788d09e: + C24 scratch-out, + C23/C25/C26 menus and hints (Opus takeover after 2 Sonnet rounds; reviewed on screenshots). In progress: slice/c27-box-size (ln-c22). NEXT: review + merge C27, then the bug sweep (list S1-S6 in the same doc; S1/S2 one ⋯ and one menu per box), full CI, one clean owner re-test list. Open: PENDING TB23-DIV, CI-TIMING.**
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

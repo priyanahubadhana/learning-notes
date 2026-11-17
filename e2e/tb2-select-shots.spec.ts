@@ -60,7 +60,7 @@ async function shoot(
           }),
         )
     },
-    { x: r.x + 30, y: r.y + r.height / 2 },
+    { x: r.x + r.width - 30, y: r.y + r.height / 2 },
   )
   await expect(box).toHaveAttribute('data-picked', '')
   // The whole box is selected: 8 dots and the tab, no caret.

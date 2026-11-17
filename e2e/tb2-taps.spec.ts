@@ -162,14 +162,17 @@ const L2 = 'Second line here'
 const LINES = ['First filler', 'Second filler', L1, L2, 'Last filler']
 
 for (const kind of ['pen', 'touch'] as const) {
-  test(`TB-04 ${kind}: a double-tap on an unselected box only selects the box; no word`, async ({
+  // Owner 17 Nov ("First tap in a box"): the first tap on the words puts the
+  // caret; the word count starts with the next tap (TB-04 keeps its count).
+  test(`TB-04 ${kind}: a double-tap on the words of an unselected box only puts the caret; no word`, async ({
     page,
   }) => {
     await start(page, 'TB04a' + kind)
     const box = await oneBox(page, LINES)
     const at = await charPoint(page, 13, 2)
     await taps(page, 2, at, kind, 120)
-    await expect(box).toHaveAttribute('data-picked', '')
+    await expect(box.locator('.bn-editor')).toBeFocused()
+    await expect(box).not.toHaveAttribute('data-picked', '')
     expect(await selected(page)).not.toMatch(/gamma/)
   })
 
@@ -179,9 +182,9 @@ for (const kind of ['pen', 'touch'] as const) {
     await start(page, 'TB04b' + kind)
     const box = await oneBox(page, LINES)
     const at = await charPoint(page, 13, 2) // inside "beta"
-    // The first tap selects the box; wait so the next run starts fresh.
+    // The first tap puts the caret (owner 17 Nov); wait so the next run starts fresh.
     await taps(page, 1, at, kind)
-    await expect(box).toHaveAttribute('data-picked', '')
+    await expect(box.locator('.bn-editor')).toBeFocused()
     await page.waitForTimeout(900)
     await taps(page, 2, at, kind, 120, 6)
     await expect.poll(() => selected(page)).toBe('gamma')
@@ -194,7 +197,7 @@ for (const kind of ['pen', 'touch'] as const) {
     await expect
       .poll(async () => (await selected(page)).split(/\s+/).join(' ').trim())
       .toBe(LINES.join(' '))
-    await expect(box).toHaveAttribute('data-picked', '')
+    await expect(box.locator('.bn-editor')).toBeFocused()
     // Nothing deleted or replaced after the selection.
     await page.waitForTimeout(500)
     expect(await box.locator('.bn-editor').innerText()).toContain(L2)
@@ -208,7 +211,7 @@ test('TB-04: taps 80 to 350 ms apart (Pencil) all make a word', async ({
   const box = await oneBox(page, LINES)
   const at = await charPoint(page, 13, 2)
   await taps(page, 1, at, 'pen')
-  await expect(box).toHaveAttribute('data-picked', '')
+  await expect(box.locator('.bn-editor')).toBeFocused()
   for (const gap of [80, 150, 250, 350]) {
     await page.waitForTimeout(900)
     await page.evaluate(() => window.getSelection()?.removeAllRanges())

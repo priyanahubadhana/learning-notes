@@ -151,6 +151,53 @@ for (const size of SIZES) {
   })
 }
 
+/** What the empty first line of `box` shows as its hint (its ::after). */
+const lineHint = (box: Locator) =>
+  box
+    .locator('.bn-block-content')
+    .first()
+    .evaluate((el) => getComputedStyle(el, '::after').content)
+
+// Owner decision 17 Nov (14:3x), replaces "Type here … goes when writing
+// starts": no "Type here" anywhere except the first starting block, and
+// that one goes the moment typing starts. Switch textbox.v2 (the live app
+// keeps its own rule: textTool.spec.ts, switch off).
+for (const size of SIZES)
+  test(`Type here (owner 17 Nov) ${size.name}: a new empty box shows no "Type here"; only an empty page shows its one hint, gone once typing starts`, async ({
+    page,
+  }) => {
+    await page.addInitScript(
+      (f) => localStorage.setItem('learning-notes:flags', JSON.stringify(f)),
+      PRESET_2B,
+    )
+    await page.setViewportSize(size)
+    await startInMode(page, 'computer')
+    await page.goto('/')
+    await createNotebook(page, 'Paper', 'Hints')
+    // The empty page: its one hint, nothing else.
+    await expect(page.getByText('Tap here to keep writing')).toHaveCount(0)
+    await typeInEditor(page, 'Main text')
+    await expect(page.getByText('Tap here to keep writing')).toHaveCount(0)
+    // A new empty box with the caret in it: no "Type here".
+    const sheet = await rect(page.locator('[data-paper-sheet="1"]'))
+    const main = await rect(page.locator(MAIN))
+    await page.mouse.click(
+      sheet.x + sheet.width * 0.4,
+      main.y + main.height + 60,
+    )
+    const box = page.locator(EXTRA).first()
+    await expect(box.locator('.bn-editor')).toBeFocused()
+    await page.waitForTimeout(300)
+    expect(await lineHint(box)).not.toContain('Type here')
+    await expect(box).not.toContainText('Type here')
+    await page.screenshot({
+      path: `screenshots/c30/${test.info().project.name}-new-box-${size.name}.png`,
+    })
+    await page.keyboard.type('Hi')
+    expect(await lineHint(box)).not.toContain('Type here')
+    await expect(page.getByText('Tap here to keep writing')).toHaveCount(0)
+  })
+
 test('S5: no help tip shows while the sidebar page ⋯ menu is open', async ({
   page,
 }) => {

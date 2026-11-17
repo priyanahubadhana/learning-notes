@@ -2,7 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { pick, tapTextEnd } from './cBoxesHelpers.ts'
+import { pick, tapEmptyPart } from './cBoxesHelpers.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /**
@@ -114,7 +114,7 @@ for (const [tname, theme] of THEMES)
       await page.evaluate(() => (document.activeElement as HTMLElement).blur())
       await page.waitForTimeout(800)
       await expect(box).not.toHaveAttribute('data-typing', '')
-      if (vp.name === 'phone') await tapTextEnd(page, box)
+      if (vp.name === 'phone') await tapEmptyPart(page, box)
       else await pick(page, box)
       await expect(box).toHaveAttribute('data-picked', '')
       await expect(page.locator('[data-box-bar]')).toBeVisible()

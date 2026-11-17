@@ -9,7 +9,7 @@ import {
   resumeTyping,
   watchPanels,
 } from './typingPause'
-import { PICK_BOX, textFirstTap } from '../editor/tapSelect'
+import { PICK_BOX, firstTapCaret, textFirstTap } from '../editor/tapSelect'
 import { isOn } from '../app/flags'
 import { isUiEvent } from '../app/uiGuard'
 import {
@@ -661,16 +661,22 @@ export function PaperFrame({
       const id = boxOfText(e.target)
       window.clearTimeout(later)
       // Text box v2: the first tap on a box that is not selected only selects
-      // it (no caret, no typing state).
+      // it (no caret, no typing state), unless it lands on or near the words
+      // (C30, owner 17 Nov): then the caret goes there and it is typing.
+      const pe = e as PointerEvent
       const unpicked =
         textFirstTap.on &&
         id !== 'main' &&
-        !(e.target as Element).closest('[data-paper-box][data-picked]')
+        !(e.target as Element).closest('[data-paper-box][data-picked]') &&
+        !firstTapCaret(e.target as Element, pe.clientX, pe.clientY)
       if (id && !unpicked)
-        later = window.setTimeout(
-          () => send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') }),
-          250,
-        )
+        later = window.setTimeout(() => {
+          // Why: the caret may have left in these 250 ms (a tap on the words
+          // now puts it there at once, C30, so typing and a blur can come
+          // first): typing state with no caret in the box would hide the bar.
+          if (boxOfText(document.activeElement) !== id) return
+          send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
+        }, 250)
     }
     const key = (e: KeyboardEvent) => {
       if (e.key.length !== 1 || e.metaKey || e.ctrlKey) return

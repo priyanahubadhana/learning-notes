@@ -62,7 +62,7 @@ async function addBox(page: Page, text: string) {
   return boxes.nth(before)
 }
 
-/** A finger tap on the words of a box: the first tap selects it. */
+/** A finger tap in the empty part of a box selects it (owner 17 Nov, "First tap in a box"). */
 async function pick(page: Page, box: Locator) {
   // Start from nothing selected (a tap on a picked box puts the caret in it).
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
@@ -75,7 +75,8 @@ async function pick(page: Page, box: Locator) {
     r.setStart(n, 1)
     r.setEnd(n, 2)
     const b = r.getBoundingClientRect()
-    return { x: b.x + 1, y: b.y + b.height / 2 }
+    // The empty part of the box (owner 17 Nov): a tap on the words puts the caret.
+    return { x: ed.getBoundingClientRect().right - 14, y: b.y + b.height / 2 }
   })
   await page.evaluate(({ x, y }) => {
     const el = document.elementFromPoint(x, y)!
@@ -225,7 +226,8 @@ test('locked box: lock on the tab, no dots, text still edits; Unlock brings the 
   await expect(box.locator('[data-box-grip]')).toHaveCount(0)
   await expect(box.locator('[data-resize-handle]')).toHaveCount(0)
   // The text still edits: the box is selected, the next tap puts the caret.
-  const r = await rect(box.locator('.bn-editor'))
+  // On the words of the first line (the empty part of a selected box keeps it selected).
+  const r = await rect(box.locator('.bn-inline-content').first())
   await page.mouse.click(r.x + 20, r.y + r.height / 2)
   await expect(box.locator('.bn-editor')).toBeFocused()
   await page.keyboard.type('!')
@@ -345,7 +347,8 @@ test('one bar at a time: with words selected in the box only the text bar shows,
   const box = await addBox(page, 'Select these words')
   await pick(page, box)
   await expect(bar(page)).toHaveCount(1)
-  const r = await rect(box.locator('.bn-editor'))
+  // On the words of the first line (the empty part of a selected box keeps it selected).
+  const r = await rect(box.locator('.bn-inline-content').first())
   await page.mouse.click(r.x + 20, r.y + r.height / 2)
   await expect(box.locator('.bn-editor')).toBeFocused()
   await page.keyboard.press('Control+a')

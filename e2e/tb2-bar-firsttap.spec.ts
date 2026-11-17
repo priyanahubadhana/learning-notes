@@ -61,18 +61,20 @@ async function start(page: Page, v2: boolean) {
 
 /**
  * A finger tap on "Read" whose mouse events land on the link, as Safari's
- * touch adjustment does. `tap` false sends only the mouse events.
+ * touch adjustment does. `tap` false sends only the mouse events. `empty`
+ * taps the box's empty part instead of its words (owner 17 Nov, "First tap in
+ * a box": the words take the caret, the empty part selects the box).
  */
-const tapWithMouseOnLink = (page: Page, tap: boolean) =>
+const tapWithMouseOnLink = (page: Page, tap: boolean, empty = false) =>
   page.evaluate(
-    ({ sel, tap }) => {
+    ({ sel, tap, empty }) => {
       const ed = document.querySelector(sel)!
       const n = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT).nextNode()!
       const r = document.createRange()
       r.setStart(n, 1)
       r.setEnd(n, 2)
       const b = r.getBoundingClientRect()
-      const x = b.x + 1
+      const x = empty ? ed.getBoundingClientRect().right - 14 : b.x + 1
       const y = b.y + b.height / 2
       if (tap)
         for (const type of ['pointerdown', 'pointerup'])
@@ -106,7 +108,7 @@ const tapWithMouseOnLink = (page: Page, tap: boolean) =>
           }),
         )
     },
-    { sel: ED, tap },
+    { sel: ED, tap, empty },
   )
 
 const opened = (page: Page) =>
@@ -117,13 +119,25 @@ for (const v2 of [false, true]) {
     page,
   }) => {
     const box = await start(page, v2)
-    await tapWithMouseOnLink(page, true)
+    // The empty part selects (v2); with the switch off a tap on the words does.
+    await tapWithMouseOnLink(page, true, v2)
     await expect(box).toHaveAttribute('data-picked', '')
     await page.waitForTimeout(400)
     expect(await opened(page)).toEqual([])
     await expect(box.locator('.bn-editor')).not.toBeFocused()
   })
 }
+
+test('textbox.v2 ON (owner 17 Nov): a tap on the words puts the caret there, selects nothing and opens no link', async ({
+  page,
+}) => {
+  const box = await start(page, true)
+  await tapWithMouseOnLink(page, true)
+  await expect(box.locator('.bn-editor')).toBeFocused()
+  await expect(box).not.toHaveAttribute('data-picked', '')
+  await page.waitForTimeout(400)
+  expect(await opened(page)).toEqual([])
+})
 
 test('textbox.v2 ON: a click on the link with no selecting tap opens it (the check above can see it)', async ({
   page,
@@ -138,7 +152,7 @@ test('textbox.v2 ON: a bar tap within the selecting tap’s 350 ms works', async
 }) => {
   const box = await start(page, true)
   // Once first, so the bar's code is loaded: then time the second.
-  await tapWithMouseOnLink(page, true)
+  await tapWithMouseOnLink(page, true, true)
   await expect(page.locator('[data-box-bar]')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(box).not.toHaveAttribute('data-picked', '')
@@ -150,7 +164,7 @@ test('textbox.v2 ON: a bar tap within the selecting tap’s 350 ms works', async
     r.setStart(n, 1)
     r.setEnd(n, 2)
     const b = r.getBoundingClientRect()
-    const x = b.x + 1
+    const x = ed.getBoundingClientRect().right - 14
     const y = b.y + b.height / 2
     const t0 = performance.now()
     for (const type of ['pointerdown', 'pointerup'])
@@ -202,7 +216,7 @@ test('textbox.v2 ON: the first selecting tap on a page shows the bar at once, fa
     r.setStart(n, 1)
     r.setEnd(n, 2)
     const b = r.getBoundingClientRect()
-    const x = b.x + 1
+    const x = ed.getBoundingClientRect().right - 14
     const y = b.y + b.height / 2
     // The moment the bar enters the page (a frame-by-frame poll is too
     // coarse on WebKit, whose frames run late while the tap is handled).

@@ -98,3 +98,16 @@ html[data-box-drag] [data-box-bar] {
   border: 1.5px dashed var(--color-line-strong);
   border-radius: 6px;
 }
+
+/*
+ * Owner 17 Nov: no "Type here" in a new box (only the empty page's first
+ * block keeps its one hint, which goes once typing starts). Same selector as
+ * the live rule in index.css; this file loads later, so it wins.
+ */
+[data-paper-box]:not([data-paper-box='main'])
+  .bn-container:not([data-has-text])
+  .bn-block-content[data-is-empty-and-focused]:has(
+    .ProseMirror-trailingBreak:only-child
+  )::after {
+  content: none !important;
+}

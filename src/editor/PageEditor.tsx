@@ -191,6 +191,24 @@ const PictureChooser = lazy(() => import('../images/PictureChooser'))
 const SlashCommandList = lazy(() => import('./menus/SlashCommandList'))
 const PicturePlacement = lazy(() => import('../images/PicturePlacement'))
 
+/**
+ * P1 speed (17 Nov 2026): each box of a page has its own editor, and each ran
+ * the page's preparation (kept changes, card records) on its own: 11 write
+ * steps one after another for a page of 10 boxes, seconds on iPad Safari.
+ * Boxes that open together now share one run.
+ */
+const preparing = new Map<string, Promise<void>>()
+function preparePage(db: LearningNotesDB, pageId: string): Promise<void> {
+  let run = preparing.get(pageId)
+  if (!run) {
+    run = recoverStash(db, pageId)
+      .then(() => syncCardRecords(db, pageId))
+      .finally(() => preparing.delete(pageId))
+    preparing.set(pageId, run)
+  }
+  return run
+}
+
 export function PageEditor(props: PageEditorProps) {
   const { db, pageId } = props
   const [loaded, setLoaded] = useState<{
@@ -253,8 +271,7 @@ export function PageEditor(props: PageEditorProps) {
     // Also adds any missing card records (e.g. older data saved before
     // blocks and cards were saved together); writes nothing otherwise.
     // Changes kept when the tab was last closed come back first.
-    recoverStash(db, pageId)
-      .then(() => syncCardRecords(db, pageId))
+    preparePage(db, pageId)
       .then(() => listBlocks(db, pageId))
       .then(async (all) => {
         const records = await blocksOfBox(db, pageId, all, props.boxId)

@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 18 Nov 2026: CI reds of run 44139788125, tests only (slice/ci-reds-18nov, Sonnet)
+
+- No app change. pastePlaceholder.spec.ts "new empty box" (chromium): the tap 60 px under the first box landed on its ≡ tab (the tab sits in the middle just below the box since Polish 2B), so no box was made; the tap now goes at 30% of the sheet, clear of the tab. tb2-resize-shots / tb2-resize-phone-shots (ipad-webkit): the tap in the middle of the box was meant to select it, but under C30 (owner 17 Nov) a tap on or near the words puts the caret there; with the CI font the text fills the line. New helper selectByMiddleTap (e2e/cBoxesHelpers.ts): middle tap, then one tap outside if the box is typing (C11), so it is selected with any font.
+- Not reproduced locally in 3 to 6 runs, also under 6 workers: cBoxes.spec.ts C10 "a card pauses typing" and toolbarV9LassoUse.spec.ts:7 (see report).
+
 ### 18 Nov 2026: Typing in the first box shows one frame (slice/main-typing-line, Sonnet)
 
 - Cause: the first box's wrapper still had the old box guide (a dashed 1 px outline that shows on focus-within, src/paper/PaperFrame.tsx), so with the switch ON the thin solid frame had a faint dashed one inside it. Fix: with textbox.v2 ON the wrapper has no dashed outline. Switch OFF keeps it. Layout mode's dashed cover (boxV2.css), the empty new-box dashed frame (index.css) and drop-target lines are other rules and stay.

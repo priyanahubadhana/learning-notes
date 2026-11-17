@@ -321,3 +321,18 @@ export async function selectMain(page: Page) {
   await page.mouse.click(end.right + 160, end.mid)
   await expect(page.locator('[data-main-chrome] [data-box-grip]')).toBeVisible()
 }
+
+/**
+ * Selects a box with a tap in its middle, whatever the font is (C30, owner
+ * 17 Nov): a tap on or near the words puts the caret there (typing look), so
+ * one tap outside ends the typing and leaves the box selected; a tap that
+ * lands in the empty part has selected it already.
+ */
+export async function selectByMiddleTap(page: Page, box: Locator) {
+  const at = await rect(box)
+  await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2)
+  await page.waitForTimeout(450)
+  if ((await box.getAttribute('data-typing')) !== null) await tapOut(page)
+  await expect(box).toHaveAttribute('data-picked', '')
+  await expect(box).not.toHaveAttribute('data-typing', '')
+}

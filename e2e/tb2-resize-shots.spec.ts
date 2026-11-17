@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { mkdirSync } from 'node:fs'
+import { selectByMiddleTap } from './cBoxesHelpers.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /**
@@ -66,10 +67,9 @@ for (const [name, vp, mode] of SIZES) {
     const box = page.locator(EXTRA)
     await box.evaluate((e) => e.scrollIntoView({ block: 'center' }))
     await page.waitForTimeout(400)
-    // The first tap on the text selects the box.
-    const at = (await box.boundingBox())!
-    await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2)
-    await expect(box).toHaveAttribute('data-picked', '')
+    // C30 (owner 17 Nov): a tap on the words puts the caret there; the box is
+    // selected by a tap in its empty part (or by this tap plus one outside).
+    await selectByMiddleTap(page, box)
     // 2B.5b: a phone shows the same eight dots (one stacked column).
     const dots = await box.locator('[data-resize-handle]').count()
     if (name === 'phone') expect(dots).toBe(8)

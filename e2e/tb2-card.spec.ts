@@ -230,6 +230,9 @@ test('TB-27: Professional adds border, corners, padding, shadow, save / rename /
   await start(page, 'TB27')
   const box = await addBox(page, 'Alpha beta')
   await openCard(page, box)
+  // Owner 18 Nov (box bar mock approved): the card has Presets and Advanced tabs;
+  // border, corners, padding and shadow are on Advanced, every option is kept.
+  await page.getByTestId('bc-tab-advanced').tap()
   for (const n of [
     'Background',
     'Border colour',
@@ -245,6 +248,7 @@ test('TB-27: Professional adds border, corners, padding, shadow, save / rename /
   await page.getByTestId('bc-radius-16').scrollIntoViewIfNeeded()
   await page.getByTestId('bc-radius-16').tap()
   await expect.poll(() => radius(box)).toBe('16px')
+  await page.getByTestId('bc-tab-box').tap()
   // Save as my look, rename, apply, delete.
   await page.getByTestId('bc-save').scrollIntoViewIfNeeded()
   await page.getByTestId('bc-save').tap()
@@ -288,13 +292,16 @@ test('TB-27: every row of the old Box style panel has a place (swatches, styles,
     await expect(
       card(page).getByRole('radio', { name: n }).first(),
     ).toBeAttached()
+  await expect(page.getByTestId('bc-save')).toBeAttached()
+  await expect(page.getByTestId('bc-reset')).toBeAttached()
+  // Owner 18 Nov (box bar mock approved): the card has Presets and Advanced tabs;
+  // border, corners, padding and shadow are on Advanced, every option is kept.
+  await page.getByTestId('bc-tab-advanced').tap()
   await expect(page.locator('[data-testid^="bc-bg-"]')).toHaveCount(11)
   await expect(page.locator('[data-testid^="bc-border-"]')).toHaveCount(11)
   await expect(page.locator('[data-testid^="bc-borderw-"]')).toHaveCount(4)
   await expect(page.locator('[data-testid^="bc-radius-"]')).toHaveCount(5)
   await expect(page.locator('[data-testid^="bc-pad-"]')).toHaveCount(5)
-  await expect(page.getByTestId('bc-save')).toBeAttached()
-  await expect(page.getByTestId('bc-reset')).toBeAttached()
 })
 
 test('TB-28: Layout section has Two columns, Six boxes, Layout Assist; Professional adds all pages', async ({

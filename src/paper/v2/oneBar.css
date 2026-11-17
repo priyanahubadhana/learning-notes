@@ -105,7 +105,6 @@
   position: absolute;
   top: calc(100% + 10px);
   left: 0;
-  z-index: 3;
   display: flex;
   align-items: center;
   gap: 2px;
@@ -223,4 +222,13 @@
   .ob1-pop {
     animation: none;
   }
+}
+
+/* The holder stays where the box puts it while the bar places itself elsewhere:
+ * its empty space must not take taps meant for the boxes under it. */
+[data-box-bar-holder] {
+  pointer-events: none;
+}
+[data-box-bar-holder] [data-box-bar] {
+  pointer-events: auto;
 }

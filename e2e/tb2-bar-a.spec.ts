@@ -522,3 +522,28 @@ test('19. the live app with the switch off is unchanged: the old box bar', async
   ).toBeVisible()
   await expect(btn(page, 'Text colour')).toHaveCount(0)
 })
+
+test('20. Make-toggle switch: a list becomes a toggle list and back (owner 18 Nov)', async ({
+  page,
+}) => {
+  const box = await ready(page)
+  await btn(page, 'List').click()
+  await pop(page, 'list')
+    .getByRole('button', { name: 'Bullets', exact: true })
+    .click()
+  await btn(page, 'Box actions').click()
+  await more(page)
+    .getByRole('menuitem', { name: /Text options…/ })
+    .click()
+  const card = page.getByRole('dialog', { name: 'Text options' })
+  const sw = card.getByRole('switch', { name: 'Make toggle' })
+  await expect(sw).toBeVisible()
+  await sw.click()
+  await expect(
+    box.locator('[data-content-type="toggleListItem"]').first(),
+  ).toBeVisible()
+  await sw.click()
+  await expect(
+    box.locator('[data-content-type="bulletListItem"]').first(),
+  ).toBeVisible()
+})

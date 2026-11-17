@@ -6,6 +6,9 @@ import OneBarView from './OneBar'
 import { placeOneBar, SAFE, type Rect } from './oneBarPlace'
 import './oneBar.css'
 
+/** The bar keeps this far off other boxes (their dots sit 16 px outside). */
+const OTHER_MARGIN = 20
+
 /** A page column narrower than this gets the short bar (px). */
 const SHORT_UNDER = 640
 
@@ -96,19 +99,26 @@ export default function BoxBarV2({
       )?.getBoundingClientRect()
       if (!frameEl || !boxEl || !r.width) return
       const page = frameOfBox(frameEl)
-      // Words of other boxes and the Add-a-box button: never covered.
+      // Other boxes (a little wider than they are: their dots and tab) and the
+      // Add-a-box button: never covered, so a tap on them still reaches them.
+      const near = (r: DOMRect, m: number): Rect => ({
+        left: r.left - m,
+        top: r.top - m,
+        right: r.right + m,
+        bottom: r.bottom + m,
+      })
       const others = [
-        ...document.querySelectorAll(
-          '[data-paper-box] .bn-block-content, [data-paper-add-end]',
+        ...[...document.querySelectorAll('[data-paper-box]')]
+          .filter(
+            (n) =>
+              !frameEl.contains(n) &&
+              !(mainChrome && n.matches('[data-paper-box="main"]')),
+          )
+          .map((n) => near(n.getBoundingClientRect(), OTHER_MARGIN)),
+        ...[...document.querySelectorAll('[data-paper-add-end]')].map((n) =>
+          rectOf(n.getBoundingClientRect()),
         ),
-      ]
-        .filter(
-          (n) =>
-            !frameEl.contains(n) &&
-            !(mainChrome && n.closest('[data-paper-box="main"]')),
-        )
-        .map((n) => rectOf(n.getBoundingClientRect()))
-        .filter((o) => o.bottom > o.top)
+      ].filter((o) => o.bottom > o.top)
       // The room is what the page shows (a bottom bar is not room).
       const scroller = scrollerOf(el)
       const sc = scroller?.getBoundingClientRect()
@@ -155,10 +165,10 @@ export default function BoxBarV2({
       threshold: Array.from({ length: 21 }, (_, i) => i / 20),
     })
     io.observe(el)
-    addEventListener('resize', fit)
+    const off = onRouted('resize', () => void fit())
     return () => {
       io.disconnect()
-      removeEventListener('resize', fit)
+      off()
     }
   })
 

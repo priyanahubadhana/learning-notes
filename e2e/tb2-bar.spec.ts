@@ -111,7 +111,7 @@ const names = (page: Page) =>
       .map((e) => e.t),
   )
 
-test('TB-24: one bar over a selected box: Cut, Copy, Duplicate, Delete, Box style, ⋯; one bar only', async ({
+test('TB-24: one bar over a selected box: Cut, Delete, Box style, ⋯ (Copy and Duplicate under ⋯); one bar only', async ({
   page,
 }) => {
   await start(page, 'TB24')
@@ -119,20 +119,18 @@ test('TB-24: one bar over a selected box: Cut, Copy, Duplicate, Delete, Box styl
   await pick(page, box)
   await expect(bar(page)).toHaveCount(1)
   await expect(page.getByTestId('object-bar')).toHaveCount(1)
-  for (const n of [
-    'Cut',
-    'Copy',
-    'Duplicate box',
-    'Delete box',
-    'Box style',
-    'Box actions',
-  ])
+  // Owner 18 Nov (docs/design/owner-decisions.md, "Selected box: one bar like
+  // Goodnotes" and the box-bar mock APPROVED): Copy and Duplicate moved from the
+  // bar into ⋯; the bar gained the text look buttons. Tests/tb2-bar-a covers the rest.
+  for (const n of ['Cut', 'Delete box', 'Box style', 'Box actions'])
     await expect(bar(page).getByRole('button', { name: n })).toBeVisible()
-  await expect(bar(page).getByRole('button')).toHaveCount(6)
-  // Copy copies the text; Cut copies it and removes the box.
-  await bar(page).getByRole('button', { name: 'Copy' }).click()
+  await expect(bar(page).getByRole('button')).toHaveCount(12)
+  // Copy (under ⋯) copies the text; Cut copies it and removes the box.
+  await bar(page).getByRole('button', { name: 'Box actions' }).click()
+  await more(page).getByRole('menuitem', { name: 'Copy' }).click()
   expect(await clip(page)).toEqual(['Alpha beta'])
-  await bar(page).getByRole('button', { name: 'Duplicate box' }).click()
+  await bar(page).getByRole('button', { name: 'Box actions' }).click()
+  await more(page).getByRole('menuitem', { name: 'Duplicate box' }).click()
   await expect(page.locator(EXTRA)).toHaveCount(2)
   // The copy takes the caret: let go of it, then pick the first box.
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
@@ -158,7 +156,7 @@ test('TB-24: Box style opens the style card', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Box style' })).toBeVisible()
 })
 
-test('TB-30: ⋯ opens a 248 px list: Lock in place, Duplicate, Move up, Move down, Group (dimmed), Delete', async ({
+test('TB-30: ⋯ opens a 248 px list: Copy, Duplicate, Lock in place, Box style…, Layout…, Text options…, Move up, Move down, Group (dimmed), Delete', async ({
   page,
 }) => {
   await start(page, 'TB30')
@@ -169,15 +167,21 @@ test('TB-30: ⋯ opens a 248 px list: Lock in place, Duplicate, Move up, Move do
   await expect(list).toBeVisible()
   expect((await rect(list)).width).toBe(248)
   const items = list.getByRole('menuitem')
+  // Owner 18 Nov (box bar mock approved): Copy, Box style…, Layout… and Text
+  // options… join the list; every old item is still there.
   await expect(items).toHaveText([
-    /Lock in place/,
+    /Copy/,
     /Duplicate/,
+    /Lock in place/,
+    /Box style…/,
+    /Layout…/,
+    /Text options…/,
     /Move up/,
     /Move down/,
     /Group.*Pick 2 or more/,
     /Delete/,
   ])
-  await expect(items.nth(4)).toBeDisabled()
+  await expect(items.nth(8)).toBeDisabled()
   // No key names on a touch device, and a close button.
   expect(await list.innerText()).not.toMatch(/Ctrl|Cmd|⌃|⌘|⌥/)
   await expect(list.getByRole('button', { name: 'Close' })).toBeVisible()
@@ -288,7 +292,9 @@ test('TB-31: when Copy fails a toast says so, and Cut keeps the box', async ({
   await start(page, 'TB31', 'fail')
   const box = await addBox(page, 'Keep me')
   await pick(page, box)
-  await bar(page).getByRole('button', { name: 'Copy' }).click()
+  // Owner 18 Nov: Copy is under ⋯ now (the bar keeps Cut).
+  await bar(page).getByRole('button', { name: 'Box actions' }).click()
+  await more(page).getByRole('menuitem', { name: 'Copy' }).click()
   await expect(
     page
       .locator('[data-toast]')
@@ -341,7 +347,9 @@ test('the bar never enters the 12 px safe zone at the top of the screen', async 
   expect(b.y).toBeGreaterThanOrEqual(12)
 })
 
-test('one bar at a time: with words selected in the box only the text bar shows, never the box bar', async ({
+// Owner 18 Nov (box bar mock approved): the box bar and the text bar are ONE bar.
+// With words selected it stays and acts on them; it is never two bars.
+test('one bar at a time: with words selected in the box the one bar stays (acts on the words), never two', async ({
   page,
 }) => {
   await start(page, 'One')
@@ -353,8 +361,8 @@ test('one bar at a time: with words selected in the box only the text bar shows,
   await page.mouse.click(r.x + 20, r.y + r.height / 2)
   await expect(box.locator('.bn-editor')).toBeFocused()
   await page.keyboard.press('Control+a')
-  await expect(bar(page)).toHaveCount(0)
-  await expect(page.getByTestId('object-bar')).toHaveCount(0)
+  await expect(bar(page)).toHaveCount(1)
+  await expect(page.getByTestId('object-bar')).toHaveCount(1)
   // The words stay selected and visible: nothing of ours sits on them.
   const sel = await page.evaluate(() => {
     const b = window.getSelection()!.getRangeAt(0).getBoundingClientRect()
@@ -398,10 +406,11 @@ test('a tap on the bar works at once after the tap that selected the box', async
   await start(page, 'Quick')
   const box = await addBox(page, 'Quick tap')
   await pick(page, box)
-  await bar(page).getByRole('button', { name: 'Duplicate box' }).click({
+  // Owner 18 Nov: Duplicate is under ⋯ now; the ⋯ button is the quick tap.
+  await bar(page).getByRole('button', { name: 'Box actions' }).click({
     timeout: 800,
   })
-  await expect(page.locator(EXTRA)).toHaveCount(2)
+  await expect(more(page)).toBeVisible()
 })
 
 test('the bar never covers the box: above its top dots and edge, or below when there is no room', async ({
@@ -496,8 +505,10 @@ test.describe('phone', () => {
     })
     const card = await rect(more(page))
     expect(card.y + card.height).toBeLessThanOrEqual(navTop)
-    await expect(rows).toHaveCount(6)
-    for (let i = 0; i < 6; i++) {
+    // Owner 18 Nov (box bar mock approved): on a phone the list also holds Font,
+    // List, Cut and Paste ▾ (the bar is shorter), so 14 rows.
+    await expect(rows).toHaveCount(14)
+    for (let i = 0; i < 14; i++) {
       await rows.nth(i).scrollIntoViewIfNeeded()
       await page.waitForTimeout(150)
       const r = await rect(rows.nth(i))

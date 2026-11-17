@@ -254,7 +254,14 @@ export default function BoxMoreHost({
       bottomReserve={
         sheetSpot
           ? Math.max(0, window.innerHeight - sheetSpot.y - 8 - sheetSpot.h)
-          : undefined
+          : !spot && boxEl
+            ? // No place beside, under or over the box: the list opens under its
+              // button and scrolls inside the gap, never down over the box.
+              Math.max(
+                bottomBar(),
+                window.innerHeight - (boxEl.getBoundingClientRect().top - 8),
+              )
+            : undefined
       }
     />
   )

@@ -53,4 +53,5 @@ export const enLateOneBar = {
   'v8.format.toggleList': 'Toggle list',
   'onebar.card.presets': 'Presets',
   'onebar.card.advancedNote': 'More box options come with Professional mode.',
+  'v8.format.makeToggle': 'Make toggle',
 } as const

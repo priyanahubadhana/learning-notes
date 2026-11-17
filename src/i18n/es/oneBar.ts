@@ -54,4 +54,5 @@ export const esOneBar = {
   'onebar.card.presets': 'Estilos',
   'onebar.card.advancedNote':
     'Más opciones del cuadro llegan con el modo Profesional.',
+  'v8.format.makeToggle': 'Hacer desplegable',
 } as const

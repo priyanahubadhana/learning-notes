@@ -3,6 +3,7 @@ import { useState, type ReactNode } from 'react'
 import { ClearField } from '../../../../../design/parts/ClearField'
 import {
   CardGroup,
+  SwitchRow,
   Swatch,
   Tile,
   TileGroup,
@@ -260,6 +261,39 @@ function runToggle(editor: BnEditor, act: 'toggleHeading' | 'toggleList') {
   editor.focus()
 }
 
+/**
+ * Make-toggle switch (owner 18 Nov): a heading becomes a toggle heading and a
+ * list a toggle list, and back. `null` = the line is neither (switch off, dimmed).
+ */
+function toggleState(editor: BnEditor): boolean | null {
+  try {
+    const b = editor.getTextCursorPosition().block
+    const p = b.props as Record<string, unknown>
+    if (b.type === 'heading') return !!p.isToggleable
+    if (b.type === 'toggleListItem') return true
+    if (
+      ['bulletListItem', 'numberedListItem', 'checkListItem'].includes(b.type)
+    )
+      return false
+  } catch {
+    /* no cursor yet */
+  }
+  return null
+}
+
+function setToggle(editor: BnEditor, on: boolean) {
+  for (const b of targetBlocks(editor)) {
+    const p = b.props as Record<string, unknown>
+    if (b.type === 'heading')
+      editor.updateBlock(b, { props: { ...p, isToggleable: on } } as never)
+    else if (on && b.type !== 'toggleListItem')
+      editor.updateBlock(b, { type: 'toggleListItem' } as never)
+    else if (!on && b.type === 'toggleListItem')
+      editor.updateBlock(b, { type: 'bulletListItem' } as never)
+  }
+  editor.focus()
+}
+
 function toggleHeadingOn(editor: BnEditor): boolean {
   try {
     const p = editor.getTextCursorPosition().block.props as Record<
@@ -323,6 +357,16 @@ function ToolGroup({ group, link }: { group: FormatGroup; link?: boolean }) {
             </Tile>
           ) : null}
         </TileGroup>
+        {group.id === 'toggles' ? (
+          <SwitchRow
+            label={t('v8.format.makeToggle')}
+            checked={toggleState(editor as never) === true}
+            disabled={toggleState(editor as never) === null}
+            onChange={() =>
+              setToggle(editor as never, toggleState(editor as never) !== true)
+            }
+          />
+        ) : null}
         {link && linking ? (
           <LinkField onDone={() => setLinking(false)} />
         ) : null}

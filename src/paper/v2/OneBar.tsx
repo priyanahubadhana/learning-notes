@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import { AppUiContext } from '../../app/appUi'
+import { onRouted } from '../../app/input/eventRouter'
 import { Icon } from '../../app/tools/icons'
 import { tokenCss } from '../../core/boxStyle'
 import type { PaperBox } from '../../core/types'
@@ -33,7 +34,7 @@ import {
   type PasteHow,
 } from './oneBarOps'
 import { FONT_FACE_STYLE } from '../../editor/lookStyle'
-import { ONEBAR_POP_EVENT, type OneBarPop } from './oneBarBus'
+import { listenOneBar, type OneBarPop } from './oneBarBus'
 import {
   AlignPop,
   BiPop,
@@ -93,31 +94,28 @@ export default function OneBarView({
   }, [ed])
 
   // The phone's ⋯ list opens Font, List and Paste here.
-  useEffect(() => {
-    const on = (e: Event) => {
-      const d = (e as CustomEvent<{ boxId: string; pop: OneBarPop }>).detail
-      if (d.boxId === box.id) setOpen(d.pop)
-    }
-    window.addEventListener(ONEBAR_POP_EVENT, on)
-    return () => window.removeEventListener(ONEBAR_POP_EVENT, on)
-  }, [box.id])
+  useEffect(
+    () =>
+      listenOneBar((m) => {
+        if (m.kind === 'pop' && m.boxId === box.id) setOpen(m.pop)
+      }),
+    [box.id],
+  )
 
   // A tap outside the bar, or Esc, closes the open strip.
   useEffect(() => {
     if (!open) return
-    const out = (e: PointerEvent) => {
+    const offDown = onRouted('pointerdown', (e) => {
       const el = e.target as Element | null
       if (el?.closest('[data-onebar-pop], [data-onebar-item]')) return
       setOpen(null)
-    }
-    const esc = (e: KeyboardEvent) => {
+    })
+    const offKey = onRouted('keydown', (e) => {
       if (e.key === 'Escape') setOpen(null)
-    }
-    document.addEventListener('pointerdown', out, true)
-    document.addEventListener('keydown', esc)
+    })
     return () => {
-      document.removeEventListener('pointerdown', out, true)
-      document.removeEventListener('keydown', esc)
+      offDown()
+      offKey()
     }
   }, [open])
 
@@ -339,9 +337,15 @@ export default function OneBarView({
       data-kind="box"
       data-short={short ? '' : undefined}
       className="pm-ob ob1"
-      // A press keeps the caret and the selection where they are.
+      // With the caret or words in the box, a press keeps them where they are.
+      // A box only picked has no caret: the press focuses the button as before
+      // (so a card or list it opens shows no focus ring).
       onMouseDown={(e) => {
-        if (!(e.target as Element).closest('input')) e.preventDefault()
+        if (
+          ed?.prosemirrorView?.hasFocus() &&
+          !(e.target as Element).closest('input')
+        )
+          e.preventDefault()
       }}
     >
       {colour}

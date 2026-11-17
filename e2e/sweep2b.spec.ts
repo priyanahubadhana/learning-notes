@@ -84,11 +84,12 @@ async function openList(page: Page) {
   await expect(
     list.getByRole('menuitem', { name: /Lock in place/ }),
   ).toBeVisible()
-  // The old list's rows never show.
-  await expect(page.getByRole('menuitem', { name: /^Box style/ })).toHaveCount(
-    0,
-  )
-  await expect(page.getByRole('menuitem', { name: /^Cut$/ })).toHaveCount(0)
+  // Owner 18 Nov (box bar mock approved): the one list now also holds Copy,
+  // Box style…, Layout… and Text options… (and, on a phone, Cut). It is still
+  // the one v2 list, never the old menu: that one had no Text options….
+  await expect(
+    list.getByRole('menuitem', { name: /Text options…/ }),
+  ).toBeVisible()
   await expect(page.getByRole('menu')).toHaveCount(1)
 }
 

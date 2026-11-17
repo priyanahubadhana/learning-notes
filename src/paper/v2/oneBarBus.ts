@@ -1,24 +1,28 @@
 /**
  * Small messages between the one bar, the ⋯ list and the cards (box bar part
- * A), as the Box style panel already does (boxStyleBus.ts): one event each, so
- * the lazy parts need not know each other.
+ * A). A plain list of listeners, so the lazy parts need not know each other
+ * and no raw DOM event listener is added (check:ratchet).
  */
 export type OneBarPop =
   'colour' | 'size' | 'font' | 'bi' | 'align' | 'list' | 'paste'
 
-export const ONEBAR_POP_EVENT = 'ln-onebar-pop'
-/** Opens one strip of the bar (the phone's ⋯ list: Font, List, Paste). */
+type Message =
+  /** The phone's ⋯ list opens Font, List or Paste on the bar. */
+  | { kind: 'pop'; boxId: string; pop: OneBarPop }
+  /** ⋯ › Text options…: the Text tool's Format card for a box. */
+  | { kind: 'text'; boxId: string }
+  /** ⋯ › Layout…: the Box card on its Layout tab. */
+  | { kind: 'layout'; boxId: string }
+
+const listeners = new Set<(m: Message) => void>()
+
+export const listenOneBar = (fn: (m: Message) => void): (() => void) => {
+  listeners.add(fn)
+  return () => void listeners.delete(fn)
+}
+const send = (m: Message) => listeners.forEach((fn) => fn(m))
+
 export const openOneBarPop = (boxId: string, pop: OneBarPop) =>
-  window.dispatchEvent(
-    new CustomEvent(ONEBAR_POP_EVENT, { detail: { boxId, pop } }),
-  )
-
-export const TEXT_OPTIONS_EVENT = 'ln-text-options'
-/** Opens ⋯ › Text options… (the Text tool's Format card) for a box. */
-export const openTextOptions = (boxId: string) =>
-  window.dispatchEvent(new CustomEvent(TEXT_OPTIONS_EVENT, { detail: boxId }))
-
-export const BOX_LAYOUT_EVENT = 'ln-box-layout'
-/** Opens the Box card on its Layout tab (⋯ › Layout…). */
-export const openBoxLayout = (boxId: string) =>
-  window.dispatchEvent(new CustomEvent(BOX_LAYOUT_EVENT, { detail: boxId }))
+  send({ kind: 'pop', boxId, pop })
+export const openTextOptions = (boxId: string) => send({ kind: 'text', boxId })
+export const openBoxLayout = (boxId: string) => send({ kind: 'layout', boxId })

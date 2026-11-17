@@ -53,4 +53,5 @@ export const hiOneBar = {
   'onebar.card.presets': 'प्रीसेट',
   'onebar.card.advancedNote':
     'बॉक्स के और विकल्प प्रोफ़ेशनल मोड में मिलते हैं।',
+  'v8.format.makeToggle': 'खुलने वाला बनाएँ',
 } as const

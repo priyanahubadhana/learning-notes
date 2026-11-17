@@ -45,7 +45,7 @@ import {
   BoxMoreV2Lazy,
   TextOptionsV2Lazy,
 } from './v2/BoxBarV2Lazy'
-import { BOX_LAYOUT_EVENT, TEXT_OPTIONS_EVENT } from './v2/oneBarBus'
+import { listenOneBar } from './v2/oneBarBus'
 import { prefetchBoxBarV2 } from './v2/boxBarV2Load'
 import { applyNoteStyle } from '../app/tools/main/textStyle'
 import { isOn } from '../app/flags'
@@ -303,18 +303,17 @@ export function usePaperBoxes(
       setStyleStart('presets')
       setStyleFor((e as CustomEvent<string>).detail)
     }
-    const onLayoutTab = (e: Event) => {
-      setStyleStart('layout')
-      setStyleFor((e as CustomEvent<string>).detail)
-    }
-    const onText = (e: Event) => setTextFor((e as CustomEvent<string>).detail)
     window.addEventListener(BOX_STYLE_EVENT, on)
-    window.addEventListener(BOX_LAYOUT_EVENT, onLayoutTab)
-    window.addEventListener(TEXT_OPTIONS_EVENT, onText)
+    const off = listenOneBar((m) => {
+      if (m.kind === 'text') setTextFor(m.boxId)
+      else if (m.kind === 'layout') {
+        setStyleStart('layout')
+        setStyleFor(m.boxId)
+      }
+    })
     return () => {
       window.removeEventListener(BOX_STYLE_EVENT, on)
-      window.removeEventListener(BOX_LAYOUT_EVENT, onLayoutTab)
-      window.removeEventListener(TEXT_OPTIONS_EVENT, onText)
+      off()
     }
   }, [])
   // Layout mode v2 (owner, 11 Nov): a full-screen pop-up with a live preview,

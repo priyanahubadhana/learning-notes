@@ -6,6 +6,7 @@ import {
   SIZE_MAX,
   SIZE_MIN,
   clampSize,
+  scaleSizes,
   stepSize,
 } from './oneBarModel'
 import { BUILT_IN_FONTS } from '../../app/reading/readingPrefs'
@@ -48,5 +49,16 @@ describe('lists', () => {
       'star',
       'toggle',
     ])
+  })
+})
+
+describe('a size for the whole box', () => {
+  it('scales every block by the same ratio: headings stay bigger', () => {
+    expect(scaleSizes([16, 32, 24], 32)).toEqual([32, 64, 48])
+    expect(scaleSizes([16, 32], 8)).toEqual([8, 16])
+  })
+  it('keeps a lone block exactly at the number', () => {
+    expect(scaleSizes([19], 37)).toEqual([37])
+    expect(scaleSizes([], 20)).toEqual([])
   })
 })

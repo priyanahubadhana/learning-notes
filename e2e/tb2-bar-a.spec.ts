@@ -51,7 +51,7 @@ async function start(page: Page, name: string, mode: 'computer' = 'computer') {
   await typeInEditor(page, 'Main text')
 }
 
-async function addBox(page: Page, text: string) {
+async function addBox(page: Page, text: string, gap = 60) {
   const before = await page.locator(EXTRA).count()
   const main = await rect(page.locator('[data-paper-box="main"]'))
   const sheetEl = page.locator('[data-paper-sheet="1"]')
@@ -62,7 +62,7 @@ async function addBox(page: Page, text: string) {
     const r = await rect(all.nth(i))
     bottom = Math.max(bottom, r.y + r.height)
   }
-  await page.mouse.click(sheet.x + sheet.width * 0.3, bottom + 60)
+  await page.mouse.click(sheet.x + sheet.width * 0.3, bottom + gap)
   const boxes = page.locator(EXTRA)
   await expect(boxes).toHaveCount(before + 1)
   await expect(boxes.nth(before).locator('.bn-editor')).toBeFocused()
@@ -125,9 +125,9 @@ const look = (box: Locator, prop: 'fontFamily' | 'fontSize') =>
 const fontOf = (box: Locator) => look(box, 'fontFamily')
 const sizeOf = async (box: Locator) => parseFloat(await look(box, 'fontSize'))
 
-async function ready(page: Page, text = 'Alpha beta') {
+async function ready(page: Page, text = 'Alpha beta', gap = 60) {
   await start(page, 'Bar' + Math.random().toString(36).slice(2, 6))
-  const box = await addBox(page, text)
+  const box = await addBox(page, text, gap)
   await pick(page, box)
   await expect(bar(page)).toHaveCount(1)
   return box
@@ -546,4 +546,50 @@ test('20. Make-toggle switch: a list becomes a toggle list and back (owner 18 No
   await expect(
     box.locator('[data-content-type="bulletListItem"]').first(),
   ).toBeVisible()
+})
+
+test('22. the bar is a pill with a grip and one Paste button, and sits above the box when there is room', async ({
+  page,
+}) => {
+  const box = await ready(page, 'Alpha beta', 300)
+  const b = page.getByTestId('object-bar')
+  const css = await b.evaluate((el) => {
+    const s = getComputedStyle(el)
+    return {
+      bg: s.backgroundColor,
+      border: s.borderTopWidth,
+      radius: parseFloat(s.borderTopLeftRadius),
+      shadow: s.boxShadow,
+    }
+  })
+  expect(css.bg).not.toBe('rgba(0, 0, 0, 0)')
+  expect(css.border).toBe('1px')
+  expect(css.radius).toBeGreaterThanOrEqual(24)
+  expect(css.shadow).not.toBe('none')
+  expect((await rect(b)).height).toBeGreaterThanOrEqual(52)
+  await expect(b.locator('.ob1-grip')).toHaveCount(1)
+  await expect(b.locator('.ob1-sep')).toHaveCount(1)
+  // The ▾ sits right beside the Paste icon.
+  const p = await rect(btn(page, 'Paste'))
+  const c = await rect(btn(page, 'Paste options'))
+  expect(c.x - (p.x + p.width)).toBeLessThanOrEqual(0)
+  // Above the box (the ≡ tab sits on its top edge, the bar clears it).
+  const bb = await rect(b)
+  const bx = await rect(box)
+  const mw = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-paper-box] .bn-block-content')].map(
+      (e) => {
+        const r = e.getBoundingClientRect()
+        return [
+          Math.round(r.top),
+          Math.round(r.bottom),
+          Math.round(r.left),
+          Math.round(r.right),
+        ]
+      },
+    ),
+  )
+  expect(bb.y + bb.height, JSON.stringify([bb, bx, mw])).toBeLessThanOrEqual(
+    bx.y - 16,
+  )
 })

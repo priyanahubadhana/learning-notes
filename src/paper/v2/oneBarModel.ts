@@ -60,3 +60,13 @@ export const LIST_CHOICES = [
   { id: 'toggle', key: 'onebar.list.toggle', icon: 'chevronRight' },
 ] as const satisfies readonly { id: string; key: MessageKey; icon: string }[]
 export type OneBarList = (typeof LIST_CHOICES)[number]['id']
+
+/**
+ * A new size for a whole box: the first block gets `n` and every other block is
+ * scaled by the same ratio, so a heading stays bigger than the body.
+ */
+export function scaleSizes(current: number[], n: number): number[] {
+  if (!current.length || !(current[0] > 0)) return current
+  const ratio = n / current[0]
+  return current.map((px) => clampSize(px * ratio))
+}

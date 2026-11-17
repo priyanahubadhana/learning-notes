@@ -4,7 +4,12 @@ import type { Editor } from '../../editor/barActions'
 import { FONT_FACE_STYLE, FONT_SIZE_STYLE } from '../../editor/lookStyle'
 import { pasteAs, pasteWith } from '../../editor/pasteFlow'
 import { boxEditors } from '../activeBox'
-import { SIZE_NORMAL, clampSize, type OneBarList } from './oneBarModel'
+import {
+  SIZE_NORMAL,
+  clampSize,
+  scaleSizes,
+  type OneBarList,
+} from './oneBarModel'
 
 /**
  * What the one bar's buttons do to the words of a box (box bar part A). Three
@@ -96,6 +101,38 @@ export function toggleHighlight(editor: Editor): void {
   setColour(editor, 'backgroundColor', on ? 'default' : 'yellow')
 }
 
+/**
+ * A new size for the whole box: the first line gets it and every other block
+ * is scaled by the same ratio, so headings stay bigger than the body.
+ */
+function scaleWholeBox(view: View, n: number): void {
+  const { doc, tr, schema } = view.state
+  const type = schema.marks[FONT_SIZE_STYLE]
+  if (!type) return
+  const blocks: { from: number; to: number; px: number }[] = []
+  doc.descendants((node, pos) => {
+    if (!node.isTextblock) return true
+    const own = Number(
+      node.firstChild?.marks.find((m) => m.type === type)?.attrs.stringValue,
+    )
+    const el = view.nodeDOM(pos) as HTMLElement | null
+    const px =
+      own > 0 ? own : el ? parseFloat(getComputedStyle(el).fontSize) : NaN
+    if (px > 0 && node.content.size > 0)
+      blocks.push({ from: pos + 1, to: pos + 1 + node.content.size, px })
+    return false
+  })
+  if (!blocks.length) return
+  const next = scaleSizes(
+    blocks.map((b) => b.px),
+    n,
+  )
+  blocks.forEach((b, i) =>
+    tr.addMark(b.from, b.to, type.create({ stringValue: String(next[i]) })),
+  )
+  view.dispatch(tr)
+}
+
 /** Size in px for the box, the words or what is typed next. */
 export function setSize(editor: Editor, px: number): void {
   const n = clampSize(px)
@@ -104,7 +141,7 @@ export function setSize(editor: Editor, px: number): void {
     editor.addStyles({ [FONT_SIZE_STYLE]: String(n) } as never)
     return
   }
-  markWholeBox(view, FONT_SIZE_STYLE, String(n))
+  scaleWholeBox(view, n)
 }
 
 /** A font (an id of the app's list) for the box, the words or what is typed next. */

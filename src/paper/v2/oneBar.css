@@ -3,7 +3,13 @@
  * the approved picture docs/mockups/box-bar/index.html, in the app's tokens
  * (no new colours, shadows or motion). Loaded with the bar's own code.
  */
-.ob1 {
+.ob1.pm-ob {
+  border-radius: 26px;
+  /* The pill: the shared floating-bar look (partsMisc.css), 52 px tall. */
+  min-height: 52px;
+  background: var(--card-fill, var(--glass-fill, var(--color-surface-2)));
+  border: 1px solid var(--glass-outer, var(--color-line));
+  box-shadow: var(--card-shadow, var(--elev-3));
   gap: 0;
   padding: 4px 6px;
   border-radius: 26px;
@@ -98,6 +104,15 @@
 .ob1 .ob1-chev {
   min-width: 44px;
   padding: 0;
+  margin-left: -14px;
+}
+.ob1-grip {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 44px;
+  color: var(--color-muted);
+  flex: none;
 }
 
 /* The strips: right under their button, a solid card, inside the page frame. */

@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-**RESUMED 16 Nov 17:00 IST (owner's yes; Opus + Sonnet only until 19 Nov). build/next 00431173 (17 Nov; app same as preview 59533e16): C18b/C20b, C19, C21, C22 merged after review; old failures fixed (tests only, reviewed PASS). Full CI 43947701514: all shards finished; 29 reds (3 chromium TB-04, 26 ipad-webkit) all pass here (31/31 with 1 retry) = CI-only (late tap delivery on slow runners), listed below. NOW: owner iPad re-test, list in docs/plans/combined-test-2026-11-16.md "Re-test list (17 Nov)". Then go-live ask (task 0.7). Open: PENDING TB23-DIV, CI-TIMING.**
+**RESUMED (Opus + Sonnet only until 19 Nov). 17 Nov owner re-test found C23-C27 (docs/plans/combined-test-2026-11-16.md, end). build/next a5302074: + C24 scratch-out mid-word (reviewed, merged, pushed). In progress: slice/c23-menus (C23 box/page menus, C25 menus above scroll bars, C26 hints; rework round 2 in ln-c21), slice/c27-box-size (one-line full-width boxes, owner decision 17 Nov; ln-c22, built on c23). NEXT: review + merge both, then the Phase 1-2B bug sweep the owner asked for, full CI, then one clean re-test list. Open: PENDING TB23-DIV, CI-TIMING.**
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

@@ -98,19 +98,3 @@ html[data-box-drag] [data-box-bar] {
   border: 1.5px dashed var(--color-line-strong);
   border-radius: 6px;
 }
-
-/*
- * Sweep 2B (S7): when the editor's ⠿ / + side menu appears, its first frame
- * sits over the words (it is placed beside the text only once it has a
- * size), and a quick Pencil tap meant for a word landed on it. For that
- * moment it stays unseen and untouchable.
- */
-[data-paper-box] .bn-side-menu {
-  animation: ln-side-settle 150ms step-end;
-}
-@keyframes ln-side-settle {
-  0%,
-  100% {
-    visibility: hidden;
-  }
-}

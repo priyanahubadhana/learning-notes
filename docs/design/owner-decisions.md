@@ -416,3 +416,12 @@ Reference: the owner's two Goodnotes screenshots (17 Nov 14:30).
 - **Hold (18 Nov):** hold on selected words = the strip (Cut, Copy, Paste…), approved; hold ≡ ~0.1 s = lift and move, approved; keyboard shortcuts as normal, approved. How a box is selected and shows its bar (today: tap its empty part) waits for the owner's Goodnotes example.
 - **Empty box made by mistake (18 Nov):** a new box left empty (no text, nothing pasted, no picture or other item put in) vanishes at once, with no visible delay, the moment the user taps away or picks another tool. A box with anything in it stays.
 - **Tap below makes a box only with the Text tool (18 Nov):** Pen, Highlighter, Eraser, Lasso and the rest never make a box.
+
+## Selected box: one bar like Goodnotes (owner, 18 Nov 2026; picture first, not built yet)
+
+Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2edf8f-image.png).
+- **One bar** when a box is selected: the text look (colour, size, font, B/I, align, list, fill) and the box actions together, replacing today's box bar + text format bar. Phone: a shorter bar, the rest under ⋯.
+- **Box actions in the bar:** Cut, **Paste ▾** (tap = paste; ▾ = paste options: keep look, match style, plain text, like Settings), Delete, ⋯. Duplicate moves into ⋯. The ⋯ list keeps every item (Copy, Duplicate, Box style…), nothing dropped.
+- **New in ⋯:** Lock box (a locked box cannot be moved, resized or deleted until unlocked). Front/Back: not chosen.
+- **Font colour options** in the bar too; the owner will share more Goodnotes examples of how the options open.
+- Next: mock-up picture for the owner's OK, then plan, then build (after the current re-test fixes).

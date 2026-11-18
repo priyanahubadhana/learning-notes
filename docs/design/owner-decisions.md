@@ -397,6 +397,14 @@ Reference: the owner's two Goodnotes screenshots (17 Nov 14:30).
 - **A tap in the empty part of a box that is already selected:** it stays selected (no cursor).
 - **Double and triple taps (TB-04) keep today's count:** in a box that was not active, the first tap only puts the cursor (or selects the box); the word/line count starts with the next tap.
 - **The page's first box follows the same rule.**
+  **Added 18 Nov 2026 (owner, after the iPad re-test):**
+
+- **Must never:** Apple's own bar (Paste, Select, Select All, AutoFill, Format, or the small Scribble bar) inside any box. Our own bar does those jobs.
+- **Empty box (no words):** tap 1 selects the box; tap 2 puts the cursor at the start of the line. While typing in an empty box, a tap keeps the cursor.
+- **Box with a few words:** a tap in the empty part away from the words (for example the right side, near the edge) selects the box (dots, bar, resize), also while typing.
+- **Box whose words reach the right edge:** a tap close to the words puts the cursor there; a tap near or on the border selects the box.
+- **"Close to the words"** means about one letter's width from the nearest word (owner pick, 18 Nov).
+- The same for every box, the first box included; finger and Pencil alike.
 
 ## Open questions Q-1 to Q-6 answered (owner, 17 Nov 2026)
 
@@ -404,6 +412,7 @@ Reference: the owner's two Goodnotes screenshots (17 Nov 14:30).
 - **Q-2 First box while typing:** hides its dots and ≡ tab like every box; they show when it is selected (empty-part tap, C30b).
 - **Q-3 Delete on the first box:** deletes it. If other boxes exist, the next one moves up and becomes first; if none, the page has no box until the user makes a new one (tap on the page). One Undo brings it back.
 - **Q-4 Tap speed:** Relaxed 700 ms stays the default.
+- **Tap speed, owner 18 Nov (replaces the speed choice for double and triple taps):** every tap acts at once, never waiting to see if another comes (tap 1: caret; tap 2: word; tap 3: line). Fast tappers get the result at once; slow tappers get it when their tap lands. The window for the next tap is wide (about 1 s, final number after the iPad re-test), and the taps must land close together (about one word) so two separate taps never count as a double tap. Apple's bar never replaces our selection.
 - **Q-5 Layouts (later phase, "Your layouts"; picture first):** free by default: no layout, drop a box anywhere there is space, smart guide lines snap it neatly (C21). A layout is optional and for the whole page only (a few big panels, e.g. two columns, Cornell); its panels guide (a dropped box snaps in and fits the width) but never lock: a box can be dragged out anywhere. Turning a layout off or changing it moves nothing; only the panel borders go. The 2B Layouts dialog (stacking picked boxes) stays as it is for now.
 - **Q-6 Going live:** everything together later, after 2B passes the owner's test; the live app stays as it is until then.
 

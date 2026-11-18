@@ -9,6 +9,7 @@ import {
   textFirstTap,
   touchEndHold,
 } from '../../editor/tapSelect'
+import { stampOf } from '../../app/tapTiming'
 import { activeTool } from '../../app/tools/main/mainTools'
 import { selection } from '../../app/selection/store'
 import { clearBoxes, inputModeFor, isTap, selectBoxes } from './boxSelection'
@@ -128,10 +129,6 @@ export function installBoxV2(): () => void {
   let mode: 'none' | 'text' = 'text'
   let tap: Tap | null = null
   let swallowUntil = 0
-  /**
-   * The lift of a tap that only selects a box (or keeps the caret) is cancelled
-   * too: iOS reads a lift on the text as "show Paste / Select / AutoFill".
-   */
   /** The tap that only selected a box makes no click on the text under it. */
   const stopClick = (e: Event) => {
     if (!dragging()) {
@@ -212,7 +209,9 @@ export function installBoxV2(): () => void {
       id: e.pointerId,
       x: e.clientX,
       y: e.clientY,
-      at: Date.now(),
+      // The event's own time stamp (as tapSelect.ts): a busy page must not
+      // turn a short tap into a long press by when the listener ran.
+      at: stampOf(e),
       box: box.getAttribute('data-paper-box') ?? '',
       kind: picked && !focused ? 'pad' : 'select',
       pen: e.pointerType === 'pen',
@@ -229,7 +228,7 @@ export function installBoxV2(): () => void {
     tap = null
     e.stopImmediatePropagation()
     const moved = Math.hypot(e.clientX - t.x, e.clientY - t.y)
-    if (!isTap(moved, Date.now() - t.at)) return
+    if (!isTap(moved, stampOf(e) - t.at)) return
     const box = document.querySelector<HTMLElement>(
       `[data-paper-box="${CSS.escape(t.box)}"]`,
     )

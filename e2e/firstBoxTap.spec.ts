@@ -7,6 +7,7 @@ import {
   createNotebook,
   startInMode,
   typeInEditor,
+  waitForSaved,
 } from './helpers.ts'
 import { rect } from './cBoxesHelpers.ts'
 import { installRealPen, realPen, realPenTaps } from './realPen.ts'
@@ -77,9 +78,20 @@ async function withWords(page: Page) {
   const main = page.locator(MAIN)
   const first = await rect(main.locator('.bn-block-content').first())
   await realPen(page, [{ x: first.x + 6, y: first.y + 8 }])
+  // Wait for the caret (a real state), or the first letters are typed into nothing.
+  await expect(main.locator('.bn-editor')).toBeFocused()
   await page.keyboard.type('Heading words')
+  // Real states, not a sleep: the hint is gone and the first letters are saved.
+  // Then the caret is put back at the end of the text: on the base build the
+  // save of a blank page's first letters can move the caret to the start of
+  // the box (also on origin/build/next, found 18 Nov; not part of F1-F4).
+  await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
+  await waitForSaved(page)
+  await page.waitForTimeout(500)
+  await page.keyboard.press('ControlOrMeta+End')
   await page.keyboard.press('Enter')
   await page.keyboard.type('Second line of words')
+  await expect(main).toContainText('Second line of words')
   await page.waitForTimeout(700)
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   await page.keyboard.press('Escape')
@@ -281,6 +293,7 @@ for (const mode of MODES)
       const main = page.locator(MAIN)
       const first = await rect(main.locator('.bn-block-content').first())
       await realPen(page, [{ x: first.x + 6, y: first.y + 8 }])
+      await expect(main.locator('.bn-editor')).toBeFocused()
       await page.keyboard.type('mmmm '.repeat(60))
       await page.waitForTimeout(700)
       await page.evaluate(() => (document.activeElement as HTMLElement).blur())

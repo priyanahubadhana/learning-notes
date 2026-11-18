@@ -9,6 +9,8 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - F4 cause: the frame border lies a few px outside the first box's own element, so a tap there reached the paper (the Text tool's new box). `mainFrameHit` makes the frame area the box.
 - Reach: "near the words" is now one letter's width (`NEAR_REACH_EM` = 0.6 em in tapSelect.ts; was 1.75 letters). The right 6 px of a box and anything outside it count as the border, never near. Tests that used the old 1.5 letters (c33c34 hint tap, mainFirstTapC30b, sweep2bFirstTap) now use 0.8 letters (caret) and 1.5 letters (box) on each side of the line.
 - F1: the hint stays in every step (empty first box tapped, selected, caret in); guarded by e2e/firstBoxTap.spec.ts (no failing cause found in the test browsers).
+- No feature doc: this is a fix to an existing feature (check:dod asks for docs/features/firstBoxTap.md; not needed).
+- Found, not mine (also on origin/build/next, chromium under load, 14 of 60 runs): on a blank page the save of the first letters can move the caret to the START of the first box (typed on at once, the words come out in the wrong order). The spec waits for the save and puts the caret back (Ctrl/Cmd+End). To fix in its own task.
 - Tests: e2e/firstBoxTap.spec.ts (added to the ipad-webkit list in playwright.config.ts). Pictures: screenshots/first-box-tap/.
 
 ### 18 Nov 2026: the first box in Touch and Pencil modes (slice/pencil-mode-v2, Sonnet)

@@ -201,3 +201,4 @@ Reload the test page; preset "Up to Phase 2B"; Pencil.
   - Bug 2 facts: the owner uses the preview as a Home Screen app and is signed in.
   - Bug 2 time (owner): reloaded on purpose at 07:07 IST Wed 18 Nov (01:37 UTC), Home Screen app, signed in: 2B off again.
   - Bug 2 (owner): same in plain Safari, so not the Home Screen app.
+- **Bug 4: a new page's first box is about 3 lines tall while typing, not one line; the empty space under the text "does not make sense"; every box should have the same text size and spacing.** Picture: retest-18nov/bug4-first-box-tall.png. Note: the hint shows "Enter text or type '/' for commands" (the old v2-OFF hint, not "Type, or tap anywhere…"), so 2B may have been off after a reload (bug 2). To be rechecked with 2B on.

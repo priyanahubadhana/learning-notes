@@ -197,3 +197,5 @@ Reload the test page; preset "Up to Phase 2B"; Pencil.
 - **Bug 3: the new box after deleting has a style the owner did not pick:** a green fill with a dashed border (a style used once before). Picture: retest-18nov/bug3-green-new-box.png. Check "Use for new boxes" / the remembered box style.
   - Bug 2 details (owner): it happens on a plain reload of a normal page too (nothing deleted): the 2B test and "all those settings" go back to the start. A bug of its own, not caused by bug 1.
   - Bug 3: closed. The owner had ticked "Use for new boxes" on that style; working as designed.
+  - Bug 1 cause found by the owner: selecting ANY box hides the whole top tool row; deleting the box leaves that state. Picture: retest-18nov/bug1-cause-select-hides-row.png.
+  - Bug 2 facts: the owner uses the preview as a Home Screen app and is signed in.

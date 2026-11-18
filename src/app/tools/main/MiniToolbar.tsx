@@ -37,6 +37,7 @@ import { NOTE_SIZES, applyNoteStyle, noteSize } from './textStyle'
 import { ALIGNS, alignOf, setAlign, setList } from './textOps'
 import { useEditorRedraw } from './useEditorRedraw'
 import { onRouted } from '../../input/eventRouter'
+import { placeBar, type Rect } from './miniBarPlace'
 
 /**
  * The mini toolbar: a small bar that floats near a selection made by a
@@ -86,6 +87,34 @@ function spotOf(editor: Editor): Spot | null {
   } catch {
     return null
   }
+}
+
+/** The text lines of the page (every editor on it), as screen rectangles. */
+function textLines(editor: Editor): Rect[] {
+  const doc = editor.domElement?.ownerDocument
+  if (!doc) return []
+  const out: Rect[] = []
+  const range = doc.createRange()
+  for (const root of doc.querySelectorAll('.ProseMirror')) {
+    const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    for (
+      let n = walker.nextNode();
+      n && out.length < 600;
+      n = walker.nextNode()
+    ) {
+      if (!(n.textContent ?? '').trim()) continue
+      range.selectNodeContents(n)
+      for (const r of range.getClientRects())
+        if (r.width > 0 && r.height > 0)
+          out.push({
+            left: r.left,
+            top: r.top,
+            right: r.right,
+            bottom: r.bottom,
+          })
+    }
+  }
+  return out
 }
 
 export function MiniToolbar({ editor }: { editor: Editor }) {
@@ -443,11 +472,15 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
   const size = measured
   // Above the words by the bar's own measured height (two rows are taller
   // than one), else below them: it never covers the words it formats.
-  const above = spot.lineTop - size.height - 8
-  const wanted = {
-    left: spot.left,
-    top: above >= area.top + 8 ? above : spot.lineBottom + 28,
-  }
+  // F7 (owner 18 Nov): never over any text line of the page, never past the frame.
+  const wanted = placeBar({
+    centre: spot.left,
+    size,
+    area,
+    lines: textLines(editor),
+    lineTop: spot.lineTop,
+    lineBottom: spot.lineBottom,
+  })
   const at: FreePos = clampInArea(
     (pinned && savedPos) || dragPos || wanted,
     size,

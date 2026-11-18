@@ -196,8 +196,7 @@ const stylusLiftCancelled = (page: Page, at: Pt) =>
   }, at)
 
 /** Our own strip: the Paste / Copy / Cut strip, or the mini toolbar of the words. */
-const ourStrip = (page: Page) =>
-  page.locator('[data-mini-toolbar], [role="menubar"]').first()
+const ourStrip = (page: Page) => page.locator('[data-mini-toolbar]').first()
 
 async function tapRun(
   page: Page,
@@ -308,7 +307,7 @@ for (const mode of MODES) {
       await page.waitForTimeout(800)
       expect(await selectedText(page)).toBe(want)
       expect(await editorText(page)).toBe(before)
-      await expect(page.getByRole('menubar').first()).toBeVisible()
+      await expect(ourStrip(page)).toBeVisible()
       expect(lift).toBe(true)
     })
   }
@@ -332,7 +331,9 @@ for (const mode of MODES) {
     await realPen(page, loop(centre(gap), 4.5, 5.5))
     await page.waitForTimeout(900)
     expect(await selectedText(page)).toBe('')
-    await expect(page.getByRole('menubar')).toHaveCount(0)
+    await expect(
+      page.locator('[data-mini-toolbar], [role="menubar"]'),
+    ).toHaveCount(0)
     expect(await editorText(page)).toBe(before)
   })
 
@@ -376,6 +377,99 @@ for (const mode of MODES) {
     await expect.poll(() => selectedText(page), { timeout: 800 }).toBe('rivers')
     await page.waitForTimeout(800)
     expect(await selectedText(page)).toBe('rivers')
-    await expect(page.getByRole('menubar').first()).toBeVisible()
+    await expect(ourStrip(page)).toBeVisible()
   })
 }
+
+/** The bar's box, the page frame, and every text line on the page (screen rects). */
+const barGeometry = (page: Page) =>
+  page.evaluate(() => {
+    const box = (r: DOMRect) => ({
+      left: r.left,
+      top: r.top,
+      right: r.right,
+      bottom: r.bottom,
+    })
+    const bars = [...document.querySelectorAll('[data-mini-toolbar]')]
+    const lines: ReturnType<typeof box>[] = []
+    const range = document.createRange()
+    for (const root of document.querySelectorAll('.ProseMirror')) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        if (!(n.textContent ?? '').trim()) continue
+        range.selectNodeContents(n)
+        for (const r of range.getClientRects())
+          if (r.width > 0) lines.push(box(r))
+      }
+    }
+    return {
+      bars: bars.length,
+      menubars: document.querySelectorAll('[role="menubar"]').length,
+      bar: bars[0] ? box(bars[0].getBoundingClientRect()) : null,
+      frame: box(document.querySelector('main')!.getBoundingClientRect()),
+      lines,
+    }
+  })
+
+type G = Awaited<ReturnType<typeof barGeometry>>
+/** One strip, inside the page frame, over no text line. */
+function expectClear(g: G, what: string) {
+  expect(g.bars, what + ': one strip').toBe(1)
+  expect(g.menubars, what + ': not the block menu').toBe(0)
+  const b = g.bar!
+  expect(b.left, what + ' inside frame').toBeGreaterThanOrEqual(
+    g.frame.left - 1,
+  )
+  expect(b.right, what + ' inside frame').toBeLessThanOrEqual(g.frame.right + 1)
+  expect(b.top, what + ' inside frame').toBeGreaterThanOrEqual(g.frame.top - 1)
+  expect(b.bottom, what + ' inside frame').toBeLessThanOrEqual(
+    g.frame.bottom + 1,
+  )
+  for (const l of g.lines) {
+    const hit =
+      l.left < b.right - 1 &&
+      l.right > b.left + 1 &&
+      l.top < b.bottom - 1 &&
+      l.bottom > b.top + 1
+    expect(hit, `${what}: strip covers a text line ${JSON.stringify(l)}`).toBe(
+      false,
+    )
+  }
+}
+
+const SIZES = {
+  sideways: { width: 1180, height: 820 },
+  upright: { width: 820, height: 1180 },
+  phone: { width: 390, height: 844 },
+} as const
+
+for (const mode of MODES)
+  for (const [size, vp] of Object.entries(SIZES)) {
+    test(`F5/F7 ${mode} mode, ${size}: a circle and a double tap open the same strip, over no text line, inside the frame`, async ({
+      page,
+    }) => {
+      await open(page, mode)
+      await page.setViewportSize(vp)
+      await page.waitForTimeout(600)
+      // A circle round "rate-is" (first line).
+      const b = await boxOf(page, 'rate-is')
+      await realPen(page, loop(centre(b), b.width / 2 + 1, b.height / 2 + 5))
+      await expect
+        .poll(() => selectedText(page), { timeout: 800 })
+        .toBe('rate-is')
+      await expect(ourStrip(page)).toBeVisible()
+      await page.waitForTimeout(500)
+      expectClear(await barGeometry(page), 'circle')
+      // A slow double tap on "plain" (second line): the same kind of strip.
+      await page.keyboard.press('Escape')
+      await page.waitForTimeout(400)
+      const w = await boxOf(page, 'plain')
+      await tapRun(page, 'pen', centre(w), 2, 600)
+      await expect
+        .poll(() => selectedText(page), { timeout: 800 })
+        .toBe('plain')
+      await expect(ourStrip(page)).toBeVisible()
+      await page.waitForTimeout(500)
+      expectClear(await barGeometry(page), 'double tap')
+    })
+  }

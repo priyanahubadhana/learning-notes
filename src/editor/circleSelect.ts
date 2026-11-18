@@ -4,7 +4,6 @@ import { watchPointers } from '../app/input/pointerWatch'
 import { isOn } from '../app/flags'
 import { activeTool } from '../app/tools/main/mainTools'
 import { stampOf } from '../app/tapTiming'
-import { openHoldMenu } from './holdMenuWatch'
 import { keepSelection } from './ownSelection'
 import { noteTapSelected } from './penGuard'
 import { touchEndHold } from './tapSelect'
@@ -202,12 +201,6 @@ export function watchCircleSelect(
       // A late collapse (Scribble, a focus change) is put back.
       keepSelection()
       onSelected()
-      const xs = path.map((p) => p.x)
-      openHoldMenu(editor, {
-        x: (Math.min(...xs) + Math.max(...xs)) / 2,
-        y: Math.min(...path.map((p) => p.y)),
-        pointerType: 'pen',
-      })
     }
     // After the browser's own handling of the stroke, so ours is what stays.
     setTimeout(apply, 0)

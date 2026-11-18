@@ -96,17 +96,6 @@ export function showRing(doc: Document, x: number, y: number, ms: number) {
   return () => el.remove()
 }
 
-/** The menu openers of the editors being watched (circleSelect.ts opens it too). */
-const openers = new WeakMap<object, (at: HoldPoint) => void>()
-
-/** F5: opens OUR strip for `editor` at `at`, as a hold does; false when none is watched. */
-export function openHoldMenu(editor: Editor, at: HoldPoint): boolean {
-  const open = openers.get(editor)
-  if (!open) return false
-  open(at)
-  return true
-}
-
 export function watchHoldMenu(
   editor: Editor,
   onOpen: (at: HoldPoint) => void,
@@ -224,10 +213,6 @@ export function watchHoldMenu(
     openedAt = Date.now()
     onOpen({ x: e.clientX, y: e.clientY, pointerType: 'mouse' })
   }
-  openers.set(editor, (at) => {
-    openedAt = Date.now()
-    onOpen(at)
-  })
   doc.addEventListener('pointerdown', onDown, true)
   doc.addEventListener('pointermove', onMove, true)
   doc.addEventListener('pointerup', onEnd, true)
@@ -243,7 +228,6 @@ export function watchHoldMenu(
     stop()
     offReset()
     offState()
-    openers.delete(editor)
     doc.removeEventListener('pointerdown', onDown, true)
     doc.removeEventListener('pointermove', onMove, true)
     doc.removeEventListener('pointerup', onEnd, true)

@@ -160,7 +160,7 @@ for (const theme of ['light', 'dark'] as const)
           })
         }
         await realPen(page, ring)
-        await expect(page.getByRole('menubar').first()).toBeVisible()
+        await expect(page.locator('[data-mini-toolbar]').first()).toBeVisible()
         await page.waitForTimeout(300)
         await page.screenshot({ path: out('f5-f6-circle-strip') })
         // F7: a slow double tap (600 ms) on "plain".

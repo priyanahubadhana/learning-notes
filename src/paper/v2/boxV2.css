@@ -111,3 +111,17 @@ html[data-box-drag] [data-box-bar] {
   )::after {
   content: none !important;
 }
+
+/*
+ * Equal boxes (owner 18 Nov, textbox.v2): an unstyled box (data-grow) has the
+ * first box's text position and line height: no padding, the same line. Its
+ * frame and dots grow outward instead (BoxFrame), so the text still keeps clear
+ * of the dots. A box with a style or a line choice keeps its own.
+ */
+[data-paper-box][data-grow]:not([data-paper-box='main']) [data-box-content] {
+  padding: 0;
+}
+[data-paper-box][data-grow]:not([data-paper-box='main']):not([data-line])
+  .bn-inline-content {
+  line-height: inherit;
+}

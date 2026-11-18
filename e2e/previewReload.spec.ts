@@ -102,16 +102,20 @@ test('RB-4 on the preview host a new page is v2 at once: hint shown, first box a
         h: Math.round(c.getBoundingClientRect().height),
         outer: Math.round(el.getBoundingClientRect().height),
         pad: [cs.paddingTop, cs.paddingBottom, cs.paddingLeft, cs.paddingRight],
+        wrap: (() => {
+          const w = getComputedStyle(
+            c.closest('[data-box-content]') ?? el.firstElementChild!,
+          )
+          return [w.paddingTop, w.paddingBottom, w.paddingLeft, w.paddingRight]
+        })(),
+        lh: getComputedStyle(b).lineHeight,
         font: getComputedStyle(b).fontSize,
       }
     })
   const [m, x] = [await look(main), await look(extra)]
-  // Same text size and padding, and each is one line tall. The outer boxes differ by the
-  // frame (about 5 px): reported to the owner, not changed here.
-  expect(m.font).toEqual(x.font)
-  expect(m.pad).toEqual(x.pad)
-  expect(m.h).toBeLessThan(40)
-  expect(x.h).toBeLessThan(40)
+  // Owner rule: the first box and a new box are the same: height, padding, line, size.
+  expect(x).toEqual(m)
+  expect(m.outer).toBeLessThan(40)
 })
 
 async function seedTwoB(page: Page) {

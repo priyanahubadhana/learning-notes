@@ -180,6 +180,12 @@ export function BoxFrame({
     ? [{ top: 0, height: h }]
     : sheetSegments(shown.y * k, h, sheetPx, gapPx, sheets)
   const movable = !box.locked && !stacked
+  // Equal boxes (owner 18 Nov, textbox.v2): an unstyled box has the first box's
+  // text position, so its frame, dots and hit areas grow OUTWARD by the same gap
+  // as the first box's frame (PaperFrame MainChrome); the text stays.
+  const grow = v2On && !box.style
+  const gx = grow ? GROW_X : 0
+  const gy = grow ? GROW_Y : 0
   return (
     <div
       ref={el}
@@ -187,6 +193,7 @@ export function BoxFrame({
       data-locked={box.locked ? '' : undefined}
       data-line={box.line}
       data-auto={autoMaxW ? '' : undefined}
+      data-grow={grow ? '' : undefined}
       data-picked={picked ? '' : undefined}
       data-typing={typing ? '' : undefined}
       data-hide-side={v2On && typing ? '' : undefined}
@@ -286,7 +293,13 @@ export function BoxFrame({
               : '') +
             (dragging ? ' !border-solid !border-accent' : '')
           }
-          style={{ top: s.top, height: s.height, background: colour }}
+          style={{
+            top: s.top - gy,
+            height: s.height + 2 * gy,
+            left: -gx,
+            right: -gx,
+            background: colour,
+          }}
         />
       ))}
       <div
@@ -362,7 +375,7 @@ export function BoxFrame({
         ))}
       <div
         data-box-content
-        className={box.style ? undefined : 'px-1'}
+        className={box.style || v2On ? undefined : 'px-1'}
         style={{
           ...(box.style ? { padding: padOf(box.style) + 4 } : {}),
           ...(zoom === 1 ? {} : { zoom }),
@@ -386,7 +399,18 @@ export function BoxFrame({
         (!stacked || v2On) &&
         !box.locked &&
         !(v2On && typing) &&
-        !dragging && <ResizeDots onResize={onResize} />}
+        !dragging &&
+        (grow ? (
+          <div
+            data-grow-handles
+            className="pointer-events-none absolute"
+            style={{ left: -gx, right: -gx, top: -gy, bottom: -gy }}
+          >
+            <ResizeDots onResize={onResize} />
+          </div>
+        ) : (
+          <ResizeDots onResize={onResize} />
+        ))}
       {/* The one bar (textbox.v2) steps aside itself while a caret blinks in the box. */}
       {picked && (!typing || v2On) && !dragging && bar && (
         <BarHolder below={shown.y * k < BAR_ROOM_PX}>{bar}</BarHolder>
@@ -451,6 +475,10 @@ const OUT = 16
 const OUT_Y = 8
 
 /** The 8 handles of a selected box: round corner dots, side pills for width/height. */
+/** The outward growth of an unstyled box's frame under textbox.v2: the same as the first box's (PaperFrame MAIN_FRAME_GAP). */
+const GROW_X = 10
+const GROW_Y = 4
+
 export function ResizeDots({
   onResize,
 }: {

@@ -85,6 +85,7 @@ const config = defineConfig({
         /pencilV2/, // Pencil mode shows the v2 look (owner 18 Nov)
         /firstBoxTap/, // re-test 18 Nov F1-F4
         /iosSelect/, // re-test 18 Nov F5-F7
+        /caretSaveJump/, // B7: first letters keep their order
         /previewReload/, // re-test 18 Nov bug 2,
         /parts-gallery/,
         /updateStuck(Shots)?.spec.ts$/, // C22

@@ -853,7 +853,13 @@ export function watchTapSelect(
       : hit
     if (level === 1) {
       // The caret goes exactly where the tap landed (Lasso, picked box).
+      // B7: keys can come before this timer runs (input beats timers on a busy
+      // page, e.g. the first letters on a blank page). A caret put back at the
+      // tap spot then would land before the typed letters, so it is skipped
+      // once the text has changed since the tap.
+      const docAtTap = view.state.doc
       setTimeout(() => {
+        if (view.state.doc !== docAtTap) return
         if (pos > view.state.doc.content.size) return
         view.dispatch(
           view.state.tr.setSelection(

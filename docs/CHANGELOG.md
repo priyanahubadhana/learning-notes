@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 18 Nov 2026: F5 F6 F7 iPadOS selection bars and the 1 s tap window (slice/ios-select, Sonnet)
+
+- F7 cause: the lift (touchend) of the 2nd and 3rd tap of a run, and of a finger tap on the caret, was left to iPadOS, which reads a lift on a selection or cursor as "show Paste / Select"; the bar flashed over our word and took it. tapSelect.ts now cancels that lift (`ownLiftUntil`). The window for the next tap is 1000 ms by default (tapTiming.ts, new "Wide" pick; Quick, Normal, Relaxed still work); every tap still acts at once.
+- F5/F6 cause: the Pencil circle was iPadOS Scribble's own gesture (wrong words for dash words and dates, nothing for letters inside a word, caret to the end, Apple's bar). src/editor/circleSelect.ts reads the loop itself (textbox.v2, Text tool, pen): exactly the characters whose centre is inside, our strip opens (holdMenuWatch.openHoldMenu), the lift is held. Not verifiable here: real Scribble on the iPad.
+- Tests: e2e/iosSelect.spec.ts (28 runs; in the ipad-webkit list), src/editor/circleSelect.test.ts. Old default-speed unit tests now expect Wide (owner rule 18 Nov).
+
 ### 18 Nov 2026: first-box taps F1 to F4 and the owner's tap rules (slice/first-box-tap, Sonnet)
 
 - F2 cause: the box bar's room search (v2/BoxBarV2.tsx) did not count the page tabs as taken space; it now does (above has no room, so the bar goes below).
@@ -12,6 +18,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - No feature doc: this is a fix to an existing feature (check:dod asks for docs/features/firstBoxTap.md; not needed).
 - Found, not mine (also on origin/build/next, chromium under load, 14 of 60 runs): on a blank page the save of the first letters can move the caret to the START of the first box (typed on at once, the words come out in the wrong order). The spec waits for the save and puts the caret back (Ctrl/Cmd+End). To fix in its own task.
 - Tests: e2e/firstBoxTap.spec.ts (added to the ipad-webkit list in playwright.config.ts). Pictures: screenshots/first-box-tap/.
+### 18 Nov 2026: B7 first letters moved to the start of the box (slice/caret-jump-save, Sonnet)
+
+- Bug: on a blank page words typed at once after the first tap came out in the wrong order (the first letter ended last). Cause (found with a trace of every caret move): NOT the save. A Pencil tap on the cursor puts the caret back at the tap spot in a setTimeout 0 (src/editor/tapSelect.ts, level 1). On a busy page the keys run before that timer, so the late caret landed before the first letters.
+- Fix: the timer now skips when the text changed since the tap (one line, src/editor/tapSelect.ts). Why: key input beats timers; a caret from a tap must never move typed text.
+- Test: e2e/caretSaveJump.spec.ts, 30 runs each in Pencil and Touch mode, typing with no waits, exact order checked; chromium and ipad-webkit (listed in playwright.config.ts). Red before the fix (15 of 60 on chromium), green after. The wait in firstBoxTap.spec.ts (slice/first-box-tap) is left as it is.
 
 ### 18 Nov 2026: the first box in Touch and Pencil modes (slice/pencil-mode-v2, Sonnet)
 

@@ -9,6 +9,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Not changed: the first (main) box and a new box have the same text size and padding and are one line, but the outer box differs by the frame (about 5 px). Reported to the owner.
 - Tests: e2e/previewReload.spec.ts (RB-2, RB-4, RB-5), e2e/toolRowStays.spec.ts (RB-1, RB-1b; both on chromium and ipad-webkit), unit src/app/flags.test.ts.
 
+### 18 Nov 2026: search.spec red fixed, a test helper moved the caret (slice/search-red, Sonnet)
+
+- Cause: not an app bug. beforeEach made a card with makeCard, whose typeInEditor clicks the page top-left (x 6, y 8) first. Since box bar part A the bar holder passes taps through, so the click now lands in the first line and moves the caret after the T; the question was typed into the middle of the note ("TWhat does the nucleus hold?he nucleus holds DNA"), so Notes search found nothing. Before, the holder swallowed that click by accident.
+- Fix (test side only): typeInEditor and makeCard take { keepCaret: true } (no click, type at the caret); search.spec beforeEach uses it after Enter. No test weakened. Files: e2e/helpers.ts, e2e/search.spec.ts.
+
 ### 18 Nov 2026: box bar part B, move, dock and pin the bar; one size strip (slice/box-bar-b, Sonnet; switch textbox.v2)
 
 - Move: drag the bar by its grip anywhere in the page. Dock: drop it in a dashed zone on the top, bottom, left or right of the page; top and bottom lie flat, left and right stand upright (src/paper/v2/oneBarDockModel.ts, pure and unit tested; oneBarDock.tsx).

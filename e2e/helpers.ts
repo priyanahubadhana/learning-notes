@@ -234,7 +234,20 @@ export async function openPage(page: Page, title: string) {
 }
 
 /** Types text into the open page's editor and waits for autosave. */
-export async function typeInEditor(page: Page, text: string) {
+export async function typeInEditor(
+  page: Page,
+  text: string,
+  opts: { keepCaret?: boolean } = {},
+) {
+  if (opts.keepCaret) {
+    // Why: the caret is already where the test wants it (e.g. after Enter).
+    // The click below lands on the first line's first letters now that the
+    // box bar's holder passes taps through (box bar part A), and would move
+    // the caret into the middle of that line.
+    await page.keyboard.type(text)
+    await waitForSaved(page)
+    return
+  }
   // In Pencil mode the Lasso's pad lies over the page; the app places the
   // caret on the click, but Playwright would wait for the pad to move.
   // C34 (owner 18 Nov): with text box v2 a tap in the empty part of the first
@@ -457,8 +470,13 @@ export const searchResults = (page: Page) =>
   page.getByRole('main').getByRole('list', { name: 'Results' })
 
 /** Writes a question and turns it into a card (`total` cards afterwards). */
-export async function makeCard(page: Page, question: string, total: number) {
-  await typeInEditor(page, question)
+export async function makeCard(
+  page: Page,
+  question: string,
+  total: number,
+  opts: { keepCaret?: boolean } = {},
+) {
+  await typeInEditor(page, question, opts)
   await page.locator('.bn-block-content', { hasText: question }).first().hover()
   await page.locator('.bn-side-menu [draggable="true"]').click()
   await page.getByRole('menuitem', { name: 'Make card' }).click()

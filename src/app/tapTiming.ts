@@ -14,17 +14,24 @@ import { isOn } from './flags'
  * With the switch off the old numbers hold. Pure reads, tested.
  */
 
-export const TAP_SPEEDS = { quick: 350, normal: 500, relaxed: 700 } as const
+export const TAP_SPEEDS = {
+  quick: 350,
+  normal: 500,
+  relaxed: 700,
+  wide: 1000,
+} as const
 export type TapSpeed = keyof typeof TAP_SPEEDS
 
 /** Preview only: the owner's "Tap speed" pick (removed before release). */
 export const TAP_SPEED_KEY = 'learning-notes:preview.tapSpeed'
 
 /**
- * The tap speed when none is picked (C19, owner's iPad re-test 16 Nov:
- * "Relaxed felt best"; with Normal, double and triple taps still failed).
+ * The tap speed when none is picked. C19 (16 Nov) chose Relaxed (700 ms);
+ * F7 (owner's iPad re-test, 18 Nov): slow double taps still failed, so the
+ * window for the next tap is about 1 s ("Wide"). Every tap still acts at
+ * once; the window only decides whether the next tap adds to the run.
  */
-export const DEFAULT_TAP_SPEED: TapSpeed = 'relaxed'
+export const DEFAULT_TAP_SPEED: TapSpeed = 'wide'
 
 /** The tap speed picked on this device (Relaxed when none). */
 export function tapSpeed(): TapSpeed {

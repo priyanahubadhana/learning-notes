@@ -11,6 +11,7 @@ export const esFlags = {
   'flags.tapSpeed.quick': 'Rápida',
   'flags.tapSpeed.normal': 'Normal',
   'flags.tapSpeed.relaxed': 'Tranquila',
+  'flags.tapSpeed.wide': 'Amplia (1 s)',
   'flags.preset.on.name': 'Probar esta fase',
   'flags.preset.on.desc':
     'Sí: esta fase funciona y las siguientes siguen apagadas. No: todo lo nuevo se apaga.',

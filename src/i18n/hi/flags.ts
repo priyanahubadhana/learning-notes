@@ -11,6 +11,7 @@ export const hiFlags = {
   'flags.tapSpeed.quick': 'तेज़',
   'flags.tapSpeed.normal': 'सामान्य',
   'flags.tapSpeed.relaxed': 'आराम से',
+  'flags.tapSpeed.wide': 'खुली (1 सेकंड)',
   'flags.preset.on.name': 'यह चरण आज़माएँ',
   'flags.preset.on.desc':
     'चालू: यह चरण काम करता है, आगे के हिस्से बंद रहते हैं। बंद: सभी नए हिस्से बंद।',

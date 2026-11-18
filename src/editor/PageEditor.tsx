@@ -74,6 +74,7 @@ import { watchKeyboardPolicy } from './keyboardPolicy'
 import { watchTapSelect } from './tapSelect'
 import { watchScribbleDelete } from './scribbleDelete'
 import { watchHoldSelect } from './holdSelect'
+import { watchCircleSelect } from './circleSelect'
 import { watchHoldMenu, type HoldPoint } from './holdMenuWatch'
 import { HoldMenuLazy } from './HoldMenuLazy'
 import { PageStripLazy } from './menus/PageStripLazy'
@@ -869,6 +870,7 @@ function LoadedPageEditor({
       }
       const stopTap = watchTapSelect(editor, afterSelect)
       const stopHold = watchHoldSelect(editor, afterSelect)
+      const stopCircle = watchCircleSelect(editor, afterSelect)
       const stopMenu = watchHoldMenu(editor, setHoldAt, {
         rightClick: menusOnRef.current,
       })
@@ -887,6 +889,7 @@ function LoadedPageEditor({
         stopKeys()
         stopTap()
         stopHold()
+        stopCircle()
         stopMenu()
         stopGuard()
         stopScribble()

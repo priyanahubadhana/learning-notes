@@ -11,6 +11,7 @@ export const enLateFlags = {
   'flags.tapSpeed.quick': 'Quick',
   'flags.tapSpeed.normal': 'Normal',
   'flags.tapSpeed.relaxed': 'Relaxed',
+  'flags.tapSpeed.wide': 'Wide (1 s)',
   'flags.preset.on.name': 'Test this phase',
   'flags.preset.on.desc':
     'On: this phase works, later parts stay off. Off: every new part is off.',

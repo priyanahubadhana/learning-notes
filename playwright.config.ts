@@ -84,6 +84,7 @@ const config = defineConfig({
         /toolRowStays/, // re-test 18 Nov bug 1
         /pencilV2/, // Pencil mode shows the v2 look (owner 18 Nov)
         /firstBoxTap/, // re-test 18 Nov F1-F4
+        /iosSelect/, // re-test 18 Nov F5-F7
         /previewReload/, // re-test 18 Nov bug 2,
         /parts-gallery/,
         /updateStuck(Shots)?.spec.ts$/, // C22

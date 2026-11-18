@@ -622,6 +622,13 @@ export function watchTapSelect(
   }
   // C19: until this time stamp, the lift of a Pencil tap on the cursor is ours.
   let ownTouchEndUntil = 0
+  // F7 (owner 18 Nov): until this time stamp the lift of a touch (finger or
+  // Pencil) is ours. The 2nd and 3rd tap of a run select a word or a line, and
+  // a finger's tap on the caret is placed here: iPadOS reads the lift on a
+  // selection or a cursor as "show the edit menu" (Paste, Select, AutoFill),
+  // which flashed over our selection and took it away. Only a tap's own lift
+  // is held; a scroll or a drag never sets this.
+  let ownLiftUntil = 0
 
   /** Is this Pencil touch a second (or later) tap on the words? */
   const ours = (target: EventTarget | null, at: number, x: number, y: number) =>
@@ -719,6 +726,7 @@ export function watchTapSelect(
       isOn('textbox.v2') &&
       !!dom.closest('[data-paper-box]:not([data-paper-box="main"])')
     ownMouseUntil = level >= 2 || ownCaret ? now + 700 : 0
+    if (level >= 2 && isOn('textbox.v2')) ownLiftUntil = now + 800
     // The tap that selects a box types nothing and shows no keyboard; the
     // taps after the first on the Pencil are held off (R6-18).
     if (level <= 0) {
@@ -738,6 +746,11 @@ export function watchTapSelect(
     if (!e.cancelable) return
     if (e.type === 'touchend') {
       if (Date.now() < touchEndHold.until) {
+        e.preventDefault()
+        return
+      }
+      if (stampOf(e) < ownLiftUntil) {
+        ownLiftUntil = 0
         e.preventDefault()
         return
       }
@@ -787,6 +800,8 @@ export function watchTapSelect(
           ? 0
           : tapLevel(count, start.shift, strictFor(start.tool))
     last = { ...start, at: stampOf(e), x: e.clientX, y: e.clientY }
+    // The lift of a word or line tap, up to its own touchend (F7).
+    if (level >= 2 && isOn('textbox.v2')) ownLiftUntil = stampOf(e) + 300
     // A lone tap on a handle starts a run but moves no caret (as before).
     if (start.handle && level === 1) return
     const view = editor.prosemirrorView
@@ -811,10 +826,11 @@ export function watchTapSelect(
     // its mouse events are kept from the browser (no edit menu).
     const caretTapped =
       level === 1 &&
-      e.pointerType === 'pen' &&
+      (e.pointerType === 'pen' || e.pointerType === 'touch') &&
       start.tool === 'text' &&
       onCaret(start.x, start.y)
     if (caretTapped) {
+      if (e.pointerType === 'touch') ownLiftUntil = stampOf(e) + 300
       ownTouchEndUntil = stampOf(e) + 300
       ownMouseUntil = stampOf(e) + 700
     }

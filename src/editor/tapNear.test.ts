@@ -19,10 +19,10 @@ afterEach(() => {
 })
 
 describe('tap speed (C19)', () => {
-  it('Relaxed (700 ms) when nothing is picked', () => {
+  it('Wide (1000 ms, F7 18 Nov) when nothing is picked', () => {
     setFlag('textbox.v2', true)
-    expect(tapSpeed()).toBe('relaxed')
-    expect(gapMs(450)).toBe(700)
+    expect(tapSpeed()).toBe('wide')
+    expect(gapMs(450)).toBe(1000)
   })
   it('a pick still wins; the switch off keeps the old number', () => {
     setFlag('textbox.v2', true)
@@ -44,7 +44,16 @@ describe('how far off the next tap may land (C19)', () => {
   it('switch on: further off still counts on the same word, never too late', () => {
     setFlag('textbox.v2', true)
     expect(nextTapCount(last, 1400, 160, 100, true)).toBe(2)
+    // The picked Relaxed speed (700 ms) still ends a run at 701 ms.
+    localStorage.setItem(TAP_SPEED_KEY, '"relaxed"')
     expect(nextTapCount(last, 1000 + 701, 160, 100, true)).toBe(1)
+    // F7: with nothing picked, taps 600 and 950 ms apart still add up; 1001 does not.
+    localStorage.removeItem(TAP_SPEED_KEY)
+    expect(nextTapCount(last, 1000 + 600, 100, 100)).toBe(2)
+    expect(nextTapCount(last, 1000 + 950, 120, 100)).toBe(2)
+    expect(nextTapCount(last, 1000 + 1001, 100, 100)).toBe(1)
+    // Two taps far apart on different words never join, however quick.
+    expect(nextTapCount(last, 1000 + 600, 300, 100, false)).toBe(1)
   })
   it('switch off: 12 px, as before', () => {
     expect(nextTapCount(last, 1400, 112, 100)).toBe(2)

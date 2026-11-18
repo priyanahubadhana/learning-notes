@@ -242,9 +242,9 @@ for (const mode of MODES) {
         // Acts at once: no waiting for a third tap.
         await expect
           .poll(() => selectedText(page), { timeout: 600 })
-          .toBe('fresh')
+          .toBe('plain')
         await page.waitForTimeout(800)
-        expect(await selectedText(page)).toBe('fresh')
+        expect(await selectedText(page)).toBe('plain')
         await expect(ourStrip(page)).toBeVisible()
         if (how === 'finger')
           expect(await cancelled(page)).toContain('touchend')
@@ -359,15 +359,15 @@ for (const mode of MODES) {
         }
         throw new Error('no text ' + w)
       }, word) as Promise<Box>
-    // A double tap (600 ms apart) on "plain": the word, still there later.
-    const plain = await where('fresh')
-    await tapRun(page, 'pen', centre(plain), 1, 0)
+    // A double tap (600 ms apart) on "fresh": the word, still there later.
+    const fresh = await where('fresh')
+    await tapRun(page, 'pen', centre(fresh), 1, 0)
     await page.waitForTimeout(1300)
-    await tapRun(page, 'pen', centre(plain), 2, 600)
+    await tapRun(page, 'pen', centre(fresh), 2, 600)
     await expect.poll(() => selectedText(page), { timeout: 800 }).toBe('fresh')
     await page.waitForTimeout(800)
     expect(await selectedText(page)).toBe('fresh')
-    // A circle round "words": exactly that word, our strip.
+    // A circle round "rivers": exactly that word, our strip.
     await page.keyboard.press('Escape')
     await page.waitForTimeout(500)
     const words = await where('rivers')

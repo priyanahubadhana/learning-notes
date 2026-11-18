@@ -58,3 +58,5 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 2026-11-18T17:00+05:30,box-bar,box-bar-b,sonnet,583055,2,2,0,1.5,move/dock/pin bar, Text tool size strip; round 2 after docked bar clipped
 2026-11-18T08:30+05:30,re-test,retest-bugs-18nov,sonnet,139290,1,1,0,0.5,bug 2 flags.ts load-order (from preview-phase-default); bug 1 stale bar owner; tests for 4 and 5
 2026-11-18T10:00+05:30,re-test,pencil-mode-v2,sonnet,0,1,1,0,1.2,first box tap-below button in touch/pencil modes; BlockNote hint; empty-box sweep (bug 6 unproven)
+18 Nov,slice/first-box-tap,F1-F4 first box taps + owner tap rules,Sonnet,2 review rounds (flaky pen test root-caused),merged b28a94b3
+18 Nov,slice/caret-jump-save,B7 first letters scrambled on new page,Sonnet,1 review round,merged ec9e1416

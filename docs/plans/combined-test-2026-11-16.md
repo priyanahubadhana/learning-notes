@@ -195,3 +195,5 @@ Reload the test page; preset "Up to Phase 2B"; Pencil.
   - Bug 1 details (owner): it was the page's FIRST box (no other box); deleted with the new bar's 🗑, and earlier with the ≡ hold menu → Delete: same result. The tool row stays gone until a tap makes a new box ("+ box"), then it returns. Picture: retest-18nov/bug1-after-delete.png.
 - **Bug 2: a reload turns the 2B test off.** After reloading, Settings › Test a phase › 2B had to be switched on again by hand (breaks "phase under test ON by default", PREVIEW_PHASE). Maybe linked to bug 1's state.
 - **Bug 3: the new box after deleting has a style the owner did not pick:** a green fill with a dashed border (a style used once before). Picture: retest-18nov/bug3-green-new-box.png. Check "Use for new boxes" / the remembered box style.
+  - Bug 2 details (owner): it happens on a plain reload of a normal page too (nothing deleted): the 2B test and "all those settings" go back to the start. A bug of its own, not caused by bug 1.
+  - Bug 3: closed. The owner had ticked "Use for new boxes" on that style; working as designed.

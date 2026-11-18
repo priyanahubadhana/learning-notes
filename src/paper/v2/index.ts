@@ -45,7 +45,7 @@ function mainEmptyPart(
 ): Element | null {
   const main = target?.closest('[data-paper-box="main"]')
   const ed = main?.querySelector<HTMLElement>('.ProseMirror')
-  if (!main || !ed || main.contains(document.activeElement)) return null
+  if (!main || !ed) return null
   // C34 (owner 18 Nov): an empty page is no exception: its first box is
   // selected by a tap away from the caret spot (C30b kept the caret there).
   if (nearText(ed, e.clientX, e.clientY)) return null
@@ -56,6 +56,39 @@ function mainEmptyPart(
   if (type && !TEXT_BLOCK.test(type)) return null
   return main
 }
+
+/**
+ * Re-test 18 Nov (F4): a tap anywhere inside the first box, its frame and
+ * border included, is a tap on that box, never on the paper beside it (the
+ * Text tool's "+ box"). The frame lies a few px outside the box's own element.
+ */
+const FRAME_GAP_X = 13
+const FRAME_GAP_Y = 7
+function mainFrameHit(target: Element | null, e: PointerEvent): Element | null {
+  if (
+    !target?.closest('[data-paper-wrap]') ||
+    target.closest('[data-paper-box], [data-ui]')
+  )
+    return null
+  const main = document.querySelector('[data-paper-box="main"]')
+  if (!main) return null
+  const m = main.getBoundingClientRect()
+  const f = document.querySelector('[data-main-frame]')?.getBoundingClientRect()
+  const left = Math.min(m.left - FRAME_GAP_X, f?.left ?? 1e9)
+  const right = Math.max(m.right + FRAME_GAP_X, f?.right ?? -1e9)
+  const top = Math.min(m.top - FRAME_GAP_Y, f?.top ?? 1e9)
+  const bottom = Math.max(m.bottom + FRAME_GAP_Y, f?.bottom ?? -1e9)
+  const inside =
+    e.clientX >= left &&
+    e.clientX <= right &&
+    e.clientY >= top &&
+    e.clientY <= bottom
+  return inside ? main : null
+}
+
+/** Has this box any words (the empty line of a new box has none)? */
+const hasWords = (box: Element) =>
+  !!box.querySelector('.ProseMirror')?.textContent?.trim()
 
 const editors = (root: ParentNode = document) =>
   root.querySelectorAll<HTMLElement>('[data-paper-box] .ProseMirror')
@@ -90,6 +123,14 @@ export function installBoxV2(): () => void {
   let mode: 'none' | 'text' = 'text'
   let tap: Tap | null = null
   let swallowUntil = 0
+  /**
+   * The lift of a tap that only selects a box (or keeps the caret) is cancelled
+   * too: iOS reads a lift on the text as "show Paste / Select / AutoFill".
+   */
+  let touchEndUntil = 0
+  const onTouchEnd = (e: TouchEvent) => {
+    if (Date.now() < touchEndUntil && e.cancelable) e.preventDefault()
+  }
   /** The tap that only selected a box makes no click on the text under it. */
   const stopClick = (e: Event) => {
     if (!dragging()) {
@@ -129,29 +170,54 @@ export function installBoxV2(): () => void {
     setInputMode(mode)
     sweepOnPaper(e)
     tap = null
+    touchEndUntil = 0
     if (e.button > 0 || activeTool.get() !== 'text') return
     const target = e.target instanceof Element ? e.target : null
-    const box = target?.closest(EXTRA) ?? mainEmptyPart(target, e)
+    const box =
+      target?.closest(EXTRA) ??
+      mainEmptyPart(target, e) ??
+      mainFrameHit(target, e)
     if (!box || target?.closest(OWN_TAP)) return
-    const picked = box.hasAttribute('data-picked')
-    // A tap on the words: tapSelect runs the first-tap rule (textFirstTap).
-    // (The empty trailing block under the text is not words: it counts as padding.)
+    const isMain = box.getAttribute('data-paper-box') === 'main'
+    const focused = box.contains(document.activeElement)
+    const picked =
+      box.hasAttribute('data-picked') || box.hasAttribute('data-main-picked')
+    // A tap on the words: tapSelect runs the first-tap rule (textFirstTap),
+    // except in the empty part of a box with the caret in it (owner 18 Nov:
+    // then it selects the box, or keeps the caret in an empty one, and the
+    // iOS edit menu never shows). (The empty trailing block under the text is
+    // not words: it counts as padding.)
+    const ed = box.querySelector<HTMLElement>('.ProseMirror')
     if (
-      box.getAttribute('data-paper-box') !== 'main' &&
+      !isMain &&
       target?.closest('.ProseMirror') &&
-      !target.closest('[contenteditable="false"]')
+      !target.closest('[contenteditable="false"]') &&
+      !(focused && ed && !nearText(ed, e.clientX, e.clientY))
     )
       return
+    // Typing in an empty box: a tap away from the caret keeps the caret.
+    if (
+      focused &&
+      !hasWords(box) &&
+      !(ed && nearText(ed, e.clientX, e.clientY))
+    ) {
+      swallowUntil = Date.now() + 600
+      touchEndUntil = Date.now() + 600
+      e.stopImmediatePropagation()
+      if (e.cancelable) e.preventDefault()
+      return
+    }
     tap = {
       id: e.pointerId,
       x: e.clientX,
       y: e.clientY,
       at: Date.now(),
       box: box.getAttribute('data-paper-box') ?? '',
-      kind: picked ? 'pad' : 'select',
+      kind: picked && !focused ? 'pad' : 'select',
       pen: e.pointerType === 'pen',
     }
     swallowUntil = Date.now() + 600
+    touchEndUntil = Date.now() + 600
     e.stopImmediatePropagation()
     if (e.cancelable) e.preventDefault()
   }
@@ -182,7 +248,10 @@ export function installBoxV2(): () => void {
       )
       return
     }
-    // A picked box: its empty part keeps it selected (no caret).
+    // A picked box: its empty part keeps it selected (no caret), unless it
+    // is empty: the second tap puts the caret at the start of its line
+    // (owner 18 Nov, rule 1).
+    if (!hasWords(box)) placeCaretNearest(box, e.clientX, e.clientY)
   }
 
   /**
@@ -251,6 +320,10 @@ export function installBoxV2(): () => void {
     router.subscribe('click', (e) => void stopClick(e), first),
     router.subscribe('keydown', (e) => void onKey(e), first),
   ]
+  window.addEventListener('touchend', onTouchEnd, {
+    capture: true,
+    passive: false,
+  })
   watch.observe(document.body, { childList: true, subtree: true })
   mirror.observe(document.body, {
     attributes: true,
@@ -260,6 +333,7 @@ export function installBoxV2(): () => void {
   })
   return () => {
     for (const off of offs) off()
+    window.removeEventListener('touchend', onTouchEnd, true)
     router.destroy()
     textFirstTap.on = false
     watch.disconnect()

@@ -106,7 +106,7 @@ export default function BoxBarV2({
       // part of another box may lie under the bar; the holder passes taps through).
       const others = [
         ...document.querySelectorAll(
-          '[data-paper-box] .bn-block-content, [data-paper-add-end]',
+          '[data-paper-box] .bn-block-content, [data-paper-add-end], [data-page-tabs]',
         ),
       ]
         .filter(

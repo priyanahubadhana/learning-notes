@@ -374,11 +374,22 @@ export function tapLevel(
   return count === 1 ? 1 - shift : count
 }
 
+/** A tap this close to a box's side edge (or outside it) is on its border (px). */
+const BORDER_PX = 6
+
 /**
  * C30 (owner 17 Nov): is (x, y) on a written line of the editor, or up to about
  * 1.75 letters (measured in that line's font size) before or past its words?
  */
 export function nearText(dom: HTMLElement, x: number, y: number): boolean {
+  // Owner 18 Nov, rule 3: a tap on or next to the box's border (side edges)
+  // selects the box, even where the words run to that edge.
+  const boxEl = dom.closest('[data-paper-box]')
+  if (boxEl) {
+    const b = boxEl.getBoundingClientRect()
+    if (b.width > 0 && (x < b.left + BORDER_PX || x > b.right - BORDER_PX))
+      return false
+  }
   const range = dom.ownerDocument.createRange()
   // Owner 18 Nov: on an empty page the grey hint line counts as text, so a tap
   // on or near it gives the caret; only a tap clearly away selects the box.

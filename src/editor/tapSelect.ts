@@ -331,6 +331,13 @@ export const handleTapped = (e: Event): boolean =>
 let boxTapUntil = 0
 export const boxTapPending = (): boolean => Date.now() < boxTapUntil
 
+/**
+ * Owner 18 Nov: until this time (ms) the lift of a touch is cancelled. Set by
+ * the box tap rules (paper/v2) for a tap that only selects a box or keeps the
+ * caret: iOS reads a lift on the text as "show Paste / Select / AutoFill".
+ */
+export const touchEndHold = { until: 0 }
+
 /** Fired on window when a first tap selects a box: detail {id, add}. */
 export const PICK_BOX = 'ln:pick-box'
 
@@ -374,12 +381,19 @@ export function tapLevel(
   return count === 1 ? 1 - shift : count
 }
 
-/** A tap this close to a box's side edge (or outside it) is on its border (px). */
+/**
+ * Owner 18 Nov: "near the words" is about one letter's width (a letter is
+ * about 0.6 em wide) sideways from the nearest word of a line. Further out in
+ * the empty part, a tap selects the box.
+ */
+export const NEAR_REACH_EM = 0.6
+
+/** A tap this close to a box's right edge (or outside it) is on its border (px). */
 const BORDER_PX = 6
 
 /**
- * C30 (owner 17 Nov): is (x, y) on a written line of the editor, or up to about
- * 1.75 letters (measured in that line's font size) before or past its words?
+ * C30 (owner 17 Nov): is (x, y) on a written line of the editor, or up to one
+ * letter's width (NEAR_REACH_EM, in that line's font size) before or past its words?
  */
 export function nearText(dom: HTMLElement, x: number, y: number): boolean {
   // Owner 18 Nov, rule 3: a tap on or next to the box's border (side edges)
@@ -387,8 +401,7 @@ export function nearText(dom: HTMLElement, x: number, y: number): boolean {
   const boxEl = dom.closest('[data-paper-box]')
   if (boxEl) {
     const b = boxEl.getBoundingClientRect()
-    if (b.width > 0 && (x < b.left + BORDER_PX || x > b.right - BORDER_PX))
-      return false
+    if (b.width > 0 && (x < b.left || x > b.right - BORDER_PX)) return false
   }
   const range = dom.ownerDocument.createRange()
   // Owner 18 Nov: on an empty page the grey hint line counts as text, so a tap
@@ -404,8 +417,8 @@ export function nearText(dom: HTMLElement, x: number, y: number): boolean {
     if (
       h.width > 0 &&
       Math.abs(y - (h.top + h.bottom) / 2) <= hl / 2 &&
-      x >= h.left - 1.05 * hf &&
-      x <= h.right + 1.05 * hf
+      x >= h.left - NEAR_REACH_EM * hf &&
+      x <= h.right + NEAR_REACH_EM * hf
     )
       return true
   }
@@ -413,14 +426,13 @@ export function nearText(dom: HTMLElement, x: number, y: number): boolean {
     const st = getComputedStyle(el)
     const fs = parseFloat(st.fontSize) || 16
     const lh = parseFloat(st.lineHeight) || fs * 1.5
-    // A letter is about 0.6 em wide: 1.75 letters is about 1.05 em.
-    const reach = 1.05 * fs
+    const reach = NEAR_REACH_EM * fs
     range.selectNodeContents(el)
     const rects = [...range.getClientRects()].filter(
       (r) => r.width > 0 && r.height > 0,
     )
     // C34 (owner 18 Nov): an empty line has no words to be near. Its own box
-    // counts: from its left edge (where the caret stands) to 1.75 letters
+    // counts: from its left edge (where the caret stands) to one letter
     // past it, on its own row. The rest of the box is empty part.
     if (!rects.length && !el.textContent) {
       const b = el.getBoundingClientRect()
@@ -725,6 +737,10 @@ export function watchTapSelect(
   const onTouchStart = (e: TouchEvent) => {
     if (!e.cancelable) return
     if (e.type === 'touchend') {
+      if (Date.now() < touchEndHold.until) {
+        e.preventDefault()
+        return
+      }
       // C19: the lift of a Pencil tap on the text cursor. iPadOS reads a tap
       // on the cursor as "show the edit menu" (Paste, Select): the menu
       // flashed, and it took the next tap of a double tap. Only the lift is

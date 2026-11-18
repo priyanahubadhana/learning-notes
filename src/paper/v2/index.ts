@@ -3,7 +3,12 @@ import {
   PRIORITY,
   type RouterTargets,
 } from '../../app/input/eventRouter'
-import { PICK_BOX, nearText, textFirstTap } from '../../editor/tapSelect'
+import {
+  PICK_BOX,
+  nearText,
+  textFirstTap,
+  touchEndHold,
+} from '../../editor/tapSelect'
 import { activeTool } from '../../app/tools/main/mainTools'
 import { selection } from '../../app/selection/store'
 import { clearBoxes, inputModeFor, isTap, selectBoxes } from './boxSelection'
@@ -127,10 +132,6 @@ export function installBoxV2(): () => void {
    * The lift of a tap that only selects a box (or keeps the caret) is cancelled
    * too: iOS reads a lift on the text as "show Paste / Select / AutoFill".
    */
-  let touchEndUntil = 0
-  const onTouchEnd = (e: TouchEvent) => {
-    if (Date.now() < touchEndUntil && e.cancelable) e.preventDefault()
-  }
   /** The tap that only selected a box makes no click on the text under it. */
   const stopClick = (e: Event) => {
     if (!dragging()) {
@@ -170,7 +171,7 @@ export function installBoxV2(): () => void {
     setInputMode(mode)
     sweepOnPaper(e)
     tap = null
-    touchEndUntil = 0
+    touchEndHold.until = 0
     if (e.button > 0 || activeTool.get() !== 'text') return
     const target = e.target instanceof Element ? e.target : null
     const box =
@@ -202,7 +203,7 @@ export function installBoxV2(): () => void {
       !(ed && nearText(ed, e.clientX, e.clientY))
     ) {
       swallowUntil = Date.now() + 600
-      touchEndUntil = Date.now() + 600
+      touchEndHold.until = Date.now() + 600
       e.stopImmediatePropagation()
       if (e.cancelable) e.preventDefault()
       return
@@ -217,7 +218,7 @@ export function installBoxV2(): () => void {
       pen: e.pointerType === 'pen',
     }
     swallowUntil = Date.now() + 600
-    touchEndUntil = Date.now() + 600
+    touchEndHold.until = Date.now() + 600
     e.stopImmediatePropagation()
     if (e.cancelable) e.preventDefault()
   }
@@ -320,10 +321,6 @@ export function installBoxV2(): () => void {
     router.subscribe('click', (e) => void stopClick(e), first),
     router.subscribe('keydown', (e) => void onKey(e), first),
   ]
-  window.addEventListener('touchend', onTouchEnd, {
-    capture: true,
-    passive: false,
-  })
   watch.observe(document.body, { childList: true, subtree: true })
   mirror.observe(document.body, {
     attributes: true,
@@ -333,7 +330,6 @@ export function installBoxV2(): () => void {
   })
   return () => {
     for (const off of offs) off()
-    window.removeEventListener('touchend', onTouchEnd, true)
     router.destroy()
     textFirstTap.on = false
     watch.disconnect()

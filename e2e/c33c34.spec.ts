@@ -168,8 +168,8 @@ test('owner 18 Nov, hint tap: a tap on or near the hint gives the caret; a tap c
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   await page.keyboard.press('Escape')
   await page.waitForTimeout(500)
-  // Just past the hint's end (about 1.5 letters): still near.
-  await page.mouse.click(h.x + h.width + 12, h.y + h.height / 2)
+  // Just past the hint's end (within one letter, owner 18 Nov): still near.
+  await page.mouse.click(h.x + h.width + 5, h.y + h.height / 2)
   await page.waitForTimeout(400)
   expect(await typing()).toBe(true)
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())

@@ -79,12 +79,12 @@ async function mainWithWords(page: Page, name: string) {
 }
 
 for (const how of ['pen', 'finger'] as const) {
-  test(`C30b (${how}): a tap 1.5 letters past the words of the first box gives the caret at once`, async ({
+  test(`C30b (${how}): a tap within one letter past the words of the first box gives the caret at once`, async ({
     page,
   }) => {
     const main = await mainWithWords(page, `MainNear ${how}`)
     const e = await lineEnd(main)
-    await tapAt(page, e.right + 1.5 * 0.6 * e.fs, e.mid, how)
+    await tapAt(page, e.right + 0.8 * 0.6 * e.fs, e.mid, how)
     expect(await typingIn(main)).toBe(true)
   })
 

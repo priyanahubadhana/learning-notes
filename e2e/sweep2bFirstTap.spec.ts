@@ -83,7 +83,7 @@ async function boxWithWords(page: Page, name: string) {
 }
 
 for (const how of ['pen', 'finger'] as const) {
-  for (const letters of [1, 1.5])
+  for (const letters of [0.5, 0.9])
     test(`C30 (${how}): a tap ${letters} letter(s) past the last word of an unselected box puts the caret there at once`, async ({
       page,
     }) => {
@@ -94,12 +94,12 @@ for (const how of ['pen', 'finger'] as const) {
       await expect(box).not.toHaveAttribute('data-picked', '')
     })
 
-  test(`C30 (${how}): a tap 3 letters or more past the words selects the box (no caret)`, async ({
+  test(`C30 (${how}): a tap 1.5 letters or more past the words selects the box (no caret)`, async ({
     page,
   }) => {
     const box = await boxWithWords(page, `Far ${how}`)
     const e = await lineEnd(box)
-    await tapAt(page, e.right + 3.5 * 0.6 * e.fs, e.mid, how)
+    await tapAt(page, e.right + 1.5 * 0.6 * e.fs, e.mid, how)
     await expect(box).toHaveAttribute('data-picked', '')
     expect(await typingIn(box)).toBe(false)
   })

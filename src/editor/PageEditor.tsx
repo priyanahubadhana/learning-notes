@@ -445,6 +445,11 @@ function LoadedPageEditor({
   // Phase Q: a box other than the default one (no ink, no page controls yet).
   const extraBox = !!boxId && boxId !== MAIN_BOX
   const ownsBar = useOwnsBar(pageId, boxId)
+  // This box is gone: the bar goes back to the default box (re-test 18 Nov, bug 1).
+  useEffect(
+    () => () => activeBox.clear(pageId, boxId ?? MAIN_BOX),
+    [pageId, boxId],
+  )
   // The page's own editor has now decided whether to draw the bar: the space
   // kept for it (BarRoom) is not needed any more.
   useLayoutEffect(() => {

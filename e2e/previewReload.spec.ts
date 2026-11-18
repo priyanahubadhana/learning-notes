@@ -1,4 +1,6 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from '@playwright/test'
+import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import { addBox } from './cBoxesHelpers.ts'
 
 /**
  * Re-test 18 Nov, bug 2: on the preview host a plain reload must keep the
@@ -76,4 +78,73 @@ test('RB-2 a plain reload keeps the test phase, the user choices and other saved
     expect(after.flags).toContain('textbox.v2')
     expect(after.flags).not.toContain('page.menus')
   }
+})
+
+test('RB-4 on the preview host a new page is v2 at once: hint shown, first box and a new box look the same', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await seedTwoB(page)
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Equal')
+  await expect(page.getByText('Type, or tap anywhere')).toBeVisible()
+  const main = page.locator('[data-paper-box="main"]')
+  await typeInEditor(page, 'First')
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  await page.waitForTimeout(800)
+  const extra = await addBox(page, ['Second'])
+  const look = (l: Locator) =>
+    l.evaluate((el) => {
+      const c = el.querySelector('.bn-editor') as HTMLElement
+      const b = el.querySelector('.bn-inline-content') as HTMLElement
+      const cs = getComputedStyle(c)
+      return {
+        h: Math.round(c.getBoundingClientRect().height),
+        outer: Math.round(el.getBoundingClientRect().height),
+        pad: [cs.paddingTop, cs.paddingBottom, cs.paddingLeft, cs.paddingRight],
+        font: getComputedStyle(b).fontSize,
+      }
+    })
+  const [m, x] = [await look(main), await look(extra)]
+  // Same text size and padding, and each is one line tall. The outer boxes differ by the
+  // frame (about 5 px): reported to the owner, not changed here.
+  expect(m.font).toEqual(x.font)
+  expect(m.pad).toEqual(x.pad)
+  expect(m.h).toBeLessThan(40)
+  expect(x.h).toBeLessThan(40)
+})
+
+async function seedTwoB(page: Page) {
+  // The saved choice of a tester with 2B on (the notebook list stays the old one, which the helper knows).
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'learning-notes:flags',
+      JSON.stringify([
+        'foundation.shell',
+        'toolbar.v8',
+        'toolbar.menu',
+        'page.menus',
+        'textbox.v2',
+        'settings.v3',
+      ]),
+    )
+    localStorage.setItem('learning-notes:preview-phase', 'phase2b')
+  })
+}
+
+test('RB-5 with the caret in the first box, a tap in its empty part makes no new line', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await seedTwoB(page)
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Empty tap')
+  await typeInEditor(page, 'First')
+  const main = page.locator('[data-paper-box="main"]')
+  const blocks = main.locator('.bn-block-content')
+  await expect(blocks).toHaveCount(1)
+  const r = (await main.boundingBox())!
+  await page.mouse.click(r.x + r.width - 20, r.y + r.height - 6)
+  await page.waitForTimeout(600)
+  await expect(blocks).toHaveCount(1)
 })

@@ -81,6 +81,8 @@ const config = defineConfig({
       testIgnore: [/visual\//, /tb2-resize-phone-swipe/], // 2B.5b: a real swipe, chromium only
       testMatch: [
         /eraserShapes/,
+        /toolRowStays/, // re-test 18 Nov bug 1
+        /previewReload/, // re-test 18 Nov bug 2,
         /parts-gallery/,
         /updateStuck(Shots)?.spec.ts$/, // C22
         /c45-symbols-scribble/, // C4, C5, C14 (combined test 16 Nov)

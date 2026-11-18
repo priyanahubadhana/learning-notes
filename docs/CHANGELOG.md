@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 18 Nov 2026: re-test bugs 1, 2, 4, 5 (slice/retest-bugs-18nov, Sonnet)
+
+- Bug 2 root cause (src/app/flags.ts): readStored() ran when the module loaded and read the phase table (PHASE_ADDS) that was defined further down the file. It was not built yet, the error was caught, and the answer was an empty list. So on the preview host every start lost every saved switch and never wrote the phase marker; textbox.v2 was off after each reload (also the cause of bugs 4 and 5 looking like the old v2-off page). Fix: the table now sits above readStored(). No server sync is involved: switches live only in this device's localStorage.
+- Bug 1 root cause (src/paper/activeBox.ts, src/editor/PageEditor.tsx): the tool row is drawn by the editor that owns the bar. After the page's only extra box was deleted the bar owner still named that gone box, so no editor drew the tool row. A box that leaves the page now hands the bar back (activeBox.clear).
+- Not changed: the first (main) box and a new box have the same text size and padding and are one line, but the outer box differs by the frame (about 5 px). Reported to the owner.
+- Tests: e2e/previewReload.spec.ts (RB-2, RB-4, RB-5), e2e/toolRowStays.spec.ts (RB-1, RB-1b; both on chromium and ipad-webkit), unit src/app/flags.test.ts.
+
 ### 18 Nov 2026: box bar part B, move, dock and pin the bar; one size strip (slice/box-bar-b, Sonnet; switch textbox.v2)
 
 - Move: drag the bar by its grip anywhere in the page. Dock: drop it in a dashed zone on the top, bottom, left or right of the page; top and bottom lie flat, left and right stand upright (src/paper/v2/oneBarDockModel.ts, pure and unit tested; oneBarDock.tsx).

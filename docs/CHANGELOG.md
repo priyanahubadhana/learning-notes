@@ -2,6 +2,15 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 18 Nov 2026: first-box taps F1 to F4 and the owner's tap rules (slice/first-box-tap, Sonnet)
+
+- F2 cause: the box bar's room search (v2/BoxBarV2.tsx) did not count the page tabs as taken space; it now does (above has no room, so the bar goes below).
+- F3 cause: with the caret in a box (a new page focuses the first box) a tap in its empty part was left to the browser: it moved the caret and iOS showed Paste / Select / AutoFill. Now (v2/index.ts) such a tap selects the box when it has words, keeps the caret in an empty box, and its pointerdown and lift (touchend, via tapSelect `touchEndHold`) are cancelled, so no native caret or callout. Rules 1 to 3 of the owner (empty box: tap 1 selects, tap 2 caret at the start; words: empty part selects, also while typing; words to the edge: near the words caret, on the border box) are tested for every box kind that the first-box spec covers.
+- F4 cause: the frame border lies a few px outside the first box's own element, so a tap there reached the paper (the Text tool's new box). `mainFrameHit` makes the frame area the box.
+- Reach: "near the words" is now one letter's width (`NEAR_REACH_EM` = 0.6 em in tapSelect.ts; was 1.75 letters). The right 6 px of a box and anything outside it count as the border, never near. Tests that used the old 1.5 letters (c33c34 hint tap, mainFirstTapC30b, sweep2bFirstTap) now use 0.8 letters (caret) and 1.5 letters (box) on each side of the line.
+- F1: the hint stays in every step (empty first box tapped, selected, caret in); guarded by e2e/firstBoxTap.spec.ts (no failing cause found in the test browsers).
+- Tests: e2e/firstBoxTap.spec.ts (added to the ipad-webkit list in playwright.config.ts). Pictures: screenshots/first-box-tap/.
+
 ### 18 Nov 2026: the first box in Touch and Pencil modes (slice/pencil-mode-v2, Sonnet)
 
 - Root cause (NOT Pencil-specific; Touch too): in Touch and Pencil modes PageEditor draws a "tap below" button (about 96 px tall plus a margin, `.ln-tap-below`) INSIDE the page's first box. With textbox.v2 it made the first box about 4 lines tall, and a tap in its empty part ran focusEndLine (a new line) instead of selecting the box. Computer mode has no such button, so every older e2e test (computer mode) passed. New boxes are not affected (the button is not drawn there). Fix (src/paper/v2/boxV2.css): with textbox.v2 the first box hides that button (only the empty page's hint carrier, `data-hint`, stays).

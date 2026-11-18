@@ -54,6 +54,49 @@ const MAIN = '[data-paper-box="main"]'
 const LINE1 = 'Service rate-is on 23-11-2000 done'
 const LINE2 = 'Another line of plain words'
 
+/** An older page: a Q/A card in the first paper box (made on the page itself), caret out. */
+async function openCardPage(page: Page, mode: 'pencil' | 'touch') {
+  await installRealPen(page)
+  await page.addInitScript(
+    (f) => localStorage.setItem('learning-notes:flags', JSON.stringify(f)),
+    FLAGS,
+  )
+  // The card is made in Computer mode (the block menu is there); the page is
+  // then reloaded in the wanted device mode, as an older page would open.
+  await startInMode(page, 'computer')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'Old page')
+  await typeInEditor(page, 'Question about lakes')
+  await page
+    .locator('.bn-block-content', { hasText: 'Question about lakes' })
+    .first()
+    .hover()
+  await page.locator('.bn-side-menu [draggable="true"]').click()
+  await page.getByRole('menuitem', { name: 'Make card' }).click()
+  await page.keyboard.type('An answer with fresh rivers here')
+  await expect(page.locator(MAIN)).toContainText('with fresh rivers here')
+  await waitForSaved(page)
+  await page.waitForTimeout(700)
+  await page.evaluate((m) => {
+    const presets = {
+      touch: ['top', 'normal', 'off', 'off'],
+      pencil: ['top', 'large', 'off', 'off'],
+    }[m as 'touch' | 'pencil']
+    const set = (k: string, v: string) =>
+      localStorage.setItem('learning-notes:' + k, JSON.stringify(v))
+    set('general.deviceMode', m)
+    set('advanced.barPlacement', presets[0])
+    set('advanced.barSize', presets[1])
+    set('advanced.hoverTips', presets[2])
+    set('advanced.shortcutHints', presets[3])
+  }, mode)
+  await page.reload()
+  await expect(page.locator(MAIN)).toContainText('with fresh rivers here')
+  const text = page.getByRole('button', { name: 'Text', exact: true }).first()
+  if ((await text.getAttribute('aria-pressed')) !== 'true') await text.click()
+  await page.waitForTimeout(900)
+}
+
 async function open(page: Page, mode: 'pencil' | 'touch') {
   await installRealPen(page)
   await page.addInitScript(
@@ -199,9 +242,9 @@ for (const mode of MODES) {
         // Acts at once: no waiting for a third tap.
         await expect
           .poll(() => selectedText(page), { timeout: 600 })
-          .toBe('plain')
+          .toBe('fresh')
         await page.waitForTimeout(800)
-        expect(await selectedText(page)).toBe('plain')
+        expect(await selectedText(page)).toBe('fresh')
         await expect(ourStrip(page)).toBeVisible()
         if (how === 'finger')
           expect(await cancelled(page)).toContain('touchend')
@@ -269,4 +312,70 @@ for (const mode of MODES) {
       expect(lift).toBe(true)
     })
   }
+}
+
+/** A loop round (cx, cy), starting at its left edge as a hand does. */
+const loop = (c: Pt, rx: number, ry: number): Pt[] =>
+  Array.from({ length: 27 }, (_, i) => {
+    const a = Math.PI + (i / 24) * Math.PI * 2
+    return { x: c.x + Math.cos(a) * rx, y: c.y + Math.sin(a) * ry }
+  })
+
+for (const mode of MODES) {
+  test(`F6 ${mode} mode, pen: a handwriting-sized loop that encloses no character is left alone (nothing selected, no strip, text unchanged)`, async ({
+    page,
+  }) => {
+    await open(page, mode)
+    // The gap between "Service" and "rate-is": too small to hold a character centre.
+    const gap = await boxOf(page, 'e r', 1, 2)
+    const before = await editorText(page)
+    await realPen(page, loop(centre(gap), 4.5, 5.5))
+    await page.waitForTimeout(900)
+    expect(await selectedText(page)).toBe('')
+    await expect(page.getByRole('menubar')).toHaveCount(0)
+    expect(await editorText(page)).toBe(before)
+  })
+
+  test(`F5/F7 ${mode} mode, pen: in a card's answer inside a paper box a double tap and a circle select a word`, async ({
+    page,
+  }) => {
+    await openCardPage(page, mode)
+    const box = page.locator(MAIN)
+    await expect(box.locator('.recall-card-label')).toHaveCount(1)
+    const where = (word: string) =>
+      page.evaluate((w) => {
+        const walker = document.createTreeWalker(
+          document.querySelector('[data-paper-box="main"]')!,
+          NodeFilter.SHOW_TEXT,
+        )
+        for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+          const i = (n.textContent ?? '').indexOf(w)
+          if (i < 0) continue
+          const r = document.createRange()
+          r.setStart(n, i)
+          r.setEnd(n, i + w.length)
+          const b = r.getBoundingClientRect()
+          return { x: b.x, y: b.y, width: b.width, height: b.height }
+        }
+        throw new Error('no text ' + w)
+      }, word) as Promise<Box>
+    // A double tap (600 ms apart) on "plain": the word, still there later.
+    const plain = await where('fresh')
+    await tapRun(page, 'pen', centre(plain), 1, 0)
+    await page.waitForTimeout(1300)
+    await tapRun(page, 'pen', centre(plain), 2, 600)
+    await expect.poll(() => selectedText(page), { timeout: 800 }).toBe('fresh')
+    await page.waitForTimeout(800)
+    expect(await selectedText(page)).toBe('fresh')
+    // A circle round "words": exactly that word, our strip.
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+    const words = await where('rivers')
+    const c = centre(words)
+    await realPen(page, loop(c, words.width / 2 + 1, words.height / 2 + 5))
+    await expect.poll(() => selectedText(page), { timeout: 800 }).toBe('rivers')
+    await page.waitForTimeout(800)
+    expect(await selectedText(page)).toBe('rivers')
+    await expect(page.getByRole('menubar').first()).toBeVisible()
+  })
 }

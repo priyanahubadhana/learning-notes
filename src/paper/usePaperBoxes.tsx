@@ -238,10 +238,23 @@ export function usePaperBoxes(
           }
         })
       : undefined
+    /**
+     * Bug 6 (owner 18 Nov, textbox.v2): a press on the paper (v2/index.ts) makes
+     * every empty box it is not on go at once, even a box that never had the
+     * caret (no focus-out came for it).
+     */
+    const offSweep = listenOneBar((m) => {
+      if (m.kind !== 'sweep' || !isOn('textbox.v2')) return
+      for (const b of document.querySelectorAll(BOX)) {
+        const id = b.getAttribute('data-paper-box')
+        if (id && id !== m.except) vanishNow(id)
+      }
+    })
     document.addEventListener('focusout', out, true)
     return () => {
       offTool?.()
       document.removeEventListener('focusout', out, true)
+      offSweep()
     }
   }, [db, pageId, editable])
 

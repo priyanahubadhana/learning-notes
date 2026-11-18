@@ -82,6 +82,7 @@ const config = defineConfig({
       testMatch: [
         /eraserShapes/,
         /toolRowStays/, // re-test 18 Nov bug 1
+        /pencilV2/, // Pencil mode shows the v2 look (owner 18 Nov)
         /previewReload/, // re-test 18 Nov bug 2,
         /parts-gallery/,
         /updateStuck(Shots)?.spec.ts$/, // C22

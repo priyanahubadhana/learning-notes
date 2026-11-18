@@ -8,6 +8,7 @@ import { activeTool } from '../../app/tools/main/mainTools'
 import { selection } from '../../app/selection/store'
 import { clearBoxes, inputModeFor, isTap, selectBoxes } from './boxSelection'
 import './boxV2.css'
+import { sweepEmptyBoxes } from './oneBarBus'
 
 export { rowUnder } from './boxSelection'
 export { HOLD_MS, floorFor, minWidthPx, nearestHandle } from './boxResize'
@@ -102,6 +103,19 @@ export function installBoxV2(): () => void {
     e.stopImmediatePropagation()
   }
 
+  /** Bug 6 (18 Nov): a press on the paper takes away the empty boxes it is not on. */
+  const sweepOnPaper = (e: PointerEvent) => {
+    const t = e.target instanceof Element ? e.target : null
+    if (
+      e.button > 0 ||
+      !t?.closest('[data-paper-wrap]') ||
+      t.closest('[data-ui]')
+    )
+      return
+    const own = t.closest('[data-paper-box]:not([data-paper-box="main"])')
+    sweepEmptyBoxes(own?.getAttribute('data-paper-box') ?? null)
+  }
+
   /** TB-12, the drag lock: while a box is dragged no other press, lift or click reaches anything. */
   const dragging = () => document.documentElement.hasAttribute('data-box-drag')
   const onDown = (e: PointerEvent) => {
@@ -113,6 +127,7 @@ export function installBoxV2(): () => void {
     }
     mode = inputModeFor(e.pointerType)
     setInputMode(mode)
+    sweepOnPaper(e)
     tap = null
     if (e.button > 0 || activeTool.get() !== 'text') return
     const target = e.target instanceof Element ? e.target : null

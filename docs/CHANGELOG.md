@@ -2,6 +2,14 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 18 Nov 2026: the first box in Touch and Pencil modes (slice/pencil-mode-v2, Sonnet)
+
+- Root cause (NOT Pencil-specific; Touch too): in Touch and Pencil modes PageEditor draws a "tap below" button (about 96 px tall plus a margin, `.ln-tap-below`) INSIDE the page's first box. With textbox.v2 it made the first box about 4 lines tall, and a tap in its empty part ran focusEndLine (a new line) instead of selecting the box. Computer mode has no such button, so every older e2e test (computer mode) passed. New boxes are not affected (the button is not drawn there). Fix (src/paper/v2/boxV2.css): with textbox.v2 the first box hides that button (only the empty page's hint carrier, `data-hint`, stays).
+- Second cause: BlockNote's own "Enter text or type '/' for commands" showed in the first box while it was empty with the caret, over our hint (the 17 Nov rule only covered new boxes). Same file: the first box never shows it; our hint (drawn by the paper) goes when typing starts.
+- Bug 6 (src/paper/usePaperBoxes.tsx): with textbox.v2 a press on the paper now takes away every empty box the press is not on, before the tap makes a box or a selection (a box that never got the caret had no focus-out, so nothing removed it). Not reproduced in the test browsers (the box already went on focus-out there); the new test guards the end state.
+- Tests: e2e/pencilV2.spec.ts on a NEW page (sidebar, Add page, Blank) in a notebook that already has pages: Pencil and Touch mode, pen and finger, one-line first box (also selected), our hint only, empty-part tap selects (no new line), the one bar (not the old strip), same text look as a new box, empty boxes vanish. Pictures: screenshots/pencil-v2/ (iPad sideways, light and dark).
+- Not found: a Pencil-only path. The hold menu (Paste, Copy, Cut, Duplicate, Turn into, Colour, Delete, More: the old strip in the owner's picture) is the press-and-hold menu, unchanged.
+
 ### 18 Nov 2026: re-test bugs 1, 2, 4, 5 (slice/retest-bugs-18nov, Sonnet)
 
 - Bug 2 root cause (src/app/flags.ts): readStored() ran when the module loaded and read the phase table (PHASE_ADDS) that was defined further down the file. It was not built yet, the error was caught, and the answer was an empty list. So on the preview host every start lost every saved switch and never wrote the phase marker; textbox.v2 was off after each reload (also the cause of bugs 4 and 5 looking like the old v2-off page). Fix: the table now sits above readStored(). No server sync is involved: switches live only in this device's localStorage.

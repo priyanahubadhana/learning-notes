@@ -111,3 +111,32 @@ html[data-box-drag] [data-box-bar] {
   )::after {
   content: none !important;
 }
+
+/*
+ * Pencil bug (owner 18 Nov): the page's first box showed BlockNote's own
+ * "Enter text or type '/' for commands" while it was empty and had the caret,
+ * on top of our hint ("Type, or tap anywhere to start writing", drawn by the
+ * paper in PaperFrame). The first box is a plain text box like any other: its
+ * only difference is our hint, which goes when typing starts. Same selector
+ * as the live rule in index.css; this file loads later, so it wins.
+ */
+[data-paper-box='main']
+  .bn-container:not([data-has-text])
+  .bn-block-content[data-is-empty-and-focused]:has(
+    .ProseMirror-trailingBreak:only-child
+  )::after {
+  content: none !important;
+}
+
+/*
+ * Pencil/touch bug (owner 18 Nov): the "tap below" area of PageEditor (about
+ * 96 px tall plus a margin; Touch and Pencil modes only, so no computer-mode
+ * test saw it) sat INSIDE the page's first box. It made that box about 4 lines
+ * tall, and a tap in its empty part ran focusEndLine (a new line) instead of
+ * selecting the box. With text box v2 the first box is a plain box: the paper
+ * itself adds a box on a tap anywhere. Only the hint carrier of an empty page
+ * (data-hint) stays.
+ */
+[data-paper-box='main'] .ln-tap-below:not([data-hint]) {
+  display: none;
+}

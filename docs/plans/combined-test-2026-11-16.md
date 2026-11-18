@@ -200,3 +200,4 @@ Reload the test page; preset "Up to Phase 2B"; Pencil.
   - Bug 1 cause found by the owner: selecting ANY box hides the whole top tool row; deleting the box leaves that state. Picture: retest-18nov/bug1-cause-select-hides-row.png.
   - Bug 2 facts: the owner uses the preview as a Home Screen app and is signed in.
   - Bug 2 time (owner): reloaded on purpose at 07:07 IST Wed 18 Nov (01:37 UTC), Home Screen app, signed in: 2B off again.
+  - Bug 2 (owner): same in plain Safari, so not the Home Screen app.

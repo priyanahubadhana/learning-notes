@@ -1,5 +1,6 @@
 import { TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
+import { watchPointers } from '../app/input/pointerWatch'
 import { isOn } from '../app/flags'
 import { activeTool } from '../app/tools/main/mainTools'
 import { stampOf } from '../app/tapTiming'
@@ -211,16 +212,9 @@ export function watchCircleSelect(
     // After the browser's own handling of the stroke, so ours is what stays.
     setTimeout(apply, 0)
   }
-  const win = doc.defaultView ?? window
-  win.addEventListener('pointerdown', onDown, true)
-  win.addEventListener('pointermove', onMove, true)
-  // iPadOS may take the touch for Scribble: the loop is read then too.
-  win.addEventListener('pointerup', onEnd, true)
-  win.addEventListener('pointercancel', onEnd, true)
-  return () => {
-    win.removeEventListener('pointerdown', onDown, true)
-    win.removeEventListener('pointermove', onMove, true)
-    win.removeEventListener('pointerup', onEnd, true)
-    win.removeEventListener('pointercancel', onEnd, true)
-  }
+  return watchPointers(doc.defaultView ?? window, {
+    down: onDown,
+    move: onMove,
+    end: onEnd,
+  })
 }

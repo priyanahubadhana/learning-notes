@@ -2,7 +2,13 @@ import { TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { isOn } from '../app/flags'
-import { gapMs, stampNow, stampOf, withinGap } from '../app/tapTiming'
+import {
+  TAP_SPEEDS,
+  gapMs,
+  stampNow,
+  stampOf,
+  withinGap,
+} from '../app/tapTiming'
 import { activeTool } from '../app/tools/main/mainTools'
 import { keepSelection } from './ownSelection'
 import { noteTapSelected } from './penGuard'
@@ -582,6 +588,23 @@ export function watchTapSelect(
       return null
     }
   }
+  /** Is (x, y) on the word `r` or within one tap's reach of it (F7)? */
+  const onWord = (r: [number, number], x: number, y: number): boolean => {
+    const view = editor.prosemirrorView
+    if (!view) return false
+    try {
+      const a = view.coordsAtPos(r[0], 1)
+      const b = view.coordsAtPos(r[1], -1)
+      const sameLine = Math.abs(a.top - b.top) < 4
+      return (
+        y >= a.top - 8 &&
+        y <= a.bottom + 8 &&
+        (!sameLine || (x >= a.left - TAP_WIDE_PX && x <= b.right + TAP_WIDE_PX))
+      )
+    } catch {
+      return false
+    }
+  }
   /**
    * Which tap of a run this is (C19, switch textbox.v2): a tap further than
    * 24 px from the one before still adds up when it is on the same word.
@@ -597,7 +620,19 @@ export function watchTapSelect(
     if (!withinGap(at - last.at, TAP_MS)) return 1
     const a = wordAt(last.x, last.y, pad)
     const b = a && wordAt(x, y, pad)
-    return nextTapCount(last, at, x, y, !!b && a[0] === b[0] && a[1] === b[1])
+    // F7: both taps must really be on the word (about one word wide), not
+    // far out in the empty part of the line where the nearest word is taken.
+    return nextTapCount(
+      last,
+      at,
+      x,
+      y,
+      !!b &&
+        a[0] === b[0] &&
+        a[1] === b[1] &&
+        onWord(a, last.x, last.y) &&
+        onWord(b, x, y),
+    )
   }
   /**
    * Is the Pencil tap at (x, y) on or next to the text cursor (or an end of
@@ -894,7 +929,10 @@ export function watchTapSelect(
                 // The editor's own selection is set; the browser copy is cosmetic.
               }
             },
-            gapMs(450) + 20,
+            // Why (F7, 1 s window): this fix-up stays at the Relaxed length. At
+            // 1020 ms it ran after the next tap had picked the box and put the
+            // caret back in (firstBoxTap 'rule 2').
+            Math.min(gapMs(450), TAP_SPEEDS.relaxed) + 20,
           )
       }, 0)
       return

@@ -93,6 +93,46 @@ function defaults(): Set<FlagId> {
   return isPreviewHost() ? new Set(PREVIEW_DEFAULT_ON) : new Set()
 }
 
+/*
+ * Why this block sits above readStored(): readStored() runs when the module
+ * loads and uses PHASE_ADDS. Below it, the table was not yet built (a
+ * "before initialization" error), the catch gave an empty list, and every
+ * reload lost the saved switches on the preview host (re-test 18 Nov, bug 2).
+ */
+/**
+ * Test a phase (task 0.6): each preset is the set of switches that are ON
+ * for that phase; every other switch is OFF. A row adds to the rows above it.
+ */
+const PHASE_ADDS = [
+  {
+    id: 'phase1',
+    adds: [
+      'foundation.shell',
+      'settings.v3',
+      'storage.safety',
+      'update.v2',
+      'security.m1',
+    ],
+  },
+  { id: 'phase2a', adds: ['toolbar.v8', 'toolbar.menu', 'page.menus'] },
+  { id: 'phase2b', adds: ['textbox.v2'] },
+  { id: 'phase3', adds: ['notebooks.v2'] },
+  { id: 'phase4', adds: ['search.v2'] },
+  { id: 'phase5', adds: ['home.v2', 'library.v2'] },
+  { id: 'phase6', adds: ['review.v2', 'study.v2'] },
+  { id: 'phase7', adds: ['reader.v2'] },
+  { id: 'phase8', adds: ['ai.framework'] },
+  { id: 'everything', adds: 'all' },
+] as const satisfies readonly {
+  id: string
+  adds: readonly FlagId[] | 'all'
+}[]
+
+export type PresetId = (typeof PHASE_ADDS)[number]['id']
+export const PHASE_PRESETS: readonly { id: PresetId }[] = PHASE_ADDS.map(
+  ({ id }) => ({ id }),
+)
+
 /** The phase now under test on the preview host; bump it when a phase is published there. */
 export const PREVIEW_PHASE: PresetId = 'phase2b'
 /** Remembers which phase was last switched on for this device (preview host only). */
@@ -189,40 +229,6 @@ export function reloadFlags(): void {
   forced = readForced()
   publish()
 }
-
-/**
- * Test a phase (task 0.6): each preset is the set of switches that are ON
- * for that phase; every other switch is OFF. A row adds to the rows above it.
- */
-const PHASE_ADDS = [
-  {
-    id: 'phase1',
-    adds: [
-      'foundation.shell',
-      'settings.v3',
-      'storage.safety',
-      'update.v2',
-      'security.m1',
-    ],
-  },
-  { id: 'phase2a', adds: ['toolbar.v8', 'toolbar.menu', 'page.menus'] },
-  { id: 'phase2b', adds: ['textbox.v2'] },
-  { id: 'phase3', adds: ['notebooks.v2'] },
-  { id: 'phase4', adds: ['search.v2'] },
-  { id: 'phase5', adds: ['home.v2', 'library.v2'] },
-  { id: 'phase6', adds: ['review.v2', 'study.v2'] },
-  { id: 'phase7', adds: ['reader.v2'] },
-  { id: 'phase8', adds: ['ai.framework'] },
-  { id: 'everything', adds: 'all' },
-] as const satisfies readonly {
-  id: string
-  adds: readonly FlagId[] | 'all'
-}[]
-
-export type PresetId = (typeof PHASE_ADDS)[number]['id']
-export const PHASE_PRESETS: readonly { id: PresetId }[] = PHASE_ADDS.map(
-  ({ id }) => ({ id }),
-)
 
 /** The switches that are ON in a preset. */
 export function presetFlags(id: PresetId): ReadonlySet<FlagId> {

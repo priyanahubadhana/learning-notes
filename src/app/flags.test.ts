@@ -197,3 +197,26 @@ describe('preview defaults (F5)', () => {
     expect(isOn('search.v2')).toBe(false)
   })
 })
+
+describe('saved switches survive a reload on the preview host (re-test 18 Nov, bug 2)', () => {
+  it('a fresh start of the module keeps the saved list and writes the marker', async () => {
+    const { vi } = await import('vitest')
+    localStorage.clear()
+    localStorage.setItem(
+      FLAG_STORAGE_KEY,
+      JSON.stringify(['foundation.shell', 'textbox.v2']),
+    )
+    vi.stubGlobal('location', {
+      hostname: 'build-next.learning-notes-app.pages.dev',
+      search: '',
+    })
+    vi.resetModules()
+    const fresh = await import('./flags')
+    // Importing used to fail inside readStored (table not built yet) and returned an empty list.
+    expect(fresh.isOn('textbox.v2')).toBe(true)
+    expect(fresh.isOn('foundation.shell')).toBe(true)
+    expect(localStorage.getItem(PREVIEW_PHASE_KEY)).toBe(PREVIEW_PHASE)
+    vi.unstubAllGlobals()
+    localStorage.clear()
+  })
+})

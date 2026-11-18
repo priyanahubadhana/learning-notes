@@ -60,3 +60,4 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 2026-11-18T10:00+05:30,re-test,pencil-mode-v2,sonnet,0,1,1,0,1.2,first box tap-below button in touch/pencil modes; BlockNote hint; empty-box sweep (bug 6 unproven)
 18 Nov,slice/first-box-tap,F1-F4 first box taps + owner tap rules,Sonnet,2 review rounds (flaky pen test root-caused),merged b28a94b3
 18 Nov,slice/caret-jump-save,B7 first letters scrambled on new page,Sonnet,1 review round,merged ec9e1416
+18 Nov,slice/ios-select,F5-F7 circle select + double tap + no Apple bar,Sonnet,2 review rounds (look: wrong strip; strip over text),merged 846392e3

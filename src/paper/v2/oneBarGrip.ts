@@ -1,5 +1,5 @@
 import { useRef, useState, type PointerEvent } from 'react'
-import { pageArea } from '../../app/tools/main/miniBarPrefs'
+import { dockArea } from './oneBarArea'
 import {
   placeAfterDrop,
   zoneAt,
@@ -32,7 +32,7 @@ export function useGripDrag({
     const g = grab.current
     const el = bar()
     if (!g || !el) return last.current
-    const a = pageArea()
+    const a = dockArea()
     const w = el.offsetWidth
     const h = el.offsetHeight
     return {
@@ -43,7 +43,7 @@ export function useGripDrag({
   const end = (e: PointerEvent, drop: boolean) => {
     if (!grab.current) return
     const at = free(e)
-    const a = pageArea()
+    const a = dockArea()
     grab.current = null
     setDragging(false)
     setZone(null)
@@ -69,7 +69,7 @@ export function useGripDrag({
       onPointerMove: (e: PointerEvent<HTMLElement>) => {
         if (!grab.current) return
         last.current = free(e)
-        setZone(zoneAt({ x: e.clientX, y: e.clientY }, pageArea()))
+        setZone(zoneAt({ x: e.clientX, y: e.clientY }, dockArea()))
         onLive(last.current)
       },
       onPointerUp: (e: PointerEvent<HTMLElement>) => end(e, true),

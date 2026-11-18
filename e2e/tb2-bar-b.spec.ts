@@ -300,3 +300,50 @@ test('B7. a docked bar is never past the page, with a strip open, on an upright 
   expect(p.x + p.width).toBeLessThanOrEqual(834)
   expect(p.y + p.height).toBeLessThanOrEqual(1194)
 })
+
+for (const side of ['bottom', 'top', 'left', 'right'] as const) {
+  test(`B8. docked ${side}: fully visible, clear of the scroll bar, the zoom pill and the words`, async ({
+    page,
+  }) => {
+    await ready(page, 'Alpha beta', 300)
+    const a = await area(page)
+    const to = {
+      bottom: { x: (a.l + a.r) / 2, y: a.b - 24 },
+      top: { x: (a.l + a.r) / 2, y: a.t + 24 },
+      left: { x: a.l + 24, y: (a.t + a.b) / 2 },
+      right: { x: a.r - 24, y: (a.t + a.b) / 2 },
+    }[side]
+    await drag(page, to)
+    await page.mouse.up()
+    await expect(page.locator('[data-pinned-bar]')).toHaveCount(1)
+    await page.waitForTimeout(400)
+    const vp = page.viewportSize()!
+    const b = await rect(page.getByTestId('object-bar'))
+    // Fully visible, at least 8 px from the screen edge.
+    expect(b.x).toBeGreaterThanOrEqual(8)
+    expect(b.y).toBeGreaterThanOrEqual(8)
+    expect(b.x + b.width).toBeLessThanOrEqual(vp.width - 8)
+    expect(b.y + b.height).toBeLessThanOrEqual(vp.height - 8)
+    // Not over the page scroll bar, the zoom pill or any words.
+    const over = await page.evaluate((r) => {
+      const hit = (q: DOMRect) =>
+        r.x < q.right &&
+        q.left < r.x + r.width &&
+        r.y < q.bottom &&
+        q.top < r.y + r.height
+      const out: string[] = []
+      const sb = document.querySelector('.sbar')
+      if (sb && hit(sb.getBoundingClientRect())) out.push('scroll bar')
+      const z = document
+        .querySelector('[aria-label="Zoom out"]')
+        ?.closest('div')
+      if (z && hit(z.getBoundingClientRect())) out.push('zoom pill')
+      for (const w of document.querySelectorAll(
+        '[data-paper-box] .bn-block-content',
+      ))
+        if (hit(w.getBoundingClientRect())) out.push('words')
+      return out
+    }, b)
+    expect(over).toEqual([])
+  })
+}

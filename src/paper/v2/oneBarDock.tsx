@@ -1,11 +1,11 @@
 import { createPortal } from 'react-dom'
-import { pageArea } from '../../app/tools/main/miniBarPrefs'
+import { dockArea } from './oneBarArea'
 import { t, type MessageKey } from '../../i18n/t'
 import { ZONE, type BarSide } from './oneBarDockModel'
 
 /** The dashed landing zones on the four sides of the page, while the bar is held. */
 export function DockZones({ zone }: { zone: BarSide | null }) {
-  const a = pageArea()
+  const a = dockArea()
   const w = a.right - a.left
   const h = a.bottom - a.top
   const styles = {

@@ -68,3 +68,17 @@
 .ob1-zone.is-on {
   opacity: 1;
 }
+
+/* A docked bar keeps its strip of the page free: no words lie under it. */
+html[data-ob1-dock='left'] [data-page-scroller] {
+  padding-left: var(--ob1-pad);
+}
+html[data-ob1-dock='right'] [data-page-scroller] {
+  padding-right: calc(22px + var(--ob1-pad));
+}
+html[data-ob1-dock='top'] [data-page-scroller] {
+  padding-top: var(--ob1-pad);
+}
+html[data-ob1-dock='bottom'] [data-page-scroller] {
+  padding-bottom: var(--ob1-pad);
+}

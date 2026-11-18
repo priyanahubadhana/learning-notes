@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { onRouted } from '../../app/input/eventRouter'
-import { pageArea } from '../../app/tools/main/miniBarPrefs'
+import { dockArea } from './oneBarArea'
 import type { LearningNotesDB } from '../../core/db'
 import type { PaperBox } from '../../core/types'
 import { usePhone } from '../../design/parts/useAnchoredCard'
@@ -86,9 +86,23 @@ export default function PinnedBoxBar({
     if (el && (el.offsetWidth !== size.w || el.offsetHeight !== size.h))
       setSize({ w: el.offsetWidth, h: el.offsetHeight })
   })
+  // Docked: the page keeps that strip free, so no words lie under the bar.
+  const dockedSide = place && place.side !== 'free' ? place.side : null
+  useEffect(() => {
+    if (!dockedSide) return
+    const root = document.documentElement
+    const pad =
+      (dockedSide === 'left' || dockedSide === 'right' ? size.w : size.h) + 16
+    root.setAttribute('data-ob1-dock', dockedSide)
+    root.style.setProperty('--ob1-pad', `${pad}px`)
+    return () => {
+      root.removeAttribute('data-ob1-dock')
+      root.style.removeProperty('--ob1-pad')
+    }
+  }, [dockedSide, size.w, size.h])
   if (!place) return null
 
-  const area = pageArea()
+  const area = dockArea()
   const docked = place.side !== 'free'
   const dock = docked
     ? dockStyle(place.side as Exclude<typeof place.side, 'free'>, area)

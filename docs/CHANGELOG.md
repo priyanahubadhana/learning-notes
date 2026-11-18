@@ -13,6 +13,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - Found, not mine (also on origin/build/next, chromium under load, 14 of 60 runs): on a blank page the save of the first letters can move the caret to the START of the first box (typed on at once, the words come out in the wrong order). The spec waits for the save and puts the caret back (Ctrl/Cmd+End). To fix in its own task.
 - Tests: e2e/firstBoxTap.spec.ts (added to the ipad-webkit list in playwright.config.ts). Pictures: screenshots/first-box-tap/.
 
+### 18 Nov 2026: B7 first letters moved to the start of the box (slice/caret-jump-save, Sonnet)
+
+- Bug: on a blank page words typed at once after the first tap came out in the wrong order (the first letter ended last). Cause (found with a trace of every caret move): NOT the save. A Pencil tap on the cursor puts the caret back at the tap spot in a setTimeout 0 (src/editor/tapSelect.ts, level 1). On a busy page the keys run before that timer, so the late caret landed before the first letters.
+- Fix: the timer now skips when the text changed since the tap (one line, src/editor/tapSelect.ts). Why: key input beats timers; a caret from a tap must never move typed text.
+- Test: e2e/caretSaveJump.spec.ts, 30 runs each in Pencil and Touch mode, typing with no waits, exact order checked; chromium and ipad-webkit (listed in playwright.config.ts). Red before the fix (15 of 60 on chromium), green after. The wait in firstBoxTap.spec.ts (slice/first-box-tap) is left as it is.
+
 ### 18 Nov 2026: the first box in Touch and Pencil modes (slice/pencil-mode-v2, Sonnet)
 
 - Root cause (NOT Pencil-specific; Touch too): in Touch and Pencil modes PageEditor draws a "tap below" button (about 96 px tall plus a margin, `.ln-tap-below`) INSIDE the page's first box. With textbox.v2 it made the first box about 4 lines tall, and a tap in its empty part ran focusEndLine (a new line) instead of selecting the box. Computer mode has no such button, so every older e2e test (computer mode) passed. New boxes are not affected (the button is not drawn there). Fix (src/paper/v2/boxV2.css): with textbox.v2 the first box hides that button (only the empty page's hint carrier, `data-hint`, stays).

@@ -397,6 +397,13 @@ Reference: the owner's two Goodnotes screenshots (17 Nov 14:30).
 - **A tap in the empty part of a box that is already selected:** it stays selected (no cursor).
 - **Double and triple taps (TB-04) keep today's count:** in a box that was not active, the first tap only puts the cursor (or selects the box); the word/line count starts with the next tap.
 - **The page's first box follows the same rule.**
+  **Added 18 Nov 2026 (owner, after the iPad re-test):**
+
+- **Must never:** Apple's own bar (Paste, Select, Select All, AutoFill, Format, or the small Scribble bar) inside any box. Our own bar does those jobs.
+- **Empty box (no words):** tap 1 selects the box; tap 2 puts the cursor at the start of the line. While typing in an empty box, a tap keeps the cursor.
+- **Box with a few words:** a tap in the empty part away from the words (for example the right side, near the edge) selects the box (dots, bar, resize), also while typing.
+- **Box whose words reach the right edge:** a tap close to the words puts the cursor there; a tap near or on the border selects the box.
+- The same for every box, the first box included; finger and Pencil alike.
 
 ## Open questions Q-1 to Q-6 answered (owner, 17 Nov 2026)
 

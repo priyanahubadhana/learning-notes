@@ -18,6 +18,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - No feature doc: this is a fix to an existing feature (check:dod asks for docs/features/firstBoxTap.md; not needed).
 - Found, not mine (also on origin/build/next, chromium under load, 14 of 60 runs): on a blank page the save of the first letters can move the caret to the START of the first box (typed on at once, the words come out in the wrong order). The spec waits for the save and puts the caret back (Ctrl/Cmd+End). To fix in its own task.
 - Tests: e2e/firstBoxTap.spec.ts (added to the ipad-webkit list in playwright.config.ts). Pictures: screenshots/first-box-tap/.
+
 ### 18 Nov 2026: B7 first letters moved to the start of the box (slice/caret-jump-save, Sonnet)
 
 - Bug: on a blank page words typed at once after the first tap came out in the wrong order (the first letter ended last). Cause (found with a trace of every caret move): NOT the save. A Pencil tap on the cursor puts the caret back at the tap spot in a setTimeout 0 (src/editor/tapSelect.ts, level 1). On a busy page the keys run before that timer, so the late caret landed before the first letters.

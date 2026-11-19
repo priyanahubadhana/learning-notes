@@ -458,3 +458,7 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 ## Circle select is generous (owner, 19 Nov 2026)
 
 - A letter is selected when about half of it (or more) lies inside the Pencil circle, so circling "vi" in "Service" may also take a neighbour letter; the owner then adjusts with the selection handles. Exactness is not required every time.
+
+## The owner's main iPad flow (owner, 19 Nov 2026)
+
+- About 60% of the owner's iPad use is **editing** notes (later made by AI, e.g. mind maps) with the Apple Pencil: select a word, remove it, write over it with Scribble. The rest is mostly voice to text. So every Pencil and selection feature must work with **Scribble ON**; turning Scribble off is never the fix. The select → delete → rewrite of one word is the flow to make excellent first.

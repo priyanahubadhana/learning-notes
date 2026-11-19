@@ -41,6 +41,7 @@ import { REPEAT_AFTER_MS, backspaceStep } from '../main/backspaceHold'
 import { lazyNow } from '../../lazyNow'
 import { FoldCard, type FoldEntry } from './FoldCard'
 import { MicSlot, PasteSlot } from './PasteMicSlots'
+import { TOP_ROW_BUTTONS } from '../main/pasteButtons'
 
 // The ⋯ card's own group (1f) loads with the first ⋯ tap.
 const MoreExtras = lazyNow(() => import('./cards/more/MoreExtras'))
@@ -379,6 +380,19 @@ export function ToolBar({
   const last = lastTool.useValue()
   const backTool = backPref && last ? modeToTool(last) : null
   const phone = useBreakpoint() === 'phone'
+  // page.menus: the one table decides Mic, Backspace, Enter and Paste ▾
+  // (owner-decisions "Paste and the Pencil buttons": Backspace and Enter show
+  // only in Pencil mode). Edit mode still lists every slot to arrange it.
+  const row = TOP_ROW_BUTTONS[deviceMode]
+  const byTable = (id: string) =>
+    !menusOn ||
+    edit ||
+    !(
+      (id === 'bs' && !row.backspace) ||
+      (id === 'nl' && !row.enter) ||
+      (id === 'micK' && !row.mic) ||
+      (id === 'pasteK' && !row.paste)
+    )
   // 2A.16 (v9): on a phone Shapes and Insert live in ⋯ › On this bar, and
   // there is no Minimise.
   const phoneFolded = phone && !edit ? [...PHONE_FOLD, 'back'] : []
@@ -410,19 +424,21 @@ export function ToolBar({
         ]),
     { id: 'more', priority: Infinity, fixedW: 44 },
     ...(phone ? [] : [{ id: 'min', priority: KEEP.min!, fixedW: 44 }]),
-  ]
+  ].filter((s) => byTable(s.id))
   const { rowRef, measureRef, result } = useFold(specs, { gap: 0, moreW: 0 })
   // On a phone, while editing, Shapes and Insert sit inside ⋯ More and there
   // is no Minimise, Undo or Redo, so the bar stays one row (as the mock).
   const shows = (id: string) =>
-    phoneFolded.includes(id)
+    !byTable(id)
       ? false
-      : edit &&
-          phone &&
-          (PHONE_FOLD.includes(id) || PHONE_EDIT_HIDDEN.includes(id))
+      : phoneFolded.includes(id)
         ? false
-        : (edit && !['undo', 'redo', 'min'].includes(id)) ||
-          result.shown.includes(id)
+        : edit &&
+            phone &&
+            (PHONE_FOLD.includes(id) || PHONE_EDIT_HIDDEN.includes(id))
+          ? false
+          : (edit && !['undo', 'redo', 'min'].includes(id)) ||
+            result.shown.includes(id)
   const showNames = names && result.names
   const folded = edit
     ? []
@@ -643,7 +659,9 @@ export function ToolBar({
           </span>
         </button>
       ) : null}
-      {shows('bs') && !edit ? <span className="v8hair" aria-hidden /> : null}
+      {(shows('bs') || (menusOn && shows('micK'))) && !edit ? (
+        <span className="v8hair" aria-hidden />
+      ) : null}
       {menusOn && !edit && shows('micK') ? <MicSlot editor={editor} /> : null}
       {shows('bs')
         ? fixed(

@@ -61,6 +61,11 @@ for (const mode of ['touch', 'computer'] as const)
     await expect(
       page.locator('[data-testid="v8-bar"] [data-action="miniKeys"]'),
     ).toHaveCount(1)
+    // owner-decisions "Paste and the Pencil buttons": "Backspace, Enter and
+    // Paste are for Pencil mode; Mic shows in every mode" (Paste ▾ kept here
+    // per the owner's later answer, TOP_ROW_BUTTONS).
+    await expect(page.getByTestId('v8-backspace')).toHaveCount(0)
+    await expect(page.getByTestId('v8-newline')).toHaveCount(0)
   })
 
 test('B12 the Mic in the v8 row speaks (no hidden floating bar)', async ({

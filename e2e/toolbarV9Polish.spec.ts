@@ -299,10 +299,12 @@ for (const [w, h] of [
   })
 }
 
+// owner-decisions "Paste and the Pencil buttons": Backspace and Enter show
+// only in Pencil mode, so this is checked there.
 test('v9 bar: Minimise is the ⇥| icon and a divider stands before Backspace', async ({
   page,
 }) => {
-  await open(page)
+  await open(page, { mode: 'pencil' })
   await expect(
     page.getByTestId('v8-minimise').locator('svg.lucide-arrow-right-to-line'),
   ).toHaveCount(1)

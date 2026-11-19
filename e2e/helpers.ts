@@ -476,7 +476,17 @@ export async function makeCard(
   total: number,
   opts: { keepCaret?: boolean } = {},
 ) {
-  await typeInEditor(page, question, opts)
+  // Why: since C34 the helper's click lands on the first line's left end. With
+  // earlier cards in the editor and the caret already on a new line (after
+  // Enter), that click moved the caret into the first card's words (review-v2,
+  // tracker, search reds on CI, 19 Nov). So a caret in the editor stays put
+  // once the editor holds text.
+  const keep = await page.evaluate(
+    () =>
+      !!document.activeElement?.closest('.bn-editor') &&
+      (document.querySelector('.bn-editor')?.textContent ?? '').trim() !== '',
+  )
+  await typeInEditor(page, question, keep ? { ...opts, keepCaret: true } : opts)
   await page.locator('.bn-block-content', { hasText: question }).first().hover()
   await page.locator('.bn-side-menu [draggable="true"]').click()
   await page.getByRole('menuitem', { name: 'Make card' }).click()

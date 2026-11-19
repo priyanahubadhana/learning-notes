@@ -67,3 +67,11 @@ Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-leve
 - **With the typing cursor active in a box** (after Edit Text or a tap in the text), the Lasso selects **text inside that box**, with handles, and shows the **text bar** (AI, colour, 26, Aa, B/I, align, list │ highlight, link, cut, copy, ⋯), plus a keyboard accessory bar at the bottom (undo, keyboard, indent, lists, align, B I U S, mic, return).
 - Owner's reading: this split is how Goodnotes keeps Apple's bar away. Opus: Goodnotes, as a native app, can also turn Scribble off per view; we cannot — but our Lasso does not wake Scribble, so the same two-level model is possible for us.
 - **New frame for Fable:** Box level (object) vs Text level (inside an edited box). The smart bar has a box state, a text state and ink/picture states. Our current box bar ≈ Goodnotes' box bar; our text selection bar ≈ its text bar.
+
+## 9. Owner answers after the Goodnotes study (19 Nov)
+
+- **Two levels: yes.** Box level (no cursor: the Lasso picks whole boxes, ink, pictures; box bar) and Text level (cursor in a box: the Lasso picks letters/words inside that box; text bar).
+- At Text level, a Lasso stroke **outside** the edited box ends editing and selects objects (box level).
+- Box → Text level: an **Edit Text** button on the box bar **and** a tap near the words.
+- Bottom keyboard bar while typing: **open** — the owner will share more examples first.
+- Still open from section 5: Goodnotes auto-switch (now mostly answered by the two levels), the mixed-selection filter, preset place, build order, phone.

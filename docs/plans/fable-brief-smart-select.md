@@ -88,3 +88,13 @@ Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-leve
 - **Resize** → square corner handles + a rotate handle, and a short bar: Cut, Copy, Duplicate, Delete, ⋯ (refs/goodnotes-mixed-resize.png).
 - **⋯** → Cut, Front, Back │ Copy, Duplicate, Paste, Paste and Match Style │ Take Screenshot, Add to Image Playground, Create Element │ Ask Siri (some are iPadOS system items) (refs/goodnotes-mixed-more.png).
 - Owner: "all the options are already shared in the mixed state"; Edit Text opens the text bar (cursor state).
+
+## 12. Final owner answers before Fable (19 Nov)
+
+- Bottom keyboard bar while typing: **No** (our top row + smart bar cover it).
+- Mixed-selection filter on the smart bar: **No** — the Lasso already has its "Picks: Ink / Pictures / Text" filter; one place is enough.
+- Preset editing in Settings › Tool bar (new "Selection bar" part): **picture shown** (scratch presets-mock.png); owner OK pending.
+- Build order: **yes** — B11/B12 (merged 19 Nov, 2ce4acf2) → two-level Lasso → smart bar → Scribble experiment.
+- Phone: **yes**, same presets, fewer buttons.
+- **Keep today's Lasso intact (v1).** The owner's Lasso was reworked many times after copying Goodnotes did not work in our app; it has many reasoned fixes. Text-level selection is added WITHOUT losing any of it. Fable: first inventory the current Lasso (features + the reasons behind them, owner-decisions.md / DECISIONS.md / CHANGELOG "Lasso") and decide what the text level reuses. (Inventory started by Opus; finish it in the Fable session if missing.)
+- Open after B12: the v8 tool row still shows Backspace/Enter in every mode (Pencil-only rule not applied there yet) — small follow-up.

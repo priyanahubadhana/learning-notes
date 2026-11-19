@@ -66,3 +66,4 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 19 Nov,slice/circle-recorder,circle/tap recorder + generous circle select,Sonnet,1 review round,merged 28b7e5e4
 19 Nov,slice/paste-buttons,Paste ▾ in top row + floating bar; B9; B10; uniform names,Sonnet,2 review rounds (placement, Pencil-only keys),merged 963d9751
 19 Nov,slice/ci-reds,~85 CI reds (helpers after C34; CDP pen driver; scribble-out read as circle bug),Sonnet,3 review rounds (retry helper rejected),merged 1d130535
+19 Nov,slice/b11-b12,B11 Text tool never makes ink; B12 Paste in owner's v8 row,Sonnet,1 review round,merged 2ce4acf2

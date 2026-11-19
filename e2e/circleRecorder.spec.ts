@@ -147,6 +147,10 @@ test('recorder ON: a Pencil circle shows the panel with events and a JSON trace'
   await expect(page.locator('[data-circle-recorder-svg] rect')).toHaveCount(1)
   if (process.env.WRITE_TRACE)
     writeFileSync(process.env.WRITE_TRACE, JSON.stringify(trace))
+  if (process.env.SHOT_DIR)
+    await page.screenshot({
+      path: process.env.SHOT_DIR + '/chromium-recorder-panel-ipad-sideways.png',
+    })
   // The closing cross removes the panel.
   await panel.getByRole('button', { name: '✕' }).click()
   await expect(panel).toHaveCount(0)

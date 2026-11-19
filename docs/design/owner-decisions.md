@@ -504,3 +504,8 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 - As much customisation as possible (which buttons show, order), like the top row.
 - Never drop a feature: every button of the three bars stays reachable (inventory first).
 - Picture first, then the plan with Fable (from 20 Nov). The Lasso text-selection build waits for this so it is built once.
+- **Smart bar answers (owner, 19 Nov):**
+  - **Base it on the one bar** (the Goodnotes-style box bar from 18 Nov: colour, size, Aa, B/I, align, list, fill │ Cut, Paste ▾, Delete, ⋯) — the owner finds it excellent; the smart bar grows from it, in its look.
+  - **Presets: Edit and Study**, each with the format options inside (no separate Format preset). No Drawing preset; maybe a **Text + drawing** preset for mixed selections.
+  - **Switching: Auto by default** (the selection type picks the buttons); a Setting lets the user turn Auto off and use one fixed default bar for everything.
+  - "Included in selection" filter: owner asked for an explanation; open.

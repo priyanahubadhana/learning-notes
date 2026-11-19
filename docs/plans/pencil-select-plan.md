@@ -52,3 +52,9 @@ Select → (bar action) → back to text, with the Pencil or finger, Scribble ON
 - The recorder's red line in rec-1 is the HOVER path (the Pencil moving above the screen), drawn by the recorder; it is not ink and shows only with the recorder on.
 - Conclusion: with Scribble ON, precise Pencil circle-select cannot happen in the Text tool. Precise selection needs a mode where Scribble is not active (the Lasso way, as the owner proposed). Taps (double/triple) do reach the page and can stay ours.
 - Paste button not visible in the owner's top row (rec-1 shows the old row: no Paste, Mic not grouped): check the version and the page.menus switch.
+
+## Trace 2 findings (owner, circle round "rate is", 19 Nov)
+
+- The circle's touch began at the LEFT edge of "rate" (x 268). Scribble then selected "- 2000" and "2000" (x 219-262), i.e. the word just BEFORE the start point; selections flip between "- 2000", "2000" and a bare caret 7 times in 300 ms (Scribble and our code both setting the selection: the flicker).
+- Again no pointermoves during contact; our loop reader saw 1 point ("isLoop false").
+- Reading: Scribble places the caret where the circle starts (a word boundary) and selects the word on the caret's left. Not fixable from the page. Confirms the Lasso path (round 3). Also: our code must stop touching the selection while a Scribble gesture is active (no flicker).

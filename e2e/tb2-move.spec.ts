@@ -112,7 +112,11 @@ test('TB-11 hold the tab 120 ms: the box lifts (scale 1.02, elevation 3); a flic
   await page.mouse.move(from.x, from.y)
   await page.mouse.down()
   await expect(b).toHaveAttribute('data-lifted', '', { timeout: 600 })
-  await page.waitForTimeout(250)
+  // The lift is a 120 ms transition: wait for it to finish (slow CI runners
+  // paint it late), then it must be exactly the lifted look.
+  await expect
+    .poll(() => b.evaluate((el) => getComputedStyle(el).transform))
+    .toMatch(/^matrix\(1\.02/)
   const look = await b.evaluate((el) => {
     const cs = getComputedStyle(el)
     return { t: cs.transform, s: cs.boxShadow }
@@ -213,11 +217,27 @@ test('TB-14 the drop glides 200 ms, is not tappable until it lands, says "Box mo
     up: false,
   })
   await page.waitForTimeout(300)
+  // The glide lasts 200 ms; a slow CI runner can take longer than that just to
+  // answer a check, so the page itself records the glide as it happens.
+  await b.evaluate((el) => {
+    const w = window as unknown as { glide?: { seen: boolean; pe: string } }
+    w.glide = { seen: false, pe: '' }
+    const mo = new MutationObserver(() => {
+      if (el.hasAttribute('data-gliding') && !w.glide!.seen) {
+        w.glide = { seen: true, pe: getComputedStyle(el).pointerEvents }
+        mo.disconnect()
+      }
+    })
+    mo.observe(el, { attributes: true, attributeFilter: ['data-gliding'] })
+  })
   await page.mouse.up()
-  await expect(b).toHaveAttribute('data-gliding', '', { timeout: 400 })
-  expect(await b.evaluate((e) => getComputedStyle(e).pointerEvents)).toBe(
-    'none',
-  )
+  const glide = () =>
+    page.evaluate(
+      () =>
+        (window as unknown as { glide: { seen: boolean; pe: string } }).glide,
+    )
+  await expect.poll(async () => (await glide()).seen).toBe(true)
+  expect((await glide()).pe).toBe('none')
   await expect(b).not.toHaveAttribute('data-gliding', '', { timeout: 1000 })
   await expect(page.getByText('Box moved')).toBeVisible()
   expect(away(await rect(b), f0)).toBeGreaterThan(60)
@@ -257,8 +277,11 @@ test('TB-16 holding near the bottom edge scrolls the page and the box follows th
   const scroller = page.locator('[data-page-scroller]')
   const top0 = await scroller.evaluate((s) => s.scrollTop)
   await dragTab(page, b, (f) => ({ x: f.x, y: 1080 }), { up: false })
-  await page.waitForTimeout(900)
-  expect(await scroller.evaluate((s) => s.scrollTop)).toBeGreaterThan(top0 + 20)
+  // The edge scroll runs while the finger is held: wait for it (a slow CI
+  // runner starts it late), the box held all along.
+  await expect
+    .poll(() => scroller.evaluate((s) => s.scrollTop))
+    .toBeGreaterThan(top0 + 20)
   await page.mouse.up()
 })
 

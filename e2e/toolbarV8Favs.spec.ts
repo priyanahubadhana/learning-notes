@@ -312,5 +312,17 @@ test('real use: favourites survive a reload; turning the screen keeps the sheet 
   await expect(page.getByTestId('arrange-sheet')).toHaveCount(0)
   await page.reload()
   await page.getByTestId('v8-tool-pen').click()
-  await expect(page.locator('[data-testid^="v8-fav-"]')).toHaveCount(3)
+  // All three come back. On a narrow row (CI's Linux fonts are wider than
+  // the iPad's) some sit in the ★ n chip instead, which still counts them.
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const chips = document.querySelectorAll('[data-testid^="v8-fav-"]')
+        const more = document.querySelector(
+          '[data-testid="v8-favs-more"] .v8chip-count',
+        )
+        return chips.length + Number(more?.textContent ?? 0)
+      }),
+    )
+    .toBe(3)
 })

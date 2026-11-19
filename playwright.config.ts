@@ -93,6 +93,8 @@ const config = defineConfig({
         /c45-symbols-scribble/, // C4, C5, C14 (combined test 16 Nov)
         /pageMenusPaste/,
         /pasteButtons/,
+        /b12OwnerRow/, // B12
+        /b11TextNoInk/, // B11
         /pageMenusPlace/,
         /pencilIsolation/,
         /mainFramePolish.spec/,

@@ -52,6 +52,14 @@ export type TraceEvent = {
   tool?: string
   /** selection store change: what the app selected. */
   store?: string
+  /** beforeinput / input / composition (Scribble writing over a word): what and where. */
+  input?: {
+    inputType?: string
+    data?: string | null
+    composing?: boolean
+    ranges?: number
+    key?: string
+  }
   /** click count (click, dblclick). */
   detail?: number
   /** preventDefault events only: which event, and who called it. */
@@ -115,6 +123,12 @@ const TYPES = [
   'auxclick',
   'selectstart',
   'focusin',
+  'beforeinput',
+  'input',
+  'keydown',
+  'compositionstart',
+  'compositionupdate',
+  'compositionend',
   'focusout',
   'gesturestart',
   'gesturechange',
@@ -286,6 +300,24 @@ function makeRecorder(
       dp: e.defaultPrevented,
     }
     seen.set(e, ev)
+    if (
+      e.type === 'beforeinput' ||
+      e.type === 'input' ||
+      e.type.startsWith('composition') ||
+      e.type === 'keydown'
+    ) {
+      const ie = e as InputEvent & KeyboardEvent
+      ev.input = {
+        inputType: ie.inputType,
+        data: ie.data?.slice(0, 40),
+        composing: ie.isComposing,
+        ranges: ie.getTargetRanges?.().length,
+        key: e.type === 'keydown' ? ie.key : undefined,
+      }
+      // Writing after a selection goes on in the same recording.
+      win.clearTimeout(timer)
+      timer = win.setTimeout(show, AFTER_MS)
+    }
     ev.reached = false
     if (e.type === 'pointerdown') {
       ev.box =

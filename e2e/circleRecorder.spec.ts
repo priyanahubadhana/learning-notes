@@ -161,6 +161,8 @@ test('recorder ON: a finger double tap is recorded with click events and who can
   await page.touchscreen.tap(at.x, at.y)
   await page.waitForTimeout(150)
   await page.touchscreen.tap(at.x, at.y)
+  // A word written over the selection (what Scribble sends is beforeinput / input).
+  await page.keyboard.type('Q')
   const panel = page.locator('[data-circle-recorder]')
   await expect(panel).toBeVisible({ timeout: 8000 })
   const text = await page.locator('[data-circle-recorder-text]').inputValue()
@@ -170,6 +172,8 @@ test('recorder ON: a finger double tap is recorded with click events and who can
   const types = trace.events.map((e) => e.type)
   expect(types).toContain('pointerdown')
   expect(types).toContain('click')
+  expect(types).toContain('beforeinput')
+  expect(text).toContain('insertText')
   expect(trace.events.find((e) => e.type === 'pointerdown')?.cancelable).toBe(
     true,
   )

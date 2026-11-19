@@ -209,3 +209,11 @@ Pasted HTML cleaned as before; My blocks and template names escaped, max 40 char
 5. Beginner "/" short list: the 12 items listed in PM-01.
 6. Long-press time 0.5 s default, following `advanced.holdMenu` when set.
 7. The strip order follows menu-1.png (Paste first); Delete stays last in red.
+
+## Paste ▾ in the Pencil buttons (flag page.menus, 19 Nov 2026)
+
+- Top tool row: Paste ▾ in every mode; Mic in every mode. One table: `src/app/tools/main/pasteButtons.ts`.
+- Floating Pencil bar gets Paste ▾; it is hidden while the top row shows all four buttons (Pencil mode), unless dictation runs.
+- Paste ▾: Keep look, Plain text, More (Match style, As quote, As text box, Link / Embed). A tap follows Settings › Paste as.
+- B9: the caret is restored before the paste. B10: a Pencil or finger hold on an empty spot shows the page strip (Paste; no Cut/Copy without words).
+- Tests: e2e/pasteButtons.spec.ts; pictures: screenshots/paste-buttons/.

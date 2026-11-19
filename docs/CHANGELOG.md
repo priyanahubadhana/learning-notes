@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 19 Nov 2026: Paste ▾ in the Pencil buttons, B9, B10 (slice/paste-buttons, Sonnet)
+
+What: Paste ▾ in the top row and floating bar, uniform paste names (Keep look, Match style), caret kept on paste (B9), hold on an empty spot opens our strip (B10), all behind page.menus. Why: owner decisions 19 Nov. Files: src/app/tools/main/{PasteButton,pasteButtons,micControl}.ts*, MainBar, MiniKeysStrip, holdMenuWatch, PageStrip, i18n (en/es/hi), e2e/pasteButtons.spec.ts.
+
 ### 19 Nov 2026: base reds fixed (slice/base-reds, Sonnet)
 
 - App bug: a shape drawn with the Pencil lost its box (tb2-pencil:171). The 18 Nov rule "another tool ends an empty box at once" fired when the shape code put the Pen out for the drawing, before the ink was saved. PaperFrame sets data-shape-making while it draws; usePaperBoxes skips that sweep meanwhile.

@@ -1,5 +1,7 @@
 import type { EditorView } from 'prosemirror-view'
 import { t } from '../i18n/t'
+import { selection } from '../app/selection/store'
+import { activeTool } from '../app/tools/main/mainTools'
 import { watchWindowEvents } from '../app/input/windowRecorder'
 export { RECORDER_KEY, recorderOn } from './circleRecorderKey'
 
@@ -37,6 +39,24 @@ export type TraceEvent = {
   /** Points the event carried (coalesced), as [x, y]. */
   co?: [number, number][]
   touches?: { x: number; y: number; touchType?: string; id: number }[]
+  /** Where the event went (tag.class). */
+  tgt?: string
+  cancelable?: boolean
+  /** defaultPrevented when it reached the window (capture), and after the page's handlers. */
+  dp?: boolean
+  dpAfter?: boolean
+  /** Reached the window bubble phase (false: stopped on the way). */
+  reached?: boolean
+  /** pointerdown: the paper box it hit, and the active tool. */
+  box?: string
+  tool?: string
+  /** selection store change: what the app selected. */
+  store?: string
+  /** click count (click, dblclick). */
+  detail?: number
+  /** preventDefault events only: which event, and who called it. */
+  of?: string
+  stack?: string[]
   /** selectionchange only. */
   sel?: {
     pm: [number, number]
@@ -71,7 +91,7 @@ export type CircleTrace = {
 }
 
 /** Quiet time (ms) after the stroke in which selection changes are kept. */
-const AFTER_MS = 1500
+const AFTER_MS = 3000
 /** Most events kept for one stroke. */
 const MAX_EVENTS = 800
 const TYPES = [
@@ -88,6 +108,14 @@ const TYPES = [
   'touchend',
   'touchcancel',
   'contextmenu',
+  'mousedown',
+  'mouseup',
+  'click',
+  'dblclick',
+  'auxclick',
+  'selectstart',
+  'focusin',
+  'focusout',
   'gesturestart',
   'gesturechange',
   'gestureend',
@@ -142,7 +170,7 @@ export function layoutFacts(editorDom: Element): string[] {
 const svgNs = 'http://www.w3.org/2000/svg'
 
 /** Starts the recorder on this editor; returns stop and the loop reporter. */
-export function startRecorder(
+function makeRecorder(
   view: () => EditorView | null,
   editorDom: HTMLElement,
 ): { stop: () => void; report: (r: LoopReport) => void } {
@@ -205,17 +233,69 @@ export function startRecorder(
     }
   }
 
+  const seen = new WeakMap<Event, TraceEvent>()
+  const describe = (x: EventTarget | null): string => {
+    if (!(x instanceof Element)) return String(x && x.constructor?.name)
+    const c = typeof x.className === 'string' ? x.className.trim() : ''
+    return x.tagName.toLowerCase() + (c ? '.' + c.split(/s+/)[0] : '')
+  }
+  // Who calls preventDefault while recording (our lift hold or the page's
+  // own code): logged with the top of the call stack, behaviour unchanged.
+  const proto = Event.prototype
+  const realPrevent = proto.preventDefault
+  proto.preventDefault = function (this: Event) {
+    if (active && this.cancelable)
+      add({
+        type: 'preventDefault',
+        t: now(),
+        of: this.type,
+        stack: (new Error().stack ?? '')
+          .split(String.fromCharCode(10))
+          .slice(2, 6)
+          .map((l) => l.trim().slice(0, 140)),
+      })
+    return realPrevent.call(this)
+  }
   const onEvent = (e: Event) => {
     if (own(e)) return
     const pe = e as PointerEvent
     if (e.type === 'pointerdown') {
-      if (pe.pointerType !== 'pen') return
-      if (!(e.target instanceof Node) || !editorDom.contains(e.target)) return
-      begin()
+      if (pe.pointerType !== 'pen' && pe.pointerType !== 'touch') return
+      // Anywhere in a paper box counts: box-select taps too, not only the text.
+      if (
+        !(e.target instanceof Element) ||
+        !(editorDom.contains(e.target) || e.target.closest('[data-paper-box]'))
+      )
+        return
+      // A second tap inside the window goes on in the same recording.
+      if (active) win.clearTimeout(timer)
+      else begin()
+      if (pe.pointerType === 'pen') {
+        path = []
+        points = 0
+        cancelAt = null
+      }
     }
     if (!active) return
     counts[e.type] = (counts[e.type] ?? 0) + 1
-    const ev: TraceEvent = { type: e.type, t: now() }
+    const ev: TraceEvent = {
+      type: e.type,
+      t: now(),
+      tgt: describe(e.target),
+      cancelable: e.cancelable,
+      dp: e.defaultPrevented,
+    }
+    seen.set(e, ev)
+    ev.reached = false
+    if (e.type === 'pointerdown') {
+      ev.box =
+        (e.target as Element)
+          .closest('[data-paper-box]')
+          ?.getAttribute('data-paper-box') ?? undefined
+      ev.tool = activeTool.get()
+    }
+    if ('detail' in e && (e.type === 'click' || e.type === 'dblclick'))
+      ev.detail = (e as UIEvent).detail
     if (e.type.startsWith('pointer') || e.type.endsWith('pointercapture')) {
       ev.pointerType = pe.pointerType
       ev.id = pe.pointerId
@@ -245,9 +325,22 @@ export function startRecorder(
       if (ev.touches.some((c) => c.touchType === 'stylus')) stylus++
     }
     add(ev)
-    if (e.type === 'pointerup' || e.type === 'pointercancel') {
+    if (
+      e.type === 'pointerup' ||
+      e.type === 'pointercancel' ||
+      (active && e.type === 'click')
+    ) {
       win.clearTimeout(timer)
       timer = win.setTimeout(show, AFTER_MS)
+    }
+  }
+  /** After the page's own handlers: was the event cancelled by then? */
+  const onAfter = (e: Event) => {
+    const ev = seen.get(e)
+    if (ev) {
+      ev.dpAfter = e.defaultPrevented
+      // false: the event never reached the window's bubble phase (stopped on the way).
+      ev.reached = true
     }
   }
   const onSelection = () => {
@@ -419,15 +512,26 @@ export function startRecorder(
     panel = el
   }
 
+  // What the app decides (read only): changes of the shared selection store.
+  const stopStore = selection.onChange((next, prev) => {
+    if (active)
+      add({
+        type: 'store-select',
+        t: now(),
+        store: `${prev.kind} -> ${next.kind}`,
+      })
+  })
   // selectionchange fires at the document: the window sees it in capture.
   const stopWatch = watchWindowEvents(
     [...TYPES, 'selectionchange'],
     (e) => (e.type === 'selectionchange' ? onSelection() : onEvent(e)),
-    () => {},
+    onAfter,
   )
   return {
     stop: () => {
       stopWatch()
+      stopStore()
+      proto.preventDefault = realPrevent
       clear()
     },
     report: (r) => {
@@ -441,5 +545,29 @@ export function startRecorder(
       if (r.path.length > path.length) path = r.path
       add({ type: 'circle-code', t: now() })
     },
+  }
+}
+
+/**
+ * One recorder for the whole page, shared by every editor that asks: a second
+ * editor would record the same strokes twice and show a second panel.
+ */
+let shared: ReturnType<typeof makeRecorder> | null = null
+let users = 0
+export function startRecorder(
+  view: () => EditorView | null,
+  editorDom: HTMLElement,
+): { stop: () => void; report: (r: LoopReport) => void } {
+  if (!shared) shared = makeRecorder(view, editorDom)
+  users++
+  return {
+    stop: () => {
+      if (--users <= 0) {
+        shared?.stop()
+        shared = null
+        users = 0
+      }
+    },
+    report: (r) => shared?.report(r),
   }
 }

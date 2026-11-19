@@ -42,10 +42,19 @@ async function open(
   await typeInEditor(page, 'Main text')
   const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
   const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
-  await page.mouse.click(
-    sheet.x + sheet.width * xFrac,
+  // Why: when the page tabs are near, the first box's tab and ⋯ sit under it
+  // at the right (Polish 2B); on WebKit's fonts the old spot (60 px under the
+  // box, 85 % across) was that ⋯, so the click opened the box menu instead of
+  // making a box. The tap goes on free paper below that chrome.
+  const menuBtn = page.locator('[data-main-chrome] [data-box-menu]')
+  const chrome = (await menuBtn.count())
+    ? await menuBtn.first().boundingBox()
+    : null
+  const y = Math.max(
     main.y + main.height + 60,
+    chrome ? chrome.y + chrome.height + 30 : 0,
   )
+  await page.mouse.click(sheet.x + sheet.width * xFrac, y)
   const box = page.locator(EXTRA).first()
   await expect(box.locator('.bn-editor')).toBeFocused()
   await page.keyboard.type('Alpha')

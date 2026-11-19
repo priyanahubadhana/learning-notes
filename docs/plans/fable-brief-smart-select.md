@@ -75,3 +75,9 @@ Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-leve
 - Box → Text level: an **Edit Text** button on the box bar **and** a tap near the words.
 - Bottom keyboard bar while typing: **open** — the owner will share more examples first.
 - Still open from section 5: Goodnotes auto-switch (now mostly answered by the two levels), the mixed-selection filter, preset place, build order, phone.
+
+## 10. Goodnotes text level has two bar states (owner, 19 Nov 18:16)
+
+- **Cursor only** (refs/goodnotes-text-cursor-bar.png): AI, colour, size 26, Aa, B/I, align, list │ highlight, ⋯ — formatting for what is typed next.
+- **Words selected** (refs/goodnotes-text-selected-bar.png): the same, plus **link, cut, copy** — the selection actions are added on the right; the bar keeps its place and shape otherwise.
+- Both keep the bottom keyboard bar. Lesson for the smart bar: one bar, same order; selection actions appear/disappear at the end instead of swapping to a different bar (calm, predictable).

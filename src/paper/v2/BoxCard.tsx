@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
 import { Glow } from '../../app/tools/v8/Glow'
@@ -154,14 +154,26 @@ export default function BoxCard({
 
   // One write, one Undo step. A new box remembers the last look you gave a box;
   // the page's own box keeps its look to itself.
+  // Why (base red textTool:125): two quick taps (radius, then padding) both
+  // read the saved style before the first write came back, so the second
+  // write dropped the first change. A style written a moment ago is the base.
+  const lastWrite = useRef<{ style: BoxStyle | undefined; at: number } | null>(
+    null,
+  )
+  const baseStyle = (): BoxStyle =>
+    lastWrite.current && Date.now() - lastWrite.current.at < 1500
+      ? (lastWrite.current.style ?? {})
+      : style
   const apply = (next: BoxStyle | undefined) => {
+    lastWrite.current = { style: cleanStyle(next), at: Date.now() }
     runTask(updateBox(db, pageId, boxId, { style: cleanStyle(next) }))
     if (boxId !== MAIN_BOX) {
       setDflt(cleanStyle(next))
       void setNewBoxStyle(db, cleanStyle(next))
     }
   }
-  const patch = (p: BoxStyle) => apply({ ...style, ...p, preset: undefined })
+  const patch = (p: BoxStyle) =>
+    apply({ ...baseStyle(), ...p, preset: undefined })
   const setFill = (fill: string) =>
     runTask(
       updateBox(db, pageId, boxId, {

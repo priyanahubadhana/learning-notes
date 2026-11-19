@@ -1972,21 +1972,31 @@ export function PaperFrame({
       },
     ]
     // The box that holds the ink and the ink itself are one Undo step.
+    // Why (base red tb2-pencil:171): the new box is empty until the ink is
+    // saved, and "another tool ends an empty box at once" (18 Nov) took it away
+    // when the Pen was put out for this drawing. The flag tells that sweep
+    // (usePaperBoxes) to wait until the Text tool is back.
+    const root = document.documentElement
+    root.setAttribute('data-shape-making', '')
     void historyGroup('Shape', async () => {
-      const id = await boxUnder(r, bb)
-      if (!id) return
-      const pad = await waitFor(() =>
-        document.querySelector(
-          '[data-paper-box="' + CSS.escape(id) + '"] [data-ink-pad]',
-        ),
-      )
-      if (!pad) return
-      // The Pen draws it, then the Text tool is back (the person did not switch).
-      activeTool.set('pen')
-      await new Promise((ok) => requestAnimationFrame(ok))
-      replay(pad, events)
-      await new Promise((ok) => window.setTimeout(ok, 700))
-      if (activeTool.get() === 'pen') activeTool.set('text')
+      try {
+        const id = await boxUnder(r, bb)
+        if (!id) return
+        const pad = await waitFor(() =>
+          document.querySelector(
+            '[data-paper-box="' + CSS.escape(id) + '"] [data-ink-pad]',
+          ),
+        )
+        if (!pad) return
+        // The Pen draws it, then the Text tool is back (the person did not switch).
+        activeTool.set('pen')
+        await new Promise((ok) => requestAnimationFrame(ok))
+        replay(pad, events)
+        await new Promise((ok) => window.setTimeout(ok, 700))
+        if (activeTool.get() === 'pen') activeTool.set('text')
+      } finally {
+        root.removeAttribute('data-shape-making')
+      }
     })
   }
 

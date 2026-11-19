@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 19 Nov 2026: base reds fixed (slice/base-reds, Sonnet)
+
+- App bug: a shape drawn with the Pencil lost its box (tb2-pencil:171). The 18 Nov rule "another tool ends an empty box at once" fired when the shape code put the Pen out for the drawing, before the ink was saved. PaperFrame sets data-shape-making while it draws; usePaperBoxes skips that sweep meanwhile.
+- Old rules in tests, now the current ones: tap window about 1 s (tb2-bar-firsttap:150, tb2-select-shots:104 wait 1500 ms); Duplicate lives in the bar's ⋯ list (tb2-bar-firsttap:150); a tap on words is a caret, so the shots tap where no words are (tb2-select-shots); box top snaps to the nearest paper line, up to half a line from the tap (textBoxFree:48); "Tap here to keep writing" is gone with textbox.v2 (tb2-pencil:598, :625 ON variants now test the paper under the text).
+- App bug (lost update): textTool:125 failed under load (8 of 12 runs). Two quick taps in the Box style panel (radius, then padding) both read the saved style before the first write returned, so the second dropped the first. BoxStylePopover and BoxCard now use a style written within 1.5 s as the base; 12 of 12 loaded runs pass.
+
 ### 18 Nov 2026: F5 F6 F7 iPadOS selection bars and the 1 s tap window (slice/ios-select, Sonnet)
 
 - F7 cause: the lift (touchend) of the 2nd and 3rd tap of a run, and of a finger tap on the caret, was left to iPadOS, which reads a lift on a selection or cursor as "show Paste / Select"; the bar flashed over our word and took it. tapSelect.ts now cancels that lift (`ownLiftUntil`). The window for the next tap is 1000 ms by default (tapTiming.ts, new "Wide" pick; Quick, Normal, Relaxed still work); every tap still acts at once.

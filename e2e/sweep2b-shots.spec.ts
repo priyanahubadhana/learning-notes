@@ -93,9 +93,16 @@ for (const [tname, theme] of THEMES)
       await start(page, theme, vp)
       const box = await boxWithText(page, phone)
       if (phone) {
-        // A phone stacks the boxes: one tap on the box picks it (C23 spec).
+        // A phone stacks the boxes. A tap on the words is a caret (owner 18 Nov
+        // tap rules); the box is as wide as its words, so a second tap in the
+        // padding at its right edge selects it (the caret leaves, the bar shows).
         const r = (await box.boundingBox())!
         await page.mouse.click(r.x + r.width / 2, r.y + r.height / 2)
+        // Past the 1 s tap window (owner 18 Nov), or the second tap joins the
+        // first one's run and its caret fix-up puts the caret back.
+        await page.waitForTimeout(1500)
+        await page.mouse.click(r.x + r.width - 2, r.y + r.height / 2)
+        await expect(box).toHaveAttribute('data-picked', '')
         await expect(page.getByTestId('ob-boxmore')).toBeVisible()
       } else await pick(page, box)
       await shot(page, `box-selected-${tname}-${vp.name}`)

@@ -2,6 +2,14 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 20 Nov 2026: CI reds 4 (slice/ci-reds-4, Sonnet)
+
+- App bug (paste chooser): a rich paste into a fresh empty box (Settings "Always ask") showed the "Paste as" chooser and it vanished at once. The chooser takes focus; the 18 Nov rule "an empty box goes when focus leaves" counted that as leaving and removed the box, and the chooser went with it (freeSpaceC28 paste, pen and mouse). usePaperBoxes now keeps an empty box while focus rests on a dialog, as it already did for a button or field (SETUP selector).
+- Old rules in tests (the app is right): c30-shots (a tap "near the words" is 0.6 em since 18 Nov, 14 px now selects the box; the test taps 0.4 em); cBoxes C10 resize (dots hide while typing, C11; 0a467647 brings the caret back only to a box typed in: the test now checks the box stays selected and no key lands); toolbarC36 C9 (with page.menus the row's own Mic speaks and a pinned Mic tool is not drawn twice, B12: that path runs with page.menus off); pageMenusSheet PM-64 (the top row has its own Undo, so the test takes the toast's); history (the helper's click lands at the line start since C34: the second text goes at the end); sweep2b-shots phone (a tap on words is a caret; select by a second tap past the 1 s window).
+- Pictures: c30-shots and sweep2b-shots only write pictures, they compare none; nothing was updated.
+- tb2-move TB-14: the CI picture (artifact of run 44626942119) shows the drop did happen (Beta above Alpha); the test watched the old element for `data-gliding`, and a box that changes row can be a new element. The test now watches the box by its id.
+- CI run 44626942119 on this branch: every chromium shard green; tb2-select C11, toolbarC36 C9, sweep2b, c30 pass in CI now. Still red there, pass here: lazyTapPaint "Name it sheet" and "More list" (local 190 and 20 ms, limit 250, unchanged), toolbarV9Polish fix 4 (5 runs; the card follows its chip about 140 ms after the chip folds, final place about 400 ms after the turn, the test looks at about 400 ms; it fails here too once in three under 4 workers). Other tests that failed in that run only (c45, eraserShapes, miniBarBounds, ...) were different ones from the earlier run: load flakes.
+
 ### 19 Nov 2026: Paste ▾ in the Pencil buttons, B9, B10 (slice/paste-buttons, Sonnet)
 
 What: Paste ▾ in the top row and floating bar, uniform paste names (Keep look, Match style), caret kept on paste (B9), hold on an empty spot opens our strip (B10), all behind page.menus. Why: owner decisions 19 Nov. Files: src/app/tools/main/{PasteButton,pasteButtons,micControl}.ts*, MainBar, MiniKeysStrip, holdMenuWatch, PageStrip, i18n (en/es/hi), e2e/pasteButtons.spec.ts.

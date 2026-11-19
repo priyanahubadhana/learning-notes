@@ -162,7 +162,10 @@ test('PM-64 Delete sends the page to Trash with a 6 second Undo toast', async ({
   await page.getByRole('button', { name: 'More options' }).click()
   await sheet(page).getByTestId('ps-row-delete').click()
   await expect(sheet(page)).toHaveCount(0)
-  const undo = page.getByRole('button', { name: 'Undo' })
+  // The top tool row has its own Undo button now; the toast's is the one to tap.
+  const undo = page
+    .locator('[data-toast]')
+    .getByRole('button', { name: 'Undo' })
   await expect(undo).toBeVisible()
   await undo.click()
   await openPage(page, 'Second')

@@ -219,17 +219,31 @@ test('TB-14 the drop glides 200 ms, is not tappable until it lands, says "Box mo
   await page.waitForTimeout(300)
   // The glide lasts 200 ms; a slow CI runner can take longer than that just to
   // answer a check, so the page itself records the glide as it happens.
-  await b.evaluate((el) => {
+  // Why (CI reds 4): the box's element can be a new one after the drop (it moves
+  // to another row), so the page watches the box by its id, not the old element.
+  const id = await b.getAttribute('data-paper-box')
+  await page.evaluate((boxId) => {
     const w = window as unknown as { glide?: { seen: boolean; pe: string } }
     w.glide = { seen: false, pe: '' }
-    const mo = new MutationObserver(() => {
-      if (el.hasAttribute('data-gliding') && !w.glide!.seen) {
-        w.glide = { seen: true, pe: getComputedStyle(el).pointerEvents }
-        mo.disconnect()
+    const mo = new MutationObserver((list) => {
+      for (const m of list) {
+        const el = m.target as HTMLElement
+        if (
+          el.hasAttribute('data-gliding') &&
+          el.getAttribute('data-paper-box') === boxId &&
+          !w.glide!.seen
+        ) {
+          w.glide = { seen: true, pe: getComputedStyle(el).pointerEvents }
+          mo.disconnect()
+        }
       }
     })
-    mo.observe(el, { attributes: true, attributeFilter: ['data-gliding'] })
-  })
+    mo.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['data-gliding'],
+      subtree: true,
+    })
+  }, id)
   await page.mouse.up()
   const glide = () =>
     page.evaluate(

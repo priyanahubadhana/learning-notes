@@ -157,6 +157,11 @@ export function usePaperBoxes(
   useEffect(() => {
     if (!editable) return
     const BOX = '[data-paper-box]:not([data-paper-box="main"])'
+    // Where focus may rest while the box is being set up. A dialog counts: the
+    // paste chooser takes focus from an empty box that was just pasted into
+    // (CI reds 4: the box and its chooser vanished together, C28 paste).
+    const SETUP =
+      'button, input, select, textarea, [role="menu"], [role="dialog"]'
     const out = (e: FocusEvent) => {
       const box = (e.target as Element | null)?.closest?.(BOX)
       const id = box?.getAttribute('data-paper-box')
@@ -184,9 +189,7 @@ export function usePaperBoxes(
           return
         // Focus on a bar button or field (the user is setting up the box): keep it.
         if (
-          document.activeElement?.closest(
-            'button, input, select, textarea, [role="menu"]',
-          ) &&
+          document.activeElement?.closest(SETUP) &&
           !document.activeElement.closest('[data-page-title]')
         ) {
           if (++tries < 40) window.setTimeout(check, 600)
@@ -197,11 +200,7 @@ export function usePaperBoxes(
       // Owner 18 Nov (textbox.v2): an empty box goes at once when the user taps
       // away (the caret goes nowhere in particular): no wait, no flash.
       const to = e.relatedTarget as Element | null
-      if (
-        isOn('textbox.v2') &&
-        !to?.closest?.('button, input, select, textarea, [role="menu"]')
-      )
-        return void vanishNow(id)
+      if (isOn('textbox.v2') && !to?.closest?.(SETUP)) return void vanishNow(id)
       window.setTimeout(check, 600)
     }
     /**

@@ -70,6 +70,29 @@ function penOnCaretOrSelection(editor: Editor, x: number, y: number): boolean {
   }
 }
 
+/**
+ * B10 (flag page.menus): a spot with no words under it: an empty line, or
+ * further right of the line's last letter than one letter's reach. A Pencil
+ * hold there is not Scribble (nothing to write over), so our menu may open.
+ */
+export function onEmptySpot(editor: Editor, x: number, y: number): boolean {
+  const view = editor.prosemirrorView
+  if (!view) return false
+  try {
+    const at = view.posAtCoords({ left: x, top: y })
+    if (!at) return false
+    const $pos = view.state.doc.resolve(at.pos)
+    const text = $pos.parent.textContent
+    if (text.trim() === '') return true
+    // End of this textblock's line: the caret rectangle at the block's end.
+    const end = view.coordsAtPos($pos.end())
+    const sameLine = y >= end.top - 4 && y <= end.bottom + 4
+    return sameLine && x > end.right + PEN_CARET_PX * 2
+  } catch {
+    return false
+  }
+}
+
 /** The small ring that fills while the hold runs (item 6); lift to cancel. */
 export function showRing(doc: Document, x: number, y: number, ms: number) {
   const el = doc.createElement('div')
@@ -100,7 +123,7 @@ export function watchHoldMenu(
   editor: Editor,
   onOpen: (at: HoldPoint) => void,
   /** `rightClick`: a mouse right-click opens it too (flag page.menus, PM-20). */
-  opts: { rightClick?: boolean } = {},
+  opts: { rightClick?: boolean; penEmptySpot?: boolean } = {},
 ): () => void {
   const dom = editor.domElement
   if (!dom) return () => {}
@@ -145,7 +168,11 @@ export function watchHoldMenu(
     // right after text went in, and only on the caret or a selection.
     if (e.pointerType === 'pen') {
       if (Date.now() - wroteAt < PEN_QUIET_MS) return
-      if (!penOnCaretOrSelection(editor, e.clientX, e.clientY)) return
+      if (
+        !penOnCaretOrSelection(editor, e.clientX, e.clientY) &&
+        !(opts.penEmptySpot && onEmptySpot(editor, e.clientX, e.clientY))
+      )
+        return
     }
     const hold = readDeviceSetting(holdMenuSetting)
     const me = {

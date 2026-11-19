@@ -92,6 +92,7 @@ const config = defineConfig({
         /updateStuck(Shots)?.spec.ts$/, // C22
         /c45-symbols-scribble/, // C4, C5, C14 (combined test 16 Nov)
         /pageMenusPaste/,
+        /pasteButtons/,
         /pageMenusPlace/,
         /pencilIsolation/,
         /mainFramePolish.spec/,

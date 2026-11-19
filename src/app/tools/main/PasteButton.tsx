@@ -119,15 +119,13 @@ export function PasteButton({
           },
         ]
       : []),
-    ...(has('link')
-      ? [
-          {
-            id: 'link',
-            label: t('pageMenus.pasteLink'),
-            hint: t('pageMenus.pasteLinkHint'),
-          },
-        ]
-      : []),
+    // Always listed (the owner's list); a clipboard that is not an address
+    // pastes as it was copied.
+    {
+      id: 'link',
+      label: t('pageMenus.pasteLink'),
+      hint: t('pageMenus.pasteLinkHint'),
+    },
   ]
   const row = (r: Row, ticked = false) => (
     <button

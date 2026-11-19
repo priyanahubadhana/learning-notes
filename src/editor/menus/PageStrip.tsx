@@ -116,10 +116,14 @@ export default function PageStrip({
       ai: ai.enabled && ai.candidates.length > 0,
       forms,
     })
-    return stripItems({ favourite: starred, comment: COMMENTS }).map((i) =>
-      i.id === 'paste' ? { ...i, menu } : i,
-    )
-  }, [editor, forms, starred])
+    // B10: Cut and Copy need words picked; a hold on the caret or an empty
+    // spot keeps Paste (and Select all under ⋯).
+    const picked =
+      at.pointerType === 'mouse' || (!!view && !view.state.selection.empty)
+    return stripItems({ favourite: starred, comment: COMMENTS })
+      .filter((i) => picked || (i.id !== 'copy' && i.id !== 'cut'))
+      .map((i) => (i.id === 'paste' ? { ...i, menu } : i))
+  }, [editor, forms, starred, view, at.pointerType])
   const commands = useMemo(() => moreCommands({ pro }), [pro])
 
   const block = (): EditorBlock => editor.getTextCursorPosition().block

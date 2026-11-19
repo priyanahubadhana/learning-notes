@@ -868,6 +868,7 @@ function LoadedPageEditor({
       const stopCircle = watchCircleSelect(editor, afterSelect)
       const stopMenu = watchHoldMenu(editor, setHoldAt, {
         rightClick: menusOnRef.current,
+        penEmptySpot: menusOnRef.current,
       })
       // C4: a scribble deletes what is under it, not the old selection.
       const stopScribble = watchScribbleDelete(editor)

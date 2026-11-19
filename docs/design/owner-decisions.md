@@ -479,3 +479,10 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
   - While circling: a thin dashed line follows the Pencil and fades once the words are selected.
   - Selection look: strong soft purple fill with round handles at both ends, draggable with the Pencil; easy to see even for 2 letters. Picture first.
 - **Plan answers, round 2 (owner, 19 Nov):** after Delete on our bar, the typing cursor waits in the gap; the owner selects first (never writes on top of words), so any closed loop covering at least half a letter is a selection; the finger works the same as the Pencil (no finger circles; fingers scroll); a circle selects only inside the box it starts in.
+
+## Paste and the Pencil buttons (owner, 19 Nov 2026; picture approved: paste-mock2)
+
+- **Top tool row:** Mic, Backspace, Enter and **Paste ▾** (picture 1). Backspace, Enter and Paste are for **Pencil mode**; Mic shows in every mode. (Touch/Computer modes: Mic, and Paste ▾ per the owner's earlier message — being confirmed.)
+- **Floating Pencil bar** (⠿ mic ↵ ⌫ ×) also gets **Paste ▾**. It is hidden while the top tool row shows the same buttons, unless mic (dictation) is active.
+- **Paste ▾ menu:** Keep look (default, ticked), Plain text; **More** opens Match style, As quote, As text box, Link / Embed. **Clean up with AI is hidden** for now (in IDEAS.md).
+- **One name per option everywhere:** the same words in the box bar, the top row, the floating bar, the page menu and Settings (Settings "Keep original" becomes "Keep look"). A tap on Paste follows Settings › Paste as.

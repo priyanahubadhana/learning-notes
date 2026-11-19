@@ -449,3 +449,8 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 - **Box-bar mock APPROVED (owner, 18 Nov; docs/mockups/box-bar/index.html, artifact 5npULZmbtQimySABAxFcG8 v6).** Last change: toggles first, wherever possible (Toggle heading, Toggle list), as the owner uses them most. Default font for a new note: Easy to read (Atkinson Hyperlegible). Size: a slider with any number; −/+ moves one step.
 - **Make-toggle switch (artifact comment, 18 Nov):** in Text options (and wherever a heading or list can be a toggle), a switch beside the item turns it into its toggle version (heading → toggle heading, list → toggle list) and back.
 - **Owner tests the iPad sideways (18 Nov):** sideways is the main check; every picture and first-look list starts with iPad sideways.
+
+## First box hint dropped (owner, 19 Nov 2026)
+
+- The first box shows **no hint** ("Type, or tap anywhere…" and every other placeholder go). It is a plain empty box like any other. Reason: the hint still did not show on the iPad (page made via the notebook +, named in the pop-up, then Text tool, then a tap) and "does not matter in the longer run". Replaces the hint lines in "Box size and hints" and the 18 Nov "Equal boxes" note (owner 18 Nov: "if the hint causes trouble, drop it").
+- Selecting the box works the way the owner wants (iPad check, build C173E93).

@@ -58,3 +58,12 @@ Goodnotes: Lasso selects handwriting, pictures, text boxes, sticky notes; "Inclu
 ## 7. Files
 
 owner-decisions.md (sections from "The owner's main iPad flow" on), pencil-select-plan.md, research/smart-selection-bar.md, combined-test-2026-11-16.md (F5–F7, B8–B12), refs/goodnotes-lasso-text-1/2.png, refs/paste-mock2-approved.png, IDEAS.md.
+
+## 8. Owner's Goodnotes study (19 Nov, 18:08) — changes the frame
+
+Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-level.png.
+
+- **Goodnotes has two levels.** With **no typing cursor** in a box, the Lasso treats a text box as one object: a lasso round it selects the whole box and shows the **box bar** (AI, colour, size │ Resize, **Edit Text**, │ Cut, Duplicate, Delete, ⋯); a stroke inside the box drags the box; it never selects words; outside, it pans the page.
+- **With the typing cursor active in a box** (after Edit Text or a tap in the text), the Lasso selects **text inside that box**, with handles, and shows the **text bar** (AI, colour, 26, Aa, B/I, align, list │ highlight, link, cut, copy, ⋯), plus a keyboard accessory bar at the bottom (undo, keyboard, indent, lists, align, B I U S, mic, return).
+- Owner's reading: this split is how Goodnotes keeps Apple's bar away. Opus: Goodnotes, as a native app, can also turn Scribble off per view; we cannot — but our Lasso does not wake Scribble, so the same two-level model is possible for us.
+- **New frame for Fable:** Box level (object) vs Text level (inside an edited box). The smart bar has a box state, a text state and ink/picture states. Our current box bar ≈ Goodnotes' box bar; our text selection bar ≈ its text bar.

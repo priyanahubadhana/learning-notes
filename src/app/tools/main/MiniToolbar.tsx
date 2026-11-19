@@ -193,16 +193,29 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
     // Why: after a turn WebKit keeps moving the page for a few hundred ms with
     // no resize or scroll event (the kept bar room shrinks), so the bar kept
     // the place for the old layout and covered its words (BUG-002 turn test,
-    // ipad-webkit). A bar already placed follows its words every frame for 1 s.
+    // ipad-webkit). A bar already placed follows its words every frame until
+    // they have kept still for 500 ms (at most 4 s): a slow iPad settles later
+    // than the fixed 1 s used before, which left the bar over its words (CI run
+    // 44514113315, miniBarBounds BUG-002 1180x820).
     let frame = 0
     const resized = () => {
       cancelAnimationFrame(frame)
       measure('resize')
       if (!anchor.current) return
-      const until = performance.now() + 1000
+      const start = performance.now()
+      let still = start
+      let last = ''
       const follow = () => {
         measure('resize')
-        if (performance.now() < until) frame = requestAnimationFrame(follow)
+        const s = spotOf(editor)
+        const key = s ? `${s.left},${s.lineTop},${s.lineBottom}` : ''
+        const now = performance.now()
+        if (key !== last) {
+          last = key
+          still = now
+        }
+        if (now - still < 500 && now - start < 4000)
+          frame = requestAnimationFrame(follow)
       }
       frame = requestAnimationFrame(follow)
     }
@@ -212,7 +225,7 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
       document.removeEventListener('scroll', measure, true)
       stopResize()
     }
-  }, [open, measure])
+  }, [open, measure, editor])
   // A tap on the page away from the selection, or Esc, dismisses it (the
   // selection otherwise stays until the person acts). A tap that is part of
   // making the selection (a triple or quadruple tap) says so (tapSelect.ts).

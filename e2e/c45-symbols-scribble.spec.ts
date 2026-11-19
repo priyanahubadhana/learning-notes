@@ -670,6 +670,13 @@ function driverProof(runs: { asked: number[]; ms: number[] }[], late: number) {
   )
 }
 
+/**
+ * Timing split by engine (19 Nov, docs/DECISIONS.md): on chromium realPenTaps
+ * sends each pen event with its asked time (CDP), so these runs reach the page
+ * exactly as asked on any machine. On ipad-webkit there is no such channel:
+ * the same tests run with the sending-early driver, a run that arrives out of
+ * the spec is repeated, and the cap on such runs is not raised.
+ */
 const c14 = (n: 2 | 3) =>
   test(`C14: 50 Pencil ${n === 2 ? 'double' : 'triple'} taps (150-250 ms taps, 5 px drift, 400-500 ms apart) all select; nothing is deleted`, async ({
     page,

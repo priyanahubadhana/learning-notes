@@ -235,3 +235,4 @@ Reload the test page; preset "Up to Phase 2B"; Pencil.
   - **B9:** pasting through the top ⋯ menu loses the caret in the box, so nothing can be pasted there.
   - **B10:** a Pencil hold in a box (on the caret or an empty spot) shows no paste option at all; a finger hold shows Apple's Paste. Rule: a hold (Pencil or finger) shows OUR strip with Paste (and Cut, Copy, Select all as fits) — Apple's only if ours cannot.
   - **Ask P1:** add a Paste button to the small floating Pencil bar (mic, Enter, Backspace, ×), next to Enter/Backspace; it pastes at the caret without losing it. Picture first for the owner's OK.
+- **Owner idea (19 Nov): a circle in the Text tool should work like the Lasso tool** (which works perfectly on the iPad), then a tap gives the typing cursor. Logged in IDEAS.md; goes into the Pencil-select plan with Fable together with the recorder traces.

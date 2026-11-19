@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   live:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import type { Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 
 /**
  * A Pencil as real Safari sends it (P1.5, first look L11).
@@ -203,4 +203,25 @@ export async function realPenHover(page: Page, path: Pt[]): Promise<void> {
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })
+}
+
+/**
+ * A Pencil tap at the left end of a box's first line, until the caret is in
+ * the box (a real state).
+ *
+ * Why: on a slow machine the first tap on a freshly opened page can arrive
+ * before the page has settled (CI 19 Nov: caretSaveJump 15 and firstBoxTap 7
+ * first-try reds, all green on the retry), so the box was not given the
+ * caret. A hand taps again when nothing happens; this does the same, waiting
+ * out the 1 s tap window between tries so each is a first tap.
+ */
+export async function penCaretInFirstBox(
+  page: Page,
+  main: Locator,
+): Promise<void> {
+  await expect(async () => {
+    const r = (await main.locator('.bn-block-content').first().boundingBox())!
+    await realPen(page, [{ x: r.x + 6, y: r.y + 8 }])
+    await expect(main.locator('.bn-editor')).toBeFocused({ timeout: 2500 })
+  }).toPass({ timeout: 25_000, intervals: [1100] })
 }

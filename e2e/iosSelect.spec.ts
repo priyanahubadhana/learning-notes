@@ -8,9 +8,9 @@ import {
   typeInEditor,
   waitForSaved,
 } from './helpers.ts'
-import { rect } from './cBoxesHelpers.ts'
 import {
   installRealPen,
+  penCaretInFirstBox,
   realPen,
   realPenTaps,
   type PenTap,
@@ -113,9 +113,7 @@ async function open(page: Page, mode: 'pencil' | 'touch') {
   await expect(text).toHaveAttribute('aria-pressed', 'true')
   // Two lines of words, then the caret out of the box.
   const main = page.locator(MAIN)
-  const first = await rect(main.locator('.bn-block-content').first())
-  await realPen(page, [{ x: first.x + 6, y: first.y + 8 }])
-  await expect(main.locator('.bn-editor')).toBeFocused()
+  await penCaretInFirstBox(page, main)
   await page.keyboard.type(LINE1)
   await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
   await waitForSaved(page)

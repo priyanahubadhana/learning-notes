@@ -10,7 +10,12 @@ import {
   waitForSaved,
 } from './helpers.ts'
 import { rect } from './cBoxesHelpers.ts'
-import { installRealPen, realPen, realPenTaps } from './realPen.ts'
+import {
+  installRealPen,
+  penCaretInFirstBox,
+  realPen,
+  realPenTaps,
+} from './realPen.ts'
 
 /**
  * Re-test 18 Nov, "3-step check 2" (F1 to F4), the page's FIRST box with
@@ -76,10 +81,7 @@ async function doubleTap(page: Page, how: How, x: number, y: number) {
 /** The first box with two lines (a heading line and a text line), then blurred. */
 async function withWords(page: Page) {
   const main = page.locator(MAIN)
-  const first = await rect(main.locator('.bn-block-content').first())
-  await realPen(page, [{ x: first.x + 6, y: first.y + 8 }])
-  // Wait for the caret (a real state), or the first letters are typed into nothing.
-  await expect(main.locator('.bn-editor')).toBeFocused()
+  await penCaretInFirstBox(page, main)
   await page.keyboard.type('Heading words')
   // Real states, not a sleep: the hint is gone and the first letters are saved.
   // Then the caret is put back at the end of the text: on the base build the
@@ -299,9 +301,7 @@ for (const mode of MODES)
     }) => {
       await open(page, mode)
       const main = page.locator(MAIN)
-      const first = await rect(main.locator('.bn-block-content').first())
-      await realPen(page, [{ x: first.x + 6, y: first.y + 8 }])
-      await expect(main.locator('.bn-editor')).toBeFocused()
+      await penCaretInFirstBox(page, main)
       await page.keyboard.type('mmmm '.repeat(60))
       await page.waitForTimeout(700)
       await page.evaluate(() => (document.activeElement as HTMLElement).blur())

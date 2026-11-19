@@ -179,9 +179,9 @@ test('More opens Match style, As quote, Link / Embed; no AI', async ({
     )
   await expect(menu).not.toContainText('Clean up with AI')
   await menu.locator('[data-paste-option="quote"]').click()
-  await expect(
-    editor(page).locator('blockquote, [data-content-type="quote"]'),
-  ).toHaveCount(1)
+  await expect(editor(page).locator('[data-content-type="quote"]')).toHaveCount(
+    1,
+  )
 })
 
 test('B9: pasting from the button and from ▾ keeps the caret in the box', async ({

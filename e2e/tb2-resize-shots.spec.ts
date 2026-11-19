@@ -2,7 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { mkdirSync } from 'node:fs'
-import { selectByMiddleTap } from './cBoxesHelpers.ts'
+import { selectByMiddleTap, tapOut } from './cBoxesHelpers.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /**
@@ -81,7 +81,9 @@ for (const [name, vp, mode] of SIZES) {
       await page.mouse.move(ex, ey)
       await page.mouse.down()
       await page.waitForTimeout(200)
-      await page.mouse.move(ex - 140, ey, { steps: 8 })
+      // Narrow enough that the words wrap whatever the width (a wide box kept one line, so it had no south dot).
+      const bw = (await box.boundingBox())!.width
+      await page.mouse.move(ex - Math.max(140, bw - 170), ey, { steps: 8 })
       await page.mouse.up()
       await page.waitForTimeout(700)
     }
@@ -91,6 +93,9 @@ for (const [name, vp, mode] of SIZES) {
       await page.screenshot({ path: `${OUT()}/narrow-${name}-${label}.png` })
     }
     if (!dots || name === 'phone') return // phone held pictures: 2b5b folder
+    // The caret may have landed in the box (typing look hides the dots): one tap outside leaves it selected.
+    if ((await box.getAttribute('data-typing')) !== null) await tapOut(page)
+    await expect(box.locator('[data-resize-handle="s"]')).toBeVisible()
     // Held and dragged: the dot grows while the finger is down.
     const s = (await box.locator('[data-resize-handle="s"]').boundingBox())!
     const sx = s.x + s.width / 2

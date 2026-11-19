@@ -332,7 +332,16 @@ export async function selectByMiddleTap(page: Page, box: Locator) {
   const at = await rect(box)
   await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2)
   await page.waitForTimeout(450)
-  if ((await box.getAttribute('data-typing')) !== null) await tapOut(page)
+  // Why: a box that was never picked is typed in "fresh"; a tap on bare paper
+  // then makes the next box (C27), so it cannot end the typing here. The padding
+  // inside the box's right edge is its empty part (as TB-05): it selects the box.
+  if ((await box.getAttribute('data-typing')) !== null) {
+    const r = await rect(box)
+    await page.mouse.click(r.x + r.width - 2, r.y + r.height / 2)
+    await page.waitForTimeout(450)
+    // Picked now, so one tap outside ends any typing look and keeps it selected.
+    if ((await box.getAttribute('data-typing')) !== null) await tapOut(page)
+  }
   await expect(box).toHaveAttribute('data-picked', '')
   await expect(box).not.toHaveAttribute('data-typing', '')
 }

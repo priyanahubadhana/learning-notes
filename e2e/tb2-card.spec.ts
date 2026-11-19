@@ -569,6 +569,8 @@ test('TB-25: a wide box low on the page: the card is capped at the room there is
   await page.setViewportSize({ width: 1336, height: 640 })
   await box.evaluate((e) => e.scrollIntoView({ block: 'end' }))
   await page.waitForTimeout(300)
+  // Same spot as the first tap: wait out the tap window (about 1 s, owner 18 Nov) so this is a first tap again.
+  await page.waitForTimeout(1100)
   await openCard(page, box)
   const c = await rect(card(page))
   const b = await rect(box)

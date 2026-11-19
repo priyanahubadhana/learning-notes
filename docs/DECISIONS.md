@@ -1581,4 +1581,4 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 
 - **19 Nov 2026 (Opus, decision to review): CI runners pinned to ubuntu-24.04.** GitHub moved `ubuntu-latest` to 26.04 (image 20261111); the cached Playwright WebKit cannot start there (`libicudata.so.74` missing), so every fast-ipad test failed in 3 ms (run 44442046352). Pinning is free and reversible; un-pin when Playwright supports 26.04.
 
-- **20 Nov 2026 (owner): "Only use Opus for now."** Sonnet's weekly limit is used up; builders run as Opus until the owner says otherwise. Fable planning (fable-brief-smart-select.md) waits for the owner's Fable session.
+- **20 Nov 2026 (owner): "Opus and Sonnet only for now"** (no Fable): the normal roles stand (Sonnet builds, Opus manages and reviews). Fable planning (fable-brief-smart-select.md) waits for the owner's Fable session.

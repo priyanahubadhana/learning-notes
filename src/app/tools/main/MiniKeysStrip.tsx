@@ -15,11 +15,7 @@ import type { Editor } from '../../../editor/barActions'
 import { addLineAfterCursor } from '../../../editor/lineActions'
 import { noteTyped } from '../../../editor/typedSignal'
 import { Icon } from '../icons'
-import {
-  DEFAULT_KEYS_PLACE,
-  miniKeysOn,
-  miniKeysPlace,
-} from './miniKeys'
+import { DEFAULT_KEYS_PLACE, miniKeysOn, miniKeysPlace } from './miniKeys'
 import { useFlag } from '../../flags'
 import { useBarSettings } from '../../../settings/deviceModeSettings'
 import { PasteButton } from './PasteButton'

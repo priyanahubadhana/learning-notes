@@ -84,7 +84,8 @@ export function PasteButton({
   }
 
   // The tick follows Settings › Paste as ("ask" counts as Keep look).
-  const ticked = readDeviceSetting(pasteModeSetting) === 'plain' ? 'plain' : 'keep'
+  const ticked =
+    readDeviceSetting(pasteModeSetting) === 'plain' ? 'plain' : 'keep'
   const has = (id: string) => !forms || forms.includes(id)
   const first: Row[] = [
     {

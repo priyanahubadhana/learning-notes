@@ -300,7 +300,10 @@ for (const [w, h] of [
 }
 
 // owner-decisions "Paste and the Pencil buttons": Backspace and Enter show
-// only in Pencil mode, so this is checked there.
+// only in Pencil mode, so this is checked there. With page.menus (B12, picture
+// paste-mock2) "Mic, Backspace, Enter and Paste ▾ sit together", so the
+// divider stands before that group: before the Mic, which is right before
+// Backspace.
 test('v9 bar: Minimise is the ⇥| icon and a divider stands before Backspace', async ({
   page,
 }) => {
@@ -308,9 +311,11 @@ test('v9 bar: Minimise is the ⇥| icon and a divider stands before Backspace', 
   await expect(
     page.getByTestId('v8-minimise').locator('svg.lucide-arrow-right-to-line'),
   ).toHaveCount(1)
-  const before = await page
-    .getByTestId('v8-backspace')
-    .evaluate((el) => el.previousElementSibling?.className ?? '')
+  const before = await page.getByTestId('v8-backspace').evaluate((el) => {
+    const prev = el.previousElementSibling
+    const mic = prev?.matches('[data-action="miniKeys"]') ? prev : null
+    return (mic ?? el).previousElementSibling?.className ?? ''
+  })
   expect(before).toContain('v8hair')
 })
 

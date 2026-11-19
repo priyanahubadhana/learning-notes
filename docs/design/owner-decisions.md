@@ -462,3 +462,7 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 ## The owner's main iPad flow (owner, 19 Nov 2026)
 
 - About 60% of the owner's iPad use is **editing** notes (later made by AI, e.g. mind maps) with the Apple Pencil: select a word, remove it, write over it with Scribble. The rest is mostly voice to text. So every Pencil and selection feature must work with **Scribble ON**; turning Scribble off is never the fix. The select → delete → rewrite of one word is the flow to make excellent first.
+
+## Paste button in the Pencil bar (owner, 19 Nov 2026)
+
+- The small floating Pencil bar (mic, Enter, Backspace, ×) gets a **Paste** button with a small **▾ arrow** beside it. A tap on Paste pastes at the caret and **keeps the formatting** (default). The ▾ opens the choices: Keep formatting (default), Plain text. The caret stays in the box. Picture first for the owner's OK, then build (with B9 and B10).

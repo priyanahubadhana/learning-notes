@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 19 Nov 2026: full CI reds triaged (slice/ci-reds, Sonnet)
+
+- Run 44444621379 (19 Nov). New since 18 Nov, and not CI-only (all red here too), all test-side (the app is right): review-v2 (13), tracker (8), search SR-B02 (makeCard clicked the first line's left end since C34, so the second card's words went into the first card); pageMenusPlaceC23(b) (10+; a click in the middle of the first box now selects it, so the tap below made no box); tb2-select TB-01, tb2-card TB-25 (same spot inside the 1 s window = a double tap); tb2-resize-shots, tb2-move-shots, tb2-bar-shots, tb2-card-shots (a tap near the words puts the caret, the border selects; a one-line box has no south dot).
+- CI-only slowness (not reproduced at 2 workers here, reproduced at 4-10): a Pencil tap on a fresh page's first box was lost (caretSaveJump 15, firstBoxTap 7, iosSelect): the spec taps again until the caret is in. iosSelect F7: a run is accepted only if its taps arrived within the 1 s window by the page's own time stamps, and "at once" is measured on the page's clock.
+- Left: see the report (c45 timed Pencil runs, phone swipe, lazyTapPaint 150 ms, scrollBarLook hover).
+
 ### 19 Nov 2026: base reds fixed (slice/base-reds, Sonnet)
 
 - App bug: a shape drawn with the Pencil lost its box (tb2-pencil:171). The 18 Nov rule "another tool ends an empty box at once" fired when the shape code put the Pen out for the drawing, before the ink was saved. PaperFrame sets data-shape-making while it draws; usePaperBoxes skips that sweep meanwhile.

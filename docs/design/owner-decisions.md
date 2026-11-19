@@ -486,3 +486,8 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 - **Floating Pencil bar** (⠿ mic ↵ ⌫ ×) also gets **Paste ▾**. It is hidden while the top tool row shows the same buttons, unless mic (dictation) is active.
 - **Paste ▾ menu:** Keep look (default, ticked), Plain text; **More** opens Match style, As quote, As text box, Link / Embed. **Clean up with AI is hidden** for now (in IDEAS.md).
 - **One name per option everywhere:** the same words in the box bar, the top row, the floating bar, the page menu and Settings (Settings "Keep original" becomes "Keep look"). A tap on Paste follows Settings › Paste as.
+- **Plan answers, round 3 (owner, 19 Nov, after the recorder proved Scribble keeps the whole Pencil stroke in the Text tool):**
+  - Goodnotes model: tap 1 selects the box, tap 2 near the text gives the cursor; with the cursor in a box OUR format bar (colour, size, …) shows, so Apple's bar is never needed; writing goes on with Scribble.
+  - **Precise selection lives in the Lasso tool:** circle any part of the text, down to letters inside a word; **double tap = word, triple tap = line, four taps = paragraph** — all in the Lasso. Our highlight and bar; after an action, or a tap on the text, back to the Text tool with the cursor (round 1).
+  - The Lasso keeps all it does today; these are additions for text.
+  - Owner asks for the problems to expect before building.

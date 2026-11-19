@@ -206,22 +206,24 @@ export async function realPenHover(page: Page, path: Pt[]): Promise<void> {
 }
 
 /**
- * A Pencil tap at the left end of a box's first line, until the caret is in
- * the box (a real state).
+ * One Pencil tap at the caret spot of a box's first line (the left end of the
+ * line's own box, where the caret stands), once the tap window has passed.
  *
- * Why: on a slow machine the first tap on a freshly opened page can arrive
- * before the page has settled (CI 19 Nov: caretSaveJump 15 and firstBoxTap 7
- * first-try reds, all green on the retry), so the box was not given the
- * caret. A hand taps again when nothing happens; this does the same, waiting
- * out the 1 s tap window between tries so each is a first tap.
+ * Why (found 19 Nov by logging the page's own state at the tap, 4 of 60
+ * tries at 4 workers): the spec had just clicked at the same screen spot on
+ * the page before (the "Old words" line), 0.85-1.0 s earlier by the events'
+ * time stamps. Inside the 1 s window and near that spot a tap is the SECOND
+ * tap of a run (a word select, which on an empty line does nothing), so no
+ * caret came: no event was lost and the app followed its rule. The pen goes
+ * down after the window, and the line is measured then (the page was still
+ * settling: the line moved 11 px after the spec had measured it).
  */
 export async function penCaretInFirstBox(
   page: Page,
   main: Locator,
 ): Promise<void> {
-  await expect(async () => {
-    const r = (await main.locator('.bn-block-content').first().boundingBox())!
-    await realPen(page, [{ x: r.x + 6, y: r.y + 8 }])
-    await expect(main.locator('.bn-editor')).toBeFocused({ timeout: 2500 })
-  }).toPass({ timeout: 25_000, intervals: [1100] })
+  await page.waitForTimeout(1100)
+  const r = (await main.locator('.bn-inline-content').first().boundingBox())!
+  await realPen(page, [{ x: r.x + 4, y: r.y + r.height / 2 }])
+  await expect(main.locator('.bn-editor')).toBeFocused()
 }

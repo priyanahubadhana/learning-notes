@@ -37,10 +37,12 @@ test.use({
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 const LINE = 'Text ① → 6, a/b'
 /**
- * The pause (ms) after which taps start a new run: longer than the tap gap
- * (C19: Relaxed, 700 ms, when nothing is picked).
+ * The pause (ms) after which taps start a new run: longer than the tap gap.
+ * The gap is about 1 s since the owner's 18 Nov "Tap speed" (it was 700 ms
+ * in C19, when this was 900): 900 ms apart on a near spot joined the next
+ * tap to the run on the slow runner (C5 "six left", 19 Nov).
  */
-const RUN_APART = 900
+const RUN_APART = 1100
 const rect = async (l: Locator) => (await l.boundingBox())!
 
 async function start(page: Page, name: string) {

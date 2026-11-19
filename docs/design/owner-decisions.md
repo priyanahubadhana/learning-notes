@@ -492,3 +492,4 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
   - The Lasso keeps all it does today; these are additions for text.
   - Owner asks for the problems to expect before building.
 - **Plan answers, round 4 (owner, 19 Nov):** go with the Lasso. In the Lasso: circle part of a word (letters) or a whole word; double / triple / four taps select word / line / paragraph. Reference: Goodnotes in its Lasso tool selects inside a word ("rate-") with handles and shows its format bar (refs/goodnotes-lasso-text-1/2.png). Ink rule question withdrawn: see B11.
+- **Lasso picture (owner, 19 Nov):** the plan in the picture is OK, but NOT the format bar shown in it. The owner likes today's Lasso tool and its own bar as they are: a text selection made in the Lasso uses **the Lasso's existing bar**, with **Paste** added to it. Anything else to add to that bar is discussed first.

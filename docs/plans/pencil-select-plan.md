@@ -37,3 +37,9 @@ Select → (bar action) → back to text, with the Pencil or finger, Scribble ON
 3. Select → Delete → write the new word with the Pencil: done in 3 moves.
 4. Select, then tap anywhere in the text: cursor there, typing works.
 5. Hold → Paste works with the Pencil; Paste button in the Pencil bar keeps formatting, ▾ gives plain text.
+
+## Must never happen (owner, 19 Nov)
+
+1. While the owner is writing with Scribble (strokes following each other), a letter loop must never be read as a circle: no selection, no bar pops up, the writing is never interrupted. (Rule: no circle-select while writing is in progress, e.g. within about 1 s of the last Scribble stroke or text input; and a circle needs to cover at least half of an existing letter.)
+2. A circle drawn on top of words inside a box must never bring Apple's bar; our bar shows.
+3. With words selected, scribbling over them (scratch-out) deletes them (as Scribble's scratch-out does; see scribbleDelete.ts, C4) — never selects or writes something else.

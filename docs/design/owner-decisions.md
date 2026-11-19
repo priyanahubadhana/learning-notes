@@ -493,3 +493,14 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
   - Owner asks for the problems to expect before building.
 - **Plan answers, round 4 (owner, 19 Nov):** go with the Lasso. In the Lasso: circle part of a word (letters) or a whole word; double / triple / four taps select word / line / paragraph. Reference: Goodnotes in its Lasso tool selects inside a word ("rate-") with handles and shows its format bar (refs/goodnotes-lasso-text-1/2.png). Ink rule question withdrawn: see B11.
 - **Lasso picture (owner, 19 Nov):** the plan in the picture is OK, but NOT the format bar shown in it. The owner likes today's Lasso tool and its own bar as they are: a text selection made in the Lasso uses **the Lasso's existing bar**, with **Paste** added to it. Anything else to add to that bar is discussed first.
+
+## One smart selection bar (owner, 19 Nov 2026) — to plan with Fable
+
+- Merge the selection bars (the Lasso's drawing bar, the new text selection mini bar, and the box bar's selection parts) into **one smart bar** that changes with what is selected:
+  - **text only:** Paste ▾ (on the bar), Copy, Cut, Delete, Bold / Italic, Colour, Highlight — no drawing-only buttons;
+  - **ink only (e.g. a diagram drawn with the pen):** the drawing buttons (Thickness, Colour, Turn, Resize, Move, Duplicate, Replay…);
+  - **text + ink:** a mixed set;
+  - **pictures:** picture buttons.
+- As much customisation as possible (which buttons show, order), like the top row.
+- Never drop a feature: every button of the three bars stays reachable (inventory first).
+- Picture first, then the plan with Fable (from 20 Nov). The Lasso text-selection build waits for this so it is built once.

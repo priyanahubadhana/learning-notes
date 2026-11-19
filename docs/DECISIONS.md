@@ -79,6 +79,7 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-19 · Timed Pencil taps: the driver splits by engine (ci-reds builder, coordinator decision).** On chromium the tap tests (c45 C14/C19) send every pen event with its asked time through CDP (`e2e/realPen.ts`), so the 400-500 ms gaps are exact however slow the machine is; on ipad-webkit Playwright has no such channel, so the same tests keep the sending-early driver and the late-run cap is NOT raised (no CI allowance).
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).

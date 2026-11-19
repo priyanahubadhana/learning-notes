@@ -82,7 +82,8 @@ for (const [name, vp, mode] of SIZES) {
         : await addBox(page, 'Quiz me: what does the nucleus do?', 90, a)
     if (name === 'phone') {
       const at = (await b.boundingBox())!
-      await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2)
+      // The empty part inside the right edge selects the box; a tap in the middle lands on its words (caret).
+      await page.mouse.click(at.x + at.width - 4, at.y + at.height / 2)
       await expect(b).toHaveAttribute('data-picked', '')
     } else await pickBox(page, b)
     const grips = await b.locator('[data-box-grip]').count()

@@ -7,8 +7,7 @@ import {
   startInMode,
   typeInEditor,
 } from './helpers.ts'
-import { rect } from './cBoxesHelpers.ts'
-import { installRealPen, realPen } from './realPen.ts'
+import { installRealPen, penCaretInFirstBox } from './realPen.ts'
 
 /**
  * Bug B7 (18 Nov): on a blank page the save of the first letters could move
@@ -63,9 +62,7 @@ for (const mode of ['pencil', 'touch'] as const)
     }) => {
       await open(page, mode, i)
       const main = page.locator(MAIN)
-      const first = await rect(main.locator('.bn-block-content').first())
-      await realPen(page, [{ x: first.x + 6, y: first.y + 8 }])
-      await expect(main.locator('.bn-editor')).toBeFocused()
+      await penCaretInFirstBox(page, main)
       // No waits: letters keep coming while the first save runs.
       await page.keyboard.type(WORDS, { delay: 15 })
       await page.waitForTimeout(400)

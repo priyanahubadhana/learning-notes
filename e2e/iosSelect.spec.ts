@@ -8,9 +8,9 @@ import {
   typeInEditor,
   waitForSaved,
 } from './helpers.ts'
-import { rect } from './cBoxesHelpers.ts'
 import {
   installRealPen,
+  penCaretInFirstBox,
   realPen,
   realPenTaps,
   type PenTap,
@@ -113,9 +113,7 @@ async function open(page: Page, mode: 'pencil' | 'touch') {
   await expect(text).toHaveAttribute('aria-pressed', 'true')
   // Two lines of words, then the caret out of the box.
   const main = page.locator(MAIN)
-  const first = await rect(main.locator('.bn-block-content').first())
-  await realPen(page, [{ x: first.x + 6, y: first.y + 8 }])
-  await expect(main.locator('.bn-editor')).toBeFocused()
+  await penCaretInFirstBox(page, main)
   await page.keyboard.type(LINE1)
   await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
   await waitForSaved(page)
@@ -204,17 +202,85 @@ async function tapRun(
   at: Pt,
   count: number,
   gap: number,
+  /** ms the driver sends each next tap early (what the runner added last time). */
+  lead = 0,
 ) {
   if (how === 'pen') {
     const taps: PenTap[] = [{ hold: 60 }]
     for (let i = 1; i < count; i++) taps.push({ hold: 60, gap })
-    await realPenTaps(page, at, taps)
+    await realPenTaps(page, at, taps, { hold: 0, gap: lead })
   } else {
     for (let i = 0; i < count; i++) {
-      if (i) await page.waitForTimeout(gap)
+      if (i) await page.waitForTimeout(Math.max(0, gap - lead))
       await page.touchscreen.tap(at.x, at.y)
     }
   }
+}
+
+/**
+ * A run of 2 or 3 taps whose taps really reached the page close enough to be
+ * one run.
+ *
+ * Why: on a slow runner the taps asked `gap` ms apart arrived 1000-1600 ms
+ * apart (the page's own event time stamps), outside the 1 s window, so no run
+ * was made and a spec of the double tap failed for reasons that are not the
+ * app's. A run that arrived too slowly is not a run the spec asked for: it is
+ * made again after the window has passed. Every assertion stays as it was.
+ */
+async function tapRunArrived(
+  page: Page,
+  how: How,
+  at: Pt,
+  count: number,
+  gap: number,
+) {
+  let lead = 0
+  for (let attempt = 0; ; attempt++) {
+    await page.evaluate(() => {
+      const w = window as unknown as {
+        __down?: number[]
+        __downOn?: boolean
+        __sel?: number
+      }
+      w.__down = []
+      w.__sel = undefined
+      if (w.__downOn) return
+      w.__downOn = true
+      window.addEventListener(
+        'pointerdown',
+        (e) => w.__down!.push(e.timeStamp),
+        true,
+      )
+      document.addEventListener('selectionchange', () => {
+        if (w.__sel === undefined && window.getSelection()?.toString())
+          w.__sel = performance.now()
+      })
+    })
+    await tapRun(page, how, at, count, gap, lead)
+    const down = await page.evaluate(
+      () => (window as unknown as { __down: number[] }).__down,
+    )
+    const widest = Math.max(...down.map((t, i) => (i ? t - down[i - 1]! : 0)))
+    if (widest <= 990 || attempt >= 3) return
+    // The next try is sent earlier by what this one ran over.
+    lead += Math.round(widest - 970)
+    await page.waitForTimeout(1300)
+  }
+}
+
+/**
+ * "Acts at once" on the page's own clock: the words were selected within
+ * `ms` of the run's last tap. A wall-clock poll in the test also counts the
+ * runner's slowness (a loaded runner took 600 ms just to answer).
+ */
+async function selectedWithin(page: Page, ms: number) {
+  await expect.poll(() => selectedText(page), { timeout: 10_000 }).not.toBe('')
+  const t = await page.evaluate(() => {
+    const w = window as unknown as { __down: number[]; __sel?: number }
+    return { last: w.__down[w.__down.length - 1]!, sel: w.__sel }
+  })
+  expect(t.sel, 'a selection was made').toBeDefined()
+  expect(t.sel! - t.last).toBeLessThan(ms)
 }
 
 const MODES = ['pencil', 'touch'] as const
@@ -234,14 +300,13 @@ for (const mode of MODES) {
         await tapRun(page, how, centre(word), 1, 0)
         await page.waitForTimeout(1300)
         await watchCancels(page)
-        await tapRun(page, how, centre(word), 2, gap)
+        await tapRunArrived(page, how, centre(word), 2, gap)
         // A Pencil's lift comes right after its last tap: was it cancelled?
         const lift =
           how === 'pen' && (await stylusLiftCancelled(page, centre(word)))
         // Acts at once: no waiting for a third tap.
-        await expect
-          .poll(() => selectedText(page), { timeout: 600 })
-          .toBe('plain')
+        await selectedWithin(page, 600)
+        expect(await selectedText(page)).toBe('plain')
         await page.waitForTimeout(800)
         expect(await selectedText(page)).toBe('plain')
         await expect(ourStrip(page)).toBeVisible()
@@ -256,10 +321,9 @@ for (const mode of MODES) {
     }) => {
       await open(page, mode)
       const word = await boxOf(page, 'plain')
-      await tapRun(page, how, centre(word), 3, 600)
-      await expect
-        .poll(() => selectedText(page), { timeout: 800 })
-        .toContain(LINE2)
+      await tapRunArrived(page, how, centre(word), 3, 600)
+      await selectedWithin(page, 800)
+      expect(await selectedText(page)).toContain(LINE2)
       await page.waitForTimeout(800)
       expect((await selectedText(page)).trim()).toBe(LINE2)
       await expect(ourStrip(page)).toBeVisible()
@@ -364,7 +428,7 @@ for (const mode of MODES) {
     const fresh = await where('fresh')
     await tapRun(page, 'pen', centre(fresh), 1, 0)
     await page.waitForTimeout(1300)
-    await tapRun(page, 'pen', centre(fresh), 2, 600)
+    await tapRunArrived(page, 'pen', centre(fresh), 2, 600)
     await expect.poll(() => selectedText(page), { timeout: 800 }).toBe('fresh')
     await page.waitForTimeout(800)
     expect(await selectedText(page)).toBe('fresh')
@@ -464,7 +528,7 @@ for (const mode of MODES)
       await page.keyboard.press('Escape')
       await page.waitForTimeout(400)
       const w = await boxOf(page, 'plain')
-      await tapRun(page, 'pen', centre(w), 2, 600)
+      await tapRunArrived(page, 'pen', centre(w), 2, 600)
       await expect
         .poll(() => selectedText(page), { timeout: 800 })
         .toBe('plain')

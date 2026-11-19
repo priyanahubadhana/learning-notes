@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import type { Page } from '@playwright/test'
+import { expect, type Locator, type Page } from '@playwright/test'
 
 /**
  * A Pencil as real Safari sends it (P1.5, first look L11).
@@ -127,8 +127,33 @@ export async function realPenTaps(
   // The hover a Pencil sends before it touches (no button, pressure 0).
   await page.mouse.move(at.x - 3, at.y - 6)
   await page.mouse.move(at.x, at.y)
+  // Chromium: every down, move and up carries its own time (the browser's
+  // event time stamp is exactly what is asked, however late the machine
+  // delivers it; probed 19 Nov: stamps 500 and 2000 ms apart arrived as asked).
+  // WebKit has no such channel: there the old sending-early way stays.
+  const cdp = await controlledStamps(page)
+  const epoch = Date.now() / 1000
+  const clock0 = performance.now()
+  const stamp = (t: number) => epoch + (t - clock0) / 1000
+  const send = (
+    type: 'mousePressed' | 'mouseMoved' | 'mouseReleased',
+    p: Pt,
+    t: number,
+    buttons: number,
+  ) =>
+    cdp!.send('Input.dispatchMouseEvent', {
+      type,
+      x: p.x,
+      y: p.y,
+      button: type === 'mouseMoved' ? 'none' : 'left',
+      buttons,
+      clickCount: type === 'mouseMoved' ? 0 : 1,
+      pointerType: 'pen',
+      timestamp: stamp(t),
+    })
   let back: Promise<void> = Promise.resolve()
   let next = performance.now()
+  let plan = next
   let tip = at
   for (const tap of taps) {
     // Where this tap lands: the hover there goes alongside the pause.
@@ -137,6 +162,26 @@ export async function realPenTaps(
       const before = back
       back = before.then(() => page.mouse.move(spot.x, spot.y))
       tip = spot
+    }
+    if (cdp) {
+      // The asked times, counted from the run's first tap.
+      const planDown = plan + (tap.gap ?? 0)
+      const planUp = planDown + tap.hold
+      await Promise.all([until(planDown), back])
+      await send('mousePressed', spot, planDown, 1)
+      const drift = tap.drift
+        ? send(
+            'mouseMoved',
+            { x: spot.x + tap.drift * 0.6, y: spot.y + tap.drift * 0.8 },
+            planDown + tap.hold / 2,
+            1,
+          )
+        : Promise.resolve()
+      await Promise.all([until(planUp), drift])
+      await send('mouseReleased', spot, planUp, 0)
+      plan = planUp
+      back = Promise.resolve()
+      continue
     }
     // The pause before this tap, counted from when the last lift was sent.
     await Promise.all([
@@ -157,6 +202,15 @@ export async function realPenTaps(
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })
+}
+
+/** A browser channel that takes an event time (Chromium's), or null (WebKit). */
+async function controlledStamps(page: Page) {
+  try {
+    return await page.context().newCDPSession(page)
+  } catch {
+    return null
+  }
 }
 
 /**
@@ -203,4 +257,27 @@ export async function realPenHover(page: Page, path: Pt[]): Promise<void> {
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })
+}
+
+/**
+ * One Pencil tap at the caret spot of a box's first line (the left end of the
+ * line's own box, where the caret stands), once the tap window has passed.
+ *
+ * Why (found 19 Nov by logging the page's own state at the tap, 4 of 60
+ * tries at 4 workers): the spec had just clicked at the same screen spot on
+ * the page before (the "Old words" line), 0.85-1.0 s earlier by the events'
+ * time stamps. Inside the 1 s window and near that spot a tap is the SECOND
+ * tap of a run (a word select, which on an empty line does nothing), so no
+ * caret came: no event was lost and the app followed its rule. The pen goes
+ * down after the window, and the line is measured then (the page was still
+ * settling: the line moved 11 px after the spec had measured it).
+ */
+export async function penCaretInFirstBox(
+  page: Page,
+  main: Locator,
+): Promise<void> {
+  await page.waitForTimeout(1100)
+  const r = (await main.locator('.bn-inline-content').first().boundingBox())!
+  await realPen(page, [{ x: r.x + 4, y: r.y + r.height / 2 }])
+  await expect(main.locator('.bn-editor')).toBeFocused()
 }

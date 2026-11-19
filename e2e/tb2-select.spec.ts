@@ -209,7 +209,8 @@ test('TB-01: a tap on the words puts the caret within 1 character, 20 spots, no 
   for (let n = 0; n < 20; n++) {
     const i = 2 + ((n * 3) % (LINE.length - 4))
     const p = await charPoint(page, i, 1)
-    await page.waitForTimeout(800)
+    // The next tap window is about 1 s (owner 18 Nov): wait it out so each spot is a first tap.
+    await page.waitForTimeout(1100)
     await tapAt(page, p.x, p.y, 'touch')
     await expect
       .poll(async () => {

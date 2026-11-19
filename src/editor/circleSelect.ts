@@ -37,6 +37,26 @@ const LIFT_MS = 600
 /** Longest text range scanned (characters). */
 const MAX_SCAN = 4000
 
+/** A loop turns round once: its x and y each reverse about twice. */
+const MAX_REVERSALS = 4
+/** Moves under this (px) are jitter, not a change of direction. */
+const JITTER_PX = 3
+
+/** How often the path turns back along one axis (pure, tested). */
+function reversals(v: number[]): number {
+  let n = 0
+  let dir = 0
+  let ref = v[0]
+  for (const x of v) {
+    if (Math.abs(x - ref) < JITTER_PX) continue
+    const d = Math.sign(x - ref)
+    if (dir !== 0 && d !== dir) n++
+    dir = d
+    ref = x
+  }
+  return n
+}
+
 /** Is this path a closed loop (pure, tested)? */
 export function isLoop(path: P[]): boolean {
   if (path.length < 8) return false
@@ -48,6 +68,10 @@ export function isLoop(path: P[]): boolean {
   const a = path[0]
   const b = path[path.length - 1]
   if (Math.hypot(a.x - b.x, a.y - b.y) > CLOSE_SHARE * Math.max(w, h))
+    return false
+  // A scribble-out (a zigzag over a word, C4/C24) coils round its centre as a
+  // loop does, but it turns back again and again: it is not a circle.
+  if (reversals(xs) > MAX_REVERSALS || reversals(ys) > MAX_REVERSALS)
     return false
   const cx = (Math.max(...xs) + Math.min(...xs)) / 2
   const cy = (Math.max(...ys) + Math.min(...ys)) / 2

@@ -37,10 +37,12 @@ test.use({
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 const LINE = 'Text ① → 6, a/b'
 /**
- * The pause (ms) after which taps start a new run: longer than the tap gap
- * (C19: Relaxed, 700 ms, when nothing is picked).
+ * The pause (ms) after which taps start a new run: longer than the tap gap.
+ * The gap is about 1 s since the owner's 18 Nov "Tap speed" (it was 700 ms
+ * in C19, when this was 900): 900 ms apart on a near spot joined the next
+ * tap to the run on the slow runner (C5 "six left", 19 Nov).
  */
-const RUN_APART = 900
+const RUN_APART = 1100
 const rect = async (l: Locator) => (await l.boundingBox())!
 
 async function start(page: Page, name: string) {
@@ -668,6 +670,13 @@ function driverProof(runs: { asked: number[]; ms: number[] }[], late: number) {
   )
 }
 
+/**
+ * Timing split by engine (19 Nov, docs/DECISIONS.md): on chromium realPenTaps
+ * sends each pen event with its asked time (CDP), so these runs reach the page
+ * exactly as asked on any machine. On ipad-webkit there is no such channel:
+ * the same tests run with the sending-early driver, a run that arrives out of
+ * the spec is repeated, and the cap on such runs is not raised.
+ */
 const c14 = (n: 2 | 3) =>
   test(`C14: 50 Pencil ${n === 2 ? 'double' : 'triple'} taps (150-250 ms taps, 5 px drift, 400-500 ms apart) all select; nothing is deleted`, async ({
     page,

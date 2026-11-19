@@ -16,7 +16,7 @@ export const enPartsMenus = {
   'parts.menus.pastePlainHint': 'Words only, no styling',
   'parts.menus.pasteMatch': 'Match style',
   'parts.menus.pasteMatchHint': "Takes the box's font and size",
-  'parts.menus.pasteTable': 'As a table',
+  'parts.menus.pasteTable': 'As table',
   'parts.menus.pasteTableHint': 'Splits rows and columns',
   'parts.menus.closePicker': 'Close',
   'parts.menus.listLabel': 'Commands',

@@ -43,7 +43,12 @@ import {
 import { openToolPill, selectTool } from './selectTool'
 import { miniKeysOn } from './miniKeys'
 import { PasteButton } from './PasteButton'
-import { TOP_ROW_BUTTONS, topRowHasAll } from './pasteButtons'
+import {
+  MIC_SLOT,
+  PASTE_SLOT,
+  topRowHasAll,
+  topRowTokens,
+} from './pasteButtons'
 import { dictating, toggleMic } from './micControl'
 import { useBarSettings } from '../../../settings/deviceModeSettings'
 import { noteTyped } from '../../../editor/typedSignal'
@@ -92,6 +97,7 @@ export function MainBarRow({
   // Paste ▾ in the top row, and the Mic that speaks (page.menus; paste-mock2).
   const pasteOn = useFlagOn('page.menus')
   const { mode } = useBarSettings()
+  const barTokens = topRowTokens(resolveBar(order, list, extras), mode, pasteOn)
 
   const toolButton = (tool: MainTool) => {
     if (tool === 'newLine') {
@@ -192,7 +198,24 @@ export function MainBarRow({
         className="flex-1 phone:order-last phone:basis-full"
         minPx={54}
       >
-        {resolveBar(order, list, extras).map((token) => {
+        {barTokens.map((token) => {
+          if (token === MIC_SLOT)
+            return (
+              <MiniKeysButton
+                key={token}
+                min={min}
+                speaks={topRowHasAll(mode) ? editor : undefined}
+              />
+            )
+          if (token === PASTE_SLOT)
+            return (
+              <PasteButton
+                key={token}
+                editor={editor}
+                min={min}
+                testId="top-paste"
+              />
+            )
           const id = token.slice(2)
           if (token.startsWith('m:')) return toolButton(id as MainTool)
           const tool = findTool(id)
@@ -207,14 +230,8 @@ export function MainBarRow({
           ) : null
         })}
       </BarScroll>
-      {pasteOn && TOP_ROW_BUTTONS[mode].paste && (
-        <PasteButton editor={editor} min={min} testId="top-paste" />
-      )}
       <KeyboardButton editor={editor} min={min} />
-      <MiniKeysButton
-        min={min}
-        speaks={pasteOn && topRowHasAll(mode) ? editor : undefined}
-      />
+      {!pasteOn && <MiniKeysButton min={min} />}
       <Tip
         id="bar.menu"
         touchInfo={false}

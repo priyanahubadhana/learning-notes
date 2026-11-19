@@ -39,3 +39,34 @@ export const floatingBarShown = (o: {
   o.switchedOn
     ? o.dictating || (o.toggledOn && !topRowHasAll(o.mode))
     : o.toggledOn
+
+export const MIC_SLOT = 's:mic'
+export const PASTE_SLOT = 's:paste'
+
+/**
+ * The top row's tokens with the table applied (switch on): Enter and
+ * Backspace only where the table says, Mic before and Paste ▾ after that
+ * group (at the end when neither shows), as in the approved picture.
+ */
+export function topRowTokens(
+  tokens: readonly string[],
+  mode: DeviceMode,
+  switchedOn: boolean,
+): string[] {
+  if (!switchedOn) return [...tokens]
+  const b = TOP_ROW_BUTTONS[mode]
+  const kept = tokens.filter(
+    (k) =>
+      !(k === 'm:newLine' && !b.enter) &&
+      !(k === 'm:backspace' && !b.backspace),
+  )
+  const at = kept
+    .map((k, i) => (k === 'm:newLine' || k === 'm:backspace' ? i : -1))
+    .filter((i) => i >= 0)
+  const first = at.length ? at[0] : kept.length
+  const last = at.length ? at[at.length - 1] + 1 : kept.length
+  const out = [...kept]
+  if (b.paste) out.splice(last, 0, PASTE_SLOT)
+  if (b.mic) out.splice(first, 0, MIC_SLOT)
+  return out
+}

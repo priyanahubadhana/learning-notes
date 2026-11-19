@@ -79,10 +79,33 @@ for (const mode of ['pencil', 'touch', 'computer'] as const) {
   })
 }
 
-test('pencil: Enter and Backspace sit in the top row too', async ({ page }) => {
+for (const mode of ['touch', 'computer'] as const)
+  test(`${mode}: Enter and Backspace are not in the top row (owner: Pencil mode only); Mic and Paste ▾ sit together`, async ({
+    page,
+  }) => {
+    await open(page, mode)
+    await expect(page.locator('[data-bar-tool="newLine"]')).toHaveCount(0)
+    await expect(page.locator('[data-bar-tool="backspace"]')).toHaveCount(0)
+    const mic = (await page.locator('[data-action="miniKeys"]').boundingBox())!
+    const paste = (await topPaste(page).boundingBox())!
+    expect(paste.x - (mic.x + mic.width)).toBeLessThan(8)
+  })
+
+test('pencil: Mic, Backspace, Enter, Paste ▾ sit together in that order', async ({
+  page,
+}) => {
   await open(page, 'pencil')
   await expect(page.locator('[data-bar-tool="newLine"]')).toBeVisible()
   await expect(page.locator('[data-bar-tool="backspace"]')).toBeVisible()
+  const x = async (sel: string) =>
+    (await page.locator(sel).first().boundingBox())!.x
+  const mic = await x('[data-action="miniKeys"]')
+  const back = await x('[data-bar-tool="backspace"]')
+  const enter = await x('[data-bar-tool="newLine"]')
+  const paste = await x('[data-testid="top-paste"]')
+  expect(Math.max(mic, back, enter)).toBeLessThan(paste)
+  expect(mic).toBeLessThan(Math.min(back, enter))
+  expect(paste - Math.max(back, enter)).toBeLessThan(120)
 })
 
 test('pencil: the floating bar stays hidden while the top row shows the buttons, even when switched on', async ({

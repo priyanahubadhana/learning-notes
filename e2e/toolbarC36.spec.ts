@@ -176,7 +176,9 @@ test('C9 edit-the-bar tray offers Mic and Record audio; Mic opens the dictation 
     )
   })
   await startInMode(page, 'touch')
-  await page.goto(`/?flags=${FLAGS}`)
+  // B12 (owner, 19 Nov): with page.menus the row's own Mic speaks and a pinned
+  // Mic tool is not drawn twice, so this pinned-Mic path runs with it off.
+  await page.goto(`/?flags=${FLAGS.replace(',page.menus', '')}`)
   await createNotebook(page, 'Biology', 'First')
   await hideSidebar(page)
   await typeInEditor(page, 'Hello')
@@ -198,6 +200,8 @@ test('C9 edit-the-bar tray offers Mic and Record audio; Mic opens the dictation 
   await page.getByTestId('v8-edit-done').click()
   await expect(page.getByTestId('v8-tool-audio')).toBeVisible()
   await expect(page.locator('[data-mini-keys]')).toHaveCount(0)
+  // Without page.menus there is no built-in Mic: the pinned tool is the Mic.
+  await expect(page.getByTestId('v8-mic')).toHaveCount(0)
   await page.getByTestId('v8-tool-mic').click()
   await expect(page.locator('[data-mini-keys]')).toBeVisible()
 })

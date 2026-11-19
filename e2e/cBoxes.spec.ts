@@ -315,7 +315,11 @@ test('C13 the left dot of a lone box moves its left edge with the finger', async
   expect(Math.abs(a1.x + a1.width - (a0.x + a0.width))).toBeLessThan(3)
 })
 
-test('C10 a resize drag puts the caret away; at the lift it is back exactly where it was', async ({
+// Why changed (CI reds 4): C11 hides the dots while typing, so a resize can only
+// start after the caret was ended by the tap outside. 0a467647 (webkit) made a
+// resize bring the caret back only to a box that was typed in, so here the box
+// stays selected and no key lands in it, before, during and after the drag.
+test('C10 a resize drag of a box whose caret was ended keeps it selected; keys go nowhere', async ({
   page,
 }) => {
   const box = await caretBox(page, 'C10a')
@@ -325,10 +329,13 @@ test('C10 a resize drag puts the caret away; at the lift it is back exactly wher
   await page.keyboard.type('Q')
   await page.mouse.up()
   await page.waitForTimeout(500)
-  await expect(box.locator('.bn-editor')).toBeFocused()
+  await expect(box.locator('.bn-editor')).not.toBeFocused()
+  await expect(box).toHaveAttribute('data-picked', '')
+  await expect(box).not.toHaveAttribute('data-typing', '')
   await page.keyboard.type('X')
-  await expect(box.locator('.bn-editor')).toContainText('HelloX world')
+  await expect(box.locator('.bn-editor')).toContainText('Hello world')
   await expect(box.locator('.bn-editor')).not.toContainText('Q')
+  await expect(box.locator('.bn-editor')).not.toContainText('X')
 })
 
 test('C10 a card pauses typing (keys go nowhere); closing it puts the caret back', async ({

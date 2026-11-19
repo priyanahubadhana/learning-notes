@@ -71,9 +71,11 @@ for (const [label, theme] of THEMES)
     await page.keyboard.press('Escape')
     await page.waitForTimeout(900)
     const box = page.locator(EXTRA)
-    // C30: a tap just past the words puts the caret there at once.
+    // C30: a tap just past the words puts the caret there at once. "Near" is
+    // 0.6 em since the first-box rules of 18 Nov (NEAR_REACH_EM); 14 px was
+    // the old 1.75 letters and now selects the box instead.
     const e = await lineEnd(box)
-    await realPen(page, [{ x: e.right + 14, y: e.mid }])
+    await realPen(page, [{ x: e.right + 0.4 * e.fs, y: e.mid }])
     await page.waitForTimeout(600)
     await expect(box.locator('.bn-editor')).toBeFocused()
     await expect(box).not.toHaveAttribute('data-picked', '')

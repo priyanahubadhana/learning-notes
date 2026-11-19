@@ -7,6 +7,7 @@ import {
   row,
   showSidebar,
   startInMode,
+  typeInEditor,
 } from './helpers.ts'
 
 /**
@@ -34,8 +35,7 @@ async function start(page: Page, size: { width: number; height: number }) {
   await createNotebook(page, 'Paper', 'First')
   if (size.width < 480) {
     // A phone is made wide first: the box button needs the page text.
-    await page.locator('.bn-editor').first().click()
-    await page.keyboard.type('Main text')
+    await typeInEditor(page, 'Main text')
   }
   await page.setViewportSize(size)
 }
@@ -58,8 +58,7 @@ async function boxWithText(page: Page) {
     await page.waitForTimeout(700)
     return box
   }
-  await page.locator('.bn-editor').first().click()
-  await page.keyboard.type('Main text')
+  await typeInEditor(page, 'Main text')
   const sheet = await frameBox(page)
   const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
   await page.mouse.click(sheet.x + sheet.width * 0.3, main.y + main.height + 60)

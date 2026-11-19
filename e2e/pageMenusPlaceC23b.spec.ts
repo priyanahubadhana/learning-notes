@@ -1,7 +1,13 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { createNotebook, row, showSidebar, startInMode } from './helpers.ts'
+import {
+  createNotebook,
+  row,
+  showSidebar,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 
 /**
  * C23 rework (manager review, 17 Nov): the owner's box menu (Box style, Copy,
@@ -33,8 +39,7 @@ async function open(
   await page.setViewportSize(size)
   await page.goto('/')
   await createNotebook(page, 'Paper', 'First')
-  await page.locator('.bn-editor').first().click()
-  await page.keyboard.type('Main text')
+  await typeInEditor(page, 'Main text')
   const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
   const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
   await page.mouse.click(

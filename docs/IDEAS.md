@@ -167,3 +167,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 
 - **Circle in the Text tool = Lasso (owner, 19 Nov 2026).** The Lasso tool selects words and lines perfectly on the iPad. Idea: a Pencil circle in the Text tool acts like the Lasso (same selection, same bar), and one more tap on the selection puts the typing cursor there to delete / write over. Why it may work: the Lasso does not fight Scribble. Open question: telling a "circle to select" from handwriting in the Text tool. For the Pencil-select plan with Fable (from 20 Nov), using the circle recorder's traces.
   - Owner check (19 Nov): Lasso a word, then tap on it: the selection goes and no typing cursor comes. Owner's wider idea: give ALL Pencil selection in the Text tool (circle, double tap, triple tap) the Lasso's behaviour, i.e. our own selection that Apple's bar and Scribble cannot take over, and one tap on the selection = typing cursor there (to delete / write over). Main question for the Fable plan.
+
+- **Clean up with AI in Paste ▾ › More (owner, 19 Nov 2026):** hidden for now; add back once AI is approved.

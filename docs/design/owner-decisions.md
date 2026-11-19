@@ -466,3 +466,23 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 ## Paste button in the Pencil bar (owner, 19 Nov 2026)
 
 - The small floating Pencil bar (mic, Enter, Backspace, ×) gets a **Paste** button with a small **▾ arrow** beside it. A tap on Paste pastes at the caret and **keeps the formatting** (default). The ▾ opens the choices: Keep formatting (default), Plain text. The caret stays in the box. Picture first for the owner's OK, then build (with B9 and B10).
+
+## Text tool selection borrows the Lasso's way (owner, 19 Nov 2026)
+
+- The **Lasso tool stays exactly as it is** (its own purpose and behaviour; not renamed, not changed).
+- The **Text tool's Pencil selection** (circle, double tap, triple tap) gets the Lasso's _properties_ (our own selection that Apple's bar and Scribble cannot take over), built as its own separate code, not merged into the Lasso. In the Text tool a tap on the selection still gives the typing cursor, so select → delete → write over keeps working.
+- No new name and no new tool: it is simply how selecting works in the Text tool.
+- Planned by Opus now (a fix to an existing feature); Fable only if Opus cannot solve it. The recorder traces come first.
+- **Plan answers, round 1 (owner, 19 Nov):**
+  - **Two moments:** while a Pencil selection is being made and while it is selected, the text behaves like a Lasso selection (no Apple bar, no Scribble take-over); OUR bar appears as soon as the selection is complete. After an action on the bar (copy, cut, paste, delete…) the box goes straight back to normal text. If the owner does nothing, a tap anywhere in the text gives the typing cursor there and typing starts (e.g. in "Service 23-11 2000 rate-is", tap between any letters and write).
+  - One tap on a selected word: the typing cursor at that spot.
+  - While circling: a thin dashed line follows the Pencil and fades once the words are selected.
+  - Selection look: strong soft purple fill with round handles at both ends, draggable with the Pencil; easy to see even for 2 letters. Picture first.
+- **Plan answers, round 2 (owner, 19 Nov):** after Delete on our bar, the typing cursor waits in the gap; the owner selects first (never writes on top of words), so any closed loop covering at least half a letter is a selection; the finger works the same as the Pencil (no finger circles; fingers scroll); a circle selects only inside the box it starts in.
+
+## Paste and the Pencil buttons (owner, 19 Nov 2026; picture approved: paste-mock2)
+
+- **Top tool row:** Mic, Backspace, Enter and **Paste ▾** (picture 1). Backspace, Enter and Paste are for **Pencil mode**; Mic shows in every mode. (Touch/Computer modes: Mic, and Paste ▾ per the owner's earlier message — being confirmed.)
+- **Floating Pencil bar** (⠿ mic ↵ ⌫ ×) also gets **Paste ▾**. It is hidden while the top tool row shows the same buttons, unless mic (dictation) is active.
+- **Paste ▾ menu:** Keep look (default, ticked), Plain text; **More** opens Match style, As quote, As text box, Link / Embed. **Clean up with AI is hidden** for now (in IDEAS.md).
+- **One name per option everywhere:** the same words in the box bar, the top row, the floating bar, the page menu and Settings (Settings "Keep original" becomes "Keep look"). A tap on Paste follows Settings › Paste as.

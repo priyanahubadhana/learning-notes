@@ -1102,31 +1102,28 @@ function LoadedPageEditor({
           />
         </ToolsBoundary>
       </div>
-      {bar.mode !== 'computer' &&
-        !frozen &&
-        !extraBox &&
+      {bar.mode !== 'computer' && !frozen && !extraBox && (
         // Owner 19 Nov: no hint words in it any more (the first box's own
         // rule in boxV2.css hides the line).
-        (
-          <button
-            type="button"
-            // T5 (15 Nov): a press that moved is a scroll, not a tap: it must not
-            // put a caret on a new last line and jump the page to its end.
-            onPointerDown={(e) => {
-              e.currentTarget.dataset.down = e.clientX + ',' + e.clientY
-            }}
-            onClick={(e) => {
-              const [x, y] = (e.currentTarget.dataset.down ?? '')
-                .split(',')
-                .map(Number)
-              delete e.currentTarget.dataset.down
-              if (Math.hypot(e.clientX - x, e.clientY - y) > 10) return
-              focusEndLine(editor)
-            }}
-            aria-label={t('bar.tapBelow')}
-            className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
-          />
-        )}
+        <button
+          type="button"
+          // T5 (15 Nov): a press that moved is a scroll, not a tap: it must not
+          // put a caret on a new last line and jump the page to its end.
+          onPointerDown={(e) => {
+            e.currentTarget.dataset.down = e.clientX + ',' + e.clientY
+          }}
+          onClick={(e) => {
+            const [x, y] = (e.currentTarget.dataset.down ?? '')
+              .split(',')
+              .map(Number)
+            delete e.currentTarget.dataset.down
+            if (Math.hypot(e.clientX - x, e.clientY - y) > 10) return
+            focusEndLine(editor)
+          }}
+          aria-label={t('bar.tapBelow')}
+          className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
+        />
+      )}
       {docked && (layout.short === 'bottom' || layout.ribbon === 'bottom') && (
         // Room under the last line, so the fixed bars never cover text.
         <div

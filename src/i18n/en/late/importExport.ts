@@ -358,7 +358,7 @@ export const enLateImportExport = {
   'pasteChooser.default': 'default',
   'pasteChooser.embed': 'Embed (video)',
   'pasteChooser.embedVideo': 'Embed (video)',
-  'pasteChooser.keep': 'Keep original',
+  'pasteChooser.keep': 'Keep look',
   'pasteChooser.keys': 'Enter = default, Esc = cancel the paste',
   'pasteChooser.link': 'Link',
   'pasteChooser.linkCard': 'Link card',

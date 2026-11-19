@@ -14,7 +14,7 @@ const items: StripItem[] = [
     icon: 'paste',
     label: 'Paste',
     menu: [
-      { id: 'keep', label: 'Keep original' },
+      { id: 'keep', label: 'Keep look' },
       { id: 'plain', label: 'Plain text' },
     ],
   },

@@ -42,6 +42,10 @@ import {
 } from './newLineGesture'
 import { openToolPill, selectTool } from './selectTool'
 import { miniKeysOn } from './miniKeys'
+import { PasteButton } from './PasteButton'
+import { TOP_ROW_BUTTONS, topRowHasAll } from './pasteButtons'
+import { dictating, toggleMic } from './micControl'
+import { useBarSettings } from '../../../settings/deviceModeSettings'
 import { noteTyped } from '../../../editor/typedSignal'
 import { REPEAT_AFTER_MS, backspaceStep } from './backspaceHold'
 
@@ -85,6 +89,9 @@ export function MainBarRow({
   const shellOn = useFlagOn('foundation.shell')
   const iconPx = shellOn ? (px >= 54 ? 24 : px >= 44 ? 20 : 18) : 20
   const hold = useHoldSlide((tool) => openToolPill(tool as never))
+  // Paste ▾ in the top row, and the Mic that speaks (page.menus; paste-mock2).
+  const pasteOn = useFlagOn('page.menus')
+  const { mode } = useBarSettings()
 
   const toolButton = (tool: MainTool) => {
     if (tool === 'newLine') {
@@ -200,8 +207,14 @@ export function MainBarRow({
           ) : null
         })}
       </BarScroll>
+      {pasteOn && TOP_ROW_BUTTONS[mode].paste && (
+        <PasteButton editor={editor} min={min} testId="top-paste" />
+      )}
       <KeyboardButton editor={editor} min={min} />
-      <MiniKeysButton min={min} />
+      <MiniKeysButton
+        min={min}
+        speaks={pasteOn && topRowHasAll(mode) ? editor : undefined}
+      />
       <Tip
         id="bar.menu"
         touchInfo={false}
@@ -466,9 +479,18 @@ function KeyboardButton({ editor, min }: { editor: Editor; min: number }) {
 }
 
 /** Shows or hides the mini keyboard strip (mic, Enter, Backspace). */
-function MiniKeysButton({ min }: { min: number }) {
-  const on = miniKeysOn.useValue()
-  const label = t('keys.toggle')
+function MiniKeysButton({
+  min,
+  speaks,
+}: {
+  min: number
+  /** Set when the floating bar is hidden here: the button speaks directly. */
+  speaks?: Editor
+}) {
+  const toggled = miniKeysOn.useValue()
+  const listening = dictating.useValue()
+  const on = speaks ? listening : toggled
+  const label = speaks ? t('keys.mic') : t('keys.toggle')
   return (
     <button
       type="button"
@@ -477,7 +499,7 @@ function MiniKeysButton({ min }: { min: number }) {
       aria-label={label}
       aria-pressed={on}
       onMouseDown={keepFocus}
-      onClick={() => miniKeysOn.set(!on)}
+      onClick={() => (speaks ? toggleMic(speaks) : miniKeysOn.set(!on))}
       style={{ minHeight: min, minWidth: min }}
       className={`${BUTTON} ${on ? 'bg-hover !text-accent' : ''}`}
     >

@@ -8,7 +8,7 @@ import { pasteWith } from './pasteFlow'
  * The selection bar's Paste (toolbar.v8 TB-33, decided 13 Nov 2026): the one
  * paste path of the page menus (PM-40 to PM-46). It reads the clipboard's
  * formatted text and gives it to the paste planner, so Settings › General ›
- * "Paste as" decides (Keep original by default). Plain text stays in
+ * "Paste as" decides (Keep look by default). Plain text stays in
  * Paste ▾ and Ctrl/Cmd+Shift+V. If the browser will not give the formatted
  * clipboard, the plain text is pasted without an error. Drawings the
  * clipboard holds still paste as drawings.

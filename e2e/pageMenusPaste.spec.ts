@@ -77,7 +77,7 @@ test('PM-42 Ctrl/Cmd+Shift+V pastes plain text, flag on', async ({ page }) => {
   await expect(page.getByRole('dialog', { name: 'Paste as' })).toHaveCount(0)
 })
 
-test('PM-43 default Keep original pastes the formatting at once', async ({
+test('PM-43 default Keep look pastes the formatting at once', async ({
   page,
 }) => {
   await open(page, 'beginner', null)
@@ -153,12 +153,12 @@ test('PM-44 with the switch on the chip shows for 8 s and re-pastes another form
 
 const pasteGroup = (page: Page) => page.getByRole('group', { name: 'Paste as' })
 
-test('PM-43 Settings shows Keep original as the choice with the flag on', async ({
+test('PM-43 Settings shows Keep look as the choice with the flag on', async ({
   page,
 }) => {
   await page.goto('/?flags=page.menus#/settings/general')
   await expect(
-    pasteGroup(page).getByRole('button', { name: 'Keep original' }),
+    pasteGroup(page).getByRole('button', { name: 'Keep look' }),
   ).toHaveAttribute('aria-pressed', 'true')
 })
 

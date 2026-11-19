@@ -259,8 +259,8 @@ export const hiSettings = {
   'settings.openNotebookAt.tabs': 'नोटबुक टैब',
   'settings.pasteMode.ask': 'हमेशा पूछें',
   'settings.pasteMode.description':
-    'फ़ॉर्मैट वाला टेक्स्ट चिपकाते समय: हमेशा पूछें (हर बार एक छोटा चयनकर्ता), मूल रूप रखें (हमेशा फ़ॉर्मैट रखें) या सादा टेक्स्ट (हमेशा बिना फ़ॉर्मैट के चिपकाएँ)।',
-  'settings.pasteMode.keep': 'मूल रूप रखें',
+    'फ़ॉर्मैट वाला टेक्स्ट चिपकाते समय: हमेशा पूछें (हर बार एक छोटा चयनकर्ता), रूप वैसा ही रखें (हमेशा फ़ॉर्मैट रखें) या सादा टेक्स्ट (हमेशा बिना फ़ॉर्मैट के चिपकाएँ)।',
+  'settings.pasteMode.keep': 'रूप वैसा ही रखें',
   'settings.pasteMode.label': 'इस रूप में चिपकाएँ',
   'settings.pasteMode.plain': 'सादा टेक्स्ट',
   'settings.pathStyle.description':

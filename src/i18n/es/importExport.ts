@@ -382,7 +382,7 @@ export const esImportExport = {
   'pasteChooser.default': 'predeterminado',
   'pasteChooser.embed': 'Insertar (vídeo)',
   'pasteChooser.embedVideo': 'Insertar (vídeo)',
-  'pasteChooser.keep': 'Mantener el original',
+  'pasteChooser.keep': 'Mantener el aspecto',
   'pasteChooser.keys': 'Intro = predeterminado, Esc = cancelar el pegado',
   'pasteChooser.link': 'Enlace',
   'pasteChooser.linkCard': 'Tarjeta de enlace',

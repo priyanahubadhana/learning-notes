@@ -193,7 +193,7 @@ export function cleanupOffered(plan: PastePlan): boolean {
   return c.enabled && c.candidates.length > 0
 }
 
-/** The choices a plan offers (the first is "Keep original"). */
+/** The choices a plan offers (the first is "Keep look"). */
 export function choicesFor(
   plan: PastePlan,
   /** `box`: the editor is on a paper page (the paste can go in a new box). */
@@ -601,7 +601,7 @@ export function openCleanup(editor: Editor, plan: PastePlan): void {
 }
 
 /**
- * The "Paste as" setting. With flag page.menus "Keep original" is the default
+ * The "Paste as" setting. With flag page.menus "Keep look" is the default
  * until the owner picks one (PM-43); "Always ask" keeps today's chooser.
  */
 function effectivePasteMode(): PasteMode {

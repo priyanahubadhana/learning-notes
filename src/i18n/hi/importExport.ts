@@ -364,7 +364,7 @@ export const hiImportExport = {
   'pasteChooser.default': 'डिफ़ॉल्ट',
   'pasteChooser.embed': 'एम्बेड करें (वीडियो)',
   'pasteChooser.embedVideo': 'एम्बेड (वीडियो)',
-  'pasteChooser.keep': 'मूल रूप रखें',
+  'pasteChooser.keep': 'रूप वैसा ही रखें',
   'pasteChooser.keys': 'Enter = डिफ़ॉल्ट, Esc = पेस्ट रद्द करें',
   'pasteChooser.link': 'लिंक',
   'pasteChooser.linkCard': 'लिंक कार्ड',

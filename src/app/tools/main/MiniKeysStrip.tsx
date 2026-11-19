@@ -14,16 +14,17 @@ import { t } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
 import { addLineAfterCursor } from '../../../editor/lineActions'
 import { noteTyped } from '../../../editor/typedSignal'
-import { setKeyboard } from '../../../editor/keyboardPolicy'
 import { Icon } from '../icons'
-import { currentRunner } from '../toolRuntime'
 import {
   DEFAULT_KEYS_PLACE,
   miniKeysOn,
   miniKeysPlace,
-  speechCtor,
 } from './miniKeys'
-import { startDictation, type DictationError } from './dictation'
+import { useFlag } from '../../flags'
+import { useBarSettings } from '../../../settings/deviceModeSettings'
+import { PasteButton } from './PasteButton'
+import { floatingBarShown } from './pasteButtons'
+import { dictating, heardText, stopMic, toggleMic } from './micControl'
 import { BackspaceButton } from './MainBar'
 import { clampInside, positionOf, snapPlace, vertical } from './pillPlace'
 import { keepFocus } from './pillKit'
@@ -35,14 +36,6 @@ import { reducedMotion } from './pillRoom'
  * its grip and it snaps to the nearest edge, like the pills; the place is
  * remembered. The buttons never take focus, so the caret stays in the page.
  */
-
-const ERROR_TEXT = {
-  denied: 'keys.denied',
-  network: 'keys.errNetwork',
-  noMic: 'keys.errNoMic',
-  language: 'keys.errLanguage',
-  other: 'keys.errOther',
-} as const satisfies Record<DictationError, string>
 
 const BUBBLE = {
   left: 'left-full ml-2 top-1/2 -translate-y-1/2',
@@ -107,12 +100,22 @@ function KeyButton({
 }
 
 export function MiniKeys({ editor }: { editor: Editor }) {
-  const on = miniKeysOn.useValue()
-  if (!on) return null
-  return <Strip editor={editor} />
+  const toggledOn = miniKeysOn.useValue()
+  const switchedOn = useFlag('page.menus')
+  const { mode } = useBarSettings()
+  const listening = dictating.useValue()
+  if (!floatingBarShown({ mode, toggledOn, dictating: listening, switchedOn }))
+    return null
+  return <Strip editor={editor} switchedOn={switchedOn} />
 }
 
-function Strip({ editor }: { editor: Editor }) {
+function Strip({
+  editor,
+  switchedOn,
+}: {
+  editor: Editor
+  switchedOn: boolean
+}) {
   const saved = miniKeysPlace.useValue()
   const place = saved ?? DEFAULT_KEYS_PLACE
   const isVertical = vertical(place.edge)
@@ -123,7 +126,6 @@ function Strip({ editor }: { editor: Editor }) {
   const grab = useRef({ dx: 0, dy: 0 })
   // The newest drag point (state alone can lag behind a quick pointer up).
   const dragAt = useRef<{ x: number; y: number } | null>(null)
-  const [listening, setListening] = useState(false)
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -174,43 +176,10 @@ function Strip({ editor }: { editor: Editor }) {
     setDrag(null)
   }
 
-  const [heard, setHeard] = useState('')
-  const dictation = useRef<{ stop: () => void } | null>(null)
-  useEffect(() => () => dictation.current?.stop(), [])
-
-  const mic = useCallback(() => {
-    const toast = (m: string) => currentRunner().app?.toast(m)
-    if (dictation.current) {
-      dictation.current.stop()
-      dictation.current = null
-      return
-    }
-    const Ctor = speechCtor()
-    if (!Ctor) {
-      // No SpeechRecognition here: the keyboard's own microphone does it.
-      setKeyboard(editor, true)
-      toast(t('keys.useKeyboardMic'))
-      return
-    }
-    dictation.current = startDictation({
-      ctor: Ctor,
-      lang: document.documentElement.lang || 'en',
-      insert: (text) => {
-        editor.insertInlineContent(text)
-        noteTyped()
-      },
-      interim: setHeard,
-      listening: setListening,
-      closed: () => {
-        dictation.current = null
-        setHeard('')
-      },
-      error: (kind) => {
-        toast(t(ERROR_TEXT[kind]))
-        if (kind === 'denied' || kind === 'noMic') setKeyboard(editor, true)
-      },
-    })
-  }, [editor])
+  const listening = dictating.useValue()
+  const heard = heardText.useValue()
+  useEffect(() => stopMic, [])
+  const mic = useCallback(() => toggleMic(editor), [editor])
 
   const micLabel = listening ? t('keys.micStop') : t('keys.mic')
   return createPortal(
@@ -269,11 +238,12 @@ function Strip({ editor }: { editor: Editor }) {
         <Icon name="newLine" />
       </KeyButton>
       <BackspaceButton editor={editor} min={44} />
+      {switchedOn && <PasteButton editor={editor} testId="floating-paste" />}
       <KeyButton
         data-keys="close"
         aria-label={t('keys.close')}
         action={() => {
-          dictation.current?.stop()
+          stopMic()
           miniKeysOn.set(false)
         }}
         className={BTN}

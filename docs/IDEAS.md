@@ -171,3 +171,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - **Clean up with AI in Paste ▾ › More (owner, 19 Nov 2026):** hidden for now; add back once AI is approved.
 
 - **For Fable (owner, 19 Nov 2026): the Goodnotes approach.** A tap on text could switch to the Lasso by default, so all the Lasso's selection features work on text; the Lasso itself does not type, so a further tap returns to the Text tool with the cursor. Discuss with the owner and Fable before building. Evidence: docs/plans/pencil-select-plan.md (traces), refs/goodnotes-lasso-text-*.png.
+
+- **Box ⋯ where people tap (Opus, 20 Nov 2026):** when the page tabs are close above the first box, its tab and ⋯ sit under the box at the right (Polish 2B); a tap there to make a new box opens the menu instead. Ask the owner whether to move it.

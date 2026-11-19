@@ -168,6 +168,13 @@ describe('layoutRows', () => {
 
 describe('resizeCols', () => {
   const r = row('r', [0.5, ['a']], [0.5, ['b']])
+  it('a floor is never rounded away: the column keeps its longest word (TB-21)', () => {
+    const out = resizeCols(r, 0, 0.1, false, { l: 0.3532, r: 0.1 })
+    expect(out.cols[0].w).toBeGreaterThanOrEqual(0.3532)
+    expect(out.cols[0].w + out.cols[1].w).toBeCloseTo(1, 6)
+    const back = resizeCols(r, 0, 0.9, false, { l: 0.1, r: 0.3532 })
+    expect(back.cols[1].w).toBeGreaterThanOrEqual(0.3532)
+  })
   it('snaps to a third and keeps the minimum', () => {
     expect(resizeCols(r, 0, 0.34).cols[0].w).toBeCloseTo(1 / 3, 1)
     expect(resizeCols(r, 0, 0.05).cols[0].w).toBe(0.25)

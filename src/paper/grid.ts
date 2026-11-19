@@ -480,12 +480,14 @@ export function resizeCols(
   const minL = Math.max(MIN_FRAC, fits ? floor!.l : 0)
   const minR = Math.max(MIN_FRAC, fits ? floor!.r : 0)
   const left = Math.min(span - minR, Math.max(minL, edge - before))
+  // Why: widths are kept to 0.01 of the row (about 7 px on an iPad), and
+  // plain rounding could cut a column up to 3.5 px under its floor, so its
+  // longest word broke (TB-21, CI run 44514113315). A floor rounds outward.
+  let l = round(left)
+  if (fits && l < minL) l = Math.ceil(minL * 100 - 1e-9) / 100
+  if (fits && span - l < minR) l = Math.floor((span - minR) * 100 + 1e-9) / 100
   const cols = row.cols.map((c, j) =>
-    j === i
-      ? { ...c, w: round(left) }
-      : j === i + 1
-        ? { ...c, w: round(span - left) }
-        : c,
+    j === i ? { ...c, w: l } : j === i + 1 ? { ...c, w: round(span - l) } : c,
   )
   return { ...row, cols }
 }

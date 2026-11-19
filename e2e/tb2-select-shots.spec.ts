@@ -39,8 +39,9 @@ async function shoot(
   await expect(box).not.toHaveAttribute('data-picked', '')
   await expect(page.locator('html')).toHaveAttribute('data-theme', theme)
   // Why: the next tap is made at the same spot as the last shot's. Within the
-  // tap gap (700 ms since C19) it would count as that tap's second, not a first.
-  await page.waitForTimeout(800)
+  // tap window (about 1 s since the owner's 18 Nov decision "Tap speed", was
+  // 700 ms) it would count as that tap's second, not a first.
+  await page.waitForTimeout(1500)
   await box.evaluate((e) => e.scrollIntoView({ block: 'center' }))
   const r = (await box.boundingBox())!
   await page.evaluate(
@@ -95,7 +96,10 @@ async function prepare(page: Page, mode: 'computer' | 'touch', vp: Size) {
   )
   await expect(page.locator(EXTRA)).toHaveCount(1)
   await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
-  await page.keyboard.type('Photosynthesis: light, water and carbon dioxide')
+  // Short enough to leave the right end of the line empty: the shots tap there
+  // to select the box, and a tap on or near the words puts the caret (owner
+  // 17 Nov). The iPad upright box is only 306 px wide.
+  await page.keyboard.type('Photosynthesis: light')
   await page.waitForTimeout(900)
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   await page.waitForTimeout(900)

@@ -232,6 +232,8 @@ export function usePaperBoxes(
     // Picking another tool also ends an empty box at once.
     const offTool = isOn('textbox.v2')
       ? activeTool.subscribe(() => {
+          // A shape being drawn puts the Pen out for a moment (PaperFrame).
+          if (document.documentElement.hasAttribute('data-shape-making')) return
           for (const b of document.querySelectorAll(BOX)) {
             const id = b.getAttribute('data-paper-box')
             if (id) vanishNow(id)

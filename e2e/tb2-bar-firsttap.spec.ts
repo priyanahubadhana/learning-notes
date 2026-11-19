@@ -156,7 +156,9 @@ test('textbox.v2 ON: a bar tap within the selecting tap’s 350 ms works', async
   await expect(page.locator('[data-box-bar]')).toBeVisible()
   await page.keyboard.press('Escape')
   await expect(box).not.toHaveAttribute('data-picked', '')
-  await page.waitForTimeout(800)
+  // Owner 18 Nov (tap window about 1 s, taps close together are one run): wait
+  // it out so this tap is a fresh first tap, not the second of a double tap.
+  await page.waitForTimeout(1500)
   const ms = await page.evaluate(async (sel) => {
     const ed = document.querySelector(sel)!
     const n = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT).nextNode()!
@@ -186,7 +188,7 @@ test('textbox.v2 ON: a bar tap within the selecting tap’s 350 ms works', async
     while (!btn && performance.now() - t0 < 300) {
       await new Promise((f) => requestAnimationFrame(f))
       btn = document.querySelector(
-        '[data-box-bar] button[aria-label="Duplicate box"]',
+        '[data-box-bar] button[aria-label="Box actions"]',
       )
     }
     if (!btn) return -1
@@ -198,6 +200,8 @@ test('textbox.v2 ON: a bar tap within the selecting tap’s 350 ms works', async
   }, ED)
   expect(ms).toBeGreaterThan(0)
   expect(ms).toBeLessThan(350)
+  // Owner 18 Nov (Box actions in the bar): Duplicate lives in the ⋯ list now.
+  await page.getByRole('menuitem', { name: 'Duplicate box' }).click()
   // The copy is made; one box is picked (the duplicate step may move the pick).
   await expect(page.locator(EXTRA)).toHaveCount(2)
   await expect(page.locator(EXTRA + '[data-picked]')).toHaveCount(1)

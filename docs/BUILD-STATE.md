@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-**RESUMED (Opus + Sonnet only until 19 Nov). build/next 88b0bb61 (18 Nov): C4, C28-C32, Q-1/Q-2/Q-3, first-box polish, CI-red test fixes all merged; full CI 44139788125 triaged (new reds fixed; rest CI-only, list below). Phase 2B ON by default on the preview (PREVIEW_PHASE). NEXT: owner iPad re-test (list in chat 18 Nov); then go-live ask only on the owner's yes. Owner settings 17 Nov: two Sonnet builders allowed; smaller test set while building, full set before each re-test. WebKit lock: C:UserspcDownloadswebkit.lock.**
+**RESUMED (Opus + Sonnet only through 19 Nov). build/next 846392e3, preview C173E93 (18 Nov): first-box tap rules (F1-F4), B7 scrambled first letters, iOS select (F5-F7: own circle select, no Apple bar, 1 s tap window, mini bar never over text) merged on top of C4, C28-C34, Q-1..Q-3, box bar A/B, bugs 1/2/6. Phase 2B ON by default on the preview. NEXT: owner iPad check on C173E93 (5 points, chat 18 Nov); base reds (combined-test-2026-11-16.md "Merged 18 Nov"); full CI before go-live; go-live only on the owner yes. Two Sonnet builders allowed. WebKit lock: Downloads/webkit.lock.**
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

@@ -58,7 +58,9 @@ test('one tap makes a box as wide as the line, one line tall, at the tap row; em
   expect(Math.abs(r.x - main0.x)).toBeLessThan(6)
   expect(Math.abs(r.width - main0.width)).toBeLessThan(6)
   expect(r.height).toBeLessThan(64)
-  expect(r.y).toBeLessThan(at.y + 4)
+  // Its first line sits on the paper line under the tap: the top snaps to the
+  // nearest line (5 mm = 19 px apart), so at most half a line from the tap.
+  expect(r.y).toBeLessThan(at.y + 12)
   expect(r.y + r.height).toBeGreaterThan(at.y - 4)
   // Left empty and tapped away: it disappears.
   const main = await box(page.locator('[data-paper-box="main"]'))

@@ -594,16 +594,28 @@ for (const flag of [false, true]) {
 
     const main = (page: Page) =>
       page.locator('[data-paper-box="main"] .bn-editor')
+    const belowBox = async (page: Page) => {
+      await below(page).scrollIntoViewIfNeeded()
+      await page.waitForTimeout(300)
+      return (await below(page).boundingBox())!
+    }
+    /** A spot of paper 60 px under the text (the switch-ON stand-in for the line). */
+    const underText = async (page: Page) => {
+      const m = (await main(page).boundingBox())!
+      return { x: m.x, y: m.y + m.height + 60 }
+    }
 
     test('a drag (Pencil or mouse) on the line under the text puts no caret there and adds no line', async ({
       page,
     }) => {
       await pencilPage(page, 'T5drag' + flag)
-      await expect(below(page)).toBeVisible()
+      // Owner 17 Nov, 18 Nov (decisions "Hints", "Empty page, tap below"):
+      // with the switch ON the line is gone; the same drag on the paper under
+      // the text still adds no line and puts no caret in the page text.
+      if (flag) await expect(below(page)).toBeHidden()
+      else await expect(below(page)).toBeVisible()
       const n0 = await lines(page)
-      await below(page).scrollIntoViewIfNeeded()
-      await page.waitForTimeout(300)
-      const b = (await below(page).boundingBox())!
+      const b = flag ? await underText(page) : await belowBox(page)
       const x = b.x + 60
       const down = [
         { x, y: b.y + 6 },
@@ -626,6 +638,24 @@ for (const flag of [false, true]) {
       page,
     }) => {
       await pencilPage(page, 'T5tap' + flag)
+      if (flag) {
+        // Owner 17/18 Nov: no "Tap here to keep writing" line; a Text-tool tap
+        // on the paper under the text makes a box with the caret in it (an
+        // empty one goes when left), by Pencil and by mouse alike.
+        await tool(page, 'Text').click()
+        const extra = page.locator(EXTRA + ' .bn-editor')
+        const b = await underText(page)
+        await realPen(page, [{ x: b.x + 60, y: b.y + 20 }])
+        await expect(extra).toBeFocused()
+        await page.evaluate(() =>
+          (document.activeElement as HTMLElement).blur(),
+        )
+        await expect(page.locator(EXTRA)).toHaveCount(0)
+        // Elsewhere on the paper: a tap at the same spot right after is the "double tap" that makes no second box.
+        await page.mouse.click(b.x + 60, b.y + 110)
+        await expect(extra).toBeFocused()
+        return
+      }
       await below(page).scrollIntoViewIfNeeded()
       await page.waitForTimeout(300)
       const b = (await below(page).boundingBox())!

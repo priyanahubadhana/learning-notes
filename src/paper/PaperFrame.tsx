@@ -1448,6 +1448,14 @@ export function PaperFrame({
       m && (freeLike || phone) && el && content
         ? Math.max(FREE_MIN_W, m.minWidthPx(el, content) / k)
         : FREE_MIN_W
+    // Why: on WebKit a box selected after typing keeps the editor's focus, so
+    // pauseTyping found a caret and the end of the resize brought it back:
+    // the box turned to typing and lost its selection and dots (CI run
+    // 44514113315). The caret comes back only to a box that was typed in.
+    const now = bsRef.current
+    const wasTyping = now.kind === 'typing' && now.id === b.id
+    const paused = isOn('textbox.v2') && pauseTyping(b.id)
+    if (paused && !wasTyping) forgetCaret()
     resizing.current = {
       minW,
       floor:
@@ -1489,7 +1497,7 @@ export function PaperFrame({
           : 0,
       edge,
       flip,
-      resume: isOn('textbox.v2') && pauseTyping(b.id),
+      resume: paused && wasTyping,
       north,
       top0,
       floorY,

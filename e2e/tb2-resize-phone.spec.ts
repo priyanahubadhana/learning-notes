@@ -2,6 +2,8 @@
 /// <reference lib="dom" />
 import { expect, test } from '@playwright/test'
 import { savedInk } from './inkHelpers.ts'
+import { selectByMiddleTap } from './cBoxesHelpers.ts'
+import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /**
  * Phase 2B, task 2B.5b (switch textbox.v2 ON): on a phone a selected box has
@@ -266,4 +268,33 @@ test('phone: with the switch OFF there are no dots', async ({ page }) => {
   const box = await phoneBox(page, 'P-off', ['Alpha beta'], { flag: false })
   await expect(box).toBeVisible()
   await expect(page.locator('[data-resize-handle]')).toHaveCount(0)
+})
+
+// Bug (CI run 44514113315, tb2-resize-phone-shots): a box selected after
+// typing (the editor kept focus) lost its selection after a resize, because
+// the end of the resize brought the caret back as if it had been typed in.
+test('Touch mode: a box selected after typing stays selected after the east dot narrows it', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+  )
+  await startInMode(page, 'touch')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'P21sel')
+  await typeInEditor(page, 'Main text')
+  await page.getByRole('button', { name: 'Add a box here' }).click()
+  const box = page.locator(EXTRA).first()
+  await expect(box.locator('.bn-editor')).toBeFocused()
+  await page.keyboard.type('Photosynthesis: light, water and carbon dioxide')
+  await page.waitForTimeout(900)
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  await page.waitForTimeout(900)
+  await selectByMiddleTap(page, box)
+  await expect(box.locator('[data-resize-handle]')).toHaveCount(8)
+  const e = await centre(dot(box, 'e'))
+  await drag(page, e, { x: e.x - 140, y: e.y })
+  await expect(box).toHaveAttribute('data-picked', '')
+  await expect(box).not.toHaveAttribute('data-typing', '')
+  await expect(box.locator('[data-resize-handle]')).toHaveCount(8)
 })

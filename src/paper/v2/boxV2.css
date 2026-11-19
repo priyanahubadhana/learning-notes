@@ -101,7 +101,7 @@ html[data-box-drag] [data-box-bar] {
 
 /*
  * Owner 17 Nov: no "Type here" in a new box (only the empty page's first
- * block keeps its one hint, which goes once typing starts). Same selector as
+ * block shows nothing either, owner 19 Nov). Same selector as
  * the live rule in index.css; this file loads later, so it wins.
  */
 [data-paper-box]:not([data-paper-box='main'])
@@ -115,10 +115,9 @@ html[data-box-drag] [data-box-bar] {
 /*
  * Pencil bug (owner 18 Nov): the page's first box showed BlockNote's own
  * "Enter text or type '/' for commands" while it was empty and had the caret,
- * on top of our hint ("Type, or tap anywhere to start writing", drawn by the
- * paper in PaperFrame). The first box is a plain text box like any other: its
- * only difference is our hint, which goes when typing starts. Same selector
- * as the live rule in index.css; this file loads later, so it wins.
+ * (owner 19 Nov: no hint of ours either). The first box is a plain text box
+ * like any other. Same selector as the live rule in index.css; this file
+ * loads later, so it wins.
  */
 [data-paper-box='main']
   .bn-container:not([data-has-text])
@@ -134,9 +133,8 @@ html[data-box-drag] [data-box-bar] {
  * test saw it) sat INSIDE the page's first box. It made that box about 4 lines
  * tall, and a tap in its empty part ran focusEndLine (a new line) instead of
  * selecting the box. With text box v2 the first box is a plain box: the paper
- * itself adds a box on a tap anywhere. Only the hint carrier of an empty page
- * (data-hint) stays.
+ * itself adds a box on a tap anywhere.
  */
-[data-paper-box='main'] .ln-tap-below:not([data-hint]) {
+[data-paper-box='main'] .ln-tap-below {
   display: none;
 }

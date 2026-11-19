@@ -78,11 +78,12 @@ for (const [name, vp] of SIZES) {
       await start(page, 'touch', vp)
       for (const [label, th] of THEMES) {
         await theme(page, th)
-        // One hint at a time: the paper's hint, or on a phone the line below.
+        // Owner 19 Nov: no hint at all in the first box.
         await expect(
-          page.locator('[data-paper-hint], .ln-tap-below'),
+          page.locator('[data-paper-hint]'),
           name + ' ' + label,
-        ).toHaveCount(1)
+        ).toHaveCount(0)
+        await expect(page.getByText('Type, or tap anywhere')).toHaveCount(0)
         await page.waitForTimeout(300)
         await page.screenshot({ path: `${OUT()}/hint-${name}-${label}.png` })
       }

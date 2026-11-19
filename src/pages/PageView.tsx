@@ -506,8 +506,14 @@ export function PageView({
     [db, page.id],
   )
   /** The "tap to add a box" hint shows on this page (the one hint of TB-42). */
+  // Owner 19 Nov: with text box v2 the first box shows NO hint at all.
   const showHint =
-    hintPage && !!blankPage && !inked && !!boxes.onAddBox && !page.boxes?.length
+    !isOn('textbox.v2') &&
+    hintPage &&
+    !!blankPage &&
+    !inked &&
+    !!boxes.onAddBox &&
+    !page.boxes?.length
   /** The page editor of one box (unset = the default box, as before). */
   const editorOf = (boxId?: string) => (
     <PageEditor
@@ -525,7 +531,6 @@ export function PageView({
       reading={view === 'off' ? undefined : { view }}
       boxId={boxId}
       autoFocus={boxId ? boxId === boxes.fresh : autoFocusTitle && !reader}
-      waitForText={!boxId && isOn('textbox.v2') && showHint}
       key={boxId ?? 'main'}
     />
   )

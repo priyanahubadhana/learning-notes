@@ -75,7 +75,7 @@ const bnHint = (page: Page) =>
   }, MAIN)
 
 for (const mode of ['pencil', 'touch'] as const)
-  test(`${mode} mode, pen: first box is one line, our hint, empty tap selects, one bar`, async ({
+  test(`${mode} mode, pen: first box is one line, no hint, empty tap selects, one bar`, async ({
     page,
   }) => {
     await open(page, mode)
@@ -86,9 +86,9 @@ for (const mode of ['pencil', 'touch'] as const)
     await page.waitForTimeout(600)
     await expect(main.locator('.bn-editor')).toBeFocused()
     expect(await bnHint(page)).not.toContain('Enter text')
-    await expect(page.locator('[data-paper-hint]')).toContainText(
-      'Type, or tap anywhere',
-    )
+    // Owner 19 Nov (First box hint dropped): no hint of ours either.
+    await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
+    await expect(main).not.toContainText('tap anywhere')
     // One line tall, like every box.
     const h = (await rect(main.locator('.bn-block-content').first())).height
     expect(h).toBeLessThan(44)

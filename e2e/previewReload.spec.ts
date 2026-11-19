@@ -80,14 +80,14 @@ test('RB-2 a plain reload keeps the test phase, the user choices and other saved
   }
 })
 
-test('RB-4 on the preview host a new page is v2 at once: hint shown, first box and a new box look the same', async ({
+test('RB-4 on the preview host a new page is v2 at once: no hint (owner 19 Nov), first box and a new box look the same', async ({
   page,
 }) => {
   await startInMode(page, 'computer')
   await seedTwoB(page)
   await page.goto('/')
   await createNotebook(page, 'Paper', 'Equal')
-  await expect(page.getByText('Type, or tap anywhere')).toBeVisible()
+  await expect(page.getByText('Type, or tap anywhere')).toHaveCount(0)
   const main = page.locator('[data-paper-box="main"]')
   await typeInEditor(page, 'First')
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())

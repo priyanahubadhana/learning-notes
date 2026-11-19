@@ -40,8 +40,6 @@ import { listBlocks } from '../core/blockService'
 import { blocksOfBox, tagDrafts } from './boxScope'
 import { activeBox, boxEditors, useOwnsBar } from '../paper/activeBox'
 import { MAIN_BOX } from '../paper/boxes'
-import { NARROW_PX } from '../paper/sheets'
-import { useFrameSize } from '../app/shell/useFrameSize'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import { pageEditLock } from '../core/editLock'
@@ -178,8 +176,6 @@ interface PageEditorProps {
   boxId?: string
   /** Phase Q: a box just made on the paper; the caret goes into it. */
   autoFocus?: boolean
-  /** Text box v2 (TB-42): "Tap here to keep writing" waits until the page has text. */
-  waitForText?: boolean
 }
 
 /** Time for the window that lost the page to finish its last save. */
@@ -353,7 +349,6 @@ function LoadedPageEditor({
   readOnly,
   boxId,
   autoFocus,
-  waitForText,
   owns,
 }: PageEditorProps & {
   records: Block[]
@@ -947,8 +942,6 @@ function LoadedPageEditor({
 
   // Flag page.menus: the "/" menu on the shared Command list (same actions).
   const menusOn = useFlag('page.menus')
-  // Follows a screen turn (TB-42: the one hint is on the paper or the line below).
-  const frame = useFrameSize()
   const slashActions: SlashMenuActions = {
     onNewSubPage: newSubPage,
     onLinkPage: () => openLinkPicker(null),
@@ -1112,7 +1105,9 @@ function LoadedPageEditor({
       {bar.mode !== 'computer' &&
         !frozen &&
         !extraBox &&
-        (!waitForText || frame.width < NARROW_PX) && (
+        // Owner 19 Nov: no hint words in it any more (the first box's own
+        // rule in boxV2.css hides the line).
+        (
           <button
             type="button"
             // T5 (15 Nov): a press that moved is a scroll, not a tap: it must not
@@ -1128,13 +1123,9 @@ function LoadedPageEditor({
               if (Math.hypot(e.clientX - x, e.clientY - y) > 10) return
               focusEndLine(editor)
             }}
-            data-hint={waitForText ? '' : undefined}
             aria-label={t('bar.tapBelow')}
             className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
-          >
-            {/* Only an empty page has a hint (TB-42, owner 17 Nov): the line below is a tap area, with no words of its own once the page has text. */}
-            {waitForText ? t('textTool.hintV2') : null}
-          </button>
+          />
         )}
       {docked && (layout.short === 'bottom' || layout.ribbon === 'bottom') && (
         // Room under the last line, so the fixed bars never cover text.

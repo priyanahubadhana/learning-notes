@@ -244,7 +244,7 @@ test('TB-04: a tap a second after the run puts a caret again (Scribble can write
   await expect(box.locator('.bn-editor')).toBeFocused()
 })
 
-test('TB-42 (owner 17 Nov): only an empty page shows a hint; typing removes it and no "Tap here to keep writing" ever shows', async ({
+test('TB-42 (owner 19 Nov, First box hint dropped): an empty page shows no hint and no "Tap here to keep writing" ever shows', async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -253,17 +253,14 @@ test('TB-42 (owner 17 Nov): only an empty page shows a hint; typing removes it a
   await startInMode(page, 'touch')
   await page.goto('/')
   await createNotebook(page, 'Paper', 'TB42')
-  const hint = page.locator('[data-paper-hint]')
-  const below = page.locator('.ln-tap-below')
-  await expect(hint).toBeVisible()
-  await expect(hint).toHaveText('Type, or tap anywhere to start writing')
-  await expect(below).toHaveCount(0)
+  await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
+  await expect(page.getByText('Type, or tap anywhere')).toHaveCount(0)
   await typeInEditor(page, 'Hello')
-  await expect(hint).toHaveCount(0)
+  await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
   await expect(page.getByText('Tap here to keep writing')).toHaveCount(0)
 })
 
-test('TB-42 phone: the line below is the one hint on an empty page, then no words', async ({
+test('TB-42 phone (owner 19 Nov): no hint words on an empty page, before or after typing', async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -273,33 +270,14 @@ test('TB-42 phone: the line below is the one hint on an empty page, then no word
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/')
   await createNotebook(page, 'Paper', 'TB42p')
-  const one = page.locator('[data-paper-hint], .ln-tap-below')
-  await expect(one).toHaveCount(1)
-  await expect(one).toHaveText('Type, or tap anywhere to start writing')
+  await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
+  await expect(page.getByText('Type, or tap anywhere')).toHaveCount(0)
   await typeInEditor(page, 'Hello')
   await expect(page.getByText('Tap here to keep writing')).toHaveCount(0)
-  await expect(one).toHaveText('')
+  await expect(page.locator('.ln-tap-below')).toHaveText('')
 })
 
-test('TB-42: drawing on an empty page removes the hint at once', async ({
-  page,
-}) => {
-  await page.addInitScript(() =>
-    localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
-  )
-  await startInMode(page, 'computer')
-  await page.goto('/')
-  await createNotebook(page, 'Paper', 'TB42ink')
-  const hint = page.locator('[data-paper-hint]')
-  await expect(hint).toBeVisible()
-  await tool(page, 'Pen').click()
-  const main = await rect(page.locator('[data-paper-box="main"]'))
-  const y = main.y + 60
-  await stroke(page, line([main.x + 40, y], [main.x + 220, y + 10]))
-  await expect(hint).toHaveCount(0)
-})
-
-test('TB-42: turning the screen moves the one hint between the paper and the line below', async ({
+test('TB-42 (owner 19 Nov): turning the screen never brings a hint back', async ({
   page,
 }) => {
   await page.addInitScript(() =>
@@ -309,13 +287,31 @@ test('TB-42: turning the screen moves the one hint between the paper and the lin
   await page.setViewportSize({ width: 820, height: 1180 })
   await page.goto('/')
   await createNotebook(page, 'Paper', 'TB42turn')
-  const one = page.locator('[data-paper-hint], .ln-tap-below')
-  await expect(one).toHaveCount(1)
-  await expect(page.locator('[data-paper-hint]')).toHaveCount(1)
-  await page.setViewportSize({ width: 390, height: 844 })
-  await expect(page.locator('.ln-tap-below')).toHaveCount(1)
-  await expect(one).toHaveCount(1)
-  await page.setViewportSize({ width: 1180, height: 820 })
-  await expect(page.locator('[data-paper-hint]')).toHaveCount(1)
-  await expect(one).toHaveCount(1)
+  for (const vp of [
+    { width: 820, height: 1180 },
+    { width: 390, height: 844 },
+    { width: 1180, height: 820 },
+  ]) {
+    await page.setViewportSize(vp)
+    await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
+    await expect(page.getByText('Type, or tap anywhere')).toHaveCount(0)
+  }
+})
+
+test('TB-42 (owner 19 Nov): no hint before or after drawing on an empty page', async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
+  )
+  await startInMode(page, 'computer')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'TB42ink')
+  const hint = page.locator('[data-paper-hint]')
+  await expect(hint).toHaveCount(0)
+  await tool(page, 'Pen').click()
+  const main = await rect(page.locator('[data-paper-box="main"]'))
+  const y = main.y + 60
+  await stroke(page, line([main.x + 40, y], [main.x + 220, y + 10]))
+  await expect(hint).toHaveCount(0)
 })

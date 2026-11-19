@@ -422,7 +422,6 @@ export const esToolbar = {
   'textTool.boxStyle': 'Estilo del cuadro',
   'textTool.hint':
     'Escribe, o toca el papel donde quieras para añadir un cuadro · mantén para empezar a escribir aquí',
-  'textTool.hintV2': 'Escribe, o toca donde quieras para empezar',
   'textTool.lineSpacing': 'Interlineado',
   'textTool.pin': 'Fijar herramienta de texto',
   'textTool.startTyping': 'Empezar a escribir aquí',

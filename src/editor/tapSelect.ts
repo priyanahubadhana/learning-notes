@@ -410,24 +410,6 @@ export function nearText(dom: HTMLElement, x: number, y: number): boolean {
     if (b.width > 0 && (x < b.left || x > b.right - BORDER_PX)) return false
   }
   const range = dom.ownerDocument.createRange()
-  // Owner 18 Nov: on an empty page the grey hint line counts as text, so a tap
-  // on or near it gives the caret; only a tap clearly away selects the box.
-  const hint = dom.closest('[data-paper-box="main"]')
-    ? dom.ownerDocument.querySelector<HTMLElement>('[data-paper-hint]')
-    : null
-  if (hint && !dom.textContent?.trim()) {
-    const h = hint.getBoundingClientRect()
-    const hs = getComputedStyle(hint)
-    const hf = parseFloat(hs.fontSize) || 14
-    const hl = parseFloat(hs.lineHeight) || hf * 1.5
-    if (
-      h.width > 0 &&
-      Math.abs(y - (h.top + h.bottom) / 2) <= hl / 2 &&
-      x >= h.left - NEAR_REACH_EM * hf &&
-      x <= h.right + NEAR_REACH_EM * hf
-    )
-      return true
-  }
   for (const el of dom.querySelectorAll<HTMLElement>('.bn-inline-content')) {
     const st = getComputedStyle(el)
     const fs = parseFloat(st.fontSize) || 16

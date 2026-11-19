@@ -131,32 +131,40 @@ for (const mode of MODES)
   for (const how of HOWS) {
     const name = `${mode} mode, ${how}`
 
-    test(`F1 ${name}: the empty first box keeps "Type, or tap anywhere" until typing starts`, async ({
+    test(`F1 ${name}: the empty first box shows no hint (owner 19 Nov, First box hint dropped) and stays one line tall`, async ({
       page,
     }) => {
       await open(page, mode)
-      const hint = page.locator('[data-paper-hint]')
-      await expect(hint).toContainText('Type, or tap anywhere')
+      const noHint = async () => {
+        await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
+        await expect(page.locator(MAIN)).not.toContainText('tap anywhere')
+        await expect(page.getByText('Type, or tap anywhere')).toHaveCount(0)
+        const h = (
+          await rect(page.locator(`${MAIN} .bn-block-content`).first())
+        ).height
+        expect(h).toBeLessThan(44)
+      }
+      await noHint()
       const b = await rect(page.locator(MAIN))
       const line = await rect(page.locator(`${MAIN} .bn-block-content`).first())
-      // Tapped away from the caret spot: the box is selected, the hint stays.
+      // Tapped away from the caret spot: the box is selected.
       await tap(page, how, b.x + b.width - 16, line.y + line.height / 2)
       await page.waitForTimeout(700)
       await expect(page.locator(MAIN)).toHaveAttribute('data-main-picked', '')
-      await expect(hint).toContainText('Type, or tap anywhere')
-      // Tapped on the caret spot: the caret is in, the hint stays.
+      await noHint()
+      // Tapped on the caret spot: the caret is in.
       await tap(page, how, line.x + 6, line.y + 8)
       await page.waitForTimeout(700)
       expect(await caretIn(page)).toBe(true)
-      await expect(hint).toContainText('Type, or tap anywhere')
-      // A tap in the empty part while the caret is in: the hint stays too.
+      await noHint()
+      // A tap in the empty part while the caret is in.
       await tap(page, how, b.x + b.width - 16, line.y + line.height / 2)
       await page.waitForTimeout(700)
-      await expect(hint).toContainText('Type, or tap anywhere')
-      // Typing starts: it goes.
+      await noHint()
+      // Typing starts: still none.
       await page.keyboard.type('Go')
       await page.waitForTimeout(700)
-      await expect(hint).toHaveCount(0)
+      await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
     })
 
     test(`F2 ${name}: the first box's bar never covers the page tabs or words`, async ({

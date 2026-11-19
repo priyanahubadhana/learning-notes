@@ -88,12 +88,14 @@ for (const mode of ['computer'] as const) {
   })
 }
 
-test('owner 18 Nov: an empty page shows its hint and no frame until the first box is tapped', async ({
+test('owner 18 Nov + 19 Nov (no hint): an empty page shows no hint and no frame until the first box is tapped', async ({
   page,
 }) => {
   await start(page, 'NoFrame', false, PRESET_2B)
   await page.waitForTimeout(700)
-  await expect(page.locator('[data-paper-hint]')).toBeVisible()
+  // Owner 19 Nov, "First box hint dropped": a plain empty box, no hint.
+  await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
+  await expect(page.getByText('tap anywhere to start')).toHaveCount(0)
   await expect(page.locator('[data-main-frame]')).toHaveCount(0)
   const r = await rect(page.locator(MAIN))
   await page.mouse.click(r.x + r.width - 80, r.y + 8)
@@ -138,47 +140,36 @@ test('owner 18 Nov: typed letters do nothing while another box is selected; Dele
 
 /* ---- Review round (owner 18 Nov) ---- */
 
-test('review: the empty page hint sits inside the first box, on its line', async ({
+test('owner 19 Nov (First box hint dropped): the empty first box has no hint text and is one line tall', async ({
   page,
 }) => {
   await start(page, 'HintIn', false, PRESET_2B)
   await page.waitForTimeout(700)
-  const b = await rect(page.locator(MAIN))
-  const h = await rect(page.locator('[data-paper-hint]'))
-  expect(h.y).toBeGreaterThanOrEqual(b.y - 1)
-  expect(h.y + h.height).toBeLessThanOrEqual(b.y + b.height + 1)
-  expect(h.x).toBeGreaterThanOrEqual(b.x - 1)
-  expect(h.x).toBeLessThan(b.x + 20)
+  await expect(page.locator('[data-paper-hint]')).toHaveCount(0)
+  await expect(page.locator(MAIN)).not.toContainText('tap anywhere')
+  const lh = await lineHeight(page)
+  expect((await rect(page.locator(MAIN))).height).toBeLessThan(lh * 1.6)
   // Still no frame on an empty page.
   await expect(page.locator('[data-main-frame]')).toHaveCount(0)
 })
 
-test('owner 18 Nov, hint tap: a tap on or near the hint gives the caret; a tap clearly away selects the box', async ({
+test('owner 18 Nov, empty line rule (C34), no hint: a tap at the caret spot gives the caret; a tap clearly away selects the box', async ({
   page,
 }) => {
   await start(page, 'HintTap', false, PRESET_2B)
   await page.waitForTimeout(700)
   const main = page.locator(MAIN)
   const b = await rect(main)
-  const h = await rect(page.locator('[data-paper-hint]'))
+  const line = await rect(main.locator('.bn-block-content').first())
   const typing = () => main.evaluate((m) => m.contains(document.activeElement))
-  await page.mouse.click(h.x + h.width / 2, h.y + h.height / 2)
-  await page.waitForTimeout(400)
-  expect(await typing()).toBe(true)
-  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
-  await page.keyboard.press('Escape')
-  await page.waitForTimeout(500)
-  // Just past the hint's end (within one letter, owner 18 Nov): still near.
-  await page.mouse.click(h.x + h.width + 5, h.y + h.height / 2)
-  await page.waitForTimeout(400)
-  expect(await typing()).toBe(true)
-  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
-  await page.keyboard.press('Escape')
-  await page.waitForTimeout(500)
-  // Clearly away: selects, no caret.
-  await page.mouse.click(b.x + b.width - 30, h.y + h.height / 2)
+  // Clearly away from the caret spot: selects, no caret.
+  await page.mouse.click(b.x + b.width - 30, line.y + line.height / 2)
   await expect(chrome(page).locator('[data-box-grip]')).toBeVisible()
   expect(await typing()).toBe(false)
+  // Tap 2 at the start of the line: the caret goes in.
+  await page.mouse.click(line.x + 6, line.y + line.height / 2)
+  await page.waitForTimeout(400)
+  expect(await typing()).toBe(true)
 })
 
 test('review: the page tabs keep their ⋯ beside them, not wrapped under', async ({

@@ -370,7 +370,6 @@ export const enLateToolbar = {
   'textTool.boxStyle': 'Box style',
   'textTool.hint':
     'Type, or tap anywhere on the paper to add a text box · hold for Start typing here',
-  'textTool.hintV2': 'Type, or tap anywhere to start writing',
   'textTool.lineSpacing': 'Line spacing',
   'textTool.pin': 'Pin Text Tool',
   'textTool.startTyping': 'Start typing here',

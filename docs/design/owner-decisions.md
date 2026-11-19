@@ -491,3 +491,4 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
   - **Precise selection lives in the Lasso tool:** circle any part of the text, down to letters inside a word; **double tap = word, triple tap = line, four taps = paragraph** — all in the Lasso. Our highlight and bar; after an action, or a tap on the text, back to the Text tool with the cursor (round 1).
   - The Lasso keeps all it does today; these are additions for text.
   - Owner asks for the problems to expect before building.
+- **Plan answers, round 4 (owner, 19 Nov):** go with the Lasso. In the Lasso: circle part of a word (letters) or a whole word; double / triple / four taps select word / line / paragraph. Reference: Goodnotes in its Lasso tool selects inside a word ("rate-") with handles and shows its format bar (refs/goodnotes-lasso-text-1/2.png). Ink rule question withdrawn: see B11.

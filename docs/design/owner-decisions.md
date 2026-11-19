@@ -454,3 +454,7 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 
 - The first box shows **no hint** ("Type, or tap anywhere…" and every other placeholder go). It is a plain empty box like any other. Reason: the hint still did not show on the iPad (page made via the notebook +, named in the pop-up, then Text tool, then a tap) and "does not matter in the longer run". Replaces the hint lines in "Box size and hints" and the 18 Nov "Equal boxes" note (owner 18 Nov: "if the hint causes trouble, drop it").
 - Selecting the box works the way the owner wants (iPad check, build C173E93).
+
+## Circle select is generous (owner, 19 Nov 2026)
+
+- A letter is selected when about half of it (or more) lies inside the Pencil circle, so circling "vi" in "Service" may also take a neighbour letter; the owner then adjusts with the selection handles. Exactness is not required every time.

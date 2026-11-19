@@ -1,5 +1,6 @@
 import type { EditorView } from 'prosemirror-view'
 import { t } from '../i18n/t'
+import { watchWindowEvents } from '../app/input/windowRecorder'
 export { RECORDER_KEY, recorderOn } from './circleRecorderKey'
 
 /**
@@ -159,7 +160,7 @@ export function startRecorder(
   let loop: CircleTrace['loop'] = null
   let stylus = 0
   let panel: HTMLElement | null = null
-  let svg: SVGSVGElement | null = null
+  let root: HTMLElement | null = null
 
   const own = (e: Event) =>
     e.target instanceof Node && !!panel && panel.contains(e.target)
@@ -169,10 +170,9 @@ export function startRecorder(
   }
   const clear = () => {
     win.clearTimeout(timer)
-    panel?.remove()
-    svg?.remove()
+    root?.remove()
     panel = null
-    svg = null
+    root = null
   }
   const begin = () => {
     clear()
@@ -284,6 +284,33 @@ export function startRecorder(
     drawPanel(trace)
   }
 
+  /** A top-layer box over the page (no stacking order): holds the outline and panel. */
+  const layer = (): HTMLElement => {
+    if (root) return root
+    const r = doc.createElement('div')
+    r.setAttribute('popover', 'manual')
+    Object.assign(r.style, {
+      position: 'fixed',
+      inset: '0',
+      width: '100%',
+      height: '100%',
+      margin: '0',
+      padding: '0',
+      border: '0',
+      background: 'transparent',
+      overflow: 'visible',
+      pointerEvents: 'none',
+    })
+    doc.body.append(r)
+    try {
+      r.showPopover()
+    } catch {
+      // No top layer: it stays last in the page.
+    }
+    root = r
+    return r
+  }
+
   const drawOutlines = () => {
     const s = doc.createElementNS(svgNs, 'svg')
     s.setAttribute('data-circle-recorder-svg', '')
@@ -293,7 +320,6 @@ export function startRecorder(
       width: '100%',
       height: '100%',
       pointerEvents: 'none',
-      zIndex: '2147483000',
     })
     if (path.length > 1) {
       const p = doc.createElementNS(svgNs, 'polyline')
@@ -314,8 +340,7 @@ export function startRecorder(
       r.setAttribute('stroke-width', '2')
       s.append(r)
     }
-    doc.body.append(s)
-    svg = s
+    layer().append(s)
   }
 
   /** The panel text: a short summary, then the JSON trace one event a line. */
@@ -354,7 +379,7 @@ export function startRecorder(
       border: '1px solid var(--border, #999)',
       borderRadius: '10px',
       font: '11px/1.3 ui-monospace, monospace',
-      zIndex: '2147483001',
+      pointerEvents: 'auto',
     })
     const bar = doc.createElement('div')
     bar.style.display = 'flex'
@@ -368,7 +393,7 @@ export function startRecorder(
       b.textContent = label
       b.setAttribute('aria-label', label)
       Object.assign(b.style, { minWidth: '44px', minHeight: '44px' })
-      b.addEventListener('click', run)
+      b.onclick = run
       return b
     }
     const area = doc.createElement('textarea')
@@ -390,17 +415,19 @@ export function startRecorder(
       mk('✕', clear),
     )
     el.append(bar, area)
-    doc.body.append(el)
+    layer().append(el)
     panel = el
   }
 
-  const o = { capture: true, passive: true } as const
-  for (const type of TYPES) win.addEventListener(type, onEvent, o)
-  doc.addEventListener('selectionchange', onSelection)
+  // selectionchange fires at the document: the window sees it in capture.
+  const stopWatch = watchWindowEvents(
+    [...TYPES, 'selectionchange'],
+    (e) => (e.type === 'selectionchange' ? onSelection() : onEvent(e)),
+    () => {},
+  )
   return {
     stop: () => {
-      for (const type of TYPES) win.removeEventListener(type, onEvent, o)
-      doc.removeEventListener('selectionchange', onSelection)
+      stopWatch()
       clear()
     },
     report: (r) => {

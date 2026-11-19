@@ -43,3 +43,18 @@ Select → (bar action) → back to text, with the Pencil or finger, Scribble ON
 1. While the owner is writing with Scribble (strokes following each other), a letter loop must never be read as a circle: no selection, no bar pops up, the writing is never interrupted. (Rule: no circle-select while writing is in progress, e.g. within about 1 s of the last Scribble stroke or text input; and a circle needs to cover at least half of an existing letter.)
 2. A circle drawn on top of words inside a box must never bring Apple's bar; our bar shows.
 3. With words selected, scribbling over them (scratch-out) deletes them (as Scribble's scratch-out does; see scribbleDelete.ts, C4) — never selects or writes something else.
+
+## Trace 1 findings (owner's iPad, 19 Nov 17:37, Scribble ON; trace text in the chat, summary here)
+
+- **While the Pencil touches the screen, the page gets NO pointermove at all.** Each contact gives one pointerdown + one pointermove, then nothing until touchend 2-5 s later (Scribble takes the stroke). All other pointermoves (232) are Pencil HOVER moves (id 1, no button). So our own circle reader can never see a circle while Scribble is on: Fork B is impossible in the Text tool.
+- Scribble's writing arrives as beforeinput insertText ("Service", "23-11", "- 2000"): writing works.
+- No CSS transform, zoom or scale on any ancestor; visualViewport 0,0 scale 1. The one-word-left offset is inside Scribble's own geometry, which the page cannot correct.
+- The recorder's red line in rec-1 is the HOVER path (the Pencil moving above the screen), drawn by the recorder; it is not ink and shows only with the recorder on.
+- Conclusion: with Scribble ON, precise Pencil circle-select cannot happen in the Text tool. Precise selection needs a mode where Scribble is not active (the Lasso way, as the owner proposed). Taps (double/triple) do reach the page and can stay ours.
+- Paste button not visible in the owner's top row (rec-1 shows the old row: no Paste, Mic not grouped): check the version and the page.menus switch.
+
+## Trace 2 findings (owner, circle round "rate is", 19 Nov)
+
+- The circle's touch began at the LEFT edge of "rate" (x 268). Scribble then selected "- 2000" and "2000" (x 219-262), i.e. the word just BEFORE the start point; selections flip between "- 2000", "2000" and a bare caret 7 times in 300 ms (Scribble and our code both setting the selection: the flicker).
+- Again no pointermoves during contact; our loop reader saw 1 point ("isLoop false").
+- Reading: Scribble places the caret where the circle starts (a word boundary) and selects the word on the caret's left. Not fixable from the page. Confirms the Lasso path (round 3). Also: our code must stop touching the selection while a Scribble gesture is active (no flicker).

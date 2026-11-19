@@ -169,3 +169,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
   - Owner check (19 Nov): Lasso a word, then tap on it: the selection goes and no typing cursor comes. Owner's wider idea: give ALL Pencil selection in the Text tool (circle, double tap, triple tap) the Lasso's behaviour, i.e. our own selection that Apple's bar and Scribble cannot take over, and one tap on the selection = typing cursor there (to delete / write over). Main question for the Fable plan.
 
 - **Clean up with AI in Paste ▾ › More (owner, 19 Nov 2026):** hidden for now; add back once AI is approved.
+
+- **For Fable (owner, 19 Nov 2026): the Goodnotes approach.** A tap on text could switch to the Lasso by default, so all the Lasso's selection features work on text; the Lasso itself does not type, so a further tap returns to the Text tool with the cursor. Discuss with the owner and Fable before building. Evidence: docs/plans/pencil-select-plan.md (traces), refs/goodnotes-lasso-text-*.png.

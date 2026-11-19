@@ -486,3 +486,26 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 - **Floating Pencil bar** (⠿ mic ↵ ⌫ ×) also gets **Paste ▾**. It is hidden while the top tool row shows the same buttons, unless mic (dictation) is active.
 - **Paste ▾ menu:** Keep look (default, ticked), Plain text; **More** opens Match style, As quote, As text box, Link / Embed. **Clean up with AI is hidden** for now (in IDEAS.md).
 - **One name per option everywhere:** the same words in the box bar, the top row, the floating bar, the page menu and Settings (Settings "Keep original" becomes "Keep look"). A tap on Paste follows Settings › Paste as.
+- **Plan answers, round 3 (owner, 19 Nov, after the recorder proved Scribble keeps the whole Pencil stroke in the Text tool):**
+  - Goodnotes model: tap 1 selects the box, tap 2 near the text gives the cursor; with the cursor in a box OUR format bar (colour, size, …) shows, so Apple's bar is never needed; writing goes on with Scribble.
+  - **Precise selection lives in the Lasso tool:** circle any part of the text, down to letters inside a word; **double tap = word, triple tap = line, four taps = paragraph** — all in the Lasso. Our highlight and bar; after an action, or a tap on the text, back to the Text tool with the cursor (round 1).
+  - The Lasso keeps all it does today; these are additions for text.
+  - Owner asks for the problems to expect before building.
+- **Plan answers, round 4 (owner, 19 Nov):** go with the Lasso. In the Lasso: circle part of a word (letters) or a whole word; double / triple / four taps select word / line / paragraph. Reference: Goodnotes in its Lasso tool selects inside a word ("rate-") with handles and shows its format bar (refs/goodnotes-lasso-text-1/2.png). Ink rule question withdrawn: see B11.
+- **Lasso picture (owner, 19 Nov):** the plan in the picture is OK, but NOT the format bar shown in it. The owner likes today's Lasso tool and its own bar as they are: a text selection made in the Lasso uses **the Lasso's existing bar**, with **Paste** added to it. Anything else to add to that bar is discussed first.
+
+## One smart selection bar (owner, 19 Nov 2026) — to plan with Fable
+
+- Merge the selection bars (the Lasso's drawing bar, the new text selection mini bar, and the box bar's selection parts) into **one smart bar** that changes with what is selected:
+  - **text only:** Paste ▾ (on the bar), Copy, Cut, Delete, Bold / Italic, Colour, Highlight — no drawing-only buttons;
+  - **ink only (e.g. a diagram drawn with the pen):** the drawing buttons (Thickness, Colour, Turn, Resize, Move, Duplicate, Replay…);
+  - **text + ink:** a mixed set;
+  - **pictures:** picture buttons.
+- As much customisation as possible (which buttons show, order), like the top row.
+- Never drop a feature: every button of the three bars stays reachable (inventory first).
+- Picture first, then the plan with Fable (from 20 Nov). The Lasso text-selection build waits for this so it is built once.
+- **Smart bar answers (owner, 19 Nov):**
+  - **Base it on the one bar** (the Goodnotes-style box bar from 18 Nov: colour, size, Aa, B/I, align, list, fill │ Cut, Paste ▾, Delete, ⋯) — the owner finds it excellent; the smart bar grows from it, in its look.
+  - **Presets: Edit and Study**, each with the format options inside (no separate Format preset). No Drawing preset; maybe a **Text + drawing** preset for mixed selections.
+  - **Switching: Auto by default** (the selection type picks the buttons); a Setting lets the user turn Auto off and use one fixed default bar for everything.
+  - "Included in selection" filter: owner asked for an explanation; open.

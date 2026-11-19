@@ -473,3 +473,8 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 - The **Text tool's Pencil selection** (circle, double tap, triple tap) gets the Lasso's _properties_ (our own selection that Apple's bar and Scribble cannot take over), built as its own separate code, not merged into the Lasso. In the Text tool a tap on the selection still gives the typing cursor, so select → delete → write over keeps working.
 - No new name and no new tool: it is simply how selecting works in the Text tool.
 - Planned by Opus now (a fix to an existing feature); Fable only if Opus cannot solve it. The recorder traces come first.
+- **Plan answers, round 1 (owner, 19 Nov):**
+  - **Two moments:** while a Pencil selection is being made and while it is selected, the text behaves like a Lasso selection (no Apple bar, no Scribble take-over); OUR bar appears as soon as the selection is complete. After an action on the bar (copy, cut, paste, delete…) the box goes straight back to normal text. If the owner does nothing, a tap anywhere in the text gives the typing cursor there and typing starts (e.g. in "Service 23-11 2000 rate-is", tap between any letters and write).
+  - One tap on a selected word: the typing cursor at that spot.
+  - While circling: a thin dashed line follows the Pencil and fades once the words are selected.
+  - Selection look: strong soft purple fill with round handles at both ends, draggable with the Pencil; easy to see even for 2 letters. Picture first.

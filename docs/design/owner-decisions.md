@@ -478,3 +478,4 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
   - One tap on a selected word: the typing cursor at that spot.
   - While circling: a thin dashed line follows the Pencil and fades once the words are selected.
   - Selection look: strong soft purple fill with round handles at both ends, draggable with the Pencil; easy to see even for 2 letters. Picture first.
+- **Plan answers, round 2 (owner, 19 Nov):** after Delete on our bar, the typing cursor waits in the gap; the owner selects first (never writes on top of words), so any closed loop covering at least half a letter is a selection; the finger works the same as the Pencil (no finger circles; fingers scroll); a circle selects only inside the box it starts in.

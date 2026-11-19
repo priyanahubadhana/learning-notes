@@ -40,6 +40,7 @@ import {
 import { REPEAT_AFTER_MS, backspaceStep } from '../main/backspaceHold'
 import { lazyNow } from '../../lazyNow'
 import { FoldCard, type FoldEntry } from './FoldCard'
+import { MicSlot, PasteSlot } from './PasteMicSlots'
 
 // The ⋯ card's own group (1f) loads with the first ⋯ tap.
 const MoreExtras = lazyNow(() => import('./cards/more/MoreExtras'))
@@ -345,7 +346,12 @@ export function ToolBar({
   const draft = barDraft.useValue()
   const edit = draft !== null
   const list = draft ?? saved
-  const tools = list.map((id) => ({ id, icon: barToolIcon(id) }))
+  // page.menus: Mic and Paste ▾ are built into the row (B12); a pinned Mic
+  // tool is the same button, so it is not shown twice.
+  const menusOn = useFlag('page.menus')
+  const tools = list
+    .filter((id) => !(menusOn && !edit && id === 'mic'))
+    .map((id) => ({ id, icon: barToolIcon(id) }))
   const editHold = useRef({ timer: 0, x: 0, y: 0 })
   const stopEditHold = () => {
     window.clearTimeout(editHold.current.timer)
@@ -388,8 +394,14 @@ export function ToolBar({
       ? [{ id: 'back', priority: KEEP.back!, fixedW: 44 }]
       : []),
     // New line and Backspace never fold under ⋯ (TB-11, 2A.12).
+    ...(menusOn && !edit
+      ? [{ id: 'micK', priority: Infinity, fixedW: 44 }]
+      : []),
     { id: 'bs', priority: Infinity, fixedW: 44 },
     { id: 'nl', priority: Infinity, fixedW: 44 },
+    ...(menusOn && !edit
+      ? [{ id: 'pasteK', priority: Infinity, fixedW: 44 }]
+      : []),
     ...(inTopBar
       ? []
       : [
@@ -632,6 +644,7 @@ export function ToolBar({
         </button>
       ) : null}
       {shows('bs') && !edit ? <span className="v8hair" aria-hidden /> : null}
+      {menusOn && !edit && shows('micK') ? <MicSlot editor={editor} /> : null}
       {shows('bs')
         ? fixed(
             'backspace',
@@ -690,6 +703,9 @@ export function ToolBar({
             </button>,
           )
         : null}
+      {menusOn && !edit && shows('pasteK') ? (
+        <PasteSlot editor={editor} />
+      ) : null}
       <span className="v8spacer" />
       {shows('undo') ? (
         <button

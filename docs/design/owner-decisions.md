@@ -466,3 +466,10 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
 ## Paste button in the Pencil bar (owner, 19 Nov 2026)
 
 - The small floating Pencil bar (mic, Enter, Backspace, ×) gets a **Paste** button with a small **▾ arrow** beside it. A tap on Paste pastes at the caret and **keeps the formatting** (default). The ▾ opens the choices: Keep formatting (default), Plain text. The caret stays in the box. Picture first for the owner's OK, then build (with B9 and B10).
+
+## Text tool selection borrows the Lasso's way (owner, 19 Nov 2026)
+
+- The **Lasso tool stays exactly as it is** (its own purpose and behaviour; not renamed, not changed).
+- The **Text tool's Pencil selection** (circle, double tap, triple tap) gets the Lasso's _properties_ (our own selection that Apple's bar and Scribble cannot take over), built as its own separate code, not merged into the Lasso. In the Text tool a tap on the selection still gives the typing cursor, so select → delete → write over keeps working.
+- No new name and no new tool: it is simply how selecting works in the Text tool.
+- Planned by Opus now (a fix to an existing feature); Fable only if Opus cannot solve it. The recorder traces come first.

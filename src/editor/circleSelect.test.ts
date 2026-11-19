@@ -20,6 +20,13 @@ describe('circle select (F5, F6)', () => {
     ).toBe(false)
     expect(isLoop(ring(100, 100, 30, 12, 13))).toBe(false)
   })
+  it('a scribble-out zigzag over a word is not a circle (C24, 19 Nov)', () => {
+    const zig = Array.from({ length: 11 }, (_, k) => ({
+      x: k % 2 ? 190 : 100,
+      y: 100 + (18 * k) / 10,
+    }))
+    expect(isLoop(zig)).toBe(false)
+  })
   it('a point is inside the loop or not', () => {
     const r = ring(100, 100, 30, 12)
     expect(inside(r, 100, 100)).toBe(true)

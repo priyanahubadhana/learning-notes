@@ -146,15 +146,15 @@ export default function BoxStylePopover({
   // Why (base red textTool:125): two quick taps (radius, then padding) both
   // read the saved style before the first write came back, so the second
   // write dropped the first change. A style written a moment ago is the base.
-  const lastWrite = useRef<{ style: BoxStyle | undefined; at: number } | null>(
-    null,
-  )
+  const lastWrite = useRef<{ style: BoxStyle | undefined } | null>(null)
   const baseStyle = (): BoxStyle =>
-    lastWrite.current && Date.now() - lastWrite.current.at < 1500
-      ? (lastWrite.current.style ?? {})
-      : style
+    lastWrite.current ? (lastWrite.current.style ?? {}) : style
   const apply = (next: BoxStyle | undefined) => {
-    lastWrite.current = { style: cleanStyle(next), at: Date.now() }
+    const mine = { style: cleanStyle(next) }
+    lastWrite.current = mine
+    window.setTimeout(() => {
+      if (lastWrite.current === mine) lastWrite.current = null
+    }, 1500)
     void updateBox(db, pageId, boxId, { style: cleanStyle(next) })
     if (boxId !== MAIN_BOX) {
       setDflt(cleanStyle(next))

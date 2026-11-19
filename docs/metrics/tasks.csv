@@ -61,3 +61,4 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 18 Nov,slice/first-box-tap,F1-F4 first box taps + owner tap rules,Sonnet,2 review rounds (flaky pen test root-caused),merged b28a94b3
 18 Nov,slice/caret-jump-save,B7 first letters scrambled on new page,Sonnet,1 review round,merged ec9e1416
 18 Nov,slice/ios-select,F5-F7 circle select + double tap + no Apple bar,Sonnet,2 review rounds (look: wrong strip; strip over text),merged 846392e3
+19 Nov,slice/base-reds,8 base reds + TB-04 after ios-select (2 app bugs),Sonnet,1 review round,merged c3a88e33

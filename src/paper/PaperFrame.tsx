@@ -1895,8 +1895,17 @@ export function PaperFrame({
     textPen.current = { pts: [{ x: e.clientX, y: e.clientY }], blank }
   }
   const textPenMove = (e: ReactPointerEvent) => {
-    if (textPen.current && e.pointerType === 'pen')
-      textPen.current.pts.push({ x: e.clientX, y: e.clientY })
+    const tp = textPen.current
+    if (!tp || e.pointerType !== 'pen') return
+    // B11: a hovering Pencil (no button, no pressure) is not drawing. When the
+    // lift never came (Scribble), its hover moves end the stroke: they are
+    // not its points and never make a shape.
+    if (e.buttons === 0 && e.pressure === 0) {
+      noteStroke(tp.pts, e.timeStamp)
+      textPen.current = null
+      return
+    }
+    tp.pts.push({ x: e.clientX, y: e.clientY })
   }
   const textPenUp = (e: ReactPointerEvent) => {
     const tp = textPen.current

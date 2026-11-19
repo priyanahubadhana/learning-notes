@@ -813,6 +813,11 @@ export class InkController {
   /** Tells the pad what to catch for the tool now selected. */
   syncPad(): void {
     const tool = this.env.tool()
+    // B11: a tool change ends a draw or erase the new tool does not own (its
+    // lift may never come: Scribble took it). Real writing is kept, a stray
+    // touch is dropped; nothing of the old gesture can go on in another tool.
+    if (this.gesture && !this.toolOwns(this.gesture.kind, tool))
+      this.resetGestures('toolchange')
     const on =
       (tool === 'pen' ||
         tool === 'highlighter' ||
@@ -826,6 +831,22 @@ export class InkController {
       tool === 'lasso' ? this.fingerLassos() : this.fingerCanDraw()
     this.pad.style.touchAction = fingerOwns ? 'none' : 'pan-x pan-y pinch-zoom'
     this.requestDraw()
+  }
+
+  /** Does this tool own a gesture of this kind (draw: pens; erase: eraser)? */
+  private toolOwns(kind: Gesture['kind'], tool: string): boolean {
+    if (kind === 'draw') return tool === 'pen' || tool === 'highlighter'
+    if (kind === 'erase') return tool === 'eraser'
+    return true
+  }
+
+  /**
+   * B11: a Pencil that hovers (no button, no pressure) is not drawing. After a
+   * lost lift (Scribble) the hover moves still reach a captured pad: they end
+   * the stroke, they are never its points.
+   */
+  private hoverEnds(e: PointerEvent): boolean {
+    return e.pointerType === 'pen' && e.buttons === 0 && e.pressure === 0
   }
 
   fingerCanDraw(): boolean {
@@ -1401,6 +1422,12 @@ export class InkController {
       return
     }
     if (g.id !== e.pointerId) return
+    if (!this.toolOwns(g.kind, this.env.tool())) return this.cancelGesture()
+    if ((g.kind === 'draw' || g.kind === 'erase') && this.hoverEnds(e)) {
+      this.cancel(e)
+      if (this.gesture === g) this.cancelGesture()
+      return
+    }
     if (g.kind === 'draw') {
       if (g.dragAs !== 'free') {
         // A chosen shape (or tape): the two corners are where the drag began
@@ -1453,6 +1480,13 @@ export class InkController {
     if (!g || g.id !== e.pointerId || g.kind === 'lasso') return
     if (g.kind === 'transform') return
     this.gesture = null
+    if (!this.toolOwns(g.kind, this.env.tool())) {
+      // The tool changed under the gesture: no ink, no erase (B11).
+      if (g.kind === 'draw') clearTimeout(g.holdTimer)
+      if (g.kind === 'erase') this.finishErase(g)
+      this.requestDraw()
+      return
+    }
     if (g.kind === 'draw') {
       clearTimeout(g.holdTimer)
       if (!this.peelTape(g)) this.finishDraw(g, e.timeStamp - g.t0)

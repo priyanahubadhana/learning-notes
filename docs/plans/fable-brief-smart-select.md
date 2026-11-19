@@ -93,8 +93,14 @@ Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-leve
 
 - Bottom keyboard bar while typing: **No** (our top row + smart bar cover it).
 - Mixed-selection filter on the smart bar: **No** — the Lasso already has its "Picks: Ink / Pictures / Text" filter; one place is enough.
-- Preset editing in Settings › Tool bar (new "Selection bar" part): **picture shown** (scratch presets-mock.png); owner OK pending.
+- Preset editing in Settings › Tool bar (new "Selection bar" part): **picture shown** (refs/selection-bar-presets-mock.png); owner OK pending.
 - Build order: **yes** — B11/B12 (merged 19 Nov, 2ce4acf2) → two-level Lasso → smart bar → Scribble experiment.
 - Phone: **yes**, same presets, fewer buttons.
 - **Keep today's Lasso intact (v1).** The owner's Lasso was reworked many times after copying Goodnotes did not work in our app; it has many reasoned fixes. Text-level selection is added WITHOUT losing any of it. Fable: first inventory the current Lasso (features + the reasons behind them, owner-decisions.md / DECISIONS.md / CHANGELOG "Lasso") and decide what the text level reuses. (Inventory started by Opus; finish it in the Fable session if missing.)
 - Open after B12: the v8 tool row still shows Backspace/Enter in every mode (Pencil-only rule not applied there yet) — small follow-up.
+
+## 13. Pictures and read order (checked 20 Nov)
+
+- Mocks: refs/lasso-text-mock.png (plan OK, but the owner rejected the format bar drawn in it: use the Lasso's own bar + Paste, later the smart bar); refs/selection-bar-presets-mock.png (Settings › Tool bar › Selection bar; OK pending); refs/paste-mock2-approved.png (approved).
+- Goodnotes studies: refs/goodnotes-lasso-text-1/2, goodnotes-lasso-box-level-1/2, goodnotes-lasso-text-level, goodnotes-text-cursor-bar, goodnotes-text-selected-bar, goodnotes-mixed-bar/-resize/-more.
+- Read order for Fable: this brief (sections 1-13; later sections update earlier ones) → owner-decisions.md from "The owner's main iPad flow" to the end → pencil-select-plan.md (trace findings, must-never) → research/smart-selection-bar.md → IDEAS.md (Goodnotes approach, Clean up with AI). State of the build: BUILD-STATE.md line 3.

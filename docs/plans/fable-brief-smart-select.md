@@ -81,3 +81,10 @@ Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-leve
 - **Cursor only** (refs/goodnotes-text-cursor-bar.png): AI, colour, size 26, Aa, B/I, align, list │ highlight, ⋯ — formatting for what is typed next.
 - **Words selected** (refs/goodnotes-text-selected-bar.png): the same, plus **link, cut, copy** — the selection actions are added on the right; the bar keeps its place and shape otherwise.
 - Both keep the bottom keyboard bar. Lesson for the smart bar: one bar, same order; selection actions appear/disappear at the end instead of swapping to a different bar (calm, predictable).
+
+## 11. Goodnotes mixed selection (ink + text box) (owner, 19 Nov 18:20)
+
+- Lasso round a text box with ink on it → the **box bar** (AI, colour, size │ Resize, Edit Text │ Cut, Duplicate, Delete, ⋯) (refs/goodnotes-mixed-bar.png).
+- **Resize** → square corner handles + a rotate handle, and a short bar: Cut, Copy, Duplicate, Delete, ⋯ (refs/goodnotes-mixed-resize.png).
+- **⋯** → Cut, Front, Back │ Copy, Duplicate, Paste, Paste and Match Style │ Take Screenshot, Add to Image Playground, Create Element │ Ask Siri (some are iPadOS system items) (refs/goodnotes-mixed-more.png).
+- Owner: "all the options are already shared in the mixed state"; Edit Text opens the text bar (cursor state).

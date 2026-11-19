@@ -8,6 +8,8 @@ import { keepSelection } from './ownSelection'
 import { noteTapSelected } from './penGuard'
 import { touchEndHold } from './tapSelect'
 import type { AppSchema } from './schema'
+import { recorderOn } from './circleRecorderKey'
+import type { LoopReport } from './circleRecorder'
 
 /**
  * Pencil circle-select (F5 / F6, owner's iPad re-test 18 Nov). Circling words
@@ -77,18 +79,47 @@ export function inside(path: P[], x: number, y: number): boolean {
 }
 
 /** A character of the page: its position and the centre of its box. */
-export type Glyph = { pos: number; x: number; y: number; space: boolean }
+export type Glyph = {
+  pos: number
+  x: number
+  y: number
+  space: boolean
+  /** The glyph's box size; without it only the centre counts. */
+  w?: number
+  h?: number
+}
+
+/** Grid of sample points per glyph box (3 x 3) and how many must be inside. */
+const GRID = 3
+const NEEDED = 4
+
+/**
+ * Does this letter count as circled (pure, tested)? Owner rule "Circle select
+ * is generous": about half of its box inside the loop is enough, not only its
+ * centre. 4 of 9 sample points in the box.
+ */
+export function glyphInLoop(path: P[], g: Glyph): boolean {
+  if (!g.w || !g.h) return inside(path, g.x, g.y)
+  let hits = 0
+  for (let i = 0; i < GRID; i++)
+    for (let j = 0; j < GRID; j++) {
+      const x = g.x + ((i + 0.5) / GRID - 0.5) * g.w
+      const y = g.y + ((j + 0.5) / GRID - 0.5) * g.h
+      if (inside(path, x, y)) hits++
+    }
+  return hits >= NEEDED
+}
 
 /**
  * The document range of the characters inside the loop (pure, tested): from
- * the first to the last glyph whose centre is inside, spaces at the ends
+ * the first to the last glyph that is about half inside (glyphInLoop), spaces at the ends
  * left out. Null when none.
  */
 export function rangeInLoop(
   path: P[],
   glyphs: Glyph[],
 ): [number, number] | null {
-  const hit = glyphs.filter((g) => !g.space && inside(path, g.x, g.y))
+  const hit = glyphs.filter((g) => !g.space && glyphInLoop(path, g))
   if (hit.length === 0) return null
   const from = Math.min(...hit.map((g) => g.pos))
   const to = Math.max(...hit.map((g) => g.pos)) + 1
@@ -124,8 +155,15 @@ function glyphsNear(view: EditorView, path: P[]): Glyph[] {
           const c = view.coordsAtPos(start + i + 1, -1)
           const sameLine = Math.abs(a.top - c.top) < 4 && c.left >= a.left
           const x = sameLine ? (a.left + c.left) / 2 : a.left + 3
+          const w = sameLine ? c.left - a.left : 6
+          const h = Math.max(a.bottom, c.bottom) - Math.min(a.top, c.top)
           const y = (a.top + a.bottom) / 2
-          if (x < box.l - 2 || x > box.r + 2 || y < box.t - 2 || y > box.b + 2)
+          if (
+            x + w / 2 < box.l ||
+            x - w / 2 > box.r ||
+            y + h / 2 < box.t ||
+            y - h / 2 > box.b
+          )
             continue
           out.push({
             pos: start + i,
@@ -151,9 +189,28 @@ export function watchCircleSelect(
   if (!dom) return () => {}
   const doc = dom.ownerDocument
   let stroke: { id: number; path: P[] } | null = null
+  // Preview only: the circle recorder (circleRecorder.ts), a lazy chunk.
+  let rec: { stop: () => void; report: (r: LoopReport) => void } | null = null
+  let recLoading = false
+  const wantRecorder = () => {
+    if (!recorderOn()) {
+      rec?.stop()
+      rec = null
+      return
+    }
+    if (rec || recLoading) return
+    recLoading = true
+    void import('./circleRecorder').then((m) => {
+      recLoading = false
+      if (recorderOn())
+        rec = m.startRecorder(() => editor.prosemirrorView ?? null, dom)
+    })
+  }
+  wantRecorder()
 
   const onDown = (e: PointerEvent) => {
     stroke = null
+    wantRecorder()
     if (e.pointerType !== 'pen' || e.button > 0) return
     if (!isOn('textbox.v2') || activeTool.get() !== 'text') return
     if (!(e.target instanceof Node) || !dom.contains(e.target)) return
@@ -167,18 +224,25 @@ export function watchCircleSelect(
       stroke = null
       return
     }
-    stroke.path.push({ x: e.clientX, y: e.clientY })
+    // Safari delivers several points in one event (coalesced): all are used.
+    const more = e.getCoalescedEvents?.() ?? []
+    for (const c of more.length > 0 ? more : [e])
+      stroke.path.push({ x: c.clientX, y: c.clientY })
   }
   const onEnd = (e: PointerEvent) => {
     if (!stroke || e.pointerId !== stroke.id) return
     const path = stroke.path
     stroke = null
     path.push({ x: e.clientX, y: e.clientY })
-    if (!isLoop(path)) return
+    const loop = isLoop(path)
     const view = editor.prosemirrorView
-    if (!view) return
+    if (!loop || !view) {
+      rec?.report({ path, loop, glyphs: 0, range: null })
+      return
+    }
     const gl = glyphsNear(view, path)
     const range = rangeInLoop(path, gl)
+    rec?.report({ path, loop, glyphs: gl.length, range })
     if (!range) return
     // The lift of the loop is ours: iPadOS adds no Paste / Select bar.
     touchEndHold.until = Date.now() + LIFT_MS
@@ -205,9 +269,13 @@ export function watchCircleSelect(
     // After the browser's own handling of the stroke, so ours is what stays.
     setTimeout(apply, 0)
   }
-  return watchPointers(doc.defaultView ?? window, {
+  const stopWatch = watchPointers(doc.defaultView ?? window, {
     down: onDown,
     move: onMove,
     end: onEnd,
   })
+  return () => {
+    stopWatch()
+    rec?.stop()
+  }
 }

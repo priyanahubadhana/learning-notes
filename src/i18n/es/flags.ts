@@ -5,6 +5,11 @@ export const esFlags = {
     'Partes nuevas de la app, apagadas hasta que las pruebes.',
   'flags.preset.phase.name': 'Probar una fase',
   'flags.preset.phase.desc': 'Elige la fase que quieres probar.',
+  'flags.circleRecorder.name': 'Grabador de círculos',
+  'flags.circleRecorder.desc':
+    'Graba un círculo del Pencil en un cuadro de texto (eventos, selección, diseño) y lo muestra como texto que puedes copiar. Solo para pruebas. Nada sale de este dispositivo.',
+  'recorder.copy': 'Copiar',
+  'recorder.title': 'Grabación del círculo',
   'flags.tapSpeed.name': 'Velocidad de toque',
   'flags.tapSpeed.desc':
     'Lo rápido que deben seguirse los toques para contar como doble o triple toque. Solo para pruebas.',

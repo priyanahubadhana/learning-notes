@@ -5,6 +5,11 @@ export const enLateFlags = {
     'New parts of the app, switched off until you try them.',
   'flags.preset.phase.name': 'Test a phase',
   'flags.preset.phase.desc': 'Pick the phase you want to try.',
+  'flags.circleRecorder.name': 'Circle recorder',
+  'flags.circleRecorder.desc':
+    'Records one Pencil circle in a text box (events, selection, layout) and shows it as text you can copy. For testing only. Nothing leaves this device.',
+  'recorder.copy': 'Copy',
+  'recorder.title': 'Circle recording',
   'flags.tapSpeed.name': 'Tap speed',
   'flags.tapSpeed.desc':
     'How quickly taps must follow each other to count as a double or triple tap. For testing only.',

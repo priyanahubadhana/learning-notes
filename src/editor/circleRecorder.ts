@@ -1,0 +1,418 @@
+import type { EditorView } from 'prosemirror-view'
+import { t } from '../i18n/t'
+export { RECORDER_KEY, recorderOn } from './circleRecorderKey'
+
+/**
+ * Circle recorder (preview only, Settings > Try new features). The owner's
+ * iPad circles still select a word to the left of the circle; this records,
+ * for one Pencil stroke in a text box, what the browser really delivers: every
+ * pointer and touch event (type, time, pen or finger, the points it carried,
+ * where), whether the stroke was cancelled and after how many points, every
+ * selection change with its range and rectangle, what our own loop check made
+ * of the path, and the layout facts that could shift text geometry. It shows
+ * a copyable panel (Copy gives a JSON trace that e2e/circleTrace.ts can
+ * replay), our path in red and the selection rectangle in blue. Nothing
+ * leaves the device; nothing is stored. Loaded only while the switch is on
+ * (see circleSelect.ts).
+ */
+
+type P = { x: number; y: number }
+/** What circleSelect.ts reports at the end of a stroke. */
+export type LoopReport = {
+  path: P[]
+  loop: boolean
+  glyphs: number
+  range: [number, number] | null
+}
+
+/** One recorded event. `t` is ms since the stroke began. */
+export type TraceEvent = {
+  type: string
+  t: number
+  pointerType?: string
+  id?: number
+  x?: number
+  y?: number
+  /** Points the event carried (coalesced), as [x, y]. */
+  co?: [number, number][]
+  touches?: { x: number; y: number; touchType?: string; id: number }[]
+  /** selectionchange only. */
+  sel?: {
+    pm: [number, number]
+    text: string
+    rect: [number, number, number, number] | null
+  }
+}
+
+/** The whole recording; what Copy puts on the clipboard. */
+export type CircleTrace = {
+  version: 1
+  counts: Record<string, number>
+  points: number
+  cancelAfterPoints: number | null
+  stylusTouchEvents: number
+  loop: {
+    isLoop: boolean
+    points: number
+    glyphs: number
+    range: [number, number] | null
+  } | null
+  facts: string[]
+  viewport: {
+    width: number
+    height: number
+    dpr: number
+    scroll: [number, number]
+    visualViewport: [number, number, number, number] | null
+  }
+  editorRect: [number, number, number, number]
+  events: TraceEvent[]
+}
+
+/** Quiet time (ms) after the stroke in which selection changes are kept. */
+const AFTER_MS = 1500
+/** Most events kept for one stroke. */
+const MAX_EVENTS = 800
+const TYPES = [
+  'pointerdown',
+  'pointermove',
+  'pointerup',
+  'pointercancel',
+  'pointerover',
+  'pointerout',
+  'gotpointercapture',
+  'lostpointercapture',
+  'touchstart',
+  'touchmove',
+  'touchend',
+  'touchcancel',
+  'contextmenu',
+  'gesturestart',
+  'gesturechange',
+  'gestureend',
+] as const
+
+const n = (v: number) => Math.round(v * 10) / 10
+const box = (r: DOMRect): [number, number, number, number] => [
+  n(r.left),
+  n(r.top),
+  n(r.width),
+  n(r.height),
+]
+
+/** Layout facts that could make WebKit's text geometry differ from the drawing. */
+export function layoutFacts(editorDom: Element): string[] {
+  const vv = window.visualViewport
+  const out = [
+    `devicePixelRatio ${window.devicePixelRatio}`,
+    `window inner ${innerWidth}x${innerHeight} scroll ${n(scrollX)},${n(scrollY)}`,
+    vv
+      ? `visualViewport offset ${n(vv.offsetLeft)},${n(vv.offsetTop)} page ${n(vv.pageLeft)},${n(vv.pageTop)} scale ${vv.scale} size ${n(vv.width)}x${n(vv.height)}`
+      : 'visualViewport none',
+    `editor rect ${box(editorDom.getBoundingClientRect()).join(' ')}`,
+  ]
+  let hits = 0
+  for (let el: Element | null = editorDom; el; el = el.parentElement) {
+    const cs = getComputedStyle(el)
+    const zoom = (cs as CSSStyleDeclaration & { zoom?: string }).zoom
+    const found: string[] = []
+    if (cs.transform && cs.transform !== 'none')
+      found.push(`transform ${cs.transform}`)
+    if (zoom && zoom !== '1' && zoom !== 'normal') found.push(`zoom ${zoom}`)
+    if (cs.scale && cs.scale !== 'none') found.push(`scale ${cs.scale}`)
+    if (cs.translate && cs.translate !== 'none')
+      found.push(`translate ${cs.translate}`)
+    if (found.length) {
+      hits++
+      const id = el.id ? `#${el.id}` : ''
+      const cls =
+        typeof el.className === 'string' && el.className
+          ? `.${el.className.trim().split(/\s+/).slice(0, 2).join('.')}`
+          : ''
+      out.push(
+        `ancestor ${el.tagName.toLowerCase()}${id}${cls}: ${found.join('; ')}`,
+      )
+    }
+  }
+  if (hits === 0) out.push('ancestors: no transform, zoom, scale or translate')
+  return out
+}
+
+const svgNs = 'http://www.w3.org/2000/svg'
+
+/** Starts the recorder on this editor; returns stop and the loop reporter. */
+export function startRecorder(
+  view: () => EditorView | null,
+  editorDom: HTMLElement,
+): { stop: () => void; report: (r: LoopReport) => void } {
+  const doc = editorDom.ownerDocument
+  const win = doc.defaultView ?? window
+  let t0 = 0
+  let active = false
+  let events: TraceEvent[] = []
+  let counts: Record<string, number> = {}
+  let points = 0
+  let cancelAt: number | null = null
+  let path: P[] = []
+  let selRect: DOMRect | null = null
+  let timer = 0
+  let loop: CircleTrace['loop'] = null
+  let stylus = 0
+  let panel: HTMLElement | null = null
+  let svg: SVGSVGElement | null = null
+
+  const own = (e: Event) =>
+    e.target instanceof Node && !!panel && panel.contains(e.target)
+  const now = () => Math.round(performance.now() - t0)
+  const add = (ev: TraceEvent) => {
+    if (events.length < MAX_EVENTS) events.push(ev)
+  }
+  const clear = () => {
+    win.clearTimeout(timer)
+    panel?.remove()
+    svg?.remove()
+    panel = null
+    svg = null
+  }
+  const begin = () => {
+    clear()
+    t0 = performance.now()
+    active = true
+    events = []
+    counts = {}
+    points = 0
+    cancelAt = null
+    path = []
+    selRect = null
+    loop = null
+    stylus = 0
+  }
+
+  const describeSelection = (): NonNullable<TraceEvent['sel']> => {
+    const sel = doc.getSelection()
+    const v = view()
+    const pm: [number, number] = v
+      ? [v.state.selection.from, v.state.selection.to]
+      : [-1, -1]
+    if (!sel || sel.rangeCount === 0) return { pm, text: '', rect: null }
+    const r = sel.getRangeAt(0)
+    const rect = r.getBoundingClientRect()
+    if (!r.collapsed) selRect = rect
+    return {
+      pm,
+      text: sel.toString().replace(/\s+/g, ' ').slice(0, 60),
+      rect: box(rect),
+    }
+  }
+
+  const onEvent = (e: Event) => {
+    if (own(e)) return
+    const pe = e as PointerEvent
+    if (e.type === 'pointerdown') {
+      if (pe.pointerType !== 'pen') return
+      if (!(e.target instanceof Node) || !editorDom.contains(e.target)) return
+      begin()
+    }
+    if (!active) return
+    counts[e.type] = (counts[e.type] ?? 0) + 1
+    const ev: TraceEvent = { type: e.type, t: now() }
+    if (e.type.startsWith('pointer') || e.type.endsWith('pointercapture')) {
+      ev.pointerType = pe.pointerType
+      ev.id = pe.pointerId
+      ev.x = n(pe.clientX)
+      ev.y = n(pe.clientY)
+      const co = pe.getCoalescedEvents?.() ?? []
+      if (co.length)
+        ev.co = co.map((c) => [n(c.clientX), n(c.clientY)] as [number, number])
+      if (pe.pointerType === 'pen') {
+        if (e.type === 'pointermove') {
+          const list = co.length ? co : [pe]
+          for (const c of list) path.push({ x: c.clientX, y: c.clientY })
+          points += list.length
+        } else if (e.type === 'pointerdown') {
+          path.push({ x: pe.clientX, y: pe.clientY })
+          points++
+        }
+      }
+      if (e.type === 'pointercancel') cancelAt = points
+    } else if (e.type.startsWith('touch')) {
+      ev.touches = Array.from((e as TouchEvent).changedTouches).map((c) => ({
+        x: n(c.clientX),
+        y: n(c.clientY),
+        touchType: (c as Touch & { touchType?: string }).touchType,
+        id: c.identifier,
+      }))
+      if (ev.touches.some((c) => c.touchType === 'stylus')) stylus++
+    }
+    add(ev)
+    if (e.type === 'pointerup' || e.type === 'pointercancel') {
+      win.clearTimeout(timer)
+      timer = win.setTimeout(show, AFTER_MS)
+    }
+  }
+  const onSelection = () => {
+    if (!active) return
+    add({ type: 'selectionchange', t: now(), sel: describeSelection() })
+  }
+
+  const show = () => {
+    active = false
+    const sel = describeSelection()
+    add({ type: 'final-selection', t: now(), sel })
+    const vv = win.visualViewport
+    const trace: CircleTrace = {
+      version: 1,
+      counts,
+      points,
+      cancelAfterPoints: cancelAt,
+      stylusTouchEvents: stylus,
+      loop,
+      facts: layoutFacts(editorDom),
+      viewport: {
+        width: win.innerWidth,
+        height: win.innerHeight,
+        dpr: win.devicePixelRatio,
+        scroll: [n(win.scrollX), n(win.scrollY)],
+        visualViewport: vv
+          ? [n(vv.offsetLeft), n(vv.offsetTop), vv.scale, n(vv.width)]
+          : null,
+      },
+      editorRect: box(editorDom.getBoundingClientRect()),
+      events,
+    }
+    drawOutlines()
+    drawPanel(trace)
+  }
+
+  const drawOutlines = () => {
+    const s = doc.createElementNS(svgNs, 'svg')
+    s.setAttribute('data-circle-recorder-svg', '')
+    Object.assign(s.style, {
+      position: 'fixed',
+      inset: '0',
+      width: '100%',
+      height: '100%',
+      pointerEvents: 'none',
+      zIndex: '2147483000',
+    })
+    if (path.length > 1) {
+      const p = doc.createElementNS(svgNs, 'polyline')
+      p.setAttribute('points', path.map((q) => `${q.x},${q.y}`).join(' '))
+      p.setAttribute('fill', 'none')
+      p.setAttribute('stroke', 'red')
+      p.setAttribute('stroke-width', '2')
+      s.append(p)
+    }
+    if (selRect) {
+      const r = doc.createElementNS(svgNs, 'rect')
+      r.setAttribute('x', String(selRect.left))
+      r.setAttribute('y', String(selRect.top))
+      r.setAttribute('width', String(selRect.width))
+      r.setAttribute('height', String(selRect.height))
+      r.setAttribute('fill', 'none')
+      r.setAttribute('stroke', 'blue')
+      r.setAttribute('stroke-width', '2')
+      s.append(r)
+    }
+    doc.body.append(s)
+    svg = s
+  }
+
+  /** The panel text: a short summary, then the JSON trace one event a line. */
+  const traceText = (tr: CircleTrace): string => {
+    const head = [
+      `pointer events: ${Object.entries(tr.counts)
+        .map(([k, v]) => `${k} ${v}`)
+        .join(', ')}`,
+      `path points ${tr.points}; ${tr.cancelAfterPoints === null ? 'no pointercancel' : `pointercancel after ${tr.cancelAfterPoints} points`}; stylus touch events ${tr.stylusTouchEvents}`,
+      tr.loop
+        ? `our loop: isLoop ${tr.loop.isLoop}; points ${tr.loop.points}; glyphs ${tr.loop.glyphs}; range ${tr.loop.range?.join('-') ?? 'none'}`
+        : 'our loop: no report',
+      ...tr.facts,
+    ]
+    return head.join('\n')
+  }
+
+  const drawPanel = (tr: CircleTrace) => {
+    const json = JSON.stringify(tr)
+    const el = doc.createElement('div')
+    el.setAttribute('data-circle-recorder', '')
+    el.setAttribute('role', 'dialog')
+    el.setAttribute('aria-label', t('recorder.title'))
+    Object.assign(el.style, {
+      position: 'fixed',
+      right: '8px',
+      bottom: '8px',
+      width: 'min(360px, calc(100vw - 16px))',
+      maxHeight: '45vh',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px',
+      padding: '8px',
+      background: 'var(--surface, #fff)',
+      color: 'var(--text, #111)',
+      border: '1px solid var(--border, #999)',
+      borderRadius: '10px',
+      font: '11px/1.3 ui-monospace, monospace',
+      zIndex: '2147483001',
+    })
+    const bar = doc.createElement('div')
+    bar.style.display = 'flex'
+    bar.style.gap = '6px'
+    const title = doc.createElement('strong')
+    title.textContent = t('recorder.title')
+    title.style.flex = '1'
+    const mk = (label: string, run: () => void) => {
+      const b = doc.createElement('button')
+      b.type = 'button'
+      b.textContent = label
+      b.setAttribute('aria-label', label)
+      Object.assign(b.style, { minWidth: '44px', minHeight: '44px' })
+      b.addEventListener('click', run)
+      return b
+    }
+    const area = doc.createElement('textarea')
+    area.readOnly = true
+    area.setAttribute('data-circle-recorder-text', '')
+    area.value = `${traceText(tr)}\n--- JSON ---\n${json}`
+    area.setAttribute('aria-label', t('recorder.title'))
+    Object.assign(area.style, {
+      flex: '1',
+      minHeight: '120px',
+      font: 'inherit',
+    })
+    bar.append(
+      title,
+      mk(t('recorder.copy'), () => {
+        area.select()
+        void navigator.clipboard?.writeText(json).catch(() => {})
+      }),
+      mk('✕', clear),
+    )
+    el.append(bar, area)
+    doc.body.append(el)
+    panel = el
+  }
+
+  const o = { capture: true, passive: true } as const
+  for (const type of TYPES) win.addEventListener(type, onEvent, o)
+  doc.addEventListener('selectionchange', onSelection)
+  return {
+    stop: () => {
+      for (const type of TYPES) win.removeEventListener(type, onEvent, o)
+      doc.removeEventListener('selectionchange', onSelection)
+      clear()
+    },
+    report: (r) => {
+      if (!active) return
+      loop = {
+        isLoop: r.loop,
+        points: r.path.length,
+        glyphs: r.glyphs,
+        range: r.range,
+      }
+      if (r.path.length > path.length) path = r.path
+      add({ type: 'circle-code', t: now() })
+    },
+  }
+}

@@ -18,6 +18,7 @@ import {
   tapSpeed,
   type TapSpeed,
 } from '../app/tapTiming'
+import { RECORDER_KEY, recorderOn } from '../editor/circleRecorderKey'
 import type { MessageKey } from '../i18n/t'
 import type { SettingDefinition } from './registry'
 import { settingsRegistry } from './builtinSettings'
@@ -138,7 +139,34 @@ const tapSpeedSetting: SettingDefinition<string> = {
 
 settingsRegistry.register(phaseSetting as SettingDefinition)
 settingsRegistry.register(phaseSwitch as SettingDefinition)
+/**
+ * Preview only: the circle recorder (editor/circleRecorder.ts) records one
+ * Pencil circle so a wrong selection can be measured on the real iPad.
+ */
+const circleRecorderSetting: SettingDefinition<OnOff> = {
+  id: 'preview.circleRecorder', // not a flag switch
+  labelKey: 'flags.circleRecorder.name' as MessageKey,
+  descriptionKey: 'flags.circleRecorder.desc' as MessageKey,
+  category: 'tryNew',
+  keywords: 'circle recorder pencil scribble select test record try new',
+  scope: 'device',
+  defaultValue: 'off',
+  isValid: isOnOff,
+  control: { kind: 'segmented', options: onOff() },
+  derived: {
+    read: () => (recorderOn() ? 'on' : 'off'),
+    write: (value) => {
+      try {
+        localStorage.setItem(RECORDER_KEY, JSON.stringify(value))
+      } catch {
+        // Private mode: stays off.
+      }
+    },
+  },
+}
+
 settingsRegistry.register(tapSpeedSetting as SettingDefinition)
+settingsRegistry.register(circleRecorderSetting as SettingDefinition)
 
 for (const id of FLAG_IDS) {
   settingsRegistry.register(flagSetting(id) as SettingDefinition)

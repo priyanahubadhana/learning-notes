@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { inside, isLoop, rangeInLoop, type Glyph } from './circleSelect'
+import {
+  glyphInLoop,
+  inside,
+  isLoop,
+  rangeInLoop,
+  type Glyph,
+} from './circleSelect'
 
 const ring = (cx: number, cy: number, rx: number, ry: number, n = 26) =>
   Array.from({ length: n }, (_, i) => {
@@ -48,5 +54,61 @@ describe('circle select (F5, F6)', () => {
   it('leaves spaces at the ends out, and nothing inside gives null', () => {
     expect(picked(6, 9)).toBe('e r')
     expect(rangeInLoop(ring(500, 500, 30, 12), glyphs)).toBeNull()
+  })
+  describe('generous: a letter counts when about half its box is inside', () => {
+    // Letters 10 wide, 16 tall, centred on (100, 100); a square loop whose
+    // right edge cuts the letter box at x = edge.
+    const g: Glyph = { pos: 1, x: 100, y: 100, w: 10, h: 16, space: false }
+    const square = (right: number) => [
+      { x: 0, y: 80 },
+      { x: right, y: 80 },
+      { x: right, y: 120 },
+      { x: 0, y: 120 },
+    ]
+    it('counts with half or more inside, even if the centre is just outside', () => {
+      expect(glyphInLoop(square(103), g)).toBe(true) // 8 of 10 wide in
+      expect(glyphInLoop(square(101), g)).toBe(true) // 2 of 3 columns in
+    })
+    it('does not count with only a sliver inside', () => {
+      expect(glyphInLoop(square(97), g)).toBe(false)
+      expect(glyphInLoop(square(90), g)).toBe(false)
+    })
+    it('a letter whose centre is inside but half is not still follows the box', () => {
+      // Loop covers only the top 4 px of the letter box: the centre is out.
+      const top = [
+        { x: 90, y: 90 },
+        { x: 110, y: 90 },
+        { x: 110, y: 96 },
+        { x: 90, y: 96 },
+      ]
+      expect(glyphInLoop(top, g)).toBe(false)
+    })
+    it('without a box only the centre counts (older callers)', () => {
+      expect(
+        glyphInLoop(square(103), { pos: 1, x: 100, y: 100, space: false }),
+      ).toBe(true)
+      expect(
+        glyphInLoop(square(97), { pos: 1, x: 100, y: 100, space: false }),
+      ).toBe(false)
+    })
+    it('rangeInLoop picks the half-covered word to its end', () => {
+      const text = 'one two three'
+      const gl: Glyph[] = [...text].map((c, i) => ({
+        pos: i + 1,
+        x: 10 * i + 5,
+        y: 100,
+        w: 10,
+        h: 16,
+        space: c === ' ',
+      }))
+      // Loop edge cuts through the middle of "three" (starts at x = 80).
+      const loop = [
+        { x: 40, y: 80 },
+        { x: 105, y: 80 },
+        { x: 105, y: 120 },
+        { x: 40, y: 120 },
+      ]
+      expect(rangeInLoop(loop, gl)).toEqual([5, 11]) // "two th"
+    })
   })
 })

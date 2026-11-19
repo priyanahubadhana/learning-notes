@@ -42,9 +42,11 @@ export async function phoneBox(
   await page.waitForTimeout(700)
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   await page.waitForTimeout(900)
-  // Select it: the first tap on a box selects it.
+  // Select it: a tap on the box's empty part selects it; the words take the
+  // caret (owner 17 Nov). The centre lands on a long first line ("Alpha
+  // Photosynthesis"), so tap the padding inside the right edge (as TB-05).
   const r = await rect(box)
-  await page.mouse.click(r.x + r.width / 2, r.y + r.height / 2)
+  await page.mouse.click(r.x + r.width - 2, r.y + r.height / 2)
   if (o.flag !== false) {
     await expect(box).toHaveAttribute('data-picked', '')
     // The box's bar comes a moment after the tap and, near the bottom of a

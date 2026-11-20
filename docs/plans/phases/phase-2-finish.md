@@ -16,11 +16,24 @@ One small part at a time: understand → write the lines → owner's yes → tes
 
 1. **Lines.** Just before a part starts, Opus writes its lines in the feature's spec (docs/features/): plain "when … then …" sentences, each with an id (LS-, TS-, SB-), `(iPad)` on lines only the real iPad can prove, the must-never lines, and "not in this part". Pattern to copy: docs/features/lasso.md.
 2. **Owner's yes.** The owner gets the short "we will prove" list (and a picture when anything new is visible) and answers yes or "missing X". No yes, no code.
-3. **Tests first.** The builder writes one test per line, its name starting with the id, sees it fail, then builds. Switch off = today.
-4. **Checks.** `npm run check:spec` (Part B0), the part's tests on chromium and ipad-webkit, every LS-01 to LS-47 test green and unchanged.
+3. **Tests first, seen red.** The builder writes the tests of "Test rules" below, shows them failing, then builds. Switch off = today.
+4. **Checks.** `npm run check:spec` and the plain report (Part B0), the part's tests on chromium and ipad-webkit, every LS-01 to LS-47 test green and unchanged. The builder's report shows the red run, the green run and the break-it run.
 5. **Review.** Opus, once: the code against the lines, the look against the picture.
 6. **iPad check.** Merged to the preview; the owner checks the `(iPad)` lines in 5 minutes and answers by id ("LS-52 fail: saw …"). Selection parts: after each part. Other parts: once a day.
 7. **Refine.** A finding changes the lines first, then the test, then the code. A replaced line is marked "replaced by …", never left to contradict. New ideas go to docs/IDEAS.md, not into the part.
+
+## Test rules: a test must prove its line (owner ask, 20 Nov; from the owner's brief and the spec-first method)
+
+1. **One acceptance test per line, through the real screen.** It does what the user does (Pencil-style input from `e2e/realPen.ts`) and checks what the user sees (the words selected, the outline gone). Its name starts with the line's id. This is the 1-to-1 link.
+2. **Unit tests for the thinking inside a line** (for example "which letters are at least half inside the loop"): many small cases, fast, named with the same id. They are extra; they never replace the acceptance test, because logic can be right while the screen is wrong.
+3. **Red first, then green, then break it.** A test is kept only if it failed before the code existed and fails again when the builder switches the new code off for a moment. A test that cannot fail proves nothing and is not merged.
+4. **No guessing with time.** A test waits for a state it can see, never for a number of milliseconds (except where the line itself is about time). Every new acceptance test passes 20 of 20 repeats alone on ipad-webkit before the merge. A shaky test is a fault to find, never to retry.
+5. **A line no computer can prove says so.** It is marked `(iPad)`, gets the best stand-in test we can write, and is in the owner's 5-minute check. No test pretends to prove Scribble in a desktop browser.
+6. **Every iPad finding becomes a test.** With the quiet recorder (Part A2) the owner taps "Copy last trace" when something goes wrong; the trace is saved under `e2e/fixtures/` and replayed (`e2e/circleTrace.ts`) as a red test before the fix. The fault can then never come back unseen.
+7. **Real examples in the lines.** Selection lines carry the owner's own examples with exact words (text, what is circled, what must be selected); each example is one test case.
+8. **Open points are marked `OPEN:`** in the spec, never guessed. A part with an open point is not built.
+9. **Look is checked against the approved picture** (pictures side by side, and the visual test where one exists), not by writing a test first.
+10. **Ids travel.** The builder's commits and its report name the line ids, so every change can be traced to a line.
 
 ## Who builds (owner, 20 Nov: two lanes)
 
@@ -69,7 +82,7 @@ A3's result decides one later question only: whether circle and double tap can a
 | B10 | 2B leftovers outside lane A's files: R15 redo, R17 Shadow tile, R18 phone dots, the wheel test move, TB23-DIV, TB-24 on a clean checkout                                 | one fix each   | 1 h  |
 | B11 | The shaky iPad-size tests (about 21): find each cause; never a retry or a longer wait                                                                                    | none           | 6 h  |
 
-**B0 lines (SC-):** SC-01 a line id in a listed spec with no test named after it fails the check, naming the id. SC-02 a test that starts with an id that is in no listed spec fails. SC-03 a line marked `(iPad)` must also have at least one computer test, or the words "iPad only" and a place in a phase page's owner check list. SC-04 the list of specs under the check may only grow (a unit test guards it). SC-05 it runs in the push guard and in CI.
+**B0 lines (SC-):** SC-01 a line id in a listed spec with no test named after it fails the check, naming the id. SC-02 a test that starts with an id that is in no listed spec fails. SC-03 a line marked `(iPad)` must also have at least one computer test, or the words "iPad only" and a place in a phase page's owner check list. SC-04 the list of specs under the check may only grow (a unit test guards it). SC-05 it runs in the push guard and in CI. SC-06 a line marked `OPEN:` in a part that is being built fails the check. SC-07 `npm run spec:report` writes docs/SPEC.md, never edited by hand: one row per line of every listed spec, with its sentence, its tests and their last result on chromium and ipad-webkit (pass, fail, not run), and the owner's iPad tick with its date; at the top, per feature, how many lines are proven. This is the page the owner reads instead of code. SC-08 an id used twice, or a line with no id in a listed spec, fails the check. (B0 is about 4 h with the report.)
 
 ### The end of the phase
 

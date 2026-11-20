@@ -14,8 +14,12 @@ Select a word or a few letters with the Pencil, delete or paste, write over it w
 
 One small part at a time: understand → write the lines → owner's yes → tests → code → check → refine.
 
-1. **Story, rules, scenarios.** Just before a part starts, Opus writes in the feature's spec (docs/features/): one user story (As a …, I want …, so that …); three short lists (always true, can never happen, limits); the scenarios in Given / When / Then with the owner's real example values; then the finer detail lines with ids (LS-, TS-, SB-) for the builders, and "not in this part". `@ipad` or `(iPad)` marks what only the real iPad can prove. The reviewer first reads it as a tester and adds missing cases or marks them `OPEN:`. Pattern to copy: docs/features/lasso.md.
-2. **Owner's yes.** The owner gets the short "we will prove" list (and a picture when anything new is visible) and answers yes or "missing X". No yes, no code.
+1. **Story, rules, scenarios, through three lenses.** A spec is never written by one mind alone.
+   - **Why (the owner).** The user story in the owner's own words (As a …, I want …, so that …) and the rules: always true, can never happen, limits. For a new feature the owner writes these first, rough words are fine.
+   - **How (a builder).** Is it buildable, where are the sharp edges, how big is it. For a part of 3 hours or more a Sonnet helper answers this in a short note **before it sees the drafted scenarios**, so it does not just agree; for a smaller part Opus covers it.
+   - **Whether (a tester).** Can each sentence really be checked, which case is missing, what happens when it goes wrong. Same rule: its own list first, then the merge.
+   - Opus merges the three into the feature's spec (docs/features/): the story, the rules, 3 to 5 scenarios in Given / When / Then with the owner's real values, the list "we assume (not proven yet)" with a check for each, "done when" in 3 to 5 lines, then the finer detail lines with ids (LS-, TS-, SB-) and "not in this part". `@ipad` or `(iPad)` marks what only the real iPad can prove. Open points are `OPEN:`. Pattern to copy: docs/features/lasso.md.
+2. **The owner signs off.** The owner gets one short message: the scenarios, the assumptions ("is this how you really work?"), the open questions, and a picture when anything new is visible. The answer is yes or "missing X". No yes, no code.
 3. **Tests first, seen red.** The builder writes the tests of "Test rules" below, shows them failing, then builds. Switch off = today.
 4. **Checks.** `npm run check:spec` and the plain report (Part B0), the part's tests on chromium and ipad-webkit, every LS-01 to LS-47 test green and unchanged. The builder's report shows the red run, the green run and the break-it run.
 5. **Review.** Opus, once: the code against the lines, the look against the picture.
@@ -24,13 +28,15 @@ One small part at a time: understand → write the lines → owner's yes → tes
 
 ## Scenario rules (from the owner's article: write the spec first, then make the spec run)
 
-1. **Few.** Only scenarios the owner would care about, about 5 to 10 per feature. Everything finer is a detail line with a unit or screen test, not a scenario.
+1. **Few.** Start a small part with 3 to 5 scenarios; a whole feature has about 5 to 10. Only what the owner would care about. Everything finer is a detail line with a unit or screen test, not a scenario.
 2. **What happens, not where to tap.** "When I delete the selection", not "when I tap the red button on the bar": the sentence must survive a redesign. A gesture is named only when the gesture is the feature (circle, double tap); never a pixel, a button's place or a code word.
 3. **Plain words.** If the owner cannot read a sentence, it is rewritten.
 4. **Said as to a teammate.** No clever sentence patterns to save typing.
 5. **Real values.** The owner's own words and examples ("Service 23-11 2000 rate-is").
 6. **Living.** A scenario changes before its code does; the report is made from the tests that just ran, so it cannot go stale.
 7. **Short on top.** The story, the rules and the scenarios fit on one screen for the owner; details sit below.
+8. **One that goes wrong.** Every feature has at least one scenario for the unhappy path (a missed lift, a loop round nothing, a paste with nothing copied).
+9. **Not after the code.** A scenario is written before its code. The one exception is a record of what already exists (the Lasso freeze), and it says so.
 
 ## Test rules: a test must prove its line (owner ask, 20 Nov; from the owner's brief and the spec-first method)
 
@@ -153,6 +159,20 @@ Every button and behaviour in the owner's screenshots, against the app and this 
 | Undo and Redo top left; the Lasso's ▾ "what it selects"                                    | page top bar (2A.4); Picks                                                                                    | covered                                              |
 
 **B1 also records, for every button, whether it really works today** (the Professional ⋯ lists Move, Scale, Rotate, Screenshot, Convert; some were "coming later" on 11 Nov). A button that does nothing is not put on the smart bar.
+
+## Assumptions to check (what might not be true)
+
+Each has a check; if a check fails, the plan changes before more is built.
+
+| We assume                                                                                   | Check                                                                                                   | Where      |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------- |
+| The left-over outline and the "old selection" both come from a lift the iPad never reported | the replay test reproduces both; the owner's answers; a real trace from the quiet recorder              | A1, A2     |
+| A Pencil in the air is visible to the app (hover) on the owner's iPad                       | seen in the owner's trace of 19 Nov; on a device without hover LS-52 and the 4 second rule are the nets | A1         |
+| Switching from the Text tool to the Lasso keeps the typing cursor in its box                | the first test of A4; if not, the text level uses "the box edited last"                                 | A4         |
+| A box that cannot be typed in is left alone by Scribble                                     | the Scribble test on the real iPad                                                                      | A3         |
+| The add-on that reads the scenarios fits our test setup                                     | 4 hours at most, then the fallback                                                                      | B0         |
+| The two lanes never need the same file at the same time                                     | the hot-file list; Opus hands out one turn at a time                                                    | every part |
+| The owner can check on the iPad within a day of each selection part                         | measured per part in docs/metrics/tasks.csv                                                             | every part |
 
 ## Will not do here
 

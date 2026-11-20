@@ -100,6 +100,16 @@ Feature: The Lasso stays as it is and never gets stuck
     And no loop line is left on the screen
 ```
 
+## We assume (not proven yet)
+
+1. The left-over outline and the "old selection" both come from a lift the iPad never reported. Check: the replay test must show both faults before the fix; the owner's answers; a real trace (Part A2). If it does not fit, the cause is looked for again before anything is built.
+2. A Pencil in the air is visible to the app. True on the owner's iPad (trace of 19 Nov). On a device without hover, LS-52 and the 4 second rule do the work.
+3. A new **Pencil** touch while a loop is open means the old lift was lost. A finger or a palm is not such a sign and never ends a loop this way.
+4. When a lift is missed, the owner wants the loop finished and selected, not thrown away (owner: yes, 20 Nov).
+5. What a desktop browser shows for these lines is what the iPad does. Not for the `@ipad` ones: the owner's check decides.
+
+**Done when (A1):** the four fix scenarios pass on chromium and ipad-webkit; every LS-01 to LS-47 test is still green and unchanged; the owner's iPad check of 30 and 15 loops shows no left-over outline and no stuck loop; one line in docs/metrics/tasks.csv.
+
 ## How it works
 
 Details for the builders: finer than the scenarios, and each line still has its own test. `has` = a test exists today (Part A0 puts the id in its name; no check is changed). `add` = Part A0 writes the test. `(iPad)` = only the real iPad can fully prove it; it is also in the owner's check list.

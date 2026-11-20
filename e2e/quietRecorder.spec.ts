@@ -787,6 +787,17 @@ test('RC-N3 no heavy work per event: moves cost a push, not a measurement', asyn
  * iPad upright, iPad sideways and phone. The checks always run; the pictures
  * are written only when SHOT_DIR is set (docs/HOW-WE-BUILD.md section 7).
  */
+/** The button may sit over a panel the test must tap (the quiet corner): hide it for that tap. */
+const hideWhile = async (page: Page, run: () => Promise<void>) => {
+  const set = (v: string) =>
+    page.evaluate((d) => {
+      const el = document.querySelector<HTMLElement>('[data-lasso-recorder]')
+      if (el) el.style.visibility = d
+    }, v)
+  await set('hidden')
+  await run()
+  await set('visible')
+}
 const SIZES = {
   'ipad-upright': { width: 834, height: 1194 },
   'ipad-sideways': { width: 1194, height: 834 },
@@ -810,7 +821,7 @@ for (const level of ['beginner', 'professional'] as const)
       ['light', 'Day'],
       ['dark', 'Night'],
     ] as const) {
-      await setTheme(page, label)
+      await hideWhile(page, () => setTheme(page, label))
       for (const [size, v] of Object.entries(SIZES)) {
         await page.setViewportSize(v)
         await page.waitForTimeout(300)
@@ -836,7 +847,7 @@ for (const level of ['beginner', 'professional'] as const)
       ['light', 'Day'],
       ['dark', 'Night'],
     ] as const) {
-      await setTheme(page, label)
+      await hideWhile(page, () => setTheme(page, label))
       for (const [size, v] of Object.entries(SIZES)) {
         await page.setViewportSize(v)
         const row = page

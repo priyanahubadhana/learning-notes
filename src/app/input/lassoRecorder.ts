@@ -336,8 +336,9 @@ export function traceJson(): string {
 
 const STYLE: Partial<CSSStyleDeclaration> = {
   position: 'fixed',
-  // On the right edge, below the middle: clear of the top bars and the bottom tab bar.
-  inset: 'calc(60% - 22px) 0 auto auto',
+  // Bottom left of the page, 28 px in and 72 px up: clear of the page's scroll bar (right) and of the tab bar.
+  inset:
+    'auto auto calc(72px + env(safe-area-inset-bottom)) calc(28px + env(safe-area-inset-left))',
   margin: '0',
   padding: '0',
   border: '0',
@@ -345,7 +346,7 @@ const STYLE: Partial<CSSStyleDeclaration> = {
   overflow: 'visible',
   display: 'flex',
   flexDirection: 'column',
-  alignItems: 'flex-end',
+  alignItems: 'flex-start',
   gap: '6px',
   font: '500 13px/1.3 system-ui, sans-serif',
 }
@@ -354,8 +355,7 @@ const CARD: Partial<CSSStyleDeclaration> = {
   background: 'var(--color-bg, #fff)',
   color: 'var(--color-ink, #18171c)',
   border: '1px solid var(--color-line-strong, #8a8796)',
-  borderRightWidth: '0',
-  borderRadius: '22px 0 0 22px',
+  borderRadius: '22px',
   padding: '0 14px',
   minHeight: '44px',
   minWidth: '44px',
@@ -428,6 +428,16 @@ function mount() {
     // No top layer: it stays last in the page.
   }
   host = el
+  place()
+  window.addEventListener('resize', place)
+}
+
+/** The left edge of the page area (right of the side bar on an iPad), plus 28 px. */
+function place() {
+  if (!host) return
+  const page = document.querySelector('[data-page-scroller]')
+  const left = page ? Math.max(0, page.getBoundingClientRect().left) : 0
+  host.style.left = `calc(${Math.round(left) + 28}px + env(safe-area-inset-left))`
 }
 
 /** Starts the recorder (the switch went on). Safe to call twice. */
@@ -471,6 +481,7 @@ export function stopLassoRecorder(): void {
   for (const s of stops) s()
   stops = []
   buf = []
+  window.removeEventListener('resize', place)
   host?.remove()
   host = null
 }

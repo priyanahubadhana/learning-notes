@@ -21,6 +21,7 @@
     "check:ratchet": "node scripts/check-ratchet.mjs",
     "check:dod": "node scripts/check-dod.mjs",
     "probe:inventory": "node scripts/probe-inventory.mjs",
+    "test:scenarios": "bddgen && playwright test --project=bdd-chromium --project=bdd-ipad-webkit",
     "test:visual": "playwright test --project=visual",
     "test:visual:update": "playwright test --project=visual --update-snapshots",
     "mcp:install": "npm --prefix mcp install",

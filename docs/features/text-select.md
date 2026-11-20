@@ -22,6 +22,9 @@ As a learner who edits AI-made notes on the iPad with the Apple Pencil, I want t
 - **Straight back to writing.** After an action on the bar, or one tap on the words, I am back in the Text tool with the typing cursor where I expect it. After Delete it waits in the gap.
 - **Finger too.** A finger taps like the Pencil. A finger never circles; it scrolls.
 
+- **Whole piece on a double tap.** A double tap selects everything between two spaces ("23-11", "rate-is"); a circle can still take a part (owner, 20 Nov). The Text tool's own double tap stays as it is today.
+- **No doubled space.** After a delete in the middle of a line one space is left, not two, as the iPad itself does (Fable's pick; the owner did not answer this one directly, 20 Nov).
+
 **Can never happen**
 
 - **TS-N1** Apple's own bar (Paste, Select, Select All, AutoFill, Format) on a selection made this way.
@@ -93,6 +96,16 @@ Feature: Select letters and words with the Pencil, then fix them
     When I draw a loop round the drawing
     Then the drawing is selected as with today's Lasso
     And the box is no longer being typed in
+
+  Scenario: S8 A double tap takes the whole piece between spaces
+    When I double tap "23-11"
+    Then exactly "23-11" is selected
+
+  Scenario: S9 No doubled space after a delete in the middle of a line
+    Given "2000" is selected
+    When I delete the selection
+    Then the box reads "Service 23-11 rate-is"
+    And the typing cursor waits where "2000" was
 ```
 
 ## We assume (not proven yet)

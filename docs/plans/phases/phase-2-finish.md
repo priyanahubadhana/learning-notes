@@ -6,6 +6,7 @@ Written by Fable with the owner. It covers everything that is open for Phases 0,
 
 Select a word or a few letters with the Pencil, delete or paste, write over it with Scribble: reliably, with Scribble on. One smart bar for every selection. Today's Lasso unchanged. Every open fault of the frame, the tool bar and the text box closed. Then Phases 1, 2A and 2B go live together, on the owner's yes (part E7). That is the end of this plan.
 
+- **What success means to the owner (20 Nov), the six things that must work well by the end:** (1) the bars with the customisation the owner decided (the tool bar and the selection bar); (2) the app frame; (3) the Text tool; (4) the Pen tool; (5) the Lasso tool; (6) the text box and everything about selecting, so that text can be edited in the best possible way. The owner's full test (E2, E5) has one chapter for each of the six.
 - **Switches (new, off in the live app):** `select.textLevel`, `select.smartBar`. Off = today, exactly.
 - **Already built:** see BUILD-STATE "In the code line".
 
@@ -17,7 +18,7 @@ The method is one page: [docs/METHOD.md](../../METHOD.md). Specs written this wa
 
 - **Lane A, builder 1 (Sonnet):** selection. These parts share `src/ink/controller.ts`, `src/paper/PaperFrame.tsx` and `src/editor/tapSelect.ts`, so they run strictly one after another.
 - **Lane B, builder 2 (Sonnet):** everything that does not touch those three files.
-- **Opus (main chat, medium):** writes each part's spec with the lenses, hands out parts, gives the one ipad-webkit turn, reviews each part once, takes over after two Sonnet fails. **Fable:** only when Opus failed twice.
+- **Opus (main chat, medium):** writes each part's spec with the lenses, hands out parts, gives the one ipad-webkit turn, reviews each part once, takes over after three Sonnet fails. **Fable:** only when Opus failed five times (owner, 20 Nov). All at medium effort.
 - No third builder: this PC runs one ipad-webkit suite at a time (measured 14 Nov). When one lane is empty, its builder takes leftover parts that do not touch the other lane's files.
 - Hot files (one builder, merged alone): `package.json` (B0), `src/app/flags.ts` (A4, B3), `src/settings/builtinSettings.ts` (B7), `playwright.config.ts`.
 
@@ -51,20 +52,20 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 
 ### Stage 2: text selection and the bar (about four days)
 
-| #   | Who    | What it gives                                                                                    | Spec                              | Size | Owner's check |
-| --- | ------ | ------------------------------------------------------------------------------------------------ | --------------------------------- | ---- | ------------- |
-| A4  | lane A | Our purple highlight with two round handles that drag                                            | text-select.md                    | 3 h  | C4            |
-| A5  | lane A | Circle letters (S1, S2, S6)                                                                      | text-select.md                    | 3 h  | C5            |
-| A6  | lane A | Double tap = word, triple = line, four = paragraph (S3)                                          | text-select.md                    | 3 h  | C6            |
-| A7  | lane A | Leaving: Delete → cursor in the gap; a tap → cursor; a loop outside → today's Lasso (S4, S5, S7) | text-select.md                    | 3 h  | C7            |
-| A8  | lane A | Paste ▾ and Delete on the bar for such a selection; paste safety check                           | text-select.md; one picture first | 2 h  | C8            |
-| A9  | lane A | Scribble over selected words deletes them; write over a selected word (T26)                      | to write                          | 3 h  | C9            |
-| B3  | lane B | The bar's frame and the two text states (S1, S2)                                                 | selection-bar.md                  | 6 h  | with C10      |
-| B4  | lane B | Box state with Edit Text (S4)                                                                    | selection-bar.md                  | 3 h  | with C10      |
-| B5  | lane B | Drawing state: every drawing action (S3)                                                         | selection-bar.md                  | 6 h  | with C10      |
-| B6  | lane B | Picture and mixed states                                                                         | selection-bar.md                  | 3 h  | with C10      |
-| B7  | lane B | Presets Edit and Study, Auto, Settings › Tool bar › Selection bar (S5)                           | selection-bar.md                  | 6 h  | with C10      |
-| B8  | lane B | Phone: the same presets, fewer buttons                                                           | selection-bar.md                  | 3 h  | with C10      |
+| #   | Who    | What it gives                                                                                        | Spec                              | Size | Owner's check |
+| --- | ------ | ---------------------------------------------------------------------------------------------------- | --------------------------------- | ---- | ------------- |
+| A4  | lane A | Our purple highlight with two round handles that drag                                                | text-select.md                    | 3 h  | C4            |
+| A5  | lane A | Circle letters (S1, S2, S6)                                                                          | text-select.md                    | 3 h  | C5            |
+| A6  | lane A | Double tap = word, triple = line, four = paragraph (S3, S8)                                          | text-select.md                    | 3 h  | C6            |
+| A7  | lane A | Leaving: Delete → cursor in the gap; a tap → cursor; a loop outside → today's Lasso (S4, S5, S7, S9) | text-select.md                    | 3 h  | C7            |
+| A8  | lane A | Paste ▾ and Delete on the bar for such a selection; paste safety check                               | text-select.md; one picture first | 2 h  | C8            |
+| A9  | lane A | Scribble over selected words deletes them; write over a selected word (T26)                          | to write                          | 3 h  | C9            |
+| B3  | lane B | The bar's frame and the two text states (S1, S2)                                                     | selection-bar.md                  | 6 h  | with C10      |
+| B4  | lane B | Box state with Edit Text (S4)                                                                        | selection-bar.md                  | 3 h  | with C10      |
+| B5  | lane B | Drawing state: every drawing action (S3)                                                             | selection-bar.md                  | 6 h  | with C10      |
+| B6  | lane B | Picture and mixed states                                                                             | selection-bar.md                  | 3 h  | with C10      |
+| B7  | lane B | Presets Edit and Study, Auto, Settings › Tool bar › Selection bar (S5)                               | selection-bar.md                  | 6 h  | with C10      |
+| B8  | lane B | Phone: the same presets, fewer buttons                                                               | selection-bar.md                  | 3 h  | with C10      |
 
 ### Stage 3: swap-in and leftovers (about two to three days)
 

@@ -37,7 +37,7 @@ One scenario = one acceptance test through the real screen. Unit tests for the l
 
 ## 6. Who does what
 
-Sonnet builds, one planned part each. Opus (the main chat, medium effort) writes each part's spec with the lenses, hands out parts, reviews once and takes over after two fails. Fable plans a phase with the owner and solves what Opus could not. Two lanes at most on this PC (one iPad-size test run at a time). The helpers' working rules: [HOW-WE-BUILD.md](HOW-WE-BUILD.md).
+Sonnet builds, one planned part each. Opus (the main chat, medium effort) writes each part's spec with the lenses, hands out parts, reviews once and takes over after three Sonnet fails. Fable plans a phase with the owner and solves what Opus failed five times. All three work at medium effort. Two lanes at most on this PC (one iPad-size test run at a time). The helpers' working rules: [HOW-WE-BUILD.md](HOW-WE-BUILD.md).
 
 ## 7. What the owner does
 

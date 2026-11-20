@@ -43,7 +43,7 @@ As a learner who works with the Apple Pencil, I want one bar that shows the righ
 - The AI button stays hidden until the owner approves the AI cost.
 - With the switch off, today's three bars are exactly as they are.
 
-**Order as drawn (owner, 20 Nov):** Edit = Delete, Paste ▾, Cut, Copy, B/I, Colour, Size, Highlight, ⋯. Study = Highlight, Colour, Make card, Add to summary, Revise mark, B/I, Copy, ⋯.
+**Order as drawn (owner, 20 Nov):** Edit = Delete, Paste ▾, Cut, Copy, B/I, Colour, Size, Highlight, ⋯. Study = Highlight, Colour, Make card, B/I, Copy, ⋯ (owner, 20 Nov, later: highlighting matters most, Make card yes; Add to summary and Revise mark sit under ⋯, nothing dropped).
 
 ## Scenarios
 
@@ -107,7 +107,7 @@ Feature: One bar for every selection
 
 Detail lines for the builders (SB-01 …) are written part by part, just before each of B3 to B9 starts, after the pictures of B2 are approved. The button list of Part B1 is the base: every button, where it lives on the smart bar, and whether it works today.
 
-- `OPEN:` the exact buttons for a mixed selection (a box with ink on it); proposed in the pictures of B2.
+- A mixed selection (a box with a drawing on it) shows Cut, Copy, Duplicate, Delete, Resize and Edit Text; the rest under ⋯ (owner agreed, 20 Nov); drawn in the pictures of B2.
 - `OPEN:` three Goodnotes extras, later by default: a box and its ink resized and turned as one piece; Front and Back; Create Element.
 
 ## Edge cases

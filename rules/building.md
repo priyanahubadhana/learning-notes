@@ -13,6 +13,6 @@
 
 ## Who does what (owner, 14 Nov 2026)
 
-See CLAUDE.md "How we work" and docs/HOW-WE-BUILD.md: Sonnet builds; Opus at medium effort manages and reviews each task once (code and look) and takes over when Sonnet failed twice; Fable plans each phase and solves what Opus could not.
+See CLAUDE.md "How we work" and docs/HOW-WE-BUILD.md: Sonnet builds; Opus at medium effort manages and reviews each task once (code and look) and takes over when Sonnet failed the same thing three times; Fable plans each phase and solves what Opus failed five times.
 
 - **Escalate automatically (owner, 13 Nov 2026):** stuck work goes Sonnet → Opus → Fable without waiting for the owner; stalls are fixed at once.

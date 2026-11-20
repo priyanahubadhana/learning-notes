@@ -16,9 +16,10 @@ Plan: docs/plans/phase-plan.md. How helpers work: docs/HOW-WE-BUILD.md. State: d
 
 **Owner settings** (change only on the owner's word; log each change in docs/DECISIONS.md):
 
-- Builders: Sonnet (`builder`), one planned task each; no Haiku in the build.
-- Manager and reviewer: Opus at medium effort. It runs the build (the main chat in lean mode; `phase-manager` only when the owner asks for the full team), reviews each task once (code and look) and takes over when Sonnet failed twice.
-- Fable: plans each phase with the owner and solves what Opus could not. No routine reviews.
+- Builders: Sonnet at medium effort (`builder`), one planned task each; no Haiku in the build.
+- Manager and reviewer: Opus at medium effort. It runs the build (the main chat in lean mode; `phase-manager` only when the owner asks for the full team), reviews each task once (code and look) and takes over when Sonnet failed the same thing three times.
+- Fable at medium effort: plans each phase with the owner and solves what Opus failed five times. No routine reviews.
+- Escalation (owner, 20 Nov 2026): Sonnet fails the same thing three times → Opus; Opus fails it five times → Fable. A try counts only if it differs from the one before, and no new try starts without new evidence (a failing test, a trace, a measurement).
 - Tests: a fast set on each merge; the full set nightly and before each release.
 - Weekly quota: 80% is a reference, not a cap.
 
@@ -32,7 +33,7 @@ Plan: docs/plans/phase-plan.md. How helpers work: docs/HOW-WE-BUILD.md. State: d
 - **When you must ask:** 2 to 5 questions at once, in very easy words, each with everything needed to decide inside it (what, why, options, pros and cons, your pick). During a build do not stop: take the safest option and log it.
 - **Proof before "done":** the test run, the screenshot, or the page checked in a browser.
 - **Owner tests, Claude coaches (owner, 18 Nov 2026):** the owner wants to know what they can do so Claude does better, not to have everything done for them. Before each build, send a short plain-words "we will prove" list (the owner replies yes or "missing X"); ask for "done" examples (saw → expected, 2 to 4 lines) and "must never happen" lines, and turn each into a test; after each small group of fixes, ask for a 5-minute iPad check. Frame questions so the owner's answers give the most room to build well. If a message skips or contradicts this way of working, remind the owner kindly how it works. Read every owner message as if it ends with "what can I do to make this better, and ask me questions": end each questionnaire and each report with a short "How you can help" line (one or two asks) and any questions that would let the build go better.
-- **Escalate by yourself:** failures (the same thing twice) and questions go Sonnet → Opus → Fable; the owner comes last. Fix stalls at once.
+- **Escalate by yourself:** failures (the same thing three times for Sonnet, five for Opus) and questions go Sonnet → Opus → Fable; the owner comes last. Fix stalls at once.
 - **Tokens:** short replies; briefs point to files and never paste them; no re-reading. docs/design/token-efficiency.md.
 - **Continuity:** small commits pushed after each step; BUILD-STATE and PENDING always current; the owner only types "continue". docs/CONTINUITY.md.
 - **Rules:** routine file updates, just do them. Rule changes wait for the owner's OK and never happen in the middle of a phase.

@@ -12,6 +12,7 @@ BUILDING (20 Nov, Opus main chat, lean mode). Plan: docs/plans/phases/phase-2-fi
 | A2       | A    | `slice/a2-quiet-recorder` (ln-2a16), port 5183 | building (Sonnet); spec docs/features/quiet-recorder.md                                              |
 | C0-1     | B    | `slice/c0-1-box-style`                         | MERGED b8ddaf81 (first box and phone adds get the new-box style; 7 tests)                            |
 | C0-paste | B    | `slice/c0-paste` (ln-2a15), port 5181          | building: C0-2 to C0-6 (Pencil Paste, hover, clear iPad message, in-app copy, box-bar paste)         |
+| C0-7     | B    | `slice/c0-7-hold`                              | MERGED (hold 0.5 s, 10 px, Pencil anywhere; Apple magnifier may still flash: owner check)            |
 
 Next: A2 (quiet recorder + true replay), owner check C1a (one Lasso trace), A1a/A1b/A1c, A3, then the ten-minute route choice with the owner before A4. Owner meanwhile: catch-up check C0 (plan section 6).
 

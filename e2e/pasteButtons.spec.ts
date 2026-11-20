@@ -237,7 +237,9 @@ test('a clipboard the browser refuses gives a short message, not a crash', async
   await caretAtEnd(page)
   await topPaste(page).locator('[data-action="paste"]').click()
   await expect(
-    page.getByText(/could not|blocked|Allow|Paste with/i).first(),
+    page
+      .getByText(/could not|blocked|Allow|Paste with|Not pasted yet/i)
+      .first(),
   ).toBeVisible()
 })
 

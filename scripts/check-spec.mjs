@@ -87,7 +87,7 @@ if (existsSync(resolve(root, 'docs/metrics/ipad-checks.md'))) {
 // A sentence without a step: bddgen stops and names it.
 const run = (cmd) =>
   spawnSync(cmd, { cwd: root, shell: true, encoding: 'utf8', maxBuffer: 64e6 })
-const gen = run('npx bddgen')
+const gen = run('npx --no bddgen')
 if (gen.status !== 0)
   problems.push(
     'a scenario sentence has no step (or a feature is wrong):\n' +

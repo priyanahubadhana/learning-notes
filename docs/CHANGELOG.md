@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 20 Nov 2026: A2 quiet recorder merged
+
+- **What:** the Lasso recorder (ring buffer, no note words, "Copy last trace" pill bottom-left of the page area) replaces the red-line Circle recorder; the replay sends real pressure, buttons and tilt. build/next b6cbea7f.
+- **Why:** part A1 is written from one real iPad trace (check C1a).
+- **Files:** src/app/input/lassoRecorder.ts, e2e/circleTrace.ts, docs/features/quiet-recorder.md, docs/BUILD-STATE.md, docs/PENDING.md.
+
 ### 20 Nov 2026: D0, state files true again; main merged into build/next
 
 - **What:** BUILD-STATE rewritten at the top (now building phase-2-finish; stale 2A tables replaced by a done list); PENDING "Needs you", phase board, R21, BUG-004, BUG-001 corrected; user-stories-2b gets a state section; `main` merged into `build/next` (a6e50fab; CHANGELOG and DECISIONS clashes kept both sides). Merges after 17 Nov that this file missed: C28 to C30b, B7 to B12, the box bar (18 Nov), ci-reds 1 to 4 (last f65b1fa6); tasks.csv holds the details. npm audit: only build-tool warnings, fix is breaking, not applied.

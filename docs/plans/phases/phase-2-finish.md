@@ -115,6 +115,8 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 | C12      | E5                                           | the full test                                                                                | about 1 hour |
 | C13      | E7                                           | the yes to go live                                                                           | —            |
 
+**Builders do not wait for a check.** The owner works 9 to 5, so checks come in a morning or an evening window and cover whatever landed since the last one. While a selection part waits for its check, the next one is built; at most two selection parts may be unchecked at a time, so a wrong turn costs two parts at the most. A failed check goes to the front of its lane.
+
 **C0, the catch-up list** (merged since 17 Nov and never checked on the iPad):
 
 1. Paste ▾ in the top row and in the floating bar pastes at the cursor and keeps the look; ▾ offers Plain text.
@@ -138,7 +140,7 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 
 **Answered by the owner (20 Nov):** keep today's Lasso, letters only with the cursor in the box; the Scribble test early; the bar's button order as drawn; an iPad check after each selection part; two lanes; must-never lines 1, 2, 3, 4, 6, 10; the three first parts; the method on one page.
 
-**Open, asked on 20 Nov (Fable's pick first):**
+**Answered on 20 Nov, later: the owner chose the pick in all five:**
 
 1. **Where the timing tests run.** Pick: tests that only fail on slow cloud computers are first rewritten to wait for what they can see; the few that are truly about time (taps within a second, paint within 150 ms) run on this PC every night and before a release, and still stop a release when red.
 2. **Equal boxes.** Pick: fix the 5 px difference (the owner's own rule of 18 Nov: every new box is the same).

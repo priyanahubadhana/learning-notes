@@ -14,7 +14,7 @@ Select a word or a few letters with the Pencil, delete or paste, write over it w
 
 One small part at a time: understand → write the lines → owner's yes → tests → code → check → refine.
 
-1. **Lines.** Just before a part starts, Opus writes its lines in the feature's spec (docs/features/): plain "when … then …" sentences, each with an id (LS-, TS-, SB-), `(iPad)` on lines only the real iPad can prove, the must-never lines, and "not in this part". Pattern to copy: docs/features/lasso.md.
+1. **Story, rules, scenarios.** Just before a part starts, Opus writes in the feature's spec (docs/features/): one user story (As a …, I want …, so that …); three short lists (always true, can never happen, limits); the scenarios in Given / When / Then with the owner's real example values; then the finer detail lines with ids (LS-, TS-, SB-) for the builders, and "not in this part". `@ipad` or `(iPad)` marks what only the real iPad can prove. The reviewer first reads it as a tester and adds missing cases or marks them `OPEN:`. Pattern to copy: docs/features/lasso.md.
 2. **Owner's yes.** The owner gets the short "we will prove" list (and a picture when anything new is visible) and answers yes or "missing X". No yes, no code.
 3. **Tests first, seen red.** The builder writes the tests of "Test rules" below, shows them failing, then builds. Switch off = today.
 4. **Checks.** `npm run check:spec` and the plain report (Part B0), the part's tests on chromium and ipad-webkit, every LS-01 to LS-47 test green and unchanged. The builder's report shows the red run, the green run and the break-it run.
@@ -22,9 +22,19 @@ One small part at a time: understand → write the lines → owner's yes → tes
 6. **iPad check.** Merged to the preview; the owner checks the `(iPad)` lines in 5 minutes and answers by id ("LS-52 fail: saw …"). Selection parts: after each part. Other parts: once a day.
 7. **Refine.** A finding changes the lines first, then the test, then the code. A replaced line is marked "replaced by …", never left to contradict. New ideas go to docs/IDEAS.md, not into the part.
 
+## Scenario rules (from the owner's article: write the spec first, then make the spec run)
+
+1. **Few.** Only scenarios the owner would care about, about 5 to 10 per feature. Everything finer is a detail line with a unit or screen test, not a scenario.
+2. **What happens, not where to tap.** "When I delete the selection", not "when I tap the red button on the bar": the sentence must survive a redesign. A gesture is named only when the gesture is the feature (circle, double tap); never a pixel, a button's place or a code word.
+3. **Plain words.** If the owner cannot read a sentence, it is rewritten.
+4. **Said as to a teammate.** No clever sentence patterns to save typing.
+5. **Real values.** The owner's own words and examples ("Service 23-11 2000 rate-is").
+6. **Living.** A scenario changes before its code does; the report is made from the tests that just ran, so it cannot go stale.
+7. **Short on top.** The story, the rules and the scenarios fit on one screen for the owner; details sit below.
+
 ## Test rules: a test must prove its line (owner ask, 20 Nov; from the owner's brief and the spec-first method)
 
-1. **One acceptance test per line, through the real screen.** It does what the user does (Pencil-style input from `e2e/realPen.ts`) and checks what the user sees (the words selected, the outline gone). Its name starts with the line's id. This is the 1-to-1 link.
+1. **One scenario, one acceptance test: the scenario's own sentences run through the real screen.** Each sentence does what the user does (Pencil-style input from `e2e/realPen.ts`) or checks what the user sees. A detail line has a test named after its id. This is the 1-to-1 link.
 2. **Unit tests for the thinking inside a line** (for example "which letters are at least half inside the loop"): many small cases, fast, named with the same id. They are extra; they never replace the acceptance test, because logic can be right while the screen is wrong.
 3. **Red first, then green, then break it.** A test is kept only if it failed before the code existed and fails again when the builder switches the new code off for a moment. A test that cannot fail proves nothing and is not merged.
 4. **No guessing with time.** A test waits for a state it can see, never for a number of milliseconds (except where the line itself is about time). Every new acceptance test passes 20 of 20 repeats alone on ipad-webkit before the merge. A shaky test is a fault to find, never to retry.
@@ -82,7 +92,16 @@ A3's result decides one later question only: whether circle and double tap can a
 | B10 | 2B leftovers outside lane A's files: R15 redo, R17 Shadow tile, R18 phone dots, the wheel test move, TB23-DIV, TB-24 on a clean checkout                                 | one fix each   | 1 h  |
 | B11 | The shaky iPad-size tests (about 21): find each cause; never a retry or a longer wait                                                                                    | none           | 6 h  |
 
-**B0 lines (SC-):** SC-01 a line id in a listed spec with no test named after it fails the check, naming the id. SC-02 a test that starts with an id that is in no listed spec fails. SC-03 a line marked `(iPad)` must also have at least one computer test, or the words "iPad only" and a place in a phase page's owner check list. SC-04 the list of specs under the check may only grow (a unit test guards it). SC-05 it runs in the push guard and in CI. SC-06 a line marked `OPEN:` in a part that is being built fails the check. SC-07 `npm run spec:report` writes docs/SPEC.md, never edited by hand: one row per line of every listed spec, with its sentence, its tests and their last result on chromium and ipad-webkit (pass, fail, not run), and the owner's iPad tick with its date; at the top, per feature, how many lines are proven. This is the page the owner reads instead of code. SC-08 an id used twice, or a line with no id in a listed spec, fails the check. (B0 is about 4 h with the report.)
+**B0, rewritten after the owner's article (about 4 to 6 h): make the scenarios run and publish the report.**
+
+- **SC-01** Scenarios live in feature files (the words Feature, Scenario, Given, When, Then, And, But), one per feature. From B0 on the feature file is the only home of a scenario's words; the spec links to it.
+- **SC-02** Our own test runner (Playwright) reads them through the free add-on `playwright-bdd` (developer tool only, never shipped to users); each sentence maps to one step in `e2e/steps/`; scenarios run on chromium and ipad-webkit like every other test. **Trial, 4 hours at most.** If it does not fit our setup (config, push guard, CI, Windows), fall back: the scenarios stay in the spec's gherkin block, each test repeats the sentences as its steps, and the checker fails when the words differ.
+- **SC-03** A sentence with no step behind it, or a scenario that is not run, fails the check.
+- **SC-04** A scenario tagged `@ipad` runs its computer stand-in and shows as "needs the owner's iPad check" until the owner's tick (date, build, pass or fail) is recorded in docs/metrics/ipad-checks.md.
+- **SC-05** The report (every feature, scenario and sentence with pass or fail, plus the iPad ticks) is published with every preview at one fixed address and linked from Settings › Try new features. Nothing secret is in it.
+- **SC-06** Detail lines keep the id rule: a line with no test named after it, an id used twice, or a line without an id fails the check. The list of specs under the check may only grow.
+- **SC-07** `OPEN:` in a part that is being built fails the check.
+- **SC-08** All of it runs in the push guard and in CI.
 
 ### The end of the phase
 

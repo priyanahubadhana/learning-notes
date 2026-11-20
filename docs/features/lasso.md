@@ -10,9 +10,99 @@ In plain words: the Lasso is the tool that circles things (drawings, pictures, w
 
 **Owner rule (20 Nov):** the Lasso is not changed. New text selection is separate code with its own switch; with that switch off, every line LS-01 to LS-47 holds exactly.
 
+## User story
+
+As a learner who edits notes with the Apple Pencil, I want to circle drawings, pictures, words and boxes and then move, resize, copy or delete them, so that I can tidy and correct a page quickly while nothing on the page reacts by itself.
+
+## Rules
+
+**Always true**
+
+- Only what is inside the loop is selected.
+- Every action can be undone with one Undo.
+- The next touch always works.
+- Every scenario below gives the same result with the new text selection switched off and switched on.
+
+**Can never happen:** LS-N1 to LS-N6 (under "Part A1" below).
+
+**Limits**
+
+- Picks decide what a loop may take: Ink on, Pictures and Text off at the start.
+- A stroke counts when 60 % of it is inside; a word when its middle is inside.
+- A touch held still for 4 seconds is dropped.
+- Resize goes from 0.1 to 10 times.
+
+## Scenarios
+
+The owner reads these; each one runs as a test (Part B0). `@ipad` = a computer can only stand in; the owner's iPad check decides. The ids in brackets point to the detail lines below.
+
+```gherkin
+Feature: The Lasso stays as it is and never gets stuck
+
+  Scenario: A loop round a drawing selects it  [LS-12, LS-22, LS-32]
+    Given a page with a small drawing
+    And the Lasso tool is picked
+    When I draw a loop round the whole drawing with the Pencil
+    Then the drawing is selected, with its dashed box and handles
+    And the Lasso bar shows
+
+  @ipad
+  Scenario: The words under the Lasso never react  [LS-01, LS-N3, LS-N4]
+    Given a text box with the words "Service 23-11 2000 rate-is"
+    And the Lasso tool is picked with Picks set to Ink only
+    When I draw a loop over the words with the Pencil
+    Then no word is selected, typed, deleted or moved
+    And Apple's own bar does not show
+
+  Scenario: With Text picked, a loop takes whole words  [LS-13]
+    Given a text box with the words "Service 23-11 2000 rate-is"
+    And the Lasso tool is picked with Picks set to Text
+    When I draw a loop round "2000 rate-is"
+    Then exactly "2000 rate-is" is selected
+
+  Scenario: A new loop lets go of the old selection  [LS-07, LS-N2]
+    Given a drawing is selected with the Lasso
+    When I draw a new loop round another drawing
+    Then only the other drawing is selected
+    And the first drawing has not moved or changed
+
+  Scenario: Moving a selection is one Undo  [LS-26, LS-41]
+    Given a drawing is selected with the Lasso
+    When I drag it to a new place
+    And I undo once
+    Then the drawing is back where it was
+
+  @ipad
+  Scenario: A missed lift still finishes the loop  [LS-50, LS-51, LS-N1]
+    Given I am drawing a loop round a drawing with the Lasso
+    When the iPad does not report that the Pencil lifted
+    And the Pencil moves away in the air
+    Then the drawing is selected, as after a normal lift
+    And no loop line is left on the screen
+
+  @ipad
+  Scenario: The next loop always starts fresh  [LS-52, LS-N2, LS-N5]
+    Given a loop whose lift was missed is still open
+    When I touch the page again and draw a loop round another drawing
+    Then the new loop starts at once
+    And only the other drawing is selected
+
+  Scenario: A stroke outside the selection never changes it  [LS-53]
+    Given a drawing is selected with the Lasso
+    When I draw a stroke that starts outside its dashed box
+    Then the selected drawing has not moved, resized or changed
+
+  Scenario: A loop that starts in the margin is just as safe  [LS-54]
+    Given I am drawing a loop that started in the page margin
+    When the iPad does not report that the Pencil lifted
+    And the Pencil moves away in the air
+    Then what is inside the loop is selected
+    And no loop line is left on the screen
+```
+
 ## How it works
 
-`has` = a test exists today (Part A0 puts the id in its name; no check is changed). `add` = Part A0 writes the test. `(iPad)` = only the real iPad can fully prove it; it is also in the owner's check list.
+Details for the builders: finer than the scenarios, and each line still has its own test. `has` = a test exists today (Part A0 puts the id in its name; no check is changed). `add` = Part A0 writes the test. `(iPad)` = only the real iPad can fully prove it; it is also in the owner's check list.
 
 ### Starting a loop
 
@@ -121,6 +211,7 @@ No new data, storage, network call or pasted content in A0 and A1. Nothing to ad
 
 ## Tests
 
+- **Scenarios:** each scenario above runs as written (Part B0), on chromium and ipad-webkit.
 - **A0 (freeze):** new file `e2e/lassoFreeze.spec.ts` for every `add` line, on chromium and ipad-webkit; every `has` test gets its id at the start of its name (names only, no check changed). No app file changes in A0. Pencil-style input through `e2e/realPen.ts`.
 - **A1 (fixes):** new file `e2e/lassoLostLift.spec.ts`, written first and seen red: a Pencil loop whose lift is never sent, followed by hover moves (LS-50, LS-51, LS-56); a new touch-down while that loop is open (LS-52); the same from the margin (LS-54); a left-over line selection (LS-55); a stroke outside the box (LS-53). Then the fix. Every LS-01 to LS-47 test stays green, unchanged.
 - **The checker** (Part B0, `npm run check:spec`): fails when a line here has no test named after it, or a test names a line that is not here.

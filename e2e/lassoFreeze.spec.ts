@@ -260,7 +260,7 @@ test.describe('the Lasso on drawings', () => {
     })
   })
 
-  test('LS-27 a corner drag resizes and keeps the shape, never past 10 times', async ({
+  test('LS-27 a corner drag resizes and keeps the shape, never below 0.1 times', async ({
     page,
   }) => {
     const s = await drawingsPage(page)
@@ -277,7 +277,7 @@ test.describe('the Lasso on drawings', () => {
         .sort((p, q) => p.cx - q.cx)[0]
     }
     const first = await sizeOf()
-    const dragCorner = async (dx: number, dy: number) => {
+    const dragCorner = async (dx: number, dy: number, toFixed = false) => {
       const corner = page
         .locator('[data-handle="scale"][data-axis="both"]')
         .nth(3)
@@ -285,6 +285,12 @@ test.describe('the Lasso on drawings', () => {
       // handle covers the corner's centre (as in inkTools.spec).
       const hb = (await corner.boundingBox())!
       const c = { x: hb.x + 32, y: hb.y + 34 }
+      const sb = await selBox(page)
+      // toFixed: all the way to the opposite (top left) corner, which stays put.
+      if (toFixed) {
+        dx = sb.x + 2 - c.x
+        dy = sb.y + 2 - c.y
+      }
       await realPen(page, [
         { x: c.x, y: c.y },
         { x: c.x + 12, y: c.y + 8 },
@@ -300,10 +306,14 @@ test.describe('the Lasso on drawings', () => {
         })
         .toBeCloseTo(1, 1)
     })
-    await test.step('a drag far past the limit stops at 10 times', async () => {
-      await dragCorner(900, 500)
+    await test.step('a drag in past the fixed corner stops at 0.1 times', async () => {
+      const grown = await sizeOf()
+      await dragCorner(0, 0, true)
+      await expect
+        .poll(async () => (await sizeOf()).w)
+        .toBeLessThan(grown.w * 0.5)
       await page.waitForTimeout(400)
-      expect((await sizeOf()).w).toBeLessThanOrEqual(first.w * 10.01)
+      expect((await sizeOf()).w).toBeGreaterThanOrEqual(first.w * 0.1 * 0.99)
     })
   })
 
@@ -568,15 +578,15 @@ test.describe('the Lasso on words', () => {
       await test.step('Given a text box with the words and the Lasso picked with Picks set to Ink only', () =>
         wordsPage(page, { text: false }))
     const text0 = await box.locator('.bn-editor').innerText()
-    const r = await wordsBox(page, 0, WORDS.length)
+    const r = await wordsBox(page, WORDS.indexOf('2000'), WORDS.length)
     await test.step('When I draw a loop over the words with the Pencil', async () => {
-      await realPen(page, loopRound(r, 10))
+      await realPen(page, loopRound(r, 5))
       await page.waitForTimeout(600)
     })
     await test.step('Then no word is selected, typed, deleted or moved', async () => {
       expect(await selected(page)).toBe('')
       expect(await box.locator('.bn-editor').innerText()).toBe(text0)
-      const after = await wordsBox(page, 0, WORDS.length)
+      const after = await wordsBox(page, WORDS.indexOf('2000'), WORDS.length)
       expect(after).toEqual(r)
       await expect(page.locator(BOX)).toHaveCount(0)
       expect(
@@ -594,6 +604,11 @@ test.describe('the Lasso on words', () => {
           () => document.activeElement?.closest('.bn-editor') !== null,
         ),
       ).toBe(false)
+    })
+    await test.step('Control: the same loop does take the words when Picks has Text (so it really reached them)', async () => {
+      await page.evaluate(() => window.__lnTools!.setLasso({ text: true }))
+      await realPen(page, loopRound(r, 5))
+      await expect.poll(() => selected(page)).not.toBe('')
     })
   })
 

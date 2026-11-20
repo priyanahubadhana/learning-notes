@@ -35,10 +35,9 @@ const view = {
     bottom: 20,
   }),
 } as unknown as Parameters<typeof wordsInRegion>[0]
-const inBox =
-  (b: { x: number; y: number; w: number; h: number }) =>
-  (x: number, y: number) =>
-    x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h
+/** The loop: x from a to b on the one row (the box handed over is the whole row). */
+const between = (a: number, b: number) => (x: number) => x >= a && x <= b
+const ROW = { x: 0, y: 0, w: 260, h: 20 }
 const at = (word: string) => TEXT.indexOf(word) + 1 // paragraph at 0: text starts at 1
 /*
  * In the whole document the paragraph sits inside a container, so its text
@@ -57,8 +56,8 @@ describe('LS-13 the words of "Service 23-11 2000 rate-is"', () => {
   })
 
   it('a loop round "2000 rate-is" takes exactly those two words (S3)', () => {
-    const box = { x: (inDoc('2000') - 2) * 10 - 14, y: 0, w: 150, h: 20 }
-    expect(wordsInRegion(view, inBox(box), box)).toEqual({
+    const left = (inDoc('2000') - 2) * 10 - 14
+    expect(wordsInRegion(view, between(left, left + 150), ROW)).toEqual({
       from: inDoc('2000'),
       to: inDoc('rate-is') + 7,
       blocks: ['a'],
@@ -68,18 +67,15 @@ describe('LS-13 the words of "Service 23-11 2000 rate-is"', () => {
 
   it('the middle decides: a loop that ends just before the middle of a word leaves it out', () => {
     const middle = (inDoc('rate-is') - 2 + 3.5) * 10 // the middle of "rate-is"
-    const before = { x: 0, y: 0, w: middle - 1, h: 20 }
-    expect(wordsInRegion(view, inBox(before), before)?.to).toBe(
+    expect(wordsInRegion(view, between(0, middle - 1), ROW)?.to).toBe(
       inDoc('2000') + 4,
     )
-    const after = { x: 0, y: 0, w: middle + 1, h: 20 }
-    expect(wordsInRegion(view, inBox(after), after)?.to).toBe(
+    expect(wordsInRegion(view, between(0, middle + 1), ROW)?.to).toBe(
       inDoc('rate-is') + 7,
     )
   })
 
   it('every word inside: the line counts as taken whole', () => {
-    const box = { x: 0, y: 0, w: 260, h: 20 }
-    expect(wordsInRegion(view, inBox(box), box)?.full).toEqual(['a'])
+    expect(wordsInRegion(view, between(0, 260), ROW)?.full).toEqual(['a'])
   })
 })

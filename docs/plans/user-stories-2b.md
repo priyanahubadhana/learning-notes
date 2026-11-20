@@ -249,3 +249,7 @@ Status words: **open** (not fixed), **fixed, owner to confirm**, **iPad only** (
 - **Q-4 Tap speed.** C14 said taps up to 500 ms; C19 made Relaxed 700 ms the default. Which of Quick, Normal, Relaxed should stay?
 - **Q-5 Boxes side by side.** C21 allows them, but the layout dialog still stacks them. Is that OK?
 - **Q-6 Going live.** The phase plan says Phase 1 goes live after its test; your 16 Nov answer says release everything together later. Please confirm the second.
+
+## State on 20 Nov (part D0)
+
+Done, so no longer open: P-10, P-11, P-12 (C28 to C30b, merged 17 and 18 Nov); P-17 (C4 comma, 0454ec85); P-19 (page open 4.7 s → 0.9 s); P-21 (C11 / C18, Q-2: decided 17 Nov, built); P-22 (grey Pencil ink, B11 dae84d1c); Q-1 to Q-6 (answered 17 Nov). P-25 / BUG-001: one cause fixed, the owner's own case unconfirmed. Everything still open lives in docs/plans/phases/phase-2-finish.md.

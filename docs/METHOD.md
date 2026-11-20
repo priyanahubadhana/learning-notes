@@ -2,6 +2,8 @@
 
 One page. It joins what already worked for us (pictures first, phases, small parts, measured pace) with the spec-first way of the owner's article (story, rules, scenarios that run, three lenses). It applies from the Phase 2 finish as a measured trial; at the end of that phase the numbers in section 8 decide what stays. It does not change in the middle of a phase.
 
+**The core, in the article's words:** "Write down how the system should behave in a precise, testable way, then build only what satisfies that behavior." A feature's spec is the single source of truth for what that feature does. docs/design/owner-decisions.md is the diary of how we got there: when the two differ, the spec is corrected first, and the spec wins.
+
 ## 1. A phase (unchanged)
 
 Picture the owner approved → plan → build only what the plan lists → the owner's early look on the iPad → fix and polish → release on the owner's yes. One phase at a time.
@@ -9,7 +11,7 @@ Picture the owner approved → plan → build only what the plan lists → the o
 ## 2. One small part
 
 1. **Understand, through three lenses.** Why: the owner (the story and the rules, in the owner's words). How: a builder (can it be built, sharp edges, size). Whether: a tester (can it be checked, what is missing, what if it goes wrong). The builder and tester write their own lists before they see the draft.
-2. **Specify.** One spec per feature in docs/features/: the user story; the rules (always true, can never happen, limits); 3 to 5 scenarios in Given / When / Then with the owner's real values, one of them going wrong; "we assume (not proven yet)" with a check for each; "done when"; then detail lines with ids for the builders; "not in this part"; open points marked `OPEN:`.
+2. **Specify.** One spec per feature in docs/features/: the user story; the rules (always true, can never happen, limits); 3 to 5 scenarios in Given / When / Then with the owner's real values, one of them going wrong; "we assume (not proven yet)" with a check for each; "done when"; then detail lines with ids for the builders; "not in this part"; open points marked `OPEN:`. Every rule has a short name; every scenario has a number (S1, S2 …), the first one being the plain, happy case. Test 1 belongs to scenario 1: the tests are not invented, they check what was agreed, and the owner reports by number ("Text S3 fails").
 3. **Sign off.** The owner reads the short top part (and a picture when anything new is visible) and answers yes or "missing X". No yes, no code.
 4. **Code.** Tests first and seen failing. The scenarios themselves run as tests; the logic inside gets unit tests. New work sits behind a switch: off = today.
 5. **Verify.** The checks, the tests on computer and iPad size, one review by Opus (code against the spec, look against the picture), then the owner's 5-minute iPad check, answered by scenario.

@@ -1,65 +1,182 @@
-# Phase 2 finish: Lasso safe, text selection, smart bar, 2B leftovers, release
+# Phase 2 finish: the complete plan (set 20 Nov 2026)
 
-Written by Fable with the owner, 20 Nov 2026. Brief: [../fable-brief-smart-select.md](../fable-brief-smart-select.md). Owner's answers: [../../design/owner-decisions.md](../../design/owner-decisions.md) "Smart select plan" (20 Nov). Whether the build is running: only [../../BUILD-STATE.md](../../BUILD-STATE.md) says. Phase 3 and later are not planned here.
+Written by Fable with the owner. It covers everything that is open for Phases 0, 1, 2A and 2B and their release together. Phase 3 and later are not planned here. Whether the build is running: only [../../BUILD-STATE.md](../../BUILD-STATE.md) says. Sources: the brief [../fable-brief-smart-select.md](../fable-brief-smart-select.md); the owner's answers in [../../design/owner-decisions.md](../../design/owner-decisions.md) ("Smart select plan", 20 Nov); the sweep of every open item [../open-items-sweep-2026-11-20.md](../open-items-sweep-2026-11-20.md).
 
-## What the owner gets
+## 1. What the owner gets, and where it ends
 
-Select a word or a few letters with the Pencil, delete or paste, write over it with Scribble: reliably, with Scribble on. One smart bar for every selection. Today's Lasso unchanged. Then Phases 1, 2A and 2B go live together.
+Select a word or a few letters with the Pencil, delete or paste, write over it with Scribble: reliably, with Scribble on. One smart bar for every selection. Today's Lasso unchanged. Every open fault of the frame, the tool bar and the text box closed. Then Phases 1, 2A and 2B go live together, on the owner's yes (part E7). That is the end of this plan.
 
-- **Pictures:** the highlight and handles: docs/design/refs/lasso-text-mock.png frames 1 and 4 (plan OK; its format bar is NOT approved). The bar's base look: docs/mockups/box-bar/ (approved 18 Nov). Settings part: docs/design/refs/selection-bar-presets-mock.png (approved 20 Nov, with the button order drawn). The smart bar's own states: no picture yet (Part B2).
-- **Switches (new, OFF in the live app, ON in the preview when its part is under test):** `select.textLevel`, `select.smartBar`. Off = today, exactly.
-- **Already built:** see BUILD-STATE "In the code line". **Not in this page:** Settings v5 (1S), Your layouts, Phases 3 to 10, AI, native apps.
+- **Switches (new, off in the live app):** `select.textLevel`, `select.smartBar`. Off = today, exactly.
+- **Already built:** see BUILD-STATE "In the code line".
 
-## How every part runs
+## 2. How every part runs
 
-The method is one page: [docs/METHOD.md](../../METHOD.md) (three lenses; story, rules, scenarios; sign-off; tests first; the owner's iPad check; refine; the right weight for each kind of work). Every part of this phase follows it. Specs written this way so far: docs/features/lasso.md (parts A0, A1) and docs/features/text-select.md (parts A4 to A9, draft waiting for the owner's yes).
+The method is one page: [docs/METHOD.md](../../METHOD.md). Specs written this way: docs/features/lasso.md (A0, A1), docs/features/text-select.md (A4 to A9, draft), docs/features/selection-bar.md (B1 to B9, draft). Every other part gets its spec, at the right weight, just before it starts.
 
-## Who builds (owner, 20 Nov: two lanes)
+## 3. Who builds (owner, 20 Nov: two lanes)
 
 - **Lane A, builder 1 (Sonnet):** selection. These parts share `src/ink/controller.ts`, `src/paper/PaperFrame.tsx` and `src/editor/tapSelect.ts`, so they run strictly one after another.
 - **Lane B, builder 2 (Sonnet):** everything that does not touch those three files.
-- **Opus (main chat, medium):** writes each part's lines, hands out parts, gives the one ipad-webkit turn, reviews each part once, takes over after two Sonnet fails. **Fable:** only when Opus failed twice.
-- No third builder: this PC runs one ipad-webkit suite at a time (measured 14 Nov).
+- **Opus (main chat, medium):** writes each part's spec with the lenses, hands out parts, gives the one ipad-webkit turn, reviews each part once, takes over after two Sonnet fails. **Fable:** only when Opus failed twice.
+- No third builder: this PC runs one ipad-webkit suite at a time (measured 14 Nov). When one lane is empty, its builder takes leftover parts that do not touch the other lane's files.
 - Hot files (one builder, merged alone): `package.json` (B0), `src/app/flags.ts` (A4, B3), `src/settings/builtinSettings.ts` (B7), `playwright.config.ts`.
 
-## The parts
+## 4. Every open item has one home
 
-Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h, screen 6 to 10 h). Only A0, A1 and B0 have their lines written; each later part gets its lines at step 1.
+The sweep found about twenty open items the first version of this plan had missed, and about fifteen that the lists still showed as open although they are done. Each open item is now a part below, an owner check in section 6, or on the "later" list in section 10. Nothing is left without a home.
 
-### Lane A: selection
+## 5. The parts, in order
 
-| #   | Part (what the owner gets)                                                                                                                                                | Lines                | Size | iPad check |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ---- | ---------- |
-| A0  | Freeze: tests hold today's Lasso still. No app change                                                                                                                     | lasso.md LS-01 to 47 | 3 h  | no         |
-| A1  | No left-over outline; a new loop always starts fresh                                                                                                                      | lasso.md LS-50 to 56 | 3 h  | yes        |
-| A2  | A quiet recorder (draws nothing; "Copy last trace" in Try new features) replaces the red-line Circle recorder                                                             | to write             | 2 h  | no         |
-| A3  | Scribble test: a preview switch makes a selected, not-typed-in box read-only; one circle and one double tap by the owner show whether the Text tool gets the whole stroke | to write             | 1 h  | yes        |
-| A4  | Text level 1: our strong purple highlight with two round handles that drag (switch `select.textLevel`)                                                                    | to write (TS-)       | 3 h  | yes        |
-| A5  | Text level 2: with the cursor in a box, a Lasso circle inside that box selects the letters at least half inside; a dashed line follows and fades; Picks is not consulted  | to write             | 3 h  | yes        |
-| A6  | Text level 3: in that box, double tap = word, triple = line, four = paragraph; acts at once                                                                               | to write             | 3 h  | yes        |
-| A7  | Text level 4: leaving. Delete → cursor in the gap; any action or a tap on the words → Text tool with the cursor; a stroke outside the box → box level                     | to write             | 3 h  | yes        |
-| A8  | Paste ▾ and Delete on the bar that shows for a text-level selection (today's bar until B9); paste safety check                                                            | to write             | 2 h  | yes        |
-| A9  | Words selected + scribble over them = delete; T26 write over a selected word                                                                                              | to write             | 3 h  | yes        |
-| A10 | 2B leftovers in these files: T25 (Scribble space after "/"), B8 (Scribble off: Pencil tap selects a box), the narrow-box line overlap, P-13, P-14                         | one fix each         | 1 h  | yes        |
+Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h, screen 6 to 10 h).
 
-A3's result decides one later question only: whether circle and double tap can also work in the Text tool without switching to the Lasso. That feature stays last (owner's order) and gets its own plan.
+### Stage 0: start (about half a day)
 
-### Lane B: bar, leftovers, test health
+| #   | Who    | What it gives                                                                                                                                                    | Spec                              | Size     | Owner's check        |
+| --- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | -------- | -------------------- |
+| D0  | Opus   | The state files tell the truth again (PENDING, BUILD-STATE, user-stories-2b, the merges missing from CHANGELOG), from the sweep; `main` merged into `build/next` | sweep sections 2 and 6            | 1 h      | no                   |
+| A0  | lane A | Tests hold today's Lasso still. No app change                                                                                                                    | lasso.md S1 to S5, LS-01 to LS-47 | 3 h      | no                   |
+| B0  | lane B | The scenarios run as tests; a pass / fail report comes with every preview                                                                                        | SC-01 to SC-08 (appendix A)       | 4 to 6 h | open the report once |
 
-| #   | Part                                                                                                                                                                     | Lines          | Size |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- | ---- |
-| B0  | The checker `npm run check:spec`: fails when a spec line has no test named after it, or a test names an unknown line; added to the push guard. Starts with lasso.md only | below          | 2 h  |
-| B1  | Smart bar button list: every button of the three bars (Lasso drawing bar, text mini bar, box bar) with its place in the smart bar; a unit test that fails if one is lost | to write (SB-) | 2 h  |
-| B2  | Pictures for the owner's OK (Opus): text cursor, words selected, box, ink, picture, mixed; Edit and Study; iPad sideways first, upright, phone; light and dark           | picture        | 3 h  |
-| B3  | The bar's frame and the two text states (selection actions appear at the end, the bar keeps its place)                                                                   | to write       | 6 h  |
-| B4  | Box state, with Edit Text                                                                                                                                                | to write       | 3 h  |
-| B5  | Ink state: every drawing action of LS-32, LS-33, LS-36                                                                                                                   | to write       | 6 h  |
-| B6  | Picture and mixed states                                                                                                                                                 | to write       | 3 h  |
-| B7  | Presets Edit and Study, Auto on by default, Settings › Tool bar › Selection bar (order as drawn)                                                                         | to write       | 6 h  |
-| B8  | Phone: the same presets, fewer buttons, the rest under ⋯                                                                                                                 | to write       | 3 h  |
-| B9  | Swap-in behind `select.smartBar` (after A8): the smart bar replaces the three bars; off = today's bars                                                                   | to write       | 3 h  |
-| B10 | 2B leftovers outside lane A's files: R15 redo, R17 Shadow tile, R18 phone dots, the wheel test move, TB23-DIV, TB-24 on a clean checkout                                 | one fix each   | 1 h  |
-| B11 | The shaky iPad-size tests (about 21): find each cause; never a retry or a longer wait                                                                                    | none           | 6 h  |
+### Stage 1: the Lasso safe, the tools ready (about a day and a half)
+
+| #   | Who    | What it gives                                                                                                                                                                               | Spec                                              | Size | Owner's check |
+| --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---- | ------------- |
+| A1  | lane A | No left-over outline; a new loop always starts fresh                                                                                                                                        | lasso.md S6 to S9, LS-50 to LS-56, LS-N1 to LS-N6 | 3 h  | C1            |
+| A2  | lane A | A quiet recorder (draws nothing; "Copy last trace") replaces the red-line Circle recorder                                                                                                   | to write                                          | 2 h  | no            |
+| A3  | lane A | The Scribble test: is a box that cannot be typed in left alone by Scribble?                                                                                                                 | to write                                          | 1 h  | C2            |
+| B1  | lane B | The list of every button of the three old bars, its place on the smart bar, whether it works today; a test that fails if one is lost                                                        | selection-bar.md                                  | 2 h  | no            |
+| B2  | Opus   | Pictures of the smart bar: cursor, words, box, drawing, picture, mix; Edit and Study; iPad sideways first, upright, phone; light and dark; the buttons for a mix and the place of the box ⋯ | pictures                                          | 3 h  | C3            |
+
+### Stage 2: text selection and the bar (about four days)
+
+| #   | Who    | What it gives                                                                                    | Spec                              | Size | Owner's check |
+| --- | ------ | ------------------------------------------------------------------------------------------------ | --------------------------------- | ---- | ------------- |
+| A4  | lane A | Our purple highlight with two round handles that drag                                            | text-select.md                    | 3 h  | C4            |
+| A5  | lane A | Circle letters (S1, S2, S6)                                                                      | text-select.md                    | 3 h  | C5            |
+| A6  | lane A | Double tap = word, triple = line, four = paragraph (S3)                                          | text-select.md                    | 3 h  | C6            |
+| A7  | lane A | Leaving: Delete → cursor in the gap; a tap → cursor; a loop outside → today's Lasso (S4, S5, S7) | text-select.md                    | 3 h  | C7            |
+| A8  | lane A | Paste ▾ and Delete on the bar for such a selection; paste safety check                           | text-select.md; one picture first | 2 h  | C8            |
+| A9  | lane A | Scribble over selected words deletes them; write over a selected word (T26)                      | to write                          | 3 h  | C9            |
+| B3  | lane B | The bar's frame and the two text states (S1, S2)                                                 | selection-bar.md                  | 6 h  | with C10      |
+| B4  | lane B | Box state with Edit Text (S4)                                                                    | selection-bar.md                  | 3 h  | with C10      |
+| B5  | lane B | Drawing state: every drawing action (S3)                                                         | selection-bar.md                  | 6 h  | with C10      |
+| B6  | lane B | Picture and mixed states                                                                         | selection-bar.md                  | 3 h  | with C10      |
+| B7  | lane B | Presets Edit and Study, Auto, Settings › Tool bar › Selection bar (S5)                           | selection-bar.md                  | 6 h  | with C10      |
+| B8  | lane B | Phone: the same presets, fewer buttons                                                           | selection-bar.md                  | 3 h  | with C10      |
+
+### Stage 3: swap-in and leftovers (about two to three days)
+
+| #      | Who              | What it gives                                                                                                                                                                                                                                            | Size | Owner's check |
+| ------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ------------- |
+| B9     | lane B, after A8 | The smart bar replaces the three old bars behind its switch (S6, S7)                                                                                                                                                                                     | 3 h  | C10           |
+| A10-1  | lane A           | T25: writing after "/" with Scribble no longer adds a space                                                                                                                                                                                              | 1 h  | C11           |
+| A10-2  | lane A           | B8: with Scribble off, a Pencil tap selects a box                                                                                                                                                                                                        | 1 h  | C11           |
+| A10-3  | lane A           | Lines never overlap in a narrow box                                                                                                                                                                                                                      | 1 h  | C11           |
+| A10-4  | lane A           | P-15: the editor's small block button never floats over the words during Pencil taps                                                                                                                                                                     | 3 h  | C11           |
+| A10-5  | lane A           | Equal boxes: the first box and a new box are the same height (owner's word, question 2)                                                                                                                                                                  | 3 h  | C11           |
+| B10-1  | lane B           | R15: Redo always redoes exactly one step (red about 1 run in 5 at iPad size; stops the release)                                                                                                                                                          | 3 h  | no            |
+| B10-2  | lane B           | R17: the Shadow card tile is visible (white on white today)                                                                                                                                                                                              | 1 h  | no            |
+| B10-3  | lane B           | R18: on a phone the dots resize a box right to the page end                                                                                                                                                                                              | 1 h  | C11           |
+| B10-4  | lane B           | TB23-DIV: a test presses the divider between two boxes itself                                                                                                                                                                                            | 1 h  | no            |
+| B10-5  | lane B           | TB-24: find why one box-bar test is red on a clean copy while CI is green                                                                                                                                                                                | 1 h  | no            |
+| B10-6  | lane B           | R20: renaming a Journal month by double tap works at iPad size                                                                                                                                                                                           | 1 h  | C11           |
+| B10-7  | lane B           | TA: the "More tools" arrow never sits over Backspace (look first)                                                                                                                                                                                        | 1 h  | C11           |
+| B10-8  | lane B           | P-18: the sidebar page menu uses line icons only; on a phone its list does not cover the title                                                                                                                                                           | 1 h  | no            |
+| B10-9  | lane B           | The old toast-position fix (slice/shell-fixes): merge it or close it                                                                                                                                                                                     | 1 h  | no            |
+| B10-10 | lane B           | The "Handwritten" quick font (Patrick Hand) is there; licence checked                                                                                                                                                                                    | 1 h  | C11           |
+| B10-11 | lane B           | Settings says "Keep look", the same words as everywhere                                                                                                                                                                                                  | 1 h  | no            |
+| B11    | lane B           | Test health: each of the about 21 shaky iPad-size tests gets its cause found (never a retry); the seven desktop-only tests made size-aware or marked desktop-only on purpose; toolsRefresh:60; the timing tests placed as the owner decides (question 1) | 8 h  | no            |
+
+### Stage 4: the end (about three days, plus the owner's test)
+
+| #   | What it gives                                                                                                                                                                                   |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E1  | Nothing lost (2B.12): the inventory against the app. The specs that are out of date (shell-spec, page-menus, device-modes, textbox-v2, shared-parts, phase-1) corrected or marked "replaced by" |
+| E2  | The owner's full test list (2B.13), written as numbered scenarios by feature; the older checks that still apply and the "owner to confirm" items folded in; pictures                            |
+| E3  | Side by side with every approved picture: light, dark and sepia; iPad both ways, phone and PC                                                                                                   |
+| E4  | Security review by Opus as a tester: paste first, then the whole phase; a bullet list discussed with the owner                                                                                  |
+| E5  | The owner's full test (about an hour, estimate) and its fixes. The freeze (F7) and "Not saved yet" (BUG-001) are closed here if not seen again, or get a part                                   |
+| E6  | The release bar (rules/quality.md); the preview-only recorders and the Tap speed row removed; the strict security header checked (sign-in, Drive, fonts); the full test set green               |
+| E7  | **Go live on the owner's yes:** one code line (task 0.7), NIGHTLY_REF, the live-check fix; the owner switches the phases on, on each device                                                     |
+| E8  | After go-live, on the owner's word (question 4): the old text box files removed                                                                                                                 |
+| E9  | Any quiet hour: a list of the 61 working copies (clean or not, merged or not); the owner approves the removals once (question 5)                                                                |
+
+## 6. The owner's checkpoints
+
+| #        | When                                         | What                                                                                         | Time         |
+| -------- | -------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------ |
+| C0       | now, on today's preview, Circle recorder off | the catch-up list below                                                                      | 20 min       |
+| C1       | after A1                                     | 30 loops lifting fast: no outline stays; 15 loops one right after another: each starts fresh | 5 min        |
+| C2       | after A3                                     | one circle and one double tap with the test switch on                                        | 5 min        |
+| C3       | after B2                                     | approve the smart bar pictures (yes or "change X")                                           | 10 min       |
+| C4 to C9 | after each of A4 to A9                       | that part's scenarios on the iPad, answered by number                                        | 5 min each   |
+| C10      | after B9                                     | the smart bar on the iPad: every state, both presets, pinned and docked                      | 15 min       |
+| C11      | after stage 3                                | the leftovers marked C11                                                                     | 15 min       |
+| C12      | E5                                           | the full test                                                                                | about 1 hour |
+| C13      | E7                                           | the yes to go live                                                                           | —            |
+
+**C0, the catch-up list** (merged since 17 Nov and never checked on the iPad):
+
+1. Paste ▾ in the top row and in the floating bar pastes at the cursor and keeps the look; ▾ offers Plain text.
+2. A hold in a box shows our strip with Paste.
+3. With the Text tool, circle some words: no ink is left.
+4. Your own top row shows Paste ▾.
+5. Select a box: the one bar shows; move it, dock it on a side, pin it; try the fonts and Lock box.
+6. Type near a corner of the page: the format bar stays on the screen, both ways up.
+7. While you write, the tool bar hides and a "Show toolbar" pill shows.
+8. After typing, touch ≡: the box does not grow. The middle side handles resize the box.
+9. Reload: still signed in. The sidebar scrolls from empty space. The search has its ✕. The ⚙ gear is reachable upright. The Pencil can drag the scroll bar.
+10. In the Journal, double tap a month name to rename it.
+
+## 7. Pictures the owner approves before the build
+
+- **B2:** the smart bar's states (set). Nothing after B2 in lane B is built before the owner's yes.
+- **A8:** one picture of the bar for a text-level selection (today's word bar with Paste ▾ and Delete).
+- Approved already: the highlight and handles (refs/lasso-text-mock.png frames 1 and 4, without its format bar); the one box bar (docs/mockups/box-bar/); Settings › Tool bar › Selection bar (refs/selection-bar-presets-mock.png).
+
+## 8. Decisions
+
+**Answered by the owner (20 Nov):** keep today's Lasso, letters only with the cursor in the box; the Scribble test early; the bar's button order as drawn; an iPad check after each selection part; two lanes; must-never lines 1, 2, 3, 4, 6, 10; the three first parts; the method on one page.
+
+**Open, asked on 20 Nov (Fable's pick first):**
+
+1. **Where the timing tests run.** Pick: tests that only fail on slow cloud computers are first rewritten to wait for what they can see; the few that are truly about time (taps within a second, paint within 150 ms) run on this PC every night and before a release, and still stop a release when red.
+2. **Equal boxes.** Pick: fix the 5 px difference (the owner's own rule of 18 Nov: every new box is the same).
+3. **Paste ▾ in Touch and Computer modes.** Pick: keep it in every mode; Backspace and Enter stay Pencil-only.
+4. **When the old text box files go.** Pick: a week after go-live, on the owner's word, so there is a way back during the first week.
+5. **The 61 working copies.** Pick: one list, one approval, removed the safe git way; nothing with unsaved work is touched.
+
+**Fable's picks, logged, no answer needed:** the tap rule of 18 Nov (every tap acts at once, about a second between taps) replaces the 700 ms of Q-4, and the Tap speed row goes in E6; builders reuse existing working copies (no new permission); the place of the box ⋯ is settled in the pictures of B2; the three Goodnotes extras stay "later" until the owner says otherwise.
+
+## Assumptions to check (what might not be true)
+
+Each has a check; if a check fails, the plan changes before more is built.
+
+| We assume                                                                                   | Check                                                                                                   | Where      |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------- |
+| The left-over outline and the "old selection" both come from a lift the iPad never reported | the replay test reproduces both; the owner's answers; a real trace from the quiet recorder              | A1, A2     |
+| A Pencil in the air is visible to the app (hover) on the owner's iPad                       | seen in the owner's trace of 19 Nov; on a device without hover LS-52 and the 4 second rule are the nets | A1         |
+| Switching from the Text tool to the Lasso keeps the typing cursor in its box                | the first test of A4; if not, the text level uses "the box edited last"                                 | A4         |
+| A box that cannot be typed in is left alone by Scribble                                     | the Scribble test on the real iPad                                                                      | A3         |
+| The add-on that reads the scenarios fits our test setup                                     | 4 hours at most, then the fallback                                                                      | B0         |
+| The two lanes never need the same file at the same time                                     | the hot-file list; Opus hands out one turn at a time                                                    | every part |
+| The owner can check on the iPad within a day of each selection part                         | measured per part in docs/metrics/tasks.csv                                                             | every part |
+
+Each spec carries its own list too ("We assume" in lasso.md, text-select.md, selection-bar.md).
+
+## 10. Not in this plan, and where it lives
+
+Settings v5 with S1 and PP1 (Phase 1S, next). Your layouts. Phases 3 to 10. AI and the connector upgrade. The "App user stories" notebook through the connector (after this phase). Circle select in the Text tool itself (own plan after A3). The three Goodnotes extras (ideas list). Shared parts step 3 (when a phase needs it). Tasks 0.10 and 0.13 (after the release). The mixed-selection filter on the bar and a bottom keyboard bar (owner: no).
+
+## 11. Done when
+
+Every scenario and every detail line of every part has a green test; the owner has ticked every `@ipad` scenario; E1 to E6 pass; the full test set is green; the owner says yes at E7.
+
+## 12. Time
+
+About 50 small parts: lane A about 37 hours of building, lane B about 59, the end about 30. With two lanes, one review per part and one iPad-size test run at a time: **about 10 to 13 days, an estimate** from the measured pace. The owner's check time is not counted. The first three merged parts give the real pace; Opus corrects the number then.
+
+## Appendix A: part B0
 
 **B0, rewritten after the owner's article (about 4 to 6 h): make the scenarios run and publish the report.**
 
@@ -72,32 +189,11 @@ A3's result decides one later question only: whether circle and double tap can a
 - **SC-07** `OPEN:` in a part that is being built fails the check.
 - **SC-08** All of it runs in the push guard and in CI.
 
-### The end of the phase
+## Appendix B: must-never lines for the Lasso
 
-E1 2B.12 nothing lost (inventory against the app). E2 2B.13 pictures and the owner's full test list. E3 side by side with every approved picture (light, dark, iPad both ways, phone). E4 security review by Opus as a tester: paste first, then the whole phase; findings as a bullet list discussed with the owner. E5 the owner's full test and its fixes. E6 the release bar (rules/quality.md). E7 task 0.7 and the switch ON in the live app, on the owner's yes.
+Ten were offered on 20 Nov; the owner picked 1, 2, 3, 4, 6 and 10 (docs/features/lasso.md LS-N1 to LS-N6). The other four are covered by detail lines or earlier owner rules.
 
-## Must-never lines offered to the owner (20 Nov; the owner picks, each picked line becomes a test)
-
-1. A Lasso outline never stays on the screen after its selection is gone.
-2. A new loop never acts on the old selection.
-3. The Lasso never changes words by itself: nothing is typed, deleted or moved without an action or a drag on purpose.
-4. The Lasso never wakes Scribble or Apple's own bar.
-5. The loop line is never saved as ink.
-6. The Lasso never gets stuck: the next touch always works, with no reload and no tool change.
-7. Nothing the Lasso does is lost for good: every action is one Undo.
-8. A selection never jumps to other words: only what is inside the loop.
-9. The bar never covers the selected words and never leaves the screen.
-10. With the new text selection off, the Lasso behaves exactly as today; with it on, nothing changes for ink, pictures and boxes.
-
-**Owner's pick (20 Nov): 1, 2, 3, 4, 6 and 10**, as tests in A1 (docs/features/lasso.md LS-N1 to LS-N6). 5, 7, 8 and 9 are already covered by LS lines or earlier owner rules and get their id in A0. Two more for the smart bar (from the Goodnotes check below; SB lines in B1 and B3): a button that does nothing is never shown; the bar never jumps or swaps when the selection goes from cursor to words (buttons are only added at its end).
-
-## Fable's picks inside this plan (owner may change; also in DECISIONS "to review")
-
-- LS-50: a loop whose lift was lost **finishes** (selects) instead of being thrown away, because the owner did lift the Pencil.
-- At text level the Picks filter is not consulted: the cursor in the box already says "text".
-- The text level reuses the Lasso's sheet and loop drawing by calling them; it adds its own files and never edits the lines LS-01 to LS-47 describe.
-
-## Goodnotes screenshots check (Fable, 20 Nov; all 13 pictures in docs/design/refs/ and refs/goodnotes-bar/2-more-menu.png)
+## Appendix C: Goodnotes screenshots check (Fable, 20 Nov; all 13 pictures in docs/design/refs/ and refs/goodnotes-bar/2-more-menu.png)
 
 Every button and behaviour in the owner's screenshots, against the app and this plan. **B1's button list must contain every row of this table.**
 
@@ -122,25 +218,3 @@ Every button and behaviour in the owner's screenshots, against the app and this 
 | Undo and Redo top left; the Lasso's ▾ "what it selects"                                    | page top bar (2A.4); Picks                                                                                    | covered                                              |
 
 **B1 also records, for every button, whether it really works today** (the Professional ⋯ lists Move, Scale, Rotate, Screenshot, Convert; some were "coming later" on 11 Nov). A button that does nothing is not put on the smart bar.
-
-## Assumptions to check (what might not be true)
-
-Each has a check; if a check fails, the plan changes before more is built.
-
-| We assume                                                                                   | Check                                                                                                   | Where      |
-| ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------- |
-| The left-over outline and the "old selection" both come from a lift the iPad never reported | the replay test reproduces both; the owner's answers; a real trace from the quiet recorder              | A1, A2     |
-| A Pencil in the air is visible to the app (hover) on the owner's iPad                       | seen in the owner's trace of 19 Nov; on a device without hover LS-52 and the 4 second rule are the nets | A1         |
-| Switching from the Text tool to the Lasso keeps the typing cursor in its box                | the first test of A4; if not, the text level uses "the box edited last"                                 | A4         |
-| A box that cannot be typed in is left alone by Scribble                                     | the Scribble test on the real iPad                                                                      | A3         |
-| The add-on that reads the scenarios fits our test setup                                     | 4 hours at most, then the fallback                                                                      | B0         |
-| The two lanes never need the same file at the same time                                     | the hot-file list; Opus hands out one turn at a time                                                    | every part |
-| The owner can check on the iPad within a day of each selection part                         | measured per part in docs/metrics/tasks.csv                                                             | every part |
-
-## Will not do here
-
-Circle select in the Text tool itself (after A3, own plan); the mixed-selection filter on the bar; a bottom keyboard bar; rotation and layers; Settings v5; anything of Phase 3 or later.
-
-## Done when
-
-Every line of every part has a green test named after it; the owner has ticked every `(iPad)` line; E1 to E6 pass; the full test set is green; the owner says yes.

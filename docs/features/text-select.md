@@ -16,11 +16,11 @@ As a learner who edits AI-made notes on the iPad with the Apple Pencil, I want t
 
 **Always true**
 
-- Scribble stays on. "Turn Scribble off" is never the fix.
-- What is selected is what I circled or tapped. A letter counts when about half of it is inside my circle; I adjust with the two handles.
-- I see our own strong purple highlight with two round handles, and our own bar. Never Apple's.
-- After an action on the bar, or one tap on the words, I am back in the Text tool with the typing cursor where I expect it. After Delete it waits in the gap.
-- A finger taps like the Pencil. A finger never circles; it scrolls.
+- **Scribble stays on.** Scribble stays on. "Turn Scribble off" is never the fix.
+- **Exactly what I meant.** What is selected is what I circled or tapped. A letter counts when about half of it is inside my circle; I adjust with the two handles.
+- **Our look, not Apple's.** I see our own strong purple highlight with two round handles, and our own bar. Never Apple's.
+- **Straight back to writing.** After an action on the bar, or one tap on the words, I am back in the Text tool with the typing cursor where I expect it. After Delete it waits in the gap.
+- **Finger too.** A finger taps like the Pencil. A finger never circles; it scrolls.
 
 **Can never happen**
 
@@ -52,43 +52,43 @@ Feature: Select letters and words with the Pencil, then fix them
     And the Lasso tool is picked
 
   @ipad
-  Scenario: Circle a few letters inside a word
+  Scenario: S1 Circle a few letters inside a word
     When I circle "vi" in "Service" with the Pencil
     Then only "vi" is selected, with the purple highlight and two handles
     And our bar shows
     And Apple's own bar does not show
 
   @ipad
-  Scenario: Circle a word with a symbol in it
+  Scenario: S2 Circle a word with a symbol in it
     When I circle "rate-is" with the Pencil
     Then exactly "rate-is" is selected
 
-  Scenario: Double tap a word
+  Scenario: S3 Double tap a word
     When I double tap "2000"
     Then exactly "2000" is selected
 
   @ipad
-  Scenario: Delete, then write the new word
+  Scenario: S4 Delete, then write the new word
     Given "rate-is" is selected
     When I delete the selection
     Then the box reads "Service 23-11 2000 "
     And the typing cursor waits where "rate-is" was
     And the Text tool is active again
 
-  Scenario: One tap on the words gives the cursor back
+  Scenario: S5 One tap on the words gives the cursor back
     Given "23-11" is selected
     When I tap once on "Service"
     Then nothing is selected
     And the typing cursor is where I tapped
     And the Text tool is active again
 
-  Scenario: A circle that catches no letter does nothing
+  Scenario: S6 A circle that catches no letter does nothing
     When I draw a circle on the empty part of the box
     Then nothing is selected and no bar shows
     And no ink is left on the page
     And the typing cursor is where it was
 
-  Scenario: A loop outside the box is today's Lasso
+  Scenario: S7 A loop outside the box is today's Lasso
     Given a small drawing outside the box
     When I draw a loop round the drawing
     Then the drawing is selected as with today's Lasso

@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-READY TO START (20 Nov): the owner said yes to parts A0, A1 and B0 and picked the must-never lines (docs/features/lasso.md LS-N1 to LS-N6). Plan: docs/plans/phases/phase-2-finish.md. Next: the owner switches the main chat to Opus (medium) and types continue; Opus merges main into build/next, then starts A0 (builder 1) and B0 (builder 2). build/next f65b1fa6: chromium full set green; ~21 WebKit timing reds open (part B11).
+PLANNING (20 Nov): the complete plan is docs/plans/phases/phase-2-finish.md (about 50 small parts, two lanes, stages 0 to 4; estimate 10 to 13 days). Waiting for the owner: five open questions (plan section 8), the reading of the assumptions, the yes on text-select.md, selection-bar.md and METHOD.md. Then the owner switches the main chat to Opus (medium); first parts D0, A0, B0. build/next f65b1fa6. The tables below are stale until D0.
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

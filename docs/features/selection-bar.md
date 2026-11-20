@@ -16,15 +16,15 @@ As a learner who works with the Apple Pencil, I want one bar that shows the righ
 
 **Always true**
 
-- There is one bar. Its look is the approved one bar of 18 Nov (docs/mockups/box-bar/); each button opens a small strip right under it.
-- It follows what is selected (Auto, on by default): the cursor in text, words selected, a box, a drawing, a picture, a mix.
-- Nothing is dropped: every button of the three old bars is on the bar or under ⋯.
-- When words get selected, the selection buttons (Cut, Copy, Delete, Link) are added at the end; the bar keeps its place and shape.
-- Paste ▾ is on the bar: a tap pastes and keeps the look; ▾ offers Plain text and More.
-- The bar can be moved, pinned and docked on any of the four sides; a pinned or docked bar stays on every page and after the app is closed.
-- Two presets, Edit and Study; the owner chooses and orders the buttons in Settings › Tool bar › Selection bar.
-- On a phone: the same presets, fewer buttons, the rest under ⋯.
-- A held button shows its name. Delete is the only red button.
+- **One bar.** There is one bar. Its look is the approved one bar of 18 Nov (docs/mockups/box-bar/); each button opens a small strip right under it.
+- **Follows the selection.** It follows what is selected (Auto, on by default): the cursor in text, words selected, a box, a drawing, a picture, a mix.
+- **Nothing dropped.** Nothing is dropped: every button of the three old bars is on the bar or under ⋯.
+- **Calm.** When words get selected, the selection buttons (Cut, Copy, Delete, Link) are added at the end; the bar keeps its place and shape.
+- **Paste on the bar.** Paste ▾ is on the bar: a tap pastes and keeps the look; ▾ offers Plain text and More.
+- **Stays where I put it.** The bar can be moved, pinned and docked on any of the four sides; a pinned or docked bar stays on every page and after the app is closed.
+- **Two presets.** Two presets, Edit and Study; the owner chooses and orders the buttons in Settings › Tool bar › Selection bar.
+- **Phone.** On a phone: the same presets, fewer buttons, the rest under ⋯.
+- **Names, and one red button.** A held button shows its name. Delete is the only red button.
 
 **Can never happen**
 
@@ -50,43 +50,43 @@ As a learner who works with the Apple Pencil, I want one bar that shows the righ
 ```gherkin
 Feature: One bar for every selection
 
-  Scenario: With only the cursor, the bar offers format and Paste
+  Scenario: S1 With only the cursor, the bar offers format and Paste
     Given a text box with the words "Service 23-11 2000 rate-is"
     And the typing cursor is in that box
     Then the bar shows the text buttons and Paste
     And it shows no Cut, Copy or Delete
 
-  Scenario: Selecting words adds the selection buttons at the end
+  Scenario: S2 Selecting words adds the selection buttons at the end
     Given the bar is showing for the cursor in a text box
     When I select the word "2000"
     Then Cut, Copy and Delete are added at the end of the bar
     And the bar has not moved or changed its shape
 
-  Scenario: A drawing gets drawing buttons
+  Scenario: S3 A drawing gets drawing buttons
     Given a small drawing on the page
     When I select the drawing with the Lasso
     Then the bar shows the drawing buttons
     And it shows no text buttons
 
-  Scenario: Edit Text takes me from the box to its words
+  Scenario: S4 Edit Text takes me from the box to its words
     Given a text box is selected as a box
     When I choose Edit Text on the bar
     Then the typing cursor is at the end of the box's words
     And the bar shows the text buttons, in the same place
 
-  Scenario: The Study preset puts the study buttons first
+  Scenario: S5 The Study preset puts the study buttons first
     Given the preset is Study
     When I select the word "2000"
     Then the bar starts with Highlight, Colour and Make card
 
-  Scenario: No room near the selection
+  Scenario: S6 No room near the selection
     Given a text box that fills the page
     When I select words in it
     Then the bar sits in free space
     And it does not cover the selected words
     And it is fully on the screen
 
-  Scenario: A pinned bar stays where I put it
+  Scenario: S7 A pinned bar stays where I put it
     Given I moved the bar to the left side and pinned it
     When I open another page and select something
     Then the bar is on the left side

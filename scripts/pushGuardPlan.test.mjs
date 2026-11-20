@@ -42,6 +42,14 @@ describe('planChecks: which checks run for which branch and files', () => {
   it('an e2e spec on main does not run playwright', () => {
     expect(planChecks('main', ['e2e/foo.spec.ts']).specs).toEqual([])
   })
+  it('B0: check:spec runs on the code line and when its files change', () => {
+    expect(planChecks('slice/x', ['src/a.ts']).spec).toBe(true)
+    expect(planChecks('feature/y', ['src/a.ts']).spec).toBe(false)
+    expect(planChecks('feature/y', ['e2e/features/lasso.feature']).spec).toBe(
+      true,
+    )
+    expect(planChecks('feature/y', ['docs/features/lasso.md']).spec).toBe(true)
+  })
   it('docs-only on slice/* and build/next still plans tsc and ratchet', () => {
     for (const b of ['slice/x', 'build/next']) {
       const p = planChecks(b, ['docs/a.md'])

@@ -4,6 +4,10 @@ const CODE = /\.(ts|tsx|js|mjs|cjs|json)$/i
 const LINT = /\.(ts|tsx|js|mjs)$/i
 const SPEC = /^e2e\/.*\.spec\.ts$/
 
+/** Files the scenario check (B0, check:spec) reads. */
+const SCENARIO_FILES =
+  /^(e2e\/(features|steps)\/|docs\/features\/|docs\/metrics\/ipad-checks\.md|scripts\/(spec-check|check-spec)|playwright\.config\.ts)/
+
 export const isFullBranch = (branch) =>
   branch === 'build/next' || branch.startsWith('slice/')
 
@@ -23,6 +27,8 @@ export function planChecks(branch, files) {
         /\.(ts|tsx)$|(^|\/)(tsconfig[^/]*|package)\.json$/i.test(f),
       ),
     ratchet: full,
+    // B0 SC-08: the scenario and spec-line check, always on the code line.
+    spec: full || files.some((f) => SCENARIO_FILES.test(f)),
     vitestRelated: code,
     specs: full ? files.filter((f) => SPEC.test(f)) : [],
   }

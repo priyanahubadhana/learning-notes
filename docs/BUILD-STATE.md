@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-PLANNING (20 Nov): the complete plan is docs/plans/phases/phase-2-finish.md (about 50 small parts, two lanes, stages 0 to 4; estimate 10 to 13 days). The five questions are answered (the picks). Waiting for the owner: the reading of the assumptions, the yes on text-select.md, selection-bar.md and METHOD.md. Then the owner switches the main chat to Opus (medium); first parts D0, A0, B0. build/next f65b1fa6. The tables below are stale until D0.
+READY TO START (20 Nov): planning with Fable is finished. The complete plan: docs/plans/phases/phase-2-finish.md (about 50 small parts, two lanes, stages 0 to 4; estimate 10 to 13 days); the method: docs/METHOD.md. Next: the owner switches the main chat to Opus (medium) and types continue; first parts D0, then A0 and B0 together, then A2, check C1a, A1. The owner does the catch-up check C0 meanwhile. build/next f65b1fa6. The tables below are stale until D0.
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

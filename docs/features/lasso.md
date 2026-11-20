@@ -98,6 +98,15 @@ Feature: The Lasso stays as it is and never gets stuck
     And the Pencil moves away in the air
     Then what is inside the loop is selected
     And no loop line is left on the screen
+
+  @ipad
+  Scenario: S10 A resting hand changes nothing
+    Given a drawing is selected with the Lasso
+    And my hand rests on the screen
+    When I draw a new loop round another drawing with the Pencil
+    Then only the other drawing is selected
+    And the first drawing has not moved or turned
+    And the page has not scrolled and no typing cursor was placed
 ```
 
 ## We assume (not proven yet)
@@ -108,7 +117,9 @@ Feature: The Lasso stays as it is and never gets stuck
 4. When a lift is missed, the owner wants the loop finished and selected, not thrown away (owner: yes, 20 Nov).
 5. What a desktop browser shows for these lines is what the iPad does. Not for the `@ipad` ones: the owner's check decides.
 
-**Done when (A1):** the four fix scenarios pass on chromium and ipad-webkit; every LS-01 to LS-47 test is still green and unchanged; the owner's iPad check of 30 and 15 loops shows no left-over outline and no stuck loop; one line in docs/metrics/tasks.csv.
+6. The owner rests a hand on the screen while circling (owner, 20 Nov). The Lasso has no palm guard today (the Pen and the Eraser have one), so a palm may be read as a finger tap (which places the cursor) or as a second finger (which twists a selection). This may be the true cause of both faults, or one of two causes. Check: one real trace from the quiet recorder (Part A2) is taken **before** the fix is written.
+
+**Done when (A1):** the five fix scenarios (S6 to S10) pass on chromium and ipad-webkit; every LS-01 to LS-47 test is still green and unchanged; the owner's iPad check of 30 and 15 loops shows no left-over outline and no stuck loop; one line in docs/metrics/tasks.csv.
 
 ## How it works
 
@@ -197,6 +208,9 @@ What the owner saw (20 Nov, about 1 or 2 times in 5 to 10 uses): **(a)** an old 
 - **LS-55** A fresh start also clears a left-over line selection, so no old bar shows and no new bar is hidden.
 - **LS-56** A Pencil in the air does not keep a stuck touch alive: the 4 second rule (LS-42) counts only movement while touching.
 
+- **LS-57** While the Pencil draws a loop or moves a selection, and for a short moment after it lifts, a touch by a hand is a palm: it never places the cursor, never scrolls the page, never moves, twists or lets go of a selection, and never ends or restarts a loop. The length of the moment comes from the owner's trace (the Pen uses 0.7 s). (iPad)
+- **LS-58** A finger used on purpose still works as today once the Pencil has been away for that moment: it scrolls, and a finger tap places the cursor (LS-02, LS-03). This is the one place where a fix touches LS-03, and only inside the palm moment.
+
 **Must never happen** (owner's pick, 20 Nov; each is a test in A1):
 
 - **LS-N1** A Lasso outline never stays on the screen after its selection is gone. (iPad)
@@ -223,7 +237,7 @@ No new data, storage, network call or pasted content in A0 and A1. Nothing to ad
 
 - **Scenarios:** each scenario above runs as written (Part B0), on chromium and ipad-webkit.
 - **A0 (freeze):** new file `e2e/lassoFreeze.spec.ts` for every `add` line, on chromium and ipad-webkit; every `has` test gets its id at the start of its name (names only, no check changed). No app file changes in A0. Pencil-style input through `e2e/realPen.ts`.
-- **A1 (fixes):** new file `e2e/lassoLostLift.spec.ts`, written first and seen red: a Pencil loop whose lift is never sent, followed by hover moves (LS-50, LS-51, LS-56); a new touch-down while that loop is open (LS-52); the same from the margin (LS-54); a left-over line selection (LS-55); a stroke outside the box (LS-53). Then the fix. Every LS-01 to LS-47 test stays green, unchanged.
+- **A1 (fixes):** the owner's real trace from Part A2 is saved under `e2e/fixtures/` and replayed first (a hand resting on the screen while the Pencil circles: LS-57, LS-58, S10). New file `e2e/lassoLostLift.spec.ts`, written first and seen red: a Pencil loop whose lift is never sent, followed by hover moves (LS-50, LS-51, LS-56); a new touch-down while that loop is open (LS-52); the same from the margin (LS-54); a left-over line selection (LS-55); a stroke outside the box (LS-53). Then the fix. Every LS-01 to LS-47 test stays green, unchanged.
 - **The checker** (Part B0, `npm run check:spec`): fails when a line here has no test named after it, or a test names a line that is not here.
 - **Owner's iPad check for A1 (5 minutes, Scribble on, Lasso tool):**
   1. Draw 30 loops round drawings and words, lifting fast and moving the Pencil away low over the screen: no outline ever stays (LS-50, LS-51).

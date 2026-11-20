@@ -39,6 +39,8 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 
 ### Stage 1: the Lasso safe, the tools ready (about a day and a half)
 
+**Order in lane A, changed on 20 Nov after the owner's answer "my hand rests on the screen while I circle":** A0, then **A2** (the quiet recorder), then check **C1a** (the owner uses the Lasso as usual for five minutes with the quiet recorder on and taps "Copy last trace" when an outline stays or a loop acts on the old selection), then **A1** written from that real trace (lasso.md S6 to S10, LS-50 to LS-58), then A3. A2 must prove that the recorder changes nothing: every Lasso scenario passes with it on.
+
 | #   | Who    | What it gives                                                                                                                                                                               | Spec                                              | Size | Owner's check |
 | --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---- | ------------- |
 | A1  | lane A | No left-over outline; a new loop always starts fresh                                                                                                                                        | lasso.md S6 to S9, LS-50 to LS-56, LS-N1 to LS-N6 | 3 h  | C1            |
@@ -114,6 +116,8 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 | C11      | after stage 3                                | the leftovers marked C11                                                                     | 15 min       |
 | C12      | E5                                           | the full test                                                                                | about 1 hour |
 | C13      | E7                                           | the yes to go live                                                                           | —            |
+
+**The owner checks at any time of the day, also in a break at work (owner, 20 Nov: "keep reminding me when to check").** Opus names the check that is due at the top of its message under "Needs you", with the preview version and the steps, and repeats the list of checks still waiting at the end of every message until each one is done.
 
 **Builders do not wait for a check.** The owner works 9 to 5, so checks come in a morning or an evening window and cover whatever landed since the last one. While a selection part waits for its check, the next one is built; at most two selection parts may be unchecked at a time, so a wrong turn costs two parts at the most. A failed check goes to the front of its lane.
 

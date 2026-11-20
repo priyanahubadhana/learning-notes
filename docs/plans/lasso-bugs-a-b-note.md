@@ -26,6 +26,12 @@ Be honest: this cause was found by **reading the code** (lasso-inventory-2026-11
 
 Read the answers like this: "outline follows the hovering Pencil" and "next stroke does nothing" fit the lost-lift story (LS-50, LS-52). "Outline sits still and never goes" points to the fade or the left-over line selection (LS-51, LS-55). "Next stroke moves the old selection" may simply be a stroke that began inside the old box, which moves it on purpose (LS-26); check LS-53.
 
+## The owner's first answer (20 Nov): "I keep my hand on the screen while circling with the Lasso"
+
+This is a second lead, and maybe the main one. The Lasso has no palm guard (the Pen and the Eraser ignore touches for 0.7 s around a Pencil stroke; `accepts` in src/ink/controller.ts). Under the Lasso a touch is a finger: a tap places the typing cursor (LS-03), a touch during a move becomes the second finger of a twist (LS-29), a drag scrolls. A resting palm can therefore drop or change a selection, or keep a gesture open. Plain words for the owner: "Your hand on the glass may be read as a finger. The Pen already ignores it; the Lasso does not yet."
+
+So the order is: the quiet recorder first (Part A2), one real trace from the owner (check C1a), then the fix (Part A1) written from what the iPad really sent. Spec lines LS-57, LS-58 and scenario S10.
+
 ## Standing reminder (owner, 20 Nov: "keep reminding me at the end")
 
 Until the owner has passed the A1 iPad check, **end every message to the owner with one line**:

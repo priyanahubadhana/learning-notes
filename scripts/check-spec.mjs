@@ -48,6 +48,14 @@ for (const spec of config.specs) {
       have.add(id)
       testIds.add(id)
     }
+  // A spec whose tests are made in loops names its ids in the spec's text.
+  if (spec.idsFromSource)
+    for (const src of specSources)
+      for (const id of src.match(new RegExp(`${spec.prefix}-[A-Z]?\\d+`, 'g')) ??
+        []) {
+        have.add(id)
+        testIds.add(id)
+      }
   const r = checkSpec({
     spec,
     markdown: read(spec.file),

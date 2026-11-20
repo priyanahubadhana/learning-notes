@@ -90,7 +90,8 @@
           "status": "done"
         }
       ],
-      "waiting": []
+      "waiting": [],
+      "idsFromSource": true
     }
   ]
 }

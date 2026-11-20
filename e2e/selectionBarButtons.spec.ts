@@ -393,7 +393,12 @@ async function picturePicked(page: Page) {
   await page.getByRole('button', { name: 'Place picture' }).click()
   const img = page.locator('.bn-editor img').first()
   await expect(img).toHaveAttribute('src', /^blob:/)
-  await img.click({ force: true })
+  // The page may still be settling: bring the picture into view, tap, repeat.
+  await expect(async () => {
+    await img.evaluate((e) => e.scrollIntoView({ block: 'center' }))
+    await img.click({ force: true, timeout: 2000 })
+    await expect(page.getByTestId('v8-selbar')).toBeVisible({ timeout: 1500 })
+  }).toPass()
   return img
 }
 
@@ -1620,10 +1625,10 @@ test.describe('the one bar on a phone', () => {
 
 test('SB-B000 the list and the tests name the same buttons', () => {
   // A button dropped from the list, or a test dropped from the spec, shows here.
-  const idsOf = (text: string) => new Set(text.match(/SB-Bd{2,3}/g) ?? [])
+  const idsOf = (text: string) => new Set(text.match(/SB-B\d{2,3}/g) ?? [])
   const list = readFileSync('docs/features/selection-bar-buttons.md', 'utf8')
   const rows = new Set(
-    [...list.matchAll(/^| (SB-Bd{2,3}) |/gm)].map((m) => m[1]!),
+    [...list.matchAll(/^\| (SB-B\d{2,3})\s*\|/gm)].map((m) => m[1]!),
   )
   const spec = idsOf(readFileSync('e2e/selectionBarButtons.spec.ts', 'utf8'))
   // SB-B125 (the recording) is proved by inkReplay.spec.ts, SB-B000 is this test.

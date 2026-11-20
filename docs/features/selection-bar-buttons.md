@@ -216,4 +216,153 @@ Every row of Appendix C of [the phase page](../plans/phases/phase-2-finish.md) i
 
 115 buttons (each row above once; the v8 bar's kinds count as one button). Works today: yes 94, partly 15, no 6. The six that do nothing useful (test.fail): SB-B21 (text bar, Save to notes), SB-B95, SB-B96, SB-B97, SB-B98 (classic Lasso menu: Move, Scale, Rotate, Screenshot on words), SB-B103 (classic Lasso menu: Convert). The partly rows work for drawings but not words, or the other way (SB-B33 to SB-B41 on the v8 bar), or need one more step (SB-B10, SB-B81, SB-B120), or are cut off (SB-B116), or do less than the name says (SB-B24, SB-B26, SB-B27).
 
+### Cursor-only bar, handles and this list's own test
+
+| Id      | Button                                                   | Where                  | Works today                  | Pencil | Smart bar        |
+| ------- | -------------------------------------------------------- | ---------------------- | ---------------------------- | ------ | ---------------- |
+| SB-B140 | Paste ▾, Mic, Enter, Backspace, Undo, Redo (cursor only) | top row of the new bar | yes (SB-B140)                | yes    | Paste ▾ top      |
+| SB-B141 | Format, Bold, Italic (Text row, cursor only)             | Text row               | yes: Bold turns on (SB-B141) | yes    | top: B/I         |
+| SB-B142 | Underline and Strike (Format card)                       | Format card            | yes (SB-B142)                | yes    | in the B/I strip |
+| SB-B143 | Indent and Outdent (Format card)                         | Format card            | yes (SB-B143)                | yes    | ⋯                |
+| SB-B144 | Lists and alignment (Format card)                        | Format card            | yes (SB-B144)                | yes    | ⋯                |
+| SB-B145 | Paste options: Keep look, Match style, Plain text        | one bar                | yes (SB-B145)                | yes    | top (Paste ▾)    |
+| SB-B146 | Corner dots and turn handle of a picked drawing          | handles                | yes (SB-B146)                | yes    | B2 decides       |
+| SB-B147 | Eight resize dots of a picked box                        | handles                | yes (SB-B147)                | yes    | B2 decides       |
+| SB-B148 | Lasso Picks, Undo, Redo                                  | page bars              | yes (SB-B148)                | yes    | n/a              |
+| SB-B000 | This list and the tests name the same ids                | no button              | yes (SB-B000)                | n/a    | n/a              |
+
+### Ids
+
+One line per row id, for `npm run check:spec` (each must have a test named after it).
+
+- **SB-B01** Move the selection tools (grip)
+- **SB-B02** Text colour
+- **SB-B03** Text size
+- **SB-B04** Text style (Aa)
+- **SB-B05** Bold
+- **SB-B06** Italic
+- **SB-B07** Alignment
+- **SB-B08** List
+- **SB-B09** Highlight colour
+- **SB-B10** Link…
+- **SB-B11** Cut
+- **SB-B12** Copy
+- **SB-B13** Delete
+- **SB-B14** ⋯ More
+- **SB-B15** Pin: keep the selection tools here
+- **SB-B16** ✕ Deselect
+- **SB-B17** ⋯ Paste (plain)
+- **SB-B18** ⋯ Make card
+- **SB-B19** ⋯ Add to Summary
+- **SB-B20** ⋯ Key point
+- **SB-B21** ⋯ Save to notes
+- **SB-B22** Cut
+- **SB-B23** Copy
+- **SB-B24** Paste
+- **SB-B25** Duplicate
+- **SB-B26** Colour
+- **SB-B27** Resize
+- **SB-B28** Delete
+- **SB-B29** Edit picture
+- **SB-B30** ⋯ More
+- **SB-B31** Deselect
+- **SB-B32** Border (picture)
+- **SB-B33** Convert to text (beta)
+- **SB-B34** Screenshot of the selection
+- **SB-B35** Key point
+- **SB-B36** Make card
+- **SB-B37** Add to Summary
+- **SB-B38** Save to notes
+- **SB-B39** Move
+- **SB-B40** Scale
+- **SB-B41** Rotate
+- **SB-B42** Box style
+- **SB-B43** Duplicate box
+- **SB-B44** Cut
+- **SB-B45** Copy
+- **SB-B46** Delete box
+- **SB-B47** ⋯ Box actions
+- **SB-B48** ⋯ Box style
+- **SB-B49** ⋯ Copy
+- **SB-B50** ⋯ Cut
+- **SB-B51** ⋯ Duplicate
+- **SB-B52** ⋯ Colour (box colour)
+- **SB-B53** ⋯ Layout
+- **SB-B54** ⋯ Delete box
+- **SB-B60** Move bar (grip)
+- **SB-B61** Pin bar here
+- **SB-B62** Text colour
+- **SB-B63** Size
+- **SB-B64** Font
+- **SB-B65** Bold and italic (Bold, Italic, Underline, Strike, Highlight)
+- **SB-B66** Align (left, centre, right, Line spacing)
+- **SB-B67** List
+- **SB-B68** Box style (fill)
+- **SB-B69** Cut
+- **SB-B70** Paste
+- **SB-B71** Paste options ▾
+- **SB-B72** Delete box
+- **SB-B73** ⋯ Box actions
+- **SB-B74** ⋯ Copy
+- **SB-B75** ⋯ Duplicate box
+- **SB-B76** ⋯ Lock in place / Unlock
+- **SB-B77** ⋯ Box style…
+- **SB-B78** ⋯ Layout…
+- **SB-B79** ⋯ Text options…
+- **SB-B80** ⋯ Move up / Move down
+- **SB-B81** ⋯ Group
+- **SB-B82** ⋯ Delete box
+- **SB-B150** Phone: Font, List, Cut and Paste move under ⋯
+- **SB-B90** Copy
+- **SB-B91** Cut
+- **SB-B92** Duplicate
+- **SB-B93** Delete
+- **SB-B94** Colour
+- **SB-B95** Move
+- **SB-B96** Scale
+- **SB-B97** Rotate
+- **SB-B98** Screenshot
+- **SB-B99** Key point
+- **SB-B100** Make card
+- **SB-B101** Add to Summary
+- **SB-B102** Save to notes
+- **SB-B103** Convert handwriting (beta)
+- **SB-B104** Deselect
+- **SB-B110** Deselect (✕)
+- **SB-B111** Copy
+- **SB-B112** Cut
+- **SB-B113** Duplicate
+- **SB-B114** Convert to text
+- **SB-B115** Colour
+- **SB-B116** Delete
+- **SB-B117** ⋯ More
+- **SB-B118** Thickness
+- **SB-B119** Make card
+- **SB-B120** Add to Summary
+- **SB-B121** Name this drawing
+- **SB-B122** Paste
+- **SB-B123** Copy as picture
+- **SB-B124** Save as picture
+- **SB-B125** Play the recording from here
+- **SB-B130** Copy
+- **SB-B131** Cut
+- **SB-B132** Delete
+- **SB-B133** Screenshot
+- **SB-B134** Make card
+- **SB-B135** Deselect (✕)
+- **SB-B160** Edit Text on the box bar or in its ⋯
+- **SB-B161** Front and Back in the box ⋯
+- **SB-B162** Screenshot for a box
+- **SB-B163** Create Element
+- **SB-B140** Paste ▾, Mic, Enter, Backspace, Undo, Redo (cursor only)
+- **SB-B141** Format, Bold, Italic (Text row, cursor only)
+- **SB-B142** Underline and Strike (Format card)
+- **SB-B143** Indent and Outdent (Format card)
+- **SB-B144** Lists and alignment (Format card)
+- **SB-B145** Paste options: Keep look, Match style, Plain text
+- **SB-B146** Corner dots and turn handle of a picked drawing
+- **SB-B147** Eight resize dots of a picked box
+- **SB-B148** Lasso Picks, Undo, Redo
+- **SB-B000** This list and the tests name the same ids
+
 ## END OF LIST

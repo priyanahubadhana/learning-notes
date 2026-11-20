@@ -5,7 +5,7 @@
 export function expandIds(list) {
   const out = []
   for (const item of list) {
-    const m = /^([A-Z]+)-(N?)(\d+)\.\.\1-\2(\d+)$/.exec(item)
+    const m = /^([A-Z]+)-([A-Z]?)(\d+)\.\.\1-\2(\d+)$/.exec(item)
     if (!m) {
       out.push(item)
       continue
@@ -26,7 +26,7 @@ export function detailLines(markdown, prefix, from, to) {
   const start = lines.findIndex((l) => l.startsWith(from))
   const end = lines.findIndex((l, i) => i > start && l.startsWith(to))
   const body = start < 0 ? [] : lines.slice(start, end < 0 ? undefined : end)
-  const idRe = new RegExp(`^- (?:\`[^\`]*\` )?\\*\\*(${prefix}-N?\\d+)\\*\\*`)
+  const idRe = new RegExp(`^- (?:\`[^\`]*\` )?\\*\\*(${prefix}-[A-Z]?\\d+)\\*\\*`)
   const ids = []
   const lacking = []
   for (const text of body) {
@@ -48,7 +48,7 @@ export const duplicates = (ids) => [
  * and those in a scenario's [LS-12, LS-22] brackets.
  */
 export function idsInTitle(title, prefix) {
-  const one = `${prefix}-N?\\d+`
+  const one = `${prefix}-[A-Z]?\\d+`
   const lead = new RegExp(`^(${one}(?:[ ,/&+]+(?:and )?${one})*)`).exec(title)
   const found = new Set(lead ? lead[1].match(new RegExp(one, 'g')) : [])
   const br = /\[([^\]]*)\]/.exec(title)

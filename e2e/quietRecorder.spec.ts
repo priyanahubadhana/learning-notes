@@ -204,6 +204,18 @@ test('RC-01 every event: order, both clocks, pointer fields, touch count, target
 }) => {
   await scene(page)
   await page.evaluate(() => {
+    // WebKit works tilt out of its own angles, so what the page itself reads is the truth.
+    window.addEventListener(
+      'pointerdown',
+      (e) => {
+        if (e.pointerId === 9)
+          (window as unknown as { __tilt: number[] }).__tilt = [
+            e.tiltX,
+            e.tiltY,
+          ]
+      },
+      true,
+    )
     const el = document.querySelector('[data-paper-box]')!
     const r = el.getBoundingClientRect()
     const at = { clientX: r.x + 30, clientY: r.y + 10 }
@@ -242,13 +254,15 @@ test('RC-01 every event: order, both clocks, pointer fields, touch count, target
     b: 0,
     bs: 1,
     pres: 0.37,
-    tx: 12,
-    ty: -5,
     w: 3,
     h: 4,
     tr: 0,
     g: 'box',
   })
+  const tilt = await page.evaluate(
+    () => (window as unknown as { __tilt: number[] }).__tilt,
+  )
+  expect([down.tx, down.ty]).toEqual(tilt)
   expect(typeof down.t).toBe('number')
   expect(typeof down.p).toBe('number')
   expect(down.rc).toBe(1)
@@ -546,11 +560,12 @@ test('RC-06 the replay sends pressure, buttons, pointer type, id, tilt and touch
     pres: 0.5,
     b: 0,
     bs: 1,
-    tx: 9,
-    ty: -3,
     w: 2,
     h: 2,
   })
+  // WebKit ignores the tilt a script gives a pointer event (it works it out from its own angles).
+  if (test.info().project.name.includes('chromium'))
+    expect(out.got[0]).toMatchObject({ tx: 9, ty: -3 })
   expect(out.got[1]).toMatchObject({ pres: 0.75, b: -1, bs: 1 })
   expect(out.got[2]).toMatchObject({ pres: 0.75, bs: 1 })
   expect(out.got[3]).toMatchObject({ type: 'pointerup', pres: 0, bs: 0 })
@@ -687,7 +702,8 @@ test('RC-N1 the recorder draws nothing, cancels or stops no event, captures no p
   })
   const [d] = await scene(page)
   await stroke(page, loopAround(d))
-  await page.mouse.move(120, 120)
+  // A spot on the page, away from the side bars (a tap at the corner opens Search on the iPad layout).
+  await page.mouse.move(d.x + d.width + 60, d.y)
   await page.mouse.down()
   await page.mouse.up()
   // Drawn: while recording, the recorder's box holds only its one button.

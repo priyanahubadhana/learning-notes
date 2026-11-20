@@ -2,6 +2,14 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 20 Nov 2026: B0 scenarios run as tests, spec check, report (slice/b0-scenarios, Sonnet)
+
+- What: the scenarios of docs/features/lasso.md now live only in e2e/features/lasso.feature and run on chromium and the iPad stand-in through playwright-bdd 9.2.1 (dev tool only; projects bdd-chromium and bdd-ipad-webkit; steps in e2e/steps; `npm run test:scenarios`). Trial result: it fits our config, the push guard, CI (Linux) and Windows, so no fallback. S1 to S5, S8 and S10 pass; S6, S7 and S9 are tagged @notbuilt @fail (Part A1: they must fail today, and the run goes red the day one passes so the tag is removed).
+- `npm run check:spec` (push guard and CI): a sentence without a step, a scenario not run in both projects or skipped, a detail line without id, an id twice, a line with no test or scenario named after it, a test naming a line that is not in the spec, `OPEN:` in a part set to "building" (scripts/spec-check.json), a spec taken out of the list or one more id on a waiting list (compared with origin/build/next), a bad row in docs/metrics/ipad-checks.md.
+- Waiting list (scripts/spec-check.json): 44 lasso lines have no test named after them yet (Part A0 writes them and removes them from the list; it may only shrink).
+- Report: scripts/scenario-report.mjs; CI job `scenarios` runs both projects, makes the report, and the preview adds it at https://build-next.learning-notes-app.pages.dev/scenarios/ . @ipad scenarios say "needs the owner's iPad check" until a row is in docs/metrics/ipad-checks.md. No new service or secret. The service worker leaves /scenarios/ alone (vite.config.ts). Link: Settings > Try new features > Test report (en, es, hi).
+- Files: playwright.config.ts, package.json (+lockfile), scripts/check-spec*.mjs, scripts/scenario-report*.mjs, scripts/push-guard*.mjs, .github/workflows/ci.yml, e2e/features, e2e/steps, e2e/scenarioReportLink.spec.ts, src/settings/v3/TryNewHeader.tsx and tryNew.ts, src/i18n/*/settingsV3.ts, docs/features/lasso.md, docs/metrics/ipad-checks.md.
+
 ### 20 Nov 2026: CI reds 4 (slice/ci-reds-4, Sonnet)
 
 - App bug (paste chooser): a rich paste into a fresh empty box (Settings "Always ask") showed the "Paste as" chooser and it vanished at once. The chooser takes focus; the 18 Nov rule "an empty box goes when focus leaves" counted that as leaving and removed the box, and the chooser went with it (freeSpaceC28 paste, pen and mouse). usePaperBoxes now keeps an empty box while focus rests on a dialog, as it already did for a button or field (SETUP selector).

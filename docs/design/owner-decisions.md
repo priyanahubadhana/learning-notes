@@ -509,3 +509,17 @@ Reference: owner's Goodnotes screenshots 18 Nov (uploads 8f9f2fc8-image.png, aa2
   - **Presets: Edit and Study**, each with the format options inside (no separate Format preset). No Drawing preset; maybe a **Text + drawing** preset for mixed selections.
   - **Switching: Auto by default** (the selection type picks the buttons); a Setting lets the user turn Auto off and use one fixed default bar for everything.
   - "Included in selection" filter: owner asked for an explanation; open.
+
+## Smart select plan: owner answers (20 Nov 2026, planning with Fable)
+
+Plan: docs/plans/phases/phase-2-finish.md. Spec pattern: docs/features/lasso.md.
+
+- **Words without a typing cursor (clash between "two levels like Goodnotes" and "Lasso unchanged"):** keep today's Lasso (with Picks › Text on, a loop still takes whole words without a cursor). Exact letters are an addition that works only when the typing cursor is in that box, also with Picks › Text off. Replaces the "box level never picks words" reading of the Goodnotes study.
+- **A small Scribble test early: yes** (a preview switch plus a quiet recorder; about 5 minutes for the owner). The feature "circle in the Text tool" stays last.
+- **Bar buttons as drawn** in refs/selection-bar-presets-mock.png: Edit = Delete, Paste ▾, Cut, Copy, B/I, Colour, Size, Highlight, ⋯. Study = Highlight, Colour, Make card, Add to summary, Revise mark, B/I, Copy, ⋯. The Settings picture is approved.
+- **iPad checks:** 5 minutes after each small selection part; once a day for the rest.
+- **Two builders in two lanes** (Sonnet), Opus manages and reviews, Fable only when Opus failed twice.
+- **Spec first, to the fullest (owner ask):** every part gets its lines with ids before code, the owner says yes or "missing X", one test per line named after its id, a checker enforces it (phase page "How every part runs").
+- **Reminder (owner: "keep reminding me at the end"):** until the two rare Lasso problems are closed, every message to the owner ends with the reminder line in docs/plans/lasso-bugs-a-b-note.md.
+- **Must-never lines for the Lasso:** ten offered (phase page); the owner picks.
+- **Stray working copy `ln-c21-base`** inside the project folder: removed on the owner's word (clean, no link inside, its commit is in build/next).

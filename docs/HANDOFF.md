@@ -1,5 +1,7 @@
 # Handoff
 
+**START HERE (20 Nov 2026, after the planning session with Fable).** Read docs/plans/phases/phase-2-finish.md (the plan in small parts, two lanes, "How every part runs"), then docs/features/lasso.md (the first spec; copy its pattern) and docs/plans/lasso-bugs-a-b-note.md (explain the two rare Lasso problems to the owner in plain words when asked, and end every message to the owner with its reminder line). The build restarts lean on Opus after the owner's yes on parts A0, A1 and B0. First step then: merge `main` into `build/next`. The 16 Nov text below is older.
+
 **START HERE (written 16 Nov 2026, 14:35 IST, just before the weekly Claude limit ran out; it resets 20 Nov, 00:30 IST).** Read this file, then docs/plans/combined-test-2026-11-16.md (every bug C2–C22 with its cause, fix and owner answers), then docs/BUILD-STATE.md. Only BUILD-STATE says whether the build is paused; this file never does.
 
 Older notes are in docs/ARCHIVE.md under "HANDOFF entries archived 14 Nov 2026" (search that heading only).

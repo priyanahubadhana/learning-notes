@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 20 Nov 2026: plan for the end of Phase 2 (Fable with the owner)
+
+- What: the Lasso inventory (what it does and why), the plan in small parts with two lanes, the first spec written the spec-first way (ids LS-01 to LS-56), a plain note on the two rare Lasso problems, the owner's answers; an unused working copy (ln-c21-base) removed on the owner's word. Why: owner's planning session of 20 Nov (smart select brief). Files: docs/plans/lasso-inventory-2026-11-20.md, docs/plans/phases/phase-2-finish.md, docs/features/lasso.md, docs/plans/lasso-bugs-a-b-note.md, docs/design/owner-decisions.md, docs/plans/fable-brief-smart-select.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/HANDOFF.md, docs/DECISIONS.md.
+
 ### 18 Nov 2026: mock-up, one bar for a selected box
 
 - What: picture for the owner's OK of the one Goodnotes-style bar (strips, Paste ▾, Box style, ⋯ with Lock box, moved and pinned bar, box near the top, phone). Why: owner decision 18 Nov. Update: Size and Aa frames, docking (four sides, pinned stays on every page and after closing), pinned with nothing selected or typing, no-room case. Update 2: uniformity check vs the Text tool row, Text-tool size frame, missing options added. Update 3: owner answers (lists, fonts, colour tap, size scope), simpler bar. Files: docs/mockups/box-bar/index.html, uniformity.md.

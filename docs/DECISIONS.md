@@ -79,6 +79,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-20 · Phase 2 finish plan, Fable's picks (docs/plans/phases/phase-2-finish.md):** (1) a Lasso loop whose lift was lost finishes and selects (LS-50) instead of being thrown away; (2) at text level the Picks filter is not consulted; (3) the text level calls the Lasso's sheet and loop drawing but lives in its own files behind `select.textLevel`; (4) the checker `check:spec` starts with docs/features/lasso.md only and its list may only grow; (5) a security review once at the end of the phase and with the Paste part, not after every part.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).

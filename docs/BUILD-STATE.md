@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-PAUSED for the Fable plan (20 Nov). build/next f65b1fa6: chromium full set green; ~21 WebKit timing reds open (toolbarV9Polish fix 4, lazyTapPaint, TB-14 repeat). Owner reports Text tool + Lasso worse on iPad: see fable-brief section 14.
+PAUSED, plan ready (20 Nov): docs/plans/phases/phase-2-finish.md. Waiting for the owner's yes on parts A0 (Lasso freeze tests), A1 (two Lasso fixes, docs/features/lasso.md) and B0 (spec checker), and the pick of must-never lines; then lean on Opus, two Sonnet lanes. build/next f65b1fa6: chromium full set green; ~21 WebKit timing reds open (part B11). Merge main into build/next first.
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

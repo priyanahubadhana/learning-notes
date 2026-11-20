@@ -120,3 +120,8 @@ Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-leve
 - Lasso inventory (features, reasons, code, tests, shared code, leads for bugs a and b): [lasso-inventory-2026-11-20.md](lasso-inventory-2026-11-20.md).
 - Clash found: section 9 (no cursor: the Lasso picks whole boxes only) against section 12 (today's Lasso unchanged: with Picks › Text on, a loop picks whole words without a cursor). Asked the owner.
 - Asked the owner (answers pending; no spec or code before them): (1) words without a cursor: keep today or Goodnotes; (2) a small Scribble probe early; (3) the first buttons of the Edit and Study bars; (4) an iPad check after each small part; (5) two builders in two lanes.
+
+## 16. Owner's answers and the plan (20 Nov, later)
+
+- The owner agreed with all five picks of section 15. Answers: owner-decisions.md "Smart select plan: owner answers". The plan in small parts: [phases/phase-2-finish.md](phases/phase-2-finish.md). First spec (pattern for all later parts): docs/features/lasso.md. Note on the two rare Lasso problems for Opus: [lasso-bugs-a-b-note.md](lasso-bugs-a-b-note.md).
+- Waiting for the owner: yes or "missing X" on parts A0, A1 and B0, and the pick of must-never lines. Then the build restarts lean on Opus.

@@ -32,6 +32,11 @@ This is a second lead, and maybe the main one. The Lasso has no palm guard (the 
 
 So the order is: the quiet recorder first (Part A2), one real trace from the owner (check C1a), then the fix (Part A1) written from what the iPad really sent. Spec lines LS-57, LS-58 and scenario S10.
 
+## More answers (20 Nov, evening)
+
+- In Pencil mode a finger never draws (only in Touch or Computer mode), so the palm does not draw its own loop on the owner's iPad. The two palm routes that remain are the twist and the cursor placed in the middle of a loop.
+- Still to ask, in plain words (the owner did not understand the first wording): "You have something selected, with its dashed box. You start a new circle close to it. If the Pencil first touches inside that dashed box or right at its edge, the app moves the old thing instead of starting a new circle. Was your Pencil starting on or very near the old dashed box when it went wrong: yes, no, or not sure?"
+
 ## Standing reminder (owner, 20 Nov: "keep reminding me at the end")
 
 Until the owner has passed the A1 iPad check, **end every message to the owner with one line**:

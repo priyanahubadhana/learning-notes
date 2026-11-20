@@ -122,7 +122,7 @@ Feature: Select letters and words with the Pencil, then fix them
 
 **From the builder and tester lenses (20 Nov; docs/plans/lenses-2026-11-20.md):** the text level lives in its own folder and has its own letter geometry (today's circle code looks at a letter's middle only, and it is not touched); it needs one small hook where a Lasso touch starts, before the Lasso clears things; a highlight exists already, the handles are the large new piece. Numbers: half a letter = 50 %; taps add up within 1000 ms. Sizes: A4 about 6 hours (A4a the highlight, A4b the handles), A5 4 hours, A9 5 hours (A9a a scratch-out over selected words under the Lasso, read by our own code because Scribble is not active there; A9b writing over a selected word in the Text tool, T26). A green computer test does not prove "Scribble stays on", TS-N1, TS-N2 or TS-N5: the owner's iPad decides.
 
-- `OPEN:` a circle in that box that also goes round a drawing on top of the words takes the letters only (Fable's pick; to take the drawing, leave the box first).
+- `OPEN:` a circle in that box that also goes round a drawing on top of the words takes the letters only; to take the drawing, leave the box first (owner agreed, 20 Nov).
 
 Detail lines for the builders (TS-01 …) are written part by part, just before each of A4 to A9 starts: the highlight and handles (A4); the circle, its dashed line and the half-letter rule (A5); double, triple and four taps = word, line on screen, paragraph (A6); leaving (A7); Paste ▾ and Delete on the bar (A8); scribble over selected words, write over a selected word (A9).
 

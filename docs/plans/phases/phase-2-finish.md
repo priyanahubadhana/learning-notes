@@ -6,7 +6,7 @@ Written by Fable with the owner. It covers everything that is open for Phases 0,
 
 Select a word or a few letters with the Pencil, delete or paste, write over it with Scribble: reliably, with Scribble on. One smart bar for every selection. Today's Lasso unchanged. Every open fault of the frame, the tool bar and the text box closed. Then Phases 1, 2A and 2B go live together, on the owner's yes (part E7). That is the end of this plan.
 
-- **What success means to the owner (20 Nov), the six things that must work well by the end:** (1) the bars with the customisation the owner decided (the tool bar and the selection bar); (2) the app frame; (3) the Text tool; (4) the Pen tool; (5) the Lasso tool; (6) the text box and everything about selecting, so that text can be edited in the best possible way. The owner's full test (E2, E5) has one chapter for each of the six.
+- **What success means to the owner (20 Nov), the six things that must work well by the end:** (1) the Settings page with the customisation the owner decided (owner, 20 Nov: this means Settings v5, approved as a picture on 15 Nov and not built; it is Phase 1S, which this plan does not contain: `OPEN:` the owner decides whether it joins this release, see section 8); (2) the app frame; (3) the Text tool; (4) the Pen tool; (5) the Lasso tool; (6) the text box and everything about selecting, so that text can be edited in the best possible way. The owner's full test (E2, E5) has one chapter for each of the six.
 - **Switches (new, off in the live app):** `select.textLevel`, `select.smartBar`. Off = today, exactly.
 - **Already built:** see BUILD-STATE "In the code line".
 
@@ -170,6 +170,8 @@ Every new test file is added to the iPad-size list; time is tested with the test
 3. **Paste ▾ in Touch and Computer modes.** Pick: keep it in every mode; Backspace and Enter stay Pencil-only.
 4. **When the old text box files go.** Pick: a week after go-live, on the owner's word, so there is a way back during the first week.
 5. **The 61 working copies.** Pick: one list, one approval, removed the safe git way; nothing with unsaved work is touched.
+
+**Open (asked 20 Nov, evening): Settings v5.** The owner counts the new Settings page as part of success for this stretch. It is 11 parts, likely 3 to 5 days (phase-plan step 4), with its own recount of the 169 switches first. Fable's pick: start it in whichever lane is free once text selection is done; if it has passed the owner's test when everything else has, it goes live in the same release; if not, it follows a few days later. The editing tools never wait for it.
 
 **Fable's picks, logged, no answer needed:** the tap rule of 18 Nov (every tap acts at once, about a second between taps) replaces the 700 ms of Q-4, and the Tap speed row goes in E6; builders reuse existing working copies (no new permission); the place of the box ⋯ is settled in the pictures of B2; the three Goodnotes extras stay "later" until the owner says otherwise.
 

@@ -1,0 +1,79 @@
+{
+  "note": "B0 (SC-06): the specs under the check. The list of specs may only grow; a waiting list may only shrink (an id leaves it when its test or scenario exists).",
+  "specs": [
+    {
+      "file": "docs/features/lasso.md",
+      "prefix": "LS",
+      "from": "## How it works",
+      "to": "## Edge cases",
+      "parts": [
+        {
+          "name": "A0",
+          "ids": ["LS-01..LS-47"],
+          "status": "building"
+        },
+        {
+          "name": "A1a",
+          "ids": ["LS-50..LS-53", "LS-55..LS-56", "LS-N1..LS-N6"],
+          "status": "planned"
+        },
+        {
+          "name": "A1b",
+          "ids": ["LS-54"],
+          "status": "planned"
+        },
+        {
+          "name": "A1c",
+          "ids": ["LS-57..LS-58"],
+          "status": "planned"
+        }
+      ],
+      "waiting": [
+        "LS-02",
+        "LS-03",
+        "LS-04",
+        "LS-05",
+        "LS-06",
+        "LS-08",
+        "LS-09",
+        "LS-10",
+        "LS-11",
+        "LS-14",
+        "LS-15",
+        "LS-16",
+        "LS-17",
+        "LS-18",
+        "LS-19",
+        "LS-20",
+        "LS-21",
+        "LS-23",
+        "LS-24",
+        "LS-25",
+        "LS-27",
+        "LS-28",
+        "LS-29",
+        "LS-30",
+        "LS-31",
+        "LS-33",
+        "LS-34",
+        "LS-35",
+        "LS-36",
+        "LS-37",
+        "LS-38",
+        "LS-39",
+        "LS-40",
+        "LS-42",
+        "LS-43",
+        "LS-44",
+        "LS-45",
+        "LS-46",
+        "LS-47",
+        "LS-55",
+        "LS-56",
+        "LS-57",
+        "LS-58",
+        "LS-N6"
+      ]
+    }
+  ]
+}

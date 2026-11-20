@@ -66,6 +66,8 @@ jobs:
       - run: npm run format:check
       - run: npm run check:links
       - run: npm run check:ratchet
+      # B0 (SC-08): every scenario sentence has a step, every spec line a test.
+      - run: npm run check:spec
       - run: npm test
       - run: npm run build
       - run: npm run check:size

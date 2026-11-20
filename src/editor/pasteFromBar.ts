@@ -1,4 +1,4 @@
-import { t } from '../i18n/t'
+import { pasteRefusedMessage, readClipboardData } from './appClipboard'
 import { adopterIn } from '../ink/inkTransfer'
 import type { Editor } from './barActions'
 import { insertPlainText, type Toast } from './clipboard'
@@ -16,27 +16,15 @@ import { pasteWith } from './pasteFlow'
 export async function pasteFromClipboard(
   editor: Editor,
   toast: Toast,
+  /** The tapped button: Safari's "Paste" bubble hint shows next to it. */
+  anchor?: Element | null,
 ): Promise<void> {
-  let html = ''
-  let text = ''
-  try {
-    for (const item of await navigator.clipboard.read()) {
-      if (!html && item.types.includes('text/html'))
-        html = await (await item.getType('text/html')).text()
-      if (!text && item.types.includes('text/plain'))
-        text = await (await item.getType('text/plain')).text()
-    }
-  } catch {
-    // Refused or not offered: fall back to the plain text below.
+  const data = await readClipboardData(anchor)
+  if (!data) {
+    toast(pasteRefusedMessage())
+    return
   }
-  if (!html && !text) {
-    try {
-      text = await navigator.clipboard.readText()
-    } catch {
-      toast(t('paste.blocked'))
-      return
-    }
-  }
+  const { html, text } = data
   editor.focus()
   const go = () => {
     if (!pasteWith(editor, { html, text, own: false }, false))

@@ -100,6 +100,7 @@ const config = defineConfig({
         /iosSelect/, // re-test 18 Nov F5-F7
         /circleRecorder/, // 19 Nov circle recorder + trace replay
         /lassoFreeze/, // A0: the Lasso held still (S1-S5, LS lines)
+        /c0Paste[.]spec/, // C0: Paste buttons (Pencil tap, bubble line, box bar)
         /caretSaveJump/, // B7: first letters keep their order
         /previewReload/, // re-test 18 Nov bug 2,
         /parts-gallery/,

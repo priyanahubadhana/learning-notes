@@ -2,6 +2,7 @@ import { t } from '../i18n/t'
 import { isApproved, isRemoteUrl, resolveForCopy } from '../images/remoteImages'
 import type { AppSchema } from './schema'
 import { adopterIn } from '../ink/inkTransfer'
+import { pasteRefusedMessage, rememberAppCopy } from './appClipboard'
 import { detectSource, normalizePasteDoc } from './pasteSources'
 
 /**
@@ -209,9 +210,12 @@ function legacyCopy(text: string): boolean {
 async function copyText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text)
+    rememberAppCopy('', text)
     return true
   } catch {
-    return legacyCopy(text)
+    const ok = legacyCopy(text)
+    if (ok) rememberAppCopy('', text)
+    return ok
   }
 }
 
@@ -349,6 +353,7 @@ export async function copyPageWithPictures(
         'text/plain': new Blob([plain], { type: 'text/plain' }),
       }),
     ])
+    rememberAppCopy(html, plain)
   } catch {
     // The browser blocked rich copy: the words still go.
     toast((await copyText(plain)) ? t('copy.doneTextOnly') : t('copy.blocked'))
@@ -386,7 +391,7 @@ export async function pastePlainFromClipboard(
     if (ink) ink.pasteLines(text, () => insertPlainText(editor, text))
     else insertPlainText(editor, text)
   } catch {
-    toast(t('paste.blocked'))
+    toast(pasteRefusedMessage())
   }
 }
 

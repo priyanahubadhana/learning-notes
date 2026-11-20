@@ -1,3 +1,4 @@
+import { forgetAppCopy } from '../editor/appClipboard'
 import type { InkController } from './controller'
 import { paintBlocks } from './paintBlocks'
 import { paintStroke, type Target } from './render'
@@ -42,6 +43,7 @@ export async function selectionPng(
 export async function copyPng(blob: Blob): Promise<boolean> {
   try {
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+    forgetAppCopy()
     return true
   } catch {
     return false

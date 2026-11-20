@@ -1,4 +1,5 @@
 import { t } from '../../i18n/t'
+import { readClipboardData } from '../appClipboard'
 import { boxHost } from '../pasteBox'
 import {
   choicesFor,
@@ -7,38 +8,11 @@ import {
   planPaste,
   run,
   type PasteChoice,
-  type PasteData,
   type PastePlan,
 } from '../pasteFlow'
 import type { AppSchema } from '../schema'
 
 type Editor = AppSchema['BlockNoteEditor']
-
-/** Reads the clipboard (HTML and text). Null when it is empty or refused. */
-export async function readClipboardData(): Promise<PasteData | null> {
-  try {
-    const items = (await navigator.clipboard.read?.()) ?? []
-    let html = ''
-    let text = ''
-    for (const item of items) {
-      if (item.types.includes('text/html')) {
-        html = await (await item.getType('text/html')).text()
-      }
-      if (item.types.includes('text/plain')) {
-        text = await (await item.getType('text/plain')).text()
-      }
-    }
-    if (html || text) return { html, text, own: false }
-  } catch {
-    // Fall through to the plain-text read.
-  }
-  try {
-    const text = await navigator.clipboard.readText()
-    return text ? { html: '', text, own: false } : null
-  } catch {
-    return null
-  }
-}
 
 /**
  * What the clipboard allows in Paste ▾ (the planner's choices), or null when
@@ -76,8 +50,9 @@ export async function pasteIn(
   editor: Editor,
   form: string,
   toast: (message: string) => void,
+  anchor?: Element | null,
 ): Promise<void> {
-  const data = await readClipboardData()
+  const data = await readClipboardData(anchor)
   if (!data) return toast(t('pageMenus.pasteEmpty'))
   editor.focus()
   const plan: PastePlan = planPaste(data) ?? {

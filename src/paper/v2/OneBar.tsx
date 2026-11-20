@@ -9,6 +9,8 @@ import {
 import { AppUiContext } from '../../app/appUi'
 import { onRouted } from '../../app/input/eventRouter'
 import { Icon } from '../../app/tools/icons'
+import { PasteAskHint } from '../../app/tools/main/PasteAskHint'
+import { pasteFailedMessage } from '../../editor/appClipboard'
 import { tokenCss } from '../../core/boxStyle'
 import type { PaperBox } from '../../core/types'
 import { TEXT_HEX } from '../../editor/colorData'
@@ -97,6 +99,7 @@ export default function OneBarView({
   const off = !boxProp
   const { toast } = useContext(AppUiContext)
   const root = useRef<HTMLDivElement>(null)
+  const pasteGroup = useRef<HTMLSpanElement>(null)
   const [open, setOpen] = useState<OneBarPop | null>(null)
   const [, redraw] = useReducer((n: number) => n + 1, 0)
   const phone = usePhone()
@@ -173,7 +176,8 @@ export default function OneBarView({
   const paste = async (how: PasteHow) => {
     if (!ed) return
     setOpen(null)
-    if (!(await pasteInto(ed, how))) toast(t('onebar.paste.failed'))
+    if (!(await pasteInto(ed, how, pasteGroup.current)))
+      toast(pasteFailedMessage())
   }
 
   const toggle = (id: OneBarPop) => setOpen((o) => (o === id ? null : id))
@@ -313,7 +317,11 @@ export default function OneBarView({
   )
   const pasteItem = item(
     'paste',
-    <span className="ob1-pasteGroup">
+    <span
+      className="ob1-pasteGroup"
+      ref={pasteGroup}
+      data-paste-scope="box-bar"
+    >
       <button
         type="button"
         className="pm-ob__btn ob1-btn"
@@ -339,6 +347,7 @@ export default function OneBarView({
     </span>,
     <PastePop onPick={(how) => void paste(how)} />,
   )
+  const pasteHint = <PasteAskHint scope="box-bar" />
 
   const more = (
     <button
@@ -447,6 +456,7 @@ export default function OneBarView({
             </button>
           )}
           {pasteItem}
+          {pasteHint}
           {canEdit && (
             <button
               type="button"

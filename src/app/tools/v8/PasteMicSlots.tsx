@@ -33,5 +33,5 @@ export function MicSlot({ editor }: { editor: Editor | null }) {
 
 export function PasteSlot({ editor }: { editor: Editor | null }) {
   if (!editor) return null
-  return <PasteButton editor={editor} testId="top-paste" />
+  return <PasteButton editor={editor} testId="top-paste" look="v8" />
 }

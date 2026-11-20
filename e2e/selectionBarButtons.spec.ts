@@ -367,10 +367,16 @@ const V8 = ['toolbar.v8']
 
 /** A tool of the v8 row (folded into More on a narrow screen). */
 async function pickV8(page: Page, name: string) {
+  // Why: the row is laid out a moment after the page opens; looking for the
+  // tool before that sent the click to the More card for a tool that was there.
+  await expect(page.getByTestId('v8-bar')).toBeVisible()
   const direct = page.getByTestId(`v8-tool-${name}`)
-  if (await direct.isVisible()) return direct.click()
-  await page.getByTestId('v8-more').click()
-  await page.getByTestId(`v8-fold-${name}`).click()
+  await expect(async () => {
+    if (await direct.isVisible())
+      return void (await direct.click({ timeout: 2000 }))
+    await page.getByTestId('v8-more').click({ timeout: 2000 })
+    await page.getByTestId(`v8-fold-${name}`).click({ timeout: 2000 })
+  }).toPass()
 }
 
 /** A tool of the classic main bar. */

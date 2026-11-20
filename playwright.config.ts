@@ -108,6 +108,7 @@ const config = defineConfig({
         /firstBoxTap/, // re-test 18 Nov F1-F4
         /c0-1BoxStyle/, // C0-1: every new box starts with the style
         /c0-7Hold/, // C0-7: the hold opens our strip
+        /selectionBarButtons/, // B1: every button of the old selection bars
         /iosSelect/, // re-test 18 Nov F5-F7
         /circleRecorder/, // 19 Nov circle recorder + trace replay
         /quietRecorder/, // A2: the quiet recorder (RC-01 to RC-07, R1 to R4)

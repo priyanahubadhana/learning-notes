@@ -1,5 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
+import { readFileSync } from 'node:fs'
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import {
   cardRecordCount,
@@ -86,6 +87,7 @@ async function open(
     flags?: string[]
     text?: string
     prefs?: Record<string, unknown>
+    mode?: 'touch' | 'pencil'
   } = {},
 ) {
   const level = o.level ?? 'professional'
@@ -104,7 +106,7 @@ async function open(
     for (const [k, v] of Object.entries(entries))
       localStorage.setItem('learning-notes:' + k, JSON.stringify(v))
   }, o.prefs ?? {})
-  await startInMode(page, 'touch')
+  await startInMode(page, o.mode ?? 'touch')
   const flags = o.flags ?? []
   await page.goto(flags.length ? `/?flags=${flags.join(',')}` : '/')
   await createNotebook(page, 'Biology', 'First')
@@ -595,6 +597,14 @@ test.describe('the v8 selection bar, Edit picture and ⋯', () => {
     await expect(page.locator('[data-ink-box]')).toBeHidden()
   })
 
+  test('SB-B31 ⋯ Deselect puts the selection away (picture)', async ({
+    page,
+  }) => {
+    await v8Open(page, 'picture', 'beginner')
+    await moreItem(await v8More(page), 'deselect').click()
+    await expect(selbar(page)).toBeHidden()
+  })
+
   test('SB-B32 ⋯ Border (picture) cycles the border', async ({ page }) => {
     await v8Open(page, 'picture', 'beginner')
     const img = page.locator('.bn-editor img').first()
@@ -638,7 +648,9 @@ test.describe('the v8 selection bar, ⋯ rows on words', () => {
       if (FOR_DRAWINGS.has(id)) {
         // The job (list: "no" on words): do something, not refuse.
         await expect(toast(page)).toBeVisible()
-        await expect(toast(page)).not.toContainText('works on drawings')
+        await expect(toast(page)).not.toContainText('works on drawings', {
+          timeout: 1500,
+        })
       } else if (id === 'keyPoint')
         await expect(
           page.locator('.recall-mark[data-mark="key"]'),
@@ -666,7 +678,9 @@ test.describe('the v8 selection bar, ⋯ rows on a drawing', () => {
         await moreItem(list, id).click()
         // The job (list: "no" on drawings): do something, not refuse.
         await expect(toast(page)).toBeVisible()
-        await expect(toast(page)).not.toContainText('works on words')
+        await expect(toast(page)).not.toContainText('works on words', {
+          timeout: 1500,
+        })
         return
       }
       if (id === 'screenshot') {
@@ -719,7 +733,8 @@ async function boxOpen(page: Page, v2: boolean, o: { second?: boolean } = {}) {
   await page.addInitScript(() =>
     localStorage.setItem('learning-notes:advanced.autoSwitch', '"off"'),
   )
-  await startInMode(page, 'computer')
+  const phone = (page.viewportSize()?.width ?? 1336) < 600
+  await startInMode(page, phone ? 'touch' : 'computer')
   await page.goto(v2 ? '/?flags=textbox.v2' : '/')
   await createNotebook(page, 'Paper', 'Boxes')
   await typeInEditor(page, 'Main text')
@@ -731,7 +746,11 @@ async function boxOpen(page: Page, v2: boolean, o: { second?: boolean } = {}) {
 
 /** A new box `down` px under the first box's text, with a line typed in it. */
 async function addBoxAt(page: Page, text: string, fx: number, down: number) {
-  const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
+  // Phones draw no sheets: the first box's column is the page.
+  const sheetEl = page.locator('[data-paper-sheet="1"]')
+  const sheet = (await (
+    (await sheetEl.count()) ? sheetEl : page.locator('[data-paper-box="main"]')
+  ).boundingBox())!
   const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
   const n = await page.locator(EXTRA).count()
   await page.mouse.click(
@@ -749,9 +768,45 @@ async function addBoxAt(page: Page, text: string, fx: number, down: number) {
 
 /** One tap on the edge of the box until it is picked and not typed in. */
 async function pickBox(page: Page, box: Locator) {
+  if ((page.viewportSize()?.width ?? 1336) < 600) {
+    // A phone: a finger tap on the box's border picks it (nothing beside it).
+    await expect(async () => {
+      const r = (await box.boundingBox())!
+      await page.evaluate(
+        ({ x, y }) => {
+          const el = document.elementFromPoint(x, y)!
+          for (const type of ['pointerdown', 'pointerup'])
+            el.dispatchEvent(
+              new PointerEvent(type, {
+                pointerType: 'touch',
+                pointerId: 7,
+                isPrimary: true,
+                clientX: x,
+                clientY: y,
+                buttons: type === 'pointerdown' ? 1 : 0,
+                bubbles: true,
+                cancelable: true,
+              }),
+            )
+        },
+        { x: r.x + r.width - 4, y: r.y + r.height / 2 },
+      )
+      await expect(box).toHaveAttribute('data-picked', '', { timeout: 1500 })
+    }).toPass()
+    return
+  }
+  let turn = 0
   await expect(async () => {
     const r = (await box.boundingBox())!
-    await page.mouse.click(r.x - 5, r.y + r.height / 2)
+    // Beside the box first; on a phone there is no room beside it, so above, under.
+    const spots = [
+      [r.x - 5, r.y + r.height / 2],
+      [r.x + r.width / 2, r.y - 4],
+      [r.x + r.width / 2, r.y + r.height + 4],
+      [r.x + r.width + 4, r.y + r.height / 2],
+    ]
+    const [x, y] = spots[turn++ % spots.length]!
+    await page.mouse.click(x, y)
     await expect(box).toHaveAttribute('data-picked', '', { timeout: 1500 })
     await expect(box).not.toHaveAttribute('data-typing', '')
   }).toPass()
@@ -932,6 +987,13 @@ test.describe('the one bar of a box (textbox.v2)', () => {
       await expect(p.getByRole('button', { name })).toBeVisible()
     await p.getByRole('button', { name: 'Bold' }).click()
     await expect(box.locator('strong, b').first()).toBeVisible()
+    for (const name of ['Italic', 'Underline', 'Strike', 'Highlight']) {
+      await p.getByRole('button', { name }).click()
+      await expect(p.getByRole('button', { name })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      )
+    }
   })
 
   test('SB-B66 one bar: Align strip aligns the box and sets line spacing', async ({
@@ -1056,15 +1118,18 @@ test.describe('the one bar ⋯ list rows', () => {
   test('SB-B79 ⋯ list: Text options…', async ({ page }) => {
     await open2(page)
     await more(page, 'text').click()
-    await expect(
-      page.locator('[data-pill-card], [data-text-options]').first(),
-    ).toBeVisible()
+    await expect(page.getByTestId('v8-format')).toBeVisible()
   })
   test('SB-B80 ⋯ list: Move up / Move down reorder boxes', async ({ page }) => {
     await open2(page)
+    const yOf = async (text: string) =>
+      (await boxCount(page).filter({ hasText: text }).boundingBox())!.y
+    expect(await yOf('Box one')).toBeLessThan(await yOf('Box two'))
     await expect(more(page, 'down')).toBeEnabled()
     await more(page, 'down').click()
-    await expect(boxCount(page).first()).toContainText('Box two')
+    await expect
+      .poll(async () => (await yOf('Box one')) > (await yOf('Box two')))
+      .toBe(true)
   })
   test('SB-B81 ⋯ list: Group waits for two boxes (tip)', async ({ page }) => {
     await open2(page)
@@ -1122,7 +1187,9 @@ test.describe('the classic Lasso menu on words (v8 off)', () => {
       if (DIM.has(id)) {
         // Known broken (list: "no"): the button should do its job on words.
         await expect(toast(page)).toBeVisible()
-        await expect(toast(page)).not.toContainText(/works on|later update/)
+        await expect(toast(page)).not.toContainText(/works on|later update/, {
+          timeout: 1500,
+        })
         return
       }
       if (id === 'copy') await expect(toast(page)).toContainText('Copied')
@@ -1397,4 +1464,172 @@ test.describe('the mixed menu (drawing and words in one loop)', () => {
     await mixedAct(page, 'deselect').click()
     await expect(mixedMenu(page)).toBeHidden()
   })
+})
+
+/* ------------------------------------------------------------------ */
+/* Appendix C of the phase page: what the Goodnotes pictures show.     */
+/* ------------------------------------------------------------------ */
+
+test.describe('Appendix C: reachable with the Pencil', () => {
+  /** A Pencil-mode page with the new tool bar; the caret at the end of the first line. */
+  async function cursorOnly(page: Page) {
+    await open(page, { flags: ['toolbar.v8', 'page.menus'], mode: 'pencil' })
+    await pickV8(page, 'text')
+    await page.locator('.bn-block-content').first().click()
+    await page.keyboard.press('End')
+  }
+  /** The Format card opens on its first tab; tabs are searched for a tile. */
+  async function formatTile(page: Page, id: string) {
+    await page.getByTestId('v8-chip-text.format').click()
+    await expect(page.getByTestId('v8-format')).toBeVisible()
+    const tile = page.getByTestId(`v8-format-${id}`)
+    for (const tab of ['text', 'style', 'paragraph', 'advanced']) {
+      if (await tile.isVisible()) break
+      const t = page.getByTestId(`v8-format-tab-${tab}`)
+      if (await t.isVisible()) await t.click()
+    }
+    return tile
+  }
+
+  test('SB-B140 cursor only: Paste ▾, Mic, Enter, Backspace, Undo and Redo are on the top row', async ({
+    page,
+  }) => {
+    await cursorOnly(page)
+    for (const id of [
+      'top-paste',
+      'v8-mic',
+      'v8-newline',
+      'v8-backspace',
+      'v8-undo',
+      'v8-redo',
+    ])
+      await expect(page.getByTestId(id)).toBeVisible()
+  })
+
+  test('SB-B141 cursor only: Format, Bold and Italic sit on the Text row; Bold works', async ({
+    page,
+  }) => {
+    await cursorOnly(page)
+    await expect(page.getByTestId('v8-chip-text.format')).toBeVisible()
+    await expect(page.getByTestId('v8-chip-text.italic')).toBeVisible()
+    await page.getByTestId('v8-chip-text.bold').click()
+    await expect(page.getByTestId('v8-chip-text.bold')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
+  test("SB-B142 Format card: Underline and Strike are there (the keyboard bar's B I U S)", async ({
+    page,
+  }) => {
+    await cursorOnly(page)
+    await expect(await formatTile(page, 'underline')).toBeVisible()
+    await expect(page.getByTestId('v8-format-strike')).toBeVisible()
+  })
+
+  test('SB-B143 Format card: Indent and Outdent are there', async ({
+    page,
+  }) => {
+    await cursorOnly(page)
+    await expect(await formatTile(page, 'indent')).toBeVisible()
+    await expect(page.getByTestId('v8-format-outdent')).toBeVisible()
+  })
+
+  test('SB-B144 Format card: lists and alignment are there', async ({
+    page,
+  }) => {
+    await cursorOnly(page)
+    await expect(await formatTile(page, 'bulletList')).toBeVisible()
+    await expect(page.getByTestId('v8-format-numberedList')).toBeVisible()
+    await page.getByTestId('v8-format-tab-paragraph').click()
+    await expect(page.getByTestId('v8-format-alignRight')).toBeVisible()
+  })
+
+  test('SB-B145 one bar Paste ▾ offers Keep look, Match style and Plain text', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await one(page, 'paste').click()
+    for (const name of ['Keep', 'Match', 'Plain'])
+      await expect(
+        pop(page, 'paste').getByRole('button', { name: new RegExp(name) }),
+      ).toBeVisible()
+  })
+
+  test('SB-B146 a picked drawing has four corner dots and a turn handle', async ({
+    page,
+  }) => {
+    await classicInk(page)
+    expect(
+      await page.locator('[data-handle="scale"]').count(),
+    ).toBeGreaterThanOrEqual(4)
+    await expect(page.locator('[data-handle="rotate"]')).toBeVisible()
+  })
+
+  test('SB-B147 a picked box has its eight resize dots', async ({ page }) => {
+    const box = await boxOpen(page, true)
+    await expect(box.locator('[data-resize-handle]')).toHaveCount(8)
+  })
+
+  test('SB-B148 Lasso Picks (what it selects) and Undo/Redo are on the page bars', async ({
+    page,
+  }) => {
+    await open(page, { flags: V8 })
+    await pickV8(page, 'lasso')
+    await expect(page.getByTestId('v8-lasso-bar-picks')).toBeVisible()
+    await expect(page.getByTestId('v8-undo')).toBeVisible()
+    await expect(page.getByTestId('v8-redo')).toBeVisible()
+  })
+})
+
+test.describe('Appendix C: not in the app today (a new part must change these on purpose)', () => {
+  const ABSENT = [
+    ['SB-B160', 'Edit Text', /edit text/i],
+    ['SB-B161', 'Front and Back', /^(front|back)$/i],
+    ['SB-B162', 'Screenshot (a box has none)', /screenshot/i],
+    ['SB-B163', 'Create Element', /create element/i],
+  ] as const
+  for (const [no, name, match] of ABSENT)
+    test(`${no} the box bar and its ⋯ have no ${name}`, async ({ page }) => {
+      await boxOpen(page, true)
+      await one(page, 'boxmore').click()
+      await expect(more(page, 'copy')).toBeVisible()
+      await expect(page.getByRole('menuitem', { name: match })).toHaveCount(0)
+      await expect(
+        page.getByTestId('object-bar').getByRole('button', { name: match }),
+      ).toHaveCount(0)
+    })
+})
+
+test.describe('the one bar on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+  test('SB-B150 phone: the short bar keeps Font, List, Cut and Paste under ⋯', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await expect(one(page, 'font')).toHaveCount(0)
+    await expect(one(page, 'list')).toHaveCount(0)
+    await expect(one(page, 'cut')).toHaveCount(0)
+    await one(page, 'boxmore').click()
+    for (const id of ['font', 'list', 'cut', 'pasteMore'])
+      await expect(more(page, id)).toBeVisible()
+    await more(page, 'font').click()
+    await expect(pop(page, 'font')).toBeVisible()
+  })
+})
+
+test('SB-B000 the list and the tests name the same buttons', () => {
+  // A button dropped from the list, or a test dropped from the spec, shows here.
+  const idsOf = (text: string) => new Set(text.match(/SB-Bd{2,3}/g) ?? [])
+  const list = readFileSync('docs/features/selection-bar-buttons.md', 'utf8')
+  const rows = new Set(
+    [...list.matchAll(/^| (SB-Bd{2,3}) |/gm)].map((m) => m[1]!),
+  )
+  const spec = idsOf(readFileSync('e2e/selectionBarButtons.spec.ts', 'utf8'))
+  // SB-B125 (the recording) is proved by inkReplay.spec.ts, SB-B000 is this test.
+  const proved = new Set([...spec, 'SB-B125', 'SB-B000'])
+  const noTest = [...rows].filter((id) => !proved.has(id))
+  const noRow = [...spec].filter((id) => !rows.has(id) && id !== 'SB-B000')
+  expect(noTest, 'rows of the list with no test').toEqual([])
+  expect(noRow, 'tests with no row in the list').toEqual([])
 })

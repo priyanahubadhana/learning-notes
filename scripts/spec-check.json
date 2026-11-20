@@ -77,6 +77,20 @@
         }
       ],
       "waiting": []
+    },
+    {
+      "file": "docs/features/selection-bar-buttons.md",
+      "prefix": "SB",
+      "from": "## The list",
+      "to": "## END OF LIST",
+      "parts": [
+        {
+          "name": "B1",
+          "ids": [],
+          "status": "done"
+        }
+      ],
+      "waiting": []
     }
   ]
 }

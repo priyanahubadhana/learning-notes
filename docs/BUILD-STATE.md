@@ -1,14 +1,14 @@
 # Build state (rewritten in place, never appended)
 
-BUILDING (20 Nov, Opus main chat, lean mode). Plan: docs/plans/phases/phase-2-finish.md (about 67 small parts, stages 0 to 5; estimate 15 to 18 days). Method: docs/METHOD.md. Code line `build/next` a6e50fab (main merged in, 20 Nov).
+BUILDING (20 Nov, Opus main chat, lean mode). Plan: docs/plans/phases/phase-2-finish.md (about 67 small parts, stages 0 to 5; estimate 15 to 18 days). Method: docs/METHOD.md. Code line `build/next` 2ff99365.
 
 ## Now
 
-| Part | Lane | Branch (working copy)                        | State                                                                              |
-| ---- | ---- | -------------------------------------------- | ---------------------------------------------------------------------------------- |
-| D0   | Opus | main + build/next                            | done 20 Nov (this file, PENDING, merge)                                            |
-| A0   | A    | `slice/a0-lasso-freeze` (ln-2a15), port 5181 | building (Sonnet)                                                                  |
-| B0   | B    | `slice/b0-scenarios` (ln-2a16), port 5182    | building (Sonnet); may ask for playwright-bdd install into the shared node_modules |
+| Part | Lane | Branch (working copy)                        | State                                                                                      |
+| ---- | ---- | -------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| D0   | Opus | main + build/next                            | done 20 Nov (this file, PENDING, merge)                                                    |
+| A0   | A    | `slice/a0-lasso-freeze` (ln-2a15), port 5181 | building (Sonnet)                                                                          |
+| B0   | B    | `slice/b0-scenarios`                         | MERGED c1e6aa25 + fix 2ff99365 (npx --no); report at /scenarios/ after the next CI preview |
 
 Next: A2 (quiet recorder + true replay), owner check C1a (one Lasso trace), A1a/A1b/A1c, A3, then the ten-minute route choice with the owner before A4. Owner meanwhile: catch-up check C0 (plan section 6).
 

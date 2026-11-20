@@ -51,8 +51,9 @@ for (const spec of config.specs) {
   // A spec whose tests are made in loops names its ids in the spec's text.
   if (spec.idsFromSource)
     for (const src of specSources)
-      for (const id of src.match(new RegExp(`${spec.prefix}-[A-Z]?\\d+`, 'g')) ??
-        []) {
+      for (const id of src.match(
+        new RegExp(`${spec.prefix}-[A-Z]?\\d+`, 'g'),
+      ) ?? []) {
         have.add(id)
         testIds.add(id)
       }

@@ -26,7 +26,9 @@ export function detailLines(markdown, prefix, from, to) {
   const start = lines.findIndex((l) => l.startsWith(from))
   const end = lines.findIndex((l, i) => i > start && l.startsWith(to))
   const body = start < 0 ? [] : lines.slice(start, end < 0 ? undefined : end)
-  const idRe = new RegExp(`^- (?:\`[^\`]*\` )?\\*\\*(${prefix}-[A-Z]?\\d+)\\*\\*`)
+  const idRe = new RegExp(
+    `^- (?:\`[^\`]*\` )?\\*\\*(${prefix}-[A-Z]?\\d+)\\*\\*`,
+  )
   const ids = []
   const lacking = []
   for (const text of body) {

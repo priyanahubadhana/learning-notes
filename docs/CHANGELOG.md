@@ -395,6 +395,7 @@ What: Paste ▾ in the top row and floating bar, uniform paste names (Keep look,
 ### 16 Nov 2026: 2A.12 merged
 
 - What: 2A.12 fast-forwarded into build/next with main (94e83c12); 2A.15 review 3 PASS (89b05330); webkit turn to 2A.13. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
+
 ### 20 Nov 2026: plan for the end of Phase 2 (Fable with the owner)
 
 - What: the method on one page (docs/METHOD.md), joining our phased way with the spec-first way of the owner's article (three lenses; story, rules and scenarios that run as tests; assumptions with checks; the right weight per kind of work); the Lasso spec rewritten with a short top part; a draft spec for text selection; part B0 rewritten (scenarios run, report with each preview). Why: owner's asks of 20 Nov. Files: docs/METHOD.md, docs/features/lasso.md, docs/features/text-select.md, docs/plans/phases/phase-2-finish.md, docs/HOW-WE-BUILD.md, docs/INDEX.md, docs/design/owner-decisions.md.

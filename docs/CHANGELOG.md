@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 20 Nov 2026: D0, state files true again; main merged into build/next
+
+- **What:** BUILD-STATE rewritten at the top (now building phase-2-finish; stale 2A tables replaced by a done list); PENDING "Needs you", phase board, R21, BUG-004, BUG-001 corrected; user-stories-2b gets a state section; `main` merged into `build/next` (a6e50fab; CHANGELOG and DECISIONS clashes kept both sides). Merges after 17 Nov that this file missed: C28 to C30b, B7 to B12, the box bar (18 Nov), ci-reds 1 to 4 (last f65b1fa6); tasks.csv holds the details. npm audit: only build-tool warnings, fix is breaking, not applied.
+- **Why:** the sweep (docs/plans/open-items-sweep-2026-11-20.md sections 2 and 6) found the lists out of date.
+- **Files:** docs/BUILD-STATE.md, docs/PENDING.md, docs/plans/user-stories-2b.md, docs/CHANGELOG.md.
+
 ### 20 Nov 2026: plan for the end of Phase 2 (Fable with the owner)
 
 - What: the method on one page (docs/METHOD.md), joining our phased way with the spec-first way of the owner's article (three lenses; story, rules and scenarios that run as tests; assumptions with checks; the right weight per kind of work); the Lasso spec rewritten with a short top part; a draft spec for text selection; part B0 rewritten (scenarios run, report with each preview). Why: owner's asks of 20 Nov. Files: docs/METHOD.md, docs/features/lasso.md, docs/features/text-select.md, docs/plans/phases/phase-2-finish.md, docs/HOW-WE-BUILD.md, docs/INDEX.md, docs/design/owner-decisions.md.

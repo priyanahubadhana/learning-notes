@@ -40,7 +40,7 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 
 ### Stage 1: the Lasso safe, the tools ready (about a day and a half)
 
-**Order in lane A, changed on 20 Nov after the owner's answer "my hand rests on the screen while I circle":** A0, then **A2** (the quiet recorder), then check **C1a** (the owner uses the Lasso as usual for five minutes with the quiet recorder on and taps "Copy last trace" when an outline stays or a loop acts on the old selection), then **A1** written from that real trace (lasso.md S6 to S10, LS-50 to LS-58), then A3. A2 must prove that the recorder changes nothing: every Lasso scenario passes with it on.
+**Order in lane A, changed on 20 Nov after the owner's answer "my hand rests on the screen while I circle":** A0, then **A2** (the quiet recorder), then check **C1a** (the owner uses the Lasso as usual for five minutes with the quiet recorder on and taps "Copy last trace" when an outline stays or a loop acts on the old selection), then **A1** written from that real trace (lasso.md S6 to S10, LS-50 to LS-58), then A3. A2 must prove that the recorder changes nothing: every Lasso scenario passes with it on. The recorder never stores the words of a note: it records that text changed, never which letters.
 
 | #   | Who    | What it gives                                                                                                                                                                               | Spec                                              | Size | Owner's check |
 | --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---- | ------------- |
@@ -174,6 +174,7 @@ Every new test file is added to the iPad-size list; time is tested with the test
 8. After typing, touch ≡: the box does not grow. The middle side handles resize the box.
 9. Reload: still signed in. The sidebar scrolls from empty space. The search has its ✕. The ⚙ gear is reachable upright. The Pencil can drag the scroll bar.
 10. In the Journal, double tap a month name to rename it.
+11. The Pen (on the owner's success list): draw with two pens and two colours, erase part of a stroke, draw a shape, rest your hand while drawing. All as you expect?
 
 ## 7. Pictures the owner approves before the build
 

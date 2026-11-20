@@ -634,3 +634,178 @@ test.describe('the Lasso on words', () => {
     await expect.poll(() => selected(page)).toBe('2000')
   })
 })
+
+/* ---------- more lines on the page's own text and drawings ---------- */
+
+/** The words the page marks as selected (our own selection decorations). */
+const marked = (page: Page) =>
+  page.evaluate(() =>
+    [...document.querySelectorAll('.bn-editor .ln-sel')]
+      .map((e) => e.textContent)
+      .join(''),
+  )
+
+/** The screen box of a phrase inside one text node of the page. */
+const phraseRect = (page: Page, phrase: string): Promise<Rect> =>
+  page.evaluate((w) => {
+    const walker = document.createTreeWalker(
+      document.querySelector('.bn-editor')!,
+      NodeFilter.SHOW_TEXT,
+    )
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const at = (n.textContent ?? '').indexOf(w)
+      if (at < 0) continue
+      const r = document.createRange()
+      r.setStart(n, at)
+      r.setEnd(n, at + w.length)
+      const b = r.getBoundingClientRect()
+      return { x: b.x, y: b.y, w: b.width, h: b.height }
+    }
+    throw new Error('phrase not found: ' + w)
+  }, phrase)
+
+/** Where the typing cursor is, in characters of the page's text; null when there is none. */
+const caretAt = (page: Page) =>
+  page.evaluate(() => {
+    const s = window.getSelection()
+    const ed = document.querySelector('.bn-editor')
+    if (!s || !s.isCollapsed || !s.anchorNode || !ed?.contains(s.anchorNode))
+      return null
+    const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT)
+    let all = 0
+    for (let n = w.nextNode(); n; n = w.nextNode()) {
+      if (n === s.anchorNode) return all + s.anchorOffset
+      all += (n.textContent ?? '').length
+    }
+    return null
+  })
+
+test.describe('the Lasso: more lines', () => {
+  // The finger half of LS-03 (a tap by a finger) places no cursor in the test
+  // browser (checked: touch pointer events reach the pad, the caret stays); it
+  // is left to the owner's iPad check and reported, not frozen here.
+  test('LS-03 a mouse click places the typing cursor there', async ({
+    page,
+  }) => {
+    await drawingsPage(page)
+    const dna = await phraseRect(page, 'DNA')
+    const nucleus = await phraseRect(page, 'nucleus')
+    await page.mouse.click(nucleus.x + nucleus.w / 2, nucleus.y + nucleus.h / 2)
+    await expect
+      .poll(async () => {
+        const c = await caretAt(page)
+        return c !== null && c >= 4 && c <= 12
+      })
+      .toBe(true)
+    // A selection of ink is not touched by it: nothing was selected.
+    await expect(page.locator(BOX)).toHaveCount(0)
+    await page.mouse.click(dna.x + dna.w / 2, dna.y + dna.h / 2)
+    await expect.poll(() => caretAt(page)).toBeGreaterThanOrEqual(22)
+  })
+
+  test('LS-07 a new loop first lets go of selected words', async ({ page }) => {
+    const s = await drawingsPage(page, {
+      'ink.lasso': { text: true, ink: true, pictures: false, shape: 'free' },
+    })
+    const words = await phraseRect(page, 'nucleus holds')
+    await realPen(page, loopRound(words, 5))
+    await expect.poll(() => marked(page)).toBe('nucleus holds')
+    await realPen(page, loopRound(s.a))
+    await expect(page.locator(BOX)).toBeVisible()
+    expect(await marked(page)).toBe('')
+    expect(
+      await page.evaluate(() => window.getSelection()?.toString() ?? ''),
+    ).toBe('')
+  })
+
+  test('LS-29 a second finger on a selection being dragged twists and moves it', async ({
+    page,
+  }) => {
+    const s = await drawingsPage(page)
+    await realPen(page, loopRound(s.a))
+    await selectionIsAround(page, s.a)
+    const before = (await savedInk(page)).strokes
+    const sb = await selBox(page)
+    const f1 = { x: sb.x + sb.width * 0.3, y: sb.y + sb.height / 2 }
+    const r = sb.width * 0.4
+    // The Pencil holds the selection (a drag has begun) ...
+    await page.evaluate(() => {
+      ;(window as unknown as { __realPen?: boolean }).__realPen = true
+    })
+    await page.mouse.move(f1.x - 3, f1.y - 6)
+    await page.mouse.move(f1.x, f1.y)
+    await page.mouse.down()
+    await page.mouse.move(f1.x + 1, f1.y + 1)
+    // ... and a finger joins and swings a quarter turn round it.
+    await page.evaluate(
+      async ({ f1, r }) => {
+        const make = (name: string, x: number, y: number) =>
+          new PointerEvent(name, {
+            pointerType: 'touch',
+            pointerId: 62,
+            clientX: x,
+            clientY: y,
+            bubbles: true,
+            cancelable: true,
+            isPrimary: false,
+            button: 0,
+            buttons: name === 'pointerup' ? 0 : 1,
+            pressure: 0.5,
+          })
+        const pad = document.querySelector('[data-ink-pad]')!
+        pad.dispatchEvent(make('pointerdown', f1.x + r, f1.y))
+        for (let i = 1; i <= 12; i++) {
+          const a = (i / 12) * (Math.PI / 2)
+          pad.dispatchEvent(
+            make('pointermove', f1.x + r * Math.cos(a), f1.y + r * Math.sin(a)),
+          )
+          await new Promise((res) => setTimeout(res, 8))
+        }
+        pad.dispatchEvent(make('pointerup', f1.x, f1.y + r))
+      },
+      { f1, r },
+    )
+    await page.mouse.up()
+    await page.evaluate(() => {
+      ;(window as unknown as { __realPen?: boolean }).__realPen = false
+    })
+    await expect
+      .poll(async () =>
+        (await savedInk(page)).strokes.some(
+          (x) => !before.some((o) => o.id === x.id),
+        ),
+      )
+      .toBe(true)
+    const { strokes } = await savedInk(page)
+    const turned = strokes.find((x) => !before.some((o) => o.id === x.id))!
+    // A flat drawing turned a quarter turn is now taller than wide.
+    const w = Math.max(...xs(turned.pts)) - Math.min(...xs(turned.pts))
+    const h = Math.max(...ys(turned.pts)) - Math.min(...ys(turned.pts))
+    expect(h).toBeGreaterThan(w)
+  })
+
+  test('LS-46 Circle to lasso: a quick circle round ink selects it and switches to the Lasso', async ({
+    page,
+  }) => {
+    const s = await drawingsPage(page, { 'ink.pen': { circleLasso: true } })
+    await tool(page, 'Pen').click()
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(500)
+    const n = 32
+    const ring = Array.from({ length: n + 1 }, (_, i) => ({
+      x:
+        s.a.x +
+        s.a.w / 2 +
+        (s.a.w / 2 + 24) * Math.cos((i / n) * Math.PI * 2 - 1.2),
+      y:
+        s.a.y +
+        s.a.h / 2 +
+        (s.a.h / 2 + 26) * Math.sin((i / n) * Math.PI * 2 - 1.2),
+    }))
+    await realPen(page, ring)
+    await expect(tool(page, 'Lasso')).toHaveAttribute('aria-pressed', 'true')
+    await selectionIsAround(page, s.a)
+    // The circle itself leaves no ink.
+    expect(await drawings(page)).toHaveLength(2)
+  })
+})

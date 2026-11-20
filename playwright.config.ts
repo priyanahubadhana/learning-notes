@@ -86,6 +86,7 @@ const config = defineConfig({
         /firstBoxTap/, // re-test 18 Nov F1-F4
         /iosSelect/, // re-test 18 Nov F5-F7
         /circleRecorder/, // 19 Nov circle recorder + trace replay
+        /lassoFreeze/, // A0: the Lasso held still (S1-S5, LS lines)
         /caretSaveJump/, // B7: first letters keep their order
         /previewReload/, // re-test 18 Nov bug 2,
         /parts-gallery/,

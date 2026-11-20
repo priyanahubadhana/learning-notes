@@ -576,6 +576,7 @@ test('R3 a trace replays the same way: the app ends in the Lasso state the trace
   page,
   browser,
 }) => {
+  test.setTimeout(150_000) // two pages in one test
   const ds = await scene(page, 2)
   await stroke(page, loopAround(ds[0]))
   await expect.poll(() => lassoSel(page)).toBe(1)
@@ -728,6 +729,7 @@ test('RC-N1 with the recorder on, a Lasso loop selects exactly as with it off', 
   page,
   browser,
 }) => {
+  test.setTimeout(150_000) // two pages in one test
   const run = async (p: Page, on: boolean) => {
     const [d] = await scene(p, 1, on)
     await stroke(p, loopAround(d))

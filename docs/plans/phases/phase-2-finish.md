@@ -10,46 +10,9 @@ Select a word or a few letters with the Pencil, delete or paste, write over it w
 - **Switches (new, OFF in the live app, ON in the preview when its part is under test):** `select.textLevel`, `select.smartBar`. Off = today, exactly.
 - **Already built:** see BUILD-STATE "In the code line". **Not in this page:** Settings v5 (1S), Your layouts, Phases 3 to 10, AI, native apps.
 
-## How every part runs (spec first; owner, 20 Nov)
+## How every part runs
 
-One small part at a time: understand → write the lines → owner's yes → tests → code → check → refine.
-
-1. **Story, rules, scenarios, through three lenses.** A spec is never written by one mind alone.
-   - **Why (the owner).** The user story in the owner's own words (As a …, I want …, so that …) and the rules: always true, can never happen, limits. For a new feature the owner writes these first, rough words are fine.
-   - **How (a builder).** Is it buildable, where are the sharp edges, how big is it. For a part of 3 hours or more a Sonnet helper answers this in a short note **before it sees the drafted scenarios**, so it does not just agree; for a smaller part Opus covers it.
-   - **Whether (a tester).** Can each sentence really be checked, which case is missing, what happens when it goes wrong. Same rule: its own list first, then the merge.
-   - Opus merges the three into the feature's spec (docs/features/): the story, the rules, 3 to 5 scenarios in Given / When / Then with the owner's real values, the list "we assume (not proven yet)" with a check for each, "done when" in 3 to 5 lines, then the finer detail lines with ids (LS-, TS-, SB-) and "not in this part". `@ipad` or `(iPad)` marks what only the real iPad can prove. Open points are `OPEN:`. Pattern to copy: docs/features/lasso.md.
-2. **The owner signs off.** The owner gets one short message: the scenarios, the assumptions ("is this how you really work?"), the open questions, and a picture when anything new is visible. The answer is yes or "missing X". No yes, no code.
-3. **Tests first, seen red.** The builder writes the tests of "Test rules" below, shows them failing, then builds. Switch off = today.
-4. **Checks.** `npm run check:spec` and the plain report (Part B0), the part's tests on chromium and ipad-webkit, every LS-01 to LS-47 test green and unchanged. The builder's report shows the red run, the green run and the break-it run.
-5. **Review.** Opus, once: the code against the lines, the look against the picture.
-6. **iPad check.** Merged to the preview; the owner checks the `(iPad)` lines in 5 minutes and answers by id ("LS-52 fail: saw …"). Selection parts: after each part. Other parts: once a day.
-7. **Refine.** A finding changes the lines first, then the test, then the code. A replaced line is marked "replaced by …", never left to contradict. New ideas go to docs/IDEAS.md, not into the part.
-
-## Scenario rules (from the owner's article: write the spec first, then make the spec run)
-
-1. **Few.** Start a small part with 3 to 5 scenarios; a whole feature has about 5 to 10. Only what the owner would care about. Everything finer is a detail line with a unit or screen test, not a scenario.
-2. **What happens, not where to tap.** "When I delete the selection", not "when I tap the red button on the bar": the sentence must survive a redesign. A gesture is named only when the gesture is the feature (circle, double tap); never a pixel, a button's place or a code word.
-3. **Plain words.** If the owner cannot read a sentence, it is rewritten.
-4. **Said as to a teammate.** No clever sentence patterns to save typing.
-5. **Real values.** The owner's own words and examples ("Service 23-11 2000 rate-is").
-6. **Living.** A scenario changes before its code does; the report is made from the tests that just ran, so it cannot go stale.
-7. **Short on top.** The story, the rules and the scenarios fit on one screen for the owner; details sit below.
-8. **One that goes wrong.** Every feature has at least one scenario for the unhappy path (a missed lift, a loop round nothing, a paste with nothing copied).
-9. **Not after the code.** A scenario is written before its code. The one exception is a record of what already exists (the Lasso freeze), and it says so.
-
-## Test rules: a test must prove its line (owner ask, 20 Nov; from the owner's brief and the spec-first method)
-
-1. **One scenario, one acceptance test: the scenario's own sentences run through the real screen.** Each sentence does what the user does (Pencil-style input from `e2e/realPen.ts`) or checks what the user sees. A detail line has a test named after its id. This is the 1-to-1 link.
-2. **Unit tests for the thinking inside a line** (for example "which letters are at least half inside the loop"): many small cases, fast, named with the same id. They are extra; they never replace the acceptance test, because logic can be right while the screen is wrong.
-3. **Red first, then green, then break it.** A test is kept only if it failed before the code existed and fails again when the builder switches the new code off for a moment. A test that cannot fail proves nothing and is not merged.
-4. **No guessing with time.** A test waits for a state it can see, never for a number of milliseconds (except where the line itself is about time). Every new acceptance test passes 20 of 20 repeats alone on ipad-webkit before the merge. A shaky test is a fault to find, never to retry.
-5. **A line no computer can prove says so.** It is marked `(iPad)`, gets the best stand-in test we can write, and is in the owner's 5-minute check. No test pretends to prove Scribble in a desktop browser.
-6. **Every iPad finding becomes a test.** With the quiet recorder (Part A2) the owner taps "Copy last trace" when something goes wrong; the trace is saved under `e2e/fixtures/` and replayed (`e2e/circleTrace.ts`) as a red test before the fix. The fault can then never come back unseen.
-7. **Real examples in the lines.** Selection lines carry the owner's own examples with exact words (text, what is circled, what must be selected); each example is one test case.
-8. **Open points are marked `OPEN:`** in the spec, never guessed. A part with an open point is not built.
-9. **Look is checked against the approved picture** (pictures side by side, and the visual test where one exists), not by writing a test first.
-10. **Ids travel.** The builder's commits and its report name the line ids, so every change can be traced to a line.
+The method is one page: [docs/METHOD.md](../../METHOD.md) (three lenses; story, rules, scenarios; sign-off; tests first; the owner's iPad check; refine; the right weight for each kind of work). Every part of this phase follows it. Specs written this way so far: docs/features/lasso.md (parts A0, A1) and docs/features/text-select.md (parts A4 to A9, draft waiting for the owner's yes).
 
 ## Who builds (owner, 20 Nov: two lanes)
 

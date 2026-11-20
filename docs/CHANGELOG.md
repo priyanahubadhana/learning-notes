@@ -4,6 +4,8 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 20 Nov 2026: plan for the end of Phase 2 (Fable with the owner)
 
+- What: the method on one page (docs/METHOD.md), joining our phased way with the spec-first way of the owner's article (three lenses; story, rules and scenarios that run as tests; assumptions with checks; the right weight per kind of work); the Lasso spec rewritten with a short top part; a draft spec for text selection; part B0 rewritten (scenarios run, report with each preview). Why: owner's asks of 20 Nov. Files: docs/METHOD.md, docs/features/lasso.md, docs/features/text-select.md, docs/plans/phases/phase-2-finish.md, docs/HOW-WE-BUILD.md, docs/INDEX.md, docs/design/owner-decisions.md.
+
 - What: the Lasso inventory (what it does and why), the plan in small parts with two lanes, the first spec written the spec-first way (ids LS-01 to LS-56), a plain note on the two rare Lasso problems, the owner's answers; an unused working copy (ln-c21-base) removed on the owner's word. Why: owner's planning session of 20 Nov (smart select brief). Files: docs/plans/lasso-inventory-2026-11-20.md, docs/plans/phases/phase-2-finish.md, docs/features/lasso.md, docs/plans/lasso-bugs-a-b-note.md, docs/design/owner-decisions.md, docs/plans/fable-brief-smart-select.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/HANDOFF.md, docs/DECISIONS.md.
 
 ### 18 Nov 2026: mock-up, one bar for a selected box

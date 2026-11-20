@@ -19,6 +19,8 @@ Opus helpers are started with medium effort (the start call sets it). No Haiku i
 
 ## 2. The path of one task
 
+**From 20 Nov 2026 the path of one part is [METHOD.md](METHOD.md)** (spec first: three lenses, story, rules, scenarios that run as tests, the owner's sign-off). The steps below are the helpers' mechanics inside it; a brief points to the part's scenarios and detail lines.
+
 1. The manager (the main chat in lean mode, the phase manager in full mode) gives a planned task to a builder (brief in section 6).
 2. The builder writes the tests first, builds until they pass, uses it for real on an iPad size, runs the local checks (section 5) and pushes its branch.
 3. The reviewer checks it once: the code against the task's spec lines, and the pictures against the approved picture. A fix list goes back to the **same** builder.

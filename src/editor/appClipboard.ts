@@ -1,4 +1,6 @@
 import { detectDeviceMode } from '../app/deviceMode'
+import { onCopyOrCut } from '../app/input/copyWatch'
+import { onRouted } from '../app/input/eventRouter'
 import { memStore } from '../app/tools/store'
 import { t } from '../i18n/t'
 import { deviceModeSetting } from '../settings/builtinSettings'
@@ -33,25 +35,16 @@ export function forgetAppCopy(): void {
   mine = null
 }
 
-if (typeof window !== 'undefined') {
-  const away = () => forgetAppCopy()
-  window.addEventListener('blur', away)
-  window.addEventListener('pagehide', away)
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') away()
-  })
-  // A normal copy or cut in the page. At the window, in the bubbling phase:
-  // after the editor and installCopyFormats have filled the event's data.
-  const onCopy = (e: ClipboardEvent) => {
-    const d = e.clipboardData
-    const html = d?.getData('text/html') ?? ''
-    let text = d?.getData('text/plain') ?? ''
-    if (!html && !text) text = window.getSelection()?.toString() ?? ''
-    rememberAppCopy(html, text)
-  }
-  window.addEventListener('copy', onCopy)
-  window.addEventListener('cut', onCopy)
-}
+// Another app can only copy while ours is not in front: drop ours then.
+onRouted('background', () => forgetAppCopy())
+// A normal copy or cut in the page (the editor, a text field).
+onCopyOrCut((e) => {
+  const d = e.clipboardData
+  const html = d?.getData('text/html') ?? ''
+  let text = d?.getData('text/plain') ?? ''
+  if (!html && !text) text = window.getSelection()?.toString() ?? ''
+  rememberAppCopy(html, text)
+})
 
 /** Waiting for the system read: the hint line shows next to this button. */
 export const clipboardAsk = memStore<{

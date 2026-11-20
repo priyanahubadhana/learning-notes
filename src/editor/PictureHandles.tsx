@@ -14,6 +14,7 @@ import { openPictureEditor } from '../images/pictureEditorStore'
 import { onPictureSelect, takePictureSelect } from '../images/pictureSelect'
 import { ghostSpot, holdPagination, trackBlock } from '../paper/paginateHold'
 import { maxPictureWidth, sizeHint, writableHeight } from '../images/pictureMax'
+import { forgetAppCopy } from './appClipboard'
 import { pictureControl, type PictureAction } from './pictureControl'
 import {
   CORNERS,
@@ -392,6 +393,7 @@ export function PictureHandles({ editor }: { editor: Host }) {
         await navigator.clipboard.write([
           new ClipboardItem({ [blob.type || 'image/png']: blob }),
         ])
+        forgetAppCopy()
       } catch {
         if (action === 'cut') return // never remove what could not be copied
       }

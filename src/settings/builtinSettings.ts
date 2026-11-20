@@ -565,7 +565,7 @@ export const holdSelectSetting: SettingDefinition<number> = {
 }
 
 /** How long a still press waits before our hold menu opens (ms, item 19). */
-const HOLD_MENU_CHOICES = [600, 800, 1000, 1500, 2000, 3000] as const
+const HOLD_MENU_CHOICES = [400, 500, 600, 800, 1000, 1500, 2000, 3000] as const
 export const holdMenuSetting: SettingDefinition<number> = {
   id: 'advanced.holdMenu',
   labelKey: 'settings.holdMenu.label',
@@ -573,7 +573,7 @@ export const holdMenuSetting: SettingDefinition<number> = {
   category: 'advanced',
   keywords: 'press hold menu paste select long press touch time',
   scope: 'device',
-  defaultValue: 1500,
+  defaultValue: 500,
   isValid: (v): v is number =>
     typeof v === 'number' &&
     (HOLD_MENU_CHOICES as readonly number[]).includes(v),

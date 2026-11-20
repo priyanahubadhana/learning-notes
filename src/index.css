@@ -556,6 +556,12 @@ html[data-note-line] .bn-editor {
   line-height: 1.95;
 }
 
+/* Paste ▾ buttons: the hover highlight on a plain :hover, so a Pencil hovering over an iPad shows it (C0-3). */
+.pastebtn:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+
 /* The mini toolbar replaces the iOS copy/paste callout on the page text. */
 .bn-editor {
   -webkit-touch-callout: none;
@@ -1197,6 +1203,13 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
 [data-page-content],
 [data-page-content] * {
   -webkit-touch-callout: none;
+}
+
+/* C0-7: while our hold strip is open, Apple's magnifier takes no text. */
+.bn-editor[data-hold-lock],
+.bn-editor[data-hold-lock] * {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* Owner bug batch 2, item 9: with other boxes on the page, the "Tap here to

@@ -7,8 +7,8 @@ import type { AppSchema } from './schema'
 /**
  * Press-and-hold menu (bug batch 19, owner 10 Nov): under the Text tool,
  * pressing and holding still on the page (finger, Pencil or a mouse button)
- * for 1.5 s (setting, 0.6-3 s) opens OUR menu at that spot: Paste, Select, Select all,
- * Cut/Copy, Insert. It only opens if the pointer stayed within ~5 px; any
+ * for 0.5 s (setting, 0.4-3 s) opens OUR menu at that spot: Paste, Select, Select all,
+ * Cut/Copy, Insert. It only opens if the pointer stayed within ~10 px; any
  * movement (a scroll, a drag, a selection handle) cancels it. The system
  * callout never shows (CSS `-webkit-touch-callout`, and the context menu of
  * a touch press is cancelled).
@@ -17,16 +17,16 @@ import type { AppSchema } from './schema'
 type Editor = AppSchema['BlockNoteEditor']
 
 /** The press may drift this far (px) and still count as still (item 5). */
-export const HOLD_STILL_PX = 5
+export const HOLD_STILL_PX = 10
 
-/** The Pencil opens the menu only this close to the caret (px, item 5). */
+/** One letter's reach (px): how far right of a line's end counts as empty. */
 export const PEN_CARET_PX = 12
 
 /** The filling ring shows after this long (ms, item 6). */
 export const RING_AFTER_MS = 400
 
 /** No Pencil hold within this long after text was written (ms, item 5). */
-export const PEN_QUIET_MS = 3000
+export const PEN_QUIET_MS = 1000
 
 /** Pure rule: has the press moved too far to stay a hold? */
 export const movedTooFar = (dx: number, dy: number): boolean =>
@@ -47,27 +47,6 @@ export interface HoldPoint {
   x: number
   y: number
   pointerType: string
-}
-
-/**
- * With the Pencil a hold is also how Scribble starts a word, so it opens the
- * menu only on or right next to the caret, or on a selection. Elsewhere it
- * does nothing (it is writing).
- */
-function penOnCaretOrSelection(editor: Editor, x: number, y: number): boolean {
-  const view = editor.prosemirrorView
-  if (!view || !view.hasFocus()) return false
-  const sel = view.state.selection
-  try {
-    if (!sel.empty) {
-      const at = view.posAtCoords({ left: x, top: y })
-      return !!at && at.pos >= sel.from && at.pos <= sel.to
-    }
-    const c = view.coordsAtPos(sel.head)
-    return distToRect(x, y, c) <= PEN_CARET_PX
-  } catch {
-    return false
-  }
 }
 
 /**
@@ -143,6 +122,17 @@ export function watchHoldMenu(
   /** When text last went into the page (typing, Scribble). */
   let wroteAt = 0
 
+  /**
+   * C0-7: Apple's magnifier starts at about the same time as our strip. Once
+   * our strip opens, the page text takes no selection until the finger lifts
+   * (taps, typing and Scribble are not touched: this starts only at the hold).
+   */
+  const lockSelection = () => {
+    dom.setAttribute('data-hold-lock', '')
+    window.setTimeout(unlock, 4000)
+  }
+  const unlock = () => dom.removeAttribute('data-hold-lock')
+
   const stop = () => {
     if (press) {
       window.clearTimeout(press.timer)
@@ -164,16 +154,9 @@ export function watchHoldMenu(
       )
     )
       return
-    // Writing: the Pencil rests still before a Scribble stroke. No menu
-    // right after text went in, and only on the caret or a selection.
-    if (e.pointerType === 'pen') {
-      if (Date.now() - wroteAt < PEN_QUIET_MS) return
-      if (
-        !penOnCaretOrSelection(editor, e.clientX, e.clientY) &&
-        !(opts.penEmptySpot && onEmptySpot(editor, e.clientX, e.clientY))
-      )
-        return
-    }
+    // C0-7: the Pencil may hold anywhere in the box, but not right after
+    // text went in (Scribble rests still before a stroke).
+    if (e.pointerType === 'pen' && Date.now() - wroteAt < PEN_QUIET_MS) return
     const hold = readDeviceSetting(holdMenuSetting)
     const me = {
       id: e.pointerId,
@@ -188,6 +171,7 @@ export function watchHoldMenu(
         const at = { x: press.x, y: press.y, pointerType: press.type }
         stop()
         openedAt = Date.now()
+        lockSelection()
         onOpen(at)
       }, hold),
     }
@@ -211,6 +195,7 @@ export function watchHoldMenu(
       stop()
   }
   const onEnd = (e: PointerEvent) => {
+    unlock()
     if (press && e.pointerId === press.id) stop()
   }
   // Text going in (keys, Scribble, dictation): note it, and end a hold.
@@ -253,6 +238,7 @@ export function watchHoldMenu(
   }))
   return () => {
     stop()
+    unlock()
     offReset()
     offState()
     doc.removeEventListener('pointerdown', onDown, true)

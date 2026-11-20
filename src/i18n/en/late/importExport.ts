@@ -344,6 +344,10 @@ export const enLateImportExport = {
   'notion.working': 'Importing…',
   'paste.blocked':
     'Your browser did not allow reading the clipboard. Press Ctrl+Shift+V (Cmd+Shift+V on a Mac) instead.',
+  'paste.asking':
+    'Your iPad asks first. Tap the black Paste button, or tap anywhere else to cancel.',
+  'paste.refused':
+    'Not pasted yet. Tap Paste again, then tap the black Paste button that pops up.',
   'paste.done': 'Pasted',
   'paste.plain': 'Paste as plain text',
   'pasteChooser.always': 'Always use this, do not ask again',

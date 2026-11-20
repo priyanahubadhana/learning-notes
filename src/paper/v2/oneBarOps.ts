@@ -2,6 +2,7 @@ import { isReadingFont } from '../../app/reading/readingPrefs'
 import { ensureFont } from '../../app/reading/fonts'
 import type { Editor } from '../../editor/barActions'
 import { FONT_FACE_STYLE, FONT_SIZE_STYLE } from '../../editor/lookStyle'
+import { readClipboardData, rememberAppCopy } from '../../editor/appClipboard'
 import { pasteAs, pasteWith } from '../../editor/pasteFlow'
 import { boxEditors } from '../activeBox'
 import {
@@ -280,6 +281,7 @@ export async function copyBox(pageId: string, boxId: string): Promise<boolean> {
     const text =
       ed && scopeOf(ed) === 'words' ? pickedText(ed) : boxText(pageId, boxId)
     await navigator.clipboard.writeText(text)
+    rememberAppCopy('', text)
     return true
   } catch {
     return false
@@ -313,33 +315,14 @@ export function deleteWords(editor: Editor): void {
 
 export type PasteHow = 'settings' | 'keep' | 'match' | 'plain'
 
-/** Reads the clipboard (text and, when there, the formatted copy). */
-async function readClipboard(): Promise<{ html: string; text: string } | null> {
-  try {
-    if (navigator.clipboard.read) {
-      const items = await navigator.clipboard.read()
-      let html = ''
-      let text = ''
-      for (const item of items) {
-        if (item.types.includes('text/html'))
-          html = await (await item.getType('text/html')).text()
-        if (item.types.includes('text/plain'))
-          text = await (await item.getType('text/plain')).text()
-      }
-      if (html || text) return { html, text }
-    }
-    return { html: '', text: await navigator.clipboard.readText() }
-  } catch {
-    return null
-  }
-}
-
 /** Pastes into the box at its end (or at the caret): false when nothing could be read. */
 export async function pasteInto(
   editor: Editor,
   how: PasteHow,
+  /** The tapped button: Safari's "Paste" bubble hint shows next to it. */
+  anchor?: Element | null,
 ): Promise<boolean> {
-  const data = await readClipboard()
+  const data = await readClipboardData(anchor)
   if (!data || (!data.html && !data.text)) return false
   if (scopeOf(editor) === 'box') {
     const last = editor.document[editor.document.length - 1]

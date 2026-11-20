@@ -368,6 +368,10 @@ export const esImportExport = {
   'notion.working': 'Importando…',
   'paste.blocked':
     'El navegador no permitió leer el portapapeles. Pulsa Ctrl+Shift+V (Cmd+Shift+V en Mac).',
+  'paste.asking':
+    'Tu iPad pregunta primero. Toca el botón negro Pegar, o toca en cualquier otro sitio para cancelar.',
+  'paste.refused':
+    'Aún no se ha pegado. Toca Pegar otra vez y luego toca el botón negro Pegar que aparece.',
   'paste.done': 'Pegado',
   'paste.plain': 'Pegar como texto sin formato',
   'pasteChooser.always': 'Usar siempre esto, no volver a preguntar',

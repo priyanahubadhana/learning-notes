@@ -81,7 +81,7 @@ test('TB-33 iPad: the bar Paste with a refused clipboard says what to press inst
   await open(page, 'keep', 'blocked')
   await page.getByTestId('v8-sel-paste').click()
   await expect(
-    page.getByText(/did not allow reading the clipboard/),
+    page.getByText(/Not pasted yet|did not allow reading the clipboard/),
   ).toBeVisible()
   await expect(page.locator('.bn-editor strong')).toHaveCount(0)
 })

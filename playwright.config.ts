@@ -107,10 +107,12 @@ const config = defineConfig({
         /pencilV2/, // Pencil mode shows the v2 look (owner 18 Nov)
         /firstBoxTap/, // re-test 18 Nov F1-F4
         /c0-1BoxStyle/, // C0-1: every new box starts with the style
+        /c0-7Hold/, // C0-7: the hold opens our strip
         /iosSelect/, // re-test 18 Nov F5-F7
         /circleRecorder/, // 19 Nov circle recorder + trace replay
         /quietRecorder/, // A2: the quiet recorder (RC-01 to RC-07, R1 to R4)
         /lassoFreeze/, // A0: the Lasso held still (S1-S5, LS lines)
+        /c0Paste(Shots)?[.]spec/, // C0: Paste buttons (Pencil tap, bubble line, box bar)
         /caretSaveJump/, // B7: first letters keep their order
         /previewReload/, // re-test 18 Nov bug 2,
         /parts-gallery/,

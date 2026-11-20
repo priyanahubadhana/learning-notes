@@ -2,7 +2,9 @@ import { toolState } from '../gestureReset'
 import { inputMachine } from '../inputMachine'
 import { activeTool } from '../tools/main/mainTools'
 import { selection } from '../selection/store'
-import { t } from '../../i18n/t'
+import { t, currentLocale } from '../../i18n/t'
+import { applyLanguage } from '../../i18n/languages'
+import type { Language } from '../../i18n/languages'
 
 /**
  * The quiet recorder (Part A2, docs/features/quiet-recorder.md). Preview only
@@ -334,7 +336,8 @@ export function traceJson(): string {
 
 const STYLE: Partial<CSSStyleDeclaration> = {
   position: 'fixed',
-  inset: 'auto 8px calc(8px + env(safe-area-inset-bottom)) auto',
+  // On the right edge, below the middle: clear of the top bars and the bottom tab bar.
+  inset: 'calc(60% - 22px) 0 auto auto',
   margin: '0',
   padding: '0',
   border: '0',
@@ -351,7 +354,8 @@ const CARD: Partial<CSSStyleDeclaration> = {
   background: 'var(--color-bg, #fff)',
   color: 'var(--color-ink, #18171c)',
   border: '1px solid var(--color-line-strong, #8a8796)',
-  borderRadius: '22px',
+  borderRightWidth: '0',
+  borderRadius: '22px 0 0 22px',
   padding: '0 14px',
   minHeight: '44px',
   minWidth: '44px',
@@ -453,7 +457,11 @@ export function startLassoRecorder(): void {
     },
     stopMachine,
   ]
-  mount()
+  // The later texts load just after the first screen: wait for them (a second
+  // load of the same texts is harmless), then show the button.
+  void applyLanguage(currentLocale() as Language).then(() => {
+    if (running && !host) mount()
+  })
 }
 
 /** Stops it (the switch went off): the buffer is cleared, the button leaves (RC-04). */

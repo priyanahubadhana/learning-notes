@@ -1199,6 +1199,13 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   -webkit-touch-callout: none;
 }
 
+/* C0-7: while our hold strip is open, Apple's magnifier takes no text. */
+.bn-editor[data-hold-lock],
+.bn-editor[data-hold-lock] * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* Owner bug batch 2, item 9: with other boxes on the page, the "Tap here to
    keep writing" line under the page's text would float among them. */
 [data-paper][data-has-boxes] .ln-tap-below {

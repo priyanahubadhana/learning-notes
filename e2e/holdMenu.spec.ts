@@ -124,25 +124,17 @@ async function caretOnWord(page: Page) {
   return p
 }
 
-test('Pencil: opens only on the caret; elsewhere it is writing and nothing opens (item 5)', async ({
+test('Pencil: a hold opens anywhere in the box, caret or not (C0-7)', async ({
   page,
 }) => {
   await setup(page)
-  // No caret in the page: a Pencil hold is a Scribble stroke starting.
-  await press(page, 'pen', 1100, 0)
-  await expect(page.locator(MENU)).toHaveCount(0)
-  await lift(page)
-  // On the caret: it opens.
-  await caretOnWord(page)
+  // No caret in the page: it opens (the 1 s quiet time after writing is over).
+  await page.waitForTimeout(1100)
   await press(page, 'pen', 1100, 0)
   await expect(page.locator(MENU)).toBeVisible()
   await lift(page)
   await page.keyboard.press('Escape')
-  // Far from the caret (another line, ~60 px away): nothing.
-  await page.evaluate(() => {
-    const el = document.querySelector('.bn-editor') as HTMLElement
-    el.focus()
-  })
+  // Far from the caret: it opens too.
   await caretOnWord(page)
   const p = await wordPoint(page)
   await page.evaluate(
@@ -162,11 +154,11 @@ test('Pencil: opens only on the caret; elsewhere it is writing and nothing opens
     },
     { p },
   )
-  await expect(page.locator(MENU)).toHaveCount(0)
+  await expect(page.locator(MENU)).toBeVisible()
   await lift(page)
 })
 
-test('a drift beyond ~5 px cancels the hold for that whole stroke, even if it returns (item 5)', async ({
+test('a drift beyond ~10 px cancels the hold for that whole stroke, even if it returns (item 5)', async ({
   page,
 }) => {
   await setup(page)
@@ -184,7 +176,7 @@ test('a drift beyond ~5 px cancels the hold for that whole stroke, even if it re
           isPrimary: true,
         })
       el.dispatchEvent(ev('pointerdown', 0))
-      el.dispatchEvent(ev('pointermove', 7))
+      el.dispatchEvent(ev('pointermove', 15))
       el.dispatchEvent(ev('pointermove', 0)) // back at the start
       await new Promise((r) => setTimeout(r, 1000))
     },
@@ -208,10 +200,10 @@ test('a small filling ring shows after 0.4 s and lifting cancels (item 6)', asyn
   await expect(page.locator(MENU)).toHaveCount(0)
 })
 
-test('the default hold is 1.5 s (item 6)', async ({ page }) => {
+test('the default hold is 0.5 s (C0-7)', async ({ page }) => {
   await openNote(page, 'touch')
   await page.evaluate(() => (document.activeElement as HTMLElement)?.blur())
-  await press(page, 'touch', 1000, 0)
+  await press(page, 'touch', 200, 0)
   await expect(page.locator(MENU)).toHaveCount(0)
   await expect(page.locator(MENU)).toBeVisible({ timeout: 1500 })
   await lift(page)

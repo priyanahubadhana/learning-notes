@@ -116,13 +116,13 @@ test('PM-23 the old long-press menu stays when the flag is off', async ({
   await expect(strip(page)).toHaveCount(0)
 })
 
-test('PM-24 the hold time follows Settings: 1.5 s by default', async ({
+test('PM-24 the hold time follows Settings: 0.5 s by default', async ({
   page,
 }) => {
   await start(page)
-  await hold(await pageButton(page), 1000)
+  await hold(await pageButton(page), 250)
   await expect(strip(page)).toHaveCount(0)
-  await hold(await pageButton(page), 1700)
+  await hold(await pageButton(page), 900)
   await expect(strip(page)).toBeVisible()
 })
 

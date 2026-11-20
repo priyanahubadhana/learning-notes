@@ -98,6 +98,7 @@ const config = defineConfig({
         /pencilV2/, // Pencil mode shows the v2 look (owner 18 Nov)
         /firstBoxTap/, // re-test 18 Nov F1-F4
         /c0-1BoxStyle/, // C0-1: every new box starts with the style
+        /c0-7Hold/, // C0-7: the hold opens our strip
         /iosSelect/, // re-test 18 Nov F5-F7
         /circleRecorder/, // 19 Nov circle recorder + trace replay
         /lassoFreeze/, // A0: the Lasso held still (S1-S5, LS lines)

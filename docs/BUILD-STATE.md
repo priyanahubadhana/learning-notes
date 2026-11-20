@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-**PAUSED FOR PLANNING (19 Nov). build/next 2ce4acf2 (preview: check the PR #5 merge commit on the live page before telling the owner). Merged 18-19 Nov: first-box taps, no first-box hint, B7 scrambled letters, iOS select, circle recorder, paste buttons (top row + v8 row, B9, B10), ci-reds (CDP pen driver, scribble-out bug), B11 (Text tool never inks), B12. NEXT: owner plans with Fable using docs/plans/fable-brief-smart-select.md (two-level Lasso + one smart selection bar; keep todays Lasso intact). Then build: two-level Lasso -> smart bar -> Scribble-off experiment. Small follow-up: v8 row Backspace/Enter Pencil-only. Full CI on build/next pending (runners pinned to ubuntu-24.04). Lasso inventory Explore agent stopped by usage limit.**
+PAUSED for the Fable plan (20 Nov). build/next f65b1fa6: chromium full set green; ~21 WebKit timing reds open (toolbarV9Polish fix 4, lazyTapPaint, TB-14 repeat). Owner reports Text tool + Lasso worse on iPad: see fable-brief section 14.
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

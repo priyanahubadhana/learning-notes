@@ -104,3 +104,12 @@ Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-leve
 - Mocks: refs/lasso-text-mock.png (plan OK, but the owner rejected the format bar drawn in it: use the Lasso's own bar + Paste, later the smart bar); refs/selection-bar-presets-mock.png (Settings › Tool bar › Selection bar; OK pending); refs/paste-mock2-approved.png (approved).
 - Goodnotes studies: refs/goodnotes-lasso-text-1/2, goodnotes-lasso-box-level-1/2, goodnotes-lasso-text-level, goodnotes-text-cursor-bar, goodnotes-text-selected-bar, goodnotes-mixed-bar/-resize/-more.
 - Read order for Fable: this brief (sections 1-13; later sections update earlier ones) → owner-decisions.md from "The owner's main iPad flow" to the end → pencil-select-plan.md (trace findings, must-never) → research/smart-selection-bar.md → IDEAS.md (Goodnotes approach, Clean up with AI). State of the build: BUILD-STATE.md line 3.
+
+## 14. Owner iPad report (20 Nov, preview f65b1fa6) — read before planning
+
+- "Text tool and Lasso became a mess; it was far better before."
+- Text tool: wrote "Service 23/11/2000 rate -is"; a circle sometimes selects, sometimes not.
+- Lasso: does not select the words; does things the owner cannot follow.
+- Red lines all over the screen: these are the Circle recorder's trace lines (Settings switch "Circle recorder" ON; it draws our path in red). Turn it OFF for normal use.
+- Opus: since the last good iPad state, these changes touched selection: ios-select (circleSelect.ts), circle-recorder, b11-b12 (ink/controller.ts tool check + hover ends stroke), ci-reds-2/3 (MiniToolbar, PaperFrame resize). First step for the plan: re-test with the recorder OFF; if still bad, find which slice broke the Lasso (compare with the last version the owner called good) before building anything new.
+- Full CI: chromium green; ~21 WebKit reds, mostly timing, a different set each run (see BUILD-STATE).

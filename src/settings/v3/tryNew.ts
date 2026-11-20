@@ -115,3 +115,11 @@ export function createTapCounter(
     return false
   }
 }
+
+/** Where the scenario report (B0, SC-05) is published: next to the preview, never on the live site. */
+export const SCENARIO_REPORT_PATH = '/scenarios/'
+
+/** The report exists on the preview address (and is looked for on the developer's own computer). */
+export const showsScenarioReport = (hostname: string): boolean =>
+  hostname === 'build-next.learning-notes-app.pages.dev' ||
+  hostname === 'localhost'

@@ -247,6 +247,7 @@ const config = defineConfig({
         /toolbarV9(Names|Dark).spec/,
         /toolbarV8(Ninth|History).spec/,
         /settingsV3.spec/,
+        /scenarioReportLink/, // B0 SC-05
         /toolbarMenuV(2|8)/,
         // Task H: the Journal and its month repair (manager OK, 15 Nov).
         /journalMonthRepair/,

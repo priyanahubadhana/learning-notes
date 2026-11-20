@@ -1045,3 +1045,8 @@
     flex: none;
   }
 }
+.sv3-btn-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}

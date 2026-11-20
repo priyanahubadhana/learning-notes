@@ -115,3 +115,14 @@ describe('Undo of a Test a phase change (SET-B26h)', () => {
     expect(presetChangeItems(new Set(), new Set(), own)).toEqual([own])
   })
 })
+
+describe('the scenario report link (B0, SC-05)', () => {
+  it('shows on the preview address and on localhost, never on the live site', async () => {
+    const { showsScenarioReport } = await import('./tryNew')
+    expect(showsScenarioReport('build-next.learning-notes-app.pages.dev')).toBe(
+      true,
+    )
+    expect(showsScenarioReport('localhost')).toBe(true)
+    expect(showsScenarioReport('learning-notes-app.pages.dev')).toBe(false)
+  })
+})

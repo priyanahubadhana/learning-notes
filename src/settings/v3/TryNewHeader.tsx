@@ -4,7 +4,11 @@ import type { JsonValue } from '../../core/types'
 import { settingsRegistry } from '../builtinSettings'
 import { readDeviceSetting } from '../settingsService'
 import { useSettingsHistory } from './historyCtx'
-import { rowsToTurnOff } from './tryNew'
+import {
+  rowsToTurnOff,
+  SCENARIO_REPORT_PATH,
+  showsScenarioReport,
+} from './tryNew'
 import { tv } from './tv'
 
 /**
@@ -53,6 +57,19 @@ export function TryNewHeader() {
           {tv('sv3.tryNew.keepsOn')}
         </span>
       </div>
+      {showsScenarioReport(globalThis.location?.hostname ?? '') && (
+        <div className="sv3-row-control" data-scenario-report>
+          <a
+            className="sv3-btn sv3-btn-link"
+            href={SCENARIO_REPORT_PATH}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {tv('sv3.tryNew.reportLink')}
+          </a>
+          <span className="sv3-line-help">{tv('sv3.tryNew.reportHelp')}</span>
+        </div>
+      )}
     </div>
   )
 }

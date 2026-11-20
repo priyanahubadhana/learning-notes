@@ -189,7 +189,11 @@ export default defineConfig({
         globIgnores: PRECACHE_IGNORES,
         maximumFileSizeToCacheInBytes: PRECACHE_MAX_BYTES,
         navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/privacy(\.html)?$/],
+        // /scenarios/ is the scenario report (B0), added to the preview only.
+        navigateFallbackDenylist: [
+          /^\/privacy(\.html)?$/,
+          /^\/scenarios(\/|$)/,
+        ],
         clientsClaim: true,
       },
     }),

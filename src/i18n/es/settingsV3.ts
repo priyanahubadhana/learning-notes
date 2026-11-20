@@ -197,6 +197,9 @@ export const esSettingsV3 = {
   'sv3.version.name': 'Versión',
   'sv3.version.help': 'La versión de la app que estás usando.',
   'sv3.version.details': 'Versión {commit}, compilada el {date}.',
+  'sv3.tryNew.reportLink': 'Informe de pruebas',
+  'sv3.tryNew.reportHelp':
+    'Una página que lista cada historia comprobada de la app y si funciona. Se abre en una pestaña nueva.',
   'sv3.tryNew.keepsOn': 'Mantiene encendidos los Ajustes nuevos',
   'sv3.tryNew.keepScreen':
     'Apagar todas deja encendida esta pantalla nueva de Ajustes, para que no pierdas esta página. Apágala con su propio interruptor.',

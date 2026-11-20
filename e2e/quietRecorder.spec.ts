@@ -1,9 +1,9 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { cornerAction } from './helpers.ts'
+import { cornerAction, setTheme } from './helpers.ts'
 import { expectStrokes, inkNote, stroke, textBox, wave } from './inkHelpers.ts'
-import { tool } from './mainBarHelpers.ts'
+import { openNote, tool } from './mainBarHelpers.ts'
 import { appSwitch, setVisibility } from './toolsHelpers.ts'
 import { loopAround, type Box } from './steps/geometry.ts'
 import {
@@ -762,3 +762,71 @@ test('RC-N3 no heavy work per event: moves cost a push, not a measurement', asyn
   const tr = await copyTrace(page)
   expect(tr.events.filter((e) => e.e === 'pointermove' && e.st)).toEqual([])
 })
+
+/**
+ * RC-05, RC-07 first look: the switch row in Settings and the "Copy last
+ * trace" button, light (Day) and dark (Night), Beginner and Professional,
+ * iPad upright, iPad sideways and phone. The checks always run; the pictures
+ * are written only when SHOT_DIR is set (docs/HOW-WE-BUILD.md section 7).
+ */
+const SIZES = {
+  'ipad-upright': { width: 834, height: 1194 },
+  'ipad-sideways': { width: 1194, height: 834 },
+  phone: { width: 390, height: 844 },
+} as const
+for (const level of ['beginner', 'professional'] as const)
+  test(`RC-05, RC-07 first look (${level}): the button and the switch row in every size and theme`, async ({
+    page,
+  }) => {
+    test.setTimeout(180_000)
+    const dir = process.env.SHOT_DIR
+    await stubClipboard(page)
+    await openNote(page, 'pencil', {
+      'preview.circleRecorder': 'on',
+      level: { level, unlocked: [] },
+    })
+    const shot = async (name: string) => {
+      if (dir) await page.screenshot({ path: `${dir}/${name}.png` })
+    }
+    for (const [theme, label] of [
+      ['light', 'Day'],
+      ['dark', 'Night'],
+    ] as const) {
+      await setTheme(page, label)
+      for (const [size, v] of Object.entries(SIZES)) {
+        await page.setViewportSize(v)
+        await page.waitForTimeout(300)
+        const button = page.locator(COPY)
+        await expect(button).toBeVisible()
+        const box = (await button.boundingBox())!
+        expect(box.x + box.width).toBeLessThanOrEqual(v.width)
+        expect(box.y + box.height).toBeLessThanOrEqual(v.height)
+        await shot(`a2-button-${level}-${theme}-${size}`)
+        if (size === 'phone') {
+          await button.click()
+          await expect(page.getByRole('status')).toBeVisible()
+          await shot(`a2-copied-${level}-${theme}-${size}`)
+        }
+      }
+    }
+    await cornerAction(page, 'Settings')
+    await page
+      .getByRole('navigation', { name: 'Settings categories' })
+      .getByRole('button', { name: /^Try new features/ })
+      .click()
+    for (const [theme, label] of [
+      ['light', 'Day'],
+      ['dark', 'Night'],
+    ] as const) {
+      await setTheme(page, label)
+      for (const [size, v] of Object.entries(SIZES)) {
+        await page.setViewportSize(v)
+        const row = page
+          .locator('main')
+          .getByRole('region', { name: 'Lasso recorder', exact: true })
+        await row.scrollIntoViewIfNeeded()
+        await expect(row).toContainText('records no note words')
+        await shot(`a2-switch-${level}-${theme}-${size}`)
+      }
+    }
+  })

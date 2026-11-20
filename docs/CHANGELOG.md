@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 20 Nov 2026: A2, the quiet recorder (slice/a2-quiet-recorder, Sonnet)
+
+- What: the red-line Circle recorder is gone; the switch is now "Lasso recorder" (same stored key, so the owner's switch carries over). With it on, a lazy chunk (src/app/input/lassoRecorder.ts) keeps the last minute (at most 20 000 events) of pointer, touch, mouse, hover, capture, focus, visibility, selection (lengths only) and text input (that it happened) events in memory, with the Lasso state next to each Lasso down, up, cancel or lost capture (read from the tool-state dump and the input machine; no hook added in controller.ts or PaperFrame.tsx). A small "Copy last trace" button outside the page copies the last 30 seconds as JSON (version 2, with build id and screen size). The replay (e2e/circleTrace.ts) sends what the trace holds and still reads version 1 traces.
+- Why: the two rare Lasso faults show only on the real iPad; part A1 is written from one real trace (check C1a).
+- Files: src/app/input/lassoRecorder.ts, src/editor/circleRecorderKey.ts, circleSelect.ts (recorder hook removed), circleRecorder.ts (removed), src/main.tsx (one line), src/settings/flagSettings.ts, src/i18n/*/flags.ts, e2e/quietRecorder.spec.ts, e2e/circleRecorder.spec.ts (panel tests moved), e2e/circleTrace.ts, playwright.config.ts (LASSO_RECORDER_ON=1 puts the switch on for a whole run), scripts/spec-check.json.
+
 ### 20 Nov 2026: D0, state files true again; main merged into build/next
 
 ### 20 Nov 2026: B0 scenarios run as tests, spec check, report (slice/b0-scenarios, Sonnet)

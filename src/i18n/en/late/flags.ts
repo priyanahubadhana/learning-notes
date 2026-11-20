@@ -5,11 +5,14 @@ export const enLateFlags = {
     'New parts of the app, switched off until you try them.',
   'flags.preset.phase.name': 'Test a phase',
   'flags.preset.phase.desc': 'Pick the phase you want to try.',
-  'flags.circleRecorder.name': 'Circle recorder',
-  'flags.circleRecorder.desc':
-    'Records one Pencil circle in a text box (events, selection, layout) and shows it as text you can copy. For testing only. Nothing leaves this device.',
-  'recorder.copy': 'Copy',
-  'recorder.title': 'Circle recording',
+  'flags.lassoRecorder.name': 'Lasso recorder',
+  'flags.lassoRecorder.desc':
+    'Quietly keeps the last minute of Pencil and finger events, so a Lasso fault can be copied and sent. It draws nothing and records no note words. For testing only. Nothing leaves this device.',
+  'recorder.copyTrace': 'Copy last trace',
+  'recorder.copied': 'Trace copied: paste it in the chat',
+  'recorder.copyFailed':
+    'Could not copy. Select the text, copy it, then paste it in the chat.',
+  'recorder.close': 'Close',
   'flags.tapSpeed.name': 'Tap speed',
   'flags.tapSpeed.desc':
     'How quickly taps must follow each other to count as a double or triple tap. For testing only.',

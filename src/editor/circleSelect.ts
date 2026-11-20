@@ -8,8 +8,6 @@ import { keepSelection } from './ownSelection'
 import { noteTapSelected } from './penGuard'
 import { touchEndHold } from './tapSelect'
 import type { AppSchema } from './schema'
-import { recorderOn } from './circleRecorderKey'
-import type { LoopReport } from './circleRecorder'
 
 /**
  * Pencil circle-select (F5 / F6, owner's iPad re-test 18 Nov). Circling words
@@ -213,28 +211,8 @@ export function watchCircleSelect(
   if (!dom) return () => {}
   const doc = dom.ownerDocument
   let stroke: { id: number; path: P[] } | null = null
-  // Preview only: the circle recorder (circleRecorder.ts), a lazy chunk.
-  let rec: { stop: () => void; report: (r: LoopReport) => void } | null = null
-  let recLoading = false
-  const wantRecorder = () => {
-    if (!recorderOn()) {
-      rec?.stop()
-      rec = null
-      return
-    }
-    if (rec || recLoading) return
-    recLoading = true
-    void import('./circleRecorder').then((m) => {
-      recLoading = false
-      if (recorderOn())
-        rec = m.startRecorder(() => editor.prosemirrorView ?? null, dom)
-    })
-  }
-  wantRecorder()
-
   const onDown = (e: PointerEvent) => {
     stroke = null
-    wantRecorder()
     if (e.pointerType !== 'pen' || e.button > 0) return
     if (!isOn('textbox.v2') || activeTool.get() !== 'text') return
     if (!(e.target instanceof Node) || !dom.contains(e.target)) return
@@ -261,12 +239,10 @@ export function watchCircleSelect(
     const loop = isLoop(path)
     const view = editor.prosemirrorView
     if (!loop || !view) {
-      rec?.report({ path, loop, glyphs: 0, range: null })
       return
     }
     const gl = glyphsNear(view, path)
     const range = rangeInLoop(path, gl)
-    rec?.report({ path, loop, glyphs: gl.length, range })
     if (!range) return
     // The lift of the loop is ours: iPadOS adds no Paste / Select bar.
     touchEndHold.until = Date.now() + LIFT_MS
@@ -300,6 +276,5 @@ export function watchCircleSelect(
   })
   return () => {
     stopWatch()
-    rec?.stop()
   }
 }

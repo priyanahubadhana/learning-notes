@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import {
   addPage,
   createNotebook,
@@ -14,9 +14,9 @@ import { installRealPen, realPen, type Pt } from './realPen.ts'
 import { replayTrace, traceBounds, type TraceIn } from './circleTrace.ts'
 
 /**
- * Circle recorder (preview switch): after a Pencil circle in a text box the
- * panel shows the events and a JSON trace; the trace replays (replayTrace)
- * and the generous circle rule selects the circled words.
+ * The red-line Circle recorder is gone (A2): its panel tests moved to
+ * e2e/quietRecorder.spec.ts (R2, R4, RC-02). What stays: the circle rule, and
+ * the replay of an old version 1 trace (replayTrace) over "rate-is".
  */
 test.use({ viewport: { width: 1180, height: 820 }, hasTouch: true })
 
@@ -119,77 +119,9 @@ const circleRateIs = async (page: Page) => {
   )
 }
 
-test('recorder ON: a Pencil circle shows the panel with events and a JSON trace', async ({
+test('no panel is drawn on the page after a circle (the red-line recorder is gone)', async ({
   page,
 }) => {
-  await open(page, true)
-  await circleRateIs(page)
-  const panel = page.locator('[data-circle-recorder]')
-  await expect(panel).toBeVisible({ timeout: 8000 })
-  const text = await page.locator('[data-circle-recorder-text]').inputValue()
-  expect(text).toContain('pointer events: pointerdown 1')
-  expect(text).toContain('our loop: isLoop true')
-  expect(text).toContain('visualViewport')
-  expect(text).toContain('ancestor')
-  const trace = JSON.parse(text.split('--- JSON ---\n')[1]) as TraceIn
-  expect(
-    trace.events.some(
-      (e) => e.type === 'pointerdown' && e.pointerType === 'pen',
-    ),
-  ).toBe(true)
-  expect(
-    trace.events.filter((e) => e.type === 'pointermove').length,
-  ).toBeGreaterThan(5)
-  expect(trace.events.some((e) => e.type === 'selectionchange')).toBe(true)
-  await expect(page.locator('[data-circle-recorder-svg] polyline')).toHaveCount(
-    1,
-  )
-  await expect(page.locator('[data-circle-recorder-svg] rect')).toHaveCount(1)
-  if (process.env.WRITE_TRACE)
-    writeFileSync(process.env.WRITE_TRACE, JSON.stringify(trace))
-  if (process.env.SHOT_DIR)
-    await page.screenshot({
-      path: process.env.SHOT_DIR + '/chromium-recorder-panel-ipad-sideways.png',
-    })
-  // The closing cross removes the panel.
-  await panel.getByRole('button', { name: '✕' }).click()
-  await expect(panel).toHaveCount(0)
-})
-
-test('recorder ON: a finger double tap is recorded with click events and who cancelled what', async ({
-  page,
-}) => {
-  await open(page, true)
-  const w = await boxOf(page, 'Service')
-  const at = { x: w.x + w.width / 2, y: w.y + w.height / 2 }
-  await page.touchscreen.tap(at.x, at.y)
-  await page.waitForTimeout(150)
-  await page.touchscreen.tap(at.x, at.y)
-  // A word written over the selection (what Scribble sends is beforeinput / input).
-  await page.keyboard.type('Q')
-  const panel = page.locator('[data-circle-recorder]')
-  await expect(panel).toBeVisible({ timeout: 8000 })
-  const text = await page.locator('[data-circle-recorder-text]').inputValue()
-  const trace = JSON.parse(text.split('--- JSON ---\n')[1]) as {
-    events: { type: string; cancelable?: boolean; dp?: boolean }[]
-  }
-  const types = trace.events.map((e) => e.type)
-  expect(types).toContain('pointerdown')
-  expect(types).toContain('click')
-  expect(types).toContain('beforeinput')
-  expect(text).toContain('insertText')
-  expect(trace.events.find((e) => e.type === 'pointerdown')?.cancelable).toBe(
-    true,
-  )
-  // Box-select taps: which box, whether the window saw it after the page, the tool.
-  const down = trace.events.find((e) => e.type === 'pointerdown') as
-    { box?: string; reached?: boolean; tool?: string } | undefined
-  expect(down?.box).toBe('main')
-  expect(down?.reached).toBe(true)
-  expect(down?.tool).toBeTruthy()
-})
-
-test('recorder OFF: no panel after a circle', async ({ page }) => {
   await open(page, false)
   await circleRateIs(page)
   await page.waitForTimeout(3500)

@@ -74,6 +74,20 @@
         "LS-58",
         "LS-N6"
       ]
+    },
+    {
+      "file": "docs/features/quiet-recorder.md",
+      "prefix": "RC",
+      "from": "**Can never happen**",
+      "to": "## END OF SPEC (none)",
+      "parts": [
+        {
+          "name": "A2",
+          "ids": ["RC-01..RC-07", "RC-N1..RC-N3"],
+          "status": "building"
+        }
+      ],
+      "waiting": []
     }
   ]
 }

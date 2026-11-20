@@ -54,6 +54,15 @@ const config = defineConfig({
               name: 'learning-notes:firstUse.seen',
               value: '["lasso","writePad","layers","paperBox"]',
             },
+            // A2 R1: LASSO_RECORDER_ON=1 runs the whole set with the Lasso recorder on.
+            ...(process.env.LASSO_RECORDER_ON
+              ? [
+                  {
+                    name: 'learning-notes:preview.circleRecorder',
+                    value: '"on"',
+                  },
+                ]
+              : []),
             // Most specs open a notebook's tabs by tapping it (R6-12).
             { name: 'learning-notes:general.pasteMode', value: '"keep"' },
             {
@@ -99,6 +108,7 @@ const config = defineConfig({
         /firstBoxTap/, // re-test 18 Nov F1-F4
         /iosSelect/, // re-test 18 Nov F5-F7
         /circleRecorder/, // 19 Nov circle recorder + trace replay
+        /quietRecorder/, // A2: the quiet recorder (RC-01 to RC-07, R1 to R4)
         /caretSaveJump/, // B7: first letters keep their order
         /previewReload/, // re-test 18 Nov bug 2,
         /parts-gallery/,

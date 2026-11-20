@@ -5,11 +5,14 @@ export const esFlags = {
     'Partes nuevas de la app, apagadas hasta que las pruebes.',
   'flags.preset.phase.name': 'Probar una fase',
   'flags.preset.phase.desc': 'Elige la fase que quieres probar.',
-  'flags.circleRecorder.name': 'Grabador de círculos',
-  'flags.circleRecorder.desc':
-    'Graba un círculo del Pencil en un cuadro de texto (eventos, selección, diseño) y lo muestra como texto que puedes copiar. Solo para pruebas. Nada sale de este dispositivo.',
-  'recorder.copy': 'Copiar',
-  'recorder.title': 'Grabación del círculo',
+  'flags.lassoRecorder.name': 'Grabador del Lazo',
+  'flags.lassoRecorder.desc':
+    'Guarda en silencio el último minuto de eventos del Pencil y del dedo, para poder copiar y enviar un fallo del Lazo. No dibuja nada y no graba palabras de las notas. Solo para pruebas. Nada sale de este dispositivo.',
+  'recorder.copyTrace': 'Copiar último registro',
+  'recorder.copied': 'Registro copiado: pégalo en el chat',
+  'recorder.copyFailed':
+    'No se pudo copiar. Selecciona el texto, cópialo y pégalo en el chat.',
+  'recorder.close': 'Cerrar',
   'flags.tapSpeed.name': 'Velocidad de toque',
   'flags.tapSpeed.desc':
     'Lo rápido que deben seguirse los toques para contar como doble o triple toque. Solo para pruebas.',

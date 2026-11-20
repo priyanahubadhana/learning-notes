@@ -73,6 +73,7 @@ import { saveEverythingLazy as saveEverything } from './share/saveEverythingLazy
 import { loadInter } from './design/loadInter'
 import { isDesignTokensRoute } from './design/designRoute'
 import { isConnectRoute } from './connector/connectRoute'
+import { syncRecorder } from './editor/circleRecorderKey'
 import { setSlowMomentsOn, slowMomentsWanted } from './perf/slowMomentsSwitch'
 
 initDeviceMode()
@@ -85,6 +86,7 @@ installGestureWatchdog()
 // never came is dropped after 4 s, and a tool change drops a half gesture.
 installListenerCount() // the dump counts the document listeners
 installInputMachine()
+syncRecorder() // the Lasso recorder (preview switch): a lazy chunk, only when on
 inputMachine.setTool(activeTool.get())
 activeTool.subscribe(() => inputMachine.setTool(activeTool.get()))
 installPenTap()

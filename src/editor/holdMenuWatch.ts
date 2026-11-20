@@ -129,15 +129,9 @@ export function watchHoldMenu(
    */
   const lockSelection = () => {
     dom.setAttribute('data-hold-lock', '')
-    const off = () => {
-      dom.removeAttribute('data-hold-lock')
-      doc.removeEventListener('pointerup', off, true)
-      doc.removeEventListener('pointercancel', off, true)
-    }
-    doc.addEventListener('pointerup', off, true)
-    doc.addEventListener('pointercancel', off, true)
-    window.setTimeout(off, 4000)
+    window.setTimeout(unlock, 4000)
   }
+  const unlock = () => dom.removeAttribute('data-hold-lock')
 
   const stop = () => {
     if (press) {
@@ -201,6 +195,7 @@ export function watchHoldMenu(
       stop()
   }
   const onEnd = (e: PointerEvent) => {
+    unlock()
     if (press && e.pointerId === press.id) stop()
   }
   // Text going in (keys, Scribble, dictation): note it, and end a hold.
@@ -243,6 +238,7 @@ export function watchHoldMenu(
   }))
   return () => {
     stop()
+    unlock()
     offReset()
     offState()
     doc.removeEventListener('pointerdown', onDown, true)

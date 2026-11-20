@@ -1,14 +1,17 @@
 # Build state (rewritten in place, never appended)
 
-BUILDING (20 Nov, Opus main chat, lean mode). Plan: docs/plans/phases/phase-2-finish.md (about 67 small parts, stages 0 to 5; estimate 15 to 18 days). Method: docs/METHOD.md. Code line `build/next` 2ff99365.
+BUILDING (20 Nov, Opus main chat, lean mode). Plan: docs/plans/phases/phase-2-finish.md (about 67 small parts, stages 0 to 5; estimate 15 to 18 days). Method: docs/METHOD.md. Code line `build/next` b8ddaf81. Owner check C0 under way: docs/plans/c0-findings-2026-11-20.md.
 
 ## Now
 
-| Part | Lane | Branch (working copy)                        | State                                                                                      |
-| ---- | ---- | -------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| D0   | Opus | main + build/next                            | done 20 Nov (this file, PENDING, merge)                                                    |
-| A0   | A    | `slice/a0-lasso-freeze` (ln-2a15), port 5181 | building (Sonnet)                                                                          |
-| B0   | B    | `slice/b0-scenarios`                         | MERGED c1e6aa25 + fix 2ff99365 (npx --no); report at /scenarios/ after the next CI preview |
+| Part     | Lane | Branch (working copy)                          | State                                                                                                |
+| -------- | ---- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| D0       | Opus | main + build/next                              | done 20 Nov (this file, PENDING, merge)                                                              |
+| A0       | A    | `slice/a0-lasso-freeze`                        | MERGED 512663cd (18 tests; bug A0-B1: Lasso menu width grip covers Thickness, test.fail until fixed) |
+| B0       | B    | `slice/b0-scenarios`                           | MERGED c1e6aa25 + fix 2ff99365 (npx --no); report at /scenarios/ after the next CI preview           |
+| A2       | A    | `slice/a2-quiet-recorder` (ln-2a16), port 5183 | building (Sonnet); spec docs/features/quiet-recorder.md                                              |
+| C0-1     | B    | `slice/c0-1-box-style`                         | MERGED b8ddaf81 (first box and phone adds get the new-box style; 7 tests)                            |
+| C0-paste | B    | `slice/c0-paste` (ln-2a15), port 5181          | building: C0-2 to C0-6 (Pencil Paste, hover, clear iPad message, in-app copy, box-bar paste)         |
 
 Next: A2 (quiet recorder + true replay), owner check C1a (one Lasso trace), A1a/A1b/A1c, A3, then the ten-minute route choice with the owner before A4. Owner meanwhile: catch-up check C0 (plan section 6).
 

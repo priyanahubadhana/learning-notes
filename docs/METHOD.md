@@ -33,7 +33,7 @@ Few (what the owner would care about). What happens, not where to tap; a gesture
 
 ## 5. Test rules
 
-One scenario = one acceptance test through the real screen. Unit tests for the logic inside, never instead of it. Red first, then green, then break it once to see it fail. No waiting by time; 20 of 20 repeats before a merge; a shaky test is a fault to find. What no computer can prove is marked `@ipad` and decided by the owner's check. Never weaken, skip or delete a test.
+One scenario = one acceptance test through the real screen. Unit tests for the logic inside, never instead of it. Red first, then green, then break it once to see it fail. No waiting by time (time itself is tested with the test tool's own clock); 20 of 20 repeats before a merge; a shaky test is a fault to find. Every new test file is added to the iPad-size list. What no computer can prove is marked `@ipad` and decided by the owner's check. Never weaken, skip or delete a test.
 
 ## 6. Who does what
 

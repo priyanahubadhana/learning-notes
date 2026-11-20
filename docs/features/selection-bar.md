@@ -94,9 +94,9 @@ Feature: One bar for every selection
 
 ## We assume (not proven yet)
 
-1. The one box bar built on 18 Nov (strips, move, dock, pin) can grow into the smart bar; it does not have to be rebuilt. Check: the builder lens before Part B3.
+1. ~~The box bar of 18 Nov can simply grow into the smart bar.~~ **Checked by the builder lens, 20 Nov: partly.** Its shell (grip, docking, remembered place, strips) is reused. It is tied to boxes, so the smart bar needs three new things: one description of "what is selected" (cursor, words, box, drawing, picture, mix), the actions for each kind, and one place at page level where the bar is shown.
 2. Every button of the three old bars really works today. Check: Part B1 (some were "coming later" on 11 Nov).
-3. The bar can load only when something is selected, so the app's first load stays inside its size limit (about 3 KB are left). Check: `npm run check:size` in Part B3.
+3. The bar can load only when something is selected, so the app's first load stays inside its size limit (about 6.9 KB were left on 20 Nov). Check: `npm run check:size` in Part B3.
 4. The drawn order is right for daily use. Check: the owner's iPad at Part B9; it can be changed in Settings at any time.
 5. A phone has room for four or five buttons and ⋯. Check: the pictures of Part B2.
 6. Following the selection (Auto) never feels like the bar is jumping. Check: the owner's iPad at Part B9.
@@ -105,6 +105,8 @@ Feature: One bar for every selection
 
 ## How it works
 
+**From the builder and tester lenses (20 Nov; docs/plans/lenses-2026-11-20.md):** the owner sees three bars, the code has six pieces to replace (the text mini bar, the v8 selection bar, the Lasso menu sheet, the mixed menu, the old box bar, the one box bar with its pinned form). Today two bars can show at once in some Pencil flows, which SB-N6 forbids. The two new switches need their entries and texts. Numbers: "keeps its place" = the bar's left edge, top and width within 1 px. Sizes: B3 about 8 hours (B3a what-is-selected and the page-level place, B3b the text states), B5 8 hours (B5a move, copy, card; B5b colour and thickness), B6 4, B7 7 (B7a order and storage, B7b the Settings part), B9 4. A green computer test does not prove SB-N5, SB-N7, a held button's name with the Pencil, or docking by a Pencil drag.
+
 Detail lines for the builders (SB-01 …) are written part by part, just before each of B3 to B9 starts, after the pictures of B2 are approved. The button list of Part B1 is the base: every button, where it lives on the smart bar, and whether it works today.
 
 - A mixed selection (a box with a drawing on it) shows Cut, Copy, Duplicate, Delete, Resize and Edit Text; the rest under ⋯ (owner agreed, 20 Nov); drawn in the pictures of B2.
@@ -112,7 +114,7 @@ Detail lines for the builders (SB-01 …) are written part by part, just before 
 
 ## Edge cases
 
-To be filled by the builder and tester lenses before Part B3. Known so far: the selection changes kind while the bar is pinned; a docked bar on a phone turned sideways; a strip that would open off the screen; a locked box (only Unlock and Copy make sense).
+To be filled by the builder and tester lenses before Part B3. From the lenses: the selection changes while a strip is open (the strip closes); Auto is off (the Edit bar shows for everything); a saved order names a button that no longer exists (it is skipped); the iPad refuses Paste ("Couldn't paste. Try again."). Known so far: the selection changes kind while the bar is pinned; a docked bar on a phone turned sideways; a strip that would open off the screen; a locked box (only Unlock and Copy make sense).
 
 ## Security check
 

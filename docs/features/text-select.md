@@ -37,7 +37,7 @@ As a learner who edits AI-made notes on the iPad with the Apple Pencil, I want t
 
 **Limits**
 
-- It works in the box that holds the typing cursor. Everywhere else the Lasso behaves as today.
+- It works in the box I was typing in last. Picking the Lasso takes the blinking cursor away (checked in the code, 20 Nov), so that box keeps its thin typing border while the Lasso is picked: I can see where a circle will select letters. Everywhere else the Lasso behaves as today.
 - Circle: Pencil or mouse. Taps: Pencil, finger or mouse.
 - Taps add up when they come within about 1 second and land about one word apart.
 - One box at a time: a selection never spans two boxes.
@@ -51,7 +51,7 @@ Feature: Select letters and words with the Pencil, then fix them
 
   Background:
     Given a text box with the words "Service 23-11 2000 rate-is"
-    And the typing cursor is in that box
+    And that box is the one I was typing in
     And the Lasso tool is picked
 
   @ipad
@@ -110,7 +110,7 @@ Feature: Select letters and words with the Pencil, then fix them
 
 ## We assume (not proven yet)
 
-1. Picking the Lasso after the Text tool keeps the typing cursor in its box. Check: the first test of Part A4. If not, the text level uses "the box edited last".
+1. ~~Picking the Lasso keeps the typing cursor in its box.~~ **Checked by the builder lens, 20 Nov: false.** Picking the Lasso takes the focus away; the app still remembers where the cursor was. So the text level uses "the box I was typing in last", remembered when the tool changes, and shows it by its thin border. New code never asks "is the box focused" to mean "is there a cursor".
 2. Under the Lasso, Scribble never takes the stroke, also inside the box that holds the cursor. Check: the owner's iPad at Part A5.
 3. Because our highlight is drawn by us and the browser's own selection stays empty, iPadOS has nothing to show its bar for. Check: the owner's iPad at Parts A4 and A5.
 4. "About half a letter" feels right. Check: the owner's iPad at Part A5; the number can be tuned.
@@ -120,13 +120,17 @@ Feature: Select letters and words with the Pencil, then fix them
 
 ## How it works
 
+**From the builder and tester lenses (20 Nov; docs/plans/lenses-2026-11-20.md):** the text level lives in its own folder and has its own letter geometry (today's circle code looks at a letter's middle only, and it is not touched); it needs one small hook where a Lasso touch starts, before the Lasso clears things; a highlight exists already, the handles are the large new piece. Numbers: half a letter = 50 %; taps add up within 1000 ms. Sizes: A4 about 6 hours (A4a the highlight, A4b the handles), A5 4 hours, A9 5 hours (A9a a scratch-out over selected words under the Lasso, read by our own code because Scribble is not active there; A9b writing over a selected word in the Text tool, T26). A green computer test does not prove "Scribble stays on", TS-N1, TS-N2 or TS-N5: the owner's iPad decides.
+
+- `OPEN:` a circle in that box that also goes round a drawing on top of the words takes the letters only (Fable's pick; to take the drawing, leave the box first).
+
 Detail lines for the builders (TS-01 …) are written part by part, just before each of A4 to A9 starts: the highlight and handles (A4); the circle, its dashed line and the half-letter rule (A5); double, triple and four taps = word, line on screen, paragraph (A6); leaving (A7); Paste ▾ and Delete on the bar (A8); scribble over selected words, write over a selected word (A9).
 
 - `OPEN:` the exact bar before the smart bar exists: today's word bar with Paste ▾ and Delete added (owner, 19 Nov); one picture for the owner's OK before Part A8.
 
 ## Edge cases
 
-To be filled by the builder and tester lenses before Part A4. Known so far: a circle that crosses the box's edge (only letters of this box count); a circle over two lines; a tap on a handle (it is a handle, not a tap on the words, unless it is the next tap of a run); the page scrolls while words are selected (the highlight follows).
+To be filled by the builder and tester lenses before Part A4. From the lenses: a circle over just a space; a handle dragged past the other handle; a box with a link in it; Undo after Delete (the words and the selection come back); the page scrolls while words are selected. Known so far: a circle that crosses the box's edge (only letters of this box count); a circle over two lines; a tap on a handle (it is a handle, not a tap on the words, unless it is the next tap of a run); the page scrolls while words are selected (the highlight follows).
 
 ## Security check
 

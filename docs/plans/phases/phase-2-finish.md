@@ -104,6 +104,24 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 | E8  | After go-live, on the owner's word (question 4): the old text box files removed                                                                                                                 |
 | E9  | Any quiet hour: a list of the 61 working copies (clean or not, merged or not); the owner approves the removals once (question 5)                                                                |
 
+### Changes after the builder and tester lenses (20 Nov; docs/plans/lenses-2026-11-20.md)
+
+Three assumptions were corrected before any code, and some parts are bigger than first written. The tables above keep their part names; these splits and sizes replace theirs:
+
+| Part   | Now                                                                                                                   | Why                                                            |
+| ------ | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| A1     | A1a the nets (2 h), A1b the margin loop (1.5 h), A1c the palm (1.5 h)                                                 | two separate code paths, and no palm guard exists              |
+| A2     | 3 h: the recorder **and** a replay that sends what a trace really holds                                               | today's replay makes up pressure and buttons                   |
+| A4     | A4a the highlight (2 h), A4b the handles (4 h)                                                                        | a highlight exists; the handles are new                        |
+| A5     | 4 h                                                                                                                   | its own letter geometry; a hook before the Lasso clears things |
+| A9     | A9a scratch-out over selected words under the Lasso (3 h), A9b write over a selected word in the Text tool, T26 (2 h) | Scribble is not active under the Lasso                         |
+| B3     | B3a what-is-selected and the page-level place (4 h), B3b the text states (4 h)                                        | the box bar is tied to boxes                                   |
+| B5     | B5a move, copy, card (4 h), B5b colour and thickness (4 h)                                                            | six pieces of code to replace, not three                       |
+| B6, B9 | 4 h each                                                                                                              |                                                                |
+| B7     | B7a order and storage (3 h), B7b the Settings part (4 h)                                                              |                                                                |
+
+Every new test file is added to the iPad-size list; time is tested with the test tool's own clock.
+
 ## 6. The owner's checkpoints
 
 | #        | When                                         | What                                                                                         | Time         |
@@ -181,7 +199,7 @@ Every scenario and every detail line of every part has a green test; the owner h
 
 ## 12. Time
 
-About 50 small parts: lane A about 37 hours of building, lane B about 59, the end about 30. With two lanes, one review per part and one iPad-size test run at a time: **about 10 to 13 days, an estimate** from the measured pace. The owner's check time is not counted. The first three merged parts give the real pace; Opus corrects the number then.
+About 55 small parts: lane A about 45 hours of building, lane B about 66, the end about 30 (after the lenses). With two lanes, one review per part and one iPad-size test run at a time: **about 11 to 14 days, an estimate** from the measured pace. The owner's check time is not counted. The first three merged parts give the real pace; Opus corrects the number then.
 
 ## Appendix A: part B0
 

@@ -6,7 +6,7 @@
 - Auto-compact stays on: when the chat gets long, Claude Code compacts it by itself and work carries on. Don't ask the owner to type `/compact`.
 - After every sub-step: update docs/HANDOFF.md (5 lines) and commit (while a phase is being built: docs/BUILD-STATE.md instead). At the end of every step: update docs/CHANGELOG.md and docs/IDEAS.md, run the related tests, push to GitHub, then start the next step. The full test set runs nightly in CI and before each release.
 - `/next` reads docs/BUILD-STATE.md first (if it says PAUSED, it stops and tells the owner), then docs/HANDOFF.md and docs/INDEX.md, after checking Git and `npm audit`.
-- **Models:** see CLAUDE.md "How we work". If Sonnet fails twice at something, hand it to Opus, then Fable.
+- **Models:** see CLAUDE.md "How we work". If Sonnet fails the same thing three times, hand it to Opus; if Opus fails it five times, to Fable (owner, 20 Nov 2026).
   - Helper agents are allowed. Run several in parallel (separate git worktrees for independent work); pushes happen one at a time, each rebased on the latest code line.
 - **Workflow:**
   - Keep the work continuous and well tested.

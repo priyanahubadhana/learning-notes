@@ -110,11 +110,11 @@ Only one phase is in steps 3 to 6 at a time. The next phase may be in steps 1 an
 
 The cheapest model that can do the job does it. Work moves up only when it fails.
 
-| Who                     | Does                                                                                                                                                                            | When                                          |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| **Sonnet** (`builder`)  | builds: one planned task each, from the first test to merged                                                                                                                    | always                                        |
-| **Opus, medium effort** | manages the build and reviews each task once (`reviewer`): the code against the plan, and the look against the approved picture. Takes a task over when Sonnet failed it twice. | while a phase is being built                  |
-| **Fable**               | plans each phase with the owner (steps 1 and 2); solves what Opus could not                                                                                                     | planning sessions, and when Opus failed twice |
+| Who                     | Does                                                                                                                                                                                                                                    | When                                          |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| **Sonnet** (`builder`)  | builds: one planned task each, from the first test to merged                                                                                                                                                                            | always                                        |
+| **Opus, medium effort** | manages the build and reviews each task once (`reviewer`): the code against the plan, and the look against the approved picture. Takes a task over when Sonnet failed it three times (owner, 20 Nov 2026; Fable after five Opus fails). | while a phase is being built                  |
+| **Fable**               | plans each phase with the owner (steps 1 and 2); solves what Opus could not                                                                                                                                                             | planning sessions, and when Opus failed twice |
 
 Fable does no routine reviews. A look check compares the screen with the approved picture, and Opus does it in the same visit as the code review. Fable is called for a look only when there is no approved picture to compare with, or Opus failed.
 

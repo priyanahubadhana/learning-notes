@@ -104,3 +104,24 @@ Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-leve
 - Mocks: refs/lasso-text-mock.png (plan OK, but the owner rejected the format bar drawn in it: use the Lasso's own bar + Paste, later the smart bar); refs/selection-bar-presets-mock.png (Settings › Tool bar › Selection bar; OK pending); refs/paste-mock2-approved.png (approved).
 - Goodnotes studies: refs/goodnotes-lasso-text-1/2, goodnotes-lasso-box-level-1/2, goodnotes-lasso-text-level, goodnotes-text-cursor-bar, goodnotes-text-selected-bar, goodnotes-mixed-bar/-resize/-more.
 - Read order for Fable: this brief (sections 1-13; later sections update earlier ones) → owner-decisions.md from "The owner's main iPad flow" to the end → pencil-select-plan.md (trace findings, must-never) → research/smart-selection-bar.md → IDEAS.md (Goodnotes approach, Clean up with AI). State of the build: BUILD-STATE.md line 3.
+
+## 14. Owner iPad report (20 Nov, preview f65b1fa6) — read before planning
+
+- "Text tool and Lasso became a mess; it was far better before."
+- Text tool: wrote "Service 23/11/2000 rate -is"; a circle sometimes selects, sometimes not.
+- Lasso: does not select the words; does things the owner cannot follow.
+- Red lines all over the screen: these are the Circle recorder's trace lines (Settings switch "Circle recorder" ON; it draws our path in red). Turn it OFF for normal use.
+- Opus: since the last good iPad state, these changes touched selection: ios-select (circleSelect.ts), circle-recorder, b11-b12 (ink/controller.ts tool check + hover ends stroke), ci-reds-2/3 (MiniToolbar, PaperFrame resize). First step for the plan: re-test with the recorder OFF; if still bad, find which slice broke the Lasso (compare with the last version the owner called good) before building anything new.
+- Full CI: chromium green; ~21 WebKit reds, mostly timing, a different set each run (see BUILD-STATE).
+- Update (owner, 20 Nov): with the Circle recorder OFF the Lasso works fine. Rare bugs remain (about 1-2 in 5-10 uses): (a) old Lasso outlines stay on the screen; (b) after the Pencil lifts, the old selection stays active, and the next Lasso stroke still acts on the old selection for a moment. The Lasso felt good before the Lasso-related changes. Owner rule (repeat): the original Lasso must not be changed; new text selection must be separate from it (or added without touching its behaviour). Fix (a) and (b) first, with tests.
+
+## 15. Fable session (20 Nov): inventory done, questions with the owner
+
+- Lasso inventory (features, reasons, code, tests, shared code, leads for bugs a and b): [lasso-inventory-2026-11-20.md](lasso-inventory-2026-11-20.md).
+- Clash found: section 9 (no cursor: the Lasso picks whole boxes only) against section 12 (today's Lasso unchanged: with Picks › Text on, a loop picks whole words without a cursor). Asked the owner.
+- Asked the owner (answers pending; no spec or code before them): (1) words without a cursor: keep today or Goodnotes; (2) a small Scribble probe early; (3) the first buttons of the Edit and Study bars; (4) an iPad check after each small part; (5) two builders in two lanes.
+
+## 16. Owner's answers and the plan (20 Nov, later)
+
+- The owner agreed with all five picks of section 15. Answers: owner-decisions.md "Smart select plan: owner answers". The plan in small parts: [phases/phase-2-finish.md](phases/phase-2-finish.md). First spec (pattern for all later parts): docs/features/lasso.md. Note on the two rare Lasso problems for Opus: [lasso-bugs-a-b-note.md](lasso-bugs-a-b-note.md).
+- Waiting for the owner: yes or "missing X" on parts A0, A1 and B0, and the pick of must-never lines. Then the build restarts lean on Opus.

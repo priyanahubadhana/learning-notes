@@ -6,6 +6,7 @@ import {
   createNotebook,
   startInMode,
   typeInEditor,
+  waitForSaved,
 } from './helpers.ts'
 import {
   expectStrokes,
@@ -68,6 +69,8 @@ async function stubClipboard(page: Page) {
         },
       },
     })
+    // The old box menu copies with the browser's own copy command.
+    document.addEventListener('copy', () => w.__clipOut.push('copy'), true)
     Object.defineProperty(navigator, 'permissions', {
       configurable: true,
       value: { query: async () => ({ state: 'granted' }) },
@@ -335,7 +338,7 @@ test.describe('the text mini bar', () => {
   test('SB-B20 More: Key point marks the words', async ({ page }) => {
     await miniOpen(page)
     await (await moreRow(page, 'keyPoint')).click()
-    await expect(words(page)).toBeVisible()
+    await expect(page.locator('.recall-mark[data-mark="key"]')).toBeVisible()
   })
 
   test('SB-B21 More: Save to notes says "coming later"', async ({ page }) => {
@@ -615,7 +618,10 @@ test.describe('the v8 selection bar, ⋯ rows on words', () => {
     test(`${no} ⋯ ${name} (words)`, async ({ page }) => {
       await v8Open(page, 'words')
       await moreItem(await v8More(page), id).click()
-      if (id === 'keyPoint') await expect(words(page)).toBeVisible()
+      if (id === 'keyPoint')
+        await expect(
+          page.locator('.recall-mark[data-mark="key"]'),
+        ).toBeVisible()
       else if (id === 'makeCard')
         await expect.poll(() => cardRecordCount(page)).toBe(1)
       else if (id === 'summary') await expect(toast(page)).toBeVisible()
@@ -665,4 +671,378 @@ test.describe('the v8 selection bar, ⋯ rows on a drawing', () => {
         await expect(selCard(page, 'sel.move')).toBeVisible()
       else await expect(toast(page)).toContainText('works on words')
     })
+})
+
+/* ------------------------------------------------------------------ */
+/* Boxes: the old box bar (switch off) and the one bar (textbox.v2).   */
+/* ------------------------------------------------------------------ */
+
+const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
+
+/**
+ * A page with one extra box ("Box one", picked: not typing). `v2` turns the
+ * one bar on; off, the old box bar shows. Computer mode, as the box specs.
+ */
+async function boxOpen(page: Page, v2: boolean, o: { second?: boolean } = {}) {
+  await stubClipboard(page)
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:advanced.autoSwitch', '"off"'),
+  )
+  await startInMode(page, 'computer')
+  await page.goto(v2 ? '/?flags=textbox.v2' : '/')
+  await createNotebook(page, 'Paper', 'Boxes')
+  await typeInEditor(page, 'Main text')
+  const box = await addBoxAt(page, 'Box one', 0.2, 60)
+  if (o.second) await addBoxAt(page, 'Box two', 0.2, 170)
+  await pickBox(page, box)
+  return box
+}
+
+/** A new box `down` px under the first box's text, with a line typed in it. */
+async function addBoxAt(page: Page, text: string, fx: number, down: number) {
+  const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
+  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  const n = await page.locator(EXTRA).count()
+  await page.mouse.click(
+    sheet.x + sheet.width * fx,
+    main.y + main.height + down,
+  )
+  const box = page.locator(EXTRA).nth(n)
+  await expect(page.locator(EXTRA)).toHaveCount(n + 1)
+  await expect(box.locator('.bn-editor')).toBeFocused()
+  await page.keyboard.type(text)
+  await waitForSaved(page)
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  return box
+}
+
+/** One tap on the edge of the box until it is picked and not typed in. */
+async function pickBox(page: Page, box: Locator) {
+  await expect(async () => {
+    const r = (await box.boundingBox())!
+    await page.mouse.click(r.x - 5, r.y + r.height / 2)
+    await expect(box).toHaveAttribute('data-picked', '', { timeout: 1500 })
+    await expect(box).not.toHaveAttribute('data-typing', '')
+  }).toPass()
+}
+
+const boxBar = (page: Page) => page.locator('[data-box-bar]').first()
+const boxCount = (page: Page) => page.locator(EXTRA)
+
+test.describe('the old box bar (one bar switch off)', () => {
+  test.use({ viewport: { width: 1336, height: 1100 } })
+  const old = (page: Page, id: string) =>
+    boxBar(page).locator(`[data-box-bar-action="${id}"]`)
+
+  test('SB-B42 old box bar: Box style opens the style card', async ({
+    page,
+  }) => {
+    await boxOpen(page, false)
+    await old(page, 'style').click()
+    await expect(page.locator('[data-box-style-panel]')).toBeVisible()
+  })
+
+  test('SB-B43 old box bar: Duplicate box makes a second box', async ({
+    page,
+  }) => {
+    await boxOpen(page, false)
+    await old(page, 'duplicate').click()
+    await expect(boxCount(page)).toHaveCount(2)
+  })
+
+  test('SB-B44 old box bar: Cut takes the box away and copies it', async ({
+    page,
+  }) => {
+    await boxOpen(page, false)
+    await old(page, 'cut').click()
+    await expect(boxCount(page)).toHaveCount(0)
+    await expect.poll(() => copied(page)).toBeGreaterThan(0)
+  })
+
+  test('SB-B45 old box bar: Copy copies the words', async ({ page }) => {
+    await boxOpen(page, false)
+    await old(page, 'copy').click()
+    await expect.poll(() => copied(page)).toBeGreaterThan(0)
+    await expect(boxCount(page)).toHaveCount(1)
+  })
+
+  test('SB-B46 old box bar: Delete box removes it', async ({ page }) => {
+    await boxOpen(page, false)
+    await old(page, 'delete').click()
+    await expect(boxCount(page)).toHaveCount(0)
+  })
+
+  test('SB-B47 old box bar: ⋯ opens the box menu', async ({ page }) => {
+    await boxOpen(page, false)
+    await old(page, 'more').click()
+    await expect(page.getByRole('menu')).toBeVisible()
+    for (const name of [
+      'Box style',
+      'Copy',
+      'Cut',
+      'Duplicate',
+      'Colour',
+      'Layout',
+      'Delete box',
+    ])
+      await expect(
+        page.getByRole('menuitem', { name: new RegExp(`^${name}`) }),
+      ).toBeVisible()
+  })
+})
+
+test.describe('the old box ⋯ menu (one bar switch off)', () => {
+  test.use({ viewport: { width: 1336, height: 1100 } })
+  const ROWS = [
+    ['SB-B48', 'Box style'],
+    ['SB-B49', 'Copy'],
+    ['SB-B50', 'Cut'],
+    ['SB-B51', 'Duplicate'],
+    ['SB-B52', 'Colour'],
+    ['SB-B53', 'Layout'],
+    ['SB-B54', 'Delete box'],
+  ] as const
+  for (const [no, name] of ROWS)
+    test(`${no} old ⋯ menu: ${name}`, async ({ page }) => {
+      await boxOpen(page, false)
+      await boxBar(page).locator('[data-box-bar-action="more"]').click()
+      await page.getByRole('menuitem', { name: new RegExp(`^${name}`) }).click()
+      if (name === 'Box style')
+        await expect(page.locator('[data-box-style-panel]')).toBeVisible()
+      if (name === 'Copy')
+        await expect.poll(() => copied(page)).toBeGreaterThan(0)
+      if (name === 'Cut') await expect(boxCount(page)).toHaveCount(0)
+      if (name === 'Duplicate') await expect(boxCount(page)).toHaveCount(2)
+      if (name === 'Colour')
+        await expect(page.getByRole('menuitemradio').first()).toBeVisible()
+      if (name === 'Layout')
+        await expect(page.getByRole('dialog')).toBeVisible()
+      if (name === 'Delete box') await expect(boxCount(page)).toHaveCount(0)
+    })
+})
+
+const one = (page: Page, id: string) => page.getByTestId(`ob-${id}`)
+const pop = (page: Page, id: string) =>
+  page.locator(`[data-onebar-pop="${id}"]`)
+const more = (page: Page, id: string) => page.locator(`[data-box-more="${id}"]`)
+
+test.describe('the one bar of a box (textbox.v2)', () => {
+  test.use({ viewport: { width: 1336, height: 1100 } })
+
+  test('SB-B60 one bar: Move bar grip drags the bar, then Pin shows', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await expect(one(page, 'grip')).toBeVisible()
+    const before = (await page.getByTestId('object-bar').boundingBox())!
+    const g = (await one(page, 'grip').boundingBox())!
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(g.x + 60, g.y + 200, { steps: 8 })
+    await page.mouse.up()
+    await expect(one(page, 'pin')).toBeVisible()
+    const after = (await page.getByTestId('object-bar').boundingBox())!
+    expect(
+      Math.abs(after.y - before.y) + Math.abs(after.x - before.x),
+    ).toBeGreaterThan(40)
+  })
+
+  test('SB-B61 one bar: Pin bar here pins it', async ({ page }) => {
+    await boxOpen(page, true)
+    const g = (await one(page, 'grip').boundingBox())!
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(g.x + 60, g.y + 200, { steps: 8 })
+    await page.mouse.up()
+    await one(page, 'pin').click()
+    await expect(one(page, 'pin')).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  test('SB-B62 one bar: Text colour opens colours and a pick colours the words', async ({
+    page,
+  }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'colour').click()
+    await expect(pop(page, 'colour')).toBeVisible()
+    await pop(page, 'colour').getByRole('button', { name: /^Red/ }).click()
+    await expect(
+      box.locator('[data-style-type="textColor"][data-value="red"]').first(),
+    ).toBeVisible()
+  })
+
+  test('SB-B63 one bar: Size opens sizes and a pick sets it', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    const before = await one(page, 'size').innerText()
+    await one(page, 'size').click()
+    await expect(pop(page, 'size')).toBeVisible()
+    await pop(page, 'size').getByRole('button', { name: 'Larger' }).click()
+    await expect.poll(() => one(page, 'size').innerText()).not.toBe(before)
+  })
+
+  test('SB-B64 one bar: Font opens fonts and a pick sets one', async ({
+    page,
+  }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'font').click()
+    await expect(pop(page, 'font')).toBeVisible()
+    await pop(page, 'font').getByRole('button').nth(1).click()
+    await expect(box.locator('[data-look-face]').first()).toBeVisible()
+  })
+
+  test('SB-B65 one bar: Bold and italic strip has Bold, Italic, Underline, Strike, Highlight', async ({
+    page,
+  }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'bi').click()
+    const p = pop(page, 'bi')
+    for (const name of ['Bold', 'Italic', 'Underline', 'Strike', 'Highlight'])
+      await expect(p.getByRole('button', { name })).toBeVisible()
+    await p.getByRole('button', { name: 'Bold' }).click()
+    await expect(box.locator('strong, b').first()).toBeVisible()
+  })
+
+  test('SB-B66 one bar: Align strip aligns the box and sets line spacing', async ({
+    page,
+  }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'align').click()
+    const p = pop(page, 'align')
+    await expect(p.getByRole('button', { name: 'Line spacing' })).toBeVisible()
+    await p.getByRole('button', { name: 'Align right' }).click()
+    await expect(
+      box.locator('[data-text-alignment="right"]').first(),
+    ).toBeVisible()
+  })
+
+  test('SB-B67 one bar: List strip makes a list', async ({ page }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'list').click()
+    await expect(pop(page, 'list')).toBeVisible()
+    await pop(page, 'list').getByRole('button').first().click()
+    await expect(
+      box
+        .locator('.bn-block-content:not([data-content-type="paragraph"])')
+        .first(),
+    ).toBeVisible()
+  })
+
+  test('SB-B68 one bar: Box style (fill) opens the Box card', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await one(page, 'style').click()
+    await expect(page.getByTestId('bc-tab-box')).toBeVisible()
+  })
+
+  test('SB-B69 one bar: Cut takes the box away and copies it', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await one(page, 'cut').click()
+    await expect(boxCount(page)).toHaveCount(0)
+    await expect.poll(() => copied(page)).toBeGreaterThan(0)
+  })
+
+  test('SB-B70 one bar: Paste puts the clipboard in the box', async ({
+    page,
+  }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'pastenow').click()
+    await expect(box).toContainText('pasted words')
+  })
+
+  test('SB-B71 one bar: Paste options (▾) opens Keep look, Plain text, More', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await one(page, 'paste').click()
+    await expect(pop(page, 'paste')).toBeVisible()
+    await expect(pop(page, 'paste').getByRole('button')).not.toHaveCount(0)
+  })
+
+  test('SB-B72 one bar: Delete box removes it', async ({ page }) => {
+    await boxOpen(page, true)
+    await one(page, 'delete').click()
+    await expect(boxCount(page)).toHaveCount(0)
+  })
+
+  test('SB-B73 one bar: ⋯ opens the Box actions list', async ({ page }) => {
+    await boxOpen(page, true)
+    await one(page, 'boxmore').click()
+    for (const id of [
+      'copy',
+      'duplicate',
+      'lock',
+      'style',
+      'layout',
+      'text',
+      'up',
+      'down',
+      'group',
+      'delete',
+    ])
+      await expect(more(page, id)).toBeVisible()
+  })
+})
+
+test.describe('the one bar ⋯ list rows', () => {
+  test.use({ viewport: { width: 1336, height: 1100 } })
+  const open2 = async (page: Page) => {
+    const box = await boxOpen(page, true, { second: true })
+    await one(page, 'boxmore').click()
+    await expect(more(page, 'copy')).toBeVisible()
+    return box
+  }
+  test('SB-B74 ⋯ list: Copy', async ({ page }) => {
+    await open2(page)
+    await more(page, 'copy').click()
+    await expect.poll(() => copied(page)).toBeGreaterThan(0)
+  })
+  test('SB-B75 ⋯ list: Duplicate box', async ({ page }) => {
+    await open2(page)
+    await more(page, 'duplicate').click()
+    await expect(boxCount(page)).toHaveCount(3)
+  })
+  test('SB-B76 ⋯ list: Lock in place', async ({ page }) => {
+    const box = await open2(page)
+    await more(page, 'lock').click()
+    await one(page, 'boxmore').click()
+    await expect(more(page, 'lock')).toContainText('Unlock')
+    await expect(box).toBeVisible()
+  })
+  test('SB-B77 ⋯ list: Box style…', async ({ page }) => {
+    await open2(page)
+    await more(page, 'style').click()
+    await expect(page.getByTestId('bc-tab-box')).toBeVisible()
+  })
+  test('SB-B78 ⋯ list: Layout…', async ({ page }) => {
+    await open2(page)
+    await more(page, 'layout').click()
+    await expect(page.getByTestId('bc-tab-box')).toBeVisible()
+  })
+  test('SB-B79 ⋯ list: Text options…', async ({ page }) => {
+    await open2(page)
+    await more(page, 'text').click()
+    await expect(
+      page.locator('[data-pill-card], [data-text-options]').first(),
+    ).toBeVisible()
+  })
+  test('SB-B80 ⋯ list: Move up / Move down reorder boxes', async ({ page }) => {
+    await open2(page)
+    await expect(more(page, 'down')).toBeEnabled()
+    await more(page, 'down').click()
+    await expect(boxCount(page).first()).toContainText('Box two')
+  })
+  test('SB-B81 ⋯ list: Group waits for two boxes (tip)', async ({ page }) => {
+    await open2(page)
+    await more(page, 'group').click({ force: true })
+    await expect(toast(page)).toBeVisible()
+  })
+  test('SB-B82 ⋯ list: Delete box', async ({ page }) => {
+    await open2(page)
+    await more(page, 'delete').click()
+    await expect(boxCount(page)).toHaveCount(1)
+  })
 })

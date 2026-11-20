@@ -1084,15 +1084,6 @@ test.describe('the one bar ⋯ list rows', () => {
 
 const classicMenu = (page: Page) => page.locator('[data-selection-menu]')
 
-/** Two frames later: whatever the click started has been drawn. */
-const frames = (page: Page) =>
-  page.evaluate(
-    () =>
-      new Promise<void>((done) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => done())),
-      ),
-  )
-
 async function classicWords(page: Page, level: Level = 'professional') {
   await open(page, { level })
   await pickClassic(page, 'lasso')

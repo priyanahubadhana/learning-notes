@@ -16,7 +16,7 @@ As a learner who edits AI-made notes on the iPad with the Apple Pencil, I want t
 
 **Always true**
 
-- **Scribble stays on.** Scribble stays on. "Turn Scribble off" is never the fix.
+- **Scribble stays on.** "Turn Scribble off" is never the fix.
 - **Exactly what I meant.** What is selected is what I circled or tapped. A letter counts when about half of it is inside my circle; I adjust with the two handles.
 - **Our look, not Apple's.** I see our own strong purple highlight with two round handles, and our own bar. Never Apple's.
 - **Straight back to writing.** After an action on the bar, or one tap on the words, I am back in the Text tool with the typing cursor where I expect it. After Delete it waits in the gap.

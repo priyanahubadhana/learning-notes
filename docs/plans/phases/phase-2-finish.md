@@ -148,7 +148,7 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 
 **Fable's picks, logged, no answer needed:** the tap rule of 18 Nov (every tap acts at once, about a second between taps) replaces the 700 ms of Q-4, and the Tap speed row goes in E6; builders reuse existing working copies (no new permission); the place of the box ⋯ is settled in the pictures of B2; the three Goodnotes extras stay "later" until the owner says otherwise.
 
-## Assumptions to check (what might not be true)
+## 9. Assumptions to check (what might not be true)
 
 Each has a check; if a check fails, the plan changes before more is built.
 

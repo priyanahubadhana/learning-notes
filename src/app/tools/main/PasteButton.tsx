@@ -3,6 +3,7 @@ import { TextSelection, type Selection } from 'prosemirror-state'
 import { t } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
 import { boxHost } from '../../../editor/pasteBox'
+import { pasteFailedMessage } from '../../../editor/appClipboard'
 import { pasteFromClipboard } from '../../../editor/pasteFromBar'
 import { pasteIn, peekPasteForms } from '../../../editor/menus/pasteMenu'
 import { pasteInto } from '../../../paper/v2/oneBarOps'
@@ -12,6 +13,7 @@ import { useAnchoredMenu } from '../useAnchoredMenu'
 import { currentRunner } from '../toolRuntime'
 import { pasteModeSetting } from '../../../settings/builtinSettings'
 import { readDeviceSetting } from '../../../settings/settingsService'
+import { PasteAskHint } from './PasteAskHint'
 import { keepFocus } from './pillKit'
 
 /**
@@ -22,8 +24,12 @@ import { keepFocus } from './pillKit'
  * code of the page menus and the box bar. The buttons never take focus and
  * the caret is put back before the paste, so it stays in the box (B9).
  */
+// "pastebtn" is a plain :hover rule (index.css): the Pencil hovers on an iPad
+// that reports no hover, where Tailwind's hover: variant stays off (C0-3).
 const BTN =
-  'grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink select-none'
+  'pastebtn grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft select-none'
+// The top tool row's own look: the same highlight as every other tool there.
+const V8 = 'v8tool'
 
 type Row = { id: string; label: string; hint?: string }
 
@@ -31,11 +37,14 @@ export function PasteButton({
   editor,
   min = 44,
   testId = 'paste',
+  look = 'plain',
 }: {
   editor: Editor
   min?: number
   testId?: string
+  look?: 'plain' | 'v8'
 }) {
+  const cls = look === 'v8' ? V8 : BTN
   const menu = useAnchoredMenu()
   const [more, setMore] = useState(false)
   const [forms, setForms] = useState<string[] | null>(null)
@@ -66,9 +75,9 @@ export function PasteButton({
     editor.focus()
   }
 
-  const tap = () => {
+  const tap = (e: { currentTarget: HTMLElement }) => {
     restore()
-    void pasteFromClipboard(editor, toast)
+    void pasteFromClipboard(editor, toast, e.currentTarget)
   }
   const pick = (id: string) => {
     menu.close()
@@ -76,7 +85,7 @@ export function PasteButton({
     restore()
     if (id === 'match') {
       void pasteInto(editor, 'match').then((ok) => {
-        if (!ok) toast(t('onebar.paste.failed'))
+        if (!ok) toast(pasteFailedMessage())
       })
       return
     }
@@ -149,6 +158,7 @@ export function PasteButton({
     <>
       <span
         data-paste-split
+        data-paste-scope={testId}
         data-testid={testId}
         className="inline-flex shrink-0 items-center rounded-xl"
       >
@@ -156,13 +166,12 @@ export function PasteButton({
           type="button"
           data-bar-btn
           data-action="paste"
-          data-pen-own
           aria-label={t('onebar.paste')}
           onMouseDown={keepFocus}
           onPointerDown={remember}
           onClick={tap}
           style={{ minHeight: min, minWidth: min }}
-          className={BTN}
+          className={cls}
         >
           <Icon name="paste" />
         </button>
@@ -170,7 +179,6 @@ export function PasteButton({
           type="button"
           data-bar-btn
           data-action="pasteMore"
-          data-pen-own
           aria-label={t('onebar.pasteMore')}
           {...menu.trigger}
           onMouseDown={keepFocus}
@@ -182,12 +190,13 @@ export function PasteButton({
             }
             menu.toggle(e)
           }}
-          style={{ minHeight: min, minWidth: 28 }}
-          className={BTN}
+          style={{ minHeight: min, minWidth: 28, padding: 0 }}
+          className={cls}
         >
           <Icon name="chevronDown" size={14} />
         </button>
       </span>
+      <PasteAskHint scope={testId} />
       <AnchoredMenu
         menu={menu}
         label={t('parts.menus.pasteAs')}

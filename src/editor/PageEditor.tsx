@@ -40,6 +40,7 @@ import { listBlocks } from '../core/blockService'
 import { blocksOfBox, tagDrafts } from './boxScope'
 import { activeBox, boxEditors, useOwnsBar } from '../paper/activeBox'
 import { MAIN_BOX } from '../paper/boxes'
+import { styleFirstMainBox } from '../paper/boxService'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import { pageEditLock } from '../core/editLock'
@@ -979,7 +980,12 @@ function LoadedPageEditor({
         ref={setInkWrap}
         data-ink-wrap
         className="contents"
-        onFocus={() => activeBox.set(pageId, boxId ?? MAIN_BOX)}
+        onFocus={() => {
+          activeBox.set(pageId, boxId ?? MAIN_BOX)
+          // C0-1: the page's first box starts with the "Use for new boxes" style.
+          if (!readOnly && (!boxId || boxId === MAIN_BOX))
+            void styleFirstMainBox(db, pageId)
+        }}
       >
         <BlockNoteView
           editor={editor}

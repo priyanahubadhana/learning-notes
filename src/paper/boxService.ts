@@ -80,6 +80,37 @@ async function writeBoxes(
   })
 }
 
+/** C0-1: the owner's "Use for new boxes" style (undefined = none). */
+const newBoxStyle = async (db: LearningNotesDB) =>
+  cleanStyle((await db.settings.get('paper.boxStyleDefault'))?.value)
+
+/**
+ * C0-1: the page's own first box starts with the "Use for new boxes" style
+ * too, once, when it is first used. Only a page whose first box was never
+ * stored (never moved, sized or styled) and has no text yet: old pages keep
+ * their first box as it is.
+ */
+export async function styleFirstMainBox(
+  db: LearningNotesDB,
+  pageId: string,
+): Promise<void> {
+  const style = await newBoxStyle(db)
+  if (!style) return
+  const page = await db.pages.get(pageId)
+  if (!page || page.deletedAt || page.boxes?.some((b) => b.id === MAIN_BOX))
+    return
+  const live = (
+    await db.blocks.where('pageId').equals(pageId).toArray()
+  ).filter(isLive)
+  const empty = live.every(
+    (b) =>
+      b.type === 'paragraph' &&
+      !(b.content as { text?: unknown[] } | undefined)?.text?.length,
+  )
+  if (!empty) return
+  await updateBox(db, pageId, MAIN_BOX, { style })
+}
+
 /** A new empty box at (x, y) mm; returns its id. */
 export async function addBox(
   db: LearningNotesDB,
@@ -100,9 +131,7 @@ export async function addBox(
   const sheet = sheetOf(page)
   const id = createId()
   // "Use for new boxes" (bug batch 2, item 8): the default style, never the page's own box.
-  const style = cleanStyle(
-    (await db.settings.get('paper.boxStyleDefault'))?.value,
-  )
+  const style = await newBoxStyle(db)
   const box = clampBox(
     {
       id,
@@ -419,9 +448,19 @@ export async function addBoxInOrder(
   const page = await getLive(db.pages, pageId)
   const sheet = sheetOf(page)
   const id = createId()
+  const style = await newBoxStyle(db)
   await writeBoxes(db, pageId, (boxes) => {
     const { y, shift, shifted } = placeInOrder(boxes, after)
-    const box = clampBox({ id, x: MARGIN, y, w: sheet.w - 2 * MARGIN }, sheet.w)
+    const box = clampBox(
+      {
+        id,
+        x: MARGIN,
+        y,
+        w: sheet.w - 2 * MARGIN,
+        ...(style ? { style } : {}),
+      },
+      sheet.w,
+    )
     return [
       ...boxes.map((b) =>
         shifted.includes(b.id) ? { ...b, y: b.y + shift } : b,

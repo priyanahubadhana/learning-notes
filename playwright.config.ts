@@ -97,6 +97,7 @@ const config = defineConfig({
         /toolRowStays/, // re-test 18 Nov bug 1
         /pencilV2/, // Pencil mode shows the v2 look (owner 18 Nov)
         /firstBoxTap/, // re-test 18 Nov F1-F4
+        /c0-1BoxStyle/, // C0-1: every new box starts with the style
         /iosSelect/, // re-test 18 Nov F5-F7
         /circleRecorder/, // 19 Nov circle recorder + trace replay
         /caretSaveJump/, // B7: first letters keep their order
@@ -291,6 +292,7 @@ const config = defineConfig({
     command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
     env: { E2E: '1' },
+    timeout: 300_000, // the build alone can take 80 s on a busy PC
   },
 })
 

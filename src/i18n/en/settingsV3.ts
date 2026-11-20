@@ -196,6 +196,9 @@ export const enSettingsV3 = {
   'sv3.version.name': 'Version',
   'sv3.version.help': 'The version of the app you are using.',
   'sv3.version.details': 'Version {commit}, built {date}.',
+  'sv3.tryNew.reportLink': 'Test report',
+  'sv3.tryNew.reportHelp':
+    'A page that lists every checked story of the app and whether it works. It opens in a new tab.',
   'sv3.tryNew.keepsOn': 'Keeps the new Settings on',
   'sv3.tryNew.keepScreen':
     'Turn all off leaves this new Settings screen on, so you do not lose this page. Turn it off in its own switch.',

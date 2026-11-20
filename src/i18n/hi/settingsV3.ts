@@ -196,6 +196,9 @@ export const hiSettingsV3 = {
   'sv3.version.name': 'संस्करण',
   'sv3.version.help': 'आप जिस ऐप संस्करण का इस्तेमाल कर रहे हैं।',
   'sv3.version.details': 'संस्करण {commit}, {date} को बना।',
+  'sv3.tryNew.reportLink': 'जाँच रिपोर्ट',
+  'sv3.tryNew.reportHelp':
+    'एक पेज जो ऐप की हर जाँची गई कहानी और उसके चलने की स्थिति दिखाता है। यह नए टैब में खुलता है।',
   'sv3.tryNew.keepsOn': 'नई सेटिंग्स चालू रखता है',
   'sv3.tryNew.keepScreen':
     'सब बंद करें इस नई सेटिंग्स स्क्रीन को चालू रखता है, ताकि यह पेज न खो जाए। इसे इसके अपने स्विच से बंद करें।',

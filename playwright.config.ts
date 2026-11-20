@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import { defineBddConfig } from 'playwright-bdd'
 import { FAST_SET } from './e2e/fastSet.ts'
 
 /**
@@ -10,6 +11,18 @@ import { FAST_SET } from './e2e/fastSet.ts'
 const PORT = Number(process.env.PW_PORT ?? 5199)
 /** GitHub's machine has 2 cores, so it gets longer limits. */
 const SLOW = process.env.CI ? 2 : 1
+
+/**
+ * B0 scenarios (SC-02): the feature files in e2e/features, read through
+ * playwright-bdd (a developer tool, never shipped). `npm run test:scenarios`
+ * writes the tests into .features-gen first (bddgen), then runs them in the
+ * two projects below.
+ */
+const scenarioDir = defineBddConfig({
+  features: 'e2e/features/**/*.feature',
+  steps: 'e2e/steps/**/*.ts',
+  outputDir: '.features-gen',
+})
 
 const config = defineConfig({
   testDir: './e2e',
@@ -235,12 +248,31 @@ const config = defineConfig({
         /toolbarV9(Names|Dark).spec/,
         /toolbarV8(Ninth|History).spec/,
         /settingsV3.spec/,
+        /scenarioReportLink/, // B0 SC-05
         /toolbarMenuV(2|8)/,
         // Task H: the Journal and its month repair (manager OK, 15 Nov).
         /journalMonthRepair/,
         /noticeClose/,
         /sweep2b/, // bug sweep to Phase 2B (17 Nov)
       ],
+      use: { ...devices['iPad Pro 11'], hasTouch: true },
+      expect: { timeout: 15_000 },
+      timeout: 60_000,
+    },
+    {
+      // B0: the scenarios of e2e/features, on the Chrome stand-in ...
+      name: 'bdd-chromium',
+      testDir: scenarioDir,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1024, height: 1000 },
+        hasTouch: true,
+      },
+    },
+    {
+      // ... and on the iPad stand-in.
+      name: 'bdd-ipad-webkit',
+      testDir: scenarioDir,
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },
       timeout: 60_000,

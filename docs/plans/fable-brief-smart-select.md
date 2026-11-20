@@ -114,3 +114,9 @@ Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-leve
 - Opus: since the last good iPad state, these changes touched selection: ios-select (circleSelect.ts), circle-recorder, b11-b12 (ink/controller.ts tool check + hover ends stroke), ci-reds-2/3 (MiniToolbar, PaperFrame resize). First step for the plan: re-test with the recorder OFF; if still bad, find which slice broke the Lasso (compare with the last version the owner called good) before building anything new.
 - Full CI: chromium green; ~21 WebKit reds, mostly timing, a different set each run (see BUILD-STATE).
 - Update (owner, 20 Nov): with the Circle recorder OFF the Lasso works fine. Rare bugs remain (about 1-2 in 5-10 uses): (a) old Lasso outlines stay on the screen; (b) after the Pencil lifts, the old selection stays active, and the next Lasso stroke still acts on the old selection for a moment. The Lasso felt good before the Lasso-related changes. Owner rule (repeat): the original Lasso must not be changed; new text selection must be separate from it (or added without touching its behaviour). Fix (a) and (b) first, with tests.
+
+## 15. Fable session (20 Nov): inventory done, questions with the owner
+
+- Lasso inventory (features, reasons, code, tests, shared code, leads for bugs a and b): [lasso-inventory-2026-11-20.md](lasso-inventory-2026-11-20.md).
+- Clash found: section 9 (no cursor: the Lasso picks whole boxes only) against section 12 (today's Lasso unchanged: with Picks › Text on, a loop picks whole words without a cursor). Asked the owner.
+- Asked the owner (answers pending; no spec or code before them): (1) words without a cursor: keep today or Goodnotes; (2) a small Scribble probe early; (3) the first buttons of the Edit and Study bars; (4) an iPad check after each small part; (5) two builders in two lanes.

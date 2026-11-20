@@ -123,7 +123,7 @@ Feature: The Lasso stays as it is and never gets stuck
 
 - The Lasso has no palm guard at all. A hand on the screen can twist a selection the Pencil is moving, place the typing cursor in the middle of a loop, or (with "Finger can draw: Always") draw a loop of its own that wipes the selection. On the owner's iPad this last route does not apply: in Pencil mode a finger never draws (owner, 20 Nov), and that must stay so.
 - The loop drawn from the margin has no safety net; a lost lift leaves its line on the screen.
-- A stroke that starts inside the old dashed box, or within 8 px of it, moves the old selection **by design** (LS-26). A new loop begun there never starts. `OPEN:` the owner says whether this is what the second fault looks like.
+- A stroke that starts inside the old dashed box, or within 8 px of it, moves the old selection **by design** (LS-26). A new loop begun there never starts. The owner expects exactly this (20 Nov: a stroke on the selection acts on the selection), so the rule stays and the second fault is looked for in the palm and missed-lift routes.
 - A new Pencil touch within a quarter of a second of a hovering Pencil is ignored today, so an old move can go on (the builder's best guess for the second fault; not proven).
 - A1 is built in three steps: **A1a** the nets (LS-50 to LS-53, LS-55, LS-56), **A1b** the margin loop (LS-54), **A1c** the palm (LS-57, LS-58). About 5 hours together, not 3.
 - Numbers: "never waits" (LS-52) = the new loop's first point is taken in the same frame; "gone within 150 ms" (LS-51) = no outline by the frame after the fade.

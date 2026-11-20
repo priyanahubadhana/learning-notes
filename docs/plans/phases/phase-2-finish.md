@@ -1,12 +1,12 @@
 # Phase 2 finish: the complete plan (set 20 Nov 2026)
 
-Written by Fable with the owner. It covers everything that is open for Phases 0, 1, 2A and 2B and their release together. Phase 3 and later are not planned here. Whether the build is running: only [../../BUILD-STATE.md](../../BUILD-STATE.md) says. Sources: the brief [../fable-brief-smart-select.md](../fable-brief-smart-select.md); the owner's answers in [../../design/owner-decisions.md](../../design/owner-decisions.md) ("Smart select plan", 20 Nov); the sweep of every open item [../open-items-sweep-2026-11-20.md](../open-items-sweep-2026-11-20.md).
+Written by Fable with the owner. It covers everything that is open for Phases 0, 1, 2A and 2B, the new Settings page (Settings v5, Phase 1S; added on the owner's word, 20 Nov) and their release together. Phase 3 and later are not planned here. Whether the build is running: only [../../BUILD-STATE.md](../../BUILD-STATE.md) says. Sources: the brief [../fable-brief-smart-select.md](../fable-brief-smart-select.md); the owner's answers in [../../design/owner-decisions.md](../../design/owner-decisions.md) ("Smart select plan", 20 Nov); the sweep of every open item [../open-items-sweep-2026-11-20.md](../open-items-sweep-2026-11-20.md).
 
 ## 1. What the owner gets, and where it ends
 
-Select a word or a few letters with the Pencil, delete or paste, write over it with Scribble: reliably, with Scribble on. One smart bar for every selection. Today's Lasso unchanged. Every open fault of the frame, the tool bar and the text box closed. Then Phases 1, 2A and 2B go live together, on the owner's yes (part E7). That is the end of this plan.
+Select a word or a few letters with the Pencil, delete or paste, write over it with Scribble: reliably, with Scribble on. One smart bar for every selection. Today's Lasso unchanged. Every open fault of the frame, the tool bar and the text box closed. Then Phases 1, 1S (Settings v5), 2A and 2B go live together, on the owner's yes (part E7). That is the end of this plan.
 
-- **What success means to the owner (20 Nov), the six things that must work well by the end:** (1) the Settings page with the customisation the owner decided (owner, 20 Nov: this means Settings v5, approved as a picture on 15 Nov and not built; it is Phase 1S, which this plan does not contain: `OPEN:` the owner decides whether it joins this release, see section 8); (2) the app frame; (3) the Text tool; (4) the Pen tool; (5) the Lasso tool; (6) the text box and everything about selecting, so that text can be edited in the best possible way. The owner's full test (E2, E5) has one chapter for each of the six.
+- **What success means to the owner (20 Nov), the six things that must work well by the end:** (1) the Settings page with the customisation the owner decided (Settings v5; stage 5 of this plan); it is Phase 1S, which this plan does not contain: `OPEN:` the owner decides whether it joins this release, see section 8); (2) the app frame; (3) the Text tool; (4) the Pen tool; (5) the Lasso tool; (6) the text box and everything about selecting, so that text can be edited in the best possible way. The owner's full test (E2, E5) has one chapter for each of the six.
 - **Switches (new, off in the live app):** `select.textLevel`, `select.smartBar`. Off = today, exactly.
 - **Already built:** see BUILD-STATE "In the code line".
 
@@ -104,21 +104,43 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 | E8  | After go-live, on the owner's word (question 4): the old text box files removed                                                                                                                 |
 | E9  | Any quiet hour: a list of the 61 working copies (clean or not, merged or not); the owner approves the removals once (question 5)                                                                |
 
+### Stage 5: the new Settings page, Settings v5 (about four to five days of building; runs beside stages 2 and 3 in whichever lane is free)
+
+Picture: docs/mockups/settings-v5/ (16 shots, approved 15 Nov). Stories: docs/features/settings-v5-stories.md (S5-01 to S5-34); each part gets its numbered scenarios from them before it starts. The settings file `src/settings/builtinSettings.ts` is a hot file: one part at a time. Every one of the 169 switches of the old screen gets a place; none is dropped.
+
+| #    | What it gives                                                                                                                       | Size |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| S.1  | The recount: all 169 switches placed in the new page (the picture shows 113), with a test that fails if one is lost                 | 4 h  |
+| S.2  | The first page and the starter cards, with Undo                                                                                     | 6 h  |
+| S.3  | Groups, common rows, Advanced, the feature switches, "Turn on all in this group"                                                    | 8 h  |
+| S.4  | Search that changes a setting in place and finds old names                                                                          | 6 h  |
+| S.5  | "Changed by me" and Reset (also "Reset to Simple starter")                                                                          | 4 h  |
+| S.6  | The first-launch Welcome and "My experience"                                                                                        | 4 h  |
+| S.7  | "This device" tags and menu; what syncs                                                                                             | 6 h  |
+| S.8  | Undo and Redo at the top; ✓ and ✕ at the top of sheets; phone                                                                       | 4 h  |
+| S.9  | A tiny preview on each row and the big live preview, calm (the "too loud" note S1 and the pill over the Format tabs, PP1, end here) | 8 h  |
+| S.10 | One AI section, Help and tour, the test tools under Advanced                                                                        | 4 h  |
+| B7b  | The Selection bar part (presets, order), built once, inside the new Settings                                                        | 4 h  |
+| S.11 | Side by side with the 16 shots (light, dark, sepia; iPad both ways, phone, PC), then the owner's check C-S                          | 4 h  |
+
+Owner's check **C-S** (after S.11, about 20 minutes): the new Settings on the iPad; it is also a chapter of the full test C12.
+
 ### Changes after the builder and tester lenses (20 Nov; docs/plans/lenses-2026-11-20.md)
 
 Three assumptions were corrected before any code, and some parts are bigger than first written. The tables above keep their part names; these splits and sizes replace theirs:
 
-| Part   | Now                                                                                                                   | Why                                                            |
-| ------ | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| A1     | A1a the nets (2 h), A1b the margin loop (1.5 h), A1c the palm (1.5 h)                                                 | two separate code paths, and no palm guard exists              |
-| A2     | 3 h: the recorder **and** a replay that sends what a trace really holds                                               | today's replay makes up pressure and buttons                   |
-| A4     | A4a the highlight (2 h), A4b the handles (4 h)                                                                        | a highlight exists; the handles are new                        |
-| A5     | 4 h                                                                                                                   | its own letter geometry; a hook before the Lasso clears things |
-| A9     | A9a scratch-out over selected words under the Lasso (3 h), A9b write over a selected word in the Text tool, T26 (2 h) | Scribble is not active under the Lasso                         |
-| B3     | B3a what-is-selected and the page-level place (4 h), B3b the text states (4 h)                                        | the box bar is tied to boxes                                   |
-| B5     | B5a move, copy, card (4 h), B5b colour and thickness (4 h)                                                            | six pieces of code to replace, not three                       |
-| B6, B9 | 4 h each                                                                                                              |                                                                |
-| B7     | B7a order and storage (3 h), B7b the Settings part (4 h)                                                              |                                                                |
+| Part      | Now                                                                                                                                           | Why                                                               |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| A1        | A1a the nets (2 h), A1b the margin loop (1.5 h), A1c the palm (1.5 h)                                                                         | two separate code paths, and no palm guard exists                 |
+| A2        | 3 h: the recorder **and** a replay that sends what a trace really holds                                                                       | today's replay makes up pressure and buttons                      |
+| A4        | A4a the highlight (2 h), A4b the handles (4 h)                                                                                                | a highlight exists; the handles are new                           |
+| A5        | 4 h                                                                                                                                           | its own letter geometry; a hook before the Lasso clears things    |
+| A7b (new) | Drag selected words to another place (4 h); one small picture first: the lifted words and the landing mark                                    | owner, 20 Nov: a stroke on the selection may drag it where I want |
+| A9        | A9a going over selected words again and again deletes them, under the Lasso (3 h), A9b write over a selected word in the Text tool, T26 (2 h) | Scribble is not active under the Lasso                            |
+| B3        | B3a what-is-selected and the page-level place (4 h), B3b the text states (4 h)                                                                | the box bar is tied to boxes                                      |
+| B5        | B5a move, copy, card (4 h), B5b colour and thickness (4 h)                                                                                    | six pieces of code to replace, not three                          |
+| B6, B9    | 4 h each                                                                                                                                      |                                                                   |
+| B7        | B7a order and storage (3 h), B7b the Settings part (4 h)                                                                                      |                                                                   |
 
 Every new test file is added to the iPad-size list; time is tested with the test tool's own clock.
 
@@ -156,6 +178,8 @@ Every new test file is added to the iPad-size list; time is tested with the test
 ## 7. Pictures the owner approves before the build
 
 - **B2:** the smart bar's states (set). Nothing after B2 in lane B is built before the owner's yes.
+- **A7b:** one small picture of dragging selected words (the lifted words, the mark where they will land).
+- **Settings v5:** approved already (docs/mockups/settings-v5/).
 - **A8:** one picture of the bar for a text-level selection (today's word bar with Paste ▾ and Delete).
 - Approved already: the highlight and handles (refs/lasso-text-mock.png frames 1 and 4, without its format bar); the one box bar (docs/mockups/box-bar/); Settings › Tool bar › Selection bar (refs/selection-bar-presets-mock.png).
 
@@ -171,7 +195,7 @@ Every new test file is added to the iPad-size list; time is tested with the test
 4. **When the old text box files go.** Pick: a week after go-live, on the owner's word, so there is a way back during the first week.
 5. **The 61 working copies.** Pick: one list, one approval, removed the safe git way; nothing with unsaved work is touched.
 
-**Open (asked 20 Nov, evening): Settings v5.** The owner counts the new Settings page as part of success for this stretch. It is 11 parts, likely 3 to 5 days (phase-plan step 4), with its own recount of the 169 switches first. Fable's pick: start it in whichever lane is free once text selection is done; if it has passed the owner's test when everything else has, it goes live in the same release; if not, it follows a few days later. The editing tools never wait for it.
+**Settings v5 joins this release (owner, 20 Nov: "let Settings join it, just make sure it is there too").** It is stage 5 in section 5 and a chapter of the full test.
 
 **Fable's picks, logged, no answer needed:** the tap rule of 18 Nov (every tap acts at once, about a second between taps) replaces the 700 ms of Q-4, and the Tap speed row goes in E6; builders reuse existing working copies (no new permission); the place of the box ⋯ is settled in the pictures of B2; the three Goodnotes extras stay "later" until the owner says otherwise.
 
@@ -193,7 +217,7 @@ Each spec carries its own list too ("We assume" in lasso.md, text-select.md, sel
 
 ## 10. Not in this plan, and where it lives
 
-Settings v5 with S1 and PP1 (Phase 1S, next). Your layouts. Phases 3 to 10. AI and the connector upgrade. The "App user stories" notebook through the connector (after this phase). Circle select in the Text tool itself (own plan after A3). The three Goodnotes extras (ideas list). Shared parts step 3 (when a phase needs it). Tasks 0.10 and 0.13 (after the release). The mixed-selection filter on the bar and a bottom keyboard bar (owner: no).
+Your layouts (after the owner has used the new Settings and tool bar). Phases 3 to 10. AI and the connector upgrade. The "App user stories" notebook through the connector (after this phase). Circle select in the Text tool itself (own plan after A3). The three Goodnotes extras (ideas list). Shared parts step 3 (when a phase needs it). Tasks 0.10 and 0.13 (after the release). The mixed-selection filter on the bar and a bottom keyboard bar (owner: no).
 
 ## 11. Done when
 
@@ -201,7 +225,7 @@ Every scenario and every detail line of every part has a green test; the owner h
 
 ## 12. Time
 
-About 55 small parts: lane A about 45 hours of building, lane B about 66, the end about 30 (after the lenses). With two lanes, one review per part and one iPad-size test run at a time: **about 11 to 14 days, an estimate** from the measured pace. The owner's check time is not counted. The first three merged parts give the real pace; Opus corrects the number then.
+About 67 small parts: lane A about 45 hours of building, lane B about 66, Settings v5 about 62, the end about 34 (after the lenses and with Settings). With two lanes, one review per part and one iPad-size test run at a time: **about 15 to 18 days, an estimate** from the measured pace. The owner's check time is not counted. The first three merged parts give the real pace; Opus corrects the number then.
 
 ## Appendix A: part B0
 

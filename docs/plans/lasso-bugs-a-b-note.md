@@ -35,7 +35,7 @@ So the order is: the quiet recorder first (Part A2), one real trace from the own
 ## More answers (20 Nov, evening)
 
 - In Pencil mode a finger never draws (only in Touch or Computer mode), so the palm does not draw its own loop on the owner's iPad. The two palm routes that remain are the twist and the cursor placed in the middle of a loop.
-- Still to ask, in plain words (the owner did not understand the first wording): "You have something selected, with its dashed box. You start a new circle close to it. If the Pencil first touches inside that dashed box or right at its edge, the app moves the old thing instead of starting a new circle. Was your Pencil starting on or very near the old dashed box when it went wrong: yes, no, or not sure?"
+- Asked again in plain words; the owner answered with the wanted behaviour (20 Nov): a stroke that starts on the selection acts on the selection (drag it, or go over it again and again to delete it), the two end handles change its length, and a tap elsewhere lets go. So "a stroke inside the dashed box moves it" is wanted, not the fault. Look for the second fault in the palm routes and the missed lift; the trace decides.
 
 ## Standing reminder (owner, 20 Nov: "keep reminding me at the end")
 

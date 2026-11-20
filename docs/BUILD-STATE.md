@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-READY TO START (20 Nov): planning with Fable is finished. The complete plan: docs/plans/phases/phase-2-finish.md (about 55 small parts, two lanes, stages 0 to 4; estimate 11 to 14 days; the builder and tester lenses are merged: docs/plans/lenses-2026-11-20.md); the method: docs/METHOD.md. Next: the owner switches the main chat to Opus (medium) and types continue; first parts D0, then A0 and B0 together, then A2, check C1a, A1. The owner does the catch-up check C0 meanwhile. build/next f65b1fa6. The tables below are stale until D0.
+READY TO START (20 Nov): planning with Fable is finished. The complete plan: docs/plans/phases/phase-2-finish.md (about 67 small parts, two lanes, stages 0 to 5 with Settings v5; estimate 15 to 18 days; the builder and tester lenses are merged: docs/plans/lenses-2026-11-20.md); the method: docs/METHOD.md. Next: the owner switches the main chat to Opus (medium) and types continue; first parts D0, then A0 and B0 together, then A2, check C1a, A1. The owner does the catch-up check C0 meanwhile. build/next f65b1fa6. The tables below are stale until D0.
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

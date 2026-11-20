@@ -25,6 +25,9 @@ As a learner who edits AI-made notes on the iPad with the Apple Pencil, I want t
 - **Whole piece on a double tap.** A double tap selects everything between two spaces ("23-11", "rate-is"); a circle can still take a part (owner, 20 Nov). The Text tool's own double tap stays as it is today.
 - **No doubled space.** After a delete in the middle of a line one space is left, not two, as the iPad itself does (Fable's pick; the owner did not answer this one directly, 20 Nov).
 
+- **On the selection, my stroke acts on it** (owner, 20 Nov). Pressing on the selected words and dragging moves them to where I drop them. Going over them again and again, back and forth or round and round, deletes them. The handles at the two ends make the selection longer or shorter.
+- **A tap elsewhere lets go.** A tap anywhere else ends the selection. A single tap on the selected words gives the typing cursor at that spot (owner, 19 Nov).
+
 **Can never happen**
 
 - **TS-N1** Apple's own bar (Paste, Select, Select All, AutoFill, Format) on a selection made this way.
@@ -106,6 +109,24 @@ Feature: Select letters and words with the Pencil, then fix them
     When I delete the selection
     Then the box reads "Service 23-11 rate-is"
     And the typing cursor waits where "2000" was
+
+  Scenario: S10 Drag selected words to another place
+    Given "2000" is selected
+    When I press on the selected word and drag it in front of "Service"
+    Then the box reads "2000 Service 23-11 rate-is"
+    And one Undo puts it back
+
+  @ipad
+  Scenario: S11 Going over selected words again and again deletes them
+    Given "rate-is" is selected
+    When I go over it with the Pencil again and again, back and forth or round and round
+    Then the box reads "Service 23-11 2000 "
+    And the typing cursor waits where "rate-is" was
+
+  Scenario: S12 A handle makes the selection longer
+    Given "vi" in "Service" is selected
+    When I drag the end handle to the end of the word
+    Then exactly "vice" is selected
 ```
 
 ## We assume (not proven yet)
@@ -124,8 +145,9 @@ Feature: Select letters and words with the Pencil, then fix them
 
 - `OPEN:` a circle in that box that also goes round a drawing on top of the words takes the letters only; to take the drawing, leave the box first (owner agreed, 20 Nov).
 
-Detail lines for the builders (TS-01 …) are written part by part, just before each of A4 to A9 starts: the highlight and handles (A4); the circle, its dashed line and the half-letter rule (A5); double, triple and four taps = word, line on screen, paragraph (A6); leaving (A7); Paste ▾ and Delete on the bar (A8); scribble over selected words, write over a selected word (A9).
+Detail lines for the builders (TS-01 …) are written part by part, just before each of A4 to A9 starts: the highlight and handles (A4); the circle, its dashed line and the half-letter rule (A5); double, triple and four taps = word, line on screen, paragraph (A6); leaving (A7); dragging selected words (A7b, S10); Paste ▾ and Delete on the bar (A8); scribble over selected words, write over a selected word (A9).
 
+- `OPEN:` where dragged words may land: anywhere in the same box and in another box (Fable's pick); on empty paper (a new box with those words) later.
 - `OPEN:` the exact bar before the smart bar exists: today's word bar with Paste ▾ and Delete added (owner, 19 Nov); one picture for the owner's OK before Part A8.
 
 ## Edge cases

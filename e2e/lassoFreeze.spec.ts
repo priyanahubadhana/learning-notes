@@ -13,7 +13,7 @@ import {
 } from './inkHelpers.ts'
 import { tool } from './mainBarHelpers.ts'
 import { installRealPen, realPen, type Pt } from './realPen.ts'
-import { machineState } from './toolsHelpers.ts'
+import { machineState, toolsReady } from './toolsHelpers.ts'
 
 /**
  * Part A0 of the Lasso work (docs/plans/phases/phase-2-finish.md, lane A): the
@@ -99,7 +99,7 @@ async function drawingsPage(
   await expectStrokes(page, 2)
   await tool(page, 'Lasso').click()
   await page.keyboard.press('Escape') // the pill would cover the page
-  await page.waitForTimeout(500)
+  await pageSettled(page)
   const now = await textBox(page)
   const dy = now.y - box.y
   return {
@@ -133,6 +133,44 @@ async function showMore(page: Page) {
     await page.locator('[data-ink-action="more"]').click()
   await expect(page.locator('[data-ink-more]')).toBeVisible()
 }
+
+/** Waits until the pill is shut and the page has stopped moving (the page's top stays put). */
+async function pageSettled(page: Page) {
+  await expect(page.locator('[data-options-pill]')).toBeHidden()
+  let last = Number.NaN
+  await expect
+    .poll(async () => {
+      const y = (await textBox(page)).y
+      const same = y === last
+      last = y
+      return same
+    })
+    .toBe(true)
+}
+
+/** Waits until the value stops changing between two looks. */
+async function settled<T>(read: () => Promise<T>) {
+  let last: T | undefined
+  let first = true
+  await expect
+    .poll(async () => {
+      const v = await read()
+      const same = !first && JSON.stringify(v) === JSON.stringify(last)
+      first = false
+      last = v
+      return same
+    })
+    .toBe(true)
+}
+
+/** Two frames later: whatever the last event started has been drawn. */
+const frames = (page: Page) =>
+  page.evaluate(
+    () =>
+      new Promise<void>((done) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => done())),
+      ),
+  )
 
 const centre = (b: {
   x: number
@@ -312,7 +350,7 @@ test.describe('the Lasso on drawings', () => {
       await expect
         .poll(async () => (await sizeOf()).w)
         .toBeLessThan(grown.w * 0.5)
-      await page.waitForTimeout(400)
+      await settled(async () => (await sizeOf()).w)
       expect((await sizeOf()).w).toBeGreaterThanOrEqual(first.w * 0.1 * 0.99)
     })
   })
@@ -323,7 +361,8 @@ test.describe('the Lasso on drawings', () => {
     const s = await drawingsPage(page)
     const path = loopRound(s.a).map((p) => [p.x, p.y]) as Tp[]
     await stroke(page, path, { type: 'touch', id: 21 })
-    await page.waitForTimeout(300)
+    await expect.poll(() => machineState(page)).toBe('idle')
+    await frames(page)
     await expect(page.locator(BOX)).toHaveCount(0)
     await realPen(page, loopRound(s.a))
     await expect(page.locator(BOX)).toBeVisible()
@@ -342,7 +381,8 @@ test.describe('the Lasso on drawings', () => {
       (await page.locator('[data-handle="rotate"]').boundingBox())!,
     )
     await realPen(page, [{ x: rot.x, y: rot.y }])
-    await page.waitForTimeout(300)
+    await expect.poll(() => machineState(page)).toBe('idle')
+    await frames(page)
     expect(await drawings(page)).toEqual(before)
     // One Undo goes straight to the last real change (drawing the 2nd stroke).
     await tool(page, 'Undo').click()
@@ -372,15 +412,6 @@ test.describe('the Lasso on drawings', () => {
     // Paste only shows when something was copied; Replay only when recorded.
     await expect(more.locator('[data-ink-action="paste"]')).toHaveCount(0)
     await expect(more.locator('[data-ink-action="replay"]')).toHaveCount(0)
-    await test.step('Thickness changes the stroke width', async () => {
-      const w0 = (await drawings(page))[0].width
-      // The menu's own width grip lies over this button's edge: a click is sent to the button itself.
-      await more.locator('[data-ink-action="thickness"]').dispatchEvent('click')
-      await page.locator('[data-ink-thickness]').last().click()
-      await expect
-        .poll(async () => (await drawings(page))[0].width)
-        .not.toBe(w0)
-    })
     await test.step('Name this drawing opens a field that saves a name', async () => {
       await showMore(page)
       await page.locator('[data-ink-action="label"]').click()
@@ -395,6 +426,23 @@ test.describe('the Lasso on drawings', () => {
       await showMore(page)
       await expect(page.locator('[data-ink-action="paste"]')).toBeVisible()
     })
+  })
+
+  // bug A0-B1: width grip covers Thickness (found by A0, 20 Nov); remove test.fail when fixed
+  test('LS-33 Thickness in ⋯ More changes the stroke width', async ({
+    page,
+  }) => {
+    test.fail()
+    const s = await drawingsPage(page)
+    await realPen(page, loopRound(s.a))
+    await selectionIsAround(page, s.a)
+    await showMore(page)
+    const w0 = (await drawings(page))[0].width
+    await page
+      .locator('[data-ink-more] [data-ink-action="thickness"]')
+      .click({ timeout: 4000 })
+    await page.locator('[data-ink-thickness]').last().click()
+    await expect.poll(async () => (await drawings(page))[0].width).not.toBe(w0)
   })
 
   test('LS-38 LS-39 a tap on empty paper lets go; Esc lets go; Delete and Backspace delete the selection', async ({
@@ -519,9 +567,16 @@ test.describe('the Lasso on words', () => {
       .toBe(2)
     await page.keyboard.type('Last filler line')
     await expect(box.locator('.bn-editor')).toContainText('Last filler line')
-    await page.waitForTimeout(700)
+    await toolsReady(page)
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          (window.__lnTools!.pendingSaves as () => boolean)(),
+        ),
+      )
+      .toBe(false)
     await page.evaluate(() => (document.activeElement as HTMLElement).blur())
-    await page.waitForTimeout(1000)
+    await expect(box).not.toHaveAttribute('data-picked', '')
     await page.evaluate((p) => window.__lnTools!.setLasso(p), {
       shape: 'free',
       ink: true,
@@ -533,7 +588,8 @@ test.describe('the Lasso on words', () => {
     const sh = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
     await realPen(page, [{ x: sh.x + sh.width - 30, y: sh.y + sh.height - 60 }])
     await page.keyboard.press('Escape')
-    await page.waitForTimeout(800)
+    await expect(page.locator('[data-options-pill]')).toBeHidden()
+    await settled(async () => await box.boundingBox())
     return box
   }
 
@@ -581,7 +637,8 @@ test.describe('the Lasso on words', () => {
     const r = await wordsBox(page, WORDS.indexOf('2000'), WORDS.length)
     await test.step('When I draw a loop over the words with the Pencil', async () => {
       await realPen(page, loopRound(r, 5))
-      await page.waitForTimeout(600)
+      await expect.poll(() => machineState(page)).toBe('idle')
+      await frames(page)
     })
     await test.step('Then no word is selected, typed, deleted or moved', async () => {
       expect(await selected(page)).toBe('')
@@ -767,6 +824,7 @@ test.describe('the Lasso: more lines', () => {
             buttons: name === 'pointerup' ? 0 : 1,
             pressure: 0.5,
           })
+        // A second finger beside a real Pencil cannot be sent by the browser: the touch event is made here.
         const pad = document.querySelector('[data-ink-pad]')!
         pad.dispatchEvent(make('pointerdown', f1.x + r, f1.y))
         for (let i = 1; i <= 12; i++) {
@@ -805,7 +863,7 @@ test.describe('the Lasso: more lines', () => {
     const s = await drawingsPage(page, { 'ink.pen': { circleLasso: true } })
     await tool(page, 'Pen').click()
     await page.keyboard.press('Escape')
-    await page.waitForTimeout(500)
+    await pageSettled(page)
     const n = 32
     const ring = Array.from({ length: n + 1 }, (_, i) => ({
       x:

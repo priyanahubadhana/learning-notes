@@ -19,7 +19,7 @@ Plan: docs/plans/phase-plan.md. How helpers work: docs/HOW-WE-BUILD.md. State: d
 - Builders: Sonnet at medium effort (`builder`), one planned task each; no Haiku in the build.
 - Manager and reviewer: Opus at medium effort. It runs the build (the main chat in lean mode; `phase-manager` only when the owner asks for the full team), reviews each task once (code and look) and takes over when Sonnet failed the same thing three times.
 - Fable at medium effort: plans each phase with the owner and solves what Opus failed five times. No routine reviews.
-- Escalation (owner, 20 Nov 2026): Sonnet fails the same thing three times → Opus; Opus fails it five times → Fable. A try counts only if it differs from the one before, and no new try starts without new evidence (a failing test, a trace, a measurement).
+- Escalation (owner, 20 Nov 2026): Sonnet fails the same thing three times → Opus; Opus fails it five times → Fable. A try counts only if it differs from the one before, and no new try starts without new evidence (a failing test, a trace, a measurement). For a fault that only the real iPad shows: no new try without a new trace from the owner.
 - Tests: a fast set on each merge; the full set nightly and before each release.
 - Weekly quota: 80% is a reference, not a cap.
 

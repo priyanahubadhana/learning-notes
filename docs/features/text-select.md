@@ -22,7 +22,7 @@ As a learner who edits AI-made notes on the iPad with the Apple Pencil, I want t
 - **Straight back to writing.** After an action on the bar, or one tap on the words, I am back in the Text tool with the typing cursor where I expect it. After Delete it waits in the gap.
 - **Finger too.** A finger taps like the Pencil. A finger never circles; it scrolls.
 
-- **Whole piece on a double tap.** A double tap selects everything between two spaces ("23-11", "rate-is"); a circle can still take a part (owner, 20 Nov). The Text tool's own double tap stays as it is today.
+- **Whole piece on a double tap.** A double tap selects everything between two spaces ("23-11", "rate-is"); a circle can still take a part (owner, 20 Nov). The same rule goes into the Text tool when Part A6 is built, so one gesture gives one result everywhere; the owner judges it on the iPad (agreed 20 Nov).
 - **No doubled space.** After a delete in the middle of a line one space is left, not two, as the iPad itself does (Fable's pick; the owner did not answer this one directly, 20 Nov).
 
 - **On the selection, my stroke acts on it** (owner, 20 Nov). Pressing on the selected words and dragging moves them to where I drop them. Going over them again and again, back and forth or round and round, deletes them. The handles at the two ends make the selection longer or shorter.

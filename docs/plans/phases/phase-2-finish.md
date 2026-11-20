@@ -4,7 +4,7 @@ Written by Fable with the owner. It covers everything that is open for Phases 0,
 
 ## 1. What the owner gets, and where it ends
 
-Select a word or a few letters with the Pencil, delete or paste, write over it with Scribble: reliably, with Scribble on. One smart bar for every selection. Today's Lasso unchanged. Every open fault of the frame, the tool bar and the text box closed. Then Phases 1, 1S (Settings v5), 2A and 2B go live together, on the owner's yes (part E7). That is the end of this plan.
+Select a word or a few letters with the Pencil, delete or paste, write over it with Scribble: reliably, with Scribble on. One smart bar for every selection. Today's Lasso unchanged. Every open fault of the frame, the tool bar and the text box closed. Then Phases 1, 1S (Settings v5), 2A and 2B go live together, on the owner's yes (part E7). That is the end of this plan. **Nothing optional holds the release (owner agreed, 20 Nov):** Settings v5 and the smart bar go live with the rest only if they have passed the owner's test by then; if not, they follow a few days later.
 
 - **What success means to the owner (20 Nov), the six things that must work well by the end:** (1) the Settings page with the customisation the owner decided (Settings v5; stage 5 of this plan); it is Phase 1S, which this plan does not contain: `OPEN:` the owner decides whether it joins this release, see section 8); (2) the app frame; (3) the Text tool; (4) the Pen tool; (5) the Lasso tool; (6) the text box and everything about selecting, so that text can be edited in the best possible way. The owner's full test (E2, E5) has one chapter for each of the six.
 - **Switches (new, off in the live app):** `select.textLevel`, `select.smartBar`. Off = today, exactly.
@@ -41,6 +41,8 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 ### Stage 1: the Lasso safe, the tools ready (about a day and a half)
 
 **Order in lane A, changed on 20 Nov after the owner's answer "my hand rests on the screen while I circle":** A0, then **A2** (the quiet recorder), then check **C1a** (the owner uses the Lasso as usual for five minutes with the quiet recorder on and taps "Copy last trace" when an outline stays or a loop acts on the old selection), then **A1** written from that real trace (lasso.md S6 to S10, LS-50 to LS-58), then A3. A2 must prove that the recorder changes nothing: every Lasso scenario passes with it on. The recorder never stores the words of a note: it records that text changed, never which letters.
+
+**The choice after A3 (owner agreed, 20 Nov):** the build of A4 to A9 waits for a ten-minute choice with the owner. If the Scribble test shows that Scribble leaves a read-only box alone, selecting may work in the Text tool itself in two moves, and the text-selection parts are reshaped before they are built. If not, they are built as written (four moves).
 
 | #   | Who    | What it gives                                                                                                                                                                               | Spec                                              | Size | Owner's check |
 | --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---- | ------------- |
@@ -92,17 +94,17 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 
 ### Stage 4: the end (about three days, plus the owner's test)
 
-| #   | What it gives                                                                                                                                                                                   |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| E1  | Nothing lost (2B.12): the inventory against the app. The specs that are out of date (shell-spec, page-menus, device-modes, textbox-v2, shared-parts, phase-1) corrected or marked "replaced by" |
-| E2  | The owner's full test list (2B.13), written as numbered scenarios by feature; the older checks that still apply and the "owner to confirm" items folded in; pictures                            |
-| E3  | Side by side with every approved picture: light, dark and sepia; iPad both ways, phone and PC                                                                                                   |
-| E4  | Security review by Opus as a tester: paste first, then the whole phase; a bullet list discussed with the owner                                                                                  |
-| E5  | The owner's full test (about an hour, estimate) and its fixes. The freeze (F7) and "Not saved yet" (BUG-001) are closed here if not seen again, or get a part                                   |
-| E6  | The release bar (rules/quality.md); the preview-only recorders and the Tap speed row removed; the strict security header checked (sign-in, Drive, fonts); the full test set green               |
-| E7  | **Go live on the owner's yes:** one code line (task 0.7), NIGHTLY_REF, the live-check fix; the owner switches the phases on, on each device                                                     |
-| E8  | After go-live, on the owner's word (question 4): the old text box files removed                                                                                                                 |
-| E9  | Any quiet hour: a list of the 61 working copies (clean or not, merged or not); the owner approves the removals once (question 5)                                                                |
+| #   | What it gives                                                                                                                                                                                                                                                                                                        |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E1  | Nothing lost (2B.12): the inventory against the app. The specs that are out of date (shell-spec, page-menus, device-modes, textbox-v2, shared-parts, phase-1) corrected or marked "replaced by"                                                                                                                      |
+| E2  | The owner's full test list (2B.13), written as numbered scenarios by feature; the older checks that still apply and the "owner to confirm" items folded in; pictures                                                                                                                                                 |
+| E3  | Side by side with every approved picture: light, dark and sepia; iPad both ways, phone and PC                                                                                                                                                                                                                        |
+| E4  | Security review by Opus as a tester: paste first, then the whole phase; a bullet list discussed with the owner                                                                                                                                                                                                       |
+| E5  | The owner's full test (about an hour, estimate) and its fixes. The freeze (F7) and "Not saved yet" (BUG-001) are closed here if not seen again, or get a part                                                                                                                                                        |
+| E6  | The release bar (rules/quality.md); the preview-only recorders and the Tap speed row removed; the strict security header checked (sign-in, Drive, fonts); the full test set green                                                                                                                                    |
+| E7  | **Go live on the owner's yes:** one code line (task 0.7), NIGHTLY_REF, the live-check fix; a backup of the owner's notes first; then the parts are switched on over two or three days (the frame and tool bar, then the text box and selection, then the smart bar and Settings if they have passed), on each device |
+| E8  | After go-live, on the owner's word (question 4): the old text box files removed                                                                                                                                                                                                                                      |
+| E9  | Any quiet hour: a list of the 61 working copies (clean or not, merged or not); the owner approves the removals once (question 5)                                                                                                                                                                                     |
 
 ### Stage 5: the new Settings page, Settings v5 (about four to five days of building; runs beside stages 2 and 3 in whichever lane is free)
 
@@ -158,7 +160,7 @@ Every new test file is added to the iPad-size list; time is tested with the test
 | C12      | E5                                           | the full test                                                                                | about 1 hour |
 | C13      | E7                                           | the yes to go live                                                                           | —            |
 
-**The owner checks at any time of the day, also in a break at work (owner, 20 Nov: "keep reminding me when to check").** Opus names the check that is due at the top of its message under "Needs you", with the preview version and the steps, and repeats the list of checks still waiting at the end of every message until each one is done.
+**The owner checks in two calm windows, morning and evening (agreed 20 Nov: a hurried check from work gives poor evidence; "keep reminding me when to check").** Opus names the check that is due at the top of its message under "Needs you", with the preview version and the steps, and repeats the list of checks still waiting at the end of every message until each one is done.
 
 **Builders do not wait for a check.** The owner works 9 to 5, so checks come in a morning or an evening window and cover whatever landed since the last one. While a selection part waits for its check, the next one is built; at most two selection parts may be unchecked at a time, so a wrong turn costs two parts at the most. A failed check goes to the front of its lane.
 
@@ -198,6 +200,8 @@ Every new test file is added to the iPad-size list; time is tested with the test
 
 **Settings v5 joins this release (owner, 20 Nov: "let Settings join it, just make sure it is there too").** It is stage 5 in section 5 and a chapter of the full test.
 
+**Six points agreed on 20 Nov (Fable's disagreements; docs/DECISIONS.md):** the route is chosen after A3; nothing optional holds the release, the switch-on is staged and a backup comes first; a fault only the iPad shows gets no new try without a new trace; two calm checks a day; one double-tap rule in both tools; the method is cut where its numbers do not pay.
+
 **Fable's picks, logged, no answer needed:** the tap rule of 18 Nov (every tap acts at once, about a second between taps) replaces the 700 ms of Q-4, and the Tap speed row goes in E6; builders reuse existing working copies (no new permission); the place of the box ⋯ is settled in the pictures of B2; the three Goodnotes extras stay "later" until the owner says otherwise.
 
 ## 9. Assumptions to check (what might not be true)
@@ -218,7 +222,7 @@ Each spec carries its own list too ("We assume" in lasso.md, text-select.md, sel
 
 ## 10. Not in this plan, and where it lives
 
-Your layouts (after the owner has used the new Settings and tool bar). Phases 3 to 10. AI and the connector upgrade. The "App user stories" notebook through the connector (after this phase). Circle select in the Text tool itself (own plan after A3). The three Goodnotes extras (ideas list). Shared parts step 3 (when a phase needs it). Tasks 0.10 and 0.13 (after the release). The mixed-selection filter on the bar and a bottom keyboard bar (owner: no).
+Your layouts (after the owner has used the new Settings and tool bar). Phases 3 to 10. AI and the connector upgrade. The "App user stories" notebook through the connector (after this phase). Selecting in the Text tool itself (decided at the choice after A3). The three Goodnotes extras (ideas list). Shared parts step 3 (when a phase needs it). Tasks 0.10 and 0.13 (after the release). The mixed-selection filter on the bar and a bottom keyboard bar (owner: no).
 
 ## 11. Done when
 

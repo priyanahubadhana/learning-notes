@@ -45,4 +45,4 @@ Says why and what must never happen. Gives real examples ("saw → expected", ex
 
 ## 8. What we measure (decided at the end of the phase)
 
-Per part, in docs/metrics/tasks.csv: hours from start to merged, review rounds, minutes spent on the spec, faults the owner found after the merge, and how many of those a scenario should have caught. Per phase: shaky tests open, and the owner's own word on whether the scenarios and the report helped. Before this method: about 1.6 review rounds per part, a small fix 1 hour, a text box part 3 hours.
+Per part, in docs/metrics/tasks.csv: hours from start to merged, review rounds, minutes spent on the spec, faults the owner found after the merge, and how many of those a scenario should have caught. Per phase: shaky tests open, and the owner's own word on whether the scenarios and the report helped. Before this method: about 1.6 review rounds per part, a small fix 1 hour, a text box part 3 hours. Whatever did not pay for itself in these numbers is cut at the end of the phase (owner agreed, 20 Nov).

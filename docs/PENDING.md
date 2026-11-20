@@ -7,7 +7,7 @@ The one short list of open work. The plan: [plans/phase-plan.md](plans/phase-pla
 Rewritten 20 Nov (part D0). The plan: [plans/phases/phase-2-finish.md](plans/phases/phase-2-finish.md).
 
 - **Now:** the 20-minute catch-up check **C0** on the preview, with "Circle recorder" off (plan section 6 lists the 11 items). Do it in a calm window, morning or evening.
-- **Coming:** check **C1a**, one five-minute Lasso session with the quiet recorder on, as soon as part A2 is on the preview.
+- **Due:** check **C1a**, one five-minute Lasso session with the quiet recorder on (Settings › Try new features › Lasso recorder); A2 merged 20 Nov.
 - **Sign-offs later:** docs/features/text-select.md (before A4) and docs/features/selection-bar.md (after the B2 pictures).
 - **Leftovers you may delete when you like:** the old working copies and power-cut leftovers (list comes in part E9). The permission check blocks new working copies with a link, so old ones are reused.
 - **Small, not urgent:** Decisions to review in docs/DECISIONS.md; the security-header check (Google sign-in, Drive, fonts; part E6); the AI test key shows masked and Test passes (never paste it in chat); Supabase Phase 8 connector job tools (needs your OK then).

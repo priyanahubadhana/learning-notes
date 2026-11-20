@@ -2,23 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
-### 20 Nov 2026: A2, the quiet recorder (slice/a2-quiet-recorder, Sonnet)
+### 20 Nov 2026: A2 quiet recorder merged
 
-- What: the red-line Circle recorder is gone; the switch is now "Lasso recorder" (same stored key, so the owner's switch carries over). With it on, a lazy chunk (src/app/input/lassoRecorder.ts) keeps the last minute (at most 20 000 events) of pointer, touch, mouse, hover, capture, focus, visibility, selection (lengths only) and text input (that it happened) events in memory, with the Lasso state next to each Lasso down, up, cancel or lost capture (read from the tool-state dump and the input machine; no hook added in controller.ts or PaperFrame.tsx). A small "Copy last trace" button outside the page copies the last 30 seconds as JSON (version 2, with build id and screen size). The replay (e2e/circleTrace.ts) sends what the trace holds and still reads version 1 traces.
-- Why: the two rare Lasso faults show only on the real iPad; part A1 is written from one real trace (check C1a).
-- Files: src/app/input/lassoRecorder.ts, src/editor/circleRecorderKey.ts, circleSelect.ts (recorder hook removed), circleRecorder.ts (removed), src/main.tsx (one line), src/settings/flagSettings.ts, src/i18n/*/flags.ts, e2e/quietRecorder.spec.ts, e2e/circleRecorder.spec.ts (panel tests moved), e2e/circleTrace.ts, playwright.config.ts (LASSO_RECORDER_ON=1 puts the switch on for a whole run), scripts/spec-check.json.
+- **What:** the Lasso recorder (ring buffer, no note words, "Copy last trace" pill bottom-left of the page area) replaces the red-line Circle recorder; the replay sends real pressure, buttons and tilt. build/next b6cbea7f.
+- **Why:** part A1 is written from one real iPad trace (check C1a).
+- **Files:** src/app/input/lassoRecorder.ts, e2e/circleTrace.ts, docs/features/quiet-recorder.md, docs/BUILD-STATE.md, docs/PENDING.md.
 
 ### 20 Nov 2026: D0, state files true again; main merged into build/next
-
-### 20 Nov 2026: B0 scenarios run as tests, spec check, report (slice/b0-scenarios, Sonnet)
-
-- What: the scenarios of docs/features/lasso.md now live only in e2e/features/lasso.feature and run on chromium and the iPad stand-in through playwright-bdd 9.2.1 (dev tool only; projects bdd-chromium and bdd-ipad-webkit; steps in e2e/steps; `npm run test:scenarios`). Trial result: it fits our config, the push guard, CI (Linux) and Windows, so no fallback. S1 to S5, S8 and S10 pass; S6, S7 and S9 are tagged @notbuilt @fail (Part A1: they must fail today, and the run goes red the day one passes so the tag is removed).
-- `npm run check:spec` (push guard and CI): a sentence without a step, a scenario not run in both projects or skipped, a detail line without id, an id twice, a line with no test or scenario named after it, a test naming a line that is not in the spec, `OPEN:` in a part set to "building" (scripts/spec-check.json), a spec taken out of the list or one more id on a waiting list (compared with origin/build/next), a bad row in docs/metrics/ipad-checks.md.
-- Waiting list (scripts/spec-check.json): 44 lasso lines have no test named after them yet (Part A0 writes them and removes them from the list; it may only shrink).
-- Report: scripts/scenario-report.mjs; CI job `scenarios` runs both projects, makes the report, and the preview adds it at https://build-next.learning-notes-app.pages.dev/scenarios/ . @ipad scenarios say "needs the owner's iPad check" until a row is in docs/metrics/ipad-checks.md. No new service or secret. The service worker leaves /scenarios/ alone (vite.config.ts). Link: Settings > Try new features > Test report (en, es, hi).
-- Files: playwright.config.ts, package.json (+lockfile), scripts/check-spec*.mjs, scripts/scenario-report*.mjs, scripts/push-guard*.mjs, .github/workflows/ci.yml, e2e/features, e2e/steps, e2e/scenarioReportLink.spec.ts, src/settings/v3/TryNewHeader.tsx and tryNew.ts, src/i18n/*/settingsV3.ts, docs/features/lasso.md, docs/metrics/ipad-checks.md.
-
-### 20 Nov 2026: CI reds 4 (slice/ci-reds-4, Sonnet)
 
 - **What:** BUILD-STATE rewritten at the top (now building phase-2-finish; stale 2A tables replaced by a done list); PENDING "Needs you", phase board, R21, BUG-004, BUG-001 corrected; user-stories-2b gets a state section; `main` merged into `build/next` (a6e50fab; CHANGELOG and DECISIONS clashes kept both sides). Merges after 17 Nov that this file missed: C28 to C30b, B7 to B12, the box bar (18 Nov), ci-reds 1 to 4 (last f65b1fa6); tasks.csv holds the details. npm audit: only build-tool warnings, fix is breaking, not applied.
 - **Why:** the sweep (docs/plans/open-items-sweep-2026-11-20.md sections 2 and 6) found the lists out of date.

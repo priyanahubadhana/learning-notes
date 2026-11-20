@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-PAUSED, plan ready (20 Nov): docs/plans/phases/phase-2-finish.md. Waiting for the owner's yes on parts A0 (Lasso freeze tests), A1 (two Lasso fixes, docs/features/lasso.md) and B0 (spec checker), and the pick of must-never lines; then lean on Opus, two Sonnet lanes. build/next f65b1fa6: chromium full set green; ~21 WebKit timing reds open (part B11). Merge main into build/next first.
+READY TO START (20 Nov): the owner said yes to parts A0, A1 and B0 and picked the must-never lines (docs/features/lasso.md LS-N1 to LS-N6). Plan: docs/plans/phases/phase-2-finish.md. Next: the owner switches the main chat to Opus (medium) and types continue; Opus merges main into build/next, then starts A0 (builder 1) and B0 (builder 2). build/next f65b1fa6: chromium full set green; ~21 WebKit timing reds open (part B11).
 
 **Now (phase-manager, 16 Nov):** 2A.13 merged (build/next 80009f2c). 2A.16 part 1 on webkit (builder ad83581a2f372fdd8, slice/2a16 0e3cfc86, report pending); then one reviewer side-by-side with v9, fixes, then the main chat fast-forwards. Helper pushes to build/next refused: the main chat fast-forwards. Builders never touch `main`.
 

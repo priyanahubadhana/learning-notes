@@ -88,13 +88,39 @@ E1 2B.12 nothing lost (inventory against the app). E2 2B.13 pictures and the own
 9. The bar never covers the selected words and never leaves the screen.
 10. With the new text selection off, the Lasso behaves exactly as today; with it on, nothing changes for ink, pictures and boxes.
 
-Fable's pick: 1, 2, 3, 4, 6 and 10 as tests in A1; 5, 7, 8, 9 are already covered by LS lines or earlier owner rules and get their id in A0.
+**Owner's pick (20 Nov): 1, 2, 3, 4, 6 and 10**, as tests in A1 (docs/features/lasso.md LS-N1 to LS-N6). 5, 7, 8 and 9 are already covered by LS lines or earlier owner rules and get their id in A0. Two more for the smart bar (from the Goodnotes check below; SB lines in B1 and B3): a button that does nothing is never shown; the bar never jumps or swaps when the selection goes from cursor to words (buttons are only added at its end).
 
 ## Fable's picks inside this plan (owner may change; also in DECISIONS "to review")
 
 - LS-50: a loop whose lift was lost **finishes** (selects) instead of being thrown away, because the owner did lift the Pencil.
 - At text level the Picks filter is not consulted: the cursor in the box already says "text".
 - The text level reuses the Lasso's sheet and loop drawing by calling them; it adds its own files and never edits the lines LS-01 to LS-47 describe.
+
+## Goodnotes screenshots check (Fable, 20 Nov; all 13 pictures in docs/design/refs/ and refs/goodnotes-bar/2-more-menu.png)
+
+Every button and behaviour in the owner's screenshots, against the app and this plan. **B1's button list must contain every row of this table.**
+
+| Seen in Goodnotes                                                                          | In our app or plan                                                                                            | Result                                               |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Box bar: colour, size, Resize, Edit Text, Cut, Duplicate, Delete, ⋯                        | the one box bar (approved 18 Nov) and Edit Text in B4                                                         | covered                                              |
+| Text bar with only the cursor: colour, size, Aa, B/I, align, list, highlight, **Paste**, ⋯ | brief section 10 missed the Paste button; ours: Paste ▾ shows with only the cursor                            | **added to B3**                                      |
+| Text bar with words selected: the same, plus link, cut, copy at the end                    | B3 (buttons added at the end; the bar keeps its place)                                                        | covered                                              |
+| **Edit Text puts the cursor at the end of the text**; the bar turns into the text bar      | not written before                                                                                            | **added to B4**                                      |
+| A held button shows its name ("Edit Text", "Resize")                                       | our rule: names on a long press                                                                               | **added to B3**, every bar button                    |
+| Delete is the only red button                                                              | not written before                                                                                            | **added to B3**                                      |
+| Resize mode: 4 square corners, a turn handle, a short bar (Cut, Copy, Duplicate, Delete)   | ours shows the handles at once (C11, LS-22); ink turns; a text box does not turn (parked)                     | handles covered; box turning later                   |
+| A box and the ink on it resized and turned as one piece                                    | ours: they move together (TB-32); the handles resize the ink only (LS-17)                                     | **open: owner decides** (later by default)           |
+| ⋯: Cut, Copy, Duplicate, Paste, Paste and Match Style                                      | Paste ▾: Keep look, Plain text, More: Match style                                                             | covered                                              |
+| ⋯: Front, Back                                                                             | not in the app; owner 18 Nov: not chosen; needs layers                                                        | **open: owner decides** (later by default)           |
+| ⋯: Lock Textbox                                                                            | Lock box in the box ⋯ (built 18 Nov)                                                                          | covered                                              |
+| ⋯: Take Screenshot                                                                         | Screenshot in the mixed menu and the Professional ⋯; Copy and Save as picture for ink                         | covered; B1 checks it for a box                      |
+| ⋯: Create Element (save a selection to reuse as a sticker)                                 | not in the app                                                                                                | **open: owner decides** (ideas list)                 |
+| ⋯: Writing Tools, Add to Image Playground, Ask Siri; the AI ✦ button                       | Apple's own items: a web page cannot add them; our AI waits for the cost OK                                   | cannot, or later                                     |
+| Bottom keyboard bar (indent, lists, align, B I U S, mic, return)                           | owner: no. Underline and Strike are in the B/I strip, Indent in the Format card, Mic and Enter in the top row | covered; B1 proves each is reachable with the Pencil |
+| The dashed loop stays round the selection; the bar sits below it, never on it              | ours: the loop fades into a dashed box with handles (LS-21, LS-22); the bar never covers the words            | covered (our look kept)                              |
+| Undo and Redo top left; the Lasso's ▾ "what it selects"                                    | page top bar (2A.4); Picks                                                                                    | covered                                              |
+
+**B1 also records, for every button, whether it really works today** (the Professional ⋯ lists Move, Scale, Rotate, Screenshot, Convert; some were "coming later" on 11 Nov). A button that does nothing is not put on the smart bar.
 
 ## Will not do here
 

@@ -97,7 +97,14 @@ What the owner saw (20 Nov, about 1 or 2 times in 5 to 10 uses): **(a)** an old 
 - **LS-55** A fresh start also clears a left-over line selection, so no old bar shows and no new bar is hidden.
 - **LS-56** A Pencil in the air does not keep a stuck touch alive: the 4 second rule (LS-42) counts only movement while touching.
 
-**Must never happen** (the owner picks from the list in the phase page; each picked line becomes a test with the id LS-N1, LS-N2, …).
+**Must never happen** (owner's pick, 20 Nov; each is a test in A1):
+
+- **LS-N1** A Lasso outline never stays on the screen after its selection is gone. (iPad)
+- **LS-N2** A new loop never acts on the old selection. (iPad)
+- **LS-N3** The Lasso never changes words by itself: nothing is typed, deleted or moved without an action or a drag on purpose.
+- **LS-N4** The Lasso never wakes Scribble or Apple's own bar. (iPad)
+- **LS-N5** The Lasso never gets stuck: the next touch always works, with no reload and no tool change. (iPad)
+- **LS-N6** With the new text selection off, the Lasso behaves exactly as today; with it on, nothing changes for ink, pictures and boxes.
 
 **Not in A0 or A1:** letters inside a word, the purple highlight, new taps, any bar change, any change to LS-01 to LS-47.
 

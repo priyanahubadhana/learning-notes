@@ -53,3 +53,30 @@ test('the micro bar shows with the caret, formats, and keeps a dragged place', a
   await page.keyboard.press('Shift+Home')
   await expect(bar).toHaveCount(0)
 })
+
+test('a drag the system cancels keeps the last place that was drawn', async ({
+  page,
+}) => {
+  await openNote(page, 'computer')
+  const bar = page.locator('[data-micro-bar]')
+  await page.keyboard.type(' more')
+  await expect(bar).toBeVisible()
+  const grip = bar.locator('[data-micro="grip"]')
+  const g = (await grip.boundingBox())!
+  await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(g.x + 150, g.y + 120, { steps: 6 })
+  // Wait until the bar is drawn at the new place, then the system cancels the drag.
+  await expect
+    .poll(async () => (await bar.boundingBox())!.y - g.y)
+    .toBeGreaterThan(60)
+  await grip.dispatchEvent('pointercancel')
+  await page.mouse.up()
+  await expect
+    .poll(() =>
+      page.evaluate(() =>
+        localStorage.getItem('learning-notes:toolbar.microPos'),
+      ),
+    )
+    .not.toBeNull()
+})

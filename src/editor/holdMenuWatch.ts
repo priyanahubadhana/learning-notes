@@ -29,13 +29,26 @@ export const RING_AFTER_MS = 400
 export const PEN_QUIET_MS = 1000
 
 /**
- * Pencil only (owner, 21 Nov, HOLD-MOVE answer A: writing never opens the hold): the
- * hold ends once the tip's total path since it went down passes this many px, even
- * if it never leaves the radius. A finger keeps the furthest-distance rule above.
+ * Pencil only (owner, 21 Nov, HOLD-MOVE answer A: writing never opens the hold). Two
+ * rules, both safe against the tremor of a Pencil held still (to be reviewed on the real
+ * iPad in the owner's hold re-check):
+ * (a) a Pencil may drift only this far from where it went down (a finger keeps 10 px);
+ * (b) the steps of 1 px or more between two moves are added up, and the hold ends once
+ *     they pass 10 px (smaller steps are tremor and add nothing).
  */
+export const HOLD_PEN_STILL_PX = 4
+export const HOLD_PEN_STEP_PX = 1
 export const HOLD_PEN_PATH_PX = 10
 
-/** Pure rule: has the Pencil's total path ended the hold? */
+/** Pure rule (a): has the Pencil drifted too far from its start? */
+export const penMovedTooFar = (dx: number, dy: number): boolean =>
+  Math.hypot(dx, dy) > HOLD_PEN_STILL_PX
+
+/** Pure rule (b): the part of one step that counts toward the path (tremor counts 0). */
+export const penStepCounted = (step: number): number =>
+  step >= HOLD_PEN_STEP_PX ? step : 0
+
+/** Pure rule (b): has the counted path ended the Pencil hold? */
 export const penPathTooLong = (path: number): boolean => path > HOLD_PEN_PATH_PX
 
 /** Pure rule: has the press moved too far to stay a hold? */
@@ -207,14 +220,18 @@ export function watchHoldMenu(
     // Any drift beyond the radius, or a harder press, ends this hold for the
     // whole stroke (nothing re-arms until the next pointerdown).
     if (press.type === 'pen') {
-      press.path += Math.hypot(e.clientX - press.lx, e.clientY - press.ly)
+      press.path += penStepCounted(
+        Math.hypot(e.clientX - press.lx, e.clientY - press.ly),
+      )
       press.lx = e.clientX
       press.ly = e.clientY
     }
     if (
-      movedTooFar(e.clientX - press.x, e.clientY - press.y) ||
-      (press.type === 'pen' &&
-        (penPathTooLong(press.path) || e.pressure - press.pressure > 0.2))
+      press.type === 'pen'
+        ? penMovedTooFar(e.clientX - press.x, e.clientY - press.y) ||
+          penPathTooLong(press.path) ||
+          e.pressure - press.pressure > 0.2
+        : movedTooFar(e.clientX - press.x, e.clientY - press.y)
     )
       stop()
   }

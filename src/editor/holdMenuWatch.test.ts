@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   distToRect,
   HOLD_PEN_PATH_PX,
+  HOLD_PEN_STILL_PX,
+  penMovedTooFar,
+  penStepCounted,
   HOLD_STILL_PX,
   movedTooFar,
   PEN_CARET_PX,
@@ -30,14 +33,28 @@ describe('press-and-hold menu', () => {
   })
 })
 
-describe('HOLD-MOVE: the Pencil path rule', () => {
-  it('the Pencil hold ends once the total path passes 10 px (a finger keeps the distance rule)', () => {
-    expect(HOLD_PEN_PATH_PX).toBe(10)
-    expect(penPathTooLong(0)).toBe(false)
+describe('HOLD-MOVE: the Pencil rules (4 px radius, 1 px dead-band, 10 px path)', () => {
+  it('(a) a Pencil may drift 4 px from its start, a finger 10 px', () => {
+    expect(HOLD_PEN_STILL_PX).toBe(4)
+    expect(penMovedTooFar(4, 0)).toBe(false)
+    expect(penMovedTooFar(3, 3)).toBe(true)
+    expect(movedTooFar(7, 7)).toBe(false) // a finger: 9.9 px
+    // The 9 px loop of handwriting: 9 px from where it began is out for a Pencil.
+    expect(penMovedTooFar(9, 0)).toBe(true)
+  })
+  it('(b) steps under 1 px are tremor and add nothing; the counted path ends the hold at 10 px', () => {
+    expect(penStepCounted(0.8)).toBe(0)
+    expect(penStepCounted(0.99)).toBe(0)
+    expect(penStepCounted(1)).toBe(1)
+    expect(penStepCounted(2.5)).toBe(2.5)
+    // 1000 tremor steps never end a hold; 11 steps of 1 px do.
+    let tremor = 0
+    for (let i = 0; i < 1000; i++) tremor += penStepCounted(0.8)
+    expect(penPathTooLong(tremor)).toBe(false)
+    let path = 0
+    for (let i = 0; i < 11; i++) path += penStepCounted(1)
+    expect(penPathTooLong(path)).toBe(true)
     expect(penPathTooLong(10)).toBe(false)
-    expect(penPathTooLong(10.5)).toBe(true)
-    // A loop that stays inside the 10 px radius still has a long path.
-    expect(movedTooFar(9, 0)).toBe(false)
-    expect(penPathTooLong(2 * Math.PI * 4.5)).toBe(true)
+    expect(HOLD_PEN_PATH_PX).toBe(10)
   })
 })

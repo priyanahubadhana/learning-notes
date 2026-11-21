@@ -502,6 +502,34 @@ test('HOLD-STILL: a still Pencil hold (no path, 0.8 s) on the caret still opens 
   })
 })
 
+test('HOLD-TREMOR: a Pencil that only trembles (steps under 1 px, about 60 moves in 0.6 s) still opens the hold', async ({
+  page,
+}) => {
+  await open(page, 'pencil')
+  const gap = await boxOf(page, 'e r', 1, 2)
+  const at = centre(gap)
+  await page.mouse.click(at.x, at.y)
+  await page.waitForTimeout(1300)
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
+  await page.mouse.move(at.x - 3, at.y - 6)
+  await page.mouse.move(at.x, at.y)
+  await page.mouse.down()
+  // Alternating +0.4 / -0.4 px sideways around the start: every step is 0.8 px (under the
+  // 1 px dead-band), the furthest point is 0.4 px (under the 4 px radius).
+  for (let i = 0; i < 60; i++) {
+    const d = i % 2 === 0 ? 0.4 : -0.4
+    await page.mouse.move(at.x + d, at.y)
+    await page.waitForTimeout(10)
+  }
+  await expect(holdStrip(page)).toBeVisible()
+  await page.mouse.up()
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
+})
+
 /** The bar's box, the page frame, and every text line on the page (screen rects). */
 const barGeometry = (page: Page) =>
   page.evaluate(() => {

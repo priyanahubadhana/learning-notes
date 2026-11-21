@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B11 aiPicker (model card drag)
+
+- **What:** a quick drag of an AI model card now lands where the finger lifts (the drop place comes from the pointerup event, not from the last drawn move, which could be one step old). The aiPicker test makes sure the cards are on screen and that the saved order is stored before it reloads.
+- **Why:** B11 test health: this test failed on the iPad stand-in in both full runs; the cause was a real race in the app (6 of 6 before the fix).
+- **Files:** src/ai/ModelCards.tsx, e2e/aiPicker.spec.ts. 20/20 on chromium and ipad-webkit.
+
 ### 21 Nov 2026: B11 part 1 (test health)
 
 - **What:** the desktop-only shell and left-panel specs now size themselves and run on the iPad stand-in; the mouse drag of page rows moved to e2e/leftPanelDrag.spec.ts (desktop only on purpose); shellTwins waits for the handle to stand still and for the saved width (no fixed sleep); toolsRefresh line 60 checked green. Full ipad-webkit suite measured twice (2218 tests): real failures are aiPicker, LB-PERF and the b10-6 pictures in both runs, plus 11 one-run timing flakes; fixes follow in groups. The first count wrongly included expected-fail tests (test.fail); the summary script now counts only unexpected results.

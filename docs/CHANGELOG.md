@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B1 button list merged
+
+- **What:** docs/features/selection-bar-buttons.md lists all 115 buttons of the old selection bars (where, works today, Pencil-reachable, place on the smart bar); e2e/selectionBarButtons.spec.ts (156 tests, SB-B000 keeps list and tests in step); check:spec takes SB-B ids. Broken today (test.fail): Save to notes; classic Lasso Move, Scale, Rotate, Screenshot, Convert on words; v8 ⋯ rows that do nothing; drawing-menu Delete under the sidebar grip at 1180 px. build/next 4b825720.
+- **Why:** B2 pictures and the smart bar must not lose a button (selection-bar.md "Done when").
+- **Lesson:** never push from a working copy while its tests run (the push guard rebuilds dist; 2 false failures).
+- **Files:** docs/features/selection-bar-buttons.md, e2e/selectionBarButtons.spec.ts, scripts/check-spec.mjs, scripts/spec-check-lib.mjs, scripts/spec-check.json, playwright.config.ts.
+
 ### 20 Nov 2026: A2 quiet recorder merged
 
 - **What:** the Lasso recorder (ring buffer, no note words, "Copy last trace" pill bottom-left of the page area) replaces the red-line Circle recorder; the replay sends real pressure, buttons and tilt. build/next b6cbea7f.

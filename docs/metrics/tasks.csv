@@ -69,3 +69,4 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 19 Nov,slice/b11-b12,B11 Text tool never makes ink; B12 Paste in owner's v8 row,Sonnet,1 review round,merged 2ce4acf2
 20 Nov,slice/ci-reds-2+3,last CI reds; 4 real bugs (mini bar after turn; column rounding; resize loses selection; v8 Pencil-only keys),Opus builder,1 review round,merged
 2026-11-22T04:00+05:30,PC-1,M1 docs archive and one STATE file,sonnet,324000,3,,,2.6,"three review rounds (two FAIL, one PASS); fix round 1 merged before its re-review (slip 2); reviewers about 216000 tokens; junction worktree ln-m1"
+2026-11-22T05:10+05:30,PC-1/1A,U0b update spec rewrite and templates,opus,167510,3,,,3.5,"first review FAIL (6), fix round merged before re-review (slip 1, then PASS), owner row-13 finding (slip 3: invented Settings layout) redrawn on v5, re-review FAIL on one text line then manager check; reviewers about 208000 tokens"

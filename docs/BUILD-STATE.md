@@ -4,12 +4,13 @@ RUNNING: Phase PC-1 stage 0 (started 22 Nov 01:20 IST; the pause ended when the 
 
 ## Stage 0 (PC-1)
 
-| Part                            | Branch (working copy)                                | State                   |
-| ------------------------------- | ---------------------------------------------------- | ----------------------- |
-| M4                              | main                                                 | DONE 22 Nov (site live) |
-| M1                              | `tool/m1-archive` (ln-2a13)                          | STARTED 22 Nov          |
-| U0a                             | `slice/u0a-update-repro` (ln-2a16b), from build/next | STARTED 22 Nov          |
-| U0b, M2, M3, M8, M5, M9, M6, M7 | -                                                    | planned, in this order  |
+| Part                       | Branch (working copy)               | State                                                                                                                     |
+| -------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| M4                         | main                                | DONE 22 Nov (site live)                                                                                                   |
+| M1                         | `tool/m1-archive` (ln-m1)           | review FAIL (4 fixes) sent to builder a59ea12442f3fa8c5; then merge to main, then main into build/next                    |
+| U0a                        | `slice/u0a-update-repro` (ln-2a16b) | built c692dc2c, loop reproduced on WebKit slow line; review FAIL (6 fixes) sent to builder a2de4da29ebff2aa9              |
+| U0b                        | main 9e53510e                       | sheet posted (site features/update-v2.html); review FAIL fixes sent to builder a74ea45f2efd2398d (new rows appended only) |
+| M2, M3, M8, M5, M9, M6, M7 | -                                   | planned, in this order                                                                                                    |
 
 ## Now
 

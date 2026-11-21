@@ -94,11 +94,14 @@ export const ready = (scope: string): Promise<void> =>
 setOpenPage(() => active)
 installRowCapture(db)
 
+/** Clicks taken but not yet done: the buttons already count them as used. */
+const pending = { undo: 0, redo: 0 }
+
 function publish(): void {
   const j = active ? journals.get(active) : undefined
   const next = {
-    canUndo: !!j && j.done.length > 0,
-    canRedo: !!j && j.undone.length > 0,
+    canUndo: !!j && j.done.length - pending.undo > 0,
+    canRedo: !!j && j.undone.length - pending.redo > 0,
   }
   const old = historyState.get()
   if (old.canUndo !== next.canUndo || old.canRedo !== next.canRedo)
@@ -458,7 +461,14 @@ registerKind('pm', {
 let tail: Promise<unknown> = Promise.resolve()
 
 function enqueue(dir: 'undo' | 'redo'): Promise<boolean> {
-  const next = tail.then(() => doStep(dir))
+  pending[dir]++
+  publish()
+  const next = tail
+    .then(() => doStep(dir))
+    .finally(() => {
+      pending[dir]--
+      publish()
+    })
   tail = next.catch(() => false)
   return next
 }

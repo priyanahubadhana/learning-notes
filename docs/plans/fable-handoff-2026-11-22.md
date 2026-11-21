@@ -26,6 +26,10 @@ Read this first in the next Fable session, then docs/STATE.md (Opus's live state
 - After the owner's answers on principles.md: fold the 18 answers into system.md, shell-spec.md and design-study.md so they match the one table (a doc task for Opus, Fable checks once).
 - Plan stage 2 with the owner when stage 1 goes live. Not before.
 
+## First thing in the morning
+
+The U0a builder committed its fix round as 3f088e40 on slice/u0a-update-repro in C:UserspcDownloadsln-2a16b, but the push guard blocked the push (a local check failed; the output was not kept). The commit is safe on disk. The morning manager runs the push there, reads the guard's lines, fixes the cause, and pushes; never --no-verify.
+
 ## Opus resumes from docs/STATE.md
 
 Phase 1A (set-up and the update) is running. Merged: M1, M2, M3, M4, M8, U0b, the ideas sort. Open: U0a fix round and 20 of 20, then U0c and S0; the found-wishes sweep; M5 analyze; M9 part cards (stop for Fable); M6 weekly card; M7 research pass; archive of the old plan pages after the owner's found-wishes answers; the site home and badges. Replan count 0. Process slips so far are logged for the weekly card.

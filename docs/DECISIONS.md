@@ -1661,3 +1661,16 @@ Relayed by Fable to the phase manager, who applies them in M1, M2, M5, M8 and M9
 - **Owner decision:** in the app now, the Update card goes at the top of today's Settings page, drawn in the v5 card style, so it moves into v5 unchanged in stage 3.
 - update-v2.md recorded as Confirmed 22 Nov 2026 with row 13 open. U0c (the loop fix) may start; its Settings-card part waits for the owner's yes on the redrawn picture.
 - M1 re-review round 2: PASS (3aa514bf), merged.
+
+### 22 Nov 2026 (owner with Fable, relayed): register, phase size, replan trigger
+
+- **Open U0b item is row 14** (the Settings picture); the owner's note arrived on row 13; the pill pictures are accepted. U0b fix round 2 merged after the re-review (pictures PASS; the row-14 text fix checked by the manager against the single fix item).
+- **Feature register** docs/FEATURES.md (Fable writes it): stable ids F-001… used in specs, issues, briefs and the plan; replaces the phase board and the inventories; the site shows it with filters by stage and state.
+- **Phase size:** at most two weeks, ending with a train release; parts under a day; 10 to 20 parts per phase.
+- **Replan trigger:** the manager counts meaningful changes to the live plan since Fable last planned (a confirmed spec's scope changed, a feature moved between stages or phases, a part added or removed, an estimate slip over three days; trivial edits do not count). At 10, or at any stage move, the manager stops adding and asks the owner to open a Fable window; never escalates to Fable on its own for this trigger. Count since 22 Nov: 0.
+- **The 152 ideas** are sorted into stages and added to the register with state "idea" once Fable publishes its format; the owner corrects on the site in one pass.
+- **File ownership for now:** Fable writes FEATURES.md, the stage map, stage-1-plan.md, METHOD-v2.md, CLAUDE.md and .claude/agents/*; the manager everything else. M8's CLAUDE.md and .claude/ edits are Fable's, with the owner's word given in Fable's chat.
+
+### 22 Nov 2026 (phase manager): Decisions to review
+
+- **M2 Spec Kit v1.4.3 writes nine `.claude/skills/speckit-*` files.** A change to .claude/ needs the owner's own word, so M2 merges only after Fable confirms the owner's OK for those skills (or Fable merges that part).

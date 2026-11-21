@@ -35,6 +35,11 @@ As the owner, who is a beginner and is often away from the PC, I want to say wha
 - **One source, two faces** (picture 3). The repo is the only source. A program renders the site, the board and the data file on every push. No copy is kept by hand.
 - **Honesty.** Every pick carries the case against it. A position changes only for a named new reason. An override is logged as "owner chose X; the reason against was Y". "Done" needs proof.
 - **The ladder** (picture 2). Sonnet, three fails with new evidence each; Opus medium; Opus high; Fable; the owner last.
+- **The register and the stages.** Every feature has one row and one id (F-…) in docs/FEATURES.md with its stage (1 the working app for the owner, 2 the premium app for the owner, 3 for everyone), state and phase; the id is used everywhere. Every spec and part card carries its Stage in the header. A stage holds phases of at most two weeks, each ending with a train release (preview every Friday, live every second Friday on the owner's yes); a phase holds 10 to 20 parts; a part is under a day. A move between stages or phases goes through the stage map and the owner's yes.
+- **Replan trigger.** Opus counts meaningful changes to the live plan since Fable last planned (a confirmed spec's scope changed, a feature moved between stages or phases, a part added or removed, an estimate slip over three days; trivial edits do not count). At 10, or at any stage move, Opus stops adding and asks the owner to open a Fable window to replan; never on its own.
+- **Short lines.** A rule or a must-never line is one short line, about twelve words; the detail lives in scenarios and detail lines.
+- **Design and quality in the spec.** The Design and quality check is filled before the confirm sheet and the reviewer checks it. No new UI where an approved one exists.
+- **Flexible.** Everything a user might want to change is customisable: simple default, advanced under the ▾; never drop a feature.
 - **Measured, then changed.** Eight numbers a week, computed; the owner's one line; rules change only at a phase end, from the numbers.
 
 **Must never happen**
@@ -170,5 +175,6 @@ S1 to S7 above are checked by hand once at the end of stage 0 (M0 to M8), and S4
 
 ### Changes
 
+- 22 Nov 2026, 05:00 · rules added from the owner's decisions of 22 Nov (the register and the stages, the replan trigger, short lines, design and quality in the spec, flexible); the owner decided each in chat; no sheet row changed its meaning · Fable.
 - 22 Nov 2026 · confirmed · the owner answered all 11 rows Yes on the site's sheet (chat of 22 Nov, 00:10).
 - 21 Nov 2026 · draft · Fable, from the owner's decisions of 21 Nov rounds 1 to 5.

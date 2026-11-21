@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: the 152 ideas sorted into the register, and a Pillar column (task 1A)
+
+- **What:** docs/FEATURES.md gets a section of 152 idea rows (F-200 to F-351, stage by the stage map, "?" where guessed) and a Pillar column (N, G, F, P, A or core) on every register table. **Why:** the owner reviews the sorting on the site in one pass. **Files:** docs/FEATURES.md, docs/CHANGELOG.md.
+
 ### 22 Nov 2026: GitHub Issues are the bug list (part M3)
 
 - **What:** labels part:<id>, state:<...>, found-by:<...>; bug form .github/ISSUE_TEMPLATE/bug.yml; 43 old problems moved into issues #7 to #49 (old id in each title); STATE.md "Open problems" is now one line; README says how to file a bug from the phone.

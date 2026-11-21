@@ -1,6 +1,6 @@
 # Tools robustness plan (for a Sonnet builder)
 
-Research: [../research/tools-robustness-2026-11.md](../research/tools-robustness-2026-11.md).
+Research: [../research/tools-robustness-2026-11.md](../../research/tools-robustness-2026-11.md).
 
 For every step: build, add unit tests, run e2e on chromium and ipad-webkit, write the CHANGELOG entry, run the mirror. No new Dexie version. All e2e tests use `e2e/inkHelpers.ts`.
 

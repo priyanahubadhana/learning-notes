@@ -1,6 +1,6 @@
 # Book annotations plan (item 43)
 
-Research: [docs/research/book-annotations-2026-11.md](../research/book-annotations-2026-11.md). Status: waiting for owner OK and comparison with the owner's own research.
+Research: [docs/research/book-annotations-2026-11.md](../../research/book-annotations-2026-11.md). Status: waiting for owner OK and comparison with the owner's own research.
 
 ## Recommended model
 

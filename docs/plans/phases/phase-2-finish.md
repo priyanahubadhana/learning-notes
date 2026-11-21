@@ -1,6 +1,6 @@
 # Phase 2 finish: the complete plan (set 20 Nov 2026)
 
-Written by Fable with the owner. It covers everything that is open for Phases 0, 1, 2A and 2B, the new Settings page (Settings v5, Phase 1S; added on the owner's word, 20 Nov) and their release together. Phase 3 and later are not planned here. Whether the build is running: only [../../BUILD-STATE.md](../../BUILD-STATE.md) says. Sources: the brief [../fable-brief-smart-select.md](../fable-brief-smart-select.md); the owner's answers in [../../design/owner-decisions.md](../../design/owner-decisions.md) ("Smart select plan", 20 Nov); the sweep of every open item [../open-items-sweep-2026-11-20.md](../open-items-sweep-2026-11-20.md).
+Written by Fable with the owner. It covers everything that is open for Phases 0, 1, 2A and 2B, the new Settings page (Settings v5, Phase 1S; added on the owner's word, 20 Nov) and their release together. Phase 3 and later are not planned here. Whether the build is running: only [../../BUILD-STATE.md](../../BUILD-STATE.md) says. Sources: the brief [../fable-brief-smart-select.md](../../archive/plans/fable-brief-smart-select.md); the owner's answers in [../../design/owner-decisions.md](../../design/owner-decisions.md) ("Smart select plan", 20 Nov); the sweep of every open item [../open-items-sweep-2026-11-20.md](../../archive/plans/open-items-sweep-2026-11-20.md).
 
 ## 1. What the owner gets, and where it ends
 
@@ -12,7 +12,7 @@ Select a word or a few letters with the Pencil, delete or paste, write over it w
 
 ## 2. How every part runs
 
-The method is one page: [docs/METHOD.md](../../METHOD.md). Specs written this way: docs/features/lasso.md (A0, A1), docs/features/text-select.md (A4 to A9, draft), docs/features/selection-bar.md (B1 to B9, draft). Every other part gets its spec, at the right weight, just before it starts.
+The method is one page: [docs/archive/METHOD.md](../../archive/METHOD.md). Specs written this way: docs/features/lasso.md (A0, A1), docs/features/text-select.md (A4 to A9, draft), docs/features/selection-bar.md (B1 to B9, draft). Every other part gets its spec, at the right weight, just before it starts.
 
 ## 3. Who builds (owner, 20 Nov: two lanes)
 
@@ -127,7 +127,7 @@ Picture: docs/mockups/settings-v5/ (16 shots, approved 15 Nov). Stories: docs/fe
 
 Owner's check **C-S** (after S.11, about 20 minutes): the new Settings on the iPad; it is also a chapter of the full test C12.
 
-### Changes after the builder and tester lenses (20 Nov; docs/plans/lenses-2026-11-20.md)
+### Changes after the builder and tester lenses (20 Nov; docs/archive/plans/lenses-2026-11-20.md)
 
 Three assumptions were corrected before any code, and some parts are bigger than first written. The tables above keep their part names; these splits and sizes replace theirs:
 

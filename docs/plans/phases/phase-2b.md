@@ -55,7 +55,7 @@ Every brief ends with: "Rules: docs/plans/phases/phase-2b.md 'Rules for every ta
 ```
 Task 2B.1: the three iPad tests that always fail on this PC pass, and the shared helper no longer races. You own it until it is merged.
 Where: working copy <given>, branch slice/2b-1-ipad-tests. No switch.
-Spec: docs/plans/ipad-test-findings-2026-11-14.md R9; phase-plan task 0.9.
+Spec: docs/archive/plans/ipad-test-findings-2026-11-14.md R9; phase-plan task 0.9.
 Files: e2e/helpers.ts, e2e/textBoxFree.spec.ts:461, e2e/toolsRefresh.spec.ts:60, e2e/undoHistory.spec.ts:210. Not yours: playwright.config.ts, any timeout.
 First find and write down each cause (run alone, with trace). Fix the cause; if it is an app fault, say so before touching app code.
 The reviewer will compare with: the test guard (no fewer expects, no skip, no higher timeout).

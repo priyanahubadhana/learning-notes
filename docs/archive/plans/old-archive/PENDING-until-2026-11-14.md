@@ -2,7 +2,7 @@
 
 ## Needs you
 
-- **BUILD PAUSED (owner, 14 Nov 11:10 IST).** All helpers and the hourly check are stopped. Next: plan the phases with the owner from docs/plans/build-diagnosis-2026-11-14.md. Nothing restarts until the owner says so.
+- **BUILD PAUSED (owner, 14 Nov 11:10 IST).** All helpers and the hourly check are stopped. Next: plan the phases with the owner from docs/archive/plans/build-diagnosis-2026-11-14.md. Nothing restarts until the owner says so.
 
 - Needs you (13 Nov, the bugs-only rule has expired): open docs/HANDOFF.md with the owner, list the tasks carried forward repeatedly, and decide them.
 - Owner: when ready, add your test API key in Settings > AI (cap about $5); never paste it in chat.
@@ -179,7 +179,7 @@ Written 13 Nov 2026. Do it on the iPad in Safari, at the preview address. Tap ea
 | 14 Nov merges: storage safety (cfebd3a4), BUG-006 in preview                                                          | storage safety merged OFF, CI running; AI cost additions ready for the owner                         | build/next                                                                            | lazy-load storage safety, then 0g3, 9-6, 15, 8b, 9-cost                                                                                    | see docs/BUILD-STATE.md             |
 | 14 Nov run 8: owner fixes F1-F9                                                                                       | F1+F7 merged, CI green; F5/F9 merged, CI red (fixing); scroll fix gates PASS, merges next            | slice/fix-*, slice/1-toolbar-v8, slice/7-reader-v2                                    | green build/next, then fixes one at a time, then the queue                                                                                 | see docs/BUILD-STATE.md             |
 
-nContinuity: see [CONTINUITY.md](CONTINUITY.md). Mock-ups: docs/mockups/.
+nContinuity: see [CONTINUITY.md](../../../plans/archive/CONTINUITY.md). Mock-ups: docs/mockups/.
 
 Owner rule: remove a line when it's solved. Tokens are low until Fri 13 Nov, so only Priority 1 is built now. The full detail for each item lives in the linked plan file.
 
@@ -279,7 +279,7 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, customizable bars, layers, 
   - wants it organised like GoodNotes;
   - saved layouts: built-in "Beginner" and "Professional speed", plus several (up to 3) user layouts that save the whole toolbar arrangement and its preferences.
 - Step 1 (running): Fable maps every toolbar surface and setting from the code and proposes the organisation. Then an artifact map for the owner to mark, then a tappable mock-up.
-- Step 1 done: map in docs/plans/toolbar-map-2026-11-11.md (Fable). Decision page for the owner: https://claude.ai/artifact/Xquz4AAJC2vssFFa5dGRxX (13 changes + 8 questions). Waiting for the owner's pasted choices, then the tappable mock-up.
+- Step 1 done: map in docs/archive/plans/toolbar-map-2026-11-11.md (Fable). Decision page for the owner: https://claude.ai/artifact/Xquz4AAJC2vssFFa5dGRxX (13 changes + 8 questions). Waiting for the owner's pasted choices, then the tappable mock-up.
 - OWNER answers (11 Nov):
   1. Ribbon/All tools hidden in Beginner, available in Professional only.
   2. Compact view merges into the layouts (Beginner = compact); no separate setting.
@@ -346,7 +346,7 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, customizable bars, layers, 
 - DROP: Update pill vs bar.
 - Rule: anything that touches the UI being redesigned in the mock-up (toolbar, text box, Lasso, ink, layout, settings layout) waits until the owner signs off the mock-up. Everything else goes ahead under the Apple + Toyota + premium-design rules.
 - OWNER answers (wave 2 questions): Q1 (a) the redesign-touching items (settings previews & tour, emoji icons, premium design 3–6, labels & tape on pictures, reader magnifier) WAIT and get added to the mock-up artifact to be designed there first. Q2 (a) a short Book annotations plan for approval, then build. Q3–Q10: waiting.
-- Book annotations short plan ready (3 slices, 6 questions); waiting for owner approval. Summary in chat 11 Nov; detail in docs/plans/book-annotations-plan.md (existing) + this plan.
+- Book annotations short plan ready (3 slices, 6 questions); waiting for owner approval. Summary in chat 11 Nov; detail in docs/archive/plans/book-annotations-plan.md (existing) + this plan.
 - OWNER answers (wave 2):
   - Q4 (a) Notes from a PDF with a cost estimate before each run. PLUS a full audit of every AI/cost setting so no two settings double-enable a paid feature or charge twice (severity: high).
   - Q5 (b) the Claude connector reads AND writes from the start.
@@ -373,7 +373,7 @@ Questions:
 - iPad checks at the top of docs/plans/owner-checks-pending.md once the build is live.
 - Review the mock-ups: toolbar v2/v3, book annotations.
 - BUG-002 (format bar moves/extends beyond its bounds): no screenshot needed (owner, 12 Nov). The build adds an automatic test (bar stays inside the screen on iPad sizes) AND puts it in the owner's iPad test checklist.
-- Claude connector plan: docs/plans/claude-connector-plan.md. Questions:
+- Claude connector plan: docs/archive/plans/claude-connector-plan.md. Questions:
   - (1) write access ON from the start (the owner said read+write) vs off until allowed in Settings;
   - (2) the key in Windows Credential Manager;
   - (3) run from the local repo (not npm) at first;
@@ -388,7 +388,7 @@ Questions:
   - SECONDARY: refine AI mid-work inside the app (a Claude chat in the notebook).
   - Open decision: A local (PC, private) vs B online (claude.ai everywhere, opt-in server access) vs both. Recommended: both, with B as the main path for regular users.
 - OWNER: connector = BOTH (B online main path, opt-in; A local for privacy). Quality standard written: docs/design/quality-standard.md (+ rules/building.md pointer), owner-approved.
-- Connector B plan in docs/plans/claude-connector-plan.md. Questions: Supabase hosting? escrow 30-day expiry? Inbox thresholds? notebooks scope? B first? (picks: yes / yes / >30% or cards / default all / B first). Deploying needs the owner's OK.
+- Connector B plan in docs/archive/plans/claude-connector-plan.md. Questions: Supabase hosting? escrow 30-day expiry? Inbox thresholds? notebooks scope? B first? (picks: yes / yes / >30% or cards / default all / B first). Deploying needs the owner's OK.
 - Toolbar mock v3 (Fable, the reorganised Professional): https://claude.ai/artifact/ (v3 link in chat). Questions for the owner:
   1. Pen/Ballpoint/Sticky note labels in Beginner too.
   2. "Callout" appears 3 times; rename the Box look to "Accent"?
@@ -412,7 +412,7 @@ Three ways of using the reader, as presets:
    Highlights flow automatically into a notebook per book, and a cross-book Highlights database (10 books → one DB) has one-tap jump-to-context. The lock modes are part of the presets. Goal: a lifelong personal knowledge bank (Obsidian/researcher style).
    Next: deep research (Obsidian, Readwise, Zotero, LiquidText, MarginNote, Kindle, Apple Books, zettelkasten/PKM), then questions to the owner, then a "Complete reader mode" mock-up.
 
-- Reader revamp plan: docs/plans/reader-revamp-plan.md. 10 owner questions (picks: Read preset uses Reading mode; Light study default; Deep study for everyone; virtual DB rows; Light-study highlights in the DB too; merge duplicates; keep cards marked 'source deleted'; renamable colour meanings; 5 Daily Highlights; Markdown+CSV now, Obsidian later). Mock-up being built with these picks.
+- Reader revamp plan: docs/archive/plans/reader-revamp-plan.md. 10 owner questions (picks: Read preset uses Reading mode; Light study default; Deep study for everyone; virtual DB rows; Light-study highlights in the DB too; merge duplicates; keep cards marked 'source deleted'; renamable colour meanings; 5 Daily Highlights; Markdown+CSV now, Obsidian later). Mock-up being built with these picks.
 - OWNER reader answers (11 Nov night):
   - Read preset keeps quick highlights; the Full/Frozen lock board stays separate.
   - A new book opens in the LAST used preset; the first-ever default is the full "editing" mode (Everything works), not Light study.
@@ -422,7 +422,7 @@ Three ways of using the reader, as presets:
   - LIBRARY revamp: a knowledge database tab (all books + per book), notes filterable, highlights+notes in one place with a side preview, the knowledge bank alongside.
   - Deep-study extras: research and explain the best ideas with examples; complex ones go in Professional.
   - ORDER: Library first → then reading mode → then the study modes. Ask questions before each mock-up.
-- Library questions (docs/plans/library-revamp-plan.md A5, 10 questions; picks marked there) + which deep-study ideas 1–5 go with the Library.
+- Library questions (docs/archive/plans/library-revamp-plan.md A5, 10 questions; picks marked there) + which deep-study ideas 1–5 go with the Library.
 - REAL-BUILD requirement (owner): box resize/move handles must be easy with the Apple Pencil: ≥44 pt hit area, pointer capture, touch-action none, no switch to ink mid-drag, a small dead-zone, grow-on-grab feedback, live resize.
 - REAL-BUILD fix (owner): the main bar's 'more tools' scroll arrow overlaps the last icon (Backspace). Give it its own slot at the right end, never over a tool.
 - OWNER (11 Nov night): apply the toolbar mock-up approach to the OTHER areas too (Search, Home, Review/cards, Notebooks/sidebar, Settings), but NOT Reader/Library (in progress). Learned patterns are in docs/design/owner-ui-patterns.md. Mock-ups are being built per area.
@@ -432,7 +432,7 @@ Three ways of using the reader, as presets:
 - Search mock: published. Questions (picks): a side panel (not a popup); scope starts at Notebook; Beginner chips All/Pages/Notes/Cards; Books & Highlights shown as 'Soon'; keep Pencil scribble search; no save-search in Beginner.
 - Review mock: published. Questions (picks): add reverse + true/false card types first; undo last rating yes; card editor inside Review yes; forecast chart yes; the Coverage tab is mock only.
 - Settings mock: published. Questions (picks): the experience picker sets the view (New/Little → Beginner, Experienced → Professional); Pencil gets its own category; merge AI/Permissions/Connections/Claude; a 7-step tour; the scheduler visible in Beginner; small 'Pro' tags.
-- Home dashboard plan: docs/plans/home-dashboard-plan.md, 11 questions (picks in bold there).
+- Home dashboard plan: docs/archive/plans/home-dashboard-plan.md, 11 questions (picks in bold there).
 - REAL-BUILD requirement (owner): resize dots sit OUTSIDE the box; their hit area extends outward only, never over the text, so caret taps near the edge never grab a handle.
 - REAL-BUILD requirement (owner): pressing a box's grip drops the typing cursor (blur + collapse the selection) and blocks typing until the move/menu ends.
 - REAL-BUILD requirement (owner): cards/sheets are a layer — taps/scroll inside never reach the page; the first outside tap only closes the card (swallowed; pills/strips excepted); card controls keep the text selection; fields return focus to the previous caret.
@@ -506,7 +506,7 @@ Mock: claude.ai/artifact/Ffc86ofYpqurWGnMvsXS3L (Fable v2; study in scratchpad l
 
 ## LATER (owner, 12 Nov 2026): design together when the owner says
 
-- Study modes: summary layers, theme pages, links between notes, reading journal, chapter recap, Quiz/Teach-back (AI), focus session (ideas in docs/plans/library-revamp-plan.md B6–B10). Open questions: which modes, where they live (Study tab vs own space vs Review), Beginner vs Professional.
+- Study modes: summary layers, theme pages, links between notes, reading journal, chapter recap, Quiz/Teach-back (AI), focus session (ideas in docs/archive/plans/library-revamp-plan.md B6–B10). Open questions: which modes, where they live (Study tab vs own space vs Review), Beginner vs Professional.
 - First-launch welcome + tours (New / Used it a little / Experienced).
 
 ## Toolbar mock v8: APPROVED by owner (12 Nov 2026)

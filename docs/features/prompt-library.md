@@ -1,6 +1,6 @@
 # Prompt library and skills
 
-Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [../plans/prompt-library-plan.md](../plans/prompt-library-plan.md). Research: [../research/prompt-library-2026-11.md](../research/prompt-library-2026-11.md). Builds on [database.md](database.md) (the library is a database) and [ai.md](ai.md) (keys, models, cost).
+Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [../plans/prompt-library-plan.md](../archive/plans/prompt-library-plan.md). Research: [../research/prompt-library-2026-11.md](../research/prompt-library-2026-11.md). Builds on [database.md](database.md) (the library is a database) and [ai.md](ai.md) (keys, models, cost).
 
 ## Purpose
 

@@ -1,8 +1,8 @@
 # The method, as a spec (method v2)
 
-| Status                                         | Switch                  | Phase         | Pictures                                              | Builds on                                              | Last change        |
-| ---------------------------------------------- | ----------------------- | ------------- | ----------------------------------------------------- | ------------------------------------------------------ | ------------------ |
-| Confirmed 22 Nov 2026 (owner, all 11 rows Yes) | none (a way of working) | PC-1, part M0 | docs/plans/method-v2/ 1 to 4 (1 to 3 approved 21 Nov) | docs/METHOD.md of 20 Nov (replaced), CLAUDE.md, rules/ | 21 Nov 2026, Fable |
+| Status                                         | Switch                  | Phase         | Pictures                                              | Builds on                                                      | Last change        |
+| ---------------------------------------------- | ----------------------- | ------------- | ----------------------------------------------------- | -------------------------------------------------------------- | ------------------ |
+| Confirmed 22 Nov 2026 (owner, all 11 rows Yes) | none (a way of working) | PC-1, part M0 | docs/plans/method-v2/ 1 to 4 (1 to 3 approved 21 Nov) | docs/archive/METHOD.md of 20 Nov (replaced), CLAUDE.md, rules/ | 21 Nov 2026, Fable |
 
 This page is written in the same shape every feature spec will use from now on, so that the method is checked the way a feature is checked. The top layer is for the owner; the bottom layer is for Opus and the builders. Decisions behind it: docs/DECISIONS.md, 21 Nov rounds 1 to 5.
 

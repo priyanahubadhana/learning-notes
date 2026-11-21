@@ -1,6 +1,6 @@
 # How we build (from 14 Nov 2026)
 
-The plan is [plans/phase-plan.md](plans/phase-plan.md). The state is [BUILD-STATE.md](BUILD-STATE.md). This page is how the helpers work inside a phase. It replaces the "economy mode" pages of 13 Nov (kept in plans/archive/).
+The plan is [plans/phase-plan.md](plans/phase-plan.md). The state is [BUILD-STATE.md](BUILD-STATE.md). This page is how the helpers work inside a phase. It replaces the "economy mode" pages of 13 Nov (kept in archive/plans/archive/).
 
 ## 1. Roles: the cheapest model that can do the job does it
 
@@ -19,7 +19,7 @@ Every model works at medium effort (owner, 20 Nov 2026): Sonnet builders, Opus m
 
 ## 2. The path of one task
 
-**From 20 Nov 2026 the path of one part is [METHOD.md](METHOD.md)** (spec first: three lenses, story, rules, scenarios that run as tests, the owner's sign-off). The steps below are the helpers' mechanics inside it; a brief points to the part's scenarios and detail lines.
+**From 20 Nov 2026 the path of one part is [METHOD.md](archive/METHOD.md)** (spec first: three lenses, story, rules, scenarios that run as tests, the owner's sign-off). The steps below are the helpers' mechanics inside it; a brief points to the part's scenarios and detail lines.
 
 1. The manager (the main chat in lean mode, the phase manager in full mode) gives a planned task to a builder (brief in section 6).
 2. The builder writes the tests first, builds until they pass, uses it for real on an iPad size, runs the local checks (section 5) and pushes its branch.

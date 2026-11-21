@@ -2,7 +2,7 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-Slice 7. Flag `reader.v2`. Mock: [annotations-mock.html](../mockups/annotations-mock.html) (approved by the owner 12 Nov 2026). Inventory ids R01 to R92: [reader-inventory](../plans/reader-inventory-2026-11-11.md). Pro switch ids: [pro-features.md](../mockups/pro-features.md) section Reader.
+Slice 7. Flag `reader.v2`. Mock: [annotations-mock.html](../mockups/annotations-mock.html) (approved by the owner 12 Nov 2026). Inventory ids R01 to R92: [reader-inventory](../archive/plans/reader-inventory-2026-11-11.md). Pro switch ids: [pro-features.md](../mockups/pro-features.md) section Reader.
 
 ## Purpose
 

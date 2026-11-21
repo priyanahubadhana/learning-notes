@@ -2,7 +2,7 @@
 
 Written after the day's decisions, to start the next phases without stopping. Each question says what it is, why it matters, the choices and Claude's pick. Answer with the number and a letter (for example "1A, 2A, 3B"). "Pick" is what happens if you say "your picks".
 
-The plan these answer: [phase-plan.md](phase-plan.md) section 0 ("What's next").
+The plan these answer: [phase-plan.md](../../plans/phase-plan.md) section 0 ("What's next").
 
 ---
 

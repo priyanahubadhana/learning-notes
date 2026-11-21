@@ -4,7 +4,7 @@ Moved word for word from the old pending list on 14 Nov 2026. This is what the o
 
 ## Priority 1: text box (built 11 Nov, waiting for the owner iPad checks)
 
-Detail: plans/owner-bug-batch-3-2026-11-11.md (B3) and plans/owner-ideas-batch-2-2026-11-10.md item 4.
+Detail: archive/plans/owner-bug-batch-3-2026-11-11.md (B3) and archive/plans/owner-ideas-batch-2-2026-11-10.md item 4.
 
 ## Priority 2: live, waiting for the owner test
 
@@ -44,7 +44,7 @@ See plans/owner-checks-pending.md (top) and the 7-item list from 10 Nov: grid, h
 
 ## After Friday (ideas, not bugs)
 
-plans/owner-ideas-batch-2-2026-11-10.md: update bar, customizable bars, layers, shrink a box to scale its text. Also: book annotations, Views, snapshot Lasso. Fri 13 Nov: review the HANDOFF carry-overs.
+archive/plans/owner-ideas-batch-2-2026-11-10.md: update bar, customizable bars, layers, shrink a box to scale its text. Also: book annotations, Views, snapshot Lasso. Fri 13 Nov: review the HANDOFF carry-overs.
 
 ## Housekeeping
 
@@ -98,7 +98,7 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, customizable bars, layers, 
   - wants it organised like GoodNotes;
   - saved layouts: built-in "Beginner" and "Professional speed", plus several (up to 3) user layouts that save the whole toolbar arrangement and its preferences.
 - Step 1 (running): Fable maps every toolbar surface and setting from the code and proposes the organisation. Then an artifact map for the owner to mark, then a tappable mock-up.
-- Step 1 done: map in docs/plans/toolbar-map-2026-11-11.md (Fable). Decision page for the owner: https://claude.ai/artifact/Xquz4AAJC2vssFFa5dGRxX (13 changes + 8 questions). Waiting for the owner's pasted choices, then the tappable mock-up.
+- Step 1 done: map in docs/archive/plans/toolbar-map-2026-11-11.md (Fable). Decision page for the owner: https://claude.ai/artifact/Xquz4AAJC2vssFFa5dGRxX (13 changes + 8 questions). Waiting for the owner's pasted choices, then the tappable mock-up.
 - OWNER answers (11 Nov):
   1. Ribbon/All tools hidden in Beginner, available in Professional only.
   2. Compact view merges into the layouts (Beginner = compact); no separate setting.
@@ -165,7 +165,7 @@ plans/owner-ideas-batch-2-2026-11-10.md: update bar, customizable bars, layers, 
 - DROP: Update pill vs bar.
 - Rule: anything that touches the UI being redesigned in the mock-up (toolbar, text box, Lasso, ink, layout, settings layout) waits until the owner signs off the mock-up. Everything else goes ahead under the Apple + Toyota + premium-design rules.
 - OWNER answers (wave 2 questions): Q1 (a) the redesign-touching items (settings previews & tour, emoji icons, premium design 3–6, labels & tape on pictures, reader magnifier) WAIT and get added to the mock-up artifact to be designed there first. Q2 (a) a short Book annotations plan for approval, then build. Q3–Q10: waiting.
-- Book annotations short plan ready (3 slices, 6 questions); waiting for owner approval. Summary in chat 11 Nov; detail in docs/plans/book-annotations-plan.md (existing) + this plan.
+- Book annotations short plan ready (3 slices, 6 questions); waiting for owner approval. Summary in chat 11 Nov; detail in docs/archive/plans/book-annotations-plan.md (existing) + this plan.
 - OWNER answers (wave 2):
   - Q4 (a) Notes from a PDF with a cost estimate before each run. PLUS a full audit of every AI/cost setting so no two settings double-enable a paid feature or charge twice (severity: high).
   - Q5 (b) the Claude connector reads AND writes from the start.
@@ -192,7 +192,7 @@ Questions:
 - iPad checks at the top of docs/plans/owner-checks-pending.md once the build is live.
 - Review the mock-ups: toolbar v2/v3, book annotations.
 - BUG-002 (format bar moves/extends beyond its bounds): no screenshot needed (owner, 12 Nov). The build adds an automatic test (bar stays inside the screen on iPad sizes) AND puts it in the owner's iPad test checklist.
-- Claude connector plan: docs/plans/claude-connector-plan.md. Questions:
+- Claude connector plan: docs/archive/plans/claude-connector-plan.md. Questions:
   - (1) write access ON from the start (the owner said read+write) vs off until allowed in Settings;
   - (2) the key in Windows Credential Manager;
   - (3) run from the local repo (not npm) at first;
@@ -207,7 +207,7 @@ Questions:
   - SECONDARY: refine AI mid-work inside the app (a Claude chat in the notebook).
   - Open decision: A local (PC, private) vs B online (claude.ai everywhere, opt-in server access) vs both. Recommended: both, with B as the main path for regular users.
 - OWNER: connector = BOTH (B online main path, opt-in; A local for privacy). Quality standard written: docs/design/quality-standard.md (+ rules/building.md pointer), owner-approved.
-- Connector B plan in docs/plans/claude-connector-plan.md. Questions: Supabase hosting? escrow 30-day expiry? Inbox thresholds? notebooks scope? B first? (picks: yes / yes / >30% or cards / default all / B first). Deploying needs the owner's OK.
+- Connector B plan in docs/archive/plans/claude-connector-plan.md. Questions: Supabase hosting? escrow 30-day expiry? Inbox thresholds? notebooks scope? B first? (picks: yes / yes / >30% or cards / default all / B first). Deploying needs the owner's OK.
 - Toolbar mock v3 (Fable, the reorganised Professional): https://claude.ai/artifact/ (v3 link in chat). Questions for the owner:
   1. Pen/Ballpoint/Sticky note labels in Beginner too.
   2. "Callout" appears 3 times; rename the Box look to "Accent"?
@@ -231,7 +231,7 @@ Three ways of using the reader, as presets:
    Highlights flow automatically into a notebook per book, and a cross-book Highlights database (10 books → one DB) has one-tap jump-to-context. The lock modes are part of the presets. Goal: a lifelong personal knowledge bank (Obsidian/researcher style).
    Next: deep research (Obsidian, Readwise, Zotero, LiquidText, MarginNote, Kindle, Apple Books, zettelkasten/PKM), then questions to the owner, then a "Complete reader mode" mock-up.
 
-- Reader revamp plan: docs/plans/reader-revamp-plan.md. 10 owner questions (picks: Read preset uses Reading mode; Light study default; Deep study for everyone; virtual DB rows; Light-study highlights in the DB too; merge duplicates; keep cards marked 'source deleted'; renamable colour meanings; 5 Daily Highlights; Markdown+CSV now, Obsidian later). Mock-up being built with these picks.
+- Reader revamp plan: docs/archive/plans/reader-revamp-plan.md. 10 owner questions (picks: Read preset uses Reading mode; Light study default; Deep study for everyone; virtual DB rows; Light-study highlights in the DB too; merge duplicates; keep cards marked 'source deleted'; renamable colour meanings; 5 Daily Highlights; Markdown+CSV now, Obsidian later). Mock-up being built with these picks.
 - OWNER reader answers (11 Nov night):
   - Read preset keeps quick highlights; the Full/Frozen lock board stays separate.
   - A new book opens in the LAST used preset; the first-ever default is the full "editing" mode (Everything works), not Light study.
@@ -241,7 +241,7 @@ Three ways of using the reader, as presets:
   - LIBRARY revamp: a knowledge database tab (all books + per book), notes filterable, highlights+notes in one place with a side preview, the knowledge bank alongside.
   - Deep-study extras: research and explain the best ideas with examples; complex ones go in Professional.
   - ORDER: Library first → then reading mode → then the study modes. Ask questions before each mock-up.
-- Library questions (docs/plans/library-revamp-plan.md A5, 10 questions; picks marked there) + which deep-study ideas 1–5 go with the Library.
+- Library questions (docs/archive/plans/library-revamp-plan.md A5, 10 questions; picks marked there) + which deep-study ideas 1–5 go with the Library.
 - REAL-BUILD requirement (owner): box resize/move handles must be easy with the Apple Pencil: ≥44 pt hit area, pointer capture, touch-action none, no switch to ink mid-drag, a small dead-zone, grow-on-grab feedback, live resize.
 - REAL-BUILD fix (owner): the main bar's 'more tools' scroll arrow overlaps the last icon (Backspace). Give it its own slot at the right end, never over a tool.
 - OWNER (11 Nov night): apply the toolbar mock-up approach to the OTHER areas too (Search, Home, Review/cards, Notebooks/sidebar, Settings), but NOT Reader/Library (in progress). Learned patterns are in docs/design/owner-ui-patterns.md. Mock-ups are being built per area.
@@ -251,7 +251,7 @@ Three ways of using the reader, as presets:
 - Search mock: published. Questions (picks): a side panel (not a popup); scope starts at Notebook; Beginner chips All/Pages/Notes/Cards; Books & Highlights shown as 'Soon'; keep Pencil scribble search; no save-search in Beginner.
 - Review mock: published. Questions (picks): add reverse + true/false card types first; undo last rating yes; card editor inside Review yes; forecast chart yes; the Coverage tab is mock only.
 - Settings mock: published. Questions (picks): the experience picker sets the view (New/Little → Beginner, Experienced → Professional); Pencil gets its own category; merge AI/Permissions/Connections/Claude; a 7-step tour; the scheduler visible in Beginner; small 'Pro' tags.
-- Home dashboard plan: docs/plans/home-dashboard-plan.md, 11 questions (picks in bold there).
+- Home dashboard plan: docs/archive/plans/home-dashboard-plan.md, 11 questions (picks in bold there).
 - REAL-BUILD requirement (owner): resize dots sit OUTSIDE the box; their hit area extends outward only, never over the text, so caret taps near the edge never grab a handle.
 - REAL-BUILD requirement (owner): pressing a box's grip drops the typing cursor (blur + collapse the selection) and blocks typing until the move/menu ends.
 - REAL-BUILD requirement (owner): cards/sheets are a layer — taps/scroll inside never reach the page; the first outside tap only closes the card (swallowed; pills/strips excepted); card controls keep the text selection; fields return focus to the previous caret.
@@ -325,7 +325,7 @@ Mock: claude.ai/artifact/Ffc86ofYpqurWGnMvsXS3L (Fable v2; study in scratchpad l
 
 ## LATER (owner, 12 Nov 2026): design together when the owner says
 
-- Study modes: summary layers, theme pages, links between notes, reading journal, chapter recap, Quiz/Teach-back (AI), focus session (ideas in docs/plans/library-revamp-plan.md B6–B10). Open questions: which modes, where they live (Study tab vs own space vs Review), Beginner vs Professional.
+- Study modes: summary layers, theme pages, links between notes, reading journal, chapter recap, Quiz/Teach-back (AI), focus session (ideas in docs/archive/plans/library-revamp-plan.md B6–B10). Open questions: which modes, where they live (Study tab vs own space vs Review), Beginner vs Professional.
 - First-launch welcome + tours (New / Used it a little / Experienced).
 
 ## Toolbar mock v8: APPROVED by owner (12 Nov 2026)
@@ -350,7 +350,7 @@ Pictures and mock: docs/mockups/favourites/. Favourites live inside the tool row
 
 ## Tool bar mock v9: APPROVED by owner (15 Nov 2026)
 
-Mock: claude.ai/artifact/PBcn8WrYWcfAzCrXfDZ9HS (copy: docs/mockups/toolbar-v9/toolbar-v9.html). Replaces v8 as the 2A reference: v8 plus the owner's 15 Nov answers (docs/plans/contradictions-2026-11-15.md), Undo and Redo in the page top bar instead of < >.
+Mock: claude.ai/artifact/PBcn8WrYWcfAzCrXfDZ9HS (copy: docs/mockups/toolbar-v9/toolbar-v9.html). Replaces v8 as the 2A reference: v8 plus the owner's 15 Nov answers (docs/archive/plans/contradictions-2026-11-15.md), Undo and Redo in the page top bar instead of < >.
 
 ## Phase 1 fixes mock: APPROVED by owner (15 Nov 2026)
 
@@ -520,7 +520,7 @@ Plan: docs/plans/phases/phase-2-finish.md. Spec pattern: docs/features/lasso.md.
 - **iPad checks:** 5 minutes after each small selection part; once a day for the rest.
 - **Two builders in two lanes** (Sonnet), Opus manages and reviews, Fable only when Opus failed twice.
 - **Spec first, to the fullest (owner ask):** every part gets its lines with ids before code, the owner says yes or "missing X", one test per line named after its id, a checker enforces it (phase page "How every part runs").
-- **Reminder (owner: "keep reminding me at the end"):** until the two rare Lasso problems are closed, every message to the owner ends with the reminder line in docs/plans/lasso-bugs-a-b-note.md.
+- **Reminder (owner: "keep reminding me at the end"):** until the two rare Lasso problems are closed, every message to the owner ends with the reminder line in docs/archive/plans/lasso-bugs-a-b-note.md.
 - **Must-never lines for the Lasso:** ten offered (phase page); the owner picks.
 - **Stray working copy `ln-c21-base`** inside the project folder: removed on the owner's word (clean, no link inside, its commit is in build/next).
 - **Owner's yes (20 Nov, later):** parts A0, A1 and B0 approved as written; must-never lines 1, 2, 3, 4, 6 and 10 picked (docs/features/lasso.md LS-N1 to LS-N6). "I agree to whatever you said."
@@ -528,19 +528,19 @@ Plan: docs/plans/phases/phase-2-finish.md. Spec pattern: docs/features/lasso.md.
 - **Spec-first tests (owner ask, 20 Nov, third message):** ten test rules added to the phase page ("Test rules"): one acceptance test per line through the real screen, unit tests for the logic inside, red first then break it, no waiting by time and 20 of 20 repeats, honest `(iPad)` lines, every iPad finding becomes a replay test, real examples, `OPEN:` marks, look by picture, ids in commits. Part B0 also writes docs/SPEC.md, a plain pass / fail page per line for the owner. Fable disagreed with the brief on two points (owner to confirm): the 1-to-1 link is the acceptance test, not the unit test; no test may pretend to prove Scribble on a computer. The Medium article could not be opened (the site refuses automated readers); the owner may paste its text for a line-by-line check. These rules apply to this phase; they become standing rules only after the phase numbers show they work.
 - **The owner's article adopted (20 Nov, screenshots of parts 1 and 2: "write the spec first" and "make the spec run"):** each spec starts with a user story, three lists (always true, can never happen, limits) and a few scenarios in Given / When / Then with the owner's real values; the scenarios themselves run as tests (trial of the free add-on playwright-bdd in part B0, 4 hours at most, with a fallback); a report of every scenario with pass or fail is published with each preview. Kept from Fable's side: only scenarios the owner would care about (the article says the same), details stay as id lines with tests; `@ipad` scenarios count as proven only after the owner's iPad tick; our test runner stays (no switch to another tool). First example: docs/features/lasso.md, top part.
 - **Part 3 of the owner's article adopted (20 Nov, "Dev, QA and Product build together"):** every spec passes three lenses before the owner signs off: why (the owner's story and rules), how (a builder: buildable, edge cases, size), whether (a tester: checkable, missing cases); the builder and tester lenses write their own lists before seeing the draft, so they do not just agree. Each spec lists "we assume (not proven yet)" with a check, at least one scenario that goes wrong, and "done when". A small part starts with 3 to 5 scenarios. Fable's limits: no ceremony for a one-hour fix (Opus covers the lenses); the owner's lens cannot be handed to a helper.
-- **One merged method (owner ask, 20 Nov):** docs/METHOD.md, one page; a measured trial for the Phase 2 finish, decided by its numbers at the end of the phase. Owner's question "the same for every other feature?": Fable's answer, waiting for the owner's word: yes for everything built or changed from now on; a feature that is already built gets its story and scenarios when its phase comes up for the owner's test, not all at once now; look-only work is checked against its picture, with no scenario.
+- **One merged method (owner ask, 20 Nov):** docs/archive/METHOD.md, one page; a measured trial for the Phase 2 finish, decided by its numbers at the end of the phase. Owner's question "the same for every other feature?": Fable's answer, waiting for the owner's word: yes for everything built or changed from now on; a feature that is already built gets its story and scenarios when its phase comes up for the owner's test, not all at once now; look-only work is checked against its picture, with no scenario.
 - **Text selection "why" drafted by Fable on the owner's ask (20 Nov):** docs/features/text-select.md (story, rules, seven scenarios, five assumptions, done when). Waiting for the owner's yes or "missing X".
-- **The plan completed on the owner's word "the planning is not finished" (20 Nov):** a sweep of every open item of Phases 0 to 2B (docs/plans/open-items-sweep-2026-11-20.md) found about twenty items the first plan had missed and about fifteen that the lists wrongly showed as open. The phase page is rewritten as the complete plan: about 50 small parts in stages 0 to 4, the owner's checkpoints C0 to C13, the pictures to approve, five open questions, the "later" list. Estimate now 10 to 13 days (was 7 to 10). A draft spec for the smart bar: docs/features/selection-bar.md.
+- **The plan completed on the owner's word "the planning is not finished" (20 Nov):** a sweep of every open item of Phases 0 to 2B (docs/archive/plans/open-items-sweep-2026-11-20.md) found about twenty items the first plan had missed and about fifteen that the lists wrongly showed as open. The phase page is rewritten as the complete plan: about 50 small parts in stages 0 to 4, the owner's checkpoints C0 to C13, the pictures to approve, five open questions, the "later" list. Estimate now 10 to 13 days (was 7 to 10). A draft spec for the smart bar: docs/features/selection-bar.md.
 - **The article's text file (owner, 20 Nov; it stops in the middle of scenario 2):** checked line by line. Added from it: every scenario has a number and every rule a short name; the spec is the single source of truth and wins over this diary. Nothing else in it differs from what was set up from the screenshots.
 - **Five plan questions answered (owner, 20 Nov: "choose your recommendation"):** (1) timing tests: rewritten to wait for what they can see; the few truly about time run on this PC every night and before a release and still stop a release when red; (2) equal boxes: fix the 5 px difference; (3) Paste ▾ stays in every mode, Backspace and Enter stay Pencil-only; (4) the old text box files go a week after go-live, on the owner's word; (5) the 61 working copies: one list, one approval, removed the safe git way. Also: builders do not wait for the owner's iPad check; at most two selection parts unchecked at a time.
 - **Three answers on the assumptions (owner, 20 Nov):** (1) "I keep my hand on the screen while circling with the Lasso": a second lead for the two rare faults (the Lasso has no palm guard); so the quiet recorder (A2) comes before the fix (A1), which is written from one real trace; new lines LS-57, LS-58 and scenario S10 in docs/features/lasso.md. (2) The owner checks at any time of the day, also in breaks at work: "keep reminding me when to check"; Claude names the due check under "Needs you" and repeats the waiting checks at the end of every message. (3) One tap on the Lasso button before each correction (four moves) is acceptable to start with.
 - **Owner settings and answers (20 Nov, end of planning):** escalation Sonnet three fails → Opus, Opus five fails → Fable; medium effort for all three models (DECISIONS). What success means by the end of Phase 2: the bars with their customisation, the app frame, the Text tool, the Pen tool, the Lasso tool, the text box and everything about selecting. A double tap takes the whole piece between spaces ("23-11"). A box with a drawing on it: Cut, Copy, Duplicate, Delete, Resize, Edit Text on the bar. Study buttons: Highlight first, Make card yes; Add to summary and Revise mark under ⋯. No doubled space after a delete (Fable's pick, not answered directly). Verify before building, the test approach and the roles: agreed.
-- **The builder and tester lenses run on the three specs (owner: "the things which are missing, let's do it", 20 Nov):** digest in docs/plans/lenses-2026-11-20.md. Corrected before any code: the Lasso has no palm guard at all (a resting hand can twist a selection or place the cursor); picking the Lasso takes the typing cursor away, so the text level uses "the box typed in last", shown by its thin border; the box bar cannot simply grow into the smart bar (its shell is reused, three new things are needed; six pieces of code are replaced, not three). Parts split and re-sized; estimate 11 to 14 days. Open for the owner: whether the second Lasso fault starts inside or next to the old dashed box; the "Finger can draw" setting on the owner's iPad; a circle that goes round words and a drawing takes the letters only (Fable's pick).
+- **The builder and tester lenses run on the three specs (owner: "the things which are missing, let's do it", 20 Nov):** digest in docs/archive/plans/lenses-2026-11-20.md. Corrected before any code: the Lasso has no palm guard at all (a resting hand can twist a selection or place the cursor); picking the Lasso takes the typing cursor away, so the text level uses "the box typed in last", shown by its thin border; the box bar cannot simply grow into the smart bar (its shell is reused, three new things are needed; six pieces of code are replaced, not three). Parts split and re-sized; estimate 11 to 14 days. Open for the owner: whether the second Lasso fault starts inside or next to the old dashed box; the "Finger can draw" setting on the owner's iPad; a circle that goes round words and a drawing takes the letters only (Fable's pick).
 - **Answers (owner, 20 Nov, evening):** "setting bar" in the success list means the **Settings page (Settings v5)**, approved 15 Nov and not built; whether it joins this release is open (plan section 8). In Pencil mode a finger never draws; only in Touch or Computer mode. Yes: the box typed in last keeps its thin border while the Lasso is picked. Yes: a circle in that box takes letters only, never the drawing on top. The question about a new loop starting inside the old dashed box was not understood and is asked again in plain words.
 - **Settings v5 joins this release (owner, 20 Nov: "let Settings join it, just make sure it is there too").** Stage 5 of docs/plans/phases/phase-2-finish.md (S.1 to S.11, with the Selection bar part built once inside it). Estimate to go-live now 15 to 18 days.
 - **A stroke on selected words (owner, 20 Nov):** pressing on them and dragging moves them where they are dropped; going over them again and again (back and forth or round and round) deletes them; the two end handles make the selection longer or shorter; a tap elsewhere lets go. Scenarios S10 to S12 in docs/features/text-select.md; new part A7b (drag selected words), with one small picture first. For the Lasso this means "a stroke that starts on the selection acts on it" is wanted behaviour (LS-26 stays).
 - **Six closing points agreed (owner, 20 Nov: "I like all your answers… follow it"):** (1) after the Scribble test A3, a ten-minute choice of the route before A4 to A9 are built; (2) nothing optional holds the release: Settings v5 and the smart bar go live with the rest only if they have passed the owner's test, the parts are switched on over two or three days, a backup first (this replaces "Settings must be in it" of the same evening); (3) a fault only the iPad shows gets no new try without a new trace; the "different try, new evidence" guard is kept; (4) two calm iPad checks a day, morning and evening; (5) one double-tap rule in the Text tool and the Lasso; (6) the method is cut at the end of the phase where its numbers do not pay.
-- **Paste on the box bar (owner, 20 Nov, check C0):** one tap pastes without a typing cursor: into an empty box the content fills it; into a box with text it is added at the end. (docs/plans/c0-findings-2026-11-20.md C0-5.)
+- **Paste on the box bar (owner, 20 Nov, check C0):** one tap pastes without a typing cursor: into an empty box the content fills it; into a box with text it is added at the end. (docs/archive/plans/c0-findings-2026-11-20.md C0-5.)
 - **Hold in a box (owner, 20 Nov, check C0-7):** our strip opens after about 0.5 s; a finger may drift about 10 px; a Pencil hold works anywhere in the box but not within 1 s after writing; Apple's magnifier is stopped inside boxes under the Text tool.
 - **C3 answers (owner, 21 Nov, smart bar pictures docs/mockups/smart-bar/):** (2) the box ⋯ tab is removed; its menu is the bar's ⋯ (picture 13). (3) Thickness for a drawing is on the bar (picture 5). (1) the order of Cut, Copy and Delete is still open (asked again). Still open: the place rule below gets a picture first.
 - **Where the smart selection bar goes (owner, 21 Nov, C3):** a fixed order of places, the first one with room wins, and the bar never covers the selection or is cut off: (1) below the selected thing; (2) above it; (3) standing upright on its right side; (4) upright on its left side; (5) if there is no room anywhere, in the gap near the top tool bar. Every bar can be pinned where the user puts it (as approved on 18 Nov: a pinned or docked bar stays put). A picture of the order comes before the build.

@@ -1,6 +1,6 @@
 # Toolbar: main bar, options pill and detail card
 
-Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [redesign-2026-11.md](../plans/redesign-2026-11.md) (step 2). Research: [inspiration-apps.md](../research/inspiration-apps.md), [toolbar-ribbon.md](../research/toolbar-ribbon.md). The full ribbon and device modes keep their own specs: [toolbar-ribbon.md](toolbar-ribbon.md), [device-modes.md](device-modes.md).
+Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [redesign-2026-11.md](../archive/plans/redesign-2026-11.md) (step 2). Research: [inspiration-apps.md](../research/inspiration-apps.md), [toolbar-ribbon.md](../research/toolbar-ribbon.md). The full ribbon and device modes keep their own specs: [toolbar-ribbon.md](toolbar-ribbon.md), [device-modes.md](device-modes.md).
 
 ## Purpose
 

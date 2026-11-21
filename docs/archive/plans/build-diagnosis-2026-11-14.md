@@ -52,7 +52,7 @@ What the trial got right: fewer red test runs, builders checking before they pus
 
 ## 4. What worked before, and why
 
-6 to 12 Nov: one phase at a time, planned with you, built by a small team, released to the live app, tested by you, then the next. Work in progress was small, so little could pile up, and your test was the real gate. That is also what delivery research recommends (small batches, few things in progress, merge to the main line often; see the "Accelerate"/DORA findings and docs/plans/ai-build-best-practices-2026-11-13.md, which puts the useful limit at 3 to 5 builders). I did not re-check those sources online today.
+6 to 12 Nov: one phase at a time, planned with you, built by a small team, released to the live app, tested by you, then the next. Work in progress was small, so little could pile up, and your test was the real gate. That is also what delivery research recommends (small batches, few things in progress, merge to the main line often; see the "Accelerate"/DORA findings and docs/archive/plans/ai-build-best-practices-2026-11-13.md, which puts the useful limit at 3 to 5 builders). I did not re-check those sources online today.
 
 ## 5. Proposal: back to phases
 

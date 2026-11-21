@@ -123,5 +123,5 @@ Pictures: refs/goodnotes-lasso-box-level-1/2.png, refs/goodnotes-lasso-text-leve
 
 ## 16. Owner's answers and the plan (20 Nov, later)
 
-- The owner agreed with all five picks of section 15. Answers: owner-decisions.md "Smart select plan: owner answers". The plan in small parts: [phases/phase-2-finish.md](phases/phase-2-finish.md). First spec (pattern for all later parts): docs/features/lasso.md. Note on the two rare Lasso problems for Opus: [lasso-bugs-a-b-note.md](lasso-bugs-a-b-note.md).
+- The owner agreed with all five picks of section 15. Answers: owner-decisions.md "Smart select plan: owner answers". The plan in small parts: [phases/phase-2-finish.md](../../plans/phases/phase-2-finish.md). First spec (pattern for all later parts): docs/features/lasso.md. Note on the two rare Lasso problems for Opus: [lasso-bugs-a-b-note.md](lasso-bugs-a-b-note.md).
 - Waiting for the owner: yes or "missing X" on parts A0, A1 and B0, and the pick of must-never lines. Then the build restarts lean on Opus.

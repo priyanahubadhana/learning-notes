@@ -1,6 +1,6 @@
 # Study pack: plan draft (Fable, 16 Nov 2026)
 
-Status: **draft, waiting for the owner's yes.** It changes nothing in [phase-plan.md](phase-plan.md) until then. Sources: [user-story-study-pack.md](user-story-study-pack.md), [app-user-story.md](app-user-story.md) section 7, the "ai TEST 1a" test.
+Status: **draft, waiting for the owner's yes.** It changes nothing in [phase-plan.md](../../plans/phase-plan.md) until then. Sources: [user-story-study-pack.md](user-story-study-pack.md), [app-user-story.md](app-user-story.md) section 7, the "ai TEST 1a" test.
 
 ## The main idea
 

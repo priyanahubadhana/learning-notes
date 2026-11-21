@@ -1,6 +1,6 @@
 # Library revamp plan + deep-study ideas (11 Nov 2026)
 
-Status: research + design, waiting for owner answers. Order agreed: (1) Library, (2) reading mode, (3) study modes. Builds on [reader-revamp-plan.md](reader-revamp-plan.md), [reader-inventory-2026-11-11.md](reader-inventory-2026-11-11.md) and [../features/library.md](../features/library.md). Must meet [../design/quality-standard.md](../design/quality-standard.md).
+Status: research + design, waiting for owner answers. Order agreed: (1) Library, (2) reading mode, (3) study modes. Builds on [reader-revamp-plan.md](reader-revamp-plan.md), [reader-inventory-2026-11-11.md](reader-inventory-2026-11-11.md) and [../features/library.md](../../features/library.md). Must meet [../design/quality-standard.md](../../design/quality-standard.md).
 
 ## A1. What exists today
 

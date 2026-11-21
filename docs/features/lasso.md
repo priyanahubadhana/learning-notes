@@ -2,7 +2,7 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-Written by Fable, 20 Nov 2026. Plan: [../plans/phases/phase-2-finish.md](../plans/phases/phase-2-finish.md). Code places, reasons and today's tests for every line: [../plans/lasso-inventory-2026-11-20.md](../plans/lasso-inventory-2026-11-20.md). This page is the first one written the spec-first way (phase page, "How every part runs"): **every line has an id, every id has a test whose name starts with that id, and the owner says yes to the lines before any code.**
+Written by Fable, 20 Nov 2026. Plan: [../plans/phases/phase-2-finish.md](../plans/phases/phase-2-finish.md). Code places, reasons and today's tests for every line: [../plans/lasso-inventory-2026-11-20.md](../archive/plans/lasso-inventory-2026-11-20.md). This page is the first one written the spec-first way (phase page, "How every part runs"): **every line has an id, every id has a test whose name starts with that id, and the owner says yes to the lines before any code.**
 
 ## Purpose
 
@@ -119,7 +119,7 @@ Feature: The Lasso stays as it is and never gets stuck
 
 6. The owner rests a hand on the screen while circling (owner, 20 Nov). The Lasso has no palm guard today (the Pen and the Eraser have one), so a palm may be read as a finger tap (which places the cursor) or as a second finger (which twists a selection). This may be the true cause of both faults, or one of two causes. Check: one real trace from the quiet recorder (Part A2) is taken **before** the fix is written.
 
-**What the builder and tester lenses found (20 Nov; details in docs/plans/lenses-2026-11-20.md), read in the code:**
+**What the builder and tester lenses found (20 Nov; details in docs/archive/plans/lenses-2026-11-20.md), read in the code:**
 
 - The Lasso has no palm guard at all. A hand on the screen can twist a selection the Pencil is moving, place the typing cursor in the middle of a loop, or (with "Finger can draw: Always") draw a loop of its own that wipes the selection. On the owner's iPad this last route does not apply: in Pencil mode a finger never draws (owner, 20 Nov), and that must stay so.
 - The loop drawn from the margin has no safety net; a lost lift leaves its line on the screen.
@@ -209,7 +209,7 @@ Details for the builders: finer than the scenarios, and each line still has its 
 
 ## Part A1: the two fixes (new lines)
 
-What the owner saw (20 Nov, about 1 or 2 times in 5 to 10 uses): **(a)** an old Lasso outline stays on the screen; **(b)** after the Pencil lifts, the next Lasso stroke still acts on the old selection for a moment. Likely cause, read in the code and not yet proven: the iPad sometimes never tells the app that the Pencil lifted; the Pen and Eraser are guarded against that (B11, 19 Nov), the Lasso is not. Plain story for the owner: [../plans/lasso-bugs-a-b-note.md](../plans/lasso-bugs-a-b-note.md).
+What the owner saw (20 Nov, about 1 or 2 times in 5 to 10 uses): **(a)** an old Lasso outline stays on the screen; **(b)** after the Pencil lifts, the next Lasso stroke still acts on the old selection for a moment. Likely cause, read in the code and not yet proven: the iPad sometimes never tells the app that the Pencil lifted; the Pen and Eraser are guarded against that (B11, 19 Nov), the Lasso is not. Plain story for the owner: [../plans/lasso-bugs-a-b-note.md](../archive/plans/lasso-bugs-a-b-note.md).
 
 - **LS-50** When the "Pencil lifted" signal never comes, the loop still finishes the moment the Pencil is seen in the air (moving with no touch): what is inside is selected exactly as after a normal lift, and the loop line is gone. (iPad)
 - **LS-51** A loop line or a selection outline is on the screen only while its loop is being drawn or its selection is alive. When the selection ends, its outline is gone within 150 ms. Never two outlines for one selection. (iPad)

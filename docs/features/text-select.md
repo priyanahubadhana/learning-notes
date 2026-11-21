@@ -2,7 +2,7 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-**Draft, waiting for the owner's yes (20 Nov 2026).** The "why" lens was written by Fable from the owner's recorded decisions (docs/design/owner-decisions.md, 19 and 20 Nov). The "how" and "whether" lenses (a builder, a tester) run before Part A4, as docs/METHOD.md says. Plan: [../plans/phases/phase-2-finish.md](../plans/phases/phase-2-finish.md), parts A4 to A9.
+**Draft, waiting for the owner's yes (20 Nov 2026).** The "why" lens was written by Fable from the owner's recorded decisions (docs/design/owner-decisions.md, 19 and 20 Nov). The "how" and "whether" lenses (a builder, a tester) run before Part A4, as docs/archive/METHOD.md says. Plan: [../plans/phases/phase-2-finish.md](../plans/phases/phase-2-finish.md), parts A4 to A9.
 
 ## Purpose
 
@@ -142,7 +142,7 @@ Feature: Select letters and words with the Pencil, then fix them
 
 ## How it works
 
-**From the builder and tester lenses (20 Nov; docs/plans/lenses-2026-11-20.md):** the text level lives in its own folder and has its own letter geometry (today's circle code looks at a letter's middle only, and it is not touched); it needs one small hook where a Lasso touch starts, before the Lasso clears things; a highlight exists already, the handles are the large new piece. Numbers: half a letter = 50 %; taps add up within 1000 ms. Sizes: A4 about 6 hours (A4a the highlight, A4b the handles), A5 4 hours, A9 5 hours (A9a a scratch-out over selected words under the Lasso, read by our own code because Scribble is not active there; A9b writing over a selected word in the Text tool, T26). A green computer test does not prove "Scribble stays on", TS-N1, TS-N2 or TS-N5: the owner's iPad decides.
+**From the builder and tester lenses (20 Nov; docs/archive/plans/lenses-2026-11-20.md):** the text level lives in its own folder and has its own letter geometry (today's circle code looks at a letter's middle only, and it is not touched); it needs one small hook where a Lasso touch starts, before the Lasso clears things; a highlight exists already, the handles are the large new piece. Numbers: half a letter = 50 %; taps add up within 1000 ms. Sizes: A4 about 6 hours (A4a the highlight, A4b the handles), A5 4 hours, A9 5 hours (A9a a scratch-out over selected words under the Lasso, read by our own code because Scribble is not active there; A9b writing over a selected word in the Text tool, T26). A green computer test does not prove "Scribble stays on", TS-N1, TS-N2 or TS-N5: the owner's iPad decides.
 
 - `OPEN:` a circle in that box that also goes round a drawing on top of the words takes the letters only; to take the drawing, leave the box first (owner agreed, 20 Nov).
 

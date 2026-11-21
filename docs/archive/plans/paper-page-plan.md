@@ -1,7 +1,7 @@
 # Paper page: plan (Phase Q; owner design of 8 Nov 2026)
 
 Status: step 1 built. Steps 2–3 approved. Step 4 (ink) is unblocked: the owner's final ink rules are at the end of this file.
-Research: [research/paper-page-2026-11.md](../research/paper-page-2026-11.md). Spec: [features/paper-page.md](../features/paper-page.md).
+Research: [research/paper-page-2026-11.md](../../research/paper-page-2026-11.md). Spec: [features/paper-page.md](../../features/paper-page.md).
 
 ## 1. The design (owner, 8 Nov)
 

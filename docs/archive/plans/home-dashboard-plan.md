@@ -1,6 +1,6 @@
 # Home Dashboard Plan (12 Nov 2026)
 
-Goal: Home becomes a dashboard **people build themselves** from the app's own building blocks. Three flagship templates (Planner, Learning tracker, Finance) are made **only** from those same blocks, so anyone can copy or remake them. Source: [mock-feedback-2026-11-11.md](mock-feedback-2026-11-11.md) (Home + Home answers).
+Goal: Home becomes a dashboard **people build themselves** from the app's own building blocks. Three flagship templates (Planner, Learning tracker, Finance) are made **only** from those same blocks, so anyone can copy or remake them. Source: [mock-feedback-2026-11-11.md](../../plans/mock-feedback-2026-11-11.md) (Home + Home answers).
 
 ## What the research says (short)
 

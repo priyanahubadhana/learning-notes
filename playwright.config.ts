@@ -190,6 +190,7 @@ const config = defineConfig({
         /tb2-card/,
         /b10-2ShadowTile/,
         /b10-11KeepLook/,
+        /b10-10HandFont/,
         /tb2-pencil/,
         /tb2-boxchip/,
         /tb2-boxchip-shots/,

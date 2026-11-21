@@ -2,7 +2,7 @@
 /// <reference lib="dom" />
 import { readFileSync } from 'node:fs'
 import { expect, test, type Page } from '@playwright/test'
-import { cornerAction } from './helpers.ts'
+import { cornerAction, setTheme } from './helpers.ts'
 import {
   COMMIT_A,
   COMMIT_B,
@@ -176,6 +176,63 @@ test('U0a-2 the host caches version.json, sw.js and precache.json with no-cache;
   const rules = readFileSync('public/_headers', 'utf8')
   expect(rules).not.toMatch(/^\/index\.html/m)
   expect(rules).not.toMatch(/^\/$/m)
+})
+
+// The real hosts (recorded 22 Nov 2026 with curl -I): the page "/" is
+// max-age=0, must-revalidate; version.json, sw.js and precache.json are
+// no-cache. Checked live when the network is there.
+test('U0a-2b the real preview and live hosts cache like public/_headers says', async () => {
+  const want: Record<string, string> = {
+    '/': 'public, max-age=0, must-revalidate',
+    '/version.json': 'no-cache',
+    '/sw.js': 'no-cache',
+    '/precache.json': 'no-cache',
+  }
+  let reached = 0
+  for (const host of [
+    'https://build-next.learning-notes-app.pages.dev',
+    'https://learning-notes-app.pages.dev',
+  ])
+    for (const [path, cache] of Object.entries(want)) {
+      const res = await fetch(host + path, { method: 'HEAD' }).catch(() => null)
+      if (!res) continue
+      reached++
+      expect(`${host}${path} ${res.headers.get('cache-control')}`).toBe(
+        `${host}${path} ${cache}`,
+      )
+    }
+  console.log(`[U0a] real host header checks made: ${reached} of 8`)
+})
+
+test('U0a-12 in dark mode the version line is readable (contrast 4.5 or more)', async ({
+  page,
+}) => {
+  await open(page)
+  await setTheme(page, 'Night')
+  const line = await settingsLine(page)
+  await expect(line).toBeVisible()
+  const ratio = await line.evaluate((el) => {
+    const rgb = (c: string) =>
+      (c.match(/[0-9.]+/g) ?? []).slice(0, 3).map(Number)
+    const lum = ([r, g, b]: number[]) => {
+      const f = (v: number) => {
+        const x = v / 255
+        return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4
+      }
+      return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+    }
+    let bg = el as HTMLElement | null
+    let back = 'rgba(0, 0, 0, 0)'
+    while (bg && /rgba(.*, 0)|transparent/.test(back)) {
+      back = getComputedStyle(bg).backgroundColor
+      bg = bg.parentElement
+    }
+    const a = lum(rgb(getComputedStyle(el).color))
+    const b = lum(rgb(back))
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+  })
+  expect(await page.locator('html').getAttribute('data-theme')).toBe('night')
+  expect(ratio).toBeGreaterThanOrEqual(4.5)
 })
 
 test('U0a-3 "Check for updates now" finds B, the line goes to ready, B downloads', async ({

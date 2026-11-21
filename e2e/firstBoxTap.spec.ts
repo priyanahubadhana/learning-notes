@@ -362,6 +362,36 @@ for (const mode of MODES)
       expect(await caretIn(page)).toBe(false)
     })
 
+    test(`reach ${name}: within one letter past the words the caret, further out the box`, async ({
+      page,
+    }) => {
+      await open(page, mode)
+      await withWords(page)
+      const main = page.locator(MAIN)
+      const end = await page.evaluate((sel) => {
+        const el = document.querySelector(sel + ' .bn-inline-content')!
+        const r = document.createRange()
+        r.selectNodeContents(el)
+        const q = [...r.getClientRects()][0]
+        return {
+          right: q.right,
+          y: q.top + q.height / 2,
+          font: parseFloat(getComputedStyle(el).fontSize),
+        }
+      }, MAIN)
+      // NEAR_REACH_EM (tapSelect.ts) = 0.6 em: a letter's width.
+      await tap(page, how, end.right + 0.4 * end.font, end.y)
+      await page.waitForTimeout(700)
+      expect(await caretIn(page)).toBe(true)
+      await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+      await page.keyboard.press('Escape')
+      await page.waitForTimeout(500)
+      await tap(page, how, end.right + 1.0 * end.font, end.y)
+      await page.waitForTimeout(700)
+      await expect(main).toHaveAttribute('data-main-picked', '')
+      expect(await caretIn(page)).toBe(false)
+    })
+
     test(`F4 ${name}: a tap anywhere inside the first box selects it, no new box`, async ({
       page,
     }) => {

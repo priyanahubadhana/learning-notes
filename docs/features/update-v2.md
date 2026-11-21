@@ -298,4 +298,4 @@ The update downloads only from our own origin through the service worker; no new
 
 - 22 Nov 2026 · U0b · rewritten on template v2 from the owner's update flow, UP-N1 to UP-N8 and U0a's findings; slice 10 rules kept; required countdown 5 s → 3 s proposed (row 7) · waiting for the owner's sheet
 - 22 Nov 2026 · U0b fix2 · owner on row 13: Settings pictures redrawn on the approved Settings v5 first page, only the Update card added; no new layout · owner
-- 22 Nov 2026 · U0b · owner's sheet: rows 1 to 12 and 14 to 22 Yes (row 14 Yes except its Settings picture); row 17 A (installs by itself); row 8 explained and accepted (waits for a pause); open: the Settings picture of row 14 (the owner's note came on row 13); Update card at the top of today's Settings in v5 card style · owner
+- 22 Nov 2026 · U0b · owner's sheet: rows 1 to 12 and 14 to 22 Yes; row 17 A (installs by itself); row 8 explained and accepted (waits for a pause); open: the Settings picture of row 14 (the owner's note came on row 13); Update card at the top of today's Settings in v5 card style · owner

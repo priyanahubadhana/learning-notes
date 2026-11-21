@@ -175,3 +175,5 @@ New ideas that come up mid-build are parked here, not added to the current phase
 - **Box ⋯ where people tap (Opus, 20 Nov 2026):** when the page tabs are close above the first box, its tab and ⋯ sit under the box at the right (Polish 2B); a tap there to make a new box opens the menu instead. Ask the owner whether to move it.
 
 - **From the Goodnotes screenshots (Fable, 20 Nov 2026; owner to say if any is a must now):** (1) resize and turn a text box together with the ink on it, as one piece (needs box turning, parked with layers); (2) Front / Back for overlapping things (needs layers); (3) "Create Element": save a selection as a reusable sticker.
+
+- **Try GitHub Spec Kit in the next planning phase (owner, 21 Nov 2026):** our METHOD.md already borrows its idea (spec, then plan, then tasks; tests named after spec lines), but not the tool (`specify` command, `.specify` templates). Look at it with Fable when planning the next phase; adopt only what our own format lacks. Link: https://github.com/github/spec-kit

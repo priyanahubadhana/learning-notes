@@ -1665,3 +1665,11 @@ Source: docs/plans/uniformity-and-specs-2026-11-21.md and the chat of 21 Nov. Ea
 - **Confirm sheets are answered in chat.** The dashboard is for viewing: specs, bugs, states.
 - **Dashboard inside the app (owner wish):** the bug and spec tracker should be viewable inside Learning Notes itself, so the app is tested by its own project; the same for other lists when useful. Design to follow (round 3).
 - **Who drafts:** the phase plan with Fable; then Opus builds and drafts the ordinary specs; Fable only for very complex or risky decisions; the owner opens Fable sessions by hand. Fable is used as little as possible for cost.
+
+### 21 Nov 2026, evening (owner with Fable): the pause talk, round 3
+
+- **Spec-making flow, final shape (owner):** free talk first, to a conclusion; then the main questionnaire with options as the double check and the record; smaller questionnaires in between whenever they feed the main one. No brief form; free talk only.
+- **First PC slice (owner yes):** "On the PC, I can make a notebook, write notes with the keyboard, lay them out exactly as I like with boxes, columns, fonts and colours, customise the tool bar and Settings, make a summary and recall cards, and review them, with no bug in that path."
+- **Tracker (owner yes):** GitHub Issues as the source; a board page on the preview site first; the in-app Project notebook when database views exist.
+- **Spec pages' visual face (owner yes):** a site generated from the repo on the preview host, with pictures, status badges and the confirm sheet shown read-only.
+- **Honesty (owner):** the AI must contradict with a rationale and never agree for comfort; never argue for its own sake. Rules to be settled in round 4.

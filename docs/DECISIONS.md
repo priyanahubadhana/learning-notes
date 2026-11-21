@@ -1641,3 +1641,17 @@ Decisions to review from the clean-up: Settings moved next to the frame (the own
 - **19 Nov 2026 (Opus, decision to review): CI runners pinned to ubuntu-24.04.** GitHub moved `ubuntu-latest` to 26.04 (image 20261111); the cached Playwright WebKit cannot start there (`libicudata.so.74` missing), so every fast-ipad test failed in 3 ms (run 44442046352). Pinning is free and reversible; un-pin when Playwright supports 26.04.
 
 - **20 Nov 2026 (owner): "Opus and Sonnet only for now"** (no Fable): the normal roles stand (Sonnet builds, Opus manages and reviews). Fable planning (fable-brief-smart-select.md) waits for the owner's Fable session.
+
+### 21 Nov 2026, evening (owner with Fable): the pause talk, round 1
+
+Source: docs/plans/uniformity-and-specs-2026-11-21.md and the chat of 21 Nov. Each line is an owner decision.
+
+- **PC first, with four conditions (owner agreed):** (1) device-neutral foundation: every action by click, by keyboard shortcut and by a 44 px tap target, no hover-only features; (2) Pencil work is parked behind its switches, not dropped and not finished now (text handles A4 to A9, hold strip tremor rework); the merged Lasso fixes stay; (3) each release gets an iPad reading check (open, read, review cards, navigate); (4) the usable product gets a one-line definition before the next build and that slice is the whole next phase. Mouse and keyboard only for the PC version, with shortcuts. Tablet later as an option, phone after that.
+- **How the owner will use the app:** editing mostly on the PC; the iPad for reading, mind maps, notes, summaries, visual notes, dashboards, big data views, small edits; notes come from AI with sources the owner shares.
+- **Reading budget per part:** no fixed limit. The owner reads as much as the part needs; the spec must be visually appealing, with pictures, detailed and accurate, in terms both the owner and the AI understand.
+- **Loop:** the owner tests when a feature is complete; bug fixing runs as a parallel session.
+- **Bugs:** GitHub Issues, with a dashboard the owner can open from anywhere: every bug, its state (working on it, complete, pending), name and description, one tap to the detail.
+- **Docs clean-up:** yes, move everything not live into an archive; nothing deleted.
+- **Spec Kit:** install it and adapt its templates to our two-layer format.
+- **Spec-making flow (owner):** owner shares a plan; the AI writes a questionnaire (what it needs to know, and what the owner can do to help); owner answers; the AI drafts the spec (expected behaviour, must-never lines); a confirm sheet follows where each point gets Yes, Explain again, or Change; questions come with options: the recommended one, an alternative, other, more when needed.
+- Earlier the same day (chat): reuse path A (smart bar built on shared part cards), bug register with one id family, GitHub for reading specs on the iPad plus a visual face, repo stays public for now.

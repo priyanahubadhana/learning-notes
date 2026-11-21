@@ -79,6 +79,8 @@ Current phase only. Older decisions are in [ARCHIVE.md](ARCHIVE.md).
 
 ## Decisions to review
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-21 · presetPhases test ignores one benign browser message (B11):** WebKit reports "ResizeObserver loop completed with undelivered notifications" when several size observers fire in one frame; the spec treats it as harmless (the delivery moves to the next frame). That one test now ignores exactly this message and still fails on any other page error. Safest option over reworking 58 observers in a hot layout area mid-phase.
 - **2026-11-20 · Fable's six disagreements at the end of planning (asked for by the owner; **all six agreed by the owner the same evening** and written into the plan, CLAUDE.md, HOW-WE-BUILD.md, METHOD.md and text-select.md):** (1) after the Scribble test (A3) stop and choose the route with the owner before building A4 to A9, instead of keeping "select in the Text tool" last; (2) nothing optional holds the release: Settings v5 and the smart bar go live with the rest only if they have passed the owner's test by then; the parts are switched on over two or three days, with a backup first; (3) escalate by evidence, not by count: for a fault only the iPad shows, no new try without a new trace; (4) two calm iPad checks a day beat many hurried ones from work; (5) one double-tap rule in the Text tool and the Lasso; (6) the method is cut back at the end of the phase wherever its numbers do not pay. Added to the plan without waiting: a Pen item in the catch-up check C0; the recorder never stores note words.
 
@@ -1014,6 +1016,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (remote sign-out, 9 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1025,6 +1029,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **2026-11-18 · Rule added on the owner's word:** CLAUDE.md "Owner tests, Claude coaches" (we-will-prove list before each build, owner done-examples and must-never lines become tests, 5-minute iPad checks, remind the owner of this way of working).
 
 ## Decisions to review (contextual strips, 9 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1050,6 +1056,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (copy side, 9 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1066,6 +1074,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Toggles are written as `<details>` in Markdown, cards as `**Q:** … / **A:** …`; database, mind map and day record blocks have no text form and are left out of the text formats.
 
 ## Decisions to review (Clean up with AI, 9 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1084,6 +1094,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Vimeo, Loom and video files, 9 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1100,6 +1112,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - CSP `frame-src` now lists three hosts (YouTube no-cookie, Vimeo player, Loom); `media-src` already allowed https.
 
 ## Decisions to review (Ink scrolls natively, 9 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1119,6 +1133,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (As text box, 9 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1134,6 +1150,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - A locked page refuses with the usual lock message and nothing is made.
 
 ## Decisions to review (database pages, 9 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1154,6 +1172,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (prompt gaps and Lock editing, 9 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1171,6 +1191,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Not run: iPad WebKit e2e for this work.
 
 ## Decisions to review (prompt library and skills, 9 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1221,6 +1243,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (boxes like GoodNotes, 9 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1252,6 +1276,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (design tokens, 9 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1269,6 +1295,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - Old chart slot 4 (purple) became blue and the tag colour map swapped, so a violet tag still draws as chart 1 (the accent).
 
 ## Decisions to review (Drive stays connected, 9 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1298,6 +1326,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Design step 2, 9 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1317,6 +1347,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **2026-11-09 · Drive lasting connection confirmed live** by the owner (Settings › Account: "Drive: stays connected"). Fix: remove the old Google grant, then Set up lasting connection.
 
 ## Decisions to review (Accounts, 9 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1340,6 +1372,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Account gate, Q3a, 12 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1360,6 +1394,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Pencil double tap, 11 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1373,6 +1409,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **Grace period 600 ms** after a tap selects text, nothing may delete, replace or write over the selection (no key pressed). Chosen just above the 500 ms Pencil-lift window and the 450 ms tap gap; short enough that real Scribble writing still works a moment later. Applies even when Scribble is free (Text tool). Side effect: dictation or autocorrect inside that 600 ms is also refused. Change: SELECT_GRACE_MS in src/editor/penGuard.ts.
 
 ## Decisions to review (CI fix, 11 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1388,6 +1426,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **Tap-below button** moved 24 px lower so the first box handles do not cover it; text wrap uses break-word instead of anywhere (performance).
 
 ## Decisions to review (Security audit, 12 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1405,6 +1445,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (PDF page by page, 11 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1419,6 +1461,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Bookerly-style font, 11 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1432,6 +1476,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **Literata stands in for Bookerly.** Bookerly is Amazon's licensed font and cannot be bundled (₹0, licence). Literata is OFL, already in the app, and was designed for long reading on screens, so it is the closest free match. Other options: Source Serif 4 (also bundled, a bit more formal) or Charter (system, not on every device). The default stays "Book default" (the book's own font); the new tile is opt-in. Not applied to PDFs (their letters are pictures).
 
 ## Decisions to review (reading progress and favourites sync, 11 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1450,6 +1496,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 
 ## Decisions to review (Drive status, 11 Nov)
 
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
+
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
 - **2026-11-18 · Equal-box height parked (main chat):** after bug 2, the first box and a new box match in text size, line and padding inside; the outer box differs by ~5 px (30 vs 35) because a new box keeps 8 px text clearance from its dots (2B.5). Two Sonnet tries (shrink the new box; outward frame) each break 4 to 20 resize/select tests. Parked on slice/equal-box-height (WIP) until the owner sees it on the iPad and says whether 5 px matters. Local base reds noticed meanwhile: tb2-bar-firsttap:150, tb2-resize-phone-swipe:17, tb2-resize-shots:44 sideways, textBoxFree:48/:61, tb2-move-shots:68 (check in the next full CI).
@@ -1465,6 +1513,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - I touched `connectors/supabase.ts` in two small places only (the flag when a server pass works, and the new check); no sign-in or session code.
 
 ## Decisions to review (Claude connector B, 11 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 
@@ -1483,6 +1533,8 @@ The other older decisions stand as built (owner, 2026-11-01); they are in [ARCHI
 - **Slice 2 is not safe for real notes yet:** the tools do nothing, but escrow, Inbox, audit log, rate limits and a Revoke list are later slices. Until then, disconnect by deleting rows in `oauth_tokens`.
 
 ## Decisions to review (build night 1, 12 Nov)
+
+- **2026-11-21 · Pencil hold rule numbers (HOLD-MOVE, owner chose "writing never opens the hold"):** for the Pencil the hold ends past 4 px from where it touched, or once its steps of 1 px or more add up past 10 px; a finger keeps 10 px. The numbers are ours (a real Pencil held still reports tiny tremor moves, which a plain "total path" rule would count and so break real holds). To confirm in the owner's hold re-check on the iPad.
 
 - **2026-11-18 · Lesson: test in the owner's device mode.** The first box was tall and typed on an empty tap only in Touch and Pencil modes (an old "tap below" button inside it); every older e2e ran in computer mode, so all passed. From now on, briefs for text-box work ask for tests in Touch and Pencil modes on a page made the owner's way (sidebar Add page in an existing notebook).
 

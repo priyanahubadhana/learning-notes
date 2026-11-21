@@ -7,6 +7,7 @@
     "dev": "vite --host",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "check:spec-template": "node scripts/sync-spec-template.mjs --check",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

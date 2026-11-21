@@ -5,7 +5,7 @@ The one short list of open work. The plan: [plans/phase-plan.md](plans/phase-pla
 ## Needs you
 
 - **Read it formatted:** https://priyanahubadhana.github.io/learning-notes/ (the method page has tappable sheet rows and a Copy-my-answers button; paste the result in the chat).
-- **Now (21 Nov, night):** answer the main questionnaire of the new plan, docs/plans/phases/phase-pc-1.md section 12 (Q1 to Q12, by number in chat), and send the six install-and-update facts. The talk's decisions: docs/DECISIONS.md 21 Nov rounds 1 to 5; the method pictures: docs/plans/method-v2/. Nothing is built until the plan has your yes.
+- **Now (22 Nov):** the method and the plan are confirmed. Needs you: (1) the six install-and-update facts (device and browser; live or preview; what "download" means; what you saw in order; how often and when last; the version shown), since you chose that bug first; (2) the one bar's name, "Action bar" unless you say otherwise. Plan: docs/plans/phases/phase-pc-1.md sections 17 and 18.
 
 Rewritten 20 Nov (part D0). The plan: [plans/phases/phase-2-finish.md](plans/phases/phase-2-finish.md).
 

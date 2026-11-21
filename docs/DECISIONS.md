@@ -1694,3 +1694,12 @@ Source: docs/plans/uniformity-and-specs-2026-11-21.md and the chat of 21 Nov. Ea
 - **Follow-ups (to become issues in M3):** on a phone the "On this page" list should fold above the content; the search dropdown is untested; unknown inline tags such as `<date>` show as text; links to files outside docs/ go to GitHub.
 - **Housekeeping for the owner:** the builder's `git stash pop` left an untracked `screenshots/` folder in the main working copy (from an old stash of test-run screenshots; the stash entry itself is intact). Deletes need the owner: remove it by hand when convenient.
 - **Case against building it tonight (logged for honesty):** the set-up order had M1 (the archive) first, and the site now renders 244 pages including specs that will be archived; the home page will shrink once M1 runs.
+
+### 22 Nov 2026, 00:10 (owner with Fable): the method confirmed and the plan answered
+
+- **METHOD-v2 confirmed:** all 11 rows Yes, answered on the site's sheet. Status set to Confirmed 22 Nov 2026.
+- **Phase PC-1 confirmed** with the owner's twelve answers (plan section 17): 1 A plus the update bug first; 2 A; 3 A; 4 behaviour confirmed (one bar, presets by task, Auto by rules, the top tool bar fixed), name open, "Action bar" as the default; 5 A full Settings v5; 6 A; 7 A; 8 A; 9 B; 10 the update bug first; 11 Saturday evening; 12 A.
+- **Override log, Q9:** owner chose B (old bar code stays behind the switch). The reason against: six dead copies remain for builders to trip on, and the private-copy counter can only fall once they are removed.
+- **Override log, Q1 and Q10:** owner chose the update bug first. The reason against: its facts are not in yet, so the fix cannot start; handled by splitting it: U0a reproduces by test from day 1 without the owner, U0b and U0c start when the six facts arrive.
+- **Weekly card:** Saturday evening.
+- **Next:** Opus starts stage 0 with M1 (the archive) and U0a in parallel; M8 (rules) may now run since the sheet is all Yes.

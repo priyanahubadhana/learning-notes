@@ -10,16 +10,18 @@ RUNNING: stage 1, phase 1A (set-up and the update; was "PC-1 stage 0"), started 
 
 ### Phase 1A
 
-| Part                                                                                                          | Branch (working copy)               | State                                                                                                    |
-| ------------------------------------------------------------------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| M4                                                                                                            | main                                | DONE 22 Nov (site live)                                                                                  |
-| M1                                                                                                            | `tool/m1-archive`, `tool/m1-fix2`   | MERGED 1d250d96 (3 review rounds); CLAUDE.md, .claude paths done by Fable; rules/ and next.md in M8      |
-| U0a                                                                                                           | `slice/u0a-update-repro` (ln-2a16b) | built c692dc2c, loop reproduced on WebKit slow line; review FAIL, 6 fixes with builder a2de4da29ebff2aa9 |
-| U0b                                                                                                           | main 436a36f8                       | MERGED; update-v2.md Confirmed 22 Nov, row 14 open (redrawn Settings picture waits for the owner yes)    |
-| M2                                                                                                            | `tool/m2-spec-kit`                  | MERGED 22 Nov (Spec Kit v1.4.3, template synced and checked in CI; implement, converge off)              |
-| U0c, S0                                                                                                       | -                                   | U0c after U0a merges (same builder); S0 Settings card after the owner yes on the picture                 |
-| M3                                                                                                            | `tool/m3-issues`                    | MERGED 22 Nov: 43 issues #7 to #49 with old ids, labels, phone bug form                                  |
-| Ideas sort, Pillar column, found wishes, M8, M5, M9, M6, M7, old plans archive, principle pictures, site home | -                                   | planned, in this order                                                                                   |
+| Part                                                                  | Branch (working copy)               | State                                                                                                                     |
+| --------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| M4                                                                    | main                                | DONE 22 Nov (site live)                                                                                                   |
+| M1                                                                    | `tool/m1-archive`, `tool/m1-fix2`   | MERGED 1d250d96 (3 review rounds); CLAUDE.md, .claude paths done by Fable; rules/ and next.md in M8                       |
+| U0a                                                                   | `slice/u0a-update-repro` (ln-2a16b) | built c692dc2c, loop reproduced on WebKit slow line; review FAIL, 6 fixes with builder a2de4da29ebff2aa9                  |
+| U0b                                                                   | main 436a36f8                       | MERGED; update-v2.md Confirmed 22 Nov, row 14 open (redrawn Settings picture waits for the owner yes)                     |
+| M2                                                                    | `tool/m2-spec-kit`                  | MERGED 22 Nov (Spec Kit v1.4.3, template synced and checked in CI; implement, converge off)                               |
+| U0c + S0                                                              | -                                   | after U0a merges (same builder); update-v2 fully Confirmed, S0 card allowed                                               |
+| M3                                                                    | `tool/m3-issues`                    | MERGED 22 Nov: 43 issues #7 to #49 with old ids, labels, phone bug form                                                   |
+| Ideas sort + Pillar column                                            | `tool/1a-ideas-pillars` (ln-m2)     | review FAIL then fix; fix corrupted the header table, repair with builder a3da3f2043cf1f405; then manager check and merge |
+| M8 (rules/, HOW-WE-BUILD, next.md)                                    | `tool/m8-rules` (ln-m1)             | review FAIL (4 fixes) with builder a10768ad77e29eca0                                                                      |
+| Found wishes, M5, M9, M6, M7, old plans archive, site home and badges | -                                   | planned, in this order; principle pictures held (owner)                                                                   |
 
 ### Phase 2-finish lanes (history, 20 to 21 Nov)
 

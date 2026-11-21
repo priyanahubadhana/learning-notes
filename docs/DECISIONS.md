@@ -1677,3 +1677,12 @@ Source: docs/plans/uniformity-and-specs-2026-11-21.md and the chat of 21 Nov. Ea
 ### 21 Nov 2026, evening (owner with Fable): the pause talk, round 4
 
 - **Owner yes to all four:** (1) a five-line "what I heard" after every free-talk round, corrected on the spot; (2) honesty rules into CLAUDE.md with the new plan: every pick carries the case against it, a position changes only for a named new reason, and an override log ("owner chose X; the AI's reason against was Y"); (3) an attack read by a fresh Opus session for every risky spec, briefed to find what is wrong, never to approve; (4) the install and update bug is discussed next, then the revised plan draft.
+
+### 21 Nov 2026, night (owner with Fable): the pause talk, round 5
+
+- **Pictures 1 to 3 of method v2 approved (owner):** docs/plans/method-v2/. They are the artifact for the method.
+- **Set-up order agreed (owner):** docs archive and one STATE file; Spec Kit with our template; GitHub Issues with the bug form and the open problems moved in; the site and board on GitHub Pages; the part cards; then the first PC slice. Estimate two to three days.
+- **Starter kit for future projects:** extracted after the first PC slice has gone through the whole loop once (owner agreed).
+- **Reuse check for specs (owner, new):** when a new feature relates to one already built, either the existing spec is extended or the new spec names the existing spec and part cards it builds on. A new spec must carry a "builds on" list, or "none, checked on <date>"; the analyze step fails a spec without it; the questionnaire step lists the related existing specs before anything is written. Same rule for code: the reuse gate (builder, reviewer, ratchet).
+- **Proof before done** is one of the two non-negotiables of the method spec, with "the spec is the only contract".
+- **Taken as the safe reading, owner to correct:** the method itself gets a spec and the eight-number weekly card with the owner's one line; a short web research pass on current agent practice runs during the set-up, tokens only; the waiting iPad checks (Lasso C1a count, C1b, hold checks) are parked with the Pencil work.

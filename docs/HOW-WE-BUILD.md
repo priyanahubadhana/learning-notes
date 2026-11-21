@@ -10,7 +10,7 @@ The plan is [plans/phase-plan.md](plans/phase-plan.md). The state is [STATE.md](
 | **Opus, medium effort** | manages the build; reviews each task once (`reviewer`): the code against the plan and the look against the approved picture; takes a task over when Sonnet failed it three times; raises its own effort to high before Fable | weakens a test to get green      |
 | **Fable**               | plans each phase with the owner; solves what Opus (medium, then high) failed                                                                                                                                                 | does routine reviews or building |
 
-Every model works at medium effort (owner, 20 Nov 2026): Sonnet builders, Opus manager and reviewers (the start call sets it), and Fable. No Haiku in the build.
+Every model works at medium effort, except the Opus high step of the ladder (owner, 20 and 21 Nov 2026): Sonnet builders, Opus manager and reviewers (the start call sets it), and Fable. No Haiku in the build.
 
 **Two ways to run:**
 
@@ -38,7 +38,7 @@ At the end of a phase: the owner's first look on the iPad, fixes, polish to the 
 1. **Only planned work.** A builder builds what its task says. New ideas go to docs/IDEAS.md; unclear points go back to the manager.
 2. **Green before push.** The push guard runs the quick checks. CI confirms; it is not the first place a fault is seen.
 3. **Red stops the line.** A red test on the code line is the manager's first job. Never re-run until green. Never weaken, skip or delete a test.
-4. **Escalate by yourself (owner, 20 Nov 2026).** Sonnet fails the same thing three times: a builder with `model: opus` takes it. Opus medium falls short: Opus high; then Fable (ladder of 21 Nov replaces "Opus five times"; CLAUDE.md "Owner settings"). A try counts only if it differs from the one before; no new try without new evidence (a failing test, a trace, a measurement), and for a fault only the real iPad shows, none without a new trace from the owner; after the second Opus fail, Opus writes down what was tried and what is known before the third. Log each step in STATE.md.
+4. **Escalate by yourself (owner, 20 Nov 2026).** Sonnet fails the same thing three times: a builder with `model: opus` takes it at medium effort; if that falls short, Opus at high effort; then Fable (ladder of 21 Nov replaces "Opus five times"; CLAUDE.md "Owner settings"). A try counts only if it differs from the one before; no new try without new evidence (a failing test, a trace, a measurement), and for a fault only the real iPad shows, none without a new trace from the owner; before each higher step, the one before writes down what was tried and what is known. Log each step in STATE.md.
 5. **No queue.** Merge a task as soon as it is reviewed. Do not add builders while a reviewed task has waited more than an hour to merge.
 6. **One state file.** STATE.md is one table, rewritten in place, under 100 lines. History goes to docs/CHANGELOG.md.
 7. **Never go quiet.** A phase manager ends every run with `RESTART phase-manager` or `STOPPED: <reason>`. Estimates use the measured pace and say "likely".

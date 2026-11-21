@@ -15,6 +15,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
   - rules/phase-end.md: phase at most two weeks with train release; rules change only at a phase end.
   - docs/HOW-WE-BUILD.md: Opus high before Fable; path of a part is METHOD-v2; reuse gate.
   - .claude/commands/next.md: reads docs/STATE.md (owner approved via Fable); HANDOFF dropped; PENDING to STATE.
+- **Review fixes (same day):** testing.md real-use line back to its old wording (only the run cadence changed); each decision written once: PC first in building.md (quality.md points to it, sessions.md line removed), reuse gate in quality.md (building.md points to it), rules change only at a phase end in phase-end.md (sessions.md sentence removed), phase length in planning.md (phase-end.md points to it); HOW-WE-BUILD: old five-try line reworded for the ladder (Opus medium, Opus high, Fable) and the medium-effort line says "except the Opus high step".
 - **Kept:** every other existing rule unchanged.
 
 ### 22 Nov 2026: GitHub Issues are the bug list (part M3)

@@ -6,9 +6,8 @@
 - Auto-compact stays on: when the chat gets long, Claude Code compacts it by itself and work carries on. Don't ask the owner to type `/compact`.
 - After every sub-step: update docs/STATE.md (the one live state file) and commit. At the end of every step: update docs/CHANGELOG.md and docs/IDEAS.md, run the related tests, push to GitHub, then start the next step. The full test set runs nightly in CI and before each release.
 - `/next` reads docs/STATE.md first (if it says PAUSED, it stops and tells the owner), then docs/INDEX.md, after checking Git and `npm audit`.
-- **PC first (stage 1):** the owner works on the PC with mouse and keyboard; the iPad reads. Conditions: CLAUDE.md "Core rules".
 - **Models:** see CLAUDE.md "How we work". If Sonnet fails the same thing three times, hand it to Opus medium, then Opus high, then Fable (owner, 21 Nov 2026; replaces "Opus five times" of 20 Nov).
-- **Weekly card:** Saturday evening, eight computed numbers and the owner's one line (METHOD-v2 M-05). Rules change only at a phase end, from the numbers.
+- **Weekly card:** Saturday evening, eight computed numbers and the owner's one line (METHOD-v2 M-05).
   - Helper agents are allowed. Run several in parallel (separate git worktrees for independent work); pushes happen one at a time, each rebased on the latest code line.
 - **Workflow:**
   - Keep the work continuous and well tested.

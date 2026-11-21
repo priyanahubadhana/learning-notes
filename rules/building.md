@@ -17,7 +17,7 @@ See CLAUDE.md "How we work" and docs/HOW-WE-BUILD.md: Sonnet builds; Opus at med
 
 - **Escalate automatically (owner, 13 Nov 2026; the ladder of 21 Nov replaces "Opus five times"):** Sonnet fails the same thing three times → Opus medium → Opus high → Fable → the owner last; raise the effort before changing the model; no new try without new evidence (CLAUDE.md "Owner settings", METHOD-v2 "The ladder").
 - **PC first (owner, 21 Nov 2026):** every action works by click, by key and by a 44 px target; nothing hover-only; Pencil work stays behind its switches. Every part card and bar spec carries "On the iPad later: what changes, what does not". Details: CLAUDE.md "Core rules".
-- **Builds on, reuse gate:** a new spec names the specs and part cards it extends, or "none, checked on <date>". No new file for a job a part card owns (M-N8); the old bar files are frozen and get no new imports; the private-copy counter only goes down.
+- **Builds on:** a new spec names the specs and part cards it extends, or "none, checked on <date>". Reuse gate: rules/quality.md section 2.
 - **Bugs are GitHub Issues:** the issue number is the bug id; the scenario changes before the code (M-N3); a status (Draft, Confirmed, Building, Built, Verified, Live) is set by a program, never typed (M-N1).
 - **Honesty:** every real pick carries the case against it; a position changes only for a named new reason; an override is logged as "owner chose X; the reason against was Y" in docs/DECISIONS.md.
 - **Short lines:** a rule or must-never line is about twelve words; detail goes in scenarios and detail lines.

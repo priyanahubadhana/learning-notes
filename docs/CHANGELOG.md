@@ -8,6 +8,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** METHOD-v2 step M1 and M-N6: one live set, no second hand-kept list.
 - **Files:** docs/archive/**, docs/STATE.md, docs/INDEX.md, docs/DECISIONS.md, scripts/docs-site.mjs, links in docs/features and docs/design.
 
+### 22 Nov 2026: PC-1 U0b (update spec for the owner's confirm sheet)
+
+- **What:** docs/features/update-v2.md rewritten on template v2 (Stage 1, Draft): the owner's update flow as short rules, UP-N1 to UP-N8, scenarios S1 to S7, U0a's cause notes, Update on Settings' first page, Design and quality check, a 16-row confirm sheet; slice 10 rules kept in the bottom layer. Templates: Stage column, Design and quality check (nine lines) and its confirm row, part-card Quality block and "On the iPad later", the twelve-word line note. Own pictures in docs/mockups/update-v3/ (pill states, 3-second prompt, Settings first page; light and dark).
+- **Why:** the owner's update facts and decisions of 22 Nov 01:00 to 02:10.
+- **Files:** docs/features/update-v2.md, docs/features/_TEMPLATE.md, docs/features/parts/_TEMPLATE-part.md, docs/mockups/update-v3/.
+
 ### 22 Nov 2026: docs site v1 (part M4, brought forward)
 
 - **What:** a program (no AI) turns docs/**/*.md into a formatted, searchable site: badges from the status table, the confirm sheet as tappable rows with a "Copy my answers" button, A / B / Other buttons on the questionnaire, the bottom layer folded, a home page of cards, a picture gallery. A workflow publishes it to GitHub Pages on every push to main that touches the docs.

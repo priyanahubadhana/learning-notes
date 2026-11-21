@@ -1,8 +1,8 @@
 # <Feature name> (template v2, method v2)
 
-| Status | Switch          | Phase and parts          | Pictures                 | Builds on                                                                       | Last change       |
-| ------ | --------------- | ------------------------ | ------------------------ | ------------------------------------------------------------------------------- | ----------------- |
-| Draft  | `<area.switch>` | `<phase>`, parts `<ids>` | `docs/mockups/<folder>/` | `<spec>.md`, parts: `<Part card>`, `<Part card>` (or "none, checked on <date>") | `<date>`, `<who>` |
+| Status | Stage                                                    | Switch          | Phase and parts          | Pictures                 | Builds on                                                                       | Last change       |
+| ------ | -------------------------------------------------------- | --------------- | ------------------------ | ------------------------ | ------------------------------------------------------------------------------- | ----------------- |
+| Draft  | `1`, `2` or `3` (see docs/plans/stage-map-2026-11-22.md) | `<area.switch>` | `<phase>`, parts `<ids>` | `docs/mockups/<folder>/` | `<spec>.md`, parts: `<Part card>`, `<Part card>` (or "none, checked on <date>") | `<date>`, `<who>` |
 
 <!-- The top layer (down to the confirm sheet) is written for the owner and must stand on its own: plain words, real values, a picture. The bottom layer is for the builders. One file, so the two can never disagree. Security rules: rules/security.md. -->
 
@@ -24,6 +24,8 @@ As a … who …, I want … so that ….
 The approved mock-up or screenshot, with its date and the conditions the owner gave. A scenario with a picture is read in a tenth of the time.
 
 ## Rules
+
+Each rule and each must-never line is one short line, about twelve words at most (owner, 22 Nov). Detail lives in the scenarios and the detail lines.
 
 **Always true**
 
@@ -65,12 +67,13 @@ Every scenario passes on chromium (and on ipad-webkit where marked); the owner s
 
 ## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
 
-| Row | Statement                          |
-| --- | ---------------------------------- |
-| 1   | The goal line says what I meant.   |
-| 2   | The two non-negotiables are right. |
-| 3   | Rule "<short name>" …              |
-| 4   | Scenario S1 …                      |
+| Row | Statement                                                           |
+| --- | ------------------------------------------------------------------- |
+| 1   | The goal line says what I meant.                                    |
+| 2   | The two non-negotiables are right.                                  |
+| 3   | Rule "<short name>" …                                               |
+| 4   | Scenario S1 …                                                       |
+| 5   | Design and quality: the check list in the bottom layer is complete. |
 
 ---
 
@@ -101,6 +104,22 @@ Link to the plan file made with Spec Kit; which files, which data, which switch,
 ### Not in this part
 
 - …
+
+### Design and quality check
+
+Filled before the confirm sheet; the reviewer checks it (owner, 22 Nov). Each line: yes or no, and a pointer (picture, file or test).
+
+| #   | Check                                                                                        | Yes/no | Pointer |
+| --- | -------------------------------------------------------------------------------------------- | ------ | ------- |
+| 1   | Looks like the approved picture (side by side before the owner's test).                      |        |         |
+| 2   | Meets docs/design/quality-standard.md (the premium look).                                    |        |         |
+| 3   | Follows docs/design/owner-ui-patterns.md.                                                    |        |         |
+| 4   | Accessible: keyboard path, labels, contrast, reduced motion.                                 |        |         |
+| 5   | Every text through i18n keys, in every language.                                             |        |         |
+| 6   | Every change undoable with one Undo.                                                         |        |         |
+| 7   | Speed budget stated and tested.                                                              |        |         |
+| 8   | Device-neutral: 44 px targets, no hover-only (mouse or Pencil), iPad later without redesign. |        |         |
+| 9   | Flexible: what is customisable, and where in Settings (simple default, advanced ▾).          |        |         |
 
 ### Security check
 

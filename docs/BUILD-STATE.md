@@ -4,17 +4,18 @@ BUILDING (20 Nov, Opus main chat, lean mode). Plan: docs/plans/phases/phase-2-fi
 
 ## Now
 
-| Part     | Lane | Branch (working copy)                            | State                                                                                                                                   |
-| -------- | ---- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| D0       | Opus | main + build/next                                | done 20 Nov (this file, PENDING, merge)                                                                                                 |
-| A0       | A    | `slice/a0-lasso-freeze`                          | MERGED 512663cd (18 tests; bug A0-B1: Lasso menu width grip covers Thickness, test.fail until fixed)                                    |
-| B0       | B    | `slice/b0-scenarios`                             | MERGED c1e6aa25 + fix 2ff99365 (npx --no); report at /scenarios/ after the next CI preview                                              |
-| A2       | A    | `slice/a2-quiet-recorder` (ln-2a16), port 5183   | MERGED b6cbea7f (20 Nov); 20/20 clean: lassoFreeze with recorder 380/380 both browsers, own specs 420/420 both, bdd-ipad-webkit 200/200 |
-| B1       | B    | `slice/b1-button-list` (ln-2a16)                 | MERGED 4b825720 (21 Nov); 115 buttons (94 work, 15 partly, 6 no), 156 tests; 20/20 chromium and ipad-webkit                             |
-| B2       | Opus | main: docs/mockups/smart-bar/ (index.html, png/) | pictures ready 21 Nov; waiting for owner check C3 (3 questions in the page)                                                             |
-| C0-1     | B    | `slice/c0-1-box-style`                           | MERGED b8ddaf81 (first box and phone adds get the new-box style; 7 tests)                                                               |
-| C0-paste | B    | `slice/c0-paste`                                 | MERGED (C0-2 to C0-6: Pencil Paste, hover, iPad hint and refusal words, in-app copy until the window blurs, box-bar paste)              |
-| C0-7     | B    | `slice/c0-7-hold`                                | MERGED (hold 0.5 s, 10 px, Pencil anywhere; Apple magnifier may still flash: owner check)                                               |
+| Part     | Lane | Branch (working copy)                            | State                                                                                                                                       |
+| -------- | ---- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| D0       | Opus | main + build/next                                | done 20 Nov (this file, PENDING, merge)                                                                                                     |
+| A0       | A    | `slice/a0-lasso-freeze`                          | MERGED 512663cd (18 tests; bug A0-B1: Lasso menu width grip covers Thickness, test.fail until fixed)                                        |
+| B0       | B    | `slice/b0-scenarios`                             | MERGED c1e6aa25 + fix 2ff99365 (npx --no); report at /scenarios/ after the next CI preview                                                  |
+| A2       | A    | `slice/a2-quiet-recorder` (ln-2a16), port 5183   | MERGED b6cbea7f (20 Nov); 20/20 clean: lassoFreeze with recorder 380/380 both browsers, own specs 420/420 both, bdd-ipad-webkit 200/200     |
+| B1       | B    | `slice/b1-button-list` (ln-2a16)                 | MERGED 4b825720 (21 Nov); 115 buttons (94 work, 15 partly, 6 no), 156 tests; 20/20 chromium and ipad-webkit                                 |
+| B2       | Opus | main: docs/mockups/smart-bar/ (index.html, png/) | pictures ready 21 Nov; waiting for owner check C3 (3 questions in the page)                                                                 |
+| B10-1    | B    | `slice/b10-1-redo-one-step` (ln-2a16)            | MERGED 4a85e8b0 (21 Nov); R15 cause: Undo stayed on until a slow step ended, a quick extra click counted; fix in pageHistory.ts; 20/20 both |
+| C0-1     | B    | `slice/c0-1-box-style`                           | MERGED b8ddaf81 (first box and phone adds get the new-box style; 7 tests)                                                                   |
+| C0-paste | B    | `slice/c0-paste`                                 | MERGED (C0-2 to C0-6: Pencil Paste, hover, iPad hint and refusal words, in-app copy until the window blurs, box-bar paste)                  |
+| C0-7     | B    | `slice/c0-7-hold`                                | MERGED (hold 0.5 s, 10 px, Pencil anywhere; Apple magnifier may still flash: owner check)                                                   |
 
 Next: owner checks C3 (smart bar pictures) and C1a (one Lasso trace, now on the preview) (one Lasso trace), A1a/A1b/A1c, A3, then the ten-minute route choice with the owner before A4. Owner meanwhile: catch-up check C0 (plan section 6).
 

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B10-1 Redo redoes exactly one step (R15)
+
+- **What:** the Undo and Redo buttons count clicks already taken, so they turn off at the click; a quick extra click no longer counts as a step (45 Undos vs 44 Redos). build/next 4a85e8b0.
+- **Why:** stopped the release (red about 1 run in 5 at iPad size).
+- **Files:** src/history/pageHistory.ts, src/history/pageHistory.test.ts, e2e/undoHistoryR15.spec.ts.
+
 ### 21 Nov 2026: B2 smart bar pictures
 
 - **What:** docs/mockups/smart-bar/index.html (14 frames: cursor, words, Study, drawing, picture, mix, box, no room; iPad sideways, upright, phone; light and dark) and png/ for a quick OK. Button places follow the B1 list; questions for C3: where Cut/Copy/Delete join, the box tab ⋯, Thickness on the bar.

@@ -13,7 +13,7 @@ If docs/BUILD-STATE.md says PAUSED, do nothing and end with `STOPPED: paused by 
 
 Every time you wake up, in this order:
 
-1. **Red first.** A red test on the code line is job one. The same test red three times: a builder with `model: opus` finds the root cause. If Opus fails it five times, report the hard case to the main chat for Fable (owner, 20 Nov 2026).
+1. **Red first.** A red test on the code line is job one. The same test red three times: a builder with `model: opus` finds the root cause. If Opus at medium falls short, Opus at high effort tries next (owner, 21 Nov 2026); only then report the hard case to the main chat for Fable. Each try needs new evidence.
 2. **Fill free tasks.** For every planned task that is free and touches files nobody else is in, start a `builder` (Sonnet) in the background with the brief of HOW-WE-BUILD section 6. Do not add builders while a reviewed task has waited more than an hour to merge. Only 1 builder runs ipad-webkit tests at a time (measured 14 Nov). A fix list goes back to the same builder (SendMessage); a fresh one only if it has ended.
 3. **Review.** When a builder reports done with its checklist ticked with proof, start `reviewer` (Opus, effort medium) on the head commit. FAIL: the fix list goes to the same builder. Three FAILs on the same task: a builder with `model: opus` takes it over.
 4. **Merge.** After the reviewer's PASS tell the builder to merge, part switched OFF, local checks first (HOW-WE-BUILD section 5). One merge at a time on hot files. Watch CI yourself with one background `gh run watch <id> --exit-status`; never start a helper to wait.

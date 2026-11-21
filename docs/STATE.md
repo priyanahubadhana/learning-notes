@@ -2,21 +2,23 @@
 
 The one live state file (22 Nov 2026, part M1). It replaces PENDING.md, BUILD-STATE.md and HANDOFF.md; the full old texts are kept in docs/archive/ (PENDING-until-22-nov.md, BUILD-STATE-until-22-nov.md, HANDOFF-until-22-nov.md). Rewritten in place, never appended. Sections: Now, Needs you, Next, Parked.
 
-The plan: [plans/phases/phase-pc-1.md](plans/phases/phase-pc-1.md). The method: [METHOD-v2.md](METHOD-v2.md). What the owner decided: [design/owner-decisions.md](design/owner-decisions.md) and [DECISIONS.md](DECISIONS.md). Old docs: [archive/INDEX.md](archive/INDEX.md).
+The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 1D); phase 1A detail: [plans/phases/phase-pc-1.md](plans/phases/phase-pc-1.md). Features: [FEATURES.md](FEATURES.md). The method: [METHOD-v2.md](METHOD-v2.md). What the owner decided: [design/owner-decisions.md](design/owner-decisions.md) and [DECISIONS.md](DECISIONS.md). Old docs: [archive/INDEX.md](archive/INDEX.md).
 
 ## Now
 
-RUNNING: Phase PC-1 stage 0 (started 22 Nov 01:20 IST, after the owner confirmed METHOD-v2 and answered the plan). Manager: phase-manager (Opus medium). The tables below marked "history" are the 21 Nov rows, kept until each part is closed.
+RUNNING: stage 1, phase 1A (set-up and the update; was "PC-1 stage 0"), started 22 Nov 01:20 IST. Manager: phase-manager (Opus medium). Replan count since Fable last planned (22 Nov): 0 of 10. The tables below marked "history" are the 21 Nov rows.
 
-### Stage 0 (PC-1)
+### Phase 1A
 
-| Part                       | Branch (working copy)               | State                                                                                                                      |
-| -------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| M4                         | main                                | DONE 22 Nov (site live)                                                                                                    |
-| M1                         | `tool/m1-archive` (ln-m1)           | MERGED into main 22 Nov after fix round (re-review of f6e81f8c owed); path changes in CLAUDE.md, rules/, .claude/ go to M8 |
-| U0a                        | `slice/u0a-update-repro` (ln-2a16b) | built c692dc2c, loop reproduced on WebKit slow line; review FAIL, 6 fixes with builder a2de4da29ebff2aa9                   |
-| U0b                        | main 03e25875                       | sheet posted, 22 rows (features/update-v2.html); review fixes merged, re-review of e229aa05 owed; waits for the owner      |
-| M2, M3, M8, M5, M9, M6, M7 | -                                   | planned, in this order                                                                                                     |
+| Part                   | Branch (working copy)               | State                                                                                                    |
+| ---------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| M4                     | main                                | DONE 22 Nov (site live)                                                                                  |
+| M1                     | `tool/m1-archive`, `tool/m1-fix2`   | MERGED 1d250d96 (3 review rounds); CLAUDE.md, .claude paths done by Fable; rules/ and next.md in M8      |
+| U0a                    | `slice/u0a-update-repro` (ln-2a16b) | built c692dc2c, loop reproduced on WebKit slow line; review FAIL, 6 fixes with builder a2de4da29ebff2aa9 |
+| U0b                    | main 436a36f8                       | MERGED; update-v2.md Confirmed 22 Nov, row 14 open (redrawn Settings picture waits for the owner yes)    |
+| M2                     | `tool/m2-spec-kit` (ln-m2)          | review FAIL (7 fixes) with builder a0c1f6f9508b85357; owner OK for the speckit skills given (Fable)      |
+| U0c, S0                | -                                   | U0c after U0a merges (same builder); S0 Settings card after the owner yes on the picture                 |
+| M3, M8, M5, M9, M6, M7 | -                                   | planned, in this order                                                                                   |
 
 ### Phase 2-finish lanes (history, 20 to 21 Nov)
 

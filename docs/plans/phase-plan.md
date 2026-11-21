@@ -1,6 +1,6 @@
 # Phase plan (in force from 14 Nov 2026)
 
-This is the plan the build follows. It replaces the order and the roles of `build-master-plan.md` (12 Nov), which stays as the catalogue of what each part contains. Why the change: [build-diagnosis-2026-11-14.md](build-diagnosis-2026-11-14.md).
+This is the plan the build follows. It replaces the order and the roles of `build-master-plan.md` (12 Nov), which stays as the catalogue of what each part contains. Why the change: [build-diagnosis-2026-11-14.md](../archive/plans/build-diagnosis-2026-11-14.md).
 
 **State:** see [../BUILD-STATE.md](../BUILD-STATE.md), the only file that says running or paused (running, lean, since the owner's restart of 14 Nov).
 
@@ -8,7 +8,7 @@ The phase numbers here (0 to 10) are new. Older files use other numberings (ROAD
 
 ## 0. What's next (rewritten 15 Nov 2026, evening)
 
-After the 15 Nov decisions (docs/design/owner-decisions.md, end; docs/plans/contradictions-2026-11-15.md). Open owner questions: [questions-2026-11-15.md](questions-2026-11-15.md); the order below assumes Claude's picks and changes only if an answer changes it.
+After the 15 Nov decisions (docs/design/owner-decisions.md, end; docs/archive/plans/contradictions-2026-11-15.md). Open owner questions: [questions-2026-11-15.md](../archive/plans/questions-2026-11-15.md); the order below assumes Claude's picks and changes only if an answer changes it.
 
 **Measured pace** (docs/metrics/tasks.csv, 28 merged tasks, 14 and 15 Nov): a small fix takes about 1 hour from start to merged (median of 10); a text box task about 3 hours (median of 8); a task that rebuilds a screen to an approved picture 6 to 10 hours (P1.8 9 h, P1.9 10 h, 2A.2 6.5 h, 2B.8 6 h). With up to four builders, 17 tasks merged on 15 Nov. Limits: one iPad test run at a time on this PC; about 1.6 review rounds per task; the owner's test time is not measured. Every time below is "likely", from these numbers; a phase's owner test and its fixes are counted as about one more day.
 
@@ -37,7 +37,7 @@ Why this order: the owner's order of 15 Nov (Phase 1 live, then the 2A tool bar)
 
 ### Step 2: Phase 2A, tool bar rebuilt to v9
 
-Reference: docs/mockups/toolbar-v9/toolbar-v9.html; the gaps: docs/plans/audit-toolbar-2026-11-15.md; the answers: contradictions-2026-11-15.md. Already merged and kept: 2A.1 (parked tool bar parts), 2A.2 (⋯ menus, owner pass), 2A.3 (page menus rest, BUG-002, arrow slot), P1.9's fixed 64 px bar.
+Reference: docs/mockups/toolbar-v9/toolbar-v9.html; the gaps: docs/archive/plans/audit-toolbar-2026-11-15.md; the answers: contradictions-2026-11-15.md. Already merged and kept: 2A.1 (parked tool bar parts), 2A.2 (⋯ menus, owner pass), 2A.3 (page menus rest, BUG-002, arrow slot), P1.9's fixed 64 px bar.
 
 | #     | Task (what the user gets)                                                                                                                                                      | Size (likely) |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------- |

@@ -2,7 +2,7 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-Sources: `docs/plans/app-audit-2026-11-12.md` §3.4 (P6–P19) and §5 batch 3; build-master-plan §2.3 row 3, §3.4 row 14, "Running principles" 2; [pictures](pictures.md), [audio](audio.md), [reading-mode](reading-mode.md), [views-and-layers](views-and-layers.md); owner ideas batch 2 items 4, 5, 7, 8 (layers, shrink a box, rotation, overlap); [textbox-v2](textbox-v2.md) (the box this slice extends). Design system: `docs/mockups/toolbar-v8/design-study.md` §3.
+Sources: `docs/archive/plans/app-audit-2026-11-12.md` §3.4 (P6–P19) and §5 batch 3; build-master-plan §2.3 row 3, §3.4 row 14, "Running principles" 2; [pictures](pictures.md), [audio](audio.md), [reading-mode](reading-mode.md), [views-and-layers](views-and-layers.md); owner ideas batch 2 items 4, 5, 7, 8 (layers, shrink a box, rotation, overlap); [textbox-v2](textbox-v2.md) (the box this slice extends). Design system: `docs/mockups/toolbar-v8/design-study.md` §3.
 
 ## Purpose
 

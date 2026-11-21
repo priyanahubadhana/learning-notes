@@ -22,13 +22,13 @@ Owner, 13 Nov: "The way we are following the system, it is not working at all. L
 
 Opus and Sonnet only. No Haiku in the build.
 
-| Role      | Who                                    | Job                                                                                                                     |
-| --------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Manager   | **Opus**, `economy-orchestrator`       | follows docs/plans/build-master-plan.md in the order of docs/BUILD-STATE.md; briefs; keeps the state file; never builds |
-| Builders  | **Sonnet**, `economy-builder`, up to 5 | one whole slice each, from the first test to merged, including texts, formatting, pictures and its own fixes            |
-| Review    | **Opus**, `economy-gate2`              | gate 2: one read-only check of a finished slice                                                                         |
-| Design    | **Fable**, `economy-gate3`             | two looks per slice only: the design check before building and the final look. Hard cases after Opus failed             |
-| Main chat | Fable, thin                            | starts the manager, runs the hourly pulse (section 5), talks to the owner                                               |
+| Role      | Who                                    | Job                                                                                                                             |
+| --------- | -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Manager   | **Opus**, `economy-orchestrator`       | follows docs/archive/plans/build-master-plan.md in the order of docs/BUILD-STATE.md; briefs; keeps the state file; never builds |
+| Builders  | **Sonnet**, `economy-builder`, up to 5 | one whole slice each, from the first test to merged, including texts, formatting, pictures and its own fixes                    |
+| Review    | **Opus**, `economy-gate2`              | gate 2: one read-only check of a finished slice                                                                                 |
+| Design    | **Fable**, `economy-gate3`             | two looks per slice only: the design check before building and the final look. Hard cases after Opus failed                     |
+| Main chat | Fable, thin                            | starts the manager, runs the hourly pulse (section 5), talks to the owner                                                       |
 
 ## 3. The path of one slice (4 steps)
 
@@ -95,5 +95,5 @@ Final look: `Final look for slice <id> at <SHA>: picture index <path>; mock-up <
 ## 9. Start, stop, go back
 
 - Start: agent `economy-orchestrator` (Opus) with `Continue the build. Read .claude/agents/economy-orchestrator.md and docs/BUILD-STATE.md from disk and follow them.` After `RESTART economy-orchestrator`, start it again with the same line.
-- Go back to the 12 Nov setup: stop it and start `fable-manager` with `Continue the build from docs/BUILD-STATE.md per docs/plans/build-master-plan.md`. Nothing in the code needs undoing.
+- Go back to the 12 Nov setup: stop it and start `fable-manager` with `Continue the build from docs/BUILD-STATE.md per docs/archive/plans/build-master-plan.md`. Nothing in the code needs undoing.
 - Once a week: note `/usage`, and confirm Monday's `webkit` run happened (`gh run list --workflow ci.yml --event schedule --limit 1`).

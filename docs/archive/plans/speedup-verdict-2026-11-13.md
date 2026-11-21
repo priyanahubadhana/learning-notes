@@ -1,6 +1,6 @@
 # Speed-up verdict (Fable, 13 Nov 2026)
 
-Question: do Opus's 4 workflow/order changes keep the 3 gates, every test, the Definition of Done and the design rules intact (rules/quality.md, docs/ECONOMY-MODE.md sections 11 and 12, docs/plans/build-master-plan.md), and may the orchestrator apply them?
+Question: do Opus's 4 workflow/order changes keep the 3 gates, every test, the Definition of Done and the design rules intact (rules/quality.md, docs/ECONOMY-MODE.md sections 11 and 12, docs/archive/plans/build-master-plan.md), and may the orchestrator apply them?
 
 Short answer: yes to all 4, each with conditions. None removes, skips or weakens a test, and none touches a gate. Nothing was changed by this review.
 

@@ -16,7 +16,7 @@ Read-only review. No code, orchestrator or rule file was changed. Facts come fro
 | Rule                   | Verdict | Evidence                                                                                                                                                          |
 | ---------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | First full build first | Yes     | All work since 00:05 is on the waiting slices (0g, 3, 4, 5, 6, 7, 8, 9b, 12). No new slice was started.                                                           |
-| Quality over speed     | Yes     | Gate 3 gave 14 FAIL and 7 PASS verdicts in 5 visits (docs/plans/gate3-2026-11-13.md). Nothing was waved through.                                                  |
+| Quality over speed     | Yes     | Gate 3 gave 14 FAIL and 7 PASS verdicts in 5 visits (docs/archive/plans/gate3-2026-11-13.md). Nothing was waved through.                                          |
 | 3 gates                | Mostly  | Kept for every merge today. Gaps: see "Hiccups" 5 and 6.                                                                                                          |
 | One merge at a time    | Yes     | 5 merges into `build/next` in 12 hours: 0g (01:14), 9b (03:29), 8 (05:57), 0g follow-ups (07:59), 3 (10:14).                                                      |
 | Autonomy               | Yes     | No stop for the owner. docs/FAILED.md is empty.                                                                                                                   |

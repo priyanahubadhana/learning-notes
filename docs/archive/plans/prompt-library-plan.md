@@ -1,6 +1,6 @@
 # Prompt library and skills: plan (9 Nov 2026)
 
-Answers: DECISIONS "Owner answers 9 Nov (parked features)" and "(skills and research books)". Research: [../research/prompt-library-2026-11.md](../research/prompt-library-2026-11.md). Spec: [../features/prompt-library.md](../features/prompt-library.md).
+Answers: DECISIONS "Owner answers 9 Nov (parked features)" and "(skills and research books)". Research: [../research/prompt-library-2026-11.md](../../research/prompt-library-2026-11.md). Spec: [../features/prompt-library.md](../../features/prompt-library.md).
 
 ## Shape
 

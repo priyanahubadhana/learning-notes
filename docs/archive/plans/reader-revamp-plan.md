@@ -1,6 +1,6 @@
 # Reader revamp plan: Read / Light study / Deep study (11 Nov 2026)
 
-Status: research + design, waiting for owner answers. Builds on [reader-inventory-2026-11-11.md](reader-inventory-2026-11-11.md) (R01–R92), [mock-feedback-2026-11-11.md](mock-feedback-2026-11-11.md) (A2 lock modes) and [book-annotations-plan.md](book-annotations-plan.md).
+Status: research + design, waiting for owner answers. Builds on [reader-inventory-2026-11-11.md](reader-inventory-2026-11-11.md) (R01–R92), [mock-feedback-2026-11-11.md](../../plans/mock-feedback-2026-11-11.md) (A2 lock modes) and [book-annotations-plan.md](book-annotations-plan.md).
 
 ## 1. What the best tools do (research)
 

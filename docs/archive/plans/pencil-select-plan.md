@@ -1,6 +1,6 @@
 # Pencil select in the Text tool (plan, Opus, 19 Nov 2026)
 
-Rules: docs/design/owner-decisions.md sections "The owner's main iPad flow", "Text tool selection borrows the Lasso's way" (+ round 1 and 2 answers), "Circle select is generous". Evidence: docs/plans/combined-test-2026-11-16.md (F5-F7, 19 Nov bullets), pictures retest-18nov/g-19nov-*.
+Rules: docs/design/owner-decisions.md sections "The owner's main iPad flow", "Text tool selection borrows the Lasso's way" (+ round 1 and 2 answers), "Circle select is generous". Evidence: docs/archive/plans/combined-test-2026-11-16.md (F5-F7, 19 Nov bullets), pictures retest-18nov/g-19nov-*.
 
 ## Goal
 

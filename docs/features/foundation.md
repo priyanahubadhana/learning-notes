@@ -2,7 +2,7 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-Plan: [build master plan 3.2](../plans/build-master-plan.md). Unlock list: [pro-features.md](../mockups/pro-features.md).
+Plan: [build master plan 3.2](../archive/plans/build-master-plan.md). Unlock list: [pro-features.md](../mockups/pro-features.md).
 
 ## Purpose
 

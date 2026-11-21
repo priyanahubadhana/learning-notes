@@ -1,6 +1,6 @@
 # Custom views plan (9 Nov 2026, for owner approval)
 
-Research: [../research/custom-views-2026-11.md](../research/custom-views-2026-11.md). Replaces the All / Starred / Recent tabs on the Notebooks home (dropped by the owner).
+Research: [../research/custom-views-2026-11.md](../../research/custom-views-2026-11.md). Replaces the All / Starred / Recent tabs on the Notebooks home (dropped by the owner).
 
 ## Recommendation: one word, "Views", two kinds
 

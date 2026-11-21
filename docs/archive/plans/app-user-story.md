@@ -754,4 +754,4 @@ The owner's rule: before anything here is planned, every line is rechecked again
 
 ---
 
-Sources: CLAUDE.md; docs/plans/phase-plan.md; docs/BUILD-STATE.md; docs/PENDING.md; docs/IDEAS.md; docs/design/quality-standard.md; docs/design/owner-decisions.md; docs/plans/user-story-study-pack.md; docs/plans/note-questionnaire-draft.md; docs/recipes/gemini-youtube-prompt-v3.md; docs/features/*.md.
+Sources: CLAUDE.md; docs/plans/phase-plan.md; docs/BUILD-STATE.md; docs/PENDING.md; docs/IDEAS.md; docs/design/quality-standard.md; docs/design/owner-decisions.md; docs/archive/plans/user-story-study-pack.md; docs/archive/plans/note-questionnaire-draft.md; docs/recipes/gemini-youtube-prompt-v3.md; docs/features/*.md.

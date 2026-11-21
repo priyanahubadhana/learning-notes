@@ -1,6 +1,6 @@
 # Build master plan (12 Nov 2026)
 
-**Replaced in part on 14 Nov 2026.** The order of work, the roles and the way of testing are now in [phase-plan.md](phase-plan.md). This file stays as the catalogue of what each part (slice) contains and of the owner answers of 12 Nov.
+**Replaced in part on 14 Nov 2026.** The order of work, the roles and the way of testing are now in [phase-plan.md](../../plans/phase-plan.md). This file stays as the catalogue of what each part (slice) contains and of the owner answers of 12 Nov.
 
 Author: Fable (lead architect and build orchestrator). Status: PLAN ONLY. Nothing here is built yet. Execution starts when the owner says "start the build".
 
@@ -14,7 +14,7 @@ Author: Fable (lead architect and build orchestrator). Status: PLAN ONLY. Nothin
 - **If something breaks.** Every step is saved to GitHub. A power cut, a closed window or the usage limit loses at most a few minutes. When the limit resets, work carries on by itself (the Claude window must stay open; if it was closed, type **continue**).
 - **Three things I need from you first** are in section 8 (open questions). The most important: how releases should work, whether Fable may run overnight if it costs credits, and the GitHub test minutes.
 
-Rules this plan follows: `CLAUDE.md`, `rules/quality.md` (the 7 quality rules and the 3 gates), `rules/building.md`, `rules/sessions.md`, `docs/CONTINUITY.md`, `docs/design/token-efficiency.md`, the APPROVED sections and "Carry-over review" in `docs/PENDING.md`, `docs/plans/app-audit-2026-11-12.md` (the audit, 6 batches) and `docs/design/ai-tool-framework.md`.
+Rules this plan follows: `CLAUDE.md`, `rules/quality.md` (the 7 quality rules and the 3 gates), `rules/building.md`, `rules/sessions.md`, `docs/CONTINUITY.md`, `docs/design/token-efficiency.md`, the APPROVED sections and "Carry-over review" in `docs/PENDING.md`, `docs/archive/plans/app-audit-2026-11-12.md` (the audit, 6 batches) and `docs/design/ai-tool-framework.md`.
 
 ---
 
@@ -44,7 +44,7 @@ Rules this plan follows: `CLAUDE.md`, `rules/quality.md` (the 7 quality rules an
 
 ## 2. Phase A: the remaining mock-ups (batches 1 to 6)
 
-Source: `docs/plans/app-audit-2026-11-12.md` section 5 (covers, improvements, Beginner / Professional split and spec lines per batch). This section only adds the owner's answers, my picks and the way of working.
+Source: `docs/archive/plans/app-audit-2026-11-12.md` section 5 (covers, improvements, Beginner / Professional split and spec lines per batch). This section only adds the owner's answers, my picks and the way of working.
 
 ### 2.1 How a batch runs
 

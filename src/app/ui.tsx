@@ -515,8 +515,8 @@ export function Toast({
       // the pill's height (62 px) under the person's pen.
       data-popup-trigger
       data-toast
-      style={{ bottom: toastBottom(kb) ?? aboveTabBar() }}
-      className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
+      style={{ bottom: toastBottom(kb) ?? aboveTabBar(24) }}
+      className="fixed bottom-6 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
     >
       <span>{message}</span>
       {action && (

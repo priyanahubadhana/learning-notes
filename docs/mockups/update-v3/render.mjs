@@ -13,7 +13,7 @@ const page = await browser.newPage({
 })
 await page.goto(url)
 for (const theme of ['light', 'dark'])
-  for (const panel of ['pills', 'prompt', 'settings']) {
+  for (const panel of ['pills', 'prompt']) {
     await page.evaluate(
       ([t, p]) => {
         document.documentElement.dataset.theme = t

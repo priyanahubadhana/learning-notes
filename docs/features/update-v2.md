@@ -23,7 +23,7 @@ As the owner, who uses the installed app on the iPad every day, I want updates t
 
 Our own pictures, made 22 Nov 2026 in our design tokens, in the spirit of the one-tap Update of the App Store, Microsoft Store and Play Store (one button that changes in place: Update, then progress, then done). No store art is copied. Not approved yet: rows 13 and 14 of the confirm sheet.
 
-| The pill, step by step                                             | The 3-second prompt                                                | Settings, first page                                                               |
+| The pill, step by step                                             | The 3-second prompt                                                | Settings v5 first page + Update card                                               |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
 | ![Update pill states, light](../mockups/update-v3/pills-light.png) | ![Restarting prompt, light](../mockups/update-v3/prompt-light.png) | ![Settings with Update at the top, light](../mockups/update-v3/settings-light.png) |
 | ![Update pill states, dark](../mockups/update-v3/pills-dark.png)   | ![Restarting prompt, dark](../mockups/update-v3/prompt-dark.png)   | ![Settings with Update at the top, dark](../mockups/update-v3/settings-dark.png)   |
@@ -124,7 +124,7 @@ S1 to S7 pass on chromium and ipad-webkit, 20 of 20; U0a's tests pass without `t
 
 - `OPEN:` **Your screenshots, please.** Next time the pill sticks on "Restarting" (or the loop starts), take a screenshot of the pill and one of Settings, and send them. They become the reference picture for S3.
 - `OPEN:` The version shows as a short code today (abc1234); the pictures show a number (1.4.2). Row 15 asks which you want.
-- `OPEN:` The Settings picture uses a placeholder side list; the real one comes from Settings v5 and the "Bars and menus" picture still to approve.
+- `OPEN:` The Settings pictures are the approved Settings v5 first page (15 Nov) with only the Update card added at the top (light: up to date; dark: an update ready). Drawn by `docs/mockups/update-v3/render-settings.mjs`.
 
 ## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
 
@@ -297,3 +297,4 @@ The update downloads only from our own origin through the service worker; no new
 ### Changes
 
 - 22 Nov 2026 · U0b · rewritten on template v2 from the owner's update flow, UP-N1 to UP-N8 and U0a's findings; slice 10 rules kept; required countdown 5 s → 3 s proposed (row 7) · waiting for the owner's sheet
+- 22 Nov 2026 · U0b fix2 · owner on row 13: Settings pictures redrawn on the approved Settings v5 first page, only the Update card added; no new layout · owner

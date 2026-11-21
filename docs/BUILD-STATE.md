@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-PAUSED (owner, 21 Nov evening: all development stopped to talk with Fable; read docs/plans/fable-handoff-2026-11-21.md first). Was: BUILDING (20 Nov, Opus main chat, lean mode). Plan: docs/plans/phases/phase-2-finish.md (about 67 small parts, stages 0 to 5; estimate 15 to 18 days). Method: docs/METHOD.md. Code line `build/next` b8ddaf81. Owner check C0 under way: docs/plans/c0-findings-2026-11-20.md.
+PAUSED (owner, 21 Nov night: the pause talk with Fable is done; the new plan docs/plans/phases/phase-pc-1.md waits for the owner's twelve answers and the M0 confirm sheet in docs/METHOD-v2.md; then Opus starts stage 0, M1 first). Read docs/HANDOFF.md START HERE. The table below is the state at the pause of 21 Nov evening.
 
 ## Now
 

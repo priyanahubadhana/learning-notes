@@ -177,3 +177,14 @@ Confirm sheets: M0 the method; the one bar spec (template v2) before R1; the sli
 ## 15. Done when
 
 Every scenario of the method spec, the part cards, the one bar, Settings v5 (chosen scope), the slice spec and F4 has a green test on chromium; analyze is clean; the ratchet is at its lowest; the site and board are live and current; the owner has said yes by scenario at T1, T2 and T3; the iPad reading check passed; E6 passed; the owner said yes at E7 and the parts are ON in the live app; the first weekly cards exist; one line in docs/metrics/phase-results.md and in the owner's playbook results.
+
+## 16. Brief for Opus (stage 0, after the owner's answers)
+
+- **Goal:** M1 to M9 of section 5 proved as docs/METHOD-v2.md "How we get there" says; one Sonnet builder; small commits pushed after each part; STATE.md current.
+- **Where:** main for docs and tooling; build/next for app code. Working copy for the builder: reuse an existing ln-* folder (never delete one).
+- **Spec pointers:** docs/METHOD-v2.md (the contract for the method itself), docs/features/_TEMPLATE.md and docs/features/parts/_TEMPLATE-part.md (the shapes), docs/plans/uniformity-and-specs-2026-11-21.md section 1 (the part cards come from this table), docs/features/shared-parts.md SP-09 (the one bar that was specified and never used).
+- **Order:** M1, M2, M3, M8 first (everything later depends on them); then M4, M5, M9; M6 and M7 beside stage 1.
+- **Done when:** each row of the M table has its proof linked in the changelog; the site opens on the owner's iPad; analyze fails a planted bad spec once on purpose and the run is linked.
+- **Do not touch:** app behaviour (stage 0 is docs and tooling only); the parked Pencil branches; any test.
+- **Report:** the status line morning and evening; a build report when stage 0 is complete; questions to the owner only through options, batched.
+- **Fable's reads:** send the eleven part cards and the rewritten selection-bar spec to a Fable session for the attack read before the owner's confirm sheet; not before.

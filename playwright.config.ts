@@ -188,6 +188,7 @@ const config = defineConfig({
         /tb2-move/,
         /tb2-group/,
         /tb2-card/,
+        /b10-11KeepLook/,
         /tb2-pencil/,
         /tb2-boxchip/,
         /tb2-boxchip-shots/,

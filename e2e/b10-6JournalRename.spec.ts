@@ -2,7 +2,7 @@
 /// <reference lib="dom" />
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { openSidebar, sheetFill } from './helpers.ts'
+import { openSidebar, sheetFill, sidebar } from './helpers.ts'
 
 /**
  * B10-6 (R20): at iPad size a double tap on a Journal month opens the Name it
@@ -48,29 +48,41 @@ for (const [name, size] of Object.entries({
     ['dark', 'night'],
   ] as const)
     test(`B10-6 pictures: ${name} ${tname}`, async ({ page }, info) => {
-      await page.goto('/')
-      await page.getByRole('button', { name: 'Open today’s journal' }).click()
-      await page.setViewportSize(size)
-      const side = await openSidebar(page)
-      const month = side.getByRole('button', {
-        name: monthName(),
-        exact: true,
-      })
-      // A phone's drawer closes on the first tap, so there the ⋯ menu renames.
       if (name === 'phone') {
-        // The drawer can close again while the page settles: open it and press ⋯ together until the menu shows.
-        await expect(async () => {
-          if (!(await side.isVisible()))
-            await page.getByRole('button', { name: 'Open menu' }).click()
-          await side
-            .getByRole('button', { name: `More for ${monthName()}` })
-            .tap({ timeout: 3000 })
-          await expect(
-            page.getByRole('menuitem', { name: 'Rename' }),
-          ).toBeVisible({ timeout: 3000 })
-        }).toPass()
+        // A phone: size first, then one straight path. Today's button is in the
+        // drawer; opening the page closes the drawer; open it again for ⋯.
+        await page.setViewportSize(size)
+        await page.goto('/')
+        const side = sidebar(page)
+        await page.getByRole('button', { name: 'Open menu' }).click()
+        await expect(side).toBeVisible()
+        await page.getByRole('button', { name: 'Open today’s journal' }).tap()
+        // Why: the page is made a moment after the tap (WebKit on this PC writes
+        // about 900x slower than Chromium, which is how this race showed up).
+        await expect.poll(() => page.url()).toContain('#/page/')
+        await expect(side).toBeHidden()
+        await page.getByRole('button', { name: 'Open menu' }).click()
+        await expect(side).toBeVisible()
+        const more = side.getByRole('button', {
+          name: `More for ${monthName()}`,
+        })
+        // The rows slide and settle for a moment as the drawer opens: tap once they stand still.
+        await stands(more)
+        await more.tap()
+        await expect(
+          page.getByRole('menuitem', { name: 'Rename' }),
+        ).toBeVisible()
         await page.getByRole('menuitem', { name: 'Rename' }).tap()
-      } else await doubleTap(page, month)
+      } else {
+        await page.goto('/')
+        await page.getByRole('button', { name: 'Open today’s journal' }).click()
+        await page.setViewportSize(size)
+        const side = await openSidebar(page)
+        await doubleTap(
+          page,
+          side.getByRole('button', { name: monthName(), exact: true }),
+        )
+      }
       await expect(page.getByTestId('name-sheet')).toBeVisible()
       await page.evaluate(
         (th) => document.documentElement.setAttribute('data-theme', th),
@@ -102,4 +114,17 @@ async function doubleTap(page: Page, el: Locator) {
   const y = r.y + r.height / 2
   await page.touchscreen.tap(x, y)
   await page.touchscreen.tap(x, y)
+}
+
+/** Waits until the drawer row has stopped moving: its position and size match on two reads in a row. */
+async function stands(el: Locator) {
+  let last = ''
+  await expect
+    .poll(async () => {
+      const now = JSON.stringify(await el.boundingBox())
+      const same = now === last
+      last = now
+      return same
+    })
+    .toBe(true)
 }

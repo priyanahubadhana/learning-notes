@@ -158,7 +158,7 @@ section.notes li{margin:7px 0}
       <h2>We will prove (plain words)</h2>
       <ol>
         <li>Put the cursor in a box: one bar shows Paste ▾ and the text buttons, no Cut, Copy or Delete.</li>
-        <li>Select "2000": Cut, Copy, Link and Delete join at the end. The bar does not move or change into another bar.</li>
+        <li>Select "2000": Cut, Copy and Delete join at the end (Link is under ⋯). The bar does not move or change into another bar.</li>
         <li>Select a box, a drawing, a picture or a mix: the same bar, in the same look, shows the buttons for that thing.</li>
         <li>Study preset: Highlight, Colour and Make card come first.</li>
         <li>Hold a button: its name shows. Delete is the only red button.</li>
@@ -255,14 +255,14 @@ const BTN={
  sep:null
 };
 const MORE={
- cursor:[['Font…','aa'],['Align','alL'],['List','bul'],['Text options…','type','style, key point, spacing']],
- words:[['Font…','aa'],['Align','alL'],['List','bul'],'-',['Make card','card'],['Add to Summary','sum'],['Revise mark','star','key point'],['Save to notes','save'],'-',['Text options…','type'],['Deselect','x']],
- study:[['Add to Summary','sum'],['Revise mark','star','key point'],['Save to notes','save'],'-',['Cut','cut'],['Paste ▾','paste'],['Size','type'],['Font…','aa'],['Align · List','bul'],['Link','link'],['Deselect','x'],'-',['Delete','trash','','danger']],
- box:[['Lock box','lock'],['Box style…','pal'],['Layout…','grid'],['Text options…','type'],'-',['Make card','card'],['Add to Summary','sum'],'-',['Move up','up'],['Move down','dn'],['Group','grp','2+ boxes','dis'],'-',['Delete box','trash','','danger']],
- draw:[['Convert to text','conv','beta'],['Make card','card'],['Add to Summary','sum'],['Name this drawing','tag'],'-',['Copy as picture','copy'],['Save as picture','save','PNG'],['Play the recording from here','play'],'-',['Deselect','x']],
- pic:[['Make card','card'],['Add to Summary','sum'],'-',['Deselect','x']],
- mix:[['Save as picture','shot','screenshot'],['Make card','card'],'-',['Deselect','x']],
- phone:[['Size','type'],['Highlight','hl'],['Font…','aa'],['Align · List','bul'],['Link','link'],'-',['Make card','card'],['Add to Summary','sum'],['Revise mark','star'],['Save to notes','save'],['Deselect','x']]
+ cursor:[['Font…','aa'],['Align','alL'],['List','bul'],['Text options…','type','style, key point, spacing'],'-',['Customise bar…','edit','presets']],
+ words:[['Link','link'],['Font…','aa'],['Align','alL'],['List','bul'],'-',['Make card','card'],['Add to Summary','sum'],['Revise mark','star','key point'],['Save to notes','save'],'-',['Text options…','type'],['Deselect','x'],'-',['Customise bar…','edit','presets']],
+ study:[['Add to Summary','sum'],['Revise mark','star','key point'],['Save to notes','save'],'-',['Cut','cut'],['Paste ▾','paste'],['Size','type'],['Font…','aa'],['Align · List','bul'],['Link','link'],['Deselect','x'],'-',['Delete','trash','','danger'],'-',['Customise bar…','edit','presets']],
+ box:[['Lock box','lock'],['Box style…','pal'],['Layout…','grid'],['Text options…','type'],'-',['Make card','card'],['Add to Summary','sum'],'-',['Move up','up'],['Move down','dn'],['Group','grp','2+ boxes','dis'],'-',['Delete box','trash','','danger'],'-',['Customise bar…','edit','presets']],
+ draw:[['Convert to text','conv','beta'],['Make card','card'],['Add to Summary','sum'],['Name this drawing','tag'],'-',['Copy as picture','copy'],['Save as picture','save','PNG'],['Play the recording from here','play'],'-',['Deselect','x'],'-',['Customise bar…','edit','presets']],
+ pic:[['Make card','card'],['Add to Summary','sum'],'-',['Deselect','x'],'-',['Customise bar…','edit','presets']],
+ mix:[['Save as picture','shot','screenshot'],['Make card','card'],'-',['Deselect','x'],'-',['Customise bar…','edit','presets']],
+ phone:[['Size','type'],['Highlight','hl'],['Font…','aa'],['Align · List','bul'],['Link','link'],'-',['Make card','card'],['Add to Summary','sum'],['Revise mark','star'],['Save to notes','save'],['Deselect','x'],'-',['Customise bar…','edit','presets']]
 };
 const morePop=k=>`<div class="pop col" data-p style="min-width:270px">${MORE[k].map(r=>r==='-'?'<hr>':row(r[0],r[1].length<8&&I[r[1]]?r[1]:r[1]==='aa'?'<b style="font-size:16px;width:21px;font-family:Georgia,serif">Aa</b>':r[1],r[2]||'',r[3]||'')).join('')}</div>`;
 const pastePop=()=>`<div class="pop col" data-p>${row('Paste (keep look)','paste')}${row('Plain text','paste')}${row('More: Match style','paste')}</div>`;
@@ -294,7 +294,7 @@ function frame(cap,w,h,inner,label){FN++;return `<figure><figcaption><b>${FN}</b
 /* Button sets, as the owner's orders and the B1 list say. */
 const S={
  cursor:['paste','|','bi','col','size','hl','|','more'],
- words:['paste','|','bi','col','size','hl','|','cut','copy','link','del','more'],
+ words:['paste','|','bi','col','size','hl','|','cut','copy','del','more'],
  study:['hl','col','card','|','bi','copy','|','more'],
  box:['col','size','aa','bi','al','li','fill','|','edit','cut','copy','dup','paste','del','more'],
  draw:['col','thick','|','cut','copy','dup','paste','del','more'],
@@ -306,17 +306,17 @@ const S={
 const F=[];
 const BX=60,BY=110,BW=640,BH=150;
 F.push(frame('Edit preset, cursor only: Paste ▾ and the text buttons. No Cut, Copy or Delete yet. The bar sits below the box, outside it (place 1).',W,340,tbox(BX,BY,BW,BH,TXT.caret)+bar(S.cursor,{css:`left:${BX}px;top:${BY+BH+12}px`}),'iPad sideways · Edit'));
-F.push(frame('Edit, "2000" selected: Cut, Copy, Link and Delete join at the end. The bar keeps its place; the buttons you already saw do not move.',W,340,tbox(BX,BY,BW,BH,TXT.sel)+bar(S.words,{css:`left:${BX}px;top:${BY+BH+12}px`}),'iPad sideways · Edit'));
-F.push(frame('Edit, words, ⋯ open: Font, Align, List, Make card, Add to Summary, Revise mark, Save to notes, Text options, Deselect.',W,700,tbox(BX,BY,BW,BH,TXT.sel)+bar(S.words,{css:`left:${BX}px;top:${BY+BH+12}px`,open:'more',more:'words'}),'iPad sideways · Edit'));
-F.push(frame('Study preset, words: Highlight, Colour, Make card first, then B/I and Copy. Everything else under ⋯ (open), Delete still red. Hold a button to see its name ("Make card").',W,760,tbox(BX,BY,BW,BH,TXT.sel)+bar(S.study,{css:`left:${BX}px;top:${BY+BH+12}px`,open:'more',more:'study',tip:'card'}),'iPad sideways · Study'));
-F.push(frame('A drawing picked with the Lasso: Colour and Thickness, then Cut, Copy, Duplicate, Paste ▾, Delete, ⋯ (open). Move and turn with the corner dots and the turn handle, as today. No text buttons.',W,820,drawing(120,150)+`<div class="lasso" style="left:110px;top:140px;width:240px;height:140px"></div>`+dots(110,140,240,140,1)+bar(S.draw,{css:'left:110px;top:296px',open:'more',more:'draw'}),'iPad sideways · Drawing'));
+F.push(frame('Edit, "2000" selected: Cut, Copy and Delete join at the end (Link is under ⋯). The bar keeps its place; the buttons you already saw do not move.',W,340,tbox(BX,BY,BW,BH,TXT.sel)+bar(S.words,{css:`left:${BX}px;top:${BY+BH+12}px`}),'iPad sideways · Edit'));
+F.push(frame('Edit, words, ⋯ open: Link, Font, Align, List, Make card, Add to Summary, Revise mark, Save to notes, Text options, Deselect.',W,960,tbox(BX,BY,BW,BH,TXT.sel)+bar(S.words,{css:`left:${BX}px;top:${BY+BH+12}px`,open:'more',more:'words'}),'iPad sideways · Edit'));
+F.push(frame('Study preset, words: Highlight, Colour, Make card first, then B/I and Copy. Everything else under ⋯ (open), Delete still red. Hold a button to see its name ("Make card").',W,1010,tbox(BX,BY,BW,BH,TXT.sel)+bar(S.study,{css:`left:${BX}px;top:${BY+BH+12}px`,open:'more',more:'study',tip:'card'}),'iPad sideways · Study'));
+F.push(frame('A drawing picked with the Lasso: Colour and Thickness, then Cut, Copy, Duplicate, Paste ▾, Delete, ⋯ (open). Move and turn with the corner dots and the turn handle, as today. No text buttons.',W,940,drawing(120,150)+`<div class="lasso" style="left:110px;top:140px;width:240px;height:140px"></div>`+dots(110,140,240,140,1)+bar(S.draw,{css:'left:110px;top:296px',open:'more',more:'draw'}),'iPad sideways · Drawing'));
 F.push(frame('A picture: Edit picture and Border, then Cut, Copy, Duplicate, Paste ▾, Delete, ⋯ (Make card, Add to Summary, Deselect). Resize with the eight dots.',W,370,picture(120,110,260,160)+dots(120,110,260,160)+bar(S.pic,{css:'left:120px;top:286px'}),'iPad sideways · Picture'));
-F.push(frame('A mix (words and a drawing in one loop): Cut, Copy, Duplicate, Delete, ⋯ (Save as picture, Make card, Deselect). No filter here: the Lasso ▾ Picks stays the one place for that.',W,600,tbox(60,140,420,120,'<div class="t">Service charges</div><p>Service 23-11 2000 rate-is</p>',1)+drawing(520,130)+`<div class="lasso" style="left:44px;top:124px;width:720px;height:156px"></div>`+bar(S.mix,{css:'left:44px;top:296px',open:'more',more:'mix'}),'iPad sideways · Mix'));
-F.push(frame('A box selected: the approved one bar of 18 Nov, plus Edit Text (puts the cursor at the end of its words), Copy and Duplicate on the bar. ⋯ (open) keeps Lock, Box style, Layout, Text options, Move up and down, Group, Delete box.',W,940,tbox(BX,BY+10,BW,BH,TXT.plain)+dots(BX,BY+10,BW,BH)+bar(S.box,{css:`left:${BX}px;top:${BY+BH+22}px`,open:'more',more:'box'}),'iPad sideways · Box'));
+F.push(frame('A mix (words and a drawing in one loop): Cut, Copy, Duplicate, Delete, ⋯ (Save as picture, Make card, Deselect). No filter here: the Lasso ▾ Picks stays the one place for that.',W,700,tbox(60,140,420,120,'<div class="t">Service charges</div><p>Service 23-11 2000 rate-is</p>',1)+drawing(520,130)+`<div class="lasso" style="left:44px;top:124px;width:720px;height:156px"></div>`+bar(S.mix,{css:'left:44px;top:296px',open:'more',more:'mix'}),'iPad sideways · Mix'));
+F.push(frame('A box selected: the approved one bar of 18 Nov, plus Edit Text (puts the cursor at the end of its words), Copy and Duplicate on the bar. ⋯ (open) keeps Lock, Box style, Layout, Text options, Move up and down, Group, Delete box.',W,1080,tbox(BX,BY+10,BW,BH,TXT.plain)+dots(BX,BY+10,BW,BH)+bar(S.box,{css:`left:${BX}px;top:${BY+BH+22}px`,open:'more',more:'box'}),'iPad sideways · Box'));
 F.push(frame('No room near the words (the box fills the page): the bar goes to free space, here under the top tool bar (place 5). It never covers the selected words and stays on the screen.',W,560,`<div class="tbar"><i></i><i></i><i></i><i></i><span>Top tool bar</span></div>`+tbox(14,124,972,420,TXT.sel+'<p>More notes fill the rest of this box all the way down the page.</p>')+bar(S.words,{css:'left:50%;transform:translateX(-50%);top:58px'}),'iPad sideways · No room'));
 F.push(frame('iPad upright, Edit, words selected: the same bar, same order.',U,340,tbox(40,BY,660,BH,TXT.sel)+bar(S.words,{css:`left:40px;top:${BY+BH+12}px`}),'iPad upright · Edit'));
 F.push(frame('iPad upright, a box: the bar fits the page width (15 buttons, 44 pt each).',U,350,tbox(40,BY+10,660,BH,TXT.plain)+dots(40,BY+10,660,BH)+bar(S.box,{css:`left:10px;top:${BY+BH+22}px`}),'iPad upright · Box'));
-F.push(frame('Phone, Edit, words: fewer buttons (Paste ▾, B/I, Colour, Cut, Copy, Delete); the rest under ⋯ (open). Every target 44 pt.',P,840,tbox(12,110,366,140,TXT.sel)+bar(S.phoneW,{css:'left:6px;top:262px',open:'more',more:'phone'}),'Phone · Edit'));
+F.push(frame('Phone, Edit, words: fewer buttons (Paste ▾, B/I, Colour, Cut, Copy, Delete); the rest under ⋯ (open). Every target 44 pt.',P,960,tbox(12,110,366,140,TXT.sel)+bar(S.phoneW,{css:'left:6px;top:262px',open:'more',more:'phone'}),'Phone · Edit'));
 F.push(frame('The box ⋯ question: today a small tab with ⋯ sits under the box at the right, where people tap to start a new box (left, red ring). My pick: remove it; the same menu is the bar\'s ⋯ (right). Nothing is lost.',W,380,
  tbox(40,70,420,150,TXT.plain,1)+`<div style="position:absolute;left:400px;top:221px;width:60px;height:26px;border:1px solid var(--line);border-top:0;border-radius:0 0 10px 10px;background:var(--surface);display:grid;place-items:center;color:var(--muted)">⋯</div><div style="position:absolute;left:388px;top:212px;width:84px;height:46px;border:2px solid var(--danger);border-radius:24px"></div><div style="position:absolute;left:40px;top:262px;font-size:13px;color:var(--muted)">Today: box tab with ⋯</div>`
  +tbox(540,110,420,150,TXT.plain)+dots(540,110,420,150)+bar(['edit','cut','copy','dup','del','more'],{css:'left:560px;top:272px'})+`<div style="position:absolute;left:540px;top:338px;font-size:13px;color:var(--muted)">Pick: one ⋯, on the bar (short bar shown)</div>`,'Box ⋯ place'));
@@ -332,6 +332,25 @@ F.push(frame('Where the bar goes (your rule, 21 Nov): the first place with room 
  +ghost(bar(SH,{css:'left:716px;top:200px',vert:1})+badge(3,780,200),.5)
  +ghost(bar(SH,{css:'left:228px;top:200px',vert:1})+badge(4,190,200),.5)
  +ghost(bar(SH,{css:'left:50%;transform:translateX(-50%);top:58px'})+badge(5,320,69),.5),'Where the bar goes'));
+const mini=(ox,label,inner)=>`<div style="position:absolute;left:${ox}px;top:40px;width:235px;height:520px;border:1px dashed var(--line);border-radius:12px;overflow:hidden">${inner}</div><div style="position:absolute;left:${ox}px;top:10px;width:235px;font-size:13px;font-weight:600;color:var(--muted)">${label}</div>`;
+const SH3=['cut','copy','more'];
+const MANY='<p>Notes line one about the rates.</p><p>More notes about the rates here.</p><p>Service 23-11 <span class="wsel">2000</span> rate-is fixed.</p><p>Notes keep going down the page.</p><p>Even more notes below.</p>';
+const mtop='<div style="position:absolute;left:0;right:0;top:0;height:40px;background:var(--surface);border-bottom:1px solid var(--line);font-size:11px;color:var(--muted);padding:12px 10px;z-index:2">Top tool bar</div>';
+F.push(frame('When the box is big (your question, 21 Nov): the bar takes the first free place. (a) The box is as wide as the page: below it (place 1). (b) The box runs from top to bottom: upright on its right (place 3). (c) The same box against the right edge: upright on its left (place 4). (d) The box fills the whole page: the bar sits just under the top tool bar, over the box but never over the selected words (place 5). In every case it can be dragged and pinned.',W,580,
+ mini(10,'(a) wide box · 1 below',mtop+tbox(8,60,219,360,MANY)+bar(SH3,{css:'left:40px;top:432px'}))
+ +mini(257,'(b) tall box · 3 right',mtop+tbox(8,50,150,462,MANY)+bar(SH3,{css:'left:168px;top:170px',vert:1}))
+ +mini(504,'(c) tall box at the edge · 4 left',mtop+tbox(77,50,150,462,MANY)+bar(SH3,{css:'left:10px;top:170px',vert:1}))
+ +mini(751,'(d) box fills it all · 5 top',mtop+tbox(8,46,219,466,'<p>Notes line one.</p><p>More notes here.</p><p>And more notes.</p><p>Service 23-11 <span class="wsel">2000</span> rate-is fixed.</p><p>Notes keep going.</p>')+bar(SH3,{css:'left:40px;top:50px'})),'Big box'));
+const chip=(t,on)=>`<span style="display:inline-block;padding:6px 14px;margin:0 6px 6px 0;border-radius:16px;font-size:13px;font-weight:600;${on?'background:var(--accent);color:#fff':'background:var(--well);color:var(--ink)'}">${t}</span>`;
+const crow=(name,act)=>`<div style="display:flex;align-items:center;gap:12px;height:40px;border-bottom:1px solid var(--line);font-size:14px"><span style="color:var(--muted)">≡</span><span style="flex:1">${name}</span><span style="width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--well);font-weight:700">${act}</span></div>`;
+F.push(frame('⋯ › Customise bar…: the same customiser as the tool bar. Presets (Edit, Study, or a new one), one set of buttons for each kind of selection, a live preview, drag ≡ to reorder, − sends a button under ⋯, + brings it onto the bar, Reset puts the standard back. Nothing can be lost: every button is on the bar or under ⋯.',W,620,
+ `<div style="position:absolute;left:170px;top:20px;width:660px;height:580px;background:var(--surface);border:1px solid var(--glass-line);border-radius:20px;box-shadow:var(--sh-card);padding:18px 22px">
+ <div style="display:flex;align-items:center;margin-bottom:12px"><b style="font-size:18px;flex:1">Customise the selection bar</b><span style="color:var(--accent);font-weight:600">Done</span></div>
+ <div style="font-size:12px;color:var(--muted);margin-bottom:4px">Preset</div>${chip('Edit',1)}${chip('Study')}${chip('+ New preset')}
+ <div style="font-size:12px;color:var(--muted);margin:8px 0 4px">When this is selected</div>${chip('Words',1)}${chip('Cursor')}${chip('Box')}${chip('Drawing')}${chip('Picture')}${chip('Mix')}
+ <div style="font-size:12px;color:var(--muted);margin:8px 0 4px">Preview</div><div style="position:relative;height:62px">${bar(S.words,{css:'left:0;top:2px'})}</div>
+ <div style="display:flex;gap:28px;margin-top:6px"><div style="flex:1"><div style="font-size:12px;color:var(--muted)">On the bar</div>${crow('Paste ▾','−')}${crow('Bold and italic','−')}${crow('Colour','−')}${crow('Cut','−')}${crow('Delete','−')}</div>
+ <div style="flex:1"><div style="font-size:12px;color:var(--muted)">Under ⋯</div>${crow('Link','+')}${crow('Font…','+')}${crow('Make card','+')}${crow('Add to Summary','+')}<div style="margin-top:14px;color:var(--accent);font-size:14px;font-weight:600">Reset to standard</div></div></div></div>`,'Customise bar'));
 document.getElementById('frames').innerHTML=F.join('');
 
 function clamp(){

@@ -96,7 +96,6 @@ M0 to M8 proved as above; the first feature of Phase PC-1 has gone through steps
 ## Open points
 
 - Decided 22 Nov: the weekly card is read on Saturday evening (Q11). The one bar is the Action bar; the top one is the Tool bar; pickers; Hold menu (Q4).
-- `OPEN:` the name of the one bar (Q4), which also names the Settings page entry.
 
 ## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
 

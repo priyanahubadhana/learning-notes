@@ -234,10 +234,12 @@ export async function listSources(
     await db.notebooks.where('workspaceId').equals(workspaceId).toArray()
   ).filter((n) => isLive(n) && (n.kind === 'books' || n.kind === 'sources'))
   if (notebooks.length === 0) return []
-  const pages = await db.pages
-    .where('notebookId')
-    .anyOf(notebooks.map((n) => n.id))
-    .toArray()
+  // One getAll per notebook (an index lookup by one value), not one request per row.
+  const pages = (
+    await Promise.all(
+      notebooks.map((n) => db.pages.where('notebookId').equals(n.id).toArray()),
+    )
+  ).flat()
   const recency = (p: Page) =>
     p.source?.openedAt ?? p.source?.capturedAt ?? p.createdAt
   return pages

@@ -12,12 +12,14 @@ import {
 } from '../core/bookFormat'
 import type { LearningNotesDB } from '../core/db'
 import { isHttpsUrl, isPageSource, parseLocator } from '../core/sourceCheck'
+import { isLive } from '../core/records'
 import { createTestDb } from '../core/testing'
 import { getOrCreateDefaultWorkspace } from '../core/workspaceService'
 import { listChildPages } from '../pages/pageService'
 import { splitAtHeading1 } from './docxPages'
 import {
   LibraryError,
+  ensureSourceNotebook,
   getBookFile,
   importBook,
   listSources,
@@ -206,6 +208,39 @@ describe('the Library list and progress', () => {
     expect((await listSources(db, ws)).map((p) => p.id)).toEqual([a.id, b.id])
     expect(await listSources(db, ws, 'videos')).toEqual([])
     expect(await listSources(db, ws, 'books')).toHaveLength(2)
+  })
+
+  it('B11 lists the same rows in the same order as the old one-query read, ties included', async () => {
+    // The Books and Sources notebooks, a deleted book, ties in recency.
+    const a = await importBook(db, ws, file(pdfBytes(), 'A.pdf'), inspect, 1000)
+    const b = await importBook(db, ws, file(pdfBytes(), 'B.pdf'), inspect, 1000)
+    const c = await importBook(
+      db,
+      ws,
+      file(epubBytes(), 'C.epub'),
+      inspect,
+      1000,
+    )
+    const d = await importBook(db, ws, file(pdfBytes(), 'D.pdf'), inspect, 500)
+    await db.pages.update(d.id, { deletedAt: 2000 })
+    const books = await ensureSourceNotebook(db, ws, 'books')
+    const sources = await ensureSourceNotebook(db, ws, 'sources')
+    // Old shape: one anyOf query over both notebooks.
+    const old = await db.pages
+      .where('notebookId')
+      .anyOf([books.id, sources.id])
+      .toArray()
+    const expected = old
+      .filter((p) => isLive(p) && p.parentId === null)
+      .sort(
+        (x, y) =>
+          (y.source?.openedAt ?? y.source?.capturedAt ?? y.createdAt) -
+          (x.source?.openedAt ?? x.source?.capturedAt ?? x.createdAt),
+      )
+      .map((p) => p.id)
+    const got = (await listSources(db, ws)).map((p) => p.id)
+    expect(got).toEqual(expected)
+    expect(new Set(got)).toEqual(new Set([a.id, b.id, c.id]))
   })
 
   it('saves clamped progress and a locator', async () => {

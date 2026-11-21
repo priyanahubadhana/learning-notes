@@ -413,7 +413,7 @@ function homePage(pages) {
     ...take(['METHOD-v2.md', 'plans/phases/phase-pc-1.md']),
     galleryCard,
   ]
-  const state = take(['PENDING.md', 'BUILD-STATE.md', 'HANDOFF.md'])
+  const state = take(['STATE.md'])
   const specs = pages
     .filter(
       (p) =>
@@ -437,7 +437,12 @@ function homePage(pages) {
     'ROADMAP.md',
   ])
   const other = pages
-    .filter((p) => !used.has(p.rel) && !posix.basename(p.rel).startsWith('_'))
+    .filter(
+      (p) =>
+        !used.has(p.rel) &&
+        !posix.basename(p.rel).startsWith('_') &&
+        (!p.rel.startsWith('archive/') || p.rel === 'archive/INDEX.md'),
+    )
     .sort((a, b) => a.rel.localeCompare(b.rel))
   const sec = (name, list) =>
     list.length

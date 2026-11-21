@@ -252,11 +252,11 @@ One row for each of the 152 entries of docs/IDEAS.md, in file order, ids F-200 t
 | F-337 | F      | Page options: a "+ Add" to pin any action                                                              | idea  | 2     | -     | IDEAS.md:157 |
 | F-338 | core   | Mic in the text box: type my words, or record audio                                                    | idea  | 2?    | -     | IDEAS.md:159 |
 | F-339 | core   | A full "knowledge pack" from any video or page (15 parts, zip of files)                                | idea  | 2?    | -     | IDEAS.md:161 |
-| F-340 | N      | Auto-tags on import: the "## Tags" line becomes real page tags                                         | idea  | 2     | -     | IDEAS.md:162 |
-| F-341 | core   | Connector gaps: mind map, tags, pictures, databases, page tabs, video timestamps                       | idea  | 2     | -     | IDEAS.md:163 |
-| F-342 | core   | Page-aware notes: sections and pictures that fit on one page                                           | idea  | 2     | -     | IDEAS.md:164 |
-| F-343 | core   | Start questions before Claude makes notes                                                              | idea  | 2     | -     | IDEAS.md:165 |
-| F-344 | core   | The connector reaches the app's full block set                                                         | idea  | 2     | -     | IDEAS.md:166 |
+| F-340 | N      | Auto-tags on import: the "## Tags" line becomes real page tags                                         | idea  | 1?    | -     | IDEAS.md:162 |
+| F-341 | core   | Connector gaps: mind map, tags, pictures, databases, page tabs, video timestamps                       | idea  | 1     | -     | IDEAS.md:163 |
+| F-342 | core   | Page-aware notes: sections and pictures that fit on one page                                           | idea  | 1     | -     | IDEAS.md:164 |
+| F-343 | core   | Start questions before Claude makes notes                                                              | idea  | 1     | -     | IDEAS.md:165 |
+| F-344 | core   | The connector reaches the app's full block set                                                         | idea  | 1     | -     | IDEAS.md:166 |
 | F-345 | G      | A Pencil circle in the Text tool acts like the Lasso                                                   | idea  | 2     | -     | IDEAS.md:168 |
 | F-346 | core   | Clean up with AI in Paste (hidden until AI is approved)                                                | idea  | 3     | -     | IDEAS.md:171 |
 | F-347 | G      | The Goodnotes way: a tap on text switches to the Lasso                                                 | idea  | 2     | -     | IDEAS.md:173 |

@@ -188,6 +188,9 @@ const config = defineConfig({
         /tb2-move/,
         /tb2-group/,
         /tb2-card/,
+        /leftPanel.spec/, // B11: size-aware
+        /shell.spec/, // B11: size-aware
+        /shellTwins/, // B11: size-aware
         /b10-7MoreArrow/,
         /b10-9Toast/,
         /b10-3PhoneResize/,

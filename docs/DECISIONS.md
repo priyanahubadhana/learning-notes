@@ -1673,3 +1673,7 @@ Source: docs/plans/uniformity-and-specs-2026-11-21.md and the chat of 21 Nov. Ea
 - **Tracker (owner yes):** GitHub Issues as the source; a board page on the preview site first; the in-app Project notebook when database views exist.
 - **Spec pages' visual face (owner yes):** a site generated from the repo on the preview host, with pictures, status badges and the confirm sheet shown read-only.
 - **Honesty (owner):** the AI must contradict with a rationale and never agree for comfort; never argue for its own sake. Rules to be settled in round 4.
+
+### 21 Nov 2026, evening (owner with Fable): the pause talk, round 4
+
+- **Owner yes to all four:** (1) a five-line "what I heard" after every free-talk round, corrected on the spot; (2) honesty rules into CLAUDE.md with the new plan: every pick carries the case against it, a position changes only for a named new reason, and an override log ("owner chose X; the AI's reason against was Y"); (3) an attack read by a fresh Opus session for every risky spec, briefed to find what is wrong, never to approve; (4) the install and update bug is discussed next, then the revised plan draft.

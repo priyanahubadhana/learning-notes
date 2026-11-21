@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B11 iosSelect F6 and HOLD-MOVE
+
+- **What:** F6's 9 px loop is drawn quicker by the test pen (realPen gets an optional steps count), so it tests "a loop around nothing selects nothing" and not the hold. New expected-fail test HOLD-MOVE: a slowly written small loop opens the hold strip today (owner question in PENDING). docs/features/paper-page.md hold rule corrected to 10 px and 1 s (owner decision, 20 Nov).
+- **Why:** B11 test health: F6 failed 5 of 10 on the iPad stand-in; the slow stroke crossed the 0.5 s hold time.
+- **Files:** e2e/iosSelect.spec.ts, e2e/realPen.ts, docs/features/paper-page.md. 20/20 both.
+
 ### 21 Nov 2026: B11 LB-PERF (big library opens fast)
 
 - **What:** the library reads its books with one index lookup per notebook (run in parallel) instead of one walk that fetched each of 1,000 rows on its own; on the iPad stand-in the first card shows after about 1 s instead of about 16 s. Same rows, same order (unit test). Later: check the other anyOf queries (Today page creation took 5.9 s on the stand-in).

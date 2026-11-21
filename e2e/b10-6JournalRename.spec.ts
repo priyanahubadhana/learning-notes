@@ -58,9 +58,17 @@ for (const [name, size] of Object.entries({
       })
       // A phone's drawer closes on the first tap, so there the ⋯ menu renames.
       if (name === 'phone') {
-        await side
-          .getByRole('button', { name: `More for ${monthName()}` })
-          .tap()
+        // The drawer can close again while the page settles: open it and press ⋯ together until the menu shows.
+        await expect(async () => {
+          if (!(await side.isVisible()))
+            await page.getByRole('button', { name: 'Open menu' }).click()
+          await side
+            .getByRole('button', { name: `More for ${monthName()}` })
+            .tap({ timeout: 3000 })
+          await expect(
+            page.getByRole('menuitem', { name: 'Rename' }),
+          ).toBeVisible({ timeout: 3000 })
+        }).toPass()
         await page.getByRole('menuitem', { name: 'Rename' }).tap()
       } else await doubleTap(page, month)
       await expect(page.getByTestId('name-sheet')).toBeVisible()

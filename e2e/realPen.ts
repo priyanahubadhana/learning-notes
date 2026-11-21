@@ -60,7 +60,12 @@ export type Pt = { x: number; y: number }
  * One Pencil press along `path`: hover in, touch down at the first point, move
  * through the others, lift at the last. One point = a tap.
  */
-export async function realPen(page: Page, path: Pt[]): Promise<void> {
+export async function realPen(
+  page: Page,
+  path: Pt[],
+  /** Moves sent between two points; fewer = a quicker stroke (WebKit answers each move only after a repaint). */
+  steps = 4,
+): Promise<void> {
   const [first, ...rest] = path
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = true
@@ -69,7 +74,7 @@ export async function realPen(page: Page, path: Pt[]): Promise<void> {
   await page.mouse.move(first.x - 3, first.y - 6)
   await page.mouse.move(first.x, first.y)
   await page.mouse.down()
-  for (const p of rest) await page.mouse.move(p.x, p.y, { steps: 4 })
+  for (const p of rest) await page.mouse.move(p.x, p.y, { steps })
   await page.mouse.up()
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false

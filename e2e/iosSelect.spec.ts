@@ -392,7 +392,10 @@ for (const mode of MODES) {
     // The gap between "Service" and "rate-is": too small to hold a character centre.
     const gap = await boxOf(page, 'e r', 1, 2)
     const before = await editorText(page)
-    await realPen(page, loop(centre(gap), 4.5, 5.5))
+    // Why: this loop is 9 px wide, so a stroke slower than the 500 ms hold is a press and hold
+    // (the row strip opens). Each move waits for WebKit's repaint; one move per point keeps
+    // the stroke well under it (measured: 4 per point took 480-630 ms, the slow one opened the strip).
+    await realPen(page, loop(centre(gap), 4.5, 5.5), 1)
     await page.waitForTimeout(900)
     expect(await selectedText(page)).toBe('')
     await expect(

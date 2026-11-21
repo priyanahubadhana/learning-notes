@@ -18,7 +18,7 @@ export async function phoneBox(
   page: Page,
   name: string,
   lines: string[],
-  o: { flag?: boolean; tall?: boolean } = {},
+  o: { flag?: boolean; tall?: boolean; settle?: boolean; low?: boolean } = {},
 ) {
   if (o.flag !== false)
     await page.addInitScript(() =>
@@ -45,10 +45,20 @@ export async function phoneBox(
   // Select it: a tap on the box's empty part selects it; the words take the
   // caret (owner 17 Nov). The centre lands on a long first line ("Alpha
   // Photosynthesis"), so tap the padding inside the right edge (as TB-05).
+  if (o.low)
+    // R18: the box low on the screen, so its bar has to move the page up.
+    await page.locator('[data-page-scroller]').evaluate(
+      (el, dy) => {
+        el.scrollTop += dy
+      },
+      (await rect(box)).y - 690,
+    )
+  await page.waitForTimeout(300)
   const r = await rect(box)
   await page.mouse.click(r.x + r.width - 2, r.y + r.height / 2)
   if (o.flag !== false) {
     await expect(box).toHaveAttribute('data-picked', '')
+    if (o.settle === false) return box // R18: grab a dot at once, as a finger would
     // The box's bar comes a moment after the tap and, near the bottom of a
     // phone, moves the page up once to make room (BoxBarV2). Wait for the
     // bar and for the box to stand still, as a user's eye would.

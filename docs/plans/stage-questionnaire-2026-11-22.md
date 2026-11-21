@@ -8,7 +8,7 @@
 
 **The three stages, in the owner's words of 22 Nov.**
 
-- **Stage 1, the working app, for you.** A basic notebook you use right now on the PC, with no bugs. Claude makes a notebook from your sources (you ask in Claude Code or VS Code; the local connector writes it). On Monday morning you open it, read it, and tidy it: fix a sentence, rewrite a paragraph, highlight, change colour and size, add a box beside Claude's text, paste a picture, move things. It lands as boxes on a paper page with headings, bullets, pictures, highlights, sticky-note boxes, a mind map and a database, and it looks great. The bars, the frame and the layout tools are in, because they will not change later. The iPad reads only.
+- **Stage 1, the working app, for you.** A basic notebook you use right now on the PC, with no bugs. Claude makes a notebook from your sources: you ask in Claude Code in the VS Code terminal, it writes the app's own notes format (ln-notes, text plus a pictures folder), and you import it in the app with Paste notes or the zip. No connector in stage 1; the connector comes at the end of stage 2. On Monday morning you open it, read it, and tidy it: fix a sentence, rewrite a paragraph, highlight, change colour and size, add a box beside Claude's text, paste a picture, move things. It lands as boxes on a paper page with headings, bullets, pictures, highlights, sticky-note boxes, a mind map and a database, and it looks great. The bars, the frame and the layout tools are in, because they will not change later. The iPad reads only.
 - **Stage 2, the premium app, for you.** The polishing against our design principles, then the Pencil on the iPad, then the richer and more complex features.
 - **Stage 3, for everyone.** What only other users or many users need: privacy and permission rules, AI inside the app with API keys, Settings for many devices, onboarding, languages, scale.
 
@@ -18,13 +18,13 @@
 
 ### Claude makes the notebook
 
-**Q1. The connector writes every block the app has.** What it is: today the connector makes plain pages (headings, lists, callouts, tables, maths, cards). It cannot make text boxes on a paper page, sticky looks, highlights and colours, pictures, mind maps, databases, tags or page tabs; you found this on 16 Nov. What it does for you: the notebook lands the way you described. State: new, about 3 days for the block gaps. Your answer: **Stage 1**.
+**Q1. The notes format Claude Code writes covers every block the app has.** What it is: today the import format (ln-notes/1) carries key points, steps, a mind map, cards and pictures from a zip. It cannot carry text boxes on a paper page, sticky and callout looks, highlights and colours, databases, tags or page tabs. What it does for you: the notebook lands the way you described, imported in one go. State: new, about 3 days for the gaps; the importer and the format exist. Your answer: **Stage 1**.
 
-**Q2. Boxes on a paper page, laid out page by page.** What it is: Claude places sections as boxes on A4 sheets, keeps a section with its picture on one page, splits long lists, uses a sticky for key points. What it does for you: it looks like a notebook, not a document. State: new, about 3 to 5 days on top of Q1; the paper page and the box looks exist. Your answer: **Stage 1**.
+**Q2. Boxes on a paper page, laid out page by page.** What it is: Claude places sections as boxes on A4 sheets, keeps a section with its picture on one page, splits long lists, uses a sticky for key points. What it does for you: it looks like a notebook, not a document. State: new, about 3 to 5 days on top of Q1; the paper page and the box looks exist; the format gains a page and box layer. Your answer: **Stage 1**.
 
-**Q3. A notebook skill for Claude.** What it is: a one-page style guide Claude follows every time it makes a notebook (structure, looks, when to use a sticky, a picture, a mind map, a database), approved by you once, with a picture. State: a skill spec exists (claude-skill.md). Your answer: **Stage 1**.
+**Q3. A notebook skill for Claude Code.** What it is: a skill in this repo that Claude Code runs when you say "make a notebook on X from these sources": it asks the few start questions, writes the notes format with the style guide you approved once (structure, looks, when to use a sticky, a picture, a mind map, a database), and tells you where the zip is. State: a skill spec exists (claude-skill.md); the notes-format recipe exists. Your answer: **Stage 1**.
 
-**Q4. Claude draws.** What it is: the connector can write ink strokes, so Claude can draw simple figures, arrows and diagrams onto a page, like the GoodNotes plugin you used. What it does for you: pictures without a photo. State: new; the ink model exists, the connector cannot write ink. Honest note: drawn figures will be simple; diagrams come out better as mind maps or shapes. Your answer: **Stage 1**, inside the connector work.
+**Q4. Claude draws.** What it is: the notes format can carry ink strokes and simple shapes, so Claude Code can draw figures, arrows and diagrams onto a page, like the GoodNotes plugin you used; it can also make picture files itself (diagrams rendered to PNG) and put them in the zip. What it does for you: pictures without a photo. State: new; the ink model exists, the format cannot carry ink yet. Honest note: drawn figures will be simple; diagrams come out better as mind maps or shapes. Your answer: **Stage 1**, inside the connector work.
 
 **Q5. Pictures you insert.** What it is: paste a picture into a box or page, resize it, place it. State: built. My pick: **Stage 1**, you do it daily.
 
@@ -116,7 +116,7 @@
 
 ### AI, connectors, for everyone
 
-**Q44. The hosted Claude connector.** What it is: Claude writes notebooks without your PC open, through a server; needs a Supabase step and an encryption design. Your answer: **Stage 2**.
+**Q44. The Claude connector, local and hosted.** What it is: Claude writes straight into the app with no import step; the hosted one works without your PC open and needs a Supabase step and an encryption design. State: local built (plain blocks), hosted built but not deployed. Your answer: **end of Stage 2**.
 
 **Q45. AI inside the app with API keys, the AI learning companion, paid AI features.** Your answer: **Stage 3**.
 
@@ -140,7 +140,7 @@
 
 ## What happens with your answers
 
-Fable corrects the stage map, marks it Confirmed, and rewrites Phase PC-1 as the first phase of stage 1. From your answers so far, Phase PC-1 would hold: the set-up (running), the update flow (running), the connector that writes every block plus boxes on paper plus the notebook skill, the shared parts and the complete Action bar, and the bug-free pass over the editing path on the PC; reading on the iPad checked at the release. Settings v5, review and cards, the Pencil and AI inside the app leave the phase. The estimate is written after your answers, from the measured pace.
+Fable corrects the stage map, marks it Confirmed, and rewrites Phase PC-1 as the first phase of stage 1. From your answers so far, Phase PC-1 would hold: the set-up (running), the update flow (running), the notes format that carries every block plus boxes on paper, the importer for it, and the notebook skill for Claude Code, the shared parts and the complete Action bar, and the bug-free pass over the editing path on the PC; reading on the iPad checked at the release. Settings v5, review and cards, the Pencil and AI inside the app leave the phase. The estimate is written after your answers, from the measured pace.
 
 ### Changes
 

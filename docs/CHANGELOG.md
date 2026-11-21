@@ -2,6 +2,18 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B10-1 Redo redoes exactly one step (R15)
+
+- **What:** the Undo and Redo buttons count clicks already taken, so they turn off at the click; a quick extra click no longer counts as a step (45 Undos vs 44 Redos). build/next 4a85e8b0.
+- **Why:** stopped the release (red about 1 run in 5 at iPad size).
+- **Files:** src/history/pageHistory.ts, src/history/pageHistory.test.ts, e2e/undoHistoryR15.spec.ts.
+
+### 21 Nov 2026: B2 smart bar pictures
+
+- **What:** docs/mockups/smart-bar/index.html (14 frames: cursor, words, Study, drawing, picture, mix, box, no room; iPad sideways, upright, phone; light and dark) and png/ for a quick OK. Button places follow the B1 list; questions for C3: where Cut/Copy/Delete join, the box tab ⋯, Thickness on the bar.
+- **Why:** part B2 of phase-2-finish; nothing after B2 is built before the owner's yes.
+- **Files:** docs/mockups/smart-bar/, docs/BUILD-STATE.md, docs/PENDING.md.
+
 ### 21 Nov 2026: B1 button list merged
 
 - **What:** docs/features/selection-bar-buttons.md lists all 115 buttons of the old selection bars (where, works today, Pencil-reachable, place on the smart bar); e2e/selectionBarButtons.spec.ts (156 tests, SB-B000 keeps list and tests in step); check:spec takes SB-B ids. Broken today (test.fail): Save to notes; classic Lasso Move, Scale, Rotate, Screenshot, Convert on words; v8 ⋯ rows that do nothing; drawing-menu Delete under the sidebar grip at 1180 px. build/next 4b825720.

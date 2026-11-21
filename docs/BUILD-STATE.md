@@ -1,6 +1,15 @@
 # Build state (rewritten in place, never appended)
 
-PAUSED (owner, 21 Nov night: the pause talk with Fable is done; the new plan docs/plans/phases/phase-pc-1.md waits for the owner's twelve answers and the M0 confirm sheet in docs/METHOD-v2.md; then Opus starts stage 0, M1 first). Read docs/HANDOFF.md START HERE. The table below is the state at the pause of 21 Nov evening.
+RUNNING: Phase PC-1 stage 0 (started 22 Nov 01:20 IST; the pause ended when the owner confirmed METHOD-v2 and answered the plan, HANDOFF 22 Nov 00:20). Manager: phase-manager (Opus medium). Rows of the 21 Nov table below are history until M1 makes docs/STATE.md.
+
+## Stage 0 (PC-1)
+
+| Part                            | Branch (working copy)                                | State                   |
+| ------------------------------- | ---------------------------------------------------- | ----------------------- |
+| M4                              | main                                                 | DONE 22 Nov (site live) |
+| M1                              | `tool/m1-archive` (ln-2a13)                          | STARTED 22 Nov          |
+| U0a                             | `slice/u0a-update-repro` (ln-2a16b), from build/next | STARTED 22 Nov          |
+| U0b, M2, M3, M8, M5, M9, M6, M7 | -                                                    | planned, in this order  |
 
 ## Now
 

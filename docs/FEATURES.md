@@ -1,6 +1,6 @@
 # The feature register
 
-| Status                                                                                         | Scope                                                            | Builds on                                                                        | Last change        |
+| 1tatus                                                                                         | 1cope                                                            | Builds on                                                                        | Last change        |
 | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------ |
 | Confirmed by the owner, 22 Nov 2026 (the stage questionnaire, 54 questions, and the stage map) | every feature the app has or plans, one row each, with its stage | docs/plans/stage-map-2026-11-22.md, docs/plans/stage-questionnaire-2026-11-22.md | 22 Nov 2026, Fable |
 
@@ -8,13 +8,13 @@
 
 **The three stages (owner, 22 Nov).** **1, the working app, for the owner:** a basic notebook used right now on the PC, with no bugs; Claude Code writes notebooks that the app imports in full; editing on the PC; the bars, the frame and the layout tools; the iPad reads. **2, the premium app, for the owner:** the Pencil first, then the polishing against the design principles, then the richer features. **3, for everyone:** what only other users or many users need.
 
-**States.** built · built, behind a switch · partly built · parked (built or half built, switched off, with a branch) · new · idea · building.
+**1tates.** built · built, behind a switch · partly built · parked (built or half built, switched off, with a branch) · new · idea · building.
 
 **Moves.** A feature changes stage or phase only through the stage map and the owner's yes; the change is one count toward the replan trigger (METHOD-v2).
 
-## Stage 1 · the working app
+## 1tage 1 · the working app
 
-| Id    | Pillar | Feature, in plain words                                                                                                                                                    | State                       | Phase      | Spec                                                                                                                                                                                |
+| Id    | Pillar | Feature, in plain words                                                                                                                                                    | 1?tate                      | Phase      | Spec                                                                                                                                                                                |
 | ----- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | F-001 | N      | The notes format Claude Code writes carries every block: boxes on paper, looks, highlights and colours, pictures, mind map, database, tags, page tabs                      | new                         | 1B         | features/ai-notes-format.md                                                                                                                                                         |
 | F-002 | F      | Page-by-page layout: sections as boxes on A4 sheets, a section with its picture on one page, stickies for key points                                                       | new                         | 1B         | features/ai-notes-format.md                                                                                                                                                         |
@@ -108,7 +108,7 @@ The 152 entries of docs/IDEAS.md are sorted into stages by Opus (owner, 22 Nov) 
 
 ## Ideas (sorted 22 Nov, owner to review on the site)
 
-One row for each of the 152 entries of docs/IDEAS.md, in file order, ids F-200 to F-351. State "idea". The stage follows the stage map; a "?" marks a guess (when unsure the later stage was taken). The Spec column gives the line of docs/IDEAS.md. Three entries repeat another and are kept as their own rows, so the count stays 152: F-281 (IDEAS.md:86) repeats F-273 (IDEAS.md:78); F-318 (IDEAS.md:123) repeats F-200 (IDEAS.md:5); F-303 (IDEAS.md:108) repeats F-093 above. The owner may merge them in the review.
+One row for each of the 152 entries of docs/IDEAS.md, in file order, ids F-200 to F-351. State "idea". The stage follows the stage map; a "?" marks a guess (when unsure the later stage was taken). The Spec column gives the line of docs/IDEAS.md. Three entries repeat another and are kept as their own rows, so the count stays 152: F-281 (IDEAS.md:86) repeats F-273 (IDEAS.md:78); F-318 (IDEAS.md:123) repeats F-200 (IDEAS.md:5); F-303 (IDEAS.md:108) repeats F-093 above. F-340 to F-344 (IDEAS.md:162 to 166) overlap F-001 to F-003 (stage 1, the app imports what Claude Code writes) and sit in stage 1. The owner may merge them in the review.
 
 | Id    | Pillar | Feature, in plain words                                                                                | State | Stage | Phase | Spec         |
 | ----- | ------ | ------------------------------------------------------------------------------------------------------ | ----- | ----- | ----- | ------------ |
@@ -247,7 +247,7 @@ One row for each of the 152 entries of docs/IDEAS.md, in file order, ids F-200 t
 | F-332 | core   | Settings file for experts, a read-only "copy my settings" first                                        | idea  | 3     | -     | IDEAS.md:150 |
 | F-333 | F      | Quiet app suggestions ("add the Highlighter to the tool bar?")                                         | idea  | 3     | -     | IDEAS.md:151 |
 | F-334 | F      | Your layouts: up to 3 tool bars                                                                        | idea  | 3?    | -     | IDEAS.md:152 |
-| F-335 | F      | Small close X on every notice with Undo                                                                | idea  | 2?    | -     | IDEAS.md:154 |
+| F-335 | F      | Small close X on every notice with Undo (built on slice/p1-notice-close, P1.12, not merged)            | idea  | 2?    | -     | IDEAS.md:154 |
 | F-336 | F      | A test for the docked side list with a narrowed tool bar                                               | idea  | 2     | -     | IDEAS.md:155 |
 | F-337 | F      | Page options: a "+ Add" to pin any action                                                              | idea  | 2     | -     | IDEAS.md:157 |
 | F-338 | core   | Mic in the text box: type my words, or record audio                                                    | idea  | 2?    | -     | IDEAS.md:159 |

@@ -169,7 +169,12 @@ export function MicroBar({ editor }: { editor: Editor }) {
   const endDrag = (e: React.PointerEvent) => {
     // The place comes from this event's own position: a quick drag can lift before
     // the last move was drawn, so the `drag` state may be older (or still empty).
-    if (dragging.current && e.type === 'pointerup') microPos.set(placeAt(e))
+    if (dragging.current) {
+      // A lift saves the place under the finger. A cancel (the system took the drag)
+      // has no useful position: it keeps the last place that was drawn.
+      if (e.type === 'pointerup') microPos.set(placeAt(e))
+      else if (drag) microPos.set(drag)
+    }
     dragging.current = false
     setHeld(false)
   }

@@ -343,6 +343,12 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 - On build/next after the release: shared parts step 1 (src/design/parts/, gallery), AI Build screen, "first outside tap only closes" in the overlay manager, event router gained click / input / touchmove. Ratchet now 362 listeners / 137 z-index.
 - Fixed on the way (why it happened): version.json always said level 1 because two regexes in vite.config.ts had lost their backslashes; Parts gallery stalled iPad WebKit in CI because of a dozen 28 px blurs on static cards; phone layouts of the Time range bar and Arrange sheet were clipped because the editor sat in the page flow with no width limit.
 
+## 21 Nov 2026, night: the pause talk with Fable (plan draft, method v2)
+
+- **What:** the owner paused the build and planned with Fable. New: docs/plans/uniformity-and-specs-2026-11-21.md (code audit: the bars rebuild placement, overflow, colour, size, hover names and customisers five to six times; the shared Object bar is unused), docs/plans/method-v2/ (pictures 1 to 4: the feature loop, the owner's touchpoints and the ladder, one source two faces, the PC-1 timeline; 1 to 3 approved), docs/plans/phases/phase-pc-1.md (plan draft with the main questionnaire). docs/DECISIONS.md gained rounds 1 to 5 of the talk: PC first with four conditions, Pencil work parked, GitHub Issues as the bug source, a generated site on GitHub Pages, Spec Kit installed and adapted, the Opus-high rung, honesty rules, the "builds on" reuse check, no AI notes in this phase.
+- **Why:** 40 days without a usable product; features rebuilt instead of reused; specs in four shapes; no closed loop from finding to spec to test.
+- **Files:** as above, plus docs/PENDING.md (Needs you).
+
 ## 2026-11-15 (2A: 2A.4 merged, 2A.5 PASS, 2A.14 Layout row)
 
 - 2A.4 merged into build/next b7ba4ede, CI green; 2A.5 PASS after an Opus takeover (d0dcb56e); 2A.14 Layout row built, review FAIL against the approved settings-rows pictures; merges held for the owner's re-test. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.

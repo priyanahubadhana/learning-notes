@@ -497,3 +497,59 @@ test('TB-21 upper limit: a short text narrows to its longest word, not to a larg
   expect(w).toBeGreaterThanOrEqual(wordW - 1)
   expect(w).toBeLessThanOrEqual(wordW + 70)
 })
+
+test('B10-4 TB-23: a press on the divider itself (not on a dot) resizes both boxes live', async ({
+  page,
+}) => {
+  await start(page, 'B104')
+  await typeInEditor(page, 'Main text')
+  const tall = ['Left box', 'Two', 'Three', 'Four', 'Five', 'Six']
+  const a = await addBox(page, tall, 0.3, 60)
+  const b = await addBox(
+    page,
+    ['Right box', 'Two', 'Three', 'Four', 'Five'],
+    0.3,
+    400,
+  )
+  await pickBox(page, b)
+  const g = await rect(b.locator('[data-box-grip]'))
+  const t = await rect(a)
+  await drag(
+    page,
+    { x: g.x + g.width / 2, y: g.y + g.height / 2 },
+    { x: t.x + t.width * 0.9, y: t.y + t.height * 0.5 },
+  )
+  // Deselect so no dots lie over the divider, then look for a point where the
+  // divider itself is what a finger would hit.
+  await page.keyboard.press('Escape')
+  const div = page.locator('[data-grid-divider]').first()
+  await expect(div).toBeVisible()
+  const pt = await div.evaluate((el) => {
+    const r = el.getBoundingClientRect()
+    const x = r.x + r.width / 2
+    for (let y = r.y + 6; y < r.y + r.height - 6; y += 4) {
+      const top = document.elementFromPoint(x, y)
+      if (
+        top &&
+        top.closest('[data-grid-divider]') &&
+        !top.closest('[data-resize-handle]')
+      )
+        return { x, y }
+    }
+    return null
+  })
+  expect(pt, 'a divider-only press point exists').not.toBeNull()
+  const wa0 = (await rect(a)).width
+  const wb0 = (await rect(b)).width
+  await page.mouse.move(pt!.x, pt!.y)
+  await page.mouse.down()
+  await page.waitForTimeout(160)
+  await page.mouse.move(pt!.x + 90, pt!.y, { steps: 8 })
+  await expect
+    .poll(async () => (await rect(a)).width, { timeout: 3000 })
+    .toBeGreaterThan(wa0 + 40)
+  await expect
+    .poll(async () => (await rect(b)).width, { timeout: 3000 })
+    .toBeLessThan(wb0 - 40)
+  await page.mouse.up()
+})

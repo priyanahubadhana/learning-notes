@@ -129,6 +129,7 @@ export const hiSidebar = {
   'sidebar.group.quick': 'त्वरित पहुँच',
   'sidebar.group.study': 'अध्ययन',
   'sidebar.groups': 'साइडबार के समूह',
+  'sidebar.closeList': 'सूची बंद करें',
   'sidebar.label': 'साइडबार',
   'sidebar.newNotebook.title': 'नई नोटबुक',
   'sidebar.notebooks': 'नोटबुक',
@@ -143,7 +144,9 @@ export const hiSidebar = {
   'space.home.soon':
     'आपका दिन यहाँ रहेगा: मुख्य काम, कार्य और फ़ोकस टाइमर। अभी आज की डायरी खोलें।',
   'space.home.title': 'आज',
+  'space.home.side': 'आपका दिन होम बोर्ड पर है।',
   'space.home.today': 'आज की डायरी खोलें ({date})',
+  'space.home.todayShort': 'आज की डायरी खोलें',
   'space.library': 'लाइब्रेरी',
   'space.library.import': 'आयात करें',
   'space.library.importSoon': 'किताबें आयात करना लाइब्रेरी के साथ आएगा।',
@@ -218,4 +221,7 @@ export const hiSidebar = {
   'tree.moveTop': 'शीर्ष स्तर पर ले जाएँ',
   'tree.moveUp': 'ऊपर ले जाएँ',
   'tree.moved': 'पेज दूसरी जगह ले जाया गया।',
+  'journal.tidiedTwo': 'जर्नल व्यवस्थित: {month} के दो पेज जोड़े गए',
+  'journal.tidiedMany': 'जर्नल व्यवस्थित: {month} के {count} पेज जोड़े गए',
+  'journal.tidiedMonths': 'जर्नल व्यवस्थित: {count} महीनों के पेज जोड़े गए',
 }

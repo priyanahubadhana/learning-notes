@@ -31,10 +31,23 @@ Card / ▾ frame (304 / 376 px), Sheet (Organise, Add favourite, Layouts; from p
 
 Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names the unlock switch from `docs/mockups/pro-features.md`; it is on for Professional and can be turned on by a Beginner in Settings › Professional features.
 
+**Tool bar settings (v9, owner answer 2A, 15 Nov).** Every Beginner / Professional difference of the bar is its own setting (Settings › Advanced, also under Tool bar), each tied to the Professional switch named; a starter only sets values: Simple = Beginner column, Everything on = Professional column. Other tasks read these from `src/app/tools/v8/barPrefs.ts` (`useBarPref(id)` / `getBarPref(id)`).
+
+| Setting (id)                                                                                | Beginner value | Professional value | Pro switch                          |
+| ------------------------------------------------------------------------------------------- | -------------- | ------------------ | ----------------------------------- |
+| Show tool names (`advanced.toolNames`)                                                      | off            | on                 | none: the setting is its own switch |
+| Format tabs (`advanced.formatTabs`)                                                         | 3              | 4                  | `tb.textFonts`                      |
+| Back to last tool (`advanced.backToPen`; name owner-approved 15 Nov, settings-rows picture) | off            | on                 | `tb.layouts`                        |
+| Eraser's three ▾ (`advanced.eraserMenus`)                                                   | off            | on                 | `tb.eraserOptions`                  |
+| Bigger Lasso (`advanced.biggerLasso`)                                                       | off            | on                 | `tb.lassoOptions`                   |
+
+- TB-S1 (owner, 15 Nov) When I tap Beginner or Professional in the **Layout** row (Settings › Writing › Advanced, above the five rows, only with `toolbar.v8` on) → all five rows are set at once: Beginner = all off, 3 format tabs; Professional = all on, 4 tabs; one Undo step puts every row back. When I then change a single row → the Layout row shows neither chosen (mixed). With the switch off the row is not listed.
+
 **Bar and tools**
 
-- TB-01 When I open a page with the flag on → the bar shows Text, Pen, Eraser, Shapes, Lasso, Insert, then Undo, Redo, ⋯, Minimise; Beginner shows icons only.
-- TB-02 When I hover (PC) or long-press (touch) a Beginner tool icon → its name shows in a tooltip; the tool is not chosen by the long-press.
+- TB-01b When the flag is on → the page top bar shows Undo, Redo at the top left (after the sidebar and page-panel buttons, before the page path) at every screen size, and has no < > Back/Forward arrows; going back works through the page path and swipe back. The arrows are gone on every screen with a top bar (Home, Settings too). The SH-05 "Show Undo and Redo" setting still hides the pair on a computer. With the flag off the arrows stay and nothing else changes; with the new frame off the tool bar keeps its own Undo and Redo.
+- TB-01 (v9) When I open a page with the flag on → the bar shows Text, Pen, Eraser, Shapes, Lasso, Insert, then Undo, Redo, ⋯, Minimise (with the new frame on, Undo and Redo sit in the page top bar, TB-01b). Whether the tools show names is the setting **Show tool names** (Settings › Advanced; also found under Tool bar). The starter "Simple" (Beginner values) sets it off and "Everything on" (Professional) sets it on; until a person sets it, it follows Beginner or Professional (its own switch: the setting itself, so a Beginner can turn on names alone; no new Professional-list entry). Upright on a Pencil-mode device the bar shows icons only whatever the setting says; the names come back when the screen is turned sideways (owner, 15 Nov, E).
+- TB-02 (v9) When a tool shows no name (setting off, or upright Pencil mode) and I hover (PC) or long-press (touch) its icon → its name shows in a tooltip; the tool is not chosen by the long-press.
 - TB-03 When I tap a tool → it becomes active (accent tint) and its row shows below; nothing opens.
 - TB-04 When I tap the active tool again → its card opens beside it (304 or 376 px by the picker/panel rule) and the ▾ looks pressed.
 - TB-05 When a card is open and I tap another ▾ → the first card closes and the new one opens; never two cards, never a card from a card.
@@ -51,26 +64,39 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 **Pen (one tool, types inside)**
 
 - TB-20 When I open Pen › Type ▾ → six tiles (Fountain pen, Ballpoint, Brush pen, Pencil, Marker, Highlighter) each with a sample stroke in my colour and a three-word hint; picking one closes the card after 190 ms and the chip glows.
-- TB-21 Pen row order is Type ▾ → Size ▾ → Colour ▾ → Feel ▾ → Favourites (T2).
+- TB-21 When I tap Pen → its row reads Type ▾ → Size ▾ → Colour ▾ → Feel ▾ → my Favourites → "+" → "☰" (T2); Beginner and Professional alike. The Type chip shows a small drawing of the pen (its band in my colour) and the type's name (v9).
+- TB-21a When I look at the Size chip → it is one round dot in my pen colour, 6, 9 or 13 px for Thin, Medium, Thick, with no word (the name is its label for screen readers and for a long press); it changes at once when I pick a size (v9).
+- TB-21b When I look at the Colour chip → it is one round 22 px dot of my colour with a thin ring, so a dark colour stays visible on dark glass; no word (v9).
+- TB-21c When I have saved pens or highlighters → they show on the Pen row after Feel ▾, each as a small sample stroke in its colour and type plus its type's name; the one that matches my current pen has a ring; tapping one sets type, size and colour in one step, its chip glows, and a toast "<type> is on · Undo" puts the earlier pen back (TB-51). When the row is too narrow, the other chips lose their names first and the favourites keep theirs; then all favourites fold into one "★ n" chip that opens a Favourites card of picture tiles (sample stroke and name, tap = apply); the row never scrolls sideways (v9, TB-08). Saving and sorting favourites is TB-52 and TB-53.
 - TB-22 When I open Size ▾ → three size tiles drawn at real thickness; Professional adds a live preview and the wedge "Exact thickness" slider and Line style (Pro: `tb.penStroke`).
-- TB-23 When I open Colour ▾ → six round swatches; the chip shows one dot of the current colour; Professional adds Colour picker and Custom colours, up to 6, newest first (Pro: `tb.customColours`).
+- TB-23 When I open Colour ▾ → six round swatches; the chip shows one dot of the current colour (TB-21b); Professional adds Colour picker and Custom colours, up to 6, newest first (Pro: `tb.customColours`).
 - TB-24 When I open Feel ▾ → sections Feel · Aids · Math · Page; Beginner Feel = Pressure, Stabilisation, collapsed Fine-tune; Professional adds tip sharpness, flatness, tilt, speed thickness, latency (Pro: `tb.penFeel`), writing aids (Pro: `tb.penAids`), layers, paper size, zoom (Pro: `tb.layers`).
 - TB-25 When I choose A4 in Page → the grid and paper style stay visible (T4).
 - TB-26 Highlighter options: opacity, snap to lines, behind ink, highlight eraser, save to notes (Pro: `tb.highlighter`).
 
 **Eraser, Shapes, Lasso**
 
-- TB-30 Beginner Eraser card → simple eraser: Standard / Whole stroke tiles and three sizes; Professional brings back today's eraser with Precise, highlights only, "go back after one erase" and the size preview ring (Pro: `tb.eraserOptions`).
+- TB-30 (v9) Eraser. Beginner (the setting "Eraser's three menus" off): one **Eraser ▾** on the row showing the chosen type; its card has Standard / Whole stroke tiles and, under a "Size" heading, the three sizes. With the setting on (Professional, `tb.eraserOptions`): the row is **Mode ▾** and **Size ▾** (each shows its value, "Standard", "Medium"), then **Erases** and **Back after one** as chips on the bar (picture: settings-rows/1-ipad.png). There is no Options ▾; on a narrow screen the chips fold into ⋯.
+- TB-30a Mode ▾ → Standard, Whole stroke, Precise, each with a one-line hint. Size ▾ → Thin, Medium, Thick and the size ring.
+- TB-30b (v9) **Erases** is a segmented group of chips on the bar: Highlighter · Text · Pen (tap each on or off; at least one stays on, else a toast says so; on = accent fill). **Back after one** is a chip: go back to the previous tool after one erase. Highlighter alone is the old "Erase highlights only": this one choice replaces the old Mode tile and Options switch (contradiction 4). Default: Highlighter + Pen. With the switch (`toolbar.v8`) OFF the live eraser is unchanged (highlights on typed words go only with the old "highlights only" switch).
+- TB-30c (v9, owner B) When Text is on and I rub over typed words → the words go as I rub (shown dimmed live, removed when I lift) as one Undo step. Text off: typed text is never touched.
+- TB-30d (T10) With Highlighter only, rubbing is smooth (no per-move page measuring, one repaint per frame), a touched word goes whole, with the spaces between touched words (no cut letters, no gaps inside words, no thin marks between words), and Undo puts it all back in one step.
 - TB-31 Shapes has its own top-bar slot; its card is grouped (Draw as, Shape help, Ruler, Magnifier, Colour picker) in sections, no single long scrolling strip (T1, T5) (Pro: `tb.shapesAids` for the aids).
 - TB-32 Lasso card → shape tiles (free / rectangle) and action list; Professional adds what it picks, which actions sit in the menu row, layers (Pro: `tb.lassoOptions`).
-- TB-33 When I lasso ink or text → the selection bar (Object bar) shows Cut, Copy, Paste, Duplicate, Colour, Resize, Delete, ⋯; Professional ⋯ adds Convert, Screenshot, Key point, Make card, Summary, Save, Move, Scale, Rotate (Pro: `tb.selectionMenu`).
+- TB-33 When I lasso ink or text → the selection bar (Object bar) shows Cut, Copy, Paste, Duplicate, Colour, Resize, Delete, ⋯; Professional ⋯ adds Convert, Screenshot, Key point, Make card, Summary, Save, Move, Scale, Rotate (Pro: `tb.selectionMenu`). Paste follows PM-40 to PM-46 (the paste planner and Settings › General › "Paste as"; plain text stays in Paste ▾ and Ctrl/Cmd+Shift+V). Resize on words opens the Text size card (90 to 150 %). While the bar owns a selected picture the old picture strip is hidden; Border sits in ⋯ and in Edit picture. The bar is one row; a row wider than the screen scrolls under the thin track.
 - TB-34 When a picture is selected → Edit picture: crop, turn, straighten, resize presets, shapes (Pro: `tb.pictureEdit`).
 
 **Text**
 
 - TB-40 Text row order: Box ▾ (first, one setting with 1 / 2 / 3 styles, settings button in front, T3) → Format ▾ → B → I → Favourites.
-- TB-41 When I open Format ▾ → sections Text · Style · Paragraph: H1–H3, bullet, star, numbered, checklist, B/I/U/S, indent, outdent, alignment, callout, divider, inline code (T6); styles drawn in their own look; Professional adds Advanced, fonts in their own face, line height (Pro: `tb.textFonts`) and more marks (Pro: `tb.textMarks`).
-- TB-42 When I open Box ▾ with a box selected → the Box card opens right of the box, else left, else under, else above; it never covers the box (M1); box looks, fill, border, corners, padding, shadow, columns (Pro: `tb.textBox`).
+- TB-41 (v9, 2A.9) When I open Format ▾ → one card with a tab row, never a card on a card: Beginner 3 tabs (Text · Style · Paragraph), Professional 4 (adds Advanced, `tb.textFonts`).
+- TB-41a (2A.10, T15) When the cursor is in text that already has a style → the Format option shows "on" (accent fill and a check): heading level, bold, italic, underline, strike, code, list type, alignment, key point, callout, font, size, colour, highlight. Indent, Outdent and Divider stay plain. Moving the cursor updates it.
+  - **Text**: Text size (Beginner: Small · Body · Large; with `tb.textFonts`: Font in its own face and Size 90–150 %), Emphasis B / I / U / S, Text colour and Highlight colour as swatches inside the tab (no pop-up opens), Key point.
+  - **Style**: Heading 1–3 drawn in their own look; Lists (bullet, numbered, checklist, indent, outdent); Blocks (callout, divider; inline code with `tb.textMarks`).
+  - **Paragraph**: Alignment left / centre / right. **Advanced** (`tb.textFonts`): Line height.
+  - The card stays above the tool bar and never covers the bar or the side bar; the tab row is full width and stays inside the card (PP1).
+- TB-42 (v9) When I open Box ▾ → the Box card hangs under its ▾ with its arrow under Box, like every other ▾ (it no longer moves beside the box); box looks, fill, border, corners, padding, shadow, columns (Pro: `tb.textBox`).
+- TB-42a (v9) The old rule M1 "the Box card never covers the box" is replaced by TB-42 (v9): the Box card hangs under Box ▾ like every other card, so it may cover part of the page; the box stays selected and Undo works as before.
 - TB-43 The text box's own mini-bar has no second minimise (M2); the top bar has no Done (M3).
 
 **Favourites row (replaces the ★ custom tool)**
@@ -102,6 +128,12 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 - TB-75 (BUG-003) When the tool bar is turned off in Settings and I tap "Show toolbar" → it shows; using a tool and writing hides it again; the pill is always visible.
 - TB-76 Bars can be dragged and snap to edges; "Options pill position" resets them (Pro: `toolbar.pillReset`); "Reset tool bar" restores defaults (`toolbar.reset`).
 
+**Dark mode, v9 (task 2A.5, picture docs/mockups/toolbar-v9/toolbar-v9.html in dark)**
+
+- TB-95 When the page is dark and the pen colour is the default black → the colour chip, swatch, size and type pictures and the Feel preview draw it in the light ink (`--ink-auto`, light only under `data-v9` at night); the saved colour and stored strokes do not change, and on light paper it is dark again (resolved when drawn).
+- TB-96 When I look at a switcher, tile or choice control in dark → it sits in a tonal well (`--card-well`) and the chosen part is a raised thumb (`--v9-thumb`, `--v9-thumb-sh`); sliders show a 6 px track filled to the knob.
+- TB-97 When a switch is on or off in dark → its knob is white (`--v9-knob`). All of TB-95 to TB-97 exist only while toolbar.v8 is ON (the bar sets `data-v9` on the root); with it OFF every screen looks as before.
+
 **Selection bars and BUG-002**
 
 - TB-80 When I select text → one Selection bar (B, I, U, Aa, Dictate, Minimise) shows; the micro bar stays separate (C8/Q2); Dictate needs (Pro: `tb.miniToolbar`).
@@ -130,7 +162,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 | Detail card `src/app/tools/main/DetailCard.tsx:99`                                                                                 | Tool cards TB-04                                                                                                                   |
 | Edit toolbar sheet `src/app/tools/main/EditToolbarSheet.tsx:41`                                                                    | Organise sheet TB-53, Layouts TB-61                                                                                                |
 | Edit list sheet `src/app/tools/EditListSheet.tsx:63`                                                                               | Arrange sheet (shared)                                                                                                             |
-| Control rows `src/app/tools/controlRows.ts:29`                                                                                     | All tools card                                                                                                                     |
+| Control rows `src/app/tools/controlRows.ts:44`                                                                                     | All tools card                                                                                                                     |
 | Bar stack / free drag `src/editor/BarStack.tsx:68`, `freeBar.ts:27`                                                                | TB-76                                                                                                                              |
 | Bar overflow `src/app/tools/BarScroll.tsx:27`                                                                                      | "⋯ n" fold TB-08 (no sideways scroll)                                                                                              |
 | Pen types `src/app/tools/main/inkSettings.ts:136-143`                                                                              | Type tiles TB-20                                                                                                                   |
@@ -158,18 +190,18 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" names
 | Backspace hold `src/app/tools/main/backspaceHold.ts:6-14`                                                                          | TB-10                                                                                                                              |
 | Hold-and-slide `src/app/tools/main/holdSlide.ts:20`                                                                                | TB-09                                                                                                                              |
 | New line extras `mainTools.ts:315-332`, `newLineGesture.ts:17`                                                                     | TB-11, `toolbar.newLineHold`                                                                                                       |
-| Minimise `src/app/tools/toolbarVisibility.ts:38`, `:76`                                                                            | TB-73                                                                                                                              |
-| Last tool `mainTools.ts:129`, `selectTool.ts:14`                                                                                   | "Back to <tool>" TB-14                                                                                                             |
+| Minimise `src/app/tools/toolbarVisibility.ts:44`, `:55`, `:76`                                                                     | TB-73                                                                                                                              |
+| Last tool `mainTools.ts:129`, `selectTool.ts:60`                                                                                   | "Back to <tool>" TB-14                                                                                                             |
 | Layout button `src/app/tools/LayoutButton.tsx:11`, `layoutSync.ts:27`                                                              | Layouts TB-61/62                                                                                                                   |
 | Favourite star `toolRegistry.ts:654`                                                                                               | Favourites "+" TB-52                                                                                                               |
 | Reading tools `toolRegistry.ts:489-545`                                                                                            | ⋯ Reading mode (reader slice owns the bar)                                                                                         |
 | Format bubble `src/editor/SelectionToolbar.tsx:112`                                                                                | Selection bar TB-80–83                                                                                                             |
-| Undo / redo `src/app/tools/HistoryButtons.tsx:12`                                                                                  | Tool bar right end                                                                                                                 |
-| Pencil mode `inkSettings.ts:140`, `penTap.ts:48`                                                                                   | Feel › Aids; gesture router                                                                                                        |
+| Undo / redo `src/app/tools/HistoryButtons.tsx:12`                                                                                  | Page top bar, top left, before the page path (TB-01b)                                                                              |
+| Pencil mode `inkSettings.ts:147-148`, `penTap.ts:48`                                                                               | Feel › Aids; gesture router                                                                                                        |
 | Settings tool bar `src/settings/builtinSettings.ts:81`, `:374-534`                                                                 | Settings › Tool bar (+ "Hide toolbar while writing")                                                                               |
 | Audit 3.8: P12 layout pop-up, P14 box extras, P15 ink overlays, P16 Theme ▾ and 4 Copy & paste items, table / video context strips | Layouts card; Box card; Pen › Feel › Page (ruler, tape, eraser ring, hidden-layer chip); ⋯ Theme ▾; Context menu strip; Object bar |
 
-The 878 probes of the v6 → v8 mapping (`docs/mockups/toolbar-v8/mapping.mjs`) run against the real build; the 118 v8 probes for V4 (★ custom tools) are re-pointed to Favourites.
+The 878 kept probes (`docs/mockups/toolbar-v8/cov.mjs`, Text rows from `mapping.mjs`) and the 118 v8 probes (`cov_v8.mjs`; 996 total) run against the real build; the V4 probes (★ custom tools) are re-pointed to Favourites.
 
 ## Edge cases
 

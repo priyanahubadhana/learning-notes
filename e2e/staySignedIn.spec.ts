@@ -78,3 +78,56 @@ test('a certain "refresh token gone" answer does sign out', async ({
   await page.goto('/#/settings/account')
   await expect.poll(() => saved(page)).toBeNull()
 })
+
+/**
+ * F1 (iPad, 14 Nov): Safari can reopen a closed tab at the address it had
+ * when the Google round trip came back (`?sync=callback&code=...`), or a
+ * cancelled consent comes back without a code. That old, used-up callback
+ * must never end the sign-in already on the device.
+ */
+async function seedFresh(page: Page) {
+  await page.context().addInitScript(
+    ([key, email]) => {
+      if (localStorage.getItem('seeded-once')) return
+      localStorage.setItem('seeded-once', '1')
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          access: 'good',
+          refresh: 'refresh-1',
+          expiresAt: Date.now() + 3_600_000,
+          account: { accountId: 'u1', email, sub: 's1' },
+        }),
+      )
+    },
+    [SESSION, EMAIL] as const,
+  )
+  await page.route(/supabase\.co\/(rest|functions)\/v1\//, (r) =>
+    r.fulfill({ status: 200, contentType: 'application/json', body: '[]' }),
+  )
+  await page.route(/supabase\.co\/auth\/v1\//, (r) =>
+    r.fulfill({ status: 400, contentType: 'application/json', body: '{}' }),
+  )
+  await page.route(/googleapis\.com|accounts\.google\.com/, (r) =>
+    r.fulfill({ status: 200, contentType: 'application/json', body: '{}' }),
+  )
+}
+
+for (const [name, search] of [
+  ['an old callback address', '?sync=callback&code=used-up'],
+  [
+    'a cancelled consent',
+    '?sync=callback&error=access_denied&error_description=cancelled',
+  ],
+] as const) {
+  test(`F1: reopening at ${name} keeps the sign-in`, async ({ page }) => {
+    await seedFresh(page)
+    await page.goto(`/${search}#/settings/account`)
+    await expect(page.getByTestId('account-section')).toBeVisible()
+    await page.waitForTimeout(1500) // let the start-up read the address
+    expect(await saved(page)).toContain('refresh-1')
+    await expect(page.getByTestId('account-gate-bar')).toHaveCount(0)
+    // The used-up address is gone, so the next reopen starts clean.
+    expect(new URL(page.url()).search).toBe('')
+  })
+}

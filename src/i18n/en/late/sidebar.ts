@@ -61,4 +61,7 @@ export const enLateSidebar = {
   'trashDel.page': 'Moved “{name}” to Trash',
   'trashDel.pageSubs_one': 'Moved “{name}” and {count} sub-page to Trash',
   'trashDel.pageSubs_other': 'Moved “{name}” and {count} sub-pages to Trash',
+  'journal.tidiedTwo': 'Journal tidied: two {month} pages joined',
+  'journal.tidiedMany': 'Journal tidied: {count} {month} pages joined',
+  'journal.tidiedMonths': 'Journal tidied: pages of {count} months joined',
 }

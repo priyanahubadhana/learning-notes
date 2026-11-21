@@ -1,0 +1,97 @@
+{
+  "note": "B0 (SC-06): the specs under the check. The list of specs may only grow; a waiting list may only shrink (an id leaves it when its test or scenario exists).",
+  "specs": [
+    {
+      "file": "docs/features/lasso.md",
+      "prefix": "LS",
+      "from": "## How it works",
+      "to": "## Edge cases",
+      "parts": [
+        {
+          "name": "A0",
+          "ids": ["LS-01..LS-47"],
+          "status": "building"
+        },
+        {
+          "name": "A1a",
+          "ids": ["LS-50..LS-53", "LS-55..LS-56", "LS-N1..LS-N6"],
+          "status": "planned"
+        },
+        {
+          "name": "A1b",
+          "ids": ["LS-54"],
+          "status": "planned"
+        },
+        {
+          "name": "A1c",
+          "ids": ["LS-57..LS-58"],
+          "status": "planned"
+        }
+      ],
+      "waiting": [
+        "LS-04",
+        "LS-05",
+        "LS-06",
+        "LS-08",
+        "LS-09",
+        "LS-10",
+        "LS-11",
+        "LS-14",
+        "LS-15",
+        "LS-16",
+        "LS-17",
+        "LS-18",
+        "LS-19",
+        "LS-20",
+        "LS-21",
+        "LS-23",
+        "LS-24",
+        "LS-25",
+        "LS-28",
+        "LS-31",
+        "LS-34",
+        "LS-35",
+        "LS-36",
+        "LS-37",
+        "LS-43",
+        "LS-44",
+        "LS-45",
+        "LS-47",
+        "LS-55",
+        "LS-56",
+        "LS-57",
+        "LS-58",
+        "LS-N6"
+      ]
+    },
+    {
+      "file": "docs/features/quiet-recorder.md",
+      "prefix": "RC",
+      "from": "**Can never happen**",
+      "to": "## END OF SPEC (none)",
+      "parts": [
+        {
+          "name": "A2",
+          "ids": ["RC-01..RC-07", "RC-N1..RC-N3"],
+          "status": "building"
+        }
+      ],
+      "waiting": []
+    },
+    {
+      "file": "docs/features/selection-bar-buttons.md",
+      "prefix": "SB",
+      "from": "## The list",
+      "to": "## END OF LIST",
+      "parts": [
+        {
+          "name": "B1",
+          "ids": [],
+          "status": "done"
+        }
+      ],
+      "waiting": [],
+      "idsFromSource": true
+    }
+  ]
+}

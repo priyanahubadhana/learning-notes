@@ -94,6 +94,27 @@ describe('syncCardRecords', () => {
     expect(parts).toEqual(['b1', 'b2', 'main'])
   })
 
+  // P1 speed (17 Nov 2026): this runs every time a page or box opens. A write
+  // transaction waits for all others (seconds for a page of boxes on iPad
+  // Safari), so with nothing to add it must only read.
+  it('opens no write transaction when every card already exists', async () => {
+    await db.blocks.add(block('c1', CARD_BLOCK_TYPE))
+    await syncCardRecords(db, 'p1', T)
+    const modes: string[] = []
+    const real = db.transaction.bind(db) as (...a: unknown[]) => unknown
+    ;(
+      db as unknown as { transaction: (...a: unknown[]) => unknown }
+    ).transaction = (...args: unknown[]) => {
+      modes.push(String(args[0]))
+      return real(...args)
+    }
+    await syncCardRecords(db, 'p1', T + 1000)
+    await db.blocks.add({ ...block('c2', CARD_BLOCK_TYPE), order: 'a1' })
+    await syncCardRecords(db, 'p1', T + 2000)
+    expect(modes).toEqual(['r', 'r', 'rw'])
+    expect(await db.cards.count()).toBe(2)
+  })
+
   it('keeps the record when a card turns back into text', async () => {
     await db.blocks.add(block('c1', CARD_BLOCK_TYPE))
     await syncCardRecords(db, 'p1', T)

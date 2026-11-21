@@ -14,6 +14,7 @@ import {
   type EventRouter,
 } from '../input/eventRouter'
 import type { OverlayEvents } from './events'
+import { createTapSwallower, stopTap } from './swallow'
 
 export function routerOverlayEvents(
   router: EventRouter = getEventRouter(),
@@ -33,13 +34,34 @@ export function routerOverlayEvents(
       )
     },
     onPointerDown(cb) {
-      return router.subscribe(
+      // Above the gesture router: a tap that only closes a card or menu must
+      // not start a stroke or a drag either.
+      const first = { priority: PRIORITY.gesture + 1, name: 'overlay-tap' }
+      const tail = createTapSwallower((type, fn) =>
+        router.subscribe(
+          type,
+          (e) => {
+            fn(e)
+            return type !== 'pointercancel'
+          },
+          first,
+        ),
+      )
+      const off = router.subscribe(
         'pointerdown',
         (e) => {
-          if (e.target instanceof Element) cb(e.target)
+          tail.disarm()
+          if (!(e.target instanceof Element) || cb(e.target) !== true) return
+          stopTap(e)
+          tail.arm()
+          return true
         },
-        o,
+        first,
       )
+      return () => {
+        off()
+        tail.disarm()
+      }
     },
     onBackground(cb) {
       const off = router.subscribe('background', () => cb(), o)

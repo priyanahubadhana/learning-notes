@@ -1,10 +1,12 @@
 import { isOneOf } from '../../../settings/registry'
+import { isOn } from '../../flags'
 import { ensureFont } from '../../reading/fonts'
 import {
   fontStack,
   isReadingFont,
   type ReadingFont,
 } from '../../reading/readingPrefs'
+import { SIZE_MAX, SIZE_MIN } from '../../../design/parts/sizeModel'
 import { prefStore } from '../store'
 /** "default", a built-in font, or an imported one (`custom:<id>`). */
 export type NoteFont = Exclude<ReadingFont, 'app'> | 'default'
@@ -25,6 +27,17 @@ export const noteSize = prefStore<number>(
   (v): v is number => (NOTE_SIZES as readonly unknown[]).includes(v),
   100,
 )
+/**
+ * The Text tool's size for what is written next, in px (box bar part B, with
+ * textbox.v2): any whole number; it replaces today's five steps there.
+ */
+export const nextSize = prefStore<number | null>(
+  'text.nextSize',
+  (v): v is number | null =>
+    v === null || (typeof v === 'number' && v >= SIZE_MIN && v <= SIZE_MAX),
+  null,
+)
+
 export const noteLine = prefStore<NoteLine>(
   'text.line',
   isOneOf(NOTE_LINES),
@@ -38,7 +51,11 @@ export function applyNoteStyle(
     : document.documentElement,
 ): void {
   if (!root) return
-  const font = noteFont.get()
+  // Owner 18 Nov (box bar part A): with the new text box, Easy to read
+  // (Atkinson Hyperlegible) is the font of a note until another is picked.
+  const picked = noteFont.get()
+  const font: NoteFont =
+    picked === 'default' && isOn('textbox.v2') ? 'atkinson' : picked
   const size = noteSize.get()
   const line = noteLine.get()
   void ensureFont(font)

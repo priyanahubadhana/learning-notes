@@ -1,0 +1,79 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden plans, slice 5d > g41 a new nested tag on a page 1`] = `
+{
+  "counts": {
+    "pages": 1,
+    "tags": 2,
+  },
+  "records": [
+    "pages edit {"id":"744cdc84-dbb9-8517-b00b-5908133cafe4","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","parentId":null,"title":"Habits","order":"a0","summary":"How habits form.","tagIds":["d93cfd19-f236-8ac2-9b9b-cc5180fbcad5","f1a5b681-9422-8002-bdd2-c42b4182dd5b"]}",
+    "tags new {"id":"f1a5b681-9422-8002-bdd2-c42b4182dd5b","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"name":"Cells","parentId":"f1a5b781-9422-81b5-bdd2-c32b4182dba8"}",
+    "tags new {"id":"f1a5b781-9422-81b5-bdd2-c32b4182dba8","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"name":"Biology","parentId":null}",
+  ],
+}
+`;
+
+exports[`golden plans, slice 5d > g42 an existing tag is reused (case ignored) 1`] = `
+{
+  "counts": {
+    "pages": 1,
+  },
+  "records": [
+    "pages edit {"id":"8543c6b7-34b9-8e26-9279-928b4b511e9d","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","parentId":null,"title":"Habits","order":"a0V8M","summary":"How habits form.","tagIds":["d93cfd19-f236-8ac2-9b9b-cc5180fbcad5"]}",
+  ],
+}
+`;
+
+exports[`golden plans, slice 5d > g43 a tag taken off a page; the tag stays 1`] = `
+{
+  "counts": {
+    "pages": 1,
+  },
+  "records": [
+    "pages edit {"id":"744cdc84-dbb9-8517-b00b-5908133cafe4","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","parentId":null,"title":"Habits","order":"a0","summary":"How habits form.","tagIds":[]}",
+  ],
+}
+`;
+
+exports[`golden plans, slice 5d > g44 a tag renamed (only that level) 1`] = `
+{
+  "counts": {
+    "tags": 1,
+  },
+  "records": [
+    "tags edit {"id":"d93cfe19-f236-8c75-9b9b-cb5180fbc922","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"name":"health-care","parentId":null}",
+  ],
+}
+`;
+
+exports[`golden plans, slice 5d > g45 a notebook pinned, then unpinned (the flag is removed) 1`] = `
+{
+  "counts": {
+    "notebooks": 1,
+  },
+  "records": [
+    "notebooks edit {"id":"8e0c4184-ea3d-8e96-b8a0-700818135b99","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Habits that stick","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:8e0c4184-ea3d-8e96-b8a0-700818135b99"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}],"starred":true}",
+  ],
+}
+`;
+
+exports[`golden plans, slice 5d > g46 chain: a new notebook and page, a tag added and renamed, the notebook pinned; one Undo reverts all 1`] = `
+{
+  "counts": {
+    "blocks": 4,
+    "notebooks": 1,
+    "pages": 1,
+    "tags": 1,
+  },
+  "records": [
+    "blocks new {"id":"b4aafe23-94b6-8223-b69f-b9d466caa5ae","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b4ab0223-94b6-88ef-b69f-bdd466caac7a","parentId":"b4ab0323-94b6-8aa2-b69f-bcd466caaac7","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"76ceb79e-e31a-8453-bfdd-c5c32edd5f1c"}",
+    "blocks new {"id":"b4ab0123-94b6-873c-b69f-bed466caae2d","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b4ab0223-94b6-88ef-b69f-bdd466caac7a","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"76ceb79e-e31a-8453-bfdd-c5c32edd5f1c"}",
+    "blocks new {"id":"b4ab0323-94b6-8aa2-b69f-bcd466caaac7","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b4ab0223-94b6-88ef-b69f-bdd466caac7a","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"76ceb79e-e31a-8453-bfdd-c5c32edd5f1c"}",
+    "blocks new {"id":"b4ab0423-94b6-8c55-b69f-bbd466caa914","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b4ab0223-94b6-88ef-b69f-bdd466caac7a","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"76ceb79e-e31a-8453-bfdd-c5c32edd5f1c"}",
+    "notebooks new {"id":"cfb08723-a44f-8b6e-9d4d-38d458a30e7b","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Chain","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:cfb08723-a44f-8b6e-9d4d-38d458a30e7b"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}],"starred":true}",
+    "pages new {"id":"b4ab0223-94b6-88ef-b69f-bdd466caac7a","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"cfb08723-a44f-8b6e-9d4d-38d458a30e7b","parentId":null,"title":"Habits","order":"a0","summary":"How habits form.","tagIds":["be19b923-9a46-8544-aee4-06d462ac94a5"]}",
+    "tags new {"id":"be19b923-9a46-8544-aee4-06d462ac94a5","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"name":"Final","parentId":null}",
+  ],
+}
+`;

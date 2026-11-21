@@ -20,8 +20,12 @@ export type RoutedType =
   | 'pointermove'
   | 'pointerup'
   | 'pointercancel'
+  | 'click'
+  | 'input'
+  | 'touchmove'
   | 'focusin'
   | 'focusout'
+  | 'resize'
   | 'background'
   | 'foreground'
 
@@ -47,8 +51,14 @@ export interface RoutedEventMap {
   pointermove: PointerEvent
   pointerup: PointerEvent
   pointercancel: PointerEvent
+  click: MouseEvent
+  input: Event
+  /** Heard non-passive: a handler may preventDefault to stop scrolling. Subscribe only while needed. */
+  touchmove: TouchEvent
   focusin: FocusEvent
   focusout: FocusEvent
+  /** The window's own resize (a turn, split screen). Heard on window; a `scope` delivers nothing. */
+  resize: UIEvent
   background: AppSwitchEvent
   foreground: AppSwitchEvent
 }
@@ -135,9 +145,13 @@ const DOM_EVENTS: Record<
   pointermove: { where: 'doc', feeds: ['pointermove'] },
   pointerup: { where: 'doc', feeds: ['pointerup'] },
   pointercancel: { where: 'doc', feeds: ['pointercancel'] },
+  click: { where: 'doc', feeds: ['click'] },
+  input: { where: 'doc', feeds: ['input'] },
+  touchmove: { where: 'doc', feeds: ['touchmove'] },
   focusin: { where: 'doc', feeds: ['focusin'] },
   focusout: { where: 'doc', feeds: ['focusout'] },
   visibilitychange: { where: 'doc', feeds: ['background', 'foreground'] },
+  resize: { where: 'win', feeds: ['resize'] },
   pagehide: { where: 'win', feeds: ['background'] },
   pageshow: { where: 'win', feeds: ['foreground'] },
   blur: { where: 'win', feeds: ['background'] },
@@ -145,6 +159,9 @@ const DOM_EVENTS: Record<
 }
 
 const CAPTURE = { capture: true } as const
+/** touchmove must be non-passive so a drag can stop the page scrolling. */
+const optsFor = (domType: string) =>
+  domType === 'touchmove' ? { capture: true, passive: false } : CAPTURE
 
 function isNode(t: unknown): t is Node {
   return (
@@ -205,6 +222,10 @@ export function createEventRouter(targets?: RouterTargets): EventRouter {
         })
         return
       }
+      if (domType === 'resize') {
+        deliver('resize', e)
+        return
+      }
       if (info.where === 'win') {
         deliver(info.feeds[0], { reason: domType as AppSwitchReason, event: e })
         return
@@ -220,7 +241,8 @@ export function createEventRouter(targets?: RouterTargets): EventRouter {
       if (wanted && !fn) {
         const l = listenerFor(domType)
         attached.set(domType, l)
-        if (info.where === 'doc') t.doc.addEventListener(domType, l, CAPTURE)
+        if (info.where === 'doc')
+          t.doc.addEventListener(domType, l, optsFor(domType))
         else t.win.addEventListener(domType, l)
       } else if (!wanted && fn) {
         attached.delete(domType)

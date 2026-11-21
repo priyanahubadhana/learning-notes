@@ -6,11 +6,13 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
+import { Lock } from 'lucide-react'
 import { t } from '../i18n/t'
 import type { PaperBox } from '../core/types'
 import { frameCss, padOf } from '../core/boxStyle'
 import { BOX_COLOURS, sheetSegments } from './boxes'
 import { activeTool } from '../app/tools/main/mainTools'
+import { isOn } from '../app/flags'
 import { TOUCH_PX, TOUCH_STYLE } from './safeGap'
 import { FREE_MIN_W } from './grid'
 import {
@@ -19,6 +21,25 @@ import {
   RESIZE_HANDLES,
   type ResizeHow,
 } from './boxHandles'
+
+/*
+ * P1 speed (17 Nov 2026): every box measured itself in its own effect, right
+ * after its editor's effects had changed the page (editable, inert, …), so a
+ * page with 10 boxes re-styled the whole page 10 times per render (about
+ * 65 ms on a desktop, far more on an iPad). The measures now queue and run
+ * together in the next frame, before it is painted: one style pass for all
+ * boxes (they mount one after another, in separate steps).
+ */
+const measureQueue = new Set<() => void>()
+function flushMeasures(): void {
+  const list = [...measureQueue]
+  measureQueue.clear()
+  for (const run of list) run()
+}
+function queueMeasure(run: () => void): void {
+  if (measureQueue.size === 0) requestAnimationFrame(flushMeasures)
+  measureQueue.add(run)
+}
 
 /** How a press on a box is dragged: moves it, or changes its width. */
 export type GrabHow = 'move' | 'left' | 'right'
@@ -111,6 +132,7 @@ export function BoxFrame({
   bar?: ReactNode
   children: ReactNode
 }) {
+  const v2On = isOn('textbox.v2')
   const el = useRef<HTMLDivElement>(null)
   const [h, setH] = useState(0)
   // A box narrower than the grip and ⋯ side by side (a new, small box): they
@@ -137,10 +159,13 @@ export function BoxFrame({
       setNarrowBox(node.offsetWidth < 150)
       setH(node.offsetHeight)
     }
-    measure()
+    queueMeasure(measure)
     const ro = new ResizeObserver(measure)
     ro.observe(node)
-    return () => ro.disconnect()
+    return () => {
+      measureQueue.delete(measure)
+      ro.disconnect()
+    }
   }, [onBottom, onHeight, onWidth])
 
   const pointer = {
@@ -160,9 +185,11 @@ export function BoxFrame({
       ref={el}
       data-paper-box={box.id}
       data-locked={box.locked ? '' : undefined}
+      data-line={box.line}
       data-auto={autoMaxW ? '' : undefined}
       data-picked={picked ? '' : undefined}
       data-typing={typing ? '' : undefined}
+      data-hide-side={v2On && typing ? '' : undefined}
       data-empty-focused={emptyFocused ? '' : undefined}
       onFocusCapture={() => window.setTimeout(checkEmpty, 0)}
       onBlurCapture={() => window.setTimeout(checkEmpty, 0)}
@@ -178,7 +205,11 @@ export function BoxFrame({
         onEmptyDelete()
       }}
       className={
-        (stacked ? 'relative mt-8 ' : 'absolute ') +
+        (stacked
+          ? v2On
+            ? 'relative mt-12 '
+            : 'relative mt-8 '
+          : 'absolute ') +
         'group' +
         (dragging ? ' opacity-90 shadow-2xl' : '') +
         (pushed && !dragging
@@ -187,7 +218,12 @@ export function BoxFrame({
       }
       style={
         stacked
-          ? { marginLeft: stacked.x * k, width: stacked.w * k }
+          ? {
+              marginLeft: stacked.x * k,
+              width: stacked.w * k,
+              // Text box v2 (2B.5b): the height set with a dot, as on the iPad.
+              ...(v2On && shown.h ? { minHeight: shown.h * k } : {}),
+            }
           : dragging
             ? {
                 // One moving copy: placed at its old spot and moved by a
@@ -211,7 +247,10 @@ export function BoxFrame({
                       minWidth: FREE_MIN_W * k,
                     }
                   : { width: shown.w * k }),
-                ...(box.h ? { minHeight: box.h * k } : {}),
+                // Text box v2 (TB-21): the height follows the dot live, not at the lift.
+                ...((v2On ? shown.h : box.h)
+                  ? { minHeight: (v2On ? shown.h! : box.h!) * k }
+                  : {}),
               }
       }
       onClick={(e) => {
@@ -240,7 +279,11 @@ export function BoxFrame({
           data-box-frame={i}
           className={
             'pointer-events-none absolute inset-x-0 rounded-md border border-dashed border-transparent group-data-picked:border-solid group-data-picked:border-accent group-data-picked:border-[1.5px]' +
-            (typing ? ' !border-solid !border-line-strong' : '') +
+            (typing
+              ? v2On
+                ? ' !border-solid !border-accent !border-[1px]'
+                : ' !border-solid !border-line-strong'
+              : '') +
             (dragging ? ' !border-solid !border-accent' : '')
           }
           style={{ top: s.top, height: s.height, background: colour }}
@@ -251,6 +294,7 @@ export function BoxFrame({
         // B3-1: only on the selected box, one 44 pt target each.
         className={
           'pointer-events-none invisible absolute z-20 flex items-center group-data-picked:visible ' +
+          (v2On ? 'group-data-typing:!invisible ' : '') +
           (narrowBox
             ? 'left-1/2 -translate-x-1/2 gap-1'
             : 'left-0 right-0 justify-end pr-7')
@@ -259,7 +303,7 @@ export function BoxFrame({
       >
         {box.locked || stacked ? (
           <span aria-hidden className="px-1 text-xs text-muted">
-            🔒
+            {v2On ? <Lock size={16} /> : '🔒'}
           </span>
         ) : (
           <button
@@ -277,17 +321,20 @@ export function BoxFrame({
             ≡
           </button>
         )}
-        <button
-          type="button"
-          data-box-menu
-          aria-label={t('paper.box.menu')}
-          aria-haspopup="menu"
-          onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
-          style={TOUCH_STYLE}
-          className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
-        >
-          ⋯
-        </button>
+        {!v2On && (
+          // Q-1 (17 Nov): with text box v2 the bar's ⋯ is the only one.
+          <button
+            type="button"
+            data-box-menu
+            aria-label={t('paper.box.menu')}
+            aria-haspopup="menu"
+            onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
+            style={TOUCH_STYLE}
+            className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
+          >
+            ⋯
+          </button>
+        )}
       </div>
       {!stacked &&
         // The frame itself, as four thin strips: a tap selects the box, a
@@ -336,10 +383,12 @@ export function BoxFrame({
       {onResize &&
         !layoutMode &&
         picked &&
-        !stacked &&
+        (!stacked || v2On) &&
         !box.locked &&
+        !(v2On && typing) &&
         !dragging && <ResizeDots onResize={onResize} />}
-      {picked && !typing && !dragging && bar && (
+      {/* The one bar (textbox.v2) steps aside itself while a caret blinks in the box. */}
+      {picked && (!typing || v2On) && !dragging && bar && (
         <BarHolder below={shown.y * k < BAR_ROOM_PX}>{bar}</BarHolder>
       )}
     </div>
@@ -411,6 +460,9 @@ export function ResizeDots({
     end: (e: ReactPointerEvent) => void
   }
 }) {
+  // Text box v2 (2B.5): the whole 44 pt target lies outside the edge (text wins
+  // inside), and the dot is a plain 10 px ring on the edge.
+  const v2 = isOn('textbox.v2')
   return (
     <>
       {RESIZE_HANDLES.map((how) => {
@@ -418,8 +470,10 @@ export function ResizeDots({
         const side = how === 'e' || how === 'w'
         // The 44 pt target sits just outside the edge, so a tap on the text
         // inside never lands on a handle; the dot is drawn back on the edge.
-        const dx = how.includes('e') ? OUT : how.includes('w') ? -OUT : 0
-        const dy = how.includes('s') ? OUT_Y : how.includes('n') ? -OUT_Y : 0
+        const ox = v2 ? TOUCH_PX / 2 : OUT
+        const oy = v2 ? TOUCH_PX / 2 : OUT_Y
+        const dx = how.includes('e') ? ox : how.includes('w') ? -ox : 0
+        const dy = how.includes('s') ? oy : how.includes('n') ? -oy : 0
         return (
           <div
             key={how}
@@ -449,15 +503,19 @@ export function ResizeDots({
           >
             <span
               aria-hidden
-              style={{ transform: `translate(${-dx}px, ${-dy}px)` }}
+              style={{
+                transform: `translate(${-dx}px, ${-dy}px)${v2 ? ' scale(var(--dot-scale, 1))' : ''}`,
+              }}
               data-handle-dot={corner ? 'corner' : 'side'}
               className={
-                'border-2 border-accent bg-bg shadow-md ' +
-                (corner
-                  ? 'size-4 rounded-full'
-                  : side
-                    ? 'h-8 w-2.5 rounded-full'
-                    : 'h-2.5 w-8 rounded-full')
+                v2
+                  ? 'size-2.5 rounded-full border-[1.5px] border-accent bg-white'
+                  : 'border-2 border-accent bg-bg shadow-md ' +
+                    (corner
+                      ? 'size-4 rounded-full'
+                      : side
+                        ? 'h-8 w-2.5 rounded-full'
+                        : 'h-2.5 w-8 rounded-full')
               }
             />
           </div>

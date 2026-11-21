@@ -20,7 +20,14 @@ import {
   placeInOrder,
   sheetOf,
 } from './boxes'
-import { insertRow, migrateToRows, reconcile } from './grid'
+import {
+  find,
+  insertRow,
+  isFreeRow,
+  layoutRows,
+  migrateToRows,
+  reconcile,
+} from './grid'
 import { SAFE_TOP_MM } from './safeGap'
 
 /**
@@ -73,6 +80,37 @@ async function writeBoxes(
   })
 }
 
+/** C0-1: the owner's "Use for new boxes" style (undefined = none). */
+const newBoxStyle = async (db: LearningNotesDB) =>
+  cleanStyle((await db.settings.get('paper.boxStyleDefault'))?.value)
+
+/**
+ * C0-1: the page's own first box starts with the "Use for new boxes" style
+ * too, once, when it is first used. Only a page whose first box was never
+ * stored (never moved, sized or styled) and has no text yet: old pages keep
+ * their first box as it is.
+ */
+export async function styleFirstMainBox(
+  db: LearningNotesDB,
+  pageId: string,
+): Promise<void> {
+  const style = await newBoxStyle(db)
+  if (!style) return
+  const page = await db.pages.get(pageId)
+  if (!page || page.deletedAt || page.boxes?.some((b) => b.id === MAIN_BOX))
+    return
+  const live = (
+    await db.blocks.where('pageId').equals(pageId).toArray()
+  ).filter(isLive)
+  const empty = live.every(
+    (b) =>
+      b.type === 'paragraph' &&
+      !(b.content as { text?: unknown[] } | undefined)?.text?.length,
+  )
+  if (!empty) return
+  await updateBox(db, pageId, MAIN_BOX, { style })
+}
+
 /** A new empty box at (x, y) mm; returns its id. */
 export async function addBox(
   db: LearningNotesDB,
@@ -84,6 +122,8 @@ export async function addBox(
     row?: number
     /** Text box v2: a small free box at x, as wide as its text. `rows` = the arrangement shown now. */
     free?: boolean
+    /** C27: a free box as wide as this (mm), e.g. the whole line; else as wide as its text. */
+    wmm?: number
     rows?: GridRow[]
   },
 ): Promise<string> {
@@ -91,9 +131,7 @@ export async function addBox(
   const sheet = sheetOf(page)
   const id = createId()
   // "Use for new boxes" (bug batch 2, item 8): the default style, never the page's own box.
-  const style = cleanStyle(
-    (await db.settings.get('paper.boxStyleDefault'))?.value,
-  )
+  const style = await newBoxStyle(db)
   const box = clampBox(
     {
       id,
@@ -107,7 +145,13 @@ export async function addBox(
   if (at.free) {
     // A free box: its place is a row of its own at the tap (the row's y is
     // the least top it may have; rows below it slide down).
-    const free = { ...box, w: Math.max(MIN_W, sheet.w - at.x - MARGIN) }
+    const free = {
+      ...box,
+      w:
+        at.wmm !== undefined
+          ? Math.max(MIN_W, Math.min(at.wmm, sheet.w - at.x))
+          : Math.max(MIN_W, sheet.w - at.x - MARGIN),
+    }
     await db.transaction('rw', db.pages, async () => {
       const now = await getLive(db.pages, pageId)
       const stored = [...(now.boxes ?? []), free]
@@ -123,7 +167,15 @@ export async function addBox(
       await db.pages.update(pageId, {
         boxes: stored,
         rows: reconcile(
-          insertRow(base, idx, id, box.y, { x: Math.max(0, at.x) }),
+          insertRow(
+            base,
+            idx,
+            id,
+            box.y,
+            at.wmm !== undefined
+              ? { x: Math.max(0, at.x), wmm: free.w }
+              : { x: Math.max(0, at.x) },
+          ),
           known,
         ),
         updatedAt: Date.now(),
@@ -162,7 +214,10 @@ export async function updateBox(
   if (patch.locked === undefined && 'locked' in patch) delete next.locked
   if (patch.colour === undefined && 'colour' in patch) delete next.colour
   if (patch.style === undefined && 'style' in patch) delete next.style
+  if (patch.line === undefined && 'line' in patch) delete next.line
   if (patch.h === undefined && 'h' in patch) delete next.h
+  if (patch.full === undefined && 'full' in patch) delete next.full
+  if (patch.gone === undefined && 'gone' in patch) delete next.gone
   await writeBoxes(db, pageId, (boxes) =>
     boxes.some((b) => b.id === id)
       ? boxes.map((b) => (b.id === id ? next : b))
@@ -186,6 +241,27 @@ export async function setGroup(
     pageId,
     ids.map((id) => ({ id, patch: { group } })),
   )
+}
+
+/**
+ * Owner Q-3: the box that moves up when the first box is deleted: the first
+ * other box in the page's order (the grid's rows, else the stored order).
+ */
+export async function nextAfterMain(
+  db: LearningNotesDB,
+  pageId: string,
+): Promise<PaperBox | null> {
+  const page = await getLive(db.pages, pageId)
+  const all = boxesOf(page)
+  const rows = page.rows ?? migrateToRows(all)
+  for (const r of rows)
+    for (const c of r.cols)
+      for (const id of c.boxIds) {
+        if (id === MAIN_BOX) continue
+        const b = all.find((x) => x.id === id)
+        if (b) return b
+      }
+  return null
 }
 
 /** The live blocks of one box, in page order. */
@@ -281,13 +357,53 @@ export async function duplicateBox(
       }),
     )
     const sheet = sheetOf(page)
+    // C20: the place and width a box shows come from its row, not from its
+    // stored x and w. The copy gets the width the original shows and always
+    // goes BELOW the original (the row right after it), 10 mm to the right,
+    // as a free box. (A row of its own at the end would be full width; two
+    // boxes side by side would take the copy into their row.)
+    const baseRows = page.rows ?? migrateToRows(boxesOf(page))
+    const main = boxesOf(page)[0]
+    const shown = layoutRows(
+      baseRows,
+      {},
+      {
+        autoW: {},
+        sheetW: sheet.w,
+        sheetH: sheet.h,
+        gapMm: 0,
+        left: main.x,
+        right: sheet.w - main.x - main.w,
+        top: main.y,
+        bottom: MARGIN,
+      },
+    ).get(id)
+    const free = baseRows.find(
+      (r) => isFreeRow(r) && r.cols[0].boxIds.includes(id),
+    )
+    const at = shown ?? box
+    // A box as wide as its text stays so (its width is not stored).
+    const auto = !!free?.auto && free.wmm === undefined
+    const w = auto ? box.w : (free?.wmm ?? at.w)
     const copy = clampBox(
-      { ...box, id: copyId, x: box.x + 10, y: box.y + 10 },
+      { ...box, id: copyId, x: at.x + 10, y: at.y + 10, w },
       sheet.w,
     )
-    delete copy.locked
     delete copy.group
     await writeBoxes(db, pageId, (boxes) => [...boxes, copy])
+    const latest = await getLive(db.pages, pageId)
+    const ids = boxesOf(latest).map((b) => b.id)
+    const rows = reconcile(latest.rows ?? baseRows, ids)
+    const below = (find(rows, id)?.r ?? rows.length - 1) + 1
+    await db.pages.update(pageId, {
+      rows: insertRow(
+        rows,
+        below,
+        copyId,
+        undefined,
+        auto ? { x: copy.x } : { x: copy.x, wmm: copy.w },
+      ),
+    })
   })
   return copyId
 }
@@ -332,9 +448,19 @@ export async function addBoxInOrder(
   const page = await getLive(db.pages, pageId)
   const sheet = sheetOf(page)
   const id = createId()
+  const style = await newBoxStyle(db)
   await writeBoxes(db, pageId, (boxes) => {
     const { y, shift, shifted } = placeInOrder(boxes, after)
-    const box = clampBox({ id, x: MARGIN, y, w: sheet.w - 2 * MARGIN }, sheet.w)
+    const box = clampBox(
+      {
+        id,
+        x: MARGIN,
+        y,
+        w: sheet.w - 2 * MARGIN,
+        ...(style ? { style } : {}),
+      },
+      sheet.w,
+    )
     return [
       ...boxes.map((b) =>
         shifted.includes(b.id) ? { ...b, y: b.y + shift } : b,

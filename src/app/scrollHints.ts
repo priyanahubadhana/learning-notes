@@ -18,6 +18,7 @@ const HIT = 24
 const INSET = 3
 
 import { installEdgeStretch } from './edgeStretch'
+import { setScrollTarget } from '../design/parts/scrollTarget'
 
 export type More = 'top' | 'bottom' | 'both' | null
 
@@ -106,19 +107,89 @@ const MARK = 'data-scroll-more'
  */
 const GUTTER = 'data-scroll-gutter'
 
+/** True in the new frame: the shared bar overlays the list's edge, so no gutter is added on the fly. */
+let barOn: () => boolean = () => false
+
+/**
+ * R12: the colour of a box that paints a solid background of its own, else
+ * null. A card, sheet or menu like that must stay solid: a mask on it would let
+ * the page show through its edge, so only its inside fades (index.css, a soft
+ * edge in the surface's own colour).
+ */
+export function solidOf(css: string): string | null {
+  const c = css.trim()
+  if (!c || c === 'transparent') return null
+  const inner = /(([^)]*))/.exec(c)?.[1] ?? ''
+  let alpha = '1'
+  if (inner.includes('/')) alpha = inner.split('/')[1].trim()
+  else if (/^(rgba|hsla)/.test(c) && inner.split(',').length === 4)
+    alpha = inner.split(',')[3].trim()
+  const a = alpha.endsWith('%') ? parseFloat(alpha) / 100 : parseFloat(alpha)
+  return Number.isNaN(a) || a >= 0.95 ? c : null
+}
+
+const SOLID = 'data-scroll-solid'
+
+/** The edge fade can be drawn inside a plain block or a column of items (no gaps, no ::before / ::after of its own). */
+function fadeable(el: HTMLElement): boolean {
+  const cs = getComputedStyle(el)
+  const flow =
+    cs.display === 'block' ||
+    cs.display === 'flow-root' ||
+    (cs.display === 'flex' && cs.flexDirection === 'column')
+  const gap = cs.rowGap !== 'normal' && parseFloat(cs.rowGap) > 0
+  return (
+    flow &&
+    !gap &&
+    // Its own fade (already drawn) does not count as a pseudo-element of its own.
+    (el.getAttribute(SOLID) === 'fade' ||
+      (getComputedStyle(el, '::before').content === 'none' &&
+        getComputedStyle(el, '::after').content === 'none'))
+  )
+}
+
+/*
+ * P1 speed (17 Nov 2026): the scan below reads the size of every list right
+ * after the one before was marked. Writing an attribute (even the same value)
+ * makes the browser work out the styles again before the next read, so a scan
+ * re-styled the page once per list. Writes now happen only on a real change.
+ */
+function setAttr(el: HTMLElement, name: string, value: string): void {
+  if (el.getAttribute(name) !== value) el.setAttribute(name, value)
+}
+function dropAttr(el: HTMLElement, name: string): void {
+  if (el.hasAttribute(name)) el.removeAttribute(name)
+}
+
 function mark(el: HTMLElement): void {
   const more = moreOf(el.scrollTop, el.scrollHeight, el.clientHeight)
   if (more) {
-    el.setAttribute(MARK, more)
-    el.setAttribute(GUTTER, '')
-  } else el.removeAttribute(MARK)
+    setAttr(el, MARK, more)
+    // Goes live with Phase 1 (foundation.shell): before that the old look stays.
+    const solid = barOn() ? solidOf(getComputedStyle(el).backgroundColor) : null
+    if (solid) {
+      // 'edge' = a soft shadow drawn in the box's own background (no pseudo-element needed).
+      // Its own edge (already drawn) does not count as an image of its own.
+      const own =
+        el.getAttribute(SOLID) === 'edge' ||
+        getComputedStyle(el).backgroundImage === 'none'
+      setAttr(el, SOLID, fadeable(el) ? 'fade' : own ? 'edge' : 'plain')
+      if (el.style.getPropertyValue('--scroll-fade-bg') !== solid)
+        el.style.setProperty('--scroll-fade-bg', solid)
+    } else dropAttr(el, SOLID)
+    if (!barOn()) setAttr(el, GUTTER, '')
+  } else dropAttr(el, MARK)
 }
 
 /**
  * Starts the hints. `isOn` is read each time, so the Settings switch takes
  * effect at once; call the returned `refresh` when it changes.
  */
-export function installScrollHints(isOn: () => boolean): {
+export function installScrollHints(
+  isOn: () => boolean,
+  /** New app frame (foundation.shell): the shared scroll bar replaces the handle. */
+  barMode: () => boolean = () => false,
+): {
   refresh: () => void
   stop: () => void
 } {
@@ -127,6 +198,7 @@ export function installScrollHints(isOn: () => boolean): {
   thumb.setAttribute('aria-hidden', 'true')
   thumb.dataset.noScrollHint = ''
   document.body.appendChild(thumb)
+  barOn = barMode
   const stopStretch = installEdgeStretch()
 
   let hideTimer: ReturnType<typeof setTimeout> | undefined
@@ -137,6 +209,10 @@ export function installScrollHints(isOn: () => boolean): {
   let hovered = false
 
   const hide = () => {
+    if (barMode()) {
+      current = null
+      setScrollTarget(null)
+    }
     if (drag || hovered) return
     thumb.classList.remove('is-on')
   }
@@ -146,6 +222,13 @@ export function installScrollHints(isOn: () => boolean): {
   }
 
   const show = (el: HTMLElement) => {
+    if (barMode()) {
+      // The shared bar (ScrollBarHost) draws it; the old handle stays hidden.
+      current = el
+      setScrollTarget(el)
+      return
+    }
+    setScrollTarget(null)
     const g = thumbOf(el.scrollTop, el.scrollHeight, el.clientHeight)
     if (!g) {
       current = null
@@ -242,12 +325,12 @@ export function installScrollHints(isOn: () => boolean): {
     for (let i = 0; i < limit; i++) {
       const el = all[i]
       if (!isOn()) {
-        el.removeAttribute(MARK)
-        el.removeAttribute(GUTTER)
+        dropAttr(el, MARK)
+        dropAttr(el, GUTTER)
       } else if (el.scrollHeight - el.clientHeight > 1 && scrolls(el)) {
         mark(el)
       } else {
-        el.removeAttribute(MARK)
+        dropAttr(el, MARK)
       }
     }
     if (!isOn()) hide()
@@ -283,6 +366,7 @@ export function installScrollHints(isOn: () => boolean): {
     ) {
       current = null
       hovered = false
+      setScrollTarget(null)
       thumb.classList.remove('is-on')
     }
   }
@@ -305,6 +389,7 @@ export function installScrollHints(isOn: () => boolean): {
       observer.disconnect()
       clearTimeout(hideTimer)
       clearTimeout(scanTimer)
+      setScrollTarget(null)
       thumb.remove()
     },
   }

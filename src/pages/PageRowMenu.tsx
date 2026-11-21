@@ -3,7 +3,9 @@ import { editLockItem } from '../app/lock/editLockMenu'
 import { runTask } from '../app/errors'
 import { favourites, toggleFavourite } from '../app/favourites'
 import { toggleLock } from '../app/lock/lockMenu'
-import { MenuPopover, type MenuItem } from '../app/ui'
+import type { MenuItem } from '../app/ui'
+import { RowMenu } from '../app/RowStrip'
+import type { RowPoint } from '../app/rowStripLogic'
 import type { LearningNotesDB } from '../core/db'
 import { editLockSource } from '../core/editLock'
 import { useReadOnlyGate } from '../core/useReadOnlyGate'
@@ -15,6 +17,7 @@ export default function PageRowMenu({
   db,
   page,
   anchor,
+  at,
   toast,
   rootId,
   canMove,
@@ -29,6 +32,8 @@ export default function PageRowMenu({
   db: LearningNotesDB
   page: Page
   anchor: DOMRect
+  /** Where the long-press was (flag page.menus: the strip opens there). */
+  at?: RowPoint | null
   toast: (message: string) => void
   rootId?: string
   canMove: boolean
@@ -50,17 +55,17 @@ export default function PageRowMenu({
   useReadOnlyGate() // re-reads the lock when the sign-in changes (Q3a)
   const editLockBy = editLockSource(page, notebook)
   const items: MenuItem[] = [
-    { label: t('sidebar.rename.title'), icon: '✎', onSelect: onRename },
+    { label: t('sidebar.rename.title'), icon: 'pencil', onSelect: onRename },
   ]
   if (canAddSub) {
-    items.push({ label: t('tree.addSub'), icon: '+', onSelect: onAddSub })
+    items.push({ label: t('tree.addSub'), icon: 'plus', onSelect: onAddSub })
   }
   if (!rootId) {
     const fav = starred.includes(page.id)
     items.push(
       {
         label: t(fav ? 'fav.remove' : 'fav.add'),
-        icon: fav ? '★' : '☆',
+        icon: 'star',
         onSelect: () => toggleFavourite(page.id),
       },
       {
@@ -75,19 +80,31 @@ export default function PageRowMenu({
   }
   if (canMove) {
     items.push(
-      { label: t('tree.moveUp'), icon: '↑', onSelect: () => onMove(-1) },
-      { label: t('tree.moveDown'), icon: '↓', onSelect: () => onMove(1) },
+      {
+        label: t('tree.moveUp'),
+        icon: 'chevronUp',
+        onSelect: () => onMove(-1),
+      },
+      {
+        label: t('tree.moveDown'),
+        icon: 'chevronDown',
+        onSelect: () => onMove(1),
+      },
     )
   }
   if (onMoveTop)
-    items.push({ label: t('tree.moveTop'), icon: '↰', onSelect: onMoveTop })
+    items.push({
+      label: t('tree.moveTop'),
+      icon: 'arrowUpRight',
+      onSelect: onMoveTop,
+    })
   items.push({
     label: t('tree.deletePage'),
-    icon: '×',
+    icon: 'trash',
     onSelect: onDelete,
     danger: true,
     disabled: !!editLockBy,
     hint: editLockBy ? t('editLock.deleteHint') : undefined,
   })
-  return <MenuPopover anchor={anchor} items={items} onClose={onClose} />
+  return <RowMenu anchor={anchor} at={at} items={items} onClose={onClose} />
 }

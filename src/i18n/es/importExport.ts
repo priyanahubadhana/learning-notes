@@ -368,6 +368,10 @@ export const esImportExport = {
   'notion.working': 'Importando…',
   'paste.blocked':
     'El navegador no permitió leer el portapapeles. Pulsa Ctrl+Shift+V (Cmd+Shift+V en Mac).',
+  'paste.asking':
+    'Tu iPad pregunta primero. Toca el botón negro Pegar, o toca en cualquier otro sitio para cancelar.',
+  'paste.refused':
+    'Aún no se ha pegado. Toca Pegar otra vez y luego toca el botón negro Pegar que aparece.',
   'paste.done': 'Pegado',
   'paste.plain': 'Pegar como texto sin formato',
   'pasteChooser.always': 'Usar siempre esto, no volver a preguntar',
@@ -375,13 +379,14 @@ export const esImportExport = {
   'pasteChooser.asTable': 'Como tabla',
   'pasteChooser.boxMade': 'Pegado en un cuadro de texto nuevo',
   'pasteChooser.chip': 'Pegado como',
+  'pasteChooser.close': 'Cerrar',
   'pasteChooser.cleaned': 'Ordenado',
   'pasteChooser.cleanup': 'Ordenar con IA',
   'pasteChooser.column': 'Columna {n}',
   'pasteChooser.default': 'predeterminado',
   'pasteChooser.embed': 'Insertar (vídeo)',
   'pasteChooser.embedVideo': 'Insertar (vídeo)',
-  'pasteChooser.keep': 'Mantener el formato original',
+  'pasteChooser.keep': 'Mantener el aspecto',
   'pasteChooser.keys': 'Intro = predeterminado, Esc = cancelar el pegado',
   'pasteChooser.link': 'Enlace',
   'pasteChooser.linkCard': 'Tarjeta de enlace',
@@ -392,6 +397,7 @@ export const esImportExport = {
     'Tu IA reconstruye la estructura (muestra el coste antes)',
   'pasteChooser.preview.database':
     'Base de datos, {rows} filas (primera columna = título)',
+  'pasteChooser.preview.heading': '1 título',
   'pasteChooser.preview.headings': '{n} títulos',
   'pasteChooser.preview.items': '{n} elementos de lista',
   'pasteChooser.preview.table': 'Tabla, {rows} filas, {cols} columnas',

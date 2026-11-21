@@ -350,6 +350,10 @@ export const hiImportExport = {
   'notion.working': 'इम्पोर्ट हो रहा है…',
   'paste.blocked':
     'ब्राउज़र ने क्लिपबोर्ड पढ़ने की अनुमति नहीं दी। इसके बजाय Ctrl+Shift+V (Mac पर Cmd+Shift+V) दबाएँ।',
+  'paste.asking':
+    'आपका iPad पहले पूछता है। काले पेस्ट बटन पर टैप करें, या रद्द करने के लिए कहीं और टैप करें।',
+  'paste.refused':
+    'अभी पेस्ट नहीं हुआ। फिर से पेस्ट पर टैप करें, फिर जो काला पेस्ट बटन दिखे उस पर टैप करें।',
   'paste.done': 'पेस्ट हो गया',
   'paste.plain': 'सादे टेक्स्ट के रूप में पेस्ट करें',
   'pasteChooser.always': 'हमेशा यही चुनें, दोबारा न पूछें',
@@ -357,13 +361,14 @@ export const hiImportExport = {
   'pasteChooser.asTable': 'टेबल के रूप में',
   'pasteChooser.boxMade': 'नए टेक्स्ट बॉक्स में चिपकाया गया',
   'pasteChooser.chip': 'पेस्ट किया गया',
+  'pasteChooser.close': 'बंद करें',
   'pasteChooser.cleaned': 'साफ़ किया हुआ',
   'pasteChooser.cleanup': 'AI से साफ़ करें',
   'pasteChooser.column': 'कॉलम {n}',
   'pasteChooser.default': 'डिफ़ॉल्ट',
   'pasteChooser.embed': 'एम्बेड करें (वीडियो)',
   'pasteChooser.embedVideo': 'एम्बेड (वीडियो)',
-  'pasteChooser.keep': 'मूल फ़ॉर्मैट रखें',
+  'pasteChooser.keep': 'रूप वैसा ही रखें',
   'pasteChooser.keys': 'Enter = डिफ़ॉल्ट, Esc = पेस्ट रद्द करें',
   'pasteChooser.link': 'लिंक',
   'pasteChooser.linkCard': 'लिंक कार्ड',
@@ -374,6 +379,7 @@ export const hiImportExport = {
     'आपका AI ढांचा फिर से बनाता है (पहले लागत दिखती है)',
   'pasteChooser.preview.database':
     'डेटाबेस, {rows} पंक्तियाँ (पहला कॉलम = शीर्षक)',
+  'pasteChooser.preview.heading': '1 शीर्षक',
   'pasteChooser.preview.headings': '{n} शीर्षक',
   'pasteChooser.preview.items': '{n} सूची आइटम',
   'pasteChooser.preview.table': 'टेबल, {rows} पंक्तियाँ, {cols} कॉलम',

@@ -8,6 +8,7 @@ import { hiEditor } from './editor'
 import { hiHelp } from './help'
 import { hiHistory } from './history'
 import { hiHome } from './home'
+import { hiHomeV2 } from './homeV2'
 import { hiImportExport } from './importExport'
 import { hiInk } from './ink'
 import { hiLibrary } from './library'
@@ -24,7 +25,26 @@ import { hiTags } from './tags'
 import { hiToolbar } from './toolbar'
 import { hiUpdates } from './updates'
 import { hiUpdateV2 } from './updateV2'
+import { hiStorageSafety } from './storageSafety'
+import { hiLibraryV2 } from './libraryV2'
 import { hiFlags } from './flags'
+import { hiSlashMenu } from './slashMenu'
+import { hiPageMenus } from './pageMenus'
+import { hiShell } from './shell'
+import { hiAiBuild } from './aibuild'
+import { hiAiJobs } from './aijobs'
+import { hiReviewV2 } from './reviewV2'
+import { hiAiPlan } from './aiplan'
+import { hiParts } from './parts'
+import { hiNotebooksV2 } from './notebooksV2'
+import { hiSearchV2 } from './searchV2'
+import { hiPanelV2 } from './panelV2'
+import { hiV8BarEdit } from './v8BarEdit'
+import { hiV8Pen } from './v8Pen'
+import { hiV8Favs } from './v8Favs'
+import { hiV8Tools } from './v8Tools'
+import { hiV8Text } from './v8Text'
+import { hiOneBar } from './oneBar'
 
 export const hi: Record<string, string> = {
   ...hiAccounts,
@@ -36,6 +56,7 @@ export const hi: Record<string, string> = {
   ...hiHelp,
   ...hiHistory,
   ...hiHome,
+  ...hiHomeV2,
   ...hiImportExport,
   ...hiInk,
   ...hiLibrary,
@@ -53,4 +74,23 @@ export const hi: Record<string, string> = {
   ...hiUpdates,
   ...hiUpdateV2,
   ...hiFlags,
+  ...hiSlashMenu,
+  ...hiPageMenus,
+  ...hiShell,
+  ...hiAiBuild,
+  ...hiAiJobs,
+  ...hiReviewV2,
+  ...hiAiPlan,
+  ...hiParts,
+  ...hiNotebooksV2,
+  ...hiSearchV2,
+  ...hiPanelV2,
+  ...hiLibraryV2,
+  ...hiV8BarEdit,
+  ...hiV8Pen,
+  ...hiV8Favs,
+  ...hiStorageSafety,
+  ...hiV8Tools,
+  ...hiV8Text,
+  ...hiOneBar,
 }

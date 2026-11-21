@@ -195,49 +195,86 @@ const CARD_WIDTH = 340
 const GAP = 6
 const EDGE_GAP = 8
 
+/** A box on the screen that a card must not cover (the mini bar). */
+export interface Avoid {
+  left: number
+  right: number
+  top: number
+  bottom: number
+}
+
 /**
  * Where the card goes: below a top pill, above a bottom pill, beside a side
- * pill (on the side with room), always inside the screen.
+ * pill (on the side with room), always inside the screen. It never covers its
+ * pill or the `avoid` box: with too little room on the natural side it flips
+ * to the other side (BUG-002 side fix).
  */
 export function cardAnchor(
   pos: { x: number; y: number },
   size: Size,
   edge: Edge,
   screen: Size,
+  avoid?: Avoid,
 ): CardAnchor {
   const width = Math.min(CARD_WIDTH, screen.width - 2 * EDGE_GAP)
   const clampX = (x: number) =>
     Math.min(screen.width - width - EDGE_GAP, Math.max(EDGE_GAP, x))
-  switch (edge) {
-    case 'top': {
-      const top = pos.y + size.height + GAP
-      return {
-        left: clampX(pos.x),
-        top,
-        maxHeight: Math.max(160, screen.height - top - EDGE_GAP),
-      }
-    }
-    case 'bottom': {
-      const bottom = screen.height - pos.y + GAP
-      return {
-        left: clampX(pos.x),
-        bottom,
-        maxHeight: Math.max(160, pos.y - GAP - EDGE_GAP),
-      }
-    }
-    default: {
-      const top = Math.min(
-        Math.max(EDGE_GAP, pos.y),
-        Math.max(EDGE_GAP, screen.height - 200),
-      )
-      return {
-        left:
-          edge === 'left'
-            ? clampX(pos.x + size.width + GAP)
-            : clampX(pos.x - width - GAP),
-        top,
-        maxHeight: Math.max(160, screen.height - top - EDGE_GAP),
-      }
-    }
+  const side = edge === 'left' || edge === 'right'
+  const left = side
+    ? edge === 'left'
+      ? clampX(pos.x + size.width + GAP)
+      : clampX(pos.x - width - GAP)
+    : clampX(pos.x)
+  const minH = Math.min(160, screen.height - 2 * EDGE_GAP)
+  // The vertical bands the card may not cover.
+  const bands: [number, number][] = []
+  if (!side) bands.push([pos.y - GAP, pos.y + size.height + GAP])
+  if (avoid && avoid.right > left && avoid.left < left + width) {
+    bands.push([avoid.top - GAP, avoid.bottom + GAP])
   }
+  bands.sort((x, y) => x[0] - y[0])
+  // The free runs between the bands. A run under a band hangs from it; a run
+  // above the first band sits on the band below it.
+  const runs: { a: number; b: number; under: boolean }[] = []
+  let at = EDGE_GAP
+  let under = false
+  for (const [from, to] of bands) {
+    if (from > at)
+      runs.push({ a: at, b: Math.min(from, screen.height - EDGE_GAP), under })
+    at = Math.max(at, to)
+    under = true
+  }
+  if (screen.height - EDGE_GAP > at) {
+    runs.push({ a: at, b: screen.height - EDGE_GAP, under })
+  }
+  const len = (r: { a: number; b: number }) => r.b - r.a
+  // The natural run first, then the longest.
+  const wanted = side
+    ? runs.find((r) => r.a <= pos.y && pos.y < r.b)
+    : edge === 'top'
+      ? runs.find((r) => r.under && r.a >= pos.y)
+      : [...runs].reverse().find((r) => r.b <= pos.y + size.height)
+  const pick =
+    wanted && len(wanted) >= minH
+      ? wanted
+      : (runs
+          .filter((r) => len(r) >= minH)
+          .sort((x, y) => len(y) - len(x))[0] ??
+        [...runs].sort((x, y) => len(y) - len(x))[0] ?? {
+          a: EDGE_GAP,
+          b: screen.height - EDGE_GAP,
+          under: true,
+        })
+  if (side) {
+    const top = Math.min(
+      Math.max(pick.a, pos.y),
+      Math.max(pick.a, pick.b - Math.min(200, len(pick))),
+    )
+    return { left, top, maxHeight: pick.b - top }
+  }
+  // A run that hangs from a band gets its card at the top; the run above the
+  // first band gets its card on the band's top edge (anchored at the bottom).
+  return pick.under
+    ? { left, top: pick.a, maxHeight: len(pick) }
+    : { left, bottom: screen.height - pick.b, maxHeight: len(pick) }
 }

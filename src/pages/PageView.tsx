@@ -31,11 +31,15 @@ import { usePaperBoxes } from '../paper/usePaperBoxes'
 import type { EditorApi } from '../editor/editorContext'
 import { revealBlock } from '../editor/revealBlock'
 import { HistoryDialog } from '../history/HistoryDialog'
+import { usePageSheetActions } from './menus/usePageSheetActions'
+import { useFlag } from '../app/flags'
 import { recordVersion } from '../history/versionService'
 import { dateKey } from '../journal/dates'
 import { t } from '../i18n/t'
 import { getNotebook } from '../notebooks/notebookService'
 import { isPageBlank, saveAsTemplate } from '../templates/templateService'
+import { isOn } from '../app/flags'
+import { pageHasInk } from '../core/inkService'
 import { hintPageOk } from '../paper/hintPages'
 import { PAPER_STYLES, paperStyleKey } from './paperStyles'
 import { makeDatabasePage } from '../databases/databasePage'
@@ -81,6 +85,7 @@ import {
   readingView,
   startReading,
   stopReading,
+  pageOpened,
 } from '../app/reading/readingState'
 import {
   surfaceStyle,
@@ -91,12 +96,16 @@ import { openReader } from '../app/reading/readingTools'
 import { Glyph, Icon } from '../app/tools/icons'
 import { setPageReloader } from '../core/historySteps'
 
+import { lazyNow } from '../app/lazyNow'
+import { preloadAhead } from '../app/idlePrefetch'
+
 const PromptsDialog = lazy(() => import('../prompts/PromptsDialog'))
 
 const MindMapTab = lazy(() => import('./tabs/MindMapTab'))
 const SlidesTab = lazy(() => import('./tabs/SlidesTab'))
 const AudioTab = lazy(() => import('./tabs/AudioTab'))
 const DatabaseTab = lazy(() => import('./tabs/DatabaseTab'))
+const PageSheet = lazyNow(() => import('./menus/PageSheet'))
 const ExportDialog = lazy(() =>
   import('../share/export/ExportDialog').then((m) => ({
     default: m.ExportDialog,
@@ -151,6 +160,10 @@ export function PageView({
   const { toast } = useContext(AppUiContext)
   // Undo of a restored version redraws the page from the database.
   useEffect(() => setPageReloader(onReload), [onReload])
+  // The page's more-menu sheet is fetched ahead, so a tap paints it at once (R13).
+  useEffect(() => preloadAhead([PageSheet.preload]), [])
+  // T8c: Reading mode ends with the last page screen, so it cannot hide the tool bar for good.
+  useEffect(() => pageOpened(), [])
   const path = useLiveQuery(() => getPagePath(db, page.id), [db, page.id]) ?? []
   const notebook = useLiveQuery(
     () => getNotebook(db, page.notebookId),
@@ -283,14 +296,48 @@ export function PageView({
       label: t('paper.size'),
       icon: '▭',
       onSelect: () => {},
-      submenu: (['A4', 'Letter'] as const).map((size) => ({
-        label: t(size === 'A4' ? 'paper.sizeA4' : 'paper.sizeLetter'),
+      submenu: (['fit', 'A4', 'Letter'] as const).map((size) => ({
+        label: t(
+          size === 'fit'
+            ? 'paper.sizeFit'
+            : size === 'A4'
+              ? 'paper.sizeA4'
+              : 'paper.sizeLetter',
+        ),
         icon: '▭',
         checked: (page.sheet ?? 'A4') === size,
         onSelect: () => runTask(setPageSheet(db, page.id, size)),
       })),
     },
   ]
+  const copyItem: MenuItem = {
+    label: t('copy.menu'),
+    icon: '⧉',
+    onSelect: () => {},
+    submenu: [
+      {
+        label: t('copy.pictures'),
+        icon: '⧉',
+        onSelect: () => editor.current?.copyPage('pictures'),
+      },
+      {
+        label: t('copy.pagePlain'),
+        icon: '⧉',
+        onSelect: () => editor.current?.copyPage('plain'),
+      },
+      {
+        label: t('copy.pageMarkdown'),
+        icon: '⧉',
+        onSelect: () => editor.current?.copyPage('markdown'),
+      },
+      {
+        label: t('paste.plain'),
+        icon: '⎘',
+        hint: isApple() ? '⌘⇧V' : 'Ctrl+Shift+V',
+        onSelect: () => editor.current?.pastePlain(),
+      },
+    ],
+  }
   const moreItems: MenuItem[] = [
     // Page actions first.
     ...(notebook && !isTemplate
@@ -357,34 +404,7 @@ export function PageView({
       onSelect: () => getAppActions()?.openControlPanel(),
     },
     // Copy and paste, grouped.
-    {
-      label: t('copy.menu'),
-      icon: '⧉',
-      onSelect: () => {},
-      submenu: [
-        {
-          label: t('copy.pictures'),
-          icon: '⧉',
-          onSelect: () => editor.current?.copyPage('pictures'),
-        },
-        {
-          label: t('copy.pagePlain'),
-          icon: '⧉',
-          onSelect: () => editor.current?.copyPage('plain'),
-        },
-        {
-          label: t('copy.pageMarkdown'),
-          icon: '⧉',
-          onSelect: () => editor.current?.copyPage('markdown'),
-        },
-        {
-          label: t('paste.plain'),
-          icon: '⎘',
-          hint: isApple() ? '⌘⇧V' : 'Ctrl+Shift+V',
-          onSelect: () => editor.current?.pastePlain(),
-        },
-      ],
-    },
+    copyItem,
     // Page address for this page (wins over its notebook and Settings).
     pageAddressItem(page.pathStyle, (style) =>
       runTask(setPagePathStyle(db, page.id, style)),
@@ -416,6 +436,63 @@ export function PageView({
     },
   ]
 
+  // Flag page.menus: the page more-menu is the shared side Sheet.
+  const menusOn = useFlag('page.menus')
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const sheetActions = usePageSheetActions({
+    db,
+    page,
+    toast,
+    starred,
+    paperItems,
+    deviceMode: deviceModeItem(deviceMode),
+    copyItem,
+    lockItem,
+    extras: [
+      {
+        section: 'protect',
+        item:
+          editLockBy === 'notebook' || editLockBy === 'account'
+            ? null
+            : editLockItem(db, 'page', page.id, !!page.editLocked, toast),
+        toggle: { on: !!page.editLocked, label: t('editLock.menu.lock') },
+      },
+      {
+        section: 'protect',
+        item:
+          notebook && !isTemplate
+            ? pauseMenuItem(
+                db,
+                'page',
+                page.id,
+                page.title,
+                !!page.paused,
+                toast,
+              )
+            : null,
+        toggle: { on: !!page.paused, label: t('pause.pause') },
+      },
+      {
+        section: 'view',
+        item: pageAddressItem(page.pathStyle, (style) =>
+          runTask(setPagePathStyle(db, page.id, style)),
+        ),
+      },
+    ],
+    saveTemplate: notebook && !isTemplate ? saveTemplate : undefined,
+    onReview: notebook && !isTemplate ? () => onReview() : undefined,
+    openPrompts:
+      notebook && !isTemplate ? () => setPromptsOpen(true) : undefined,
+    openHistory,
+    openReader,
+    openExport,
+    onOpenBackup,
+    onOpenPage,
+    pastePlain: () => editor.current?.pastePlain(),
+    barShown: barPlacement === 'floating',
+    toggleBar: toggleToolBar,
+  })
+
   const boxes = usePaperBoxes(
     db,
     page.id,
@@ -423,6 +500,20 @@ export function PageView({
   )
   const hintPage = useMemo(() => hintPageOk(page.id), [page.id])
   const blankPage = useLiveQuery(() => isPageBlank(db, page.id), [db, page.id])
+  // Text box v2 (TB-42): the hint also goes the moment something is drawn.
+  const inked = useLiveQuery(
+    () => (isOn('textbox.v2') ? pageHasInk(db, page.id) : false),
+    [db, page.id],
+  )
+  /** The "tap to add a box" hint shows on this page (the one hint of TB-42). */
+  // Owner 19 Nov: with text box v2 the first box shows NO hint at all.
+  const showHint =
+    !isOn('textbox.v2') &&
+    hintPage &&
+    !!blankPage &&
+    !inked &&
+    !!boxes.onAddBox &&
+    !page.boxes?.length
   /** The page editor of one box (unset = the default box, as before). */
   const editorOf = (boxId?: string) => (
     <PageEditor
@@ -476,16 +567,28 @@ export function PageView({
               aria-haspopup="menu"
               aria-expanded={!!moreAt}
               onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) =>
+              onClick={(e) => {
+                if (menusOn) return setSheetOpen(!sheetOpen)
                 setMoreAt(
                   moreAt ? null : e.currentTarget.getBoundingClientRect(),
                 )
-              }
+              }}
               className="flex size-11 shrink-0 items-center justify-center rounded-lg text-xl leading-none text-ink-soft hover:bg-hover hover:text-ink"
             >
               <span aria-hidden>⋯</span>
             </button>
-            {moreAt && (
+            {menusOn && sheetOpen && (
+              <Suspense fallback={null}>
+                <PageSheet
+                  db={db}
+                  page={page}
+                  actions={sheetActions}
+                  toast={toast}
+                  onClose={() => setSheetOpen(false)}
+                />
+              </Suspense>
+            )}
+            {!menusOn && moreAt && (
               <MenuPopover
                 anchor={moreAt}
                 items={moreItems}
@@ -674,9 +777,7 @@ export function PageView({
             onDeleteBox={editLockBy ? undefined : boxes.onDeleteBox}
             renderBar={boxes.renderBar}
             onInkOnPaper={boxes.onInkOnPaper}
-            showHint={
-              hintPage && !!blankPage && !!boxes.onAddBox && !page.boxes?.length
-            }
+            showHint={showHint}
           >
             {editorOf()}
           </PaperFrame>

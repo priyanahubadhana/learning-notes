@@ -8,6 +8,7 @@ import {
   cleanCode,
   type SecretKind,
 } from './unlockAttempts'
+import { AreaInput } from '../settings/AreaInput'
 
 /**
  * The one box for typing the passphrase or the recovery code (fix #3): Settings
@@ -143,7 +144,7 @@ export function UnlockForm({
           {kind === 'code' ? t('unlock.codeLabel') : t('sync.passphrase')}
         </label>
         <div className="flex gap-2">
-          <input
+          <AreaInput
             id={`${id}-in`}
             ref={input}
             type={kind === 'passphrase' && !shown ? 'password' : 'text'}

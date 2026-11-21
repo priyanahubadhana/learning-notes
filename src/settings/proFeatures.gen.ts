@@ -169,6 +169,206 @@ export const PRO_FEATURES = [
   { id: 'advanced.toolStateCopy', group: 'Settings' },
   { id: 'help.firstLaunch', group: 'Settings' },
   { id: 'help.resetMock', group: 'Settings' },
+  {
+    id: 'page.slashStars',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'page.myBlocks',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'page.contextMore',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'page.pastedChip',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'page.menuAll',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'page.blockMenuMore',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'page.breadcrumbMore',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'obj.tablePlus',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'db.moreViews',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'db.filtersPlus',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'db.columnsPlus',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'db.rowTools',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'db.chartBuilder',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'cal.morePlus',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'mind.plus',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'db.csvPlus',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'pic.placePlus',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'pdf.toolsPlus',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'audio.plus',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'paper.furniture',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'box.layers',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'box.scale',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'box.rotate',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'lasso.snapshot',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'reading.bookmarks',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'study.cardTypes',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'study.cardList',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'study.savedFilters',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'study.summaryScopes',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'study.slides',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'study.memoryHelpers',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'study.anki',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'safety.historyCompare',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'safety.namedVersions',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'safety.trashTools',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'safety.exportMore',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'safety.backupMore',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'safety.conflictChoice',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'system.palette',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'system.editKeys',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'system.toastPlace',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'system.errorDetails',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'about.updateDetails',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'lib.filterRow',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'lib.themes',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'lib.bulkSelect',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'lib.knowStats',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'lib.knowFilters',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'lib.linksTab',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
+  {
+    id: 'lib.layers',
+    group: 'Added by the build specs (12 Nov 2026, to review)',
+  },
 ] as const
 
 export type ProFeatureId = (typeof PRO_FEATURES)[number]['id']

@@ -12,7 +12,7 @@ export const sidebar = (page: Page) => page.locator('aside')
 /** On a phone the sidebar is a drawer: opens it (nothing to do on a computer). */
 export async function showSidebar(page: Page) {
   const open = page.getByRole('button', { name: 'Open menu' })
-  await sidebar(page).waitFor({ state: 'attached' }) // the app has loaded
+  await expect(sidebar(page)).toBeAttached() // the app has loaded (uses the project's expect timeout: WebKit starts slowly)
   await closeCorner(page)
   // Most steps look for notebooks and pages: go to the Notebooks space.
   const notebooks = page.locator('[data-space="notebooks"]')
@@ -56,16 +56,28 @@ export function row(page: Page, name: string): Locator {
  * If the "Name it" sheet is open, types `name` and presses Enter (Done).
  * Returns false when no sheet is open (a mouse names in the row).
  */
-export async function sheetFill(page: Page, name: string): Promise<boolean> {
+export async function sheetFill(
+  page: Page,
+  name: string,
+  /** What shows instead of the sheet when none opens (e.g. the row's name field). */
+  instead?: Locator,
+): Promise<boolean> {
   const touch = await page.evaluate(
     () => window.matchMedia('(any-pointer: coarse)').matches,
   )
   if (!touch) return false
   const sheet = page.getByTestId('name-sheet')
-  try {
-    await sheet.waitFor({ state: 'visible', timeout: 1500 })
-  } catch {
-    return false
+  if (instead) {
+    // Wait until one of the two really shows, however slow the machine is,
+    // so a late sheet is never mistaken for "no sheet".
+    await expect(sheet.or(instead).first()).toBeVisible()
+    if (!(await sheet.isVisible())) return false
+  } else {
+    try {
+      await sheet.waitFor({ state: 'visible', timeout: 1500 })
+    } catch {
+      return false
+    }
   }
   const field = sheet.getByRole('textbox', { name: 'Name' })
   await field.fill(name)
@@ -108,7 +120,7 @@ export async function rowAction(page: Page, name: string, action: string) {
 
 /** Chooses an item in the open page's ⋯ menu. */
 export async function pageAction(page: Page, name: string) {
-  await page.getByRole('button', { name: 'More options' }).click()
+  await page.getByRole('button', { name: 'More options', exact: true }).click()
   await page.getByRole('menuitem', { name: new RegExp(name) }).click()
 }
 
@@ -143,20 +155,33 @@ export async function createNotebook(
 
   const nameField = sidebar(page).getByRole('textbox', { name: 'Name' })
   const named = sidebar(page).getByRole('button', { name, exact: true })
+  // Touch and Pencil devices name it in the "Name it" sheet instead.
+  if (await sheetFill(page, name, nameField)) {
+    // R9: the sheet comes before the first page. When that page opens, its
+    // route closes the phone drawer (the drawer belongs to the route), so
+    // wait for the page of the named notebook before looking in the drawer.
+    await expect(
+      page.getByRole('navigation', { name: 'Breadcrumb' }),
+    ).toContainText(name)
+    await showSidebar(page)
+    await expect(named).toBeVisible()
+    await setTitle(page, firstPage)
+    return
+  }
   // On a phone the drawer can close while naming, which ends the name field,
   // so repeat the whole step until the notebook shows its name, reopening
   // the field with Rename like a user would.
   await expect(async () => {
-    // Touch and Pencil devices name it in the "Name it" sheet instead.
-    if (await sheetFill(page, name)) {
-      await showSidebar(page)
-      await expect(named).toBeVisible({ timeout: 3000 })
-      return
-    }
     await showSidebar(page)
     if (await named.isVisible()) return
     if (!(await nameField.isVisible())) {
       await rowAction(page, 'Untitled notebook', 'Rename')
+      // On touch, Rename names it in the sheet.
+      if (await sheetFill(page, name, nameField)) {
+        await showSidebar(page)
+        await expect(named).toBeVisible({ timeout: 3000 })
+        return
+      }
     }
     await nameField.fill(name, { timeout: 3000 })
     await nameField.press('Enter', { timeout: 3000 }).catch(() => {})
@@ -181,7 +206,9 @@ export async function addPage(
   )
   await page.getByRole('menuitem', { name: 'Blank page' }).click()
   await page.waitForURL((url) => url.toString() !== before) // the new page is open
-  if (!(await sheetFill(page, title))) {
+  // R9: touch names the new page in the lazily loaded sheet, a mouse in the
+  // title; wait for whichever really shows, never a fixed time.
+  if (!(await sheetFill(page, title, page.locator('.bn-editor:focus')))) {
     // New pages open with the cursor in the top box; a tap on the title
     // edits the title.
     await expect(page.locator('.bn-editor').first()).toBeFocused()
@@ -207,14 +234,31 @@ export async function openPage(page: Page, title: string) {
 }
 
 /** Types text into the open page's editor and waits for autosave. */
-export async function typeInEditor(page: Page, text: string) {
+export async function typeInEditor(
+  page: Page,
+  text: string,
+  opts: { keepCaret?: boolean } = {},
+) {
+  if (opts.keepCaret) {
+    // Why: the caret is already where the test wants it (e.g. after Enter).
+    // The click below lands on the first line's first letters now that the
+    // box bar's holder passes taps through (box bar part A), and would move
+    // the caret into the middle of that line.
+    await page.keyboard.type(text)
+    await waitForSaved(page)
+    return
+  }
   // In Pencil mode the Lasso's pad lies over the page; the app places the
   // caret on the click, but Playwright would wait for the pad to move.
+  // C34 (owner 18 Nov): with text box v2 a tap in the empty part of the first
+  // box selects it, even on an empty page; the caret spot is the left end of
+  // its line. So the click lands there (it is the same on every page).
   const editor = page.locator('.bn-editor')
+  const at = { position: { x: 6, y: 8 } }
   try {
-    await editor.click({ timeout: 1500 })
+    await editor.click({ timeout: 1500, ...at })
   } catch {
-    await editor.click({ force: true })
+    await editor.click({ force: true, ...at })
   }
   await page.keyboard.type(text)
   await waitForSaved(page)
@@ -414,7 +458,7 @@ export const highlighted = (page: Page) =>
 
 /** Opens the search popup with Ctrl+K and returns it. */
 export async function openSearchPopup(page: Page): Promise<Locator> {
-  await sidebar(page).waitFor({ state: 'attached' }) // the app has loaded
+  await expect(sidebar(page)).toBeAttached() // the app has loaded (uses the project's expect timeout: WebKit starts slowly)
   await page.keyboard.press('Control+K')
   const popup = page.getByRole('dialog', { name: 'Search' })
   await expect(popup).toBeVisible()
@@ -426,8 +470,23 @@ export const searchResults = (page: Page) =>
   page.getByRole('main').getByRole('list', { name: 'Results' })
 
 /** Writes a question and turns it into a card (`total` cards afterwards). */
-export async function makeCard(page: Page, question: string, total: number) {
-  await typeInEditor(page, question)
+export async function makeCard(
+  page: Page,
+  question: string,
+  total: number,
+  opts: { keepCaret?: boolean } = {},
+) {
+  // Why: since C34 the helper's click lands on the first line's left end. With
+  // earlier cards in the editor and the caret already on a new line (after
+  // Enter), that click moved the caret into the first card's words (review-v2,
+  // tracker, search reds on CI, 19 Nov). So a caret in the editor stays put
+  // once the editor holds text.
+  const keep = await page.evaluate(
+    () =>
+      !!document.activeElement?.closest('.bn-editor') &&
+      (document.querySelector('.bn-editor')?.textContent ?? '').trim() !== '',
+  )
+  await typeInEditor(page, question, keep ? { ...opts, keepCaret: true } : opts)
   await page.locator('.bn-block-content', { hasText: question }).first().hover()
   await page.locator('.bn-side-menu [draggable="true"]').click()
   await page.getByRole('menuitem', { name: 'Make card' }).click()
@@ -604,7 +663,7 @@ export async function pageSubAction(
   parent: string,
   child: string | RegExp,
 ) {
-  await page.getByRole('button', { name: 'More options' }).click()
+  await page.getByRole('button', { name: 'More options', exact: true }).click()
   await page.getByRole('menuitem', { name: new RegExp(parent) }).click()
   await page
     .getByRole('menu', { name: parent })
@@ -649,4 +708,21 @@ export async function pickBox(page: Page, box: Locator) {
   const r = (await box.boundingBox())!
   await page.mouse.click(r.x - 5, r.y + r.height / 2)
   await expect(box).toHaveAttribute('data-picked', '')
+}
+
+/**
+ * Pictures: the side list is closed on an iPad held upright and on a phone
+ * (HOW-WE-BUILD section 7). With the new frame the toggle is the button that
+ * controls "sidebar"; a wide (sideways) screen is left as it is.
+ */
+export async function closeSidebarIfNarrow(page: Page) {
+  const width = page.viewportSize()?.width ?? 1336
+  if (width >= 1000) return
+  const open = page
+    .locator('button[aria-controls="sidebar"][aria-expanded="true"]:visible')
+    .first()
+  if (await open.count()) {
+    await open.click()
+    await expect(page.locator('aside')).toBeHidden()
+  }
 }

@@ -18,6 +18,8 @@ export interface UpdateStatus {
   /** Seconds left, when the download is slow. */
   etaS?: number
   version?: string
+  /** While restarting: waiting too long, or could not restart (C22). */
+  restart?: 'slow' | 'failed'
 }
 
 export const updateStatus = memStore<UpdateStatus>({ phase: 'idle' })

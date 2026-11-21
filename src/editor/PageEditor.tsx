@@ -21,8 +21,10 @@ import {
 import {
   Suspense,
   lazy,
+  useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -38,6 +40,7 @@ import { listBlocks } from '../core/blockService'
 import { blocksOfBox, tagDrafts } from './boxScope'
 import { activeBox, boxEditors, useOwnsBar } from '../paper/activeBox'
 import { MAIN_BOX } from '../paper/boxes'
+import { styleFirstMainBox } from '../paper/boxService'
 import { syncCardRecords } from '../recall/cardService'
 import type { LearningNotesDB } from '../core/db'
 import { pageEditLock } from '../core/editLock'
@@ -51,6 +54,7 @@ import { LinkPicker } from '../links/LinkPicker'
 import { AppDragHandleMenu } from './CardMenu'
 import { AppFormattingToolbar } from './SelectionToolbar'
 import { DockedBar } from './DockedBar'
+import { editorDecided, isDocked } from './barRoomRule'
 import { watchDragSelect } from './dragSelect'
 import { ownSelection } from './ownSelection'
 import { pageHistoryExtension } from './historyExtension'
@@ -58,7 +62,7 @@ import { attachEditor } from '../core/historySteps'
 import { handleScrollToSelection } from './scrollPolicy'
 import { penTransactionGuard, watchPenGuard } from './penGuard'
 import {
-  applyPageMode,
+  queuePageMode,
   editableIn,
   pageMode,
   pageModeFor,
@@ -67,9 +71,12 @@ import {
 import { watchPenSelect } from './penSelect'
 import { watchKeyboardPolicy } from './keyboardPolicy'
 import { watchTapSelect } from './tapSelect'
+import { watchScribbleDelete } from './scribbleDelete'
 import { watchHoldSelect } from './holdSelect'
+import { watchCircleSelect } from './circleSelect'
 import { watchHoldMenu, type HoldPoint } from './holdMenuWatch'
 import { HoldMenuLazy } from './HoldMenuLazy'
+import { PageStripLazy } from './menus/PageStripLazy'
 import { activeTool, miniToolbarOpen } from '../app/tools/main/mainTools'
 import { ToolsBoundary } from '../app/tools/ToolsBoundary'
 import { changeSet } from '../app/tools/toolbarState'
@@ -138,7 +145,8 @@ import { createPageSync } from './pageSync'
 import { isTracking } from '../sync/device'
 import { revealBlock } from './revealBlock'
 import { editorBlockTypes, schema } from './schema'
-import { buildSlashMenuItems } from './slashMenu'
+import { buildSlashMenuItems, type SlashMenuActions } from './slashMenu'
+import { isFlagOn, useFlag } from '../app/flags'
 import { TAG_TRIGGER, tagMenuItems, tagMenuShouldOpen } from './tagActions'
 
 interface PageEditorProps {
@@ -178,7 +186,26 @@ export const LIVE_IDLE_MS = 1_500
 
 /** Loads a page's blocks, then shows the editor for that page. */
 const PictureChooser = lazy(() => import('../images/PictureChooser'))
+const SlashCommandList = lazy(() => import('./menus/SlashCommandList'))
 const PicturePlacement = lazy(() => import('../images/PicturePlacement'))
+
+/**
+ * P1 speed (17 Nov 2026): each box of a page has its own editor, and each ran
+ * the page's preparation (kept changes, card records) on its own: 11 write
+ * steps one after another for a page of 10 boxes, seconds on iPad Safari.
+ * Boxes that open together now share one run.
+ */
+const preparing = new Map<string, Promise<void>>()
+function preparePage(db: LearningNotesDB, pageId: string): Promise<void> {
+  let run = preparing.get(pageId)
+  if (!run) {
+    run = recoverStash(db, pageId)
+      .then(() => syncCardRecords(db, pageId))
+      .finally(() => preparing.delete(pageId))
+    preparing.set(pageId, run)
+  }
+  return run
+}
 
 export function PageEditor(props: PageEditorProps) {
   const { db, pageId } = props
@@ -242,8 +269,7 @@ export function PageEditor(props: PageEditorProps) {
     // Also adds any missing card records (e.g. older data saved before
     // blocks and cards were saved together); writes nothing otherwise.
     // Changes kept when the tab was last closed come back first.
-    recoverStash(db, pageId)
-      .then(() => syncCardRecords(db, pageId))
+    preparePage(db, pageId)
       .then(() => listBlocks(db, pageId))
       .then(async (all) => {
         const records = await blocksOfBox(db, pageId, all, props.boxId)
@@ -392,9 +418,15 @@ function LoadedPageEditor({
   const policyOn = policyEnabled.useValue()
   const wanted = pageModeFor({ tool, frozen, reading: false })
   const mode = !policyOn && wanted === 'ink' ? 'edit' : wanted
+  // P1 speed (17 Nov 2026): BlockNoteView rebuilds its whole ProseMirror view
+  // (destroy + createView) whenever its `editable` prop changes, which made
+  // every tool switch (Text ↔ Pen) rebuild every box on the page. The prop
+  // keeps its first value; queuePageMode (below) switches editing on and off
+  // in place, which is all the prop did besides the rebuild.
+  const [mountEditable] = useState(() => editableIn(mode))
   // The main bar and ribbon are hidden while reading (the reader has its own controls).
   const inReading = !!reading
-  const docked = bar.placement !== 'floating' && !readOnly && !inReading
+  const docked = isDocked(bar.placement, !!readOnly, inReading)
   const barSlot = useContext(TopStackSlotContext)
   // The element ink is laid over (the editor sits in it).
   const [inkWrap, setInkWrap] = useState<HTMLElement | null>(null)
@@ -410,6 +442,18 @@ function LoadedPageEditor({
   // Phase Q: a box other than the default one (no ink, no page controls yet).
   const extraBox = !!boxId && boxId !== MAIN_BOX
   const ownsBar = useOwnsBar(pageId, boxId)
+  // This box is gone: the bar goes back to the default box (re-test 18 Nov, bug 1).
+  useEffect(
+    () => () => activeBox.clear(pageId, boxId ?? MAIN_BOX),
+    [pageId, boxId],
+  )
+  // The page's own editor has now decided whether to draw the bar: the space
+  // kept for it (BarRoom) is not needed any more.
+  useLayoutEffect(() => {
+    if (boxId) return
+    editorDecided.set(true)
+    return () => editorDecided.set(false)
+  }, [boxId])
   useEffect(() => {
     if (!autoFocus) return
     activeBox.set(pageId, boxId ?? MAIN_BOX)
@@ -485,9 +529,21 @@ function LoadedPageEditor({
   // only when sync is on.
   const lastEdit = useRef(0)
   const applying = useRef(false)
+  /** C26: a box with text shows no "Enter text or type '/'" hint (index.css). */
+  const markHasText = useCallback(() => {
+    const wrap = editor.domElement?.closest('.bn-container')
+    wrap?.toggleAttribute(
+      'data-has-text',
+      (editor.domElement?.textContent ?? '').trim() !== '',
+    )
+  }, [editor])
+  useEffect(() => {
+    markHasText()
+  })
   const onEditorChange = () => {
     if (!applying.current) lastEdit.current = Date.now()
     sync.changed()
+    markHasText()
   }
   useEffect(() => {
     if (readOnly || !isTracking()) return
@@ -785,6 +841,7 @@ function LoadedPageEditor({
   const [holdAt, setHoldAt] = useState<HoldPoint | null>(null)
   // The newest toast function, without restarting the pen watchers.
   const toastRef = useRef(toast)
+  const menusOnRef = useRef(isFlagOn('page.menus'))
   useEffect(() => {
     toastRef.current = toast
   })
@@ -809,7 +866,13 @@ function LoadedPageEditor({
       }
       const stopTap = watchTapSelect(editor, afterSelect)
       const stopHold = watchHoldSelect(editor, afterSelect)
-      const stopMenu = watchHoldMenu(editor, setHoldAt)
+      const stopCircle = watchCircleSelect(editor, afterSelect)
+      const stopMenu = watchHoldMenu(editor, setHoldAt, {
+        rightClick: menusOnRef.current,
+        penEmptySpot: menusOnRef.current,
+      })
+      // C4: a scribble deletes what is under it, not the old selection.
+      const stopScribble = watchScribbleDelete(editor)
       // The Pencil must never delete text by itself (iPadOS Scribble).
       const stopGuard = watchPenGuard(editor, () =>
         toastRef.current(t('pen.guard.removed'), {
@@ -823,8 +886,10 @@ function LoadedPageEditor({
         stopKeys()
         stopTap()
         stopHold()
+        stopCircle()
         stopMenu()
         stopGuard()
+        stopScribble()
       }
     }
     if (editor.domElement) {
@@ -862,7 +927,8 @@ function LoadedPageEditor({
   useEffect(() => {
     const content = (editor.domElement as HTMLElement | undefined) ?? null
     content?.setAttribute('data-page-content', '')
-    applyPageMode(mode, {
+    // Applied together with the page's other box editors (P1 speed).
+    return queuePageMode(mode, {
       editor,
       content,
       title: null,
@@ -874,6 +940,19 @@ function LoadedPageEditor({
   const openBlock = (targetPageId: string, blockId: string) => {
     if (targetPageId !== pageId) onOpenPage(targetPageId)
     revealBlock(blockId)
+  }
+
+  // Flag page.menus: the "/" menu on the shared Command list (same actions).
+  const menusOn = useFlag('page.menus')
+  const slashActions: SlashMenuActions = {
+    onNewSubPage: newSubPage,
+    onLinkPage: () => openLinkPicker(null),
+    onInsertTemplate: insertTemplate,
+    onInsertDatabase: insertDatabase,
+    onTakePhoto: takePhoto,
+    onChoosePicture: choosePicture,
+    onSaveAsTemplate: saveAsTemplate,
+    onPlaceNestedCard: placeNestedCard,
   }
 
   return (
@@ -901,11 +980,16 @@ function LoadedPageEditor({
         ref={setInkWrap}
         data-ink-wrap
         className="contents"
-        onFocus={() => activeBox.set(pageId, boxId ?? MAIN_BOX)}
+        onFocus={() => {
+          activeBox.set(pageId, boxId ?? MAIN_BOX)
+          // C0-1: the page's first box starts with the "Use for new boxes" style.
+          if (!readOnly && (!boxId || boxId === MAIN_BOX))
+            void styleFirstMainBox(db, pageId)
+        }}
       >
         <BlockNoteView
           editor={editor}
-          editable={editableIn(mode)}
+          editable={mountEditable}
           onChange={onEditorChange}
           theme={editorColorScheme(theme)}
           slashMenu={false}
@@ -920,7 +1004,18 @@ function LoadedPageEditor({
           }
         >
           <PasteChooser owner={editor} />
-          {holdAt && (
+          {holdAt && menusOn && (
+            <PageStripLazy
+              editor={editor}
+              at={holdAt}
+              onClose={() => setHoldAt(null)}
+              toast={(m, a) => toastRef.current(m, a)}
+              onSelected={() => miniToolbarOpen.set(true)}
+              choosePicture={choosePicture}
+              pageId={pageId}
+            />
+          )}
+          {holdAt && !menusOn && (
             <HoldMenuLazy
               editor={editor}
               at={holdAt}
@@ -943,24 +1038,30 @@ function LoadedPageEditor({
               <SideMenu {...props} dragHandleMenu={AppDragHandleMenu} />
             )}
           />
-          <SuggestionMenuController
-            triggerCharacter="/"
-            getItems={async (query) =>
-              filterSuggestionItems(
-                buildSlashMenuItems(editor, {
-                  onNewSubPage: newSubPage,
-                  onLinkPage: () => openLinkPicker(null),
-                  onInsertTemplate: insertTemplate,
-                  onInsertDatabase: insertDatabase,
-                  onTakePhoto: takePhoto,
-                  onChoosePicture: choosePicture,
-                  onSaveAsTemplate: saveAsTemplate,
-                  onPlaceNestedCard: placeNestedCard,
-                }),
-                query,
-              )
-            }
-          />
+          {menusOn ? (
+            <Suspense fallback={null}>
+              <SlashCommandList editor={editor} actions={slashActions} />
+            </Suspense>
+          ) : (
+            <SuggestionMenuController
+              triggerCharacter="/"
+              getItems={async (query) =>
+                filterSuggestionItems(
+                  buildSlashMenuItems(editor, {
+                    onNewSubPage: newSubPage,
+                    onLinkPage: () => openLinkPicker(null),
+                    onInsertTemplate: insertTemplate,
+                    onInsertDatabase: insertDatabase,
+                    onTakePhoto: takePhoto,
+                    onChoosePicture: choosePicture,
+                    onSaveAsTemplate: saveAsTemplate,
+                    onPlaceNestedCard: placeNestedCard,
+                  }),
+                  query,
+                )
+              }
+            />
+          )}
           <SuggestionMenuController
             triggerCharacter={TAG_TRIGGER}
             shouldOpen={tagMenuShouldOpen}
@@ -1009,13 +1110,26 @@ function LoadedPageEditor({
         </ToolsBoundary>
       </div>
       {bar.mode !== 'computer' && !frozen && !extraBox && (
+        // Owner 19 Nov: no hint words in it any more (the first box's own
+        // rule in boxV2.css hides the line).
         <button
           type="button"
-          onClick={() => focusEndLine(editor)}
+          // T5 (15 Nov): a press that moved is a scroll, not a tap: it must not
+          // put a caret on a new last line and jump the page to its end.
+          onPointerDown={(e) => {
+            e.currentTarget.dataset.down = e.clientX + ',' + e.clientY
+          }}
+          onClick={(e) => {
+            const [x, y] = (e.currentTarget.dataset.down ?? '')
+              .split(',')
+              .map(Number)
+            delete e.currentTarget.dataset.down
+            if (Math.hypot(e.clientX - x, e.clientY - y) > 10) return
+            focusEndLine(editor)
+          }}
+          aria-label={t('bar.tapBelow')}
           className="ln-tap-below mt-10 flex min-h-24 w-full cursor-text items-start rounded-lg px-1 py-2 text-left text-sm text-muted/70"
-        >
-          {t('bar.tapBelow')}
-        </button>
+        />
       )}
       {docked && (layout.short === 'bottom' || layout.ribbon === 'bottom') && (
         // Room under the last line, so the fixed bars never cover text.

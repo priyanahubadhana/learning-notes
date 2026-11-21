@@ -66,6 +66,8 @@ jobs:
       - run: npm run format:check
       - run: npm run check:links
       - run: npm run check:ratchet
+      # B0 (SC-08): every scenario sentence has a step, every spec line a test.
+      - run: npm run check:spec
       - run: npm test
       - run: npm run build
       - run: npm run check:size
@@ -135,8 +137,8 @@ jobs:
   e2e:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *') || (github.event_name == 'workflow_dispatch' && inputs.full)
     needs: checks
+    timeout-minutes: 60
     runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
@@ -183,12 +185,12 @@ jobs:
   pencil-webkit:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *') || (github.event_name == 'workflow_dispatch' && inputs.full)
     needs: checks
+    timeout-minutes: 60
     runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2]
+        shard: [1, 2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -215,7 +217,7 @@ jobs:
         run: |
           for i in 1 2 3; do npx playwright install --with-deps webkit && exit 0; echo "install failed, retry $i"; sleep 45; done
           npx playwright install webkit
-      - run: npx playwright test --project=ipad-webkit --shard=${{ matrix.shard }}/2
+      - run: npx playwright test --project=ipad-webkit --shard=${{ matrix.shard }}/6
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
@@ -270,13 +272,54 @@ jobs:
         if: steps.head.outputs.stale != 'true'
         run: node scripts/check-live.mjs "$GITHUB_SHA"
 
+  # B0 (SC-05, SC-08): the scenarios of e2e/features on Chrome and the iPad
+  # stand-in, then the report page. It runs on every pull request; the preview
+  # publishes the report at /scenarios/ (one fixed address). A failing scenario
+  # fails the job, but only after the report is made.
+  scenarios:
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+    needs: checks
+    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - name: Install the browsers (retries if the Ubuntu mirror is down)
+        run: |
+          for i in 1 2 3; do npx playwright install --with-deps chromium webkit && exit 0; echo "install failed, retry $i"; sleep 45; done
+          npx playwright install chromium webkit
+      - run: npx bddgen
+      - name: Run the scenarios
+        id: run
+        continue-on-error: true
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: scenario-results.json
+        run: npx playwright test --project=bdd-chromium --project=bdd-ipad-webkit --reporter=list,json
+      - name: Make the report
+        if: always()
+        run: node scripts/scenario-report.mjs scenario-report "Built from commit ${GITHUB_SHA::7} on $(date -u +%Y-%m-%d)" scenario-results.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: scenario-report
+          path: scenario-report
+          retention-days: 1
+      - name: Fail when a scenario failed
+        if: steps.run.outcome == 'failure'
+        run: exit 1
+
   # A test copy of build/next for the owner at a free Cloudflare preview
   # address (never the live site): only for the build/next pull request from
   # this repository (never a fork), after the checks pass. No other job needs
   # it; the two secrets go only to the publish step.
   preview:
-    if: github.event_name == 'pull_request' && github.head_ref == 'build/next' && github.event.pull_request.head.repo.full_name == github.repository
-    needs: [checks]
+    if: always() && needs.checks.result == 'success' && github.event_name == 'pull_request' && github.head_ref == 'build/next' && github.event.pull_request.head.repo.full_name == github.repository
+    # The report is published even when a scenario failed (that is when it is read).
+    needs: [checks, scenarios]
     runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
     timeout-minutes: 15
     concurrency:
@@ -293,6 +336,12 @@ jobs:
         with:
           name: site
           path: dist
+      - name: Add the scenario report (served at /scenarios/)
+        continue-on-error: true
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: scenario-report
+          path: dist/scenarios
       - name: Publish the preview
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

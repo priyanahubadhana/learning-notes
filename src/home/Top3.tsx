@@ -25,10 +25,13 @@ export function Top3({
   db,
   tasks,
   today,
+  bare,
 }: {
   db: LearningNotesDB
   tasks: readonly Task[]
   today: string
+  /** Inside a Home v2 widget: the widget draws the frame and the title. */
+  bare?: boolean
 }) {
   const { toast } = useContext(AppUiContext)
   const [picking, setPicking] = useState(false)
@@ -58,10 +61,10 @@ export function Top3({
     <section
       aria-label={t('home.top3')}
       data-testid="top3"
-      className="rounded-xl border border-line p-3"
+      className={bare ? '' : 'rounded-xl border border-line p-3'}
     >
       <div className="mb-2 flex items-baseline justify-between gap-2">
-        <h3 className="text-sm font-semibold">{t('home.top3')}</h3>
+        {!bare && <h3 className="text-sm font-semibold">{t('home.top3')}</h3>}
         <span
           data-testid="top3-count"
           className="text-sm text-muted tabular-nums"

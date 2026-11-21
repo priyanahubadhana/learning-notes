@@ -3,6 +3,36 @@ export const hiFlags = {
   'settings.category.tryNew': 'नई सुविधाएँ आज़माएँ',
   'settings.category.tryNew.hint':
     'ऐप के नए हिस्से, जब तक आप आज़माएँ नहीं तब तक बंद।',
+  'flags.preset.phase.name': 'एक चरण आज़माएँ',
+  'flags.preset.phase.desc': 'जो चरण आज़माना है उसे चुनें।',
+  'flags.lassoRecorder.name': 'लैसो रिकॉर्डर',
+  'flags.lassoRecorder.desc':
+    'पेंसिल और उंगली की पिछली एक मिनट की घटनाएँ चुपचाप रखता है, ताकि लैसो की गड़बड़ी कॉपी करके भेजी जा सके। यह कुछ नहीं बनाता और नोट के शब्द रिकॉर्ड नहीं करता। केवल परीक्षण के लिए। कुछ भी इस डिवाइस से बाहर नहीं जाता।',
+  'recorder.copyTrace': 'पिछला ट्रेस कॉपी करें',
+  'recorder.copied': 'ट्रेस कॉपी हो गया: इसे चैट में पेस्ट करें',
+  'recorder.copyFailed':
+    'कॉपी नहीं हो सका। टेक्स्ट चुनें, कॉपी करें और चैट में पेस्ट करें।',
+  'recorder.close': 'बंद करें',
+  'flags.tapSpeed.name': 'टैप की गति',
+  'flags.tapSpeed.desc':
+    'डबल या ट्रिपल टैप गिने जाने के लिए टैप कितनी जल्दी एक के बाद एक होने चाहिए। केवल परीक्षण के लिए।',
+  'flags.tapSpeed.quick': 'तेज़',
+  'flags.tapSpeed.normal': 'सामान्य',
+  'flags.tapSpeed.relaxed': 'आराम से',
+  'flags.tapSpeed.wide': 'खुली (1 सेकंड)',
+  'flags.preset.on.name': 'यह चरण आज़माएँ',
+  'flags.preset.on.desc':
+    'चालू: यह चरण काम करता है, आगे के हिस्से बंद रहते हैं। बंद: सभी नए हिस्से बंद।',
+  'flags.preset.phase1': 'चरण 1',
+  'flags.preset.phase2a': 'चरण 2A तक',
+  'flags.preset.phase2b': 'चरण 2B तक',
+  'flags.preset.phase3': 'चरण 3 तक',
+  'flags.preset.phase4': 'चरण 4 तक',
+  'flags.preset.phase5': 'चरण 5 तक',
+  'flags.preset.phase6': 'चरण 6 तक',
+  'flags.preset.phase7': 'चरण 7 तक',
+  'flags.preset.phase8': 'चरण 8 तक',
+  'flags.preset.everything': 'सब कुछ',
   'flags.foundation.events.name': 'साझा इवेंट',
   'flags.foundation.events.desc': 'टैप, कुंजी और पेन इवेंट के लिए एक साझा जगह।',
   'flags.foundation.gestures.name': 'साझा जेस्चर',
@@ -45,6 +75,9 @@ export const hiFlags = {
   'flags.update.v2.desc': 'फिर से डिज़ाइन किया गया ऐप अपडेट तरीका।',
   'flags.security.m1.name': 'सुरक्षा सुधार',
   'flags.security.m1.desc': 'अतिरिक्त सुरक्षा जाँचों का पहला सेट।',
+  'flags.toolbar.menu.name': 'नया टूलबार मेन्यू',
+  'flags.toolbar.menu.desc':
+    'छोटे समूहों में ⋯ टूलबार मेन्यू, कम इस्तेमाल वाले विकल्प "और" के नीचे।',
   'flags.page.menus.name': 'नए पेज मेन्यू',
   'flags.page.menus.desc': 'पेज पर फिर से डिज़ाइन किए गए मेन्यू।',
   'flags.page.objects.name': 'नए पेज ऑब्जेक्ट',
@@ -59,4 +92,10 @@ export const hiFlags = {
   'flags.system.v2.name': 'नए सिस्टम हिस्से',
   'flags.system.v2.desc':
     'ऐप के पर्दे के पीछे के हिस्से, फिर से डिज़ाइन किए गए।',
+  'flags.storage.safety.name': 'स्टोरेज सुरक्षा',
+  'flags.storage.safety.desc':
+    'नोट्स न सहेजे जाने पर शांत सूचना, और एक टैप में बैकअप।',
+  'flags.journal.monthRepair.name': 'जर्नल महीना सुधार',
+  'flags.journal.monthRepair.desc':
+    'जर्नल में एक ही महीने के दो पेज को एक में जोड़ता है, पूर्ववत के साथ।',
 }

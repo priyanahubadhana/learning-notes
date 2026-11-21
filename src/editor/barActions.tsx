@@ -2,6 +2,7 @@ import { useActiveStyles } from './useActiveStyles'
 import type { ReactNode } from 'react'
 import { markActionId } from '../app/deviceMode'
 import { isApple } from '../app/keys'
+import { Icon } from '../app/tools/icons'
 import { t } from '../i18n/t'
 import {
   markLabels,
@@ -13,6 +14,7 @@ import { BLANK_STYLE, toggleBlank } from './blankActions'
 import { canMakeCard, makeCard } from './cardActions'
 import { addLineAfterCursor } from './lineActions'
 import { toggleMark } from './markActions'
+import { keyName } from '../app/keyNames'
 import type { AppSchema } from './schema'
 
 /**
@@ -50,7 +52,7 @@ type Dictionary = Record<
 
 /** BlockNote's "Mod+B" written for this device ("Ctrl+B", or "⌘+B" on Apple). */
 const hintOf = (text?: string) =>
-  text ? text.replace('Mod', isApple() ? '⌘' : 'Ctrl') : undefined
+  keyName(text ? text.replace('Mod', isApple() ? '⌘' : 'Ctrl') : undefined)
 
 /** Blocks the next change applies to: the selected ones, or the cursor's. */
 function targetBlocks(editor: Editor) {
@@ -188,9 +190,9 @@ export function useBarActions(editor: Editor): BarAction[] {
   })
   add({
     id: 'indent',
-    label: dict.nest.tooltip,
+    label: t('tool.indent'),
     hint: hintOf(dict.nest.secondary_tooltip),
-    face: '→',
+    face: <Icon name="indent" size={16} />,
     disabled: !editor.canNestBlock(),
     run: () => {
       editor.nestBlock()
@@ -199,9 +201,9 @@ export function useBarActions(editor: Editor): BarAction[] {
   })
   add({
     id: 'outdent',
-    label: dict.unnest.tooltip,
+    label: t('tool.outdent'),
     hint: hintOf(dict.unnest.secondary_tooltip),
-    face: '←',
+    face: <Icon name="outdent" size={16} />,
     disabled: !editor.canUnnestBlock(),
     run: () => {
       editor.unnestBlock()

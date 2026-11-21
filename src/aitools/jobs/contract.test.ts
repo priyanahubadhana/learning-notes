@@ -7,9 +7,11 @@ import { stageStep } from './stage'
 import {
   CARDS,
   DATABASE,
+  MAP_OUTLINE,
   PAGE,
   build,
   makeKit,
+  onePlan,
   outputOf,
   plan,
 } from './testKit'
@@ -22,6 +24,8 @@ const CONTENT_ARGS: Record<string, (ids: Ids) => Rec> = {
     cards: [{ kind: 'cloze', text: 'A {{habit}} is a loop.' }],
   }),
   'databases.create': () => ({ database: DATABASE }),
+  'summaries.set': () => ({ summary: 'A habit is a loop.' }),
+  'mindmaps.add': () => ({ outline: MAP_OUTLINE }),
   'pages.refine': (ids) => ({
     ops: [
       {
@@ -37,6 +41,10 @@ interface Ids {
   notebook: string
   page: string
   block: string
+  card: string
+  database: string
+  mapBlock: string
+  tag: string
 }
 
 /** The example ids (nb1, p1, b1) become the ids of a real notebook. */
@@ -44,6 +52,10 @@ const swap = (v: unknown, ids: Ids): unknown => {
   if (v === 'nb1') return ids.notebook
   if (v === 'p1') return ids.page
   if (v === 'b1') return ids.block
+  if (v === 'c1') return ids.card
+  if (v === 'db1') return ids.database
+  if (v === 'mb1') return ids.mapBlock
+  if (v === 't1') return ids.tag
   if (Array.isArray(v)) return v.map((x) => swap(x, ids))
   if (v && typeof v === 'object')
     return Object.fromEntries(
@@ -63,7 +75,30 @@ async function world() {
         await kit.port.list('blocks', { pageId: outputOf(job, 's2', 'pageId') })
       )[0].id,
     ),
+    card: '',
+    database: '',
+    mapBlock: '',
+    tag: '',
   }
+  const more = await build(kit, {
+    ...onePlan('mindmaps.add', { pageId: ids.page, outline: MAP_OUTLINE }),
+    id: 'world-map',
+  })
+  ids.mapBlock = outputOf(more, 's1', 'blockId')
+  await build(kit, {
+    ...onePlan('databases.create', {
+      notebookId: ids.notebook,
+      database: DATABASE,
+    }),
+    id: 'world-db',
+  })
+  const tagged = await build(kit, {
+    ...onePlan('tags.add', { pageId: ids.page, tag: 'seed-tag' }),
+    id: 'world-tag',
+  })
+  ids.tag = outputOf(tagged, 's1', 'tagId')
+  ids.card = String((await kit.port.list('cards', {}))[0].id)
+  ids.database = String((await kit.port.list('databases', {}))[0].id)
   return { kit, ids }
 }
 
@@ -85,6 +120,7 @@ const TABLES = new Set([
   'databases',
   'dbColumns',
   'dbViews',
+  'tags',
 ])
 
 function argsFor(tool: AiToolDef, example: object, ids: Ids): Rec {
@@ -100,7 +136,9 @@ function argsFor(tool: AiToolDef, example: object, ids: Ids): Rec {
 
 const stripTimes = (rs: StagedRecord[]) => JSON.stringify(rs)
 
-describe.each(AI_TOOLS.filter((t) => t.id !== 'notebooks.create'))(
+const NO_WORLD = new Set(['notebooks.create', 'notebooks.create_from_spec'])
+
+describe.each(AI_TOOLS.filter((t) => !NO_WORLD.has(t.id)))(
   'contract: $id',
   (tool) => {
     const env = (kit: Awaited<ReturnType<typeof world>>['kit']) => ({
@@ -180,5 +218,69 @@ describe('contract: notebooks.create', () => {
       await kit.port.redo('contract', a.records, undo)
       await kit.port.undo('contract', undo)
     }
+  })
+})
+
+describe('contract: notebooks.create_from_spec', () => {
+  const tool = AI_TOOLS.find((t) => t.id === 'notebooks.create_from_spec')!
+  const env = (port: ReturnType<typeof makeKit>['port']) => ({
+    jobId: 'contract',
+    stepId: 's1',
+    now: 1_700_000_100_000,
+    workspaceId: 'ws1',
+    port,
+    staged: [] as StagedRecord[],
+  })
+
+  it('stages the same records twice; apply then undo restores the start', async () => {
+    const kit = makeKit()
+    for (const example of tool.examples.good) {
+      const a = await stageStep(tool, example as Rec, env(kit.port))
+      const b = await stageStep(tool, example as Rec, env(kit.port))
+      expect(stripTimes(b.records)).toBe(stripTimes(a.records))
+      expect(a.outputs).toEqual(b.outputs)
+      for (const r of a.records) {
+        expect(TABLES.has(r.table)).toBe(true)
+        expect(r.value.id).toBe(r.id)
+      }
+      const declared = tool.outputs.properties ?? {}
+      for (const k of Object.keys(a.outputs)) expect(declared[k]).toBeTruthy()
+      const start = kit.port.liveSnapshot()
+      const undo = buildUndo('contract', a.records)
+      await kit.port.commit('contract', a.records, undo)
+      expect(kit.port.count('notebooks')).toBe(1)
+      await kit.port.undo('contract', undo)
+      expect(kit.port.liveSnapshot()).toBe(start)
+    }
+  })
+
+  it('a spec the checker refuses fails the step with the exact place', async () => {
+    const kit = makeKit()
+    await expect(
+      stageStep(
+        tool,
+        { spec: { version: 'ln-spec/1', title: '' } },
+        env(kit.port),
+      ),
+    ).rejects.toMatchObject({ kind: 'validation' })
+  })
+
+  it('refuses more than 1,000 records', async () => {
+    const kit = makeKit()
+    const blocks = Array.from({ length: 200 }, (_, i) => ({
+      type: 'paragraph',
+      text: 'p' + i,
+    }))
+    const pages = Array.from({ length: 6 }, (_, i) => ({
+      title: 'P' + i,
+      blocks,
+    }))
+    await expect(
+      stageStep(
+        tool,
+        { spec: { version: 'ln-spec/1', title: 'Big', pages } },
+        env(kit.port),
+      ),
+    ).rejects.toMatchObject({ kind: 'too_many' })
   })
 })

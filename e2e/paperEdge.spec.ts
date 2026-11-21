@@ -60,12 +60,33 @@ test('the hint shows only on the focused empty line', async ({ page }) => {
       ).filter((el) => el.querySelector('.ProseMirror-trailingBreak'))
       return getComputedStyle(empties[n], '::after').content
     }, nth)
-  // Caret is on the first empty line: it shows the hint, the other does not.
-  await expect.poll(() => after(0)).toContain('Enter text')
+  // C26 (owner, 17 Nov: "no hint on an empty line once the box has text"): the
+  // box has "Main text", so neither empty line shows the hint, focused or not.
+  await expect.poll(() => after(0)).toBe('none')
   expect(await after(1)).toBe('none')
-  // Focus leaves the editor: no hint anywhere.
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   expect(await after(0)).toBe('none')
+})
+
+test('the hint still shows on the focused empty line of an empty box', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await page.goto('/')
+  await createNotebook(page, 'Paper', 'HintEmpty')
+  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  await page.keyboard.press('Enter')
+  await page.keyboard.press('ArrowUp')
+  const hint = () =>
+    page.evaluate(() => {
+      const el = Array.from(
+        document.querySelectorAll('.bn-block-content'),
+      ).find((e) => e.querySelector('.ProseMirror-trailingBreak'))!
+      return getComputedStyle(el, '::after').content
+    })
+  await expect.poll(hint).toContain('Enter text')
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  expect(await hint()).toBe('none')
 })
 
 test('the caret is the accent colour', async ({ page }) => {

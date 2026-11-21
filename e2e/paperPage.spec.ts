@@ -66,8 +66,13 @@ test('a tap on empty paper makes a box; it moves, locks, duplicates and deletes 
   await typeInEditor(page, 'Main text')
   const sheet = (await page.locator('[data-paper-sheet="1"]').boundingBox())!
   const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
-  // Below the page's text, on the paper: a new box with the caret in it.
-  await page.mouse.click(sheet.x + sheet.width * 0.5, main.y + main.height + 60)
+  // Below the page's text, on the paper: a new box with the caret in it. 150 px
+  // under the first box: with the caret in it, its ≡ tab sits under the box
+  // when the page tabs are near (polish 2B), and 60 px was on that tab.
+  await page.mouse.click(
+    sheet.x + sheet.width * 0.5,
+    main.y + main.height + 150,
+  )
   const extra = page.locator('[data-paper-box]:not([data-paper-box="main"])')
   await expect(extra).toHaveCount(1)
   await expect(extra.locator('.bn-editor')).toBeFocused()

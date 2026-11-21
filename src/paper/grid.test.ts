@@ -168,10 +168,26 @@ describe('layoutRows', () => {
 
 describe('resizeCols', () => {
   const r = row('r', [0.5, ['a']], [0.5, ['b']])
+  it('a floor is never rounded away: the column keeps its longest word (TB-21)', () => {
+    const out = resizeCols(r, 0, 0.1, false, { l: 0.3532, r: 0.1 })
+    expect(out.cols[0].w).toBeGreaterThanOrEqual(0.3532)
+    expect(out.cols[0].w + out.cols[1].w).toBeCloseTo(1, 6)
+    const back = resizeCols(r, 0, 0.9, false, { l: 0.1, r: 0.3532 })
+    expect(back.cols[1].w).toBeGreaterThanOrEqual(0.3532)
+  })
   it('snaps to a third and keeps the minimum', () => {
     expect(resizeCols(r, 0, 0.34).cols[0].w).toBeCloseTo(1 / 3, 1)
     expect(resizeCols(r, 0, 0.05).cols[0].w).toBe(0.25)
     expect(resizeCols(r, 0, 0.99).cols[1].w).toBe(0.25)
+  })
+  it('keeps a floor (longest word) on each side when it fits', () => {
+    const f = { l: 0.4, r: 0.3 }
+    expect(resizeCols(r, 0, 0.05, true, f).cols[0].w).toBe(0.4)
+    expect(resizeCols(r, 0, 0.99, true, f).cols[1].w).toBe(0.3)
+    // A floor that does not fit is ignored: the usual minimum stays.
+    expect(resizeCols(r, 0, 0.05, true, { l: 0.7, r: 0.7 }).cols[0].w).toBe(
+      0.25,
+    )
   })
   it('only the two neighbours change', () => {
     const three = row('r', [0.3, ['a']], [0.3, ['b']], [0.4, ['c']])
@@ -219,5 +235,79 @@ describe('zoneOf and the stored shape', () => {
     expect(isGridRows([row('r', [1, ['a', 'b', 'c']])])).toBe(false)
     expect(isGridRows([row('r', [1, ['a']]), row('s', [1, ['a']])])).toBe(false)
     expect(isGridRows('x')).toBe(false)
+  })
+})
+
+describe('room at the right of a row (C13)', () => {
+  it('a last column narrower than its share keeps its width; the room stays empty', () => {
+    const r = reconcile([row('r', [0.5, ['a']], [0.3, ['b']])], ['a', 'b'])
+    expect(r[0].cols.map((c) => c.w)).toEqual([0.5, 0.3])
+    const out = layoutRows(r, { a: 20, b: 20 }, G)
+    expect(out.get('b')!.x + out.get('b')!.w).toBeLessThan(210 - 15 - 20)
+  })
+  it('a column that goes away still brings the row back to 100 %', () => {
+    const r = removeBox(
+      [row('r', [0.4, ['a']], [0.3, ['b']], [0.3, ['c']])],
+      'a',
+    )
+    expect(r[0].cols.reduce((n, c) => n + c.w, 0)).toBeCloseTo(1, 5)
+  })
+})
+
+describe('left offset of a row (C13)', () => {
+  it('a row with x starts there; its columns keep their right edges', () => {
+    const r: GridRow = { ...row('r', [0.5, ['a']], [0.5, ['b']]), x: 45 }
+    const out = layoutRows([r], { a: 20, b: 20 }, G)
+    expect(out.get('a')!.x).toBe(45)
+    expect(out.get('b')!.x + out.get('b')!.w).toBeCloseTo(210 - 15, 0)
+  })
+  it('a free box that gets a neighbour is a row of columns again (no offset)', () => {
+    const free: GridRow = { ...row('r', [1, ['a']]), x: 40, auto: true }
+    const { rows } = insertAt([free], 'a', 'right', 'b')
+    expect(rows[0].x).toBeUndefined()
+    expect(rows[0].auto).toBeUndefined()
+  })
+})
+
+describe('C21: a free box sits beside another free box when they do not overlap', () => {
+  const free = (id: string, x: number, y: number, wmm = 40): GridRow => ({
+    id: 'r' + id,
+    x,
+    y,
+    wmm,
+    cols: [{ w: 1, boxIds: [id] }],
+  })
+  const H = { R: 30, L: 10, M: 12 }
+  const B = { ...G, beside: true }
+
+  it('a box moved up beside a taller box keeps its own top', () => {
+    const at = layoutRows([free('R', 120, 20), free('L', 20, 25)], H, B)
+    expect(at.get('R')!.y).toBe(20)
+    expect(at.get('L')!.y).toBe(25)
+  })
+
+  it('a box that would cover another one still goes under it', () => {
+    const at = layoutRows([free('R', 120, 20), free('L', 130, 25)], H, B)
+    expect(at.get('L')!.y).toBeGreaterThanOrEqual(20 + 30)
+  })
+
+  it('a full-width row after them starts under both', () => {
+    const at = layoutRows(
+      [free('R', 120, 20), free('L', 20, 25), row('m', [1, ['M']])],
+      H,
+      B,
+    )
+    expect(at.get('M')!.y).toBeGreaterThanOrEqual(20 + 30)
+  })
+
+  it('without the switch nothing changes (each row under the one before)', () => {
+    const at = layoutRows([free('R', 120, 20), free('L', 20, 25)], H, G)
+    expect(at.get('L')!.y).toBeGreaterThanOrEqual(50)
+  })
+
+  it('a box above another one in the list but lower on the page does not push it', () => {
+    // Reading order: L (higher) first, then R beside it, lower.
+    const at = layoutRows([free('L', 20, 20), free('R', 120, 22)], H, B)
+    expect(at.get('R')!.y).toBe(22)
   })
 })

@@ -1,3 +1,4 @@
+import type { AiJob } from '../aitools/jobs/jobTypes'
 import type { InkSnapshot } from './inkTypes'
 
 /**
@@ -152,6 +153,11 @@ export interface Page extends BaseRecord {
   /** Journal month page: its month, "YYYY-MM". */
   journalMonth?: string
   /**
+   * Journal month page: the user undid joining it into another page of the
+   * same month (task H). It syncs, so no device joins it again.
+   */
+  monthJoinDeclined?: true
+  /**
    * Journal day or month page renamed by the user: `title` is shown instead
    * of the automatic date in the current language. Unset = automatic.
    */
@@ -201,8 +207,8 @@ export interface Page extends BaseRecord {
    * the first change). See paper/grid.ts.
    */
   rows?: GridRow[]
-  /** Phase Q: sheet size. Unset = A4. */
-  sheet?: 'A4' | 'Letter'
+  /** Phase Q: sheet size. Unset = A4. 'fit' (v9 "Fit page") draws the A4 shape fitted to the screen. */
+  sheet?: 'A4' | 'Letter' | 'fit'
 }
 
 /**
@@ -237,6 +243,8 @@ export interface PaperBox {
   y: number
   w: number
   locked?: true
+  /** Line spacing of this box (the one bar, box bar part A); unset = the normal spacing. Optional: no Dexie version. */
+  line?: 'tight' | 'loose'
   colour?: string
   /** Bug batch 2, item 8: background, border, corners, shadow, padding (core/boxStyle.ts). */
   style?: import('./boxStyle').BoxStyle
@@ -244,6 +252,23 @@ export interface PaperBox {
   group?: string
   /** Minimum height in mm set by the bottom handles (never below the content; B3-9). */
   h?: number
+  /** Full width (text box v2): on, with what to put back when it is turned off. */
+  full?: {
+    beside?: string
+    w?: number
+    at?: number
+    x?: number
+    wmm?: number
+    auto?: true
+  }
+  /** Text box v2 (2B.5b): the width in mm set on a phone; absent = the whole column. */
+  pw?: number
+  /**
+   * Owner Q-3 (17 Nov): only on the page's first box (id 'main'): it was deleted
+   * and no other box took its place, so the page shows no first box. Its text
+   * is empty. Unset = shown. It travels with the boxes (History, Undo).
+   */
+  gone?: true
 }
 
 /** What a source page is: a book, an article, a video, … */
@@ -589,7 +614,7 @@ export interface PageVersion extends BaseRecord {
   layout?: {
     boxes?: PaperBox[]
     inkBg?: 'lined' | 'grid' | 'dots'
-    sheet?: 'A4' | 'Letter'
+    sheet?: 'A4' | 'Letter' | 'fit'
   }
   /** Why the copy was taken (shown in History). */
   reason?: 'timed' | 'big' | 'leave' | 'before-restore' | 'claude'
@@ -814,6 +839,7 @@ export interface ClaudeInboxItem extends BaseRecord {
   batchId: string
   ops: InboxOp[]
   stats: { replaced: number; added: number; existing: number }
+  job?: import('../aitools/connector/inboxJob').ClaudeInboxJob
 }
 
 /**
@@ -840,3 +866,10 @@ export interface SyncState {
   /** Drive file id of the encrypted bytes. */
   fileRef?: string
 }
+
+/**
+ * One AI build job as saved on this device (table `aiJobs`, Dexie v24). The
+ * job itself plus `updatedAt` as a top-level field so it can be indexed.
+ * Device-local: never synced and never written to a backup file.
+ */
+export type AiJobRecord = AiJob & { updatedAt: number }

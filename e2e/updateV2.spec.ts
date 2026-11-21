@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
 import { cornerAction, createNotebook } from './helpers.ts'
+import { UPDATE_LEVEL as MINE } from '../src/app/updateLevel.ts'
 
 /**
  * Update flow v2 (slice 10, flag update.v2): the must-have rule and the
@@ -57,7 +58,11 @@ const versionJson = (page: Page, body: object) =>
 test('U2 a higher level shows the notice with the reason and counts down', async ({
   page,
 }) => {
-  await versionJson(page, { commit: 'zzzz999', level: 2, reason: 'datafix' })
+  await versionJson(page, {
+    commit: 'zzzz999',
+    level: MINE + 1,
+    reason: 'datafix',
+  })
   await page.goto(FLAG)
   await expect(notice(page)).toBeVisible({ timeout: 5000 })
   await expect(notice(page)).toHaveAttribute('role', 'alertdialog')
@@ -76,7 +81,7 @@ test('U2 a higher level shows the notice with the reason and counts down', async
 test('U3 a skipped must-have version (level 2 above mine) still shows the notice', async ({
   page,
 }) => {
-  await versionJson(page, { commit: 'zzzz999', level: 3 })
+  await versionJson(page, { commit: 'zzzz999', level: MINE + 2 })
   await page.goto(FLAG)
   await expect(notice(page)).toBeVisible({ timeout: 5000 })
   await expect(notice(page)).toContainText(
@@ -86,9 +91,9 @@ test('U3 a skipped must-have version (level 2 above mine) still shows the notice
 
 for (const [name, body] of [
   ['no level', { commit: 'zzzz999' }],
-  ['a text level', { commit: 'zzzz999', level: '2' }],
-  ['a lower level', { commit: 'zzzz999', level: 0 }],
-  ['the same level', { commit: 'zzzz999', level: 1 }],
+  ['a text level', { commit: 'zzzz999', level: String(MINE + 1) }],
+  ['a lower level', { commit: 'zzzz999', level: MINE - 1 }],
+  ['the same level', { commit: 'zzzz999', level: MINE }],
 ] as const) {
   test(`U1/U4 ${name}: no full-screen notice`, async ({ page }) => {
     await versionJson(page, body)
@@ -103,11 +108,11 @@ test('U5 Not now pauses the countdown; the app stays blocked', async ({
 }) => {
   await start(page)
   await pretend(page)
-  await expect(notice(page)).toContainText('Downloading starts in')
+  await expect(notice(page)).toContainText('Starts in')
   await notice(page).getByRole('button', { name: 'Not now' }).click()
   await expect(notice(page)).toHaveAttribute('data-phase', 'paused')
   await expect(notice(page)).toContainText(
-    'Paused. The app needs this update to keep your notes safe.',
+    'The app needs this update to keep your notes safe.',
   )
   await page.waitForTimeout(1200)
   await expect(notice(page)).toHaveAttribute('data-phase', 'paused')
@@ -211,7 +216,7 @@ test('U11 a second tab that upgraded the notes asks this tab to update', async (
 test('U13 flag off: the old screen and the marker rule only', async ({
   page,
 }) => {
-  await versionJson(page, { commit: 'zzzz999', level: 5 })
+  await versionJson(page, { commit: 'zzzz999', level: MINE + 4 })
   await start(page, '/')
   await page.waitForTimeout(3500)
   await expect(notice(page)).toHaveCount(0)
@@ -277,7 +282,7 @@ test('U14 About shows version, level, last check and Check for updates now', asy
   await openAbout(page)
   const about = page.locator('[data-about]')
   await expect(about).toContainText('Version ')
-  await expect(about).toContainText('Update level 1')
+  await expect(about).toContainText(`Update level ${MINE}`)
   await about.getByRole('button', { name: 'Check for updates now' }).click()
   await expect(about).toContainText('Last checked for updates:', {
     timeout: 15_000,
@@ -288,7 +293,7 @@ test('U14 a check that finds a must-have version starts the notice', async ({
   page,
 }) => {
   await openAbout(page)
-  await versionJson(page, { commit: 'zzzz999', level: 2 })
+  await versionJson(page, { commit: 'zzzz999', level: MINE + 1 })
   await page
     .locator('[data-about]')
     .getByRole('button', { name: 'Check for updates now' })
@@ -330,5 +335,238 @@ test('U2 the About test button pretends a must-have update', async ({
 }) => {
   await openAbout(page)
   await page.locator('[data-about-pretend]').click()
-  await expect(notice(page)).toContainText('Downloading starts in')
+  await expect(notice(page)).toContainText('Starts in')
+})
+
+test('P1.3 the About test button reloads on the same page and keeps the offline copy', async ({
+  page,
+}) => {
+  await page.route('**/precache.json*', (r) =>
+    r.fulfill({ json: { files: [] } }),
+  )
+  await openAbout(page)
+  const url = page.url()
+  await page.evaluate(async () => {
+    ;(window as never as { __same?: number }).__same = 1
+    await caches.open('p13-offline-copy')
+  })
+  await page.locator('[data-about-pretend]').click()
+  await expect(notice(page)).toBeVisible()
+  // The page restarts by itself: the marker set before is gone.
+  await expect
+    .poll(
+      () =>
+        page
+          .evaluate(() => (window as never as { __same?: number }).__same)
+          .catch(() => 'reloading'),
+      { timeout: 30_000 },
+    )
+    .toBeUndefined()
+  expect(page.url()).toBe(url)
+  // The offline copy is not dropped.
+  expect(await page.evaluate(() => caches.keys())).toContain('p13-offline-copy')
+})
+
+// The held request must reach the test's route, not the offline copy.
+test.describe('L13', () => {
+  test.use({ serviceWorkers: 'block' })
+  test('L13 a slow real restart (Safari revalidates everything) never shows "did not finish"', async ({
+    page,
+  }) => {
+    test.setTimeout(90_000)
+    await page.route('**/precache.json*', (r) =>
+      r.fulfill({ json: { files: [] } }),
+    )
+    await openAbout(page)
+    const url = page.url()
+    await page.evaluate(() => {
+      ;(window as never as { __same?: number }).__same = 1
+    })
+    // The restart (a plain reload) is held for 9 s, longer than the 6 s limit.
+    await page.route('**/*', async (r) => {
+      if (r.request().isNavigationRequest()) {
+        await new Promise((ok) => setTimeout(ok, 9_000))
+      }
+      await r.continue()
+    })
+    // A held page cannot be read, so the notice phases are written to
+    // sessionStorage (it survives the reload) and read afterwards.
+    await page.evaluate(() => {
+      new MutationObserver(() => {
+        const p = document
+          .querySelector('[data-mandatory-update]')
+          ?.getAttribute('data-phase')
+        if (p)
+          sessionStorage.setItem(
+            'l13',
+            (sessionStorage.getItem('l13') ?? '') + p + ',',
+          )
+      }).observe(document.body, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+      })
+    })
+    await page.locator('[data-about-pretend]').click()
+    await expect
+      .poll(() => applied(page).catch(() => true), { timeout: 30_000 })
+      .toBe(true)
+    await expect
+      .poll(
+        () =>
+          page
+            .evaluate(() => (window as never as { __same?: number }).__same)
+            .catch(() => 'reloading'),
+        { timeout: 30_000 },
+      )
+      .toBeUndefined()
+    expect(page.url()).toBe(url)
+    // (a) The restarted page starts clean: no saved notice comes back.
+    await page.waitForTimeout(1500)
+    await expect(notice(page)).toHaveCount(0)
+    // Through the 9 s hold the notice never said it failed.
+    const seen = await page.evaluate(() => sessionStorage.getItem('l13'))
+    expect(seen).toContain('installing')
+    expect(seen).not.toContain('failed')
+  })
+})
+
+test('P1.3 a file that never arrives ends in Try again, never stuck', async ({
+  page,
+}) => {
+  test.setTimeout(90_000)
+  // No notebook needed: the shared createNotebook helper raced its own name
+  // dialog under load and was the cause of the flake, not the stall limit.
+  await page.goto(FLAG)
+  await expect(page.locator('aside')).toBeVisible()
+  await slowDownload(page) // the file is never let go
+  await pretend(page)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'downloading', {
+    timeout: 10_000,
+  })
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
+    timeout: 40_000,
+  })
+  await expect(
+    notice(page).getByRole('button', { name: /Try again|Retry/ }),
+  ).toBeVisible()
+})
+
+test('T29 Airplane mode in the countdown: the note stays 10 s and both buttons work', async ({
+  page,
+  context,
+}) => {
+  test.setTimeout(60_000)
+  // Safari in Airplane mode keeps saying "online" and sends no events.
+  await page.addInitScript(() => {
+    Object.defineProperty(Navigator.prototype, 'onLine', { get: () => true })
+    const add = window.addEventListener.bind(window)
+    window.addEventListener = ((type: string, ...rest: unknown[]) =>
+      type === 'offline' || type === 'online'
+        ? undefined
+        : (add as (...a: unknown[]) => void)(type, ...rest)) as typeof add
+  })
+  await page.route('**/precache.json*', (r) =>
+    r.fulfill({
+      json: {
+        files: [
+          { u: '/__t29-a.bin', s: 1000 },
+          { u: '/__t29-b.bin', s: 1000 },
+          { u: '/__t29-c.bin', s: 1000 },
+        ],
+      },
+    }),
+  )
+  await page.goto(FLAG)
+  await createNotebook(page, 'Test NB', 'First page')
+  await pretend(page)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'countdown')
+  await context.setOffline(true)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
+    timeout: 15_000,
+  })
+  // Stays: sampled over 10 s, it never changes or goes.
+  for (let i = 0; i < 10; i++) {
+    await page.waitForTimeout(1000)
+    await expect(notice(page)).toHaveAttribute('data-phase', 'failed')
+  }
+  const again = notice(page).getByRole('button', { name: 'Try again' })
+  const notNow = notice(page).getByRole('button', { name: 'Not now' })
+  await expect(again).toBeVisible()
+  await expect(notNow).toBeVisible()
+  await again.click()
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
+    timeout: 15_000,
+  })
+  await notice(page).getByRole('button', { name: 'Not now' }).click()
+  await expect(page.locator('[data-update-waiting]')).toBeVisible()
+})
+
+test('T29 offline with no file list: failed with Try again, never installing, never a restart', async ({
+  page,
+  context,
+}) => {
+  test.setTimeout(90_000)
+  await page.addInitScript(() => {
+    Object.defineProperty(Navigator.prototype, 'onLine', { get: () => true })
+    const add = window.addEventListener.bind(window)
+    window.addEventListener = ((type: string, ...rest: unknown[]) =>
+      type === 'offline' || type === 'online'
+        ? undefined
+        : (add as (...a: unknown[]) => void)(type, ...rest)) as typeof add
+  })
+  // No route mock: /precache.json is really unreachable once offline.
+  await page.goto(FLAG)
+  await createNotebook(page, 'Test NB', 'First page')
+  await page.evaluate(() => {
+    const w = window as never as { __seen: string[]; __still: boolean }
+    w.__still = true // a restart would drop this
+    w.__seen = []
+    new MutationObserver(() => {
+      const p = document
+        .querySelector('[data-mandatory-update]')
+        ?.getAttribute('data-phase')
+      if (p && w.__seen.at(-1) !== p) w.__seen.push(p)
+    }).observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+    })
+  })
+  // "real": a restart is a plain page reload.
+  await pretend(page, { real: true })
+  await expect(notice(page)).toHaveAttribute('data-phase', 'countdown')
+  await context.setOffline(true)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed', {
+    timeout: 15_000,
+  })
+  await page.waitForTimeout(8000)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed')
+  // Back online, a newer version is found and a new worker takes over: the
+  // note stays until the person chooses (nothing restarts by itself).
+  await context.setOffline(false)
+  await page.route('**/version.json*', (r) =>
+    r.fulfill({ json: { commit: 'zzzzzzz' } }),
+  )
+  await page.evaluate(() => {
+    const sw = navigator.serviceWorker
+    sw.dispatchEvent(new Event('controllerchange'))
+    sw.dispatchEvent(new Event('controllerchange'))
+    document.dispatchEvent(new Event('visibilitychange'))
+    window.dispatchEvent(new Event('focus'))
+  })
+  await page.waitForTimeout(24_000)
+  await expect(notice(page)).toHaveAttribute('data-phase', 'failed')
+  const w = await page.evaluate(() => {
+    const x = window as never as { __seen: string[]; __still: boolean }
+    return { seen: x.__seen, still: x.__still }
+  })
+  expect(w.still).toBe(true)
+  expect(w.seen).not.toContain('installing')
+  await expect(
+    notice(page).getByRole('button', { name: 'Try again' }),
+  ).toBeVisible()
+  await expect(
+    notice(page).getByRole('button', { name: 'Not now' }),
+  ).toBeVisible()
 })

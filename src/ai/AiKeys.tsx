@@ -19,6 +19,7 @@ import {
 import { PROVIDER_IDS, type ProviderId } from './provider'
 import { testKey } from './route'
 import { isCap, readKeyUsage } from './usage'
+import { AreaInput } from '../settings/AreaInput'
 
 const field =
   'min-h-11 w-full rounded-lg border border-line bg-bg px-3 text-sm outline-none focus:border-accent'
@@ -90,7 +91,7 @@ export function AiKeys({
         </label>
         <label className="flex flex-col gap-1 text-sm">
           {t('ai.keys.name')}
-          <input
+          <AreaInput
             value={name}
             maxLength={40}
             placeholder={t('ai.keys.namePlaceholder')}
@@ -101,7 +102,7 @@ export function AiKeys({
         </label>
         <label className="flex flex-col gap-1 text-sm">
           {t('ai.key')}
-          <input
+          <AreaInput
             type="password"
             autoComplete="off"
             spellCheck={false}
@@ -186,7 +187,7 @@ function KeyRow({
             else setBad(true)
           }}
         >
-          <input
+          <AreaInput
             autoFocus
             type={mode === 'edit' ? 'password' : 'text'}
             autoComplete="off"
@@ -293,7 +294,7 @@ function KeyRow({
       <div className="flex flex-wrap items-center gap-3 text-muted">
         <label className="flex items-center gap-2">
           {t('ai.keys.cap', { currency: readCostCurrency().code })}
-          <input
+          <AreaInput
             type="number"
             min={0}
             step="any"

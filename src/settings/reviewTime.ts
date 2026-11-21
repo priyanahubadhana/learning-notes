@@ -37,7 +37,7 @@ export async function averageReviewSeconds(
   const logs = await db.reviewLogs
     .orderBy('createdAt')
     .reverse()
-    .filter((l) => l.kind === 'review')
+    .filter((l) => l.kind === 'review' && l.purgedAt === undefined)
     .limit(SAMPLE)
     .toArray()
   return averageSeconds(logs.map((l) => l.durationMs))

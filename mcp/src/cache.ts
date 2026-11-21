@@ -45,6 +45,8 @@ export class NotesCache {
     blocks: new Map(),
     cards: new Map(),
   }
+  /** Inbox items (jobs this connection sent and what the person decided). */
+  private inbox = new Map<string, Held<Record<string, unknown>>>()
   private seq = 0
   /** The newest clock stamp seen on any record (our own stamps start after it). */
   maxHlc = ''
@@ -90,6 +92,7 @@ export class NotesCache {
   /** Forgets everything held in memory. */
   clear(): void {
     for (const t of READ_TABLES) this.tables[t].clear()
+    this.inbox.clear()
     this.seq = 0
     this.maxHlc = ''
     this.last = null
@@ -107,7 +110,9 @@ export class NotesCache {
             row.rev,
             { keyId: row.keyId, data: row.data },
           )
-          if (!(READ_TABLES as readonly string[]).includes(table)) continue
+          const isInbox = table === 'claudeInbox'
+          if (!isInbox && !(READ_TABLES as readonly string[]).includes(table))
+            continue
           const env = value as { r?: { id?: unknown }; h?: unknown } | null
           if (!env?.r || env.r.id !== id) {
             this.unreadable++
@@ -115,11 +120,18 @@ export class NotesCache {
           }
           const h = typeof env.h === 'string' ? env.h : ''
           if (h > this.maxHlc) this.maxHlc = h
-          this.tables[table as ReadTable].set(id, {
-            rev: row.rev,
-            h,
-            value: fromWire(env.r),
-          })
+          if (isInbox)
+            this.inbox.set(id, {
+              rev: row.rev,
+              h,
+              value: fromWire(env.r) as Record<string, unknown>,
+            })
+          else
+            this.tables[table as ReadTable].set(id, {
+              rev: row.rev,
+              h,
+              value: fromWire(env.r),
+            })
         } catch {
           this.unreadable++
         }
@@ -141,6 +153,36 @@ export class NotesCache {
   }
 
   // ---- What writes need (every record, including hidden and removed ones) ----
+
+  /** Any stored record of a read table with its revision and stamp (hidden and removed too). */
+  rawRecord(
+    table: string,
+    id: string,
+  ): { value: Record<string, unknown>; rev: number; h: string } | undefined {
+    const m = this.tables[table as ReadTable]
+    const h = m?.get(id)
+    return h
+      ? { value: h.value as Record<string, unknown>, rev: h.rev, h: h.h }
+      : undefined
+  }
+
+  /** Every stored record of a read table (hidden and removed too). */
+  rawRecords(table: string): Record<string, unknown>[] {
+    const m = this.tables[table as ReadTable]
+    return m
+      ? [...m.values()].map((h) => h.value as Record<string, unknown>)
+      : []
+  }
+
+  /** An Inbox item the person (or this connection) saved. */
+  inboxItem(id: string): Record<string, unknown> | undefined {
+    return this.inbox.get(id)?.value
+  }
+
+  /** Revision of an Inbox item (0 = not there). */
+  inboxRev(id: string): number {
+    return this.inbox.get(id)?.rev ?? 0
+  }
 
   /** The stored page record with its revision and clock stamp, whatever its state. */
   rawPage(id: string): { value: Page; rev: number; h: string } | undefined {

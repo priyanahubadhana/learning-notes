@@ -110,7 +110,12 @@ export function strokeOutline(stroke: Stroke): Outline | null {
   const w = widthUnits(stroke)
   const line = centre(stroke)
 
-  if (stroke.kind === 'highlight' || stroke.shape || style.line !== 'solid') {
+  if (
+    stroke.kind === 'highlight' ||
+    stroke.shape ||
+    stroke.flat ||
+    style.line !== 'solid'
+  ) {
     const dot = style.line === 'dotted'
     const dash =
       style.line === 'dashed' ? [w * 3, w * 2] : dot ? [0.1, w * 2] : []
@@ -119,7 +124,8 @@ export function strokeOutline(stroke: Stroke): Outline | null {
       pts: line,
       width: w,
       dash,
-      cap: stroke.kind === 'highlight' ? 'butt' : dot ? 'round' : 'round',
+      cap:
+        stroke.kind === 'highlight' || (stroke.flat && !dot) ? 'butt' : 'round',
       closed:
         stroke.shape === 'rect' ||
         stroke.shape === 'ellipse' ||

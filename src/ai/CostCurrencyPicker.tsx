@@ -11,6 +11,7 @@ import {
   isRate,
   rateOf,
 } from './costCurrency'
+import { AreaInput } from '../settings/AreaInput'
 
 const field =
   'min-h-11 rounded-lg border border-line bg-bg px-2 text-sm outline-none focus:border-accent'
@@ -49,7 +50,7 @@ export function CostCurrencyPicker({
       <p className="text-sm text-muted" data-testid="cost-currency-now">
         {cur.code} · {name}
       </p>
-      <input
+      <AreaInput
         type="search"
         value={query}
         placeholder={t('ai.currency.search')}
@@ -83,7 +84,7 @@ export function CostCurrencyPicker({
       </ul>
       <label className="flex flex-col gap-1 text-sm">
         {t('ai.currency.rate', { code: cur.code })}
-        <input
+        <AreaInput
           type="number"
           min={0}
           step="any"

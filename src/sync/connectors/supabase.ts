@@ -394,12 +394,19 @@ export function supabaseAuth(): AuthProvider {
         }
         return true
       }
+      const verifier =
+        sessionStorage.getItem(VERIFIER) ?? localStorage.getItem(VERIFIER)
+      // F1 (14 Nov): Safari can reopen a closed tab at an old callback
+      // address, and a cancelled consent comes back without a code. With a
+      // sign-in already here there is nothing to finish: keep it, quietly.
+      if (session && (!code || !verifier)) {
+        clearVerifier()
+        return false
+      }
       if (!code) {
         clearVerifier()
         throw new NotAllowedError(error ?? 'no code')
       }
-      const verifier =
-        sessionStorage.getItem(VERIFIER) ?? localStorage.getItem(VERIFIER)
       if (!verifier) throw new NotAllowedError('no verifier')
       let res: Response
       try {

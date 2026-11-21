@@ -213,5 +213,5 @@ describe('tag filter in search', () => {
     const ms = performance.now() - start
     expect(result.hits).toHaveLength(10_000)
     expect(ms).toBeLessThan(5000)
-  }, 60_000)
+  }, 180_000) // seeding 10,000 cards takes ~50-60 s on CI runners; the speed check is the 5 s line above
 })

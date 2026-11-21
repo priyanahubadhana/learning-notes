@@ -1,3 +1,4 @@
+import { storageNearlyFull } from '../../core/storageSafety'
 import { getSyncStatus, subscribeSync } from '../../sync/syncStatus'
 import { trackFailures } from './attentionLevel'
 
@@ -14,6 +15,10 @@ export interface AttentionSignals {
   backupFailures: number
   /** Failed syncs in a row. */
   failStreak: number
+  /** Refused saves this start (flag storage.safety). */
+  storageFull: number
+  storageLost: number
+  homeScreen: boolean
 }
 
 let value: AttentionSignals = {
@@ -23,6 +28,9 @@ let value: AttentionSignals = {
   storageHigh: false,
   backupFailures: 0,
   failStreak: 0,
+  storageFull: 0,
+  storageLost: 0,
+  homeScreen: false,
 }
 const listeners = new Set<() => void>()
 
@@ -62,14 +70,7 @@ export function loadBackupFailures(): void {
 
 /** Over 90% of the browser storage quota used. */
 export async function checkStorage(): Promise<void> {
-  try {
-    const e = await navigator.storage?.estimate?.()
-    if (e?.quota && e.usage !== undefined) {
-      setSignals({ storageHigh: e.usage / e.quota > 0.9 })
-    }
-  } catch {
-    // Unknown: stay quiet.
-  }
+  setSignals({ storageHigh: await storageNearlyFull() })
 }
 
 /** Counts failed syncs in a row from the sync status; returns stop. */

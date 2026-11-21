@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { build, makeKit, onePlan, outputOf, plan } from './testKit'
+import { CONTENT, build, makeKit, onePlan, outputOf, plan } from './testKit'
 
 describe('runner: happy path', () => {
   it('stages without writing, then applies in one go, then undo and redo', async () => {
@@ -49,5 +49,21 @@ describe('runner: happy path', () => {
     expect(kit.port.liveSnapshot()).not.toBe(start)
     await kit.runner.undo('b')
     expect(kit.port.liveSnapshot()).toBe(start)
+  })
+})
+
+describe('runner: fillTimeoutMs', () => {
+  it('cuts a fill that waits longer than the given limit', async () => {
+    const hang = {
+      ...CONTENT,
+      'pages.write_notes': () => new Promise(() => {}),
+    }
+    const kit = makeKit(hang, { fillTimeoutMs: 10 })
+    await kit.runner.create(plan('slow'))
+    const job = await kit.runner.run('slow')
+    expect(job.state).toBe('needs_attention')
+    expect(job.steps.find((s) => s.state === 'failed')?.tool).toBe(
+      'pages.write_notes',
+    )
   })
 })

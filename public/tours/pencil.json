@@ -1,0 +1,11 @@
+{
+  "id": "pencil",
+  "version": 1,
+  "steps": [
+    { "setting": "advanced.pencilWrites" },
+    { "setting": "advanced.holdSelect" },
+    { "setting": "advanced.pencilTapTwice" },
+    { "setting": "advanced.pencilScrolls" },
+    { "setting": "advanced.autoSwitch" }
+  ]
+}

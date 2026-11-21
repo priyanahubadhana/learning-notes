@@ -64,23 +64,60 @@ export async function prepare(page: Page, combo: Combo): Promise<void> {
 }
 
 /**
- * Waits until the screen has drawn: the main area has text, fonts are
- * loaded and the text stopped changing (lazy screens arrive a moment late).
+ * Waits until the screen has drawn: the main area has text, every font and
+ * picture has loaded, and the text, the layout and the style sheets stopped
+ * changing (lazy screens arrive a moment late, and their CSS chunk can land
+ * after their text; on a loaded machine that left the old "text only" check
+ * passing while the layout was still moving).
  */
 export async function settle(page: Page): Promise<void> {
-  const text = () =>
-    page.evaluate(
-      () => document.querySelector('main')?.textContent?.trim() ?? '',
-    )
-  await expect.poll(async () => (await text()).length).toBeGreaterThan(0)
+  // A click on a space leaves the mouse over the strip, and a hover tip opens
+  // there a moment later and closes 3 s after that: whether the picture caught
+  // it depended on how busy the machine was. Park the mouse on a corner (no
+  // control there) and wait until no tip is showing.
+  await page.mouse.move(1, 1)
+  await expect(page.getByRole('tooltip')).toHaveCount(0)
+  const state = () =>
+    page.evaluate(async () => {
+      // Two frames so style and layout from the last task are applied.
+      await new Promise((r) =>
+        requestAnimationFrame(() => requestAnimationFrame(r)),
+      )
+      const main = document.querySelector('main')
+      const text = main?.textContent?.trim() ?? ''
+      const imgs = [...document.images]
+      const ready =
+        document.fonts.status === 'loaded' &&
+        imgs.every((i) => i.complete) &&
+        document
+          .getAnimations()
+          .every(
+            (a) =>
+              a.playState !== 'running' ||
+              a.effect?.getTiming().iterations === Infinity,
+          )
+      const box = main?.getBoundingClientRect()
+      return {
+        has: text.length > 0,
+        ready,
+        sig: [
+          text,
+          document.styleSheets.length,
+          main?.scrollHeight,
+          box?.width,
+          box?.height,
+          document.body.scrollHeight,
+        ].join('|'),
+      }
+    })
+  await expect.poll(async () => (await state()).has).toBe(true)
   await page.evaluate(() => document.fonts.ready)
   let last = ''
   await expect
     .poll(async () => {
-      const now = await text()
-      const same = now === last
-      last = now
-      await page.waitForTimeout(250)
+      const now = await state()
+      const same = now.ready && now.sig === last
+      last = now.sig
       return same
     })
     .toBe(true)

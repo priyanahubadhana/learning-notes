@@ -84,7 +84,7 @@ describe('tool list follows the scopes', () => {
     await Promise.all([server.connect(a), client.connect(b)])
     return (await client.listTools()).tools.map((x) => x.name).sort()
   }
-  const reads = [
+  const oldReads = [
     'due_cards',
     'list_cards',
     'list_notebooks',
@@ -92,6 +92,15 @@ describe('tool list follows the scopes', () => {
     'read_page',
     'search_notes',
   ]
+  // The plan tools (slice 3): four read ones with read, two write ones with any write switch.
+  const planReads = [
+    'describe_tool',
+    'job_status',
+    'list_tools',
+    'plan_preview',
+  ]
+  const planWrites = ['run_plan', 'undo_job']
+  const reads = [...oldReads, ...planReads].sort()
 
   it('all on: reads plus four writes, and no delete or edit tool', async () => {
     const names = await list({
@@ -106,6 +115,7 @@ describe('tool list follows the scopes', () => {
         'add_page',
         'append_to_page',
         'create_notebook',
+        ...planWrites,
       ].sort(),
     )
     expect(names.some((n) => /delete|remove|edit|replace/.test(n))).toBe(false)
@@ -117,10 +127,10 @@ describe('tool list follows the scopes', () => {
     ).toEqual(reads)
     expect(
       await list({ read: true, 'write:append': true, 'write:create': false }),
-    ).toEqual([...reads, 'add_cards', 'append_to_page'].sort())
+    ).toEqual([...reads, 'add_cards', 'append_to_page', ...planWrites].sort())
     expect(
       await list({ read: false, 'write:append': false, 'write:create': true }),
-    ).toEqual(['add_page', 'create_notebook'])
+    ).toEqual(['add_page', 'create_notebook', ...planWrites].sort())
   })
 
   it('a write tool over the protocol saves and answers in JSON', async () => {

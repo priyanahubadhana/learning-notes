@@ -1,0 +1,28 @@
+/* Home v2 board: a size change settles in with a short fade/scale. Tokens only. */
+@keyframes home-widget-settle {
+  from {
+    opacity: 0.4;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.home-widget-body {
+  animation: home-widget-settle var(--dur-2) var(--ease-out);
+}
+.home-widget {
+  height: 100%;
+}
+.home-board .rord-item {
+  transition:
+    transform var(--dur-2) var(--ease-out),
+    background-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-1) var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-widget-body {
+    animation: none;
+  }
+}

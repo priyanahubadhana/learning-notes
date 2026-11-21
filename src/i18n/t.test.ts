@@ -1,8 +1,12 @@
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { en } from './en'
+import { enLate } from './en/late'
 import { setMessages, t, withRegion, type MessageKey } from './t'
 
-afterEach(() => setMessages('en', en))
+// The settings texts moved to the late texts (R8), so the tests start from all English, as the app does after start.
+const allEnglish = { ...en, ...enLate }
+beforeEach(() => setMessages('en', allEnglish))
+afterEach(() => setMessages('en', allEnglish))
 
 describe('t()', () => {
   it('returns English text by key', () => {
@@ -21,10 +25,18 @@ describe('t()', () => {
   })
 
   it('uses another language and falls back to English for gaps', () => {
-    setMessages('de', { 'settings.title': 'Einstellungen' })
+    // As in the app: the late English texts travel with the language (applyLanguage).
+    setMessages('de', { ...enLate, 'settings.title': 'Einstellungen' })
     expect(t('settings.title')).toBe('Einstellungen')
     expect(t('settings.reset')).toBe('Reset to default')
     expect(t('settings.error.number', { min: 0, max: 9999 })).toContain('9.999')
+  })
+
+  it('a language map that lacks a first-download English key falls back to English', () => {
+    // 'save.retry' is in the first-download English; the map below has no such key.
+    setMessages('de', { 'settings.title': 'Einstellungen' })
+    expect(t('settings.title')).toBe('Einstellungen')
+    expect(t('save.retry')).toBe('Try again')
   })
 
   it('shows the key instead of crashing when text is missing', () => {

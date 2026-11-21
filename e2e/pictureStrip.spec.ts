@@ -142,10 +142,12 @@ test('resize, background and back, type, resize again: the picture stays, Undo r
     set('visible')
     document.dispatchEvent(new Event('visibilitychange'))
   })
+  // Since C12 the frame is as tall as the box: the east dot's 44 pt target covers
+  // the last 6 px of the editor edge, so click 16 px in.
   // Bottom-right of the editor: the picture's corner handle sits at the top-left.
   const eb = (await page.locator('.bn-editor').boundingBox())!
   await page.locator('.bn-editor').click({
-    position: { x: eb.width - 6, y: eb.height - 6 },
+    position: { x: eb.width - 16, y: eb.height - 6 },
   })
   await page.keyboard.type('hello')
 
@@ -164,18 +166,34 @@ test('resize, background and back, type, resize again: the picture stays, Undo r
   await expect.poll(() => widthOf(page)).toBeCloseTo(w1, -1)
 })
 
+/** Why-note: a preset glides for 180 ms, and on a slow runner a check can pass mid-glide;
+ * a click then lands on the moving strip. Wait until two reads agree. */
+async function settledWidth(page: Page) {
+  let last = -1
+  await expect
+    .poll(async () => {
+      const now = await widthOf(page)
+      const still = now === last
+      last = now
+      return still
+    })
+    .toBe(true)
+  return last
+}
+
 test('size presets glide over 180 ms and land on one saved width', async ({
   page,
 }) => {
   await pageWithPicture(page)
-  const w0 = await widthOf(page)
+  const w0 = await settledWidth(page)
   await page.locator('[data-picture-action="smaller"]').click()
   await expect.poll(() => widthOf(page)).toBeCloseTo(w0 * 0.6, -1)
+  await settledWidth(page)
   await page.locator('[data-picture-action="bigger"]').click()
   await expect.poll(() => widthOf(page)).toBeGreaterThan(w0 * 0.8)
   // Reduce motion: instant.
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  const w1 = await widthOf(page)
+  const w1 = await settledWidth(page)
   await page.locator('[data-picture-action="smaller"]').click()
   await expect.poll(() => widthOf(page)).toBeLessThan(w1 - 20)
 })

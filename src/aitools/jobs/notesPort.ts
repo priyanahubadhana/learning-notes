@@ -1,5 +1,6 @@
 import {
   appliedIn,
+  canon,
   redoAll,
   revOf,
   undoAll,
@@ -62,7 +63,7 @@ export class MemoryNotesPort implements NotesPort {
       for (const v of map.values())
         if (v.deletedAt == null)
           rows.push(
-            `${table}:${JSON.stringify(ignoreUpdatedAt ? { ...v, updatedAt: 0 } : v)}`,
+            `${table}:${JSON.stringify(canon(ignoreUpdatedAt ? { ...v, updatedAt: 0 } : v))}`,
           )
     return rows.sort().join('\n')
   }

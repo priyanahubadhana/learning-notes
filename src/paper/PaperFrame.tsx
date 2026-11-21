@@ -1,5 +1,16 @@
 import { frameCss, padOf } from '../core/boxStyle'
-import { PICK_BOX } from '../editor/tapSelect'
+import { onRouted } from '../app/input/eventRouter'
+import { onTyped } from '../editor/typedSignal'
+import { takePick } from './pickSignal'
+import {
+  forgetCaret,
+  noteCaret,
+  pauseTyping,
+  resumeTyping,
+  watchPanels,
+} from './typingPause'
+import { PICK_BOX, firstTapCaret, textFirstTap } from '../editor/tapSelect'
+import { isOn } from '../app/flags'
 import { isUiEvent } from '../app/uiGuard'
 import {
   lazy,
@@ -46,17 +57,19 @@ import {
   isFreeRow,
   layoutRows,
   placesOf,
+  COL_GAP,
   MIN_FRAC,
   migrateToRows,
   reconcile,
   removeBox as removeFromRows,
   resizeCols,
+  ROW_GAP,
   zoneOf,
   type Geometry,
   type Zone,
 } from './grid'
 import { GridDividers } from './GridDividers'
-import { snapBox, type SnapResult } from './guides'
+import { holdOf, snapBox, type SnapResult } from './guides'
 import {
   bigEnough,
   circleDigit,
@@ -79,7 +92,12 @@ import { bounds, record, replay, waitFor, type Recorded } from './penOnPaper'
 import { activeTool } from '../app/tools/main/mainTools'
 import { onGestureReset } from '../app/gestureReset'
 import type { Rect } from '../ink/geometry'
-import { startGripDrag } from '../app/tools/gripDrag'
+import {
+  gripDragging,
+  resetGripDrags,
+  startGripDrag,
+} from '../app/tools/gripDrag'
+import type { DragClock } from './v2/boxDrag'
 import { adopterIn, lassoAcrossBoxes, setPaperDrop } from '../ink/inkTransfer'
 import { lassoSettings } from '../app/tools/main/inkSettings'
 import { sheetNav } from './sheetNav'
@@ -102,6 +120,8 @@ import {
 } from './sheets'
 
 /** Item 7: the page scroll bar loads when a paper page shows (first-load size). */
+/** Text box v2: the group pill (task 2B.10) loads only with the switch ON. */
+const GroupPill = lazy(() => import('./v2/boxGroup'))
 const PageScrollBar = lazy(() =>
   import('./PageScrollBar').then((m) => ({ default: m.PageScrollBar })),
 )
@@ -194,6 +214,8 @@ export function PaperFrame({
   // Layout mode shows the page a little smaller; Done brings the zoom back.
   const zoom = layoutMode ? Math.min(zoomState, LAYOUT_ZOOM) : zoomState
   const [boxBottom, setBoxBottom] = useState(0)
+  /** The default box's real height (px): its frame always matches its fill (C12). */
+  const [mainRealH, setMainRealH] = useState(0)
   const sheet = sheetOf(page)
   const box = boxesOf(page)[0]
   const paperEl = useRef<HTMLDivElement>(null)
@@ -253,6 +275,7 @@ export function PaperFrame({
       ),
     [widths, k],
   )
+  const besideOn = isOn('textbox.v2')
   const geo: Geometry = useMemo(
     () => ({
       autoW: widthsMm,
@@ -263,8 +286,10 @@ export function PaperFrame({
       right: sheet.w - box.x - box.w,
       top: box.y,
       bottom: MARGIN,
+      // C21: free boxes sit beside each other (text box v2).
+      beside: besideOn,
     }),
-    [sheet.w, sheet.h, k, box.x, box.w, box.y, widthsMm],
+    [sheet.w, sheet.h, k, box.x, box.w, box.y, widthsMm, besideOn],
   )
   const baseRows = useMemo(
     () =>
@@ -309,7 +334,17 @@ export function PaperFrame({
   useEffect(() => {
     const el = boxEl.current
     if (!el) return
+    // Why: with an ink tool on, the box is stretched past its text, so it
+    // does not resize when a picture loads; the frame and its handles kept
+    // the old height and a handle sat over the picture. Watch the editor too.
+    let watched: Element | null = null
     const measure = () => {
+      const now = el.querySelector('.bn-editor')
+      if (now && now !== watched) {
+        if (watched) ro.unobserve(watched)
+        ro.observe(now)
+        watched = now
+      }
       setBoxBottom(
         el.getBoundingClientRect().bottom -
           (el.parentElement?.getBoundingClientRect().top ?? 0),
@@ -317,6 +352,8 @@ export function PaperFrame({
       // The default box's height for the grid: its editor (the text, not the
       // stretch the ink tools give the box) and the bottom margin.
       const ed = el.querySelector<HTMLElement>('.bn-editor')
+      const real = Math.round(el.getBoundingClientRect().height)
+      setMainRealH((h) => (h === real ? h : real))
       reportHeight(
         MAIN_BOX,
         Math.round(
@@ -328,8 +365,8 @@ export function PaperFrame({
         ),
       )
     }
-    measure()
     const ro = new ResizeObserver(measure)
+    measure()
     ro.observe(el)
     return () => ro.disconnect()
   }, [k, reportHeight])
@@ -526,6 +563,8 @@ export function PaperFrame({
     [rowsView],
   )
   const placedX = (b: PaperBox) => layout.get(b.id)?.x ?? b.x
+  /** The width set on a phone (mm); a box never resized there fills the column. */
+  const phoneW = new Map(boxesOf(page).map((b) => [b.id, b.pw]))
   const stored = boxesOf(page)
     .filter((b) => b.id !== MAIN_BOX)
     .map(placed)
@@ -534,7 +573,7 @@ export function PaperFrame({
   const extra = narrow ? readingOrder(stored) : stored
 
   // The left panel shows this page's sheets as thumbnails.
-  const navSheet = page.sheet ?? 'A4'
+  const navSheet = page.sheet === 'Letter' ? 'Letter' : 'A4'
   useEffect(() => {
     if (flat || narrow) sheetNav.set(null)
     else
@@ -560,10 +599,30 @@ export function PaperFrame({
   const [hover, setHover] = useState<{ x: number; y: number } | null>(null)
   // B3-6: the page's own text box shows ⠿ and ⋯ while the caret is in it.
   const [mainFocus, setMainFocus] = useState(false)
+  // C30b (switch textbox.v2): a first tap in the empty part of the first box
+  // selects it (the same frame, dots, tab and menu as with the caret).
+  const [mainPicked, setMainPicked] = useState(false)
+  useEffect(() => {
+    if (!mainPicked) return
+    const offs = [
+      onRouted('pointerdown', (e) => {
+        const t = e.target instanceof Element ? e.target : null
+        if (!t?.closest('[data-paper-box="main"], [data-main-chrome]'))
+          setMainPicked(false)
+      }),
+      onRouted('keydown', (e) => {
+        if (e.key === 'Escape') setMainPicked(false)
+      }),
+    ]
+    return () => offs.forEach((off) => off())
+  }, [mainPicked])
   useEffect(() => {
     const el = boxEl.current
     if (!el || flat) return
-    const on = () => setMainFocus(true)
+    const on = () => {
+      setMainFocus(true)
+      setMainPicked(false)
+    }
     const off = (e: FocusEvent) => {
       if (el.contains(e.relatedTarget as Node | null)) return
       window.setTimeout(() => {
@@ -621,24 +680,62 @@ export function PaperFrame({
     const down = (e: Event) => {
       const id = boxOfText(e.target)
       window.clearTimeout(later)
-      if (id)
-        later = window.setTimeout(() => send({ type: 'caretIn', id }), 250)
+      // Text box v2: the first tap on a box that is not selected only selects
+      // it (no caret, no typing state), unless it lands on or near the words
+      // (C30, owner 17 Nov): then the caret goes there and it is typing.
+      const pe = e as PointerEvent
+      const unpicked =
+        textFirstTap.on &&
+        id !== 'main' &&
+        !(e.target as Element).closest('[data-paper-box][data-picked]') &&
+        !firstTapCaret(e.target as Element, pe.clientX, pe.clientY)
+      if (id && !unpicked)
+        later = window.setTimeout(() => {
+          // Why: the caret may have left in these 250 ms (a tap on the words
+          // now puts it there at once, C30, so typing and a blur can come
+          // first): typing state with no caret in the box would hide the bar.
+          if (boxOfText(document.activeElement) !== id) return
+          send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
+        }, 250)
     }
     const key = (e: KeyboardEvent) => {
       if (e.key.length !== 1 || e.metaKey || e.ctrlKey) return
       const id = boxOfText(document.activeElement)
-      if (id) send({ type: 'caretIn', id })
+      if (id) send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
     }
-    const out = () =>
+    const out = (e: FocusEvent) => {
+      // C10: the caret is put away, so a pause can bring it back.
+      const was = bsRef.current
+      if (isOn('textbox.v2') && was.kind === 'typing' && !was.fresh)
+        noteCaret(e.target as Element | null)
       window.setTimeout(() => {
         if (!boxOfText(document.activeElement)) send({ type: 'caretOut' })
       }, 0)
+    }
     document.addEventListener('pointerdown', down, true)
     document.addEventListener('keydown', key, true)
+    // C18: text put in with no key (Scribble, dictation, a paste of words) is
+    // typing too. Heard through the shared input layer: 'input' follows every
+    // beforeinput and carries inputType ('beforeinput' is not a routed type).
+    const offInput = onRouted('input', (e) => {
+      if (!(e instanceof InputEvent) || !/^(insert|delete)/.test(e.inputType))
+        return
+      const id = boxOfText(document.activeElement)
+      if (id) send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
+    })
+    // C18: words typed by the mini keyboard (mic, Enter, Backspace) are typing
+    // too, though no key is pressed: only the thin border, no dots.
+    const typed = () => {
+      const id = boxOfText(document.activeElement)
+      if (id) send({ type: 'caretIn', id, exclusive: isOn('textbox.v2') })
+    }
+    const offTyped = onTyped(typed)
     document.addEventListener('focusout', out)
     return () => {
       window.clearTimeout(later)
       document.removeEventListener('pointerdown', down, true)
+      offTyped()
+      offInput()
       document.removeEventListener('keydown', key, true)
       document.removeEventListener('focusout', out)
     }
@@ -653,17 +750,52 @@ export function PaperFrame({
         type: 'pick',
         ids: extra.filter((b) => b.group === g).map((b) => b.id),
       })
-    send({ type: 'frameTap', id, add })
+    // Text box v2 (C16): one selected box at a time; only the Lasso picks several.
+    const several = add && !isOn('textbox.v2')
+    if (isOn('textbox.v2')) forgetCaret()
+    send({ type: 'frameTap', id, add: several })
   }
+  // C20: a duplicated box comes up selected (frame and dots), without a caret.
+  useEffect(() => {
+    const id = takePick(extra.map((b) => b.id))
+    if (!id) return
+    ;(document.activeElement as HTMLElement | null)?.blur()
+    selectBox(id, false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [extra])
   // A first tap on a box's text selects the box (tapSelect.ts, item 11).
   useEffect(() => {
     const on = (e: Event) => {
       const d = (e as CustomEvent<{ id: string; add: boolean }>).detail
       if (extra.some((b) => b.id === d.id)) selectBox(d.id, d.add)
+      // C30b: the page's first box is picked by a tap in its empty part.
+      setMainPicked(d.id === MAIN_BOX)
     }
     window.addEventListener(PICK_BOX, on)
     return () => window.removeEventListener(PICK_BOX, on)
   }, [extra])
+  // C10: a card, a list or the box bar pauses typing; closing it brings the caret back.
+  useEffect(() => {
+    if (!isOn('textbox.v2')) return
+    return watchPanels((id) => send({ type: 'caretIn', id, exclusive: true }))
+  }, [send])
+  // Text box v2 (switch textbox.v2, task 2B.3): its tap rules load on demand.
+  const v2 = useRef<typeof import('./v2') | null>(null)
+  useEffect(() => {
+    if (!isOn('textbox.v2')) return
+    let off: (() => void) | undefined
+    let gone = false
+    void import('./v2').then((m) => {
+      if (gone) return
+      v2.current = m
+      off = m.installBoxV2()
+    })
+    return () => {
+      gone = true
+      off?.()
+      v2.current = null
+    }
+  }, [])
   // A tap on the bare paper deselects: the Lasso's own loop-up does it.
   useEffect(() => {
     if (picked.length === 0) return
@@ -709,16 +841,51 @@ export function PaperFrame({
     /** The (snapped) move in mm, noted by applyMove for the drop. */
     dxMm?: number
     dyMm?: number
+    /** C21: where the last snap holds the box (mm), so the guide line does not flicker. */
+    snapHold?: { x?: number; y?: number }
     /** The scroller and where it was, for edge auto-scroll. */
     scroller?: HTMLElement | null
     scroll0?: number
+    /** Text box v2 (2B.7): the 120 ms hold and the 4 s safety end, the lifted box, the last pointer. */
+    clock?: DragClock
+    held?: boolean
+    el?: HTMLElement | null
+    last?: { x: number; y: number }
+    unwatch?: () => void
   } | null>(null)
+  /** Where the dropped boxes were let go: the glide (v2) starts there. */
+  const glide = useRef<Map<string, DOMRect> | null>(null)
+  const endLift = (d: {
+    clock?: DragClock
+    el?: HTMLElement | null
+    unwatch?: () => void
+  }) => {
+    d.clock?.stop()
+    d.unwatch?.()
+    d.el?.removeAttribute('data-lifted')
+  }
+  /** A lift that never came: the drop happens at the last place the finger was. */
+  const lostFinger = (d: NonNullable<typeof drag.current>) => {
+    if (drag.current !== d || !v2.current) return
+    dragEnd(v2.current.liftAt(d.last!) as unknown as ReactPointerEvent)
+    // The page lock of the grip goes too: no tool stays stuck.
+    resetGripDrags()
+  }
   const [guides, setGuides] = useState<SnapResult | null>(null)
   const lastPt = useRef<{ clientX: number; clientY: number } | null>(null)
   const grab = (box: PaperBox, _how: GrabHow, e: ReactPointerEvent) => {
     if (e.button !== 0) return
     e.preventDefault()
     e.stopPropagation()
+    // Text box v2 (TB-11): only the ≡ tab moves a box; a press on a border
+    // strip just selects it.
+    const m = v2.current
+    if (m && !m.tabOnly(e.currentTarget as Element)) {
+      const live = document.activeElement
+      if (live?.closest('[data-paper-box="' + CSS.escape(box.id) + '"]'))
+        (live as HTMLElement).blur()
+      return selectBox(box.id, e.shiftKey)
+    }
     // The drag owns every pointer and key (item 25): the page leaves text
     // input (no "/" menu, no caret), the ink and Lasso ignore the touch.
     startGripDrag(e.currentTarget as Element, e.pointerId)
@@ -745,6 +912,29 @@ export function PaperFrame({
         (paperEl.current ? scrollParent(paperEl.current) : null)?.scrollTop ??
         0,
     }
+    if (m) {
+      const d = drag.current
+      d.last = { x: e.clientX, y: e.clientY }
+      d.clock = m.createDragClock({
+        pointerId: e.pointerId,
+        // 120 ms: the box lifts; the drag counts from where the finger is now.
+        onHold: () => {
+          d.held = true
+          d.x0 = d.last!.x
+          d.y0 = d.last!.y
+          d.el = paperEl.current?.querySelector<HTMLElement>(
+            '[data-paper-box="' + CSS.escape(box.id) + '"]',
+          )
+          d.el?.setAttribute('data-lifted', '')
+        },
+        // The pointer is really gone (a lost capture, a move with no button
+        // down, the app in the background): drop where it is now. A finger
+        // only held still is still down and never ends the drag.
+        lost: () => !gripDragging({ pointerId: e.pointerId }),
+        onLost: () => lostFinger(d),
+      })
+      d.unwatch = m.watchFinger(e.pointerId, () => lostFinger(d))
+    }
   }
   /** The arrangement a drop at the pointer would give (pure, from the rows at drag start). */
   const dropAt = (
@@ -768,9 +958,21 @@ export function PaperFrame({
     let zone: Zone = 'bottom'
     for (const [id, rc] of now) {
       if (ids.includes(id)) continue
-      if (mx >= rc.x && mx <= rc.x + rc.w && my >= rc.y && my <= rc.y + rc.h) {
+      let rh = rc.h
+      if (v2.current && id === MAIN_BOX && mainRealH) {
+        // C28: the first box takes a drop only over its real height (its
+        // layout rect is taller than its text), and not when the carried
+        // box itself sits below that: the free paper under it takes the box.
+        rh = Math.min(rh, mainRealH / k)
+        const lead = held?.orig.get(ids[0])
+        const carriedTop = lead
+          ? lead.y + (held?.dyMm ?? (cy - held!.y0) / k)
+          : my
+        if (carriedTop >= rc.y + rh) continue
+      }
+      if (mx >= rc.x && mx <= rc.x + rc.w && my >= rc.y && my <= rc.y + rh) {
         target = id
-        zone = zoneOf((mx - rc.x) / rc.w, (my - rc.y) / rc.h)
+        zone = zoneOf((mx - rc.x) / rc.w, (my - rc.y) / rh)
         break
       }
     }
@@ -806,7 +1008,16 @@ export function PaperFrame({
     const leadTop = held?.orig.get(lead)
     const yTop = leadTop ? leadTop.y + dyMm : my
     let idx = rows.filter((row) => top(row) < yTop).length
-    for (const id of [lead, ...rest]) {
+    // Text box v2 (TB-33): several boxes keep their order on the page (top to
+    // bottom, then left to right), so they land as they were, not lead first.
+    const order = [lead, ...rest]
+    if (v2.current && held)
+      order.sort((p, q) => {
+        const a = held.orig.get(p)
+        const b = held.orig.get(q)
+        return a && b ? a.y - b.y || a.x - b.x : 0
+      })
+    for (const id of order) {
       const o = held?.orig.get(id)
       if (!o || id === MAIN_BOX) {
         rows = insertRow(rows, idx++, id, snap(my, step / k))
@@ -839,6 +1050,17 @@ export function PaperFrame({
   const frame = useRef(0)
   const dragMove = (e: ReactPointerEvent) => {
     if (!drag.current) return
+    const held = drag.current
+    // C21: a move with no button pressed is a hovering Pencil (its lift was
+    // lost): the move is over, the box stays where the last real move put it.
+    if (e.pointerType !== 'touch' && e.buttons === 0) {
+      dragEnd(e, true)
+      return
+    }
+    if (held.clock) {
+      held.last = { x: e.clientX, y: e.clientY }
+      if (!held.held) return
+    }
     pending.current = { clientX: e.clientX, clientY: e.clientY }
     if (frame.current) return
     frame.current = requestAnimationFrame(() => {
@@ -854,7 +1076,13 @@ export function PaperFrame({
   ) => {
     const d = held
     if (!d || d.ids.length === 0) return
-    if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < TAP_PX)
+    if (d.clock && !d.held) return
+    // C31: a finger rests and slips a little on the tab: that is a touch, not a
+    // move (a slip dropped on another box made it a column and changed its width).
+    if (
+      !d.moved &&
+      Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < MOVE_TAP_PX
+    )
       return
     d.moved = true
     lastPt.current = { clientX: e.clientX, clientY: e.clientY }
@@ -872,16 +1100,18 @@ export function PaperFrame({
       const others = [...now]
         .filter(([id]) => !d.ids.includes(id))
         .map(([id, r]) => ({ id, x: r.x, y: r.y, w: r.w, h: r.h }))
-      const sn = snapBox(
-        {
-          x: lead.x + d.dxMm,
-          y: lead.y + d.dyMm,
-          w: rc?.w ?? lead.w,
-          h: rc?.h ?? DEFAULT_H_MM,
-        },
-        others,
-        sheet.w,
-      )
+      const moving = {
+        x: lead.x + d.dxMm,
+        y: lead.y + d.dyMm,
+        w: rc?.w ?? lead.w,
+        h: rc?.h ?? DEFAULT_H_MM,
+      }
+      // C21: snap within 6 px, let go only past 12 px (a dead zone).
+      const sn = snapBox(moving, others, sheet.w, SNAP_IN_PX / k, {
+        ...d.snapHold,
+        release: SNAP_OUT_PX / k,
+      })
+      d.snapHold = holdOf(sn, moving)
       snapped = sn
       if (sn.dx || sn.dy) {
         d.dxMm += sn.dx
@@ -894,6 +1124,7 @@ export function PaperFrame({
         ? snapped
         : null,
     )
+    if (!snapped) d.snapHold = undefined
     const live = new Map<string, PaperBox>()
     for (const id of d.ids) {
       const o = d.orig.get(id)!
@@ -934,13 +1165,18 @@ export function PaperFrame({
     if (!v) return
     const before = sc.scrollTop
     sc.scrollTop = before + Math.max(-24, Math.min(24, v))
-    if (sc.scrollTop !== before) applyMove(p, d)
+    if (sc.scrollTop !== before) {
+      applyMove(p, d)
+    }
   }
   // Esc while a box is dragged: nothing changes (the preview closes).
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape' || !drag.current?.moved) return
+      // A held drag (v2) cancels even before its first frame has run.
+      if (e.key !== 'Escape' || !(drag.current?.moved || drag.current?.held))
+        return
       document.documentElement.removeAttribute('data-box-drag')
+      if (drag.current) endLift(drag.current)
       drag.current = null
       setLiveBoxes(null)
       setDragOrigin(null)
@@ -951,13 +1187,31 @@ export function PaperFrame({
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
   }, [])
-  const dragEnd = (e: ReactPointerEvent) => {
+  const dragEnd = (
+    ev: ReactPointerEvent,
+    /** C21: ended by a hover move: dropped at the last real move, not here. */
+    hovered = false,
+  ) => {
     document.documentElement.removeAttribute('data-box-drag')
     if (frame.current) cancelAnimationFrame(frame.current)
     frame.current = 0
+    const e: {
+      clientX: number
+      clientY: number
+      type: string
+      timeStamp: number
+    } = hovered
+      ? {
+          clientX: (pending.current ?? lastPt.current ?? ev).clientX,
+          clientY: (pending.current ?? lastPt.current ?? ev).clientY,
+          type: ev.type,
+          timeStamp: ev.timeStamp,
+        }
+      : ev
     pending.current = null
     const d = drag.current
     drag.current = null
+    if (d) endLift(d)
     if (d?.moved) lastDragEnd.current = e.timeStamp
     // The drop is planned from the lift itself, not from the last drawn
     // preview: moves that all land inside one frame (a fast flick, a quick
@@ -987,9 +1241,41 @@ export function PaperFrame({
     if (JSON.stringify(rows) === JSON.stringify(d.rows0)) return
     // The places the new arrangement gives (for old clients and exports).
     const places: BoxPatch[] = placesOf(rows, heightsMm, geo)
-    setHeldRows(rows)
-    onGridChange?.(rows, places)
+    // Text box v2 (TB-14): the boxes glide from where they were let go; the toast
+    // offers the one Undo.
+    const m = v2.current
+    if (m && d.clock) {
+      const from = new Map<string, DOMRect>()
+      for (const id of d.ids) {
+        const el = paperEl.current?.querySelector<HTMLElement>(
+          '[data-paper-box="' + CSS.escape(id) + '"]',
+        )
+        if (el) from.set(id, el.getBoundingClientRect())
+      }
+      glide.current = from
+    }
+    const write = () => {
+      setHeldRows(rows)
+      onGridChange?.(rows, places)
+    }
+    if (m && d.clock) m.dropWithUndo(write)
+    else write()
   }
+  // Text box v2 (TB-14): once the drop is drawn, one transform glides each box in.
+  useLayoutEffect(() => {
+    const from = glide.current
+    if (!from || liveBoxes) return
+    glide.current = null
+    const m = v2.current
+    if (!m) return
+    for (const [id, r0] of from) {
+      const el = paperEl.current?.querySelector<HTMLElement>(
+        '[data-paper-box="' + CSS.escape(id) + '"]',
+      )
+      const by = el && m.glideFrom(r0, el.getBoundingClientRect())
+      if (el && by) m.playGlide(el, by)
+    }
+  })
   // Eight round handles (B3-9). Sides and corners to the east or west move the
   // column divider beside the box; north, south and the corners set a minimum
   // height that never goes below what the box's text and pictures need.
@@ -1005,28 +1291,97 @@ export function PaperFrame({
     rows: GridRow[]
     h?: number
     moved: boolean
-    /** Lone box in its row: the side handles set its width (fraction). */
-    lone: boolean
+    /**
+     * C13: the box sits at the outer edge of its row (the last column's east
+     * dot, the first column's west dot): the dot sets the column's own width
+     * (a fraction); what it frees stays empty. `mirror`: the west dot, which
+     * works the right edge the other way round.
+     */
+    edge?: {
+      ci: number
+      left: number
+      avail: number
+      others: number
+      mirror: boolean
+      edge0: number
+    }
+    /** C15: a box under another in its column: the top dot grows it downward. */
+    flip: boolean
+    /** C10: a caret was put away when the drag began; it returns at the end. */
+    resume: boolean
     /** A free box (text box v2): east/west set its width in mm, west also its left edge. */
     free: 'e' | 'w' | null
     /** Its right edge (mm) when the press began (the west handle keeps it). */
     right0: number
+    /** C32: its left edge (mm) and the divider's place (a fraction of the row) when the press began: the edge follows the pointer by the distance moved, it never jumps to it. */
+    left0: number
+    div0: number
     /** The top handle: the top edge moves, the bottom stays. */
     north: boolean
     top0: number
     floorY: number
     shift?: number
+    /** Text box v2: the least width (mm), the 120 ms hold and where the pointer is. */
+    minW: number
+    floor?: { l: number; r: number }
+    held: boolean
+    /** Text box v2 on a phone (2B.5b): the side, the box's width (mm) and the column's. */
+    phone?: {
+      dir: 'e' | 'w' | null
+      w0: number
+      colW: number
+      up: boolean
+      w?: number
+    }
+    holdTimer?: number
+    handle: HTMLElement
+    last: { x: number; y: number }
+    /** C21: the pointer that pressed the dot; only its moves count. */
+    pointerId: number
+    /** C21: the page-wide listeners that follow it (a lost capture still ends the resize). */
+    unlisten?: () => void
   } | null>(null)
+  /** C21: one resize update per frame. */
+  const resizeFrame = useRef(0)
+  /** C21: the size shown at the lift, kept until the saved size is drawn. */
+  const keptH = useRef<{ id: string; h: number; from?: PaperBox } | null>(null)
   const [liveH, setLiveH] = useState<{ id: string; h: number } | null>(null)
+  /** C21: the 1.5 s timer of the kept height; cleared when the frame goes. */
+  const keptTimer = useRef(0)
+  useEffect(() => () => window.clearTimeout(keptTimer.current), [])
+  // C21: the saved box has arrived: the kept height gives way to it.
+  useEffect(() => {
+    const kept = keptH.current
+    if (!kept || resizing.current) return
+    const now = extra.find((x) => x.id === kept.id)
+    if (now && now.h === kept.from?.h) return
+    keptH.current = null
+    setLiveH((cur) => (cur === kept ? null : cur))
+  }, [extra])
+  const [liveW, setLiveW] = useState<{ id: string; w: number } | null>(null)
   const resizeDown = (b: PaperBox, how: ResizeHow, e: ReactPointerEvent) => {
     if (e.button !== 0) return
     e.preventDefault()
     e.stopPropagation()
+    // C21: a resize whose lift never came ends here first.
+    if (resizing.current) resizeEnd(e)
+    const handle = e.currentTarget as HTMLElement
     try {
-      e.currentTarget.setPointerCapture(e.pointerId)
+      handle.setPointerCapture(e.pointerId)
     } catch {
       // The moves still arrive.
     }
+    // Text box v2 (TB-20): where two targets meet, the nearest dot wins.
+    const m = v2.current
+    const frame = handle.parentElement?.getBoundingClientRect()
+    if (m && frame)
+      how =
+        m.nearestHandle(
+          e.clientX - frame.left,
+          e.clientY - frame.top,
+          frame.width,
+          frame.height,
+        ) ?? how
     const el = paperEl.current?.querySelector<HTMLElement>(
       '[data-paper-box="' + CSS.escape(b.id) + '"]',
     )
@@ -1039,11 +1394,47 @@ export function PaperFrame({
     if (row && how.includes('e') && ci < row.cols.length - 1) i = ci
     else if (row && how.includes('w') && ci > 0) i = ci - 1
     const isFree = !!row && isFreeRow(row)
-    const lone = !!row && row.cols.length === 1 && how.includes('e')
-    if (lone) i = 0
-    if (isFree && how.includes('w')) i = 0
+    // C13: the left dot of a lone box (not free yet) frees it: it sets x and the width.
+    const loneW =
+      !!row &&
+      !isFree &&
+      row.cols.length === 1 &&
+      how.includes('w') &&
+      !how.includes('e')
+    const freeLike = isFree || loneW
+    if (freeLike && how.includes('w')) i = 0
+    if (isFree && row && row.cols.length === 1 && how.includes('e')) i = 0
     const rc0 = layout.get(b.id)
-    const north = how.includes('n') && !!row && ci === 0
+    // C13: the outer dots of a row always do something.
+    let edge: NonNullable<typeof resizing.current>['edge']
+    if (row && !freeLike && ci >= 0 && !(m && narrow && el)) {
+      const outerE = how.includes('e') && ci === row.cols.length - 1
+      const outerW = how.includes('w') && ci === 0
+      const first = layout.get(row.cols[ci].boxIds[0])
+      if ((outerE || outerW) && first) {
+        const contentW = geo.sheetW - geo.left - geo.right
+        i = ci
+        edge = {
+          ci,
+          left: first.x,
+          avail: Math.max(
+            1,
+            contentW -
+              Math.max(0, (row.x ?? geo.left) - geo.left) -
+              COL_GAP * (row.cols.length - 1),
+          ),
+          others: row.cols.reduce((n, c, j) => (j === ci ? n : n + c.w), 0),
+          mirror: outerW && !outerE,
+          edge0: first.x + first.w,
+        }
+      }
+    }
+    const phone = !!m && narrow && !!el
+    // C15: the top dot works from any box. The first box of a column moves
+    // the row's top; a box under another grows downward.
+    const firstInCol = !!row && row.cols[ci]?.boxIds[0] === b.id
+    const north = !phone && how.includes('n') && !!row && firstInCol
+    const flip = !phone && how.includes('n') && !!row && !firstInCol
     const top0 = layout.get(b.id)?.y ?? b.y
     const floorY =
       row && north
@@ -1053,8 +1444,45 @@ export function PaperFrame({
             geo,
           ).get(b.id)?.y ?? top0)
         : top0
+    const minW =
+      m && (freeLike || phone) && el && content
+        ? Math.max(FREE_MIN_W, m.minWidthPx(el, content) / k)
+        : FREE_MIN_W
+    // Why: on WebKit a box selected after typing keeps the editor's focus, so
+    // pauseTyping found a caret and the end of the resize brought it back:
+    // the box turned to typing and lost its selection and dots (CI run
+    // 44514113315). The caret comes back only to a box that was typed in.
+    const now = bsRef.current
+    const wasTyping = now.kind === 'typing' && now.id === b.id
+    const paused = isOn('textbox.v2') && pauseTyping(b.id)
+    if (paused && !wasTyping) forgetCaret()
     resizing.current = {
-      free: isFree
+      minW,
+      floor:
+        m && row && i !== null && !freeLike && !edge
+          ? m.floorFor(
+              paperEl.current!,
+              row,
+              i,
+              (geo.sheetW -
+                geo.left -
+                geo.right -
+                COL_GAP * (row.cols.length - 1)) *
+                k,
+            )
+          : undefined,
+      held: !m,
+      phone: phone
+        ? {
+            dir: how.includes('e') ? 'e' : how.includes('w') ? 'w' : null,
+            w0: el!.getBoundingClientRect().width / k,
+            colW: box.w,
+            up: how.includes('n'),
+          }
+        : undefined,
+      handle,
+      last: { x: e.clientX, y: e.clientY },
+      free: freeLike
         ? how.includes('e')
           ? 'e'
           : how.includes('w')
@@ -1062,7 +1490,14 @@ export function PaperFrame({
             : null
         : null,
       right0: rc0 ? rc0.x + rc0.w : 0,
-      lone,
+      left0: rc0 ? rc0.x : 0,
+      div0:
+        row && i !== null
+          ? row.cols.slice(0, i + 1).reduce((n, c) => n + c.w, 0)
+          : 0,
+      edge,
+      flip,
+      resume: paused && wasTyping,
       north,
       top0,
       floorY,
@@ -1072,25 +1507,76 @@ export function PaperFrame({
       h0: (el?.getBoundingClientRect().height ?? 0) / k,
       minH: (content?.getBoundingClientRect().height ?? 0) / k,
       rowId: i !== null && row ? row.id : null,
-      i,
-      vert: how.includes('s') || north,
+      i: phone ? null : i,
+      vert: how.includes('s') || north || flip || (phone && how.includes('n')),
       rows: baseRows,
       moved: false,
+      pointerId: e.pointerId,
+    }
+    {
+      // C21: the dot follows the pointer even if the capture is lost (the tip
+      // left the dot), and the lift ends it wherever it lands.
+      const d = resizing.current
+      const onMove = (ev: PointerEvent) => {
+        if (resizing.current === d) resizeMove(ev)
+      }
+      const onUp = (ev: PointerEvent) => {
+        if (resizing.current === d && ev.pointerId === d.pointerId)
+          resizeEnd(ev)
+      }
+      const offs = [
+        onRouted('pointermove', onMove, { name: 'box-resize' }),
+        onRouted('pointerup', onUp, { name: 'box-resize' }),
+        onRouted('pointercancel', onUp, { name: 'box-resize' }),
+      ]
+      d.unlisten = () => offs.forEach((off) => off())
+    }
+    // Text box v2: the resize commits after a 120 ms hold; the dot grows then.
+    if (m) {
+      const d = resizing.current
+      d.holdTimer = window.setTimeout(() => {
+        d.held = true
+        handle.setAttribute('data-held', '')
+        resizeAt(d.last.x, d.last.y)
+      }, m.HOLD_MS)
     }
   }
-  const resizeMove = (e: ReactPointerEvent) => {
+  const resizeMove = (e: ReactPointerEvent | PointerEvent) => {
+    const d = resizing.current
+    if (!d || e.pointerId !== d.pointerId) return
+    // C21: a move with no button pressed is a hovering Pencil (or a mouse
+    // whose lift was lost): the resize is over, it never resizes.
+    if (e.pointerType !== 'touch' && e.buttons === 0) {
+      resizeEnd(e, true)
+      return
+    }
+    d.last = { x: e.clientX, y: e.clientY }
+    if (!d.held || resizeFrame.current) return
+    // C21: one update per frame, at the newest point.
+    resizeFrame.current = requestAnimationFrame(() => {
+      resizeFrame.current = 0
+      if (resizing.current === d) resizeAt(d.last.x, d.last.y)
+    })
+  }
+  const resizeAt = (px: number, py: number) => {
     const d = resizing.current
     const r = paperEl.current?.getBoundingClientRect()
     if (!d || !r) return
-    if (!d.moved && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < TAP_PX)
-      return
+    if (!d.moved && Math.hypot(px - d.x0, py - d.y0) < TAP_PX) return
     d.moved = true
+    if (d.phone?.dir) {
+      // A phone has one column: the width is the box's own, left-aligned.
+      const dx = (px - d.x0) / k
+      const want = d.phone.dir === 'e' ? d.phone.w0 + dx : d.phone.w0 - dx
+      d.phone.w = Math.min(d.phone.colW, Math.max(d.minW, want))
+      setLiveW({ id: d.id, w: d.phone.w })
+    }
     if (d.i !== null) {
-      const at =
-        ((e.clientX - r.left) / k - geo.left) /
-        Math.max(1, geo.sheetW - geo.left - geo.right)
-      const atMm = (e.clientX - r.left) / k
-      const maxX = geo.sheetW - geo.right - FREE_MIN_W
+      // C32: by the distance moved from the press, not to the pointer (a press
+      // 22 px outside the edge, on the dot's target, made the edge jump 22 px).
+      const dxMm = (px - d.x0) / k
+      const at = d.div0 + dxMm / Math.max(1, geo.sheetW - geo.left - geo.right)
+      const maxX = geo.sheetW - geo.right - d.minW
       d.rows = baseRows.map((row) =>
         row.id !== d.rowId
           ? row
@@ -1101,41 +1587,83 @@ export function PaperFrame({
                   Math.round(
                     Math.min(
                       geo.sheetW - (row.x ?? 0),
-                      Math.max(FREE_MIN_W, atMm - (row.x ?? 0)),
+                      Math.max(d.minW, d.right0 + dxMm - (row.x ?? 0)),
                     ) * 10,
                   ) / 10,
               })
             : d.free === 'w'
               ? (() => {
-                  const x = Math.min(maxX, Math.max(0, atMm))
+                  const x = Math.min(
+                    maxX,
+                    d.minW > FREE_MIN_W ? d.right0 - d.minW : maxX,
+                    Math.max(0, d.left0 + dxMm),
+                  )
                   return withoutAuto({
                     ...row,
                     x: Math.round(x * 10) / 10,
-                    wmm:
-                      Math.round(Math.max(FREE_MIN_W, d.right0 - x) * 10) / 10,
+                    wmm: Math.round(Math.max(d.minW, d.right0 - x) * 10) / 10,
                   })
                 })()
-              : d.lone
-                ? {
-                    ...row,
-                    cols: [
-                      {
-                        ...row.cols[0],
-                        w: Math.min(1, Math.max(MIN_FRAC, at)),
-                      },
-                    ],
-                  }
-                : resizeCols(row, d.i!, at),
+              : d.edge?.mirror
+                ? (() => {
+                    // The left edge follows the finger; the right edges stay; the room stays empty at the left.
+                    const g = d.edge!
+                    const w0 = row.cols[g.ci].w * g.avail
+                    const least = Math.max(FREE_MIN_W, MIN_FRAC * g.avail)
+                    const newLeft = Math.min(
+                      Math.max(geo.left, g.left + (px - d.x0) / k),
+                      g.left + w0 - least,
+                    )
+                    const moved = newLeft - g.left
+                    const avail1 = g.avail - moved
+                    const { x: _x, ...rest } = row
+                    void _x
+                    return {
+                      ...rest,
+                      ...(newLeft > geo.left + 0.05
+                        ? { x: Math.round(newLeft * 10) / 10 }
+                        : {}),
+                      cols: row.cols.map((c, j) => ({
+                        ...c,
+                        w:
+                          j === g.ci
+                            ? (c.w * g.avail - moved) / avail1
+                            : (c.w * g.avail) / avail1,
+                      })),
+                    }
+                  })()
+                : d.edge
+                  ? (() => {
+                      const g = d.edge!
+                      const right = g.edge0 + dxMm
+                      const w = (right - g.left) / g.avail
+                      return {
+                        ...row,
+                        cols: row.cols.map((c, j) =>
+                          j === g.ci
+                            ? {
+                                ...c,
+                                w: Math.min(
+                                  Math.max(MIN_FRAC, 1 - g.others),
+                                  Math.max(MIN_FRAC, w),
+                                ),
+                              }
+                            : c,
+                        ),
+                      }
+                    })()
+                  : resizeCols(row, d.i!, at, true, d.floor),
       )
       setPreview(d.rows)
     }
     if (d.north) {
       // Top edge: moves with the finger, the bottom stays; never above the
       // place the page flow gives the row, never below the text's minimum.
-      const dy = (e.clientY - d.y0) / k
+      const dy = (py - d.y0) / k
       const shift = Math.min(d.h0 - d.minH, Math.max(d.floorY - d.top0, dy))
       d.shift = shift
-      d.h = d.h0 - shift
+      // Past the free space above, the box keeps growing (downward).
+      d.h = d.h0 - (dy < 0 ? dy : shift)
       d.rows = (d.i !== null ? d.rows : baseRows).map((row) =>
         row.cols.some((c) => c.boxIds.includes(d.id))
           ? { ...row, y: Math.max(0, d.top0 + shift) }
@@ -1144,23 +1672,95 @@ export function PaperFrame({
       setPreview(d.rows)
       setLiveH({ id: d.id, h: d.h })
     } else if (d.vert) {
-      d.h = Math.max(d.minH, d.h0 + (e.clientY - d.y0) / k)
+      const dy = (py - d.y0) / k
+      d.h = Math.max(d.minH, d.h0 + (d.phone?.up || d.flip ? -dy : dy))
       setLiveH({ id: d.id, h: d.h })
     }
   }
-  const resizeEnd = (e: ReactPointerEvent) => {
+  const resizeEnd = (
+    e: ReactPointerEvent | PointerEvent,
+    /** C21: ended by a hover move: the size stays as the last real move left it. */
+    hovered = false,
+  ) => {
+    const d0 = resizing.current
+    // C21: already ended (the page-wide lift came first): the kept size stays.
+    if (!d0) return
+    // Another pointer's lift (a second finger) does not end this resize.
+    if (e.pointerId !== d0.pointerId && e.type !== 'pointerdown') return
+    if (resizeFrame.current) {
+      cancelAnimationFrame(resizeFrame.current)
+      resizeFrame.current = 0
+      // The newest point is drawn before the commit (a hover adds none).
+      if (d0.held && !hovered) resizeAt(d0.last.x, d0.last.y)
+    }
     const d = resizing.current
     resizing.current = null
+    if (d) {
+      window.clearTimeout(d.holdTimer)
+      d.handle.removeAttribute('data-held')
+      d.unlisten?.()
+    }
     if (d?.moved) lastDragEnd.current = e.timeStamp
-    setLiveH(null)
+    // C10: the caret that was put away comes back, where it was.
+    if (d?.resume) {
+      const id = resumeTyping()
+      if (id) send({ type: 'caretIn', id, exclusive: true })
+    }
+    // C21: the new height stays drawn until the saved one arrives (no jump back).
+    const keep =
+      !!d &&
+      d.moved &&
+      e.type !== 'pointercancel' &&
+      d.vert &&
+      d.h !== undefined &&
+      d.phone?.w === undefined
+    if (keep) {
+      const kept = {
+        id: d.id,
+        h: d.h!,
+        from: extra.find((x) => x.id === d.id),
+      }
+      keptH.current = kept
+      setLiveH(kept)
+      window.clearTimeout(keptTimer.current)
+      keptTimer.current = window.setTimeout(() => {
+        if (keptH.current !== kept) return
+        keptH.current = null
+        setLiveH((cur) => (cur === kept ? null : cur))
+      }, 1500)
+    } else {
+      keptH.current = null
+      setLiveH(null)
+    }
+    if (!d || e.type === 'pointercancel' || d.phone?.w === undefined)
+      setLiveW(null)
     setPreview(null)
     if (!d || e.type === 'pointercancel' || !d.moved) return
+    if (d.phone?.w !== undefined) {
+      // The phone width (mm), apart from the iPad width: rows stay as they are; one write, one Undo.
+      const id = d.id
+      const w = Math.round(d.phone.w * 10) / 10
+      setLiveW({ id, w })
+      // The saved width takes over once the write is in.
+      window.setTimeout(() => setLiveW(null), 600)
+      // Width and height in ONE write: two writes raced on WebKit (a corner
+      // drag lost its height).
+      const h =
+        d.vert && d.h !== undefined
+          ? d.h <= d.minH + 0.5
+            ? undefined
+            : Math.round(d.h * 10) / 10
+          : undefined
+      onGridChange?.(baseRows, [
+        { id, patch: d.vert && d.h !== undefined ? { pw: w, h } : { pw: w } },
+      ])
+    }
     if (d.i !== null || d.north) {
       const places: BoxPatch[] = placesOf(d.rows, heightsMm, geo)
       setHeldRows(d.rows)
       onGridChange?.(d.rows, places)
     }
-    if (d.vert && d.h !== undefined)
+    if (d.vert && d.h !== undefined && d.phone?.w === undefined)
       onBoxHeight?.(
         d.id,
         d.h <= d.minH + 0.5 ? undefined : Math.round(d.h * 10) / 10,
@@ -1205,13 +1805,37 @@ export function PaperFrame({
     // whatever it covers inside the boxes (words, ink, pictures) first.
     const rect = lassoSettings.get().shape === 'rect'
     const client = poly.map((q) => ({ x: q.x + p.left, y: q.y + p.top }))
-    if (lassoAcrossBoxes(client, rect)) return setPicked([])
     // One pass: every box found once, not one search per box.
     const frames = new Map<string, HTMLElement>()
     paperEl.current
       ?.querySelectorAll<HTMLElement>('[data-paper-box]')
       .forEach((el) => frames.set(el.dataset.paperBox ?? '', el))
+    // Text box v2 (TB-32): a loop that holds whole boxes picks those boxes,
+    // not the words inside them.
+    const whole = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect()
+      const x0 = r.left - p.left
+      const y0 = r.top - p.top
+      return [
+        { x: x0, y: y0 },
+        { x: x0 + r.width, y: y0 },
+        { x: x0, y: y0 + r.height },
+        { x: x0 + r.width, y: y0 + r.height },
+      ].every((c) => inPolygon(c, poly))
+    }
+    const v2On = isOn('textbox.v2')
+    const wholeIds = v2On
+      ? extra.filter((b) => {
+          const el = frames.get(b.id)
+          return !!el && whole(el)
+        })
+      : []
+    if (wholeIds.length) {
+      // Let go of any words picked earlier (an empty loop reaches nothing).
+      lassoAcrossBoxes([], false)
+    } else if (lassoAcrossBoxes(client, rect)) return setPicked([])
     const inLoop = extra.filter((b) => {
+      if (wholeIds.length) return wholeIds.includes(b)
       const el = frames.get(b.id)
       if (!el) return false
       // Where the box is on screen, in paper px (as the loop is).
@@ -1279,8 +1903,17 @@ export function PaperFrame({
     textPen.current = { pts: [{ x: e.clientX, y: e.clientY }], blank }
   }
   const textPenMove = (e: ReactPointerEvent) => {
-    if (textPen.current && e.pointerType === 'pen')
-      textPen.current.pts.push({ x: e.clientX, y: e.clientY })
+    const tp = textPen.current
+    if (!tp || e.pointerType !== 'pen') return
+    // B11: a hovering Pencil (no button, no pressure) is not drawing. When the
+    // lift never came (Scribble), its hover moves end the stroke: they are
+    // not its points and never make a shape.
+    if (e.buttons === 0 && e.pressure === 0) {
+      noteStroke(tp.pts, e.timeStamp)
+      textPen.current = null
+      return
+    }
+    tp.pts.push({ x: e.clientX, y: e.clientY })
   }
   const textPenUp = (e: ReactPointerEvent) => {
     const tp = textPen.current
@@ -1356,21 +1989,31 @@ export function PaperFrame({
       },
     ]
     // The box that holds the ink and the ink itself are one Undo step.
+    // Why (base red tb2-pencil:171): the new box is empty until the ink is
+    // saved, and "another tool ends an empty box at once" (18 Nov) took it away
+    // when the Pen was put out for this drawing. The flag tells that sweep
+    // (usePaperBoxes) to wait until the Text tool is back.
+    const root = document.documentElement
+    root.setAttribute('data-shape-making', '')
     void historyGroup('Shape', async () => {
-      const id = await boxUnder(r, bb)
-      if (!id) return
-      const pad = await waitFor(() =>
-        document.querySelector(
-          '[data-paper-box="' + CSS.escape(id) + '"] [data-ink-pad]',
-        ),
-      )
-      if (!pad) return
-      // The Pen draws it, then the Text tool is back (the person did not switch).
-      activeTool.set('pen')
-      await new Promise((ok) => requestAnimationFrame(ok))
-      replay(pad, events)
-      await new Promise((ok) => window.setTimeout(ok, 700))
-      if (activeTool.get() === 'pen') activeTool.set('text')
+      try {
+        const id = await boxUnder(r, bb)
+        if (!id) return
+        const pad = await waitFor(() =>
+          document.querySelector(
+            '[data-paper-box="' + CSS.escape(id) + '"] [data-ink-pad]',
+          ),
+        )
+        if (!pad) return
+        // The Pen draws it, then the Text tool is back (the person did not switch).
+        activeTool.set('pen')
+        await new Promise((ok) => requestAnimationFrame(ok))
+        replay(pad, events)
+        await new Promise((ok) => window.setTimeout(ok, 700))
+        if (activeTool.get() === 'pen') activeTool.set('text')
+      } finally {
+        root.removeAttribute('data-shape-making')
+      }
     })
   }
 
@@ -1485,7 +2128,13 @@ export function PaperFrame({
   }, [canDrop])
 
   /** A tap on empty paper with the Text tool: a new box there (step 3). */
-  const tapStart = useRef<{ x: number; y: number; t: number } | null>(null)
+  const tapStart = useRef<{
+    x: number
+    y: number
+    t: number
+    /** The farthest the pointer got from the press (a closed loop ends where it began). */
+    far: number
+  } | null>(null)
   const lastCreate = useRef<{ t: number; x: number; y: number } | null>(null)
   const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (document.documentElement.hasAttribute('data-placing')) return
@@ -1506,6 +2155,7 @@ export function PaperFrame({
     if (
       !down ||
       Math.hypot(e.clientX - down.x, e.clientY - down.y) > 10 ||
+      down.far > 10 ||
       Date.now() - down.t > 600
     )
       return
@@ -1516,8 +2166,19 @@ export function PaperFrame({
       return
     // Owner final 2a: with a box selected (or being typed in), a tap on empty
     // paper only deselects; the next tap makes a box.
-    if (bsRef.current.kind !== 'idle') {
-      send({ type: 'clear' })
+    // C11: typing in a box that was never picked ("fresh") is not a
+    // selection: the tap goes on and makes the next box (TB-06, C27).
+    const now = bsRef.current
+    if (now.kind === 'typing' && now.fresh) send({ type: 'clear' })
+    else if (now.kind !== 'idle') {
+      // Text box v2 (C11): the first tap outside ends typing and leaves the box
+      // selected; the second tap outside selects nothing.
+      if (isOn('textbox.v2') && bsRef.current.kind === 'typing')
+        send({ type: 'caretOut' })
+      else {
+        send({ type: 'clear' })
+        forgetCaret()
+      }
       const live = document.activeElement as HTMLElement | null
       if (live?.closest('[data-paper-box]')) live.blur()
       return
@@ -1569,16 +2230,37 @@ export function PaperFrame({
       Math.hypot(e.clientX - prev.x, e.clientY - prev.y) < DOUBLE_TAP_PX
     )
       return
+    // TB-06 (switch textbox.v2): beside a box, the new box goes under it.
+    let tapY = y
+    if (v2.current) {
+      const spans = extra.flatMap((b) => {
+        const fr = paperEl.current
+          ?.querySelector<HTMLElement>(
+            '[data-paper-box="' + CSS.escape(b.id) + '"]',
+          )
+          ?.getBoundingClientRect()
+        return fr
+          ? [{ top: (fr.top - r.top) / k, bottom: (fr.bottom - r.top) / k }]
+          : []
+      })
+      tapY = v2.current.rowUnder(y, spans, ROW_GAP)
+    }
     // Text box v2: a SMALL box exactly where tapped (its first line on the
     // paper line under the tap); it grows with the text, then wraps.
+    // C27 (owner, 17 Nov): with text box v2 the new box is as wide as the
+    // whole line (the page's text width), one line tall; it grows down only.
+    const line = isOn('textbox.v2')
     onAddBox({
-      x: Math.min(
-        Math.max(0, x - 1),
-        sheet.w - 15 - FREE_MIN_W - FREE_RIGHT_GAP,
-      ),
-      y: Math.max(0, snap(y, step / k)),
+      x: line
+        ? mainShown.x
+        : Math.min(
+            Math.max(0, x - 1),
+            sheet.w - 15 - FREE_MIN_W - FREE_RIGHT_GAP,
+          ),
+      y: Math.max(0, snap(tapY, step / k)),
       row,
       free: true,
+      ...(line ? { wmm: mainShown.w } : {}),
       rows: baseRows,
     })
   }
@@ -1607,6 +2289,7 @@ export function PaperFrame({
     (extra.length > 0 ||
       (narrow && !!onAddBoxInOrder) ||
       mainFocus ||
+      mainPicked ||
       layoutMode) && (
       <div
         ref={layerRef}
@@ -1625,14 +2308,26 @@ export function PaperFrame({
       >
         <LoopLayer ref={loopLayer} />
         {guides && <GuideLines g={guides} k={k} />}
-        {onGroup && picked.length >= 1 && !liveBoxes && (
-          <GroupBar
-            picked={extra.filter((b) => picked.includes(b.id))}
-            layout={layout}
-            k={k}
-            onGroup={(ids, group) => onGroup(ids, group)}
-          />
-        )}
+        {onGroup &&
+          picked.length >= 1 &&
+          !liveBoxes &&
+          (isOn('textbox.v2') ? (
+            <Suspense fallback={null}>
+              <GroupPill
+                picked={extra.filter((b) => picked.includes(b.id))}
+                layout={layout}
+                k={k}
+                onGroup={(ids, group) => onGroup(ids, group)}
+              />
+            </Suspense>
+          ) : (
+            <GroupBar
+              picked={extra.filter((b) => picked.includes(b.id))}
+              layout={layout}
+              k={k}
+              onGroup={(ids, group) => onGroup(ids, group)}
+            />
+          ))}
         {ghost &&
           (() => {
             const g = layout.get(ghost.id)
@@ -1658,23 +2353,28 @@ export function PaperFrame({
               </div>
             )
           })()}
-        {!narrow && ((mainFocus && !!onBoxMenu) || layoutMode) && (
-          <MainChrome
-            at={mainShown}
-            k={k}
-            layoutMode={layoutMode}
-            onGrab={(e) => grab(box, 'move', e)}
-            onDragMove={dragMove}
-            onDragEnd={dragEnd}
-            onMenu={(at) => onBoxMenu?.(box, at)}
-            height={(heightsMm[MAIN_BOX] ?? 40) * k}
-            onResize={{
-              down: (how, e) => resizeDown(box, how, e),
-              move: resizeMove,
-              end: resizeEnd,
-            }}
-          />
-        )}
+        {!narrow &&
+          (((mainFocus || mainPicked) && !!onBoxMenu && !box.gone) ||
+            (layoutMode && !box.gone)) && (
+            <MainChrome
+              at={mainShown}
+              k={k}
+              styled={!!box.style}
+              typing={mainFocus && isOn('textbox.v2')}
+              layoutMode={layoutMode}
+              onGrab={(e) => grab(box, 'move', e)}
+              onDragMove={dragMove}
+              onDragEnd={dragEnd}
+              onMenu={(at) => onBoxMenu?.(box, at)}
+              bar={renderBar?.(box)}
+              height={mainRealH || (heightsMm[MAIN_BOX] ?? 40) * k}
+              onResize={{
+                down: (how, e) => resizeDown(box, how, e),
+                move: resizeMove,
+                end: resizeEnd,
+              }}
+            />
+          )}
         {extra.map((b) => (
           <BoxFrame
             key={b.id}
@@ -1716,7 +2416,22 @@ export function PaperFrame({
             onDragMove={dragMove}
             onDragEnd={dragEnd}
             onEmptyDelete={onDeleteBox ? () => onDeleteBox(b) : undefined}
-            stacked={narrow ? { x: box.x, w: box.w } : null}
+            stacked={
+              narrow
+                ? {
+                    x: box.x,
+                    // Text box v2 (2B.5b): a box may be narrower than the column.
+                    w: isOn('textbox.v2')
+                      ? Math.min(
+                          box.w,
+                          liveW?.id === b.id
+                            ? liveW.w
+                            : (phoneW.get(b.id) ?? box.w),
+                        )
+                      : box.w,
+                  }
+                : null
+            }
             bar={
               picked.length === 1 && picked[0] === b.id
                 ? renderBar?.(b)
@@ -1786,6 +2501,8 @@ export function PaperFrame({
           ref={paperEl}
           data-paper
           data-has-boxes={extra.length > 0 ? '' : undefined}
+          // C33: lets the style sheet drop the editor's spare line under a box.
+          data-box-v2={isOn('textbox.v2') ? '' : undefined}
           data-layout-mode={layoutMode ? '' : undefined}
           data-sheet={page.sheet ?? 'A4'}
           style={
@@ -1815,6 +2532,7 @@ export function PaperFrame({
                   x: e.clientX,
                   y: e.clientY,
                   t: Date.now(),
+                  far: 0,
                 }
                 penDown(e)
                 // Hold on blank paper: "Start typing here" (loads on demand).
@@ -1834,6 +2552,12 @@ export function PaperFrame({
                 }
               }}
               onPointerMove={(e) => {
+                const ts = tapStart.current
+                if (ts)
+                  ts.far = Math.max(
+                    ts.far,
+                    Math.hypot(e.clientX - ts.x, e.clientY - ts.y),
+                  )
                 penMove(e)
                 hoverMove(e)
               }}
@@ -1895,15 +2619,27 @@ export function PaperFrame({
           <div
             ref={boxEl}
             data-paper-box="main"
+            // Owner Q-3: a deleted first box with no box after it: the page shows
+            // no first box (its one empty line stays only as the page's anchor).
+            data-main-gone={box.gone && !flat ? '' : undefined}
+            // C33 review: a selected first box hides the block handle (⠿ and +),
+            // which lay over its left dot.
+            data-main-picked={
+              mainPicked && !mainFocus && isOn('textbox.v2') ? '' : undefined
+            }
+            inert={box.gone && !flat ? true : undefined}
             className={
               flat
                 ? undefined
-                : 'rounded-md outline-1 outline-dashed outline-transparent focus-within:outline-line'
+                : isOn('textbox.v2')
+                  ? 'rounded-md'
+                  : 'rounded-md outline-1 outline-dashed outline-transparent focus-within:outline-line'
             }
             style={
               flat
                 ? undefined
                 : {
+                    ...(box.gone ? { visibility: 'hidden' as const } : {}),
                     marginLeft: mainShown.x * k,
                     width: mainShown.w * k,
                     marginTop: mainShown.y * k - total,
@@ -1914,7 +2650,14 @@ export function PaperFrame({
                         }
                       : {}),
                     ...(box.style ? { padding: padOf(box.style) } : {}),
-                    paddingBottom: MARGIN * k + padOf(box.style),
+                    // C27: with v2 the bottom margin is space outside the frame, so
+                    // an empty first box is one line tall, not a writing area.
+                    ...(isOn('textbox.v2')
+                      ? {
+                          paddingBottom: padOf(box.style),
+                          marginBottom: MARGIN * k,
+                        }
+                      : { paddingBottom: MARGIN * k + padOf(box.style) }),
                     ...(preview || heldRows
                       ? {
                           transition:
@@ -2129,6 +2872,11 @@ function GuideLines({ g, k }: { g: SnapResult; k: number }) {
 
 /** A press that moves less than this (px) is a tap. */
 const TAP_PX = 4
+/** C31: the tab moves a box only after the pointer has gone this far (px), as a tap (spec: 12 px). */
+const MOVE_TAP_PX = 12
+/** C21: a smart guide pulls a moved box in within 6 px and lets go only past 12 px. */
+const SNAP_IN_PX = 6
+const SNAP_OUT_PX = 12
 
 /** One box changed by a drop (with what it was, for Undo). */
 export type BoxChange = BoxPatch & {
@@ -2295,6 +3043,11 @@ function LazyMount({
   )
 }
 
+/** Polish 2B: the gap (px) the first box's frame grows outward,
+ * so words-to-frame equals that of every other box (10 sides, 7 top). */
+const MAIN_FRAME_GAP_X = 10
+const MAIN_FRAME_GAP_Y = 4
+
 /**
  * B3-6: ⠿ and ⋯ of the page's own text box (the first box), one 44 pt target
  * each, one touch target above its top edge. In Layout mode a cover over the
@@ -2303,14 +3056,19 @@ function LazyMount({
 function MainChrome({
   at,
   k,
+  styled,
+  typing,
   layoutMode,
   height,
   onGrab,
   onDragMove,
   onDragEnd,
   onMenu,
+  bar,
   onResize,
 }: {
+  /** Q-1: the box bar (with the one ⋯) over the selected first box. */
+  bar?: ReactNode
   onResize: {
     down: (how: ResizeHow, e: ReactPointerEvent) => void
     move: (e: ReactPointerEvent) => void
@@ -2318,6 +3076,10 @@ function MainChrome({
   }
   at: { x: number; y: number; w: number }
   k: number
+  /** A styled box has its own padding: its frame already has the gap. */
+  styled: boolean
+  /** Owner Q-2 (textbox.v2): while typing, only the thin frame shows; dots, tab and menu show when selected. */
+  typing: boolean
   layoutMode: boolean
   height: number
   onGrab: (e: ReactPointerEvent) => void
@@ -2330,8 +3092,41 @@ function MainChrome({
     onPointerUp: onDragEnd,
     onPointerCancel: onDragEnd,
   }
+  const root = useRef<HTMLDivElement>(null)
+  // Polish 2B: the tab sits above the box; when the page's own tabs (Notes /
+  // Summary / Review) are too near above, it sits below the box instead, as
+  // the tab of every other box near the top does. It never covers them.
+  const [below, setBelow] = useState(false)
+  useLayoutEffect(() => {
+    const measure = () => {
+      const top = root.current?.getBoundingClientRect().top
+      const tabs = document
+        .querySelector('[data-page-tabs]')
+        ?.getBoundingClientRect()
+      if (top == null || !tabs || tabs.bottom > top) return
+      const crowded = top - tabs.bottom < TOUCH_PX + 24
+      setBelow((b) => (b === crowded ? b : crowded))
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(document.documentElement)
+    return () => ro.disconnect()
+  }, [at.y, k, height, typing, styled])
+  // Polish 2B: with textbox.v2 the frame has the same small gap round the
+  // words as every other box; it grows outward, the words stay.
+  const v2On = isOn('textbox.v2')
+  const v2 = v2On && !styled
+  const gap = v2 ? MAIN_FRAME_GAP_Y : 0
+  const gapX = v2 ? MAIN_FRAME_GAP_X : 0
+  const frameBox = {
+    top: -gap,
+    left: -gapX,
+    width: `calc(100% + ${2 * gapX}px)`,
+    height: height + 2 * gap,
+  }
   return (
     <div
+      ref={root}
       data-main-chrome
       className="absolute"
       style={{ left: at.x * k, top: at.y * k, width: at.w * k }}
@@ -2349,43 +3144,71 @@ function MainChrome({
           <div
             aria-hidden
             data-main-frame
-            className="pointer-events-none absolute left-0 w-full rounded-md border-[1.5px] border-solid border-accent"
-            style={{ top: 0, height }}
+            // C11 + TB-08 (text box v2): the first box shows this while the
+            // caret is in it, so it has the thin typing border of every box.
+            // Its dots, ≡ and ⋯ stay: it has no other way to be selected.
+            className={
+              'pointer-events-none absolute left-0 w-full rounded-md border-solid border-accent ' +
+              (isOn('textbox.v2') ? 'border' : 'border-[1.5px]')
+            }
+            style={frameBox}
           />
-          <div
-            data-main-handles
-            className="pointer-events-none absolute left-0 w-full"
-            style={{ top: 0, height }}
-          >
-            <ResizeDots onResize={onResize} />
-          </div>
-          <div
-            className="pointer-events-none absolute left-0 right-0 z-20 flex items-center justify-end pr-7"
-            style={{ top: -TOUCH_PX - 20, height: TOUCH_PX }}
-          >
-            <button
-              type="button"
-              data-box-grip
-              aria-label={t('paper.box.move')}
-              onPointerDown={onGrab}
-              {...pointer}
-              style={TOUCH_STYLE}
-              className="pointer-events-auto absolute left-1/2 -translate-x-1/2 cursor-grab touch-none rounded-t-xl border border-b-0 border-accent bg-accent px-6 text-2xl leading-none text-white shadow-md"
-            >
-              ≡
-            </button>
-            <button
-              type="button"
-              data-box-menu
-              aria-label={t('paper.box.menu')}
-              aria-haspopup="menu"
-              onClick={(e) => onMenu(e.currentTarget.getBoundingClientRect())}
-              style={TOUCH_STYLE}
-              className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
-            >
-              ⋯
-            </button>
-          </div>
+          {!typing && (
+            <>
+              <div
+                data-main-handles
+                className="pointer-events-none absolute left-0 w-full"
+                style={frameBox}
+              >
+                <ResizeDots onResize={onResize} />
+              </div>
+              <div
+                className="pointer-events-none absolute left-0 right-0 z-20 flex items-center justify-end pr-7"
+                style={{
+                  top: below ? height + gap + 20 : -TOUCH_PX - 20 - gap,
+                  height: TOUCH_PX,
+                }}
+              >
+                <button
+                  type="button"
+                  data-box-grip
+                  aria-label={t('paper.box.move')}
+                  onPointerDown={onGrab}
+                  {...pointer}
+                  style={TOUCH_STYLE}
+                  className="pointer-events-auto absolute left-1/2 -translate-x-1/2 cursor-grab touch-none rounded-t-xl border border-b-0 border-accent bg-accent px-6 text-2xl leading-none text-white shadow-md"
+                >
+                  ≡
+                </button>
+                {!v2On && (
+                  <button
+                    type="button"
+                    data-box-menu
+                    aria-label={t('paper.box.menu')}
+                    aria-haspopup="menu"
+                    onClick={(e) =>
+                      onMenu(e.currentTarget.getBoundingClientRect())
+                    }
+                    style={TOUCH_STYLE}
+                    className="pointer-events-auto rounded-lg px-2 text-xl leading-none text-muted hover:bg-hover"
+                  >
+                    ⋯
+                  </button>
+                )}
+                {v2On && bar && (
+                  // Q-1: with text box v2 the bar's ⋯ is the first box's only
+                  // ⋯. The bar places itself clear of the tab and the text.
+                  <div
+                    data-main-bar
+                    className="pointer-events-auto absolute left-0"
+                    style={{ top: 0 }}
+                  >
+                    {bar}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

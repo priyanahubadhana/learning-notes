@@ -1,0 +1,52 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden plans, slice 5a > g21 rename a page 1`] = `
+{
+  "counts": {
+    "pages": 1,
+  },
+  "records": [
+    "pages edit {"id":"744cdc84-dbb9-8517-b00b-5908133cafe4","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","parentId":null,"title":"Habit loops","order":"a0","summary":"How habits form."}",
+  ],
+}
+`;
+
+exports[`golden plans, slice 5a > g22 rename a tab and hide another 1`] = `
+{
+  "counts": {
+    "notebooks": 1,
+  },
+  "records": [
+    "notebooks edit {"id":"8e0c4184-ea3d-8e96-b8a0-700818135b99","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Habits that stick","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:8e0c4184-ea3d-8e96-b8a0-700818135b99"},{"id":"cards","kind":"cards","title":"Quiz"},{"id":"revise","kind":"revise","hidden":true}]}",
+  ],
+}
+`;
+
+exports[`golden plans, slice 5a > g23 a summary from a brief, filled by the model path 1`] = `
+{
+  "counts": {
+    "pages": 1,
+  },
+  "records": [
+    "pages edit {"id":"744cdc84-dbb9-8517-b00b-5908133cafe4","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","parentId":null,"title":"Habits","order":"a0","summary":"A habit is a loop: cue, craving, response, reward."}",
+  ],
+}
+`;
+
+exports[`golden plans, slice 5a > g24 chain: a new notebook, a page, its summary, a renamed page and a hidden tab 1`] = `
+{
+  "counts": {
+    "blocks": 4,
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "blocks new {"id":"f53028d8-409b-8bab-ab54-301a48865c4a","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"f5302cd8-409c-8277-ab54-2c1a4886557e","parentId":"f5302dd8-409c-842a-ab54-2b1a488653cb","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"5923d5d3-edfc-8c4b-bcb2-0b8fe5df2468"}",
+    "blocks new {"id":"f5302bd8-409c-80c4-ab54-2d1a48865731","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"f5302cd8-409c-8277-ab54-2c1a4886557e","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"5923d5d3-edfc-8c4b-bcb2-0b8fe5df2468"}",
+    "blocks new {"id":"f5302dd8-409c-842a-ab54-2b1a488653cb","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"f5302cd8-409c-8277-ab54-2c1a4886557e","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"5923d5d3-edfc-8c4b-bcb2-0b8fe5df2468"}",
+    "blocks new {"id":"f5302ed8-409c-85dd-ab54-2a1a48865218","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"f5302cd8-409c-8277-ab54-2c1a4886557e","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"5923d5d3-edfc-8c4b-bcb2-0b8fe5df2468"}",
+    "notebooks new {"id":"0eef91d8-4f20-8bf6-9201-a71a3a5eb77f","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Chain","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:0eef91d8-4f20-8bf6-9201-a71a3a5eb77f","hidden":true},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}]}",
+    "pages new {"id":"f5302cd8-409c-8277-ab54-2c1a4886557e","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"0eef91d8-4f20-8bf6-9201-a71a3a5eb77f","parentId":null,"title":"Renamed","order":"a0","summary":"A habit is a loop: cue, craving, response, reward."}",
+  ],
+}
+`;

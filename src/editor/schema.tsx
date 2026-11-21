@@ -24,6 +24,8 @@ import { PageLinkView } from './PageLinkView'
 import { TagView } from './TagView'
 import { HandSpan } from './writePad/HandSpan'
 import { HAND_STYLE } from './writePad/handStyle'
+import { FONT_FACE_STYLE, FONT_SIZE_STYLE } from './lookStyle'
+import { LookSpan } from './LookSpan'
 
 /**
  * BlockNote editor schema: which block types the editor can show.
@@ -162,6 +164,27 @@ const hand = createReactStyleSpec(
 )
 
 /**
+ * Size and font of words (the one bar of a selected box). The value is a size in
+ * px or a font id; see editor/lookStyle.ts.
+ */
+const fontSize = createReactStyleSpec(
+  { type: FONT_SIZE_STYLE, propSchema: 'string' },
+  {
+    render: ({ value, contentRef }) => (
+      <LookSpan kind="size" value={value} contentRef={contentRef} />
+    ),
+  },
+)
+const fontFace = createReactStyleSpec(
+  { type: FONT_FACE_STYLE, propSchema: 'string' },
+  {
+    render: ({ value, contentRef }) => (
+      <LookSpan kind="face" value={value} contentRef={contentRef} />
+    ),
+  },
+)
+
+/**
  * Note link: a link inside text to a page, or a heading/card on it (typed
  * with "[["). Stores ids, so renames and moves never break it; shows the
  * current title. See editor/NoteLinkView.tsx and links/.
@@ -199,7 +222,7 @@ const tag = createReactInlineContentSpec(
 const {
   paragraph,
   heading,
-  bulletListItem,
+  bulletListItem: baseBullet,
   numberedListItem,
   checkListItem,
   quote,
@@ -207,6 +230,22 @@ const {
   codeBlock,
   toggleListItem,
 } = defaultBlockSpecs
+
+/**
+ * The bullet list item with one extra prop: `marker` ("" = the dot, "star" = a
+ * star), for the one bar's Star list. Stored with the block like any prop.
+ */
+const bulletListItem = {
+  ...baseBullet,
+  config: {
+    ...baseBullet.config,
+    propSchema: {
+      ...baseBullet.config.propSchema,
+      marker: { default: '' as string },
+    },
+  },
+  implementation: baseBullet.implementation,
+} as unknown as typeof baseBullet
 
 /**
  * The table block with one extra prop: `rowHeights`, a comma list of pixel
@@ -285,7 +324,14 @@ export const schema = BlockNoteSchema.create({
     dayRecord: createDayRecordBlock(),
   },
   inlineContentSpecs: { ...defaultInlineContentSpecs, noteLink, tag },
-  styleSpecs: { ...defaultStyleSpecs, blank, mark, hand },
+  styleSpecs: {
+    ...defaultStyleSpecs,
+    blank,
+    mark,
+    hand,
+    fontSize,
+    fontFace,
+  },
 })
 
 export type AppSchema = typeof schema

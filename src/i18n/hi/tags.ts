@@ -10,6 +10,7 @@ export const hiTags = {
   'links.noPage': '“{query}” नाम का कोई पृष्ठ नहीं',
   'links.none':
     'अभी कोई पृष्ठ यहाँ नहीं जुड़ता। किसी भी पृष्ठ में [[ लिखें और “{page}” चुनें।',
+  'links.open': 'खोलें',
   'links.openHint': 'खोलें (कर्सर पास होने पर {key})',
   'links.pages': 'पृष्ठ',
   'links.picker': 'किसी पृष्ठ से जोड़ें',

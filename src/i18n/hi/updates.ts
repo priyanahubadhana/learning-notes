@@ -12,6 +12,8 @@ export const hiUpdates = {
   'upd.updated': 'संस्करण {version} में अपडेट हो गया',
   'upd.updating': 'नए संस्करण में दोबारा शुरू हो रहा है…',
   'update.auto.done': 'नवीनतम संस्करण में अपडेट हो गया',
+  'upd.restartFailed': 'दोबारा शुरू नहीं हो सका। फिर कोशिश के लिए छुएँ',
+  'upd.restartNow': 'अभी दोबारा शुरू करें',
   'update.now': 'अपडेट करें',
   'update.ready': 'नया संस्करण तैयार है।',
   'update.req.body':

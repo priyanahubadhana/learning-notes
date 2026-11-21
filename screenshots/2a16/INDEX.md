@@ -1,0 +1,518 @@
+# 2A.16 picture set: every bar and card of the v9 tool bar
+
+Taken by chromium after the last source edit (the commit named in the report (all five preview switches on: foundation.shell, toolbar.v8, toolbar.menu, page.menus, textbox.v2)), the five switches ON, real notebook data, tips and toasts closed.
+Each run covers light and dark, Beginner and Professional, iPad sideways, iPad upright and phone (names say day/night or light/dark, ipad-landscape/sideways, ipad-portrait/upright, phone).
+
+## Section 7 check (HOW-WE-BUILD)
+
+- Dark pictures: every file with night or dark in its name has a dark background (mean brightness below 110 of 255, measured with sharp on all 463 files); every light one is bright. No light-as-dark picture.
+- iPad upright has the sidebar closed in the pen row, format and bar pictures (the shots hide it first); one shared scroll bar, no key names (touch mode), pictures show no toast and no tip.
+- Opened and looked at: 2a9-format text tab (phone night Professional, iPad upright day Professional): font names whole, check mark at the lower right, no overlap.
+- Not in this set: Settings rows (2A.14 settings), sepia and PC (release bar).
+
+Regenerate: `SHOTS=1 SHOTS_OUT=screenshots/2a16/<folder> npx playwright test e2e/<spec> --project=chromium` (specs listed per folder below).
+
+## 2A.10 Format options show "on" (42 pictures, folder `2a10-format-on/`)
+
+- format-advanced-ipad-landscape-day-professional.png
+- format-advanced-ipad-landscape-night-professional.png
+- format-advanced-ipad-portrait-day-professional.png
+- format-advanced-ipad-portrait-night-professional.png
+- format-advanced-phone-day-professional.png
+- format-advanced-phone-night-professional.png
+- format-paragraph-ipad-landscape-day-beginner.png
+- format-paragraph-ipad-landscape-day-professional.png
+- format-paragraph-ipad-landscape-night-beginner.png
+- format-paragraph-ipad-landscape-night-professional.png
+- format-paragraph-ipad-portrait-day-beginner.png
+- format-paragraph-ipad-portrait-day-professional.png
+- format-paragraph-ipad-portrait-night-beginner.png
+- format-paragraph-ipad-portrait-night-professional.png
+- format-paragraph-phone-day-beginner.png
+- format-paragraph-phone-day-professional.png
+- format-paragraph-phone-night-beginner.png
+- format-paragraph-phone-night-professional.png
+- format-style-ipad-landscape-day-beginner.png
+- format-style-ipad-landscape-day-professional.png
+- format-style-ipad-landscape-night-beginner.png
+- format-style-ipad-landscape-night-professional.png
+- format-style-ipad-portrait-day-beginner.png
+- format-style-ipad-portrait-day-professional.png
+- format-style-ipad-portrait-night-beginner.png
+- format-style-ipad-portrait-night-professional.png
+- format-style-phone-day-beginner.png
+- format-style-phone-day-professional.png
+- format-style-phone-night-beginner.png
+- format-style-phone-night-professional.png
+- format-text-ipad-landscape-day-beginner.png
+- format-text-ipad-landscape-day-professional.png
+- format-text-ipad-landscape-night-beginner.png
+- format-text-ipad-landscape-night-professional.png
+- format-text-ipad-portrait-day-beginner.png
+- format-text-ipad-portrait-day-professional.png
+- format-text-ipad-portrait-night-beginner.png
+- format-text-ipad-portrait-night-professional.png
+- format-text-phone-day-beginner.png
+- format-text-phone-day-professional.png
+- format-text-phone-night-beginner.png
+- format-text-phone-night-professional.png
+
+## 2A.11 Lasso (42 pictures, folder `2a11-lasso/`)
+
+- lasso-actions-ipad-sideways-day-beginner.png
+- lasso-actions-ipad-sideways-night-beginner.png
+- lasso-actions-ipad-upright-day-beginner.png
+- lasso-actions-ipad-upright-night-beginner.png
+- lasso-actions-phone-day-beginner.png
+- lasso-actions-phone-night-beginner.png
+- lasso-shape-ipad-sideways-day-beginner.png
+- lasso-shape-ipad-sideways-night-beginner.png
+- lasso-shape-ipad-upright-day-beginner.png
+- lasso-shape-ipad-upright-night-beginner.png
+- lasso-shape-phone-day-beginner.png
+- lasso-shape-phone-night-beginner.png
+- options-ipad-sideways-day-professional.png
+- options-ipad-sideways-night-professional.png
+- options-ipad-upright-day-professional.png
+- options-ipad-upright-night-professional.png
+- options-layers-ipad-sideways-day-professional.png
+- options-layers-ipad-sideways-night-professional.png
+- options-layers-ipad-upright-day-professional.png
+- options-layers-ipad-upright-night-professional.png
+- options-layers-phone-day-professional.png
+- options-layers-phone-night-professional.png
+- options-menurow-ipad-sideways-day-professional.png
+- options-menurow-ipad-sideways-night-professional.png
+- options-menurow-ipad-upright-day-professional.png
+- options-menurow-ipad-upright-night-professional.png
+- options-menurow-phone-day-professional.png
+- options-menurow-phone-night-professional.png
+- options-phone-day-professional.png
+- options-phone-night-professional.png
+- row-ipad-sideways-day-beginner.png
+- row-ipad-sideways-day-professional.png
+- row-ipad-sideways-night-beginner.png
+- row-ipad-sideways-night-professional.png
+- row-ipad-upright-day-beginner.png
+- row-ipad-upright-day-professional.png
+- row-ipad-upright-night-beginner.png
+- row-ipad-upright-night-professional.png
+- row-phone-day-beginner.png
+- row-phone-day-professional.png
+- row-phone-night-beginner.png
+- row-phone-night-professional.png
+
+## 2A.12 More card (13 pictures, folder `2a12-more/`)
+
+- more-beginner-dark-ipad-sideways.png
+- more-beginner-dark-ipad-upright.png
+- more-beginner-dark-phone.png
+- more-beginner-light-ipad-sideways.png
+- more-beginner-light-ipad-upright.png
+- more-beginner-light-phone.png
+- more-professional-dark-ipad-sideways.png
+- more-professional-dark-ipad-upright.png
+- more-professional-dark-phone.png
+- more-professional-light-ipad-sideways.png
+- more-professional-light-ipad-upright-copy.png
+- more-professional-light-ipad-upright.png
+- more-professional-light-phone.png
+
+## 2A.13 Favourites (sheets, Organise, row) (36 pictures, folder `2a13-favourites/`)
+
+- add-ipad-side-day-beginner.png
+- add-ipad-side-day-professional.png
+- add-ipad-side-night-beginner.png
+- add-ipad-side-night-professional.png
+- add-ipad-up-day-beginner.png
+- add-ipad-up-day-professional.png
+- add-ipad-up-night-beginner.png
+- add-ipad-up-night-professional.png
+- add-phone-day-beginner.png
+- add-phone-day-professional.png
+- add-phone-night-beginner.png
+- add-phone-night-professional.png
+- organise-ipad-side-day-beginner.png
+- organise-ipad-side-day-professional.png
+- organise-ipad-side-night-beginner.png
+- organise-ipad-side-night-professional.png
+- organise-ipad-up-day-beginner.png
+- organise-ipad-up-day-professional.png
+- organise-ipad-up-night-beginner.png
+- organise-ipad-up-night-professional.png
+- organise-phone-day-beginner.png
+- organise-phone-day-professional.png
+- organise-phone-night-beginner.png
+- organise-phone-night-professional.png
+- row-ipad-side-day-beginner.png
+- row-ipad-side-day-professional.png
+- row-ipad-side-night-beginner.png
+- row-ipad-side-night-professional.png
+- row-ipad-up-day-beginner.png
+- row-ipad-up-day-professional.png
+- row-ipad-up-night-beginner.png
+- row-ipad-up-night-professional.png
+- row-phone-day-beginner.png
+- row-phone-day-professional.png
+- row-phone-night-beginner.png
+- row-phone-night-professional.png
+
+## 2A.14 Layouts (24 pictures, folder `2a14-layout/`)
+
+- today-beginner-dark-ipad-sideways.png
+- today-beginner-dark-ipad-upright.png
+- today-beginner-dark-phone.png
+- today-beginner-light-ipad-sideways.png
+- today-beginner-light-ipad-upright.png
+- today-beginner-light-phone.png
+- today-professional-dark-ipad-sideways.png
+- today-professional-dark-ipad-upright.png
+- today-professional-dark-phone.png
+- today-professional-light-ipad-sideways.png
+- today-professional-light-ipad-upright.png
+- today-professional-light-phone.png
+- v3-beginner-dark-ipad-sideways.png
+- v3-beginner-dark-ipad-upright.png
+- v3-beginner-dark-phone.png
+- v3-beginner-light-ipad-sideways.png
+- v3-beginner-light-ipad-upright.png
+- v3-beginner-light-phone.png
+- v3-professional-dark-ipad-sideways.png
+- v3-professional-dark-ipad-upright.png
+- v3-professional-dark-phone.png
+- v3-professional-light-ipad-sideways.png
+- v3-professional-light-ipad-upright.png
+- v3-professional-light-phone.png
+
+## 2A.14 Names on the bar (16 pictures, folder `2a14-names/`)
+
+- beginner-dark-ipad-sideways.png
+- beginner-dark-ipad-upright.png
+- beginner-dark-phone.png
+- beginner-light-ipad-sideways.png
+- beginner-light-ipad-upright.png
+- beginner-light-phone.png
+- professional-dark-ipad-sideways-box-card.png
+- professional-dark-ipad-sideways.png
+- professional-dark-ipad-upright-box-card.png
+- professional-dark-ipad-upright.png
+- professional-dark-phone.png
+- professional-light-ipad-sideways-box-card.png
+- professional-light-ipad-sideways.png
+- professional-light-ipad-upright-box-card.png
+- professional-light-ipad-upright.png
+- professional-light-phone.png
+
+## 2A.15 Edit the bar (36 pictures, folder `2a15-bar-edit/`)
+
+- bar-ipad-sideways-day-beginner.png
+- bar-ipad-sideways-day-professional.png
+- bar-ipad-sideways-night-beginner.png
+- bar-ipad-sideways-night-professional.png
+- bar-ipad-upright-day-beginner.png
+- bar-ipad-upright-day-professional.png
+- bar-ipad-upright-night-beginner.png
+- bar-ipad-upright-night-professional.png
+- bar-phone-day-beginner.png
+- bar-phone-day-professional.png
+- bar-phone-night-beginner.png
+- bar-phone-night-professional.png
+- done-ipad-sideways-day-beginner.png
+- done-ipad-sideways-day-professional.png
+- done-ipad-sideways-night-beginner.png
+- done-ipad-sideways-night-professional.png
+- done-ipad-upright-day-beginner.png
+- done-ipad-upright-day-professional.png
+- done-ipad-upright-night-beginner.png
+- done-ipad-upright-night-professional.png
+- done-phone-day-beginner.png
+- done-phone-day-professional.png
+- done-phone-night-beginner.png
+- done-phone-night-professional.png
+- edit-ipad-sideways-day-beginner.png
+- edit-ipad-sideways-day-professional.png
+- edit-ipad-sideways-night-beginner.png
+- edit-ipad-sideways-night-professional.png
+- edit-ipad-upright-day-beginner.png
+- edit-ipad-upright-day-professional.png
+- edit-ipad-upright-night-beginner.png
+- edit-ipad-upright-night-professional.png
+- edit-phone-day-beginner.png
+- edit-phone-day-professional.png
+- edit-phone-night-beginner.png
+- edit-phone-night-professional.png
+
+## 2a16b-sheets (48 pictures, folder `2a16b-sheets/`)
+
+- add-ipad-sideways-day-beginner.png
+- add-ipad-sideways-day-professional.png
+- add-ipad-sideways-night-beginner.png
+- add-ipad-sideways-night-professional.png
+- add-ipad-upright-day-beginner.png
+- add-ipad-upright-day-professional.png
+- add-ipad-upright-night-beginner.png
+- add-ipad-upright-night-professional.png
+- add-phone-day-beginner.png
+- add-phone-day-professional.png
+- add-phone-night-beginner.png
+- add-phone-night-professional.png
+- feel-ipad-sideways-day-beginner.png
+- feel-ipad-sideways-day-professional.png
+- feel-ipad-sideways-night-beginner.png
+- feel-ipad-sideways-night-professional.png
+- feel-ipad-upright-day-beginner.png
+- feel-ipad-upright-day-professional.png
+- feel-ipad-upright-night-beginner.png
+- feel-ipad-upright-night-professional.png
+- feel-page-ipad-sideways-day-beginner.png
+- feel-page-ipad-sideways-day-professional.png
+- feel-page-ipad-sideways-night-beginner.png
+- feel-page-ipad-sideways-night-professional.png
+- feel-page-ipad-upright-day-beginner.png
+- feel-page-ipad-upright-day-professional.png
+- feel-page-ipad-upright-night-beginner.png
+- feel-page-ipad-upright-night-professional.png
+- feel-page-phone-day-beginner.png
+- feel-page-phone-day-professional.png
+- feel-page-phone-night-beginner.png
+- feel-page-phone-night-professional.png
+- feel-phone-day-beginner.png
+- feel-phone-day-professional.png
+- feel-phone-night-beginner.png
+- feel-phone-night-professional.png
+- organise-ipad-sideways-day-beginner.png
+- organise-ipad-sideways-day-professional.png
+- organise-ipad-sideways-night-beginner.png
+- organise-ipad-sideways-night-professional.png
+- organise-ipad-upright-day-beginner.png
+- organise-ipad-upright-day-professional.png
+- organise-ipad-upright-night-beginner.png
+- organise-ipad-upright-night-professional.png
+- organise-phone-day-beginner.png
+- organise-phone-day-professional.png
+- organise-phone-night-beginner.png
+- organise-phone-night-professional.png
+
+## 2A.5 dark mode, tool bar (68 pictures, folder `2a5-dark-bar/`)
+
+- day-beginner-ipad-sideways-bar.png
+- day-beginner-ipad-sideways-colour.png
+- day-beginner-ipad-sideways-feel.png
+- day-beginner-ipad-sideways-page.png
+- day-beginner-ipad-sideways-size.png
+- day-beginner-ipad-sideways-type.png
+- day-beginner-ipad-upright-bar.png
+- day-beginner-ipad-upright-colour.png
+- day-beginner-ipad-upright-feel.png
+- day-beginner-ipad-upright-page.png
+- day-beginner-ipad-upright-size.png
+- day-beginner-ipad-upright-type.png
+- day-beginner-phone-bar.png
+- day-beginner-phone-more.png
+- day-beginner-phone-size.png
+- day-beginner-phone-type.png
+- day-professional-ipad-sideways-aids.png
+- day-professional-ipad-sideways-bar.png
+- day-professional-ipad-sideways-colour.png
+- day-professional-ipad-sideways-feel.png
+- day-professional-ipad-sideways-page.png
+- day-professional-ipad-sideways-size.png
+- day-professional-ipad-sideways-type.png
+- day-professional-ipad-upright-aids.png
+- day-professional-ipad-upright-bar.png
+- day-professional-ipad-upright-colour.png
+- day-professional-ipad-upright-feel.png
+- day-professional-ipad-upright-page.png
+- day-professional-ipad-upright-size.png
+- day-professional-ipad-upright-type.png
+- day-professional-phone-bar.png
+- day-professional-phone-more.png
+- day-professional-phone-size.png
+- day-professional-phone-type.png
+- night-beginner-ipad-sideways-bar.png
+- night-beginner-ipad-sideways-colour.png
+- night-beginner-ipad-sideways-feel.png
+- night-beginner-ipad-sideways-page.png
+- night-beginner-ipad-sideways-size.png
+- night-beginner-ipad-sideways-type.png
+- night-beginner-ipad-upright-bar.png
+- night-beginner-ipad-upright-colour.png
+- night-beginner-ipad-upright-feel.png
+- night-beginner-ipad-upright-page.png
+- night-beginner-ipad-upright-size.png
+- night-beginner-ipad-upright-type.png
+- night-beginner-phone-bar.png
+- night-beginner-phone-more.png
+- night-beginner-phone-size.png
+- night-beginner-phone-type.png
+- night-professional-ipad-sideways-aids.png
+- night-professional-ipad-sideways-bar.png
+- night-professional-ipad-sideways-colour.png
+- night-professional-ipad-sideways-feel.png
+- night-professional-ipad-sideways-page.png
+- night-professional-ipad-sideways-size.png
+- night-professional-ipad-sideways-type.png
+- night-professional-ipad-upright-aids.png
+- night-professional-ipad-upright-bar.png
+- night-professional-ipad-upright-colour.png
+- night-professional-ipad-upright-feel.png
+- night-professional-ipad-upright-page.png
+- night-professional-ipad-upright-size.png
+- night-professional-ipad-upright-type.png
+- night-professional-phone-bar.png
+- night-professional-phone-more.png
+- night-professional-phone-size.png
+- night-professional-phone-type.png
+
+## 2A.6 Pen row (12 pictures, folder `2a6-pen-row/`)
+
+- pen-row-ipad-side-day-beginner.png
+- pen-row-ipad-side-day-professional.png
+- pen-row-ipad-side-night-beginner.png
+- pen-row-ipad-side-night-professional.png
+- pen-row-ipad-up-day-beginner.png
+- pen-row-ipad-up-day-professional.png
+- pen-row-ipad-up-night-beginner.png
+- pen-row-ipad-up-night-professional.png
+- pen-row-phone-day-beginner.png
+- pen-row-phone-day-professional.png
+- pen-row-phone-night-beginner.png
+- pen-row-phone-night-professional.png
+
+## 2A.7 Feel card (42 pictures, folder `2a7-feel/`)
+
+- feel-aids-ipad-sideways-day-professional.png
+- feel-aids-ipad-sideways-night-professional.png
+- feel-aids-ipad-upright-day-professional.png
+- feel-aids-ipad-upright-night-professional.png
+- feel-aids-phone-day-professional.png
+- feel-aids-phone-night-professional.png
+- feel-feel-ipad-sideways-day-beginner.png
+- feel-feel-ipad-sideways-day-professional.png
+- feel-feel-ipad-sideways-night-beginner.png
+- feel-feel-ipad-sideways-night-professional.png
+- feel-feel-ipad-upright-day-beginner.png
+- feel-feel-ipad-upright-day-professional.png
+- feel-feel-ipad-upright-night-beginner.png
+- feel-feel-ipad-upright-night-professional.png
+- feel-feel-phone-day-beginner.png
+- feel-feel-phone-day-professional.png
+- feel-feel-phone-night-beginner.png
+- feel-feel-phone-night-professional.png
+- feel-math-ipad-sideways-day-beginner.png
+- feel-math-ipad-sideways-day-professional.png
+- feel-math-ipad-sideways-night-beginner.png
+- feel-math-ipad-sideways-night-professional.png
+- feel-math-ipad-upright-day-beginner.png
+- feel-math-ipad-upright-day-professional.png
+- feel-math-ipad-upright-night-beginner.png
+- feel-math-ipad-upright-night-professional.png
+- feel-math-phone-day-beginner.png
+- feel-math-phone-day-professional.png
+- feel-math-phone-night-beginner.png
+- feel-math-phone-night-professional.png
+- feel-page-ipad-sideways-day-beginner.png
+- feel-page-ipad-sideways-day-professional.png
+- feel-page-ipad-sideways-night-beginner.png
+- feel-page-ipad-sideways-night-professional.png
+- feel-page-ipad-upright-day-beginner.png
+- feel-page-ipad-upright-day-professional.png
+- feel-page-ipad-upright-night-beginner.png
+- feel-page-ipad-upright-night-professional.png
+- feel-page-phone-day-beginner.png
+- feel-page-phone-day-professional.png
+- feel-page-phone-night-beginner.png
+- feel-page-phone-night-professional.png
+
+## 2A.8 Eraser row (30 pictures, folder `2a8-eraser/`)
+
+- eraser-mode-ipad-sideways-day-beginner.png
+- eraser-mode-ipad-sideways-day-professional.png
+- eraser-mode-ipad-sideways-night-beginner.png
+- eraser-mode-ipad-sideways-night-professional.png
+- eraser-mode-ipad-upright-day-beginner.png
+- eraser-mode-ipad-upright-day-professional.png
+- eraser-mode-ipad-upright-night-beginner.png
+- eraser-mode-ipad-upright-night-professional.png
+- eraser-mode-phone-day-beginner.png
+- eraser-mode-phone-day-professional.png
+- eraser-mode-phone-night-beginner.png
+- eraser-mode-phone-night-professional.png
+- eraser-size-ipad-sideways-day-professional.png
+- eraser-size-ipad-sideways-night-professional.png
+- eraser-size-ipad-upright-day-professional.png
+- eraser-size-ipad-upright-night-professional.png
+- eraser-size-phone-day-professional.png
+- eraser-size-phone-night-professional.png
+- row-ipad-sideways-day-beginner.png
+- row-ipad-sideways-day-professional.png
+- row-ipad-sideways-night-beginner.png
+- row-ipad-sideways-night-professional.png
+- row-ipad-upright-day-beginner.png
+- row-ipad-upright-day-professional.png
+- row-ipad-upright-night-beginner.png
+- row-ipad-upright-night-professional.png
+- row-phone-day-beginner.png
+- row-phone-day-professional.png
+- row-phone-night-beginner.png
+- row-phone-night-professional.png
+
+## 2A.9 Format card tabs (font tiles fixed here) (42 pictures, folder `2a9-format/`)
+
+- format-advanced-ipad-landscape-day-professional.png
+- format-advanced-ipad-landscape-night-professional.png
+- format-advanced-ipad-portrait-day-professional.png
+- format-advanced-ipad-portrait-night-professional.png
+- format-advanced-phone-day-professional.png
+- format-advanced-phone-night-professional.png
+- format-paragraph-ipad-landscape-day-beginner.png
+- format-paragraph-ipad-landscape-day-professional.png
+- format-paragraph-ipad-landscape-night-beginner.png
+- format-paragraph-ipad-landscape-night-professional.png
+- format-paragraph-ipad-portrait-day-beginner.png
+- format-paragraph-ipad-portrait-day-professional.png
+- format-paragraph-ipad-portrait-night-beginner.png
+- format-paragraph-ipad-portrait-night-professional.png
+- format-paragraph-phone-day-beginner.png
+- format-paragraph-phone-day-professional.png
+- format-paragraph-phone-night-beginner.png
+- format-paragraph-phone-night-professional.png
+- format-style-ipad-landscape-day-beginner.png
+- format-style-ipad-landscape-day-professional.png
+- format-style-ipad-landscape-night-beginner.png
+- format-style-ipad-landscape-night-professional.png
+- format-style-ipad-portrait-day-beginner.png
+- format-style-ipad-portrait-day-professional.png
+- format-style-ipad-portrait-night-beginner.png
+- format-style-ipad-portrait-night-professional.png
+- format-style-phone-day-beginner.png
+- format-style-phone-day-professional.png
+- format-style-phone-night-beginner.png
+- format-style-phone-night-professional.png
+- format-text-ipad-landscape-day-beginner.png
+- format-text-ipad-landscape-day-professional.png
+- format-text-ipad-landscape-night-beginner.png
+- format-text-ipad-landscape-night-professional.png
+- format-text-ipad-portrait-day-beginner.png
+- format-text-ipad-portrait-day-professional.png
+- format-text-ipad-portrait-night-beginner.png
+- format-text-ipad-portrait-night-professional.png
+- format-text-phone-day-beginner.png
+- format-text-phone-day-professional.png
+- format-text-phone-night-beginner.png
+- format-text-phone-night-professional.png
+
+## zz (12 pictures, folder `zz/`)
+
+- pen-row-ipad-side-day-beginner.png
+- pen-row-ipad-side-day-professional.png
+- pen-row-ipad-side-night-beginner.png
+- pen-row-ipad-side-night-professional.png
+- pen-row-ipad-up-day-beginner.png
+- pen-row-ipad-up-day-professional.png
+- pen-row-ipad-up-night-beginner.png
+- pen-row-ipad-up-night-professional.png
+- pen-row-phone-day-beginner.png
+- pen-row-phone-day-professional.png
+- pen-row-phone-night-beginner.png
+- pen-row-phone-night-professional.png

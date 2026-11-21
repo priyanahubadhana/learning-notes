@@ -170,6 +170,28 @@ describe('lazy listeners', () => {
     expect(r.domListenerCount()).toBe(3)
   })
 
+  it('resize shares one window listener and delivers the raw event in priority order', () => {
+    const f = fakeTargets()
+    const r = createEventRouter(f.targets)
+    const seen: string[] = []
+    let got: unknown = null
+    const a = r.subscribe('resize', (e) => {
+      got = e
+      seen.push('normal')
+    })
+    const b = r.subscribe('resize', () => void seen.push('first'), {
+      priority: 1,
+    })
+    expect(f.win.map.get('resize')?.size).toBe(1)
+    expect(r.domListenerCount()).toBe(1)
+    f.fire('win', 'resize')
+    expect(seen).toEqual(['first', 'normal'])
+    expect((got as Event).type).toBe('resize')
+    a()
+    b()
+    expect(f.win.map.get('resize')?.size ?? 0).toBe(0)
+  })
+
   it('shares visibilitychange between background and foreground', () => {
     const f = fakeTargets()
     const r = createEventRouter(f.targets)

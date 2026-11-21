@@ -12,7 +12,10 @@ test('History lists earlier copies and restores one', async ({ page }) => {
   await expect(dialog.getByText('First thought')).toBeVisible()
   await dialog.getByRole('button', { name: 'Close' }).click()
 
-  await typeInEditor(page, ' and a second one')
+  // The helper's click lands at the line start (C34); the new words go on the end.
+  await page.locator('.bn-editor').click()
+  await page.keyboard.press('Control+End')
+  await typeInEditor(page, ' and a second one', { keepCaret: true })
   await pageAction(page, 'History')
   await expect(dialog.getByRole('listitem')).toHaveCount(2)
   await expect(dialog.getByText('First thought and a second one')).toBeVisible()

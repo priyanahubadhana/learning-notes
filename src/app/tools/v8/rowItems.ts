@@ -1,0 +1,202 @@
+import type { IconName } from '../icons'
+import type { MessageKey } from '../../../i18n/t'
+import type { V8ToolId } from './registryV8'
+import { getBarPref } from './barPrefs'
+
+/**
+ * What each tool shows in the tool row (second line). Slice 1b draws the
+ * chips and opens an empty card; the card contents come with 1c to 1f, and
+ * the Favourites chips with 1g. Order follows the spec (TB-21, TB-40).
+ */
+/** erases = the Eraser's segmented chips; flag = a chip that switches one setting; lshape / lpicks = the Professional Lasso's chips. */
+export type ItemKind =
+  'menu' | 'toggle' | 'erases' | 'flag' | 'lshape' | 'lpicks'
+
+export interface RowItem {
+  id: string
+  tool: V8ToolId
+  kind: ItemKind
+  label: MessageKey
+  icon?: IconName
+  /** A round dot instead of an icon: size or the current colour. */
+  dot?: 'size' | 'colour'
+  /** Only the icon shows, never the name (the Box settings button). */
+  iconOnly?: boolean
+  /** Dot-only chip: the name is its label, never printed (the Pen size and colour). */
+  noName?: boolean
+  /** Card width rule: pick = choose one thing, panel = adjust several. */
+  card: 'pick' | 'panel'
+  /** Toggles only: the text style it switches. */
+  style?: 'bold' | 'italic'
+}
+
+const menu = (
+  tool: V8ToolId,
+  id: string,
+  label: MessageKey,
+  more: Partial<RowItem> = {},
+): RowItem => ({ id, tool, kind: 'menu', label, card: 'pick', ...more })
+
+export const ROW_ITEMS: Record<V8ToolId, readonly RowItem[]> = {
+  text: [
+    // TB-40: the settings button sits in front of Box ▾ (T3).
+    menu('text', 'boxset', 'v8.item.boxset', {
+      icon: 'settings',
+      iconOnly: true,
+    }),
+    menu('text', 'box', 'v8.item.box', { icon: 'square', card: 'panel' }),
+    menu('text', 'format', 'v8.item.format', {
+      icon: 'textSize',
+      card: 'panel',
+    }),
+    {
+      id: 'bold',
+      tool: 'text',
+      kind: 'toggle',
+      label: 'v8.item.bold',
+      icon: 'bold',
+      card: 'pick',
+      style: 'bold',
+    },
+    {
+      id: 'italic',
+      tool: 'text',
+      kind: 'toggle',
+      label: 'v8.item.italic',
+      icon: 'italic',
+      card: 'pick',
+      style: 'italic',
+    },
+  ],
+  pen: [
+    menu('pen', 'type', 'v8.item.type', { icon: 'penTool' }),
+    menu('pen', 'size', 'v8.item.size', { dot: 'size', noName: true }),
+    menu('pen', 'colour', 'v8.item.colour', { dot: 'colour', noName: true }),
+    menu('pen', 'feel', 'v8.item.feel', { icon: 'sliders', card: 'panel' }),
+  ],
+  eraser: [
+    menu('eraser', 'mode', 'v8.item.mode', { icon: 'eraser' }),
+    menu('eraser', 'size', 'v8.item.size', { dot: 'size' }),
+    // Chips on the bar, as in mock v9 (not a ▾): what it erases, and "back after one".
+    {
+      id: 'erases',
+      tool: 'eraser',
+      kind: 'erases',
+      label: 'v8.item.erases',
+      card: 'pick',
+    },
+    {
+      id: 'back',
+      tool: 'eraser',
+      kind: 'flag',
+      label: 'v8.item.back',
+      icon: 'history',
+      card: 'pick',
+    },
+  ],
+  shapes: [
+    menu('shapes', 'shape', 'v8.item.shape', { icon: 'shapes' }),
+    menu('shapes', 'size', 'v8.item.size', { dot: 'size' }),
+    menu('shapes', 'colour', 'v8.item.colour', { dot: 'colour' }),
+  ],
+  lasso: [
+    menu('lasso', 'shape', 'v8.item.shape', { icon: 'lasso' }),
+    menu('lasso', 'actions', 'v8.item.actions', {
+      icon: 'list',
+      card: 'panel',
+    }),
+  ],
+  // Insert has no row of its own: its card hangs from the Insert button.
+  insert: [],
+}
+
+/**
+ * The Eraser's row (2A.8, TB-30): three menus (Mode, Size, Options) when the
+ * setting "Eraser's three menus" is on, else one simple Eraser menu whose
+ * card holds the type and the size.
+ */
+export function eraserRowItems(menus: boolean): readonly RowItem[] {
+  if (menus) return ROW_ITEMS.eraser
+  return [menu('eraser', 'mode', 'v8.item.eraser', { icon: 'eraser' })]
+}
+
+export const cardIdOf = (item: RowItem): string => `${item.tool}.${item.id}`
+
+/**
+ * The Professional Lasso row (2A.11, mock v9): Free-hand / Rectangle and
+ * "Picks" right on the bar, then one Options menu. The Beginner row stays
+ * Shape ▾ and Actions ▾ (ROW_ITEMS.lasso).
+ */
+export const LASSO_PRO_ITEMS: readonly RowItem[] = [
+  {
+    id: 'lshape',
+    tool: 'lasso',
+    kind: 'lshape',
+    label: 'v8.item.shape',
+    icon: 'lasso',
+    card: 'pick',
+  },
+  {
+    id: 'lpicks',
+    tool: 'lasso',
+    kind: 'lpicks',
+    label: 'v8.lasso.picks',
+    icon: 'pen',
+    card: 'pick',
+  },
+  menu('lasso', 'opts', 'v8.item.options', { icon: 'sliders', card: 'panel' }),
+]
+
+/** The row's items now: the Eraser follows its setting, the Lasso its Professional look. */
+export const rowItemsFor = (
+  tool: V8ToolId,
+  eraserMenus: boolean,
+  lassoPro = false,
+): readonly RowItem[] =>
+  tool === 'eraser'
+    ? eraserRowItems(eraserMenus)
+    : tool === 'lasso' && lassoPro
+      ? LASSO_PRO_ITEMS
+      : ROW_ITEMS[tool]
+
+/** The card a second tap on the active tool opens (TB-04). */
+export function firstCardOf(tool: V8ToolId): string {
+  if (tool === 'insert') return 'insert'
+  // The Professional Lasso has no Shape menu on its bar: its first card is Options.
+  if (tool === 'lasso' && getBarPref('biggerLasso')) return 'lasso.opts'
+  // The settings button in front (iconOnly) is never the "first card".
+  const first = ROW_ITEMS[tool].find((i) => i.kind === 'menu' && !i.iconOnly)
+  return first ? cardIdOf(first) : tool
+}
+
+/** Title key and width rule of any v8 card id. */
+export function cardInfo(
+  id: string,
+  eraserMenus = true,
+): {
+  title: MessageKey
+  size: 'pick' | 'panel'
+} {
+  // The Lasso's folded chips: the picks open as a card of their own (2A.11).
+  if (id === 'lasso.picks') return { title: 'v8.lasso.picks', size: 'pick' }
+  if (id === 'lasso.opts') return { title: 'v8.lasso.options', size: 'panel' }
+  // The Erases chips fold into this card on a narrow screen.
+  if (id === 'eraser.options') return { title: 'v8.item.erases', size: 'pick' }
+  if (id === 'eraser.mode' && !eraserMenus)
+    return { title: 'v8.item.eraser', size: 'pick' }
+  if (id === 'insert') return { title: 'v8.tool.insert', size: 'panel' }
+  if (id === 'more.alltools')
+    return { title: 'v8.allTools.title', size: 'panel' }
+  if (id === 'sel.more') return { title: 'v8.sel.more', size: 'pick' }
+  if (id === 'sel.colour') return { title: 'ink.sel.colour', size: 'pick' }
+  if (id === 'sel.resize') return { title: 'main.sel.resize', size: 'pick' }
+  if (id === 'sel.size') return { title: 'v8.sel.textSize', size: 'pick' }
+  if (id === 'sel.move') return { title: 'v8.sel.move', size: 'pick' }
+  if (id === 'sel.picture') return { title: 'v8.sel.editPicture', size: 'pick' }
+  if (id === 'fold.bar' || id === 'fold.row')
+    return { title: 'v8.fold.title', size: 'pick' }
+  for (const items of Object.values(ROW_ITEMS))
+    for (const item of items)
+      if (cardIdOf(item) === id) return { title: item.label, size: item.card }
+  return { title: 'v8.fold.title', size: 'pick' }
+}

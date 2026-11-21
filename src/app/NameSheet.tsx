@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { t } from '../i18n/t'
+import { nameSheetResult } from './nameSheetLogic'
 
 /**
  * The "Name it" sheet: a centred dialog with a large text field, used to
@@ -15,11 +16,14 @@ import { t } from '../i18n/t'
 export function NameSheet({
   title,
   initial,
+  placeholder,
   onDone,
   onCancel,
 }: {
   title: string
   initial: string
+  /** Gray hint shown while the box is empty (a new notebook's default name). */
+  placeholder?: string
   /** A new, non-empty name. */
   onDone: (name: string) => void
   onCancel: () => void
@@ -31,12 +35,15 @@ export function NameSheet({
   useEffect(() => {
     ref.current?.showModal()
     input.current?.focus()
-    input.current?.select()
+    // Caret at the end, nothing selected: the Pencil's handwriting (Scribble)
+    // turns into a selection gesture over selected text (L12).
+    const end = input.current?.value.length ?? 0
+    input.current?.setSelectionRange(end, end)
   }, [])
 
   const finish = () => {
-    const name = value.trim()
-    if (!name || name === initial.trim()) onCancel()
+    const name = nameSheetResult(value, initial)
+    if (name === null) onCancel()
     else onDone(name)
   }
 
@@ -59,16 +66,32 @@ export function NameSheet({
         }}
       >
         <h2 className="mb-3 text-base font-semibold">{title}</h2>
-        <input
-          ref={input}
-          value={value}
-          aria-label={t('ui.name')}
-          autoComplete="off"
-          autoCapitalize="sentences"
-          onChange={(e) => setValue(e.target.value)}
-          style={{ minHeight: 56 }}
-          className="mb-5 box-border w-full rounded-xl border border-line bg-bg px-4 text-xl outline-none focus:border-accent"
-        />
+        <div className="relative mb-5">
+          <input
+            ref={input}
+            value={value}
+            aria-label={t('ui.name')}
+            placeholder={placeholder}
+            autoComplete="off"
+            autoCapitalize="sentences"
+            onChange={(e) => setValue(e.target.value)}
+            style={{ minHeight: 56 }}
+            className="box-border w-full rounded-xl border border-line bg-bg pl-4 pr-14 text-xl outline-none placeholder:text-muted focus:border-accent"
+          />
+          {value && (
+            <button
+              type="button"
+              aria-label={t('nameSheet.clear')}
+              onClick={() => {
+                setValue('')
+                input.current?.focus()
+              }}
+              className="absolute right-1 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-lg text-muted hover:bg-hover hover:text-ink"
+            >
+              ✕
+            </button>
+          )}
+        </div>
         <div className="flex justify-end gap-2 text-sm">
           <button
             type="button"

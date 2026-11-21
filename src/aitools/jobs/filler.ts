@@ -65,9 +65,10 @@ export const systemClock: Clock = {
   sleep: (ms, signal) =>
     new Promise((resolve) => {
       const t = setTimeout(resolve, ms)
-      signal?.addEventListener('abort', () => {
-        clearTimeout(t)
-        resolve()
-      })
+      if (signal)
+        signal.onabort = () => {
+          clearTimeout(t)
+          resolve()
+        }
     }),
 }

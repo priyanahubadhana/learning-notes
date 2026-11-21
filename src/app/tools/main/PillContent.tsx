@@ -31,7 +31,8 @@ import { paletteFor, useCustomColours } from './pillKit'
 import { activeLayerOf } from '../../../ink/layers'
 import { useInk } from '../../../ink/inkRuntime'
 import { alignOf, listOf, styleOf } from './textOps'
-import { noteFont, noteLine, noteSize } from './textStyle'
+import { isOn } from '../../flags'
+import { noteFont, noteLine, noteSize, nextSize } from './textStyle'
 
 /** The options of each tool's pill. Each option is a button with a name. */
 
@@ -114,6 +115,7 @@ function TextOptions({
   const hasSelection = editor.getSelectedText().length > 0
   const font = noteFont.useValue()
   const size = noteSize.useValue()
+  const next = nextSize.useValue()
   const line = noteLine.useValue()
   return (
     <>
@@ -145,7 +147,9 @@ function TextOptions({
               id === 'font'
                 ? t(`main.font.${font}` as MessageKey)
                 : id === 'size'
-                  ? `${size}%`
+                  ? isOn('textbox.v2')
+                    ? `${next ?? 16}`
+                    : `${size}%`
                   : t(`main.line.${line}` as MessageKey)
             return (
               <PillButton

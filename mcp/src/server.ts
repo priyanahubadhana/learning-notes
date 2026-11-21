@@ -66,6 +66,7 @@ export function buildServer(tools: Tools, opts: ServerOptions = {}): McpServer {
   )
   if (scopes.read) registerReads(server, tools)
   const w = opts.write
+  if (w) registerPlanTools(server, w.plan, scopes)
   if (w && scopes['write:create']) {
     server.registerTool(
       'create_notebook',
@@ -228,4 +229,89 @@ function registerReads(server: McpServer, tools: Tools): void {
     },
     wrap((a: { notebookId?: string; limit?: number }) => tools.due_cards(a)),
   )
+}
+
+const PLAN_HELP =
+  'A plan: { version: 1, id: "a-unique-id", goal: "what you are doing", origin: "mcp", destination: { kind: "new_notebook", title } | { kind: "notebook", id } | { kind: "page", id } | { kind: "library" }, steps: [{ id: "s1", tool: "notebooks.create", toolVersion: 1, args: {...} }, { id: "s2", tool: "pages.write_notes", toolVersion: 1, args: { notebookId: { "$from": "s1.notebookId" }, page: {...} } }] }. Step ids are s1, s2, ... in order; a later step can use { "$from": "s1.notebookId" } for an earlier step result. Put all content in the step args (there is no model to write it). Use list_tools and describe_tool to see the tools. At most 40 steps. The plan id is a unique name for this job: sending the same plan again returns the first result.'
+
+function registerPlanTools(
+  server: McpServer,
+  p: WriteTools['plan'],
+  scopes: Scopes,
+): void {
+  const canWrite = scopes['write:create'] || scopes['write:append']
+  if (scopes.read) {
+    server.registerTool(
+      'list_tools',
+      {
+        title: 'List the tools a plan can use',
+        description:
+          'Lists the building blocks (tools) a plan can use: id, label, group, one-line description, risk. Filter by group or a word. Then use describe_tool for details.',
+        inputSchema: {
+          group: z.string().max(60).optional(),
+          query: z.string().max(100).optional(),
+        },
+        annotations: READ_ONLY,
+      },
+      wrap((a: { group?: string; query?: string }) => p.list_tools(a)),
+    )
+    server.registerTool(
+      'describe_tool',
+      {
+        title: 'Describe one tool',
+        description:
+          'The full definition of one tool: the inputs it accepts, what it gives back, its limits and an example step.',
+        inputSchema: { id: z.string().max(80) },
+        annotations: READ_ONLY,
+      },
+      wrap((a: { id: string }) => p.describe_tool(a)),
+    )
+    server.registerTool(
+      'plan_preview',
+      {
+        title: 'Check a plan without saving',
+        description: `Checks a plan and shows what it would make or change, without saving anything. Wrong parts come back with their exact place. ${PLAN_HELP}`,
+        inputSchema: { plan: rec('The plan') },
+        annotations: READ_ONLY,
+      },
+      wrap((a: { plan: unknown }) => p.plan_preview(a)),
+    )
+    server.registerTool(
+      'job_status',
+      {
+        title: 'Status of a job',
+        description:
+          'The state of a job you ran: applied, waiting_in_inbox, accepted, rejected, undone, with counts.',
+        inputSchema: { jobId: z.string().max(80) },
+        annotations: READ_ONLY,
+      },
+      wrap((a: { jobId: string }) => p.job_status(a)),
+    )
+  }
+  if (canWrite) {
+    server.registerTool(
+      'run_plan',
+      {
+        title: 'Run a plan',
+        description: `Runs a whole plan as ONE job: everything is saved together or nothing is. Plans that only make new things are saved at once; plans that change existing things, or that you ask to wait (mode "inbox"), wait in the owner's Inbox. Never deletes anything. Counts against the write limit once plus once per step. ${PLAN_HELP}`,
+        inputSchema: {
+          plan: rec('The plan'),
+          mode: z.enum(['auto', 'inbox']).optional(),
+        },
+        annotations: WRITE,
+      },
+      wrap((a: { plan: unknown; mode?: 'auto' | 'inbox' }) => p.run_plan(a)),
+    )
+    server.registerTool(
+      'undo_job',
+      {
+        title: 'Undo a job',
+        description:
+          'Takes back a job you ran: what it made goes to Trash, values it changed get their old values back. Nothing is deleted for good. If the owner has changed the result since, nothing is undone and a request waits in the Inbox instead.',
+        inputSchema: { jobId: z.string().max(80) },
+        annotations: WRITE,
+      },
+      wrap((a: { jobId: string }) => p.undo_job(a)),
+    )
+  }
 }

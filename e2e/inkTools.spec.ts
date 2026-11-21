@@ -18,8 +18,29 @@ import { card, option, pill, tool } from './mainBarHelpers.ts'
 
 test.use({ viewport: { width: 1024, height: 1000 }, hasTouch: true })
 
-const pickTool = (page: Page, name: string) =>
-  tool(page, name).click({ force: true })
+/**
+ * Chooses a tool by a forced click (a floating pill may cover it). The bar
+ * scrolls sideways with a smooth animation when a tool sits past its edge
+ * (1024 px with the menu open), and a forced click does not wait for it: it
+ * landed on the neighbour (R21). So scroll first, wait until it stands still.
+ */
+const pickTool = async (page: Page, name: string) => {
+  const t = tool(page, name)
+  await t.scrollIntoViewIfNeeded()
+  let last = ''
+  await expect
+    .poll(
+      async () => {
+        const now = JSON.stringify(await t.boundingBox())
+        const still = now === last
+        last = now
+        return still
+      },
+      { intervals: [120] },
+    )
+    .toBe(true)
+  await t.click({ force: true })
+}
 
 /** Opens a pill (again if a stroke closed it) and chooses a card chip. */
 async function chooseChip(page: Page, toolName: string, radio: string) {

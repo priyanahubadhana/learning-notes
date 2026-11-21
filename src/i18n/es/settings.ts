@@ -6,7 +6,13 @@ export const esSettings = {
   'about.failed': 'No se pudo comprobar. ¿Estás sin conexión?',
   'about.lastChecked': 'Última búsqueda de actualizaciones: {time}',
   'about.neverChecked': 'Aún no se han buscado actualizaciones.',
-  'about.ready': 'Actualización lista. Usa el botón Actualizar de arriba.',
+  'about.ready': 'Actualización lista. Toca Actualizar en el aviso de arriba.',
+  'about.readyAuto': 'Actualizando… la app se reinicia sola.',
+  'about.readyWait':
+    'Actualización lista. Se instala sola cuando haces una pausa. O toca Actualizar abajo.',
+  'about.readyClosed':
+    'Actualización lista. Toca Actualizar abajo para reiniciar.',
+  'about.updateNow': 'Actualizar',
   'about.title': 'Acerca de esta app',
   'about.version': 'Versión {commit}, creada {date}',
   'color.blue': 'Azul',
@@ -58,6 +64,15 @@ export const esSettings = {
   'font.tooBig':
     'Este archivo de fuente es demasiado grande (el límite es 10 MB).',
   'keys.backspace': 'Borrar',
+  'keys.close': 'Cerrar el miniteclado',
+  'keys.errNetwork':
+    'Hablar necesita internet y no hay conexión. Usa el micrófono del teclado.',
+  'keys.errNoMic':
+    'No se encontró ningún micrófono. Usa el micrófono del teclado.',
+  'keys.errLanguage':
+    'Este idioma no se puede dictar aquí. Usa el micrófono del teclado.',
+  'keys.errOther':
+    'El dictado se detuvo y no pudo reiniciarse. Usa el micrófono del teclado.',
   'keys.denied':
     'El micrófono no está permitido. Permítelo en los ajustes del navegador o usa el micrófono del teclado.',
   'keys.enter': 'Nueva línea',
@@ -245,11 +260,11 @@ export const esSettings = {
   'settings.openNotebookAt.label': 'Abrir cuadernos en',
   'settings.openNotebookAt.last': 'Última página',
   'settings.openNotebookAt.tabs': 'Pestañas del cuaderno',
-  'settings.pasteMode.ask': 'Preguntar cada vez',
+  'settings.pasteMode.ask': 'Preguntar siempre',
   'settings.pasteMode.description':
-    'Al pegar texto con formato: preguntar cada vez (un pequeño selector), mantener siempre el formato original o pegar siempre texto sin formato.',
-  'settings.pasteMode.keep': 'Mantener formato',
-  'settings.pasteMode.label': 'Pegar',
+    'Al pegar texto con formato: Preguntar siempre (un pequeño selector cada vez), Mantener el aspecto (conservar siempre el formato) o Texto sin formato (pegar siempre sin formato).',
+  'settings.pasteMode.keep': 'Mantener el aspecto',
+  'settings.pasteMode.label': 'Pegar como',
   'settings.pasteMode.plain': 'Texto sin formato',
   'settings.pathStyle.description':
     'Cómo se muestra la dirección (ruta) de la página abierta en la barra superior: corta, completa o solo el nombre. Un cuaderno o una página puede tener su propia elección (primero la página, luego el cuaderno, luego esta).',
@@ -458,4 +473,42 @@ export const esSettings = {
   'theme.night': 'Noche',
   'theme.pick': 'Elegir un tema',
   'theme.sepia': 'Sepia',
+  'settings.toolNames.label': 'Mostrar nombres de herramientas',
+  'settings.toolNames.description':
+    'Muestra el nombre junto a cada icono de la barra. Apagado: solo iconos; mantén pulsado o pasa el cursor para ver el nombre. En vertical con Lápiz la barra muestra solo iconos.',
+  'settings.formatTabs.label': 'Pestañas de Formato',
+  'settings.formatTabs.description':
+    'Cuántas pestañas tiene la tarjeta Formato: 3 (Texto, Estilo, Párrafo) o 4 (añade Avanzado).',
+  'settings.backToPen.label': 'Volver a la última herramienta',
+  'settings.backToPen.description':
+    'Muestra en la barra un botón que vuelve a la herramienta anterior.',
+  'settings.eraserMenus.label': 'Los tres menús del borrador',
+  'settings.eraserMenus.description':
+    'Muestra en la barra los menús de modo, tamaño y "borra" del borrador. Apagado: un menú sencillo.',
+  'settings.biggerLasso.label': 'Lazo más grande',
+  'settings.biggerLasso.description':
+    'Muestra en la barra la forma del lazo y lo que selecciona, con su menú de opciones. Apagado: una fila corta.',
+  'settings.layoutShortcut.label': 'Diseño',
+  'settings.layoutShortcut.description':
+    'Un toque ajusta las cinco filas de la barra de abajo. Principiante: todo apagado, 3 pestañas de formato. Profesional: todo encendido, 4 pestañas. Después puedes cambiar cada fila. Si las filas son mixtas, no se marca ninguno.',
+  'settings.layoutShortcut.beginner': 'Principiante',
+  'settings.layoutShortcut.professional': 'Profesional',
+  'settings.toolbarGroup.title': 'Barra de herramientas',
+  'settings.toolbarGroup.lead':
+    'Diseño ajusta estas cinco a la vez: Principiante = todo apagado, 3 pestañas. Profesional = todo encendido, 4 pestañas.',
+  'settings.layoutShortcut.help': 'Un toque ajusta las cinco filas de abajo.',
+  'settings.layoutShortcut.help.custom':
+    'Las filas de abajo son mixtas, así que no se marca ninguno.',
+  'settings.toolNames.help.on': 'Sí: un nombre junto a cada icono.',
+  'settings.toolNames.help.off': 'No: solo iconos.',
+  'settings.formatTabs.help.3': '3 pestañas: Texto, Estilo, Párrafo.',
+  'settings.formatTabs.help.4': '4 pestañas: Texto, Estilo, Párrafo, Avanzado.',
+  'settings.backToPen.help.on':
+    'Sí: un botón vuelve a la herramienta que usaste antes.',
+  'settings.backToPen.help.off': 'No: sin botón de volver en la barra.',
+  'settings.eraserMenus.help.on':
+    'Sí: Modo, Tamaño y Borra, cada uno en la barra.',
+  'settings.eraserMenus.help.off': 'No: un menú de borrador simple.',
+  'settings.biggerLasso.help.on': 'Sí: las opciones del lazo en un menú.',
+  'settings.biggerLasso.help.off': 'No: una fila corta de lazo.',
 }

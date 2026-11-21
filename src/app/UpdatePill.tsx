@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { t } from '../i18n/t'
 import { updateStatus } from './updateStatus'
+import { pressRestart } from './restartNow'
 
 const mb = (n: number) => (n / 1048576).toFixed(1)
 
@@ -40,7 +41,7 @@ export default function UpdatePill() {
       text = t('upd.ready')
       break
     case 'updating':
-      text = t('upd.updating')
+      text = s.restart === 'failed' ? t('upd.restartFailed') : t('upd.updating')
       break
     case 'updated':
       text = t('upd.updated', { version: s.version ?? '' })
@@ -58,15 +59,28 @@ export default function UpdatePill() {
     s.phase === 'downloading' && s.total
       ? Math.min(100, ((s.loaded ?? 0) / s.total) * 100)
       : null
+  const showBtn = s.phase === 'updating' && !!s.restart
+  const failed = s.restart === 'failed'
   return (
     <div
-      role="status"
-      aria-live="polite"
       data-chrome
       data-update-pill
-      className="pointer-events-none fixed bottom-16 left-3 z-40 max-w-[min(320px,calc(100vw-24px))] rounded-xl border border-line bg-surface-3 px-3 py-2 text-[13px] text-ink shadow-[var(--elev-2)] phone:bottom-20"
+      className={`${s.restart ? 'pointer-events-auto' : 'pointer-events-none'} fixed bottom-16 left-3 z-40 max-w-[min(320px,calc(100vw-24px))] rounded-xl border border-line bg-surface-3 px-3 py-2 text-[13px] text-ink shadow-[var(--elev-2)] phone:bottom-20 phone:max-w-[190px]`}
     >
-      <span>{text}</span>
+      {/* The live region holds the words only, so the button is not announced as a status. */}
+      <div role="status" aria-live="polite">
+        {failed ? <span className="sr-only">{text}</span> : <span>{text}</span>}
+      </div>
+      {showBtn && (
+        <button
+          type="button"
+          data-restart-now
+          onClick={pressRestart}
+          className={`${failed ? '' : 'mt-2 '}flex min-h-11 w-full items-center justify-center rounded-lg border border-line px-3 text-[13px] hover:bg-hover`}
+        >
+          {failed ? t('upd.restartFailed') : t('upd.restartNow')}
+        </button>
+      )}
       {pct !== null && (
         <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-line">
           <div

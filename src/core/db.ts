@@ -39,6 +39,7 @@ import type {
   SavedSearch,
   SearchEntry,
   SecretRecord,
+  AiJobRecord,
   ClaudeInboxItem,
   SettingValue,
   SyncState,
@@ -96,6 +97,7 @@ export class LearningNotesDB extends Dexie {
   files!: EntityTable<HomeFile, 'id'>
   secrets!: EntityTable<SecretRecord, 'id'>
   claudeInbox!: EntityTable<ClaudeInboxItem, 'id'>
+  aiJobs!: EntityTable<AiJobRecord, 'id'>
 
   /** @param name Database name; tests pass a unique name to stay isolated. */
   constructor(name: string = DEFAULT_DB_NAME) {
@@ -338,6 +340,11 @@ export class LearningNotesDB extends Dexie {
     // that wait for Accept or Reject. Written by the connector as ordinary
     // synced records. Only adds a table.
     this.version(23).stores({ claudeInbox: 'id, status, pageId' })
+
+    // Version 24 (AI tool framework): the AI build jobs and their checkpoints,
+    // so a job and Activity survive a reload. Device-local, never synced and
+    // never in a backup file. Only adds a table.
+    this.version(24).stores({ aiJobs: 'id, state, updatedAt' })
 
     // Every save of a page or block also updates its search entry, in the
     // same transaction (see search/indexMiddleware.ts).

@@ -16,6 +16,7 @@ export type PictureAction =
   | 'alignCenter'
   | 'alignRight'
   | 'handles'
+  | 'border'
   | 'deselect'
 
 /** What the Picture strip can do with the selected picture. */

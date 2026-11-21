@@ -86,6 +86,7 @@ export function snapBox(
   others: readonly GRect[],
   pageW: number,
   max = SNAP_MM,
+  hold?: SnapHold,
 ): SnapResult {
   // ---- X: alignment with each other box, the page centre, equal gaps
   const xTargets: number[] = []
@@ -108,6 +109,13 @@ export function snapBox(
   const gapY = equalGap(moving, others, 'y', max)
   if (gapY && (dy === null || Math.abs(gapY.shift) < Math.abs(dy)))
     dy = gapY.shift
+
+  // C21: a snap holds until the box is clearly away (no flicker on a
+  // trembling hand): it stays where it snapped, up to 'release' away.
+  if (hold?.x !== undefined && Math.abs(hold.x - moving.x) <= hold.release)
+    dx = hold.x - moving.x
+  if (hold?.y !== undefined && Math.abs(hold.y - moving.y) <= hold.release)
+    dy = hold.y - moving.y
 
   const at: GRect = {
     ...moving,
@@ -153,6 +161,27 @@ export function snapBox(
 
   const marks = [...gapMarks(at, others, 'x'), ...gapMarks(at, others, 'y')]
   return { dx: dx ?? 0, dy: dy ?? 0, guides: dedupe(guides), marks }
+}
+
+/** C21: where the last snap held the box (mm), and how far it may be pulled away before it lets go. */
+export interface SnapHold {
+  x?: number
+  y?: number
+  release: number
+}
+
+/** Where a snap result holds the box (the next move passes it back to snapBox). */
+export function holdOf(
+  r: SnapResult,
+  moving: GRect,
+): { x?: number; y?: number } {
+  const out: { x?: number; y?: number } = {}
+  const on = (axis: 'x' | 'y') =>
+    r.guides.some((g) => g.axis === axis) ||
+    r.marks.some((m) => m.axis === axis)
+  if (on('x')) out.x = moving.x + r.dx
+  if (on('y')) out.y = moving.y + r.dy
+  return out
 }
 
 function dedupe(gs: Guide[]): Guide[] {

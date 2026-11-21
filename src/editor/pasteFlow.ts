@@ -4,7 +4,9 @@ import {
   readDeviceSetting,
   writeDeviceSetting,
 } from '../settings/settingsService'
-import { pasteModeSetting } from '../settings/builtinSettings'
+import { isFlagOn } from '../app/flags'
+import { readPref } from '../app/uiPrefs'
+import { pasteModeSetting, type PasteMode } from '../settings/builtinSettings'
 import type { LearningNotesDB } from '../core/db'
 import type { AppSchema } from './schema'
 import {
@@ -191,7 +193,7 @@ export function cleanupOffered(plan: PastePlan): boolean {
   return c.enabled && c.candidates.length > 0
 }
 
-/** The choices a plan offers (the first is "Keep original format"). */
+/** The choices a plan offers (the first is "Keep look"). */
 export function choicesFor(
   plan: PastePlan,
   /** `box`: the editor is on a paper page (the paste can go in a new box). */
@@ -280,7 +282,12 @@ export function previewOf(plan: PastePlan, choice: PasteChoice): string {
   const h = count(plan.html ? /<h[1-6]\b/gi : /^#{1,6}\s/gm)
   const tb = count(plan.html ? /<table\b/gi : /^\s*\|?\s*:?-{3,}/gm)
   const li = count(plan.html ? /<li\b/gi : /^\s*([-*+]|\d+[.)])\s/gm)
-  if (h) bits.push(t('pasteChooser.preview.headings', { n: h }))
+  if (h)
+    bits.push(
+      h === 1
+        ? t('pasteChooser.preview.heading')
+        : t('pasteChooser.preview.headings', { n: h }),
+    )
   if (tb) bits.push(t('pasteChooser.preview.tables', { n: tb }))
   if (li) bits.push(t('pasteChooser.preview.items', { n: li }))
   return clip(bits.length ? bits.join(' · ') : plan.text)
@@ -538,7 +545,7 @@ export async function withLocalImages(plan: PastePlan): Promise<PastePlan> {
 }
 
 /** Does the work of a pick and shows the chip that can swap it. */
-async function run(
+export async function run(
   editor: Editor,
   plan: PastePlan,
   choices: PasteChoice[],
@@ -568,7 +575,7 @@ async function run(
 }
 
 /** Opens the clean-up step; its Insert runs the cleaned Markdown as a paste. */
-function openCleanup(editor: Editor, plan: PastePlan): void {
+export function openCleanup(editor: Editor, plan: PastePlan): void {
   setUi({
     cleanup: {
       owner: editor,
@@ -593,6 +600,21 @@ function openCleanup(editor: Editor, plan: PastePlan): void {
   })
 }
 
+/**
+ * The "Paste as" setting. With flag page.menus "Keep look" is the default
+ * until the owner picks one (PM-43); "Always ask" keeps today's chooser.
+ */
+function effectivePasteMode(): PasteMode {
+  const mode = readDeviceSetting(pasteModeSetting)
+  if (!isFlagOn('page.menus')) return mode
+  const stored = readPref<string>(
+    pasteModeSetting.id,
+    (v): v is string => typeof v === 'string',
+    '',
+  )
+  return stored ? mode : 'keep'
+}
+
 /** Ctrl/Cmd+Shift+V waits here (kept in clipboard.ts for its key note). */
 export function pasteWith(
   editor: Editor,
@@ -606,7 +628,7 @@ export function pasteWith(
   const plan = planPaste(data)
   if (!plan) return false
   const choices = choicesFor(plan, { box: !!boxHost(editor) })
-  const mode = readDeviceSetting(pasteModeSetting)
+  const mode = effectivePasteMode()
   setUi({ chip: null })
   if (
     (plan.rich || choices.includes('cleanup')) &&
@@ -678,4 +700,16 @@ export function pasteHandler({
     plain,
   )
   return ok ? true : defaultPasteHandler()
+}
+
+/**
+ * The one bar's "Paste ▾ › Keep look" (box bar part A): paste with the look of
+ * the copy, whatever the "Paste as" setting says, with no chooser.
+ */
+export function pasteAs(editor: Editor, data: PasteData): boolean {
+  const plan = planPaste(data)
+  if (!plan) return false
+  const choices = choicesFor(plan, { box: !!boxHost(editor) })
+  void run(editor, plan, choices, 'keep')
+  return true
 }

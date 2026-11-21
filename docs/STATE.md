@@ -16,7 +16,7 @@ RUNNING: stage 1, phase 1A (set-up and the update; was "PC-1 stage 0"), started 
 | M1                     | `tool/m1-archive`, `tool/m1-fix2`   | MERGED 1d250d96 (3 review rounds); CLAUDE.md, .claude paths done by Fable; rules/ and next.md in M8      |
 | U0a                    | `slice/u0a-update-repro` (ln-2a16b) | built c692dc2c, loop reproduced on WebKit slow line; review FAIL, 6 fixes with builder a2de4da29ebff2aa9 |
 | U0b                    | main 436a36f8                       | MERGED; update-v2.md Confirmed 22 Nov, row 14 open (redrawn Settings picture waits for the owner yes)    |
-| M2                     | `tool/m2-spec-kit` (ln-m2)          | review FAIL (7 fixes) with builder a0c1f6f9508b85357; owner OK for the speckit skills given (Fable)      |
+| M2                     | `tool/m2-spec-kit`                  | MERGED 22 Nov (Spec Kit v1.4.3, template synced and checked in CI; implement, converge off)              |
 | U0c, S0                | -                                   | U0c after U0a merges (same builder); S0 Settings card after the owner yes on the picture                 |
 | M3, M8, M5, M9, M6, M7 | -                                   | planned, in this order                                                                                   |
 

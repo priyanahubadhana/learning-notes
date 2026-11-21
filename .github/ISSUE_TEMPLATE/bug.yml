@@ -1,7 +1,7 @@
 name: Bug
 description: Something looks wrong or does not work. Plain words are fine.
 title: '[bug] '
-labels: ['state:open']
+labels: ['bug', 'state:open', 'found-by:owner']
 body:
   - type: textarea
     id: saw

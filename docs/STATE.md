@@ -10,15 +10,16 @@ RUNNING: stage 1, phase 1A (set-up and the update; was "PC-1 stage 0"), started 
 
 ### Phase 1A
 
-| Part                   | Branch (working copy)               | State                                                                                                    |
-| ---------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| M4                     | main                                | DONE 22 Nov (site live)                                                                                  |
-| M1                     | `tool/m1-archive`, `tool/m1-fix2`   | MERGED 1d250d96 (3 review rounds); CLAUDE.md, .claude paths done by Fable; rules/ and next.md in M8      |
-| U0a                    | `slice/u0a-update-repro` (ln-2a16b) | built c692dc2c, loop reproduced on WebKit slow line; review FAIL, 6 fixes with builder a2de4da29ebff2aa9 |
-| U0b                    | main 436a36f8                       | MERGED; update-v2.md Confirmed 22 Nov, row 14 open (redrawn Settings picture waits for the owner yes)    |
-| M2                     | `tool/m2-spec-kit`                  | MERGED 22 Nov (Spec Kit v1.4.3, template synced and checked in CI; implement, converge off)              |
-| U0c, S0                | -                                   | U0c after U0a merges (same builder); S0 Settings card after the owner yes on the picture                 |
-| M3, M8, M5, M9, M6, M7 | -                                   | planned, in this order                                                                                   |
+| Part                                                                                                          | Branch (working copy)               | State                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| M4                                                                                                            | main                                | DONE 22 Nov (site live)                                                                                  |
+| M1                                                                                                            | `tool/m1-archive`, `tool/m1-fix2`   | MERGED 1d250d96 (3 review rounds); CLAUDE.md, .claude paths done by Fable; rules/ and next.md in M8      |
+| U0a                                                                                                           | `slice/u0a-update-repro` (ln-2a16b) | built c692dc2c, loop reproduced on WebKit slow line; review FAIL, 6 fixes with builder a2de4da29ebff2aa9 |
+| U0b                                                                                                           | main 436a36f8                       | MERGED; update-v2.md Confirmed 22 Nov, row 14 open (redrawn Settings picture waits for the owner yes)    |
+| M2                                                                                                            | `tool/m2-spec-kit`                  | MERGED 22 Nov (Spec Kit v1.4.3, template synced and checked in CI; implement, converge off)              |
+| U0c, S0                                                                                                       | -                                   | U0c after U0a merges (same builder); S0 Settings card after the owner yes on the picture                 |
+| M3                                                                                                            | `tool/m3-issues`                    | MERGED 22 Nov: 43 issues #7 to #49 with old ids, labels, phone bug form                                  |
+| Ideas sort, Pillar column, found wishes, M8, M5, M9, M6, M7, old plans archive, principle pictures, site home | -                                   | planned, in this order                                                                                   |
 
 ### Phase 2-finish lanes (history, 20 to 21 Nov)
 

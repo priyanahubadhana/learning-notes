@@ -485,6 +485,8 @@ export function Sidebar({
           <nav
             aria-label={t('sidebar.groups')}
             className={`flex-1 pt-2 ${shell ? '' : 'min-h-32 overflow-auto'}`}
+            // The scroll handle's 24 px gutter from the first frame: scrollHints adds it only ~200 ms after the drawer opens, which moved every row (and its ⋯) 24 px left under a tap.
+            data-scroll-gutter={shell ? undefined : ''}
             {...hold}
           >
             {(space === 'review' || (space === 'notebooks' && !shell)) &&

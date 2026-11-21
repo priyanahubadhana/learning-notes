@@ -28,7 +28,7 @@ Read this first in the next Fable session, then docs/STATE.md (Opus's live state
 
 ## First thing in the morning
 
-The U0a builder committed its fix round as 3f088e40 on slice/u0a-update-repro in C:UserspcDownloadsln-2a16b, but the push guard blocked the push (a local check failed; the output was not kept). The commit is safe on disk. The morning manager runs the push there, reads the guard's lines, fixes the cause, and pushes; never --no-verify.
+The U0a builder committed its fix round as 3f088e40 on slice/u0a-update-repro in the working copy C:/Users/pc/Downloads/ln-2a16b, but the push guard blocked the push (a local check failed; the output was not kept). The commit is safe on disk. The morning manager runs the push there, reads the guard's lines, fixes the cause, and pushes; never --no-verify.
 
 ## Opus resumes from docs/STATE.md
 

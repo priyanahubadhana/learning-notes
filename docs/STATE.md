@@ -111,6 +111,12 @@ Settings v5 (stage 5 of the plan); text-level selection and the smart bar (stage
 
 ## Parked
 
+### Rules and re-test list of 16 Nov (superseded where the PC-1 plan replaces them)
+
+- **Owner's rule (16 Nov):** nothing goes into the live app (`main`, task 0.7) until every bug is fixed and the owner has tested it all; then Phase 1, the tool bar and the text box go live together, on the owner's yes. SUPERSEDED in part: PC-1 works on the PC first and the Pencil work is parked (plan section 9); the live-app rule itself stands.
+- **Owner has passed (16 Nov):** combined test parts A to D; on re-test: C2 eraser, the tool bar fixes (C3, C6, C7, C9), Delete box, one selected box at a time, resize never types, the mic strip (C17).
+- **Merged into build/next, waiting for the owner's re-test (16 Nov):** C4, C5, C14 (Scribble, symbols, tap timing), C12, C13, C15, C16, C8, C10, C11 (box group), C17, C18 (strip part), C20 (first part); then C18b/C20b, C19, C21, C22 merged after one review each. Re-test list: docs/archive/plans/combined-test-2026-11-16.md. SUPERSEDED where the PC-1 plan or checks C0 to C3 replace them (Pencil items are parked).
+
 ### Phase board
 
 | Phase | What                                                    | State                                                                                                                                                                                                                                                                                 |

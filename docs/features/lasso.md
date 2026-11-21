@@ -2,7 +2,7 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-Written by Fable, 20 Nov 2026. Plan: [../plans/phases/phase-2-finish.md](../plans/phases/phase-2-finish.md). Code places, reasons and today's tests for every line: [../plans/lasso-inventory-2026-11-20.md](../archive/plans/lasso-inventory-2026-11-20.md). This page is the first one written the spec-first way (phase page, "How every part runs"): **every line has an id, every id has a test whose name starts with that id, and the owner says yes to the lines before any code.**
+Written by Fable, 20 Nov 2026. Plan: [../plans/phases/phase-2-finish.md](../plans/phases/phase-2-finish.md). Code places, reasons and today's tests for every line: [../plans/lasso-inventory-2026-11-20.md](../plans/lasso-inventory-2026-11-20.md). This page is the first one written the spec-first way (phase page, "How every part runs"): **every line has an id, every id has a test whose name starts with that id, and the owner says yes to the lines before any code.**
 
 ## Purpose
 

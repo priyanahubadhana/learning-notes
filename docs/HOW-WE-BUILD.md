@@ -1,6 +1,6 @@
 # How we build (from 14 Nov 2026)
 
-The plan is [plans/phase-plan.md](plans/phase-plan.md). The state is [BUILD-STATE.md](BUILD-STATE.md). This page is how the helpers work inside a phase. It replaces the "economy mode" pages of 13 Nov (kept in archive/plans/archive/).
+The plan is [plans/phase-plan.md](plans/phase-plan.md). The state is [STATE.md](STATE.md). This page is how the helpers work inside a phase. It replaces the "economy mode" pages of 13 Nov (kept in archive/plans/archive/).
 
 ## 1. Roles: the cheapest model that can do the job does it
 
@@ -25,7 +25,7 @@ Every model works at medium effort (owner, 20 Nov 2026): Sonnet builders, Opus m
 2. The builder writes the tests first, builds until they pass, uses it for real on an iPad size, runs the local checks (section 5) and pushes its branch.
 3. The reviewer checks it once: the code against the task's spec lines, and the pictures against the approved picture. A fix list goes back to the **same** builder.
 4. After the reviewer's pass the builder merges, with the part switched OFF. One merge at a time on hot files.
-5. The manager rewrites the task's row in BUILD-STATE.md and adds one row to docs/metrics/tasks.csv (when merged, phase, task, builder model, helper tokens, review rounds, test runs green and red, hours from start to merged).
+5. The manager rewrites the task's row in STATE.md and adds one row to docs/metrics/tasks.csv (when merged, phase, task, builder model, helper tokens, review rounds, test runs green and red, hours from start to merged).
 
 **No approved picture, no build (owner, 15 Nov):** anything whose look the approved pictures don't show gets a small mock-up (an artifact or a picture) first; building waits for the owner's OK on it.
 
@@ -38,9 +38,9 @@ At the end of a phase: the owner's first look on the iPad, fixes, polish to the 
 1. **Only planned work.** A builder builds what its task says. New ideas go to docs/IDEAS.md; unclear points go back to the manager.
 2. **Green before push.** The push guard runs the quick checks. CI confirms; it is not the first place a fault is seen.
 3. **Red stops the line.** A red test on the code line is the manager's first job. Never re-run until green. Never weaken, skip or delete a test.
-4. **Escalate by yourself (owner, 20 Nov 2026).** Sonnet fails the same thing three times: a builder with `model: opus` takes it. Opus fails it five times: Fable. A try counts only if it differs from the one before; no new try without new evidence (a failing test, a trace, a measurement), and for a fault only the real iPad shows, none without a new trace from the owner; after the second Opus fail, Opus writes down what was tried and what is known before the third. Log each step in BUILD-STATE.md.
+4. **Escalate by yourself (owner, 20 Nov 2026).** Sonnet fails the same thing three times: a builder with `model: opus` takes it. Opus fails it five times: Fable. A try counts only if it differs from the one before; no new try without new evidence (a failing test, a trace, a measurement), and for a fault only the real iPad shows, none without a new trace from the owner; after the second Opus fail, Opus writes down what was tried and what is known before the third. Log each step in STATE.md.
 5. **No queue.** Merge a task as soon as it is reviewed. Do not add builders while a reviewed task has waited more than an hour to merge.
-6. **One state file.** BUILD-STATE.md is one table, rewritten in place, under 100 lines. History goes to docs/CHANGELOG.md.
+6. **One state file.** STATE.md is one table, rewritten in place, under 100 lines. History goes to docs/CHANGELOG.md.
 7. **Never go quiet.** A phase manager ends every run with `RESTART phase-manager` or `STOPPED: <reason>`. Estimates use the measured pace and say "likely".
 8. **Questions go up a ladder, and the owner is last (owner, 14 Nov).** First the plan and the approved picture answer. If they do not, the manager (Opus) decides. If Opus is unsure, Fable decides. Each decision taken this way is logged in docs/DECISIONS.md "Decisions to review" and the work goes on. The owner is asked only for: money; logins and Supabase; switching a part ON in the live app; possible data loss; a test on a real device; and a real product or design decision, meaning one that changes an approved picture, changes or drops a feature, or changes a rule.
 9. **When the safety check blocks a planned action,** no helper can overrule it. The manager notes the kind of action and asks the owner once to allow that kind for good, so the same stop does not come back.
@@ -96,6 +96,6 @@ Done when: <tests>. Follow .claude/agents/builder.md.
 
 ## 10. Start and stop
 
-- **Start, lean:** the owner says "restart" and switches the main chat to Opus at medium effort. The main chat starts the next task of docs/BUILD-STATE.md with one `builder`.
-- **Start, full team:** agent `phase-manager` (Opus, medium effort) with the phase page and "Read .claude/agents/phase-manager.md and docs/BUILD-STATE.md and follow them."
-- **Stop:** the owner says pause. Stop every helper, switch the pulse off, write `PAUSED` at the top of BUILD-STATE.md.
+- **Start, lean:** the owner says "restart" and switches the main chat to Opus at medium effort. The main chat starts the next task of docs/STATE.md with one `builder`.
+- **Start, full team:** agent `phase-manager` (Opus, medium effort) with the phase page and "Read .claude/agents/phase-manager.md and docs/STATE.md and follow them."
+- **Stop:** the owner says pause. Stop every helper, switch the pulse off, write `PAUSED` at the top of STATE.md.

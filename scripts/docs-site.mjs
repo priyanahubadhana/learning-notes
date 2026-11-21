@@ -441,6 +441,7 @@ function homePage(pages) {
       (p) =>
         !used.has(p.rel) &&
         !posix.basename(p.rel).startsWith('_') &&
+        !['PENDING.md', 'BUILD-STATE.md', 'HANDOFF.md'].includes(p.rel) &&
         (!p.rel.startsWith('archive/') || p.rel === 'archive/INDEX.md'),
     )
     .sort((a, b) => a.rel.localeCompare(b.rel))

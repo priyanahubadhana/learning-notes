@@ -8,7 +8,7 @@ metadata:
   source: "templates/commands/constitution.md"
   version: "1.4.3"
 user-invocable: true
-disable-model-invocation: false
+disable-model-invocation: true
 ---
 
 

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: Spec Kit installed and adapted (part M2)
+
+- **What:** Spec Kit v1.4.3 pinned in .specify/VERSION; spec template overridden by a synced copy of docs/features/_TEMPLATE.md (npm run check:spec-template, also in CI); constitution only points at CLAUDE.md and rules/; implement and converge disabled, implement step removed from the workflow; nine skills added under .claude/skills/.
+- **Why:** METHOD-v2 step M2: one template source, no second hand-kept copy.
+- **Files:** .specify/**, .claude/skills/speckit-*, scripts/sync-spec-template.mjs, docs/SPEC-KIT.md, .github/workflows/ci.yml, package.json, .prettierignore.
+
 ### 22 Nov 2026: one live docs set and one STATE file (part M1)
 
 - **What:** 129 files (old plans, audits, findings, finished-phase pictures, METHOD.md) moved with git mv to docs/archive/ and listed one by one in docs/archive/INDEX.md; DECISIONS entries to 20 Nov moved to docs/archive/DECISIONS-until-20-nov.md; PENDING, BUILD-STATE and HANDOFF became docs/STATE.md (Now, Needs you, Next, Parked), the old paths are one-line pointers for a week; links updated; the site home lists STATE.md and keeps archive pages out of its cards.

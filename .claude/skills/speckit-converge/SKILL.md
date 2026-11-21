@@ -6,10 +6,11 @@ metadata:
   author: "github-spec-kit"
   source: "templates/commands/converge.md"
   version: "1.4.3"
-user-invocable: true
-disable-model-invocation: false
+user-invocable: false
+disable-model-invocation: true
 ---
 
+> NOT USED in this project (METHOD-v2, tool layer). Disabled by the two flags above; see docs/SPEC-KIT.md.
 
 ## User Input
 

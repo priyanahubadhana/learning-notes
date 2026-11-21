@@ -9,3 +9,4 @@ GitHub Spec Kit gives the commands `/speckit-constitution`, `specify`, `clarify`
 - **Implement is not used.** `.claude/skills/speckit-implement/SKILL.md` is disabled (`user-invocable: false`, `disable-model-invocation: true`, note at top). Spec Kit's manifest hash for it will show "modified"; keep it that way on upgrades.
 - **Written into `.claude/`:** only `.claude/skills/speckit-{analyze,checklist,clarify,constitution,converge,implement,plan,specify,tasks}/SKILL.md` (new). `CLAUDE.md`, `.claude/settings.json`, agents, hooks and commands were not touched.
 - Feature specs still live in `docs/features/`. Spec Kit's own `specs/` folder is not used.
+- **Also disabled:** `speckit-converge` (feeds implement; both flags and note) and the implement step in `.specify/workflows/speckit/workflow.yml` (removed). `speckit-constitution` is model-disabled so no agent rewrites it with rule text.

@@ -72,9 +72,3 @@ steps:
     integration: "{{ inputs.integration }}"
     input:
       args: "{{ inputs.spec }}"
-
-  - id: implement
-    command: speckit.implement
-    integration: "{{ inputs.integration }}"
-    input:
-      args: "{{ inputs.spec }}"

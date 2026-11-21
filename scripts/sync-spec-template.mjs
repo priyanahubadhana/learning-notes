@@ -1,6 +1,6 @@
 // One source for the spec template: docs/features/_TEMPLATE.md (owner-approved).
 // Spec Kit reads its project override .specify/templates/overrides/spec-template.md,
-// which is a byte copy of it (also the part card template for reference).
+// which is a byte copy of it.
 //   node scripts/sync-spec-template.mjs          writes the copy
 //   node scripts/sync-spec-template.mjs --check  exits 1 if the copy differs
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'

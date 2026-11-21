@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B10-3, B10-6, B10-8
+
+- **What:** R18 phone resize could not be reproduced; tests lock the south dot to the page end. R20: on touch devices two taps on a page row within 0.5 s rename it (no reliable double-click on a finger). P-18: page and lock menus use line icons, not text characters or emoji. build/next 94b19191.
+- **Why:** stage 3 leftovers of phase-2-finish.
+- **Files:** src/pages/PageTree.tsx, src/pages/PageRowMenu.tsx, src/app/lock/editLockMenu.ts, src/app/lock/lockMenu.ts, e2e/b10-3PhoneResize.spec.ts, e2e/b10-6JournalRename.spec.ts, e2e/b10-8PageMenu.spec.ts, playwright.config.ts.
+
 ### 21 Nov 2026: B10-2, B10-11, B10-10
 
 - **What:** the Box style card's Shadow card tile keeps its shadow and gets a hairline border (R17); tests lock the Settings words "Keep look" and the Handwritten font (Patrick Hand) with its OFL notice (both already right). build/next f46e89ea.

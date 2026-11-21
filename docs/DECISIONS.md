@@ -1674,3 +1674,13 @@ Relayed by Fable to the phase manager, who applies them in M1, M2, M5, M8 and M9
 ### 22 Nov 2026 (phase manager): Decisions to review
 
 - **M2 Spec Kit v1.4.3 writes nine `.claude/skills/speckit-*` files.** A change to .claude/ needs the owner's own word, so M2 merges only after Fable confirms the owner's OK for those skills (or Fable merges that part).
+
+### 22 Nov 2026, 06:00 (owner with Fable, relayed): master plan, principles, pillars
+
+- **Vision line:** "A premium second brain: like Notion in what it can hold, like GoodNotes with the Apple Pencil, like Figma in how freely you shape a page, like Power BI in how it shows data, with recall cards like Anki."
+- **Five pillars** N, G, F, P, A tag every register row (or "core").
+- **"Skill-based" meant spec-based** (the method), not Claude Code skills.
+- **docs/MASTER-PLAN.md** is the front door linking live pages (confirm sheet for the owner); **docs/design/principles.md** has ten plain-words principles with own-drawn pictures (confirm sheet).
+- **Found-wishes sweep** by Opus; old plan pages archived after the owner's pass on it.
+- **Manager's added parts, in order after the ideas sorting:** (a) Pillar column in FEATURES.md; (b) found-wishes sweep docs/plans/found-wishes-2026-11-22.md; (c) after the owner's answers, archive the old plan pages, ROADMAP.md becomes a pointer; (d) ten principle pictures; (e) site home order and Stage badge, pillar letters, the red Must-never box. Replan count stays 0 (additions the owner asked for).
+- **CI:** build/next after the main merge (8306ab77) green, run 44952743771.

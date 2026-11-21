@@ -35,7 +35,7 @@ Check each with `git fetch -q origin && git log --oneline origin/build/next..ori
 
 ## Known loose ends
 
-- TB-24 (e2e/tb2-bar.spec.ts) fails on a clean build/next checkout on this PC but passes in CI: find out why before the release.
+- TB-24 (e2e/tb2-bar.spec.ts): CLOSED (B10-5). The red was the "Box style opens the style card" check still looking for the old panel (data-box-style-panel); with textbox.v2 the Box card replaced it. Fixed by e0a07699 (16 Nov, same day as the note). Now green on a clean build/next: chromium 20/20, ipad-webkit whole file 15/15.
 - Under heavy local load, cBoxes C12 and c45 C14 failed once each, then passed alone. Watch CI.
 - Stray working copies to tidy later (deletes need the owner): `ln-c21-base/` inside this repo (untracked, made by the C21 helper; not committed), the scratchpad worktree `wtcb`, ../ln-c45x (branch esc/c45-fix), ../ln-c45, ../ln-cboxes, ../ln-c36, ../ln-c2, and the power-cut leftovers listed in docs/PENDING.md.
 

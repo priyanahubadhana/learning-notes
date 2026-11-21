@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: docs site v1 (part M4, brought forward)
+
+- **What:** a program (no AI) turns docs/**/*.md into a formatted, searchable site: badges from the status table, the confirm sheet as tappable rows with a "Copy my answers" button, A / B / Other buttons on the questionnaire, the bottom layer folded, a home page of cards, a picture gallery. A workflow publishes it to GitHub Pages on every push to main that touches the docs.
+- **Why:** the owner reads on an iPad or phone and should never open a .md file. Local build: `node scripts/docs-site.mjs`, then open site/index.html.
+- **Files:** scripts/docs-site.mjs, scripts/docs-site/site.css, scripts/docs-site/site.js, scripts/docs-site.test.mjs, .github/workflows/docs-site.yml, package.json (marked 15.0.12), .gitignore (site/), docs/plans/method-v2/site-shots/.
+
 ### 21 Nov 2026: B11 group 5 (microBar, miniBar, TB-09, presetPhases)
 
 - **What:** the micro bar saves the place where the pen lifted (a quick drag lost it before; a drag the system cancels keeps the last drawn place); the miniBar and TB-09 tests wait for what the user would see (the bar drawn at its place; the box's Delete handler attached, two frames after the pick; Lane A note: PaperFrame attaches it in an effect); presetPhases ignores exactly one benign WebKit message (DECISIONS 21 Nov).

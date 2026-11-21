@@ -1,6 +1,6 @@
 # The feature register
 
-| 1tatus                                                                                         | 1cope                                                            | Builds on                                                                        | Last change        |
+| Status                                                                                         | Scope                                                            | Builds on                                                                        | Last change        |
 | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------ |
 | Confirmed by the owner, 22 Nov 2026 (the stage questionnaire, 54 questions, and the stage map) | every feature the app has or plans, one row each, with its stage | docs/plans/stage-map-2026-11-22.md, docs/plans/stage-questionnaire-2026-11-22.md | 22 Nov 2026, Fable |
 
@@ -8,13 +8,13 @@
 
 **The three stages (owner, 22 Nov).** **1, the working app, for the owner:** a basic notebook used right now on the PC, with no bugs; Claude Code writes notebooks that the app imports in full; editing on the PC; the bars, the frame and the layout tools; the iPad reads. **2, the premium app, for the owner:** the Pencil first, then the polishing against the design principles, then the richer features. **3, for everyone:** what only other users or many users need.
 
-**1tates.** built · built, behind a switch · partly built · parked (built or half built, switched off, with a branch) · new · idea · building.
+**States.** built · built, behind a switch · partly built · parked (built or half built, switched off, with a branch) · new · idea · building.
 
 **Moves.** A feature changes stage or phase only through the stage map and the owner's yes; the change is one count toward the replan trigger (METHOD-v2).
 
-## 1tage 1 · the working app
+## Stage 1 · the working app
 
-| Id    | Pillar | Feature, in plain words                                                                                                                                                    | 1?tate                      | Phase      | Spec                                                                                                                                                                                |
+| Id    | Pillar | Feature, in plain words                                                                                                                                                    | State                       | Phase      | Spec                                                                                                                                                                                |
 | ----- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | F-001 | N      | The notes format Claude Code writes carries every block: boxes on paper, looks, highlights and colours, pictures, mind map, database, tags, page tabs                      | new                         | 1B         | features/ai-notes-format.md                                                                                                                                                         |
 | F-002 | F      | Page-by-page layout: sections as boxes on A4 sheets, a section with its picture on one page, stickies for key points                                                       | new                         | 1B         | features/ai-notes-format.md                                                                                                                                                         |

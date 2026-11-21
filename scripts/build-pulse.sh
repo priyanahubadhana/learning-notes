@@ -29,10 +29,10 @@ for b in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/slic
 done
 echo "- Slice branches with new commits, last 60 min: $active$names"
 
-st=$(git log -1 --format=%ct origin/main -- docs/BUILD-STATE.md)
+st=$(git log -1 --format=%ct origin/main -- docs/STATE.md)
 age=$(( (now - st) / 60 ))
 echo "- State file last updated: $age min ago"
-grep -m1 '^\*\*Next result for the owner' docs/BUILD-STATE.md 2>/dev/null | cut -c1-300
+grep -m1 '^\*\*Next result for the owner' docs/STATE.md 2>/dev/null | cut -c1-300
 
 if [ "$age" -gt 90 ]; then
   echo "STALL: the state file is older than 90 minutes"

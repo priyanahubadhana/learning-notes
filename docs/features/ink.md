@@ -1,6 +1,6 @@
 # Ink: drawing on pages (shared ink engine)
 
-Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [redesign-2026-11.md](../plans/redesign-2026-11.md) (step 3). Research: [inspiration-apps.md](../research/inspiration-apps.md) (ink section). The tools, pills and cards are in [toolbar.md](toolbar.md).
+Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [redesign-2026-11.md](../archive/plans/redesign-2026-11.md) (step 3). Research: [inspiration-apps.md](../research/inspiration-apps.md) (ink section). The tools, pills and cards are in [toolbar.md](toolbar.md).
 
 ## Purpose
 
@@ -102,7 +102,7 @@ nInk over a picture (9 Nov): the picture itself is the anchor; the picture width
 
 ## Tools robustness (10 Nov)
 
-Plan: [../plans/tools-robustness-plan.md](../plans/tools-robustness-plan.md). Research: [../research/tools-robustness-2026-11.md](../research/tools-robustness-2026-11.md).
+Plan: [../plans/tools-robustness-plan.md](../archive/plans/tools-robustness-plan.md). Research: [../research/tools-robustness-2026-11.md](../research/tools-robustness-2026-11.md).
 
 - **One input machine** (`src/app/inputMachine.ts`): the Lasso, handle drags, Pencil text drag, hold-select, selection guards, grip drag and the auto device mode counter call `begin`. A lift, cancel, lost capture, app switch, tool change or **4 s without movement** drops the gesture through one function and resets its owner. The Lasso never returns early on a stale gesture (same pointer after a pause, or one the machine dropped).
 - **One owner of contenteditable** (`src/editor/editLock.ts`): `lock(owner, el)` / `unlock(owner)`, counted; the page follows `editableIn(pageMode)`, nothing writes back a remembered value.

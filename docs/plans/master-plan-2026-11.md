@@ -10,7 +10,7 @@
 - **Owner:** read "Phases at a glance", "Owner decisions still needed" and the Phase A gate. Everything else is for the builder.
 - **Builder (a cheaper model):** read "Builder instructions" first, then only the step you are building plus the files it names. Do not read other phases. Never read docs/ARCHIVE.md.
 - Every step is one build session: build → related tests while working → one full run → push → CI green → live check → mirror → HANDOFF. A step that grows past one session is split into "a" and "b" parts by the builder, logged in DECISIONS.
-- IDs: `N1`–`N25` are the owner's numbered notes in [owner-test-notes-2026-11.md](owner-test-notes-2026-11.md) (Rounds 1–3, using that file's numbers; the duplicate 7/8/9/10/11 numbering is resolved in the traceability table), `R4-x` and `T1`–`T3` are Round 4, `V-x` the owner's vision list, `S-x` the agreed structure, `RM-x` roadmap phases, `IDEA` rows are IDEAS.md.
+- IDs: `N1`–`N25` are the owner's numbered notes in [owner-test-notes-2026-11.md](../archive/plans/owner-test-notes-2026-11.md) (Rounds 1–3, using that file's numbers; the duplicate 7/8/9/10/11 numbering is resolved in the traceability table), `R4-x` and `T1`–`T3` are Round 4, `V-x` the owner's vision list, `S-x` the agreed structure, `RM-x` roadmap phases, `IDEA` rows are IDEAS.md.
 
 ## Standing owner decisions (final unless the owner changes them; the latest wins)
 
@@ -920,7 +920,7 @@ Everything else follows the standing decisions; mid-build questions go to DECISI
     Example: Gemini summarises a YouTube video and saves it into a chosen notebook automatically.
     The user's own accounts pay the AI costs (keeps the app ₹0). Verify each vendor's current MCP/action support during P.
 
-## Audit changes (6 Nov 2026, from [audit-2026-11.md](archive/audit-2026-11.md); each change has its reason there)
+## Audit changes (6 Nov 2026, from [audit-2026-11.md](../archive/plans/old-archive/audit-2026-11.md); each change has its reason there)
 
 Yardstick added by the owner during the audit: a practical learning experience, where the app makes the notes (automatically where possible, through the user's own AI) and the user's time goes to consuming, understanding and recalling; notes stay the core, made automatically or fully by hand in the visual GoodNotes style (edited pictures, labels, tape, YouTube embeds with timestamped screenshots, handwriting with typing, short keyword notes). Standing decisions 1–10 and the run decisions stay; the items below add to them.
 

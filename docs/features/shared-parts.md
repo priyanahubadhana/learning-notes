@@ -289,7 +289,7 @@ SR: `role="status"` only when it replaces content after a filter; otherwise plai
 
 #### SP-09 Object bar
 
-Path: `src/design/parts/ObjectBar.tsx`. From toolbar v8 recipe (v8.css 5-66: `#boxbar`, `#selbar`, lasso/picture bar, DS 7.2) and reused for tables, pictures, map nodes, database rows (`docs/plans/app-audit-2026-11-12.md:217`).
+Path: `src/design/parts/ObjectBar.tsx`. From toolbar v8 recipe (v8.css 5-66: `#boxbar`, `#selbar`, lasso/picture bar, DS 7.2) and reused for tables, pictures, map nodes, database rows (`docs/archive/plans/app-audit-2026-11-12.md:217`).
 
 ```ts
 type ObjectBarProps = {
@@ -552,7 +552,7 @@ Each line is one e2e test (chromium + ipad-webkit). B = Beginner, P = Profession
 
 ### 5. Step 3 parts (slice 0g step 3)
 
-Ids S3-01 to S3-40 (lines below). Four parts: **Tool frame**, **Wizard steps**, **Status pill stack**, **Before / after view**. Flag: `foundation.parts` (same as step 1; only the gallery uses them until an area slice flips its own flag). Sources: `docs/plans/app-audit-2026-11-12.md:210-218, 368, 396`, [media-v2](media-v2.md) lines 17-34, 115, 123, [system-v2](system-v2.md) Y-P1 and line 54, [safety-v2](safety-v2.md) SF12, SF19 and line 63, [page-objects](page-objects.md) PO-33, [update-v2](update-v2.md) line 81. Section 1 rules apply to all four (tokens only, 44 pt targets, same words in Beginner and Professional, overlay manager, routers, `t()`).
+Ids S3-01 to S3-40 (lines below). Four parts: **Tool frame**, **Wizard steps**, **Status pill stack**, **Before / after view**. Flag: `foundation.parts` (same as step 1; only the gallery uses them until an area slice flips its own flag). Sources: `docs/archive/plans/app-audit-2026-11-12.md:210-218, 368, 396`, [media-v2](media-v2.md) lines 17-34, 115, 123, [system-v2](system-v2.md) Y-P1 and line 54, [safety-v2](safety-v2.md) SF12, SF19 and line 63, [page-objects](page-objects.md) PO-33, [update-v2](update-v2.md) line 81. Section 1 rules apply to all four (tokens only, 44 pt targets, same words in Beginner and Professional, overlay manager, routers, `t()`).
 
 Plain words for the owner:
 

@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Update v3 mock-up</title>
+    <!-- Our own picture for docs/features/update-v2.md (U0b), in the spirit of the one-tap store
+     Update button (never store art). Values copied from src/design/tokens.css.
+     Render: node docs/mockups/update-v3/render.mjs (writes the PNGs beside this file). -->
+    <style>
+      :root {
+        --canvas: #f4f3f8;
+        --s0: #fff;
+        --s1: #fafafc;
+        --s2: #fff;
+        --fill: #efeef4;
+        --ink: #18171c;
+        --ink-soft: #4d4b55;
+        --muted: #6b6976;
+        --line: #eceaf1;
+        --accent: #6941e0;
+        --on-accent: #fff;
+        --accent-soft: rgba(105, 65, 224, 0.1);
+        --success: #1a7248;
+        --warn: #8f5200;
+        --warn-soft: rgba(143, 82, 0, 0.1);
+        --danger: #c0352b;
+        --elev-2: 0 4px 16px rgba(24, 23, 28, 0.08), 0 1px 2px rgba(24, 23, 28, 0.06);
+        --scrim: rgba(0, 0, 0, 0.24);
+      }
+      :root[data-theme='dark'] {
+        --canvas: #0f0e13;
+        --s0: #16151b;
+        --s1: #1d1c23;
+        --s2: #25242c;
+        --fill: #2a2931;
+        --ink: #ecebf2;
+        --ink-soft: #b8b6c3;
+        --muted: #9a98a6;
+        --line: #2a2931;
+        --accent: #a08cff;
+        --on-accent: #16112e;
+        --accent-soft: rgba(160, 140, 255, 0.16);
+        --success: #4cc28b;
+        --warn: #e8a541;
+        --warn-soft: rgba(232, 165, 65, 0.16);
+        --danger: #ff7a6b;
+        --elev-2: 0 8px 24px rgba(0, 0, 0, 0.4);
+        --scrim: rgba(0, 0, 0, 0.48);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font:
+          15px/1.4 Inter,
+          -apple-system,
+          'Segoe UI',
+          system-ui,
+          sans-serif;
+      }
+      .panel {
+        width: 880px;
+        padding: 32px;
+        display: none;
+        background: var(--canvas);
+      }
+      body[data-panel='pills'] #pills,
+      body[data-panel='prompt'] #prompt,
+      body[data-panel='settings'] #settings {
+        display: block;
+      }
+      h2 {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin: 0 0 20px;
+      }
+      .cap {
+        font-size: 13px;
+        color: var(--muted);
+        margin: 8px 0 0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px 28px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 44px;
+        padding: 4px 4px 4px 14px;
+        border-radius: 999px;
+        background: var(--s2);
+        box-shadow: var(--elev-2);
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .pill.solo {
+        padding-right: 16px;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      .dot.ok {
+        background: var(--success);
+      }
+      .dot.bad {
+        background: var(--danger);
+      }
+      .dot.off {
+        background: var(--muted);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        min-width: 72px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 0;
+        font: inherit;
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .btn.p {
+        background: var(--accent);
+        color: var(--on-accent);
+      }
+      .btn.t {
+        background: var(--fill);
+        color: var(--ink);
+      }
+      .btn.lg {
+        min-height: 44px;
+        border-radius: 12px;
+        min-width: 112px;
+      }
+      .bar {
+        width: 120px;
+        height: 6px;
+        border-radius: 3px;
+        background: var(--fill);
+        overflow: hidden;
+      }
+      .bar i {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+      }
+      .num {
+        font-variant-numeric: tabular-nums;
+        color: var(--ink-soft);
+        font-size: 13px;
+      }
+      .stage {
+        position: relative;
+        height: 420px;
+        border-radius: 16px;
+        background: var(--s1);
+        overflow: hidden;
+        border: 1px solid var(--line);
+      }
+      .page {
+        position: absolute;
+        inset: 0;
+        padding: 28px 36px;
+      }
+      .page .l {
+        height: 10px;
+        border-radius: 5px;
+        background: var(--fill);
+        margin: 14px 0;
+      }
+      .toast {
+        position: absolute;
+        right: 24px;
+        bottom: 24px;
+        width: 380px;
+        padding: 16px;
+        border-radius: 16px;
+        background: var(--s2);
+        box-shadow: var(--elev-2);
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .toast h3 {
+        margin: 0 0 2px;
+        font-size: 15px;
+      }
+      .toast p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .acts {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      .count {
+        flex: none;
+        width: 44px;
+        height: 44px;
+        position: relative;
+      }
+      .count b {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+        font-variant-numeric: tabular-nums;
+      }
+      .tag {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: var(--warn-soft);
+        color: var(--warn);
+        margin-bottom: 6px;
+      }
+      .two {
+        display: grid;
+        grid-template-columns: 1.3fr 1fr;
+        gap: 24px;
+        margin-top: 24px;
+        align-items: start;
+      }
+      .mini {
+        height: 300px;
+      }
+      .mini .toast {
+        width: auto;
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+      }
+      .lock {
+        position: absolute;
+        inset: 0;
+        background: var(--scrim);
+      }
+      .set {
+        border-radius: 16px;
+        background: var(--s1);
+        border: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        min-height: 500px;
+        overflow: hidden;
+      }
+      .nav {
+        background: var(--s0);
+        border-right: 1px solid var(--line);
+        padding: 20px 12px;
+      }
+      .nav div {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        border-radius: 10px;
+        color: var(--ink-soft);
+      }
+      .nav .on {
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .main {
+        padding: 24px 28px;
+      }
+      .main h1 {
+        font-size: 22px;
+        margin: 0 0 18px;
+      }
+      .card {
+        background: var(--s2);
+        border-radius: 16px;
+        box-shadow: var(--elev-2);
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+      .ic {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: var(--accent-soft);
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 20px;
+      }
+      .tx {
+        flex: 1;
+      }
+      .tx b {
+        display: block;
+        font-size: 16px;
+      }
+      .tx span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .tx .ok {
+        color: var(--success);
+      }
+      .row {
+        min-height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--line);
+        color: var(--ink-soft);
+      }
+      .note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 18px;
+      }
+    </style>
+  </head>
+  <body data-panel="pills">
+    <section class="panel" id="pills">
+      <h2>The update pill: one place, one tap, then it goes on by itself</h2>
+      <div class="grid">
+        <div>
+          <span class="pill"><span class="dot"></span>Version 1.4.2 is ready<button class="btn p">Update</button></span>
+          <p class="cap">1. Found on open or on the first change. One tap.</p>
+        </div>
+        <div>
+          <span class="pill solo"><span class="dot"></span>Downloading<span class="bar"><i style="width: 42%"></i></span><span class="num">42%</span></span>
+          <p class="cap">2. The real percent, never above 100.</p>
+        </div>
+        <div>
+          <span class="pill solo"
+            ><svg width="28" height="28" viewBox="0 0 28 28">
+              <circle cx="14" cy="14" r="11" fill="none" stroke="var(--fill)" stroke-width="3" />
+              <path d="M14 3a11 11 0 0 1 11 11" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" /></svg
+            >Installing</span>
+          <p class="cap">3. Starts by itself after the download. No second question.</p>
+        </div>
+        <div>
+          <span class="pill solo" style="box-shadow: none; border: 1px dashed var(--muted); color: var(--muted)">The pill steps aside</span>
+          <p class="cap">4. Installed: the one 3-second prompt shows instead (picture 2).</p>
+        </div>
+        <div>
+          <span class="pill solo"><span class="dot ok"></span>Updated to 1.4.2</span>
+          <p class="cap">5. Back where you were. Shown for 4 s.</p>
+        </div>
+        <div>
+          <span class="pill"><span class="dot bad"></span>The update did not finish<button class="btn p">Try again</button></span>
+          <p class="cap">6. Never stuck: a message and Try again.</p>
+        </div>
+        <div>
+          <span class="pill solo"><span class="dot off"></span>Offline. The update waits for the internet</span>
+          <p class="cap">7. Your notes are safe; it goes on by itself.</p>
+        </div>
+        <div>
+          <span class="pill"><span class="dot"></span>Update postponed<button class="btn p">Update</button></span>
+          <p class="cap">8. After Cancel on an optional update; asked again later.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="prompt">
+      <h2>The 3-second Restarting prompt</h2>
+      <div class="stage">
+        <div class="page">
+          <div class="l" style="width: 40%; height: 16px"></div>
+          <div class="l" style="width: 90%"></div>
+          <div class="l" style="width: 84%"></div>
+          <div class="l" style="width: 70%"></div>
+          <div class="l" style="width: 88%"></div>
+          <div class="l" style="width: 60%"></div>
+        </div>
+        <div class="toast">
+          <div class="count">
+            <svg viewBox="0 0 44 44" width="44" height="44">
+              <circle cx="22" cy="22" r="19" fill="none" stroke="var(--fill)" stroke-width="4" />
+              <circle cx="22" cy="22" r="19" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="119.4" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 22 22)" />
+            </svg><b>3</b>
+          </div>
+          <div>
+            <h3>Restarting to finish the update</h3>
+            <p>You come back to this page. Your notes are saved.</p>
+            <div class="acts"><button class="btn t lg">Cancel</button><button class="btn p lg">Restart now</button></div>
+          </div>
+        </div>
+      </div>
+      <p class="cap">Optional update: Cancel postpones it, the pill asks again later, and the app keeps working.</p>
+      <div class="two">
+        <div class="stage mini">
+          <div class="page">
+            <div class="l" style="width: 50%; height: 16px"></div>
+            <div class="l" style="width: 90%"></div>
+            <div class="l" style="width: 80%"></div>
+          </div>
+          <div class="lock"></div>
+          <div class="toast">
+            <div class="count">
+              <svg viewBox="0 0 44 44" width="44" height="44">
+                <circle cx="22" cy="22" r="19" fill="none" stroke="var(--fill)" stroke-width="4" />
+                <circle cx="22" cy="22" r="19" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="119.4" stroke-dashoffset="39.8" stroke-linecap="round" transform="rotate(-90 22 22)" />
+              </svg><b>2</b>
+            </div>
+            <div>
+              <span class="tag">Required update</span>
+              <h3>Changes are paused until it is done</h3>
+              <p>Notes are stored in a new way. Reading still works.</p>
+              <div class="acts"><button class="btn t lg">Cancel</button><button class="btn p lg">Restart now</button></div>
+            </div>
+          </div>
+        </div>
+        <p class="cap" style="margin-top: 0">
+          Required update (storage change or data fix): changes are blocked until it is done, with the same 3-second prompt. Cancel only stops the countdown; changes stay paused and the prompt comes back.
+        </p>
+      </div>
+    </section>
+
+    <section class="panel" id="settings">
+      <h2>Settings, first page: Update at the top, with the version</h2>
+      <div class="set">
+        <div class="nav">
+          <div class="on">General</div>
+          <div>Appearance</div>
+          <div>Writing</div>
+          <div>Bars and menus</div>
+          <div>Sync and backup</div>
+          <div>Help and tools</div>
+        </div>
+        <div class="main">
+          <h1>Settings</h1>
+          <div class="card">
+            <div class="ic">&#8635;</div>
+            <div class="tx"><b>Update</b><span>Version 1.4.1 · <span class="ok">Up to date</span> · checked 2 minutes ago</span></div>
+            <button class="btn t lg">Check now</button>
+          </div>
+          <div class="card">
+            <div class="ic">&#8595;</div>
+            <div class="tx"><b>Version 1.4.2 is ready</b><span>You have 1.4.1 · about 2 MB</span></div>
+            <button class="btn p lg">Update</button>
+          </div>
+          <div class="row">Account<span>›</span></div>
+          <div class="row">Appearance<span>›</span></div>
+          <div class="row">Writing<span>›</span></div>
+          <p class="note">One card, two looks: up to date (top) or an update ready (below). Never only under Help and tools.</p>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

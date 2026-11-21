@@ -1,138 +1,299 @@
-# Update flow v2 (slice 10, flag `update.v2`, BUG-004)
+# Update flow v2 (template v2, method v2)
 
-Security rules: [rules/security.md](../../rules/security.md). Check them before building.
+| Status | Stage | Switch      | Phase and parts                                | Pictures                                                                         | Builds on                                                                                                                                                                                             | Last change             |
+| ------ | ----- | ----------- | ---------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Draft  | `1`   | `update.v2` | PC-1, parts U0a (found), U0b (spec), U0c (fix) | [docs/mockups/update-v3/](../mockups/update-v3/update-v3.html) (our own, 22 Nov) | this spec's slice 10 rules (kept in the bottom layer, nothing dropped); U0a's test `e2e/u0aUpdateRepro.spec.ts` on `origin/slice/u0a-update-repro`; parts: Status pill stack, Dialog set, Toast queue | 22 Nov 2026, Opus (U0b) |
 
-## Purpose
+<!-- Top layer for the owner, down to the confirm sheet. Bottom layer for the builders. Security rules: rules/security.md. -->
 
-In plain words: most new versions are small. They wait quietly in the update pill and install at a calm moment, as today. A few new versions are **must-have**: the way notes are stored changed, or a fix repairs saved data. Only those take over the screen, count down 5 seconds and install, keeping every note. This slice makes "must-have" a precise, testable rule instead of a word in the last commit message, and closes the gap where a device that skipped a version could miss a must-have update.
+## Goal
 
-Sources: `docs/PENDING.md` BUG-004 and "Carry-over review"; build plan 3.3 row 10; audit D17. Much of the flow is already built (`src/app/mandatoryFlow.ts`, `src/app/MandatoryUpdate.tsx`); this slice tightens the rule, adds the reason line and the offline case, and moves the screens onto the shared parts.
+After every release, one tap updates the app, it restarts within seconds and never loops.
 
-## How it works
+## The two non-negotiables
 
-### What makes an update "must-have" (exact rule)
+1. **Never stuck.** Every state moves on by itself or shows a message with Try again.
+2. **Nothing lost.** The app restarts on the same page; no note, typing or drawing is lost.
 
-Today (`vite.config.ts:36-51`, `src/app/updates.ts:128-136`): a build is "required" when its **own last commit message** contains `[required-update]` or `REQUIRED_UPDATE=1` is set. `version.json` carries `{ commit, required }`. The flag describes only the newest build, so a device on version A that skips the required build B and next sees a normal build C gets only the pill, while B's storage change is still ahead of it. (In practice the Dexie upgrade then runs behind `UpgradeGate` on the next start, but the device is not made to update.)
+## Story
 
-New rule (flag on):
+As the owner, who uses the installed app on the iPad every day, I want updates to work like an app store (one obvious tap, then it finishes by itself) so that a release never costs me five to ten minutes of loops.
+
+## Picture
+
+Our own pictures, made 22 Nov 2026 in our design tokens, in the spirit of the one-tap Update of the App Store, Microsoft Store and Play Store (one button that changes in place: Update, then progress, then done). No store art is copied. Not approved yet: rows 13 and 14 of the confirm sheet.
+
+| The pill, step by step                                             | The 3-second prompt                                                | Settings, first page                                                               |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| ![Update pill states, light](../mockups/update-v3/pills-light.png) | ![Restarting prompt, light](../mockups/update-v3/prompt-light.png) | ![Settings with Update at the top, light](../mockups/update-v3/settings-light.png) |
+| ![Update pill states, dark](../mockups/update-v3/pills-dark.png)   | ![Restarting prompt, dark](../mockups/update-v3/prompt-dark.png)   | ![Settings with Update at the top, dark](../mockups/update-v3/settings-dark.png)   |
+
+## Rules
+
+Each rule is one short line; the detail is in the scenarios.
+
+**Always true**
+
+- **Check often.** The app checks when it opens and on your first change.
+- **One place.** The pill (sidebar place on iPad and PC) offers the download; one tap.
+- **Installs itself.** After the download it installs at once, no second question.
+- **Three seconds.** "Restarting" shows a 3-second timer with Cancel, then restarts.
+- **Same place.** After the restart you are on the same page and scroll place.
+- **Optional can wait.** Cancel on an optional update postpones it; it asks again later.
+- **Required blocks changes.** A storage change or data fix blocks changes until done.
+- **Not while writing.** The prompt waits for a pause in writing or drawing.
+- **Settings first page.** Update and the version sit at the top of Settings.
+- **Real numbers.** The download shows its real percent, never above 100.
+- **Fast.** From tap to the new version in under 30 s (our proposal).
+
+**Must never happen**
+
+- **UP-N1** Downloaded but not installed at once.
+- **UP-N2** "Restarting" shown, no restart within 3 seconds.
+- **UP-N3** Asked twice to restart.
+- **UP-N4** After a restart the same version downloads again.
+- **UP-N5** Reopening re-downloads an installed version.
+- **UP-N6** Stuck anywhere without a message and a Try again.
+- **UP-N7** Update or the version hidden in Settings.
+- **UP-N8** Mandatory update lets you edit, optional update blocks you.
+
+**Limits**
+
+- No server or Supabase change; the version file stays static.
+- No restart during a save; waits up to 5 s, then says so.
+- Offline: the update waits for the internet; your notes stay usable.
+
+## Scenarios
+
+What happens, not where to tap. Values from the owner's facts of 22 Nov 2026 (phase-pc-1.md section 18).
+
+- **S1, the plain case (optional update).** Given the owner opens the app on the iPad after a release, when the pill says the new version is ready and the owner taps Update, then the download fills to 100%, it installs by itself, the one 3-second prompt counts down, the app restarts on the same page and says "Updated to" the new version. Asked once only. (UP-N1, UP-N2, UP-N3)
+- **S2, a required update.** Given a release that changes how notes are stored, when the app finds it, then changes are paused (reading still works), the download runs, the same 3-second prompt restarts the app, and editing works again after. Cancel only stops the countdown; changes stay paused. (UP-N8)
+- **S3, the thing that goes wrong (the owner's loop, on a slow line).** Given the iPad on a slow line, when the update downloads, then "Restarting" never shows before the download is complete; if the restart does not happen within 3 s, the pill says "The update did not finish" with Try again; Try again finishes it, with no loop. (UP-N2, UP-N6)
+- **S4, after the update.** Given the update has installed, when the owner closes the app from the app switcher and opens it again, then no download starts and Settings says "Up to date" with the new version. (UP-N4, UP-N5)
+- **S5, Settings.** Given any time, when the owner opens Settings, then the first page shows Update at the top with the version and either "Up to date" or an Update button. No digging into Help and tools. (UP-N7)
+- **S6, Cancel an optional update.** Given an optional update in its 3-second prompt, when the owner taps Cancel, then the app keeps working, the pill says "Update postponed", and it asks again on the next open. (UP-N8)
+- **S7, offline.** Given the iPad goes offline during the download, when it comes back online, then the download goes on by itself; notes stay usable all along. (UP-N6)
+
+| Must-never line | Covered by |
+| --------------- | ---------- |
+| UP-N1           | S1         |
+| UP-N2           | S1, S3     |
+| UP-N3           | S1         |
+| UP-N4           | S4         |
+| UP-N5           | S4         |
+| UP-N6           | S3, S7     |
+| UP-N7           | S5         |
+| UP-N8           | S2, S6     |
+
+## What U0a found (the cause notes)
+
+U0a built two real versions and swapped them while the app ran (`e2e/u0aUpdateRepro.spec.ts`, branch `origin/slice/u0a-update-repro`). In plain words:
+
+- **The loop is real, in Safari's engine (WebKit), on a slow line.** The restart waits at most 15 s for the new version; when that runs out it reloads on the **old** version, which finds the update again and starts over: 3 restarts at 100 ms a file, 14 at 1000 ms a file; every file fetched twice.
+- **"Restarting" shows too early:** while the download is only at 17 to 91 percent.
+- **The percent goes over 100** (107% seen).
+- **The host is not the cause:** version.json, sw.js and precache.json are sent with no-cache, as they should be.
+- **Version line:** U0a added "Version abc1234 · Up to date" at the top of Settings behind `update.versionLine` (on the preview).
+
+These match the owner's story: the download fills, "Restarting" sticks, Check says available, loop, works after 5 to 10 minutes.
+
+## How we get there (the steps, each with its test)
+
+| Step | What it gives                                                                   | Proved by                                                    |
+| ---- | ------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| 1    | U0a's `test.fail` lines (bug id U0) turned into plain red tests                 | the U0a spec red on ipad-webkit at 100 ms and 1000 ms a file |
+| 2    | "Restarting" only after 100%; percent from real bytes                           | S1, S3 tests                                                 |
+| 3    | Restart within 3 s or a message with Try again; never reload on the old version | S3 test, 20 of 20 on ipad-webkit                             |
+| 4    | Installs by itself; one 3-second prompt with Cancel                             | S1, S6 tests                                                 |
+| 5    | Required update pauses changes                                                  | S2 test                                                      |
+| 6    | No re-download after a restart or a reopen                                      | S4 test                                                      |
+| 7    | Update card on the first page of Settings                                       | S5 test, pictures side by side                               |
+| 8    | The owner's check: PC first, then the iPad, by scenario                         | the owner's sheet answers                                    |
+
+## Done when
+
+S1 to S7 pass on chromium and ipad-webkit, 20 of 20; U0a's tests pass without `test.fail`; the owner says yes by scenario on the preview (PC, then iPad); with the switch off the app is exactly as today; one line in docs/metrics/tasks.csv.
+
+## We assume (not proven yet)
+
+- The installed iPad app behaves like WebKit at iPad size. Check: the owner's iPad check after U0c.
+- The preview behaves like the live app. Check: U0a's host test, then the owner's preview check.
+
+## Open points
+
+- `OPEN:` **Your screenshots, please.** Next time the pill sticks on "Restarting" (or the loop starts), take a screenshot of the pill and one of Settings, and send them. They become the reference picture for S3.
+- `OPEN:` The version shows as a short code today (abc1234); the pictures show a number (1.4.2). Row 15 asks which you want.
+- `OPEN:` The Settings picture uses a placeholder side list; the real one comes from Settings v5 and the "Bars and menus" picture still to approve.
+
+## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
+
+| Row | Statement                                                                                       |
+| --- | ----------------------------------------------------------------------------------------------- |
+| 1   | The goal line says what I meant.                                                                |
+| 2   | The two non-negotiables are right: never stuck, nothing lost.                                   |
+| 3   | The app checks on open and on my first change.                                                  |
+| 4   | After the download it installs by itself, with no second question.                              |
+| 5   | "Restarting" shows a 3-second timer with Cancel, then restarts.                                 |
+| 6   | Cancel on an optional update postpones it; it asks again next time.                             |
+| 7   | A required update pauses changes until done; its countdown is 3 s (was 5 s), as a small prompt. |
+| 8   | The prompt waits for a pause while I am writing or drawing.                                     |
+| 9   | Update and the version are at the top of the first Settings page.                               |
+| 10  | The eight must-never lines UP-N1 to UP-N8 are right and complete.                               |
+| 11  | Scenarios S1 to S7 are right; S3 is my loop.                                                    |
+| 12  | U0a's cause notes match what I saw.                                                             |
+| 13  | The pill pictures (light and dark) look right.                                                  |
+| 14  | The 3-second prompt and the Settings pictures look right.                                       |
+| 15  | The version shows as a number like 1.4.2 (or: keep the short code abc1234).                     |
+| 16  | Design and quality: the check list in the bottom layer is complete.                             |
+| 17  | Row 4 choice: A (my pick) installs by itself; B an Install button after the download.           |
+| 18  | After the restart I am on the same page and scroll place.                                       |
+| 19  | The download shows its real percent, never above 100.                                           |
+| 20  | "Fast" means under 30 s from tap to new version (our proposal for your "fast").                 |
+| 21  | Limits: no server change; no restart during a save; offline waits, notes usable.                |
+| 22  | The earlier spec's states, notice details and iPad check are kept or replaced as listed below.  |
+
+---
+
+## Bottom layer: for the builders
+
+### Builds on
+
+| Part card or spec                  | Used for                                                 |
+| ---------------------------------- | -------------------------------------------------------- |
+| Status pill stack                  | the update pill and its states (picture 1)               |
+| Toast queue                        | the 3-second Restarting prompt (picture 2)               |
+| Dialog set (alert)                 | the required-update pause notice and its failure states  |
+| Overlay manager, Event router      | top layer; blocks edits while a required update runs     |
+| Settings v5 (`settings-v5.md`)     | the Update card on the first page                        |
+| U0a (`e2e/u0aUpdateRepro.spec.ts`) | the real two-build test, the trace, `update.versionLine` |
+
+No gap, radius or timing rule is written here if a part card owns it.
+
+### Plan
+
+U0c: the fix behind `update.v2`. First failing test: U0a's WebKit loop at 1000 ms a file without `test.fail`. Files expected: `src/app/autoUpdate.ts` (restart wait, Restarting state), `src/app/updates.ts` (check triggers, re-download guard), `src/app/UpdatePill.tsx`, `src/settings/UpdateLine.tsx` (grows into the Update card), i18n `update.*`. No stored data change.
+
+### Tasks
+
+| Task | Satisfies            | Size    | Done when                                    |
+| ---- | -------------------- | ------- | -------------------------------------------- |
+| T1   | S3, UP-N2, UP-N6     | < 1 day | U0a loop tests green 20 of 20 on ipad-webkit |
+| T2   | S1, S6, UP-N1, UP-N3 | < 1 day | S1, S6 green                                 |
+| T3   | S4, UP-N4, UP-N5     | < 1 day | S4 green                                     |
+| T4   | S2, UP-N8            | < 1 day | S2 green                                     |
+| T5   | S5, S7, UP-N7        | < 1 day | S5, S7 green; pictures side by side          |
+
+### Detail lines
+
+- **UP-01** Check triggers: app open, first change after open, and today's throttled triggers (`app/updates.ts:249-293`).
+- **UP-02** Download percent = received bytes / precache total, capped at 100; "Restarting" only when every file is cached.
+- **UP-03** The restart waits for the new worker at most 3 s after the prompt ends; then the pill shows "The update did not finish" with Try again. It never reloads onto the old version silently (U0a: today it waits 15 s and reloads old).
+- **UP-04** After a restart, a version equal to the running one is never downloaded again; a version already cached is installed, not fetched.
+- **UP-05** Prompt: 3-second ring, Cancel and Restart now, 44 px buttons; waits while a stroke or typing is active (today's `isSafeMoment`, `app/autoUpdate.ts:46`).
+- **UP-06** Required: decided by `level` (slice 10 rule 3 below); edits blocked through the Event router; reading and scrolling stay.
+- **UP-07** Settings card: first item of Settings' first page. Up to date: version, "Up to date", last check, Check now. Update ready: new version, size, Update.
+- **UP-08** Timings: pill states cross-fade 150 ms; reduced motion = instant, the numbers still change each second.
+
+### Slice 10 rules, kept (nothing dropped)
+
+The earlier version of this spec (slice 10, BUG-004). It stays unless a confirm-sheet row changes it; row 7 changes the required countdown from 5 s to 3 s and the full-screen notice into the 3-second prompt plus paused edits.
+
+#### What makes an update "must-have" (exact rule)
+
+Today (`vite.config.ts:36-51`, `src/app/updates.ts:128-136`): a build is "required" when its **own last commit message** contains `[required-update]` or `REQUIRED_UPDATE=1` is set. `version.json` carries `{ commit, required }`. The flag describes only the newest build, so a device on version A that skips the required build B and next sees a normal build C gets only the pill.
 
 1. A new file `src/app/updateLevel.ts` exports `UPDATE_LEVEL` (a whole number, starts at 1) and `UPDATE_REASON` (`'storage'` or `'datafix'`).
-2. The build writes `version.json` as `{ commit, required, level, reason }`. `required` keeps today's meaning for old devices (marker present **or** `UPDATE_LEVEL` changed in this commit), so devices still on today's code behave as today.
-3. A device treats a newer version as **must-have exactly when `level` in the live `version.json` is greater than the `UPDATE_LEVEL` it was built with.** Missing, non-numeric or negative `level` = not must-have (fail calm: the pill). Nothing else makes it must-have.
-4. `UPDATE_LEVEL` must go up by 1 when, and only when:
-   - **storage:** the highest `this.version(n)` in `src/core/db.ts` changes (today 23, `src/core/db.ts:340`), or a stored record shape changes in a way old code would misread;
-   - **datafix:** the release contains a migration that repairs saved data (the commit says which).
-     A unit test pins a table `{ dbVersion → level }` so changing the Dexie version without bumping the level fails the build.
-5. A tab whose code is older than the database on this device (another tab already upgraded it; Dexie reports a version error or a `versionchange` event) is must-have at once, with reason `storage`, even without a network check.
+2. The build writes `version.json` as `{ commit, required, level, reason }`. `required` keeps today's meaning for old devices.
+3. A device treats a newer version as **must-have exactly when `level` in the live `version.json` is greater than the `UPDATE_LEVEL` it was built with.** Missing, non-numeric or negative `level` = not must-have (fail calm: the pill).
+4. `UPDATE_LEVEL` goes up by 1 when, and only when, the highest `this.version(n)` in `src/core/db.ts` changes or a stored record shape changes (**storage**), or the release repairs saved data (**datafix**). A unit test pins `{ dbVersion → level }`.
+5. A tab whose code is older than the database on this device is must-have at once, reason `storage`, without a network check.
 
-### Normal update (no change from today)
+#### When I do X → Y (slice 10 lines)
 
-The pill (`src/app/UpdatePill.tsx`) shows checking, downloading with progress, installing, "Update ready", restarting, updated, offline and failed; it installs at the next safe moment (`src/app/autoUpdate.ts:46` `isSafeMoment`), never while writing. The risk bar (`src/app/UpdateBar.tsx:5`) still warns about unsaved work, low space and missing backup.
+- **U1** Same `level` → the pill says the update is ready; never installs while writing or drawing.
+- **U2** Higher `level` → the required flow within 1 s, with the reason line (countdown now 3 s, row 7).
+- **U3** Skipped a must-have version (live `level` 2 above mine) → still the required flow.
+- **U4** No `level`, a text `level` or a lower one → only the pill.
+- **U5** Pause during the countdown → "Paused. The app needs this update to keep your notes safe." with Update now; edits stay blocked.
+- **U6** Cancel during the download → Paused (U5); Update now starts again from 0.
+- **U7** Download finishes → "Installing…", taps and keys blocked; restarts on the same page with the scroll place.
+- **U8** Unsaved typing at "Installing" → waits up to 5 s for the save; if it fails: "Your last change is not saved yet" with Try again, no restart.
+- **U9** No restart within 6 s → "The update did not finish" with Try again (tightened to 3 s by UP-03).
+- **U10** Offline during a must-have update → "Connect to the internet to finish this update. Your notes are safe."; goes on by itself when online; never locks you out offline.
+- **U11** A second tab already upgraded the stored notes → this tab shows the storage reason and does not write.
+- **U12** Installed → "Updated to <version>" for 4 s.
+- **U13** Switch off → exactly today's behaviour.
+- **U14** (Professional, `about.version`) Settings shows version, `level`, Check now and last check time (now on the first page, UP-07).
+- **U15** (Professional) Tap the reason line → a pop-up explains what changed.
+- **U16** Reduced motion → nothing animates; the numbers still change.
+- **U17** Screen reader → `alertdialog`; countdown announced once, not every second.
 
-### Must-have update (flag on)
+#### Nothing lost
 
-Full-screen notice (shared part **Dialog set**, alert kind, full-screen variant; portal outside `#root`, `#root` inert): title, a one-line **reason** ("Your notes are stored in a new way" / "This fixes a problem with saved notes"), "About N seconds" (from the download size and measured speed; hidden when unknown), the 5 s countdown ring, then download with a progress bar, then "Installing", then restart on the same page (`rememberPlace` / `restoreAfterUpdate`). Before installing, the rolling browser backup runs (`UpgradeGate`), as today.
+| Today's feature                                                  | Where today (`src/`)                                 | New home                               |
+| ---------------------------------------------------------------- | ---------------------------------------------------- | -------------------------------------- |
+| Update pill phases (checking … failed)                           | `app/UpdatePill.tsx:8-58`, `app/updateStatus.ts`     | Status pill stack, states of picture 1 |
+| Safe-moment install (idle, foreground, poll)                     | `app/autoUpdate.ts:16-109`                           | kept; the prompt waits for it (UP-05)  |
+| Risk bar (unsaved, space, backup; Update anyway, Later)          | `app/UpdateBar.tsx:5-41`                             | Banner part, same texts and buttons    |
+| Remember and restore place after update                          | `app/autoUpdate.ts:120`, `:140`                      | kept (S1)                              |
+| "Restarting…" pill, 5 s cap                                      | `app/autoUpdate.ts:296-321`                          | 3-second prompt with Cancel (UP-03)    |
+| Mandatory flow: countdown, download, pause, retry, install, fail | `app/mandatoryFlow.ts:17-173`, `MandatoryUpdate.tsx` | required flow, S2, U5 to U9            |
+| Required marker in commit message                                | `vite.config.ts:36-51`                               | kept as `required` for old devices     |
+| Required read from live `version.json`                           | `app/updates.ts:100-136`                             | plus the `level` rule                  |
+| Update check throttling and triggers                             | `app/updates.ts:249-293`                             | kept, plus the first change (UP-01)    |
+| Storage upgrade screen + rolling browser backup                  | `app/UpgradeGate.tsx:74`                             | kept; runs before install              |
+| Check for updates now                                            | `settings/AboutSection.tsx`                          | Settings first page, Update card (S5)  |
+| Version line                                                     | `settings/UpdateLine.tsx` (U0a)                      | grows into the Update card             |
+| Other-tab apply message                                          | `app/updateChannel.ts:16`                            | kept; also carries U11                 |
+| Test hook `learning-notes:test-required-update`                  | `main.tsx:203`                                       | kept (e2e)                             |
 
-## When I do X → Y (each line = one e2e test)
+### Kept from the earlier spec, or replaced
 
-Beginner and Professional behave the same unless marked.
+| Earlier item                                                                                                                                   | Now                                                                                  |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| States, error: download, install and save failed, each with plain words, Try again and (Professional) "Copy details"                           | kept; also UP-03 for the restart                                                     |
+| States, phone: same column, 16 px side margins, buttons stack full width                                                                       | kept for the prompt and the pause notice                                             |
+| States, dark: tokens only; ring and bar keep 3:1 contrast                                                                                      | kept (pictures, dark)                                                                |
+| "About N seconds" from the download size and measured speed; hidden when unknown                                                               | kept on the pill while downloading and on the Settings card                          |
+| Full-screen notice, 5 s countdown, sizes and motion (old "Sizes, spacing, motion")                                                             | replaced by the 3-second prompt and paused edits (confirm row 7)                     |
+| Screenshots: notice countdown, downloading, paused, installing, failed, offline × light/dark × iPad both ways/phone/PC                         | kept, applied to pill states 1 to 8, the prompt and the Settings card                |
+| Owner iPad check, 3 steps (Check for updates; "Pretend a must-have update" test button in Settings › Advanced, preview only; Wi-Fi off and on) | kept, with Check now on Settings' first page (S5); scenario numbers S1, S2, S7       |
+| Decision: offline must-have never locks you out; small note, countdown resumes online                                                          | kept (U10, S7)                                                                       |
+| Decision: a number that only goes up (`level`) replaces "newest commit says required"                                                          | kept (slice 10 rule 3)                                                               |
+| Decision: other tab treated as must-have without a network check                                                                               | kept (U11)                                                                           |
+| Decision: unlock id `about.updateDetails` still proposed; until agreed, U15 uses `about.version`                                               | kept, still open                                                                     |
+| Decision: "Not now" during the countdown, "Cancel" during the download, both lead to Paused; app stays blocked                                 | replaced: Cancel on the one 3-second prompt (S2, S6); required stays blocked (UP-N8) |
 
-- UV-1 When a newer version with the same `level` is found → the pill says "Update ready"; no full-screen notice; the app installs it at the next quiet moment, never while I am writing or drawing.
-- UV-2 When a newer version with a higher `level` is found → a full-screen notice appears over everything within 1 s, shows the reason line and counts down 5, 4, 3, 2, 1, then downloads.
-- UV-3 When I skipped a must-have version (live `level` is 2 above mine, newest commit has no marker) → I still get the full-screen notice (UV-2), not the pill.
-- UV-4 When `version.json` has no `level`, a text `level` or a lower one → only the pill shows (UV-1).
-- UV-5 When the countdown runs and I tap "Not now" (pause) → the countdown stops, the screen says "Paused. The app needs this update to keep your notes safe." with "Update now"; the app stays blocked behind it.
-- UV-6 When the download is running and I tap "Cancel" → the download stops, the screen shows "Paused" (UV-5); "Update now" starts again from 0.
-- UV-7 When the download finishes → the screen says "Installing…" with all taps and keys blocked (Esc does nothing); the app restarts on the page I was on, with the scroll place kept.
-- UV-8 When I have typing that is not saved yet as it reaches "Installing" → it waits up to 5 s for the save; if the save still fails, it shows "Your last change is not saved yet" with "Try again" and does not restart.
-- UV-9 When the restart does not happen within 6 s → the screen shows "The update did not finish" with "Try again"; nothing is lost.
-- UV-10 When I am offline as a must-have update is found (or I go offline during the download) → the notice says "Connect to the internet to finish this update. Your notes are safe." The countdown waits and starts by itself when I am back online.
-- UV-11 When a second tab has already upgraded the stored notes → this tab shows the full-screen notice with the storage reason, without a network check, and does not write to the database.
-- UV-12 When the update has installed → the pill says "Updated to <version>" for 4 s (the "What's new" card belongs to [system-v2](system-v2.md) Y-W1).
-- UV-13 When the flag is off → behaviour is exactly today's (marker-only rule), pixel for pixel.
-- UV-14 When I open Settings › About (Professional, unlock `about.version`) → I see my version, its `level`, "Check for updates now" and the last check time; a check that finds a must-have version starts UV-2.
-- UV-15 When I tap the reason line on the notice (Professional, proposed unlock `about.updateDetails`) → a pop-up explains what changed in storage or which data is repaired, in plain words.
-- UV-16 When reduced motion is on → the countdown ring and progress do not animate; the numbers still change each second.
-- UV-17 When I use a screen reader → the notice is an `alertdialog`, the countdown is announced once at 5 and once at "Downloading", not every second.
-- UV-18 When I tap "Pretend a must-have update" in About → the notice counts down, downloads and the app reopens on the same page (a plain reload; the offline copy stays).
-- UV-19 When I check for new files → the list is exactly what the offline copy saves (same kinds, ignores, size limit); a file the copy never saves is never "missing". With every listed file already saved, the download step shows 0 files and moves on at once.
-- UV-20 When a file does not arrive (no byte at all for 20 s; a slow file that keeps sending is never stopped) → the screen moves to "The update did not finish" with "Try again" (or the offline note when offline); never stuck on "downloading".
+### Not in this part
 
-## Shared parts used (plan 3.2 row 0g)
+- No forced update for an optional version; no "skip" for a required one.
+- No server or Supabase change; no update channel switcher.
 
-Dialog set (alert, full-screen variant), Status pill stack (the update pill), Banner (risk bar becomes a Banner), Toast queue (none needed here), Overlay manager (top layer, focus kept inside), Event router (blocks keys while installing).
+### Design and quality check
 
-## Sizes, spacing, motion
+| #   | Check                                                                                        | Yes/no               | Pointer                                                                  |
+| --- | -------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------ |
+| 1   | Looks like the approved picture (side by side before the owner's test).                      | no, not approved yet | docs/mockups/update-v3/, confirm rows 13 and 14                          |
+| 2   | Meets docs/design/quality-standard.md (the premium look).                                    | yes                  | pictures use tokens only (`src/design/tokens.css`)                       |
+| 3   | Follows docs/design/owner-ui-patterns.md.                                                    | yes                  | Cancel on the prompt; visible feedback at every step (picture 1, 1 to 8) |
+| 4   | Accessible: keyboard path, labels, contrast, reduced motion.                                 | yes                  | U16, U17, UP-08; tokens pass `src/design/contrast.test.ts`               |
+| 5   | Every text through i18n keys, in every language.                                             | yes                  | `update.*` keys in en, es, hi (Plan)                                     |
+| 6   | Every change undoable with one Undo.                                                         | n/a                  | an update changes no note; Cancel covers the prompt                      |
+| 7   | Speed budget stated and tested.                                                              | yes                  | rules "Fast" (30 s) and "Three seconds"; S1, S3 tests                    |
+| 8   | Device-neutral: 44 px targets, no hover-only (mouse or Pencil), iPad later without redesign. | yes                  | UP-05; 44 px buttons in the pictures; S1 to S7 run on ipad-webkit        |
+| 9   | Flexible: what is customisable, and where in Settings (simple default, advanced ▾).          | yes                  | nothing to set by default; Professional details U14, U15 under ▾         |
 
-- Notice: full screen, `bg` token, content column max 420 px, centred; title 22 px semibold, reason 15 px, muted line 13 px. Buttons min 44 px tall, min 112 px wide, radius 12 px, 12 px gap. Primary = accent fill, second = tonal.
-- Countdown ring 56 px, 4 px stroke, accent; number 20 px tabular.
-- Progress bar 6 px track (slider track from the design study), accent fill, value pill beside it.
-- Motion: notice fades in 200 ms cubic-bezier(.2,.8,.2,1) with scale .96 → 1; phase text cross-fades 150 ms; reduced motion = instant.
+### Security check
 
-## States
+The update downloads only from our own origin through the service worker; no new network target, no secret, no stored data change (rules/security.md). A required update can never be skipped, so old code never writes to a newer database (U11).
 
-- Empty: none (the notice exists only with a must-have update).
-- Error: download failed / install failed / save failed, each with plain words, "Try again" and (Professional) "Copy details".
-- Offline: U10.
-- Phone: same column, 16 px side margins, buttons stack full width.
-- Dark: tokens only; the ring and bar keep 3:1 contrast.
+### Tests
 
-## Nothing lost
+- e2e (chromium + ipad-webkit): S1 to S7 by id, on U0a's two-build harness with the slow line at 100 ms and 1000 ms a file; U1 to U17 kept.
+- Unit: percent cap, restart timeout, re-download guard, level compare, db-version → level pin.
+- `@ipad`: the owner's check on the installed iPad app, by scenario.
 
-| Today's feature                                                  | Where today (`src/`)                                 | New home                            |
-| ---------------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------- |
-| Update pill phases (checking … failed)                           | `app/UpdatePill.tsx:8-58`, `app/updateStatus.ts`     | Status pill stack, same phases      |
-| Safe-moment install (idle, foreground, poll)                     | `app/autoUpdate.ts:16-109`                           | unchanged                           |
-| Risk bar (unsaved, space, backup; Update anyway, Later)          | `app/UpdateBar.tsx:5-41`                             | Banner part, same texts and buttons |
-| Remember and restore place after update                          | `app/autoUpdate.ts:120`, `:140`                      | unchanged (U7)                      |
-| "Restarting…" pill, 5 s cap                                      | `app/autoUpdate.ts:296-321`                          | unchanged                           |
-| Mandatory flow: countdown, download, pause, retry, install, fail | `app/mandatoryFlow.ts:17-173`, `MandatoryUpdate.tsx` | full-screen notice, U2 to U9        |
-| Required marker in commit message                                | `vite.config.ts:36-51`                               | kept as `required` for old devices  |
-| Required read from live `version.json`                           | `app/updates.ts:100-136`                             | plus `level` rule (rule 3)          |
-| Update check throttling and triggers                             | `app/updates.ts:249-293`                             | unchanged                           |
-| Storage upgrade screen + rolling browser backup                  | `app/UpgradeGate.tsx:74`                             | unchanged; runs before install      |
-| Check for updates now                                            | `settings/AboutSection.tsx`                          | Settings › About (U14)              |
-| Other-tab apply message                                          | `app/updateChannel.ts:16`                            | unchanged; also carries U11         |
-| Test hook `learning-notes:test-required-update`                  | `main.tsx:203`                                       | kept (e2e)                          |
+### Changes
 
-- UV-21 When the countdown runs → ring, "A must-have update", "Starts in N seconds", "Every note is kept. The app reopens on this page.", "Not now" (to Paused) and "Update now" (downloads at once). (picture P1-3 panel 5, e2e/updateScreens.spec.ts)
-- UV-22 When the download runs → icon, the size ("2.1 of 3.4 MB"), a percent pill, and the time left: "Working out the time…" for 3 seconds, then the speed of the last 5 seconds rounded UP to a step (5, 10, 15, 20, 30, 45 seconds, then minutes), moving at most one step a second (T1).
-- UV-23 When the speed stays under 50 KB/s for 8 seconds in a row (a line that sends nothing counts) → one calm note with the true speed; it goes away by itself when the speed is back (T2, T3).
-- UV-24 When the update did not finish → "Not now" (back to the notes), "Try again", "Copy details" ("Copied" shows); after "Not now" a small pill "Must-have update waiting" with "Try again" stays, and the next start asks again. No "Not now" when another tab already upgraded the notes (UV-11). Every stage has a way forward; Installing ends by itself in "did not finish" after 6 seconds.
-
-## Won't do
-
-- No forced update for a normal version; no update while writing.
-- No server or Supabase change; `version.json` stays a static file.
-- No "skip this must-have update" choice (it could damage stored notes).
-- No update channel switcher in this slice (stays as today).
-
-## Sub-slices (one commit each)
-
-1. **10a rule** (D17): `src/app/updateLevel.ts`, `vite.config.ts` version stamp, `src/app/updates.ts` level compare, `src/core/db.ts` untouched except an exported `DB_VERSION` constant, unit tests `updateLevel.test.ts`. Tests U3, U4.
-2. **10b other-tab guard** (D17): `src/core/db.ts` `versionchange` / version-error handler → `src/app/updates.ts` must-have trigger; `src/app/updateChannel.ts`. Test U11.
-3. **10c notice** (D17): `src/app/MandatoryUpdate.tsx`, `src/app/mandatoryFlow.ts` (offline wait, reason), `src/app/mandatoryState.ts`, i18n `update.req.*` (en, es, hi). Tests U2, U5 to U10, U16, U17.
-4. **10d About + details** (D17): `src/settings/AboutSection.tsx`. Tests U14, U15.
-5. **10e flag + screenshots**: `src/app/flags.ts` entry, screenshot set, U1, U12, U13.
-
-## Tests
-
-- Unit: level compare (equal, higher by 1 and by 2, missing, text, negative); db-version → level pin; offline wait; reason text per kind; flag off = marker rule.
-- e2e (Chromium + `ipad-webkit`): U1 to U17, with a mocked `version.json` route and the test hook.
-- Screenshots: notice in countdown / downloading / paused / installing / failed / offline × light / dark × iPad landscape / portrait / phone / PC.
-- Accessibility: alertdialog, focus on the primary button, contrast.
-
-## Owner iPad check (3 steps)
-
-1. Turn on `update.v2` in "Try new design"; on the preview link, open Settings › About and tap "Check for updates now": a normal update shows only the pill.
-2. Use the hidden test button "Pretend a must-have update" (Settings › Advanced, preview only): the full-screen notice counts down 5 s, downloads and reopens on the same page.
-3. Turn Wi-Fi off and repeat step 2: the notice says to connect; turn Wi-Fi on: it continues by itself.
-
-## Decisions to review
-
-- **Offline must-have (U10) - decided safety rule:** an offline must-have update NEVER locks a person out of their notes. The notice shows only when online; offline it is a small bottom note ("Connect to the internet to finish this update. Your notes are safe.") and the app stays usable. The countdown starts by itself when the network is back (also if the network drops during the countdown or download). This replaces the earlier wording "the app stays blocked until online".
-- **Skipped versions (rule 3):** a number that only goes up replaces "the newest commit says required". Old devices keep today's rule through the `required` field.
-- **Other tab (U11):** treated as must-have without a network check, because old code writing to a newer database can damage notes.
-- **New unlock id** `about.updateDetails` is still proposed (not yet in `docs/mockups/pro-features.md`). Until the owner agrees, U15 (tap the reason line) uses the existing unlock `about.version`, so no list or count changes.
-- The pause button is called "Not now" during the countdown and "Cancel" during the download, but both lead to the same "Paused" screen; the app stays blocked, as BUG-004 says.
-- **P1.8 (15 Nov) - "Not now" on the failed screen:** "The update did not finish" also offers "Not now", back to the app. The spec keeps the app blocked only on the Paused screen (UV-5, the line above); the safety rule (U10) says a must-have update never locks a person out of their notes. The next look for updates that still finds the must-have version shows the notice again. The button's place and wording wait for the approved mock-up (plain button for now).
+- 22 Nov 2026 · U0b · rewritten on template v2 from the owner's update flow, UP-N1 to UP-N8 and U0a's findings; slice 10 rules kept; required countdown 5 s → 3 s proposed (row 7) · waiting for the owner's sheet

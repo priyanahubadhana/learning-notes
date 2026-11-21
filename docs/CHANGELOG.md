@@ -2,6 +2,24 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: one live docs set and one STATE file (part M1)
+
+- **What:** 129 files (old plans, audits, findings, finished-phase pictures, METHOD.md) moved with git mv to docs/archive/ and listed one by one in docs/archive/INDEX.md; DECISIONS entries to 20 Nov moved to docs/archive/DECISIONS-until-20-nov.md; PENDING, BUILD-STATE and HANDOFF became docs/STATE.md (Now, Needs you, Next, Parked), the old paths are one-line pointers for a week; links updated; the site home lists STATE.md and keeps archive pages out of its cards.
+- **Why:** METHOD-v2 step M1 and M-N6: one live set, no second hand-kept list.
+- **Files:** docs/archive/**, docs/STATE.md, docs/INDEX.md, docs/DECISIONS.md, scripts/docs-site.mjs, links in docs/features and docs/design.
+
+### 22 Nov 2026: PC-1 U0b (update spec for the owner's confirm sheet)
+
+- **What:** docs/features/update-v2.md rewritten on template v2 (Stage 1, Draft): the owner's update flow as short rules, UP-N1 to UP-N8, scenarios S1 to S7, U0a's cause notes, Update on Settings' first page, Design and quality check, a 16-row confirm sheet; slice 10 rules kept in the bottom layer. Templates: Stage column, Design and quality check (nine lines) and its confirm row, part-card Quality block and "On the iPad later", the twelve-word line note. Own pictures in docs/mockups/update-v3/ (pill states, 3-second prompt, Settings first page; light and dark).
+- **Why:** the owner's update facts and decisions of 22 Nov 01:00 to 02:10.
+- **Files:** docs/features/update-v2.md, docs/features/_TEMPLATE.md, docs/features/parts/_TEMPLATE-part.md, docs/mockups/update-v3/.
+
+### 22 Nov 2026: docs site v1 (part M4, brought forward)
+
+- **What:** a program (no AI) turns docs/**/*.md into a formatted, searchable site: badges from the status table, the confirm sheet as tappable rows with a "Copy my answers" button, A / B / Other buttons on the questionnaire, the bottom layer folded, a home page of cards, a picture gallery. A workflow publishes it to GitHub Pages on every push to main that touches the docs.
+- **Why:** the owner reads on an iPad or phone and should never open a .md file. Local build: `node scripts/docs-site.mjs`, then open site/index.html.
+- **Files:** scripts/docs-site.mjs, scripts/docs-site/site.css, scripts/docs-site/site.js, scripts/docs-site.test.mjs, .github/workflows/docs-site.yml, package.json (marked 15.0.12), .gitignore (site/), docs/plans/method-v2/site-shots/.
+
 ### 21 Nov 2026: B11 group 5 (microBar, miniBar, TB-09, presetPhases)
 
 - **What:** the micro bar saves the place where the pen lifted (a quick drag lost it before; a drag the system cancels keeps the last drawn place); the miniBar and TB-09 tests wait for what the user would see (the bar drawn at its place; the box's Delete handler attached, two frames after the pick; Lane A note: PaperFrame attaches it in an effect); presetPhases ignores exactly one benign WebKit message (DECISIONS 21 Nov).
@@ -36,7 +54,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - **What:** the desktop-only shell and left-panel specs now size themselves and run on the iPad stand-in; the mouse drag of page rows moved to e2e/leftPanelDrag.spec.ts (desktop only on purpose); shellTwins waits for the handle to stand still and for the saved width (no fixed sleep); toolsRefresh line 60 checked green. Full ipad-webkit suite measured twice (2218 tests): real failures are aiPicker, LB-PERF and the b10-6 pictures in both runs, plus 11 one-run timing flakes; fixes follow in groups. The first count wrongly included expected-fail tests (test.fail); the summary script now counts only unexpected results.
 - **Why:** stage 3 of phase-2-finish: test results must be trusted at iPad size.
-- **Files:** e2e/leftPanel.spec.ts, e2e/leftPanelDrag.spec.ts, e2e/shell.spec.ts, e2e/shellTwins.spec.ts, playwright.config.ts, docs/plans/open-items-sweep-2026-11-20.md. 20/20: chromium 700/700, ipad-webkit 680/680.
+- **Files:** e2e/leftPanel.spec.ts, e2e/leftPanelDrag.spec.ts, e2e/shell.spec.ts, e2e/shellTwins.spec.ts, playwright.config.ts, docs/archive/plans/open-items-sweep-2026-11-20.md. 20/20: chromium 700/700, ipad-webkit 680/680.
 
 ### 21 Nov 2026: B10-4, B10-5, B10-7, B10-9
 
@@ -84,14 +102,14 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 ### 20 Nov 2026: D0, state files true again; main merged into build/next
 
 - **What:** BUILD-STATE rewritten at the top (now building phase-2-finish; stale 2A tables replaced by a done list); PENDING "Needs you", phase board, R21, BUG-004, BUG-001 corrected; user-stories-2b gets a state section; `main` merged into `build/next` (a6e50fab; CHANGELOG and DECISIONS clashes kept both sides). Merges after 17 Nov that this file missed: C28 to C30b, B7 to B12, the box bar (18 Nov), ci-reds 1 to 4 (last f65b1fa6); tasks.csv holds the details. npm audit: only build-tool warnings, fix is breaking, not applied.
-- **Why:** the sweep (docs/plans/open-items-sweep-2026-11-20.md sections 2 and 6) found the lists out of date.
+- **Why:** the sweep (docs/archive/plans/open-items-sweep-2026-11-20.md sections 2 and 6) found the lists out of date.
 - **Files:** docs/BUILD-STATE.md, docs/PENDING.md, docs/plans/user-stories-2b.md, docs/CHANGELOG.md.
 
 ### 20 Nov 2026: plan for the end of Phase 2 (Fable with the owner)
 
-- What: the method on one page (docs/METHOD.md), joining our phased way with the spec-first way of the owner's article (three lenses; story, rules and scenarios that run as tests; assumptions with checks; the right weight per kind of work); the Lasso spec rewritten with a short top part; a draft spec for text selection; part B0 rewritten (scenarios run, report with each preview). Why: owner's asks of 20 Nov. Files: docs/METHOD.md, docs/features/lasso.md, docs/features/text-select.md, docs/plans/phases/phase-2-finish.md, docs/HOW-WE-BUILD.md, docs/INDEX.md, docs/design/owner-decisions.md.
+- What: the method on one page (docs/archive/METHOD.md), joining our phased way with the spec-first way of the owner's article (three lenses; story, rules and scenarios that run as tests; assumptions with checks; the right weight per kind of work); the Lasso spec rewritten with a short top part; a draft spec for text selection; part B0 rewritten (scenarios run, report with each preview). Why: owner's asks of 20 Nov. Files: docs/archive/METHOD.md, docs/features/lasso.md, docs/features/text-select.md, docs/plans/phases/phase-2-finish.md, docs/HOW-WE-BUILD.md, docs/INDEX.md, docs/design/owner-decisions.md.
 
-- What: the Lasso inventory (what it does and why), the plan in small parts with two lanes, the first spec written the spec-first way (ids LS-01 to LS-56), a plain note on the two rare Lasso problems, the owner's answers; an unused working copy (ln-c21-base) removed on the owner's word. Why: owner's planning session of 20 Nov (smart select brief). Files: docs/plans/lasso-inventory-2026-11-20.md, docs/plans/phases/phase-2-finish.md, docs/features/lasso.md, docs/plans/lasso-bugs-a-b-note.md, docs/design/owner-decisions.md, docs/plans/fable-brief-smart-select.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/HANDOFF.md, docs/DECISIONS.md.
+- What: the Lasso inventory (what it does and why), the plan in small parts with two lanes, the first spec written the spec-first way (ids LS-01 to LS-56), a plain note on the two rare Lasso problems, the owner's answers; an unused working copy (ln-c21-base) removed on the owner's word. Why: owner's planning session of 20 Nov (smart select brief). Files: docs/plans/lasso-inventory-2026-11-20.md, docs/plans/phases/phase-2-finish.md, docs/features/lasso.md, docs/archive/plans/lasso-bugs-a-b-note.md, docs/design/owner-decisions.md, docs/archive/plans/fable-brief-smart-select.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/HANDOFF.md, docs/DECISIONS.md.
 
 ### 18 Nov 2026: mock-up, one bar for a selected box
 
@@ -161,7 +179,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - What: phase-plan section 0 "What's next" (ordered steps with pictures, sizes and likely times from docs/metrics/tasks.csv; the 2A v9 task list 2A.4 to 2A.16; Settings v5 as Phase 1S with tasks S.1 to S.11; tasks to redo, specs out of date, pictures superseded); BUILD-STATE rewritten (84 lines); PENDING "Needs you" and phase board rewritten; 8 owner questions written.
 - Why: tool bar v9, the Phase 1 fixes mock and Settings v5 were approved on 15 Nov, and P1.8 and P1.9 are merged; the old plan still pointed at v8 and v3.
-- Files: docs/plans/phase-plan.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/plans/questions-2026-11-15.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+- Files: docs/plans/phase-plan.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/archive/plans/questions-2026-11-15.md, docs/DECISIONS.md, docs/CHANGELOG.md.
 
 ### 14 Nov 2026 (night): Phase 2B page written (text box and Pencil)
 
@@ -173,13 +191,13 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - What: the scroll fix (`slice/fix-scroll-frame` 0db04220) merged alone into `build/next` (d91b83d8); the owner's three answers to the audit recorded (folders deleted by the owner's script, Fable's `xhigh` effort entry removed from the user settings, security updates planned as task 0.14 after 0.6); task 0.11 done (lint 0 errors).
 - Why: Phase 0 order; the owner's answers.
-- Files: docs/BUILD-STATE.md, docs/PENDING.md, docs/plans/phase-plan.md, docs/plans/audit-2026-11-14.md, docs/CHANGELOG.md; `~/.claude/settings.json` (outside the repo).
+- Files: docs/BUILD-STATE.md, docs/PENDING.md, docs/plans/phase-plan.md, docs/archive/plans/audit-2026-11-14.md, docs/CHANGELOG.md; `~/.claude/settings.json` (outside the repo).
 
 ### 14 Nov 2026 (evening): Fable audit after the restart; docs made to agree
 
-- What: HANDOFF no longer says PAUSED (only BUILD-STATE says whether the build is paused); the duplicated "slice 12 rest" entry below was removed once; BUILD-STATE rows 0.3 (both runs green), 0.5 (pushed, 0db04220), 0.8 (the fast set exists on `build/next` only; `main` has the CI file but not the test list, so a hand-started run on `main` must tick "full" until task 0.7) and 0.11 (36 dead folders and 67 loose `ln-*` files remain in Downloads, not 8) corrected; "phase manager" wording for Dexie numbers changed to "the manager (the main chat in lean mode)". Full report: docs/plans/audit-2026-11-14.md.
+- What: HANDOFF no longer says PAUSED (only BUILD-STATE says whether the build is paused); the duplicated "slice 12 rest" entry below was removed once; BUILD-STATE rows 0.3 (both runs green), 0.5 (pushed, 0db04220), 0.8 (the fast set exists on `build/next` only; `main` has the CI file but not the test list, so a hand-started run on `main` must tick "full" until task 0.7) and 0.11 (36 dead folders and 67 loose `ln-*` files remain in Downloads, not 8) corrected; "phase manager" wording for Dexie numbers changed to "the manager (the main chat in lean mode)". Full report: docs/archive/plans/audit-2026-11-14.md.
 - Why: the owner asked for a true audit so the next chat starts from files that do not contradict each other.
-- Files: docs/HANDOFF.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/DECISIONS.md, docs/CHANGELOG.md, docs/plans/audit-2026-11-14.md.
+- Files: docs/HANDOFF.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/DECISIONS.md, docs/CHANGELOG.md, docs/archive/plans/audit-2026-11-14.md.
 
 ### 14 Nov 2026: slice 12 rest - page strip, Paste menu, page more-menu sheet (flag page.menus, OFF)
 
@@ -256,13 +274,13 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 
 - What: both slices FAIL again (1d: 5 fixes, most ninth-visit fixes done; 7: 6 fixes). Decision logged: the phone Preview pill in Settings stays at the bottom (SET-B02/B03 unchanged) and gets its own docked row so it cannot cover text.
 - Why: gate 3 before merge; the builder held one fix that conflicted with the spec.
-- Files: docs/plans/gate3-2026-11-13.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+- Files: docs/archive/plans/gate3-2026-11-13.md, docs/DECISIONS.md, docs/CHANGELOG.md.
 
 ### 13 Nov 2026: gate 3 ninth visit (1d toolbar v8, 7 Reader v2) and two hard-case decisions
 
 - What: both slices FAIL (1d: 8 fixes, the first 90 pictures were not re-shot after the fix round; 7: 7 fixes). Decisions logged: Paste follows the page-menus path (Keep original by default); EPUB book frames get `allow-scripts` back only with three guards.
 - Why: gate 3 before merge; two open questions needed one answer each.
-- Files: docs/plans/gate3-2026-11-13.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+- Files: docs/archive/plans/gate3-2026-11-13.md, docs/DECISIONS.md, docs/CHANGELOG.md.
 
 ### 13 Nov 2026: test guard hook strengthened; batch CI decision recorded
 
@@ -292,25 +310,25 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 
 - What: DECISIONS.md logs the owner's three AI decisions (test key with about US$5 cap in Settings › AI; Claude connector as the long-term built-in option, bring-your-own-key stays, no paid built-in AI without a new decision; items 5 and 6 approved as the first tasks of the AI slice). PENDING.md adds the two queued rows and the "add your test key" line. The cost plan marks items 1 to 4 DONE and 5 and 6 APPROVED; item 8 stays skipped.
 - Why: the owner's decisions of 13 Nov, so the AI slice starts from the approved list.
-- Files: docs/DECISIONS.md, docs/PENDING.md, docs/plans/cost-quality-additions-2026-11-13.md, docs/CHANGELOG.md.
+- Files: docs/DECISIONS.md, docs/PENDING.md, docs/archive/plans/cost-quality-additions-2026-11-13.md, docs/CHANGELOG.md.
 
 ### 13 Nov 2026: cost and quality additions 1 to 4
 
 - What: added the short brief template and leave-out list and the weekly housekeeping list to docs/ECONOMY-MODE.md; `/next` now reads docs/BUILD-STATE.md first and has a use-when line; new read-only Haiku search helper `economy-search` (replaces the Explore name in token-efficiency rule 6).
-- Why: fewer tokens per helper brief, faster restarts, and search pinned to Haiku. Owner approved items 1 to 4 (proposal in docs/plans/cost-quality-additions-2026-11-13.md).
+- Why: fewer tokens per helper brief, faster restarts, and search pinned to Haiku. Owner approved items 1 to 4 (proposal in docs/archive/plans/cost-quality-additions-2026-11-13.md).
 - Files: docs/ECONOMY-MODE.md, .claude/commands/next.md, .claude/agents/economy-search.md, docs/design/token-efficiency.md, docs/CHANGELOG.md.
 
 ### 13 Nov 2026: gate 3, fourth visit (5, 6)
 
 - What: gate 3 verdicts for 5 Home v2 (FAIL, 4 small fixes) and 6 Library v2 (FAIL, 5 fixes) after gate 2 and the added pictures.
 - Why: the design check before merge; the fix lists go to the builders.
-- Files: docs/plans/gate3-2026-11-13.md.
+- Files: docs/archive/plans/gate3-2026-11-13.md.
 
 ### 13 Nov 2026: gate 3, third visit
 
 - What: gate 3 verdicts added for 5 Home v2, 6 Library v2, 9b AI Build (all FAIL), 12 Page menus re-shoot (FAIL, 2 small fixes), 0g follow-ups (PASS), 8 Review v2 re-shoot (PASS), 4 Notebooks + Search re-shoot (FAIL, 7 fixes).
 - Why: the fix lists and flag-on pictures were ready for the design check before merge.
-- Files: docs/plans/gate3-2026-11-13.md.
+- Files: docs/archive/plans/gate3-2026-11-13.md.
 
 ### 13 Nov 2026: build/next green again
 
@@ -328,7 +346,7 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 
 - What: rules/ and agent files now match economy mode (docs audit A4-A11, B1-B5, D2-D4); legacy Fable/Opus files kept for rollback and non-build tasks. Sepia joins light and dark in the Definition of Done and the gate checklists; checklist line 17 (bug fix = why-note + new test); builders read rules/global.md and security.md; "could delete or lose the owner's data" is a stop reason; gate 3 fails on a contrast ✗. rules/testing.md: related tests locally, full suite green in GitHub CI before any merge. Start with 4 builders, up to 6 only while rework stays under 2 rounds. INDEX gained the build files; HANDOFF has one NOW line; 3 old plans moved to docs/plans/archive/.
 - Hooks (.claude/settings.json, scripts in .claude/hooks/): test guard blocks edits that add .skip/.only, raise timeout/retries or remove expect() in tests; secret scan before git commit/push; mirror to gdrive notes once at Stop after edits to docs/, rules/, src/ or CLAUDE.md; at Stop, eslint + incremental tsc only when .ts/.tsx changed (about 4 s), blocks once on errors in changed files, never loops. Each tested with a harmless trial.
-- Why: owner decisions 13 Nov (docs/plans/docs-audit-2026-11-13.md).
+- Why: owner decisions 13 Nov (docs/archive/plans/docs-audit-2026-11-13.md).
 - Files: CLAUDE.md, rules/{building,sessions,testing,quality}.md, docs/ECONOMY-MODE.md, docs/INDEX.md, docs/HANDOFF.md, docs/ARCHIVE.md, docs/design/token-efficiency.md, .claude/agents/_, .claude/hooks/_, .claude/settings.json.
 
 ### 12 Nov 2026: build night 1 (Fable orchestrator)
@@ -338,10 +356,16 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 - Merged to build/next, all switched off: switches file src/app/flags.ts + Settings › Try new features; Beginner / Professional level store (src/settings/level.ts, 169 unlock ids); test tools (listener and z-index ratchet, screenshot harness, check:dod, probe:inventory); event router and gesture router (src/app/input/); selection store (src/app/selection/); overlay manager (src/app/overlay/); tool registry facts (src/app/tools/toolRegistryMeta.ts) and AI tool framework slice 0 (src/aitools/).
 - Built on their own branches, waiting for the QA gate: shared parts (slice/0g-parts), update flow BUG-004 (slice/10-update-v2), security mediums (slice/11-security-m1), AI job engine (slice/9-ai-framework-1), iPad test flake fixes (fix/ipad-flakes).
 - 17 specs written in docs/features/ (foundation, foundation-input, foundation-selection-overlay, tool-registry, shared-parts, toolbar-v8, page-menus, textbox-v2, page-objects, media-v2, study-v2, safety-v2, system-v2, update-v2, security-m1, settings-v3, notebooks-search-v2, home-v2, library-v2, reader-v2, review-v2, ai-framework). They are on build/next.
-- Why: owner said "start the build" (docs/plans/build-master-plan.md).
+- Why: owner said "start the build" (docs/archive/plans/build-master-plan.md).
 - Released to main, live, all switched off: build/next at 1c412c8 (merge b5b0bc7, run 43205383635): foundation 0a-0f + 0i, update flow, security mediums (report-only strict policy + Permissions-Policy in public/_headers), AI job engine, iPad test flake fixes (inkLayers, boxTaps), free preview job in CI.
 - On build/next after the release: shared parts step 1 (src/design/parts/, gallery), AI Build screen, "first outside tap only closes" in the overlay manager, event router gained click / input / touchmove. Ratchet now 362 listeners / 137 z-index.
 - Fixed on the way (why it happened): version.json always said level 1 because two regexes in vite.config.ts had lost their backslashes; Parts gallery stalled iPad WebKit in CI because of a dozen 28 px blurs on static cards; phone layouts of the Time range bar and Arrange sheet were clipped because the editor sat in the page flow with no width limit.
+
+## 21 Nov 2026, night: the pause talk with Fable (plan draft, method v2)
+
+- **What:** the owner paused the build and planned with Fable. New: docs/plans/uniformity-and-specs-2026-11-21.md (code audit: the bars rebuild placement, overflow, colour, size, hover names and customisers five to six times; the shared Object bar is unused), docs/plans/method-v2/ (pictures 1 to 4: the feature loop, the owner's touchpoints and the ladder, one source two faces, the PC-1 timeline; 1 to 3 approved), docs/plans/phases/phase-pc-1.md (plan draft with the main questionnaire). docs/DECISIONS.md gained rounds 1 to 5 of the talk: PC first with four conditions, Pencil work parked, GitHub Issues as the bug source, a generated site on GitHub Pages, Spec Kit installed and adapted, the Opus-high rung, honesty rules, the "builds on" reuse check, no AI notes in this phase.
+- **Why:** 40 days without a usable product; features rebuilt instead of reused; specs in four shapes; no closed loop from finding to spec to test.
+- **Files:** as above, plus docs/PENDING.md (Needs you).
 
 ## 2026-11-15 (2A: 2A.4 merged, 2A.5 PASS, 2A.14 Layout row)
 
@@ -351,7 +375,7 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 
 - **What:** one complete plan for the rebuild: remaining mock-up batches 1 to 6 (with the owner's batch 1 answers), build slice 0 (4 root causes, shared parts, shell, tool registry base), slices per area with spec, Definition of Done, tests, flag and rollback, lanes and models, continuity, the first-night run list and 8 owner questions. Text box v2: keep the layout engine, rebuild the touch layer. Plan only, no app code.
 - **Why:** the owner wants execution to run later in auto mode overnight without stopping to ask.
-- **Files:** docs/plans/build-master-plan.md, docs/INDEX.md, docs/PENDING.md, docs/CHANGELOG.md.
+- **Files:** docs/archive/plans/build-master-plan.md, docs/INDEX.md, docs/PENDING.md, docs/CHANGELOG.md.
 
 ## 2026-11-12 (Triple tap in a box picked the whole paragraph on iPad)
 
@@ -708,7 +732,7 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 
 ## 2026-11-10 (CI stabiliser: outdated specs updated)
 
-- Specs brought to the intended behaviour (no assertion weakened): Account links are buttons now (account.spec); Unlock from the locked banner opens Settings > Account, whose "Unlock in Sync" button goes on (lockedAlert); a margin Lasso selects content inside boxes, not whole boxes (paperBudget, CI open budget x2 for the 2-core runner); Wide reading page needs room beside the sidebar (reading); Drive-tap nudges again if a sync was running (attention); grip drags long enough for the scaled iPad sheet and boxes typed into only after they have the caret (paperPage, ownerPlacement); prettier on the plan doc. Files: e2e/*.spec.ts, docs/plans/owner-bug-batch-2026-11-10.md.
+- Specs brought to the intended behaviour (no assertion weakened): Account links are buttons now (account.spec); Unlock from the locked banner opens Settings > Account, whose "Unlock in Sync" button goes on (lockedAlert); a margin Lasso selects content inside boxes, not whole boxes (paperBudget, CI open budget x2 for the 2-core runner); Wide reading page needs room beside the sidebar (reading); Drive-tap nudges again if a sync was running (attention); grip drags long enough for the scaled iPad sheet and boxes typed into only after they have the caret (paperPage, ownerPlacement); prettier on the plan doc. Files: e2e/*.spec.ts, docs/archive/plans/owner-bug-batch-2026-11-10.md.
 
 ## 2026-11-10 (Builder D: one Undo history per page (3), one Undo/Redo place (35))
 
@@ -797,7 +821,7 @@ One bullet per push.
 
 ## 2026-11-10 (Tools robustness: stuck Lasso, Text, Pencil after use or an app switch)
 
-Plan: [plans/tools-robustness-plan.md](plans/tools-robustness-plan.md). Research: [research/tools-robustness-2026-11.md](research/tools-robustness-2026-11.md). One bullet per step.
+Plan: [archive/plans/tools-robustness-plan.md](archive/plans/tools-robustness-plan.md). Research: [research/tools-robustness-2026-11.md](research/tools-robustness-2026-11.md). One bullet per step.
 
 - **Step 1, one input state machine:** src/app/inputMachine.ts. A module that starts a gesture calls `begin`; a lift, a cancel, a lost pointer capture (document, capture phase), an app switch (watchdog), a tool change or the **4 s age limit** (pointer down, no movement) send it back to idle through one function and reset the owner. The Lasso and handle drags register with it. New reset reasons `timeout`, `toolchange`, `health`, `lost`. `window.__lnTools` (toolsDebug.ts) lets tests read the dump. **Files:** src/app/{inputMachine,inputMachine.test,toolsDebug,gestureReset}.ts, src/ink/controller.ts, src/main.tsx, e2e/{tools-machine.spec,toolsHelpers}.ts, playwright.config.ts.
 - **Step 2, the Lasso on the machine:** a new touch no longer returns early when a Lasso or handle gesture is stuck: if the same pointer goes down again, or the machine no longer knows the old one, the old gesture is cancelled first. A lift of another pointer cancels a gesture the machine has dropped. A tool change cancels the gesture (machine). **Files:** src/ink/controller.ts, src/app/toolsDebug.ts (setLasso for tests), e2e/lassoLoops.spec.ts (20 loops: free and rectangle, ink, words, picture, ink over words; Esc, tap or nothing between; a swallowed lift then 5 loops; a lost lift then a new pointer id after 4.8 s).
@@ -1115,7 +1139,7 @@ Plan: [plans/tools-robustness-plan.md](plans/tools-robustness-plan.md). Research
 
 - **What:** a prompt library stored as a built-in database (`Database.kind` 'promptLibrary'; 15 columns found by `config.key`; no Dexie version) with 19 seeds (own, plus four rewritten CC0 ideas with licence notes), search, filters, New prompt, edit, versions, delete with Undo; a picker (Library header, source pages, Ask this book) that shows the cost in rupees and tokens before running and honours a preferred company and model; skills = one structured-JSON call (`ln-skill/1`) giving pages, keyword summary, short summary, mind map, database rows, cards of four kinds and sources, with 1-10 stars + level per point, emoji icons for Must-know points, `[n]` sources (unsourced = unchecked), prompt caching of the long input for Claude (`AiCall.cachePrefix`), the cheapest model for simple skills and an optional second-model fact check with its cost shown; a preview (edit, untick, save into an existing or new notebook, one Undo); a paste-in path (copy prompt plus exact answer format, Paste answer through the same strict reader and preview, no API); 1-5 star ratings of results per prompt version.
 - **Why:** owner queue 3b and the two 9 Nov DECISIONS sections.
-- **Files:** src/prompts/* (new), src/core/types.ts (Database.kind), src/ai/provider.ts, providers.ts, route.ts (cachePrefix, cached tokens counted), AiActions.tsx, AskBook.tsx, library/LibraryScreen.tsx, i18n enO/hiO/esO, scripts/feature-links.json, e2e/promptLibrary.spec.ts, docs/features/prompt-library.md, docs/plans/prompt-library-plan.md.
+- **Files:** src/prompts/* (new), src/core/types.ts (Database.kind), src/ai/provider.ts, providers.ts, route.ts (cachePrefix, cached tokens counted), AiActions.tsx, AskBook.tsx, library/LibraryScreen.tsx, i18n enO/hiO/esO, scripts/feature-links.json, e2e/promptLibrary.spec.ts, docs/features/prompt-library.md, docs/archive/plans/prompt-library-plan.md.
 
 ## 2026-11-09 (iPad fix 5: picture action bar)
 
@@ -1319,7 +1343,7 @@ Plan: [plans/tools-robustness-plan.md](plans/tools-robustness-plan.md). Research
 
 ## 2026-11-08 (Polish pass 2, items 1-7, 10-13)
 
-Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 (paper) belong to the Paper builder; item 14 waits for the owner. One commit per item.
+Plan: [archive/plans/polish-2-2026-11.md](archive/plans/polish-2-2026-11.md). Items 8, 9 and 15 (paper) belong to the Paper builder; item 14 waits for the owner. One commit per item.
 
 - **Item 3 · first-use tips.** The first time the Lasso, the Write pad, the Layers card or a tap that makes a paper box is used, a small dismissible line shows once per device (seen list `firstUse.seen`); Settings › Show help off hides them. Files: `src/help/{firstUse.ts,FirstUseTip.tsx}`, `App.tsx`, `editor/writePad/padState.ts`, `paper/usePaperBoxes.tsx`.
 - **Item 7 · scroll cue on the options pill.** A pill wider than the window gets the bar's fade, chevron, count and handle (`BarScroll`); the grip, pin and ✕ stay in view. Files: `app/tools/main/OptionsPill.tsx`, `e2e/pillScroll.spec.ts`.
@@ -1371,7 +1395,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 
 - **What:** `Page.boxes`, `Page.sheet`, `Block.boxId` (no Dexie version); pure model `paper/boxes.ts` (default box, grouping, reading order); `PageEditor` takes a `boxId` and loads, saves and live-applies only its box (`editor/boxScope.ts`); diff and `saveBlockChanges` carry the box id (null removes it); backup/sync row checks for boxes. Plan rewritten for the owner design.
 - **Why:** owner design: every page is paper, blocks grouped by box; a page with no boxes must behave exactly as before (unit tests prove it; whole suite green).
-- **Files:** `src/core/types.ts`, `src/core/blockService.ts`, `src/editor/{diff,liveApply,PageEditor,boxScope,boxScope.test}.ts(x)`, `src/paper/boxes{,.test}.ts`, `src/share/checkRows.ts`, `docs/plans/paper-page-plan.md`, `docs/DECISIONS.md`.
+- **Files:** `src/core/types.ts`, `src/core/blockService.ts`, `src/editor/{diff,liveApply,PageEditor,boxScope,boxScope.test}.ts(x)`, `src/paper/boxes{,.test}.ts`, `src/share/checkRows.ts`, `docs/archive/plans/paper-page-plan.md`, `docs/DECISIONS.md`.
 
 ## 2026-11-08 (Round 7 batch: silent updates, toolbar layout, Edit toolbar sheet; no Dexie version)
 
@@ -1388,7 +1412,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 
 - **What:** paper-page research added; plan with a full feature inventory (each feature on paper), design (box = hidden child page, ink anchor mode `sheets`, gesture rules, steps), how nothing is lost, reuse of lined/grid/dots, open owner questions. Phase Q in ROADMAP and DECISIONS. No app code.
 - **Why:** owner approved the paper page and asked for a deeper look first.
-- **Files:** `docs/research/paper-page-2026-11.md`, `docs/plans/paper-page-plan.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`, `docs/CHANGELOG.md`.
+- **Files:** `docs/research/paper-page-2026-11.md`, `docs/archive/plans/paper-page-plan.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`, `docs/CHANGELOG.md`.
 
 ## 2026-11-08 (Phase Q paper sheets took the taps under the text: gone with step 3)
 
@@ -1408,7 +1432,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 
 ## 2026-11-08 (CI: main red on format:check)
 
-- **What:** `docs/plans/paper-page-plan.md` and `docs/research/paper-page-2026-11.md` (Phase Q, docs only) were not Prettier-formatted, so every CI run on main stopped at `format:check` before the tests. Formatted, nothing else changed.
+- **What:** `docs/archive/plans/paper-page-plan.md` and `docs/research/paper-page-2026-11.md` (Phase Q, docs only) were not Prettier-formatted, so every CI run on main stopped at `format:check` before the tests. Formatted, nothing else changed.
 
 ## 2026-11-08 (Round 7 gesture watchdog: R7-1, R7-3, R7-4, R7-5, R7-6, R7-8; no Dexie version)
 
@@ -1471,7 +1495,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 ## 2026-11-07 (Round 6 bar fixes: R6-1, 3, 4, 6, 8, 10; no Dexie version)
 
 - **What:** R6-1 dragging any grip (mini keyboard strip, mini bar, pills, floating bar) is drag-only: the grip captures the pointer, the ink and Lasso ignore every pointer, the page's editable parts turn read-only for the drag and come back after. R6-3 the rectangle Lasso draws a live tinted box from the down point to the current point and selects by that box (it no longer needs a 3-point path). R6-4 bars, pills, menus and the ink layer get `-webkit-touch-callout:none` and `user-select:none` (typing fields stay selectable) and a long press on them opens no system menu. R6-6 an ⓧ Deselect in the Lasso (ink) menu; the mini bar and selection bars already had one; a Pencil tap on empty page space clears a selection in typing mode. R6-8 choosing a tool (or closing its pill) holds the page still: the options pill reserved room that slid the lines by its height, so `pageAnchor.ts` puts the page back for 450 ms (the pill now floats over the page). R6-10 (option C) both Pencil and finger tap bar buttons, a palm (a touch under 400 ms after the Pencil touched, or 500 ms after it lifted) is ignored on bars; Settings › Tool bar › "Toolbar: finger only" (off by default) ignores Pencil taps on any bar. Strings in enO/esO/hiO.
-- **Why:** owner iPad round 6 (7 Nov), plan in [plans/owner-test-notes-2026-11.md](plans/owner-test-notes-2026-11.md). **Files:** `src/app/{pageAnchor,penTap,palmGuard}.ts`, `src/app/tools/gripDrag.ts`, `src/app/tools/main/{MiniKeysStrip,MiniToolbar,OptionsPill,mainTools}.ts(x)`, `src/editor/{BarStack.tsx,keyboardPolicy.ts}`, `src/ink/{controller.ts,InkSurface.tsx}`, `src/settings/toolbarSettings.ts`, `src/index.css`, `src/main.tsx`, `src/i18n/{en,es,hi}O.ts`, `e2e/{barFixes,inkHelpers,fingerAfterPen}.spec.ts`, `playwright.config.ts`, docs.
+- **Why:** owner iPad round 6 (7 Nov), plan in [archive/plans/owner-test-notes-2026-11.md](archive/plans/owner-test-notes-2026-11.md). **Files:** `src/app/{pageAnchor,penTap,palmGuard}.ts`, `src/app/tools/gripDrag.ts`, `src/app/tools/main/{MiniKeysStrip,MiniToolbar,OptionsPill,mainTools}.ts(x)`, `src/editor/{BarStack.tsx,keyboardPolicy.ts}`, `src/ink/{controller.ts,InkSurface.tsx}`, `src/settings/toolbarSettings.ts`, `src/index.css`, `src/main.tsx`, `src/i18n/{en,es,hi}O.ts`, `e2e/{barFixes,inkHelpers,fingerAfterPen}.spec.ts`, `playwright.config.ts`, docs.
 - **Tests:** e2e barFixes.spec.ts (11, chromium + ipad-webkit), penTap and palmGuard unit tests; fingerAfterPen now waits past the palm window.
 
 ## 2026-11-07 (AI model picker: several named keys, model cards, per-notebook choice; no Dexie version)
@@ -1748,7 +1772,7 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 
 ## 2026-11-06 (audit)
 
-- **What:** Overnight audit of direction and quality, read-only on code: [plans/archive/audit-2026-11.md](plans/archive/audit-2026-11.md). Verdict: foundation and Phase A are on the right path; the plan lacked a capture → notes → recall pipeline and the visual-notes tools, so the master plan gains an "Audit changes" section (Phase CR with one notes format any AI can fill, a picture editor, mind map and embed blocks, re-cut waves, C5 and H2 later; AI output stays ordinary editable content with one-step removal). Docs made accurate: README status, LIMITATIONS (first load about 370 KB, "coming" items), `features/ink.md` (two layers), CODE-MAP folders, ROADMAP pointer to the master plan, INDEX rows. HANDOFF cut to five lines; the owner checks moved to [plans/owner-checks-pending.md](plans/owner-checks-pending.md). DECISIONS rows for every audit decision.
+- **What:** Overnight audit of direction and quality, read-only on code: [archive/plans/archive/audit-2026-11.md](archive/plans/old-archive/audit-2026-11.md). Verdict: foundation and Phase A are on the right path; the plan lacked a capture → notes → recall pipeline and the visual-notes tools, so the master plan gains an "Audit changes" section (Phase CR with one notes format any AI can fill, a picture editor, mind map and embed blocks, re-cut waves, C5 and H2 later; AI output stays ordinary editable content with one-step removal). Docs made accurate: README status, LIMITATIONS (first load about 370 KB, "coming" items), `features/ink.md` (two layers), CODE-MAP folders, ROADMAP pointer to the master plan, INDEX rows. HANDOFF cut to five lines; the owner checks moved to [plans/owner-checks-pending.md](plans/owner-checks-pending.md). DECISIONS rows for every audit decision.
 - **Why:** owner request (6 Nov): confirm the right path against "the app makes the notes, the user experiences and recalls", then quality.
 - **Files:** `docs/plans/audit-2026-11.md`, `owner-checks-pending.md`, `master-plan-2026-11.md`, `docs/HANDOFF.md`, `INDEX.md`, `ROADMAP.md`, `LIMITATIONS.md`, `CODE-MAP.md`, `DECISIONS.md`, `features/ink.md`, `README.md`. No `src/` change.
 
@@ -1957,14 +1981,14 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 - **Why:** A clean permanent address before anything is installed.
 - **Files:** .github/workflows/ci.yml, docs/
 
-- 2026-11-08 · Polish plan 2 written (docs/plans/polish-2-2026-11.md), linked in INDEX. Why: overnight review vs other note apps. Files: docs/plans/polish-2-2026-11.md, docs/INDEX.md, docs/CHANGELOG.md.
-- 2026-11-11: Ideas list: added item 4 (layers; one multi-line text box). Files: docs/plans/owner-ideas-batch-2-2026-11-10.md
+- 2026-11-08 · Polish plan 2 written (docs/archive/plans/polish-2-2026-11.md), linked in INDEX. Why: overnight review vs other note apps. Files: docs/archive/plans/polish-2-2026-11.md, docs/INDEX.md, docs/CHANGELOG.md.
+- 2026-11-11: Ideas list: added item 4 (layers; one multi-line text box). Files: docs/archive/plans/owner-ideas-batch-2-2026-11-10.md
 - 2026-11-11: Added docs/PENDING.md (one prioritized open-work list; the text box is Priority 1); HANDOFF points to it. Files: docs/PENDING.md, docs/HANDOFF.md
 - 2026-11-11: CI runs per commit (no cancels); deploy skips a commit that is no longer main's head. Files: .github/workflows/ci.yml
 - 2026-11-11: allow search -> databases (search finds formula values). Files: scripts/feature-links.json
-- 2026-11-11: reader revamp research plan. Files: docs/plans/reader-revamp-plan.md
-- 2026-11-11: library revamp plan + deep-study ideas explainer. Files: docs/plans/library-revamp-plan.md
-- 2026-11-12: Home dashboard plan (building blocks, gaps, templates). Files: docs/plans/home-dashboard-plan.md
+- 2026-11-11: reader revamp research plan. Files: docs/archive/plans/reader-revamp-plan.md
+- 2026-11-11: library revamp plan + deep-study ideas explainer. Files: docs/archive/plans/library-revamp-plan.md
+- 2026-11-12: Home dashboard plan (building blocks, gaps, templates). Files: docs/archive/plans/home-dashboard-plan.md
 - 2026-11-12: agent hierarchy (Fable manager → Opus sub-managers → Sonnet/Haiku executors). Files: .claude/agents/*.md, rules/building.md
 
 ## 12 Nov 2026: CI green again
@@ -1979,11 +2003,11 @@ Plan: [plans/polish-2-2026-11.md](plans/polish-2-2026-11.md). Items 8, 9 and 15 
 
 ## 14 Nov 2026: build paused, diagnosis written
 
-The owner paused the build at 11:10 IST. All helpers and the hourly check were stopped. Fable wrote docs/plans/build-diagnosis-2026-11-14.md (causes, score for the trial, proposal for a phased build). Files: docs/BUILD-STATE.md, docs/PENDING.md (pause lines), the new plan file. No app code changed.
+The owner paused the build at 11:10 IST. All helpers and the hourly check were stopped. Fable wrote docs/archive/plans/build-diagnosis-2026-11-14.md (causes, score for the trial, proposal for a phased build). Files: docs/BUILD-STATE.md, docs/PENDING.md (pause lines), the new plan file. No app code changed.
 
 ## 14 Nov 2026: clean-up for the phased build (Fable, owner-approved)
 
-What: new docs/plans/phase-plan.md (the plan) and docs/HOW-WE-BUILD.md (how helpers work); three helper files (.claude/agents/phase-manager.md, builder.md, reviewer.md) replace the ten old ones; CLAUDE.md rewritten (9.2 KB to 4.8 KB); rules/building.md, sessions.md, testing.md, quality.md, planning.md, phase-end.md now describe one method; docs/PENDING.md rebuilt (530 to about 80 lines), the owner decisions and approved designs moved word for word to docs/design/owner-decisions.md, the iPad checklist to docs/plans/ipad-checklist-first-preview.md, the old list kept in docs/plans/archive/; docs/HANDOFF.md trimmed (old entries in ARCHIVE); docs/BUILD-STATE.md rewritten (paused, Phase 0 tasks, every parked part with its commit); docs/ECONOMY-MODE.md archived; INDEX, token-efficiency, next command updated. Why: the audit in docs/plans/build-diagnosis-2026-11-14.md section 7 found contradicting rules and a plan that had been overridden without being rewritten. No app code changed. The build stays PAUSED.
+What: new docs/plans/phase-plan.md (the plan) and docs/HOW-WE-BUILD.md (how helpers work); three helper files (.claude/agents/phase-manager.md, builder.md, reviewer.md) replace the ten old ones; CLAUDE.md rewritten (9.2 KB to 4.8 KB); rules/building.md, sessions.md, testing.md, quality.md, planning.md, phase-end.md now describe one method; docs/PENDING.md rebuilt (530 to about 80 lines), the owner decisions and approved designs moved word for word to docs/design/owner-decisions.md, the iPad checklist to docs/archive/plans/ipad-checklist-first-preview.md, the old list kept in docs/plans/archive/; docs/HANDOFF.md trimmed (old entries in ARCHIVE); docs/BUILD-STATE.md rewritten (paused, Phase 0 tasks, every parked part with its commit); docs/ECONOMY-MODE.md archived; INDEX, token-efficiency, next command updated. Why: the audit in docs/archive/plans/build-diagnosis-2026-11-14.md section 7 found contradicting rules and a plan that had been overridden without being rewritten. No app code changed. The build stays PAUSED.
 
 ## 14 Nov 2026: final plan pass (Fable, owner decisions)
 
@@ -1999,7 +2023,7 @@ What: scripts/push-guard.mjs now runs ESLint, tsc and the related unit tests on 
 
 ## 14 Nov 2026: agents research report (owner's request)
 
-What: docs/plans/agents-research-2026-11-14.md added (four Sonnet fact-gatherers, one Opus writer; official Claude Code pages and outside reports read on 14 Nov); a row in docs/INDEX.md; three proposals listed in docs/PENDING.md "Needs you". Why: the owner asked what agents are, whether we use them fully and whether more would help. Finding: more agents would hurt this build; the lean setup matches the official advice. No rule, setting or code was changed.
+What: docs/archive/plans/agents-research-2026-11-14.md added (four Sonnet fact-gatherers, one Opus writer; official Claude Code pages and outside reports read on 14 Nov); a row in docs/INDEX.md; three proposals listed in docs/PENDING.md "Needs you". Why: the owner asked what agents are, whether we use them fully and whether more would help. Finding: more agents would hurt this build; the lean setup matches the official advice. No rule, setting or code was changed.
 
 ## 14 Nov 2026: tasks 0.4 and 0.8 done (Fable helper, Opus review PASS); daily cloud check off
 
@@ -2025,4 +2049,4 @@ What: 6 scratch working copies removed with git and 9 folders in `.claude/worktr
 
 ## 2026-11-15 Owner answers E, H, 5
 
-- What: E option 1 (upright Pencil mode icons only), H option 1 (merge the two November 2026 pages, backup first), 5 yes (Format 3 tabs Beginner, 4 Professional). Why: owner answers to the contradictions list. Files: docs/plans/contradictions-2026-11-15.md, docs/PENDING.md.
+- What: E option 1 (upright Pencil mode icons only), H option 1 (merge the two November 2026 pages, backup first), 5 yes (Format 3 tabs Beginner, 4 Professional). Why: owner answers to the contradictions list. Files: docs/archive/plans/contradictions-2026-11-15.md, docs/PENDING.md.

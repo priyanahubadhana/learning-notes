@@ -28,6 +28,16 @@ export const RING_AFTER_MS = 400
 /** No Pencil hold within this long after text was written (ms, item 5). */
 export const PEN_QUIET_MS = 1000
 
+/**
+ * Pencil only (owner, 21 Nov, HOLD-MOVE answer A: writing never opens the hold): the
+ * hold ends once the tip's total path since it went down passes this many px, even
+ * if it never leaves the radius. A finger keeps the furthest-distance rule above.
+ */
+export const HOLD_PEN_PATH_PX = 10
+
+/** Pure rule: has the Pencil's total path ended the hold? */
+export const penPathTooLong = (path: number): boolean => path > HOLD_PEN_PATH_PX
+
 /** Pure rule: has the press moved too far to stay a hold? */
 export const movedTooFar = (dx: number, dy: number): boolean =>
   Math.hypot(dx, dy) > HOLD_STILL_PX
@@ -113,6 +123,10 @@ export function watchHoldMenu(
     y: number
     type: string
     pressure: number
+    /** The Pencil tip's path so far and where it last was. */
+    path: number
+    lx: number
+    ly: number
     timer: number
     ringTimer: number
     ring: (() => void) | null
@@ -164,6 +178,10 @@ export function watchHoldMenu(
       y: e.clientY,
       type: e.pointerType,
       pressure: e.pressure,
+      /** The tip's path so far, and where it last was (Pencil only). */
+      path: 0,
+      lx: e.clientX,
+      ly: e.clientY,
       ring: null as (() => void) | null,
       ringTimer: 0,
       timer: window.setTimeout(() => {
@@ -188,9 +206,15 @@ export function watchHoldMenu(
     if (!press || e.pointerId !== press.id) return
     // Any drift beyond the radius, or a harder press, ends this hold for the
     // whole stroke (nothing re-arms until the next pointerdown).
+    if (press.type === 'pen') {
+      press.path += Math.hypot(e.clientX - press.lx, e.clientY - press.ly)
+      press.lx = e.clientX
+      press.ly = e.clientY
+    }
     if (
       movedTooFar(e.clientX - press.x, e.clientY - press.y) ||
-      (press.type === 'pen' && e.pressure - press.pressure > 0.2)
+      (press.type === 'pen' &&
+        (penPathTooLong(press.path) || e.pressure - press.pressure > 0.2))
     )
       stop()
   }

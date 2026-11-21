@@ -448,41 +448,59 @@ for (const mode of MODES) {
   })
 }
 
-// Owner decision pending: does a small stroke that keeps moving inside the 10 px
-// radius (a slow small "o", about 0.8 s) count as a press and hold? Today it does
-// (holdMenuWatch measures the distance from the start only, and a 9 px loop never
-// leaves 10 px). This test says what should happen and is expected to fail until
-// the owner decides.
-test.fail(
-  'HOLD-MOVE: a moving stroke inside 10 px counts as a hold; owner decision pending',
-  async ({ page }) => {
-    await open(page, 'pencil')
-    const gap = await boxOf(page, 'e r', 1, 2)
-    // Longer than the 1 s after writing in which a Pencil hold is ignored. Time is
-    // the subject here, so these two waits are on purpose.
-    await page.waitForTimeout(1300)
-    const pts = loop(centre(gap), 4.5, 5.5)
-    await page.evaluate(() => {
-      ;(window as unknown as { __realPen?: boolean }).__realPen = true
-    })
-    await page.mouse.move(pts[0].x - 3, pts[0].y - 6)
-    await page.mouse.move(pts[0].x, pts[0].y)
-    await page.mouse.down()
-    for (const p of pts.slice(1)) {
-      await page.mouse.move(p.x, p.y)
-      await page.waitForTimeout(32) // 26 moves: the stroke takes about 0.8 s
-    }
-    await page.mouse.up()
-    await page.evaluate(() => {
-      ;(window as unknown as { __realPen?: boolean }).__realPen = false
-    })
-    await page.waitForTimeout(300)
-    // A slow small stroke is handwriting, not a hold: no strip.
-    await expect(
-      page.locator('[data-mini-toolbar], [role="menubar"]'),
-    ).toHaveCount(0)
-  },
-)
+// Owner answer (21 Nov, HOLD-MOVE A): writing never opens the hold. A Pencil
+// stroke whose total path passes 10 px is not a hold, even if it never leaves the
+// 10 px radius (a slow small "o", about 0.8 s). A finger keeps the furthest-distance
+// rule. Two fixed waits stay in these tests on purpose: time is what they test.
+const holdStrip = (page: Page) => page.locator('[role="menubar"]')
+
+test('HOLD-MOVE: a Pencil stroke that keeps moving never opens the hold, even inside 10 px', async ({
+  page,
+}) => {
+  await open(page, 'pencil')
+  const gap = await boxOf(page, 'e r', 1, 2)
+  // Longer than the 1 s after writing in which a Pencil hold is ignored.
+  await page.waitForTimeout(1300)
+  const pts = loop(centre(gap), 4.5, 5.5)
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
+  await page.mouse.move(pts[0].x - 3, pts[0].y - 6)
+  await page.mouse.move(pts[0].x, pts[0].y)
+  await page.mouse.down()
+  for (const p of pts.slice(1)) {
+    await page.mouse.move(p.x, p.y)
+    await page.waitForTimeout(32) // 26 moves: the stroke takes about 0.8 s
+  }
+  await page.mouse.up()
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
+  await page.waitForTimeout(300)
+  await expect(holdStrip(page)).toHaveCount(0)
+})
+
+test('HOLD-STILL: a still Pencil hold (no path, 0.8 s) on the caret still opens the strip', async ({
+  page,
+}) => {
+  await open(page, 'pencil')
+  const gap = await boxOf(page, 'e r', 1, 2)
+  const at = centre(gap)
+  // A caret in the gap, then more than 1 s after writing.
+  await page.mouse.click(at.x, at.y)
+  await page.waitForTimeout(1300)
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
+  await page.mouse.move(at.x - 3, at.y - 6)
+  await page.mouse.move(at.x, at.y)
+  await page.mouse.down()
+  await expect(holdStrip(page)).toBeVisible()
+  await page.mouse.up()
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
+})
 
 /** The bar's box, the page frame, and every text line on the page (screen rects). */
 const barGeometry = (page: Page) =>

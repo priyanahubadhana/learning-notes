@@ -189,6 +189,7 @@ const config = defineConfig({
         /tb2-group/,
         /tb2-card/,
         /leftPanel.spec/, // B11: size-aware
+        /b11DrawerSteady/,
         /shell.spec/, // B11: size-aware
         /shellTwins/, // B11: size-aware
         /b10-7MoreArrow/,

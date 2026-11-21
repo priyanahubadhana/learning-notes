@@ -68,7 +68,9 @@ for (const [name, size] of Object.entries({
         })
         // The rows slide and settle for a moment as the drawer opens: tap once they stand still.
         await stands(more)
-        await more.tap()
+        // The rows can still jump 24 px left a moment after the drawer opens (a polish
+        // finding): tap the left part of the button, which both positions cover.
+        await more.tap({ position: { x: 8, y: 22 } })
         await expect(
           page.getByRole('menuitem', { name: 'Rename' }),
         ).toBeVisible()

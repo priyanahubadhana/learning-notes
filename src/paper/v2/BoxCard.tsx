@@ -86,8 +86,12 @@ const MORE_LOOKS = NAMED_PRESETS.filter(
 /** Fill swatches: no fill, then the five box colours (the old ⋯ › Colour). */
 const FILLS = ['none', ...Object.keys(BOX_COLOURS)] as const
 
-const preview = (s: BoxStyle | undefined) =>
-  frameCss({ ...s, radius: undefined, shadow: undefined })
+/** The look tile: a shadow look keeps its real shadow and gets a hairline, so a white look shows on the white card (B10-2). */
+const preview = (s: BoxStyle | undefined) => {
+  const css = frameCss({ ...s, radius: undefined })
+  if (s?.shadow && !css.border) css.border = '1px solid var(--color-line)'
+  return css
+}
 
 /** The selected box's frame: the card hangs around it and never covers it. */
 const boxRect = (boxId: string) => () => {

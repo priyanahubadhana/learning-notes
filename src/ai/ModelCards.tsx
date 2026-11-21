@@ -99,9 +99,11 @@ export function ModelCards({
                   onPointerMove={(e) => {
                     if (drag?.id === id) setDrag({ id, to: target(e, id) })
                   }}
-                  onPointerUp={() => {
+                  onPointerUp={(e) => {
+                    // The drop place comes from this event's own position: the last
+                    // move may not have been drawn yet, so drag.to can be one step old.
                     if (drag?.id === id)
-                      onOrder(moveItem(ids, ids.indexOf(id), drag.to))
+                      onOrder(moveItem(ids, ids.indexOf(id), target(e, id)))
                     setDrag(null)
                   }}
                   onPointerCancel={() => setDrag(null)}

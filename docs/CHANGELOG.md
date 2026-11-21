@@ -2,6 +2,21 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: rules updated with the decisions of 21 and 22 Nov (part M8, my share)
+
+- **What:** rules/, HOW-WE-BUILD and /next now agree with CLAUDE.md and METHOD-v2. Old state-file paths replaced by docs/STATE.md; the ladder gets Opus high before Fable (replaces "Opus five times"); new one-line rules added.
+- **Why:** METHOD-v2 step M8; one source of truth, nothing contradicting CLAUDE.md.
+- **Diff per file:**
+  - rules/building.md: HANDOFF path to STATE.md; ladder replaced; added PC first, builds on and reuse gate, bugs are Issues and statuses by program, honesty and override log, short lines, asking for references.
+  - rules/planning.md: PENDING.md to open Issues; template v2 and METHOD-v2 pointer; sizes (phase 2 weeks, 10 to 20 parts, part under a day, FEATURES.md ids); replan trigger.
+  - rules/sessions.md: HANDOFF/BUILD-STATE to STATE.md; /next reads STATE.md then INDEX.md; PC first; ladder; weekly card Saturday evening.
+  - rules/testing.md: scenario tests (20 of 20, red first), chromium per merge, ipad-webkit nightly and per release.
+  - rules/quality.md: Design and quality check, reuse gate, flexible, iPad stays the design target ("On the iPad later").
+  - rules/phase-end.md: phase at most two weeks with train release; rules change only at a phase end.
+  - docs/HOW-WE-BUILD.md: Opus high before Fable; path of a part is METHOD-v2; reuse gate.
+  - .claude/commands/next.md: reads docs/STATE.md (owner approved via Fable); HANDOFF dropped; PENDING to STATE.
+- **Kept:** every other existing rule unchanged.
+
 ### 22 Nov 2026: GitHub Issues are the bug list (part M3)
 
 - **What:** labels part:<id>, state:<...>, found-by:<...>; bug form .github/ISSUE_TEMPLATE/bug.yml; 43 old problems moved into issues #7 to #49 (old id in each title); STATE.md "Open problems" is now one line; README says how to file a bug from the phone.

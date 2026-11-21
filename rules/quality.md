@@ -10,6 +10,11 @@ Goal: Apple-level results, delivered with Toyota-level consistency: every featur
 
 ## 2. Spec before code
 
+- **Design and quality check (every spec, owner 21 Nov 2026):** filled before the confirm sheet, verified by the reviewer: approved picture, quality-standard.md, owner-ui-patterns.md, accessibility, i18n keys, one Undo per change, a speed budget, device-neutral, flexible (simple default, advanced under ▾). No new UI where an approved one exists.
+- **Reuse gate:** no new file for a job a part card owns; old bar files are frozen with no new imports; `check:ratchet` only goes down.
+- **Flexible:** everything a user may want to change is customisable; never drop a feature.
+- **iPad stays the design target:** PC first in stage 1, but every part card and bar spec carries "On the iPad later: what changes, what does not", and an iPad reading check runs at each release.
+
 - Each feature has a spec taken from its approved mock-up: "When I do X → Y happens" lines plus a "won't do" list.
 - The spec lines become the acceptance tests. What the owner approved is what gets built.
 

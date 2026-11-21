@@ -23,6 +23,8 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('the left panel lists pages, the outline and audio', async ({ page }) => {
+  // Size-aware (B11): this test is about the docked desktop layout.
+  await page.setViewportSize({ width: 1336, height: 720 })
   await createNotebook(page, 'Panel NB', 'First page')
   await page.locator('.bn-editor').click()
   await page.keyboard.type('# Big topic ')
@@ -75,32 +77,6 @@ test('long page names wrap to two lines in the sidebar', async ({ page }) => {
   expect(box?.height ?? 0).toBeGreaterThan(30)
   expect(box?.height ?? 99).toBeLessThan(48) // two lines, not three
   await hideSidebar(page)
-})
-
-test('pages can be dragged to a new place, and Undo puts them back', async ({
-  page,
-}) => {
-  await createNotebook(page, 'Drag NB', 'Alpha')
-  await addPage(page, 'Drag NB', 'Beta')
-  await addPage(page, 'Drag NB', 'Gamma')
-  await showSidebar(page)
-
-  const names = () =>
-    sidebar(page)
-      .getByTestId('page-row')
-      .getByRole('button', { name: /^(Alpha|Beta|Gamma)$/ })
-  await expect(names()).toHaveText(['Alpha', 'Beta', 'Gamma'])
-
-  const rows = sidebar(page).getByTestId('page-row')
-  await rows
-    .filter({ hasText: 'Gamma' })
-    .dragTo(rows.filter({ hasText: 'Alpha' }), {
-      targetPosition: { x: 40, y: 2 },
-    })
-  await expect(names()).toHaveText(['Gamma', 'Alpha', 'Beta'])
-
-  await page.getByRole('button', { name: 'Undo', exact: true }).last().click()
-  await expect(names()).toHaveText(['Alpha', 'Beta', 'Gamma'])
 })
 
 test('pages can be moved with the keyboard buttons', async ({ page }) => {

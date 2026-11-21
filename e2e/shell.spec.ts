@@ -20,7 +20,8 @@ const side = (page: Page) => page.locator('#sidebar')
 const top = (page: Page) => page.locator('header[data-shell-top]')
 
 async function start(page: Page, size?: { width: number; height: number }) {
-  if (size) await page.setViewportSize(size)
+  // Size-aware (B11): a desktop-width page unless a size is given, as the computer project has.
+  await page.setViewportSize(size ?? { width: 1336, height: 720 })
   await page.goto(ON)
   await expect(page.locator('.sh-frame')).toBeVisible()
 }
@@ -285,9 +286,11 @@ test('SH-05 tooltips name the keys; the setting hides the pair on a computer onl
     'data-tooltip',
     /^Redo \((Ctrl Y|Cmd Shift Z)\)$/,
   )
-  await page.evaluate(() =>
-    localStorage.setItem('learning-notes:general.showUndoRedo', '"off"'),
-  )
+  // Device-aware (B11): say "computer" outright, so a touch stand-in (the iPad project) tests the same thing.
+  await page.evaluate(() => {
+    localStorage.setItem('learning-notes:general.deviceMode', '"computer"')
+    localStorage.setItem('learning-notes:general.showUndoRedo', '"off"')
+  })
   await page.reload()
   await expect(page.locator('.sh-frame')).toBeVisible()
   await expect(top(page).getByTestId('history-undo')).toHaveCount(0)

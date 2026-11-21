@@ -44,17 +44,36 @@ test('phone (shell on): Device mode is in the gear menu and its list stays on sc
 test('dragging the handle shares the screen, and this device remembers (shell on, 288 px start)', async ({
   page,
 }) => {
+  // Size-aware (B11): the sidebar starts docked only on a desktop-width page.
+  await page.setViewportSize({ width: 1336, height: 720 })
   await page.goto(ON)
   const handle = page.getByRole('separator', { name: 'Resize menu' })
   const width = async () => (await side(page).boundingBox())!.width
   await expect.poll(width).toBe(288)
 
+  // Wait for the handle to stand still (the frame can still be settling), then press it.
+  await expect
+    .poll(async () => {
+      const a = (await handle.boundingBox())!.x
+      await page.waitForTimeout(150)
+      return a === (await handle.boundingBox())!.x
+    })
+    .toBe(true)
   const box = (await handle.boundingBox())!
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
   await page.mouse.down()
-  await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2)
+  // Steps, so the page sees the drag begin before it ends (a single jump can land before the handle has the pointer).
+  await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2, {
+    steps: 8,
+  })
   await page.mouse.up()
   await expect.poll(width).toBe(368)
+  // The width is saved a moment after the last move: wait until the saved value is the final one before reloading.
+  await expect
+    .poll(() =>
+      page.evaluate(() => localStorage.getItem('learning-notes:sidebarWidth')),
+    )
+    .toBe('368')
   await page.reload()
   await expect.poll(width).toBe(368)
 

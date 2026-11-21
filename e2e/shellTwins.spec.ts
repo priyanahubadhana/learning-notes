@@ -52,11 +52,14 @@ test('dragging the handle shares the screen, and this device remembers (shell on
   await expect.poll(width).toBe(288)
 
   // Wait for the handle to stand still (the frame can still be settling), then press it.
+  // Still = two poll readings in a row match (no fixed sleep; the poll's own gaps space them).
+  let lastX = Number.NaN
   await expect
     .poll(async () => {
-      const a = (await handle.boundingBox())!.x
-      await page.waitForTimeout(150)
-      return a === (await handle.boundingBox())!.x
+      const x = (await handle.boundingBox())!.x
+      const still = x === lastX
+      lastX = x
+      return still
     })
     .toBe(true)
   const box = (await handle.boundingBox())!

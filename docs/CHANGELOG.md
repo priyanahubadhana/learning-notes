@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B11 part 1 (test health)
+
+- **What:** the desktop-only shell and left-panel specs now size themselves and run on the iPad stand-in; the mouse drag of page rows moved to e2e/leftPanelDrag.spec.ts (desktop only on purpose); shellTwins waits for the handle to stand still and for the saved width (no fixed sleep); toolsRefresh line 60 checked green. Full ipad-webkit suite measured twice (2218 tests): real failures are aiPicker, LB-PERF and the b10-6 pictures in both runs, plus 11 one-run timing flakes; fixes follow in groups. The first count wrongly included expected-fail tests (test.fail); the summary script now counts only unexpected results.
+- **Why:** stage 3 of phase-2-finish: test results must be trusted at iPad size.
+- **Files:** e2e/leftPanel.spec.ts, e2e/leftPanelDrag.spec.ts, e2e/shell.spec.ts, e2e/shellTwins.spec.ts, playwright.config.ts, docs/plans/open-items-sweep-2026-11-20.md. 20/20: chromium 700/700, ipad-webkit 680/680.
+
 ### 21 Nov 2026: B10-4, B10-5, B10-7, B10-9
 
 - **What:** a test presses the box divider itself; TB-24 closed (cause: an old panel selector, fixed by e0a07699); the More tools arrow never covers Backspace (locked by test); the toast sits 24 px above the tab bar as the shell spec says (aboveTabBar takes a gap). slice/shell-fixes is no longer needed. build/next fb3d7eec.

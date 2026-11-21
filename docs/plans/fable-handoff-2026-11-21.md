@@ -45,7 +45,21 @@ The owner has **paused all development** to talk with Fable about something impo
 
 ## Builder at the pause
 
-To be filled from the builder's stop report (see the next commit to this file).
+Nothing is running. Builder working copy: `C:\Users\pc\Downloads\ln-2a16` (port 5183).
+
+- **Merged into build/next:**
+  - drawer-gutter (with the b10-6 pictures), aiPicker, LB-PERF;
+  - iosSelect F6 + HOLD-MOVE (expected-fail);
+  - microBar, miniBar, TB-09, presetPhases.
+- **WIP, not merged:**
+  - `slice/b11-hold-pen` 3aff0fdd is the tremor-safe rework.
+    - chromium 60/60;
+    - ipad-webkit HOLD-TREMOR fails 20/20, not traced. The builder's guess: WebKit rounds 0.8 px tremor to 1 px steps.
+    - A real 2-D tremor may need a dead-band of 1.5 to 2 px. **To decide on the real iPad.** The earlier "total path" version 8719c468 was held back because a still Pencil hold would break.
+  - `slice/b11-g5-tb28` d0e3752e: TB-28 test waits for the boxes to stand still. It passed once; the 20× runs are not done.
+- **Not started:**
+  - 30 more runs on penSelect, scrollFrame, SB-B72, textTool, LB-P17/P18;
+  - "check other anyOf queries" (the Today page took 5.9 s on the stand-in).
 
 ## Where to read more
 

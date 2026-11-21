@@ -217,3 +217,16 @@ Owner's words (21 Nov): download and update is laggy; sometimes Restart does not
 | U0c | The fix behind the switch, tests red then green, 20 of 20; the owner's check on the real device (PC first, then the iPad)                                                                                                                                              | Sonnet               | 4 to 8 h | U0a, U0b               |
 
 U0a starts on day 1 in lane 2, beside M1. U0b and U0c start the moment the facts arrive. Picture 4 updated.
+
+### The owner's facts for U0 (22 Nov 2026, 00:40, in the owner's words, lightly ordered)
+
+1. **Device:** the iPad (the installed app on the home screen is assumed; the owner did not say Safari tab). The PC was not mentioned.
+2. **Which app:** every release, so the live app at least; the preview is assumed to behave the same (to check in U0a).
+3. **"Download" means:** the app's own update: an automatic download starts after a release.
+4. **What happens, in order:** the download fills to full and says "Restarting", and never restarts; it sticks there. The owner opens Settings, finds Check for update, which says an update is available; a restart starts again and sticks again on "Restarting", again and again. After some time it does restart, and then a download starts again, and the loop repeats. Removing the app from the screen and opening it again starts the download again, many times, same loop. After five to ten minutes of this it is somehow updated and works.
+5. **How often, when last:** every single time there is an update.
+6. **Version:** not mentioned; assume none is visible. U0a adds a visible version line.
+
+**A second finding inside the same report (a spec change for update-v2.md, goes through its confirm sheet):** updating is far too hard to reach: Settings › Help and tools › Update is too deep. The owner wants it like an app store: one obvious place, one tap: download, install, update. Rule to propose: the update pill is the one place during normal use; Settings shows Update on its first page, never buried; the version and "up to date" are visible there.
+
+**Owner instructions for Opus (22 Nov):** remind the owner for reference screenshots whenever a spec could use one, again and again if needed; share every test list by scenario number, in the same format as the site's sheets, so the owner can answer "S3 fails, saw X, expected Y"; the owner answers sheets and reports within the day.

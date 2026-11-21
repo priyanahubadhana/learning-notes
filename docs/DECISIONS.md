@@ -1703,3 +1703,11 @@ Source: docs/plans/uniformity-and-specs-2026-11-21.md and the chat of 21 Nov. Ea
 - **Override log, Q1 and Q10:** owner chose the update bug first. The reason against: its facts are not in yet, so the fix cannot start; handled by splitting it: U0a reproduces by test from day 1 without the owner, U0b and U0c start when the six facts arrive.
 - **Weekly card:** Saturday evening.
 - **Next:** Opus starts stage 0 with M1 (the archive) and U0a in parallel; M8 (rules) may now run since the sheet is all Yes.
+
+### 22 Nov 2026, 00:40 (owner with Fable): the update-bug facts, names, start of stage 0
+
+- **U0 facts** recorded in the plan (phase-pc-1.md, end). Every update on the iPad: auto download, "Restarting" sticks, Check for update says available, restart sticks again, later it restarts and downloads again, loop; after five to ten minutes it works. Second finding: Update is buried under Help and tools; the owner wants one obvious tap like an app store (a spec change for update-v2.md through its sheet).
+- **Names (owner likes "Action bar"):** two bars on screen: the **Tool bar** at the top, fixed, and the **Action bar** that floats by what is selected. Things that open from a button are **strips** (colour, size, font, thickness). Press-and-hold on empty paper opens the **Hold menu**. No other bars. The phone keyboard strip is out of scope for PC-1.
+- **Owner commitments:** answers within the day; screenshots for references when reminded; tests by scenario number in the sheet format.
+- **Start:** the owner asked to start tonight. Opus (phase-manager, medium) starts stage 0 from this session: M1 and U0a in parallel, then M2, M3, M8, M5, M9, M6, M7; M4 is live.
+- **Deferred by the owner:** the discussion of the two overrides (Q1/Q10 and Q9), after the questions are answered.

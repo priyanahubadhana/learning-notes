@@ -188,6 +188,7 @@ const config = defineConfig({
         /tb2-move/,
         /tb2-group/,
         /tb2-card/,
+        /b10-7MoreArrow/,
         /b10-3PhoneResize/,
         /b10-6JournalRename/,
         /b10-8PageMenu/,

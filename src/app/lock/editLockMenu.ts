@@ -23,7 +23,7 @@ export function editLockItem(
           ? 'editLock.menu.lock'
           : 'editLock.menu.lockNotebook',
     ),
-    icon: locked ? '🔓' : '🔏',
+    icon: locked ? 'lockOpen' : 'lockKeyhole',
     onSelect: () =>
       runTask(
         setEditLocked(db, kind, id, !locked).then(() =>

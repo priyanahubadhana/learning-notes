@@ -190,6 +190,7 @@ const config = defineConfig({
         /tb2-card/,
         /b10-3PhoneResize/,
         /b10-6JournalRename/,
+        /b10-8PageMenu/,
         /b10-2ShadowTile/,
         /b10-11KeepLook/,
         /b10-10HandFont/,

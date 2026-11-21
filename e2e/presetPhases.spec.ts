@@ -7,6 +7,9 @@ import { createNotebook } from './helpers.ts'
  */
 
 const FLAGS_KEY = 'learning-notes:flags'
+/** The browser's own note that a ResizeObserver delivery was moved to the next frame. */
+const RO_DEFERRED =
+  'ResizeObserver loop completed with undelivered notifications.'
 const PHASES: { label: string; ids: string[] }[] = [
   {
     label: 'Phase 1',
@@ -193,7 +196,12 @@ test.describe('SET-B26f each preset loads and moves between the screens', () => 
   for (const preset of all) {
     test(preset.label, async ({ page }) => {
       const errors: string[] = []
-      page.on('pageerror', (e) => errors.push(e.message))
+      page.on('pageerror', (e) => {
+        // Benign by the ResizeObserver spec (deferred to the next frame; WebKit reports it
+        // as a window error): the only message ignored. Any other page error fails.
+        if (e.message === RO_DEFERRED) return
+        errors.push(e.message)
+      })
 
       // Make a notebook and a page with the old screens, then switch the preset on.
       await page.goto('/#/')

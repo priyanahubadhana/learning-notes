@@ -68,3 +68,4 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 19 Nov,slice/ci-reds,~85 CI reds (helpers after C34; CDP pen driver; scribble-out read as circle bug),Sonnet,3 review rounds (retry helper rejected),merged 1d130535
 19 Nov,slice/b11-b12,B11 Text tool never makes ink; B12 Paste in owner's v8 row,Sonnet,1 review round,merged 2ce4acf2
 20 Nov,slice/ci-reds-2+3,last CI reds; 4 real bugs (mini bar after turn; column rounding; resize loses selection; v8 Pencil-only keys),Opus builder,1 review round,merged
+2026-11-22T04:00+05:30,PC-1,M1 docs archive and one STATE file,sonnet,324000,3,,,2.6,"three review rounds (two FAIL, one PASS); fix round 1 merged before its re-review (slip 2); reviewers about 216000 tokens; junction worktree ln-m1"

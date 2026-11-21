@@ -1653,3 +1653,11 @@ Relayed by Fable to the phase manager, who applies them in M1, M2, M5, M8 and M9
 - **Slip 2, early merge:** M1 fix round f6e81f8c merged into main before its re-review. Re-review afterwards: FAIL (55 open Decisions-to-review bullets still only in the archive; next.md and two docs still point at BUILD-STATE). Fix round 2 runs on tool/m1-fix2. Rule kept from now on: a fix round is merged only after its re-review PASS.
 - **Slip 3, Design and quality:** U0b's Settings pictures invented a new Settings layout instead of editing the approved Settings v5 first page; the check row "looks like the approved picture" should have caught it. Owner (row 13, explain again): "No need to make new UI again and again. Edit it into the latest Settings version I confirmed as an artifact." Redraw runs on tool/u0b-fix2. Briefs for pictures now name the approved base picture.
 - **Red test found:** scripts/docs-site.test.mjs used node:test while vitest.config.ts includes scripts/**/*.test.mjs, so the suite failed to load under npm test since M4. Fixed in b3e71b6c (import from vitest; assertions unchanged).
+
+### 22 Nov 2026 (owner with Fable): the U0b sheet answered
+
+- Rows 1 to 12 and 14 to 22: Yes. Row 17: A (the update installs by itself). Row 8: explained and accepted (the Restarting prompt waits for a pause in writing or drawing).
+- Row 13 open: the pill and prompt pictures are accepted; only the Settings picture is redrawn on the approved Settings v5 first page with the Update card in v5's card style, nothing else invented; shown to the owner once for a yes.
+- **Owner decision:** in the app now, the Update card goes at the top of today's Settings page, drawn in the v5 card style, so it moves into v5 unchanged in stage 3.
+- update-v2.md recorded as Confirmed 22 Nov 2026 with row 13 open. U0c (the loop fix) may start; its Settings-card part waits for the owner's yes on the redrawn picture.
+- M1 re-review round 2: PASS (3aa514bf), merged.

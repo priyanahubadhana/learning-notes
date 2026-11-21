@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: GitHub Issues are the bug list (part M3)
+
+- **What:** labels part:<id>, state:<...>, found-by:<...>; bug form .github/ISSUE_TEMPLATE/bug.yml; 43 old problems moved into issues #7 to #49 (old id in each title); STATE.md "Open problems" is now one line; README says how to file a bug from the phone.
+- **Why:** METHOD-v2 "Bugs are issues", M-N6: one source, no copy by hand.
+- **Files:** .github/ISSUE_TEMPLATE/*, docs/STATE.md, README.md, docs/CHANGELOG.md.
+
 ### 22 Nov 2026: Spec Kit installed and adapted (part M2)
 
 - **What:** Spec Kit v1.4.3 pinned in .specify/VERSION; spec template overridden by a synced copy of docs/features/_TEMPLATE.md (npm run check:spec-template, also in CI); constitution only points at CLAUDE.md and rules/; implement and converge disabled, implement step removed from the workflow; nine skills added under .claude/skills/.

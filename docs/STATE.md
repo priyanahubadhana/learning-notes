@@ -6,7 +6,18 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 ## Now
 
-RUNNING: stage 1, phase 1A (set-up and the update; was "PC-1 stage 0"), started 22 Nov 01:20 IST. Manager: phase-manager (Opus medium). Replan count since Fable last planned (22 Nov): 0 of 10. The tables below marked "history" are the 21 Nov rows.
+STOPPED cleanly 22 Nov 07:30 IST (the owner ended the session). A new phase-manager starts from this section. Replan count since Fable last planned (22 Nov): 0 of 10.
+
+**Resume steps (morning, in order):**
+
+1. **U0a** (`slice/u0a-update-repro`, working copy ln-2a16b; head: `git ls-remote origin slice/u0a-update-repro`; its last commit says which of the 6 fix items are done). Finish the review fix list (real preview-host Cache-Control in U0a-2; U0a-11 must check something on WebKit; U0a-8 title; no empty box when the switch is off; version shown once; dark checked), then 20 of 20 on chromium and ipad-webkit, re-review, merge into build/next from ln-buildnext.
+2. **U0c + S0** (from U0a's branch): the loop fix of docs/features/update-v2.md (Confirmed, all 22 rows) and the Update card at the top of today's Settings page in the v5 card style; tests red first, 20 of 20, one review.
+3. **Found-wishes sweep** (Opus builder): docs/plans/found-wishes-2026-11-22.md as a confirm sheet (DECISIONS 22 Nov 06:00).
+4. **M5** analyze v1, then **M9** the eleven part cards (stop for Fable's attack read), then **M6** the weekly card (Saturday evening), **M7** the research page.
+5. After the owner's pass on found wishes: archive the old plan pages; ROADMAP.md becomes a pointer to MASTER-PLAN.md.
+6. Site: home order (MASTER-PLAN first), Stage badge, pillar letters, the red Must-never box. The ten principle pictures stay on hold until the owner confirms principles.md.
+
+Working copies: ln-m1, ln-m2, ln-u0b are worktrees whose node_modules is a junction to the main copy (never npm install there); ln-2a13 is detached. ln-buildnext has its own packages (marked added 22 Nov).
 
 ### Phase 1A
 

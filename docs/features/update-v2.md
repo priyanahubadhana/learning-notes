@@ -1,8 +1,8 @@
 # Update flow v2 (template v2, method v2)
 
-| Status | Stage | Switch      | Phase and parts                                | Pictures                                                                         | Builds on                                                                                                                                                                                             | Last change             |
-| ------ | ----- | ----------- | ---------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| Draft  | `1`   | `update.v2` | PC-1, parts U0a (found), U0b (spec), U0c (fix) | [docs/mockups/update-v3/](../mockups/update-v3/update-v3.html) (our own, 22 Nov) | this spec's slice 10 rules (kept in the bottom layer, nothing dropped); U0a's test `e2e/u0aUpdateRepro.spec.ts` on `origin/slice/u0a-update-repro`; parts: Status pill stack, Dialog set, Toast queue | 22 Nov 2026, Opus (U0b) |
+| Status                                                                                        | Stage | Switch      | Phase and parts                                | Pictures                                                                         | Builds on                                                                                                                                                                                             | Last change             |
+| --------------------------------------------------------------------------------------------- | ----- | ----------- | ---------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Confirmed 22 Nov 2026 (open: the Settings picture of row 14; the owner's note came on row 13) | `1`   | `update.v2` | PC-1, parts U0a (found), U0b (spec), U0c (fix) | [docs/mockups/update-v3/](../mockups/update-v3/update-v3.html) (our own, 22 Nov) | this spec's slice 10 rules (kept in the bottom layer, nothing dropped); U0a's test `e2e/u0aUpdateRepro.spec.ts` on `origin/slice/u0a-update-repro`; parts: Status pill stack, Dialog set, Toast queue | 22 Nov 2026, Opus (U0b) |
 
 <!-- Top layer for the owner, down to the confirm sheet. Bottom layer for the builders. Security rules: rules/security.md. -->
 
@@ -23,7 +23,7 @@ As the owner, who uses the installed app on the iPad every day, I want updates t
 
 Our own pictures, made 22 Nov 2026 in our design tokens, in the spirit of the one-tap Update of the App Store, Microsoft Store and Play Store (one button that changes in place: Update, then progress, then done). No store art is copied. Not approved yet: rows 13 and 14 of the confirm sheet.
 
-| The pill, step by step                                             | The 3-second prompt                                                | Settings, first page                                                               |
+| The pill, step by step                                             | The 3-second prompt                                                | Settings v5 first page + Update card                                               |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
 | ![Update pill states, light](../mockups/update-v3/pills-light.png) | ![Restarting prompt, light](../mockups/update-v3/prompt-light.png) | ![Settings with Update at the top, light](../mockups/update-v3/settings-light.png) |
 | ![Update pill states, dark](../mockups/update-v3/pills-dark.png)   | ![Restarting prompt, dark](../mockups/update-v3/prompt-dark.png)   | ![Settings with Update at the top, dark](../mockups/update-v3/settings-dark.png)   |
@@ -41,8 +41,8 @@ Each rule is one short line; the detail is in the scenarios.
 - **Same place.** After the restart you are on the same page and scroll place.
 - **Optional can wait.** Cancel on an optional update postpones it; it asks again later.
 - **Required blocks changes.** A storage change or data fix blocks changes until done.
-- **Not while writing.** The prompt waits for a pause in writing or drawing.
-- **Settings first page.** Update and the version sit at the top of Settings.
+- **Not while writing.** While you write or draw, the prompt waits for a pause.
+- **Settings first page.** Update card at the top of Settings, in v5 card style.
 - **Real numbers.** The download shows its real percent, never above 100.
 - **Fast.** From tap to the new version in under 30 s (our proposal).
 
@@ -67,7 +67,7 @@ Each rule is one short line; the detail is in the scenarios.
 
 What happens, not where to tap. Values from the owner's facts of 22 Nov 2026 (phase-pc-1.md section 18).
 
-- **S1, the plain case (optional update).** Given the owner opens the app on the iPad after a release, when the pill says the new version is ready and the owner taps Update, then the download fills to 100%, it installs by itself, the one 3-second prompt counts down, the app restarts on the same page and says "Updated to" the new version. Asked once only. (UP-N1, UP-N2, UP-N3)
+- **S1, the plain case (optional update).** Given the owner opens the app on the iPad after a release, when the pill says the new version is ready and the owner taps Update, then the download fills to 100%, it installs by itself, the one 3-second prompt counts down, the app restarts on the same page and says "Updated to" the new version. If the owner is writing or drawing when the install ends, the prompt waits for a pause, then counts down. Asked once only. (UP-N1, UP-N2, UP-N3)
 - **S2, a required update.** Given a release that changes how notes are stored, when the app finds it, then changes are paused (reading still works), the download runs, the same 3-second prompt restarts the app, and editing works again after. Cancel only stops the countdown; changes stay paused. (UP-N8)
 - **S3, the thing that goes wrong (the owner's loop, on a slow line).** Given the iPad on a slow line, when the update downloads, then "Restarting" never shows before the download is complete; if the restart does not happen within 3 s, the pill says "The update did not finish" with Try again; Try again finishes it, with no loop. (UP-N2, UP-N6)
 - **S4, after the update.** Given the update has installed, when the owner closes the app from the app switcher and opens it again, then no download starts and Settings says "Up to date" with the new version. (UP-N4, UP-N5)
@@ -124,7 +124,7 @@ S1 to S7 pass on chromium and ipad-webkit, 20 of 20; U0a's tests pass without `t
 
 - `OPEN:` **Your screenshots, please.** Next time the pill sticks on "Restarting" (or the loop starts), take a screenshot of the pill and one of Settings, and send them. They become the reference picture for S3.
 - `OPEN:` The version shows as a short code today (abc1234); the pictures show a number (1.4.2). Row 15 asks which you want.
-- `OPEN:` The Settings picture uses a placeholder side list; the real one comes from Settings v5 and the "Bars and menus" picture still to approve.
+- `OPEN:` The Settings pictures are the approved Settings v5 first page (15 Nov) with only the Update card added at the top (light: up to date; dark: an update ready). Drawn by `docs/mockups/update-v3/render-settings.mjs`.
 
 ## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
 
@@ -192,7 +192,7 @@ U0c: the fix behind `update.v2`. First failing test: U0a's WebKit loop at 1000 m
 - **UP-04** After a restart, a version equal to the running one is never downloaded again; a version already cached is installed, not fetched.
 - **UP-05** Prompt: 3-second ring, Cancel and Restart now, 44 px buttons; waits while a stroke or typing is active (today's `isSafeMoment`, `app/autoUpdate.ts:46`).
 - **UP-06** Required: decided by `level` (slice 10 rule 3 below); edits blocked through the Event router; reading and scrolling stay.
-- **UP-07** Settings card: first item of Settings' first page. Up to date: version, "Up to date", last check, Check now. Update ready: new version, size, Update.
+- **UP-07** Settings card: first item of today's Settings page now, drawn in the Settings v5 card style, so it moves into v5 unchanged in stage 3 (owner, 22 Nov). Up to date: version, "Up to date", last check, Check now. Update ready: new version, size, Update.
 - **UP-08** Timings: pill states cross-fade 150 ms; reduced motion = instant, the numbers still change each second.
 
 ### Slice 10 rules, kept (nothing dropped)
@@ -297,3 +297,5 @@ The update downloads only from our own origin through the service worker; no new
 ### Changes
 
 - 22 Nov 2026 · U0b · rewritten on template v2 from the owner's update flow, UP-N1 to UP-N8 and U0a's findings; slice 10 rules kept; required countdown 5 s → 3 s proposed (row 7) · waiting for the owner's sheet
+- 22 Nov 2026 · U0b fix2 · owner on row 13: Settings pictures redrawn on the approved Settings v5 first page, only the Update card added; no new layout · owner
+- 22 Nov 2026 · U0b · owner's sheet: rows 1 to 12 and 14 to 22 Yes; row 17 A (installs by itself); row 8 explained and accepted (waits for a pause); open: the Settings picture of row 14 (the owner's note came on row 13); Update card at the top of today's Settings in v5 card style · owner

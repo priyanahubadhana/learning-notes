@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B11 group 5 (microBar, miniBar, TB-09, presetPhases)
+
+- **What:** the micro bar saves the place where the pen lifted (a quick drag lost it before; a drag the system cancels keeps the last drawn place); the miniBar and TB-09 tests wait for what the user would see (the bar drawn at its place; the box's Delete handler attached, two frames after the pick; Lane A note: PaperFrame attaches it in an effect); presetPhases ignores exactly one benign WebKit message (DECISIONS 21 Nov).
+- **Why:** B11 test health: these failed in one of the two full iPad-size runs.
+- **Files:** src/app/tools/main/MicroBar.tsx, e2e/microBar.spec.ts, e2e/miniBar.spec.ts, e2e/tb2-select.spec.ts, e2e/presetPhases.spec.ts. 20/20 on chromium and ipad-webkit each.
+
 ### 21 Nov 2026: B11 iosSelect F6 and HOLD-MOVE
 
 - **What:** F6's 9 px loop is drawn quicker by the test pen (realPen gets an optional steps count), so it tests "a loop around nothing selects nothing" and not the hold. New expected-fail test HOLD-MOVE: a slowly written small loop opens the hold strip today (owner question in PENDING). docs/features/paper-page.md hold rule corrected to 10 px and 1 s (owner decision, 20 Nov).

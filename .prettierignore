@@ -7,3 +7,5 @@ src/vendor
 mcp/dist
 mcp/src/gen/
 docs/mockups/
+.specify/
+.claude/skills/speckit-*/

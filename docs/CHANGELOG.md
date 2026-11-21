@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B11 LB-PERF (big library opens fast)
+
+- **What:** the library reads its books with one index lookup per notebook (run in parallel) instead of one walk that fetched each of 1,000 rows on its own; on the iPad stand-in the first card shows after about 1 s instead of about 16 s. Same rows, same order (unit test). Later: check the other anyOf queries (Today page creation took 5.9 s on the stand-in).
+- **Why:** B11 test health: LB-PERF failed on the iPad stand-in in both full runs.
+- **Files:** src/library/libraryService.ts, src/library/library.test.ts. LB-PERF 20/20 on both browsers; libraryV2 32/32 on chromium.
+
 ### 21 Nov 2026: B11 drawer jump and b10-6 pictures
 
 - **What:** the phone drawer's rows no longer jump 24 px left while it opens (the old frame reserved the scroll handle's gutter only about 200 ms late, so a tap could land beside ⋯; the gutter is now there from the first frame). A new test samples every frame in both frames. The b10-6 picture test follows a straight user path (Today, wait for the page, open the drawer once, tap ⋯) with no retry loop.

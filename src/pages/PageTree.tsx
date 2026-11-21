@@ -1,7 +1,7 @@
 import { displayName, sampleName } from '../i18n/defaultNames'
 import { t } from '../i18n/t'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useState, type ReactNode } from 'react'
+import { useContext, useRef, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { pushStep, quietAsync } from '../core/historySteps'
@@ -66,6 +66,17 @@ export function PageTree({
     [db, notebookId],
   )
   const [renamingId, setRenamingId] = useState<string | null>(null)
+  // R20 / B10-6: a finger gives no reliable double-click, so two taps on the same row within half a second rename it.
+  const lastTap = useRef<{ id: string; at: number } | null>(null)
+  const tapRename = (page: Page, now: number) => {
+    if (!touchUi()) return
+    const prev = lastTap.current
+    lastTap.current = { id: page.id, at: now }
+    if (prev && prev.id === page.id && now - prev.at < 500) {
+      lastTap.current = null
+      startRename(page)
+    }
+  }
   const starred = favourites.useValue()
   const { toast, askName } = useContext(AppUiContext)
   const [dragId, setDragId] = useState<string | null>(null)
@@ -224,7 +235,10 @@ export function PageTree({
             ) : (
               <button
                 type="button"
-                onClick={() => onOpen(page.id)}
+                onClick={(e) => {
+                  onOpen(page.id)
+                  tapRename(page, e.timeStamp)
+                }}
                 onDoubleClick={() => startRename(page)}
                 aria-current={v2 && active ? 'page' : undefined}
                 className={`line-clamp-2 min-w-[5rem] flex-1 text-left break-words ${active ? (v2 ? 'font-bold' : '') : 'text-ink-soft'}`}

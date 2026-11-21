@@ -1655,3 +1655,13 @@ Source: docs/plans/uniformity-and-specs-2026-11-21.md and the chat of 21 Nov. Ea
 - **Spec Kit:** install it and adapt its templates to our two-layer format.
 - **Spec-making flow (owner):** owner shares a plan; the AI writes a questionnaire (what it needs to know, and what the owner can do to help); owner answers; the AI drafts the spec (expected behaviour, must-never lines); a confirm sheet follows where each point gets Yes, Explain again, or Change; questions come with options: the recommended one, an alternative, other, more when needed.
 - Earlier the same day (chat): reuse path A (smart bar built on shared part cards), bug register with one id family, GitHub for reading specs on the iPad plus a visual face, repo stays public for now.
+
+### 21 Nov 2026, evening (owner with Fable): the pause talk, round 2
+
+- **Spec page gains:** a Goal line; two non-negotiables; and, where it fits, "How we get there": the steps to the goal, each step with its own test.
+- **Escalation gains a step (owner):** Sonnet (three fails) → Opus at medium → Opus at high effort → Fable. If a result falls short, raising the effort is tried before changing the model. Applied in CLAUDE.md with the new phase plan, not mid-phase.
+- **Feature size:** no hard cap. When Fable plans, it states the time each part takes and, when a faster way exists at no loss of function, offers it; the owner chooses. Splitting is a delivery order, never a scope cut: a complex feature becomes several signed specs that together make the feature.
+- **No AI notes on day one (owner).** Customisation of layout and tools comes first; AI notes can be made outside the app today. The first PC slice is the frame, Settings, the layout and the tools.
+- **Confirm sheets are answered in chat.** The dashboard is for viewing: specs, bugs, states.
+- **Dashboard inside the app (owner wish):** the bug and spec tracker should be viewable inside Learning Notes itself, so the app is tested by its own project; the same for other lists when useful. Design to follow (round 3).
+- **Who drafts:** the phase plan with Fable; then Opus builds and drafts the ordinary specs; Fable only for very complex or risky decisions; the owner opens Fable sessions by hand. Fable is used as little as possible for cost.

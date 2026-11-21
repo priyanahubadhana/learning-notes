@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Method v2 pictures</title>
+    <style>
+      :root {
+        --ink: #1b1b22;
+        --mute: #5a5a68;
+        --line: #d9d9e3;
+        --paper: #fbfbfd;
+        --owner: #7c3aed;
+        --owner-bg: #f1eafe;
+        --fable: #0f766e;
+        --fable-bg: #e3f4f1;
+        --opus: #b45309;
+        --opus-bg: #fdf1e2;
+        --sonnet: #1d4ed8;
+        --sonnet-bg: #e6edfd;
+        --prog: #475569;
+        --prog-bg: #eef1f5;
+        --live: #15803d;
+        --live-bg: #e4f5e8;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+        color: var(--ink);
+        background: #fff;
+      }
+      .page {
+        width: 1600px;
+        height: 1000px;
+        padding: 40px 48px;
+        background: var(--paper);
+        position: relative;
+      }
+      h1 {
+        font-size: 30px;
+        margin: 0 0 6px;
+        letter-spacing: -0.01em;
+      }
+      .sub {
+        font-size: 17px;
+        color: var(--mute);
+        margin: 0 0 22px;
+      }
+      .legend {
+        position: absolute;
+        top: 44px;
+        right: 48px;
+        display: flex;
+        gap: 10px;
+        font-size: 14px;
+      }
+      .legend span {
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+      .dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+        vertical-align: -1px;
+      }
+      .band {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+      .who {
+        font-size: 15px;
+        font-weight: 600;
+        padding: 12px 10px;
+        border-radius: 12px;
+        line-height: 1.3;
+      }
+      .who small {
+        display: block;
+        font-weight: 400;
+        color: var(--mute);
+        font-size: 13px;
+        margin-top: 4px;
+      }
+      .steps {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+      }
+      .step {
+        flex: 1;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-size: 15px;
+        line-height: 1.35;
+        position: relative;
+      }
+      .step b {
+        display: block;
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+      .step .n {
+        position: absolute;
+        top: -11px;
+        left: 12px;
+        background: var(--ink);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 2px 8px;
+      }
+      .arrow {
+        width: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--mute);
+        font-size: 24px;
+        flex: none;
+      }
+      .badge {
+        display: inline-block;
+        font-size: 12.5px;
+        font-weight: 700;
+        padding: 2px 9px;
+        border-radius: 999px;
+        margin-top: 6px;
+      }
+      .b-conf {
+        background: var(--owner-bg);
+        color: var(--owner);
+      }
+      .b-built {
+        background: var(--prog-bg);
+        color: var(--prog);
+      }
+      .b-ver {
+        background: var(--owner-bg);
+        color: var(--owner);
+      }
+      .b-live {
+        background: var(--live-bg);
+        color: var(--live);
+      }
+      .loop {
+        font-size: 14px;
+        color: var(--mute);
+        margin: -4px 0 10px 164px;
+      }
+      .loop b {
+        color: var(--ink);
+      }
+      .owner {
+        background: var(--owner-bg);
+        color: var(--owner);
+      }
+      .fable {
+        background: var(--fable-bg);
+        color: var(--fable);
+      }
+      .opus {
+        background: var(--opus-bg);
+        color: var(--opus);
+      }
+      .sonnet {
+        background: var(--sonnet-bg);
+        color: var(--sonnet);
+      }
+      .prog {
+        background: var(--prog-bg);
+        color: var(--prog);
+      }
+      .step.o {
+        border-left: 5px solid var(--owner);
+      }
+      .step.f {
+        border-left: 5px solid var(--fable);
+      }
+      .step.p {
+        border-left: 5px solid var(--opus);
+      }
+      .step.s {
+        border-left: 5px solid var(--sonnet);
+      }
+      .step.g {
+        border-left: 5px solid var(--prog);
+      }
+      .foot {
+        position: absolute;
+        left: 48px;
+        right: 48px;
+        bottom: 34px;
+        font-size: 14px;
+        color: var(--mute);
+        display: flex;
+        justify-content: space-between;
+      }
+      /* picture 2 */
+      .cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 18px 20px;
+      }
+      .card h2 {
+        font-size: 20px;
+        margin: 0 0 12px;
+      }
+      .tp {
+        display: grid;
+        grid-template-columns: 34px 1fr 150px;
+        gap: 10px;
+        align-items: start;
+        padding: 9px 0;
+        border-top: 1px solid var(--line);
+        font-size: 15px;
+        line-height: 1.35;
+      }
+      .tp:first-of-type {
+        border-top: 0;
+      }
+      .tp .k {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--owner);
+        color: #fff;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+      .tp .t {
+        color: var(--mute);
+        font-size: 14px;
+        text-align: right;
+      }
+      .ladder {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .rung {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 14px;
+        align-items: center;
+        padding: 12px 14px;
+        border-radius: 12px;
+        font-size: 15px;
+        line-height: 1.35;
+      }
+      .rung b {
+        font-size: 16px;
+      }
+      .rung .why {
+        color: var(--ink);
+      }
+      .down {
+        text-align: center;
+        color: var(--mute);
+        font-size: 20px;
+        line-height: 1;
+      }
+      ul.plain {
+        margin: 8px 0 0;
+        padding-left: 20px;
+        font-size: 15px;
+        line-height: 1.45;
+      }
+      ul.plain li {
+        margin: 4px 0;
+      }
+      /* picture 3 */
+      .flow3 {
+        display: grid;
+        grid-template-columns: 1fr 60px 1fr 60px 1fr;
+        gap: 0;
+        align-items: center;
+      }
+      .box {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px 18px;
+        font-size: 15px;
+        line-height: 1.4;
+      }
+      .box h2 {
+        font-size: 19px;
+        margin: 0 0 10px;
+      }
+      .box ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+      .box li {
+        margin: 4px 0;
+      }
+      .big {
+        font-size: 34px;
+        color: var(--mute);
+        text-align: center;
+      }
+      .map {
+        margin-top: 18px;
+      }
+      .map h2 {
+        font-size: 19px;
+        margin: 0 0 10px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14.5px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 8px 12px;
+        border-top: 1px solid var(--line);
+        vertical-align: top;
+        line-height: 1.35;
+      }
+      th {
+        background: #f3f3f8;
+        border-top: 0;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============ PICTURE 1 ============ -->
+    <section class="page" id="p1">
+      <h1>1 · One feature, from your words to live</h1>
+      <p class="sub">
+        Four bands, one loop. Status badges are set by a program, never typed.
+        Back-arrows are the normal path, not failures.
+      </p>
+      <div class="legend">
+        <span><i class="dot" style="background: var(--owner)"></i>You</span>
+        <span><i class="dot" style="background: var(--fable)"></i>Fable</span>
+        <span><i class="dot" style="background: var(--opus)"></i>Opus</span>
+        <span><i class="dot" style="background: var(--sonnet)"></i>Sonnet</span>
+        <span><i class="dot" style="background: var(--prog)"></i>Program</span>
+      </div>
+
+      <div class="band">
+        <div class="who owner">
+          PLAN<small>You + Fable, once per phase</small>
+        </div>
+        <div class="steps">
+          <div class="step o">
+            <span class="n">1</span><b>Your words</b>Free talk: goal, why, what
+            you have seen elsewhere, must-never lines.
+          </div>
+          <div class="arrow">→</div>
+          <div class="step f">
+            <span class="n">2</span><b>"What I heard"</b>Five lines in your
+            words. You correct them on the spot.
+          </div>
+          <div class="arrow">→</div>
+          <div class="step f">
+            <span class="n">3</span><b>Phase plan</b>Parts in order, time per
+            part, the faster way when one exists at no loss. You choose.
+          </div>
+          <div class="arrow">→</div>
+          <div class="step o">
+            <span class="n">4</span><b>Main questionnaire</b>Each decision as
+            options A (pick), B, Other. Your answers are the record.
+          </div>
+        </div>
+      </div>
+
+      <div class="band">
+        <div class="who opus">
+          SPEC<small>Opus; Fable for risky parts</small>
+        </div>
+        <div class="steps">
+          <div class="step p">
+            <span class="n">5</span><b>Small questions</b>Only when the answer
+            changes what is built. Otherwise the safe pick, logged.
+          </div>
+          <div class="arrow">→</div>
+          <div class="step p">
+            <span class="n">6</span><b>Spec page</b>Top for you: goal, 2
+            non-negotiables, story, picture, rules, scenarios S1–S5, how we get
+            there. Bottom for builders.
+          </div>
+          <div class="arrow">→</div>
+          <div class="step p">
+            <span class="n">7</span><b>Attack read</b>Risky parts only. A fresh
+            session briefed to find what is wrong, never to approve.
+          </div>
+          <div class="arrow">→</div>
+          <div class="step o">
+            <span class="n">8</span><b>Confirm sheet</b>One row per decision:
+            Yes · Explain again · Change to.
+            <span class="badge b-conf">Confirmed</span>
+          </div>
+        </div>
+      </div>
+      <div class="loop">
+        ↺ <b>Explain again</b> or <b>Change</b> goes back to step 6 until every
+        row is Yes. No Yes, no code.
+      </div>
+
+      <div class="band">
+        <div class="who sonnet">
+          BUILD<small>Opus manages · Sonnet builds</small>
+        </div>
+        <div class="steps">
+          <div class="step p">
+            <span class="n">9</span><b>Plan + tasks</b>How it is built, on the
+            shared part cards. Tasks under a day, each pointing at its spec ids.
+          </div>
+          <div class="arrow">→</div>
+          <div class="step s">
+            <span class="n">10</span><b>Build</b>Tests first, named after the
+            ids, seen red then green. Behind a switch: off = today.
+          </div>
+          <div class="arrow">→</div>
+          <div class="step g">
+            <span class="n">11</span><b>Analyze</b>Every rule ↔ scenario ↔ test
+            ↔ task. Shared parts really imported. 20 of 20 green.
+          </div>
+          <div class="arrow">→</div>
+          <div class="step p">
+            <span class="n">12</span><b>Review once</b>Code against the spec,
+            look against the picture. Build report by scenario.
+            <span class="badge b-built">Built</span>
+          </div>
+        </div>
+      </div>
+      <div class="loop">
+        ↺ Sonnet fails the same thing 3× → Opus medium → Opus high → Fable. Each
+        new try needs new evidence.
+      </div>
+
+      <div class="band">
+        <div class="who owner">
+          VERIFY<small>You, when a feature is complete</small>
+        </div>
+        <div class="steps">
+          <div class="step o">
+            <span class="n">13</span><b>Your test</b>On the PC preview, spec
+            page open beside it, by scenario number: "S3 fails, saw X, expected
+            Y".
+          </div>
+          <div class="arrow">→</div>
+          <div class="step g">
+            <span class="n">14</span><b>Issues</b>Each finding becomes a GitHub
+            Issue in your words, with screenshot. Issue number = bug id. Board
+            updates itself.
+          </div>
+          <div class="arrow">→</div>
+          <div class="step p">
+            <span class="n">15</span><b>Fix loop</b>Bug → the scenario changes
+            first → the test → the code. Runs beside the next part.
+            <span class="badge b-ver">Verified</span>
+          </div>
+          <div class="arrow">→</div>
+          <div class="step o">
+            <span class="n">16</span><b>Switch ON</b>Only on your yes. iPad
+            reading check at each release.
+            <span class="badge b-live">Live</span>
+          </div>
+        </div>
+      </div>
+      <div class="loop">
+        ↺ Steps 13–15 repeat until you say yes. A finding that shows the spec
+        was wrong goes back to step 6 as a change, never straight into code.
+      </div>
+
+      <div class="foot">
+        <span
+          >Phase end: you and Fable read the numbers (docs/metrics), declare the
+          phase done, and step 1 starts for the next one.</span
+        >
+        <span>Learning Notes · method v2 · 21 Nov 2026</span>
+      </div>
+    </section>
+
+    <!-- ============ PICTURE 2 ============ -->
+    <section class="page" id="p2">
+      <h1>2 · Where you are needed, and the ladder</h1>
+      <p class="sub">
+        Everything else is done for you. Your eight touchpoints, what only you
+        can give, and how a stuck problem climbs.
+      </p>
+      <div class="cols">
+        <div class="card">
+          <h2>Your eight touchpoints</h2>
+          <div class="tp">
+            <div class="k">1</div>
+            <div>
+              <b>Free talk.</b> Goal, why, what you like in other apps. State
+              the goal and the constraint; let the AI propose the solution.
+            </div>
+            <div class="t">as long as it takes</div>
+          </div>
+          <div class="tp">
+            <div class="k">2</div>
+            <div>
+              <b>Correct "what I heard".</b> Five lines after every talk round.
+            </div>
+            <div class="t">2 minutes</div>
+          </div>
+          <div class="tp">
+            <div class="k">3</div>
+            <div>
+              <b>Choose in the plan.</b> Time per part, the faster way, must /
+              nice / later.
+            </div>
+            <div class="t">10 minutes per phase</div>
+          </div>
+          <div class="tp">
+            <div class="k">4</div>
+            <div>
+              <b>Answer the main questionnaire</b> in one go. "Explain again" is
+              always allowed.
+            </div>
+            <div class="t">one sitting</div>
+          </div>
+          <div class="tp">
+            <div class="k">5</div>
+            <div>
+              <b>Sign the confirm sheet</b> the same day, so builders never
+              idle.
+            </div>
+            <div class="t">same day</div>
+          </div>
+          <div class="tp">
+            <div class="k">6</div>
+            <div>
+              <b>Test by scenario</b> on the PC preview when a feature is
+              complete.
+            </div>
+            <div class="t">10–20 minutes</div>
+          </div>
+          <div class="tp">
+            <div class="k">7</div>
+            <div>
+              <b>File bugs</b> from any device: saw, expected, screenshot. Or
+              say it in chat and it is filed for you.
+            </div>
+            <div class="t">30 seconds each</div>
+          </div>
+          <div class="tp">
+            <div class="k">8</div>
+            <div>
+              <b>Say yes to switch ON,</b> and read the phase numbers with
+              Fable.
+            </div>
+            <div class="t">per release / phase</div>
+          </div>
+          <h2 style="margin-top: 18px">What only you can give</h2>
+          <ul class="plain">
+            <li>
+              Real material: your own notebooks, summaries, words. Tests on real
+              values catch real bugs.
+            </li>
+            <li>
+              Screenshots of apps that do it the way you like. One picture beats
+              a page.
+            </li>
+            <li>Must-never lines. Each one becomes a test.</li>
+            <li>
+              Device facts for a bug: where, which app, what you tapped, what
+              you saw, in order.
+            </li>
+            <li>
+              Overrides said plainly: "I hear the reason, I choose X anyway."
+              Logged as an override.
+            </li>
+            <li>New ideas go to the ideas list, never into a running part.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h2>The ladder: who takes a stuck problem</h2>
+          <div class="ladder">
+            <div class="rung sonnet">
+              <div><b>Sonnet</b><br />medium effort</div>
+              <div class="why">
+                Builds one task. Three fails on the same thing, each try with
+                new evidence (a failing test, a trace, a measurement).
+              </div>
+            </div>
+            <div class="down">↓</div>
+            <div class="rung opus">
+              <div><b>Opus</b><br />medium effort</div>
+              <div class="why">
+                Takes the task over. Manages the build and reviews once.
+              </div>
+            </div>
+            <div class="down">↓</div>
+            <div class="rung opus">
+              <div><b>Opus</b><br />high effort</div>
+              <div class="why">
+                New (owner, 21 Nov): if the result falls short, raise the effort
+                before changing the model. Smaller step, about a third more
+                cost.
+              </div>
+            </div>
+            <div class="down">↓</div>
+            <div class="rung fable">
+              <div><b>Fable</b><br />medium effort</div>
+              <div class="why">
+                Plans each phase with you; otherwise only for what Opus could
+                not solve and for very risky decisions. Used as little as
+                possible.
+              </div>
+            </div>
+            <div class="down">↓</div>
+            <div class="rung owner">
+              <div><b>You</b></div>
+              <div class="why">
+                Last. Only for money, logins, switching ON, data loss, a device
+                test, or a real product decision.
+              </div>
+            </div>
+          </div>
+          <h2 style="margin-top: 18px">Honesty rules (owner, 21 Nov)</h2>
+          <ul class="plain">
+            <li>Every pick carries the case against it, in one line.</li>
+            <li>
+              A position changes only for a named new reason: new evidence or a
+              new argument.
+            </li>
+            <li>
+              Override log: "owner chose X; the AI's reason against was Y".
+            </li>
+            <li>
+              "Done" needs proof: the test run, the screenshot, the page in a
+              browser.
+            </li>
+            <li>
+              Tells to watch: praise of your idea, instant flips, "works"
+              without proof.
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="foot">
+        <span>Rules change only between phases, with your word.</span
+        ><span>Learning Notes · method v2 · 21 Nov 2026</span>
+      </div>
+    </section>
+
+    <!-- ============ PICTURE 3 ============ -->
+    <section class="page" id="p3">
+      <h1>3 · One source, two faces, and where your old files go</h1>
+      <p class="sub">
+        The repo is the only source. A free program rebuilds every face on each
+        push. No AI, no tokens, nothing to keep in sync by hand.
+      </p>
+      <div class="flow3">
+        <div class="box">
+          <h2>Source · the repo on GitHub</h2>
+          <ul>
+            <li>
+              <b>Constitution:</b> CLAUDE.md + rules/ (+ Spec Kit points here)
+            </li>
+            <li><b>Method:</b> this flow, one page</li>
+            <li><b>Phase plan:</b> the one live plan</li>
+            <li>
+              <b>Specs:</b> features/ (template v2) and parts/ (shared part
+              cards)
+            </li>
+            <li><b>Decisions log</b> with the override log</li>
+            <li><b>Changelog</b></li>
+            <li><b>State:</b> one file: now, needs you, next</li>
+            <li><b>Ideas</b> (parking lot) · <b>Metrics</b> (numbers)</li>
+            <li>
+              <b>GitHub Issues:</b> every bug and finding; the issue number is
+              the bug id
+            </li>
+          </ul>
+        </div>
+        <div class="big">→</div>
+        <div class="box" style="border-left: 5px solid var(--prog)">
+          <h2>GitHub Action · on every push</h2>
+          <ul>
+            <li>Reads spec statuses, part cards, issues</li>
+            <li>
+              Runs <b>analyze</b>: rules ↔ scenarios ↔ tests ↔ tasks, shared
+              parts really used
+            </li>
+            <li>Writes one data file (specs, bugs, states)</li>
+            <li>Builds and publishes the site</li>
+            <li>Free. No AI. No secret needed on GitHub Pages.</li>
+          </ul>
+        </div>
+        <div class="big">→</div>
+        <div class="box" style="border-left: 5px solid var(--owner)">
+          <h2>Faces · what you open</h2>
+          <ul>
+            <li>
+              <b>Site (GitHub Pages):</b> spec pages with pictures and status
+              badges, the confirm sheet read-only, the bug board (pending ·
+              working on it · complete, one tap to detail), decisions,
+              changelog, state. iPad, phone, PC.
+            </li>
+            <li>
+              <b>In-app "Project" notebook</b> (later, when database views
+              exist): the same data file inside Learning Notes. Your app shows
+              your bugs.
+            </li>
+            <li>
+              <b>Chat:</b> status line morning and evening; build report by
+              scenario per feature; "what I heard" after each talk.
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="map">
+        <h2>Where your existing files go (moved, nothing deleted)</h2>
+        <table>
+          <tr>
+            <th style="width: 34%">Today</th>
+            <th>In the new system</th>
+          </tr>
+          <tr>
+            <td>README.md</td>
+            <td>
+              Stays the front door of the repo; becomes the site's home page.
+            </td>
+          </tr>
+          <tr>
+            <td>CLAUDE.md, rules/</td>
+            <td>
+              The constitution. Gains the honesty rules and the Opus-high step
+              with the new plan.
+            </td>
+          </tr>
+          <tr>
+            <td>docs/METHOD.md, HOW-WE-BUILD.md</td>
+            <td>Replaced by method v2 (this flow) and the agent files.</td>
+          </tr>
+          <tr>
+            <td>docs/DECISIONS.md (1600 lines)</td>
+            <td>
+              Stays, append-only, shown on the site. Entries of finished phases
+              move to the archive with an index.
+            </td>
+          </tr>
+          <tr>
+            <td>docs/CHANGELOG.md</td>
+            <td>
+              Stays; the site shows it as "what changed". Each spec's own
+              changes list is its per-feature view.
+            </td>
+          </tr>
+          <tr>
+            <td>PENDING.md + BUILD-STATE.md + HANDOFF.md</td>
+            <td>One STATE.md. The open problems become issues.</td>
+          </tr>
+          <tr>
+            <td>design/owner-decisions.md</td>
+            <td>
+              Approved pictures move into their spec pages; the diary text goes
+              to the archive.
+            </td>
+          </tr>
+          <tr>
+            <td>docs/plans/ (60+ files), docs/features/ (90 specs)</td>
+            <td>
+              One live phase plan; specs of parts that exist or are being built
+              stay; everything else to docs/archive with a one-line index.
+            </td>
+          </tr>
+          <tr>
+            <td>IDEAS.md, LIMITATIONS.md, ROADMAP.md, CODE-MAP.md, metrics/</td>
+            <td>Stay live; the site shows ideas, limits and numbers.</td>
+          </tr>
+        </table>
+      </div>
+      <div class="foot">
+        <span
+          >Pictures 1–3 are the artifact for method v2; the written plan follows
+          your answers.</span
+        ><span>Learning Notes · method v2 · 21 Nov 2026</span>
+      </div>
+    </section>
+  </body>
+</html>

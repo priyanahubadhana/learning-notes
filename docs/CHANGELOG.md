@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B11 drawer jump and b10-6 pictures
+
+- **What:** the phone drawer's rows no longer jump 24 px left while it opens (the old frame reserved the scroll handle's gutter only about 200 ms late, so a tap could land beside ⋯; the gutter is now there from the first frame). A new test samples every frame in both frames. The b10-6 picture test follows a straight user path (Today, wait for the page, open the drawer once, tap ⋯) with no retry loop.
+- **Why:** B11 test health: the b10-6 pictures failed in both full runs; the trace showed a real moving target.
+- **Files:** src/notebooks/Sidebar.tsx, e2e/b11DrawerSteady.spec.ts, e2e/b10-6JournalRename.spec.ts, playwright.config.ts. 140/140 on chromium and ipad-webkit.
+
 ### 21 Nov 2026: B11 aiPicker (model card drag)
 
 - **What:** a quick drag of an AI model card now lands where the finger lifts (the drop place comes from the pointerup event, not from the last drawn move, which could be one step old). The aiPicker test makes sure the cards are on screen and that the saved order is stored before it reloads.

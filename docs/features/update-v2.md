@@ -35,7 +35,7 @@ Each rule is one short line; the detail is in the scenarios.
 **Always true**
 
 - **Check often.** The app checks when it opens and on your first change.
-- **One place.** The pill offers the download; one tap starts it.
+- **One place.** The pill (sidebar place on iPad and PC) offers the download; one tap.
 - **Installs itself.** After the download it installs at once, no second question.
 - **Three seconds.** "Restarting" shows a 3-second timer with Cancel, then restarts.
 - **Same place.** After the restart you are on the same page and scroll place.
@@ -44,7 +44,7 @@ Each rule is one short line; the detail is in the scenarios.
 - **Not while writing.** The prompt waits for a pause in writing or drawing.
 - **Settings first page.** Update and the version sit at the top of Settings.
 - **Real numbers.** The download shows its real percent, never above 100.
-- **Fast.** From tap to the new version in under 30 s on a normal line.
+- **Fast.** From tap to the new version in under 30 s (our proposal).
 
 **Must never happen**
 
@@ -59,15 +59,15 @@ Each rule is one short line; the detail is in the scenarios.
 
 **Limits**
 
-- No server or Supabase change; the version file stays a static file on the host.
-- No restart while a save is still running; it waits up to 5 s, then says so.
+- No server or Supabase change; the version file stays static.
+- No restart during a save; waits up to 5 s, then says so.
 - Offline: the update waits for the internet; your notes stay usable.
 
 ## Scenarios
 
 What happens, not where to tap. Values from the owner's facts of 22 Nov 2026 (phase-pc-1.md section 18).
 
-- **S1, the plain case (optional update).** Given the owner opens the app on the iPad after a release, when the pill says the new version is ready and the owner taps Update, then the download fills to 100%, it installs by itself, "Restarting in 3" counts down, the app restarts on the same page and says "Updated to" the new version. Asked once only. (UP-N1, UP-N2, UP-N3)
+- **S1, the plain case (optional update).** Given the owner opens the app on the iPad after a release, when the pill says the new version is ready and the owner taps Update, then the download fills to 100%, it installs by itself, the one 3-second prompt counts down, the app restarts on the same page and says "Updated to" the new version. Asked once only. (UP-N1, UP-N2, UP-N3)
 - **S2, a required update.** Given a release that changes how notes are stored, when the app finds it, then changes are paused (reading still works), the download runs, the same 3-second prompt restarts the app, and editing works again after. Cancel only stops the countdown; changes stay paused. (UP-N8)
 - **S3, the thing that goes wrong (the owner's loop, on a slow line).** Given the iPad on a slow line, when the update downloads, then "Restarting" never shows before the download is complete; if the restart does not happen within 3 s, the pill says "The update did not finish" with Try again; Try again finishes it, with no loop. (UP-N2, UP-N6)
 - **S4, after the update.** Given the update has installed, when the owner closes the app from the app switcher and opens it again, then no download starts and Settings says "Up to date" with the new version. (UP-N4, UP-N5)
@@ -146,6 +146,12 @@ S1 to S7 pass on chromium and ipad-webkit, 20 of 20; U0a's tests pass without `t
 | 14  | The 3-second prompt and the Settings pictures look right.                                       |
 | 15  | The version shows as a number like 1.4.2 (or: keep the short code abc1234).                     |
 | 16  | Design and quality: the check list in the bottom layer is complete.                             |
+| 17  | Row 4 choice: A (my pick) installs by itself; B an Install button after the download.           |
+| 18  | After the restart I am on the same page and scroll place.                                       |
+| 19  | The download shows its real percent, never above 100.                                           |
+| 20  | "Fast" means under 30 s from tap to new version (our proposal for your "fast").                 |
+| 21  | Limits: no server change; no restart during a save; offline waits, notes usable.                |
+| 22  | The earlier spec's states, notice details and iPad check are kept or replaced as listed below.  |
 
 ---
 
@@ -241,6 +247,23 @@ Today (`vite.config.ts:36-51`, `src/app/updates.ts:128-136`): a build is "requir
 | Version line                                                     | `settings/UpdateLine.tsx` (U0a)                      | grows into the Update card             |
 | Other-tab apply message                                          | `app/updateChannel.ts:16`                            | kept; also carries U11                 |
 | Test hook `learning-notes:test-required-update`                  | `main.tsx:203`                                       | kept (e2e)                             |
+
+### Kept from the earlier spec, or replaced
+
+| Earlier item                                                                                                                                   | Now                                                                                  |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| States, error: download, install and save failed, each with plain words, Try again and (Professional) "Copy details"                           | kept; also UP-03 for the restart                                                     |
+| States, phone: same column, 16 px side margins, buttons stack full width                                                                       | kept for the prompt and the pause notice                                             |
+| States, dark: tokens only; ring and bar keep 3:1 contrast                                                                                      | kept (pictures, dark)                                                                |
+| "About N seconds" from the download size and measured speed; hidden when unknown                                                               | kept on the pill while downloading and on the Settings card                          |
+| Full-screen notice, 5 s countdown, sizes and motion (old "Sizes, spacing, motion")                                                             | replaced by the 3-second prompt and paused edits (confirm row 7)                     |
+| Screenshots: notice countdown, downloading, paused, installing, failed, offline × light/dark × iPad both ways/phone/PC                         | kept, applied to pill states 1 to 8, the prompt and the Settings card                |
+| Owner iPad check, 3 steps (Check for updates; "Pretend a must-have update" test button in Settings › Advanced, preview only; Wi-Fi off and on) | kept, with Check now on Settings' first page (S5); scenario numbers S1, S2, S7       |
+| Decision: offline must-have never locks you out; small note, countdown resumes online                                                          | kept (U10, S7)                                                                       |
+| Decision: a number that only goes up (`level`) replaces "newest commit says required"                                                          | kept (slice 10 rule 3)                                                               |
+| Decision: other tab treated as must-have without a network check                                                                               | kept (U11)                                                                           |
+| Decision: unlock id `about.updateDetails` still proposed; until agreed, U15 uses `about.version`                                               | kept, still open                                                                     |
+| Decision: "Not now" during the countdown, "Cancel" during the download, both lead to Paused; app stays blocked                                 | replaced: Cancel on the one 3-second prompt (S2, S6); required stays blocked (UP-N8) |
 
 ### Not in this part
 

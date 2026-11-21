@@ -101,4 +101,7 @@ export const esFlags = {
   'flags.journal.monthRepair.name': 'Reparar meses del diario',
   'flags.journal.monthRepair.desc':
     'Une dos páginas del mismo mes del diario en una, con Deshacer.',
+  'flags.update.versionLine.name': 'Línea de versión en Ajustes',
+  'flags.update.versionLine.desc':
+    'Muestra la versión y si la app está al día al principio de Ajustes.',
 }

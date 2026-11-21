@@ -49,4 +49,13 @@ export const hiUpdates = {
     'पहले इस ब्राउज़र में सब कुछ की एक बैकअप प्रति सहेजी गई। आप अपने कंप्यूटर पर बैकअप फ़ाइल भी सहेज सकते हैं।',
   'upgrade.title': 'आपके नोट रखने का तरीका अपडेट हो रहा है',
   'upgrade.withoutFile': 'फ़ाइल छोड़ें, बस अपडेट करें',
+  'upd.line.version': 'संस्करण {commit}',
+  'upd.line.upToDate': 'अप टू डेट',
+  'upd.line.notChecked': 'अभी जाँचा नहीं गया',
+  'upd.line.checking': 'अपडेट खोजे जा रहे हैं…',
+  'upd.line.downloading': 'अपडेट डाउनलोड हो रहा है…',
+  'upd.line.ready': 'अपडेट तैयार है',
+  'upd.line.restarting': 'दोबारा शुरू हो रहा है…',
+  'upd.line.failed': 'जाँच नहीं हो सकी',
+  'upd.line.offline': 'ऑफ़लाइन',
 }

@@ -98,4 +98,7 @@ export const hiFlags = {
   'flags.journal.monthRepair.name': 'जर्नल महीना सुधार',
   'flags.journal.monthRepair.desc':
     'जर्नल में एक ही महीने के दो पेज को एक में जोड़ता है, पूर्ववत के साथ।',
+  'flags.update.versionLine.name': 'सेटिंग में संस्करण पंक्ति',
+  'flags.update.versionLine.desc':
+    'सेटिंग के ऊपर संस्करण और ऐप अप टू डेट है या नहीं दिखाता है।',
 }

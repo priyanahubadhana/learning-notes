@@ -41,3 +41,4 @@ playwright.*.config.ts
 # local Supabase CLI temp
 supabase/.temp/
 .features-gen
+.u0a

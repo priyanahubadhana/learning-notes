@@ -38,4 +38,13 @@ export const enLateUpdates = {
     'A new version is ready, but this device is low on space, so no safety copy was made.',
   'update.risk.unsaved':
     'A new version is ready, but some changes could not be saved yet.',
+  'upd.line.version': 'Version {commit}',
+  'upd.line.upToDate': 'Up to date',
+  'upd.line.notChecked': 'Not checked yet',
+  'upd.line.checking': 'Checking for updates…',
+  'upd.line.downloading': 'Downloading the update…',
+  'upd.line.ready': 'Update ready',
+  'upd.line.restarting': 'Restarting…',
+  'upd.line.failed': 'Could not check',
+  'upd.line.offline': 'Offline',
 }

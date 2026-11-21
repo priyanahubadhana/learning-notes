@@ -2,7 +2,19 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-**Draft, waiting for the owner's yes (20 Nov 2026).** The "why" lens was written by Fable from the owner's recorded decisions (docs/design/owner-decisions.md "One smart selection bar", "Selected box: one bar like Goodnotes", "Paste and the Pencil buttons"; fable-brief-smart-select.md sections 3 and 8 to 12; the Goodnotes check in the phase page). The "how" and "whether" lenses run before Part B3. **No part after B2 is built before the owner has approved the pictures of B2.** Plan: [../plans/phases/phase-2-finish.md](../plans/phases/phase-2-finish.md), parts B1 to B9.
+**Pictures approved by the owner on 21 Nov 2026 (check C3, docs/mockups/smart-bar/, pictures 1 to 22). This text waits for the owner's confirm.** Earlier: draft of 20 Nov. The "why" lens was written by Fable from the owner's recorded decisions (docs/design/owner-decisions.md "One smart selection bar", "Selected box: one bar like Goodnotes", "Paste and the Pencil buttons"; fable-brief-smart-select.md sections 3 and 8 to 12; the Goodnotes check in the phase page). The "how" and "whether" lenses run before Part B3. **No part after B2 is built before the owner has approved the pictures of B2.** Plan: [../plans/phases/phase-2-finish.md](../plans/phases/phase-2-finish.md), parts B1 to B9.
+
+## Read this first (plain words, for the owner's confirm)
+
+- One bar appears whenever something is selected: words, a box, a drawing, a picture, or a mix. It replaces today's three bars. Nothing they can do is lost.
+- When you select words, Cut, Copy and Delete are added **at the end**, so nothing moves under your Pencil. Link is under ⋯.
+- **Where it goes:** the first free place in this order: (1) below the selection, (2) above it, (3) upright on its right, (4) upright on its left, (5) if there is no room anywhere, just under the top tool bar, over the box but never over the words you selected. You can drag it anywhere and pin it.
+- **Names on hover:** hover with the Pencil or a mouse and a button's name shows. Holding with a finger shows nothing for now.
+- **Aa (Font)** opens a strip with the same three fonts the box bar has today (Easy to read, Classic, Handwritten) and More fonts…, each shown in its own look. **Size** opens the slider, − and + strip with a live sample.
+- **A drawing:** Colour and Thickness are on the bar.
+- **The small ⋯ tab under a box is removed.** Its menu is the bar's ⋯.
+- **Every ⋯ ends with Customise bar…**, which opens the **same customiser the tool bar already has** (presets, a set for each kind of selection, live preview, reorder, reset). Nothing new is built for it. The Lasso tool also gets a Customise entry now, with its options added later.
+- With the switch off, everything stays exactly as today.
 
 ## Purpose
 
@@ -19,12 +31,16 @@ As a learner who works with the Apple Pencil, I want one bar that shows the righ
 - **One bar.** There is one bar. Its look is the approved one bar of 18 Nov (docs/mockups/box-bar/); each button opens a small strip right under it.
 - **Follows the selection.** It follows what is selected (Auto, on by default): the cursor in text, words selected, a box, a drawing, a picture, a mix.
 - **Nothing dropped.** Nothing is dropped: every button of the three old bars is on the bar or under ⋯.
-- **Calm.** When words get selected, the selection buttons (Cut, Copy, Delete, Link) are added at the end; the bar keeps its place and shape.
+- **Calm.** When words get selected, Cut, Copy and Delete are added at the end; the bar keeps its place and shape (owner, 21 Nov: A). Link is under ⋯ (owner, 21 Nov).
 - **Paste on the bar.** Paste ▾ is on the bar: a tap pastes and keeps the look; ▾ offers Plain text and More.
+- **Where it goes (owner, 21 Nov; pictures 15 to 19).** The first place with room wins: (1) below the selection; (2) above it; (3) upright on its right; (4) upright on its left; (5) no room anywhere: just under the top tool bar, over the box but never over the selected words. It is never cut off by the page or the screen.
 - **Stays where I put it.** The bar can be moved, pinned and docked on any of the four sides; a pinned or docked bar stays on every page and after the app is closed.
-- **Two presets.** Two presets, Edit and Study; the owner chooses and orders the buttons in Settings › Tool bar › Selection bar.
+- **Two presets, one customiser.** Two presets, Edit and Study. Every ⋯ menu ends with **Customise bar…** (owner, 21 Nov; picture 20), which opens the tool bar's existing customiser (reused, not rebuilt): presets, a button set for each kind of selection, a live preview, reorder, on the bar or under ⋯, reset. The same place as Settings › Tool bar › Selection bar.
+- **Font and size strips (owner, 18 and 21 Nov; pictures 21 and 22).** Aa opens a strip with the three quick fonts the box bar already has (Easy to read, Classic, Handwritten) and More fonts…, each drawn in its own look with a sample of the words; the current one has a ✓. Size opens the strip of 18 Nov (slider, −, number, +) with a live sample.
+- **Drawing and box.** For a drawing, Colour and Thickness are on the bar (owner, 21 Nov). The small ⋯ tab under a box is removed; its menu is the bar's ⋯ (owner, 21 Nov).
+- **Lasso tool.** Its menu gets a Customise entry now; its options come later (owner, 21 Nov).
 - **Phone.** On a phone: the same presets, fewer buttons, the rest under ⋯.
-- **Names, and one red button.** A held button shows its name. Delete is the only red button.
+- **Names, and one red button.** Hovering over a button (Pencil hover or a mouse) shows its name; a held finger shows nothing for now (owner, 21 Nov). Delete is the only red button.
 
 **Can never happen**
 
@@ -43,7 +59,7 @@ As a learner who works with the Apple Pencil, I want one bar that shows the righ
 - The AI button stays hidden until the owner approves the AI cost.
 - With the switch off, today's three bars are exactly as they are.
 
-**Order as drawn (owner, 20 Nov):** Edit = Delete, Paste ▾, Cut, Copy, B/I, Colour, Size, Highlight, ⋯. Study = Highlight, Colour, Make card, B/I, Copy, ⋯ (owner, 20 Nov, later: highlighting matters most, Make card yes; Add to summary and Revise mark sit under ⋯, nothing dropped).
+**Order (owner, 21 Nov, C3):** the buttons already shown stay put and new ones join at the end (choice A). Earlier order as drawn (owner, 20 Nov): Edit = Delete, Paste ▾, Cut, Copy, B/I, Colour, Size, Highlight, ⋯. Study = Highlight, Colour, Make card, B/I, Copy, ⋯ (owner, 20 Nov, later: highlighting matters most, Make card yes; Add to summary and Revise mark sit under ⋯, nothing dropped).
 
 ## Scenarios
 
@@ -60,6 +76,7 @@ Feature: One bar for every selection
     Given the bar is showing for the cursor in a text box
     When I select the word "2000"
     Then Cut, Copy and Delete are added at the end of the bar
+    And Link is under ⋯
     And the bar has not moved or changed its shape
 
   Scenario: S3 A drawing gets drawing buttons
@@ -79,12 +96,39 @@ Feature: One bar for every selection
     When I select the word "2000"
     Then the bar starts with Highlight, Colour and Make card
 
-  Scenario: S6 No room near the selection
+  Scenario: S6 Below first
+    Given a text box with room below it
+    When I select the word "2000"
+    Then the bar sits below the box
+
+  Scenario: S6b A tall box gets the bar upright at its side
+    Given a text box from the top of the page to the bottom, with room on its right
+    When I select the word "2000"
+    Then the bar stands upright on the right of the box
+    And if there is no room on the right, it stands upright on the left
+
+  Scenario: S6c No room anywhere
     Given a text box that fills the page
     When I select words in it
-    Then the bar sits in free space
+    Then the bar sits just under the top tool bar
     And it does not cover the selected words
     And it is fully on the screen
+
+  Scenario: S8 A button's name on hover
+    Given the bar is showing
+    When I hover the Pencil over Aa
+    Then the name "Font" shows
+
+  Scenario: S9 The font strip shows each font in its own look
+    Given words are selected
+    When I tap Aa
+    Then a strip shows Easy to read, Classic and Handwritten, each in its own look, and More fonts…
+    And the current font has a ✓
+
+  Scenario: S10 Customise bar opens the tool bar's customiser
+    Given the bar's ⋯ is open
+    When I choose Customise bar…
+    Then the customiser opens on the selection bar, with the preset and the kind of selection I am on
 
   Scenario: S7 A pinned bar stays where I put it
     Given I moved the bar to the left side and pinned it

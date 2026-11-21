@@ -1,6 +1,6 @@
 # Build state (rewritten in place, never appended)
 
-BUILDING (20 Nov, Opus main chat, lean mode). Plan: docs/plans/phases/phase-2-finish.md (about 67 small parts, stages 0 to 5; estimate 15 to 18 days). Method: docs/METHOD.md. Code line `build/next` b8ddaf81. Owner check C0 under way: docs/plans/c0-findings-2026-11-20.md.
+PAUSED (owner, 21 Nov evening: all development stopped to talk with Fable; read docs/plans/fable-handoff-2026-11-21.md first). Was: BUILDING (20 Nov, Opus main chat, lean mode). Plan: docs/plans/phases/phase-2-finish.md (about 67 small parts, stages 0 to 5; estimate 15 to 18 days). Method: docs/METHOD.md. Code line `build/next` b8ddaf81. Owner check C0 under way: docs/plans/c0-findings-2026-11-20.md.
 
 ## Now
 

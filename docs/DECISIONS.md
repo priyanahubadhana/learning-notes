@@ -1691,3 +1691,8 @@ Relayed by Fable to the phase manager, who applies them in M1, M2, M5, M8 and M9
 - **docs/MASTER-PLAN.md Confirmed:** all eight rows Yes.
 - **Principle pictures held:** the owner asked for more research on the design decisions (icons, premium look, past design rules) first; Fable researches and republishes principles.md; the ten pictures are drawn only after the owner confirms that page.
 - **M8 clashes sent to Fable** (Fable's files): weekly card day (CLAUDE.md Saturday vs METHOD-v2 S7 "Sunday" and its open point); M8 changing rules mid-phase against M-N4 (owner-decided, logged as such); agent files may still say "Opus five times". rules/testing.md is aligned with the owner's Q7 answer by M8.
+
+### 22 Nov 2026 (phase manager): Decisions to review, M8
+
+- **M-N4 discussed:** the rule changes of M8 were set at the start of stage 1, between the paused phase and the new one, by the owner's decisions of 21 and 22 Nov, not in the middle of a phase (Fable, METHOD-v2 changes log). Logged so the weekly card sees it.
+- **Manager slip:** my clash-3 instruction to M8 moved the "real use at iPad size" check to touch/Pencil tasks only; no decision supports that; the review caught it and it is reverted.

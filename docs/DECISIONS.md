@@ -1684,3 +1684,10 @@ Relayed by Fable to the phase manager, who applies them in M1, M2, M5, M8 and M9
 - **Found-wishes sweep** by Opus; old plan pages archived after the owner's pass on it.
 - **Manager's added parts, in order after the ideas sorting:** (a) Pillar column in FEATURES.md; (b) found-wishes sweep docs/plans/found-wishes-2026-11-22.md; (c) after the owner's answers, archive the old plan pages, ROADMAP.md becomes a pointer; (d) ten principle pictures; (e) site home order and Stage badge, pillar letters, the red Must-never box. Replan count stays 0 (additions the owner asked for).
 - **CI:** build/next after the main merge (8306ab77) green, run 44952743771.
+
+### 22 Nov 2026, 06:20 (owner with Fable, relayed): two sheets closed, pictures held
+
+- **update-v2.md fully Confirmed:** the owner said yes to the redrawn Settings pictures (row 14 closed). U0c may include the Settings card (S0).
+- **docs/MASTER-PLAN.md Confirmed:** all eight rows Yes.
+- **Principle pictures held:** the owner asked for more research on the design decisions (icons, premium look, past design rules) first; Fable researches and republishes principles.md; the ten pictures are drawn only after the owner confirms that page.
+- **M8 clashes sent to Fable** (Fable's files): weekly card day (CLAUDE.md Saturday vs METHOD-v2 S7 "Sunday" and its open point); M8 changing rules mid-phase against M-N4 (owner-decided, logged as such); agent files may still say "Opus five times". rules/testing.md is aligned with the owner's Q7 answer by M8.

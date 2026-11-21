@@ -1,8 +1,8 @@
 # Master plan: the front door
 
-| Status                                                     | Scope                                                                                          | Builds on                                                                                                                   | Last change        |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| Draft, waiting for the owner's confirm sheet (22 Nov 2026) | the whole project: vision, stages, method, principles, register, plans, roles, tools, measures | docs/METHOD-v2.md, docs/FEATURES.md, docs/plans/stage-1-plan.md, docs/design/principles.md, docs/design/quality-standard.md | 22 Nov 2026, Fable |
+| Status                                        | Scope                                                                                          | Builds on                                                                                                                   | Last change        |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Confirmed 22 Nov 2026 (owner, all 8 rows Yes) | the whole project: vision, stages, method, principles, register, plans, roles, tools, measures | docs/METHOD-v2.md, docs/FEATURES.md, docs/plans/stage-1-plan.md, docs/design/principles.md, docs/design/quality-standard.md | 22 Nov 2026, Fable |
 
 This page is the one place to start. It is short on purpose: every section links to the live page that holds the detail, so this page never goes stale. If a thing is not reachable from here, it is not part of the plan.
 

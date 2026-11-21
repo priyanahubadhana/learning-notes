@@ -9,6 +9,7 @@ Rewritten 20 Nov (part D0). The plan: [plans/phases/phase-2-finish.md](plans/pha
 - **Now:** the 20-minute catch-up check **C0** on the preview, with "Circle recorder" off (plan section 6 lists the 11 items). Do it in a calm window, morning or evening.
 - **Reminder (owner asked, 21 Nov):** set up Notion in a new chat (the tools did not load in the old one), then the Notion mirror of plan, specs and bugs (docs/IDEAS.md).
 - **Due:** check **C1a**, one five-minute Lasso session with the quiet recorder on (Settings › Try new features › Lasso recorder); A2 merged 20 Nov.
+- **Due:** check **C3**, approve the smart bar pictures (docs/mockups/smart-bar/, 14 pictures, 3 questions): yes, or "picture N: change X". Nothing after B2 in lane B is built before this yes.
 - **Sign-offs later:** docs/features/text-select.md (before A4) and docs/features/selection-bar.md (after the B2 pictures).
 - **Leftovers you may delete when you like:** the old working copies and power-cut leftovers (list comes in part E9). The permission check blocks new working copies with a link, so old ones are reused.
 - **Small, not urgent:** Decisions to review in docs/DECISIONS.md; the security-header check (Google sign-in, Drive, fonts; part E6); the AI test key shows masked and Test passes (never paste it in chat); Supabase Phase 8 connector job tools (needs your OK then).

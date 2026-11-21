@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B2 smart bar pictures
+
+- **What:** docs/mockups/smart-bar/index.html (14 frames: cursor, words, Study, drawing, picture, mix, box, no room; iPad sideways, upright, phone; light and dark) and png/ for a quick OK. Button places follow the B1 list; questions for C3: where Cut/Copy/Delete join, the box tab ⋯, Thickness on the bar.
+- **Why:** part B2 of phase-2-finish; nothing after B2 is built before the owner's yes.
+- **Files:** docs/mockups/smart-bar/, docs/BUILD-STATE.md, docs/PENDING.md.
+
 ### 21 Nov 2026: B1 button list merged
 
 - **What:** docs/features/selection-bar-buttons.md lists all 115 buttons of the old selection bars (where, works today, Pencil-reachable, place on the smart bar); e2e/selectionBarButtons.spec.ts (156 tests, SB-B000 keeps list and tests in step); check:spec takes SB-B ids. Broken today (test.fail): Save to notes; classic Lasso Move, Scale, Rotate, Screenshot, Convert on words; v8 ⋯ rows that do nothing; drawing-menu Delete under the sidebar grip at 1180 px. build/next 4b825720.

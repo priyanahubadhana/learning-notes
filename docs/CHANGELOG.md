@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B10-2, B10-11, B10-10
+
+- **What:** the Box style card's Shadow card tile keeps its shadow and gets a hairline border (R17); tests lock the Settings words "Keep look" and the Handwritten font (Patrick Hand) with its OFL notice (both already right). build/next f46e89ea.
+- **Why:** stage 3 leftovers of phase-2-finish.
+- **Files:** src/paper/v2/BoxCard.tsx, e2e/b10-2ShadowTile.spec.ts, e2e/b10-11KeepLook.spec.ts, e2e/b10-10HandFont.spec.ts, src/b10-10Licence.test.ts, playwright.config.ts.
+
 ### 21 Nov 2026: B10-1 Redo redoes exactly one step (R15)
 
 - **What:** the Undo and Redo buttons count clicks already taken, so they turn off at the click; a quick extra click no longer counts as a step (45 Undos vs 44 Redos). build/next 4a85e8b0.

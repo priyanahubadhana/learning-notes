@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 21 Nov 2026: B10-4, B10-5, B10-7, B10-9
+
+- **What:** a test presses the box divider itself; TB-24 closed (cause: an old panel selector, fixed by e0a07699); the More tools arrow never covers Backspace (locked by test); the toast sits 24 px above the tab bar as the shell spec says (aboveTabBar takes a gap). slice/shell-fixes is no longer needed. build/next fb3d7eec.
+- **Why:** stage 3 leftovers of phase-2-finish.
+- **Files:** e2e/tb2-resize.spec.ts, docs/HANDOFF.md, e2e/b10-7MoreArrow.spec.ts, src/app/aboveTabBar.ts, src/app/ui.tsx, playwright.config.ts.
+
 ### 21 Nov 2026: B10-3, B10-6, B10-8
 
 - **What:** R18 phone resize could not be reproduced; tests lock the south dot to the page end. R20: on touch devices two taps on a page row within 0.5 s rename it (no reliable double-click on a finger). P-18: page and lock menus use line icons, not text characters or emoji. build/next 94b19191.

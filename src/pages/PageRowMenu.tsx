@@ -55,17 +55,17 @@ export default function PageRowMenu({
   useReadOnlyGate() // re-reads the lock when the sign-in changes (Q3a)
   const editLockBy = editLockSource(page, notebook)
   const items: MenuItem[] = [
-    { label: t('sidebar.rename.title'), icon: '✎', onSelect: onRename },
+    { label: t('sidebar.rename.title'), icon: 'pencil', onSelect: onRename },
   ]
   if (canAddSub) {
-    items.push({ label: t('tree.addSub'), icon: '+', onSelect: onAddSub })
+    items.push({ label: t('tree.addSub'), icon: 'plus', onSelect: onAddSub })
   }
   if (!rootId) {
     const fav = starred.includes(page.id)
     items.push(
       {
         label: t(fav ? 'fav.remove' : 'fav.add'),
-        icon: fav ? '★' : '☆',
+        icon: 'star',
         onSelect: () => toggleFavourite(page.id),
       },
       {
@@ -80,15 +80,27 @@ export default function PageRowMenu({
   }
   if (canMove) {
     items.push(
-      { label: t('tree.moveUp'), icon: '↑', onSelect: () => onMove(-1) },
-      { label: t('tree.moveDown'), icon: '↓', onSelect: () => onMove(1) },
+      {
+        label: t('tree.moveUp'),
+        icon: 'chevronUp',
+        onSelect: () => onMove(-1),
+      },
+      {
+        label: t('tree.moveDown'),
+        icon: 'chevronDown',
+        onSelect: () => onMove(1),
+      },
     )
   }
   if (onMoveTop)
-    items.push({ label: t('tree.moveTop'), icon: '↰', onSelect: onMoveTop })
+    items.push({
+      label: t('tree.moveTop'),
+      icon: 'arrowUpRight',
+      onSelect: onMoveTop,
+    })
   items.push({
     label: t('tree.deletePage'),
-    icon: '×',
+    icon: 'trash',
     onSelect: onDelete,
     danger: true,
     disabled: !!editLockBy,

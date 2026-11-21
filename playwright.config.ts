@@ -188,6 +188,7 @@ const config = defineConfig({
         /tb2-move/,
         /tb2-group/,
         /tb2-card/,
+        /b10-8PageMenu/,
         /b10-2ShadowTile/,
         /b10-11KeepLook/,
         /b10-10HandFont/,

@@ -418,6 +418,15 @@ test('TB-09: Delete with a box selected and no caret deletes it; a toast offers 
   const p = await emptyPart(page, box)
   await tapAt(page, p.x, p.y, 'touch')
   await expect(box).toHaveAttribute('data-picked', '')
+  // Why: the page's Delete handler is attached in an effect that runs just after the
+  // box is drawn as picked (PaperFrame); a key sent in that gap finds no handler.
+  // Two animation frames let it attach (a person cannot press that fast).
+  await page.evaluate(
+    () =>
+      new Promise<void>((done) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => done())),
+      ),
+  )
   await page.keyboard.press('Delete')
   await expect(page.locator(EXTRA)).toHaveCount(0)
   await expect(

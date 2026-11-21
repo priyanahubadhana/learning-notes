@@ -4,13 +4,13 @@ The plan is [plans/phase-plan.md](plans/phase-plan.md). The state is [STATE.md](
 
 ## 1. Roles: the cheapest model that can do the job does it
 
-| Who                     | Does                                                                                                                                                                             | Never                            |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| **Sonnet**, `builder`   | one planned task, from the first test to merged                                                                                                                                  | starts unplanned work            |
-| **Opus, medium effort** | manages the build; reviews each task once (`reviewer`): the code against the plan and the look against the approved picture; takes a task over when Sonnet failed it three times | weakens a test to get green      |
-| **Fable**               | plans each phase with the owner; solves what Opus failed five times                                                                                                              | does routine reviews or building |
+| Who                     | Does                                                                                                                                                                                                                         | Never                            |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
+| **Sonnet**, `builder`   | one planned task, from the first test to merged                                                                                                                                                                              | starts unplanned work            |
+| **Opus, medium effort** | manages the build; reviews each task once (`reviewer`): the code against the plan and the look against the approved picture; takes a task over when Sonnet failed it three times; raises its own effort to high before Fable | weakens a test to get green      |
+| **Fable**               | plans each phase with the owner; solves what Opus (medium, then high) failed                                                                                                                                                 | does routine reviews or building |
 
-Every model works at medium effort (owner, 20 Nov 2026): Sonnet builders, Opus manager and reviewers (the start call sets it), and Fable. No Haiku in the build.
+Every model works at medium effort, except the Opus high step of the ladder (owner, 20 and 21 Nov 2026): Sonnet builders, Opus manager and reviewers (the start call sets it), and Fable. No Haiku in the build.
 
 **Two ways to run:**
 
@@ -19,7 +19,7 @@ Every model works at medium effort (owner, 20 Nov 2026): Sonnet builders, Opus m
 
 ## 2. The path of one task
 
-**From 20 Nov 2026 the path of one part is [METHOD.md](archive/METHOD.md)** (spec first: three lenses, story, rules, scenarios that run as tests, the owner's sign-off). The steps below are the helpers' mechanics inside it; a brief points to the part's scenarios and detail lines.
+**From 22 Nov 2026 the path of one part is [METHOD-v2.md](METHOD-v2.md)** (replaces METHOD.md of 20 Nov) (spec first, "builds on" required, the Design and quality check, scenarios that run as tests, the owner's sign-off; bugs are GitHub Issues, statuses set by a program; reuse gate: rules/quality.md section 2). The steps below are the helpers' mechanics inside it; a brief points to the part's scenarios and detail lines.
 
 1. The manager (the main chat in lean mode, the phase manager in full mode) gives a planned task to a builder (brief in section 6).
 2. The builder writes the tests first, builds until they pass, uses it for real on an iPad size, runs the local checks (section 5) and pushes its branch.
@@ -38,7 +38,7 @@ At the end of a phase: the owner's first look on the iPad, fixes, polish to the 
 1. **Only planned work.** A builder builds what its task says. New ideas go to docs/IDEAS.md; unclear points go back to the manager.
 2. **Green before push.** The push guard runs the quick checks. CI confirms; it is not the first place a fault is seen.
 3. **Red stops the line.** A red test on the code line is the manager's first job. Never re-run until green. Never weaken, skip or delete a test.
-4. **Escalate by yourself (owner, 20 Nov 2026).** Sonnet fails the same thing three times: a builder with `model: opus` takes it. Opus fails it five times: Fable. A try counts only if it differs from the one before; no new try without new evidence (a failing test, a trace, a measurement), and for a fault only the real iPad shows, none without a new trace from the owner; after the second Opus fail, Opus writes down what was tried and what is known before the third. Log each step in STATE.md.
+4. **Escalate by yourself (owner, 20 Nov 2026).** Sonnet fails the same thing three times: a builder with `model: opus` takes it at medium effort; if that falls short, Opus at high effort; then Fable (ladder of 21 Nov replaces "Opus five times"; CLAUDE.md "Owner settings"). A try counts only if it differs from the one before; no new try without new evidence (a failing test, a trace, a measurement), and for a fault only the real iPad shows, none without a new trace from the owner; before each higher step, the one before writes down what was tried and what is known. Log each step in STATE.md.
 5. **No queue.** Merge a task as soon as it is reviewed. Do not add builders while a reviewed task has waited more than an hour to merge.
 6. **One state file.** STATE.md is one table, rewritten in place, under 100 lines. History goes to docs/CHANGELOG.md.
 7. **Never go quiet.** A phase manager ends every run with `RESTART phase-manager` or `STOPPED: <reason>`. Estimates use the measured pace and say "likely".

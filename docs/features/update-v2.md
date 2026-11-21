@@ -1,8 +1,8 @@
 # Update flow v2 (template v2, method v2)
 
-| Status                                                                                        | Stage | Switch      | Phase and parts                                | Pictures                                                                         | Builds on                                                                                                                                                                                             | Last change             |
-| --------------------------------------------------------------------------------------------- | ----- | ----------- | ---------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| Confirmed 22 Nov 2026 (open: the Settings picture of row 14; the owner's note came on row 13) | `1`   | `update.v2` | PC-1, parts U0a (found), U0b (spec), U0c (fix) | [docs/mockups/update-v3/](../mockups/update-v3/update-v3.html) (our own, 22 Nov) | this spec's slice 10 rules (kept in the bottom layer, nothing dropped); U0a's test `e2e/u0aUpdateRepro.spec.ts` on `origin/slice/u0a-update-repro`; parts: Status pill stack, Dialog set, Toast queue | 22 Nov 2026, Opus (U0b) |
+| Status                                         | Stage | Switch      | Phase and parts                                | Pictures                                                                         | Builds on                                                                                                                                                                                             | Last change             |
+| ---------------------------------------------- | ----- | ----------- | ---------------------------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
+| Confirmed 22 Nov 2026 (owner, all 22 rows Yes) | `1`   | `update.v2` | PC-1, parts U0a (found), U0b (spec), U0c (fix) | [docs/mockups/update-v3/](../mockups/update-v3/update-v3.html) (our own, 22 Nov) | this spec's slice 10 rules (kept in the bottom layer, nothing dropped); U0a's test `e2e/u0aUpdateRepro.spec.ts` on `origin/slice/u0a-update-repro`; parts: Status pill stack, Dialog set, Toast queue | 22 Nov 2026, Opus (U0b) |
 
 <!-- Top layer for the owner, down to the confirm sheet. Bottom layer for the builders. Security rules: rules/security.md. -->
 
@@ -296,6 +296,7 @@ The update downloads only from our own origin through the service worker; no new
 
 ### Changes
 
+- 22 Nov 2026 · row 14 closed · the owner said yes to the redrawn Settings pictures (v5 first page plus the Update card) · owner, via Fable
 - 22 Nov 2026 · U0b · rewritten on template v2 from the owner's update flow, UP-N1 to UP-N8 and U0a's findings; slice 10 rules kept; required countdown 5 s → 3 s proposed (row 7) · waiting for the owner's sheet
 - 22 Nov 2026 · U0b fix2 · owner on row 13: Settings pictures redrawn on the approved Settings v5 first page, only the Update card added; no new layout · owner
 - 22 Nov 2026 · U0b · owner's sheet: rows 1 to 12 and 14 to 22 Yes; row 17 A (installs by itself); row 8 explained and accepted (waits for a pause); open: the Settings picture of row 14 (the owner's note came on row 13); Update card at the top of today's Settings in v5 card style · owner

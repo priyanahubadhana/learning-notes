@@ -67,7 +67,7 @@ As the owner, who is a beginner and is often away from the PC, I want to say wha
 - **S4, reuse.** Given a builder needs a bar that floats near a selection, when the task starts, then the builder imports the Bar shell and Bar place parts; a new placement function anywhere outside the part files fails the analyze check and the review.
 - **S5, status by program.** Given all tests of a part are green and analyze is clean on the push, when the site rebuilds, then the spec shows Built; when the owner answers yes by scenario, the status is set to Verified by the program from the issue thread, never by an edit of the page.
 - **S6, the thing that goes wrong.** Given Sonnet has failed the same task three times with three different approaches and new evidence each time, when the fourth attempt would start, then Opus at medium takes it; if Opus falls short, Opus at high; only then Fable. A fourth Sonnet try, or a model change without evidence, fails the review of the task.
-- **S7, the week.** Given a Sunday evening, when the weekly card is read, then it shows eight computed numbers and the owner's one line, takes 15 minutes, and changes no rule before the phase end.
+- **S7, the week.** Given a Saturday evening, when the weekly card is read, then it shows eight computed numbers and the owner's one line, takes 15 minutes, and changes no rule before the phase end.
 
 ## How we get there (the steps, each with its test)
 
@@ -95,8 +95,7 @@ M0 to M8 proved as above; the first feature of Phase PC-1 has gone through steps
 
 ## Open points
 
-- `OPEN:` the day of the weekly card (Q11 of the plan).
-- `OPEN:` the name of the one bar (Q4), which also names the Settings page entry.
+- Decided 22 Nov: the weekly card is read on Saturday evening (Q11). The one bar is the Action bar; the top one is the Tool bar; pickers; Hold menu (Q4).
 
 ## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
 
@@ -174,6 +173,8 @@ The site is public like the repo: no secrets, no owner data, no note contents in
 S1 to S7 above are checked by hand once at the end of stage 0 (M0 to M8), and S4 to S6 by the analyze program on every push after that.
 
 ### Changes
+
+- 22 Nov 2026, 06:30 · S7 says Saturday (the owner's Q11); the two open points closed; note on M-N4: these rules were set at the start of stage 1 by the owner's decisions of 21 and 22 Nov, between the paused phase and the new one, not in the middle of a running phase · Fable.
 
 - 22 Nov 2026, 05:00 · rules added from the owner's decisions of 22 Nov (the register and the stages, the replan trigger, short lines, design and quality in the spec, flexible); the owner decided each in chat; no sheet row changed its meaning · Fable.
 - 22 Nov 2026 · confirmed · the owner answered all 11 rows Yes on the site's sheet (chat of 22 Nov, 00:10).

@@ -48,12 +48,27 @@ async function addBox(page: Page, text: string) {
   const main = await rect(page.locator('[data-paper-box="main"]'))
   const sheetEl = page.locator('[data-paper-sheet="1"]')
   const sheet = (await sheetEl.count()) ? await rect(sheetEl) : main
-  let bottom = 0
   const all = page.locator('[data-paper-box]')
-  for (let i = 0; i < (await all.count()); i++) {
-    const r = await rect(all.nth(i))
-    bottom = Math.max(bottom, r.y + r.height)
+  const lowest = async () => {
+    let bottom = 0
+    for (let i = 0; i < (await all.count()); i++) {
+      const r = await rect(all.nth(i))
+      bottom = Math.max(bottom, r.y + r.height)
+    }
+    return bottom
   }
+  // Why: right after a page opens its boxes can still be settling into rows (WebKit is
+  // slower); a click aimed at the old bottom landed on a box instead of the empty sheet.
+  // Aim once two reads in a row agree.
+  let bottom = await lowest()
+  await expect
+    .poll(async () => {
+      const now = await lowest()
+      const same = now === bottom
+      bottom = now
+      return same
+    })
+    .toBe(true)
   await page.mouse.click(sheet.x + sheet.width * 0.3, bottom + 60)
   const boxes = page.locator(EXTRA)
   await expect(boxes).toHaveCount(before + 1)

@@ -21,6 +21,7 @@ As a learner who edits AI-made notes on the iPad with the Apple Pencil, I want t
 - **Our look, not Apple's.** I see our own strong purple highlight with two round handles, and our own bar. Never Apple's.
 - **Straight back to writing.** After an action on the bar, or one tap on the words, I am back in the Text tool with the typing cursor where I expect it. After Delete it waits in the gap.
 - **Finger too.** A finger taps like the Pencil. A finger never circles; it scrolls.
+- **Handles that hold still (owner, C1a, 21 Nov).** Only the handle I drag moves; the other one stays exactly where it is, even when they come close. While I drag a handle the page does not scroll or move. Handles are easy to grab: bigger than today, with a touch area of at least 44 pt, so a near miss takes the handle, not the next word.
 
 - **Whole piece on a double tap.** A double tap selects everything between two spaces ("23-11", "rate-is"); a circle can still take a part (owner, 20 Nov). The same rule goes into the Text tool when Part A6 is built, so one gesture gives one result everywhere; the owner judges it on the iPad (agreed 20 Nov).
 - **No doubled space.** After a delete in the middle of a line one space is left, not two, as the iPad itself does (Fable's pick; the owner did not answer this one directly, 20 Nov).

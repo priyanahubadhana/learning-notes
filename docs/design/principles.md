@@ -106,6 +106,15 @@ Likes to keep in mind (owner, 9 to 15 Nov): glassmorphism, editorial calm, Swiss
 
 **Q18. More and ⋯.** A: two different things: the "More" control (sliders icon and the word) opens a row's options and sits first; "⋯" is overflow and sits last with Customise bar… at its end. B: one control, last. Case against A: two controls to learn.
 
+## Owner comments, 22 Nov 2026
+
+- Q1: "Whichever one is the latest one, use it. Re-verify the spec and show me the display so I can test and tell which is better; prefer the newer one with an explanation of what the older one could be."
+- Q2: "I'll leave it up to you, decide yourself." (Decision: A, motion scale as in the shell spec; reason: one scale in one document.)
+- Q3: "Show me the images so I can verify; show the one you recommend first; if another change could be done, tell me."
+- Q4: "Use whichever is the latest and show me the recommendation in images; instead of numbers, show images; then make the change in the file."
+- Q5: explanation given in the comment thread; answer open.
+- Pictures for all 18: https://claude.ai/artifact/Tq23fSo7Ye8jcTD6TREdeN
+
 ## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
 
 | Row | Statement                                                                                                                                                 |

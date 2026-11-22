@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: handoff of the Fable planning window
+
+- **What:** docs/STATE.md gains the evening handoff (done today, pending with the owner, next for Opus in order, the lesson); the stale C3 line now points at the Action bar sheet. **Why:** the owner clears the chat; a new window starts from STATE.md. **Files:** docs/STATE.md, docs/CHANGELOG.md.
+
 ### 22 Nov 2026: auditors get a project briefing, a daily brief maker and the rhythm
 
 - **What:** docs/qa/PROJECT-BRIEFING.md (the app, the stages, the method words, the folder map, how it is tested, what is not a bug); scripts/qa-brief.mjs writes the filled briefs for a checkpoint (delta since the previous tag, or --full); README gets the rhythm (baseline full, daily delta, weekly full, three final audits before a release) and the checked read-only facts per tool; AGENTS.md reads the briefing first. **Why:** the owner wants the auditors to understand the project before judging it, and a daily cycle that costs one paste. **Files:** docs/qa/PROJECT-BRIEFING.md, docs/qa/README.md, docs/qa/BRIEFS.md, scripts/qa-brief.mjs, AGENTS.md.

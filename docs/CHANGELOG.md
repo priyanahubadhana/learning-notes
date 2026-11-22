@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: the local unit-test red fixed (drive-letter case)
+
+- **What:** scripts/run-vitest.mjs starts Vitest from the folder's canonical path; `npm test`, `npm run test:watch` and the push guard use it.
+- **Why:** with the folder opened as "c:..." (lowercase, as VS Code and this chat open it) Vitest 5 on Node 26 loaded its own modules twice and all 372 files failed to load ("Vitest failed to find the current suite"); from "C:..." the same install passed. Proof: 372 files, 3088 tests green from the lowercase path after the fix.
+- **Files:** scripts/run-vitest.mjs, package.json, scripts/push-guard.mjs, docs/STATE.md, docs/DECISIONS.md.
+
 ### 22 Nov 2026: baseline audit answers applied to the documents
 
 - **What:** action-bar.md: line 31 says selection states, OPEN-1 text matches the answer, sheet rows 20 and 21 (fold by width; Paste preview cancel). update-v2.md: line 43 and U10 say the block waits for the finished download and offline writing goes on; UP-03 starts after the save wait. FEATURES.md: F-096 stage 1 phase 1M, F-025 links action-bar.md. DECISIONS: the owner's four answers, the guest-mode override logged.

@@ -164,7 +164,7 @@ for (const [, localSha, remoteRef, remoteSha] of lines) {
     if (plan.ratchet) run('check:ratchet', 'npm run check:ratchet')
     runEach(
       'vitest related',
-      'npx vitest related --run --passWithNoTests',
+      'node scripts/run-vitest.mjs related --run --passWithNoTests',
       plan.vitestRelated,
     )
     if (full) {

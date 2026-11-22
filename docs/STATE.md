@@ -106,7 +106,7 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 
 ## Needs you
 
-- **Now (22 Nov, evening):** the found-wishes page, 31 rows, one pass: https://priyanahubadhana.github.io/learning-notes/plans/found-wishes-2026-11-22 (reply with the row numbers to change; the rest counts as yes).
+- **Now (22 Nov, evening):** the found-wishes page, 31 rows, one pass: https://priyanahubadhana.github.io/learning-notes/plans/found-wishes-2026-11-22.html (reply with the row numbers to change; the rest counts as yes).
 - **Read it formatted:** https://priyanahubadhana.github.io/learning-notes/ (the method page has tappable sheet rows and a Copy-my-answers button; paste the result in the chat).
 - **Now (22 Nov):** the method and the plan are confirmed. Needs you: (1) the six install-and-update facts (device and browser; live or preview; what "download" means; what you saw in order; how often and when last; the version shown), since you chose that bug first; (2) the one bar's name, "Action bar" unless you say otherwise. Plan: docs/plans/phases/phase-pc-1.md sections 17 and 18.
 

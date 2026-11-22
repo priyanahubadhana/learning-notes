@@ -6,7 +6,7 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 ## QA checkpoints
 
-- **qa/2026-11-22-baseline** (ff463f34, 2026-11-22): worktrees ln-qa-codex, ln-qa-cursor, ln-qa-antigravity; reports in learning-notes-qa/qa-2026-11-22-baseline/; merged sheet: pending
+- **qa/2026-11-22-baseline** (aac21364, 2026-11-22): worktrees ln-qa-codex, ln-qa-cursor, ln-qa-antigravity; reports in learning-notes-qa/qa-2026-11-22-baseline/; merged sheet: pending
 
 ## Now
 

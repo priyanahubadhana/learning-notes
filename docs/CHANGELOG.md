@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: phase 1M, the build machine, planned (part 1M-01, Fable)
+
+- **What:** a phase page with the goal, rules, must-never lines, scenarios S1 to S7, the tools and where each is used, the building guide (windows under 100K, the relay, lanes), the 13 parts with proof, the owner's help and a confirm sheet; a research page with sources; the sixteen decisions and the relay rule in DECISIONS; rules/sessions.md, CLAUDE.md Owner settings, HOW-WE-BUILD section 2, token-efficiency rule 9, stage-1-plan (row 1M, about 6 days), INDEX and STATE updated. **Why:** the owner asked for a repeatable machine: fresh small windows, no "done" without proof of function and look, numbers by program, copyable to the next project. **Files:** docs/plans/phases/phase-1m-build-machine.md, docs/plans/research-build-machine-2026-11-22.md, docs/DECISIONS.md, rules/sessions.md, CLAUDE.md, docs/HOW-WE-BUILD.md, docs/design/token-efficiency.md, docs/plans/stage-1-plan.md, docs/INDEX.md, docs/STATE.md, ~/.claude/playbook.md.
+
 ### 22 Nov 2026: the 152 ideas sorted into the register, and a Pillar column (task 1A)
 
 - **What:** docs/FEATURES.md gets a section of 152 idea rows (F-200 to F-351, stage by the stage map, "?" where guessed) and a Pillar column (N, G, F, P, A or core) on every register table. **Why:** the owner reviews the sorting on the site in one pass. **Files:** docs/FEATURES.md, docs/CHANGELOG.md.

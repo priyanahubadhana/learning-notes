@@ -26,6 +26,7 @@ How helpers work: docs/HOW-WE-BUILD.md. State: docs/STATE.md (the one live state
 - Tests: chromium on each merge; ipad-webkit nightly and before each release; 20 of 20 before a merge.
 - Weekly card: Saturday evening, eight computed numbers and the owner's one line (METHOD-v2 M-05). Rules change only at a phase end, from the numbers.
 - Weekly quota: 80% is a reference, not a cap.
+- **Windows (owner, 22 Nov 2026):** one task, one fresh builder window planned under 100K tokens, safety compaction at 120K never relied on; the manager chat is cleared at each part boundary; a normal task passes four gate layers (scenario tests, the verify recipe, a fresh checker, three rounds then the ladder), a tiny task (no screen change, under 3 files) the first two. Plan and parts: docs/plans/phases/phase-1m-build-machine.md.
 
 ## Core rules
 

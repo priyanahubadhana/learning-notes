@@ -19,6 +19,8 @@ Every model works at medium effort, except the Opus high step of the ladder (own
 
 ## 2. The path of one task
 
+**From phase 1M (planned 22 Nov 2026):** one task runs in one fresh builder window (under 100K), passes the four gate layers in their own windows and writes its own numbers; the manager chat is cleared at each part boundary. The page: [plans/phases/phase-1m-build-machine.md](plans/phases/phase-1m-build-machine.md). Until 1M-13 is merged the steps below apply unchanged.
+
 **From 22 Nov 2026 the path of one part is [METHOD-v2.md](METHOD-v2.md)** (replaces METHOD.md of 20 Nov) (spec first, "builds on" required, the Design and quality check, scenarios that run as tests, the owner's sign-off; bugs are GitHub Issues, statuses set by a program; reuse gate: rules/quality.md section 2). The steps below are the helpers' mechanics inside it; a brief points to the part's scenarios and detail lines.
 
 1. The manager (the main chat in lean mode, the phase manager in full mode) gives a planned task to a builder (brief in section 6).

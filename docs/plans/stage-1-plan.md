@@ -19,18 +19,23 @@ Four phases, each at most two weeks of building, each ending with a release on t
 
 Measured pace (docs/metrics/tasks.csv): a small fix 1 h, a text box part 3 h, a screen 6 to 10 h; one lane about 6 to 8 sized hours a day. Every number below is an estimate until three merged parts of the phase correct it.
 
-| Phase | What the owner gets                                                                                                                      | Features (docs/FEATURES.md)                                | Size                  |
-| ----- | ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | --------------------- |
-| 1A    | The method tooling and the update that never sticks                                                                                      | F-032 and the set-up                                       | about 4 days, running |
-| 1B    | The Claude-made notebook, imported in full, and the editing path on the PC without a blocking bug; **the owner's daily use starts here** | F-001 to F-012, F-014 to F-023, F-030, F-033, F-039, F-040 | about 10 days         |
-| 1C    | The bars complete and never rebuilt again                                                                                                | F-024 to F-029, F-031                                      | about 8 days          |
-| 1D    | Reader basics, media inside pages, dashboards, custom views; the iPad reading check; the end of stage 1                                  | F-013, F-034 to F-038                                      | about 10 days         |
+| Phase | What the owner gets                                                                                                                                            | Features (docs/FEATURES.md)                                        | Size                   |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------- |
+| 1A    | The method tooling and the update that never sticks                                                                                                            | F-032 and the set-up                                               | about 4 days, running  |
+| 1M    | The build machine: fresh small windows, a done gate by program (function and look), a relay for big tasks, numbers by program, a template for the next project | method tooling (section A of the stage map), F-096 brought forward | about 6 days, estimate |
+| 1B    | The Claude-made notebook, imported in full, and the editing path on the PC without a blocking bug; **the owner's daily use starts here**                       | F-001 to F-012, F-014 to F-023, F-030, F-033, F-039, F-040         | about 10 days          |
+| 1C    | The bars complete and never rebuilt again                                                                                                                      | F-024 to F-029, F-031                                              | about 8 days           |
+| 1D    | Reader basics, media inside pages, dashboards, custom views; the iPad reading check; the end of stage 1                                                        | F-013, F-034 to F-038                                              | about 10 days          |
 
-About 32 working days in all, estimate. Usable from the end of 1B, about day 14.
+About 38 working days in all, estimate (1M added 22 Nov). Usable from the end of 1B, about day 14.
 
 ## Phase 1A: set-up and the update (running since 22 Nov, 01:20)
 
 Parts as in docs/plans/phases/phase-pc-1.md section 5 and section 18: M0 done; M1 done; M4 done; U0a, U0b done; U0c running; then M2, M3, M8, M5, M9 (Fable's attack read), M6, M7; S0 the Update card at the top of today's Settings page in the v5 card style. Done when METHOD-v2 "How we get there" is proved and the update scenarios S1 to S7 pass on chromium and at iPad size, with the owner's yes on the real iPad.
+
+## Phase 1M: the build machine (planned 22 Nov 2026, after the red test and U0a)
+
+Thirteen parts, one builder window each, in docs/plans/phases/phase-1m-build-machine.md. Done when the dry run (1M-13) merges two real tasks through all four gates with every number written by a program. Phase 1B starts on the machine.
 
 ## Phase 1B: the Claude notebook and the editing path (about 10 days, two lanes)
 

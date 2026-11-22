@@ -85,7 +85,7 @@ Likes to keep in mind (owner, 9 to 15 Nov): glassmorphism, editorial calm, Swiss
 **Decided 22 Nov 2026 (owner, on the pictures page):** Mixed. Menus take B: radius 8 (the owner: "for this rename copy bar, this one looks better"). Everything else takes A: inputs 8, cards, pickers and panels 20, sheets 24, dialogs 24, toast 14, chips pill.
 
 **Q5. Toasts.** A: a pill at the bottom centre, 2.6 s, 6 s when it offers Undo (shell spec). B: a solid box bottom-right for 5 s (system.md). Case against A: on a wide PC screen the centre is far from the pointer.
-**Decided 22 Nov 2026 (owner, on the pictures page):** B place, A look (Fable's fill-in; the owner wrote only "at bottom right"): the toast sits bottom-right on every device, keeps the pill shape, 2.6 s, 6 s with Undo. Case against: bottom-right is farther from the iPad's centre of attention. If the owner wanted the solid box too, say "box".
+**Decided 22 Nov 2026 (owner, confirmed in chat):** the pill, bottom-right on every device, 2.6 s, 6 s with Undo. The pill carries a small ✕ at its top-left corner to close it, and the action (Undo) on the other side. Case against: bottom-right is farther from the iPad's centre of attention; the owner chose it.
 
 **Q6. Side list width.** A: 288 px (your "a bit bigger", 12 Nov). B: 264 or 260. Case against A: less room for the page on a 1180 px screen.
 **Decided 22 Nov 2026 (owner, on the pictures page):** A. Side list 288 px.
@@ -106,7 +106,7 @@ Likes to keep in mind (owner, 9 to 15 Nov): glassmorphism, editorial calm, Swiss
 **Decided 22 Nov 2026 (owner, on the pictures page):** A. Tool bar 64 px.
 
 **Q12. Names on hold.** A: hover shows the name with the Pencil or a mouse; a held finger shows nothing for now (your 21 Nov); a finger-hold name can come in stage 2 as an option. B: a held button shows its name (your 15 and 20 Nov). Case against A: a finger-only user on the iPad has no way to read a name until stage 2.
-**Decided 22 Nov 2026 (owner, on the pictures page):** C, the owner's own rule: hover (mouse or Pencil) shows the name; a hold shows the name and a one-line description; a setting "Tool hints" with Name only, Name and hint, Off. Default for the owner's account: Name only; default for a new user: Name and hint. Nothing is hover-only: the hold covers touch.
+**Decided 22 Nov 2026 (owner, confirmed in chat):** hover (mouse or Pencil) shows the name. Press-and-hold shows a small preview of what the tool does, the way Photoshop's tool tips play a tiny demo; this preview is built in the final finishing stage (stage 2, polish), aimed at users new to the app, with a setting to turn it off. Until then a hold shows the name, so nothing is hover-only. Added to docs/IDEAS.md as a stage 2 item.
 
 **Q13. Quick fonts.** A: Easy to read, Classic, Handwritten (your 18 Nov final). B: Modern, Classic, Technical. Case against A: none; A is the final decision.
 **Decided 22 Nov 2026 (owner, on the pictures page):** A. Quick fonts: Easy to read, Classic, Handwritten.

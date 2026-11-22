@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026, evening: Action bar Confirmed, found wishes answered
+
+- **What:** action-bar.md Confirmed (21 rows Yes); the pin replaces ✕ as the bar's switch throughout the spec. found-wishes page: owner column filled. FEATURES.md: F-352 to F-386 from the sweep (state, stage, source), F-055 links home.md.
+- **Why:** the owner's answers of 22 Nov evening (chat and artifact comments).
+- **Files:** docs/features/action-bar.md, docs/plans/found-wishes-2026-11-22.md, docs/FEATURES.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 22 Nov 2026: the found-wishes page
 
 - **What:** docs/plans/found-wishes-2026-11-22.md, the sweep of past owner wishes with no register row (31 confirm rows by pillar and stage, 13 leftovers, 11 earlier no's, about 30 matched to existing F-ids).

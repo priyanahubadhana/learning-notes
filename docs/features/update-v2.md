@@ -40,7 +40,7 @@ Each rule is one short line; the detail is in the scenarios.
 - **Three seconds.** "Restarting" shows a 3-second timer with Cancel, then restarts.
 - **Same place.** After the restart you are on the same page and scroll place.
 - **Optional can wait.** Cancel on an optional update postpones it; it asks again later.
-- **Required blocks changes.** A storage change or data fix blocks changes until done.
+- **Required blocks changes.** A storage change or data fix blocks changes until done; the block starts only once the download has finished (owner, 22 Nov: offline you keep writing; the app only learns of an update while online).
 - **Not while writing.** While you write or draw, the prompt waits for a pause.
 - **Settings first page.** Update card at the top of Settings, in v5 card style.
 - **Real numbers.** The download shows its real percent, never above 100.
@@ -188,7 +188,7 @@ U0c: the fix behind `update.v2`. First failing test: U0a's WebKit loop at 1000 m
 
 - **UP-01** Check triggers: app open, first change after open, and today's throttled triggers (`app/updates.ts:249-293`).
 - **UP-02** Download percent = received bytes / precache total, capped at 100; "Restarting" only when every file is cached.
-- **UP-03** The restart waits for the new worker at most 3 s after the prompt ends; then the pill shows "The update did not finish" with Try again. It never reloads onto the old version silently (U0a: today it waits 15 s and reloads old).
+- **UP-03** The restart waits for the new worker at most 3 s after the prompt ends and after U8's save wait (so 8 s at worst with an unsaved change; outside audit, 22 Nov); then the pill shows "The update did not finish" with Try again. It never reloads onto the old version silently (U0a: today it waits 15 s and reloads old).
 - **UP-04** After a restart, a version equal to the running one is never downloaded again; a version already cached is installed, not fetched.
 - **UP-05** Prompt: 3-second ring, Cancel and Restart now, 44 px buttons; waits while a stroke or typing is active (today's `isSafeMoment`, `app/autoUpdate.ts:46`).
 - **UP-06** Required: decided by `level` (slice 10 rule 3 below); edits blocked through the Event router; reading and scrolling stay.
@@ -220,7 +220,7 @@ Today (`vite.config.ts:36-51`, `src/app/updates.ts:128-136`): a build is "requir
 - **U7** Download finishes → "Installing…", taps and keys blocked; restarts on the same page with the scroll place.
 - **U8** Unsaved typing at "Installing" → waits up to 5 s for the save; if it fails: "Your last change is not saved yet" with Try again, no restart.
 - **U9** No restart within 6 s → "The update did not finish" with Try again (tightened to 3 s by UP-03).
-- **U10** Offline during a must-have update → "Connect to the internet to finish this update. Your notes are safe."; goes on by itself when online; never locks you out offline.
+- **U10** Offline during a must-have update (found online, then the internet dropped before the download finished) → "Connect to the internet to finish this update. Your notes are safe."; writing goes on as before, the block of line 43 waits for the finished download; goes on by itself when online; never locks you out offline (owner, 22 Nov).
 - **U11** A second tab already upgraded the stored notes → this tab shows the storage reason and does not write.
 - **U12** Installed → "Updated to <version>" for 4 s.
 - **U13** Switch off → exactly today's behaviour.

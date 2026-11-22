@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: baseline audit answers applied to the documents
+
+- **What:** action-bar.md: line 31 says selection states, OPEN-1 text matches the answer, sheet rows 20 and 21 (fold by width; Paste preview cancel). update-v2.md: line 43 and U10 say the block waits for the finished download and offline writing goes on; UP-03 starts after the save wait. FEATURES.md: F-096 stage 1 phase 1M, F-025 links action-bar.md. DECISIONS: the owner's four answers, the guest-mode override logged.
+- **Why:** the owner's yes rows on the merged QA sheet of qa/2026-11-22-baseline.
+- **Files:** docs/features/action-bar.md, docs/features/update-v2.md, docs/FEATURES.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 22 Nov 2026: merged QA sheet of the baseline audit
 
 - **What:** the Antigravity report (14 findings) consolidated into MERGED-SHEET.md in the reports folder outside the repo, each row labelled error, gap or preference with a view and the case against; docs/STATE.md QA checkpoints line and Needs you updated. Codex and Cursor sent no report.

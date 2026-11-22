@@ -12,7 +12,7 @@ The research of 22 Nov also found **18 places where two of our own documents dis
 
 ## The ten principles
 
-> **The app frame stays intact (owner, 22 Nov 2026).** On tablet, iPad and PC the frame (the tool bar, the action bar, the side panel and their places) is solid and fixed. Nothing floats over it or hides it, because the tools on it are what the work needs. Pop-ups, pickers and toasts live inside the page area, never across the frame.
+> **The app frame stays intact (owner, 22 Nov 2026).** On tablet, iPad and PC the frame (the tool bar, the action bar, the side panel and their places) is solid and fixed. Nothing floats over it or hides it, because the tools on it are what the work needs. Pop-ups, pickers and toasts live inside the page area, never across the frame. The Action bar floats near the selection and joins the frame only once pinned (owner, 22 Nov, round 2).
 
 ### 1. The notes are the hero (all pillars)
 

@@ -12,6 +12,8 @@ The research of 22 Nov also found **18 places where two of our own documents dis
 
 ## The ten principles
 
+> **The app frame stays intact (owner, 22 Nov 2026).** On tablet, iPad and PC the frame (the tool bar, the action bar, the side panel and their places) is solid and fixed. Nothing floats over it or hides it, because the tools on it are what the work needs. Pop-ups, pickers and toasts live inside the page area, never across the frame.
+
 ### 1. The notes are the hero (all pillars)
 
 The page is the loudest thing on the screen; bars, menus and cards are quiet and step aside. Rules: glass is for the frame only, the paper is always solid; at most three blurred layers, the blur never animates, "Reduce glass" offers Auto or Solid; the canvas carries a faint violet-to-blue wash, plain under reduced transparency; neutrals carry a faint violet tint; dark mode never uses pure black; three themes, Night, Day and Sepia, with equal care, following the device by default; paper text at most 72 characters wide, body at least 15 px. Icons are one set, Lucide, rounded caps, no fills, 20 px in the UI, 16 in dense rows, 24 in the rail. (system.md 9 Nov; shell-spec; premium plan 9 Nov; owner 15 Nov.)

@@ -20,7 +20,7 @@ You are opened in a **separate read-only working copy** (a detached git worktree
 
 ## What to read first
 
-docs/INDEX.md, then docs/qa/README.md (your onboarding), then only what the brief names. Specs are in docs/features/ (template v2); every feature has one id (`F-001` …) in docs/FEATURES.md; the quality bar is docs/design/quality-standard.md; approved pictures are in docs/mockups/ and docs/design/owner-decisions.md; known limits in docs/LIMITATIONS.md. Never read docs/ARCHIVE.md or docs/archive/.
+docs/qa/PROJECT-BRIEFING.md (what the app is, the stages, the words, where everything lives), then docs/qa/README.md (your job and the cycle), then docs/INDEX.md, then only what the brief names. Specs are in docs/features/ (template v2); every feature has one id (`F-001` …) in docs/FEATURES.md; the quality bar is docs/design/quality-standard.md; approved pictures are in docs/mockups/ and docs/design/owner-decisions.md; known limits in docs/LIMITATIONS.md. Never read docs/ARCHIVE.md or docs/archive/.
 
 ## How to judge
 

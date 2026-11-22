@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: auditors get a project briefing, a daily brief maker and the rhythm
+
+- **What:** docs/qa/PROJECT-BRIEFING.md (the app, the stages, the method words, the folder map, how it is tested, what is not a bug); scripts/qa-brief.mjs writes the filled briefs for a checkpoint (delta since the previous tag, or --full); README gets the rhythm (baseline full, daily delta, weekly full, three final audits before a release) and the checked read-only facts per tool; AGENTS.md reads the briefing first. **Why:** the owner wants the auditors to understand the project before judging it, and a daily cycle that costs one paste. **Files:** docs/qa/PROJECT-BRIEFING.md, docs/qa/README.md, docs/qa/BRIEFS.md, scripts/qa-brief.mjs, AGENTS.md.
+
 ### 22 Nov 2026: outside auditors set up (Codex, Cursor, Antigravity, read-only)
 
 - **What:** AGENTS.md rewritten as the shared auditor rule (Codex had auto-generated it as a builder copy of CLAUDE.md); `.cursor/rules/auditor.mdc` and `.agents/rules/auditor.md` point at it with each engine's lens; `.codex/hooks/guard-readonly.mjs` blocks edits, git writes, installs and file writes inside the project (checked on six commands), wired in `.codex/hooks.json`; the Codex builder and manager agents removed. New docs/qa/: README (roles, the two gates, the cycle, limits), REPORT-TEMPLATE, SECURITY-CHECKLIST, CONSOLIDATION-TEMPLATE, BRIEFS (four paste-in briefs and the consolidate command). New `scripts/qa-checkpoint.mjs`: tags main, three detached worktrees, the reports folder outside the repo, the STATE line; the baseline checkpoint qa/2026-11-22-baseline made (tag local until the push guard passes). CLAUDE.md and INDEX.md point at it. **Why:** the owner wants independent perspectives on plans and builds with full control kept (DECISIONS 22 Nov). **Files:** AGENTS.md, .cursor/rules/auditor.mdc, .agents/rules/auditor.md, .codex/hooks.json, .codex/hooks/guard-readonly.mjs, docs/qa/*, scripts/qa-checkpoint.mjs, CLAUDE.md, docs/INDEX.md, docs/DECISIONS.md, docs/STATE.md.

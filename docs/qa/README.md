@@ -1,6 +1,6 @@
 # Independent QA: three auditors, one decision-maker
 
-Set up 22 Nov 2026 (owner's yes in chat; DECISIONS.md 22 Nov). Rules for the auditor tools: [../../AGENTS.md](../../AGENTS.md). This page is the onboarding for Codex, Cursor and Antigravity, and the owner's how-to.
+Set up 22 Nov 2026 (owner's yes in chat; DECISIONS.md 22 Nov). Rules for the auditor tools: [../../AGENTS.md](../../AGENTS.md). This page is the onboarding for Codex, Cursor and Antigravity, and the owner's how-to. The project itself, in ten minutes: [PROJECT-BRIEFING.md](PROJECT-BRIEFING.md).
 
 ## Who does what
 
@@ -54,3 +54,18 @@ Before step 2, glance at `git status` in a worktree: it must say "HEAD detached 
 ## On the iPad later
 
 Reports live outside the repo and are not on the docs site. The merged sheet is in docs/STATE.md under the checkpoint and so is readable on the site.
+
+## The rhythm (owner, 22 Nov 2026)
+
+- **Today, the baseline:** a full audit of everything planned, by all three (`node scripts/qa-brief.mjs baseline --full`).
+- **Every working day, at the end of the day:** Claude Code makes a checkpoint of what merged (`qa-checkpoint.mjs <day-label>`), writes the delta briefs (`qa-brief.mjs <day-label>`) and asks the owner to paste them. The engines audit only what changed that day, plus the planning audit of any spec or picture touched.
+- **Every week (Saturday, with the weekly card):** a full audit again (`--full`), so nothing drifts.
+- **Before a release (every second Friday):** three final audits on the release candidate, one by the owner on the real device, one by Antigravity in the browser, one by Cursor or Codex on the code. The release waits for the merged sheet and the owner's yes.
+
+The case against the daily cycle: three reports a day are a lot to read. The merged sheet and the error / gap / preference labels keep the owner's part to minutes; the number of minutes goes on the weekly card and decides whether to drop to twice a week.
+
+## How the tools behave in read-only mode (checked 22 Nov 2026 on the vendors' pages)
+
+- **Codex:** `--sandbox read-only --ask-for-approval on-request` (or `never`) lets it read files and answer; edits, commands and network need approval. In the IDE extension pick the read-only mode in the permissions menu. It reads `AGENTS.md` in the root. The old `approval_policy = "untrusted"` setting is no longer supported.
+- **Cursor:** reads `AGENTS.md` in the root and `.cursor/rules/*.mdc` (a plain `.md` in that folder is ignored). Use Ask mode and keep agent edits off; no official "read-only" switch exists, so the detached worktree is the real fence.
+- **Antigravity:** rules in `.agents/rules/*.md`; AGENTS.md support is reported by users, not confirmed by Google. Set the agent policy to "Request Review" so no file changes without your yes, and the browser JavaScript policy as the brief needs (Disabled for a first pass). There is no read-only switch, so again the worktree is the fence.

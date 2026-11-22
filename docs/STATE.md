@@ -6,7 +6,7 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 ## QA checkpoints
 
-- **qa/2026-11-22-baseline** (aac21364, 2026-11-22): worktrees ln-qa-codex, ln-qa-cursor, ln-qa-antigravity; reports in learning-notes-qa/qa-2026-11-22-baseline/; merged sheet: ANSWERED 22 Nov (Antigravity 14; Codex, Cursor none): 10 accepted, 3 next phase, 1 rejected; doc fixes applied; issues #50 Sign in after Escape (test first), #51 44 px targets, #52 guest mode for now (owner, 1B boundary), #53 device-mode button, #54 CORS at E6; 1 security item, handled at E6. Replan count 2 of 10
+- **qa/2026-11-22-baseline** (aac21364, 2026-11-22): worktrees ln-qa-codex, ln-qa-cursor, ln-qa-antigravity; reports in learning-notes-qa/qa-2026-11-22-baseline/; merged sheet: ANSWERED 22 Nov (Antigravity 14; Codex, Cursor none): 10 accepted, 3 next phase, 1 rejected; doc fixes applied; issues #50 Sign in after Escape (test first), #51 44 px targets, #52 guest mode for now (owner, 1B boundary), #53 device-mode button, #54 CORS at E6; 1 security item, handled at E6. Replan count 2 of 10. Owner, 22 Nov: #50, #51, #52 are NOT built in 1A; they wait for the 1B planning (scope freeze)
 
 ## Handoff 22 Nov 2026, evening: outside auditors (Fable window, closed)
 

@@ -114,7 +114,7 @@ Older items (20 Nov, part D0). The old plan: [plans/phases/phase-2-finish.md](pl
 - **Now:** the 20-minute catch-up check **C0** on the preview, with "Circle recorder" off (plan section 6 lists the 11 items). Do it in a calm window, morning or evening.
 - **Reminder (owner asked, 21 Nov):** set up Notion in a new chat (the tools did not load in the old one), then the Notion mirror of plan, specs and bugs (docs/IDEAS.md).
 - **Due:** check **C1a**, one five-minute Lasso session with the quiet recorder on (Settings › Try new features › Lasso recorder); A2 merged 20 Nov.
-- **C0 in progress (22 Nov evening):** items 1 fine, 2 reported (#55 + trace), 3 reported (#56 stray touch deletes, #57 wrong word 1 in 10); items 4 to 11 open. Paste clash (one click vs preview) waits for the owner's A or B.
+- **C0 in progress (22 Nov evening):** items 1 fine, 2 reported (#55 + trace), 3 reported (#56 stray touch deletes, #57 wrong word 1 in 10); items 4 to 11 open. Paste: one click pastes (owner chose A, spec changed).
 - **Done 22 Nov evening:** the Action bar sheet (21 rows Yes, pin is the switch) and the found-wishes page (35 rows answered, F-352 to F-386).
 - **Sign-offs later:** docs/features/text-select.md (before A4) and docs/features/action-bar.md (the 19-row sheet; selection-bar.md is replaced).
 - **Leftovers you may delete when you like:** the old working copies and power-cut leftovers (list comes in part E9). The permission check blocks new working copies with a link, so old ones are reused.

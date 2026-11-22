@@ -30,7 +30,7 @@ To be drawn after the sheet: PC, iPad sideways, iPad upright, phone. Every pictu
 - **One bar.** One Action bar for every selection; it replaces the three old bars.
 - **Default ending.** Every selection state ends Cut, Copy, Paste ▾, Delete, ⋯▾ by default (owner, 22 Nov; the pinned bar with nothing selected shows only the pin and ⋯▾); Customise bar… may change it.
 - **Nothing moves.** The same button keeps the same place in every state; with only the cursor, Cut, Copy and Delete show greyed (owner, 22 Nov).
-- **Paste ▾ remembers.** Its icon shows the last format used, per notebook; ▾ lists the formats; first press previews, second press pastes; the preview may float over boxes (owner, 22 Nov).
+- **Paste ▾ remembers.** Its icon shows the last format used, per notebook; one press pastes at once in that format; ▾ lists the formats, picking one pastes and becomes the new default; a wrong paste is one Undo away (owner, 22 Nov evening; replaces the two-press preview of the afternoon).
 - **Drag and dock.** Grab ⠿ to move the bar along its line or dock it top, left, right or bottom; stage 1 (owner, 22 Nov).
 - **Floats until pinned.** Unpinned, it floats at the first free place near the selection.
 - **Five places.** Below, above, upright right, upright left, else under the Tool bar.
@@ -143,29 +143,29 @@ Every stage 1 scenario passes on chromium; the checklist script is green on the 
 
 ## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
 
-| Row | Statement                                                                                                                                                        |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | The goal line says what I meant.                                                                                                                                 |
-| 2   | The two non-negotiables are right.                                                                                                                               |
-| 3   | Every state ends Cut, Copy, Paste ▾, Delete, ⋯▾ by default; with only the cursor those three are greyed; nothing moves.                                          |
-| 4   | Unpinned it floats at the five places; pinned it stays until I move it; I can drag ⠿ along a line or dock it on an edge, in stage 1.                             |
-| 5   | A pinned bar keeps its place and changes its tools; the filled pin unpins and hides it (owner changed from ✕, 22 Nov evening).                                   |
-| 6   | Edit is "Customise bar…", the last entry inside ⋯.                                                                                                               |
-| 7   | Hold or right-click opens the Hold menu; a pinned bar stays, an unpinned one hides.                                                                              |
-| 8   | Row "Caret in text" of the tool table is right.                                                                                                                  |
-| 9   | Row "Words selected" is right.                                                                                                                                   |
-| 10  | Row "A box" is right.                                                                                                                                            |
-| 11  | Row "A picture" and "Pinned, nothing selected" are right.                                                                                                        |
-| 12  | Rows "A drawing" and "Mixed" are right, built in stage 2.                                                                                                        |
-| 13  | PC: the same bar, hover names, right-click, keys; phone: overflow under ⋯, the ending stays.                                                                     |
-| 14  | Presets wait for stage 2; the Study set is recorded as written.                                                                                                  |
-| 15  | Scenarios S1 to S14 describe what I expect.                                                                                                                      |
-| 16  | Open points 1 to 7 are closed with my answers of 22 Nov as written under "Open points".                                                                          |
-| 17  | Design and quality: the check list in the bottom layer is complete.                                                                                              |
-| 18  | Paste ▾: the icon shows the last format per notebook; first press previews, second pastes; the preview may float over boxes.                                     |
-| 19  | The ending can be changed in Customise bar…; the default keeps it and the script checks the default.                                                             |
-| 20  | The bar folds its tail into ⋯▾ by the width it has, not by device: a narrow PC window and the upright iPad fold like the phone (from the outside audit, 22 Nov). |
-| 21  | Paste ▾ preview: Escape, typing, or a tap anywhere else cancels it; a screen reader is told quietly that a preview is showing (from the outside audit, 22 Nov).  |
+| Row | Statement                                                                                                                                                                                                  |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The goal line says what I meant.                                                                                                                                                                           |
+| 2   | The two non-negotiables are right.                                                                                                                                                                         |
+| 3   | Every state ends Cut, Copy, Paste ▾, Delete, ⋯▾ by default; with only the cursor those three are greyed; nothing moves.                                                                                    |
+| 4   | Unpinned it floats at the five places; pinned it stays until I move it; I can drag ⠿ along a line or dock it on an edge, in stage 1.                                                                       |
+| 5   | A pinned bar keeps its place and changes its tools; the filled pin unpins and hides it (owner changed from ✕, 22 Nov evening).                                                                             |
+| 6   | Edit is "Customise bar…", the last entry inside ⋯.                                                                                                                                                         |
+| 7   | Hold or right-click opens the Hold menu; a pinned bar stays, an unpinned one hides.                                                                                                                        |
+| 8   | Row "Caret in text" of the tool table is right.                                                                                                                                                            |
+| 9   | Row "Words selected" is right.                                                                                                                                                                             |
+| 10  | Row "A box" is right.                                                                                                                                                                                      |
+| 11  | Row "A picture" and "Pinned, nothing selected" are right.                                                                                                                                                  |
+| 12  | Rows "A drawing" and "Mixed" are right, built in stage 2.                                                                                                                                                  |
+| 13  | PC: the same bar, hover names, right-click, keys; phone: overflow under ⋯, the ending stays.                                                                                                               |
+| 14  | Presets wait for stage 2; the Study set is recorded as written.                                                                                                                                            |
+| 15  | Scenarios S1 to S14 describe what I expect.                                                                                                                                                                |
+| 16  | Open points 1 to 7 are closed with my answers of 22 Nov as written under "Open points".                                                                                                                    |
+| 17  | Design and quality: the check list in the bottom layer is complete.                                                                                                                                        |
+| 18  | Paste ▾: the icon shows the last format per notebook; one press pastes at once; ▾ picks a format, pastes, and remembers it; Undo fixes a mistake (owner changed from the preview, 22 Nov evening).         |
+| 19  | The ending can be changed in Customise bar…; the default keeps it and the script checks the default.                                                                                                       |
+| 20  | The bar folds its tail into ⋯▾ by the width it has, not by device: a narrow PC window and the upright iPad fold like the phone (from the outside audit, 22 Nov).                                           |
+| 21  | The ▾ format list: Escape or a tap anywhere else closes it without pasting; a screen reader hears the list and the format it pastes with (from the outside audit, 22 Nov; reworded when the preview went). |
 
 **Owner's answer, 22 Nov evening (chat and two artifact comments):** all 21 rows Yes. Change in the comments: the pin image adds and removes the bar, no separate ✕ (applied to the rules, the tool table, S8, step 4, OPEN-5, row 5, AB-03, AB-08 and the Design check). Next by the plan: scripts/check-bar-inventory.mjs, then the pictures PC, iPad sideways, iPad upright, phone.
 
@@ -207,7 +207,7 @@ Made with Spec Kit after the confirm sheet is all Yes. Files: the bar under `src
 - **AB-01** T1 lists every button of the text mini bar, box bar, Lasso bar, mixed menu and picture menu, and its cell; anything unmapped joins that state's ⋯ before the end.
 - **AB-02** `scripts/check-bar-inventory.mjs` reads the table between `tool-table:start` and `tool-table:end`; it fails a picture index or a bar build whose state misses an element, in order. Run as `npm run check:bar-inventory`.
 - **AB-03** Master order, from left: Edit text, B/I ▾, Colour, Thickness, Size, Font, Highlight, Align ▾, List ▾, Box style, Resize, Duplicate, then the ending (the pin sits at the start, after ⠿). A state greys what does not apply among Cut, Copy, Delete and hides the rest; nothing reorders.
-- **AB-12** Paste ▾ keeps the last format per notebook in the notebook's settings; the first press shows the preview at the target with the real content; a second press within 10 s pastes; any other tap cancels the preview.
+- **AB-12** Paste ▾ keeps the last format per notebook in the notebook's settings; one press pastes at once in that format at the target; ▾ opens the format list, a pick pastes and stores that format; Escape or a tap elsewhere closes the list without pasting; every paste is one Undo (owner, 22 Nov evening; the preview of the afternoon is dropped).
 - **AB-13** Drag: ⠿ moves the bar along its current line; dropping within 24 px of an edge docks it there (top, left, right, bottom); the dock is stored like the pin (AB-08).
 - **AB-04** Changing state rebuilds the tools in one frame; the bar's left edge and top stay within 1 px (SB numbers).
 - **AB-05** ⋯ shows ▾ when its list has more than Customise bar…; Customise bar… is always last.

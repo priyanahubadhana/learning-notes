@@ -1,0 +1,36 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|apply_patch",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node 'c:\\Users\\pc\\Downloads\\learning-notes\\.codex\\hooks\\guard-readonly.mjs'",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|shell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node 'c:\\Users\\pc\\Downloads\\learning-notes\\.codex\\hooks\\guard-readonly.mjs'",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node 'c:\\Users\\pc\\Downloads\\learning-notes\\.codex\\hooks\\secret-scan.mjs'",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: outside auditors set up (Codex, Cursor, Antigravity, read-only)
+
+- **What:** AGENTS.md rewritten as the shared auditor rule (Codex had auto-generated it as a builder copy of CLAUDE.md); `.cursor/rules/auditor.mdc` and `.agents/rules/auditor.md` point at it with each engine's lens; `.codex/hooks/guard-readonly.mjs` blocks edits, git writes, installs and file writes inside the project (checked on six commands), wired in `.codex/hooks.json`; the Codex builder and manager agents removed. New docs/qa/: README (roles, the two gates, the cycle, limits), REPORT-TEMPLATE, SECURITY-CHECKLIST, CONSOLIDATION-TEMPLATE, BRIEFS (four paste-in briefs and the consolidate command). New `scripts/qa-checkpoint.mjs`: tags main, three detached worktrees, the reports folder outside the repo, the STATE line; the baseline checkpoint qa/2026-11-22-baseline made (tag local until the push guard passes). CLAUDE.md and INDEX.md point at it. **Why:** the owner wants independent perspectives on plans and builds with full control kept (DECISIONS 22 Nov). **Files:** AGENTS.md, .cursor/rules/auditor.mdc, .agents/rules/auditor.md, .codex/hooks.json, .codex/hooks/guard-readonly.mjs, docs/qa/*, scripts/qa-checkpoint.mjs, CLAUDE.md, docs/INDEX.md, docs/DECISIONS.md, docs/STATE.md.
+
 ### 22 Nov 2026: the 18 design clashes settled (owner, pictures page)
 
 - **What:** every clash question in docs/design/principles.md carries a "Decided 22 Nov" line with the owner's answer and the numbers; the app-frame rule, the owner's references (Notion, GoodNotes, Notability; not plain Android) and use (iPad target, PC today) added; DECISIONS entry. **Why:** the owner could not judge numbers, so a Sonnet helper drew all 18 as picture pairs and the owner answered on the page. **Files:** docs/design/principles.md, docs/DECISIONS.md, docs/STATE.md.

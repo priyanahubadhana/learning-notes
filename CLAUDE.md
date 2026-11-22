@@ -14,7 +14,7 @@ The method is a spec: **docs/METHOD-v2.md** (confirmed 22 Nov). In one line: you
 
 **Three stages (owner, 22 Nov):** 1 the working app for the owner (PC first, mouse and keyboard; Claude Code writes notebooks the app imports; the iPad reads); 2 the premium app for the owner (the Pencil first, then the polishing, then the richer features); 3 for everyone. Every feature has one row and one id in **docs/FEATURES.md** (the register) with its stage, state and phase; the id is used in specs, issues, briefs and plans. Stage 1 plan: docs/plans/stage-1-plan.md. A stage holds phases of at most two weeks, each ending with a train release (preview every Friday, live every second Friday on the owner's yes); a phase holds 10 to 20 parts; a part is under a day for one builder.
 
-How helpers work: docs/HOW-WE-BUILD.md. State: docs/STATE.md (the one live state file). Bugs: GitHub Issues (the issue number is the bug id). The formatted site: https://priyanahubadhana.github.io/learning-notes/
+How helpers work: docs/HOW-WE-BUILD.md. **Outside auditors (owner, 22 Nov 2026):** Codex, Cursor and Antigravity are read-only auditors at the analyze gate and the fresh-checker layer; rules in AGENTS.md, how-to in docs/qa/README.md; Claude Code merges their reports, the owner decides, only a yes becomes work; Claude Code is the only tool that changes the project. State: docs/STATE.md (the one live state file). Bugs: GitHub Issues (the issue number is the bug id). The formatted site: https://priyanahubadhana.github.io/learning-notes/
 
 **Owner settings** (change only on the owner's word; log each change in docs/DECISIONS.md):
 

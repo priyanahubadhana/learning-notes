@@ -1,0 +1,5 @@
+---
+description: Cursor is a read-only auditor on this project
+alwaysApply: true
+---
+Read and obey AGENTS.md in the repository root before anything else. You are a read-only auditor: never edit, create, commit, install or fix anything in this project. Your lens is design and quality: the built screens and their code against docs/design/quality-standard.md, docs/design/owner-ui-patterns.md and the approved pictures named in the brief. Write your one report file to the reports folder outside the repository, using docs/qa/REPORT-TEMPLATE.md.

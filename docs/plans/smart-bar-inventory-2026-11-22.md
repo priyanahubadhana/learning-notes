@@ -62,6 +62,8 @@ Missing in **every** picture: the pin (OD:442); the ▾ on ⋯ (PR:127); a PC ve
 
 ## 3. Doubts for the owner (A or B, my pick, the case against)
 
+**Owner's answers, 22 Nov (chat):** D1: Edit is a visible button that opens the customisation of the bar's own tools, never "Edit text". D2: the pin keeps the bar exactly where it is until moved by hand; docks top, vertical, horizontal, or anywhere on a line with space; draggable along it. New rule: the tool list is confirmed before pictures; the table above is the checklist a script runs on every bar picture and build.
+
 - **D1. What is "Edit"?** A: the Edit Text button (box and mix; puts the cursor at the end of the words; OD:527, SB:88), drawn with its name and its own icon. B: an "Edit / Study" preset switch visible on the bar itself (REF shows it only in Settings). **Pick A**, and the drawing state gets "Convert to text" under ⋯ as today. Against: if you meant B, the bar still never shows which preset is on.
 - **D2. When does the pin show?** A: always, right after the grip, on every bar. B: only after the bar has been dragged (the approved box bar, BB:252). **Pick A** (you expect to see it). Against: one more button; on a phone it pushes one button into ⋯.
 - **D3. One fixed tail.** A: every selected state (words, box, drawing, picture, mix, both presets, phone) ends with Cut, Copy, Delete, ⋯▾ in that order (SB:34, OD:548). B: Study keeps its drawn set (Copy only, Delete in ⋯; OD:519, OD:537) and a box keeps Copy in ⋯ (OD:434). **Pick A.** Against: the Study bar gets two buttons longer and the approved box bar changes.

@@ -1,5 +1,7 @@
 # Ideas (parked)
 
+- **22 Nov 2026 · Tool previews on hold (owner; later, stage 2 polish):** press-and-hold on a tool bar icon plays a small preview of what the tool does, like Photoshop's tool tips; for new users; a setting to turn it off; hover keeps showing the name. Source: principles.md Q12.
+
 New ideas that come up mid-build are parked here, not added to the current phase.
 
 - 2026-10-25 — AI learning companion: watches the screen and listens to the voice while learning; writes detailed notes, a keyword summary and flashcards; adds spoken insights to both the notes and the summary _(Likely phase: 7)_

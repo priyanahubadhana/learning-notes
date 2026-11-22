@@ -1,5 +1,7 @@
 # Phase PC-1: the PC product (plan draft, Fable with the owner, 21 Nov 2026, night)
 
+**Now the detail page of phase 1A of [stage-1-plan.md](../stage-1-plan.md) (22 Nov 2026).** Sections 5 and 18 list the 1A parts; later stages of this page are re-planned there.
+
 **Status: confirmed by the owner on 22 Nov 2026 (answers in section 17); this is the live plan and replaces docs/plans/phases/phase-2-finish.md.** Open: the bar's name (Q4). Method: docs/plans/method-v2/ (pictures 1 to 3, approved 21 Nov). Decisions behind it: docs/DECISIONS.md, 21 Nov rounds 1 to 5. Audit behind it: docs/plans/uniformity-and-specs-2026-11-21.md.
 
 ## 1. Goal and the two non-negotiables

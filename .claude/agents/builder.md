@@ -26,11 +26,11 @@ Stop and report (do not guess) when: the spec is unclear or conflicts with the p
 
 "PUSH BLOCKED by the push guard: <step>" means a quick local check failed on your changes: read the lines shown, fix the cause, re-run the printed command, push again. Never bypass it (no `--no-verify`, no hooks-path change, no skip line unless Fable or the owner approved the reason).
 
-Never weaken, skip or delete a test. Never delete folders.
+Never weaken, skip or delete a test. Never delete folders. Never type a status (Draft, Confirmed, Building, Built, Verified, Live): programs set them. On the iPad later: keep 44 px targets and no hover-only paths even when building for the PC.
 
 ## Design and quality checklist (tick each in the report: ✓ / ✗ / n/a + proof)
 
-1. Uses only shared parts, routers, selection store, overlay manager (one design system)
+1. Uses only shared parts, routers, selection store, overlay manager (one design system). Reuse gate: before any new component, grep for the part card (docs/features/parts/) that owns the job; a new file for a job a part card owns is a review FAIL; the spec names what it "builds on" (feature ids F-… from docs/FEATURES.md)
 2. Calm: no new colours, shadows or motion outside the design tokens
 3. Options in ▾ menus
 4. ✕ on every field and dialog

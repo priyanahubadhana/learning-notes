@@ -2,6 +2,76 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: the local unit-test red fixed (drive-letter case)
+
+- **What:** scripts/run-vitest.mjs starts Vitest from the folder's canonical path; `npm test`, `npm run test:watch` and the push guard use it.
+- **Why:** with the folder opened as "c:..." (lowercase, as VS Code and this chat open it) Vitest 5 on Node 26 loaded its own modules twice and all 372 files failed to load ("Vitest failed to find the current suite"); from "C:..." the same install passed. Proof: 372 files, 3088 tests green from the lowercase path after the fix.
+- **Files:** scripts/run-vitest.mjs, package.json, scripts/push-guard.mjs, docs/STATE.md, docs/DECISIONS.md.
+
+### 22 Nov 2026: baseline audit answers applied to the documents
+
+- **What:** action-bar.md: line 31 says selection states, OPEN-1 text matches the answer, sheet rows 20 and 21 (fold by width; Paste preview cancel). update-v2.md: line 43 and U10 say the block waits for the finished download and offline writing goes on; UP-03 starts after the save wait. FEATURES.md: F-096 stage 1 phase 1M, F-025 links action-bar.md. DECISIONS: the owner's four answers, the guest-mode override logged.
+- **Why:** the owner's yes rows on the merged QA sheet of qa/2026-11-22-baseline.
+- **Files:** docs/features/action-bar.md, docs/features/update-v2.md, docs/FEATURES.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 22 Nov 2026: merged QA sheet of the baseline audit
+
+- **What:** the Antigravity report (14 findings) consolidated into MERGED-SHEET.md in the reports folder outside the repo, each row labelled error, gap or preference with a view and the case against; docs/STATE.md QA checkpoints line and Needs you updated. Codex and Cursor sent no report.
+- **Why:** docs/qa/README.md step 1 of the auditor rhythm; nothing is acted on before the owner's yes rows.
+- **Files:** docs/STATE.md, docs/CHANGELOG.md.
+
+### 22 Nov 2026: handoff of the Fable planning window
+
+- **What:** docs/STATE.md gains the evening handoff (done today, pending with the owner, next for Opus in order, the lesson); the stale C3 line now points at the Action bar sheet. **Why:** the owner clears the chat; a new window starts from STATE.md. **Files:** docs/STATE.md, docs/CHANGELOG.md.
+
+### 22 Nov 2026: auditors get a project briefing, a daily brief maker and the rhythm
+
+- **What:** docs/qa/PROJECT-BRIEFING.md (the app, the stages, the method words, the folder map, how it is tested, what is not a bug); scripts/qa-brief.mjs writes the filled briefs for a checkpoint (delta since the previous tag, or --full); README gets the rhythm (baseline full, daily delta, weekly full, three final audits before a release) and the checked read-only facts per tool; AGENTS.md reads the briefing first. **Why:** the owner wants the auditors to understand the project before judging it, and a daily cycle that costs one paste. **Files:** docs/qa/PROJECT-BRIEFING.md, docs/qa/README.md, docs/qa/BRIEFS.md, scripts/qa-brief.mjs, AGENTS.md.
+
+### 22 Nov 2026: outside auditors set up (Codex, Cursor, Antigravity, read-only)
+
+- **What:** AGENTS.md rewritten as the shared auditor rule (Codex had auto-generated it as a builder copy of CLAUDE.md); `.cursor/rules/auditor.mdc` and `.agents/rules/auditor.md` point at it with each engine's lens; `.codex/hooks/guard-readonly.mjs` blocks edits, git writes, installs and file writes inside the project (checked on six commands), wired in `.codex/hooks.json`; the Codex builder and manager agents removed. New docs/qa/: README (roles, the two gates, the cycle, limits), REPORT-TEMPLATE, SECURITY-CHECKLIST, CONSOLIDATION-TEMPLATE, BRIEFS (four paste-in briefs and the consolidate command). New `scripts/qa-checkpoint.mjs`: tags main, three detached worktrees, the reports folder outside the repo, the STATE line; the baseline checkpoint qa/2026-11-22-baseline made (tag local until the push guard passes). CLAUDE.md and INDEX.md point at it. **Why:** the owner wants independent perspectives on plans and builds with full control kept (DECISIONS 22 Nov). **Files:** AGENTS.md, .cursor/rules/auditor.mdc, .agents/rules/auditor.md, .codex/hooks.json, .codex/hooks/guard-readonly.mjs, docs/qa/*, scripts/qa-checkpoint.mjs, CLAUDE.md, docs/INDEX.md, docs/DECISIONS.md, docs/STATE.md.
+
+### 22 Nov 2026: the 18 design clashes settled (owner, pictures page)
+
+- **What:** every clash question in docs/design/principles.md carries a "Decided 22 Nov" line with the owner's answer and the numbers; the app-frame rule, the owner's references (Notion, GoodNotes, Notability; not plain Android) and use (iPad target, PC today) added; DECISIONS entry. **Why:** the owner could not judge numbers, so a Sonnet helper drew all 18 as picture pairs and the owner answered on the page. **Files:** docs/design/principles.md, docs/DECISIONS.md, docs/STATE.md.
+
+### 22 Nov 2026: phase 1M, the build machine, planned (part 1M-01, Fable)
+
+- **What:** a phase page with the goal, rules, must-never lines, scenarios S1 to S7, the tools and where each is used, the building guide (windows under 100K, the relay, lanes), the 13 parts with proof, the owner's help and a confirm sheet; a research page with sources; the sixteen decisions and the relay rule in DECISIONS; rules/sessions.md, CLAUDE.md Owner settings, HOW-WE-BUILD section 2, token-efficiency rule 9, stage-1-plan (row 1M, about 6 days), INDEX and STATE updated. **Why:** the owner asked for a repeatable machine: fresh small windows, no "done" without proof of function and look, numbers by program, copyable to the next project. **Files:** docs/plans/phases/phase-1m-build-machine.md, docs/plans/research-build-machine-2026-11-22.md, docs/DECISIONS.md, rules/sessions.md, CLAUDE.md, docs/HOW-WE-BUILD.md, docs/design/token-efficiency.md, docs/plans/stage-1-plan.md, docs/INDEX.md, docs/STATE.md, ~/.claude/playbook.md.
+
+### 22 Nov 2026: the 152 ideas sorted into the register, and a Pillar column (task 1A)
+
+- **What:** docs/FEATURES.md gets a section of 152 idea rows (F-200 to F-351, stage by the stage map, "?" where guessed) and a Pillar column (N, G, F, P, A or core) on every register table. **Why:** the owner reviews the sorting on the site in one pass. **Files:** docs/FEATURES.md, docs/CHANGELOG.md.
+
+### 22 Nov 2026: rules updated with the decisions of 21 and 22 Nov (part M8, my share)
+
+- **What:** rules/, HOW-WE-BUILD and /next now agree with CLAUDE.md and METHOD-v2. Old state-file paths replaced by docs/STATE.md; the ladder gets Opus high before Fable (replaces "Opus five times"); new one-line rules added.
+- **Why:** METHOD-v2 step M8; one source of truth, nothing contradicting CLAUDE.md.
+- **Diff per file:**
+  - rules/building.md: HANDOFF path to STATE.md; ladder replaced; added PC first, builds on and reuse gate, bugs are Issues and statuses by program, honesty and override log, short lines, asking for references.
+  - rules/planning.md: PENDING.md to open Issues; template v2 and METHOD-v2 pointer; sizes (phase 2 weeks, 10 to 20 parts, part under a day, FEATURES.md ids); replan trigger.
+  - rules/sessions.md: HANDOFF/BUILD-STATE to STATE.md; /next reads STATE.md then INDEX.md; PC first; ladder; weekly card Saturday evening.
+  - rules/testing.md: scenario tests (20 of 20, red first), chromium per merge, ipad-webkit nightly and per release.
+  - rules/quality.md: Design and quality check, reuse gate, flexible, iPad stays the design target ("On the iPad later").
+  - rules/phase-end.md: phase at most two weeks with train release; rules change only at a phase end.
+  - docs/HOW-WE-BUILD.md: Opus high before Fable; path of a part is METHOD-v2; reuse gate.
+  - .claude/commands/next.md: reads docs/STATE.md (owner approved via Fable); HANDOFF dropped; PENDING to STATE.
+- **Review fixes (same day):** testing.md real-use line back to its old wording (only the run cadence changed); each decision written once: PC first in building.md (quality.md points to it, sessions.md line removed), reuse gate in quality.md (building.md points to it), rules change only at a phase end in phase-end.md (sessions.md sentence removed), phase length in planning.md (phase-end.md points to it); HOW-WE-BUILD: old five-try line reworded for the ladder (Opus medium, Opus high, Fable) and the medium-effort line says "except the Opus high step".
+- **Kept:** every other existing rule unchanged.
+
+### 22 Nov 2026: GitHub Issues are the bug list (part M3)
+
+- **What:** labels part:<id>, state:<...>, found-by:<...>; bug form .github/ISSUE_TEMPLATE/bug.yml; 43 old problems moved into issues #7 to #49 (old id in each title); STATE.md "Open problems" is now one line; README says how to file a bug from the phone.
+- **Why:** METHOD-v2 "Bugs are issues", M-N6: one source, no copy by hand.
+- **Files:** .github/ISSUE_TEMPLATE/*, docs/STATE.md, README.md, docs/CHANGELOG.md.
+
+### 22 Nov 2026: Spec Kit installed and adapted (part M2)
+
+- **What:** Spec Kit v1.4.3 pinned in .specify/VERSION; spec template overridden by a synced copy of docs/features/_TEMPLATE.md (npm run check:spec-template, also in CI); constitution only points at CLAUDE.md and rules/; implement and converge disabled, implement step removed from the workflow; nine skills added under .claude/skills/.
+- **Why:** METHOD-v2 step M2: one template source, no second hand-kept copy.
+- **Files:** .specify/**, .claude/skills/speckit-*, scripts/sync-spec-template.mjs, docs/SPEC-KIT.md, .github/workflows/ci.yml, package.json, .prettierignore.
+
 ### 22 Nov 2026: one live docs set and one STATE file (part M1)
 
 - **What:** 129 files (old plans, audits, findings, finished-phase pictures, METHOD.md) moved with git mv to docs/archive/ and listed one by one in docs/archive/INDEX.md; DECISIONS entries to 20 Nov moved to docs/archive/DECISIONS-until-20-nov.md; PENDING, BUILD-STATE and HANDOFF became docs/STATE.md (Now, Needs you, Next, Parked), the old paths are one-line pointers for a week; links updated; the site home lists STATE.md and keeps archive pages out of its cards.

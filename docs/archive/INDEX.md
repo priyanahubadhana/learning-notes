@@ -144,3 +144,5 @@ Written by part M1 (22 Nov 2026). Everything here was moved with `git mv` (or co
 | docs/plans/system-trial-2026-11-13.md                             | docs/archive/plans/system-trial-2026-11-13.md                             | the 13 Nov system trial; finished, superseded 22 Nov 2026 by phase 1M                                                     |
 | docs/plans/uniformity-and-specs-2026-11-21.md                     | docs/archive/plans/uniformity-and-specs-2026-11-21.md                     | the 21 Nov uniformity audit behind phase PC-1; folded into phase-pc-1.md, archived 22 Nov 2026                            |
 | docs/ROADMAP.md (full text)                                       | docs/archive/plans/ROADMAP-until-22-nov.md                                | the old roadmap (phases from 7 on); superseded 22 Nov 2026, docs/ROADMAP.md is now a pointer                              |
+
+- [STATE-trimmed-2026-11-22.md](STATE-trimmed-2026-11-22.md): two closed Fable handoffs of 22 Nov, the Phase 2-finish lanes history and the 16 Nov rules list, trimmed from STATE.md on 22 Nov 2026.

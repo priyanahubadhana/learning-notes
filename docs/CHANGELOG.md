@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026, late evening: handoff and STATE trim
+
+- **What:** docs/STATE.md gains the late-evening handoff (done, lessons, next in order) and a rewritten Needs you; two closed handoffs, the Phase 2-finish history and the 16 Nov rules list moved to docs/archive/STATE-trimmed-2026-11-22.md; four research notes reformatted by Prettier (no text change).
+- **Why:** the owner asked for a final audit and a handoff before clearing the chat; the 100-line rule for STATE.md.
+- **Files:** docs/STATE.md, docs/archive/STATE-trimmed-2026-11-22.md, docs/archive/INDEX.md, docs/CHANGELOG.md, docs/research/.
+
 ### 22 Nov 2026, evening: AB-02 picture check script
 
 - **What:** scripts/check-bar-inventory.mjs reads the tool table between the markers in action-bar.md and fails a picture that misses, adds or reorders a tool of a stage-1 state (flags grey and filled included); 7 unit tests; `npm run check:bar-inventory`.

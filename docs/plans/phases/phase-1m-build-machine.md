@@ -1,6 +1,6 @@
 # Phase 1M: the build machine (Fable with the owner, 22 Nov 2026)
 
-Stage 1 · Status: Draft until the owner's confirm sheet is all Yes · Builds on: METHOD-v2.md (M4, M5, M-N1, M-N5, M-N7), HOW-WE-BUILD.md sections 2 and 6, rules/quality.md section 5, design/token-efficiency.md rules 4, 5 and 9. Research and sources: [research-build-machine-2026-11-22.md](../research-build-machine-2026-11-22.md). Decisions: docs/DECISIONS.md, 22 Nov "The build machine".
+Stage 1 · Status: Confirmed 22 Nov 2026 (owner, rows 1 to 11 Yes, in chat) · Builds on: METHOD-v2.md (M4, M5, M-N1, M-N5, M-N7), HOW-WE-BUILD.md sections 2 and 6, rules/quality.md section 5, design/token-efficiency.md rules 4, 5 and 9. Research and sources: [research-build-machine-2026-11-22.md](../research-build-machine-2026-11-22.md). Decisions: docs/DECISIONS.md, 22 Nov "The build machine".
 
 ## Goal
 
@@ -141,3 +141,4 @@ Rule: a day adds nothing that is not on the phase page; a new wish goes to docs/
 ### Changes
 
 - 22 Nov 2026 · - · page written by Fable with the owner; the relay rule added on the owner's point 4 · owner (chat)
+- 22 Nov 2026 · - · confirm sheet rows 1 to 11 all Yes (owner, chat, after reading the artifact copy); status Confirmed · owner

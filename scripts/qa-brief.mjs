@@ -53,7 +53,7 @@ if (!existsSync(reports)) {
   )
   process.exit(1)
 }
-const head = git('rev-parse', '--short', tag)
+const head = git('rev-parse', '--short', tag + '^{commit}')
 const R = `C:\\Users\\pc\\Downloads\\learning-notes-qa\\${tag.replace('/', '-')}\\`
 const common = (e) =>
   `You are a read-only auditor on this project. Read AGENTS.md, then docs/qa/PROJECT-BRIEFING.md, then docs/qa/README.md.

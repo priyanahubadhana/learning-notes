@@ -1,6 +1,6 @@
 # Results by way of working (the record the owner asked for, 14 Nov 2026)
 
-One row per way of working and per phase, so the ways can be compared with numbers. The first two rows are measured from git and the GitHub test runs (how: docs/plans/system-trial-2026-11-13.md and docs/archive/plans/build-diagnosis-2026-11-14.md). A row for a phase is filled in at its look back (rules/phase-end.md). Per-task numbers: [tasks.csv](tasks.csv).
+One row per way of working and per phase, so the ways can be compared with numbers. The first two rows are measured from git and the GitHub test runs (how: docs/archive/plans/system-trial-2026-11-13.md and docs/archive/plans/build-diagnosis-2026-11-14.md). A row for a phase is filled in at its look back (rules/phase-end.md). Per-task numbers: [tasks.csv](tasks.csv).
 
 "Reached the owner" means: the owner could test it. "Live" means: switched ON in the real app.
 

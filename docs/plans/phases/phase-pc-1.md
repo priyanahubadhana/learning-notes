@@ -2,7 +2,7 @@
 
 **Now the detail page of phase 1A of [stage-1-plan.md](../stage-1-plan.md) (22 Nov 2026).** Sections 5 and 18 list the 1A parts; later stages of this page are re-planned there.
 
-**Status: confirmed by the owner on 22 Nov 2026 (answers in section 17); this is the live plan and replaces docs/plans/phases/phase-2-finish.md.** Open: the bar's name (Q4). Method: docs/plans/method-v2/ (pictures 1 to 3, approved 21 Nov). Decisions behind it: docs/DECISIONS.md, 21 Nov rounds 1 to 5. Audit behind it: docs/plans/uniformity-and-specs-2026-11-21.md.
+**Status: confirmed by the owner on 22 Nov 2026 (answers in section 17); this is the live plan and replaces docs/plans/phases/phase-2-finish.md.** Open: the bar's name (Q4). Method: docs/plans/method-v2/ (pictures 1 to 3, approved 21 Nov). Decisions behind it: docs/DECISIONS.md, 21 Nov rounds 1 to 5. Audit behind it: docs/archive/plans/uniformity-and-specs-2026-11-21.md.
 
 ## 1. Goal and the two non-negotiables
 
@@ -184,7 +184,7 @@ Every scenario of the method spec, the part cards, the one bar, Settings v5 (cho
 
 - **Goal:** M1 to M9 of section 5 proved as docs/METHOD-v2.md "How we get there" says; one Sonnet builder; small commits pushed after each part; STATE.md current.
 - **Where:** main for docs and tooling; build/next for app code. Working copy for the builder: reuse an existing ln-* folder (never delete one).
-- **Spec pointers:** docs/METHOD-v2.md (the contract for the method itself), docs/features/_TEMPLATE.md and docs/features/parts/_TEMPLATE-part.md (the shapes), docs/plans/uniformity-and-specs-2026-11-21.md section 1 (the part cards come from this table), docs/features/shared-parts.md SP-09 (the one bar that was specified and never used).
+- **Spec pointers:** docs/METHOD-v2.md (the contract for the method itself), docs/features/_TEMPLATE.md and docs/features/parts/_TEMPLATE-part.md (the shapes), docs/archive/plans/uniformity-and-specs-2026-11-21.md section 1 (the part cards come from this table), docs/features/shared-parts.md SP-09 (the one bar that was specified and never used).
 - **Order:** M1, M2, M3, M8 first (everything later depends on them); then M4, M5, M9; M6 and M7 beside stage 1.
 - **Done when:** each row of the M table has its proof linked in the changelog; the site opens on the owner's iPad; analyze fails a planted bad spec once on purpose and the run is linked.
 - **Do not touch:** app behaviour (stage 0 is docs and tooling only); the parked Pencil branches; any test.

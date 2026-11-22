@@ -1,6 +1,6 @@
 # Home cockpit (Phase F)
 
-Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [master plan](../plans/master-plan-2026-11.md) Phase F.
+Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [master plan](../archive/plans/master-plan-2026-11.md) Phase F.
 
 ## Purpose
 

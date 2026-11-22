@@ -16,7 +16,7 @@ Read: rules/quality.md, the task's spec lines in docs/features/<file>.md, the ph
 
 The brief says which bar applies:
 
-- **First-look bar** (the usual case; docs/plans/phase-plan.md section 4): Beginner and Professional, light and dark, iPad upright and sideways, and phone; real use on an iPad size was done (sign-in stays, turning, scrolling, no freeze).
+- **First-look bar** (the usual case; docs/archive/plans/phase-plan.md section 4): Beginner and Professional, light and dark, iPad upright and sideways, and phone; real use on an iPad size was done (sign-in stays, turning, scrolling, no freeze).
 - **Release bar** (end of a phase): the full Definition of Done in rules/quality.md section 3, including sepia, PC, accessibility and the size budget, on the phase's full picture set.
 
 Also run in the working copy: `npm run check:dod`, `npm run check:ratchet`, `npm run check:size`; any red = FAIL. Compare the builder's ticked checklist (.claude/agents/builder.md) with the diff; a wrong tick is a fix item.

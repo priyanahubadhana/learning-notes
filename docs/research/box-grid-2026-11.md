@@ -1,6 +1,6 @@
 # Box grid research (10 Nov 2026)
 
-Question: owner decision on bug-batch item 26: boxes never overlap; they snap into a tidy grid (1-3 per row, at most 6 per area), like Windows Snap Layouts and Notion columns. Plan: [plans/box-grid-plan.md](../plans/box-grid-plan.md).
+Question: owner decision on bug-batch item 26: boxes never overlap; they snap into a tidy grid (1-3 per row, at most 6 per area), like Windows Snap Layouts and Notion columns. Plan: [archive/plans/box-grid-plan.md](../archive/plans/box-grid-plan.md).
 
 ## Findings
 

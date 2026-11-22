@@ -1,6 +1,6 @@
 # Phase 2B: text box and Pencil
 
-Written by Fable, 14 Nov 2026 (night). Plan: [../phase-plan.md](../phase-plan.md) "Phase 2B". Owner's answers: [phase-2b-decisions.md](phase-2b-decisions.md) (all final). Spec: [../../features/textbox-v2.md](../../features/textbox-v2.md), lines TB-01 to TB-42. Whether the build is running: only [../../BUILD-STATE.md](../../BUILD-STATE.md) says.
+Written by Fable, 14 Nov 2026 (night). Plan: [../../archive/plans/phase-plan.md](../../archive/plans/phase-plan.md) "Phase 2B". Owner's answers: [phase-2b-decisions.md](phase-2b-decisions.md) (all final). Spec: [../../features/textbox-v2.md](../../features/textbox-v2.md), lines TB-01 to TB-42. Whether the build is running: only [../../BUILD-STATE.md](../../BUILD-STATE.md) says.
 
 ## What the owner gets
 

@@ -63,7 +63,7 @@ docs/FEATURES.md: every feature, one row, a stable id (F-001 …), its pillar, s
 | docs/DECISIONS.md, docs/CHANGELOG.md, docs/IDEAS.md, docs/metrics/    | the diary, the changes, the parking lot, the numbers |
 | docs/features/ and docs/features/parts/                               | the specs and the part cards                         |
 
-Everything else in docs/plans/ (phase-plan, build-master-plan, the November redesign and master plans, the old roadmap) moves to docs/archive/ with a one-line index after the found-wishes sweep. Nothing is deleted.
+Everything else in docs/plans/ (phase-plan, build-master-plan, the November redesign and master plans, the old roadmap) moves to docs/archive/ with a one-line index after the found-wishes sweep. Nothing is deleted. Done 22 Nov 2026 evening: the pages are in docs/archive/plans/ (listed in docs/archive/INDEX.md) and docs/ROADMAP.md is a pointer.
 
 ## 7. The names we use
 

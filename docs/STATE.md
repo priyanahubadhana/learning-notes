@@ -22,7 +22,7 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 **Pending with the owner (kept pending on purpose, 22 Nov evening).** (a) The Action bar confirm sheet, 19 rows, and any missing button in the tool table: https://claude.ai/artifact/MfA7EuRVw24rjKdhHzBBdf (comments or chat; the repo file is the source). (b) Idea rows F-200 to F-351 stage corrections. (c) Preview checks C0 and C1a on the iPad. The owner reads these on the tablet in the morning and evening slots.
 
-**Next for the manager (Opus), after the auditor steps above.** (1) When the Action bar sheet comes back: apply every "Change to" into docs/features/action-bar.md, log in DECISIONS, set Confirmed by program when all 19 rows are Yes (no typed status). (2) Then build `scripts/check-bar-inventory.mjs` (AB-02, `npm run check:bar-inventory`: every picture's button set against the tool table) and redraw the pictures in this order, PC, iPad sideways, iPad upright, phone, each script-checked before the owner sees it; ask the owner on any doubt, never guess a decided element. (3) Design numbers fold (step 2b under Now) and the ten principle pictures. (4) STATE.md is 243 lines against the 100-line rule: Opus trims stale sections (Phase 2-finish history, old C3 line, 16 Nov rules) into docs/archive/ and adds the daily "Today" block (phase 1M page, "Planning architecture: four layers"). (5) Phase 1M from 1M-02 once U0a merges; Fable's attack read only at 1M-13.
+**Next for the manager (Opus), after the auditor steps above.** (1) DONE 22 Nov evening: all 21 rows Yes, the pin is the switch, action-bar.md Confirmed. (2) NEXT: build `scripts/check-bar-inventory.mjs` (AB-02, `npm run check:bar-inventory`: every picture's button set against the tool table) and redraw the pictures in this order, PC, iPad sideways, iPad upright, phone, each script-checked before the owner sees it; ask the owner on any doubt, never guess a decided element. (3) Design numbers fold (step 2b under Now) and the ten principle pictures. (4) STATE.md is 243 lines against the 100-line rule: Opus trims stale sections (Phase 2-finish history, old C3 line, 16 Nov rules) into docs/archive/ and adds the daily "Today" block (phase 1M page, "Planning architecture: four layers"). (5) Phase 1M from 1M-02 once U0a merges; Fable's attack read only at 1M-13.
 
 **Lesson recorded today.** A page copy for the owner is made only after the last answer is in the file (the Action bar artifact went out with 5 stale lines and had to be refreshed). Questions to the owner: pictures first, the pick first, no bare numbers.
 
@@ -40,7 +40,7 @@ STOPPED cleanly 22 Nov 07:30 IST (the owner ended the session). A new phase-mana
    2b. **Design numbers fold (Opus, doc task, tiny):** fold the 18 "Decided 22 Nov" lines of docs/design/principles.md into system.md, the shell spec, quality-standard.md and tool bar v8 so one table holds the numbers; then draw the ten principle pictures (the owner confirmed the page; the clashes are settled).
 3. **Found-wishes sweep** DONE 22 Nov evening (Opus helper): docs/plans/found-wishes-2026-11-22.md, 31 rows, waiting for the owner's one-pass answer (row numbers to change; the rest counts as yes). After the answer: register rows from F-352, home.md into F-055, old plan pages to docs/archive/.
 4. **M5** analyze v1, then **M9** the eleven part cards (stop for Fable's attack read), then **M6** the weekly card (Saturday evening), **M7** the research page.
-5. After the owner's pass on found wishes: archive the old plan pages; ROADMAP.md becomes a pointer to MASTER-PLAN.md.
+5. DONE 22 Nov evening: ten old plan pages in docs/archive/plans/, ROADMAP.md a pointer, links updated (helper).
 6. Site: home order (MASTER-PLAN first), Stage badge, pillar letters, the red Must-never box. The ten principle pictures stay on hold until the owner confirms principles.md.
 
 Working copies: ln-m1, ln-m2, ln-u0b are worktrees whose node_modules is a junction to the main copy (never npm install there); ln-2a13 is detached. ln-buildnext has its own packages (marked added 22 Nov).
@@ -106,7 +106,6 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 
 ## Needs you
 
-- **Now (22 Nov, evening):** the found-wishes page, 35 cards in easy words, tap a stage and press Copy my answers: https://claude.ai/artifact/KzhBJ8exaj9ki9jzXh11jt (the repo file docs/plans/found-wishes-2026-11-22.md is the source; the owner asked for a tappable page, 22 Nov evening).
 - **Read it formatted:** https://priyanahubadhana.github.io/learning-notes/ (the method page has tappable sheet rows and a Copy-my-answers button; paste the result in the chat).
 - **Now (22 Nov):** the method and the plan are confirmed. Needs you: (1) the six install-and-update facts (device and browser; live or preview; what "download" means; what you saw in order; how often and when last; the version shown), since you chose that bug first; (2) the one bar's name, "Action bar" unless you say otherwise. Plan: docs/plans/phases/phase-pc-1.md sections 17 and 18.
 
@@ -115,7 +114,7 @@ Older items (20 Nov, part D0). The old plan: [plans/phases/phase-2-finish.md](pl
 - **Now:** the 20-minute catch-up check **C0** on the preview, with "Circle recorder" off (plan section 6 lists the 11 items). Do it in a calm window, morning or evening.
 - **Reminder (owner asked, 21 Nov):** set up Notion in a new chat (the tools did not load in the old one), then the Notion mirror of plan, specs and bugs (docs/IDEAS.md).
 - **Due:** check **C1a**, one five-minute Lasso session with the quiet recorder on (Settings › Try new features › Lasso recorder); A2 merged 20 Nov.
-- **Now:** the Action bar confirm sheet, 19 rows (replaces the C3 pictures, which failed 22 Nov): https://claude.ai/artifact/MfA7EuRVw24rjKdhHzBBdf
+- **Done 22 Nov evening:** the Action bar sheet (21 rows Yes, pin is the switch) and the found-wishes page (35 rows answered, F-352 to F-386).
 - **Sign-offs later:** docs/features/text-select.md (before A4) and docs/features/action-bar.md (the 19-row sheet; selection-bar.md is replaced).
 - **Leftovers you may delete when you like:** the old working copies and power-cut leftovers (list comes in part E9). The permission check blocks new working copies with a link, so old ones are reused.
 - **Small, not urgent:** Decisions to review in docs/DECISIONS.md; the security-header check (Google sign-in, Drive, fonts; part E6); the AI test key shows masked and Test passes (never paste it in chat); Supabase Phase 8 connector job tools (needs your OK then).

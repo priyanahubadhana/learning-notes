@@ -49,7 +49,7 @@ Every page is paper. It shows as fixed sheets (A4, or Letter) with a border and 
 
 ## Box grid (10 Nov, bug batch item 26)
 
-Replaces "Boxes never overlap" and the push-down of the 9 Nov work. Plan: [plans/box-grid-plan.md](../plans/box-grid-plan.md); research: [research/box-grid-2026-11.md](../research/box-grid-2026-11.md); decisions in DECISIONS.md.
+Replaces "Boxes never overlap" and the push-down of the 9 Nov work. Plan: [archive/plans/box-grid-plan.md](../archive/plans/box-grid-plan.md); research: [research/box-grid-2026-11.md](../research/box-grid-2026-11.md); decisions in DECISIONS.md.
 
 - **Model.** `Page.rows` (`GridRow[]`: `id`, optional `y` mm, `cols[]` of `{ w fraction, boxIds[1-2] }`; 1-3 columns, so at most 6 boxes per area; columns at least 25 %). `paper/grid.ts` is pure (tested in `grid.test.ts`): `layoutRows` (rows top to bottom, a row's height is its tallest column, 3 mm between rows and stacked boxes, 4 mm between columns, a row that does not fit what is left of a sheet starts on the next one), `insertAt` (drop zones: left / right third = new column, top / bottom quarter = stack, a full row or column falls to a new row), `removeBox`, `reconcile`, `resizeCols` (snaps to 1/3, 1/2, 2/3 within 3 %), `migrateToRows`, `applyPreset`. Stored shape checked by `core/gridRows.ts` (backups and sync). A box's `x / y / w` fields are the last known place (written for extras on every grid change; the default box keeps its own).
 - **Pages without rows** are arranged in memory on open (`migrateToRows`, nothing lost); rows are written, after a History copy, on the first grid change (`updateGrid`). Once a page has rows, `writeBoxes` keeps them in step with every box made, removed or restored.
@@ -79,11 +79,11 @@ Hold still on text under the Text tool (1.5 s, Settings › Advanced 0.6-3 s; a 
 
 ## Layout Assist (10 Nov, bug batch 2 items 7 and 10)
 
-Box ⋯ › Layout, the Box bar ▦ or Ctrl/Cmd+Alt+L: pick a layout and a zone, fill the other zones with the page's boxes (tap or drag), + New box or leave empty (empty zones collapse), see a full-page preview, then Done (one Undo). Apply to whole notebook previews every page first. No layout ever creates an empty box. Code: `paper/layoutPlan.ts` (pure), `LayoutAssist.tsx` (lazy), `layoutAssistService.ts`. Plan: [layout-assist-plan.md](../plans/layout-assist-plan.md).
+Box ⋯ › Layout, the Box bar ▦ or Ctrl/Cmd+Alt+L: pick a layout and a zone, fill the other zones with the page's boxes (tap or drag), + New box or leave empty (empty zones collapse), see a full-page preview, then Done (one Undo). Apply to whole notebook previews every page first. No layout ever creates an empty box. Code: `paper/layoutPlan.ts` (pure), `LayoutAssist.tsx` (lazy), `layoutAssistService.ts`. Plan: [layout-assist-plan.md](../archive/plans/layout-assist-plan.md).
 
 ## Text tool and box style (10 Nov, bug batch 2 item 8)
 
-See [text-tool-plan.md](../plans/text-tool-plan.md). Box ⋯ › Box style, the Box bar and the Text strip open the Box style panel; boxes are Idle, Selected (frame tap) or Typing (tap inside; the bar hides); new boxes show a dashed frame and "Type here"; hold on blank paper gives "Start typing here"; the iPad keyboard bar sits on the keyboard. Code: `core/boxStyle.ts`, `paper/BoxStylePopover.tsx`, `paper/boxState.ts`, `paper/blankHold.ts`, `app/tools/main/KeyboardBar.tsx`, `TextBoxExtras.tsx`.
+See [text-tool-plan.md](../archive/plans/text-tool-plan.md). Box ⋯ › Box style, the Box bar and the Text strip open the Box style panel; boxes are Idle, Selected (frame tap) or Typing (tap inside; the bar hides); new boxes show a dashed frame and "Type here"; hold on blank paper gives "Start typing here"; the iPad keyboard bar sits on the keyboard. Code: `core/boxStyle.ts`, `paper/BoxStylePopover.tsx`, `paper/boxState.ts`, `paper/blankHold.ts`, `app/tools/main/KeyboardBar.tsx`, `TextBoxExtras.tsx`.
 
 ## Not yet
 

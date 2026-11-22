@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: merged QA sheet of the baseline audit
+
+- **What:** the Antigravity report (14 findings) consolidated into MERGED-SHEET.md in the reports folder outside the repo, each row labelled error, gap or preference with a view and the case against; docs/STATE.md QA checkpoints line and Needs you updated. Codex and Cursor sent no report.
+- **Why:** docs/qa/README.md step 1 of the auditor rhythm; nothing is acted on before the owner's yes rows.
+- **Files:** docs/STATE.md, docs/CHANGELOG.md.
+
 ### 22 Nov 2026: handoff of the Fable planning window
 
 - **What:** docs/STATE.md gains the evening handoff (done today, pending with the owner, next for Opus in order, the lesson); the stale C3 line now points at the Action bar sheet. **Why:** the owner clears the chat; a new window starts from STATE.md. **Files:** docs/STATE.md, docs/CHANGELOG.md.

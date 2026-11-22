@@ -6,7 +6,7 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 ## QA checkpoints
 
-- **qa/2026-11-22-baseline** (aac21364, 2026-11-22): worktrees ln-qa-codex, ln-qa-cursor, ln-qa-antigravity; reports in learning-notes-qa/qa-2026-11-22-baseline/; merged sheet: pending
+- **qa/2026-11-22-baseline** (aac21364, 2026-11-22): worktrees ln-qa-codex, ln-qa-cursor, ln-qa-antigravity; reports in learning-notes-qa/qa-2026-11-22-baseline/; merged sheet: WRITTEN 22 Nov (Antigravity 14 findings; Codex, Cursor none): 8 fix now (3 routine doc edits, 3 sheet rows, 1 test-first on the live sign-in button, 1 small 44 px task), 3 next phase, 2 rejected, 1 needs the owner's pick (offline + required update); 1 security item, handled at E6. Waiting for the owner's yes rows
 
 ## Handoff 22 Nov 2026, evening: outside auditors (Fable window, closed)
 
@@ -107,6 +107,7 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 ## Needs you
 
 - **Read it formatted:** https://priyanahubadhana.github.io/learning-notes/ (the method page has tappable sheet rows and a Copy-my-answers button; paste the result in the chat).
+- **Now (22 Nov, evening):** the merged QA sheet of the baseline audit, 14 rows, yes or no per row: C:UserspcDownloadslearning-notes-qaqa-2026-11-22-baselineMERGED-SHEET.md (row 10 needs your pick A or B).
 - **Now (22 Nov):** the method and the plan are confirmed. Needs you: (1) the six install-and-update facts (device and browser; live or preview; what "download" means; what you saw in order; how often and when last; the version shown), since you chose that bug first; (2) the one bar's name, "Action bar" unless you say otherwise. Plan: docs/plans/phases/phase-pc-1.md sections 17 and 18.
 
 Older items (20 Nov, part D0). The old plan: [plans/phases/phase-2-finish.md](plans/phases/phase-2-finish.md).

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026, late evening: the owner's dashboard
+
+- **What:** scripts/dashboard.mjs writes docs/DASHBOARD.md from the repo and GitHub: stage and running phase, phases planned in full, the replan count, feature rows by stage and state, spec statuses, open tickets by source, what waits for the owner. `npm run dashboard`; linked from INDEX.md; refreshed every Saturday with the weekly card.
+- **Why:** the owner asked for one place to see where the planning and the whole plan stand (22 Nov, late evening).
+- **Files:** scripts/dashboard.mjs, docs/DASHBOARD.md, package.json, docs/INDEX.md, docs/STATE.md, docs/CHANGELOG.md.
+
 ### 22 Nov 2026, late evening: handoff and STATE trim
 
 - **What:** docs/STATE.md gains the late-evening handoff (done, lessons, next in order) and a rewritten Needs you; two closed handoffs, the Phase 2-finish history and the 16 Nov rules list moved to docs/archive/STATE-trimmed-2026-11-22.md; four research notes reformatted by Prettier (no text change).

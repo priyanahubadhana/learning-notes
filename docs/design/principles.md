@@ -106,7 +106,7 @@ Likes to keep in mind (owner, 9 to 15 Nov): glassmorphism, editorial calm, Swiss
 **Decided 22 Nov 2026 (owner, on the pictures page):** A. Tool bar 64 px.
 
 **Q12. Names on hold.** A: hover shows the name with the Pencil or a mouse; a held finger shows nothing for now (your 21 Nov); a finger-hold name can come in stage 2 as an option. B: a held button shows its name (your 15 and 20 Nov). Case against A: a finger-only user on the iPad has no way to read a name until stage 2.
-**Decided 22 Nov 2026 (owner, confirmed in chat):** hover (mouse or Pencil) shows the name. Press-and-hold shows a small preview of what the tool does, the way Photoshop's tool tips play a tiny demo; this preview is built in the final finishing stage (stage 2, polish), aimed at users new to the app, with a setting to turn it off. Until then a hold shows the name, so nothing is hover-only. Added to docs/IDEAS.md as a stage 2 item.
+**Decided 22 Nov 2026 (owner, final in chat):** A. Hover shows the name (mouse or Pencil); a held finger shows nothing for now. The press-and-hold preview (a small Photoshop-style demo of the tool, for new users, with an off switch) is a stage 2 idea in docs/IDEAS.md, not a rule now. Hover names stay an extra: no action is hover-only.
 
 **Q13. Quick fonts.** A: Easy to read, Classic, Handwritten (your 18 Nov final). B: Modern, Classic, Technical. Case against A: none; A is the final decision.
 **Decided 22 Nov 2026 (owner, on the pictures page):** A. Quick fonts: Easy to read, Classic, Handwritten.

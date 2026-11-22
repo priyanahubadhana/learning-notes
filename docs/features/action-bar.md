@@ -28,8 +28,10 @@ To be drawn after the sheet: PC, iPad sideways, iPad upright, phone. Every pictu
 **Always true**
 
 - **One bar.** One Action bar for every selection; it replaces the three old bars.
-- **Fixed ending.** Every selected state ends Cut, Copy, Paste ▾, Delete, ⋯▾ (owner, 22 Nov).
-- **Caret ending.** With only the typing cursor, the ending is Paste ▾, ⋯▾.
+- **Default ending.** Every state ends Cut, Copy, Paste ▾, Delete, ⋯▾ by default (owner, 22 Nov); Customise bar… may change it.
+- **Nothing moves.** The same button keeps the same place in every state; with only the cursor, Cut, Copy and Delete show greyed (owner, 22 Nov).
+- **Paste ▾ remembers.** Its icon shows the last format used, per notebook; ▾ lists the formats; first press previews, second press pastes; the preview may float over boxes (owner, 22 Nov).
+- **Drag and dock.** Grab ⠿ to move the bar along its line or dock it top, left, right or bottom; stage 1 (owner, 22 Nov).
 - **Floats until pinned.** Unpinned, it floats at the first free place near the selection.
 - **Five places.** Below, above, upright right, upright left, else under the Tool bar.
 - **Pin.** Pinned, it stays exactly where it is until you move it by hand.
@@ -52,7 +54,7 @@ To be drawn after the sheet: PC, iPad sideways, iPad upright, phone. Every pictu
 **Must never happen**
 
 - **AB-N1** A picture or a build misses an element listed in the tool table.
-- **AB-N2** Cut, Copy, Paste ▾, Delete or ⋯ moves, disappears or changes order.
+- **AB-N2** A button moves or changes order between states, unless the user changed the bar in Customise bar….
 - **AB-N3** The bar covers the selected words or leaves the screen.
 - **AB-N4** A pinned bar moves by itself.
 - **AB-N5** Two bars show for one selection (the Hold menu counts as one).
@@ -73,7 +75,7 @@ Every bar starts with ⠿ (move) and the pin; a pinned bar adds ✕ after ⋯▾
 
 | State                    | Stage | On the bar, in order                                                                             | Inside ⋯▾, in order                                                                         |
 | ------------------------ | ----- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| Caret in text            | 1     | B/I ▾, Colour, Size, Font, Highlight, Paste ▾, ⋯▾                                                | Make card, Add to summary, Revise mark, Customise bar…                                      |
+| Caret in text            | 1     | B/I ▾, Colour, Size, Font, Highlight, Cut (grey), Copy (grey), Paste ▾, Delete (grey), ⋯▾        | Make card, Add to summary, Revise mark, Customise bar…                                      |
 | Words selected           | 1     | B/I ▾, Colour, Size, Font, Highlight, Cut, Copy, Paste ▾, Delete, ⋯▾                             | Link, Make card, Add to summary, Revise mark, Customise bar…                                |
 | A box                    | 1     | Edit text, B/I ▾, Colour, Size, Font, Align ▾, List ▾, Box style, Cut, Copy, Paste ▾, Delete, ⋯▾ | Duplicate, Lock box, Make card, Add to summary, Revise mark, Customise bar…                 |
 | A picture                | 1     | Cut, Copy, Paste ▾, Delete, ⋯▾                                                                   | Duplicate, Make card, Add to summary, Customise bar…                                        |
@@ -87,8 +89,10 @@ Every bar starts with ⠿ (move) and the pin; a pinned bar adds ✕ after ⋯▾
 
 ## Scenarios
 
-- **S1, caret.** Given the cursor in "Service 23-11 2000 rate-is", then the bar shows the caret row, no Cut, Copy or Delete.
-- **S2, words.** Given S1, when I select "2000", then Cut, Copy and Delete join; B/I to Highlight do not move.
+- **S1, caret.** Given the cursor in "Service 23-11 2000 rate-is", then the bar shows the caret row with Cut, Copy and Delete greyed.
+- **S2, words.** Given S1, when I select "2000", then Cut, Copy and Delete become active; no button moves.
+- **S13, Paste ▾.** Given I pasted "as formatted" last in this notebook, when I press Paste once, then a preview of that paste shows; a second press pastes it; ▾ lets me pick another format.
+- **S14, drag and dock.** Given a pinned bar, when I drag ⠿ to the top edge, then it docks there and stays after a reload.
 - **S3, a box.** Given a box is selected, then the box row shows; Edit text puts the cursor at the end of its words.
 - **S4, a drawing (stage 2).** Given a drawing selected with the Lasso, then Colour, Thickness and the ending show, no text tools.
 - **S5, a picture.** Given a picture is selected, then only the ending shows; ⋯ holds Duplicate, Make card, Add to summary.
@@ -139,25 +143,27 @@ Every stage 1 scenario passes on chromium; the checklist script is green on the 
 
 ## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
 
-| Row | Statement                                                                                    |
-| --- | -------------------------------------------------------------------------------------------- |
-| 1   | The goal line says what I meant.                                                             |
-| 2   | The two non-negotiables are right.                                                           |
-| 3   | Every selected state ends Cut, Copy, Paste ▾, Delete, ⋯▾; the caret ends Paste ▾, ⋯▾.        |
-| 4   | Unpinned it floats at the five places; pinned it stays until I move it.                      |
-| 5   | A pinned bar keeps its place and changes its tools; ✕ shows only when pinned.                |
-| 6   | Edit is "Customise bar…", the last entry inside ⋯.                                           |
-| 7   | Hold or right-click opens the Hold menu; a pinned bar stays, an unpinned one hides.          |
-| 8   | Row "Caret in text" of the tool table is right.                                              |
-| 9   | Row "Words selected" is right.                                                               |
-| 10  | Row "A box" is right.                                                                        |
-| 11  | Row "A picture" and "Pinned, nothing selected" are right.                                    |
-| 12  | Rows "A drawing" and "Mixed" are right, built in stage 2.                                    |
-| 13  | PC: the same bar, hover names, right-click, keys; phone: overflow under ⋯, the ending stays. |
-| 14  | Presets wait for stage 2; the Study set is recorded as written.                              |
-| 15  | Scenarios S1 to S12 describe what I expect.                                                  |
-| 16  | Open points 1 to 7: my picks are OK (or name the row to change).                             |
-| 17  | Design and quality: the check list in the bottom layer is complete.                          |
+| Row | Statement                                                                                                                            |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | The goal line says what I meant.                                                                                                     |
+| 2   | The two non-negotiables are right.                                                                                                   |
+| 3   | Every state ends Cut, Copy, Paste ▾, Delete, ⋯▾ by default; with only the cursor those three are greyed; nothing moves.              |
+| 4   | Unpinned it floats at the five places; pinned it stays until I move it; I can drag ⠿ along a line or dock it on an edge, in stage 1. |
+| 5   | A pinned bar keeps its place and changes its tools; ✕ shows only when pinned.                                                        |
+| 6   | Edit is "Customise bar…", the last entry inside ⋯.                                                                                   |
+| 7   | Hold or right-click opens the Hold menu; a pinned bar stays, an unpinned one hides.                                                  |
+| 8   | Row "Caret in text" of the tool table is right.                                                                                      |
+| 9   | Row "Words selected" is right.                                                                                                       |
+| 10  | Row "A box" is right.                                                                                                                |
+| 11  | Row "A picture" and "Pinned, nothing selected" are right.                                                                            |
+| 12  | Rows "A drawing" and "Mixed" are right, built in stage 2.                                                                            |
+| 13  | PC: the same bar, hover names, right-click, keys; phone: overflow under ⋯, the ending stays.                                         |
+| 14  | Presets wait for stage 2; the Study set is recorded as written.                                                                      |
+| 15  | Scenarios S1 to S14 describe what I expect.                                                                                          |
+| 16  | Open points 1 to 7 are closed with my answers of 22 Nov as written under "Open points".                                              |
+| 17  | Design and quality: the check list in the bottom layer is complete.                                                                  |
+| 18  | Paste ▾: the icon shows the last format per notebook; first press previews, second pastes; the preview may float over boxes.         |
+| 19  | The ending can be changed in Customise bar…; the default keeps it and the script checks the default.                                 |
 
 ---
 
@@ -196,7 +202,9 @@ Made with Spec Kit after the confirm sheet is all Yes. Files: the bar under `src
 
 - **AB-01** T1 lists every button of the text mini bar, box bar, Lasso bar, mixed menu and picture menu, and its cell; anything unmapped joins that state's ⋯ before the end.
 - **AB-02** `scripts/check-bar-inventory.mjs` reads the table between `tool-table:start` and `tool-table:end`; it fails a picture index or a bar build whose state misses an element, in order. Run as `npm run check:bar-inventory`.
-- **AB-03** Master order, from left: Edit text, B/I ▾, Colour, Thickness, Size, Font, Highlight, Align ▾, List ▾, Box style, Resize, Duplicate, then the ending, then ✕. A state skips what it lacks; nothing reorders.
+- **AB-03** Master order, from left: Edit text, B/I ▾, Colour, Thickness, Size, Font, Highlight, Align ▾, List ▾, Box style, Resize, Duplicate, then the ending, then ✕. A state greys what does not apply among Cut, Copy, Delete and hides the rest; nothing reorders.
+- **AB-12** Paste ▾ keeps the last format per notebook in the notebook's settings; the first press shows the preview at the target with the real content; a second press within 10 s pastes; any other tap cancels the preview.
+- **AB-13** Drag: ⠿ moves the bar along its current line; dropping within 24 px of an edge docks it there (top, left, right, bottom); the dock is stored like the pin (AB-08).
 - **AB-04** Changing state rebuilds the tools in one frame; the bar's left edge and top stay within 1 px (SB numbers).
 - **AB-05** ⋯ shows ▾ when its list has more than Customise bar…; Customise bar… is always last.
 - **AB-06** Box style opens the approved Box style card (Presets, Advanced); Font opens the three quick fonts and More fonts…, each in its look; Size opens the slider strip.
@@ -209,7 +217,7 @@ Made with Spec Kit after the confirm sheet is all Yes. Files: the bar under `src
 ### Not in this part
 
 - Presets (Edit, Study, a "Preset" entry in ⋯) and Auto: stage 2.
-- Drag along a line and dock on four sides: stage 1 (owner, 22 Nov, OPEN-1); the stage map row moves.
+- (Drag and dock moved INTO this part on 22 Nov, OPEN-1; see AB-13.)
 - The Pencil hold rules beyond the Hold menu (text-select.md, lasso.md); the hold preview (IDEAS.md).
 - Drawing and mixed rows (stage 2); phone (stage 3); the AI button.
 
@@ -238,3 +246,4 @@ One e2e per scenario, named AB-S1 to AB-S12, through the real screen in computer
 ### Changes
 
 - 22 Nov 2026 · Draft v2 from the inventory and the owner's answers (rounds 1 to 4); replaces selection-bar.md · waiting for the owner's sheet
+- 22 Nov 2026 · - · synced with the owner's open-point answers: nothing moves (greyed Cut, Copy, Delete with the caret), Paste ▾ remembers and previews, drag and dock in stage 1, editable ending; rows 3, 4, 15, 16 reworded; rows 18 and 19 added; S13, S14, AB-12, AB-13 · Fable

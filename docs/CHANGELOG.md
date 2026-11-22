@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026, evening: AB-02 picture check script
+
+- **What:** scripts/check-bar-inventory.mjs reads the tool table between the markers in action-bar.md and fails a picture that misses, adds or reorders a tool of a stage-1 state (flags grey and filled included); 7 unit tests; `npm run check:bar-inventory`.
+- **Why:** action-bar.md AB-02 and step 2: the tool list comes before the pictures (owner, 22 Nov).
+- **Files:** scripts/check-bar-inventory.mjs, scripts/check-bar-inventory.test.mjs, package.json.
+
 ### 22 Nov 2026, evening: old plan pages archived
 
 - **What:** moved with `git mv` to docs/archive/plans/: phase-plan, master-plan-2026-11, text-tool-plan, box-grid-plan, layout-assist-plan, database-pages-plan, user-stories-2b, system-trial-2026-11-13, uniformity-and-specs-2026-11-21, and the old ROADMAP text (as ROADMAP-until-22-nov.md). docs/ROADMAP.md is now a short pointer. One line per page in docs/archive/INDEX.md. Every link to a moved page now points to its new path; the "plan" pointers in rules, HOW-WE-BUILD, STATUS, README and /next now name MASTER-PLAN.md and plans/stage-1-plan.md. Nothing deleted.

@@ -4,6 +4,8 @@ Decisions from 21 Nov 2026 on, and every "Decisions to review" item and every de
 
 ## Decisions to review
 
+- **22 Nov 2026, evening · C0 items 1 and 2 (owner, iPad):** item 1 Paste in the top row: fine. Item 2: the hold strip fails near punctuation (issue filed, trace in docs/qa/traces/). **Paste clash to settle:** the owner now wants one click = paste with the remembered format, the ▾ to change the format once (then it is remembered), Undo for mistakes; action-bar.md row 18 and AB-12, confirmed today, say first press previews and second press pastes. Asked the owner A (one click pastes, pick) or B (preview first); not changed until answered.
+
 - **22 Nov 2026, evening · .claude/commands/next.md link fixed by a helper (to review):** the resume skill pointed at docs/plans/phase-plan.md, now archived; the helper changed that one path to docs/MASTER-PLAN.md and docs/plans/stage-1-plan.md. A .claude change normally needs the owner's own word; this one is a path fix with no behaviour change, kept and logged.
 
 - **22 Nov 2026, evening · Action bar sheet all 21 Yes; the pin is the switch (owner, chat and two artifact comments):** docs/features/action-bar.md is Confirmed. Change from the comments: the pin image itself adds and removes the bar (empty when floating, filled when pinned; tapping the filled pin unpins and hides); no separate ✕. The reason against, recorded: owner-ui-patterns UP:9 asked for a visible ✕ on a staying bar, and a user may not know that the pin also closes; the hover name and the first-run hint must say so. No status program exists yet: the status was set by hand from the sheet answers and is logged here (M5 analyze owns the program).

@@ -4,6 +4,8 @@ Decisions from 21 Nov 2026 on, and every "Decisions to review" item and every de
 
 ## Decisions to review
 
+- **22 Nov 2026, evening · C0 item 3 (owner, iPad):** circle-select works. Rule added to text-select.md: only Backspace, typing (a drawn mark counts), Delete, Cut or Paste replace a selection; a single stray Pencil touch never deletes it (#56). About 1 circle in 10 picks the word before (#57, trace needed). The reason against the rule, recorded: a real pen dot meant as a full stop will no longer replace the selection; the owner accepts that.
+
 - **22 Nov 2026, evening · C0 items 1 and 2 (owner, iPad):** item 1 Paste in the top row: fine. Item 2: the hold strip fails near punctuation (issue filed, trace in docs/qa/traces/). **Paste clash to settle:** the owner now wants one click = paste with the remembered format, the ▾ to change the format once (then it is remembered), Undo for mistakes; action-bar.md row 18 and AB-12, confirmed today, say first press previews and second press pastes. Asked the owner A (one click pastes, pick) or B (preview first); not changed until answered.
 
 - **22 Nov 2026, evening · .claude/commands/next.md link fixed by a helper (to review):** the resume skill pointed at docs/plans/phase-plan.md, now archived; the helper changed that one path to docs/MASTER-PLAN.md and docs/plans/stage-1-plan.md. A .claude change normally needs the owner's own word; this one is a path fix with no behaviour change, kept and logged.

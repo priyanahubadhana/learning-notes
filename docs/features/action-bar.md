@@ -125,6 +125,10 @@ Every stage 1 scenario passes on chromium; the checklist script is green on the 
 
 ## Open points
 
+**Owner's answers, 22 Nov 2026 (chat):** OPEN-1: pin, ✕, drag and dock ALL in stage 1 (a stage move for drag and dock; replan count +1). OPEN-2: B, nothing moves: the buttons keep their place; with the caret, Cut, Copy and Delete show greyed. OPEN-3: A (Fable's pick, logged). OPEN-4: A, Edit text on the bar with its own icon and name. OPEN-5: A (Fable's pick, logged). OPEN-6: B, the ending is editable like the rest; the default arrangement keeps the ending and the inventory script checks the default. OPEN-7: A (Fable's pick, logged).
+
+**Paste ▾, the owner's words (22 Nov; detail for the Paste part, to confirm in the sheet):** the Paste icon shows the last paste format used (for example "paste as formatted"); per notebook, the automatic choice is that last format; the ▾ opens the formats below to change it; the first press selects and shows a preview of the paste, the second press pastes in that format; the preview may float over boxes, it is only a preview and blocks nothing.
+
 - `OPEN-1` Pin in stage 1? A: yes, the pin and ✕ now, drag and dock stay stage 2 (pick). B: all in stage 2. Against A: a stage move, one count toward the replan.
 - `OPEN-2` Caret to words: A: Paste ▾ and ⋯ slide right as Cut, Copy join (pick). B: Cut, Copy, Delete shown greyed with the caret. Against A: Paste moves two slots.
 - `OPEN-3` Order of the format tools: A: B/I, Colour, Size, Font, Highlight (20 Nov picture, pick). B: the box bar's Colour, Size, Font, B/I. Against A: the box bar changes.
@@ -205,7 +209,7 @@ Made with Spec Kit after the confirm sheet is all Yes. Files: the bar under `src
 ### Not in this part
 
 - Presets (Edit, Study, a "Preset" entry in ⋯) and Auto: stage 2.
-- Drag along a line and dock on four sides: stage 2 (stage map), unless OPEN-1 says otherwise.
+- Drag along a line and dock on four sides: stage 1 (owner, 22 Nov, OPEN-1); the stage map row moves.
 - The Pencil hold rules beyond the Hold menu (text-select.md, lasso.md); the hold preview (IDEAS.md).
 - Drawing and mixed rows (stage 2); phone (stage 3); the AI button.
 

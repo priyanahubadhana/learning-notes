@@ -1,3 +1,5 @@
+Replaced by action-bar.md (22 Nov 2026); kept for history.
+
 # The smart selection bar (switch `select.smartBar`)
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.

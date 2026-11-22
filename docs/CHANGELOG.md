@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: the found-wishes page
+
+- **What:** docs/plans/found-wishes-2026-11-22.md, the sweep of past owner wishes with no register row (31 confirm rows by pillar and stage, 13 leftovers, 11 earlier no's, about 30 matched to existing F-ids).
+- **Why:** MASTER-PLAN row 5 and DECISIONS 22 Nov 06:00; the owner's one-pass confirm before the old plan pages are archived.
+- **Files:** docs/plans/found-wishes-2026-11-22.md, docs/STATE.md, docs/CHANGELOG.md.
+
 ### 22 Nov 2026: the local unit-test red fixed (drive-letter case)
 
 - **What:** scripts/run-vitest.mjs starts Vitest from the folder's canonical path; `npm test`, `npm run test:watch` and the push guard use it.

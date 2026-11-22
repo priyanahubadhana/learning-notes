@@ -38,7 +38,7 @@ STOPPED cleanly 22 Nov 07:30 IST (the owner ended the session). A new phase-mana
    1b. **Phase 1M, the build machine** (owner's yes on the plan, 22 Nov): after U0a merges, Opus runs docs/plans/phases/phase-1m-build-machine.md from 1M-02 (1M-01, the documents, done by Fable 22 Nov). Confirm sheet rows 1 to 11 all Yes (owner, 22 Nov, after the artifact read); 1M-02 may start as soon as U0a merges. U0c + S0 run beside it as the first tasks of the dry run if they are still open.
 2. **U0c + S0** (from U0a's branch): the loop fix of docs/features/update-v2.md (Confirmed, all 22 rows) and the Update card at the top of today's Settings page in the v5 card style; tests red first, 20 of 20, one review.
    2b. **Design numbers fold (Opus, doc task, tiny):** fold the 18 "Decided 22 Nov" lines of docs/design/principles.md into system.md, the shell spec, quality-standard.md and tool bar v8 so one table holds the numbers; then draw the ten principle pictures (the owner confirmed the page; the clashes are settled).
-3. **Found-wishes sweep** (Opus builder): docs/plans/found-wishes-2026-11-22.md as a confirm sheet (DECISIONS 22 Nov 06:00).
+3. **Found-wishes sweep** DONE 22 Nov evening (Opus helper): docs/plans/found-wishes-2026-11-22.md, 31 rows, waiting for the owner's one-pass answer (row numbers to change; the rest counts as yes). After the answer: register rows from F-352, home.md into F-055, old plan pages to docs/archive/.
 4. **M5** analyze v1, then **M9** the eleven part cards (stop for Fable's attack read), then **M6** the weekly card (Saturday evening), **M7** the research page.
 5. After the owner's pass on found wishes: archive the old plan pages; ROADMAP.md becomes a pointer to MASTER-PLAN.md.
 6. Site: home order (MASTER-PLAN first), Stage badge, pillar letters, the red Must-never box. The ten principle pictures stay on hold until the owner confirms principles.md.
@@ -106,6 +106,7 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 
 ## Needs you
 
+- **Now (22 Nov, evening):** the found-wishes page, 31 rows, one pass: https://priyanahubadhana.github.io/learning-notes/plans/found-wishes-2026-11-22 (reply with the row numbers to change; the rest counts as yes).
 - **Read it formatted:** https://priyanahubadhana.github.io/learning-notes/ (the method page has tappable sheet rows and a Copy-my-answers button; paste the result in the chat).
 - **Now (22 Nov):** the method and the plan are confirmed. Needs you: (1) the six install-and-update facts (device and browser; live or preview; what "download" means; what you saw in order; how often and when last; the version shown), since you chose that bug first; (2) the one bar's name, "Action bar" unless you say otherwise. Plan: docs/plans/phases/phase-pc-1.md sections 17 and 18.
 

@@ -108,6 +108,13 @@ Likes to keep in mind (owner, 9 to 15 Nov): glassmorphism, editorial calm, Swiss
 
 **Q18. More and ⋯.** A: two different things: the "More" control (sliders icon and the word) opens a row's options and sits first; "⋯" is overflow and sits last with Customise bar… at its end. B: one control, last. Case against A: two controls to learn.
 
+### What the owner said on 22 Nov 2026 (for the pictures and the clash decisions)
+
+- **Loved:** Notion, GoodNotes, Notability. GoodNotes screenshots are in docs/design/refs/ (bar, lasso, mixed selection). Notion and Notability: use their current look as the reference; nothing is copied.
+- **Disliked:** plain Android UI against Samsung One UI and Apple: the older generic Android look (heavy, uneven, loud) is the picture of what we avoid; Samsung and Apple show the calm, even finish we want.
+- **Use:** the real goal is the iPad with the Pencil for editing and reading. Because the Pencil work is parked, today it is reading on the iPad and writing on the PC. So: iPad stays the design target for every clash (tap size, where a toast sits, hover never required); the PC gets the same design, not a different one.
+- **Answers in feelings** ("too heavy", "too round") are welcome; Fable or Opus turns each into a number and writes the number back into the file, so accuracy stays intact and the AI never guesses from the feeling alone.
+
 ## Owner comments, 22 Nov 2026
 
 - Q1: "Whichever one is the latest one, use it. Re-verify the spec and show me the display so I can test and tell which is better; prefer the newer one with an explanation of what the older one could be."

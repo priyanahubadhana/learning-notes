@@ -4,6 +4,8 @@ Decisions from 21 Nov 2026 on, and every "Decisions to review" item and every de
 
 ## Decisions to review
 
+- **22 Nov 2026 · Update pictures row 14 approved; smart bar check C3 failed (owner, on the artifact pages):** update-v2 is fully confirmed, U0c and S0 may build to the update-v3 pictures. The 22 smart-bar pictures are rejected: the pin is missing in most, Edit in all, Delete and Copy appear inconsistently, the look is not clean, and earlier bar decisions were omitted. Order of the redraw: PC, then tablet, then phone. Before any drawing: an inventory of every bar decision with its source against the 22 pictures, then the doubts to the owner.
+
 - **22 Nov 2026 · Q12 final (owner):** keep A, hover shows the name only; the hold preview stays an idea for stage 2 (docs/IDEAS.md). Reason against recorded earlier: a hold preview could clash with the Pencil hold menu; parking it avoids that for now.
 
 - **22 Nov 2026 · Q5 and Q12 confirmed by the owner in chat:** Q5 the toast is a pill, bottom-right, with a small ✕ at its top-left and the action on the other side (replaces Fable's fill-in). Q12 hover shows the name; press-and-hold plays a small Photoshop-style preview of the tool, built in the finishing stage for new users with an off switch (docs/IDEAS.md); until then a hold shows the name.

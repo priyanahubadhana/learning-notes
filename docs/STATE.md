@@ -8,6 +8,14 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 - **qa/2026-11-22-baseline** (aac21364, 2026-11-22): worktrees ln-qa-codex, ln-qa-cursor, ln-qa-antigravity; reports in learning-notes-qa/qa-2026-11-22-baseline/; merged sheet: pending
 
+## Handoff 22 Nov 2026, evening: outside auditors (Fable window, closed)
+
+**What exists now.** Antigravity (and later Cursor, Codex when the owner has a plan) audits as a strictly read-only outsider. Rules: AGENTS.md. How-to, rhythm and per-tool facts: docs/qa/README.md. Project briefing for auditors: docs/qa/PROJECT-BRIEFING.md. Templates and briefs: docs/qa/. Scripts: (tag, three detached worktrees ln-qa-codex, ln-qa-cursor, ln-qa-antigravity, reports folder) and (the filled briefs). Reports live outside the repo in C:UserspcDownloadslearning-notes-qa<tag> ; the test account is in TEST-ACCOUNT.txt there (nothing private in it). Decisions and defaults: DECISIONS.md 22 Nov (auditors, Antigravity only for now, the local vitest red).
+
+**Running.** Baseline qa/2026-11-22-baseline at aac21364 (tag local; the tag push is blocked by the local red). The owner pastes the combined Antigravity prompt from the reports folder's BRIEFS-baseline.md and signs in with the test account.
+
+**Next for the manager (Opus), in order.** (1) When the owner types : read antigravity.md (and any other report there), merge into MERGED-SHEET.md per docs/qa/CONSOLIDATION-TEMPLATE.md, label every line error / gap / preference, add the view with the case against, write the one-line summary under "QA checkpoints" above, ask the owner for the yes rows; a yes becomes a GitHub Issue labelled source:antigravity, then a normal task. Record the owner's minutes and yes count for the weekly card. (2) Every evening after the day's merges: then , and ask the owner to paste. Saturday: . (3) Fix red-first 0a (the local vitest load failure) before any push that touches tested files. (4) Nothing from a reviewer is acted on without the owner's yes.
+
 ## Now
 
 STOPPED cleanly 22 Nov 07:30 IST (the owner ended the session). A new phase-manager starts from this section. Replan count since Fable last planned (22 Nov): 1 of 10 (drag and dock of the Action bar moved to stage 1).

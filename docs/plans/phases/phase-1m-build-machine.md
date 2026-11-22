@@ -111,20 +111,32 @@ Reuse (no new code where a part owns the job): scripts/push-guard.mjs and push-g
 
 What changes: the look compare adds the iPad viewports already in matrix.ts; the verify recipe gets an ipad-webkit run before each release. What does not: the gates, the budget, the relay.
 
+## Planning architecture: four layers, planned once, followed daily
+
+| Layer                     | Page                                                                                                                                     | Who, when                                                                                              | Changes when                                                                                       |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| 1 Method and fundamentals | METHOD-v2.md (confirmed 22 Nov); this page (phase 1M)                                                                                    | Fable with the owner, once                                                                             | a phase end, from the weekly numbers; never mid-phase                                              |
+| 2 Stage                   | stage-map-2026-11-22.md, stage-1-plan.md (confirmed 22 Nov)                                                                              | Fable with the owner, once per stage                                                                   | a stage move or the replan trigger (10 meaningful changes)                                         |
+| 3 Phase                   | docs/plans/phases/<phase>.md: parts, done examples, pictures, confirm sheet                                                              | Fable with the owner, just before the phase (about one sitting); phases 1B, 1C, 1D are not written yet | a bug or a slip that reorders parts: Opus edits the page and counts the change                     |
+| 4 Day                     | the "Today" block at the top of docs/STATE.md: 3 to 8 tasks, lane, size (normal or tiny or relay), done condition, the owner's two slots | Opus, every morning, from the phase page; no owner time unless a question is batched                   | a red test, a bug, a finished part: Opus rewrites the block; timing adjusts from the measured pace |
+
+Rule: a day adds nothing that is not on the phase page; a new wish goes to docs/IDEAS.md. If nothing changed, the day block is just the next lines of the phase page and the work carries on.
+
 ## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
 
-| Row | Statement                                                                                                |
-| --- | -------------------------------------------------------------------------------------------------------- |
-| 1   | The goal line above is the goal.                                                                         |
-| 2   | A task is planned under 100K; safety compaction at 120K; never relied on.                                |
-| 3   | Split by scope first, relay second, compaction never; the dossier is the handoff.                        |
-| 4   | Four gate layers for a normal task, each in its own window; two for a tiny task.                         |
-| 5   | The look is compared with the mock-up by a script; the pixel test stays between builds.                  |
-| 6   | Ordinary missing pictures: Opus decides and logs; important screens wait for me.                         |
-| 7   | Numbers per task are written by a program; no hand edits.                                                |
-| 8   | The machine is built as phase 1M before phase 1B; the red test and U0a finish first under the old rules. |
-| 9   | Fable plans and attack-reads the three gates once; the rest by the ladder.                               |
-| 10  | The machine lives in a global template with project overrides; a setup script copies it in an hour.      |
+| Row | Statement                                                                                                                  |
+| --- | -------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The goal line above is the goal.                                                                                           |
+| 2   | A task is planned under 100K; safety compaction at 120K; never relied on.                                                  |
+| 3   | Split by scope first, relay second, compaction never; the dossier is the handoff.                                          |
+| 4   | Four gate layers for a normal task, each in its own window; two for a tiny task.                                           |
+| 5   | The look is compared with the mock-up by a script; the pixel test stays between builds.                                    |
+| 6   | Ordinary missing pictures: Opus decides and logs; important screens wait for me.                                           |
+| 7   | Numbers per task are written by a program; no hand edits.                                                                  |
+| 8   | The machine is built as phase 1M before phase 1B; the red test and U0a finish first under the old rules.                   |
+| 9   | Fable plans and attack-reads the three gates once; the rest by the ladder.                                                 |
+| 10  | The machine lives in a global template with project overrides; a setup script copies it in an hour.                        |
+| 11  | Planning has four layers (method, stage, phase, day); only the day block is rewritten daily, by Opus, from the phase page. |
 
 ### Changes
 

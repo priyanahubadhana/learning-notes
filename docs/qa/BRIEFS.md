@@ -79,3 +79,34 @@ consolidate qa/<date>-<label>
 ```
 
 Claude Code reads the three reports, merges duplicates, labels each line error, gap or preference, adds its view with the case against, writes docs/qa/CONSOLIDATION-TEMPLATE.md filled in to the reports folder and the one-line summary to docs/STATE.md, and asks the owner for the yes rows.
+
+## 6. Picture audit (any engine; before the owner approves a mock-up)
+
+```
+You are a read-only auditor on this project. Read AGENTS.md, then docs/qa/README.md.
+Checkpoint: <tag>. Working copy: <path>. Reports folder: C:\Users\pc\Downloads\learning-notes-qa\<checkpoint>\
+Judge the PICTURES, not the code. Open <docs/mockups/<folder>/*.png or the HTML mock> and read the spec
+docs/features/<spec>.md and docs/design/quality-standard.md, owner-ui-patterns.md, system.md,
+and the owner's references in docs/design/refs/ (GoodNotes, Notion) that the brief names.
+For each picture: does it show every row of the spec (list the rows it misses); is anything in it that the
+spec never asked for; spacing, type, hierarchy and labels against the quality standard; every control
+reachable by click, by key and by a 44 px target; light and dark; how it would look on an iPad and a phone;
+what a beginner would misread. Then one honest line: would a top-tier product ship this screen, and why not.
+Label each item error, gap or preference. Do not redraw; describe.
+Write ONE file: <reports folder>\<engine>-pictures.md using docs/qa/REPORT-TEMPLATE.md.
+Change nothing in the working copy. Do not commit, install or fix. The owner decides.
+```
+
+## The reports folder, one shape every time
+
+```
+C:\Users\pc\Downloads\learning-notes-qa\
+  qa-<date>-<label>\
+    BRIEFS-<label>.md        the exact text pasted into each tool
+    codex.md  cursor.md  antigravity.md        one report each (template)
+    <engine>-pictures.md     picture audits, when asked
+    evidence\<engine>\       screenshots, logs, traces, named <ENGINE>-<nn>-<what>.png
+    MERGED-SHEET.md          written by Claude Code; the owner marks yes / no here
+```
+
+Claude Code reads only this folder for findings. Anything written anywhere else is not a finding.

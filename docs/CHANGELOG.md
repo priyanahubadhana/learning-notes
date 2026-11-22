@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 22 Nov 2026: the 18 design clashes settled (owner, pictures page)
+
+- **What:** every clash question in docs/design/principles.md carries a "Decided 22 Nov" line with the owner's answer and the numbers; the app-frame rule, the owner's references (Notion, GoodNotes, Notability; not plain Android) and use (iPad target, PC today) added; DECISIONS entry. **Why:** the owner could not judge numbers, so a Sonnet helper drew all 18 as picture pairs and the owner answered on the page. **Files:** docs/design/principles.md, docs/DECISIONS.md, docs/STATE.md.
+
 ### 22 Nov 2026: phase 1M, the build machine, planned (part 1M-01, Fable)
 
 - **What:** a phase page with the goal, rules, must-never lines, scenarios S1 to S7, the tools and where each is used, the building guide (windows under 100K, the relay, lanes), the 13 parts with proof, the owner's help and a confirm sheet; a research page with sources; the sixteen decisions and the relay rule in DECISIONS; rules/sessions.md, CLAUDE.md Owner settings, HOW-WE-BUILD section 2, token-efficiency rule 9, stage-1-plan (row 1M, about 6 days), INDEX and STATE updated. **Why:** the owner asked for a repeatable machine: fresh small windows, no "done" without proof of function and look, numbers by program, copyable to the next project. **Files:** docs/plans/phases/phase-1m-build-machine.md, docs/plans/research-build-machine-2026-11-22.md, docs/DECISIONS.md, rules/sessions.md, CLAUDE.md, docs/HOW-WE-BUILD.md, docs/design/token-efficiency.md, docs/plans/stage-1-plan.md, docs/INDEX.md, docs/STATE.md, ~/.claude/playbook.md.

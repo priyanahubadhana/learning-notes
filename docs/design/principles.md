@@ -70,43 +70,61 @@ One-line explanations in the owner's language; sentence case; card labels 12.5 p
 
 Likes to keep in mind (owner, 9 to 15 Nov): glassmorphism, editorial calm, Swiss minimalism, dark SaaS the way Linear, Apple, Notion and Raycast do it; modular cards; soft organic corners; GoodNotes' calm Pen and Shape cards as the Beginner model; today's eraser with its size preview; the box bar of 18 Nov. Rejected: a bar that looks out of place, a control that does not show its purpose, previews that pop out too much or cover the result, empty previews, invisible subtle changes, a blurry reader top bar, dull notebook rows, old icons in a new picture, and "too many changes at once". References are for learning, never for copying.
 
-## The design questionnaire: 18 clashes to settle (A is the pick; B the other)
+## The design questionnaire: 18 clashes, all settled on 22 Nov 2026 (A was the pick; B the other; the owner answered on the pictures page)
 
 **Q1. Icon stroke.** A: 1.6 on a 24 grid (quality standard, shell spec, tool bar v8; the newer rule). B: 1.75 (system.md, 9 Nov). Case against A: the rail was drawn at 1.75 on 9 Nov and would be redrawn.
+**Decided 22 Nov 2026 (owner, on the pictures page):** B. Icon stroke 1.75 on a 24 grid. The owner chose the picture, not the newer document; the quality standard, the shell spec and tool bar v8 change to 1.75.
 
 **Q2. Motion scale.** A: one scale: the tokens 120, 180, 240 ms for everything, with the card values 200 open and 130 close as named uses, and "about 150 ms" retired as a loose phrase. B: keep "150 ms" as the rule and the tokens as detail. Case against A: three documents must be edited to say the same thing.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. One motion scale: tokens 120, 180, 240 ms; card open 200, close 130; "about 150 ms" retired (the owner left it to Fable, then also picked A).
 
 **Q3. Glass.** A: two glasses on purpose: frame glass 72 to 70% with blur 16 to 24 for bars and the sidebar; card glass 88 to 92% with blur 28 for cards and pickers; written down as such. B: one glass for everything (the card values). Case against A: two recipes to maintain.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Two glasses: frame glass 72 to 70% with blur 16 to 24 for bars and the sidebar; card glass 88 to 92% with blur 28 for cards and pickers.
 
 **Q4. Radii.** A: inputs 8, menus 12, cards, pickers and panels 20, sheets 24, dialogs 24, toast 14, chips pill (the newer approved pictures). B: system.md's 6, 8, 12, 16, 24. Case against A: some older screens use 12 and 16 and would be touched in the polishing.
+**Decided 22 Nov 2026 (owner, on the pictures page):** Mixed. Menus take B: radius 8 (the owner: "for this rename copy bar, this one looks better"). Everything else takes A: inputs 8, cards, pickers and panels 20, sheets 24, dialogs 24, toast 14, chips pill.
 
 **Q5. Toasts.** A: a pill at the bottom centre, 2.6 s, 6 s when it offers Undo (shell spec). B: a solid box bottom-right for 5 s (system.md). Case against A: on a wide PC screen the centre is far from the pointer.
+**Decided 22 Nov 2026 (owner, on the pictures page):** B place, A look (Fable's fill-in; the owner wrote only "at bottom right"): the toast sits bottom-right on every device, keeps the pill shape, 2.6 s, 6 s with Undo. Case against: bottom-right is farther from the iPad's centre of attention. If the owner wanted the solid box too, say "box".
 
 **Q6. Side list width.** A: 288 px (your "a bit bigger", 12 Nov). B: 264 or 260. Case against A: less room for the page on a 1180 px screen.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Side list 288 px.
 
 **Q7. Rail icons.** A: Notebooks = ruled notebook, Review = repeat arrows around a card (your 12 Nov review). B: the pencil and the cards-with-tick from the shell spec. Case against A: none; A is your decision, the shell spec is older.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Notebooks = ruled notebook; Review = repeat arrows around a card.
 
 **Q8. ✓ and ✕ on sheets.** A: at the top, ✕ left and ✓ right (your 15 Nov). B: a footer "hint · Cancel · ✓ Done". Case against A: on a phone the thumb reaches the bottom more easily.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. ✕ top left, ✓ top right on sheets.
 
 **Q9. Sheet width.** A: 440 px (your 15 Nov). B: 376. Case against A: on a 1180 px screen a 440 sheet covers more of the page.
+**Decided 22 Nov 2026 (owner, on the pictures page):** B. Sheet width 376 px ("the smaller the better here").
 
 **Q10. Top bar controls.** A: Undo and Redo at the top left, no Back and Forward arrows (your 15 Nov). B: Back, Forward, Undo, Redo. Case against A: no Back on the PC where the mouse has no swipe; the browser's Back still works.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Undo and Redo top left; no Back and Forward arrows.
 
 **Q11. Tool bar height.** A: 64 px (your 15 Nov pick). B: 52 px (tool bar v8). Case against A: 12 px less page on every screen.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Tool bar 64 px.
 
 **Q12. Names on hold.** A: hover shows the name with the Pencil or a mouse; a held finger shows nothing for now (your 21 Nov); a finger-hold name can come in stage 2 as an option. B: a held button shows its name (your 15 and 20 Nov). Case against A: a finger-only user on the iPad has no way to read a name until stage 2.
+**Decided 22 Nov 2026 (owner, on the pictures page):** C, the owner's own rule: hover (mouse or Pencil) shows the name; a hold shows the name and a one-line description; a setting "Tool hints" with Name only, Name and hint, Off. Default for the owner's account: Name only; default for a new user: Name and hint. Nothing is hover-only: the hold covers touch.
 
 **Q13. Quick fonts.** A: Easy to read, Classic, Handwritten (your 18 Nov final). B: Modern, Classic, Technical. Case against A: none; A is the final decision.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Quick fonts: Easy to read, Classic, Handwritten.
 
 **Q14. Default theme.** A: follow the device (the premium plan). B: Night by default (shell spec). Case against A: the first picture a new user sees depends on their device.
+**Decided 22 Nov 2026 (owner, on the pictures page):** C, the owner's own rule: the default theme is Day for everyone; the owner sets Night on their own devices. Neither "follow the device" nor "Night by default".
 
 **Q15. Names.** A: Action bar, Tool bar, pickers, Hold menu (your 22 Nov); the older "smart bar", "selection bar" and "strip" are replaced everywhere. B: keep the older names in old specs. Case against A: a pass over the specs to rename.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Action bar, Tool bar, pickers, Hold menu; the old names are replaced everywhere.
 
 **Q16. Red.** A: red only for destructive actions, Delete on bars and in menus; the Review's "Again" uses the warm warning colour, not red. B: red for Again too. Case against A: Anki users expect red for Again.
+**Decided 22 Nov 2026 (owner, on the pictures page):** B. Red for Delete and also for the Review's "Again".
 
 **Q17. Compact density.** A: 44 px targets always; Compact only tightens spacing and never shrinks a target below 44. B: Compact may use 36 px controls on pointer devices. Case against A: a denser PC layout is not possible.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. 44 px targets always; Compact tightens spacing only.
 
 **Q18. More and ⋯.** A: two different things: the "More" control (sliders icon and the word) opens a row's options and sits first; "⋯" is overflow and sits last with Customise bar… at its end. B: one control, last. Case against A: two controls to learn.
+**Decided 22 Nov 2026 (owner, on the pictures page):** B plus an arrow: one control, last, "cleaner like this"; it carries a small down arrow ▾ when more options exist.
 
 ### What the owner said on 22 Nov 2026 (for the pictures and the clash decisions)
 

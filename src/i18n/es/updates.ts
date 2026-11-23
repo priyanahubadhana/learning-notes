@@ -51,4 +51,13 @@ export const esUpdates = {
     'Antes se guardó en este navegador una copia de seguridad de todo. También puedes guardar un archivo de copia en tu ordenador.',
   'upgrade.title': 'Actualizando cómo se guardan tus notas',
   'upgrade.withoutFile': 'Omitir el archivo, solo actualizar',
+  'upd.line.version': 'Versión {commit}',
+  'upd.line.upToDate': 'Al día',
+  'upd.line.notChecked': 'Aún sin comprobar',
+  'upd.line.checking': 'Buscando actualizaciones…',
+  'upd.line.downloading': 'Descargando la actualización…',
+  'upd.line.ready': 'Actualización lista',
+  'upd.line.restarting': 'Reiniciando…',
+  'upd.line.failed': 'No se pudo comprobar',
+  'upd.line.offline': 'Sin conexión',
 }

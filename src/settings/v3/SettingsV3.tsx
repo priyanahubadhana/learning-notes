@@ -17,6 +17,7 @@ import '../accountSettings'
 import { Icon } from '../../app/tools/icons'
 import { SettingsHistoryProvider } from './HistoryContext'
 import { useSettingsHistory } from './historyCtx'
+import { UpdateLine } from '../UpdateLine'
 import { SectionReset } from './SectionReset'
 import { PreviewPane } from './PreviewPane'
 import { PreviewPill } from './PreviewPill'
@@ -206,6 +207,9 @@ function SettingsV3Body({
             <Icon name="redo" />
           </button>
         </div>
+      </div>
+      <div className="px-4">
+        <UpdateLine />
       </div>
       <div className="sv3-search">
         <ClearField

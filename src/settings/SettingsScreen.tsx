@@ -30,6 +30,7 @@ import type { SettingControl, SettingDefinition } from './registry'
 import { SettingSyncBadge } from './SettingSyncBadge'
 import { getSetting, setSetting } from './settingsService'
 import { useDeviceSetting, useSyncedSetting } from './useSetting'
+import { UpdateLine } from './UpdateLine'
 import { AboutSection } from './AboutSection'
 import { averageReviewSeconds, estimateMinutes } from './reviewTime'
 import { DeviceSection } from './DeviceSection'
@@ -160,6 +161,7 @@ export function SettingsScreen({
       <h1 className="text-[32px] leading-tight font-bold tracking-[-0.02em]">
         {t('settings.title')}
       </h1>
+      <UpdateLine />
       <div
         className={`mt-6 flex flex-col gap-4 ${pick('md:grid md:grid-cols-[170px_1fr] md:gap-8', 'lg:grid lg:grid-cols-[170px_1fr] lg:gap-8')}`}
       >

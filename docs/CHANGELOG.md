@@ -79,6 +79,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** MASTER-PLAN row 5 and DECISIONS 22 Nov 06:00; the owner's one-pass confirm before the old plan pages are archived.
 - **Files:** docs/plans/found-wishes-2026-11-22.md, docs/STATE.md, docs/CHANGELOG.md.
 
+### 22 Nov 2026: PC-1 U0a (the update bug, reproduced by test)
+
+- **What:** e2e/u0aUpdateRepro.spec.ts builds two real versions (A, B), serves them from one origin like the host, swaps A to B while the app runs and logs every pill and Settings-line state with a time. New switch `update.versionLine` (ON on the preview host) draws "Version abc1234 · Up to date" at the top of Settings. Reproduced: on a slow line the page restarts again and again on the OLD version (WebKit from 100 ms a file: 3 restarts, 14 at 1000 ms; every file fetched twice), the pill says "Restarting" while the download is at 17 to 91 percent, and the download shows 107 percent. These are `test.fail` with the bug id U0. No fix yet (U0c).
+- **Why:** the owner's report: after every release the download fills, "Restarting" sticks, the loop lasts 5 to 10 minutes.
+- **Files:** e2e/u0aUpdateRepro.spec.ts, e2e/u0aUpdateRepro.helper.ts, playwright.config.ts (ipad-webkit list), src/settings/UpdateLine.tsx, SettingsScreen.tsx, v3/SettingsV3.tsx, src/app/flags.ts (+ test), texts en/es/hi (updates, flags), .gitignore (.u0a).
+
 ### 22 Nov 2026: the local unit-test red fixed (drive-letter case)
 
 - **What:** scripts/run-vitest.mjs starts Vitest from the folder's canonical path; `npm test`, `npm run test:watch` and the push guard use it.

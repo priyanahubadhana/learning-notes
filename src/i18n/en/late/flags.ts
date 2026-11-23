@@ -100,4 +100,7 @@ export const enLateFlags = {
   'flags.journal.monthRepair.name': 'Journal month repair',
   'flags.journal.monthRepair.desc':
     'Joins two pages of the same month in the Journal into one, with Undo.',
+  'flags.update.versionLine.name': 'Version line in Settings',
+  'flags.update.versionLine.desc':
+    'Shows the version and whether the app is up to date at the top of Settings.',
 }

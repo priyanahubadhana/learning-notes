@@ -313,13 +313,15 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
 
   /** A found version: applies it when the setting is on. */
   return async function offer(apply: () => void): Promise<void> {
-    if (running || declined || !d.enabled()) return
+    // A prompt on screen already is the question; Cancel (declined) is final.
+    if (running || declined || cancelPrompt || !d.enabled()) return
     running = true
     try {
       let risk: UpdateRisk | null
       do {
         await waitForSafeMoment(read).done
-        if (!d.enabled()) return
+        // Cancel pressed while this call was waiting for a safe moment.
+        if (!d.enabled() || declined || cancelPrompt) return
         risk = await prepareUpdate({
           flush: d.flush,
           hasUnsaved: d.hasUnsaved,
@@ -327,6 +329,7 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
         })
         // The person may have started typing while the backup ran.
       } while (!risk && !isSafeMoment(read()))
+      if (declined || cancelPrompt) return
       if (risk) {
         updateRisk.set({
           risk,

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { createToastQueue } from './overlay'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createToastQueue, domOverlayEvents } from './overlay'
 import { t } from '../i18n/t'
 import { promptControls } from './autoUpdate'
 
@@ -20,21 +20,31 @@ export default function UpdatePrompt({ seconds }: { seconds?: number }) {
   }, [asking, queue])
   useEffect(() => {
     if (!asking) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') promptControls.cancel()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    return domOverlayEvents().onEscape(() => promptControls.cancel())
   }, [asking])
+  const host = useRef<HTMLDivElement>(null)
+  const shown = asking && queue.visible().length > 0
+  useEffect(() => {
+    const el = host.current
+    if (!el) return
+    try {
+      if (shown) el.showPopover?.()
+      else el.hidePopover?.()
+    } catch {
+      // Already in the wanted state.
+    }
+  }, [shown])
   const item = queue.visible()[0]
   if (!asking || !item) return null
   return (
     <div
+      ref={host}
+      popover="manual"
       data-chrome
       data-update-prompt
       role="alertdialog"
       aria-label={t('update.prompt', { s: seconds })}
-      className="fixed bottom-16 left-1/2 z-50 w-[min(360px,calc(100vw-16px))] -translate-x-1/2 rounded-xl border border-line bg-surface-3 p-2 text-sm text-ink shadow-[var(--elev-2)] phone:bottom-20"
+      className="fixed inset-auto bottom-16 left-1/2 m-0 w-[min(360px,calc(100vw-16px))] -translate-x-1/2 rounded-xl border border-line bg-surface-3 p-2 text-sm text-ink shadow-[var(--elev-2)] phone:bottom-20"
     >
       <div role="status" aria-live="polite" className="px-2 py-1">
         {t('update.prompt', { s: seconds })}

@@ -103,6 +103,19 @@ function run(name, cmd) {
   throw new Error(name)
 }
 
+// Warning only (M5): analyze prints its summary and never blocks the push.
+function warnAnalyze() {
+  const r = spawnSync('node scripts/analyze.mjs --no-write', {
+    cwd,
+    env,
+    shell: true,
+    encoding: 'utf8',
+  })
+  const lines = (r.stdout || '').trimEnd().split(String.fromCharCode(10))
+  const last = lines[lines.length - 1] || ''
+  console.log(`push guard: analyze (warning only) ${last || 'no output'}`)
+}
+
 // Windows limits a command line to ~8k characters: pass files in chunks.
 function runEach(name, base, list) {
   for (let i = 0; i < list.length; i += 40)
@@ -159,6 +172,7 @@ for (const [, localSha, remoteRef, remoteSha] of lines) {
       files.filter((f) => TEXT.test(f)),
     )
     run('check:links', 'npm run check:links')
+    warnAnalyze()
     runEach('eslint', 'npx eslint --quiet', plan.eslint)
     if (plan.tsc) run('tsc', 'npx tsc -b')
     if (plan.ratchet) run('check:ratchet', 'npm run check:ratchet')

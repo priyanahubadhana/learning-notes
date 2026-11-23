@@ -1,0 +1,8 @@
+{
+  "note": "Private placement or floating-bar functions outside the part files (scripts/analyze.mjs check 5). May only go down.",
+  "privateCopies": 2,
+  "files": {
+    "src/app/tools/freeBar.ts": 1,
+    "src/app/tools/main/pillPlace.ts": 1
+  }
+}

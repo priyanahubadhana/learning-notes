@@ -73,7 +73,8 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 
 - **The catch-up check C0 on the iPad, items 4 to 11** (about 15 minutes; the eleven items are in docs/plans/phases/phase-2-finish.md section 6; "Circle recorder" off). Items 1 to 3 answered 22 Nov evening (#55, #56, #57). Reply with the numbers that felt wrong, or "rest fine".
 - **C1a, the Lasso session, 5 minutes:** Settings, Try new features, Lasso recorder on; "Copy last trace" when an outline stays or a loop acts on the old selection. A trace of a wrong circle pick unlocks #57.
-- **The names, one question (24 Nov, chat):** you remember "Selection bar" as one of the four names and no "picker"; the record of 22 Nov says Tool bar, Action bar, pickers, Hold menu. Nothing more is renamed until you answer.
+- **Names decided (owner, 24 Nov):** Tool bar, Action bar, Selection bar (the former "picker"), Hold menu. The rename runs on tool/names-selection-bar (a Sonnet builder; merge after a word-by-word diff check). Tell me if "Selection bar" should name another part.
+- **Action bar on the iPad and the phone (24 Nov):** drawn on tool/action-bar-devices (docs/mockups/action-bar/devices.html, png-devices/); look reviewed; back with the builder for three missing states so check:bar-inventory is green; then your yes.
 - **The Action bar PC picture is approved (owner, 24 Nov)** with the Colour button as a circle in the chosen colour (applied, all frames re-shot). Next for a free window: the iPad sideways, iPad upright and phone pictures, then the owner's yes on those.
 - **Later, in this order:** the phase 1B planning (one questionnaire); the Notion mirror only on your word (docs/IDEAS.md).
 - **Small, not urgent:** Decisions to review in docs/DECISIONS.md; the security-header check E6 (#54); developer-tool warnings (glob, minimatch; the fix breaks the offline plugin, re-checked at each phase end); old working copies you may delete when you like.

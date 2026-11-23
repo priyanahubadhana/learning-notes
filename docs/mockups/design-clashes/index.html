@@ -46,6 +46,15 @@
         margin: 0 0 20px;
         color: var(--ink-soft);
       }
+      .frame.wide {
+        width: 1400px;
+      }
+      .frame.wide .row {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+      .frame.wide .toast {
+        max-width: 350px;
+      }
       .row {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -279,11 +288,10 @@
     </svg>
 
     <!-- Frame 1: the toast shape -->
-    <section class="frame" id="toast">
+    <section class="frame wide" id="toast">
       <h2>1. The toast: which shape?</h2>
       <p class="sub">
-        A toast is the small message at the bottom right, for example after a delete, with Undo. Same size and same
-        words in both; only the corners differ.
+        A toast is the small message at the bottom right, for example after a delete, with Undo. Three ways to round its corners.
       </p>
       <div class="row">
         <div class="opt">
@@ -320,11 +328,18 @@
             </div>
           </div>
         </div>
-      </div>
-      <p class="sum">
-        <b>C (the pick):</b> the pill of A when the words fit one line, the soft corners of B when they need two
-        lines.
-      </p>
+      <div class="opt">
+<span class="tag"><b>C</b>Pill for one line, soft corners for two</span>
+<p class="note">A short toast is a pill; a long one becomes a rounded box.</p>
+<div class="stage">
+<span class="cap">One line</span>
+<div class="toast pill"><span class="x"><svg viewBox="0 0 24 24"><use href="#i-x" /></svg></span><span>Page deleted</span><span class="act">Undo</span></div>
+<span class="cap">Two lines</span>
+<div class="toast r14"><span class="x"><svg viewBox="0 0 24 24"><use href="#i-x" /></svg></span><span>The picture is kept on this device and is sent when you are online.</span><span class="act">Try again</span></div>
+</div>
+</div>
+</div>
+      <p class="sum">Same toast, same words, same size in all three. Only the corners differ.</p>
     </section>
 
     <!-- Frame 2: the bar heights -->

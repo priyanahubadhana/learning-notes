@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: the proof found a real red, S3b; the line is stopped (issue #58; docs only)
+
+- **What:** S3b failed twice in 14 ipad-webkit runs ("The update did not finish" never showed). Root cause found by a read-only review and confirmed in the code: the download-progress poll (src/app/updateProgress.ts) can overwrite the 3 s restart prompt after its cache read, and the prompt then stops for good. GitHub issue #58 opened; a builder fixes it on slice/u0d-prompt-race (worktree ln-u0d); STATE step 0 holds the order of work (no merge of build/next, S3b counted from zero after the fix).
+- **Why:** rule "a red test stops the line until the root cause is fixed". The earlier "one run missing" reading of batch 3 was wrong; corrected. **Files:** docs/STATE.md, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: research on long agent builds; the proof moves to CI (docs only)
 
 - **What:** docs/research/long-autonomous-agent-builds-2026-11-24.md (four researchers, one writer; builds on agent-practice-2026-11-23.md): the real numbers and limits of the C compiler, the eight-day operating system, the Cursor browser and the Codex projects, and a ranked list of what to copy; part 1M-14 in the build-machine plan (the 20 of 20 proof on the hosted CI machines); the measured reasons for the missed 20:00 target in docs/metrics/pace-2026-11-23.md; resume steps in STATE.

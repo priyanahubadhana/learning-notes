@@ -1,6 +1,6 @@
 # Snap Assist research (owner bug batch 2, item 7) — 10 Nov 2026
 
-Question: how do window/zone tools let people fill a chosen layout with **existing** items instead of empty ones? Used for the box ⋯ › Layout redesign ([plan](../plans/layout-assist-plan.md)).
+Question: how do window/zone tools let people fill a chosen layout with **existing** items instead of empty ones? Used for the box ⋯ › Layout redesign ([plan](../archive/plans/layout-assist-plan.md)).
 
 ## What others do
 

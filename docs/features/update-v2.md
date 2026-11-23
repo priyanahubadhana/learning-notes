@@ -120,6 +120,10 @@ S1 to S7 pass on chromium and ipad-webkit, 20 of 20; U0a's tests pass without `t
 - The installed iPad app behaves like WebKit at iPad size. Check: the owner's iPad check after U0c.
 - The preview behaves like the live app. Check: U0a's host test, then the owner's preview check.
 
+## Won't do (in this spec)
+
+- No background update while the app is closed, no update on a metered line by itself, no changelog screen, no roll-back to an older version (the service worker keeps only the current one). These stay out so the fix behind `update.v2` is one small change the owner can check in ten minutes; a wish for any of them goes to docs/IDEAS.md.
+
 ## Open points
 
 - `OPEN:` **Your screenshots, please.** Next time the pill sticks on "Restarting" (or the loop starts), take a screenshot of the pill and one of Settings, and send them. They become the reference picture for S3.

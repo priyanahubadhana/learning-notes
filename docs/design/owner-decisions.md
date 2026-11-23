@@ -1,6 +1,6 @@
 # Owner decisions and approved designs (reference)
 
-Moved word for word from the old pending list on 14 Nov 2026. This is what the owner decided, approved and reported: text box decisions, the bug register, the toolbar and settings decisions, the reader plans and every APPROVED mock-up with its conditions. It is reference for planning and building. Open work is tracked by phase in [../PENDING.md](../PENDING.md) and [../plans/phase-plan.md](../plans/phase-plan.md); lines here that say "waiting" or "next" are history.
+Moved word for word from the old pending list on 14 Nov 2026. This is what the owner decided, approved and reported: text box decisions, the bug register, the toolbar and settings decisions, the reader plans and every APPROVED mock-up with its conditions. It is reference for planning and building. Open work is tracked by phase in [../PENDING.md](../PENDING.md) and [../archive/plans/phase-plan.md](../archive/plans/phase-plan.md); lines here that say "waiting" or "next" are history.
 
 ## Priority 1: text box (built 11 Nov, waiting for the owner iPad checks)
 

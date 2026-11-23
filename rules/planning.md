@@ -1,6 +1,6 @@
 # Planning
 
-- **Work runs in phases, one at a time** (docs/plans/phase-plan.md). The order inside a phase is fixed: artifact, plan with Fable, build, the owner's first look, fix and polish, release.
+- **Work runs in phases, one at a time** (docs/MASTER-PLAN.md, docs/plans/stage-1-plan.md). The order inside a phase is fixed: artifact, plan with Fable, build, the owner's first look, fix and polish, release.
 - **Artifact first:** before any new screen or major piece, a clickable mock-up (e.g. a Claude artifact) so the owner can see and test the look and flow. The real version is built only after the owner approved it. A written list of picks is not an artifact.
 - **Before each phase, have one planning talk with the owner.** Ask all of the phase's decisions in that talk, then write the answers into the phase page. After that, the phase is built without stopping (see building.md).
 - Use plan mode (no file changes) while discussing; leave it only to build an approved mockup.

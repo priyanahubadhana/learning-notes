@@ -1672,7 +1672,7 @@ Finished entries moved out of docs/HANDOFF.md, text unchanged, newest areas firs
 
 ### HANDOFF: Database pages done (9 Nov, queue 3a)
 
-- **Database pages done (9 Nov, queue 3a):** List view, group by, windowed rows (200+), formula helper, Database page (new-page list), row property search (index v5). Spec docs/features/database.md; plan docs/plans/database-pages-plan.md; no Dexie version. Next in queue: prompt library + skills stored as a built-in database (schema proven in databaseSchema.test.ts), then lock editing.
+- **Database pages done (9 Nov, queue 3a):** List view, group by, windowed rows (200+), formula helper, Database page (new-page list), row property search (index v5). Spec docs/features/database.md; plan docs/archive/plans/database-pages-plan.md; no Dexie version. Next in queue: prompt library + skills stored as a built-in database (schema proven in databaseSchema.test.ts), then lock editing.
 
 ### HANDOFF: C2b done (9 Nov)
 

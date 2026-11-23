@@ -1,6 +1,6 @@
 # Deep research for the master plan (6 Nov 2026)
 
-Purpose: the evidence behind [plans/master-plan-2026-11.md](../plans/master-plan-2026-11.md). It checks, corrects and extends the earlier, thinner research ([ink-layers-pencil-ux.md](ink-layers-pencil-ux.md), [inspiration-apps.md](inspiration-apps.md), [home-productivity.md](home-productivity.md), [toolbar-ribbon.md](toolbar-ribbon.md)).
+Purpose: the evidence behind [archive/plans/master-plan-2026-11.md](../archive/plans/master-plan-2026-11.md). It checks, corrects and extends the earlier, thinner research ([ink-layers-pencil-ux.md](ink-layers-pencil-ux.md), [inspiration-apps.md](inspiration-apps.md), [home-productivity.md](home-productivity.md), [toolbar-ribbon.md](toolbar-ribbon.md)).
 
 Method: web searches, full page reads where the site allowed it, WebKit source, GitHub issues and pull requests read with `gh`, the npm registry (`npm view`) and our own code. Marks: **[verified + link]** = a primary or clearly reliable source says it (or our code/registry shows it); **[unverified]** = secondary, old, my inference, or untested. Anything about Safari and the Pencil still needs the owner's iPad (Pencil lab, step A1).
 

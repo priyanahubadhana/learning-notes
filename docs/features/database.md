@@ -1,6 +1,6 @@
 # Database pages (Notion-like)
 
-Security rules: [rules/security.md](../../rules/security.md). Check them before building. Builds on [databases.md](databases.md) (engine) and [database-views.md](database-views.md) (views). Plan: [../plans/database-pages-plan.md](../plans/database-pages-plan.md).
+Security rules: [rules/security.md](../../rules/security.md). Check them before building. Builds on [databases.md](databases.md) (engine) and [database-views.md](database-views.md) (views). Plan: [../archive/plans/database-pages-plan.md](../archive/plans/database-pages-plan.md).
 
 ## Purpose
 

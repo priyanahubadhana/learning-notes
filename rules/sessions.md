@@ -1,6 +1,6 @@
 # Sessions (chats)
 
-- **Way of working (owner, 2026-10-27; confirmed 14 Nov 2026):** plan a phase together, then build the whole phase without stopping. One phase at a time. The owner's first look on the iPad comes as soon as the phase works, and again before it is switched ON in the live app (docs/plans/phase-plan.md).
+- **Way of working (owner, 2026-10-27; confirmed 14 Nov 2026):** plan a phase together, then build the whole phase without stopping. One phase at a time. The owner's first look on the iPad comes as soon as the phase works, and again before it is switched ON in the live app (docs/archive/plans/phase-plan.md).
 - **Windows (owner, 22 Nov 2026; phase 1M, replaces "one long chat"):** one task, one fresh builder window, planned to finish under 100K tokens; the manager chat runs one part per window and is cleared at the part boundary (`/clear`, then `/next` reloads docs/STATE.md). Split a task by scope first, by a relay of windows second (a dossier file `HANDOFF-<task>.md` in the branch is the handoff), by compaction never. Detail: docs/plans/phases/phase-1m-build-machine.md "Building guide".
 - Budget line: at 80K the builder commits, writes the dossier and stops with STOPPED-BUDGET; a fresh builder continues on the same branch. Never ask the owner about it.
 - Auto-compact is a safety net only (`autoCompactWindow: 120000` on the helper agents); never plan on it. Don't ask the owner to type `/compact`.

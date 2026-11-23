@@ -1,6 +1,6 @@
 # How we build (from 14 Nov 2026)
 
-The plan is [plans/phase-plan.md](plans/phase-plan.md). The state is [STATE.md](STATE.md). This page is how the helpers work inside a phase. It replaces the "economy mode" pages of 13 Nov (kept in archive/plans/archive/).
+The plan is [MASTER-PLAN.md](MASTER-PLAN.md) and [plans/stage-1-plan.md](plans/stage-1-plan.md) (the old phase plan is in [archive/plans/phase-plan.md](archive/plans/phase-plan.md)). The state is [STATE.md](STATE.md). This page is how the helpers work inside a phase. It replaces the "economy mode" pages of 13 Nov (kept in archive/plans/archive/).
 
 ## 1. Roles: the cheapest model that can do the job does it
 

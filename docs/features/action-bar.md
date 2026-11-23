@@ -1,8 +1,8 @@
 # Action bar (template v2, method v2)
 
-| Status | Stage | Switch             | Phase and parts                                                                  | Pictures                                                                            | Builds on                                                                                                                       | Last change        |
-| ------ | ----- | ------------------ | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| Draft  | `1`   | `select.actionBar` | stage 1, phase set by docs/plans/stage-1-plan.md; parts `Bar shell`, `Bar place` | none yet, by design: drawn after the sheet (PC, iPad sideways, iPad upright, phone) | selection-bar.md (replaced), text-select.md, page-menus.md (Hold menu), parts: `Bar shell` and `Bar place` (to be carded in M9) | 22 Nov 2026, Fable |
+| Status                                                                                                     | Stage | Switch             | Phase and parts                                                                  | Pictures                                                                                                       | Builds on                                                                                                                       | Last change        |
+| ---------------------------------------------------------------------------------------------------------- | ----- | ------------------ | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Confirmed (all 21 sheet rows Yes, owner 22 Nov evening; set from the sheet answers, no status program yet) | `1`   | `select.actionBar` | stage 1, phase set by docs/plans/stage-1-plan.md; parts `Bar shell`, `Bar place` | PC drawn: docs/mockups/action-bar/ (waiting for the owner's yes); iPad sideways, iPad upright, phone to follow | selection-bar.md (replaced), text-select.md, page-menus.md (Hold menu), parts: `Bar shell` and `Bar place` (to be carded in M9) | 22 Nov 2026, Fable |
 
 <!-- The top layer (down to the confirm sheet) is written for the owner. Sources: docs/plans/smart-bar-inventory-2026-11-22.md (the table and section 3), docs/DECISIONS.md 22 Nov (rounds 1 to 4), docs/design/owner-decisions.md (18 to 21 Nov), docs/design/principles.md. Security rules: rules/security.md. -->
 
@@ -21,23 +21,23 @@ As the owner, who edits AI-made notes all day, I want one bar that changes its t
 
 ## Picture
 
-To be drawn after the sheet: PC, iPad sideways, iPad upright, phone. Every picture is checked by `scripts/check-bar-inventory.mjs` against the tool table below before you see it (owner, 22 Nov: the tool list comes before pictures).
+PC drawn (23 Nov, waiting for the owner's yes): docs/mockups/action-bar/index.html, 13 frames in docs/mockups/action-bar/png/. To be drawn after it: iPad sideways, iPad upright, phone. Every picture is checked by `scripts/check-bar-inventory.mjs` against the tool table below before you see it (owner, 22 Nov: the tool list comes before pictures).
 
 ## Rules
 
 **Always true**
 
 - **One bar.** One Action bar for every selection; it replaces the three old bars.
-- **Default ending.** Every selection state ends Cut, Copy, Paste ▾, Delete, ⋯▾ by default (owner, 22 Nov; the pinned bar with nothing selected shows only ⋯▾, ✕); Customise bar… may change it.
+- **Default ending.** Every selection state ends Cut, Copy, Paste ▾, Delete, ⋯▾ by default (owner, 22 Nov; the pinned bar with nothing selected shows only the pin and ⋯▾); Customise bar… may change it.
 - **Nothing moves.** The same button keeps the same place in every state; with only the cursor, Cut, Copy and Delete show greyed (owner, 22 Nov).
-- **Paste ▾ remembers.** Its icon shows the last format used, per notebook; ▾ lists the formats; first press previews, second press pastes; the preview may float over boxes (owner, 22 Nov).
+- **Paste ▾ remembers.** Its icon shows the last format used, per notebook; one press pastes at once in that format; ▾ lists the formats, picking one pastes and becomes the new default; a wrong paste is one Undo away (owner, 22 Nov evening; replaces the two-press preview of the afternoon).
 - **Drag and dock.** Grab ⠿ to move the bar along its line or dock it top, left, right or bottom; stage 1 (owner, 22 Nov).
 - **Floats until pinned.** Unpinned, it floats at the first free place near the selection.
 - **Five places.** Below, above, upright right, upright left, else under the Tool bar.
 - **Pin.** Pinned, it stays exactly where it is until you move it by hand.
 - **Pinned keeps place.** A pinned bar keeps its place and only changes its tools.
 - **Pinned is frame.** Once pinned it joins the app frame; nothing covers it.
-- **✕ only when pinned.** The ✕ shows on a pinned bar only; it unpins and hides.
+- **The pin is the switch.** The pin image shows empty when the bar floats and filled when it is pinned; tapping the filled pin unpins and hides the bar until the next selection. There is no separate ✕ (owner, 22 Nov evening, artifact comment: the pin image itself adds and removes the bar; no separate ✕).
 - **Edit is Customise.** Edit = "Customise bar…", the last entry inside ⋯ (owner, 22 Nov, R1).
 - **⋯ with ▾.** One ⋯, always last, with a small ▾ when more exists (Q18).
 - **Hold menu.** Hold or right-click opens the Hold menu: the state's ending, at the pointer.
@@ -69,7 +69,7 @@ To be drawn after the sheet: PC, iPad sideways, iPad upright, phone. Every pictu
 
 ## The tool table (the checklist; the script reads it)
 
-Every bar starts with ⠿ (move) and the pin; a pinned bar adds ✕ after ⋯▾. "B/I ▾" opens Bold, Italic, Underline, Strike, Highlight.
+Every bar starts with ⠿ (move) and the pin (filled when pinned; tapping it again unpins and hides; no ✕). "B/I ▾" opens Bold, Italic, Underline, Strike, Highlight.
 
 <!-- tool-table:start -->
 
@@ -79,7 +79,7 @@ Every bar starts with ⠿ (move) and the pin; a pinned bar adds ✕ after ⋯▾
 | Words selected           | 1     | B/I ▾, Colour, Size, Font, Highlight, Cut, Copy, Paste ▾, Delete, ⋯▾                             | Link, Make card, Add to summary, Revise mark, Customise bar…                                |
 | A box                    | 1     | Edit text, B/I ▾, Colour, Size, Font, Align ▾, List ▾, Box style, Cut, Copy, Paste ▾, Delete, ⋯▾ | Duplicate, Lock box, Make card, Add to summary, Revise mark, Customise bar…                 |
 | A picture                | 1     | Cut, Copy, Paste ▾, Delete, ⋯▾                                                                   | Duplicate, Make card, Add to summary, Customise bar…                                        |
-| Pinned, nothing selected | 1     | ⋯▾, ✕                                                                                            | Customise bar…                                                                              |
+| Pinned, nothing selected | 1     | pin (filled), ⋯▾                                                                                 | Customise bar…                                                                              |
 | A drawing                | 2     | Colour, Thickness, Cut, Copy, Paste ▾, Delete, ⋯▾                                                | Turn, Resize, Duplicate, Replay, Convert to text, Make card, Add to summary, Customise bar… |
 | Mixed                    | 2     | Edit text, Colour, Thickness, Resize, Duplicate, Cut, Copy, Paste ▾, Delete, ⋯▾                  | Make card, Add to summary, Customise bar…                                                   |
 | PC mouse notes           | 1     | the row of the selected state, unchanged; every button names itself on hover                     | the same; right-click opens the Hold menu; keys in AB-09                                    |
@@ -91,14 +91,14 @@ Every bar starts with ⠿ (move) and the pin; a pinned bar adds ✕ after ⋯▾
 
 - **S1, caret.** Given the cursor in "Service 23-11 2000 rate-is", then the bar shows the caret row with Cut, Copy and Delete greyed.
 - **S2, words.** Given S1, when I select "2000", then Cut, Copy and Delete become active; no button moves.
-- **S13, Paste ▾.** Given I pasted "as formatted" last in this notebook, when I press Paste once, then a preview of that paste shows; a second press pastes it; ▾ lets me pick another format.
+- **S13, Paste ▾.** Given I pasted "as formatted" last in this notebook, when I press Paste once, then it pastes at once in that format; ▾ lets me pick another format, which pastes and is remembered.
 - **S14, drag and dock.** Given a pinned bar, when I drag ⠿ to the top edge, then it docks there and stays after a reload.
 - **S3, a box.** Given a box is selected, then the box row shows; Edit text puts the cursor at the end of its words.
 - **S4, a drawing (stage 2).** Given a drawing selected with the Lasso, then Colour, Thickness and the ending show, no text tools.
 - **S5, a picture.** Given a picture is selected, then only the ending shows; ⋯ holds Duplicate, Make card, Add to summary.
 - **S6, mixed (stage 2).** Given a box with ink on it selected, then the mixed row shows, Colour and Thickness included.
 - **S7, PC mouse.** Given words selected on the PC, when I hover Font, then "Font" shows; Ctrl+C copies.
-- **S8, pin.** Given I pin the bar at the top left, when I select a box, then it stays there and shows the box row with ✕.
+- **S8, pin.** Given I pin the bar at the top left, when I select a box, then it stays there and shows the box row with the filled pin; tapping the pin unpins and hides it.
 - **S9, Edit.** Given ⋯ is open, when I choose Customise bar…, then the Customise bar sheet opens on the state I am in.
 - **S10, phone overflow (stage 3).** Given a phone and a box, then the ending shows in full and the extra tools sit first under ⋯.
 - **S11, Hold menu.** Given words selected and the bar unpinned, when I right-click them, then the Hold menu opens and the bar hides until it closes.
@@ -106,13 +106,13 @@ Every bar starts with ⠿ (move) and the pin; a pinned bar adds ✕ after ⋯▾
 
 ## How we get there (the steps, each with its test)
 
-| Step | What it gives                                    | Proved by                  |
-| ---- | ------------------------------------------------ | -------------------------- |
-| 1    | Every old button mapped to a cell of the table   | the inventory list (T1)    |
-| 2    | The checklist script fails a bar that misses one | `check-bar-inventory` test |
-| 3    | One bar with the caret, words, box, picture rows | AB-S1, AB-S2, AB-S3, AB-S5 |
-| 4    | Floats, five places, pin, ✕, Hold menu           | AB-S8, AB-S11              |
-| 5    | Customise bar…, PC keys and hover names          | AB-S7, AB-S9, AB-S12       |
+| Step | What it gives                                     | Proved by                  |
+| ---- | ------------------------------------------------- | -------------------------- |
+| 1    | Every old button mapped to a cell of the table    | the inventory list (T1)    |
+| 2    | The checklist script fails a bar that misses one  | `check-bar-inventory` test |
+| 3    | One bar with the caret, words, box, picture rows  | AB-S1, AB-S2, AB-S3, AB-S5 |
+| 4    | Floats, five places, pin as the switch, Hold menu | AB-S8, AB-S11              |
+| 5    | Customise bar…, PC keys and hover names           | AB-S7, AB-S9, AB-S12       |
 
 ## On the iPad later
 
@@ -137,35 +137,37 @@ Every stage 1 scenario passes on chromium; the checklist script is green on the 
 - `OPEN-2` Caret to words: A: Paste ▾ and ⋯ slide right as Cut, Copy join (pick). B: Cut, Copy, Delete shown greyed with the caret. Against A: Paste moves two slots.
 - `OPEN-3` Order of the format tools: A: B/I, Colour, Size, Font, Highlight (20 Nov picture, pick). B: the box bar's Colour, Size, Font, B/I. Against A: the box bar changes.
 - `OPEN-4` Edit text on the box and mixed bars: A: on the bar, its own text-cursor icon (pick). B: under ⋯. Against A: two "edit" words nearby.
-- `OPEN-5` Pinned with nothing selected: A: only ⋯ and ✕ (pick). B: also Paste ▾ into a new box. Against A: the bar looks nearly empty.
+- `OPEN-5` Pinned with nothing selected: A: only the pin and ⋯ (pick; was "⋯ and ✕" before the pin became the switch). B: also Paste ▾ into a new box. Against A: the bar looks nearly empty.
 - `OPEN-6` The ending in Customise bar…: A: locked, shown with a lock (pick). B: editable like the rest. Against A: you said every button editable.
 - `OPEN-7` Picture tools: A: only the ending plus ⋯ until T1 finds today's picture menu items (pick). B: crop and replace now. Against A: thin until T1.
 
 ## Confirm sheet (the owner answers by row: Yes, Explain again, or Change to …)
 
-| Row | Statement                                                                                                                                                        |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | The goal line says what I meant.                                                                                                                                 |
-| 2   | The two non-negotiables are right.                                                                                                                               |
-| 3   | Every state ends Cut, Copy, Paste ▾, Delete, ⋯▾ by default; with only the cursor those three are greyed; nothing moves.                                          |
-| 4   | Unpinned it floats at the five places; pinned it stays until I move it; I can drag ⠿ along a line or dock it on an edge, in stage 1.                             |
-| 5   | A pinned bar keeps its place and changes its tools; ✕ shows only when pinned.                                                                                    |
-| 6   | Edit is "Customise bar…", the last entry inside ⋯.                                                                                                               |
-| 7   | Hold or right-click opens the Hold menu; a pinned bar stays, an unpinned one hides.                                                                              |
-| 8   | Row "Caret in text" of the tool table is right.                                                                                                                  |
-| 9   | Row "Words selected" is right.                                                                                                                                   |
-| 10  | Row "A box" is right.                                                                                                                                            |
-| 11  | Row "A picture" and "Pinned, nothing selected" are right.                                                                                                        |
-| 12  | Rows "A drawing" and "Mixed" are right, built in stage 2.                                                                                                        |
-| 13  | PC: the same bar, hover names, right-click, keys; phone: overflow under ⋯, the ending stays.                                                                     |
-| 14  | Presets wait for stage 2; the Study set is recorded as written.                                                                                                  |
-| 15  | Scenarios S1 to S14 describe what I expect.                                                                                                                      |
-| 16  | Open points 1 to 7 are closed with my answers of 22 Nov as written under "Open points".                                                                          |
-| 17  | Design and quality: the check list in the bottom layer is complete.                                                                                              |
-| 18  | Paste ▾: the icon shows the last format per notebook; first press previews, second pastes; the preview may float over boxes.                                     |
-| 19  | The ending can be changed in Customise bar…; the default keeps it and the script checks the default.                                                             |
-| 20  | The bar folds its tail into ⋯▾ by the width it has, not by device: a narrow PC window and the upright iPad fold like the phone (from the outside audit, 22 Nov). |
-| 21  | Paste ▾ preview: Escape, typing, or a tap anywhere else cancels it; a screen reader is told quietly that a preview is showing (from the outside audit, 22 Nov).  |
+| Row | Statement                                                                                                                                                                                                  |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The goal line says what I meant.                                                                                                                                                                           |
+| 2   | The two non-negotiables are right.                                                                                                                                                                         |
+| 3   | Every state ends Cut, Copy, Paste ▾, Delete, ⋯▾ by default; with only the cursor those three are greyed; nothing moves.                                                                                    |
+| 4   | Unpinned it floats at the five places; pinned it stays until I move it; I can drag ⠿ along a line or dock it on an edge, in stage 1.                                                                       |
+| 5   | A pinned bar keeps its place and changes its tools; the filled pin unpins and hides it (owner changed from ✕, 22 Nov evening).                                                                             |
+| 6   | Edit is "Customise bar…", the last entry inside ⋯.                                                                                                                                                         |
+| 7   | Hold or right-click opens the Hold menu; a pinned bar stays, an unpinned one hides.                                                                                                                        |
+| 8   | Row "Caret in text" of the tool table is right.                                                                                                                                                            |
+| 9   | Row "Words selected" is right.                                                                                                                                                                             |
+| 10  | Row "A box" is right.                                                                                                                                                                                      |
+| 11  | Row "A picture" and "Pinned, nothing selected" are right.                                                                                                                                                  |
+| 12  | Rows "A drawing" and "Mixed" are right, built in stage 2.                                                                                                                                                  |
+| 13  | PC: the same bar, hover names, right-click, keys; phone: overflow under ⋯, the ending stays.                                                                                                               |
+| 14  | Presets wait for stage 2; the Study set is recorded as written.                                                                                                                                            |
+| 15  | Scenarios S1 to S14 describe what I expect.                                                                                                                                                                |
+| 16  | Open points 1 to 7 are closed with my answers of 22 Nov as written under "Open points".                                                                                                                    |
+| 17  | Design and quality: the check list in the bottom layer is complete.                                                                                                                                        |
+| 18  | Paste ▾: the icon shows the last format per notebook; one press pastes at once; ▾ picks a format, pastes, and remembers it; Undo fixes a mistake (owner changed from the preview, 22 Nov evening).         |
+| 19  | The ending can be changed in Customise bar…; the default keeps it and the script checks the default.                                                                                                       |
+| 20  | The bar folds its tail into ⋯▾ by the width it has, not by device: a narrow PC window and the upright iPad fold like the phone (from the outside audit, 22 Nov).                                           |
+| 21  | The ▾ format list: Escape or a tap anywhere else closes it without pasting; a screen reader hears the list and the format it pastes with (from the outside audit, 22 Nov; reworded when the preview went). |
+
+**Owner's answer, 22 Nov evening (chat and two artifact comments):** all 21 rows Yes. Change in the comments: the pin image adds and removes the bar, no separate ✕ (applied to the rules, the tool table, S8, step 4, OPEN-5, row 5, AB-03, AB-08 and the Design check). Next by the plan: scripts/check-bar-inventory.mjs, then the pictures PC, iPad sideways, iPad upright, phone.
 
 ---
 
@@ -178,7 +180,7 @@ Every stage 1 scenario passes on chromium; the checklist script is green on the 
 | selection-bar.md (replaced)           | history: place order, strips, edge cases, SB-N lines folded into AB-N     |
 | text-select.md                        | what counts as words selected, caret after an action                      |
 | page-menus.md                         | the Hold menu strip (Cut, Copy, Paste ▾, Delete, ⋯); reused, not rebuilt  |
-| `Bar shell` (card in M9)              | grip, pin, ✕, buttons, ⋯▾, hover names, sizes                             |
+| `Bar shell` (card in M9)              | grip, pin (the switch), buttons, ⋯▾, hover names, sizes                   |
 | `Bar place` (card in M9)              | the five places, floating, pinned place, never over the selection         |
 | Customise bar sheet (approved 20 Nov) | the tool bar's customiser, reused (REF, picture 20; ✕ left, ✓ right, 376) |
 
@@ -204,14 +206,14 @@ Made with Spec Kit after the confirm sheet is all Yes. Files: the bar under `src
 
 - **AB-01** T1 lists every button of the text mini bar, box bar, Lasso bar, mixed menu and picture menu, and its cell; anything unmapped joins that state's ⋯ before the end.
 - **AB-02** `scripts/check-bar-inventory.mjs` reads the table between `tool-table:start` and `tool-table:end`; it fails a picture index or a bar build whose state misses an element, in order. Run as `npm run check:bar-inventory`.
-- **AB-03** Master order, from left: Edit text, B/I ▾, Colour, Thickness, Size, Font, Highlight, Align ▾, List ▾, Box style, Resize, Duplicate, then the ending, then ✕. A state greys what does not apply among Cut, Copy, Delete and hides the rest; nothing reorders.
-- **AB-12** Paste ▾ keeps the last format per notebook in the notebook's settings; the first press shows the preview at the target with the real content; a second press within 10 s pastes; any other tap cancels the preview.
+- **AB-03** Master order, from left: Edit text, B/I ▾, Colour, Thickness, Size, Font, Highlight, Align ▾, List ▾, Box style, Resize, Duplicate, then the ending (the pin sits at the start, after ⠿). A state greys what does not apply among Cut, Copy, Delete and hides the rest; nothing reorders.
+- **AB-12** Paste ▾ keeps the last format per notebook in the notebook's settings; one press pastes at once in that format at the target; ▾ opens the format list, a pick pastes and stores that format; Escape or a tap elsewhere closes the list without pasting; every paste is one Undo (owner, 22 Nov evening; the preview of the afternoon is dropped).
 - **AB-13** Drag: ⠿ moves the bar along its current line; dropping within 24 px of an edge docks it there (top, left, right, bottom); the dock is stored like the pin (AB-08).
 - **AB-04** Changing state rebuilds the tools in one frame; the bar's left edge and top stay within 1 px (SB numbers).
 - **AB-05** ⋯ shows ▾ when its list has more than Customise bar…; Customise bar… is always last.
 - **AB-06** Box style opens the approved Box style card (Presets, Advanced); Font opens the three quick fonts and More fonts…, each in its look; Size opens the slider strip.
 - **AB-07** Unpinned place: the first free of the five; never over the selected words, never off the screen.
-- **AB-08** Pin stores the place on the device; pinned stays on every page and after a restart; ✕ unpins and hides until the next selection.
+- **AB-08** Pin stores the place on the device; pinned stays on every page and after a restart; tapping the filled pin unpins and hides until the next selection; no ✕ (owner, 22 Nov evening, artifact comment: the pin image itself adds and removes the bar; no separate ✕).
 - **AB-09** Keys: Ctrl+X, C, V, Delete act as the buttons; Alt+F10 moves focus to the bar (Fable's pick, logged); arrows move along it; Esc closes ⋯, then ends the selection.
 - **AB-10** Hold menu items = the state's ending; it opens at the pointer; the unpinned bar returns when it closes.
 - **AB-11** A refused clipboard gives the toast "Couldn't paste. Try again." (Q5 pill, 2.6 s) and no change.
@@ -229,10 +231,10 @@ Made with Spec Kit after the confirm sheet is all Yes. Files: the bar under `src
 | --- | ------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | Looks like the approved picture | no     | none yet, by design: drawn after the sheet, checked by AB-02                                                                                                                                                                                                                                       |
 | 2   | Meets quality-standard.md       | yes    | stroke 1.75 (Q1), glass frame (Q3), Delete the only red                                                                                                                                                                                                                                            |
-| 3   | Follows owner-ui-patterns.md    | yes    | ✕ on a staying bar (UP:9); ⋯ ends with Customise bar…                                                                                                                                                                                                                                              |
+| 3   | Follows owner-ui-patterns.md    | yes    | the pin as the switch on a staying bar (UP:9 asked for ✕; owner changed it 22 Nov evening); ⋯ ends with Customise bar…                                                                                                                                                                             |
 | 4   | Accessible                      | yes    | AB-09 keys; every button labelled; contrast AA; reduced motion: no slide                                                                                                                                                                                                                           |
 | 5   | i18n keys                       | yes    | `actionBar.*`: move, pin, unpin, close, more, customise, cut, copy, paste, pasteOptions, delete, editText, format, colour, size, font, highlight, align, list, boxStyle, thickness, resize, duplicate, turn, replay, convertToText, link, lockBox, makeCard, addToSummary, reviseMark, pasteFailed |
-| 6   | One Undo per change             | yes    | each content action is one Undo; bar layout undone by ✕ or Reset in the sheet                                                                                                                                                                                                                      |
+| 6   | One Undo per change             | yes    | each content action is one Undo; bar layout undone by the pin or Reset in the sheet                                                                                                                                                                                                                |
 | 7   | Speed budget                    | yes    | shows within 100 ms of the selection; state change in one frame; lazy chunk (`check:size`)                                                                                                                                                                                                         |
 | 8   | Device-neutral                  | yes    | 44 px, nothing hover-only (AB-N7), "On the iPad later" above                                                                                                                                                                                                                                       |
 | 9   | Flexible                        | yes    | Customise bar…: a set per state, reorder, on the bar or under ⋯, reset; same as Settings › Tool bar                                                                                                                                                                                                |

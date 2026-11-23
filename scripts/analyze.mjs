@@ -130,11 +130,11 @@ export function checkRules(page) {
   return out
 }
 
-/** Test files: e2e specs and part tests. */
+/** Test files: e2e specs and unit tests under src/ (part cards test there). */
 export function testTexts(root) {
   const files = [
     ...walk(join(root, 'e2e'), (f) => /\.spec\.ts$/.test(f)),
-    ...walk(join(root, 'src/design/parts'), (f) => /\.test\.tsx?$/.test(f)),
+    ...walk(join(root, 'src'), (f) => /\.test\.tsx?$/.test(f)),
   ]
   return files.map((f) => ({
     file: rel(root, f),

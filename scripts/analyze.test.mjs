@@ -207,3 +207,15 @@ describe('analyze', () => {
     expect(p.isV2).toBe(true)
   })
 })
+
+describe('analyze unit-test search', () => {
+  it('check 2: a scenario id in a src unit test naming the spec counts', () => {
+    const root = repo({ e2e: 'nothing here' })
+    mkdirSync(join(root, 'src/x'), { recursive: true })
+    writeFileSync(
+      join(root, 'src/x/demo.test.tsx'),
+      "it('demo S1 DM-S2', () => {})",
+    )
+    expect(analyze(root).rows[0].failed).toEqual([])
+  })
+})

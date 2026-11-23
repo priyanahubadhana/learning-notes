@@ -5,7 +5,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 ### 23 Nov 2026: Analyze v1 (phase 1A, M5, tooling only)
 
 - **What:** `npm run analyze` (scripts/analyze.mjs) reads every template-v2 spec and part card and checks: rule ids in a scenario, scenario ids in an e2e test, task ids in the bottom-layer table, the Builds on cell, and the private-placement ratchet (docs/metrics/ratchet.json, today 2). It writes docs/qa/analyze-report.md with the status each page may show; it never edits a spec. Wired into the push guard as a warning only. Today: 0 of 2 v2 pages pass (checks 1 and 2 fail on both), 88 old-template pages skipped.
-- **Why:** METHOD-v2 M5, scenarios S4 and S5. **Files:** scripts/analyze.mjs, scripts/analyze.test.mjs (15 tests), scripts/push-guard.mjs, package.json, docs/metrics/ratchet.json, docs/qa/analyze-report.md.
+- **Why:** METHOD-v2 M5, scenarios S4 and S5. **Files:** scripts/analyze.mjs, scripts/analyze.test.mjs (16 tests), scripts/push-guard.mjs, package.json, docs/metrics/ratchet.json, docs/qa/analyze-report.md.
 
 ### 23 Nov 2026: Action bar PC picture (phase 1A, mock-up only)
 

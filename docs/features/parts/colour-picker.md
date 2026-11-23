@@ -1,10 +1,10 @@
-# Part card: Colour picker
+# Part card: Colour selection bar
 
 | Status | Stage | Code                                               | Used by                           | Replaces                                        | Last change     |
 | ------ | ----- | -------------------------------------------------- | --------------------------------- | ----------------------------------------------- | --------------- |
 | Draft  | `1`   | `src/design/parts/ColourPicker.tsx` (the one file) | [action-bar.md](../action-bar.md) | none named yet (see "Private copies to retire") | 23 Nov 2026, M9 |
 
-Name: the brief said "Colour strip"; the owner's names rule (Q15, inventory section 5) says "pickers", never "strip", so the card uses "Colour picker" as in docs/FEATURES.md F-024.
+Name: the brief said "Colour strip"; the owner's names rule (Q15, inventory section 5) says "selection bars", never "strip", so the card uses "Colour selection bar" as in docs/FEATURES.md F-024.
 
 ## Job (the one job; no other code may do it)
 
@@ -12,24 +12,24 @@ Opens from the Action bar's Colour button and applies one colour to what is sele
 
 ## Looks and numbers
 
-- Card glass, radius of pickers (system.md §3, §5); `elev-2`; the chosen colour marked with the `accent` ring, not by colour alone.
-- Opens like a card (system.md §6 "card open"); closes at "simple picker closes" after a pick.
+- Card glass, radius of selection bars (system.md §3, §5); `elev-2`; the chosen colour marked with the `accent` ring, not by colour alone.
+- Opens like a card (system.md §6 "card open"); closes at "simple selection bar closes" after a pick.
 - Swatches, their number and order: see CP-OPEN-1.
 
 ## Rules
 
-- **CP-01** One click on a swatch applies it to the selection and closes the picker.
+- **CP-01** One click on a swatch applies it to the selection and closes the selection bar.
 - **CP-02** Opens next to the Colour button, inside the page area, never across the frame (PR:15).
 - **CP-03** Esc or a click elsewhere closes it with no change.
 - **CP-04** Every colour pair passes contrast in Day, Night and Sepia (system.md §1).
 - **CP-N1** A colour shown only by its fill, with no name for a screen reader.
-- **CP-N2** Two colour pickers for the same job (words and box share this one).
+- **CP-N2** Two colour selection bars for the same job (words and box share this one).
 
 ## Scenarios
 
 - **CP-S1, the plain case.** Given words selected, when I pick a colour, then the words take it and one Undo brings back the old colour.
-- **CP-S2, by key.** Given the picker open, when I arrow to a swatch and press Enter, then it applies.
-- **CP-S3, the thing that goes wrong.** Given the picker open, when I press Esc, then nothing changes and focus returns to Colour.
+- **CP-S2, by key.** Given the selection bar open, when I arrow to a swatch and press Enter, then it applies.
+- **CP-S3, the thing that goes wrong.** Given the selection bar open, when I press Esc, then nothing changes and focus returns to Colour.
 - Tests: one per scenario in `src/design/parts/ColourPicker.test.tsx`.
 
 ## On the iPad later: what changes, what does not
@@ -39,7 +39,7 @@ Opens from the Action bar's Colour button and applies one colour to what is sele
 
 ## Design and quality check
 
-Tokens: card glass, pickers radius, `elev-2`, `accent` ring; every swatch 44 px; click and arrows plus Enter; i18n `actionBar.colour` plus one key per colour name; one Undo per applied colour.
+Tokens: card glass, selection bars radius, `elev-2`, `accent` ring; every swatch 44 px; click and arrows plus Enter; i18n `actionBar.colour` plus one key per colour name; one Undo per applied colour.
 
 ## Builds on
 
@@ -52,7 +52,7 @@ None named: inventory section 3 names no code file; T1 of action-bar.md maps tod
 ## Open points
 
 - **CP-OPEN-1** The swatch set (how many, which, recent colours, a custom colour): not in the spec or the inventory.
-- **CP-OPEN-2** Highlight: does it use this picker with its own set, or its own part? The caret row lists Highlight both on the bar and in B/I ▾.
+- **CP-OPEN-2** Highlight: does it use this selection bar with its own set, or its own part? The caret row lists Highlight both on the bar and in B/I ▾.
 
 ## Fable attack read
 

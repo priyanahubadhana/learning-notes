@@ -10,13 +10,13 @@ This page is the one place to start. It is short on purpose: every section links
 
 **A premium second brain.** Like Notion in what it can hold. Like GoodNotes with the Apple Pencil. Like Figma in how freely you shape a page. Like Power BI in how it shows data. With recall cards like Anki.
 
-| Pillar                       | Letter | What it means for us                                                            | Where it stands today                                          |
-| ---------------------------- | ------ | ------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Notion: what it can hold     | N      | notebooks, pages, blocks, tags, links, databases, templates, search, summaries  | built; made bug-free in stage 1                                |
-| GoodNotes: the Apple Pencil  | G      | paper pages, ink, Lasso, text boxes, layers and Tape, selection with the Pencil | built in parts; the Pencil comes first in stage 2              |
-| Figma: shape the page freely | F      | boxes anywhere, layout tools, looks, pickers, customisable bars and layouts     | half built; the bars finished in stage 1                       |
-| Power BI: show the data      | P      | databases and views, dashboards, the study tracker                              | built in parts; stage 1 for databases, stage 1D for dashboards |
-| Anki: recall cards           | A      | cards, cloze, the due review, study modes                                       | built; stage 2                                                 |
+| Pillar                       | Letter | What it means for us                                                               | Where it stands today                                          |
+| ---------------------------- | ------ | ---------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Notion: what it can hold     | N      | notebooks, pages, blocks, tags, links, databases, templates, search, summaries     | built; made bug-free in stage 1                                |
+| GoodNotes: the Apple Pencil  | G      | paper pages, ink, Lasso, text boxes, layers and Tape, selection with the Pencil    | built in parts; the Pencil comes first in stage 2              |
+| Figma: shape the page freely | F      | boxes anywhere, layout tools, looks, selection bars, customisable bars and layouts | half built; the bars finished in stage 1                       |
+| Power BI: show the data      | P      | databases and views, dashboards, the study tracker                                 | built in parts; stage 1 for databases, stage 1D for dashboards |
+| Anki: recall cards           | A      | cards, cloze, the due review, study modes                                          | built; stage 2                                                 |
 
 Every row of the feature register carries its pillar letter, so a gap in a pillar shows at a glance. The inspirations behind them: docs/research/inspiration-apps.md, premium-design-2026-11.md, deep-research-2026-11.md.
 
@@ -67,7 +67,7 @@ Everything else in docs/plans/ (phase-plan, build-master-plan, the November rede
 
 ## 7. The names we use
 
-Tool bar (top, fixed) · Action bar (floats by the selection) · pickers (colour, size, font, thickness; open from a button) · Hold menu (press and hold on empty paper) · part cards (the shared building blocks, docs/features/parts/) · the register and F-ids · the train · the sheet (a confirm sheet) · the slice (the stage 1 editing path on the PC) · the pillars N, G, F, P, A.
+Tool bar (top, fixed) · Action bar (floats by the selection) · selection bars (colour, size, font, thickness; open from a button) · Hold menu (press and hold on empty paper) · part cards (the shared building blocks, docs/features/parts/) · the register and F-ids · the train · the sheet (a confirm sheet) · the slice (the stage 1 editing path on the PC) · the pillars N, G, F, P, A.
 
 ## 8. What we measure
 

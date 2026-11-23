@@ -2,7 +2,7 @@ Replaced by action-bar.md (22 Nov 2026); kept for history.
 
 # The smart selection bar (switch `select.smartBar`)
 
-Names (owner, 22 Nov 2026): this part is now called the Action bar (press-and-hold row: the Hold menu).
+Names (owner, 24 Nov 2026): this page is the record of the old bars by the selection, now the Action bar. The name Selection bar today means the row or card that opens from a bar button to choose a colour, size or font.
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 

@@ -8,8 +8,8 @@ The visible bar is the same short Goodnotes set as before: colour, size, Aa, B/I
 | --- | --- | --- |
 | Gear, Text tab (Aa), + (Edit bar) | No: they belong to the tool row | n/a |
 | Style ▾, Key point, Link, callout, spacing, Justify, Advanced (Format card) | ⋯ › Text options… (one entry) opens the same Format card | Same card |
-| Font ▾ | Font picker: current font ✓, Easy to read (Atkinson Hyperlegible), Classic (Literata), Handwritten (Patrick Hand), More fonts… (Inter, Lexend, JetBrains Mono, Caveat, OpenDyslexic, today's others). System fallbacks in the mock, no web fonts loaded | Same list in both |
-| Size ▾ | Size picker: number, slider, −/+ | Same picker. Acts on the selected box or words in the bar; in the Text tool it sets the size for what you write next (any number) |
+| Font ▾ | Font selection bar: current font ✓, Easy to read (Atkinson Hyperlegible), Classic (Literata), Handwritten (Patrick Hand), More fonts… (Inter, Lexend, JetBrains Mono, Caveat, OpenDyslexic, today's others). System fallbacks in the mock, no web fonts loaded | Same list in both |
+| Size ▾ | Size selection bar: number, slider, −/+ | Same selection bar. Acts on the selected box or words in the bar; in the Text tool it sets the size for what you write next (any number) |
 | Line spacing ▾ | Spacing button in the align picker | Same; acts on the selected box or words |
 | Bold, Italic, Underline, Strike, Highlight | B/I picker (5 buttons) | Same |
 | Text colour, Highlight colour | A tap on the button opens the colours (10 colours) | Same rule in both |

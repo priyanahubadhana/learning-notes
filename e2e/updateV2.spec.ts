@@ -603,6 +603,7 @@ test.describe('U0c scenarios S1 to S7 (two real builds)', () => {
   test.beforeEach(() => {
     site.serve('a')
     site.slow(0)
+    site.versionJson(null)
     site.hits.length = 0
   })
 
@@ -719,24 +720,39 @@ test.describe('U0c scenarios S1 to S7 (two real builds)', () => {
     page,
   }) => {
     site.slow(100)
+    // WebKit can finish the whole restart between two checks of the test, so
+    // the notice and the blocked screen are recorded as they happen.
+    await page.addInitScript(() => {
+      new MutationObserver(() => {
+        if (!document.querySelector('[data-mandatory-update]')) return
+        const blocked = document.getElementById('root')?.hasAttribute('inert')
+        try {
+          if (blocked || !sessionStorage.getItem('s2seen'))
+            sessionStorage.setItem('s2seen', blocked ? 'blocked' : 'open')
+        } catch {
+          /* no storage */
+        }
+      }).observe(document, { subtree: true, childList: true, attributes: true })
+    })
     await open(page)
     // The live version.json says: must-have (a higher level).
-    await page.route('**/version.json*', (r) =>
-      r.fulfill({
-        json: {
-          commit: COMMIT_B,
-          required: true,
-          level: 99,
-          reason: 'storage',
-        },
-      }),
-    )
+    site.versionJson({
+      commit: COMMIT_B,
+      required: true,
+      level: 99,
+      reason: 'storage',
+    })
     site.serve('b')
     await comeToFront(page)
-    await expect(page.locator('[data-mandatory-update]')).toBeVisible({
-      timeout: 60_000,
-    })
-    expect(await isBlocked(page)).toBe(true)
+    await expect
+      .poll(
+        () =>
+          page
+            .evaluate(() => sessionStorage.getItem('s2seen'))
+            .catch(() => null),
+        { timeout: 60_000 },
+      )
+      .toBe('blocked')
     await expect
       .poll(() => running(page).catch(() => ''), { timeout: 200_000 })
       .toBe(entryOf('b'))

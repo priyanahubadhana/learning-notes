@@ -85,6 +85,8 @@ export interface Site {
   serve(dir: 'a' | 'b'): void
   /** Each file under /assets/ answers this many ms late (a slow line). */
   slow(ms: number): void
+  /** Answers /version.json with this instead of the build's (null: the build's). Works through the service worker, which page.route does not on WebKit. */
+  versionJson(json: unknown | null): void
   current(): 'a' | 'b'
   close(): Promise<void>
 }
@@ -93,6 +95,7 @@ export interface Site {
 export async function startSite(port: number): Promise<Site> {
   let dir: 'a' | 'b' = 'a'
   let lag = 0
+  let versionOverride: unknown | null = null
   const hits: Hit[] = []
   const { all, per } = siteRules()
   const server: Server = createServer(async (req, res) => {
@@ -112,6 +115,11 @@ export async function startSite(port: number): Promise<Site> {
     else if (file.endsWith('index.html'))
       headers['Cache-Control'] = 'public, max-age=0, must-revalidate'
     hits.push({ t: Date.now(), dir, path, status })
+    if (path === '/version.json' && versionOverride) {
+      headers['Content-Type'] = 'application/json'
+      res.writeHead(200, headers)
+      return void res.end(JSON.stringify(versionOverride))
+    }
     if (lag && path.startsWith('/assets/'))
       await new Promise((r) => setTimeout(r, lag))
     if (status === 404) {
@@ -128,6 +136,7 @@ export async function startSite(port: number): Promise<Site> {
     hits,
     serve: (d) => (dir = d),
     slow: (ms) => (lag = ms),
+    versionJson: (j) => (versionOverride = j),
     current: () => dir,
     close: () => new Promise((r) => server.close(() => r())),
   }

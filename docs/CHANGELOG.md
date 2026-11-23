@@ -6,6 +6,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - **What:** the bar's area now excludes panels lying over the page; a pinned bar with no room folds (the pin is kept); left and right dock zones are 96 px and a cancelled touch in a zone still docks; the grip, the bar, its strips and the ⋯ list stop presses at their surface and the page gets no touch while the grip is held; the bar's area is re-read when the page column changes.
 - **Why:** owner's iPad check, 24 Nov 03:21 to 03:26: bar over the sidebar, no side docking, grip typed into the title, no bar on a new box.
+- **Not proven (hypotheses, to be tested on the real iPad):** #61 (the 96 px side zones and the cancelled-touch drop are my guess at why the finger never docked) and #63 (the stale area is a real bug and is fixed, but the owner's first-show failure was not reproduced in a browser).
 - **Files:** src/paper/v2/oneBarDockModel.ts (+ .test.ts), oneBarArea.ts, oneBarGrip.ts, oneBarDock.tsx, oneBarPlaceStore.ts, PinnedBoxBar.tsx, BoxBarV2.tsx, OneBar.tsx, BoxMoreHost.tsx, oneBarB.css, e2e/tb2-bar-b.spec.ts, docs/features/selection-bar.md.
 
 ### 24 Nov 2026: the download poll no longer wipes the restart prompt (fixes #58)

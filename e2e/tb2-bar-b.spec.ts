@@ -389,7 +389,7 @@ test('B10. (#60) a panel opening over the page: the bar stays in the page column
   const side = await openSidebar(page)
   await expect(side).toBeVisible()
   await page.waitForTimeout(600)
-  const panel = await rect(page.getByTestId('left-panel'))
+  const panel = await rect(side.first())
   const b = await rect(bar(page))
   // Beside the panel or folded back beside its box, never over it.
   const over = b.x < panel.x + panel.width && b.x + b.width > panel.x
@@ -421,18 +421,19 @@ test('B12. (#63) with the bar pinned, a new box tapped shows the bar at its plac
 }) => {
   const first = await ready(page, 'Alpha beta', 300)
   const a = await area(page)
-  await drag(page, { x: (a.l + a.r) / 2, y: a.b - 24 })
+  await drag(page, { x: (a.l + a.r) / 2, y: a.t + 24 })
   await page.mouse.up()
   await expect(bar(page)).toHaveCount(1)
   const placed = await rect(bar(page))
   void first
+  await page.keyboard.press('Escape')
+  await page.waitForTimeout(300)
   const next = await addBox(page, 'Second box', 120)
   await pick(page, next)
   await expect(bar(page)).toHaveCount(1)
   const now = await rect(bar(page))
   expect(Math.abs(now.x - placed.x)).toBeLessThan(2)
-  expect(now.y + now.height).toBeLessThanOrEqual(a.b + 1)
-  expect(now.y).toBeGreaterThanOrEqual(a.t)
+  expect(Math.abs(now.y - placed.y)).toBeLessThan(2)
 })
 
 test('B13. (#63) unpinned, a new box tapped shows the bar beside it at once', async ({

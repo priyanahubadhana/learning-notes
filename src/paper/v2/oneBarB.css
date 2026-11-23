@@ -90,3 +90,6 @@ html[data-bar-dragging] [data-paper-box] {
   user-select: none;
   -webkit-user-select: none;
 }
+html[data-bar-dragging] [data-box-bar] {
+  pointer-events: auto;
+}

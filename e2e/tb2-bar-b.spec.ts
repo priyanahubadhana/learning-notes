@@ -358,43 +358,117 @@ for (const side of ['bottom', 'top', 'left', 'right'] as const) {
  * text behind it; the bar stays in the page column; it docks on the sides; a
  * new box shows the bar at its pinned place at once.
  */
+const title = (page: Page) => page.locator('[data-page-title]')
+
+/** Moves the bar by its grip so it lies over the page title (a free drop). */
+async function barOverTitle(page: Page) {
+  const t = await rect(title(page))
+  await drag(page, { x: t.x + 60, y: t.y + t.height / 2 })
+  await page.mouse.up()
+  await expect(page.getByTestId('ob-grip')).toBeVisible()
+}
+
 test('B9. (#62) dragging the grip over the words selects nothing and types nothing', async ({
   page,
 }) => {
   const box = await ready(page, 'Alpha beta', 300)
   const before = await words(box).innerText()
-  const a = await area(page)
   const w = await rect(words(box))
   await drag(page, { x: w.x + 30, y: w.y + w.height / 2 })
   await expect(page.locator('html')).toHaveAttribute('data-bar-dragging', '')
   await page.mouse.up()
-  await expect(page.locator('html')).not.toHaveAttribute('data-bar-dragging')
   const sel = await page.evaluate(() => window.getSelection()?.toString() ?? '')
   expect(sel).toBe('')
   await expect(page.locator('.bn-editor.ProseMirror-focused')).toHaveCount(0)
   await page.keyboard.type('Q')
   expect(await words(box).innerText()).toBe(before)
-  void a
 })
 
-test('B10. (#60) a panel opening over the page: the bar stays in the page column, never over the panel', async ({
+test('B9b. (#62) a finger tap on the grip, with the bar over the page title, never puts the cursor or typing in the title', async ({
   page,
 }) => {
-  await page.setViewportSize({ width: 834, height: 1194 })
+  await ready(page, 'Alpha beta', 300)
+  const name = await title(page).inputValue()
+  await barOverTitle(page)
+  const g = await rect(page.getByTestId('ob-grip'))
+  const t = await rect(title(page))
+  expect(g.y + g.height).toBeGreaterThan(t.y)
+  expect(g.y).toBeLessThan(t.y + t.height)
+  await page.touchscreen.tap(g.x + g.width / 2, g.y + g.height / 2)
+  await page.waitForTimeout(150)
+  await page.keyboard.type('N')
+  await page.waitForTimeout(500)
+  expect(await title(page).inputValue()).toBe(name)
+  await expect(title(page)).not.toBeFocused()
+  // The tap alone did not move or remount the bar.
+  const g2 = await rect(page.getByTestId('ob-grip'))
+  expect(Math.abs(g2.x - g.x) + Math.abs(g2.y - g.y)).toBeLessThan(2)
+})
+
+test('B9c. (#62) a finger tap on a bar button over the title keeps the title untouched', async ({
+  page,
+}) => {
+  await ready(page, 'Alpha beta', 300)
+  const name = await title(page).inputValue()
+  await barOverTitle(page)
+  const b = await rect(btn(page, 'Text colour'))
+  await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2)
+  await page.waitForTimeout(200)
+  await page.keyboard.type('N')
+  expect(await title(page).inputValue()).toBe(name)
+  await expect(title(page)).not.toBeFocused()
+})
+
+for (const [label, width, height] of [
+  ['upright', 834, 1194],
+  ['sideways', 1194, 834],
+] as const) {
+  test(`B10. (#60) iPad ${label}: a panel over the page, the bar never over it, the pin is kept`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height })
+    await ready(page, 'Alpha beta', 300)
+    const a = await area(page)
+    await drag(page, { x: (a.l + a.r) / 2, y: a.b - 24 })
+    await page.mouse.up()
+    await expect(page.getByTestId('ob-pin')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    const side = await openSidebar(page)
+    await expect(side).toBeVisible()
+    await page.waitForTimeout(700)
+    const panel = await rect(side.first())
+    const b = await rect(bar(page))
+    // Beside the panel or folded back beside its box, never over it.
+    const over = b.x < panel.x + panel.width && b.x + b.width > panel.x
+    const overY = b.y < panel.y + panel.height && b.y + b.height > panel.y
+    expect(over && overY).toBe(false)
+  })
+}
+
+test('B10b. (#60) the pin is kept while the bar is folded, and the bar is back at its pinned place when the room is back', async ({
+  page,
+}) => {
   await ready(page, 'Alpha beta', 300)
   const a = await area(page)
-  await drag(page, { x: (a.l + a.r) / 2, y: a.b - 24 })
+  await drag(page, { x: a.r - 24, y: (a.t + a.b) / 2 })
   await page.mouse.up()
-  await expect(bar(page)).toHaveCount(1)
-  const side = await openSidebar(page)
-  await expect(side).toBeVisible()
-  await page.waitForTimeout(600)
-  const panel = await rect(side.first())
-  const b = await rect(bar(page))
-  // Beside the panel or folded back beside its box, never over it.
-  const over = b.x < panel.x + panel.width && b.x + b.width > panel.x
-  const overY = b.y < panel.y + panel.height && b.y + b.height > panel.y
-  expect(over && overY).toBe(false)
+  const placed = await rect(bar(page))
+  // The page column shrinks to a sliver: the pinned bar has no room and folds.
+  await page.setViewportSize({ width: 300, height: 1194 })
+  await page.waitForTimeout(700)
+  const stored = await page.evaluate(() =>
+    Object.entries(localStorage).filter(([k]) => k.includes('boxBarPin')),
+  )
+  expect(JSON.stringify(stored)).toContain('right')
+  // The room is back: the bar returns to its pinned place.
+  await page.setViewportSize({ width: 1336, height: 1100 })
+  await page.waitForTimeout(900)
+  await expect(page.getByTestId('ob-pin')).toBeVisible()
+  const back = await rect(bar(page))
+  expect(back.height).toBeGreaterThan(back.width)
+  expect(Math.abs(back.x - placed.x)).toBeLessThan(2)
 })
 
 for (const side of ['left', 'right'] as const) {
@@ -416,31 +490,58 @@ for (const side of ['left', 'right'] as const) {
   })
 }
 
-test('B12. (#63) with the bar pinned, a new box tapped shows the bar at its place at once', async ({
+/** A brand-new box made by a finger tap on the empty page: the caret is in it. */
+async function newBoxByTap(page: Page) {
+  const before = await page.locator(EXTRA).count()
+  const main = await rect(page.locator('[data-paper-box="main"]'))
+  const sheetEl = page.locator('[data-paper-sheet="1"]')
+  const sheet = (await sheetEl.count()) ? await rect(sheetEl) : main
+  let bottom = 0
+  const all = page.locator('[data-paper-box]')
+  for (let i = 0; i < (await all.count()); i++) {
+    const r = await rect(all.nth(i))
+    bottom = Math.max(bottom, r.y + r.height)
+  }
+  await page.touchscreen.tap(sheet.x + sheet.width * 0.3, bottom + 120)
+  const boxes = page.locator(EXTRA)
+  await expect(boxes).toHaveCount(before + 1)
+  await expect(boxes.nth(before).locator('.bn-editor')).toBeFocused()
+  return boxes.nth(before)
+}
+
+test('B12. (#63) bar pinned: a brand-new box, a finger tap, the caret inside: the bar is at its pinned place at once', async ({
   page,
 }) => {
-  const first = await ready(page, 'Alpha beta', 300)
+  await start(page, 'Bar' + Math.random().toString(36).slice(2, 6))
+  const first = await newBoxByTap(page)
+  await page.keyboard.type('Alpha')
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  await pick(page, first)
   const a = await area(page)
   await drag(page, { x: (a.l + a.r) / 2, y: a.t + 24 })
   await page.mouse.up()
   await expect(bar(page)).toHaveCount(1)
   const placed = await rect(bar(page))
-  void first
   await page.keyboard.press('Escape')
   await page.waitForTimeout(300)
-  const next = await addBox(page, 'Second box', 120)
-  await pick(page, next)
+  await newBoxByTap(page)
+  // The caret is in the new box and the bar is already at its place.
   await expect(bar(page)).toHaveCount(1)
   const now = await rect(bar(page))
   expect(Math.abs(now.x - placed.x)).toBeLessThan(2)
   expect(Math.abs(now.y - placed.y)).toBeLessThan(2)
 })
 
-test('B13. (#63) unpinned, a new box tapped shows the bar beside it at once', async ({
+test('B13. (#63) bar not pinned: it steps aside while the caret blinks (the approved picture), and shows at once when the box is picked', async ({
   page,
 }) => {
   await start(page, 'Bar' + Math.random().toString(36).slice(2, 6))
-  const box = await addBox(page, 'Alpha', 120)
+  const box = await newBoxByTap(page)
+  // By design (docs/mockups/box-bar/index.html frame 15, BoxBarV2 `typing`):
+  // an unpinned bar hides while a caret blinks in its box.
+  await expect(bar(page)).toHaveCount(0)
+  await page.keyboard.type('Alpha')
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
   await pick(page, box)
   await expect(bar(page)).toHaveCount(1)
   const b = await rect(bar(page))

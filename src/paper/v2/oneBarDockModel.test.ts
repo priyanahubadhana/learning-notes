@@ -8,6 +8,9 @@ import {
   barFits,
   clampFree,
   ZONE_SIDE,
+  isTap,
+  TAP_SLOP,
+  HOLD_AFTER_MS,
   type BarPlace,
 } from './oneBarDockModel'
 
@@ -147,5 +150,19 @@ describe('issue #63: a first show at a pinned place', () => {
     expect(
       clampFree({ left: 5000, top: -40 }, area, { w: 300, h: 56 }),
     ).toEqual({ left: 592, top: 68 })
+  })
+})
+
+describe('issue #62: a tap on the grip is a tap, not a drop', () => {
+  it('a touch that stays within the slop is a tap', () => {
+    expect(isTap({ x: 100, y: 100 }, { x: 100, y: 100 })).toBe(true)
+    expect(isTap({ x: 100, y: 100 }, { x: 104, y: 103 })).toBe(true)
+  })
+  it('a touch that travels past the slop is a drag', () => {
+    expect(isTap({ x: 100, y: 100 }, { x: 100 + TAP_SLOP, y: 100 })).toBe(false)
+    expect(isTap({ x: 100, y: 100 }, { x: 80, y: 130 })).toBe(false)
+  })
+  it('the page stays shielded for a moment after the grip is let go', () => {
+    expect(HOLD_AFTER_MS).toBeGreaterThanOrEqual(400)
   })
 })

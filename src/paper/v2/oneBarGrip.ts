@@ -1,17 +1,30 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type PointerEvent,
-  type SyntheticEvent,
-} from 'react'
+import { useRef, useState, type PointerEvent, type SyntheticEvent } from 'react'
 import { dockArea } from './oneBarArea'
 import {
+  HOLD_AFTER_MS,
+  isTap,
   placeAfterDrop,
   zoneAt,
   type BarPlace,
   type BarSide,
 } from './oneBarDockModel'
+
+let releaseTimer: ReturnType<typeof setTimeout> | undefined
+/**
+ * The page under the bar gets no touch while the grip is held and for a moment
+ * after (the click an iPad sends after a touch must not land on the words
+ * under the bar). Module level: it outlives the grip, which may unmount on a drop.
+ */
+function shield(on: boolean) {
+  const root = document.documentElement
+  clearTimeout(releaseTimer)
+  if (on) root.setAttribute('data-bar-dragging', '')
+  else
+    releaseTimer = setTimeout(
+      () => root.removeAttribute('data-bar-dragging'),
+      HOLD_AFTER_MS,
+    )
+}
 
 /**
  * Moving the one bar by its grip (box bar part B). While it is held the page
@@ -34,6 +47,9 @@ export function useGripDrag({
   const grab = useRef<{ dx: number; dy: number } | null>(null)
   const last = useRef<{ left: number; top: number }>({ left: 0, top: 0 })
   const lastZone = useRef<BarSide | null>(null)
+  // Where the finger came down, and whether it has travelled past a tap.
+  const down = useRef<{ x: number; y: number } | null>(null)
+  const moving = useRef(false)
 
   const free = (e: PointerEvent) => {
     const g = grab.current
@@ -49,6 +65,15 @@ export function useGripDrag({
   }
   const end = (e: PointerEvent, drop: boolean) => {
     if (!grab.current) return
+    const travelled = moving.current
+    moving.current = false
+    down.current = null
+    shield(false)
+    if (!travelled) {
+      // A tap on the grip moves nothing: no drop, no remount, the press ends here.
+      grab.current = null
+      return
+    }
     const at = free(e)
     const a = dockArea()
     // A touch the system cancels (a finger at the very edge of the iPad) still
@@ -62,13 +87,6 @@ export function useGripDrag({
     if (drop) onDrop(placeAfterDrop({ x: e.clientX, y: e.clientY }, at, a))
     else if (seen && seen !== 'free') onDrop({ side: seen, ...at })
   }
-  // While the grip is held the page under the bar gets no touch at all (#62).
-  useEffect(() => {
-    if (!dragging) return
-    const root = document.documentElement
-    root.setAttribute('data-bar-dragging', '')
-    return () => root.removeAttribute('data-bar-dragging')
-  }, [dragging])
   // The grip never reaches the editor under it: no caret, no selection, no focus.
   const stop = (e: SyntheticEvent) => {
     e.preventDefault()
@@ -96,10 +114,21 @@ export function useGripDrag({
         grab.current = { dx: e.clientX - r.left, dy: e.clientY - r.top }
         e.currentTarget.setPointerCapture(e.pointerId)
         last.current = { left: r.left, top: r.top }
-        setDragging(true)
+        down.current = { x: e.clientX, y: e.clientY }
+        moving.current = false
+        shield(true)
       },
       onPointerMove: (e: PointerEvent<HTMLElement>) => {
         if (!grab.current) return
+        if (!moving.current) {
+          if (
+            down.current &&
+            isTap(down.current, { x: e.clientX, y: e.clientY })
+          )
+            return
+          moving.current = true
+          setDragging(true)
+        }
         last.current = free(e)
         const z = zoneAt({ x: e.clientX, y: e.clientY }, dockArea())
         lastZone.current = z

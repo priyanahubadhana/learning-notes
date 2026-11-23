@@ -159,3 +159,17 @@ export function clampFree(
     top: Math.max(a.top + EDGE, Math.min(p.top, a.bottom - EDGE - size.h)),
   }
 }
+
+/** A touch that moves less than this (px) is a tap on the grip, not a drag. */
+export const TAP_SLOP = 8
+
+/** The page stays shielded this long after the grip is let go (ms): the click
+ * an iPad sends after a touch must not land on the words under the bar. */
+export const HOLD_AFTER_MS = 450
+
+export function isTap(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+): boolean {
+  return Math.hypot(to.x - from.x, to.y - from.y) < TAP_SLOP
+}

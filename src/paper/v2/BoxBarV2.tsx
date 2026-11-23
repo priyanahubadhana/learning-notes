@@ -79,6 +79,8 @@ export default function BoxBarV2({
   // The ⋯ list is a lazy piece: fetch it now, so the first ⋯ tap shows it at once.
   useEffect(() => {
     void import('./BoxMoreHost')
+    // The page's bar (a pinned place) is a lazy piece too: have it ready.
+    void import('./PinnedBoxBar')
   }, [])
   // While a caret blinks in the box (typing), the bar steps aside; with words
   // selected, or the box only picked, it stays and acts on them.

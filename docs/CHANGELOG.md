@@ -7,6 +7,13 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** docs/research/agent-practice-2026-11-23.md: twelve findings from Anthropic (Claude Code subagents, hooks, best practices, agent teams, two engineering posts), Google (Gemini CLI subagents, ADK compaction and loops) and three papers on long context, each set against what we do; eight keep, try or drop proposals for M0.
 - **Why:** phase 1A row M7, one short web pass to feed M0. **Files:** the research page, docs/CHANGELOG.md.
 
+### 23 Nov 2026: the part cards (phase 1A, M9, documents only)
+
+- **What:** eleven part cards on the part template, one screen each, in docs/features/parts/: bar-shell, bar-place, hover-names, colour-picker, size-picker, font-picker, more-menu, customiser, hold-menu, drag-and-dock, keys-and-shortcuts. Each has its one job, who uses it, rules and scenarios with ids, "On the iPad later", the Design and quality line, Builds on, private copies to retire, open points, and an empty box waiting for Fable's attack read. docs/FEATURES.md: the spec cell of F-024, F-027 and F-028 points at the cards.
+- **Names:** the brief's "Colour strip", "Size strip", "Font strip" and "Hold strip" are carded as Colour picker, Size picker, Font picker and Hold menu, following the owner's names rule (Q15, never "strip") and the register F-024.
+- **Why:** action-bar.md names the parts Bar shell and Bar place "to be carded in M9"; every bar job gets one owner before the build. Nothing open in the inventory or the spec is decided here: each gap is an open point on its card.
+- **Files:** docs/features/parts/ (eleven new files), docs/FEATURES.md, docs/CHANGELOG.md.
+
 ### 23 Nov 2026: Action bar PC picture (phase 1A, mock-up only)
 
 - **Review fixes (23 Nov):** grip 44 px hit area; non-token numbers replaced (bar padding 6 to 8, wide button and tip padding 10 to 8, badge and Size-A text 9 and 12 to 11 micro); Day glass inner hairline; picture frame taller so the bar stays inside the paper; Enter marked as an open point; S13 rewritten to the one-press Paste; one DECISIONS review line (AB-05 against the Pinned row).

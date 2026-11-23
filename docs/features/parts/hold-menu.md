@@ -54,6 +54,7 @@ None named: inventory section 3 names no code file; page-menus.md's current Hold
 - **HM-OPEN-1** What the Hold menu's ⋯ opens (the bar's ⋯ list at the pointer?): not in the spec.
 - **HM-OPEN-2** The keyboard way to open it (Shift+F10 or the menu key): not in AB-09.
 - **HM-OPEN-3** Right-click on empty paper (no selection, no caret): the Hold menu, or nothing? Not in the spec.
+- **HM-OPEN-4** Answered 24 Nov (owner): "always". A right-click opens the Hold menu the same way everywhere, also on a single misspelled word; the browser's spelling menu is not kept. Against: the right-click spelling fix is lost; a spelling pop-up at the typing cursor is a stage 3 idea (docs/IDEAS.md).
 
 ## Fable attack read
 

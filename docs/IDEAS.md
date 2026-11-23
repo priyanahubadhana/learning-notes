@@ -1,5 +1,7 @@
 # Ideas (parked)
 
+- **24 Nov 2026 · Spelling pop-up at the cursor (owner; later, stage 3 refinement):** when the typing cursor rests in a misspelled word, a small pop-up shows the suggestion (as Google Docs does; the owner's two screenshots of 24 Nov); nothing shows when the cursor is elsewhere. Right-click stays the Hold menu everywhere (HM-OPEN-4). Not in stages 1 and 2.
+
 - **22 Nov 2026 · Tool previews on hold (owner; later, stage 2 polish):** press-and-hold on a tool bar icon plays a small preview of what the tool does, like Photoshop's tool tips; for new users; a setting to turn it off; hover keeps showing the name. Source: principles.md Q12.
 
 New ideas that come up mid-build are parked here, not added to the current phase.

@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: the owner's first look at the Action bar picture, right-click answered (docs only)
+
+- **What:** right-click answered "always" (HM-OPEN-4 in the Hold menu card; the spelling pop-up at the cursor parked for stage 3 in IDEAS.md); AB-05 reworded (⋯ always shows ▾); the owner's four comments on the Action bar PC picture and Fable's check of it against the design principles logged in DECISIONS.md with the picks for the one redraw; STATE "Needs you" and the proof-run note updated.
+- **Why:** the owner's answers of 24 Nov; the picture is not approved yet. **Files:** docs/DECISIONS.md, docs/features/action-bar.md, docs/features/parts/hold-menu.md, docs/IDEAS.md, docs/STATE.md, docs/CHANGELOG.md.
+
 ### 23 Nov 2026: docs site, home order and badges (phase 1A, site only)
 
 - **What:** the home list starts with the master plan, then State and the feature register, then the rest; a "Stage 1 · 2 · 3" badge on the home page and on each page header (read from the page's own Stage cell); Pillar letters in the register tables shown as small badges; "Must never happen" blocks in a full red-bordered box.

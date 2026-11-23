@@ -210,7 +210,7 @@ Made with Spec Kit after the confirm sheet is all Yes. Files: the bar under `src
 - **AB-12** Paste ▾ keeps the last format per notebook in the notebook's settings; one press pastes at once in that format at the target; ▾ opens the format list, a pick pastes and stores that format; Escape or a tap elsewhere closes the list without pasting; every paste is one Undo (owner, 22 Nov evening; the preview of the afternoon is dropped).
 - **AB-13** Drag: ⠿ moves the bar along its current line; dropping within 24 px of an edge docks it there (top, left, right, bottom); the dock is stored like the pin (AB-08).
 - **AB-04** Changing state rebuilds the tools in one frame; the bar's left edge and top stay within 1 px (SB numbers).
-- **AB-05** ⋯ shows ▾ when its list has more than Customise bar…; Customise bar… is always last.
+- **AB-05** ⋯ always shows ▾, also when its list holds only Customise bar… (owner, 24 Nov; the case against: one extra tap for a list of one); Customise bar… is always last.
 - **AB-06** Box style opens the approved Box style card (Presets, Advanced); Font opens the three quick fonts and More fonts…, each in its look; Size opens the slider strip.
 - **AB-07** Unpinned place: the first free of the five; never over the selected words, never off the screen.
 - **AB-08** Pin stores the place on the device; pinned stays on every page and after a restart; tapping the filled pin unpins and hides until the next selection; no ✕ (owner, 22 Nov evening, artifact comment: the pin image itself adds and removes the bar; no separate ✕).

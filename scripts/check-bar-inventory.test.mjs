@@ -42,18 +42,24 @@ describe('check-bar-inventory (AB-02)', () => {
       'A box',
       'A picture',
       'Pinned, nothing selected',
+      'Pinned, Keep bar open on',
     ])
     expect(
       row('A box')
         .bar.slice(0, 2)
         .map((t) => t.name),
     ).toEqual(['⠿', 'pin'])
+    // Folded (owner, 24 Nov): the round pin button, which is also the move handle.
     expect(row('Pinned, nothing selected').bar.map((t) => t.name)).toEqual([
+      '⠿',
+      'pin',
+    ])
+    expect(row('Pinned, nothing selected').bar[1].flag).toBe('filled')
+    expect(row('Pinned, Keep bar open on').bar.map((t) => t.name)).toEqual([
       '⠿',
       'pin',
       '⋯▾',
     ])
-    expect(row('Pinned, nothing selected').bar[1].flag).toBe('filled')
   })
 
   it('parses flags like "Cut (grey)"', () => {

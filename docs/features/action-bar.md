@@ -38,6 +38,7 @@ PC drawn (23 Nov, waiting for the owner's yes): docs/mockups/action-bar/index.ht
 - **Pinned keeps place.** A pinned bar keeps its place and only changes its tools.
 - **Pinned is frame.** Once pinned it joins the app frame; nothing covers it.
 - **The pin is the switch.** The pin image shows empty when the bar floats and filled when it is pinned; tapping the filled pin unpins and hides the bar until the next selection. There is no separate ✕ (owner, 22 Nov evening, artifact comment: the pin image itself adds and removes the bar; no separate ✕).
+- **Pinned folds (owner, 24 Nov).** A pinned bar with nothing selected folds into a small round pin button at its place. A selection opens the bar there by itself; when the selection ends it folds again; a click on the round button opens it too. The round button drags and docks like the bar and keeps its place. "Keep bar open", a row in ⋯ shown only when pinned, stops the folding: the bar then stays open with nothing selected. The fold replaces the nearly empty "pin and ⋯" bar as the default. The tool table row and the pictures change together in the redraw (the script reads the table).
 - **Edit is Customise.** Edit = "Customise bar…", the last entry inside ⋯ (owner, 22 Nov, R1).
 - **⋯ with ▾.** One ⋯, always last, with a small ▾ when more exists (Q18).
 - **Hold menu.** Hold or right-click opens the Hold menu: the state's ending, at the pointer.
@@ -46,7 +47,7 @@ PC drawn (23 Nov, waiting for the owner's yes): docs/mockups/action-bar/index.ht
 - **PC.** The same bar, plus hover names and right-click; every action also by key.
 - **Hover names.** Hover (mouse or Pencil) shows a button's name; nothing is hover-only.
 - **44 px.** Every target 44 px always; Compact tightens spacing only (Q17).
-- **Shapes.** Menus radius 8, pickers 20, sheets 24; toast is the bottom-right pill (Q4, Q5).
+- **Shapes.** Menus radius 8, selection bars 20, sheets 24; toast is the bottom-right pill (Q4, Q5).
 - **One red.** Delete is the only red button.
 - **One bar in stage 1.** One customisable bar; presets (Edit, Study, Auto) wait for stage 2.
 - **Study set kept.** Study later: Highlight, Make card, Add to summary, Colour, then the ending.
@@ -69,7 +70,7 @@ PC drawn (23 Nov, waiting for the owner's yes): docs/mockups/action-bar/index.ht
 
 ## The tool table (the checklist; the script reads it)
 
-Every bar starts with ⠿ (move) and the pin (filled when pinned; tapping it again unpins and hides; no ✕). "B/I ▾" opens Bold, Italic, Underline, Strike, Highlight.
+Every bar starts with ⠿ (move) and the pin (filled when pinned; tapping it again unpins and hides; no ✕). Pinned with nothing selected, the bar is folded into one round pin button (44 px, filled pin, accent tint) that is also the move handle; "Keep bar open" (ticked in ⋯▾, pinned only) keeps the full bar instead. "B/I ▾" opens Bold, Italic, Underline, Strike, Highlight.
 
 <!-- tool-table:start -->
 
@@ -79,7 +80,8 @@ Every bar starts with ⠿ (move) and the pin (filled when pinned; tapping it aga
 | Words selected           | 1     | B/I ▾, Colour, Size, Font, Highlight, Cut, Copy, Paste ▾, Delete, ⋯▾                             | Link, Make card, Add to summary, Revise mark, Customise bar…                                |
 | A box                    | 1     | Edit text, B/I ▾, Colour, Size, Font, Align ▾, List ▾, Box style, Cut, Copy, Paste ▾, Delete, ⋯▾ | Duplicate, Lock box, Make card, Add to summary, Revise mark, Customise bar…                 |
 | A picture                | 1     | Cut, Copy, Paste ▾, Delete, ⋯▾                                                                   | Duplicate, Make card, Add to summary, Customise bar…                                        |
-| Pinned, nothing selected | 1     | pin (filled), ⋯▾                                                                                 | Customise bar…                                                                              |
+| Pinned, nothing selected | 1     | pin (filled)                                                                                     |                                                                                             |
+| Pinned, Keep bar open on | 1     | pin (filled), ⋯▾                                                                                 | Keep bar open, Customise bar…                                                               |
 | A drawing                | 2     | Colour, Thickness, Cut, Copy, Paste ▾, Delete, ⋯▾                                                | Turn, Resize, Duplicate, Replay, Convert to text, Make card, Add to summary, Customise bar… |
 | Mixed                    | 2     | Edit text, Colour, Thickness, Resize, Duplicate, Cut, Copy, Paste ▾, Delete, ⋯▾                  | Make card, Add to summary, Customise bar…                                                   |
 | PC mouse notes           | 1     | the row of the selected state, unchanged; every button names itself on hover                     | the same; right-click opens the Hold menu; keys in AB-09                                    |
@@ -99,6 +101,7 @@ Every bar starts with ⠿ (move) and the pin (filled when pinned; tapping it aga
 - **S6, mixed (stage 2).** Given a box with ink on it selected, then the mixed row shows, Colour and Thickness included.
 - **S7, PC mouse.** Given words selected on the PC, when I hover Font, then "Font" shows; Ctrl+C copies.
 - **S8, pin.** Given I pin the bar at the top left, when I select a box, then it stays there and shows the box row with the filled pin; tapping the pin unpins and hides it.
+- **S15, fold (owner, 24 Nov).** Given the bar is pinned at the top left and nothing is selected, then only the round pin button shows there; when I select words, the bar opens at that place with the words row; when I click away, it folds back. Given "Keep bar open" is on, when I click away, then the bar stays open.
 - **S9, Edit.** Given ⋯ is open, when I choose Customise bar…, then the Customise bar sheet opens on the state I am in.
 - **S10, phone overflow (stage 3).** Given a phone and a box, then the ending shows in full and the extra tools sit first under ⋯.
 - **S11, Hold menu.** Given words selected and the bar unpinned, when I right-click them, then the Hold menu opens and the bar hides until it closes.
@@ -175,14 +178,14 @@ Every stage 1 scenario passes on chromium; the checklist script is green on the 
 
 ### Builds on
 
-| Part card or spec                     | Used for                                                                  |
-| ------------------------------------- | ------------------------------------------------------------------------- |
-| selection-bar.md (replaced)           | history: place order, strips, edge cases, SB-N lines folded into AB-N     |
-| text-select.md                        | what counts as words selected, caret after an action                      |
-| page-menus.md                         | the Hold menu strip (Cut, Copy, Paste ▾, Delete, ⋯); reused, not rebuilt  |
-| `Bar shell` (card in M9)              | grip, pin (the switch), buttons, ⋯▾, hover names, sizes                   |
-| `Bar place` (card in M9)              | the five places, floating, pinned place, never over the selection         |
-| Customise bar sheet (approved 20 Nov) | the tool bar's customiser, reused (REF, picture 20; ✕ left, ✓ right, 376) |
+| Part card or spec                     | Used for                                                                      |
+| ------------------------------------- | ----------------------------------------------------------------------------- |
+| selection-bar.md (replaced)           | history: place order, selection bars, edge cases, SB-N lines folded into AB-N |
+| text-select.md                        | what counts as words selected, caret after an action                          |
+| page-menus.md                         | the Hold menu (Cut, Copy, Paste ▾, Delete, ⋯); reused, not rebuilt            |
+| `Bar shell` (card in M9)              | grip, pin (the switch), buttons, ⋯▾, hover names, sizes                       |
+| `Bar place` (card in M9)              | the five places, floating, pinned place, never over the selection             |
+| Customise bar sheet (approved 20 Nov) | the tool bar's customiser, reused (REF, picture 20; ✕ left, ✓ right, 376)     |
 
 No gap, radius, timing or placement number is written here once a card owns it; point to the card.
 
@@ -204,14 +207,15 @@ Made with Spec Kit after the confirm sheet is all Yes. Files: the bar under `src
 
 ### Detail lines
 
+- **AB-14** Fold (owner, 24 Nov; builds on the minimise rule of docs/design/shell-spec.md §5 and principle 6): pinned and nothing selected = the round pin button, 44 px, at the bar's stored place (AB-08); a selection opens the bar from the button on the motion scale, the end of the selection folds it; a click or Enter on the button opens it; ⠿ behaviour (AB-13) applies to the button; "Keep bar open" in ⋯ (pinned only, a tick when on) is stored like the pin; with it on, the bar shows the pin and ⋯▾ when nothing is selected. Unpin: open the bar, tap the filled pin. One Undo does not apply (bar layout, as the pin). Scenario AB-S15.
 - **AB-01** T1 lists every button of the text mini bar, box bar, Lasso bar, mixed menu and picture menu, and its cell; anything unmapped joins that state's ⋯ before the end.
 - **AB-02** `scripts/check-bar-inventory.mjs` reads the table between `tool-table:start` and `tool-table:end`; it fails a picture index or a bar build whose state misses an element, in order. Run as `npm run check:bar-inventory`.
 - **AB-03** Master order, from left: Edit text, B/I ▾, Colour, Thickness, Size, Font, Highlight, Align ▾, List ▾, Box style, Resize, Duplicate, then the ending (the pin sits at the start, after ⠿). A state greys what does not apply among Cut, Copy, Delete and hides the rest; nothing reorders.
 - **AB-12** Paste ▾ keeps the last format per notebook in the notebook's settings; one press pastes at once in that format at the target; ▾ opens the format list, a pick pastes and stores that format; Escape or a tap elsewhere closes the list without pasting; every paste is one Undo (owner, 22 Nov evening; the preview of the afternoon is dropped).
 - **AB-13** Drag: ⠿ moves the bar along its current line; dropping within 24 px of an edge docks it there (top, left, right, bottom); the dock is stored like the pin (AB-08).
 - **AB-04** Changing state rebuilds the tools in one frame; the bar's left edge and top stay within 1 px (SB numbers).
-- **AB-05** ⋯ shows ▾ when its list has more than Customise bar…; Customise bar… is always last.
-- **AB-06** Box style opens the approved Box style card (Presets, Advanced); Font opens the three quick fonts and More fonts…, each in its look; Size opens the slider strip.
+- **AB-05** ⋯ always shows ▾, also when its list holds only Customise bar… (owner, 24 Nov; the case against: one extra tap for a list of one); Customise bar… is always last.
+- **AB-06** Box style opens the approved Box style card (Presets, Advanced); Font opens the three quick fonts and More fonts…, each in its look; Size opens the slider selection bar.
 - **AB-07** Unpinned place: the first free of the five; never over the selected words, never off the screen.
 - **AB-08** Pin stores the place on the device; pinned stays on every page and after a restart; tapping the filled pin unpins and hides until the next selection; no ✕ (owner, 22 Nov evening, artifact comment: the pin image itself adds and removes the bar; no separate ✕).
 - **AB-09** Keys: Ctrl+X, C, V, Delete act as the buttons; Alt+F10 moves focus to the bar (Fable's pick, logged); arrows move along it; Esc closes ⋯, then ends the selection.
@@ -251,3 +255,4 @@ One e2e per scenario, named AB-S1 to AB-S12, through the real screen in computer
 
 - 22 Nov 2026 · Draft v2 from the inventory and the owner's answers (rounds 1 to 4); replaces selection-bar.md · waiting for the owner's sheet
 - 22 Nov 2026 · - · synced with the owner's open-point answers: nothing moves (greyed Cut, Copy, Delete with the caret), Paste ▾ remembers and previews, drag and dock in stage 1, editable ending; rows 3, 4, 15, 16 reworded; rows 18 and 19 added; S13, S14, AB-12, AB-13 · Fable
+- 24 Nov 2026 · owner change after the first look at the PC picture: the pinned bar folds into a round pin button when nothing is selected (question 1 A), "Keep bar open" in ⋯ (question 2 A), built with the first build (question 3 A; the case against: about one more day, and a change to a confirmed spec; one count toward the replan, 3 of 10); AB-05 reworded (⋯ always shows ▾); new: the Pinned folds rule, S15, AB-14; the tool table row changes with the redraw · Fable

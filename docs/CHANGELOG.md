@@ -20,6 +20,61 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **Why:** the spec (update-v2.md, parts table) puts the prompt in the Toast queue; S6 showed a second ask 2 s after Cancel; S3b never reached "The update did not finish" because the progress poll replaced the status.
 - **Files:** src/app/UpdatePrompt.tsx, UpdatePill.tsx, updateProgress.ts, autoUpdate.ts, autoUpdate.test.ts, e2e/updateV2.spec.ts, e2e/u0aUpdateRepro.spec.ts (the trace now reads the prompt too), e2e/firstBoxTap.spec.ts.
 
+### 24 Nov 2026: the proof found a real red, S3b; the line is stopped (issue #58; docs only)
+
+- **What:** S3b failed twice in 14 ipad-webkit runs ("The update did not finish" never showed). Root cause found by a read-only review and confirmed in the code: the download-progress poll (src/app/updateProgress.ts) can overwrite the 3 s restart prompt after its cache read, and the prompt then stops for good. GitHub issue #58 opened; a builder fixes it on slice/u0d-prompt-race (worktree ln-u0d); STATE step 0 holds the order of work (no merge of build/next, S3b counted from zero after the fix).
+- **Why:** rule "a red test stops the line until the root cause is fixed". The earlier "one run missing" reading of batch 3 was wrong; corrected. **Files:** docs/STATE.md, docs/CHANGELOG.md.
+
+### 24 Nov 2026: research on long agent builds; the proof moves to CI (docs only)
+
+- **What:** docs/research/long-autonomous-agent-builds-2026-11-24.md (four researchers, one writer; builds on agent-practice-2026-11-23.md): the real numbers and limits of the C compiler, the eight-day operating system, the Cursor browser and the Codex projects, and a ranked list of what to copy; part 1M-14 in the build-machine plan (the 20 of 20 proof on the hosted CI machines); the measured reasons for the missed 20:00 target in docs/metrics/pace-2026-11-23.md; resume steps in STATE.
+- **Why:** the owner asked what went wrong, how to speed up, and how Anthropic does long builds; the owner decided the proof moves to the hosted machines with 20 repeats kept. **Files:** docs/research/long-autonomous-agent-builds-2026-11-24.md, docs/plans/phases/phase-1m-build-machine.md, docs/metrics/pace-2026-11-23.md, docs/STATE.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 24 Nov 2026: Action bar iPad and phone pictures approved (docs only)
+
+- **What:** the owner approved all 17 device frames; the approval and what it accepts (the upright iPad overflow, the phone ending and its 2 px gap) are in docs/design/owner-decisions.md and DECISIONS; STATE updated.
+- **Why:** the owner's yes of 24 Nov. **Files:** docs/design/owner-decisions.md, docs/DECISIONS.md, docs/STATE.md, docs/CHANGELOG.md.
+
+### 24 Nov 2026: Action bar on the iPad sideways, iPad upright and the phone (pictures only, docs only)
+
+- **What:** docs/mockups/action-bar/devices.html with 17 frames in png-devices/ (iPad sideways 8, iPad upright 4, phone 5; four added after the review so every stage 1 state is drawn; Day, Night for the two marked), built by docs/mockups/action-bar/devices.mjs from the approved PC bar markup (copied, not redrawn); too-wide rows fold into ⋯▾ by width, the ending stays.
+- **Why:** the plan's next step after the PC picture. **Files:** docs/mockups/action-bar/, docs/CHANGELOG.md.
+
+### 24 Nov 2026: the part called picker is now the Selection bar (docs only)
+
+- **What:** owner decision of 24 Nov: the four names are Tool bar, Action bar, Selection bar, Hold menu. The live pages call the row or card that opens from a bar button to choose a colour, size, font or thickness the Selection bar (was picker). The part card files keep their names (colour-picker.md and so on). Q15 in principles.md gets a Changed line; toolbar-v8.md Names line and selection-bar.md Names line rewritten.
+- **Why:** the owner overrides the 22 Nov naming (Q15). **Files:** docs/design/principles.md, quality-standard.md, system.md, docs/features/action-bar.md, toolbar-v8.md, selection-bar.md, parts/ (colour, size, font, keys), docs/FEATURES.md, docs/MASTER-PLAN.md, docs/plans/ (phase-pc-1, stage-map, smart-bar-inventory), docs/mockups/ (box-bar, toolbar-v8 study), docs/design/owner-decisions.md, docs/CHANGELOG.md.
+
+### 24 Nov 2026: Action bar PC picture approved; the Colour circle; toast shape C (docs only)
+
+- **What:** the Colour button on all 18 frames is a circle filled with the chosen colour (the owner's one change at the approval); docs/mockups/action-bar/shot.mjs re-shoots every frame; the approval and its conditions in docs/design/owner-decisions.md; the toast shape (pill on one line, 14 on two) in system.md §3 and shell-spec §7; DECISIONS and STATE updated.
+- **Why:** the owner's answers of 24 Nov. **Files:** docs/mockups/action-bar/, docs/design/owner-decisions.md, docs/design/system.md, docs/design/shell-spec.md, docs/DECISIONS.md, docs/STATE.md, docs/CHANGELOG.md.
+
+### 24 Nov 2026: two answered design-number clashes written in (docs only)
+
+- **What:** docs/design/system.md §9 now has two breakpoints, 640 and 1180, like the frame (was 1024 and 1440), and its title no longer says "proposal"; docs/features/toolbar-v8.md TB-01 carries the decided move of Undo and Redo to the top bar only, marked not built yet; the old-names rename (tool/names-q15) merged after a word-by-word diff check.
+- **Why:** the owner's answers of 24 Nov (DECISIONS). **Files:** docs/design/system.md, docs/features/toolbar-v8.md, docs/CHANGELOG.md.
+
+### 24 Nov 2026: Action bar PC picture redrawn after the owner's first look (docs only)
+
+- **What:** every change of the owner's list: Size shows the number with ▾, Font shows "Aa" in the UI font with ▾, Colour is a letter with a colour line (Lucide baseline style), Box style is a rounded square with a colour drop and ▾, every picker button has ▾, Paste is one split button (hairline, no "F" badge), 4-pt gaps, Lucide 1.75 and no fills except the filled pin, ⋯ always has ▾. New frames: 5 folded round pin button, 9 pinned with words, 10 Keep bar open, 11 its ⋯ list. The tool table gets the row "Pinned, nothing selected" = the round pin button and a new row "Pinned, Keep bar open on"; the test of the script follows the table.
+- **Why:** the owner did not approve the first picture; Fable's check against the design principles. **Files:** docs/mockups/action-bar/index.html and png/ (18 frames), docs/features/action-bar.md, scripts/check-bar-inventory.test.mjs, docs/CHANGELOG.md.
+
+### 24 Nov 2026: the Action bar fold, two choice pictures (docs only)
+
+- **What:** docs/features/action-bar.md gets the owner's change: a pinned bar folds into a round pin button when nothing is selected, "Keep bar open" in ⋯ (the Pinned folds rule, S15, AB-14, a Changes line; the tool table row waits for the redraw so check:bar-inventory stays green); a small mock-up page with two pictures for the toast shape and the top bar height, docs/mockups/design-clashes/ (index.html, shot.mjs, png/); DECISIONS and STATE updated with the owner's answers on the fold and the design-number clashes.
+- **Why:** the owner's answers of 24 Nov; two clashes needed a picture to decide. **Files:** docs/features/action-bar.md, docs/mockups/design-clashes/, docs/DECISIONS.md, docs/STATE.md, docs/CHANGELOG.md.
+
+### 24 Nov 2026: the old bar names replaced in the live pages (docs only)
+
+- **What:** "smart bar" and "selection bar" now read Action bar; "strip" for the press-and-hold or right-click row (also "Context menu strip") now reads Hold menu; Colour, Size and Font strips now read pickers. 277 mentions before, 156 after, in 22 pages; page-menus.md and notebooks-search-v2.md use Hold menu throughout. The old built-part pages (selection-bar.md, smart-bar-inventory, research/smart-selection-bar) keep their titles and carry a Names line. The Names line in toolbar-v8.md now says "renamed (24 Nov 2026)". Left alone on purpose: other strips (tab, habit, step, layouts, space strip), quoted owner words, dated decision records, file names and code names.
+- **Why:** the owner's naming decision of 22 Nov (principles.md Q15), confirmed on 24 Nov to be applied now. **Files:** the pages in this commit under docs/ (no code, no rules text changed).
+
+### 24 Nov 2026: the owner's first look at the Action bar picture, right-click answered (docs only)
+
+- **What:** right-click answered "always" (HM-OPEN-4 in the Hold menu card; the spelling pop-up at the cursor parked for stage 3 in IDEAS.md); AB-05 reworded (⋯ always shows ▾); the owner's four comments on the Action bar PC picture and Fable's check of it against the design principles logged in DECISIONS.md with the picks for the one redraw; STATE "Needs you" and the proof-run note updated.
+- **Why:** the owner's answers of 24 Nov; the picture is not approved yet. **Files:** docs/DECISIONS.md, docs/features/action-bar.md, docs/features/parts/hold-menu.md, docs/IDEAS.md, docs/STATE.md, docs/CHANGELOG.md.
+
 ### 23 Nov 2026: docs site, home order and badges (phase 1A, site only)
 
 - **What:** the home list starts with the master plan, then State and the feature register, then the rest; a "Stage 1 · 2 · 3" badge on the home page and on each page header (read from the page's own Stage cell); Pillar letters in the register tables shown as small badges; "Must never happen" blocks in a full red-bordered box.

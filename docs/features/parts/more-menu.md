@@ -17,7 +17,7 @@ The one ⋯ control, always last: its ▾ mark, its list (the tools that did not
 ## Rules
 
 - **MM-01** One ⋯, always last on the bar (Q18); no separate More control.
-- **MM-02** ⋯ shows ▾ only when its list holds more than Customise bar… (AB-05).
+- **MM-02** ⋯ always shows ▾, also when its list holds only Customise bar… (AB-05; owner, 24 Nov).
 - **MM-03** Customise bar… is always the last row (AB-05, R1).
 - **MM-04** Tools that do not fit the width move here first, in bar order; the ending stays (row 20).
 - **MM-05** Esc closes ⋯ first; a second Esc ends the selection (AB-09).

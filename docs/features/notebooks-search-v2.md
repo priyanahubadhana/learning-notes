@@ -17,7 +17,7 @@ Notebooks: find a notebook, open it, see its pages, outline and resources, and s
 - A small panel beside a notebook has three tabs: Pages, Outline, Resources. Pages lets you add, delete, copy, move and pull out pages.
 - Inside a page, the row of notebook tabs hides so the pen and tools get the room. A small arrow brings it back.
 - "More" opens one tall sheet on the right. Pick a notebook at the top, then change its look, tabs, privacy and actions. Nothing changes until you press Done.
-- Hold a finger on a notebook or page row (or right-click). A small strip of actions appears. Then Undo is always there.
+- Hold a finger on a notebook or page row (or right-click). A small Hold menu of actions appears. Then Undo is always there.
 - Search has one box with an ✕, chips (All, Pages, Notes, Cards, and more) and a "Features" chip that finds tools and settings.
 - Beginner sees the calm essentials. Professional adds extras, each with its own switch in Settings › Professional features.
 - Nothing in today's app is removed. The "arrive with the Library" notes are gone.
@@ -40,15 +40,15 @@ Notebooks: find a notebook, open it, see its pages, outline and resources, and s
 | shell: rail, top bar, sidebar, left panel               | `src/app/shell/` (slice 0h); this slice fills the sidebar and left panel                                                  |
 | More sheet 440                                          | notebook More; Search More                                                                                                |
 | small dialog, pop menu, toast, minimise chip, Undo/Redo | New notebook, Rename, confirm; row menus; "Moved to Trash" with Undo; Search panel minimise chip                          |
-| Context menu strip (0g step 2)                          | long-press / right-click on a notebook card, sidebar row, page row, page thumbnail, search result row                     |
+| Hold menu (0g step 2)                                   | long-press / right-click on a notebook card, sidebar row, page row, page thumbnail, search result row                     |
 
-No private copies. New shared part needed: none. Dependency: the Context menu strip (0g step 2). See Decisions to review D1.
+No private copies. New shared part needed: none. Dependency: the Hold menu (0g step 2). See Decisions to review D1.
 
 ### Flag split
 
 - `notebooks.v2`: Home, sidebar, left panel, notebook screen, More sheet, covers.
 - `search.v2`: Search popup, Search screen, Search More sheet, chips.
-- Either flag can be ON alone. Both share the Context menu strip and the ✕ field.
+- Either flag can be ON alone. Both share the Hold menu and the ✕ field.
 
 ### Sizes, spacing, motion (from the mocks)
 
@@ -66,7 +66,7 @@ No private copies. New shared part needed: none. Dependency: the Context menu st
 | Search chips          | height 36 drawn, 44 hit (extender), radius pill, 12.5 px / 600                                                  | search-mock.html:1682-1700       |
 | Search box            | `type=search`, own ✕ button (`#clr`) shown when text exists; scope switch below                                 | search-mock.html:2225-2262       |
 | Hit area              | 44 pt everywhere                                                                                                | shell-spec.md section 8          |
-| Row hold              | 500 ms opens the Context menu strip; slop 8 px (today's `useLongPress`, `app/useLongPress.ts:10-12`)            | audit "Long press and row menus" |
+| Row hold              | 500 ms opens the Hold menu; slop 8 px (today's `useLongPress`, `app/useLongPress.ts:10-12`)                     | audit "Long press and row menus" |
 | Drag lift             | hold 0.3 s on a thumbnail or the grip                                                                           | shell-spec.md section 4          |
 
 ## When I do X, then Y
@@ -84,8 +84,8 @@ No private copies. New shared part needed: none. Dependency: the Context menu st
 | NB-B05 | look at a notebook with cards due                                                 | its cover shows an "N due" badge; tapping the badge starts Review for that notebook.                                                                                             |
 | NB-B06 | tap New notebook (button or "+" tile)                                             | a small dialog asks for a name (✕ and Cancel); Create adds it at the end and opens it; toast "Notebook created".                                                                 |
 | NB-B07 | tap the star on a cover                                                           | it pins to the top and the star fills at once; tap again to unpin; Undo toast.                                                                                                   |
-| NB-B08 | hold a cover 0.5 s (or right-click it, or tap its ⋯)                              | the Context menu strip opens above it: Open, Pin to the top, Rename, Cover and settings, Duplicate, Delete (red, last).                                                          |
-| NB-B09 | choose Delete in the strip                                                        | a small dialog asks with the page count and "You can undo this."; confirm moves it to Trash; toast with Undo restores it.                                                        |
+| NB-B08 | hold a cover 0.5 s (or right-click it, or tap its ⋯)                              | the Hold menu opens above it: Open, Pin to the top, Rename, Cover and settings, Duplicate, Delete (red, last).                                                                   |
+| NB-B09 | choose Delete in the Hold menu                                                    | a small dialog asks with the page count and "You can undo this."; confirm moves it to Trash; toast with Undo restores it.                                                        |
 | NB-B10 | switch Shelf / List                                                               | the layout changes in 180 ms and is remembered on this device.                                                                                                                   |
 | NB-B11 | look at "Continue where you stopped"                                              | up to 4 cards (cover + page title); tap opens that page; the row has a thin scroll track when it overflows.                                                                      |
 | NB-B12 | have 500+ notebooks and scroll                                                    | only visible rows are drawn (virtual); scrolling stays smooth.                                                                                                                   |
@@ -94,33 +94,33 @@ No private copies. New shared part needed: none. Dependency: the Context menu st
 | NB-P02 | tap a tag in the tag bar (unlock `nb.tagBar`)                                     | only notebooks with that tag show; the Tag picker adds more; "All tags" resets.                                                                                                  |
 | NB-P03 | open a notebook ⋯ and choose Move up, Move down or Move to top (unlock `nb.move`) | the notebook moves one place; the shelf reflows; Undo toast.                                                                                                                     |
 | NB-P04 | hold a grip and drag a cover or row (unlock `nb.dragGrip`)                        | other covers slide aside while dragging (live reflow); a drop-line shows the place; dropping saves the order; ▲▼ do the same by keyboard.                                        |
-| NB-P05 | open the strip on a notebook (unlock `nb.addEmptyPage`)                           | "Add empty page" adds a blank page and opens it.                                                                                                                                 |
-| NB-P06 | open the strip on a notebook (unlock `nb.addFromTemplate`)                        | "Add from template…" opens the template picker, then makes the page.                                                                                                             |
-| NB-P07 | open the strip on a notebook (unlock `nb.reviewNotebook`)                         | "Review this notebook" starts a review of only its cards.                                                                                                                        |
+| NB-P05 | open the Hold menu on a notebook (unlock `nb.addEmptyPage`)                       | "Add empty page" adds a blank page and opens it.                                                                                                                                 |
+| NB-P06 | open the Hold menu on a notebook (unlock `nb.addFromTemplate`)                    | "Add from template…" opens the template picker, then makes the page.                                                                                                             |
+| NB-P07 | open the Hold menu on a notebook (unlock `nb.reviewNotebook`)                     | "Review this notebook" starts a review of only its cards.                                                                                                                        |
 
 ### Sidebar (264 px, Notebooks space)
 
-| Id     | When I do X                                               | Then Y                                                                                                                                                                |
-| ------ | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| NB-B20 | open the sidebar                                          | top: Today (journal), Search (Ctrl K), Review with a due badge. Below: the Notebooks tree and the fixed Journal group. Rows are 44 px high.                           |
-| NB-B21 | tap the chevron of a notebook                             | its pages show nested; tap again to fold; the state is remembered per notebook.                                                                                       |
-| NB-B22 | tap "Collapse all"                                        | every notebook folds in one tap; the same button reads "Expand all" and opens them all (icon + words, Notion-like). It sits in the Notebooks group header beside "+". |
-| NB-B23 | tap a page row                                            | it opens; the current page row is bold with `aria-current`.                                                                                                           |
-| NB-B24 | hold a notebook row 0.5 s (or right-click, or tap ⋯)      | the Context menu strip opens: Add page, Review this notebook, Rename, Lock, Lock editing, Move up, Move down, Delete (red).                                           |
-| NB-B25 | hold a page row 0.5 s (or right-click, or tap ⋯)          | the strip opens: Rename, Add sub-page, Favourite, Lock, Lock editing, Move up, Move down, Move to top level, Delete (red).                                            |
-| NB-B26 | choose Delete on a page                                   | it goes to Trash at once; toast "Moved “X” and N sub-pages to Trash" with Undo (6 s).                                                                                 |
-| NB-B27 | tap "+" on a notebook or page row                         | a pop menu: Blank page, From template…; a new page opens.                                                                                                             |
-| NB-B28 | drag the sidebar edge (PC) or press ← / →                 | width changes in 16 px steps, min 200, max 480; double-click resets to 264. Hidden on phone.                                                                          |
-| NB-B29 | on a phone, tap Notebooks in the bottom bar               | the sidebar opens as a left drawer (86 vw) with a scrim; tap outside or Esc closes it.                                                                                |
-| NB-B30 | a drag starts on a row                                    | no tap, menu or strip reacts until the drop (gesture router).                                                                                                         |
-| NB-P20 | turn on `nb.sideStudy`                                    | a Study group appears: Review, All cards, All summaries.                                                                                                              |
-| NB-P21 | turn on `nb.sideQuick`                                    | a Quick access group: Favourites (with × to remove), Recent pages, Calendar, Databases.                                                                               |
-| NB-P22 | turn on `nb.sideTags`                                     | a Tags list with "Manage tags"; tapping a tag opens Search filtered by it.                                                                                            |
-| NB-P23 | turn on `nb.sideTemplates`                                | a Templates list (folded by default); tapping one starts a page from it.                                                                                              |
-| NB-P24 | turn on `nb.sideSaved`                                    | a Saved searches list; tap opens it; ☆ review button shows the card count.                                                                                            |
-| NB-P25 | hold a page row's grip and drag (unlock `nb.dragGrip`)    | before, after or inside another page; live reflow; one Undo step; a page cannot move inside itself.                                                                   |
-| NB-P26 | choose Move up / down / to top level (unlock `nb.move`)   | the page moves; Undo toast.                                                                                                                                           |
-| NB-P27 | choose Lock this page in the strip (unlock `nb.lockPage`) | the page locks (🔒); "Unlock this page" shows on it.                                                                                                                  |
+| Id     | When I do X                                                   | Then Y                                                                                                                                                                |
+| ------ | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| NB-B20 | open the sidebar                                              | top: Today (journal), Search (Ctrl K), Review with a due badge. Below: the Notebooks tree and the fixed Journal group. Rows are 44 px high.                           |
+| NB-B21 | tap the chevron of a notebook                                 | its pages show nested; tap again to fold; the state is remembered per notebook.                                                                                       |
+| NB-B22 | tap "Collapse all"                                            | every notebook folds in one tap; the same button reads "Expand all" and opens them all (icon + words, Notion-like). It sits in the Notebooks group header beside "+". |
+| NB-B23 | tap a page row                                                | it opens; the current page row is bold with `aria-current`.                                                                                                           |
+| NB-B24 | hold a notebook row 0.5 s (or right-click, or tap ⋯)          | the Hold menu opens: Add page, Review this notebook, Rename, Lock, Lock editing, Move up, Move down, Delete (red).                                                    |
+| NB-B25 | hold a page row 0.5 s (or right-click, or tap ⋯)              | the Hold menu opens: Rename, Add sub-page, Favourite, Lock, Lock editing, Move up, Move down, Move to top level, Delete (red).                                        |
+| NB-B26 | choose Delete on a page                                       | it goes to Trash at once; toast "Moved “X” and N sub-pages to Trash" with Undo (6 s).                                                                                 |
+| NB-B27 | tap "+" on a notebook or page row                             | a pop menu: Blank page, From template…; a new page opens.                                                                                                             |
+| NB-B28 | drag the sidebar edge (PC) or press ← / →                     | width changes in 16 px steps, min 200, max 480; double-click resets to 264. Hidden on phone.                                                                          |
+| NB-B29 | on a phone, tap Notebooks in the bottom bar                   | the sidebar opens as a left drawer (86 vw) with a scrim; tap outside or Esc closes it.                                                                                |
+| NB-B30 | a drag starts on a row                                        | no tap, menu or Hold menu reacts until the drop (gesture router).                                                                                                     |
+| NB-P20 | turn on `nb.sideStudy`                                        | a Study group appears: Review, All cards, All summaries.                                                                                                              |
+| NB-P21 | turn on `nb.sideQuick`                                        | a Quick access group: Favourites (with × to remove), Recent pages, Calendar, Databases.                                                                               |
+| NB-P22 | turn on `nb.sideTags`                                         | a Tags list with "Manage tags"; tapping a tag opens Search filtered by it.                                                                                            |
+| NB-P23 | turn on `nb.sideTemplates`                                    | a Templates list (folded by default); tapping one starts a page from it.                                                                                              |
+| NB-P24 | turn on `nb.sideSaved`                                        | a Saved searches list; tap opens it; ☆ review button shows the card count.                                                                                            |
+| NB-P25 | hold a page row's grip and drag (unlock `nb.dragGrip`)        | before, after or inside another page; live reflow; one Undo step; a page cannot move inside itself.                                                                   |
+| NB-P26 | choose Move up / down / to top level (unlock `nb.move`)       | the page moves; Undo toast.                                                                                                                                           |
+| NB-P27 | choose Lock this page in the Hold menu (unlock `nb.lockPage`) | the page locks (🔒); "Unlock this page" shows on it.                                                                                                                  |
 
 ### Left panel (Pages · Outline · Resources)
 
@@ -150,13 +150,13 @@ No private copies. New shared part needed: none. Dependency: the Context menu st
 | NB-B60 | open a notebook                                         | cover, title, "N pages · N cards due · opened …", a Close ✕, the "More" button FIRST in the row (sliders icon + word), then the tab row Notes · Summary · Cards · Revise.         |
 | NB-B61 | tap a tab                                               | it opens; the choice is saved per notebook and kept in the address (`#/notebook/<id>/<tab>`); ← / → move between tabs.                                                            |
 | NB-B62 | scroll a notebook with many tabs                        | the row scrolls sideways with a thin track; overflow arrows have their own slot.                                                                                                  |
-| NB-B63 | hold a tab (or right-click it)                          | the strip shows Rename tab, Hide tab; hidden tabs come back through "Show tab …". (Beginner keeps today's rename and hide.)                                                       |
+| NB-B63 | hold a tab (or right-click it)                          | the Hold menu shows Rename tab, Hide tab; hidden tabs come back through "Show tab …". (Beginner keeps today's rename and hide.)                                                   |
 | NB-B64 | open a page inside the notebook                         | the notebook tab row hides so the pen and tools get the space; a small arrow (▾, 44 px target) at the top-left of the page shows it again for this visit.                         |
 | NB-B65 | open Settings › Notebooks › "Show the tab row on pages" | on = the row stays shown inside pages; off (default) = hidden. The change shows at once; the arrow still works.                                                                   |
 | NB-B66 | the Notes tab has pages                                 | pages list as List by default; Table / Board / Gallery are the per-tab view choices (remembered per tab). Table shows Page, Sub-pages, Changed.                                   |
 | NB-B67 | the notebook has no pages                               | "No pages yet." with a "New page" button.                                                                                                                                         |
 | NB-B68 | open a locked notebook / locked page                    | "This notebook is locked" with "Unlock in settings" / "This page is locked" with "Unlock this page"; nothing inside is readable.                                                  |
-| NB-B69 | open the Pages / Outline preview pop from the bar       | a small pop shows the pages strip or the outline; "Open in the side panel" opens the left panel on that tab.                                                                      |
+| NB-B69 | open the Pages / Outline preview pop from the bar       | a small pop shows the pages Hold menu or the outline; "Open in the side panel" opens the left panel on that tab.                                                                  |
 | NB-P60 | turn on `nb.viewSwitch`                                 | a View switch Default / Shelf / Tabs shows in Notes; it is saved on the notebook.                                                                                                 |
 | NB-P61 | turn on `nb.tabOptions`                                 | a pen button on the tab row opens "Tab options": rename, hide / show, colour for each tab; reorder with the drag handle or ▲▼; "+" adds a tab (Edit tabs dialog, shared Tab row). |
 | NB-P62 | turn on `nb.extraTabs`                                  | More › Tabs & views and Settings offer "Extra tabs for new notebooks" (Mind map, Slides, Resources, Database, own tab).                                                           |
@@ -202,7 +202,7 @@ The notebook-side search box ("Find a notebook") is NB-P01. The Search popup is 
 | SR-B07 | press ↑ ↓ Enter                                                     | the highlighted row moves; Enter opens it; the footer shows the keys line. On a result row, Enter on "See all" opens the full Search screen.                                                                                                              |
 | SR-B08 | tap a Pages / Notes result                                          | the page opens and the match glows (the "Highlight where I land" switch, on by default); toast only if it could not open.                                                                                                                                 |
 | SR-B09 | tap a Cards result                                                  | it opens the card's page at the card.                                                                                                                                                                                                                     |
-| SR-B10 | hold a result row 0.5 s (or right-click)                            | the Context menu strip opens: Open, Open in new place (side panel), Copy link, Pin as favourite. Does not run the search again.                                                                                                                           |
+| SR-B10 | hold a result row 0.5 s (or right-click)                            | the Hold menu opens: Open, Open in new place (side panel), Copy link, Pin as favourite. Does not run the search again.                                                                                                                                    |
 | SR-B11 | type something with a typo                                          | "Did you mean …" offers a fix only if it finds a live result.                                                                                                                                                                                             |
 | SR-B12 | search for a word with no match                                     | Empty state "Nothing found" with "Search Trash" when Trash has matches; no stale "arrive with…" text anywhere.                                                                                                                                            |
 | SR-B13 | a page is locked                                                    | its title may show with 🔒 and "Unlock to search inside"; its text never matches.                                                                                                                                                                         |
@@ -233,7 +233,7 @@ The notebook-side search box ("Find a notebook") is NB-P01. The Search popup is 
 | Empty                     | Home: Empty state with New notebook. Notes: "No pages yet.". Resources: "Nothing here yet.". Trash: "Trash is empty."; Starred / Recent notes above | "Nothing found"; browse state when the box is empty; "No feature matches …".                     |
 | Error                     | a notebook that cannot load shows "This notebook could not be shown" with Retry; a failed save keeps the draft and toasts the reason                | the index still building shows "Getting ready…" with progress; results appear as they are ready. |
 | Offline                   | everything works (local); Photo cover upload works; Share layers / Export save a file locally                                                       | all local; only the Library-web look-ups (outside this slice) say "needs internet".              |
-| Phone (≤ 640)             | bottom tab bar; sidebar and panel are drawers; More sheet full screen; shelf 2 columns; strip centred above the row                                 | full-screen panel; chips scroll sideways with a track; sheet full screen.                        |
+| Phone (≤ 640)             | bottom tab bar; sidebar and panel are drawers; More sheet full screen; shelf 2 columns; Hold menu centred above the row                             | full-screen panel; chips scroll sideways with a track; sheet full screen.                        |
 | iPad landscape / portrait | landscape: sidebar + panel docked (≥ 1180); portrait: the sidebar steps aside while the panel is docked (641 to 1179)                               | panel docks right at 360 (landscape), overlay in portrait.                                       |
 | Light / dark / sepia      | all tokens; covers keep their own colours; text on covers keeps 4.5:1 contrast                                                                      | same                                                                                             |
 | Reduced motion            | slide, glow and lift are instant; states still change                                                                                               | same                                                                                             |
@@ -280,7 +280,7 @@ The notebook-side search box ("Find a notebook") is NB-P01. The Search popup is 
 | Page row menu (7 items), double-click rename, hover buttons                    | `pages/PageRowMenu.tsx:14-93`, `pages/PageTree.tsx:219, 247-303`                                                   | NB-B25                                                 |
 | Page drag (before / after / inside), one Undo, ▲▼ keyboard                     | `pages/pageDrag.ts`, `PageTree.tsx:93-111, 155`                                                                    | NB-B43, NB-P25                                         |
 | Delete page with Undo; delete notebook with confirm and Undo                   | `Sidebar.tsx:244-272`, `pages/pageTrash.ts:17`                                                                     | NB-B09, NB-B26                                         |
-| Long-press 500 ms, slop 8 px, swallow the click, block native menu             | `app/useLongPress.ts:10-123`, `Sidebar.tsx:183`, `PageTree.tsx:78`                                                 | NB-B24, NB-B25 (same hook feeds the strip)             |
+| Long-press 500 ms, slop 8 px, swallow the click, block native menu             | `app/useLongPress.ts:10-123`, `Sidebar.tsx:183`, `PageTree.tsx:78`                                                 | NB-B24, NB-B25 (same hook feeds the Hold menu)         |
 | Visible ⋯ on touch and on narrow rows (< 19 rem)                               | `app/ui.tsx:77-98`                                                                                                 | NB-B24 (kept)                                          |
 | Add-page menu (blank, from template) and template picker                       | `Sidebar.tsx:707-737`, `templates/TemplatePicker.tsx:18-94`                                                        | NB-B27                                                 |
 | Phone drawer, scrim                                                            | `App.tsx:1539-1548`                                                                                                | NB-B29                                                 |
@@ -331,8 +331,8 @@ The notebook-side search box ("Find a notebook") is NB-P01. The Search popup is 
 - Search while the index is still being built: partial results, plus "Still getting ready".
 - Long names wrap to two lines in rows; the delete button is never clipped.
 - A fast double-tap on Done saves once.
-- Pencil drawn over a row does not open the strip or start a drag; finger or mouse only.
-- iPad Safari long-press: the native callout is blocked while the strip is open.
+- Pencil drawn over a row does not open the Hold menu or start a drag; finger or mouse only.
+- iPad Safari long-press: the native callout is blocked while the Hold menu is open.
 
 ## Security check
 
@@ -346,10 +346,10 @@ The notebook-side search box ("Find a notebook") is NB-P01. The Search popup is 
 
 ## Tests
 
-- Unit: `homeTabList`, `shelfOrder`, `visibleRows`, extract / duplicate / delete-page plans (pure functions), cover crop maths (photo ratio, fit message), strip item builders per row kind, search chip list per level and flag, `✕` clear behaviour.
+- Unit: `homeTabList`, `shelfOrder`, `visibleRows`, extract / duplicate / delete-page plans (pure functions), cover crop maths (photo ratio, fit message), Hold menu item builders per row kind, search chip list per level and flag, `✕` clear behaviour.
 - E2E: one test per line id above (NB-B01 to NB-B93, NB-P01 to NB-P82, SR-B01 to SR-B17, SR-P01 to SR-P15), on Chromium and `ipad-webkit`. Pro lines first turn on only their own switch and check Beginner stays Beginner.
 - Screenshots: Beginner and Professional x light and dark x iPad landscape, iPad portrait, phone, PC for Home, Sidebar + panel, Notebook, More sheet (each tab, All and one notebook), Search popup, Search More, Pages Organise, cover crop.
-- Accessibility: names, roles, focus return after sheet / strip / dialog, contrast on covers, tab order; 44 pt target check.
+- Accessibility: names, roles, focus return after sheet / Hold menu / dialog, contrast on covers, tab order; 44 pt target check.
 - Size budget: first load stays at or below 320,000 B; More sheet, cropper, Search More and Organise are lazy chunks.
 - Nothing-lost probe: every row of the two tables above is probed in the new build with the flags ON.
 - Flag test: with both flags OFF, screenshots equal today's, pixel for pixel.
@@ -358,18 +358,18 @@ The notebook-side search box ("Find a notebook") is NB-P01. The Search popup is 
 
 ### Sub-slice build order (one surface group per commit)
 
-| #   | Group                                                       | Files (proposed)                                                                                                     |
-| --- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| 1   | Flags and shared glue                                       | `src/app/flags.ts` (two names), `src/notebooks/v2/strips.ts` (builds strip items from today's menus), ✕ field wiring |
-| 2   | Home (All / Starred / Recent, strip)                        | `src/notebooks/v2/HomeV2.tsx`, `ContinueStrip.tsx`                                                                   |
-| 3   | Sidebar v2 (Collapse all, groups)                           | `src/notebooks/v2/SidebarV2.tsx`, `treeState.ts`                                                                     |
-| 4   | Left panel v2 (Pages, Outline, Resources)                   | `src/app/panel/v2/PagesTabV2.tsx`, `OutlineTabV2.tsx`, `ResourcesTab.tsx`, `pageOrganise.ts` (pure plans)            |
-| 5   | Notebook screen (tab row hide, arrow)                       | `src/notebooks/v2/NotebookScreenV2.tsx`, `tabRowVisibility.ts`, Settings row                                         |
-| 6   | More sheet: Organise, Tags, Templates, Trash                | `src/notebooks/v2/more/*.tsx`                                                                                        |
-| 7   | More sheet: Look (covers + cropper), Tabs, Privacy, Actions | `src/notebooks/v2/more/Look.tsx`, `covers/` (patterns, art), `Cropper.tsx`                                           |
-| 8   | Search popup v2 (chips, ✕, stale text removed)              | `src/search/v2/SearchPopupV2.tsx`, `chips.ts`                                                                        |
-| 9   | Search More sheet and Search screen                         | `src/search/v2/SearchMore.tsx`, `SearchScreenV2.tsx`                                                                 |
-| 10  | Pencil scribble-to-search                                   | `src/search/v2/ScribblePad.tsx`                                                                                      |
+| #   | Group                                                       | Files (proposed)                                                                                                         |
+| --- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| 1   | Flags and shared glue                                       | `src/app/flags.ts` (two names), `src/notebooks/v2/strips.ts` (builds Hold menu items from today's menus), ✕ field wiring |
+| 2   | Home (All / Starred / Recent, strip)                        | `src/notebooks/v2/HomeV2.tsx`, `ContinueStrip.tsx`                                                                       |
+| 3   | Sidebar v2 (Collapse all, groups)                           | `src/notebooks/v2/SidebarV2.tsx`, `treeState.ts`                                                                         |
+| 4   | Left panel v2 (Pages, Outline, Resources)                   | `src/app/panel/v2/PagesTabV2.tsx`, `OutlineTabV2.tsx`, `ResourcesTab.tsx`, `pageOrganise.ts` (pure plans)                |
+| 5   | Notebook screen (tab row hide, arrow)                       | `src/notebooks/v2/NotebookScreenV2.tsx`, `tabRowVisibility.ts`, Settings row                                             |
+| 6   | More sheet: Organise, Tags, Templates, Trash                | `src/notebooks/v2/more/*.tsx`                                                                                            |
+| 7   | More sheet: Look (covers + cropper), Tabs, Privacy, Actions | `src/notebooks/v2/more/Look.tsx`, `covers/` (patterns, art), `Cropper.tsx`                                               |
+| 8   | Search popup v2 (chips, ✕, stale text removed)              | `src/search/v2/SearchPopupV2.tsx`, `chips.ts`                                                                            |
+| 9   | Search More sheet and Search screen                         | `src/search/v2/SearchMore.tsx`, `SearchScreenV2.tsx`                                                                     |
+| 10  | Pencil scribble-to-search                                   | `src/search/v2/ScribblePad.tsx`                                                                                          |
 
 Each commit: tests green, screenshots, then the next. Group 2 to 7 can run in two lanes (notebooks, search) because they touch separate folders.
 
@@ -377,7 +377,7 @@ Each commit: tests green, screenshots, then the next. Group 2 to 7 can run in tw
 
 - No change with both flags OFF.
 - No data-model change; only added optional fields (cover art id, crop box). Old fields stay.
-- No private copy of the Tab row, ✕ field, drag, More sheet or strip.
+- No private copy of the Tab row, ✕ field, drag, More sheet or Hold menu.
 - No hover-only buttons (touch must see them).
 - No new "Library" or "Home" screens here; only the search hooks for them.
 - No AI calls from Search or the cover picker.
@@ -388,18 +388,18 @@ Each commit: tests green, screenshots, then the next. Group 2 to 7 can run in tw
 
 ## 3-step owner iPad check
 
-1. Open Notebooks. Tap All, Starred, Recent. Hold your finger on a cover. A small strip of actions should appear. Try Pin, then Undo.
+1. Open Notebooks. Tap All, Starred, Recent. Hold your finger on a cover. A small Hold menu of actions should appear. Try Pin, then Undo.
 2. Open a notebook, then a page. The row of tabs should be hidden; tap the small arrow to bring it back. Open the side panel, tap Pages, hold a page and drag it; tap Organise and try Duplicate and Delete (then Undo). Tap More, pick another notebook at the top, change its cover with your own photo, and press Done.
-3. Tap Search, type a word, tap the ✕ to clear it, tap the Features chip and search "dark". Hold a result to see its strip. Try the Pencil in Professional with Write to search switched on.
+3. Tap Search, type a word, tap the ✕ to clear it, tap the Features chip and search "dark". Hold a result to see its Hold menu. Try the Pencil in Professional with Write to search switched on.
 
 ## Decisions to review
 
-D1. Context menu strip is shared part step 2 of 0g. If it is not built when this slice starts, the slice uses today's `MenuPopover` behind the same item builders and swaps to the strip with no spec change.
+D1. Hold menu is shared part step 2 of 0g. If it is not built when this slice starts, the slice uses today's `MenuPopover` behind the same item builders and swaps to the Hold menu with no spec change.
 D2. Pages-tab organise (add, delete, duplicate, extract, reorder) is in Beginner, with no new unlock switch, because the owner asked for the full set and Beginner needs delete and reorder anyway. Only the grip (`nb.dragGrip`) and Move up / down (`nb.move`) are Pro. A new switch such as `nb.pagesOrganise` could split it later; tell me if you want that.
 D3. Today Beginner sees the Features chip. The mock hides it from Beginner. To drop nothing, Beginner keeps the Features group under All when typing, Ctrl+Shift+K, and "Search all features" in the page ⋯ menu; only the chip is Pro (`search.moreChips`).
-D4. Today Beginner can rename and hide notebook tabs; the mock makes tab options Pro. Beginner keeps Rename and Hide in the hold strip; colour, reorder and "+" are `nb.tabOptions`.
+D4. Today Beginner can rename and hide notebook tabs; the mock makes tab options Pro. Beginner keeps Rename and Hide in the Hold menu; colour, reorder and "+" are `nb.tabOptions`.
 D5. Share layers is Pro only (owner decision). Beginners who used it today lose it until they turn on `nb.shareLayers`; the Settings list says so in one line.
-D6. Hold timing: 0.3 s lifts a thumbnail for drag, 0.5 s opens the strip. On a page thumbnail, lift then release without moving opens the strip. Elsewhere, drag uses the grip (Pro) or Move up / down.
+D6. Hold timing: 0.3 s lifts a thumbnail for drag, 0.5 s opens the Hold menu. On a page thumbnail, lift then release without moving opens the Hold menu. Elsewhere, drag uses the grip (Pro) or Move up / down.
 D7. Panel and sidebar width: 264 px per the shell spec (today 260 and 280) with 44 px rows. "Bigger" is met by the taller rows and the 44 px targets, not by a wider panel. Tell me if you want 300.
 D8. Books and Highlights chips show only when the Library slice is on; Tasks only when Home is on. No "Soon" label at all.
 D9. "Collapse all" is not in today's code (the owner remembers it). It is built new, in the Notebooks group header.

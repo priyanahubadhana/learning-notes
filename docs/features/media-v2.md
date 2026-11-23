@@ -151,7 +151,7 @@ Existing ids: `tb.pictureEdit`, `tb.layers`, `tb.lassoOptions`, `tb.selectionMen
 | Aa sheet (Text, Layout, Themes, More), font tiles | `src/app/reading/AaSheet.tsx:57`, `FontTiles.tsx:36`                                  | MD-23, MD-24                 |
 | Bookmarks panel                                   | `src/app/reading/BookmarksPanel.tsx:28`                                               | MD-24                        |
 | Find                                              | `src/app/reading/ReaderFind.tsx:52`                                                   | MD-28                        |
-| Selection bar                                     | `src/app/reading/ReadingSelection.tsx:35`                                             | MD-26                        |
+| Action bar                                        | `src/app/reading/ReadingSelection.tsx:35`                                             | MD-26                        |
 | Line focus / ruler                                | `src/app/reading/ReadingRuler.tsx:10`                                                 | MD-25                        |
 | Read aloud panel, Now playing pill                | `src/reader/aloud/AloudPanel.tsx:27`, `src/app/reading/NowPlayingPill.tsx:18`         | MD-27                        |
 | Ink layers (2), rename, hide, lock, order, merge  | `src/ink/layers.ts:8-119`, `LayersCard.tsx:31`                                        | MD-31                        |

@@ -26,13 +26,13 @@ It's fine to go above this bar. Nothing ships below it.
 4. **Premium feel**: the design tokens, smooth motion respecting reduced motion, dark and light, consistent icons (Lucide). Passing means every value comes from docs/design/system.md (the one table of numbers, owner's answers of 22 Nov 2026), the frame sizes from docs/design/shell-spec.md §8 and the Tool bar's from docs/features/toolbar-v8.md; a value typed by hand or taken from an older document fails. The bar lines (22 Nov 2026):
    - Icons: one stroke everywhere, the system.md §7 value (Q1).
    - Motion: only the system.md §6 tokens and named uses (Q2).
-   - Glass: frame glass on bars and the sidebar, card glass on cards and pickers, never a third recipe (Q3, system.md §5).
+   - Glass: frame glass on bars and the sidebar, card glass on cards and selection bars, never a third recipe (Q3, system.md §5).
    - Radii: only the system.md §3 table (Q4).
    - Toasts: as shell-spec.md §7, with the ✕ to close and Undo on the other side (Q5).
    - Frame: sidebar and sheet widths from shell-spec.md §8 (Q6, Q9); ✕ top left and ✓ top right on sheets (Q8); Undo and Redo at the top left, no Back and Forward arrows (Q10); the Tool bar height from toolbar-v8.md (Q11).
    - Icons in the rail as system.md §7 (Q7); quick fonts as system.md §4 (Q13); Day is the default theme (Q14, system.md §1).
    - Hover names are an extra: shown with a mouse or the Pencil, a held finger shows nothing for now, and no action is hover-only (Q12).
-   - Names: Tool bar, Action bar, pickers, Hold menu, the same in the app, Settings and specs (Q15).
+   - Names: Tool bar, Action bar, selection bars, Hold menu, the same in the app, Settings and specs (Q15).
    - Red only for Delete and the Review's "Again" (Q16).
    - Targets: 44 pt always; Compact tightens spacing only and never shrinks a target (Q17).
    - More: one control, last, with ▾ when more options exist (Q18).

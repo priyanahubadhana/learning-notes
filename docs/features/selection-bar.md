@@ -2,6 +2,8 @@ Replaced by action-bar.md (22 Nov 2026); kept for history.
 
 # The smart selection bar (switch `select.smartBar`)
 
+Names (owner, 24 Nov 2026): this page is the record of the old bars by the selection, now the Action bar. The name Selection bar today means the row or card that opens from a bar button to choose a colour, size or font.
+
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
 **Pictures approved by the owner on 21 Nov 2026 (check C3, docs/mockups/smart-bar/, pictures 1 to 22). This text waits for the owner's confirm.** Earlier: draft of 20 Nov. The "why" lens was written by Fable from the owner's recorded decisions (docs/design/owner-decisions.md "One smart selection bar", "Selected box: one bar like Goodnotes", "Paste and the Pencil buttons"; fable-brief-smart-select.md sections 3 and 8 to 12; the Goodnotes check in the phase page). The "how" and "whether" lenses run before Part B3. **No part after B2 is built before the owner has approved the pictures of B2.** Plan: [../plans/phases/phase-2-finish.md](../plans/phases/phase-2-finish.md), parts B1 to B9.
@@ -37,8 +39,8 @@ As a learner who works with the Apple Pencil, I want one bar that shows the righ
 - **Paste on the bar.** Paste ▾ is on the bar: a tap pastes and keeps the look; ▾ offers Plain text and More.
 - **Where it goes (owner, 21 Nov; pictures 15 to 19).** The first place with room wins: (1) below the selection; (2) above it; (3) upright on its right; (4) upright on its left; (5) no room anywhere: just under the top tool bar, over the box but never over the selected words. It is never cut off by the page or the screen.
 - **Stays where I put it.** The bar can be moved, pinned and docked on any of the four sides; a pinned or docked bar stays on every page and after the app is closed.
-- **Two presets, one customiser.** Two presets, Edit and Study. Every ⋯ menu ends with **Customise bar…** (owner, 21 Nov; picture 20), which opens the tool bar's existing customiser (reused, not rebuilt): presets, a button set for each kind of selection, a live preview, reorder, on the bar or under ⋯, reset. The same place as Settings › Tool bar › Selection bar.
-- **Font and size strips (owner, 18 and 21 Nov; pictures 21 and 22).** Aa opens a strip with the three quick fonts the box bar already has (Easy to read, Classic, Handwritten) and More fonts…, each drawn in its own look with a sample of the words; the current one has a ✓. Size opens the strip of 18 Nov (slider, −, number, +) with a live sample.
+- **Two presets, one customiser.** Two presets, Edit and Study. Every ⋯ menu ends with **Customise bar…** (owner, 21 Nov; picture 20), which opens the tool bar's existing customiser (reused, not rebuilt): presets, a button set for each kind of selection, a live preview, reorder, on the bar or under ⋯, reset. The same place as Settings › Tool bar › Action bar.
+- **Font and size pickers (owner, 18 and 21 Nov; pictures 21 and 22).** Aa opens a strip with the three quick fonts the box bar already has (Easy to read, Classic, Handwritten) and More fonts…, each drawn in its own look with a sample of the words; the current one has a ✓. Size opens the strip of 18 Nov (slider, −, number, +) with a live sample.
 - **Drawing and box.** For a drawing, Colour and Thickness are on the bar (owner, 21 Nov). The small ⋯ tab under a box is removed; its menu is the bar's ⋯ (owner, 21 Nov).
 - **Lasso tool.** Its menu gets a Customise entry now; its options come later (owner, 21 Nov).
 - **Phone.** On a phone: the same presets, fewer buttons, the rest under ⋯.
@@ -130,7 +132,7 @@ Feature: One bar for every selection
   Scenario: S10 Customise bar opens the tool bar's customiser
     Given the bar's ⋯ is open
     When I choose Customise bar…
-    Then the customiser opens on the selection bar, with the preset and the kind of selection I am on
+    Then the customiser opens on the Action bar, with the preset and the kind of selection I am on
 
   Scenario: S7 A pinned bar stays where I put it
     Given I moved the bar to the left side and pinned it
@@ -140,7 +142,7 @@ Feature: One bar for every selection
 
 ## We assume (not proven yet)
 
-1. ~~The box bar of 18 Nov can simply grow into the smart bar.~~ **Checked by the builder lens, 20 Nov: partly.** Its shell (grip, docking, remembered place, strips) is reused. It is tied to boxes, so the smart bar needs three new things: one description of "what is selected" (cursor, words, box, drawing, picture, mix), the actions for each kind, and one place at page level where the bar is shown.
+1. ~~The box bar of 18 Nov can simply grow into the Action bar.~~ **Checked by the builder lens, 20 Nov: partly.** Its shell (grip, docking, remembered place, strips) is reused. It is tied to boxes, so the Action bar needs three new things: one description of "what is selected" (cursor, words, box, drawing, picture, mix), the actions for each kind, and one place at page level where the bar is shown.
 2. Every button of the three old bars really works today. Check: Part B1 (some were "coming later" on 11 Nov).
 3. The bar can load only when something is selected, so the app's first load stays inside its size limit (about 6.9 KB were left on 20 Nov). Check: `npm run check:size` in Part B3.
 4. The drawn order is right for daily use. Check: the owner's iPad at Part B9; it can be changed in Settings at any time.
@@ -151,9 +153,9 @@ Feature: One bar for every selection
 
 ## How it works
 
-**From the builder and tester lenses (20 Nov; docs/archive/plans/lenses-2026-11-20.md):** the owner sees three bars, the code has six pieces to replace (the text mini bar, the v8 selection bar, the Lasso menu sheet, the mixed menu, the old box bar, the one box bar with its pinned form). Today two bars can show at once in some Pencil flows, which SB-N6 forbids. The two new switches need their entries and texts. Numbers: "keeps its place" = the bar's left edge, top and width within 1 px. Sizes: B3 about 8 hours (B3a what-is-selected and the page-level place, B3b the text states), B5 8 hours (B5a move, copy, card; B5b colour and thickness), B6 4, B7 7 (B7a order and storage, B7b the Settings part), B9 4. A green computer test does not prove SB-N5, SB-N7, a held button's name with the Pencil, or docking by a Pencil drag.
+**From the builder and tester lenses (20 Nov; docs/archive/plans/lenses-2026-11-20.md):** the owner sees three bars, the code has six pieces to replace (the text mini bar, the v8 Action bar, the Lasso menu sheet, the mixed menu, the old box bar, the one box bar with its pinned form). Today two bars can show at once in some Pencil flows, which SB-N6 forbids. The two new switches need their entries and texts. Numbers: "keeps its place" = the bar's left edge, top and width within 1 px. Sizes: B3 about 8 hours (B3a what-is-selected and the page-level place, B3b the text states), B5 8 hours (B5a move, copy, card; B5b colour and thickness), B6 4, B7 7 (B7a order and storage, B7b the Settings part), B9 4. A green computer test does not prove SB-N5, SB-N7, a held button's name with the Pencil, or docking by a Pencil drag.
 
-Detail lines for the builders (SB-01 …) are written part by part, just before each of B3 to B9 starts, after the pictures of B2 are approved. The button list of Part B1 is the base: every button, where it lives on the smart bar, and whether it works today.
+Detail lines for the builders (SB-01 …) are written part by part, just before each of B3 to B9 starts, after the pictures of B2 are approved. The button list of Part B1 is the base: every button, where it lives on the Action bar, and whether it works today.
 
 - A mixed selection (a box with a drawing on it) shows Cut, Copy, Duplicate, Delete, Resize and Edit Text; the rest under ⋯ (owner agreed, 20 Nov); drawn in the pictures of B2.
 - `OPEN:` three Goodnotes extras, later by default: a box and its ink resized and turned as one piece; Front and Back; Create Element.

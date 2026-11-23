@@ -4,7 +4,7 @@ Written by Fable with the owner. It covers everything that is open for Phases 0,
 
 ## 1. What the owner gets, and where it ends
 
-Select a word or a few letters with the Pencil, delete or paste, write over it with Scribble: reliably, with Scribble on. One smart bar for every selection. Today's Lasso unchanged. Every open fault of the frame, the tool bar and the text box closed. Then Phases 1, 1S (Settings v5), 2A and 2B go live together, on the owner's yes (part E7). That is the end of this plan. **Nothing optional holds the release (owner agreed, 20 Nov):** Settings v5 and the smart bar go live with the rest only if they have passed the owner's test by then; if not, they follow a few days later.
+Select a word or a few letters with the Pencil, delete or paste, write over it with Scribble: reliably, with Scribble on. One Action bar for every selection. Today's Lasso unchanged. Every open fault of the frame, the tool bar and the text box closed. Then Phases 1, 1S (Settings v5), 2A and 2B go live together, on the owner's yes (part E7). That is the end of this plan. **Nothing optional holds the release (owner agreed, 20 Nov):** Settings v5 and the Action bar go live with the rest only if they have passed the owner's test by then; if not, they follow a few days later.
 
 - **What success means to the owner (20 Nov), the six things that must work well by the end:** (1) the Settings page with the customisation the owner decided (Settings v5; stage 5 of this plan); it is Phase 1S, which this plan does not contain: `OPEN:` the owner decides whether it joins this release, see section 8); (2) the app frame; (3) the Text tool; (4) the Pen tool; (5) the Lasso tool; (6) the text box and everything about selecting, so that text can be edited in the best possible way. The owner's full test (E2, E5) has one chapter for each of the six.
 - **Switches (new, off in the live app):** `select.textLevel`, `select.smartBar`. Off = today, exactly.
@@ -44,13 +44,13 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 
 **The choice after A3 (owner agreed, 20 Nov):** the build of A4 to A9 waits for a ten-minute choice with the owner. If the Scribble test shows that Scribble leaves a read-only box alone, selecting may work in the Text tool itself in two moves, and the text-selection parts are reshaped before they are built. If not, they are built as written (four moves).
 
-| #   | Who    | What it gives                                                                                                                                                                               | Spec                                              | Size | Owner's check |
-| --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---- | ------------- |
-| A1  | lane A | No left-over outline; a new loop always starts fresh                                                                                                                                        | lasso.md S6 to S9, LS-50 to LS-56, LS-N1 to LS-N6 | 3 h  | C1            |
-| A2  | lane A | A quiet recorder (draws nothing; "Copy last trace") replaces the red-line Circle recorder                                                                                                   | to write                                          | 2 h  | no            |
-| A3  | lane A | The Scribble test: is a box that cannot be typed in left alone by Scribble?                                                                                                                 | to write                                          | 1 h  | C2            |
-| B1  | lane B | The list of every button of the three old bars, its place on the smart bar, whether it works today; a test that fails if one is lost                                                        | selection-bar.md                                  | 2 h  | no            |
-| B2  | Opus   | Pictures of the smart bar: cursor, words, box, drawing, picture, mix; Edit and Study; iPad sideways first, upright, phone; light and dark; the buttons for a mix and the place of the box ⋯ | pictures                                          | 3 h  | C3            |
+| #   | Who    | What it gives                                                                                                                                                                                | Spec                                              | Size | Owner's check |
+| --- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---- | ------------- |
+| A1  | lane A | No left-over outline; a new loop always starts fresh                                                                                                                                         | lasso.md S6 to S9, LS-50 to LS-56, LS-N1 to LS-N6 | 3 h  | C1            |
+| A2  | lane A | A quiet recorder (draws nothing; "Copy last trace") replaces the red-line Circle recorder                                                                                                    | to write                                          | 2 h  | no            |
+| A3  | lane A | The Scribble test: is a box that cannot be typed in left alone by Scribble?                                                                                                                  | to write                                          | 1 h  | C2            |
+| B1  | lane B | The list of every button of the three old bars, its place on the Action bar, whether it works today; a test that fails if one is lost                                                        | selection-bar.md                                  | 2 h  | no            |
+| B2  | Opus   | Pictures of the Action bar: cursor, words, box, drawing, picture, mix; Edit and Study; iPad sideways first, upright, phone; light and dark; the buttons for a mix and the place of the box ⋯ | pictures                                          | 3 h  | C3            |
 
 ### Stage 2: text selection and the bar (about four days)
 
@@ -66,14 +66,14 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 | B4  | lane B | Box state with Edit Text (S4)                                                                        | selection-bar.md                  | 3 h  | with C10      |
 | B5  | lane B | Drawing state: every drawing action (S3)                                                             | selection-bar.md                  | 6 h  | with C10      |
 | B6  | lane B | Picture and mixed states                                                                             | selection-bar.md                  | 3 h  | with C10      |
-| B7  | lane B | Presets Edit and Study, Auto, Settings › Tool bar › Selection bar (S5)                               | selection-bar.md                  | 6 h  | with C10      |
+| B7  | lane B | Presets Edit and Study, Auto, Settings › Tool bar › Action bar (S5)                                  | selection-bar.md                  | 6 h  | with C10      |
 | B8  | lane B | Phone: the same presets, fewer buttons                                                               | selection-bar.md                  | 3 h  | with C10      |
 
 ### Stage 3: swap-in and leftovers (about two to three days)
 
 | #      | Who              | What it gives                                                                                                                                                                                                                                            | Size | Owner's check |
 | ------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ------------- |
-| B9     | lane B, after A8 | The smart bar replaces the three old bars behind its switch (S6, S7)                                                                                                                                                                                     | 3 h  | C10           |
+| B9     | lane B, after A8 | The Action bar replaces the three old bars behind its switch (S6, S7)                                                                                                                                                                                    | 3 h  | C10           |
 | A10-1  | lane A           | T25: writing after "/" with Scribble no longer adds a space                                                                                                                                                                                              | 1 h  | C11           |
 | A10-2  | lane A           | B8: with Scribble off, a Pencil tap selects a box                                                                                                                                                                                                        | 1 h  | C11           |
 | A10-3  | lane A           | Lines never overlap in a narrow box                                                                                                                                                                                                                      | 1 h  | C11           |
@@ -94,17 +94,17 @@ Sizes are likely hours from the measured pace (small fix 1 h, text box task 3 h,
 
 ### Stage 4: the end (about three days, plus the owner's test)
 
-| #   | What it gives                                                                                                                                                                                                                                                                                                        |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| E1  | Nothing lost (2B.12): the inventory against the app. The specs that are out of date (shell-spec, page-menus, device-modes, textbox-v2, shared-parts, phase-1) corrected or marked "replaced by"                                                                                                                      |
-| E2  | The owner's full test list (2B.13), written as numbered scenarios by feature; the older checks that still apply and the "owner to confirm" items folded in; pictures                                                                                                                                                 |
-| E3  | Side by side with every approved picture: light, dark and sepia; iPad both ways, phone and PC                                                                                                                                                                                                                        |
-| E4  | Security review by Opus as a tester: paste first, then the whole phase; a bullet list discussed with the owner                                                                                                                                                                                                       |
-| E5  | The owner's full test (about an hour, estimate) and its fixes. The freeze (F7) and "Not saved yet" (BUG-001) are closed here if not seen again, or get a part                                                                                                                                                        |
-| E6  | The release bar (rules/quality.md); the preview-only recorders and the Tap speed row removed; the strict security header checked (sign-in, Drive, fonts); the full test set green                                                                                                                                    |
-| E7  | **Go live on the owner's yes:** one code line (task 0.7), NIGHTLY_REF, the live-check fix; a backup of the owner's notes first; then the parts are switched on over two or three days (the frame and tool bar, then the text box and selection, then the smart bar and Settings if they have passed), on each device |
-| E8  | After go-live, on the owner's word (question 4): the old text box files removed                                                                                                                                                                                                                                      |
-| E9  | Any quiet hour: a list of the 61 working copies (clean or not, merged or not); the owner approves the removals once (question 5)                                                                                                                                                                                     |
+| #   | What it gives                                                                                                                                                                                                                                                                                                         |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E1  | Nothing lost (2B.12): the inventory against the app. The specs that are out of date (shell-spec, page-menus, device-modes, textbox-v2, shared-parts, phase-1) corrected or marked "replaced by"                                                                                                                       |
+| E2  | The owner's full test list (2B.13), written as numbered scenarios by feature; the older checks that still apply and the "owner to confirm" items folded in; pictures                                                                                                                                                  |
+| E3  | Side by side with every approved picture: light, dark and sepia; iPad both ways, phone and PC                                                                                                                                                                                                                         |
+| E4  | Security review by Opus as a tester: paste first, then the whole phase; a bullet list discussed with the owner                                                                                                                                                                                                        |
+| E5  | The owner's full test (about an hour, estimate) and its fixes. The freeze (F7) and "Not saved yet" (BUG-001) are closed here if not seen again, or get a part                                                                                                                                                         |
+| E6  | The release bar (rules/quality.md); the preview-only recorders and the Tap speed row removed; the strict security header checked (sign-in, Drive, fonts); the full test set green                                                                                                                                     |
+| E7  | **Go live on the owner's yes:** one code line (task 0.7), NIGHTLY_REF, the live-check fix; a backup of the owner's notes first; then the parts are switched on over two or three days (the frame and tool bar, then the text box and selection, then the Action bar and Settings if they have passed), on each device |
+| E8  | After go-live, on the owner's word (question 4): the old text box files removed                                                                                                                                                                                                                                       |
+| E9  | Any quiet hour: a list of the 61 working copies (clean or not, merged or not); the owner approves the removals once (question 5)                                                                                                                                                                                      |
 
 ### Stage 5: the new Settings page, Settings v5 (about four to five days of building; runs beside stages 2 and 3 in whichever lane is free)
 
@@ -122,7 +122,7 @@ Picture: docs/mockups/settings-v5/ (16 shots, approved 15 Nov). Stories: docs/fe
 | S.8  | Undo and Redo at the top; ✓ and ✕ at the top of sheets; phone                                                                       | 4 h  |
 | S.9  | A tiny preview on each row and the big live preview, calm (the "too loud" note S1 and the pill over the Format tabs, PP1, end here) | 8 h  |
 | S.10 | One AI section, Help and tour, the test tools under Advanced                                                                        | 4 h  |
-| B7b  | The Selection bar part (presets, order), built once, inside the new Settings                                                        | 4 h  |
+| B7b  | The Action bar part (presets, order), built once, inside the new Settings                                                           | 4 h  |
 | S.11 | Side by side with the 16 shots (light, dark, sepia; iPad both ways, phone, PC), then the owner's check C-S                          | 4 h  |
 
 Owner's check **C-S** (after S.11, about 20 minutes): the new Settings on the iPad; it is also a chapter of the full test C12.
@@ -153,9 +153,9 @@ Every new test file is added to the iPad-size list; time is tested with the test
 | C0       | now, on today's preview, Circle recorder off | the catch-up list below                                                                      | 20 min       |
 | C1       | after A1                                     | 30 loops lifting fast: no outline stays; 15 loops one right after another: each starts fresh | 5 min        |
 | C2       | after A3                                     | one circle and one double tap with the test switch on                                        | 5 min        |
-| C3       | after B2                                     | approve the smart bar pictures (yes or "change X")                                           | 10 min       |
+| C3       | after B2                                     | approve the Action bar pictures (yes or "change X")                                          | 10 min       |
 | C4 to C9 | after each of A4 to A9                       | that part's scenarios on the iPad, answered by number                                        | 5 min each   |
-| C10      | after B9                                     | the smart bar on the iPad: every state, both presets, pinned and docked                      | 15 min       |
+| C10      | after B9                                     | the Action bar on the iPad: every state, both presets, pinned and docked                     | 15 min       |
 | C11      | after stage 3                                | the leftovers marked C11                                                                     | 15 min       |
 | C12      | E5                                           | the full test                                                                                | about 1 hour |
 | C13      | E7                                           | the yes to go live                                                                           | —            |
@@ -167,7 +167,7 @@ Every new test file is added to the iPad-size list; time is tested with the test
 **C0, the catch-up list** (merged since 17 Nov and never checked on the iPad):
 
 1. Paste ▾ in the top row and in the floating bar pastes at the cursor and keeps the look; ▾ offers Plain text.
-2. A hold in a box shows our strip with Paste.
+2. A hold in a box shows our Hold menu with Paste.
 3. With the Text tool, circle some words: no ink is left.
 4. Your own top row shows Paste ▾.
 5. Select a box: the one bar shows; move it, dock it on a side, pin it; try the fonts and Lock box.
@@ -180,11 +180,11 @@ Every new test file is added to the iPad-size list; time is tested with the test
 
 ## 7. Pictures the owner approves before the build
 
-- **B2:** the smart bar's states (set). Nothing after B2 in lane B is built before the owner's yes.
+- **B2:** the Action bar's states (set). Nothing after B2 in lane B is built before the owner's yes.
 - **A7b:** one small picture of dragging selected words (the lifted words, the mark where they will land).
 - **Settings v5:** approved already (docs/mockups/settings-v5/).
 - **A8:** one picture of the bar for a text-level selection (today's word bar with Paste ▾ and Delete).
-- Approved already: the highlight and handles (refs/lasso-text-mock.png frames 1 and 4, without its format bar); the one box bar (docs/mockups/box-bar/); Settings › Tool bar › Selection bar (refs/selection-bar-presets-mock.png).
+- Approved already: the highlight and handles (refs/lasso-text-mock.png frames 1 and 4, without its format bar); the one box bar (docs/mockups/box-bar/); Settings › Tool bar › Action bar (refs/selection-bar-presets-mock.png).
 
 ## 8. Decisions
 
@@ -253,24 +253,24 @@ Ten were offered on 20 Nov; the owner picked 1, 2, 3, 4, 6 and 10 (docs/features
 
 Every button and behaviour in the owner's screenshots, against the app and this plan. **B1's button list must contain every row of this table.**
 
-| Seen in Goodnotes                                                                          | In our app or plan                                                                                            | Result                                               |
-| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Box bar: colour, size, Resize, Edit Text, Cut, Duplicate, Delete, ⋯                        | the one box bar (approved 18 Nov) and Edit Text in B4                                                         | covered                                              |
-| Text bar with only the cursor: colour, size, Aa, B/I, align, list, highlight, **Paste**, ⋯ | brief section 10 missed the Paste button; ours: Paste ▾ shows with only the cursor                            | **added to B3**                                      |
-| Text bar with words selected: the same, plus link, cut, copy at the end                    | B3 (buttons added at the end; the bar keeps its place)                                                        | covered                                              |
-| **Edit Text puts the cursor at the end of the text**; the bar turns into the text bar      | not written before                                                                                            | **added to B4**                                      |
-| A held button shows its name ("Edit Text", "Resize")                                       | our rule: names on a long press                                                                               | **added to B3**, every bar button                    |
-| Delete is the only red button                                                              | not written before                                                                                            | **added to B3**                                      |
-| Resize mode: 4 square corners, a turn handle, a short bar (Cut, Copy, Duplicate, Delete)   | ours shows the handles at once (C11, LS-22); ink turns; a text box does not turn (parked)                     | handles covered; box turning later                   |
-| A box and the ink on it resized and turned as one piece                                    | ours: they move together (TB-32); the handles resize the ink only (LS-17)                                     | **open: owner decides** (later by default)           |
-| ⋯: Cut, Copy, Duplicate, Paste, Paste and Match Style                                      | Paste ▾: Keep look, Plain text, More: Match style                                                             | covered                                              |
-| ⋯: Front, Back                                                                             | not in the app; owner 18 Nov: not chosen; needs layers                                                        | **open: owner decides** (later by default)           |
-| ⋯: Lock Textbox                                                                            | Lock box in the box ⋯ (built 18 Nov)                                                                          | covered                                              |
-| ⋯: Take Screenshot                                                                         | Screenshot in the mixed menu and the Professional ⋯; Copy and Save as picture for ink                         | covered; B1 checks it for a box                      |
-| ⋯: Create Element (save a selection to reuse as a sticker)                                 | not in the app                                                                                                | **open: owner decides** (ideas list)                 |
-| ⋯: Writing Tools, Add to Image Playground, Ask Siri; the AI ✦ button                       | Apple's own items: a web page cannot add them; our AI waits for the cost OK                                   | cannot, or later                                     |
-| Bottom keyboard bar (indent, lists, align, B I U S, mic, return)                           | owner: no. Underline and Strike are in the B/I strip, Indent in the Format card, Mic and Enter in the top row | covered; B1 proves each is reachable with the Pencil |
-| The dashed loop stays round the selection; the bar sits below it, never on it              | ours: the loop fades into a dashed box with handles (LS-21, LS-22); the bar never covers the words            | covered (our look kept)                              |
-| Undo and Redo top left; the Lasso's ▾ "what it selects"                                    | page top bar (2A.4); Picks                                                                                    | covered                                              |
+| Seen in Goodnotes                                                                          | In our app or plan                                                                                             | Result                                               |
+| ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| Box bar: colour, size, Resize, Edit Text, Cut, Duplicate, Delete, ⋯                        | the one box bar (approved 18 Nov) and Edit Text in B4                                                          | covered                                              |
+| Text bar with only the cursor: colour, size, Aa, B/I, align, list, highlight, **Paste**, ⋯ | brief section 10 missed the Paste button; ours: Paste ▾ shows with only the cursor                             | **added to B3**                                      |
+| Text bar with words selected: the same, plus link, cut, copy at the end                    | B3 (buttons added at the end; the bar keeps its place)                                                         | covered                                              |
+| **Edit Text puts the cursor at the end of the text**; the bar turns into the text bar      | not written before                                                                                             | **added to B4**                                      |
+| A held button shows its name ("Edit Text", "Resize")                                       | our rule: names on a long press                                                                                | **added to B3**, every bar button                    |
+| Delete is the only red button                                                              | not written before                                                                                             | **added to B3**                                      |
+| Resize mode: 4 square corners, a turn handle, a short bar (Cut, Copy, Duplicate, Delete)   | ours shows the handles at once (C11, LS-22); ink turns; a text box does not turn (parked)                      | handles covered; box turning later                   |
+| A box and the ink on it resized and turned as one piece                                    | ours: they move together (TB-32); the handles resize the ink only (LS-17)                                      | **open: owner decides** (later by default)           |
+| ⋯: Cut, Copy, Duplicate, Paste, Paste and Match Style                                      | Paste ▾: Keep look, Plain text, More: Match style                                                              | covered                                              |
+| ⋯: Front, Back                                                                             | not in the app; owner 18 Nov: not chosen; needs layers                                                         | **open: owner decides** (later by default)           |
+| ⋯: Lock Textbox                                                                            | Lock box in the box ⋯ (built 18 Nov)                                                                           | covered                                              |
+| ⋯: Take Screenshot                                                                         | Screenshot in the mixed menu and the Professional ⋯; Copy and Save as picture for ink                          | covered; B1 checks it for a box                      |
+| ⋯: Create Element (save a selection to reuse as a sticker)                                 | not in the app                                                                                                 | **open: owner decides** (ideas list)                 |
+| ⋯: Writing Tools, Add to Image Playground, Ask Siri; the AI ✦ button                       | Apple's own items: a web page cannot add them; our AI waits for the cost OK                                    | cannot, or later                                     |
+| Bottom keyboard bar (indent, lists, align, B I U S, mic, return)                           | owner: no. Underline and Strike are in the B/I picker, Indent in the Format card, Mic and Enter in the top row | covered; B1 proves each is reachable with the Pencil |
+| The dashed loop stays round the selection; the bar sits below it, never on it              | ours: the loop fades into a dashed box with handles (LS-21, LS-22); the bar never covers the words             | covered (our look kept)                              |
+| Undo and Redo top left; the Lasso's ▾ "what it selects"                                    | page top bar (2A.4); Picks                                                                                     | covered                                              |
 
-**B1 also records, for every button, whether it really works today** (the Professional ⋯ lists Move, Scale, Rotate, Screenshot, Convert; some were "coming later" on 11 Nov). A button that does nothing is not put on the smart bar.
+**B1 also records, for every button, whether it really works today** (the Professional ⋯ lists Move, Scale, Rotate, Screenshot, Convert; some were "coming later" on 11 Nov). A button that does nothing is not put on the Action bar.

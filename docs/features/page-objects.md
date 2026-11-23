@@ -24,7 +24,7 @@ In plain words: a page can hold more than text: a simple table, a database (a ta
 | Time range bar                                 | Calendar screen (Day · Week · Month · Year)                                |
 | Sheet (step 2)                                 | Column editor, Chart builder (live chart on top, choices below)            |
 | Wizard steps (step 3)                          | CSV import (File · Match columns · Check · Done)                           |
-| Context menu strip (step 2)                    | long-press on a row, card, node                                            |
+| Hold menu (step 2)                             | long-press on a row, card, node                                            |
 | Dialog set, Toast queue (step 2)               | delete confirmations, Undo                                                 |
 
 No new visual pattern is needed: every surface is a card, sheet, bar or tab row above.
@@ -90,7 +90,7 @@ Already existing ids used: `tb.insertMore` (Insert › database, mind map, file)
 
 - PO-22 When I tap a row's open button → Beginner opens the row as a full page; **Pro `db.rowTools`** slides it in as a side peek with "Open as page" one tap away.
 - PO-23 **Pro `db.rowTools`** When I select several rows (tick column) → an Object bar shows Delete, Duplicate, Set value; one Undo restores all.
-- PO-24 When I long-press a row → the Context menu strip: Open, Duplicate (Pro), Delete, Move up, Move down.
+- PO-24 When I long-press a row → the Hold menu: Open, Duplicate (Pro), Delete, Move up, Move down.
 - PO-25 When I delete a row → a toast offers Undo.
 
 **Other views (O6, O7, O8)**

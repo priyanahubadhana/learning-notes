@@ -22,14 +22,14 @@
 
 ## 3. What changes against the phase-2-finish plan
 
-| Was                                                               | Now                                                                                                                                                                 |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Lane A: Lasso fixes, text selection with Pencil handles, Scribble | A0 to A3 are merged and stay. A4 to A9, the hold strip tremor rework, A10-1, A10-2, A10-4 are **parked** behind their switches with their branch names (section 9). |
-| Lane B: the smart bar B3 to B9, built as new code                 | The one bar built **on shared part cards made first** (stages 1 and 2), for mouse and keyboard; the same bar serves touch later.                                    |
-| Stage 5: Settings v5, S.1 to S.11                                 | Stays; it is the customisation the owner asked for first. Scope choice in Q5.                                                                                       |
-| B10 leftovers, B11 test health                                    | The device-neutral ones stay (stage 4); the Pencil-only ones are parked.                                                                                            |
-| E-stage: the owner's full iPad test                               | The owner's full **PC** test, plus a 10-minute iPad reading check.                                                                                                  |
-| Phase 1S Settings, 2A, 2B going live together                     | Everything that passes goes live at the end of this phase on the owner's yes (Q8).                                                                                  |
+| Was                                                               | Now                                                                                                                                                                |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Lane A: Lasso fixes, text selection with Pencil handles, Scribble | A0 to A3 are merged and stay. A4 to A9, the Hold menu tremor rework, A10-1, A10-2, A10-4 are **parked** behind their switches with their branch names (section 9). |
+| Lane B: the Action bar B3 to B9, built as new code                | The one bar built **on shared part cards made first** (stages 1 and 2), for mouse and keyboard; the same bar serves touch later.                                   |
+| Stage 5: Settings v5, S.1 to S.11                                 | Stays; it is the customisation the owner asked for first. Scope choice in Q5.                                                                                      |
+| B10 leftovers, B11 test health                                    | The device-neutral ones stay (stage 4); the Pencil-only ones are parked.                                                                                           |
+| E-stage: the owner's full iPad test                               | The owner's full **PC** test, plus a 10-minute iPad reading check.                                                                                                 |
+| Phase 1S Settings, 2A, 2B going live together                     | Everything that passes goes live at the end of this phase on the owner's yes (Q8).                                                                                 |
 
 ## 4. Measured pace, and how the times below were made
 
@@ -37,18 +37,18 @@ From docs/metrics/tasks.csv: a small fix 1 h, a text box part 3 h, a screen 6 to
 
 ## 5. Stage 0: the set-up (about 3 days, estimate; Opus with one Sonnet)
 
-| #   | What it gives                                                                                                                                                                                                     | Who           | Size | Owner                |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | -------------------- |
-| M0  | **The method as a spec** (docs/METHOD-v2.md): goal, the two non-negotiables, rules, scenarios, must-never lines, the weekly card; its confirm sheet                                                               | Fable (short) | 2 h  | confirm sheet        |
-| M1  | **Docs archive and one STATE file:** everything not live moves to docs/archive with a one-line index; PENDING, BUILD-STATE and HANDOFF become STATE.md; DECISIONS entries of finished phases archived             | Opus          | 3 h  | no                   |
-| M2  | **Spec Kit installed and adapted:** `.specify` with our two-layer spec template, the part card template, the constitution pointing at CLAUDE.md and rules; version pinned; the implement command not used         | Opus          | 3 h  | no                   |
-| M3  | **GitHub Issues as the bug source:** labels (part, state, found-by), the bug form (saw, expected, where, screenshot), the open problems and C1A, C0, PP1 items moved in with their old ids in brackets            | Sonnet        | 3 h  | no                   |
-| M4  | **The site and the board on GitHub Pages:** a generator that renders specs with pictures and status badges, the confirm sheets read-only, decisions, changelog, state, and the bug board; a GitHub Action on push | Sonnet        | 6 h  | opens it once        |
-| M5  | **Analyze v1:** every rule has a scenario, every scenario a test, every detail line a task; "builds on" present; shared-part imports checked; the bar-component ratchet. Sets the status badges                   | Sonnet        | 5 h  | no                   |
-| M6  | **Weekly card v1:** the eight numbers computed from git, issues and test runs, plus the owner's line; shown on the site                                                                                           | Sonnet        | 3 h  | no                   |
-| M7  | **Short research pass** on current agent practice (Anthropic, Google), one standard web pass, findings folded into M0                                                                                             | Opus          | 1 h  | no                   |
-| M8  | **Rules updated with the owner's 21 Nov decisions:** honesty rules, the Opus-high rung, the reuse gate in builder and reviewer, PC-first conditions, the "builds on" rule                                         | Opus          | 2 h  | no                   |
-| M9  | **The part cards** (specs only, one screen each, from the audit): Bar shell, Bar place, Hover names, Colour strip, Size strip, Font strip, More menu, Customiser, Hold strip, Drag and dock, Keys and shortcuts   | Opus          | 5 h  | reads the names (Q4) |
+| #   | What it gives                                                                                                                                                                                                                          | Who           | Size | Owner                |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ---- | -------------------- |
+| M0  | **The method as a spec** (docs/METHOD-v2.md): goal, the two non-negotiables, rules, scenarios, must-never lines, the weekly card; its confirm sheet                                                                                    | Fable (short) | 2 h  | confirm sheet        |
+| M1  | **Docs archive and one STATE file:** everything not live moves to docs/archive with a one-line index; PENDING, BUILD-STATE and HANDOFF become STATE.md; DECISIONS entries of finished phases archived                                  | Opus          | 3 h  | no                   |
+| M2  | **Spec Kit installed and adapted:** `.specify` with our two-layer spec template, the part card template, the constitution pointing at CLAUDE.md and rules; version pinned; the implement command not used                              | Opus          | 3 h  | no                   |
+| M3  | **GitHub Issues as the bug source:** labels (part, state, found-by), the bug form (saw, expected, where, screenshot), the open problems and C1A, C0, PP1 items moved in with their old ids in brackets                                 | Sonnet        | 3 h  | no                   |
+| M4  | **The site and the board on GitHub Pages:** a generator that renders specs with pictures and status badges, the confirm sheets read-only, decisions, changelog, state, and the bug board; a GitHub Action on push                      | Sonnet        | 6 h  | opens it once        |
+| M5  | **Analyze v1:** every rule has a scenario, every scenario a test, every detail line a task; "builds on" present; shared-part imports checked; the bar-component ratchet. Sets the status badges                                        | Sonnet        | 5 h  | no                   |
+| M6  | **Weekly card v1:** the eight numbers computed from git, issues and test runs, plus the owner's line; shown on the site                                                                                                                | Sonnet        | 3 h  | no                   |
+| M7  | **Short research pass** on current agent practice (Anthropic, Google), one standard web pass, findings folded into M0                                                                                                                  | Opus          | 1 h  | no                   |
+| M8  | **Rules updated with the owner's 21 Nov decisions:** honesty rules, the Opus-high rung, the reuse gate in builder and reviewer, PC-first conditions, the "builds on" rule                                                              | Opus          | 2 h  | no                   |
+| M9  | **The part cards** (specs only, one screen each, from the audit): Bar shell, Bar place, Hover names, Colour selection bar, Size selection bar, Font selection bar, More menu, Customiser, Hold menu, Drag and dock, Keys and shortcuts | Opus          | 5 h  | reads the names (Q4) |
 
 About 33 sized hours. M1 to M3 first, since every later part depends on them; M6 and M7 may run beside stage 1.
 
@@ -56,19 +56,19 @@ About 33 sized hours. M1 to M3 first, since every later part depends on them; M6
 
 One lane on purpose: one design, one set of numbers. The second lane starts Settings v5 (stage 3) at the same time.
 
-| #   | Part card          | What it gives                                                                                                                 | Size | Replaces                                                          |
-| --- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ---- | ----------------------------------------------------------------- |
-| P1  | Bar shell          | The one floating bar: buttons, 44 px targets, states, danger button, roving keyboard focus, show and hide motion              | 4 h  | the button code of Mini, Micro, OneBar, SelectionBarV8, MixedMenu |
-| P2  | Bar place          | The five-place order (below, above, right, left, under the tool bar), one clamp, the safe zones, the drag preview             | 4 h  | the five placement files and three clamps                         |
-| P3  | Hover names        | Every bar button marked for the one app-wide hover name; the private tip removed                                              | 2 h  | NameTip                                                           |
-| P4  | Colour strip       | One picker; one palette source per kind (text, pen, box) in one file                                                          | 3 h  | five pickers, three palette files                                 |
-| P5  | Size strip         | The existing strip with one scale; the percent scale mapped onto it                                                           | 2 h  | NOTE_SIZES                                                        |
-| P6  | Font strip         | The existing tiles, quick fonts list moved to one place                                                                       | 1 h  | FONT_QUICK in oneBarModel                                         |
-| P7  | More menu          | One ⋯ that folds by measured width; the one list of Cut, Copy, Duplicate, Delete with one set of words                        | 3 h  | four overflow codes, six action lists                             |
-| P8  | Customiser         | The tool bar's customiser made general: a set for each kind of selection, presets, live preview, reorder, reset               | 6 h  | EditListSheet, EditBarPanel                                       |
-| P9  | Drag and dock      | One grip drag and one docking model for every bar                                                                             | 4 h  | oneBarGrip, oneBarDockModel, pillPlace                            |
-| P10 | Keys and shortcuts | One helper: every bar action has a shortcut; a shortcut list the Settings page can show (docs/features/keyboard-shortcuts.md) | 3 h  | none today                                                        |
-| P11 | Hold strip         | The existing ContextStrip adopted as the one; the two older strips marked for removal                                         | 1 h  | HoldMenu, the old ContextStrip                                    |
+| #   | Part card            | What it gives                                                                                                                 | Size | Replaces                                                          |
+| --- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---- | ----------------------------------------------------------------- |
+| P1  | Bar shell            | The one floating bar: buttons, 44 px targets, states, danger button, roving keyboard focus, show and hide motion              | 4 h  | the button code of Mini, Micro, OneBar, SelectionBarV8, MixedMenu |
+| P2  | Bar place            | The five-place order (below, above, right, left, under the tool bar), one clamp, the safe zones, the drag preview             | 4 h  | the five placement files and three clamps                         |
+| P3  | Hover names          | Every bar button marked for the one app-wide hover name; the private tip removed                                              | 2 h  | NameTip                                                           |
+| P4  | Colour selection bar | One selection bar; one palette source per kind (text, pen, box) in one file                                                   | 3 h  | five selection bars, three palette files                          |
+| P5  | Size selection bar   | The existing selection bar with one scale; the percent scale mapped onto it                                                   | 2 h  | NOTE_SIZES                                                        |
+| P6  | Font selection bar   | The existing tiles, quick fonts list moved to one place                                                                       | 1 h  | FONT_QUICK in oneBarModel                                         |
+| P7  | More menu            | One ⋯ that folds by measured width; the one list of Cut, Copy, Duplicate, Delete with one set of words                        | 3 h  | four overflow codes, six action lists                             |
+| P8  | Customiser           | The tool bar's customiser made general: a set for each kind of selection, presets, live preview, reorder, reset               | 6 h  | EditListSheet, EditBarPanel                                       |
+| P9  | Drag and dock        | One grip drag and one docking model for every bar                                                                             | 4 h  | oneBarGrip, oneBarDockModel, pillPlace                            |
+| P10 | Keys and shortcuts   | One helper: every bar action has a shortcut; a shortcut list the Settings page can show (docs/features/keyboard-shortcuts.md) | 3 h  | none today                                                        |
+| P11 | Hold menu            | The existing ContextStrip adopted as the one; the two older Hold menus marked for removal                                     | 1 h  | HoldMenu, the old ContextStrip                                    |
 
 About 33 sized hours. Each part has its own scenarios, is built behind the phase switch, and the ratchet count goes down with each merge.
 
@@ -138,7 +138,7 @@ Case against A: three days with nothing of the product built.
 **Q3. Shared parts first, then the bar.** A: stage 1 then stage 2, one lane. B: build the bar directly and carve the parts out of it after. Other.
 Case against A: about a day slower before the bar is visible. Case against B: it is how the six copies happened.
 
-**Q4. Names.** The one bar: A "Action bar" (switch `bar.action`, code ActionBar). B "Selection bar" as the spec says today. Other. The parts as in section 6: Bar shell, Bar place, Hover names, Colour strip, Size strip, Font strip, More menu, Customiser, Hold strip, Drag and dock, Keys and shortcuts. Yes, or rename which?
+**Q4. Names.** The one bar: A "Action bar" (switch `bar.action`, code ActionBar). B "Selection bar" as the spec says today. Other. The parts as in section 6: Bar shell, Bar place, Hover names, Colour picker, Size picker, Font picker, More menu, Customiser, Hold menu, Drag and dock, Keys and shortcuts. Yes, or rename which?
 Case against A: "Selection bar" says what triggers it; "Action bar" says what it does; both are fine, and the one you choose is used everywhere, including Settings.
 
 **Q5. Settings v5 scope in this phase.** A: all of S.1 to S.11 and B7b. B: the core now, the rest next phase (section 11). Other.

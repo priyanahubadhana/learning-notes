@@ -86,7 +86,7 @@ All targets are 44 px or more.
 | Section switcher                        | Thumb slides 280 ms spring cubic-bezier(.34,1.45,.64,1); pane fades up 180 ms                          |
 | Press                                   | Scale .96 within 120 ms (stands in for a haptic tap; the real app should add a light haptic on iPhone) |
 | Newly chosen tile, chip, swatch         | Pops .93 → 1 in 280 ms spring; ring and tick draw in                                                   |
-| Simple picker after a pick              | Selection shows for 190 ms, then the card closes itself                                                |
+| Simple selection bar after a pick              | Selection shows for 190 ms, then the card closes itself                                                |
 | Value on the row changed                | That ▾ glows once: accent ring spreads and fades, 700 ms                                               |
 | Reduced motion                          | Everything is instant; states still change                                                             |
 
@@ -95,7 +95,7 @@ All targets are 44 px or more.
 Same cards, same frame, same sections. Beginner shows the essentials; Professional adds controls inside the same sections.
 
 - Size: Beginner three size tiles. Professional adds a live preview and Exact thickness.
-- Colour: Beginner six swatches. Professional adds Colour picker and Custom colours.
+- Colour: Beginner six swatches. Professional adds Colour selection bar and Custom colours.
 - Favourites: both show favourite pens as tiles plus a "save" tile.
 - Feel: both have Feel · Aids · Math · Page. Beginner Feel = Pressure, Stabilisation and a collapsed Fine-tune. Professional adds tip, response, layers, paper size, zoom.
 - Format: both have Text · Style · Paragraph. Professional adds a fourth section, Advanced, plus fonts, strike-through, marks, more lists and blocks.
@@ -132,7 +132,7 @@ Every feature and every probe from v6. Coverage 878/878 and functional 152/152 p
 ## 6. Open points for the owner / build
 
 1. "Fountain pen" as the name (alternative: "Ink pen").
-2. Simple pickers close themselves 0.19 s after a pick. Alternative: stay open until you tap outside.
+2. Simple selection bars close themselves 0.19 s after a pick. Alternative: stay open until you tap outside.
 3. Professional Feel › Feel still scrolls (about ten rows). Option: move Tip sharpness, Flatness and Line style into Size, so Size = how the line looks and Feel = how it responds.
 4. v6 conditions not part of this pass: toast with Undo per change, the Professional "+" pin row, removing the top-bar Done.
 5. Motion timings are a starting point; confirm on the real iPad.
@@ -144,13 +144,13 @@ Mock: `v8/toolbar-mock-v8.html` (build: `node v8/build.cjs`). Sources added: `v8
 ### 7.1 V1: every change shows
 
 - The changed part glows once: the ▾ on the row (v7), and now the switch row, the selected box and the page.
-- New bars and items slide or fade in (box bar, selection bars, lasso bar, mini keys, write pad, keyboard bar, reader bar, ruler, edge chips, new custom tools).
+- New bars and items slide or fade in (box bar, Action bars, lasso bar, mini keys, write pad, keyboard bar, reader bar, ruler, edge chips, new custom tools).
 - A switch answers "X turned on · Undo". Undo puts every setting back exactly, even if the card has closed. Picks you can see on the page or the row glow instead of talking (quality standard 7: toasts for unseen actions).
 - Every switch row has a tiny live picture that draws its off and on result (32 kinds). Spacing choices carry a glyph.
 
 ### 7.2 V3: audit, what moved to the card system
 
-Box bar · text selection bar (mini and micro) · lasso/picture bar with its More, Colour, Thickness, Resize and Edit strips · keyboard bar · mini keys · write pad · reader bar · box grip menu and all list menus (rows in wells, Delete in red) · More, the all-tools panel (rows in wells) · Layouts card · Toolbar settings · Customise · Help · Reading look · Arrange the menu · dialogs (New layout, Rename, Delete, Add a picture, New recall card, Handwriting, Link, Save as preset, Save to notes, Screenshot) · Elements tabs · toast · tooltip.
+Box bar · text Action bar (mini and micro) · lasso/picture bar with its More, Colour, Thickness, Resize and Edit strips · keyboard bar · mini keys · write pad · reader bar · box grip menu and all list menus (rows in wells, Delete in red) · More, the all-tools panel (rows in wells) · Layouts card · Toolbar settings · Customise · Help · Reading look · Arrange the menu · dialogs (New layout, Rename, Delete, Add a picture, New recall card, Handwriting, Link, Save as preset, Save to notes, Screenshot) · Elements tabs · toast · tooltip.
 Also fixed: stale "All tools row" wording (the row was removed in v6); capital-letter labels; arrow characters used as icons.
 
 ### 7.3 V4: custom tools (Professional; Beginner can unlock in More)

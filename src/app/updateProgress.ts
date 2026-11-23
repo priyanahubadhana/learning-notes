@@ -8,6 +8,7 @@
  * Loaded on demand (not in the first download).
  */
 import { updateStatus } from './updateStatus'
+import { isOn } from './flags'
 
 export interface Listed {
   u: string
@@ -216,24 +217,26 @@ export async function follow(
   let live = worker.state === 'installing'
   const stop = new AbortController()
   // Bytes from the parallel fetch; null when it failed (then: count the cache).
-  let warm: { loaded: number; total: number; started: number } | null = {
-    loaded: 0,
-    total: 0,
-    started: 0,
-  }
-  void download(
-    (loaded, total) => {
-      if (!warm) return
-      if (!warm.started) warm.started = Date.now()
-      warm.loaded = loaded
-      warm.total = total
-    },
-    stop.signal,
-    files,
-    () => beforeP,
-  ).catch(() => {
-    warm = null
-  })
+  // update.v2: one download only. The worker's own install fetches every file;
+  // a second fetch of the same files doubled the download (WebKit does not
+  // share them), so the bar counts what the worker has saved instead.
+  const countOnly = isOn('update.v2')
+  let warm: { loaded: number; total: number; started: number } | null =
+    countOnly ? null : { loaded: 0, total: 0, started: 0 }
+  if (!countOnly)
+    void download(
+      (loaded, total) => {
+        if (!warm) return
+        if (!warm.started) warm.started = Date.now()
+        warm.loaded = loaded
+        warm.total = total
+      },
+      stop.signal,
+      files,
+      () => beforeP,
+    ).catch(() => {
+      warm = null
+    })
   const started = Date.now()
   const listed = await listedP
   const before = await beforeP

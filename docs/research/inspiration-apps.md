@@ -1,6 +1,6 @@
 # Inspiration apps research (5 Nov 2026)
 
-Purpose: ideas for our redesign (see docs/plans/redesign-2026-11.md). Everything below is described as functions and interactions. We build our OWN look, icons and wording. No app's art, icons or exact layout is copied.
+Purpose: ideas for our redesign (see docs/archive/plans/redesign-2026-11.md). Everything below is described as functions and interactions. We build our OWN look, icons and wording. No app's art, icons or exact layout is copied.
 
 ## How reliable is this?
 

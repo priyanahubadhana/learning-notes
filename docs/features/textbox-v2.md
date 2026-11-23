@@ -2,7 +2,7 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-Sources: build-master-plan §1 ("Text box v2: reuse or restart?"), §3.3 row 2; PENDING (owner decisions 11 Nov); [owner-bug-batch-3](../plans/owner-bug-batch-3-2026-11-11.md) items 1–10; [text-tool-plan](../plans/text-tool-plan.md); [layout-assist-plan](../plans/layout-assist-plan.md); [paper-page](paper-page.md); Box card in `docs/mockups/toolbar-v8/` (design system: `design-study.md` §3).
+Sources: build-master-plan §1 ("Text box v2: reuse or restart?"), §3.3 row 2; PENDING (owner decisions 11 Nov); [owner-bug-batch-3](../archive/plans/owner-bug-batch-3-2026-11-11.md) items 1–10; [text-tool-plan](../plans/text-tool-plan.md); [layout-assist-plan](../plans/layout-assist-plan.md); [paper-page](paper-page.md); Box card in `docs/mockups/toolbar-v8/` (design system: `design-study.md` §3).
 
 ## Purpose
 

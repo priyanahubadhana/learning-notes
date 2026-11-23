@@ -24,6 +24,8 @@ React + TypeScript (strict), Vite, Tailwind, BlockNote, IndexedDB through Dexie.
 
 **Next step:** see [docs/HANDOFF.md](docs/HANDOFF.md).
 
+**Report a bug (from the phone):** open the [bug form](https://github.com/priyanahubadhana/learning-notes/issues/new?template=bug.yml), say what you saw and what you expected, pick the device, add a screenshot, tap Submit. All bugs live in [GitHub Issues](https://github.com/priyanahubadhana/learning-notes/issues).
+
 ## Rules that must never break
 
 See "Architecture Decisions" in [rules/architecture.md](rules/architecture.md). Every other document is listed in [docs/INDEX.md](docs/INDEX.md).

@@ -68,3 +68,9 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 19 Nov,slice/ci-reds,~85 CI reds (helpers after C34; CDP pen driver; scribble-out read as circle bug),Sonnet,3 review rounds (retry helper rejected),merged 1d130535
 19 Nov,slice/b11-b12,B11 Text tool never makes ink; B12 Paste in owner's v8 row,Sonnet,1 review round,merged 2ce4acf2
 20 Nov,slice/ci-reds-2+3,last CI reds; 4 real bugs (mini bar after turn; column rounding; resize loses selection; v8 Pencil-only keys),Opus builder,1 review round,merged
+2026-11-22T04:00+05:30,PC-1,M1 docs archive and one STATE file,sonnet,324000,3,,,2.6,"three review rounds (two FAIL, one PASS); fix round 1 merged before its re-review (slip 2); reviewers about 216000 tokens; junction worktree ln-m1"
+2026-11-22T05:10+05:30,PC-1/1A,U0b update spec rewrite and templates,opus,167510,3,,,3.5,"first review FAIL (6), fix round merged before re-review (slip 1, then PASS), owner row-13 finding (slip 3: invented Settings layout) redrawn on v5, re-review FAIL on one text line then manager check; reviewers about 208000 tokens"
+2026-11-22T06:00+05:30,PC-1/1A,M2 Spec Kit installed and adapted,sonnet,62000,2,,,1.2,"builder tokens first round only (fix round not reported); review FAIL (7 fixes) then PASS; reviewers about 105000"
+2026-11-22T06:40+05:30,PC-1/1A,M3 GitHub Issues as bug source,sonnet,67174,1,,,0.4,"43 issues #7-#49; review PASS first round; form labels bug and found-by:owner added by the manager (style note); reviewer 56433"
+2026-11-22T07:30+05:30,PC-1/1A,Ideas sort and Pillar column,sonnet,115595,3,,,1.2,"review FAIL (5 stage rows), fix script corrupted header, repaired, manager diff check; reviewer 75188"
+2026-11-22T07:30+05:30,PC-1/1A,M8 rules and paths (manager share),sonnet,83065,3,,,1.0,"two review FAILs (one caused by the manager instruction); last pointer fixed by the manager; reviewers about 115000"

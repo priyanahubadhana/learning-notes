@@ -42,3 +42,4 @@ playwright.*.config.ts
 supabase/.temp/
 .features-gen
 .u0a
+site/

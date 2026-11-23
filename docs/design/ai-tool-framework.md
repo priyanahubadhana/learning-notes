@@ -2,7 +2,7 @@
 
 Date: 12 Nov 2026. Status: design for the real build (nothing built yet). Owner rule: "the framework itself must be in place, not just an image; the app must really execute these tasks without bugs: Toyota reliability".
 
-Mock that runs a small copy of this framework in the page: AI mode v4 (scratchpad `ai-mode-mock.html`). Specs: `docs/plans/owner-ideas-batch-2-2026-11-10.md` sections 10 to 14. Existing base: `docs/features/claude-connector.md`.
+Mock that runs a small copy of this framework in the page: AI mode v4 (scratchpad `ai-mode-mock.html`). Specs: `docs/archive/plans/owner-ideas-batch-2-2026-11-10.md` sections 10 to 14. Existing base: `docs/features/claude-connector.md`.
 
 ## Plain-words summary (for the owner)
 

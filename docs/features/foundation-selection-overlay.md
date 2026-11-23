@@ -5,7 +5,7 @@ Security rules: [rules/security.md](../../rules/security.md). Check them before 
 ## Purpose
 
 Two new building blocks, nothing visible yet (root causes 3 and 4 in
-[the master plan](../plans/build-master-plan.md)). Later slices move onto them behind the
+[the master plan](../archive/plans/build-master-plan.md)). Later slices move onto them behind the
 flags `foundation.selection` and `foundation.overlay`.
 
 - **Selection store** (`src/app/selection/`): one truth for "what is selected".

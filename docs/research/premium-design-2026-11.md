@@ -1,6 +1,6 @@
 # Premium design research (9 Nov 2026)
 
-For the premium design pass (docs/plans/premium-design-2026-11.md). Feeds docs/design/system.md and docs/design/screens.md.
+For the premium design pass (docs/archive/plans/premium-design-2026-11.md). Feeds docs/design/system.md and docs/design/screens.md.
 Source quality: pages marked (official) come from the platform owner. The rest are secondary write-ups, so we treat them as hints, not facts.
 
 ## 1. Apple HIG: materials, type, motion, iPad

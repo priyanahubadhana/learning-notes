@@ -1,0 +1,49 @@
+name: Bug
+description: Something looks wrong or does not work. Plain words are fine.
+title: '[bug] '
+labels: ['bug', 'state:open', 'found-by:owner']
+body:
+  - type: textarea
+    id: saw
+    attributes:
+      label: What I saw
+      description: What happened, in your own words. What did you do just before?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What I expected
+      description: What should have happened instead?
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options:
+        - iPad
+        - iPhone
+        - PC
+        - Mac
+        - Android
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: app
+    attributes:
+      label: Where in the app
+      description: The screen or part, for example Settings, the Tool bar, a text box.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Shown in Settings under About, if you can see it.
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Screenshot
+      description: Paste or drop a picture here. Do not show private note text.

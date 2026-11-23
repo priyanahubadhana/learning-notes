@@ -2,7 +2,7 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-Plan: [plans/claude-connector-plan.md](../plans/claude-connector-plan.md). Local connector (A) built so far: slice 1 (shared crypto + Node tests), 2 (read tools), 3 (its own revocable device) and 4 (write tools). The Inbox, audit screen and rate limits come in slices 5-6.
+Plan: [archive/plans/claude-connector-plan.md](../archive/plans/claude-connector-plan.md). Local connector (A) built so far: slice 1 (shared crypto + Node tests), 2 (read tools), 3 (its own revocable device) and 4 (write tools). The Inbox, audit screen and rate limits come in slices 5-6.
 
 ## Purpose
 
@@ -120,7 +120,7 @@ If a notebook you expect is missing, Claude's answer says "N notebooks are hidde
 
 ## Online connector (B)
 
-Plan: [plans/claude-connector-plan.md](../plans/claude-connector-plan.md), section B. **Built (all eight slices): the notebook spec, the sign-in door, the opt-in key escrow with Settings › Claude and Connected apps, the read tools, `create_notebook` and `add_page`, `add_cards`, `create_database`, `apply_style`, `refine_page` with the Inbox and the Activity list, rate limits, and the security review.** Nothing is deployed yet (deploying needs the owner's OK).
+Plan: [archive/plans/claude-connector-plan.md](../archive/plans/claude-connector-plan.md), section B. **Built (all eight slices): the notebook spec, the sign-in door, the opt-in key escrow with Settings › Claude and Connected apps, the read tools, `create_notebook` and `add_page`, `add_cards`, `create_database`, `apply_style`, `refine_page` with the Inbox and the Activity list, rate limits, and the security review.** Nothing is deployed yet (deploying needs the owner's OK).
 
 ### What it is
 

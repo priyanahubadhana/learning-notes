@@ -44,7 +44,7 @@ Sync fields of a record live beside it in `syncState` (Dexie 18), one row per re
 
 ## Settings that follow you (9 Nov 2026)
 
-Plan: [plans/settings-sync-plan.md](../plans/settings-sync-plan.md); research: [research/settings-sync-2026-11.md](../research/settings-sync-2026-11.md).
+Plan: [archive/plans/settings-sync-plan.md](../archive/plans/settings-sync-plan.md); research: [research/settings-sync-2026-11.md](../research/settings-sync-2026-11.md).
 
 - **One record per setting** in the `settings` table (now `record` mode: newer edit wins per setting; invalid values read as the default). The clock lives in `syncState` as for every table, so rows carry no `hlc` of their own.
 - **Groups** (`settings/syncGroups.ts`): General, Appearance (theme, reduce glass), Review, Reading (look only), AI settings (on/off, model order, key per model, spending limit, privacy OK, currency), Lock; all on by default. **AI keys** is the existing R6-2 opt-in (`ai.keysSync`), off by default. Everything not in a group stays on the device (device mode, tool bars, sizes, Pencil, hints, auto update, zoom, lab flags).

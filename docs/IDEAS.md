@@ -1,5 +1,7 @@
 # Ideas (parked)
 
+- **22 Nov 2026 · Tool previews on hold (owner; later, stage 2 polish):** press-and-hold on a tool bar icon plays a small preview of what the tool does, like Photoshop's tool tips; for new users; a setting to turn it off; hover keeps showing the name. Source: principles.md Q12.
+
 New ideas that come up mid-build are parked here, not added to the current phase.
 
 - 2026-10-25 — AI learning companion: watches the screen and listens to the voice while learning; writes detailed notes, a keyword summary and flashcards; adds spoken insights to both the notes and the summary _(Likely phase: 7)_
@@ -170,7 +172,7 @@ New ideas that come up mid-build are parked here, not added to the current phase
 
 - **Clean up with AI in Paste ▾ › More (owner, 19 Nov 2026):** hidden for now; add back once AI is approved.
 
-- **For Fable (owner, 19 Nov 2026): the Goodnotes approach.** A tap on text could switch to the Lasso by default, so all the Lasso's selection features work on text; the Lasso itself does not type, so a further tap returns to the Text tool with the cursor. Discuss with the owner and Fable before building. Evidence: docs/plans/pencil-select-plan.md (traces), refs/goodnotes-lasso-text-*.png.
+- **For Fable (owner, 19 Nov 2026): the Goodnotes approach.** A tap on text could switch to the Lasso by default, so all the Lasso's selection features work on text; the Lasso itself does not type, so a further tap returns to the Text tool with the cursor. Discuss with the owner and Fable before building. Evidence: docs/archive/plans/pencil-select-plan.md (traces), refs/goodnotes-lasso-text-*.png.
 
 - **Box ⋯ where people tap (Opus, 20 Nov 2026):** when the page tabs are close above the first box, its tab and ⋯ sit under the box at the right (Polish 2B); a tap there to make a new box opens the menu instead. Ask the owner whether to move it.
 

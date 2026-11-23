@@ -2,7 +2,7 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-Sources: `docs/plans/app-audit-2026-11-12.md` §3.3 (O1–O16) and §5 batch 2; build-master-plan §2.3 row 2, §3.4 row 13, "Running principles" 2; [database](database.md), [databases](databases.md), [database-views](database-views.md), [mind-map](mind-map.md), [calendar-day](calendar-day.md), [embeds](embeds.md). Design system: `docs/mockups/toolbar-v8/design-study.md` §3.
+Sources: `docs/archive/plans/app-audit-2026-11-12.md` §3.3 (O1–O16) and §5 batch 2; build-master-plan §2.3 row 2, §3.4 row 13, "Running principles" 2; [database](database.md), [databases](databases.md), [database-views](database-views.md), [mind-map](mind-map.md), [calendar-day](calendar-day.md), [embeds](embeds.md). Design system: `docs/mockups/toolbar-v8/design-study.md` §3.
 
 ## Purpose
 

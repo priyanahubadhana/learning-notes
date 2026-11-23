@@ -1,3 +1,5 @@
+Replaced by action-bar.md (22 Nov 2026); kept for history.
+
 # The smart selection bar (switch `select.smartBar`)
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
@@ -149,7 +151,7 @@ Feature: One bar for every selection
 
 ## How it works
 
-**From the builder and tester lenses (20 Nov; docs/plans/lenses-2026-11-20.md):** the owner sees three bars, the code has six pieces to replace (the text mini bar, the v8 selection bar, the Lasso menu sheet, the mixed menu, the old box bar, the one box bar with its pinned form). Today two bars can show at once in some Pencil flows, which SB-N6 forbids. The two new switches need their entries and texts. Numbers: "keeps its place" = the bar's left edge, top and width within 1 px. Sizes: B3 about 8 hours (B3a what-is-selected and the page-level place, B3b the text states), B5 8 hours (B5a move, copy, card; B5b colour and thickness), B6 4, B7 7 (B7a order and storage, B7b the Settings part), B9 4. A green computer test does not prove SB-N5, SB-N7, a held button's name with the Pencil, or docking by a Pencil drag.
+**From the builder and tester lenses (20 Nov; docs/archive/plans/lenses-2026-11-20.md):** the owner sees three bars, the code has six pieces to replace (the text mini bar, the v8 selection bar, the Lasso menu sheet, the mixed menu, the old box bar, the one box bar with its pinned form). Today two bars can show at once in some Pencil flows, which SB-N6 forbids. The two new switches need their entries and texts. Numbers: "keeps its place" = the bar's left edge, top and width within 1 px. Sizes: B3 about 8 hours (B3a what-is-selected and the page-level place, B3b the text states), B5 8 hours (B5a move, copy, card; B5b colour and thickness), B6 4, B7 7 (B7a order and storage, B7b the Settings part), B9 4. A green computer test does not prove SB-N5, SB-N7, a held button's name with the Pencil, or docking by a Pencil drag.
 
 Detail lines for the builders (SB-01 …) are written part by part, just before each of B3 to B9 starts, after the pictures of B2 are approved. The button list of Part B1 is the base: every button, where it lives on the smart bar, and whether it works today.
 

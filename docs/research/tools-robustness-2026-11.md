@@ -1,6 +1,6 @@
 # Tools robustness: why Lasso and Text stop after a few uses and after an app switch (9 Nov 2026)
 
-Planner audit (Opus). No app code changed. Plan: [../plans/tools-robustness-plan.md](../plans/tools-robustness-plan.md).
+Planner audit (Opus). No app code changed. Plan: [../plans/tools-robustness-plan.md](../archive/plans/tools-robustness-plan.md).
 
 ## In one paragraph
 

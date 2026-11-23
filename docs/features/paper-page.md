@@ -1,6 +1,6 @@
 # Paper page (Phase Q)
 
-Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [plans/paper-page-plan.md](../plans/paper-page-plan.md).
+Security rules: [rules/security.md](../../rules/security.md). Check them before building. Plan: [archive/plans/paper-page-plan.md](../archive/plans/paper-page-plan.md).
 
 ## What it is
 

@@ -12,7 +12,7 @@ Researched 12 Nov 2026 from official Claude Code docs (costs, sub-agents, prompt
 6. **Search.** In the build, the Sonnet builder of a task searches for itself and the phase manager asks it for a short report (no Haiku in the build, docs/HOW-WE-BUILD.md). For other tasks, a Haiku helper can do read-only lookups.
 7. **Never re-read files; batch independent tool calls in one message.** Fewer round trips means fewer re-sent contexts and faster work. Run agents in parallel only when files do not overlap.
 8. **Keep CLAUDE.md under about 200 lines.** It loads on every request of every agent. Move workflow detail into rule files or skills that load on demand (we already do this). Use `omitClaudeMd: true` for pure-executor agents.
-9. **`/clear` between unrelated tasks; `/compact` at natural breaks, not mid-task.** Stale context is re-paid on every message. After a break longer than the cache lifetime (1 hour on a subscription, 5 minutes for sub-agents), the next turn is a full-price re-read, so batch work in bursts.
+9. **One task, one fresh window (owner, 22 Nov 2026); `/clear` at every part boundary; `/compact` never planned on.** Stale context is re-paid on every message. After a break longer than the cache lifetime (1 hour on a subscription, 5 minutes for sub-agents), the next turn is a full-price re-read, so batch work in bursts.
 10. **Checkpoint and measure.** Commit small, keep PENDING/HANDOFF notes. Run `/usage` to see which skills, agents and MCP servers use the most, plus the cache hit line; `/context` shows what fills the window. Limit gh/API calls (one `gh` call with `--json`, then reuse the result). When a limit hits, Claude Code can wait and continue automatically after reset (v2.1.234+).
 
 ## Model per role

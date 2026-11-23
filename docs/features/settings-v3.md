@@ -2,7 +2,7 @@
 
 Security rules: [rules/security.md](../../rules/security.md). Check them before building.
 
-Slice 3 of [build-master-plan.md](../plans/build-master-plan.md). Mock: `docs/mockups/settings-mock-v3.html` (approved 12 Nov 2026). Builds on [settings.md](settings.md), [sync.md](sync.md), [lock.md](lock.md).
+Slice 3 of [build-master-plan.md](../archive/plans/build-master-plan.md). Mock: `docs/mockups/settings-mock-v3.html` (approved 12 Nov 2026). Builds on [settings.md](settings.md), [sync.md](sync.md), [lock.md](lock.md).
 
 ## Purpose
 

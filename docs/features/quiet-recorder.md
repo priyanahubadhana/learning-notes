@@ -2,7 +2,7 @@
 
 **Story:** As the owner, when a Lasso outline stays on the screen or a new loop acts on the old selection, I tap "Copy last trace" and paste it in the chat, so the fix is written from what my iPad really did, not from a guess.
 
-**Why now:** the two rare Lasso faults (docs/plans/lasso-bugs-a-b-note.md) show once or twice in five to ten uses, only on the real iPad. Part A1 is written from one real trace (check C1a). It replaces the red-line Circle recorder, which drew on the page and changed what it measured.
+**Why now:** the two rare Lasso faults (docs/archive/plans/lasso-bugs-a-b-note.md) show once or twice in five to ten uses, only on the real iPad. Part A1 is written from one real trace (check C1a). It replaces the red-line Circle recorder, which drew on the page and changed what it measured.
 
 ## Rules
 

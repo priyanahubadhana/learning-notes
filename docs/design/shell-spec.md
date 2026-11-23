@@ -83,12 +83,12 @@ Two columns (widths in §8), both `--surface-1` cards with a header, optional ta
 
 ## 5. Floating bars and the minimise chip
 
-| Thing                                       | Position                                                                                    | Rule                                                                                                                                            |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Floating bar                                | bottom centre of the main column, 16 px up (phone: 12 px above the tab bar)                 | glass pill, 44 px targets, at most one row, never over the top bar. Ends with a separator + the **minimise** button (arrow-to-edge icon).       |
-| Tool bars under the top bar (editor/reader) | as approved in toolbar v4: a glass bar in its own gap above the page, options pill below it | unchanged; they use the same minimise button and chips. Drag by the grip, snap to left/right/bottom (v4 code).                                  |
+| Thing                                       | Position                                                                                    | Rule                                                                                                                                                                        |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Floating bar                                | bottom centre of the main column, 16 px up (phone: 12 px above the tab bar)                 | glass pill, 44 px targets, at most one row, never over the top bar. Ends with a separator + the **minimise** button (arrow-to-edge icon).                                   |
+| Tool bars under the top bar (editor/reader) | as approved in toolbar v4: a glass bar in its own gap above the page, options pill below it | unchanged; they use the same minimise button and chips. Drag by the grip, snap to left/right/bottom (v4 code).                                                              |
 | Minimise chip                               | right edge of the screen, starting 64 px below the top bar, stacked 8 px apart              | accent border + tint, 44 px high, chevron + icon + **label**, slides in on the motion scale (system.md §6). Tap restores the bar. The choice is remembered (`ln-shell-v1`). |
-| Content clearance                           | `.sh-scroll` keeps 84 px of bottom padding                                                  | nothing is ever hidden under a bar.                                                                                                             |
+| Content clearance                           | `.sh-scroll` keeps 84 px of bottom padding                                                  | nothing is ever hidden under a bar.                                                                                                                                         |
 
 ## 6. More: button, sheet, small dialogs
 
@@ -111,16 +111,16 @@ Decided 22 Nov 2026 (owner, confirmed in chat, Q5): a pill, **bottom-right on ev
 - Colours, radii, glass, motion, icons and the default theme: docs/design/system.md (the one table; Day is the default theme, Night and Sepia in every mock too).
 - Shell sizes (CSS variables), the frame's one table:
 
-| Size     | px   | Source                                                                            |
-| -------- | ---- | --------------------------------------------------------------------------------- |
-| rail     | 56   | 12 Nov                                                                            |
-| sidebar  | 288  | owner, 22 Nov 2026, Q6 (was 264; system.md's 9 Nov "resizable 220-360" kept as the range) |
-| panel    | 264  | 12 Nov (Q6 named the side list only)                                              |
-| top bar  | 52   | 12 Nov (the Tool bar below it: toolbar-v8.md)                                     |
-| tab bar  | 56   | 12 Nov                                                                            |
-| sheet    | 376  | owner, 22 Nov 2026, Q9 ("the smaller the better here"; was 440)                   |
-| hit      | 44   | always, every density (system.md §8, Q17)                                         |
-| gap      | 12   | 12 Nov                                                                            |
+| Size    | px  | Source                                                                                    |
+| ------- | --- | ----------------------------------------------------------------------------------------- |
+| rail    | 56  | 12 Nov                                                                                    |
+| sidebar | 288 | owner, 22 Nov 2026, Q6 (was 264; system.md's 9 Nov "resizable 220-360" kept as the range) |
+| panel   | 264 | 12 Nov (Q6 named the side list only)                                                      |
+| top bar | 52  | 12 Nov (the Tool bar below it: toolbar-v8.md)                                             |
+| tab bar | 56  | 12 Nov                                                                                    |
+| sheet   | 376 | owner, 22 Nov 2026, Q9 ("the smaller the better here"; was 440)                           |
+| hit     | 44  | always, every density (system.md §8, Q17)                                                 |
+| gap     | 12  | 12 Nov                                                                                    |
 
 - Breakpoints: **640** (phone) and **1180** (room for sidebar + panel). No others for shell parts.
 - Layers: tab bar 30 · floating bar 40 · chips 41 · drawer scrim 59 · drawers 60 · sheet scrim 79 · sheet 80 · dialog 85 · pop 86 · toast 90.

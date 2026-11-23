@@ -85,20 +85,20 @@ Charts: keep the six-colour rule. Chart 1 becomes the accent. Heatmap: 5 steps o
 
 Decided 22 Nov 2026 (owner, Q4: menus take B, everything else A):
 
-| Part                         | Radius (px) |
-| ---------------------------- | ----------- |
-| inputs                       | 8           |
-| menus (and their rows)       | 8           |
-| cards, pickers, panels       | 20          |
-| sheets                       | 24          |
-| dialogs                      | 24          |
-| toast                        | 14          |
-| wells inside cards           | 14          |
-| chips, buttons, segmented    | pill (999)  |
-| chips inside rows, kbd       | 6           |
-| small buttons                | 8           |
-| sidebar, command palette     | 16          |
-| hero cards                   | 24          |
+| Part                      | Radius (px) |
+| ------------------------- | ----------- |
+| inputs                    | 8           |
+| menus (and their rows)    | 8           |
+| cards, pickers, panels    | 20          |
+| sheets                    | 24          |
+| dialogs                   | 24          |
+| toast                     | 14          |
+| wells inside cards        | 14          |
+| chips, buttons, segmented | pill (999)  |
+| chips inside rows, kbd    | 6           |
+| small buttons             | 8           |
+| sidebar, command palette  | 16          |
+| hero cards                | 24          |
 
 The last four rows are the 9 Nov values the questionnaire did not touch. Nested rule: inner radius = outer radius - padding.
 
@@ -160,10 +160,10 @@ Glass recipe (`.glass`, frame only):
 
 Two glasses, on purpose (owner, 22 Nov 2026, Q3):
 
-| Glass       | Used by                         | Fill                      | Blur                                     | Saturate | Edge                                  |
-| ----------- | ------------------------------- | ------------------------- | ---------------------------------------- | -------- | ------------------------------------- |
-| Frame glass | bars, sidebar, menus, palette   | 72 % light / 70 % dark    | 16 bars · 20 sidebar · 24 menus, palette | 160 %    | hairline (§1 glass tints)             |
-| Card glass  | cards, pickers, panels          | 88 to 92 %                | 28                                       | 170 %    | hairline with a 1 px top highlight    |
+| Glass       | Used by                       | Fill                   | Blur                                     | Saturate | Edge                               |
+| ----------- | ----------------------------- | ---------------------- | ---------------------------------------- | -------- | ---------------------------------- |
+| Frame glass | bars, sidebar, menus, palette | 72 % light / 70 % dark | 16 bars · 20 sidebar · 24 menus, palette | 160 %    | hairline (§1 glass tints)          |
+| Card glass  | cards, pickers, panels        | 88 to 92 %             | 28                                       | 170 %    | hairline with a 1 px top highlight |
 
 - The palette adds a dimmed backdrop (`rgba(0,0,0,.24)` light, `.48` dark, no blur on the dim). The paper is always solid.
 - Budget: at most 3 blurred elements visible at once. Never blur the paper. Never animate the blur.
@@ -182,16 +182,16 @@ Two glasses, on purpose (owner, 22 Nov 2026, Q3):
 
 One motion scale (owner, 22 Nov 2026, Q2): the three tokens above for everything; the loose phrase "about 150 ms" is retired. Named uses:
 
-| Use                    | Value                                                  |
-| ---------------------- | ------------------------------------------------------ |
-| card open              | 200 ms, `--ease-out`, fade, scale .96 → 1, rise 6 px   |
-| card close             | 130 ms                                                 |
-| segmented thumb        | 280 ms, `--spring`                                     |
-| new pick pops          | .93 → 1 in 280 ms                                      |
-| changed ▾ glows        | once, 700 ms                                           |
-| simple picker closes   | 190 ms after a pick                                    |
-| minimise chip slides   | `--dur-2`                                              |
-| press                  | scale .97 at `--dur-1`                                 |
+| Use                  | Value                                                |
+| -------------------- | ---------------------------------------------------- |
+| card open            | 200 ms, `--ease-out`, fade, scale .96 → 1, rise 6 px |
+| card close           | 130 ms                                               |
+| segmented thumb      | 280 ms, `--spring`                                   |
+| new pick pops        | .93 → 1 in 280 ms                                    |
+| changed ▾ glows      | once, 700 ms                                         |
+| simple picker closes | 190 ms after a pick                                  |
+| minimise chip slides | `--dur-2`                                            |
+| press                | scale .97 at `--dur-1`                               |
 
 - Menus: fade + 4 px rise. Dialogs: fade + scale .98→1.
 - Reduced motion: every transform becomes a 120 ms opacity fade; no shimmer, no flip (crossfade), no smooth scroll.
@@ -225,12 +225,12 @@ Every target is at least 44 px, always, in every density (owner, 22 Nov 2026, Q1
 
 ## 9. Layout and breakpoints
 
-| Name    | Width                   | Layout                                                               |
-| ------- | ----------------------- | -------------------------------------------------------------------- |
-| phone   | < 640 (or height < 512) | single column, bottom sheets, sidebar is a drawer, side gutter 16    |
-| tablet  | 640 - 1023              | floating sidebar overlays or a 72 px icon rail, gutter 24            |
-| desktop | ≥ 1024                  | sidebar (width: shell-spec.md §8) with a 12 px gap, gutter 32        |
-| wide    | ≥ 1440                  | content max 1200 for dashboards; paper max 72ch + margins            |
+| Name    | Width                   | Layout                                                            |
+| ------- | ----------------------- | ----------------------------------------------------------------- |
+| phone   | < 640 (or height < 512) | single column, bottom sheets, sidebar is a drawer, side gutter 16 |
+| tablet  | 640 - 1023              | floating sidebar overlays or a 72 px icon rail, gutter 24         |
+| desktop | ≥ 1024                  | sidebar (width: shell-spec.md §8) with a 12 px gap, gutter 32     |
+| wide    | ≥ 1440                  | content max 1200 for dashboards; paper max 72ch + margins         |
 
 These keep the existing `phone` / `wide` custom variants (640/512). Dashboards use a 12-column grid with 16 px gutters (24 on desktop). Tiles span 3 / 4 / 6 / 12 columns.
 

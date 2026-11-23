@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 23 Nov 2026: agent practice research pass (phase 1A, M7)
+
+- **What:** docs/research/agent-practice-2026-11-23.md: twelve findings from Anthropic (Claude Code subagents, hooks, best practices, agent teams, two engineering posts), Google (Gemini CLI subagents, ADK compaction and loops) and three papers on long context, each set against what we do; eight keep, try or drop proposals for M0.
+- **Why:** phase 1A row M7, one short web pass to feed M0. **Files:** the research page, docs/CHANGELOG.md.
+
 ### 23 Nov 2026: Action bar PC picture (phase 1A, mock-up only)
 
 - **Review fixes (23 Nov):** grip 44 px hit area; non-token numbers replaced (bar padding 6 to 8, wide button and tip padding 10 to 8, badge and Size-A text 9 and 12 to 11 micro); Day glass inner hairline; picture frame taller so the bar stays inside the paper; Enter marked as an open point; S13 rewritten to the one-press Paste; one DECISIONS review line (AB-05 against the Pinned row).

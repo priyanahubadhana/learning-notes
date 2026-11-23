@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: Action bar on the iPad sideways, iPad upright and the phone (pictures only, docs only)
+
+- **What:** docs/mockups/action-bar/devices.html with 13 frames in png-devices/ (iPad sideways 5, iPad upright 4, phone 4; Day, Night for the two marked), built by docs/mockups/action-bar/devices.mjs from the approved PC bar markup (copied, not redrawn); too-wide rows fold into ⋯▾ by width, the ending stays.
+- **Why:** the plan's next step after the PC picture. **Files:** docs/mockups/action-bar/, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: Action bar PC picture approved; the Colour circle; toast shape C (docs only)
 
 - **What:** the Colour button on all 18 frames is a circle filled with the chosen colour (the owner's one change at the approval); docs/mockups/action-bar/shot.mjs re-shoots every frame; the approval and its conditions in docs/design/owner-decisions.md; the toast shape (pill on one line, 14 on two) in system.md §3 and shell-spec §7; DECISIONS and STATE updated.

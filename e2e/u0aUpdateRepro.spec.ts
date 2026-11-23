@@ -201,7 +201,15 @@ test('U0a-2b the real preview and live hosts cache like public/_headers says', a
         `${host}${path} ${cache}`,
       )
     }
-  console.log(`[U0a] real host header checks made: ${reached} of 8`)
+  // The spec asks for the real hosts; a run with no network is a red run, not a quiet pass.
+  expect(
+    reached,
+    'no real host reached (offline?); U0a-2b needs the network',
+  ).toBeGreaterThan(0)
+  test.info().annotations.push({
+    type: 'U0a-2b',
+    description: `real host header checks made: ${reached} of 8`,
+  })
 })
 
 test('U0a-12 in dark mode the version line is readable (contrast 4.5 or more)', async ({

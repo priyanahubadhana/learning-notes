@@ -4,7 +4,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 24 Nov 2026: Action bar on the iPad sideways, iPad upright and the phone (pictures only, docs only)
 
-- **What:** docs/mockups/action-bar/devices.html with 13 frames in png-devices/ (iPad sideways 5, iPad upright 4, phone 4; Day, Night for the two marked), built by docs/mockups/action-bar/devices.mjs from the approved PC bar markup (copied, not redrawn); too-wide rows fold into ⋯▾ by width, the ending stays.
+- **What:** docs/mockups/action-bar/devices.html with 17 frames in png-devices/ (iPad sideways 8, iPad upright 4, phone 5; four added after the review so every stage 1 state is drawn; Day, Night for the two marked), built by docs/mockups/action-bar/devices.mjs from the approved PC bar markup (copied, not redrawn); too-wide rows fold into ⋯▾ by width, the ending stays.
 - **Why:** the plan's next step after the PC picture. **Files:** docs/mockups/action-bar/, docs/CHANGELOG.md.
 
 ### 24 Nov 2026: Action bar PC picture approved; the Colour circle; toast shape C (docs only)

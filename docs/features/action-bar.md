@@ -91,7 +91,7 @@ Every bar starts with ⠿ (move) and the pin (filled when pinned; tapping it aga
 
 - **S1, caret.** Given the cursor in "Service 23-11 2000 rate-is", then the bar shows the caret row with Cut, Copy and Delete greyed.
 - **S2, words.** Given S1, when I select "2000", then Cut, Copy and Delete become active; no button moves.
-- **S13, Paste ▾.** Given I pasted "as formatted" last in this notebook, when I press Paste once, then a preview of that paste shows; a second press pastes it; ▾ lets me pick another format.
+- **S13, Paste ▾.** Given I pasted "as formatted" last in this notebook, when I press Paste once, then it pastes at once in that format; ▾ lets me pick another format, which pastes and is remembered.
 - **S14, drag and dock.** Given a pinned bar, when I drag ⠿ to the top edge, then it docks there and stays after a reload.
 - **S3, a box.** Given a box is selected, then the box row shows; Edit text puts the cursor at the end of its words.
 - **S4, a drawing (stage 2).** Given a drawing selected with the Lasso, then Colour, Thickness and the ending show, no text tools.

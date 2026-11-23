@@ -4,6 +4,8 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 23 Nov 2026: Action bar PC picture (phase 1A, mock-up only)
 
+- **Review fixes (23 Nov):** grip 44 px hit area; non-token numbers replaced (bar padding 6 to 8, wide button and tip padding 10 to 8, badge and Size-A text 9 and 12 to 11 micro); Day glass inner hairline; picture frame taller so the bar stays inside the paper; Enter marked as an open point; S13 rewritten to the one-press Paste; one DECISIONS review line (AB-05 against the Pinned row).
+
 - **What:** docs/mockups/action-bar/index.html and png/ (13 frames: the five stage 1 states in Day and Night, Paste ▾ open, ⋯▾ open, one hover name), drawn from the confirmed tool table and the system.md tokens; a keyboard note under the page. Spec: Pictures cell and Picture section point at it, waiting for the owner's yes.
 - **Why:** the tool list came first, now the picture (owner, 22 Nov). **Files:** the mock-up folder, docs/features/action-bar.md.
 

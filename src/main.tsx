@@ -319,8 +319,6 @@ watchForUpdates(document, () => {
 })
 // R6-14: also on navigation, first typing or touch, and every 10 minutes.
 watchUpdateTriggers(window, lookQuietly)
-// update.v2 (S7): the line is back after a drop: look again, the download goes on.
-if (isOn('update.v2')) window.addEventListener('online', lookQuietly)
 
 // Tools robustness: the health check, the soft refresh and the console hook
 // load once the browser is idle (the first download stays small).

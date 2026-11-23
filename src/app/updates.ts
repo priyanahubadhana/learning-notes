@@ -353,7 +353,11 @@ export function watchUpdateTriggers(
   now: () => number = Date.now,
 ) {
   const soft = throttled(check, UPDATE_THROTTLE_MS, now)
-  win.addEventListener('hashchange', soft)
+  // update.v2 (S7): the line is back after a drop: look again at once.
+  for (const type of isOn('update.v2')
+    ? ['hashchange', 'online']
+    : ['hashchange'])
+    win.addEventListener(type, type === 'online' ? check : soft)
   win.addEventListener('keydown', soft, { capture: true, passive: true })
   win.addEventListener('pointerdown', soft, { capture: true, passive: true })
   win.addEventListener('paste', soft, { capture: true, passive: true })

@@ -13,6 +13,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** the 3-second "Restarting in N s" prompt (Cancel, Restart now, Esc) now lives in the toast queue (src/app/UpdatePrompt.tsx, a top-layer popover), the pill keeps the status text only. The download numbers no longer overwrite a restart that was already asked for. An update offer made while the prompt is open (or after Cancel) never asks again. S3 and S3b now open version A at full speed and slow only the download of B. The duplicate "reach" test in e2e/firstBoxTap.spec.ts was removed (38 tests listed).
 - **Why:** the spec (update-v2.md, parts table) puts the prompt in the Toast queue; S6 showed a second ask 2 s after Cancel; S3b never reached "The update did not finish" because the progress poll replaced the status.
 - **Files:** src/app/UpdatePrompt.tsx, UpdatePill.tsx, updateProgress.ts, autoUpdate.ts, autoUpdate.test.ts, e2e/updateV2.spec.ts, e2e/u0aUpdateRepro.spec.ts (the trace now reads the prompt too), e2e/firstBoxTap.spec.ts.
+
 ### 23 Nov 2026: docs site, home order and badges (phase 1A, site only)
 
 - **What:** the home list starts with the master plan, then State and the feature register, then the rest; a "Stage 1 · 2 · 3" badge on the home page and on each page header (read from the page's own Stage cell); Pillar letters in the register tables shown as small badges; "Must never happen" blocks in a full red-bordered box.

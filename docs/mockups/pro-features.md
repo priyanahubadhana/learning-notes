@@ -59,7 +59,7 @@ Total: 169 features.
 | `tb.textFonts`     | Fonts and line height          | Font, size, line height and block types for text.                                    |
 | `tb.textMarks`     | More text marks                | Strikethrough, inline code, link, key point, callout, divider.                       |
 | `tb.insertMore`    | Insert: more kinds             | File, audio, write pad, handwriting, mic, page links, database, mind map, templates. |
-| `tb.miniToolbar`   | Mini toolbar and hold menu     | Selection bar with Dictate, and the hold-still menu (paste, select, insert).         |
+| `tb.miniToolbar`   | Mini toolbar and hold menu     | Action bar with Dictate, and the hold-still menu (paste, select, insert).         |
 | `tb.layouts`       | Bar layouts and customise      | Save, switch and customise your own bar layouts.                                     |
 | `tb.proMap`        | Professional map               | A collapsible map of what lives where in the tool bar.                               |
 

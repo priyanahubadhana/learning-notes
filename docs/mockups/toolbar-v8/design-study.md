@@ -144,13 +144,13 @@ Mock: `v8/toolbar-mock-v8.html` (build: `node v8/build.cjs`). Sources added: `v8
 ### 7.1 V1: every change shows
 
 - The changed part glows once: the ▾ on the row (v7), and now the switch row, the selected box and the page.
-- New bars and items slide or fade in (box bar, selection bars, lasso bar, mini keys, write pad, keyboard bar, reader bar, ruler, edge chips, new custom tools).
+- New bars and items slide or fade in (box bar, Action bars, lasso bar, mini keys, write pad, keyboard bar, reader bar, ruler, edge chips, new custom tools).
 - A switch answers "X turned on · Undo". Undo puts every setting back exactly, even if the card has closed. Picks you can see on the page or the row glow instead of talking (quality standard 7: toasts for unseen actions).
 - Every switch row has a tiny live picture that draws its off and on result (32 kinds). Spacing choices carry a glyph.
 
 ### 7.2 V3: audit, what moved to the card system
 
-Box bar · text selection bar (mini and micro) · lasso/picture bar with its More, Colour, Thickness, Resize and Edit strips · keyboard bar · mini keys · write pad · reader bar · box grip menu and all list menus (rows in wells, Delete in red) · More, the all-tools panel (rows in wells) · Layouts card · Toolbar settings · Customise · Help · Reading look · Arrange the menu · dialogs (New layout, Rename, Delete, Add a picture, New recall card, Handwriting, Link, Save as preset, Save to notes, Screenshot) · Elements tabs · toast · tooltip.
+Box bar · text Action bar (mini and micro) · lasso/picture bar with its More, Colour, Thickness, Resize and Edit strips · keyboard bar · mini keys · write pad · reader bar · box grip menu and all list menus (rows in wells, Delete in red) · More, the all-tools panel (rows in wells) · Layouts card · Toolbar settings · Customise · Help · Reading look · Arrange the menu · dialogs (New layout, Rename, Delete, Add a picture, New recall card, Handwriting, Link, Save as preset, Save to notes, Screenshot) · Elements tabs · toast · tooltip.
 Also fixed: stale "All tools row" wording (the row was removed in v6); capital-letter labels; arrow characters used as icons.
 
 ### 7.3 V4: custom tools (Professional; Beginner can unlock in More)

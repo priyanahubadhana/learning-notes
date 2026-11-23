@@ -179,9 +179,9 @@ Every stage 1 scenario passes on chromium; the checklist script is green on the 
 
 | Part card or spec                     | Used for                                                                  |
 | ------------------------------------- | ------------------------------------------------------------------------- |
-| selection-bar.md (replaced)           | history: place order, strips, edge cases, SB-N lines folded into AB-N     |
+| selection-bar.md (replaced)           | history: place order, pickers, edge cases, SB-N lines folded into AB-N    |
 | text-select.md                        | what counts as words selected, caret after an action                      |
-| page-menus.md                         | the Hold menu strip (Cut, Copy, Paste ▾, Delete, ⋯); reused, not rebuilt  |
+| page-menus.md                         | the Hold menu (Cut, Copy, Paste ▾, Delete, ⋯); reused, not rebuilt        |
 | `Bar shell` (card in M9)              | grip, pin (the switch), buttons, ⋯▾, hover names, sizes                   |
 | `Bar place` (card in M9)              | the five places, floating, pinned place, never over the selection         |
 | Customise bar sheet (approved 20 Nov) | the tool bar's customiser, reused (REF, picture 20; ✕ left, ✓ right, 376) |
@@ -214,7 +214,7 @@ Made with Spec Kit after the confirm sheet is all Yes. Files: the bar under `src
 - **AB-13** Drag: ⠿ moves the bar along its current line; dropping within 24 px of an edge docks it there (top, left, right, bottom); the dock is stored like the pin (AB-08).
 - **AB-04** Changing state rebuilds the tools in one frame; the bar's left edge and top stay within 1 px (SB numbers).
 - **AB-05** ⋯ always shows ▾, also when its list holds only Customise bar… (owner, 24 Nov; the case against: one extra tap for a list of one); Customise bar… is always last.
-- **AB-06** Box style opens the approved Box style card (Presets, Advanced); Font opens the three quick fonts and More fonts…, each in its look; Size opens the slider strip.
+- **AB-06** Box style opens the approved Box style card (Presets, Advanced); Font opens the three quick fonts and More fonts…, each in its look; Size opens the slider picker.
 - **AB-07** Unpinned place: the first free of the five; never over the selected words, never off the screen.
 - **AB-08** Pin stores the place on the device; pinned stays on every page and after a restart; tapping the filled pin unpins and hides until the next selection; no ✕ (owner, 22 Nov evening, artifact comment: the pin image itself adds and removes the bar; no separate ✕).
 - **AB-09** Keys: Ctrl+X, C, V, Delete act as the buttons; Alt+F10 moves focus to the bar (Fable's pick, logged); arrows move along it; Esc closes ⋯, then ends the selection.

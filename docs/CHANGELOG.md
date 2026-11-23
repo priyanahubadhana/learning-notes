@@ -2,10 +2,20 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: two answered design-number clashes written in (docs only)
+
+- **What:** docs/design/system.md §9 now has two breakpoints, 640 and 1180, like the frame (was 1024 and 1440), and its title no longer says "proposal"; docs/features/toolbar-v8.md TB-01 carries the decided move of Undo and Redo to the top bar only, marked not built yet; the old-names rename (tool/names-q15) merged after a word-by-word diff check.
+- **Why:** the owner's answers of 24 Nov (DECISIONS). **Files:** docs/design/system.md, docs/features/toolbar-v8.md, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: the Action bar fold, two choice pictures (docs only)
 
 - **What:** docs/features/action-bar.md gets the owner's change: a pinned bar folds into a round pin button when nothing is selected, "Keep bar open" in ⋯ (the Pinned folds rule, S15, AB-14, a Changes line; the tool table row waits for the redraw so check:bar-inventory stays green); a small mock-up page with two pictures for the toast shape and the top bar height, docs/mockups/design-clashes/ (index.html, shot.mjs, png/); DECISIONS and STATE updated with the owner's answers on the fold and the design-number clashes.
 - **Why:** the owner's answers of 24 Nov; two clashes needed a picture to decide. **Files:** docs/features/action-bar.md, docs/mockups/design-clashes/, docs/DECISIONS.md, docs/STATE.md, docs/CHANGELOG.md.
+
+### 24 Nov 2026: the old bar names replaced in the live pages (docs only)
+
+- **What:** "smart bar" and "selection bar" now read Action bar; "strip" for the press-and-hold or right-click row (also "Context menu strip") now reads Hold menu; Colour, Size and Font strips now read pickers. 277 mentions before, 156 after, in 22 pages; page-menus.md and notebooks-search-v2.md use Hold menu throughout. The old built-part pages (selection-bar.md, smart-bar-inventory, research/smart-selection-bar) keep their titles and carry a Names line. The Names line in toolbar-v8.md now says "renamed (24 Nov 2026)". Left alone on purpose: other strips (tab, habit, step, layouts, space strip), quoted owner words, dated decision records, file names and code names.
+- **Why:** the owner's naming decision of 22 Nov (principles.md Q15), confirmed on 24 Nov to be applied now. **Files:** the pages in this commit under docs/ (no code, no rules text changed).
 
 ### 24 Nov 2026: the owner's first look at the Action bar picture, right-click answered (docs only)
 

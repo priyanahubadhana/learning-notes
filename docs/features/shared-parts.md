@@ -361,7 +361,7 @@ B/P: Edit time range is visible to everyone (owner, round 2: "Edit period bar vi
 
 #### SP-11 Part list used by area slices (names to reuse in specs)
 
-tokens · Card ▾ frame 304/376 · Tab row · ✕ field · Tag picker · Drag (drop-line + ▲▼, live reflow) · Arrange sheet · Empty state · Object bar · Time range bar. Step 2 parts (Context menu strip, Command list, Sheet, Dialog set, Toast queue, Banner) are specified in [page-menus](page-menus.md); step 3 parts (Tool frame, Wizard steps, Status pill stack, Before / after view) are in section 5 below; the shell versions of sheet, dialog, pop, toast are SH-09 to SH-12 and are the base those parts grow from.
+tokens · Card ▾ frame 304/376 · Tab row · ✕ field · Tag picker · Drag (drop-line + ▲▼, live reflow) · Arrange sheet · Empty state · Object bar · Time range bar. Step 2 parts (Hold menu, Command list, Sheet, Dialog set, Toast queue, Banner) are specified in [page-menus](page-menus.md); step 3 parts (Tool frame, Wizard steps, Status pill stack, Before / after view) are in section 5 below; the shell versions of sheet, dialog, pop, toast are SH-09 to SH-12 and are the base those parts grow from.
 
 #### SP-12 "Parts" gallery page
 
@@ -863,7 +863,7 @@ Every row is probed by the "nothing lost" test. Paths are today's files in `src/
 - No second kind of card, no card opened from a card, no sideways-scrolling toolbar rows.
 - No ✕ in note text boxes.
 - No private copies of parts inside area slices; no raw document listeners, no raw z-index numbers.
-- No Context menu strip, Command list, Dialog set, Toast queue, Banner in this file (step 2, see [page-menus](page-menus.md)). Step 3 parts have their own list in section 5.
+- No Hold menu, Command list, Dialog set, Toast queue, Banner in this file (step 2, see [page-menus](page-menus.md)). Step 3 parts have their own list in section 5.
 - No Tag merge/rename UI beyond today's `tagTools` (picker only links to it).
 - No collaboration, no native apps.
 

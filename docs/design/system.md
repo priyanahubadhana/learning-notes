@@ -1,4 +1,4 @@
-# Design system (proposal, 9 Nov 2026)
+# Design system (9 Nov 2026; the one table for raw design numbers since 22 Nov 2026)
 
 The single source for how the app looks. Research and sources: docs/research/premium-design-2026-11.md. Today's tokens live in `src/index.css` (`@theme`, `[data-theme]`). Step 1 of the design plan maps this file onto them. The Tailwind names stay where they exist (`bg`, `side`, `ink`, `muted`, `line`, `accent`...) so screens migrate gradually.
 
@@ -228,9 +228,10 @@ Every target is at least 44 px, always, in every density (owner, 22 Nov 2026, Q1
 | Name    | Width                   | Layout                                                            |
 | ------- | ----------------------- | ----------------------------------------------------------------- |
 | phone   | < 640 (or height < 512) | single column, bottom sheets, sidebar is a drawer, side gutter 16 |
-| tablet  | 640 - 1023              | floating sidebar overlays or a 72 px icon rail, gutter 24         |
-| desktop | ≥ 1024                  | sidebar (width: shell-spec.md §8) with a 12 px gap, gutter 32     |
-| wide    | ≥ 1440                  | content max 1200 for dashboards; paper max 72ch + margins         |
+| tablet  | 640 - 1179              | floating sidebar overlays or a 72 px icon rail, gutter 24         |
+| desktop | ≥ 1180                  | sidebar (width: shell-spec.md §8) with a 12 px gap, gutter 32     |
+
+Two breakpoints only, 640 and 1180, the same as the frame (shell-spec.md §8; owner, 24 Nov 2026: keep the iPad ones; was 1024 and 1440 here). No wider step: on a wide PC screen the content keeps its maximum width (1200 for dashboards, paper 72ch plus margins) and the frame may leave empty space. Code that still uses 1024 or 1440 changes in the polishing.
 
 These keep the existing `phone` / `wide` custom variants (640/512). Dashboards use a 12-column grid with 16 px gutters (24 on desktop). Tiles span 3 / 4 / 6 / 12 columns.
 

@@ -1,6 +1,8 @@
 # Smart selection bar — research (Opus, 19 Nov 2026)
 
-Owner ask: one premium bar for every selection (text, ink, pictures, mixed), customisable, with purpose presets editable in Settings. Look: our new text selection bar (premium, on-theme); features: today's Lasso bar (great features, poor look). Never drop a feature.
+Names (owner, 22 Nov 2026): this part is now called the Action bar (press-and-hold row: the Hold menu).
+
+Owner ask: one premium bar for every selection (text, ink, pictures, mixed), customisable, with purpose presets editable in Settings. Look: our new text Action bar (premium, on-theme); features: today's Lasso bar (great features, poor look). Never drop a feature.
 
 ## What others do
 
@@ -11,7 +13,7 @@ Owner ask: one premium bar for every selection (text, ink, pictures, mixed), cus
 
 ## Lessons for us
 
-1. Context-driven: the bar's buttons follow the selection type (owner's smart bar). Matches Goodnotes' object menu and general guidance.
+1. Context-driven: the bar's buttons follow the selection type (owner's Action bar). Matches Goodnotes' object menu and general guidance.
 2. Keep it customisable (Goodnotes lost goodwill by removing this).
 3. An "Included in selection" filter for mixed selections (text / ink / pictures) is a proven pattern.
 4. Few primary buttons on the bar; the rest under ⋯ (phone especially).

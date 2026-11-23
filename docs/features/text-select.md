@@ -149,7 +149,7 @@ Feature: Select letters and words with the Pencil, then fix them
 Detail lines for the builders (TS-01 …) are written part by part, just before each of A4 to A9 starts: the highlight and handles (A4); the circle, its dashed line and the half-letter rule (A5); double, triple and four taps = word, line on screen, paragraph (A6); leaving (A7); dragging selected words (A7b, S10); Paste ▾ and Delete on the bar (A8); scribble over selected words, write over a selected word (A9).
 
 - `OPEN:` where dragged words may land: anywhere in the same box and in another box (Fable's pick); on empty paper (a new box with those words) later.
-- `OPEN:` the exact bar before the smart bar exists: today's word bar with Paste ▾ and Delete added (owner, 19 Nov); one picture for the owner's OK before Part A8.
+- `OPEN:` the exact bar before the Action bar exists: today's word bar with Paste ▾ and Delete added (owner, 19 Nov); one picture for the owner's OK before Part A8.
 
 ## Edge cases
 

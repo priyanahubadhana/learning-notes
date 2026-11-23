@@ -45,7 +45,7 @@ Professional (unlock ids; "new" = proposed for `docs/mockups/pro-features.md`):
 
 ## Shared parts used (plan 3.2 row 0g)
 
-Sheet, Dialog set (danger kind), Toast queue, Banner, Before / after view, Wizard steps (sign-in, restore, imports), Tool frame (imports), Status pill stack (sync dot), Empty state, Context menu strip (Trash rows), Tab row, ✕ field.
+Sheet, Dialog set (danger kind), Toast queue, Banner, Before / after view, Wizard steps (sign-in, restore, imports), Tool frame (imports), Status pill stack (sync dot), Empty state, Hold menu (Trash rows), Tab row, ✕ field.
 
 ## Sizes, spacing, motion
 

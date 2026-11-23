@@ -45,7 +45,7 @@ Professional (each with its unlock switch; ids marked "new" are proposed for `do
 - **ST19** (`study.cardList`, new) When I type "/card list" → the Card list block is inserted (count, Review, show all).
 - **ST20** (`rev.browse`) When I use Filter ▾ in the Cards tab → status, label and tag filters apply, an active-filter chip shows with ✕.
 - **ST21** (`study.savedFilters`, new) When I tap "Save filter" → it appears as a chip ("Hard ones") in the header; ✕ removes it with Undo.
-- **ST22** (`rev.sessionExtras`) When I long-press a card in the list → Pause / Resume and Open note are in the Context menu strip.
+- **ST22** (`rev.sessionExtras`) When I long-press a card in the list → Pause / Resume and Open note are in the Hold menu.
 - **ST23** (`review.reviseLabels`) When I tap "Labels" in Revise → I can rename and recolour labels (max 24); counts by label show.
 - **ST24** (`study.summaryScopes`, new) When I switch the Summary tab to Notebook or All notes → the notebook or app summary shows, with Export.
 - **ST25** (`study.slides`, new; off until unlocked) When the Slides tab is unlocked → I can present full screen, swipe, pick a theme, and save.
@@ -56,7 +56,7 @@ Professional (each with its unlock switch; ids marked "new" are proposed for `do
 
 ## Shared parts used (plan 3.2 row 0g)
 
-Tab row, card / ▾ frame (304 / 376 px), Sheet, Tag picker, Context menu strip, Command list ("/" menu), Empty state, Toast queue, Dialog set, Drag with drop-line (card list order), Arrange sheet ("+" on the page tab row).
+Tab row, card / ▾ frame (304 / 376 px), Sheet, Tag picker, Hold menu, Command list ("/" menu), Empty state, Toast queue, Dialog set, Drag with drop-line (card list order), Arrange sheet ("+" on the page tab row).
 
 ## Sizes, spacing, motion
 
@@ -91,7 +91,7 @@ Tab row, card / ▾ frame (304 / 376 px), Sheet, Tag picker, Context menu strip,
 | Mark labels, 24 limit, edit                                    | `revise/reviseMarks.ts:14-80`                                                    | ST23                                 |
 | Revise "My summary"                                            | `revise/ReviseTab.tsx:175-190`                                                   | Summary tab only, link (ST9)         |
 | Summary page / notebook / app; open from line                  | `app/summary/SummaryView.tsx:30-133`, `AppSummary.tsx:10`                        | ST8, ST24                            |
-| Add to Summary (selection bar, actions)                        | `editor/addToSummary.ts:23`, `SelectionToolbar.tsx:122`, `summaryActions.tsx:10` | ST7                                  |
+| Add to Summary (Action bar, actions)                           | `editor/addToSummary.ts:23`, `SelectionToolbar.tsx:122`, `summaryActions.tsx:10` | ST7                                  |
 | Page Review tab counts, Practise                               | `app/summary/PageTabs.tsx:98-125`                                                | ST10                                 |
 | Slides tab: grid, count, save, empty, failed                   | `pages/tabs/SlidesTab.tsx:60-188`                                                | ST25                                 |
 | Memory helpers (Major, Acronym)                                | `memory/MemoryHelpers.tsx:15-157`                                                | ST26                                 |

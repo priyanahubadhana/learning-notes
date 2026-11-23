@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 23 Nov 2026: design numbers fold (phase 1A item 2b)
+
+- **What:** the 18 "Decided 22 Nov" lines of docs/design/principles.md are folded into the files that own them; each line in principles.md is now a one-line pointer, and the shared rules table points instead of repeating numbers. system.md (tokens) holds stroke (Q1), the one motion scale with its named uses (Q2), the two glasses (Q3), the radius table (Q4), quick fonts (Q13), Day as default theme (Q14), red for Delete and Again (Q16), 44 px targets in every density (Q17), rail icons (Q7). shell-spec.md (frame) holds toasts (Q5), sidebar 288 and sheet 376 in a new frame table (Q6, Q9), ✕ and ✓ at the top of sheets (Q8), Undo and Redo in the top bar (Q10), the rail icon pick (Q7), More last with ▾ (Q18). toolbar-v8.md holds the Tool bar height (Q11), hover names (Q12), names (Q15), ⋯ (Q18). quality-standard.md gets the pass lines for all 18, pointing at the tables.
+- **Old values replaced (the 22 Nov line won):** icon stroke 1.6 (quality standard, shell spec, tool bar v8) → 1.75; "about 150 ms" (quality standard) and the minimise chip's 150 ms (shell spec) → the motion scale; tool bar v8 press .96 → .97; radii in system.md (cards and menus 12, panels and dialogs 16, toast 12) → the 22 Nov table; toasts bottom centre (shell spec) and bottom centre or right, 5 s (system.md) → bottom-right, 2.6 s / 6 s with Undo; sidebar 264 (shell spec) and 260 (system.md) → 288; sheet 440 → 376; Back and Forward → Undo and Redo; Tool bar 52 → 64; rail icons pencil and flashcards-with-tick → ruled notebook and repeat arrows; sheet footer "hint · Cancel · ✓ Done" → ✕ and ✓ at the top; More first → one control last; Night by default (shell spec) and "follow the device" (principle 1) → Day; Compact 36 px controls and 32 px rows → 44 always.
+- **Why:** one table holds the design numbers, so builders never pick between two documents (phase 1A item 2b). The ten principle pictures stay on hold.
+- **Files:** docs/design/principles.md, docs/design/system.md, docs/design/shell-spec.md, docs/design/quality-standard.md, docs/features/toolbar-v8.md, docs/CHANGELOG.md.
+
 ### 22 Nov 2026, late evening: the owner's dashboard
 
 - **What:** scripts/dashboard.mjs writes docs/DASHBOARD.md from the repo and GitHub: stage and running phase, phases planned in full, the replan count, feature rows by stage and state, spec statuses, open tickets by source, what waits for the owner. `npm run dashboard`; linked from INDEX.md; refreshed every Saturday with the weekly card.

@@ -16,7 +16,7 @@ The research of 22 Nov also found **18 places where two of our own documents dis
 
 ### 1. The notes are the hero (all pillars)
 
-The page is the loudest thing on the screen; bars, menus and cards are quiet and step aside. Rules: glass is for the frame only, the paper is always solid; at most three blurred layers, the blur never animates, "Reduce glass" offers Auto or Solid; the canvas carries a faint violet-to-blue wash, plain under reduced transparency; neutrals carry a faint violet tint; dark mode never uses pure black; three themes, Night, Day and Sepia, with equal care, following the device by default; paper text at most 72 characters wide, body at least 15 px. Icons are one set, Lucide, rounded caps, no fills, 20 px in the UI, 16 in dense rows, 24 in the rail. (system.md 9 Nov; shell-spec; premium plan 9 Nov; owner 15 Nov.)
+The page is the loudest thing on the screen; bars, menus and cards are quiet and step aside. Rules: glass is for the frame only, the paper is always solid; at most three blurred layers, the blur never animates, "Reduce glass" offers Auto or Solid; the canvas carries a faint violet-to-blue wash, plain under reduced transparency; neutrals carry a faint violet tint; dark mode never uses pure black; three themes, Night, Day and Sepia, with equal care, Day by default (system.md §1); paper text at most 72 characters wide, body at least 15 px. Icons are one set, Lucide, rounded caps, no fills, 20 px in the UI, 16 in dense rows, 24 in the rail. (system.md 9 Nov; shell-spec; premium plan 9 Nov; owner 15 Nov.)
 
 ### 2. Simple by default, everything within reach (Notion, Figma)
 
@@ -58,13 +58,13 @@ One-line explanations in the owner's language; sentence case; card labels 12.5 p
 
 | Area     | The rule                                                                                                                                                                                                                                                                                                                                                                                                    | Source                                                 |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Icons    | Lucide only, rounded caps, no fills, currentColor; stroke 1.6 on a 24 grid (see clash 1); 20 px UI, 16 dense, 24 rail; Beginner shows icons only, Professional icon and name; rail icons: Library = books on a shelf, Notebooks = ruled notebook, Review = repeat arrows around a card; Pen, Pencil, Marker and Highlighter have distinct icons; no arrow characters as icons                               | system.md; shell-spec §9; owner 11 and 12 Nov          |
-| Type     | system font first, then Inter Variable; scale display 40 · title 32 · h1 24 · h2 20 · h3 17 · body 15 (16 on paper) · small 13 · micro 11; UI chrome uses four sizes; quick fonts Easy to read (Atkinson Hyperlegible, the default), Classic (Literata), Handwritten (Patrick Hand); More fonts… keeps Inter, Lexend, JetBrains Mono, Caveat, OpenDyslexic; the reader's Bookerly-style is Literata, opt-in | system.md; owner 18 Nov; DECISIONS 11 Nov              |
-| Colour   | accent violet #6941E0 light, #A08CFF dark, #5F37D4 sepia, for primary actions, selection and focus only; colour is never the only signal; neutrals tinted violet, written in oklch with hex fallbacks; hairline dividers, stronger hairlines at 3:1 on inputs; every pair passes WCAG AA; light default ink in dark mode; text selection a soft purple fill with round handles                              | DECISIONS 9 Nov; architecture.md; 15 and 19 Nov        |
-| Glass    | frame bars 72% light / 70% dark, blur 16 bars, 20 sidebar, 24 menus, saturate 160%; card frames 88 to 92%, blur 28, saturate 170%, hairline edge with a 1 px top highlight; paper always solid                                                                                                                                                                                                              | system.md; design-study §3.1 (see clash 3)             |
-| Shape    | 4-pt grid, no arbitrary pixels; radii: inputs 8, menus 12, cards and panels 20, sheets 24, pill for chips (see clash 4); pickers 304 px, panels 376 px, padding 12, wells radius 14; a card hangs 8 px under its bar, 12 px from any screen edge, its arrow at the ▾; rail 56, top bar 52 or 64 (clash 11), sheet 440 (clash 9), side list 288 (clash 6); breakpoints 640 and 1180                          | system.md; design-study §3.2; shell-spec; owner 15 Nov |
-| Motion   | 120 / 180 / 240 ms tokens; cards 200 open, 130 close; thumb 280; pop .93 to 1; glow 700; press .97; reduced motion = fades or instant                                                                                                                                                                                                                                                                       | system.md; design-study §3.6                           |
-| Bars     | two bars, Tool bar and Action bar; pickers open from a button; the Hold menu on press-and-hold; ⋯ last with Customise bar…; the More (sliders) control first on an options row; Undo and Redo at the top left of the page bar; ✓ top right and ✕ top left of sheets; Apple's own bar never shows inside boxes                                                                                               | 22 Nov; owner-ui-patterns #3; owner 15 and 18 Nov      |
+| Icons    | Lucide only, rounded caps, no fills, currentColor; stroke, sizes and rail icons in system.md §7 (Library = books on a shelf, Notebooks = ruled notebook, Review = repeat arrows around a card); Beginner shows icons only, Professional icon and name; Pen, Pencil, Marker and Highlighter have distinct icons; no arrow characters as icons | system.md §7; shell-spec §9; owner 11, 12 and 22 Nov |
+| Type     | system font first, then Inter Variable; the scale, the four UI chrome sizes, the quick fonts (Easy to read, the default; Classic; Handwritten) and More fonts… in system.md §4; the reader's Bookerly-style face is opt-in | system.md §4; owner 18 and 22 Nov; DECISIONS 11 Nov |
+| Colour   | violet accent (values in system.md §1, light, dark and sepia) for primary actions, selection and focus only; red for Delete and the Review's "Again"; colour is never the only signal; neutrals tinted violet, written in oklch with hex fallbacks; hairline dividers, stronger hairlines at 3:1 on inputs; every pair passes WCAG AA; light default ink in dark mode; text selection a soft purple fill with round handles; Day is the default theme | system.md §1; DECISIONS 9 Nov; architecture.md; 15, 19 and 22 Nov |
+| Glass    | two glasses, frame glass for bars and the sidebar, card glass for cards and pickers, values in system.md §5; hairline edge; paper always solid | system.md §5; design-study §3.1; owner 22 Nov |
+| Shape    | 4-pt grid, no arbitrary pixels; radii in system.md §3; picker and panel card sizes, padding and how a card hangs under its bar in toolbar-v8.md; rail, sidebar, sheet, top bar and breakpoints in shell-spec.md §8; Tool bar height in toolbar-v8.md | system.md §3; toolbar-v8.md; shell-spec §8; owner 15 and 22 Nov |
+| Motion   | one scale: the tokens and their named uses (card open and close, thumb, pop, glow, press) in system.md §6; reduced motion = fades or instant | system.md §6; design-study §3.6; owner 22 Nov |
+| Bars     | two bars, Tool bar and Action bar; pickers open from a button; the Hold menu on press-and-hold; one More control, last, with ▾ when more options exist, ending with Customise bar…; Undo and Redo at the top left of the top bar, no Back and Forward; ✓ top right and ✕ top left of sheets; Apple's own bar never shows inside boxes | 22 Nov; owner-ui-patterns #3; owner 15, 18 and 22 Nov |
 | Settings | Settings v5 is the approved base; four starter cards with pictures; the current one outlined and tagged; "Changed by me" dots and page; pictures only on look rows; the big live preview on four groups, from a Preview pill on portrait and phone; first launch asks New, Used a little, Experienced                                                                                                       | settings-v5-stories 15 Nov; BUG-005                    |
 | Words    | plain words, one line per setting, sentence case, one name per option, toasts only when needed, the same words at every level                                                                                                                                                                                                                                                                               | quality-standard; 12 and 19 Nov                        |
 
@@ -73,58 +73,58 @@ Likes to keep in mind (owner, 9 to 15 Nov): glassmorphism, editorial calm, Swiss
 ## The design questionnaire: 18 clashes, all settled on 22 Nov 2026 (A was the pick; B the other; the owner answered on the pictures page)
 
 **Q1. Icon stroke.** A: 1.6 on a 24 grid (quality standard, shell spec, tool bar v8; the newer rule). B: 1.75 (system.md, 9 Nov). Case against A: the rail was drawn at 1.75 on 9 Nov and would be redrawn.
-**Decided 22 Nov 2026 (owner, on the pictures page):** B. Icon stroke 1.75 on a 24 grid. The owner chose the picture, not the newer document; the quality standard, the shell spec and tool bar v8 change to 1.75.
+**Decided 22 Nov 2026 (owner, on the pictures page):** B; the owner chose the picture, not the newer document. Now lives in docs/design/system.md §7 (Icons).
 
 **Q2. Motion scale.** A: one scale: the tokens 120, 180, 240 ms for everything, with the card values 200 open and 130 close as named uses, and "about 150 ms" retired as a loose phrase. B: keep "150 ms" as the rule and the tokens as detail. Case against A: three documents must be edited to say the same thing.
-**Decided 22 Nov 2026 (owner, on the pictures page):** A. One motion scale: tokens 120, 180, 240 ms; card open 200, close 130; "about 150 ms" retired (the owner left it to Fable, then also picked A).
+**Decided 22 Nov 2026 (owner, on the pictures page):** A, one motion scale (the owner left it to Fable, then also picked A). Now lives in docs/design/system.md §6 (Motion tokens and named uses).
 
 **Q3. Glass.** A: two glasses on purpose: frame glass 72 to 70% with blur 16 to 24 for bars and the sidebar; card glass 88 to 92% with blur 28 for cards and pickers; written down as such. B: one glass for everything (the card values). Case against A: two recipes to maintain.
-**Decided 22 Nov 2026 (owner, on the pictures page):** A. Two glasses: frame glass 72 to 70% with blur 16 to 24 for bars and the sidebar; card glass 88 to 92% with blur 28 for cards and pickers.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A, two glasses (frame and card). Now lives in docs/design/system.md §5 (Two glasses).
 
 **Q4. Radii.** A: inputs 8, menus 12, cards, pickers and panels 20, sheets 24, dialogs 24, toast 14, chips pill (the newer approved pictures). B: system.md's 6, 8, 12, 16, 24. Case against A: some older screens use 12 and 16 and would be touched in the polishing.
-**Decided 22 Nov 2026 (owner, on the pictures page):** Mixed. Menus take B: radius 8 (the owner: "for this rename copy bar, this one looks better"). Everything else takes A: inputs 8, cards, pickers and panels 20, sheets 24, dialogs 24, toast 14, chips pill.
+**Decided 22 Nov 2026 (owner, on the pictures page):** Mixed: menus take B (the owner: "for this rename copy bar, this one looks better"), everything else A. Now lives in docs/design/system.md §3 (Radius table).
 
 **Q5. Toasts.** A: a pill at the bottom centre, 2.6 s, 6 s when it offers Undo (shell spec). B: a solid box bottom-right for 5 s (system.md). Case against A: on a wide PC screen the centre is far from the pointer.
-**Decided 22 Nov 2026 (owner, confirmed in chat):** the pill, bottom-right on every device, 2.6 s, 6 s with Undo. The pill carries a small ✕ at its top-left corner to close it, and the action (Undo) on the other side. Case against: bottom-right is farther from the iPad's centre of attention; the owner chose it.
+**Decided 22 Nov 2026 (owner, confirmed in chat):** the pill, bottom-right on every device, with a ✕ and Undo. Now lives in docs/design/shell-spec.md §7 (Toasts), with the case against.
 
 **Q6. Side list width.** A: 288 px (your "a bit bigger", 12 Nov). B: 264 or 260. Case against A: less room for the page on a 1180 px screen.
-**Decided 22 Nov 2026 (owner, on the pictures page):** A. Side list 288 px.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Now lives in docs/design/shell-spec.md §8 (sidebar row of the frame table).
 
 **Q7. Rail icons.** A: Notebooks = ruled notebook, Review = repeat arrows around a card (your 12 Nov review). B: the pencil and the cards-with-tick from the shell spec. Case against A: none; A is your decision, the shell spec is older.
-**Decided 22 Nov 2026 (owner, on the pictures page):** A. Notebooks = ruled notebook; Review = repeat arrows around a card.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Notebooks = ruled notebook; Review = repeat arrows around a card. Now lives in docs/design/system.md §7 and docs/design/shell-spec.md §9.
 
 **Q8. ✓ and ✕ on sheets.** A: at the top, ✕ left and ✓ right (your 15 Nov). B: a footer "hint · Cancel · ✓ Done". Case against A: on a phone the thumb reaches the bottom more easily.
-**Decided 22 Nov 2026 (owner, on the pictures page):** A. ✕ top left, ✓ top right on sheets.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Now lives in docs/design/shell-spec.md §6 (More sheet header).
 
 **Q9. Sheet width.** A: 440 px (your 15 Nov). B: 376. Case against A: on a 1180 px screen a 440 sheet covers more of the page.
-**Decided 22 Nov 2026 (owner, on the pictures page):** B. Sheet width 376 px ("the smaller the better here").
+**Decided 22 Nov 2026 (owner, on the pictures page):** B ("the smaller the better here"). Now lives in docs/design/shell-spec.md §8 (sheet row of the frame table).
 
 **Q10. Top bar controls.** A: Undo and Redo at the top left, no Back and Forward arrows (your 15 Nov). B: Back, Forward, Undo, Redo. Case against A: no Back on the PC where the mouse has no swipe; the browser's Back still works.
-**Decided 22 Nov 2026 (owner, on the pictures page):** A. Undo and Redo top left; no Back and Forward arrows.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Now lives in docs/design/shell-spec.md §3 (Top bar).
 
 **Q11. Tool bar height.** A: 64 px (your 15 Nov pick). B: 52 px (tool bar v8). Case against A: 12 px less page on every screen.
-**Decided 22 Nov 2026 (owner, on the pictures page):** A. Tool bar 64 px.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Now lives in docs/features/toolbar-v8.md "Sizes, spacing, motion" (Tool bar line).
 
 **Q12. Names on hold.** A: hover shows the name with the Pencil or a mouse; a held finger shows nothing for now (your 21 Nov); a finger-hold name can come in stage 2 as an option. B: a held button shows its name (your 15 and 20 Nov). Case against A: a finger-only user on the iPad has no way to read a name until stage 2.
-**Decided 22 Nov 2026 (owner, final in chat):** A. Hover shows the name (mouse or Pencil); a held finger shows nothing for now. The press-and-hold preview (a small Photoshop-style demo of the tool, for new users, with an off switch) is a stage 2 idea in docs/IDEAS.md, not a rule now. Hover names stay an extra: no action is hover-only.
+**Decided 22 Nov 2026 (owner, final in chat):** A; the press-and-hold preview is a stage 2 idea in docs/IDEAS.md, not a rule now. Now lives in docs/design/quality-standard.md checklist 4 (hover names) and docs/features/toolbar-v8.md (Tool bar line).
 
 **Q13. Quick fonts.** A: Easy to read, Classic, Handwritten (your 18 Nov final). B: Modern, Classic, Technical. Case against A: none; A is the final decision.
-**Decided 22 Nov 2026 (owner, on the pictures page):** A. Quick fonts: Easy to read, Classic, Handwritten.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Now lives in docs/design/system.md §4 (Quick fonts).
 
 **Q14. Default theme.** A: follow the device (the premium plan). B: Night by default (shell spec). Case against A: the first picture a new user sees depends on their device.
-**Decided 22 Nov 2026 (owner, on the pictures page):** C, the owner's own rule: the default theme is Day for everyone; the owner sets Night on their own devices. Neither "follow the device" nor "Night by default".
+**Decided 22 Nov 2026 (owner, on the pictures page):** C, the owner's own rule: Day for everyone, the owner sets Night on their own devices. Now lives in docs/design/system.md §1 (Themes).
 
 **Q15. Names.** A: Action bar, Tool bar, pickers, Hold menu (your 22 Nov); the older "smart bar", "selection bar" and "strip" are replaced everywhere. B: keep the older names in old specs. Case against A: a pass over the specs to rename.
-**Decided 22 Nov 2026 (owner, on the pictures page):** A. Action bar, Tool bar, pickers, Hold menu; the old names are replaced everywhere.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A; the old names are replaced everywhere. Now lives in docs/features/toolbar-v8.md (Names line) and docs/design/quality-standard.md checklist 4.
 
 **Q16. Red.** A: red only for destructive actions, Delete on bars and in menus; the Review's "Again" uses the warm warning colour, not red. B: red for Again too. Case against A: Anki users expect red for Again.
-**Decided 22 Nov 2026 (owner, on the pictures page):** B. Red for Delete and also for the Review's "Again".
+**Decided 22 Nov 2026 (owner, on the pictures page):** B. Now lives in docs/design/system.md §1 (`danger` row and Red line).
 
 **Q17. Compact density.** A: 44 px targets always; Compact only tightens spacing and never shrinks a target below 44. B: Compact may use 36 px controls on pointer devices. Case against A: a denser PC layout is not possible.
-**Decided 22 Nov 2026 (owner, on the pictures page):** A. 44 px targets always; Compact tightens spacing only.
+**Decided 22 Nov 2026 (owner, on the pictures page):** A. Now lives in docs/design/system.md §8 and §10 (Density).
 
 **Q18. More and ⋯.** A: two different things: the "More" control (sliders icon and the word) opens a row's options and sits first; "⋯" is overflow and sits last with Customise bar… at its end. B: one control, last. Case against A: two controls to learn.
-**Decided 22 Nov 2026 (owner, on the pictures page):** B plus an arrow: one control, last, "cleaner like this"; it carries a small down arrow ▾ when more options exist.
+**Decided 22 Nov 2026 (owner, on the pictures page):** B plus an arrow ("cleaner like this"). Now lives in docs/design/shell-spec.md §6 (More control) and docs/features/toolbar-v8.md (⋯ line).
 
 ### What the owner said on 22 Nov 2026 (for the pictures and the clash decisions)
 

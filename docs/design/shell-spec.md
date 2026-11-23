@@ -54,7 +54,7 @@ One row, 52 px, flat (not glass), inside the main column. Left to right:
 
 1. sidebar toggle (when the screen has a sidebar)
 2. page-panel toggle (only while a notebook or book is open)
-3. Back · Forward (36 px icons, 44 px hit area)
+3. Undo · Redo (36 px icons, 44 px hit area); no Back and Forward arrows, the browser's Back still works (owner, 22 Nov 2026, Q10)
 4. breadcrumbs (earlier crumbs are buttons, the last one is plain text, truncates with …)
 5. "Saved" status (muted, only while editing)
 6. Search (opens the search popup, Ctrl K)
@@ -64,7 +64,7 @@ A screen's own title, tabs and More button sit in the content below, never in th
 
 ## 4. Sidebar and left panel
 
-Two columns, both 264 px, both `--surface-1` cards with a header, optional tabs, a scrolling body and an optional footer.
+Two columns (widths in §8), both `--surface-1` cards with a header, optional tabs, a scrolling body and an optional footer.
 
 |             | Sidebar (`#sh-side`)                                                                                                              | Left panel (`#sh-panel`)                                                                                       |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
@@ -87,16 +87,16 @@ Two columns, both 264 px, both `--surface-1` cards with a header, optional tabs,
 | ------------------------------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | Floating bar                                | bottom centre of the main column, 16 px up (phone: 12 px above the tab bar)                 | glass pill, 44 px targets, at most one row, never over the top bar. Ends with a separator + the **minimise** button (arrow-to-edge icon).       |
 | Tool bars under the top bar (editor/reader) | as approved in toolbar v4: a glass bar in its own gap above the page, options pill below it | unchanged; they use the same minimise button and chips. Drag by the grip, snap to left/right/bottom (v4 code).                                  |
-| Minimise chip                               | right edge of the screen, starting 64 px below the top bar, stacked 8 px apart              | accent border + tint, 44 px high, chevron + icon + **label**, slides in 150 ms. Tap restores the bar. The choice is remembered (`ln-shell-v1`). |
+| Minimise chip                               | right edge of the screen, starting 64 px below the top bar, stacked 8 px apart              | accent border + tint, 44 px high, chevron + icon + **label**, slides in on the motion scale (system.md §6). Tap restores the bar. The choice is remembered (`ln-shell-v1`). |
 | Content clearance                           | `.sh-scroll` keeps 84 px of bottom padding                                                  | nothing is ever hidden under a bar.                                                                                                             |
 
 ## 6. More: button, sheet, small dialogs
 
-- **More button**: sliders icon + the word "More", accent-soft pill, the FIRST control of the screen's own row. One per screen.
-- **More sheet** (N4): a fixed box. Wide screens: right edge, 12 px from top, bottom and right, 440 px wide. Phone: full width, from 8 px below the top to the bottom edge. **Its position and size never depend on the content.**
-  - Fixed parts: header (icon, title, one-line subtitle, ✕) → **picker row** (N3: "All notebooks" + one tile per notebook, mini covers, scrolls sideways with a track) → section tabs (with a track) → footer (hint · Cancel · ✓ Done).
+- **More control** (owner, 22 Nov 2026, Q18): one control, **last** in the screen's own row, "cleaner like this"; it carries a small down arrow ▾ when more options exist; it ends with Customise bar…. One per screen. (Replaces the 12 Nov "More first, ⋯ last" pair.)
+- **More sheet** (N4): a fixed box. Wide screens: right edge, 12 px from top, bottom and right, width in §8. Phone: full width, from 8 px below the top to the bottom edge. **Its position and size never depend on the content.**
+  - Fixed parts: header (✕ top left, icon, title, one-line subtitle, ✓ top right; owner, 22 Nov 2026, Q8) → **picker row** (N3: "All notebooks" + one tile per notebook, mini covers, scrolls sideways with a track) → section tabs (with a track) → an optional hint line at the bottom. No footer buttons.
   - Only the body scrolls. Switching tab resets the body to the top; edits keep the scroll place.
-  - Draft model: nothing changes until Done. Cancel, ✕, Esc or a tap outside discards.
+  - Draft model: nothing changes until ✓. ✕, Esc or a tap outside discards.
   - The page stays visible beside the sheet on wide screens (live previews).
 - **Pick on top, edit below** (N3) is the rule for every per-item settings screen: notebooks here; decks in Review; books in the reader; saved searches; dashboard tabs in Home.
 - **Small dialogs** (name, confirm): centred, 420 px max, content-sized, Cancel + one action. Destructive action in danger red, with "You can undo this."
@@ -104,22 +104,34 @@ Two columns, both 264 px, both `--surface-1` cards with a header, optional tabs,
 
 ## 7. Toasts
 
-Bottom centre, pill, one at a time, 24 px up (above the tab bar on phones, above a visible floating bar). 2.6 s; 6 s with **Undo**. Only for errors, Undo, or actions whose result is not on screen. `role="status"`.
+Decided 22 Nov 2026 (owner, confirmed in chat, Q5): a pill, **bottom-right on every device**, one at a time, 24 px up (above the tab bar on phones, above a visible floating bar). **2.6 s; 6 s with Undo.** A small ✕ at the pill's top-left corner closes it; the action (Undo) sits on the other side. Radius and fill: system.md §3 and §8. Case against: bottom-right is farther from the iPad's centre of attention; the owner chose it. Only for errors, Undo, or actions whose result is not on screen. `role="status"`.
 
 ## 8. Tokens and rules
 
-- Colours, radii, motion: the app's `src/design/tokens.css` values, as in toolbar v4. Themes: Night (default), Day, Sepia, all three in every mock.
-- Shell sizes (CSS variables): rail 56 · sidebar 264 · panel 264 · top bar 52 · tab bar 56 · sheet 440 · hit 44 · gap 12.
+- Colours, radii, glass, motion, icons and the default theme: docs/design/system.md (the one table; Day is the default theme, Night and Sepia in every mock too).
+- Shell sizes (CSS variables), the frame's one table:
+
+| Size     | px   | Source                                                                            |
+| -------- | ---- | --------------------------------------------------------------------------------- |
+| rail     | 56   | 12 Nov                                                                            |
+| sidebar  | 288  | owner, 22 Nov 2026, Q6 (was 264; system.md's 9 Nov "resizable 220-360" kept as the range) |
+| panel    | 264  | 12 Nov (Q6 named the side list only)                                              |
+| top bar  | 52   | 12 Nov (the Tool bar below it: toolbar-v8.md)                                     |
+| tab bar  | 56   | 12 Nov                                                                            |
+| sheet    | 376  | owner, 22 Nov 2026, Q9 ("the smaller the better here"; was 440)                   |
+| hit      | 44   | always, every density (system.md §8, Q17)                                         |
+| gap      | 12   | 12 Nov                                                                            |
+
 - Breakpoints: **640** (phone) and **1180** (room for sidebar + panel). No others for shell parts.
 - Layers: tab bar 30 · floating bar 40 · chips 41 · drawer scrim 59 · drawers 60 · sheet scrim 79 · sheet 80 · dialog 85 · pop 86 · toast 90.
 - Hit areas: 44 pt everywhere. A control drawn at 32–36 px carries an invisible extender (`::before`).
 - Sideways rows: hidden scrollbar + the thin track under it (`Shell.track`).
 - Modes: `data-mode="beg" | "pro"` on `.sh-wrap`; `.pro` hides in Beginner. Buttons use `data-sh-mode`. One saved key for mode, theme, icon option and minimised bars: `ln-shell-v1`.
-- Motion 120/180/240 ms, ease-out; reduced motion and reduced transparency respected.
+- Motion: the one scale in system.md §6; reduced motion and reduced transparency respected.
 
 ## 9. Icon set
 
-One dictionary, `Shell.I`, Lucide geometry: 24 grid, 1.6 stroke, round caps, no fills. A mock adds its own names with `Object.assign(Shell.I, {...})` and never redraws a shared name. Shared names: home, sun, moon, gear, library, notebooks, review, sidebar, panel, back, fwd, chev, chevL, up, down, search, sliders, minim, x, check, plus, dots, grip, undo, save, trash, device, help, lock, star.
+One dictionary, `Shell.I`, Lucide geometry: grid and stroke per system.md §7 (1.6 retired 22 Nov), round caps, no fills. A mock adds its own names with `Object.assign(Shell.I, {...})` and never redraws a shared name. Shared names: home, sun, moon, gear, library, notebooks, review, sidebar, panel, back, fwd, chev, chevL, up, down, search, sliders, minim, x, check, plus, dots, grip, undo, save, trash, device, help, lock, star.
 
 ### Rail icons (U2). Home, sun/moon and gear are kept.
 
@@ -129,7 +141,7 @@ One dictionary, `Shell.I`, Lucide geometry: 24 grid, 1.6 stroke, round caps, no 
 | **Notebooks**       | Ring-bound notebook with a pencil                                  | Ring-bound notebook with ruled lines | **A.** The pencil says "you write here", the opposite of Library's "you read here". B is the safe fallback if the pencil feels busy at 22 px. |
 | **Review / Recall** | Two flashcards with a tick on the front one                        | Repeat arrows around a card          | **A.** Reads as "cards to get through" and carries the due badge well. B explains spaced repetition but looks like "refresh/sync".            |
 
-Both sets are live in `notebooks-mock-v2.html` (demo bar: "Icons A / Icons B"). The brain (old Review) and the four bare lines (old Library) are retired.
+**Decided 22 Nov 2026 (owner, Q7): Notebooks takes Option B (ruled notebook), Review takes Option B (repeat arrows around a card); Library stays A.** The "Pick" column above is the 12 Nov proposal. Both sets are live in `notebooks-mock-v2.html` (demo bar: "Icons A / Icons B"). The brain (old Review) and the four bare lines (old Library) are retired.
 
 ## 10. `shell.js` API
 
@@ -137,7 +149,7 @@ Both sets are live in `notebooks-mock-v2.html` (demo bar: "Icons A / Icons B"). 
 
 ## 11. Audit: contradictions between the current mocks
 
-Mocks: T = toolbar v4 (approved), A = annotations/reader, H = home, N = notebooks v1, S = search, R = review, G = settings v1.
+Mocks: T = toolbar v4 (approved), A = annotations/reader, H = home, N = notebooks v1, S = search, R = review, G = settings v1. The "Shell rule" column is the 12 Nov record; where the owner's 22 Nov answers differ (More last, ✕ and ✓ at the top, toast bottom-right, sidebar 288, rail icons), §3 to §9 above win.
 
 | #   | Part                | What differs today                                                                                                                                                                                                            | Shell rule                                                                            |
 | --- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |

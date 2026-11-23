@@ -2,6 +2,8 @@
 
 The single source for how the app looks. Research and sources: docs/research/premium-design-2026-11.md. Today's tokens live in `src/index.css` (`@theme`, `[data-theme]`). Step 1 of the design plan maps this file onto them. The Tailwind names stay where they exist (`bg`, `side`, `ink`, `muted`, `line`, `accent`...) so screens migrate gradually.
 
+**The one table for raw design numbers (folded 22 Nov 2026).** The owner's 22 Nov answers to the design questionnaire (docs/design/principles.md, Q1 to Q18) are written into the sections below: colours and the default theme (§1), radii (§3), quick fonts (§4), the two glasses (§5), the one motion scale (§6), icons (§7), targets and density (§8, §10). Frame sizes (sidebar, sheet, toast place and timing, top-bar controls) live in docs/design/shell-spec.md §8; the Tool bar's own sizes in docs/features/toolbar-v8.md "Sizes, spacing, motion"; what counts as passing in docs/design/quality-standard.md. Other files point here and do not repeat a number.
+
 Open questions for the owner:
 
 1. Sepia stays as a third theme? (proposal: yes, as a paper tint only.)
@@ -31,12 +33,15 @@ Neutrals carry a faint violet tint (hue about 285) so the whole palette reads as
 | `accent-soft`        | selected row, chip                | rgba(105,65,224,.10) | rgba(160,140,255,.16) |
 | `success`            | Good/Easy, saved                  | #1D7A50              | #4CC28B               |
 | `warn`               | Hard, due soon                    | #8F5200              | #E8A541               |
-| `danger`             | Again, delete                     | #C0352B              | #FF7A6B               |
+| `danger`             | Delete, and the Review's "Again"  | #C0352B              | #FF7A6B               |
 | `select`             | copy selection (kept)             | #C2410C              | #FFB454               |
 
 Semantic soft fills = the colour at 10 % (light) or 16 % (dark) opacity, with the text in the full colour.
 
-Glass tints (frame only):
+- Themes: Night, Day and Sepia, with equal care. **The default theme is Day for everyone** (owner, 22 Nov 2026, Q14); it does not follow the device and is not Night; the owner sets Night on their own devices. Sepia is a paper tint; its accent is #5F37D4.
+- Red (`danger`) is used for Delete and for the Review's "Again" (owner, 22 Nov 2026, Q16); colour is never the only signal.
+
+Glass tints (frame glass; card glass is in §5):
 
 - Light: `rgba(255,255,255,.72)` fill, hairline `rgba(255,255,255,.6)` inside plus `rgba(24,23,28,.08)` outside.
 - Dark: `rgba(29,28,35,.70)` fill, hairline `rgba(255,255,255,.08)`.
@@ -78,7 +83,24 @@ Charts: keep the six-colour rule. Chart 1 becomes the accent. Heatmap: 5 steps o
 
 ## 3. Radius (soft round)
 
-`xs 6` (chips inside rows, kbd) · `sm 8` (inputs, small buttons) · `md 12` (cards, menus) · `lg 16` (panels, sidebar, dialogs, palette) · `xl 24` (sheets on phone, hero cards) · `pill 999` (buttons, chips, segmented). Nested rule: inner radius = outer radius - padding.
+Decided 22 Nov 2026 (owner, Q4: menus take B, everything else A):
+
+| Part                         | Radius (px) |
+| ---------------------------- | ----------- |
+| inputs                       | 8           |
+| menus (and their rows)       | 8           |
+| cards, pickers, panels       | 20          |
+| sheets                       | 24          |
+| dialogs                      | 24          |
+| toast                        | 14          |
+| wells inside cards           | 14          |
+| chips, buttons, segmented    | pill (999)  |
+| chips inside rows, kbd       | 6           |
+| small buttons                | 8           |
+| sidebar, command palette     | 16          |
+| hero cards                   | 24          |
+
+The last four rows are the 9 Nov values the questionnaire did not touch. Nested rule: inner radius = outer radius - padding.
 
 ## 4. Type scale
 
@@ -95,7 +117,9 @@ Family: `-apple-system, 'SF Pro Text', 'Inter Variable', Inter, system-ui, sans-
 | small   | 13 / 20                    | 500    | 0                | meta, labels, buttons-sm      |
 | micro   | 11 / 16                    | 600    | 0.04em uppercase | group labels, kbd             |
 
-UI chrome uses only 4 sizes (h3, body, small, micro). Paper content uses title / h1 / h2 / h3 / body. Line length on the paper is 72ch at most.
+UI chrome uses only 4 sizes (h3, body, small, micro). Paper content uses title / h1 / h2 / h3 / body. Line length on the paper is 72ch at most. Card labels and group labels: 12.5 px semibold, sentence case, no capitals or letter-spacing.
+
+Quick fonts (owner, 22 Nov 2026, Q13): **Easy to read** (Atkinson Hyperlegible, the default), **Classic** (Literata), **Handwritten** (Patrick Hand). More fonts… keeps Inter, Lexend, JetBrains Mono, Caveat and OpenDyslexic; the reader's Bookerly-style face is Literata, opt-in.
 
 ## 5. Elevation and glass recipes
 
@@ -134,7 +158,14 @@ Glass recipe (`.glass`, frame only):
 }
 ```
 
-- Blur: bars 16 px, sidebar 20 px, menus 24 px, palette 24 px plus a dimmed backdrop (`rgba(0,0,0,.24)` light, `.48` dark, no blur on the dim).
+Two glasses, on purpose (owner, 22 Nov 2026, Q3):
+
+| Glass       | Used by                         | Fill                      | Blur                                     | Saturate | Edge                                  |
+| ----------- | ------------------------------- | ------------------------- | ---------------------------------------- | -------- | ------------------------------------- |
+| Frame glass | bars, sidebar, menus, palette   | 72 % light / 70 % dark    | 16 bars · 20 sidebar · 24 menus, palette | 160 %    | hairline (§1 glass tints)             |
+| Card glass  | cards, pickers, panels          | 88 to 92 %                | 28                                       | 170 %    | hairline with a 1 px top highlight    |
+
+- The palette adds a dimmed backdrop (`rgba(0,0,0,.24)` light, `.48` dark, no blur on the dim). The paper is always solid.
 - Budget: at most 3 blurred elements visible at once. Never blur the paper. Never animate the blur.
 - `data-glass='lite'` turns on automatically when the frame-time probe (`src/design/glass.ts`) sees more than half of 30 frames over 20 ms during a scroll or pointer (Pencil) burst; it is kept for the session. Big pages and ink are covered by the same probe, not separate triggers (the paper never blurs). The manual switch is Settings > General > "Reduce glass" (Automatic / Solid; Solid is kept across reloads).
 
@@ -149,17 +180,30 @@ Glass recipe (`.glass`, frame only):
 | `--ease-in`  | cubic-bezier(.4,0,1,1)                                  | exit (exit is about 2/3 of the enter time) |
 | `--spring`   | `linear()` spring, about 0.9 damping, no visible bounce | toggles, card flip, drag drop              |
 
-- Press: scale .97 at dur-1. Menus: fade + 4 px rise. Dialogs: fade + scale .98→1.
+One motion scale (owner, 22 Nov 2026, Q2): the three tokens above for everything; the loose phrase "about 150 ms" is retired. Named uses:
+
+| Use                    | Value                                                  |
+| ---------------------- | ------------------------------------------------------ |
+| card open              | 200 ms, `--ease-out`, fade, scale .96 → 1, rise 6 px   |
+| card close             | 130 ms                                                 |
+| segmented thumb        | 280 ms, `--spring`                                     |
+| new pick pops          | .93 → 1 in 280 ms                                      |
+| changed ▾ glows        | once, 700 ms                                           |
+| simple picker closes   | 190 ms after a pick                                    |
+| minimise chip slides   | `--dur-2`                                              |
+| press                  | scale .97 at `--dur-1`                                 |
+
+- Menus: fade + 4 px rise. Dialogs: fade + scale .98→1.
 - Reduced motion: every transform becomes a 120 ms opacity fade; no shimmer, no flip (crossfade), no smooth scroll.
 - Never animate while the user is typing or drawing.
 
 ## 7. Icons
 
-One set: Lucide (already open-source, ₹0; if the app uses another set, keep that one and drop the rest). 1.75 px stroke, 20 px in the UI (16 in dense rows, 24 in the rail), `currentColor`, rounded caps. An icon-only button always has an aria-label and a tooltip. Icon tiles (slash menu, Home cards): a 32 px square, radius 8, `accent-soft` or a neutral fill.
+One set: Lucide (already open-source, ₹0; if the app uses another set, keep that one and drop the rest). 1.75 px stroke on a 24 grid (owner, 22 Nov 2026, Q1; the 1.6 of the quality standard, the shell spec and tool bar v8 is retired), 20 px in the UI (16 in dense rows, 24 in the rail), `currentColor`, rounded caps, no fills. Rail icons (owner, 22 Nov 2026, Q7): Library = books on a shelf, Notebooks = ruled notebook, Review = repeat arrows around a card. An icon-only button always has an aria-label and a tooltip. Icon tiles (slash menu, Home cards): a 32 px square, radius 8, `accent-soft` or a neutral fill.
 
 ## 8. Component states
 
-All controls are at least 44 px tall in comfortable density (36 px in compact, with the hit area kept by `hit-grow`). Focus = 2 px accent ring, 2 px offset, on every control. Disabled = 40 % opacity, `cursor: not-allowed`, no hover, and `aria-disabled` used when the control should still be reachable for a tooltip.
+Every target is at least 44 px, always, in every density (owner, 22 Nov 2026, Q17). A control drawn at 32 to 36 px keeps a 44 px hit area with `hit-grow`. Focus = 2 px accent ring, 2 px offset, on every control. Disabled = 40 % opacity, `cursor: not-allowed`, no hover, and `aria-disabled` used when the control should still be reachable for a tooltip.
 
 | Button    | Default                                    | Hover                                            | Active                       | Focus | Disabled | Loading                                                          |
 | --------- | ------------------------------------------ | ------------------------------------------------ | ---------------------------- | ----- | -------- | ---------------------------------------------------------------- |
@@ -170,12 +214,12 @@ All controls are at least 44 px tall in comfortable density (36 px in compact, w
 | Danger    | danger fill (or ghost-danger)              | as primary                                       | as primary                   | ring  | 40 %     | same                                                             |
 
 - Inputs: height 44, radius 8, surface-0 fill, `line-strong` border. Hover: ink-soft border. Focus: accent border + ring. Error: danger border + message under it (not colour only, an icon too). Disabled: surface-1 fill. Label above, hint below in `muted` small.
-- Cards: surface-1, radius 12, elev-1, padding 16. Hover (pointer): elev-2 + hover fill. Pressed: scale .99. Selected: accent 1.5 px ring. Drag: elev-3 + 2° tilt off under reduced motion.
-- Menus: glass, radius 12, padding 4, rows 36 (compact 32) / 44 on touch, radius 8 rows, group label micro, shortcut right in muted, danger items last after a divider.
+- Cards: surface-1, radius per §3, elev-1, padding 16. Hover (pointer): elev-2 + hover fill. Pressed: scale .99. Selected: accent 1.5 px ring. Drag: elev-3 + 2° tilt off under reduced motion.
+- Menus: frame glass, radius per §3, padding 4, rows drawn 36 (compact 32) on pointer devices and 44 on touch, always with a 44 px target, radius 8 rows, group label micro, shortcut right in muted, danger items last after a divider.
 - Tabs / segmented: a pill track (surface-1), the selected pill on surface-0 + elev-1 that slides at dur-2; underline tabs only inside pages.
 - Chips: pill, 28 high, small text, accent-soft or a neutral fill, an optional × with a 44 px hit area.
-- Toasts: bottom centre (phone) or bottom right (wide), solid surface-3 (no glass), radius 12, one action + close, 5 s, paused on hover or focus, `role=status`.
-- Dialogs: surface-3, radius 16, max 480 wide, title h2, actions bottom right (primary last; on phone full-width stacked), Esc closes, focus is trapped and returns to the trigger.
+- Toasts: solid surface-3 (no glass), radius per §3, paused on hover or focus, `role=status`. Place, shape, close and timing: docs/design/shell-spec.md §7.
+- Dialogs: surface-3, radius per §3, max 480 wide, title h2, actions bottom right (primary last; on phone full-width stacked), Esc closes, focus is trapped and returns to the trigger.
 - Command palette: glass, radius 16, 640 wide, input 56 high (h3 size), result rows 44, footer 36 with kbd hints.
 - Skeletons: surface-1 blocks at the content's real size, radius matches the content, shimmer 1.2 s (none under reduced motion), shown after 300 ms, `aria-busy` on the region.
 
@@ -185,7 +229,7 @@ All controls are at least 44 px tall in comfortable density (36 px in compact, w
 | ------- | ----------------------- | -------------------------------------------------------------------- |
 | phone   | < 640 (or height < 512) | single column, bottom sheets, sidebar is a drawer, side gutter 16    |
 | tablet  | 640 - 1023              | floating sidebar overlays or a 72 px icon rail, gutter 24            |
-| desktop | ≥ 1024                  | floating sidebar 260 (resizable 220-360) with a 12 px gap, gutter 32 |
+| desktop | ≥ 1024                  | sidebar (width: shell-spec.md §8) with a 12 px gap, gutter 32        |
 | wide    | ≥ 1440                  | content max 1200 for dashboards; paper max 72ch + margins            |
 
 These keep the existing `phone` / `wide` custom variants (640/512). Dashboards use a 12-column grid with 16 px gutters (24 on desktop). Tiles span 3 / 4 / 6 / 12 columns.
@@ -193,7 +237,7 @@ These keep the existing `phone` / `wide` custom variants (640/512). Dashboards u
 ## 10. Density
 
 - Comfortable (default): 44 controls, 44 rows, base spacing as above.
-- Compact (Settings switch, `data-density='compact'`): 36 controls, 32 rows on pointer devices only (touch stays 44), spacing steps one down inside lists. Type does not shrink.
+- Compact (Settings switch, `data-density='compact'`): tightens spacing only, one step down inside lists; targets stay 44 px and type does not shrink (owner, 22 Nov 2026, Q17).
 
 ## Proposed rules (for rules/architecture.md "Design", needs owner OK)
 

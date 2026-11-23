@@ -73,6 +73,7 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 
 - **The catch-up check C0 on the iPad, items 4 to 11** (about 15 minutes; the eleven items are in docs/plans/phases/phase-2-finish.md section 6; "Circle recorder" off). Items 1 to 3 answered 22 Nov evening (#55, #56, #57). Reply with the numbers that felt wrong, or "rest fine".
 - **C1a, the Lasso session, 5 minutes:** Settings, Try new features, Lasso recorder on; "Copy last trace" when an outline stays or a loop acts on the old selection. A trace of a wrong circle pick unlocks #57.
+- **Right-click on the PC (23 Nov, one question, HM-OPEN-4 in DECISIONS):** should a right-click on a single misspelled word keep the browser's spelling menu, with our Hold menu only on a selection, a box or a picture (my pick), or should the Hold menu always open? One word: "spelling" or "always".
 - **The Action bar PC picture is ready (23 Nov):** docs/mockups/action-bar/png/, 13 frames with captions; reply "yes" or "change X" by frame. Two design questions wait in docs/DECISIONS.md "Decisions to review" (the fold clashes, AB-05 vs the Pinned row).
 - **Later, in this order:** the phase 1B planning (one questionnaire); the Notion mirror only on your word (docs/IDEAS.md).
 - **Small, not urgent:** Decisions to review in docs/DECISIONS.md; the security-header check E6 (#54); developer-tool warnings (glob, minimatch; the fix breaks the offline plugin, re-checked at each phase end); old working copies you may delete when you like.

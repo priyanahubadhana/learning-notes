@@ -4,7 +4,7 @@ Security rules: [rules/security.md](../../rules/security.md). Check them before 
 
 ## Purpose
 
-In plain words: the menus you use while writing on a page. Type "/" to add a block. Long-press (iPad) or right-click (PC) to get a small horizontal strip like the iPad's own (Cut, Copy, Paste ▾, Delete, ⋯). Paste keeps the look of what you copied, with no question. The page ⋯ opens a tidy side sheet. New pages offer a start card until you pick a default. Blocks get a handle that works with touch and Pencil. Beginner sees short lists; Professional gets everything, each extra behind its own switch. Nothing the app does today is lost.
+In plain words: the menus you use while writing on a page. Type "/" to add a block. Long-press (iPad) or right-click (PC) to get a small horizontal Hold menu like the iPad's own (Cut, Copy, Paste ▾, Delete, ⋯). Paste keeps the look of what you copied, with no question. The page ⋯ opens a tidy side sheet. New pages offer a start card until you pick a default. Blocks get a handle that works with touch and Pencil. Beginner sees short lists; Professional gets everything, each extra behind its own switch. Nothing the app does today is lost.
 
 Sources: `docs/archive/plans/build-master-plan.md` 2.2 (owner's answers, final); `docs/archive/plans/app-audit-2026-11-12.md` section 5 batch 1 (recommended split and spec lines); `docs/PENDING.md` "Favourites row + Organise + long-press strip + Paste: APPROVED" with `docs/mockups/favourites/` (menu-1.png, menu-2.png, menu-3.png, menu-1-phone.png); [copy-paste.md](copy-paste.md), [editor-and-blocks.md](editor-and-blocks.md), [new-page-start.md](new-page-start.md), [templates.md](templates.md). Per the master plan's running principle 2, this spec replaces a mock-up.
 
@@ -16,14 +16,14 @@ The tool bar, the text-selection format bar (BUG-002) and Favourites of tools li
 
 All live in `src/design/parts/`, are placed only by the overlay manager `src/app/overlay/` (fixed layer order, one open at a time, Esc and tap-outside, "open beside, never over", focus kept inside dialogs), take input from the event / gesture routers and read `src/app/selection/store.ts`. They use the tokens and card frame of `docs/mockups/toolbar-v8/design-study.md` 3 (glass 88–92 %, blur 28 px, hairline, two-layer shadow, Lucide 1.6 icons, 44 px targets, 150–200 ms motion, instant with reduced motion). Each appears on the Parts gallery (`src/design/DesignTokensPage.tsx`) for screenshot tests.
 
-| Part                   | Behaviour                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Sizes and motion                                                                                                                                                                                                      |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Context menu strip** | One horizontal row of actions (icon + name) for right-click, long-press (0.5 s finger, also Pencil) and ⋯ on rows. Groups split by hairlines; Delete last, in danger red. Items with ▾ open a 304 px picker card below the strip (replace, not stack). Overflow folds into "⋯ More" which opens the full list as a Command list. Arrow points at the press point. Never covers the selection or its handles: above, else below, else beside. Tap outside or Esc closes. | Height 48 px, radius 16 px, padding 4 px, items 44 px tall with 12 px side padding, 8 px gap from the selection, at least 12 px from screen edges. Opens 160 ms (fade + scale .96 → 1 from the arrow), closes 120 ms. |
-| **Command list**       | A searchable list with group headings, an icon or small picture per row, the shortcut key on the right, ★ on hover / long-press (Professional). Type to filter (matches names and aliases); ↑ ↓ moves, Enter picks, Esc closes. Recent (last 3) and Favourites on top. "Show all" row at the bottom when the list is short. Used by "/", "[[", "#", the command palette and Strip "⋯ More".                                                                             | Width 320 px (phone: full width − 24 px, bottom sheet), max height 420 px (or the space left, min 240), rows 44 px, group label 12.5 px semibold. Opens 160 ms.                                                       |
-| **Sheet**              | Docked right at full height on iPad / PC, full screen on a phone. Header: title, optional section tabs (segmented), ✕. Body scrolls; footer optional (✓ / ✕ or Done). Fixed place and height (owner note N4). Swipe right (or down on phone) closes. The page stays usable beside it on wide screens.                                                                                                                                                                   | Width 376 px (≥ 1024 px screens) else 100 %, padding 16 px, header 56 px. Slides in 240 ms cubic-bezier(.2,.8,.2,1), out 180 ms.                                                                                      |
-| **Dialog set**         | Confirm, Name, Choice, Alert. Centred, focus trapped, ✕ top right, Enter = main button, Esc = cancel. Red only for danger. Name field has ✕ clear and a 40-character limit shown at 32+.                                                                                                                                                                                                                                                                                | Width 360 px (phone: full width − 32 px), radius 20 px, padding 20 px, buttons 44 px. Fade + scale .96 → 1, 180 ms; backdrop 30 % black.                                                                              |
-| **Toast queue**        | Stack of up to 3 at the bottom centre; kinds: done (2.5 s), undo (6 s, with Undo button), problem (stays until ✕). A new toast never replaces an earlier Undo; the 4th pushes out the oldest non-problem toast. Hover / touch pauses the timer. Never covers a title or an open sheet's footer.                                                                                                                                                                         | Width up to 420 px, height 44 px, 8 px apart, 16 px above the bottom safe area. Slide up 200 ms, out 150 ms.                                                                                                          |
-| **Banner**             | One line across the top of the page content: icon, text, one action, ✕. Kinds: template, journal, read-only, lock, backup, update. One banner at a time; a newer one queues.                                                                                                                                                                                                                                                                                            | Height 44 px, radius 12 px, 12 px margin, slides down 200 ms.                                                                                                                                                         |
+| Part             | Behaviour                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Sizes and motion                                                                                                                                                                                                      |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Hold menu**    | One horizontal row of actions (icon + name) for right-click, long-press (0.5 s finger, also Pencil) and ⋯ on rows. Groups split by hairlines; Delete last, in danger red. Items with ▾ open a 304 px picker card below the Hold menu (replace, not stack). Overflow folds into "⋯ More" which opens the full list as a Command list. Arrow points at the press point. Never covers the selection or its handles: above, else below, else beside. Tap outside or Esc closes. | Height 48 px, radius 16 px, padding 4 px, items 44 px tall with 12 px side padding, 8 px gap from the selection, at least 12 px from screen edges. Opens 160 ms (fade + scale .96 → 1 from the arrow), closes 120 ms. |
+| **Command list** | A searchable list with group headings, an icon or small picture per row, the shortcut key on the right, ★ on hover / long-press (Professional). Type to filter (matches names and aliases); ↑ ↓ moves, Enter picks, Esc closes. Recent (last 3) and Favourites on top. "Show all" row at the bottom when the list is short. Used by "/", "[[", "#", the command palette and Hold menu "⋯ More".                                                                             | Width 320 px (phone: full width − 24 px, bottom sheet), max height 420 px (or the space left, min 240), rows 44 px, group label 12.5 px semibold. Opens 160 ms.                                                       |
+| **Sheet**        | Docked right at full height on iPad / PC, full screen on a phone. Header: title, optional section tabs (segmented), ✕. Body scrolls; footer optional (✓ / ✕ or Done). Fixed place and height (owner note N4). Swipe right (or down on phone) closes. The page stays usable beside it on wide screens.                                                                                                                                                                       | Width 376 px (≥ 1024 px screens) else 100 %, padding 16 px, header 56 px. Slides in 240 ms cubic-bezier(.2,.8,.2,1), out 180 ms.                                                                                      |
+| **Dialog set**   | Confirm, Name, Choice, Alert. Centred, focus trapped, ✕ top right, Enter = main button, Esc = cancel. Red only for danger. Name field has ✕ clear and a 40-character limit shown at 32+.                                                                                                                                                                                                                                                                                    | Width 360 px (phone: full width − 32 px), radius 20 px, padding 20 px, buttons 44 px. Fade + scale .96 → 1, 180 ms; backdrop 30 % black.                                                                              |
+| **Toast queue**  | Stack of up to 3 at the bottom centre; kinds: done (2.5 s), undo (6 s, with Undo button), problem (stays until ✕). A new toast never replaces an earlier Undo; the 4th pushes out the oldest non-problem toast. Hover / touch pauses the timer. Never covers a title or an open sheet's footer.                                                                                                                                                                             | Width up to 420 px, height 44 px, 8 px apart, 16 px above the bottom safe area. Slide up 200 ms, out 150 ms.                                                                                                          |
+| **Banner**       | One line across the top of the page content: icon, text, one action, ✕. Kinds: template, journal, read-only, lock, backup, update. One banner at a time; a newer one queues.                                                                                                                                                                                                                                                                                                | Height 44 px, radius 12 px, 12 px margin, slides down 200 ms.                                                                                                                                                         |
 
 ### Sizes, spacing, motion for the page surfaces
 
@@ -46,22 +46,22 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 - PM-05 When I type "/" inside a table cell → only items that fit in a cell show.
 - PM-06 Professional: ★ on an item pins it to a Favourites group on top; ★ again removes it with a toast Undo (Pro: `page.slashStars` new).
 - PM-07 Professional: "Arrange this menu" at the bottom opens the shared Arrange sheet (hide, reorder, reset) (Pro: `page.slashStars` new).
-- PM-08 Professional: select a styled block → Strip ⋯ → "Save to My blocks" → Name dialog; it then shows in a "My blocks" group in "/" and inserts with its style (Pro: `page.myBlocks` new).
+- PM-08 Professional: select a styled block → Hold menu ⋯ → "Save to My blocks" → Name dialog; it then shows in a "My blocks" group in "/" and inserts with its style (Pro: `page.myBlocks` new).
 - PM-09 Beginner with Professional off sees "Show all" always available (no feature hidden for good).
 
-**Long-press = right-click strip (Context menu strip)**
+**Long-press = right-click Hold menu (Hold menu)**
 
-- PM-20 When I right-click (PC) or long-press 0.5 s (finger or Pencil) on text or a block → the strip opens above the selection: Paste ▾ · Copy · Cut · Duplicate · Turn into ▾ · Colour ▾ · Add to favourites · Comment · Delete (as menu-1.png); Beginner shows Cut, Copy, Paste ▾, Delete, ⋯.
-- PM-21 The strip never covers the selection handles or the B/I/U bar (approval fix 1): strip above, format bar below.
-- PM-22 When I tap ⋯ on the strip → the full list opens as a Command list in the same place (Select, Select all, Insert picture, Insert line, Copy as ▾, Move to page, Make card, Key point) (Pro extras: `tb.miniToolbar`, `page.contextMore` new).
-- PM-23 When I long-press a page row, notebook row, library row or task row → the same strip opens at that point with that row's actions.
+- PM-20 When I right-click (PC) or long-press 0.5 s (finger or Pencil) on text or a block → the Hold menu opens above the selection: Paste ▾ · Copy · Cut · Duplicate · Turn into ▾ · Colour ▾ · Add to favourites · Comment · Delete (as menu-1.png); Beginner shows Cut, Copy, Paste ▾, Delete, ⋯.
+- PM-21 The Hold menu never covers the selection handles or the B/I/U bar (approval fix 1): Hold menu above, format bar below.
+- PM-22 When I tap ⋯ on the Hold menu → the full list opens as a Command list in the same place (Select, Select all, Insert picture, Insert line, Copy as ▾, Move to page, Make card, Key point) (Pro extras: `tb.miniToolbar`, `page.contextMore` new).
+- PM-23 When I long-press a page row, notebook row, library row or task row → the same Hold menu opens at that point with that row's actions.
 - PM-24 The hold time follows Settings "Press-and-hold menu time" (`advanced.holdMenu`).
-- PM-25 When I drag after the long-press starts (more than the move distance) → the strip does not open and the gesture router hands the touch to select / drag.
-- PM-26 On a phone → the strip shows up to 4 items + ⋯; every item in ⋯ is tappable (approval fix 2).
+- PM-25 When I drag after the long-press starts (more than the move distance) → the Hold menu does not open and the gesture router hands the touch to select / drag.
+- PM-26 On a phone → the Hold menu shows up to 4 items + ⋯; every item in ⋯ is tappable (approval fix 2).
 
 **Paste**
 
-- PM-40 When I paste (Ctrl/Cmd+V, strip Paste, ⋯ Paste) → the content appears at once with its original look; no question first.
+- PM-40 When I paste (Ctrl/Cmd+V, Hold menu Paste, ⋯ Paste) → the content appears at once with its original look; no question first.
 - PM-41 When I tap Paste ▾ → options: Keep original, Plain text, As text box (paper pages), As table (tab rows), As quote, Link / Embed (lone address), Clean up with AI (AI on with a key; cost shown first); the pick pastes in that form.
 - PM-42 When I press Ctrl/Cmd+Shift+V → plain text, as today.
 - PM-43 Settings › General › "Paste as" → Keep original (default), Plain text, Always ask; "Always ask" opens today's paste chooser before pasting.
@@ -79,7 +79,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 
 **Block handle**
 
-- PM-80 When I tap a block's handle → its menu (Context menu strip) opens beside the block: Delete, Duplicate, Turn into ▾, Move up, Move down.
+- PM-80 When I tap a block's handle → its menu (Hold menu) opens beside the block: Delete, Duplicate, Turn into ▾, Move up, Move down.
 - PM-81 When I hold the handle 0.3 s → the block lifts, a drop-line shows, others make room; drop moves it; nothing else reacts until the drop.
 - PM-82 Professional adds Colour, Copy link to block, Copy as ▾ (Markdown, Rich text, Plain text, HTML), Make card, Add to Summary, Comment for AI (Pro: `page.blockMenuMore` new).
 - PM-83 On touch and Pencil the handle shows next to the block with the cursor, without hover.
@@ -114,7 +114,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 - Empty: "/" with no match → "No block called '<text>'" and "Show all"; no templates → Empty state with "Save this page as a template"; no pinned row → "+ Pin an action".
 - Error: clipboard refused → problem toast with the Ctrl/Cmd+Shift+V hint; template missing → Banner "Template not found" with "Start blank".
 - Offline: all menus work; Clean up with AI is greyed with "Needs internet".
-- Phone: strip max 4 items + ⋯; Command list and Sheet full width / full screen; Dialogs full width − 32 px.
+- Phone: Hold menu max 4 items + ⋯; Command list and Sheet full width / full screen; Dialogs full width − 32 px.
 - Dark / light / sepia: same tokens; danger red from the token.
 
 ## Nothing lost: today's features and their new home
@@ -125,12 +125,12 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 | Slash items `src/editor/slashMenu.tsx:72-202`                                                                                   | PM-01/02 groups                  |
 | Slash mounted / close-on-select `src/editor/PageEditor.tsx:946-972`                                                             | Command list via overlay manager |
 | "[[" trigger `src/editor/tagActions.ts:28`                                                                                      | Command list (same part)         |
-| Hold menu `src/editor/HoldMenu.tsx:43-98`, watcher `holdMenuWatch.ts:204`                                                       | Strip PM-20/22                   |
+| Hold menu `src/editor/HoldMenu.tsx:43-98`, watcher `holdMenuWatch.ts:204`                                                       | Hold menu PM-20/22               |
 | Long-press hook `src/app/useLongPress.ts:19`                                                                                    | Gesture router long-press        |
 | Pen contextmenu `src/app/penTap.ts:200`                                                                                         | Gesture router                   |
-| Row long-press `src/pages/PageTree.tsx:78`, `notebooks/Sidebar.tsx:183`, `library/LibraryScreen.tsx:225`, `home/TaskRow.tsx:37` | Strip PM-23                      |
-| Anchored menu `src/app/tools/useAnchoredMenu.ts:27`, `AnchoredMenu.tsx:12`                                                      | Context menu strip               |
-| Page row menu `src/pages/PageRowMenu.tsx:14`                                                                                    | Strip PM-23                      |
+| Row long-press `src/pages/PageTree.tsx:78`, `notebooks/Sidebar.tsx:183`, `library/LibraryScreen.tsx:225`, `home/TaskRow.tsx:37` | Hold menu PM-23                  |
+| Anchored menu `src/app/tools/useAnchoredMenu.ts:27`, `AnchoredMenu.tsx:12`                                                      | Hold menu                        |
+| Page row menu `src/pages/PageRowMenu.tsx:14`                                                                                    | Hold menu PM-23                  |
 | Paste planner `src/editor/pasteFlow.ts:117`, choices `:195`, apply `:417`                                                       | PM-40/41/45                      |
 | Paste chooser `src/editor/PasteChooser.tsx:31`                                                                                  | "Always ask" PM-43               |
 | "Pasted as" chip `src/i18n/en/late/importExport.ts:108`                                                                         | PM-44 (Pro, on; Beginner off)    |
@@ -154,16 +154,16 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 | Undo trash `src/pages/pageTrash.ts:17`                                                                                          | PM-64/141                        |
 | Attention banner `src/app/attention/AttentionBanner.tsx:137`                                                                    | Banner                           |
 | Confirm `src/app/ui.tsx:486`, Choice `:635`, Name sheet `app/NameSheet.tsx:15`                                                  | Dialog set                       |
-| Lasso menu sheet `src/ink/LassoMenuSheet.tsx:17`, Mixed menu `MixedMenu.tsx:24`                                                 | Strip / Object bar               |
+| Lasso menu sheet `src/ink/LassoMenuSheet.tsx:17`, Mixed menu `MixedMenu.tsx:24`                                                 | Hold menu / Object bar           |
 | Popups `src/app/popups.ts:28-166`                                                                                               | Overlay manager                  |
 | z-index tokens `src/index.css:22-28`, hard-coded `:892`                                                                         | Overlay layer order              |
 
 ## Edge cases
 
-- Long-press on a word in a table cell → strip with cell items; "/" in a cell → PM-05.
+- Long-press on a word in a table cell → Hold menu with cell items; "/" in a cell → PM-05.
 - Paste of 10,000+ lines → appears with a done toast; one Undo.
-- Two strips cannot open; a strip open while the keyboard rises stays clamped 12 px inside the visual viewport.
-- Pencil long-press while drawing with Pen → no strip (gesture router: drawing owns the touch).
+- Two Hold menus cannot open; a Hold menu open while the keyboard rises stays clamped 12 px inside the visual viewport.
+- Pencil long-press while drawing with Pen → no Hold menu (gesture router: drawing owns the touch).
 
 ## Security check
 
@@ -178,7 +178,7 @@ Pasted HTML cleaned as before; My blocks and template names escaped, max 40 char
 
 1. **12a Shared parts**: `src/design/parts/{ContextStrip,CommandList,Sheet,Dialog,ToastQueue,Banner}.tsx` + gallery entries; overlay hooks in `src/app/overlay/`.
 2. **12b "/" menu (W1)**: `src/editor/v2/slashCommandList.tsx`, `src/editor/v2/slashItems.ts`.
-3. **12c Long-press strip (W2)**: `src/editor/v2/pageStrip.tsx`, `src/app/rows/rowStrip.ts`.
+3. **12c Hold menu (W2)**: `src/editor/v2/pageStrip.tsx`, `src/app/rows/rowStrip.ts`.
 4. **12d Paste (W3)**: `src/editor/v2/pasteMenu.tsx`, `src/settings/pasteAsSetting.ts` (reuses `pasteFlow.ts` untouched).
 5. **12e Page ⋯ sheet (W5)**: `src/pages/v2/PageSheet.tsx`, `src/pages/v2/pageActions.ts`.
 6. **12f Block handle (W8)**: `src/editor/v2/BlockHandle.tsx`.
@@ -196,7 +196,7 @@ Pasted HTML cleaned as before; My blocks and template names escaped, max 40 char
 
 ## Owner iPad check (3 steps)
 
-1. Long-press a word: the strip shows above it, not over the handles; Paste ▾ shows the formats; paste something from Safari and it keeps its look.
+1. Long-press a word: the Hold menu shows above it, not over the handles; Paste ▾ shows the formats; paste something from Safari and it keeps its look.
 2. Type "/" on an empty line, type "tab", press Enter: a table appears; tap Show all and see every group.
 3. Tap the page ⋯: the side sheet opens at full height; delete a test page and tap Undo.
 
@@ -208,4 +208,4 @@ Pasted HTML cleaned as before; My blocks and template names escaped, max 40 char
 4. Start card: shown until "Always start with…" is picked (Fable's pick; owner question 6 still open).
 5. Beginner "/" short list: the 12 items listed in PM-01.
 6. Long-press time 0.5 s default, following `advanced.holdMenu` when set.
-7. The strip order follows menu-1.png (Paste first); Delete stays last in red.
+7. The Hold menu order follows menu-1.png (Paste first); Delete stays last in red.

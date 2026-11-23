@@ -163,7 +163,7 @@ On the iPad: (1) Library, open the 13 h EPUB with Continue: text must show (a no
 
 ## iPad Lasso batch A (10 Nov)
 
-On the iPad with the Pencil: (1) loop and rectangle outlines clearly visible on dark and light paper; (2) start a loop in the page margin left of the text: it selects the words; (3) select a word with the Text tool, then Lasso a drawing: no old caret, handles or bar remain; (4) 12 loops mixed free and rectangle, drag the selection bar to the top and pin it, loop again several times, drag a handle: all work, the bar returns each time; (5) selection fades in softly; (6) selected words show a soft tint (no dashed line), thin handles, a loupe above the Pencil while dragging a handle. Why human: Pencil and real iPadOS.
+On the iPad with the Pencil: (1) loop and rectangle outlines clearly visible on dark and light paper; (2) start a loop in the page margin left of the text: it selects the words; (3) select a word with the Text tool, then Lasso a drawing: no old caret, handles or bar remain; (4) 12 loops mixed free and rectangle, drag the Action bar to the top and pin it, loop again several times, drag a handle: all work, the bar returns each time; (5) selection fades in softly; (6) selected words show a soft tint (no dashed line), thin handles, a loupe above the Pencil while dragging a handle. Why human: Pencil and real iPadOS.
 
 ## iPad paper layout, scroll bar, pictures, box grid (10 Nov, builder B)
 

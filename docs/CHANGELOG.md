@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: the old bar names replaced in the live pages (docs only)
+
+- **What:** "smart bar" and "selection bar" now read Action bar; "strip" for the press-and-hold or right-click row (also "Context menu strip") now reads Hold menu; Colour, Size and Font strips now read pickers. 277 mentions before, 156 after, in 22 pages; page-menus.md and notebooks-search-v2.md use Hold menu throughout. The old built-part pages (selection-bar.md, smart-bar-inventory, research/smart-selection-bar) keep their titles and carry a Names line. The Names line in toolbar-v8.md now says "renamed (24 Nov 2026)". Left alone on purpose: other strips (tab, habit, step, layouts, space strip), quoted owner words, dated decision records, file names and code names.
+- **Why:** the owner's naming decision of 22 Nov (principles.md Q15), confirmed on 24 Nov to be applied now. **Files:** the pages in this commit under docs/ (no code, no rules text changed).
+
 ### 24 Nov 2026: the owner's first look at the Action bar picture, right-click answered (docs only)
 
 - **What:** right-click answered "always" (HM-OPEN-4 in the Hold menu card; the spelling pop-up at the cursor parked for stage 3 in IDEAS.md); AB-05 reworded (⋯ always shows ▾); the owner's four comments on the Action bar PC picture and Fable's check of it against the design principles logged in DECISIONS.md with the picks for the one redraw; STATE "Needs you" and the proof-run note updated.

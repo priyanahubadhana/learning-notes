@@ -1,5 +1,7 @@
 # Action bar inventory before the redraw (Opus, 22 Nov 2026)
 
+Names (owner, 22 Nov 2026): this part is now called the Action bar (press-and-hold row: the Hold menu).
+
 Why: the owner rejected the 22 pictures of check C3 (docs/DECISIONS.md:7): the pin is missing, Edit is missing, Delete and Copy come and go, the look is not clean. This page lists every bar decision with its source, checks the 22 pictures against them, and lists the doubts. Nothing is redrawn before the owner answers section 3. Name: "Action bar" (principles Q15), not "smart bar".
 
 **Sources (short codes):** OD = docs/design/owner-decisions.md · SB = docs/features/selection-bar.md · TS = docs/features/text-select.md · PR = docs/design/principles.md · UP = docs/design/owner-ui-patterns.md · SM = docs/plans/stage-map-2026-11-22.md · PF = docs/plans/phases/phase-2-finish.md · PM = docs/features/page-menus.md · BB = docs/mockups/box-bar/index.html (approved 18 Nov) · MK = docs/mockups/smart-bar/index.html (the rejected 22) · REF = docs/design/refs/selection-bar-presets-mock.png (approved 20 Nov, OD:519).

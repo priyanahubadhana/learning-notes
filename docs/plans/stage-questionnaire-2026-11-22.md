@@ -110,7 +110,7 @@
 
 **Q41. Reading on the iPad.** What it is: open, read, navigate, scroll, zoom on the iPad, with the Lasso as it is for small edits. State: built. Your answer: **Stage 1**.
 
-**Q42. Full Pencil use.** What it is: text selection with handles, circle a word, double tap, write over selected words, the hold strip tremor rework, Scribble flows, the paper page with ink at every zoom. State: half built, parked. Your answer: **Stage 2**, as its first phase after the polishing, or before it: say which in a note.
+**Q42. Full Pencil use.** What it is: text selection with handles, circle a word, double tap, write over selected words, the Hold menu tremor rework, Scribble flows, the paper page with ink at every zoom. State: half built, parked. Your answer: **Stage 2**, as its first phase after the polishing, or before it: say which in a note.
 
 **Q43. The phone layout and phone presets.** My pick: **Stage 3**.
 

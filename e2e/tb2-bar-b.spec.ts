@@ -405,6 +405,24 @@ test('B9b. (#62) a finger tap on the grip, with the bar over the page title, nev
   expect(Math.abs(g2.x - g.x) + Math.abs(g2.y - g.y)).toBeLessThan(2)
 })
 
+test('B9d. (#62) a finger tap on the grip of the bar beside its box moves nothing: the bar stays in its box (no drop, no remount) and the page stays shielded for a moment', async ({
+  page,
+}) => {
+  await ready(page, 'Alpha beta', 300)
+  const g = await rect(page.getByTestId('ob-grip'))
+  await page.touchscreen.tap(g.x + g.width / 2, g.y + g.height / 2)
+  // Right after the tap the page under the bar still gets no touch.
+  expect(
+    await page.evaluate(() =>
+      document.documentElement.hasAttribute('data-bar-dragging'),
+    ),
+  ).toBe(true)
+  await page.waitForTimeout(700)
+  await expect(page.locator('[data-paper-box] [data-box-bar]')).toHaveCount(1)
+  await expect(page.locator('body > [data-box-bar]')).toHaveCount(0)
+  await expect(page.locator('html')).not.toHaveAttribute('data-bar-dragging')
+})
+
 test('B9c. (#62) a finger tap on a bar button over the title keeps the title untouched', async ({
   page,
 }) => {

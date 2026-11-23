@@ -284,12 +284,14 @@ async function openAbout(page: Page) {
   await expect(page.locator('[data-about]')).toBeVisible()
 }
 
-test('U14 About shows version, level, last check and Check for updates now', async ({
+test('U14 Settings shows the version once (Update card), About the level, last check and Check for updates now', async ({
   page,
 }) => {
   await openAbout(page)
   const about = page.locator('[data-about]')
-  await expect(about).toContainText('Version ')
+  // U0c: the version shows once, on the Update card at the top of Settings.
+  await expect(page.locator('[data-update-card]')).toContainText(/[0-9a-f]{7}/)
+  await expect(about).not.toContainText('Version ')
   await expect(about).toContainText(`Update level ${MINE}`)
   await about.getByRole('button', { name: 'Check for updates now' }).click()
   await expect(about).toContainText('Last checked for updates:', {

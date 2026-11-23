@@ -20,7 +20,7 @@ import {
  * ("the download fills, Restarting sticks, Check says available, loop for
  * 5 to 10 minutes") can be compared with what a test sees.
  * Tests of what works pass; tests of what the owner sees and we cannot yet
- * make pass are `test.fail` with the bug id U0, so the line stays green.
+ * make pass were `test.fail` (bug id U0) until U0c fixed them; now they are plain tests.
  */
 test.describe.configure({ mode: 'default', timeout: 330_000 })
 
@@ -57,7 +57,7 @@ const PREFS: Record<string, string> = {
   'learning-notes:firstUse.seen': '["lasso","writePad","layers","paperBox"]',
   'learning-notes:general.pasteMode': '"keep"',
   'learning-notes:general.openNotebookAt': '"tabs"',
-  'learning-notes:flags': '["update.versionLine"]',
+  'learning-notes:flags': '["update.versionLine","update.v2"]',
 }
 
 /** Opens the app with the trace on. `auto` false turns "update automatically" off. */
@@ -372,8 +372,7 @@ for (const lag of [100, 300, 1000]) {
     page,
     browserName,
   }) => {
-    // U0: the loop is expected on a slow line (bug id U0)
-    test.fail(lag >= 1000 || browserName === 'webkit', 'U0 the update loop')
+    void browserName
     // test-guard-reason: a slow line needs a longer wait, not weaker checks
     test.setTimeout(400_000)
     await open(page)
@@ -415,20 +414,19 @@ async function slowUpdateTrace(page: Page, lag = 300) {
 // U0: "the download fills ... and says Restarting": the pill says Restarting
 // while the download is still at 17 to 91 percent (the restart waits for the
 // offline copy, which is not finished).
-test.fail(
-  'U0a-10 the pill says "Restarting" only once the download is complete',
-  async ({ page }) => {
-    const rows = await slowUpdateTrace(page)
-    const lines = rows.map(([, m]) => m)
-    const firstRestart = lines.findIndex((m) => /Restarting/.test(m))
-    expect(firstRestart).toBeGreaterThan(-1)
-    const before = lines
-      .slice(0, firstRestart)
-      .filter((m) => /Downloading [0-9]/.test(m))
-    const last = /[(]([0-9]+)%[)]/.exec(before.at(-1) ?? '')
-    expect(Number(last?.[1] ?? 0)).toBeGreaterThanOrEqual(100)
-  },
-)
+test('U0a-10 the pill says "Restarting" only once the download is complete', async ({
+  page,
+}) => {
+  const rows = await slowUpdateTrace(page)
+  const lines = rows.map(([, m]) => m)
+  const firstRestart = lines.findIndex((m) => /Restarting/.test(m))
+  expect(firstRestart).toBeGreaterThan(-1)
+  const before = lines
+    .slice(0, firstRestart)
+    .filter((m) => /Downloading [0-9]/.test(m))
+  const last = /[(]([0-9]+)%[)]/.exec(before.at(-1) ?? '')
+  expect(Number(last?.[1] ?? 0)).toBeGreaterThanOrEqual(100)
+})
 
 // U0: the pill showed "3.5 / 3.2 MB (107%)": loaded is counted against a list
 // that misses some of the files that are fetched.
@@ -436,8 +434,6 @@ test('U0a-11 the download never shows more than 100 percent', async ({
   page,
   browserName,
 }) => {
-  // U0: seen on every run in Chromium; WebKit shows it only some runs
-  test.fail(browserName === 'chromium', 'U0 progress above 100 percent')
   const rows = await slowUpdateTrace(page, 0)
   const over = rows.filter(
     ([, m]) =>

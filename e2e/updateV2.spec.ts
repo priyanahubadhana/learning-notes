@@ -1,7 +1,15 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Page } from '@playwright/test'
+import { readFileSync } from 'node:fs'
 import { cornerAction, createNotebook } from './helpers.ts'
+import {
+  COMMIT_A,
+  COMMIT_B,
+  ensureBuilds,
+  startSite,
+  type Site,
+} from './u0aUpdateRepro.helper.ts'
 import { UPDATE_LEVEL as MINE } from '../src/app/updateLevel.ts'
 
 /**
@@ -569,4 +577,313 @@ test('T29 offline with no file list: failed with Try again, never installing, ne
   await expect(
     notice(page).getByRole('button', { name: 'Not now' }),
   ).toBeVisible()
+})
+
+// ---------------------------------------------------------------------------
+// U0c: scenarios S1 to S7 of docs/features/update-v2.md, on U0a's two real
+// builds (A runs, B is served from one origin while the app runs). The slow
+// line answers every file late. Switch update.v2 is ON in these tests.
+// ---------------------------------------------------------------------------
+test.describe('U0c scenarios S1 to S7 (two real builds)', () => {
+  test.describe.configure({ mode: 'default', timeout: 330_000 })
+  test.use({ serviceWorkers: 'allow', storageState: undefined })
+
+  const PORT = Number(process.env.PW_PORT ?? 5199) + 40
+  let site: Site
+  test.beforeAll(async ({ browserName }, info) => {
+    void browserName
+    // test-guard-reason: two production builds need more time, not weaker checks
+    test.setTimeout(900_000)
+    await ensureBuilds()
+    site = await startSite(PORT + info.parallelIndex)
+  })
+  test.afterAll(async () => site?.close())
+  test.beforeEach(() => {
+    site.serve('a')
+    site.slow(0)
+    site.hits.length = 0
+  })
+
+  const entryOf = (dir: 'a' | 'b') =>
+    /src="(\/assets\/index-[^"]+\.js)"/.exec(
+      readFileSync(`.u0a/${dir}/index.html`, 'utf8'),
+    )![1]
+  const running = (page: Page) =>
+    page.evaluate(
+      () =>
+        document
+          .querySelector<HTMLScriptElement>(
+            'script[type=module][src*="/assets/index-"]',
+          )
+          ?.getAttribute('src') ?? '',
+    )
+  const comeToFront = (page: Page) =>
+    page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
+  const pillText = (page: Page) =>
+    page
+      .locator('[data-update-pill]')
+      .innerText({ timeout: 500 })
+      .then((x) => x.replace(/\s+/g, ' ').trim())
+      .catch(() => '-')
+  const isBlocked = (page: Page) =>
+    page.evaluate(() => document.getElementById('root')?.hasAttribute('inert'))
+
+  const PREFS: Record<string, string> = {
+    'learning-notes:devicePicker.done': 'true',
+    'learning-notes:onboarding.done': 'true',
+    'learning-notes:toolbar.lastToolOffered': 'true',
+    'learning-notes:accountGate.off': '1',
+    'learning-notes:firstUse.seen': '["lasso","writePad","layers","paperBox"]',
+    'learning-notes:general.pasteMode': '"keep"',
+    'learning-notes:general.openNotebookAt': '"tabs"',
+    'learning-notes:flags': '["update.versionLine","update.v2"]',
+  }
+
+  /** Opens A with update.v2 on and a pill trace in sessionStorage. */
+  async function open(page: Page, auto = true) {
+    await page.addInitScript(
+      ([prefs, autoOn]) => {
+        for (const [k, v] of Object.entries(prefs))
+          if (localStorage.getItem(k) === null) localStorage.setItem(k, v)
+        if (!autoOn)
+          localStorage.setItem('learning-notes:general.autoUpdate', '"off"')
+        const log = (m: string) => {
+          try {
+            const a = JSON.parse(sessionStorage.getItem('u0c') || '[]')
+            a.push([Date.now(), m])
+            sessionStorage.setItem('u0c', JSON.stringify(a))
+          } catch {
+            /* no storage: no trace */
+          }
+        }
+        log('page start')
+        let last = ''
+        new MutationObserver(() => {
+          const pill = document.querySelector<HTMLElement>('[data-update-pill]')
+          const text = pill ? pill.innerText.trim().replace(/\s+/g, ' ') : '-'
+          if (text !== last) {
+            last = text
+            log(`pill="${text}"`)
+          }
+        }).observe(document, {
+          subtree: true,
+          childList: true,
+          characterData: true,
+        })
+      },
+      [PREFS, auto] as const,
+    )
+    await page.goto(site.url + '/')
+    await page.evaluate(() => navigator.serviceWorker.ready)
+    await expect
+      .poll(() => page.evaluate(() => !!navigator.serviceWorker.controller))
+      .toBe(true)
+  }
+  const trace = (page: Page) =>
+    page
+      .evaluate(() => JSON.parse(sessionStorage.getItem('u0c') || '[]'))
+      .catch(() => []) as Promise<[number, string][]>
+
+  test('S1 plain case: download to 100, one 3-second prompt with Cancel, restart into B, "Updated to"', async ({
+    page,
+  }) => {
+    site.slow(100)
+    await open(page)
+    site.serve('b')
+    await comeToFront(page)
+    const prompt = page.locator('[data-update-prompt]')
+    await expect(prompt).toBeVisible({ timeout: 120_000 })
+    await expect(prompt).toContainText(/Restarting in [123] s/)
+    const cancel = prompt.getByRole('button', { name: 'Cancel' })
+    await expect(cancel).toBeVisible()
+    expect((await cancel.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+    await expect
+      .poll(() => running(page).catch(() => ''), { timeout: 60_000 })
+      .toBe(entryOf('b'))
+    await expect(
+      page.getByText(`Updated to version ${COMMIT_B.slice(0, 7)}`),
+    ).toBeVisible({ timeout: 20_000 })
+    // Asked once only: one restart, so two page starts in all.
+    const rows = await trace(page)
+    expect(rows.filter(([, m]) => m === 'page start').length).toBe(2)
+  })
+
+  test('S2 required update: edits paused, download, restart into B', async ({
+    page,
+  }) => {
+    site.slow(100)
+    await open(page)
+    // The live version.json says: must-have (a higher level).
+    await page.route('**/version.json*', (r) =>
+      r.fulfill({
+        json: {
+          commit: COMMIT_B,
+          required: true,
+          level: 99,
+          reason: 'storage',
+        },
+      }),
+    )
+    site.serve('b')
+    await comeToFront(page)
+    await expect(page.locator('[data-mandatory-update]')).toBeVisible({
+      timeout: 60_000,
+    })
+    expect(await isBlocked(page)).toBe(true)
+    await expect
+      .poll(() => running(page).catch(() => ''), { timeout: 200_000 })
+      .toBe(entryOf('b'))
+  })
+
+  test('S3 slow line (1000 ms a file): never "Restarting" before 100 percent, no loop, B runs', async ({
+    page,
+  }) => {
+    // test-guard-reason: a slow line needs a longer wait, not weaker checks
+    test.setTimeout(400_000)
+    site.slow(1000)
+    await open(page)
+    site.serve('b')
+    await comeToFront(page)
+    await expect
+      .poll(() => running(page).catch(() => ''), { timeout: 330_000 })
+      .toBe(entryOf('b'))
+    const rows = (await trace(page)).map(([, m]) => m)
+    expect(rows.filter((m) => m === 'page start').length).toBeLessThanOrEqual(2)
+    const firstRestart = rows.findIndex((m) => /Restarting/.test(m))
+    expect(firstRestart).toBeGreaterThan(-1)
+    const pcts = rows
+      .slice(0, firstRestart)
+      .map((m) => /[(]([0-9]+)%[)]/.exec(m))
+      .filter((m): m is RegExpExecArray => !!m)
+      .map((m) => Number(m[1]))
+    expect(pcts.every((n) => n <= 100)).toBe(true)
+    expect(pcts.at(-1) ?? 0).toBeGreaterThanOrEqual(100)
+  })
+
+  test('S3b a restart that does not come: "The update did not finish" with Try again, never a reload onto the old version', async ({
+    page,
+  }) => {
+    // A new worker that stays installing (a very slow line), then a restart
+    // is asked for (the test door says a version is ready, apply does nothing).
+    site.slow(120_000)
+    await open(page)
+    site.serve('b')
+    await comeToFront(page)
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const r = await navigator.serviceWorker.getRegistration()
+          return !!r?.installing
+        }),
+      )
+      .toBe(true)
+    await page.evaluate(() =>
+      window.dispatchEvent(
+        new CustomEvent('learning-notes:test-update', {
+          detail: { stuck: true },
+        }),
+      ),
+    )
+    await expect(
+      page.getByText('The update did not finish').first(),
+    ).toBeVisible({ timeout: 60_000 })
+    await expect(
+      page.getByRole('button', { name: 'Try again' }).first(),
+    ).toBeVisible()
+    expect(await running(page)).toBe(entryOf('a'))
+    expect(
+      (await trace(page)).filter(([, m]) => m === 'page start').length,
+    ).toBe(1)
+  })
+
+  test('S4 after the update, closing and opening again: no download, "Up to date" with the new version', async ({
+    page,
+    context,
+  }) => {
+    site.slow(100)
+    await open(page)
+    site.serve('b')
+    await comeToFront(page)
+    await expect
+      .poll(() => running(page).catch(() => ''), { timeout: 120_000 })
+      .toBe(entryOf('b'))
+    await page.waitForTimeout(3000)
+    await page.close()
+    const before = site.hits.length
+    const again = await context.newPage()
+    await again.goto(site.url + '/')
+    await again.waitForTimeout(8000)
+    expect(
+      site.hits
+        .slice(before)
+        .filter((h) => h.path.startsWith('/assets/') && h.dir === 'b'),
+    ).toHaveLength(0)
+    await cornerAction(again, 'Settings')
+    const card = again.locator('[data-update-card]')
+    await expect(card).toContainText(COMMIT_B.slice(0, 7))
+    await expect(card).toContainText('Up to date')
+  })
+
+  test('S5 Settings first page: the Update card is at the top, version once, Check now works', async ({
+    page,
+  }) => {
+    await open(page, false)
+    await cornerAction(page, 'Settings')
+    const card = page.locator('[data-update-card]')
+    await expect(card).toBeVisible()
+    await expect(card).toContainText(COMMIT_A.slice(0, 7))
+    const text = await card.innerText()
+    expect(text.split(COMMIT_A.slice(0, 7)).length - 1).toBe(1)
+    const check = card.getByRole('button', { name: 'Check now' })
+    expect((await check.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+    site.serve('b')
+    await check.click()
+    await expect(card).toHaveAttribute('data-update-state', 'ready', {
+      timeout: 60_000,
+    })
+    await expect(
+      card.getByRole('button', { name: 'Update', exact: true }),
+    ).toBeVisible()
+  })
+
+  test('S6 Cancel on the prompt: the app keeps working, "Update postponed", no restart', async ({
+    page,
+  }) => {
+    site.slow(100)
+    await open(page)
+    site.serve('b')
+    await comeToFront(page)
+    const prompt = page.locator('[data-update-prompt]')
+    await expect(prompt).toBeVisible({ timeout: 120_000 })
+    await prompt.getByRole('button', { name: 'Cancel' }).click()
+    await expect(page.locator('[data-update-pill]')).toContainText(
+      'Update postponed',
+    )
+    await page.waitForTimeout(6000)
+    expect(await running(page)).toBe(entryOf('a'))
+    expect(await isBlocked(page)).toBeFalsy()
+  })
+
+  test('S7 offline during the download: it goes on by itself when the line is back', async ({
+    page,
+    context,
+  }) => {
+    site.slow(300)
+    await open(page)
+    site.serve('b')
+    await comeToFront(page)
+    await expect
+      .poll(async () => /Downloading/.test(await pillText(page)), {
+        timeout: 60_000,
+      })
+      .toBe(true)
+    await context.setOffline(true)
+    await page.waitForTimeout(3000)
+    // Notes stay usable offline: the app is still there.
+    expect(await running(page)).toBe(entryOf('a'))
+    await context.setOffline(false)
+    await expect
+      .poll(() => running(page).catch(() => ''), { timeout: 240_000 })
+      .toBe(entryOf('b'))
+  })
 })

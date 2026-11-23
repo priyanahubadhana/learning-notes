@@ -1,4 +1,10 @@
-import { useRef, useState, type PointerEvent } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+  type SyntheticEvent,
+} from 'react'
 import { dockArea } from './oneBarArea'
 import {
   placeAfterDrop,
@@ -27,6 +33,7 @@ export function useGripDrag({
   const [dragging, setDragging] = useState(false)
   const grab = useRef<{ dx: number; dy: number } | null>(null)
   const last = useRef<{ left: number; top: number }>({ left: 0, top: 0 })
+  const lastZone = useRef<BarSide | null>(null)
 
   const free = (e: PointerEvent) => {
     const g = grab.current
@@ -44,22 +51,47 @@ export function useGripDrag({
     if (!grab.current) return
     const at = free(e)
     const a = dockArea()
+    // A touch the system cancels (a finger at the very edge of the iPad) still
+    // docks where the finger was last seen, when that was a side zone (#61).
+    const seen = lastZone.current
     grab.current = null
+    lastZone.current = null
     setDragging(false)
     setZone(null)
     onLive(null)
     if (drop) onDrop(placeAfterDrop({ x: e.clientX, y: e.clientY }, at, a))
+    else if (seen && seen !== 'free') onDrop({ side: seen, ...at })
+  }
+  // While the grip is held the page under the bar gets no touch at all (#62).
+  useEffect(() => {
+    if (!dragging) return
+    const root = document.documentElement
+    root.setAttribute('data-bar-dragging', '')
+    return () => root.removeAttribute('data-bar-dragging')
+  }, [dragging])
+  // The grip never reaches the editor under it: no caret, no selection, no focus.
+  const stop = (e: SyntheticEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
   }
   return {
     dragging,
     zone,
     gripProps: {
-      style: { touchAction: 'none' as const },
+      style: {
+        touchAction: 'none' as const,
+        userSelect: 'none' as const,
+        WebkitUserSelect: 'none' as const,
+      },
+      // The compatibility events a touch makes after the pointer ones.
+      onMouseDown: stop,
+      onTouchEnd: stop,
+      onClick: stop,
       onPointerDown: (e: PointerEvent<HTMLElement>) => {
         const el = bar()
         if (!el || e.button > 0) return
-        e.preventDefault()
-        e.stopPropagation()
+        stop(e)
+        lastZone.current = null
         const r = el.getBoundingClientRect()
         grab.current = { dx: e.clientX - r.left, dy: e.clientY - r.top }
         e.currentTarget.setPointerCapture(e.pointerId)
@@ -69,11 +101,28 @@ export function useGripDrag({
       onPointerMove: (e: PointerEvent<HTMLElement>) => {
         if (!grab.current) return
         last.current = free(e)
-        setZone(zoneAt({ x: e.clientX, y: e.clientY }, dockArea()))
+        const z = zoneAt({ x: e.clientX, y: e.clientY }, dockArea())
+        lastZone.current = z
+        setZone(z)
         onLive(last.current)
       },
       onPointerUp: (e: PointerEvent<HTMLElement>) => end(e, true),
       onPointerCancel: (e: PointerEvent<HTMLElement>) => end(e, false),
     },
   }
+}
+
+/**
+ * A menu surface (the bar, its strips, the ⋯ list): a touch or Pencil press on
+ * it never reaches the page behind, so no selection, no caret move, no Scribble
+ * ink starts under it (issue #62). The text cursor stays where it was.
+ */
+export const holdPage = {
+  onPointerDown: (e: SyntheticEvent) => e.stopPropagation(),
+  onTouchStart: (e: SyntheticEvent) => e.stopPropagation(),
+  onMouseDown: (e: SyntheticEvent) => {
+    const el = e.target as Element
+    if (el.closest('input, textarea, [contenteditable="true"]')) return
+    if (document.activeElement?.closest('.ProseMirror')) e.preventDefault()
+  },
 }

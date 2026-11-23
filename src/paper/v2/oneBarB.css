@@ -82,3 +82,11 @@ html[data-ob1-dock='top'] [data-page-scroller] {
 html[data-ob1-dock='bottom'] [data-page-scroller] {
   padding-bottom: var(--ob1-pad);
 }
+
+/* The grip is held: the page under the bar gets no touch, no caret, no selection (#62). */
+html[data-bar-dragging] main,
+html[data-bar-dragging] [data-paper-box] {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}

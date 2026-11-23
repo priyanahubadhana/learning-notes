@@ -4,6 +4,11 @@ import {
   dockStyle,
   placeAfterDrop,
   zoneAt,
+  cutByPanels,
+  barFits,
+  clampFree,
+  ZONE_SIDE,
+  type BarPlace,
 } from './oneBarDockModel'
 
 const area = { left: 100, top: 60, right: 900, bottom: 700 }
@@ -64,5 +69,83 @@ describe('what is kept on the device', () => {
     expect(cleanBarPlace({ side: 'middle' })).toBeNull()
     expect(cleanBarPlace(null)).toBeNull()
     expect(cleanBarPlace('x')).toBeNull()
+  })
+})
+
+describe('issue #61: the sides dock from a finger on an iPad', () => {
+  it('a finger 90 px from the left or right edge still docks there', () => {
+    expect(zoneAt({ x: 100 + 90, y: 380 }, area)).toBe('left')
+    expect(zoneAt({ x: 900 - 90, y: 380 }, area)).toBe('right')
+    expect(ZONE_SIDE).toBeGreaterThanOrEqual(90)
+  })
+  it('a finger past the edge (cancelled touch, dragged off) docks too', () => {
+    expect(zoneAt({ x: 915, y: 380 }, area)).toBe('right')
+    expect(zoneAt({ x: 90, y: 380 }, area)).toBe('left')
+  })
+  it('top and bottom keep their narrower zone', () => {
+    expect(zoneAt({ x: 500, y: 60 + 90 }, area)).toBeNull()
+  })
+})
+
+describe('issue #60: a panel over the page takes its room', () => {
+  const sidebar = { left: 0, top: 0, right: 300, bottom: 900 }
+  it('the area shrinks to the page column beside a left panel', () => {
+    expect(
+      cutByPanels({ left: 12, top: 60, right: 800, bottom: 700 }, [sidebar]),
+    ).toEqual({ left: 300, top: 60, right: 800, bottom: 700 })
+  })
+  it('a right panel takes the right; a panel off the page changes nothing', () => {
+    const a = { left: 12, top: 60, right: 800, bottom: 700 }
+    expect(
+      cutByPanels(a, [{ left: 560, top: 0, right: 900, bottom: 900 }]).right,
+    ).toBe(560)
+    expect(
+      cutByPanels(a, [{ left: 0, top: 0, right: 8, bottom: 900 }]),
+    ).toEqual(a)
+  })
+  it('a sheet over most of the width is left alone', () => {
+    const a = { left: 0, top: 60, right: 400, bottom: 700 }
+    expect(
+      cutByPanels(a, [{ left: 0, top: 0, right: 400, bottom: 900 }]),
+    ).toEqual(a)
+  })
+  it('a docked bar re-docks to the new column edges', () => {
+    const cut = cutByPanels({ left: 12, top: 60, right: 800, bottom: 700 }, [
+      sidebar,
+    ])
+    expect(dockStyle('left', cut).css.left).toBe(308)
+    expect(dockStyle('top', cut).css.left).toBe((300 + 800) / 2)
+  })
+  it('a pinned bar folds when its place is gone, and comes back with the room', () => {
+    const bar = { w: 640, h: 56 }
+    const wide = { left: 12, top: 60, right: 800, bottom: 700 }
+    expect(barFits(wide, bar)).toBe(true)
+    expect(
+      barFits(
+        cutByPanels(wide, [{ left: 0, top: 0, right: 300, bottom: 900 }]),
+        bar,
+      ),
+    ).toBe(false)
+  })
+  it('a free bar is kept inside the column, never over the panel', () => {
+    const col = { left: 300, top: 60, right: 800, bottom: 700 }
+    expect(clampFree({ left: 40, top: 100 }, col, { w: 200, h: 56 })).toEqual({
+      left: 308,
+      top: 100,
+    })
+  })
+})
+
+describe('issue #63: a first show at a pinned place', () => {
+  const pin: BarPlace = { side: 'bottom', left: 0, top: 0, pinned: true }
+  it('a docked pin always has a place to stand, whatever left and top hold', () => {
+    const s = dockStyle(pin.side as 'bottom', area)
+    expect(s.css.bottom).toBeDefined()
+    expect(s.css.left).toBe(500)
+  })
+  it('a free pin saved before the page had room is brought inside the area', () => {
+    expect(
+      clampFree({ left: 5000, top: -40 }, area, { w: 300, h: 56 }),
+    ).toEqual({ left: 592, top: 68 })
   })
 })

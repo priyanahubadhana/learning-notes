@@ -1,7 +1,12 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { expect, test, type Locator, type Page } from '@playwright/test'
-import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
+import {
+  createNotebook,
+  openSidebar,
+  startInMode,
+  typeInEditor,
+} from './helpers.ts'
 
 /**
  * Phase 2B, box bar part A (switch textbox.v2 ON): the ONE bar of a selected
@@ -347,3 +352,97 @@ for (const side of ['bottom', 'top', 'left', 'right'] as const) {
     expect(over).toEqual([])
   })
 }
+
+/**
+ * Owner's iPad check of 24 Nov (issues #60 to #63): the grip never reaches the
+ * text behind it; the bar stays in the page column; it docks on the sides; a
+ * new box shows the bar at its pinned place at once.
+ */
+test('B9. (#62) dragging the grip over the words selects nothing and types nothing', async ({
+  page,
+}) => {
+  const box = await ready(page, 'Alpha beta', 300)
+  const before = await words(box).innerText()
+  const a = await area(page)
+  const w = await rect(words(box))
+  await drag(page, { x: w.x + 30, y: w.y + w.height / 2 })
+  await expect(page.locator('html')).toHaveAttribute('data-bar-dragging', '')
+  await page.mouse.up()
+  await expect(page.locator('html')).not.toHaveAttribute('data-bar-dragging')
+  const sel = await page.evaluate(() => window.getSelection()?.toString() ?? '')
+  expect(sel).toBe('')
+  await expect(page.locator('.bn-editor.ProseMirror-focused')).toHaveCount(0)
+  await page.keyboard.type('Q')
+  expect(await words(box).innerText()).toBe(before)
+  void a
+})
+
+test('B10. (#60) a panel opening over the page: the bar stays in the page column, never over the panel', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 834, height: 1194 })
+  await ready(page, 'Alpha beta', 300)
+  const a = await area(page)
+  await drag(page, { x: (a.l + a.r) / 2, y: a.b - 24 })
+  await page.mouse.up()
+  await expect(bar(page)).toHaveCount(1)
+  const side = await openSidebar(page)
+  await expect(side).toBeVisible()
+  await page.waitForTimeout(600)
+  const panel = await rect(page.getByTestId('left-panel'))
+  const b = await rect(bar(page))
+  // Beside the panel or folded back beside its box, never over it.
+  const over = b.x < panel.x + panel.width && b.x + b.width > panel.x
+  const overY = b.y < panel.y + panel.height && b.y + b.height > panel.y
+  expect(over && overY).toBe(false)
+})
+
+for (const side of ['left', 'right'] as const) {
+  test(`B11. (#61) a finger 80 px from the ${side} edge docks the bar there, upright`, async ({
+    page,
+  }) => {
+    await ready(page, 'Alpha beta', 300)
+    const a = await area(page)
+    const x = side === 'left' ? a.l + 80 : a.r - 80
+    await drag(page, { x, y: (a.t + a.b) / 2 })
+    await expect(page.locator(`[data-onebar-zone="${side}"]`)).toHaveClass(
+      /is-on/,
+    )
+    await page.mouse.up()
+    const b = await rect(page.getByTestId('object-bar'))
+    expect(b.height).toBeGreaterThan(b.width)
+    if (side === 'left') expect(b.x).toBeLessThan(a.l + 40)
+    else expect(b.x + b.width).toBeGreaterThan(a.r - 40)
+  })
+}
+
+test('B12. (#63) with the bar pinned, a new box tapped shows the bar at its place at once', async ({
+  page,
+}) => {
+  const first = await ready(page, 'Alpha beta', 300)
+  const a = await area(page)
+  await drag(page, { x: (a.l + a.r) / 2, y: a.b - 24 })
+  await page.mouse.up()
+  await expect(bar(page)).toHaveCount(1)
+  const placed = await rect(bar(page))
+  void first
+  const next = await addBox(page, 'Second box', 120)
+  await pick(page, next)
+  await expect(bar(page)).toHaveCount(1)
+  const now = await rect(bar(page))
+  expect(Math.abs(now.x - placed.x)).toBeLessThan(2)
+  expect(now.y + now.height).toBeLessThanOrEqual(a.b + 1)
+  expect(now.y).toBeGreaterThanOrEqual(a.t)
+})
+
+test('B13. (#63) unpinned, a new box tapped shows the bar beside it at once', async ({
+  page,
+}) => {
+  await start(page, 'Bar' + Math.random().toString(36).slice(2, 6))
+  const box = await addBox(page, 'Alpha', 120)
+  await pick(page, box)
+  await expect(bar(page)).toHaveCount(1)
+  const b = await rect(bar(page))
+  expect(b.width).toBeGreaterThan(100)
+  expect(b.y).toBeGreaterThanOrEqual(0)
+})

@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom'
 import { dockArea } from './oneBarArea'
 import { t, type MessageKey } from '../../i18n/t'
-import { ZONE, type BarSide } from './oneBarDockModel'
+import { ZONE, ZONE_SIDE, type BarSide } from './oneBarDockModel'
 
 /** The dashed landing zones on the four sides of the page, while the bar is held. */
 export function DockZones({ zone }: { zone: BarSide | null }) {
@@ -19,13 +19,13 @@ export function DockZones({ zone }: { zone: BarSide | null }) {
     left: {
       left: a.left + 8,
       top: a.top + ZONE,
-      width: ZONE - 8,
+      width: ZONE_SIDE - 8,
       height: h - 2 * ZONE,
     },
     right: {
-      left: a.right - ZONE,
+      left: a.right - ZONE_SIDE,
       top: a.top + ZONE,
-      width: ZONE - 8,
+      width: ZONE_SIDE - 8,
       height: h - 2 * ZONE,
     },
   }

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: the box bar stays in the page column, docks on the sides, never touches the page behind (fixes #60, #61, #62, #63)
+
+- **What:** the bar's area now excludes panels lying over the page; a pinned bar with no room folds (the pin is kept); left and right dock zones are 96 px and a cancelled touch in a zone still docks; the grip, the bar, its strips and the ⋯ list stop presses at their surface and the page gets no touch while the grip is held; the bar's area is re-read when the page column changes.
+- **Why:** owner's iPad check, 24 Nov 03:21 to 03:26: bar over the sidebar, no side docking, grip typed into the title, no bar on a new box.
+- **Files:** src/paper/v2/oneBarDockModel.ts (+ .test.ts), oneBarArea.ts, oneBarGrip.ts, oneBarDock.tsx, oneBarPlaceStore.ts, PinnedBoxBar.tsx, BoxBarV2.tsx, OneBar.tsx, BoxMoreHost.tsx, oneBarB.css, e2e/tb2-bar-b.spec.ts, docs/features/selection-bar.md.
+
 ### 24 Nov 2026: the download poll no longer wipes the restart prompt (fixes #58)
 
 - **What:** the poll in `follow` re-checks that no restart was asked for right before each status write (offline, bytes, cache count). A new unit test holds the cache read open while the prompt starts.

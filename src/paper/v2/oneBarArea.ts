@@ -1,6 +1,6 @@
 import { pageArea } from '../../app/tools/main/miniBarPrefs'
 import { t } from '../../i18n/t'
-import type { Area } from './oneBarDockModel'
+import { cutByPanels, type Area } from './oneBarDockModel'
 
 /**
  * Where a docked bar may stand (box bar part B): the page area, less the page's
@@ -17,5 +17,19 @@ export function dockArea(): Area {
   const zoom = document.querySelector(`[aria-label="${t('paper.zoomOut')}"]`)
   // The pill sits under the page and scrolls with it: keep its height free.
   const bottom = zoom ? a.bottom - 48 : a.bottom
-  return { left: a.left, top: a.top, right, bottom }
+  // A panel over the page (the Notebooks sidebar on an upright iPad) is not
+  // page: the bar stays beside it, never over it (issue #60).
+  const panels: Area[] = []
+  for (const el of document.querySelectorAll('aside')) {
+    if (getComputedStyle(el).position !== 'fixed') continue
+    const r = el.getBoundingClientRect()
+    if (r.width > 0 && r.height > 0)
+      panels.push({
+        left: r.left,
+        top: r.top,
+        right: r.right,
+        bottom: r.bottom,
+      })
+  }
+  return cutByPanels({ left: a.left, top: a.top, right, bottom }, panels)
 }

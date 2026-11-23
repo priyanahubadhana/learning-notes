@@ -60,7 +60,14 @@ function useAreaTick(on: boolean): Area {
   useEffect(() => {
     if (!on) return
     let raf = 0
+    let settle: ReturnType<typeof setTimeout> | undefined
     const read = () => {
+      // A panel slides in over a moment: read again once it has settled.
+      clearTimeout(settle)
+      settle = setTimeout(measure, 400)
+      measure()
+    }
+    const measure = () => {
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => {
         const a = dockArea()
@@ -80,14 +87,13 @@ function useAreaTick(on: boolean): Area {
     if (main) ro.observe(main)
     const mo = new MutationObserver(read)
     mo.observe(document.body, { childList: true, subtree: true })
-    window.addEventListener('resize', read)
-    document.addEventListener('transitionend', read, true)
+    const offResize = onRouted('resize', () => void read())
     return () => {
       cancelAnimationFrame(raf)
       ro.disconnect()
       mo.disconnect()
-      window.removeEventListener('resize', read)
-      document.removeEventListener('transitionend', read, true)
+      offResize()
+      clearTimeout(settle)
     }
   }, [on])
   return area

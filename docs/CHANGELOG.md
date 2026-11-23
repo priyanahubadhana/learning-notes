@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: the Action bar fold, two choice pictures (docs only)
+
+- **What:** docs/features/action-bar.md gets the owner's change: a pinned bar folds into a round pin button when nothing is selected, "Keep bar open" in ⋯ (the Pinned folds rule, S15, AB-14, a Changes line; the tool table row waits for the redraw so check:bar-inventory stays green); a small mock-up page with two pictures for the toast shape and the top bar height, docs/mockups/design-clashes/ (index.html, shot.mjs, png/); DECISIONS and STATE updated with the owner's answers on the fold and the design-number clashes.
+- **Why:** the owner's answers of 24 Nov; two clashes needed a picture to decide. **Files:** docs/features/action-bar.md, docs/mockups/design-clashes/, docs/DECISIONS.md, docs/STATE.md, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: the owner's first look at the Action bar picture, right-click answered (docs only)
 
 - **What:** right-click answered "always" (HM-OPEN-4 in the Hold menu card; the spelling pop-up at the cursor parked for stage 3 in IDEAS.md); AB-05 reworded (⋯ always shows ▾); the owner's four comments on the Action bar PC picture and Fable's check of it against the design principles logged in DECISIONS.md with the picks for the one redraw; STATE "Needs you" and the proof-run note updated.

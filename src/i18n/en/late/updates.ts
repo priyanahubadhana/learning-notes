@@ -47,4 +47,12 @@ export const enLateUpdates = {
   'upd.line.restarting': 'Restarting…',
   'upd.line.failed': 'Could not check',
   'upd.line.offline': 'Offline',
+  'update.prompt': 'Restarting in {s} s…',
+  'update.cancel': 'Cancel',
+  'update.tryAgain': 'Try again',
+  'update.didNotFinish': 'The update did not finish',
+  'update.postponed': 'Update postponed',
+  'update.card.title': 'Update',
+  'update.card.check': 'Check now',
+  'update.card.update': 'Update',
 }

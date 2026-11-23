@@ -24,6 +24,8 @@ export const BACKUP_MAX_MS = 8000
 export const SPLASH_MAX_MS = 5000
 /** If the restart has not come by now, force it. */
 export const HARD_RESTART_MS = 4000
+/** update.v2 (UP-05): the restart prompt counts down this many seconds. */
+export const PROMPT_S = 3
 
 /** What the app is doing right now. */
 export interface Moment {
@@ -105,6 +107,12 @@ export function waitForSafeMoment(
     tick()
   })
   return { done, cancel: () => (stopped = true) }
+}
+
+/** The 3-second prompt's buttons (update.v2); the pill calls these. */
+export const promptControls = {
+  cancel: () => {},
+  restartNow: () => {},
 }
 
 /** The question shown when an update could lose data (App draws it). */
@@ -189,6 +197,8 @@ export interface AutoUpdateDeps {
   hardRestart?: () => void
   /** Tells other open windows to restart too. */
   announce?: () => void
+  /** update.v2: one 3-second prompt with Cancel before the restart. */
+  v2?: () => boolean
 }
 
 const DIALOG = '[role="dialog"],[role="alertdialog"],[aria-modal="true"]'
@@ -203,7 +213,11 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
   const down = new Set<number>()
   let running = false
   let declined = false
+  let cancelPrompt: (() => void) | null = null
+  let restartPromptNow: (() => void) | null = null
   let composing = false
+  promptControls.cancel = () => cancelPrompt?.()
+  promptControls.restartNow = () => restartPromptNow?.()
   d.win.addEventListener('compositionstart', () => (composing = true), true)
   d.win.addEventListener('compositionend', () => (composing = false), true)
 
@@ -251,8 +265,43 @@ export function startAutoUpdate(d: AutoUpdateDeps) {
     composing,
   })
 
+  /** update.v2 (UP-05): counts PROMPT_S seconds, then restarts; Cancel postpones. */
+  const prompt = (apply: () => void) => {
+    let left = PROMPT_S
+    updateStatus.set({ phase: 'updating', countdown: left })
+    const id = d.win.setInterval(() => {
+      if (updateStatus.get().countdown === undefined) return stop()
+      left -= 1
+      if (left > 0)
+        return updateStatus.set({ phase: 'updating', countdown: left })
+      stop()
+      updateStatus.set({ phase: 'updating' })
+      go(apply)
+    }, 1000)
+    const stop = () => d.win.clearInterval(id)
+    cancelPrompt = () => {
+      stop()
+      declined = true // asked again on the next open
+      cancelPrompt = null
+      updateStatus.set({ phase: 'postponed' })
+    }
+    restartPromptNow = () => {
+      stop()
+      updateStatus.set({ phase: 'updating' })
+      go(apply)
+    }
+  }
+  const go = (apply: () => void) => {
+    cancelPrompt = restartPromptNow = null
+    rememberPlace()
+    d.announce?.()
+    apply()
+    d.win.setTimeout(() => d.hardRestart?.(), HARD_RESTART_MS)
+  }
+
   /** Applies now: the cover is short, and a restart that does not come is forced. */
   const begin = (apply: () => void) => {
+    if (d.v2?.()) return prompt(apply)
     rememberPlace()
     d.announce?.()
     showUpdatingPill()

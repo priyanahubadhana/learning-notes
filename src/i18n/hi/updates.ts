@@ -58,4 +58,12 @@ export const hiUpdates = {
   'upd.line.restarting': 'दोबारा शुरू हो रहा है…',
   'upd.line.failed': 'जाँच नहीं हो सकी',
   'upd.line.offline': 'ऑफ़लाइन',
+  'update.prompt': '{s} सेकंड में दोबारा शुरू होगा…',
+  'update.cancel': 'रद्द करें',
+  'update.tryAgain': 'फिर कोशिश करें',
+  'update.didNotFinish': 'अपडेट पूरा नहीं हुआ',
+  'update.postponed': 'अपडेट टाल दिया गया',
+  'update.card.title': 'अपडेट',
+  'update.card.check': 'अभी जाँचें',
+  'update.card.update': 'अपडेट करें',
 }

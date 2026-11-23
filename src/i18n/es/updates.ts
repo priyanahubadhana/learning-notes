@@ -60,4 +60,12 @@ export const esUpdates = {
   'upd.line.restarting': 'Reiniciando…',
   'upd.line.failed': 'No se pudo comprobar',
   'upd.line.offline': 'Sin conexión',
+  'update.prompt': 'Reiniciando en {s} s…',
+  'update.cancel': 'Cancelar',
+  'update.tryAgain': 'Intentar de nuevo',
+  'update.didNotFinish': 'La actualización no terminó',
+  'update.postponed': 'Actualización aplazada',
+  'update.card.title': 'Actualización',
+  'update.card.check': 'Comprobar ahora',
+  'update.card.update': 'Actualizar',
 }

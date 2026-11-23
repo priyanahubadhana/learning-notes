@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { t } from '../i18n/t'
 import { updateStatus } from './updateStatus'
 import { pressRestart } from './restartNow'
+import { promptControls } from './autoUpdate'
+import { isOn } from './flags'
 
 const mb = (n: number) => (n / 1048576).toFixed(1)
 
@@ -9,7 +11,14 @@ const mb = (n: number) => (n / 1048576).toFixed(1)
 export default function UpdatePill() {
   const s = updateStatus.useValue()
   // Answers (not progress) go away by themselves.
-  const brief = ['current', 'offline', 'failed', 'updated'].includes(s.phase)
+  const v2 = isOn('update.v2')
+  const brief = [
+    'current',
+    'offline',
+    'failed',
+    'updated',
+    'postponed',
+  ].includes(s.phase)
   useEffect(() => {
     if (!brief) return
     const id = setTimeout(() => updateStatus.set({ phase: 'idle' }), 4000)
@@ -28,7 +37,7 @@ export default function UpdatePill() {
           ? t('upd.downloading', {
               loaded: mb(s.loaded ?? 0),
               total: mb(total),
-              pct: Math.round(((s.loaded ?? 0) / total) * 100),
+              pct: Math.min(100, Math.round(((s.loaded ?? 0) / total) * 100)),
             })
           : t('upd.downloadingStart')
       if (s.etaS) text += ' · ' + t('upd.slow', { s: s.etaS })
@@ -41,7 +50,15 @@ export default function UpdatePill() {
       text = t('upd.ready')
       break
     case 'updating':
-      text = s.restart === 'failed' ? t('upd.restartFailed') : t('upd.updating')
+      text =
+        s.restart === 'failed'
+          ? t(v2 ? 'update.didNotFinish' : 'upd.restartFailed')
+          : s.countdown !== undefined
+            ? t('update.prompt', { s: s.countdown })
+            : t('upd.updating')
+      break
+    case 'postponed':
+      text = t('update.postponed')
       break
     case 'updated':
       text = t('upd.updated', { version: s.version ?? '' })
@@ -61,16 +78,42 @@ export default function UpdatePill() {
       : null
   const showBtn = s.phase === 'updating' && !!s.restart
   const failed = s.restart === 'failed'
+  const asking = v2 && s.phase === 'updating' && s.countdown !== undefined
   return (
     <div
       data-chrome
       data-update-pill
-      className={`${s.restart ? 'pointer-events-auto' : 'pointer-events-none'} fixed bottom-16 left-3 z-40 max-w-[min(320px,calc(100vw-24px))] rounded-xl border border-line bg-surface-3 px-3 py-2 text-[13px] text-ink shadow-[var(--elev-2)] phone:bottom-20 phone:max-w-[190px]`}
+      {...(asking ? { 'data-update-prompt': '' } : {})}
+      className={`${s.restart || asking ? 'pointer-events-auto' : 'pointer-events-none'} fixed bottom-16 left-3 z-40 max-w-[min(320px,calc(100vw-24px))] rounded-xl border border-line bg-surface-3 px-3 py-2 text-[13px] text-ink shadow-[var(--elev-2)] phone:bottom-20 phone:max-w-[190px]`}
     >
       {/* The live region holds the words only, so the button is not announced as a status. */}
       <div role="status" aria-live="polite">
-        {failed ? <span className="sr-only">{text}</span> : <span>{text}</span>}
+        {failed && !v2 ? (
+          <span className="sr-only">{text}</span>
+        ) : (
+          <span>{text}</span>
+        )}
       </div>
+      {asking && (
+        <div className="mt-2 flex gap-2">
+          <button
+            type="button"
+            data-update-cancel
+            onClick={() => promptControls.cancel()}
+            className="flex min-h-11 flex-1 items-center justify-center rounded-lg border border-line px-3 text-[13px] hover:bg-hover"
+          >
+            {t('update.cancel')}
+          </button>
+          <button
+            type="button"
+            data-update-restart-now
+            onClick={() => promptControls.restartNow()}
+            className="flex min-h-11 flex-1 items-center justify-center rounded-lg border border-line px-3 text-[13px] hover:bg-hover"
+          >
+            {t('upd.restartNow')}
+          </button>
+        </div>
+      )}
       {showBtn && (
         <button
           type="button"
@@ -78,7 +121,9 @@ export default function UpdatePill() {
           onClick={pressRestart}
           className={`${failed ? '' : 'mt-2 '}flex min-h-11 w-full items-center justify-center rounded-lg border border-line px-3 text-[13px] hover:bg-hover`}
         >
-          {failed ? t('upd.restartFailed') : t('upd.restartNow')}
+          {failed
+            ? t(v2 ? 'update.tryAgain' : 'upd.restartFailed')
+            : t('upd.restartNow')}
         </button>
       )}
       {pct !== null && (

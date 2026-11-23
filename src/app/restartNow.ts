@@ -5,10 +5,13 @@
 // Only with no worker at all do unregister and cache clear run (at most
 // FALLBACK_MAX_MS), then the reload.
 
+import { isOn } from './flags'
 import { updateStatus } from './updateStatus'
 
 export const FALLBACK_MAX_MS = 1500
 export const WORKER_WAIT_MAX_MS = 15_000
+/** update.v2 (UP-03): the new worker gets this long, then "did not finish". */
+export const WORKER_WAIT_V2_MS = 3000
 /** After this long the notice offers "Restart now" (C22). */
 export const SLOW_AFTER_MS = 5000
 /** A reload that has not taken the page away by now is asked again (C22). */
@@ -37,6 +40,8 @@ export interface RestartDeps {
   /** Tells the screen: waiting too long, or could not restart (null: fine). */
   report?: (state: 'slow' | 'failed' | null) => void
   after: (run: () => void, ms: number) => unknown
+  /** update.v2: wait 3 s for the worker; on a miss show Try again, never reload onto the old files. */
+  v2?: boolean
 }
 
 /** Resolves with the promise, or after `ms` (never rejects). */
@@ -54,7 +59,7 @@ function within<T>(
 /** Waits until the worker is active (or has failed); asks it to take over. */
 function finish(d: RestartDeps, w: WorkerLike): Promise<boolean> {
   return new Promise((resolve) => {
-    skipWait = () => resolve(false)
+    skipWait = () => resolve(true)
     again = null
     let asked = false
     const look = () => {
@@ -62,10 +67,12 @@ function finish(d: RestartDeps, w: WorkerLike): Promise<boolean> {
         asked = true
         w.postMessage({ type: 'SKIP_WAITING' })
       }
-      if (w.state === 'activated' || w.state === 'redundant') resolve(true)
+      if (w.state === 'activated') resolve(true)
+      // update.v2: a worker that failed is not a reason to reload onto the old files.
+      if (w.state === 'redundant') resolve(!d.v2)
     }
     w.onstatechange = look
-    d.after(() => resolve(false), WORKER_WAIT_MAX_MS)
+    d.after(() => resolve(false), d.v2 ? WORKER_WAIT_V2_MS : WORKER_WAIT_MAX_MS)
     look()
   })
 }
@@ -131,7 +138,13 @@ export async function restartIntoNewFiles(d: RestartDeps): Promise<void> {
       // Timeout or "Restart now" with the worker unfinished: only reload. The
       // old worker keeps serving the old version (works offline); the update
       // is tried again next time. The old files are never dropped here.
-      await finish(d, w)
+      const ok = await finish(d, w)
+      if (d.v2 && !ok) {
+        // UP-03: say so, with Try again; the page stays on this version.
+        running = false
+        retry = () => void restartIntoNewFiles(d)
+        return d.report?.('failed')
+      }
       return await reload()
     }
     await within(d, d.clearOld(), FALLBACK_MAX_MS)
@@ -162,6 +175,7 @@ export function browserRestartDeps(flush: () => Promise<void>): RestartDeps {
       u.searchParams.set('_r', String(Date.now()))
       if (!ignoredByTest()) location.replace(u.href)
     },
+    v2: isOn('update.v2'),
     report: (state) =>
       updateStatus.set(
         state ? { phase: 'updating', restart: state } : { phase: 'updating' },

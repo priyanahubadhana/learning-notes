@@ -197,6 +197,16 @@ export function triggerMustHave(
   if (apply) for (const fn of [...requiredListeners]) fn(apply)
 }
 
+/** True while a new service worker is still downloading its files. */
+async function workerInstalling(): Promise<boolean> {
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration()
+    return !!reg?.installing
+  } catch {
+    return false
+  }
+}
+
 const builtCommit = () =>
   typeof __APP_COMMIT__ === 'string' ? __APP_COMMIT__ : 'unknown'
 
@@ -229,7 +239,10 @@ export async function lookForUpdate(
   if (latest === 'newer' && !pending) {
     // The service worker may still be fetching the new files.
     await new Promise((r) => setTimeout(r, wait))
-    if (!pending && fallback) offerUpdate(fallback)
+    // update.v2 (UP-02): while the new worker is still downloading, wait for
+    // it (the offer comes when it is ready); never restart onto half the files.
+    const busy = isOn('update.v2') && (await workerInstalling())
+    if (!pending && fallback && !busy) offerUpdate(fallback)
   } else if (checker && !swFailed) {
     await new Promise((r) => setTimeout(r, wait))
   }

@@ -74,6 +74,17 @@ Written by `npm run analyze` (scripts/analyze.mjs). Never edited by hand.
 - docs/features/page-menus.md
 - docs/features/page-objects.md
 - docs/features/paper-page.md
+- docs/features/parts/bar-place.md
+- docs/features/parts/bar-shell.md
+- docs/features/parts/colour-picker.md
+- docs/features/parts/customiser.md
+- docs/features/parts/drag-and-dock.md
+- docs/features/parts/font-picker.md
+- docs/features/parts/hold-menu.md
+- docs/features/parts/hover-names.md
+- docs/features/parts/keys-and-shortcuts.md
+- docs/features/parts/more-menu.md
+- docs/features/parts/size-picker.md
 - docs/features/pictures.md
 - docs/features/prompt-library.md
 - docs/features/quiet-recorder.md

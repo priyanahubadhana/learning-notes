@@ -73,9 +73,8 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 
 - **The catch-up check C0 on the iPad, items 4 to 11** (about 15 minutes; the eleven items are in docs/plans/phases/phase-2-finish.md section 6; "Circle recorder" off). Items 1 to 3 answered 22 Nov evening (#55, #56, #57). Reply with the numbers that felt wrong, or "rest fine".
 - **C1a, the Lasso session, 5 minutes:** Settings, Try new features, Lasso recorder on; "Copy last trace" when an outline stays or a loop acts on the old selection. A trace of a wrong circle pick unlocks #57.
-- **The toast shape, last word (24 Nov):** docs/mockups/design-clashes/png/1-toast-shape.png now shows A, B and C; you lean to A; reply A, B or C. (The top bar height is decided: 52, Tool bar 64.)
 - **The names, one question (24 Nov, chat):** you remember "Selection bar" as one of the four names and no "picker"; the record of 22 Nov says Tool bar, Action bar, pickers, Hold menu. Nothing more is renamed until you answer.
-- **The Action bar PC picture, redrawn 24 Nov, waits for your yes:** docs/mockups/action-bar/png/, 18 frames (the icon fixes, the folded round pin button in 5, the pinned bar open in 9, "Keep bar open" in 10 and 11). Checked once by Fable against principles.md after the redraw. Reply "yes" or "change X" with the frame number.
+- **The Action bar PC picture is approved (owner, 24 Nov)** with the Colour button as a circle in the chosen colour (applied, all frames re-shot). Next for a free window: the iPad sideways, iPad upright and phone pictures, then the owner's yes on those.
 - **Later, in this order:** the phase 1B planning (one questionnaire); the Notion mirror only on your word (docs/IDEAS.md).
 - **Small, not urgent:** Decisions to review in docs/DECISIONS.md; the security-header check E6 (#54); developer-tool warnings (glob, minimatch; the fix breaks the offline plugin, re-checked at each phase end); old working copies you may delete when you like.
 

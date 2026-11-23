@@ -104,7 +104,7 @@ Two columns (widths in §8), both `--surface-1` cards with a header, optional ta
 
 ## 7. Toasts
 
-Decided 22 Nov 2026 (owner, confirmed in chat, Q5): a pill, **bottom-right on every device**, one at a time, 24 px up (above the tab bar on phones, above a visible floating bar). **2.6 s; 6 s with Undo.** A small ✕ at the pill's top-left corner closes it; the action (Undo) sits on the other side. Radius and fill: system.md §3 and §8. Case against: bottom-right is farther from the iPad's centre of attention; the owner chose it. Only for errors, Undo, or actions whose result is not on screen. `role="status"`.
+Decided 22 Nov 2026 (owner, confirmed in chat, Q5): a pill, **bottom-right on every device**, one at a time, 24 px up (above the tab bar on phones, above a visible floating bar). **2.6 s; 6 s with Undo.** A small ✕ at the pill's top-left corner closes it; the action (Undo) sits on the other side. Shape (owner, 24 Nov 2026, on the picture docs/mockups/design-clashes/png/1-toast-shape.png): a full pill when the words fit one line, corner 14 when they need two lines. Radius and fill: system.md §3 and §8. Case against: bottom-right is farther from the iPad's centre of attention; the owner chose it. Only for errors, Undo, or actions whose result is not on screen. `role="status"`.
 
 ## 8. Tokens and rules
 

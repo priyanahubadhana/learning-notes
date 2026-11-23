@@ -85,20 +85,20 @@ Charts: keep the six-colour rule. Chart 1 becomes the accent. Heatmap: 5 steps o
 
 Decided 22 Nov 2026 (owner, Q4: menus take B, everything else A):
 
-| Part                      | Radius (px) |
-| ------------------------- | ----------- |
-| inputs                    | 8           |
-| menus (and their rows)    | 8           |
-| cards, pickers, panels    | 20          |
-| sheets                    | 24          |
-| dialogs                   | 24          |
-| toast                     | 14          |
-| wells inside cards        | 14          |
-| chips, buttons, segmented | pill (999)  |
-| chips inside rows, kbd    | 6           |
-| small buttons             | 8           |
-| sidebar, command palette  | 16          |
-| hero cards                | 24          |
+| Part                      | Radius (px)                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| inputs                    | 8                                                                                |
+| menus (and their rows)    | 8                                                                                |
+| cards, pickers, panels    | 20                                                                               |
+| sheets                    | 24                                                                               |
+| dialogs                   | 24                                                                               |
+| toast                     | pill (999) on one line, 14 when the words wrap to two lines (owner, 24 Nov 2026) |
+| wells inside cards        | 14                                                                               |
+| chips, buttons, segmented | pill (999)                                                                       |
+| chips inside rows, kbd    | 6                                                                                |
+| small buttons             | 8                                                                                |
+| sidebar, command palette  | 16                                                                               |
+| hero cards                | 24                                                                               |
 
 The last four rows are the 9 Nov values the questionnaire did not touch. Nested rule: inner radius = outer radius - padding.
 

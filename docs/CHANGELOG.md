@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: Action bar PC picture approved; the Colour circle; toast shape C (docs only)
+
+- **What:** the Colour button on all 18 frames is a circle filled with the chosen colour (the owner's one change at the approval); docs/mockups/action-bar/shot.mjs re-shoots every frame; the approval and its conditions in docs/design/owner-decisions.md; the toast shape (pill on one line, 14 on two) in system.md §3 and shell-spec §7; DECISIONS and STATE updated.
+- **Why:** the owner's answers of 24 Nov. **Files:** docs/mockups/action-bar/, docs/design/owner-decisions.md, docs/design/system.md, docs/design/shell-spec.md, docs/DECISIONS.md, docs/STATE.md, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: two answered design-number clashes written in (docs only)
 
 - **What:** docs/design/system.md §9 now has two breakpoints, 640 and 1180, like the frame (was 1024 and 1440), and its title no longer says "proposal"; docs/features/toolbar-v8.md TB-01 carries the decided move of Undo and Redo to the top bar only, marked not built yet; the old-names rename (tool/names-q15) merged after a word-by-word diff check.

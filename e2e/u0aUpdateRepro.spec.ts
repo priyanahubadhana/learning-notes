@@ -80,9 +80,16 @@ async function open(page: Page, auto = true) {
       log('page start')
       let last = ''
       new MutationObserver(() => {
-        const pill = document.querySelector<HTMLElement>('[data-update-pill]')
+        // The status pill and, while it is asked, the 3 s prompt (toast).
+        const pill = [
+          ...document.querySelectorAll<HTMLElement>(
+            '[data-update-prompt], [data-update-pill]',
+          ),
+        ]
+          .map((n) => n.innerText.trim().replace(/\s+/g, ' '))
+          .join(' ')
         const line = document.querySelector('[data-update-line]')
-        const text = pill ? pill.innerText.trim().replace(/\s+/g, ' ') : '-'
+        const text = pill || '-'
         const s = `pill="${text}" line=${line?.getAttribute('data-update-state') ?? '-'}`
         if (s !== last) {
           last = s

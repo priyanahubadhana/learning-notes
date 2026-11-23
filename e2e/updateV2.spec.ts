@@ -659,8 +659,13 @@ test.describe('U0c scenarios S1 to S7 (two real builds)', () => {
         log('page start')
         let last = ''
         new MutationObserver(() => {
-          const pill = document.querySelector<HTMLElement>('[data-update-pill]')
-          const text = pill ? pill.innerText.trim().replace(/\s+/g, ' ') : '-'
+          // The status pill and, while it is asked, the 3 s prompt (toast).
+          const parts = [
+            ...document.querySelectorAll<HTMLElement>(
+              '[data-update-prompt], [data-update-pill]',
+            ),
+          ].map((n) => n.innerText.trim().replace(/\s+/g, ' '))
+          const text = parts.length ? parts.join(' ') : '-'
           if (text !== last) {
             last = text
             log(`pill="${text}"`)
@@ -740,8 +745,8 @@ test.describe('U0c scenarios S1 to S7 (two real builds)', () => {
   }) => {
     // test-guard-reason: a slow line needs a longer wait, not weaker checks
     test.setTimeout(400_000)
+    await open(page) // A loads at full speed; only B's download is slow
     site.slow(1000)
-    await open(page)
     site.serve('b')
     await comeToFront(page)
     await expect
@@ -765,8 +770,8 @@ test.describe('U0c scenarios S1 to S7 (two real builds)', () => {
   }) => {
     // A new worker that stays installing (a very slow line), then a restart
     // is asked for (the test door says a version is ready, apply does nothing).
+    await open(page) // A loads at full speed; only B's download is slow
     site.slow(120_000)
-    await open(page)
     site.serve('b')
     await comeToFront(page)
     await expect

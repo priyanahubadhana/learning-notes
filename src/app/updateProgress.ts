@@ -239,6 +239,10 @@ export async function follow(
   const before = await beforeP
   const poll = async () => {
     if (!live) return
+    // A restart already asked for (the prompt, the wait, "did not finish")
+    // is not overwritten by the numbers of a download still running.
+    if (updateStatus.get().phase === 'updating')
+      return void setTimeout(() => void poll(), 500)
     if (!navigator.onLine) {
       updateStatus.set({ phase: 'offline' })
     } else if (warm) {

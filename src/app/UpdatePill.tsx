@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { t } from '../i18n/t'
 import { updateStatus } from './updateStatus'
 import { pressRestart } from './restartNow'
-import { promptControls } from './autoUpdate'
+import UpdatePrompt from './UpdatePrompt'
 import { isOn } from './flags'
 
 const mb = (n: number) => (n / 1048576).toFixed(1)
@@ -53,9 +53,7 @@ export default function UpdatePill() {
       text =
         s.restart === 'failed'
           ? t(v2 ? 'update.didNotFinish' : 'upd.restartFailed')
-          : s.countdown !== undefined
-            ? t('update.prompt', { s: s.countdown })
-            : t('upd.updating')
+          : t('upd.updating')
       break
     case 'postponed':
       text = t('update.postponed')
@@ -79,61 +77,44 @@ export default function UpdatePill() {
   const showBtn = s.phase === 'updating' && !!s.restart
   const failed = s.restart === 'failed'
   const asking = v2 && s.phase === 'updating' && s.countdown !== undefined
+  const prompt = asking ? <UpdatePrompt seconds={s.countdown} /> : null
   return (
-    <div
-      data-chrome
-      data-update-pill
-      {...(asking ? { 'data-update-prompt': '' } : {})}
-      className={`${s.restart || asking ? 'pointer-events-auto' : 'pointer-events-none'} fixed bottom-16 left-3 z-40 max-w-[min(320px,calc(100vw-24px))] rounded-xl border border-line bg-surface-3 px-3 py-2 text-[13px] text-ink shadow-[var(--elev-2)] phone:bottom-20 phone:max-w-[190px]`}
-    >
-      {/* The live region holds the words only, so the button is not announced as a status. */}
-      <div role="status" aria-live="polite">
-        {failed && !v2 ? (
-          <span className="sr-only">{text}</span>
-        ) : (
-          <span>{text}</span>
+    <>
+      {prompt}
+      <div
+        data-chrome
+        data-update-pill
+        className={`${s.restart ? 'pointer-events-auto' : 'pointer-events-none'} fixed bottom-16 left-3 z-40 max-w-[min(320px,calc(100vw-24px))] rounded-xl border border-line bg-surface-3 px-3 py-2 text-[13px] text-ink shadow-[var(--elev-2)] phone:bottom-20 phone:max-w-[190px]`}
+      >
+        {/* The live region holds the words only, so the button is not announced as a status. */}
+        <div role="status" aria-live="polite">
+          {failed && !v2 ? (
+            <span className="sr-only">{text}</span>
+          ) : (
+            <span>{text}</span>
+          )}
+        </div>
+        {showBtn && (
+          <button
+            type="button"
+            data-restart-now
+            onClick={pressRestart}
+            className={`${failed ? '' : 'mt-2 '}flex min-h-11 w-full items-center justify-center rounded-lg border border-line px-3 text-[13px] hover:bg-hover`}
+          >
+            {failed
+              ? t(v2 ? 'update.tryAgain' : 'upd.restartFailed')
+              : t('upd.restartNow')}
+          </button>
+        )}
+        {pct !== null && (
+          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-line">
+            <div
+              className="h-full bg-accent transition-[width] duration-300"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
         )}
       </div>
-      {asking && (
-        <div className="mt-2 flex gap-2">
-          <button
-            type="button"
-            data-update-cancel
-            onClick={() => promptControls.cancel()}
-            className="flex min-h-11 flex-1 items-center justify-center rounded-lg border border-line px-3 text-[13px] hover:bg-hover"
-          >
-            {t('update.cancel')}
-          </button>
-          <button
-            type="button"
-            data-update-restart-now
-            onClick={() => promptControls.restartNow()}
-            className="flex min-h-11 flex-1 items-center justify-center rounded-lg border border-line px-3 text-[13px] hover:bg-hover"
-          >
-            {t('upd.restartNow')}
-          </button>
-        </div>
-      )}
-      {showBtn && (
-        <button
-          type="button"
-          data-restart-now
-          onClick={pressRestart}
-          className={`${failed ? '' : 'mt-2 '}flex min-h-11 w-full items-center justify-center rounded-lg border border-line px-3 text-[13px] hover:bg-hover`}
-        >
-          {failed
-            ? t(v2 ? 'update.tryAgain' : 'upd.restartFailed')
-            : t('upd.restartNow')}
-        </button>
-      )}
-      {pct !== null && (
-        <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-line">
-          <div
-            className="h-full bg-accent transition-[width] duration-300"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      )}
-    </div>
+    </>
   )
 }

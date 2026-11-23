@@ -49,7 +49,9 @@ export function AboutSection() {
   const v2 = useFlag('update.v2')
   const details = useUnlocked('about.version') || !v2
   // U0a: with the version line on Settings' first page, the version shows there only.
-  const oneLine = useFlag('update.versionLine') || useFlag('update.v2')
+  const lineFlag = useFlag('update.versionLine')
+  const cardFlag = useFlag('update.v2')
+  const oneLine = lineFlag || cardFlag
   const at = lastCheckedAt()
   const built = new Date(__APP_BUILT__)
   return (

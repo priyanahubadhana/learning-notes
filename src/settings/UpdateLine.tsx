@@ -22,23 +22,23 @@ type State =
 
 /** Which words the card shows, from the same state the pill reads. */
 function stateOf(phase: string): State {
-  return phase === 'updating' || phase === 'postponed'
-    ? phase === 'updating'
-      ? 'restarting'
-      : 'ready'
-    : phase === 'downloading' || phase === 'installing'
-      ? 'downloading'
-      : phase === 'checking'
-        ? 'checking'
-        : phase === 'ready' || updateWaiting()
-          ? 'ready'
-          : phase === 'failed'
-            ? 'failed'
-            : phase === 'offline'
-              ? 'offline'
-              : lastCheckedAt()
-                ? 'upToDate'
-                : 'notChecked'
+  return phase === 'updating'
+    ? 'restarting'
+    : phase === 'postponed'
+      ? 'ready'
+      : phase === 'downloading' || phase === 'installing'
+        ? 'downloading'
+        : phase === 'checking'
+          ? 'checking'
+          : phase === 'ready' || updateWaiting()
+            ? 'ready'
+            : phase === 'failed'
+              ? 'failed'
+              : phase === 'offline'
+                ? 'offline'
+                : lastCheckedAt()
+                  ? 'upToDate'
+                  : 'notChecked'
 }
 
 /**

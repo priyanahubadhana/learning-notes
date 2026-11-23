@@ -457,9 +457,6 @@ test('U0a-11 the download never shows more than 100 percent', async ({
   expect(
     rows.filter(([, m]) => /[(][0-9]+%[)]/.test(m)).length,
   ).toBeGreaterThan(0)
-  // U0: the 107 percent shows on some runs only (timing), in both engines.
-  // A run that shows it is the expected failure; a run that does not must
-  // pass the same strict check. U0c turns this into a plain assertion.
-  test.fail(over.length > 0, 'U0 progress above 100 percent')
+  // U0c: progress never shows above 100 percent.
   expect(over.map(([, m]) => m)).toEqual([])
 })

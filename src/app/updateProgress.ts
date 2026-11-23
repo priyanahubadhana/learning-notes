@@ -244,7 +244,7 @@ export async function follow(
     if (!live) return
     // A restart already asked for (the prompt, the wait, "did not finish")
     // is not overwritten by the numbers of a download still running.
-    if (updateStatus.get().phase === 'updating')
+    if (countOnly && updateStatus.get().phase === 'updating')
       return void setTimeout(() => void poll(), 500)
     if (!navigator.onLine) {
       updateStatus.set({ phase: 'offline' })
@@ -286,6 +286,7 @@ export async function follow(
       const cur = updateStatus.get()
       const total = cur.total || warm?.total || 0
       if (
+        countOnly &&
         cur.phase === 'downloading' &&
         total > 0 &&
         (cur.total !== total || (cur.loaded ?? 0) < total)

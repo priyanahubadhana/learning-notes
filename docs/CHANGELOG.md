@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 23 Nov 2026: U0c review fixes and the required-update restart on WebKit (S2)
+
+- **What:** with `update.v2` ON a restart that was asked for still reloads the page when the new version takes over after "The update did not finish" showed (slow WebKit); the poll skip, the 100 percent push and the percent cap are ON-only; U0a-11 is a plain assertion (no `test.fail`).
+- **Why:** S2 never reached B on ipad-webkit (the failed note blocked the controllerchange reload); switch OFF must equal today (U13); U0c's done-when is U0a without `test.fail`.
+- **Files:** src/main.tsx, src/app/updateProgress.ts, src/app/UpdatePill.tsx, e2e/u0aUpdateRepro.spec.ts.
+
 ### 23 Nov 2026: PC-1 U0c + S0 (the update fix behind `update.v2`)
 
 - **What:** the 3-second "Restarting in N s" prompt (Cancel, Restart now, Esc) now lives in the toast queue (src/app/UpdatePrompt.tsx, a top-layer popover), the pill keeps the status text only. The download numbers no longer overwrite a restart that was already asked for. An update offer made while the prompt is open (or after Cancel) never asks again. S3 and S3b now open version A at full speed and slow only the download of B. The duplicate "reach" test in e2e/firstBoxTap.spec.ts was removed (38 tests listed).

@@ -174,6 +174,8 @@ startAccountGate()
 // T29: while the "did not finish" note shows, nothing restarts the app by
 // itself (a new worker taking over, a look for updates): only Try again or
 // Not now moves on.
+let restartWasAsked = false
+const restartAsked = () => isOn('update.v2') && restartWasAsked
 const noteHolds = () => mandatoryUpdate.get()?.phase === 'failed'
 
 // A unique build name makes the silent backup due right now.
@@ -224,6 +226,7 @@ const startRequired = (
       apply: () => {
         resetGestures('manual')
         rememberPlace()
+        restartWasAsked = true
         apply()
       },
       // Another tab upgraded the notes: this tab must not touch the database.
@@ -354,9 +357,12 @@ watchControllerChange(navigator.serviceWorker, () =>
       document.visibilityState === 'visible' &&
       !penIsDown() &&
       !hasUnsaved() &&
-      !noteHolds(),
+      // update.v2 (S2): the restart was asked for and the new version took
+      // over, but a slow WebKit made "did not finish" show first: the old
+      // page must still restart. Without a restart asked, the note stays.
+      (!noteHolds() || restartAsked()),
     () => {
-      if (noteHolds()) return
+      if (noteHolds() && !restartAsked()) return
       rememberPlace()
       location.reload()
     },

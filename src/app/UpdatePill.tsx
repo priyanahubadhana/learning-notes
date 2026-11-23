@@ -37,7 +37,9 @@ export default function UpdatePill() {
           ? t('upd.downloading', {
               loaded: mb(s.loaded ?? 0),
               total: mb(total),
-              pct: Math.min(100, Math.round(((s.loaded ?? 0) / total) * 100)),
+              pct: v2
+                ? Math.min(100, Math.round(((s.loaded ?? 0) / total) * 100))
+                : Math.round(((s.loaded ?? 0) / total) * 100),
             })
           : t('upd.downloadingStart')
       if (s.etaS) text += ' · ' + t('upd.slow', { s: s.etaS })

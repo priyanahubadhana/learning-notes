@@ -272,12 +272,26 @@ export async function follow(
     stop.abort()
     if (worker.state === 'redundant') updateStatus.set({ phase: 'failed' })
     else {
-      updateStatus.set({ phase: 'installing' })
-      // The auto-update rule takes over from here (it sets "updating").
-      setTimeout(() => {
-        if (updateStatus.get().phase === 'installing')
-          updateStatus.set({ phase: 'ready' })
-      }, 800)
+      const installing = () => {
+        updateStatus.set({ phase: 'installing' })
+        // The auto-update rule takes over from here (it sets "updating").
+        setTimeout(() => {
+          if (updateStatus.get().phase === 'installing')
+            updateStatus.set({ phase: 'ready' })
+        }, 800)
+      }
+      const cur = updateStatus.get()
+      if (
+        cur.phase === 'downloading' &&
+        cur.total &&
+        (cur.loaded ?? 0) < cur.total
+      ) {
+        // The last poll can stop short (99 percent): the bar ends at 100 first.
+        updateStatus.set({ ...cur, loaded: cur.total, etaS: undefined })
+        setTimeout(() => {
+          if (updateStatus.get().phase === 'downloading') installing()
+        }, 400)
+      } else installing()
     }
   }
   worker.addEventListener('statechange', done)

@@ -55,7 +55,7 @@ None named: inventory section 3 names no code file; keyboard-shortcuts.md's curr
 
 ## Fable attack read
 
-> waiting for Fable's attack read
+> Fable, 23 Nov 2026. (1) KS-01 is wrong for Delete with the caret: Delete removes a character in the text, never the box; the key acts as the bar button only when the selection is a box or a picture. Fix the rule. (2) KS-N2 needs a stronger promise for the editor: the bar never calls preventDefault on Ctrl+X, Ctrl+C, Ctrl+V or Delete; the editor does the work and the bar only mirrors (or BlockNote clipboard behaviour breaks). (3) KS-OPEN-1: pick "Enter presses, Alt+Down (and Space) opens the list", the platform standard for split buttons; log it. (4) KS-OPEN-2: Cmd on Mac and iPad, Alt+F10 stays, both standard; log it rather than ask. (5) Add the move-mode keys from the Drag and dock read (DD-06) to this map.
 
 ## Changes
 

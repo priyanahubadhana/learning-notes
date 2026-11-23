@@ -56,7 +56,7 @@ None named: inventory section 3 names no code file; T1 of action-bar.md maps tod
 
 ## Fable attack read
 
-> waiting for Fable's attack read
+> Fable, 23 Nov 2026. (1) CP-04 as written cannot be tested: a user can pick any swatch for text on any paper. Restate: the swatch set is chosen so each swatch passes contrast on the default paper in Day, Night and Sepia; a user's pick is never blocked, and a failing pair shows a small warning mark. (2) CP-S1 says "one Undo brings back the old colour": the Undo belongs to the editor change, not the picker; say so, or two Undo entries appear (editor plus picker). (3) CP-OPEN-2 (Highlight) decides whether this part has two sets or two parts; it blocks the build of the words row and must be answered before that work starts.
 
 ## Changes
 

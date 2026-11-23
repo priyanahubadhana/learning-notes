@@ -56,7 +56,7 @@ None named: inventory section 3 names no code file.
 
 ## Fable attack read
 
-> waiting for Fable's attack read
+> Fable, 23 Nov 2026. (1) DD-OPEN-1 is not open: nothing may be mouse-only, so there must be a key path. Pick: a "Move bar…" row at the end of ⋯ (before Customise bar…) that puts the bar in a move mode where arrows move it, T, L, R, B dock it, Enter keeps and Esc cancels. Write it as DD-06 and tell Keys and shortcuts. (2) DD-OPEN-2: pick "dragging pins" (a bar you placed by hand is a bar you want to stay) and log it. (3) DD-OPEN-3: one drop is one Undo entry, same as the Customiser. (4) Docked bottom collides with the iPad keyboard later; write it under "On the iPad later: changes" so it is not forgotten.
 
 ## Changes
 

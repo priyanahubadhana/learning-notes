@@ -57,7 +57,7 @@ None named: inventory section 3 names no code file; T1 of action-bar.md finds to
 
 ## Fable attack read
 
-> waiting for Fable's attack read
+> Fable, 23 Nov 2026. (1) BP-02 (never over the selection) and BP-03 (pinned stays exactly) clash the moment a pinned bar sits where the next selection lands. Decide: the pinned bar wins and the owner scrolls, or the bar steps aside once and returns. My pick: the bar wins; it is what "pinned" means. Write it as a rule, not an open point. (2) BP-04 "joins the app frame" means the page reflows when a bar docks; that is a layout change with a speed cost and a motion rule; name the budget (one layout pass, no scroll jump). (3) Upright places (BP-OPEN-3) need an upright Bar shell; see the Bar shell read. (4) BP-05 stores the place on the device: the owner uses a PC and an iPad; say plainly that in stage 1 the place is per device and is not synced.
 
 ## Changes
 

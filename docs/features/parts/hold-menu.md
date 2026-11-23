@@ -57,7 +57,7 @@ None named: inventory section 3 names no code file; page-menus.md's current Hold
 
 ## Fable attack read
 
-> waiting for Fable's attack read
+> Fable, 23 Nov 2026. (1) HM-N1 (suppress the browser menu on a selection) removes the browser's spelling suggestions on a right-click, which is exactly how the owner fixes wrong words in AI notes on the PC. This needs the owner: my pick is that a right-click on a single misspelled word (no selection) keeps the browser menu, and the Hold menu opens only on a selection, a box or a picture. Add HM-OPEN-4 and send it to the owner now. (2) HM-03 and HM-04 duplicate BP-06; keep them in one card (Bar place owns hide and return; this card only tells it "open" and "closed"). (3) HM-OPEN-2: pick Shift+F10 and the Menu key, the platform standard; log it.
 
 ## Changes
 

@@ -56,7 +56,7 @@ None named: inventory section 3 names no code file.
 
 ## Fable attack read
 
-> waiting for Fable's attack read
+> Fable, 23 Nov 2026. (1) FP-N1 (no silent fallback) contradicts FP-S3 (a loading font shows its name anyway) and the web: every font falls back while it loads. Pick: the row shows the name in the fallback font with a small loading mark, and the pick applies at once in the fallback, re-rendering when the font lands. (2) Offline is missing: the app works offline, so the three quick fonts must ship with the app, and More fonts… must say what happens with no network (greyed rows with "needs internet once"). This is the biggest gap on the card. (3) FP-N2 is already broken by the Tool bar's font control today; name the file to retire under Private copies once T1 finds it.
 
 ## Changes
 

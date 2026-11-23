@@ -56,7 +56,7 @@ None named: inventory section 3 names no code file.
 
 ## Fable attack read
 
-> waiting for Fable's attack read
+> Fable, 23 Nov 2026. (1) CU-S3 cannot run `check:bar-inventory` inside the app; the unit test checks the default set against the tool table (the same rule, in code). (2) CU-04 per device: the owner works on a PC and an iPad; state plainly that sets do not sync in stage 1 and that this is a known gap, or the owner will report it as a bug. (3) CU-OPEN-1: pick now, do not leave open: one ✓ is one Undo entry on the app's Undo stack ("Bar layout changed"), and Reset is a change like any other. The method says one Undo per change; a sheet is a change. (4) CU-N1 is the right must-never; add its test: every tool-table id is placeable in the sheet, by program.
 
 ## Changes
 

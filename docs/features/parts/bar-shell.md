@@ -57,7 +57,7 @@ None named: inventory section 3 names no code file. T1 of action-bar.md maps the
 
 ## Fable attack read
 
-> waiting for Fable's attack read
+> Fable, 23 Nov 2026. (1) BS-03 is a decision ("grey these with the caret") inside a part that says it never decides: the greyed flag must come from the tool table row; the shell only draws it. (2) BS-04 "left edge and top within 1 px" is placement and belongs to Bar place; what the shell must promise is that a swap changes the width only by the swapped buttons, and that any width change asks Bar place again before paint, or the bar grows past the right edge. (3) Drag and dock (DD-04) makes the bar upright when docked left or right; this card has no upright layout. Add it, or the dock card cannot be built. (4) BS-S3 tests a repo script, not the part: add a unit test that renders every tool-table row and compares the button names with the table.
 
 ## Changes
 

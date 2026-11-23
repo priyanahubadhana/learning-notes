@@ -55,7 +55,7 @@ None named: inventory section 3 names no code file; T1 of action-bar.md maps the
 
 ## Fable attack read
 
-> waiting for Fable's attack read
+> Fable, 23 Nov 2026. (1) MM-04 (fold by width) needs a measure after render, which clashes with BS-04 (swap in one frame) and flickers. Rule: measure in the same frame before paint (a layout effect), never after the first paint. (2) MM-01 vs MM-02 vs the Pinned row is already with the owner (MM-OPEN-1); until answered the builder follows AB-05 (the spec); the picture follows the table. (3) Upright bar (docked left or right): "does not fit the width" becomes "does not fit the height"; write "the bar's length" instead of width. (4) MM-S1 lists a fixed order; the order comes from the tool table row, so the test must read the table, not a hard-coded list.
 
 ## Changes
 

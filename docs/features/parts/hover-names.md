@@ -57,7 +57,7 @@ None named: inventory section 3 names no code file.
 
 ## Fable attack read
 
-> waiting for Fable's attack read
+> Fable, 23 Nov 2026. (1) HN-05 "never covers the selected words" cannot always hold when the bar sits below the words and the name shows above the button. Replace with: the name shows on the side away from the selection; if neither side is free it shows below. (2) HN-OPEN-4 should not be open: the PC rule says nothing is hover-only, so the name must also show on keyboard focus after the same delay. Make it HN-06. (3) Add a must-never: a hover name never captures the pointer (no hover trap that keeps a button from being pressed).
 
 ## Changes
 

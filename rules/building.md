@@ -1,6 +1,6 @@
 # Building a Step
 
-- **Phase start:** all of the phase's questions were asked in the planning talk and written into the phase page (docs/plans/phases/); build from that page. The order of phases is in docs/plans/phase-plan.md.
+- **Phase start:** all of the phase's questions were asked in the planning talk and written into the phase page (docs/plans/phases/); build from that page. The order of phases is in docs/plans/stage-1-plan.md (the front door is docs/MASTER-PLAN.md).
 - **During:** build only what the phase page lists; after that only bug fixes and rework of things that do not behave as planned. Decide small things yourself and log them in docs/DECISIONS.md. Don't stop.
 - **A question only the owner could answer** (one the plan doesn't cover): pick the safest sensible option, log it in docs/DECISIONS.md "Decisions to review" (date, step, what was picked, other options), and carry on.
 - Short replies. Write risks, bugs and weak decisions into "Decisions to review" at once, in full.

@@ -2,6 +2,83 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 23 Nov 2026: docs site, home order and badges (phase 1A, site only)
+
+- **What:** the home list starts with the master plan, then State and the feature register, then the rest; a "Stage 1 · 2 · 3" badge on the home page and on each page header (read from the page's own Stage cell); Pillar letters in the register tables shown as small badges; "Must never happen" blocks in a full red-bordered box.
+- **Why:** phase 1A step 6, the last small item. **Files:** scripts/docs-site.mjs, scripts/docs-site/site.css, docs/CHANGELOG.md.
+
+### 23 Nov 2026: agent practice research pass (phase 1A, M7)
+
+- **What:** docs/research/agent-practice-2026-11-23.md: twelve findings from Anthropic (Claude Code subagents, hooks, best practices, agent teams, two engineering posts), Google (Gemini CLI subagents, ADK compaction and loops) and three papers on long context, each set against what we do; eight keep, try or drop proposals for M0.
+- **Why:** phase 1A row M7, one short web pass to feed M0. **Files:** the research page, docs/CHANGELOG.md.
+
+### 23 Nov 2026: the part cards (phase 1A, M9, documents only)
+
+- **What:** eleven part cards on the part template, one screen each, in docs/features/parts/: bar-shell, bar-place, hover-names, colour-picker, size-picker, font-picker, more-menu, customiser, hold-menu, drag-and-dock, keys-and-shortcuts. Each has its one job, who uses it, rules and scenarios with ids, "On the iPad later", the Design and quality line, Builds on, private copies to retire, open points, and an empty box waiting for Fable's attack read. docs/FEATURES.md: the spec cell of F-024, F-027 and F-028 points at the cards.
+- **Names:** the brief's "Colour strip", "Size strip", "Font strip" and "Hold strip" are carded as Colour picker, Size picker, Font picker and Hold menu, following the owner's names rule (Q15, never "strip") and the register F-024.
+- **Why:** action-bar.md names the parts Bar shell and Bar place "to be carded in M9"; every bar job gets one owner before the build. Nothing open in the inventory or the spec is decided here: each gap is an open point on its card.
+- **Files:** docs/features/parts/ (eleven new files), docs/FEATURES.md, docs/CHANGELOG.md.
+
+### 23 Nov 2026: Weekly card script (phase 1A, M6, tooling only)
+
+- **What:** `npm run weekly-card [2026-W47]` (scripts/weekly-card.mjs) computes the eight numbers of METHOD-v2 M-05 from docs/metrics/tasks.csv, git and `gh issue list` and writes docs/metrics/weekly/<iso-week>.md with an empty "Owner's line" (kept on re-run). Numbers the repo cannot know yet (waits, estimates) say "not recorded". First card: docs/metrics/weekly/2026-W47.md (10 skipped or only tests found).
+- **Why:** METHOD-v2 M6. **Files:** scripts/weekly-card.mjs, scripts/weekly-card.test.mjs (5 tests), package.json.
+
+### 23 Nov 2026: Analyze v1 (phase 1A, M5, tooling only)
+
+- **What:** `npm run analyze` (scripts/analyze.mjs) reads every template-v2 spec and part card and checks: rule ids in a scenario, scenario ids in an e2e test, task ids in the bottom-layer table, the Builds on cell, and the private-placement ratchet (docs/metrics/ratchet.json, today 2). It writes docs/qa/analyze-report.md with the status each page may show; it never edits a spec. Wired into the push guard as a warning only. Today: 0 of 2 v2 pages pass (checks 1 and 2 fail on both), 88 old-template pages skipped.
+- **Why:** METHOD-v2 M5, scenarios S4 and S5. **Files:** scripts/analyze.mjs, scripts/analyze.test.mjs (16 tests), scripts/push-guard.mjs, package.json, docs/metrics/ratchet.json, docs/qa/analyze-report.md.
+
+### 23 Nov 2026: Action bar PC picture (phase 1A, mock-up only)
+
+- **Review fixes (23 Nov):** grip 44 px hit area; non-token numbers replaced (bar padding 6 to 8, wide button and tip padding 10 to 8, badge and Size-A text 9 and 12 to 11 micro); Day glass inner hairline; picture frame taller so the bar stays inside the paper; Enter marked as an open point; S13 rewritten to the one-press Paste; one DECISIONS review line (AB-05 against the Pinned row).
+
+- **What:** docs/mockups/action-bar/index.html and png/ (13 frames: the five stage 1 states in Day and Night, Paste ▾ open, ⋯▾ open, one hover name), drawn from the confirmed tool table and the system.md tokens; a keyboard note under the page. Spec: Pictures cell and Picture section point at it, waiting for the owner's yes.
+- **Why:** the tool list came first, now the picture (owner, 22 Nov). **Files:** the mock-up folder, docs/features/action-bar.md.
+
+### 23 Nov 2026: design numbers fold (phase 1A item 2b)
+
+- **What:** the 18 "Decided 22 Nov" lines of docs/design/principles.md are folded into the files that own them; each line in principles.md is now a one-line pointer, and the shared rules table points instead of repeating numbers. system.md (tokens) holds stroke (Q1), the one motion scale with its named uses (Q2), the two glasses (Q3), the radius table (Q4), quick fonts (Q13), Day as default theme (Q14), red for Delete and Again (Q16), 44 px targets in every density (Q17), rail icons (Q7). shell-spec.md (frame) holds toasts (Q5), sidebar 288 and sheet 376 in a new frame table (Q6, Q9), ✕ and ✓ at the top of sheets (Q8), Undo and Redo in the top bar (Q10), the rail icon pick (Q7), More last with ▾ (Q18). toolbar-v8.md holds the Tool bar height (Q11), hover names (Q12), names (Q15), ⋯ (Q18). quality-standard.md gets the pass lines for all 18, pointing at the tables.
+- **Old values replaced (the 22 Nov line won):** icon stroke 1.6 (quality standard, shell spec, tool bar v8) → 1.75; "about 150 ms" (quality standard) and the minimise chip's 150 ms (shell spec) → the motion scale; tool bar v8 press .96 → .97; radii in system.md (cards and menus 12, panels and dialogs 16, toast 12) → the 22 Nov table; toasts bottom centre (shell spec) and bottom centre or right, 5 s (system.md) → bottom-right, 2.6 s / 6 s with Undo; sidebar 264 (shell spec) and 260 (system.md) → 288; sheet 440 → 376; Back and Forward → Undo and Redo; Tool bar 52 → 64; rail icons pencil and flashcards-with-tick → ruled notebook and repeat arrows; sheet footer "hint · Cancel · ✓ Done" → ✕ and ✓ at the top; More first → one control last; Night by default (shell spec) and "follow the device" (principle 1) → Day; Compact 36 px controls and 32 px rows → 44 always.
+- **Why:** one table holds the design numbers, so builders never pick between two documents (phase 1A item 2b). The ten principle pictures stay on hold.
+- **Files:** docs/design/principles.md, docs/design/system.md, docs/design/shell-spec.md, docs/design/quality-standard.md, docs/features/toolbar-v8.md, docs/CHANGELOG.md.
+
+### 22 Nov 2026, late evening: the owner's dashboard
+
+- **What:** scripts/dashboard.mjs writes docs/DASHBOARD.md from the repo and GitHub: stage and running phase, phases planned in full, the replan count, feature rows by stage and state, spec statuses, open tickets by source, what waits for the owner. `npm run dashboard`; linked from INDEX.md; refreshed every Saturday with the weekly card.
+- **Why:** the owner asked for one place to see where the planning and the whole plan stand (22 Nov, late evening).
+- **Files:** scripts/dashboard.mjs, docs/DASHBOARD.md, package.json, docs/INDEX.md, docs/STATE.md, docs/CHANGELOG.md.
+
+### 22 Nov 2026, late evening: handoff and STATE trim
+
+- **What:** docs/STATE.md gains the late-evening handoff (done, lessons, next in order) and a rewritten Needs you; two closed handoffs, the Phase 2-finish history and the 16 Nov rules list moved to docs/archive/STATE-trimmed-2026-11-22.md; four research notes reformatted by Prettier (no text change).
+- **Why:** the owner asked for a final audit and a handoff before clearing the chat; the 100-line rule for STATE.md.
+- **Files:** docs/STATE.md, docs/archive/STATE-trimmed-2026-11-22.md, docs/archive/INDEX.md, docs/CHANGELOG.md, docs/research/.
+
+### 22 Nov 2026, evening: AB-02 picture check script
+
+- **What:** scripts/check-bar-inventory.mjs reads the tool table between the markers in action-bar.md and fails a picture that misses, adds or reorders a tool of a stage-1 state (flags grey and filled included); 7 unit tests; `npm run check:bar-inventory`.
+- **Why:** action-bar.md AB-02 and step 2: the tool list comes before the pictures (owner, 22 Nov).
+- **Files:** scripts/check-bar-inventory.mjs, scripts/check-bar-inventory.test.mjs, package.json.
+
+### 22 Nov 2026, evening: old plan pages archived
+
+- **What:** moved with `git mv` to docs/archive/plans/: phase-plan, master-plan-2026-11, text-tool-plan, box-grid-plan, layout-assist-plan, database-pages-plan, user-stories-2b, system-trial-2026-11-13, uniformity-and-specs-2026-11-21, and the old ROADMAP text (as ROADMAP-until-22-nov.md). docs/ROADMAP.md is now a short pointer. One line per page in docs/archive/INDEX.md. Every link to a moved page now points to its new path; the "plan" pointers in rules, HOW-WE-BUILD, STATUS, README and /next now name MASTER-PLAN.md and plans/stage-1-plan.md. Nothing deleted.
+- **Why:** MASTER-PLAN.md section 6 said the old plans move to the archive after the found-wishes sweep; the owner answered the sweep today.
+- **Files:** docs/archive/plans/ (10 pages), docs/ROADMAP.md, docs/archive/INDEX.md, docs/INDEX.md, docs/MASTER-PLAN.md, README.md, rules/building.md, rules/planning.md, rules/sessions.md, .claude/agents/reviewer.md, .claude/commands/next.md, scripts/build-pulse.sh, scripts/qa-brief.mjs and the docs that linked the moved pages (features, research, plans, DECISIONS, FEATURES, CHANGELOG, ARCHIVE, metrics).
+
+### 22 Nov 2026, evening: Action bar Confirmed, found wishes answered
+
+- **What:** action-bar.md Confirmed (21 rows Yes); the pin replaces ✕ as the bar's switch throughout the spec. found-wishes page: owner column filled. FEATURES.md: F-352 to F-386 from the sweep (state, stage, source), F-055 links home.md.
+- **Why:** the owner's answers of 22 Nov evening (chat and artifact comments).
+- **Files:** docs/features/action-bar.md, docs/plans/found-wishes-2026-11-22.md, docs/FEATURES.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 22 Nov 2026: the found-wishes page
+
+- **What:** docs/plans/found-wishes-2026-11-22.md, the sweep of past owner wishes with no register row (31 confirm rows by pillar and stage, 13 leftovers, 11 earlier no's, about 30 matched to existing F-ids).
+- **Why:** MASTER-PLAN row 5 and DECISIONS 22 Nov 06:00; the owner's one-pass confirm before the old plan pages are archived.
+- **Files:** docs/plans/found-wishes-2026-11-22.md, docs/STATE.md, docs/CHANGELOG.md.
+
 ### 22 Nov 2026: the local unit-test red fixed (drive-letter case)
 
 - **What:** scripts/run-vitest.mjs starts Vitest from the folder's canonical path; `npm test`, `npm run test:watch` and the push guard use it.
@@ -173,7 +250,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - **What:** BUILD-STATE rewritten at the top (now building phase-2-finish; stale 2A tables replaced by a done list); PENDING "Needs you", phase board, R21, BUG-004, BUG-001 corrected; user-stories-2b gets a state section; `main` merged into `build/next` (a6e50fab; CHANGELOG and DECISIONS clashes kept both sides). Merges after 17 Nov that this file missed: C28 to C30b, B7 to B12, the box bar (18 Nov), ci-reds 1 to 4 (last f65b1fa6); tasks.csv holds the details. npm audit: only build-tool warnings, fix is breaking, not applied.
 - **Why:** the sweep (docs/archive/plans/open-items-sweep-2026-11-20.md sections 2 and 6) found the lists out of date.
-- **Files:** docs/BUILD-STATE.md, docs/PENDING.md, docs/plans/user-stories-2b.md, docs/CHANGELOG.md.
+- **Files:** docs/BUILD-STATE.md, docs/PENDING.md, docs/archive/plans/user-stories-2b.md, docs/CHANGELOG.md.
 
 ### 20 Nov 2026: plan for the end of Phase 2 (Fable with the owner)
 
@@ -187,7 +264,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 17 Nov 2026: user stories and features, through Phase 2B
 
-- What: new plain-words list of every feature, user story and open problem through Phase 2B, with ids F-, US-, P-, Q- for the owner comments. Why: owner ask 17 Nov. Files: docs/plans/user-stories-2b.md, docs/INDEX.md.
+- What: new plain-words list of every feature, user story and open problem through Phase 2B, with ids F-, US-, P-, Q- for the owner comments. Why: owner ask 17 Nov. Files: docs/archive/plans/user-stories-2b.md, docs/INDEX.md.
 
 - What: 2A.12 (94e83c12) and 2A.15 (2b9379ab) merged, CI green; 2A.13 ready at 64a5d4a4; 2A.16 part 1 built; 2A.13 review 2 FAIL, Opus takeover, review 3 PASS. Why: plan step 2. Files: docs/BUILD-STATE.md, docs/DECISIONS.md.
 
@@ -249,7 +326,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - What: phase-plan section 0 "What's next" (ordered steps with pictures, sizes and likely times from docs/metrics/tasks.csv; the 2A v9 task list 2A.4 to 2A.16; Settings v5 as Phase 1S with tasks S.1 to S.11; tasks to redo, specs out of date, pictures superseded); BUILD-STATE rewritten (84 lines); PENDING "Needs you" and phase board rewritten; 8 owner questions written.
 - Why: tool bar v9, the Phase 1 fixes mock and Settings v5 were approved on 15 Nov, and P1.8 and P1.9 are merged; the old plan still pointed at v8 and v3.
-- Files: docs/plans/phase-plan.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/archive/plans/questions-2026-11-15.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+- Files: docs/archive/plans/phase-plan.md, docs/BUILD-STATE.md, docs/PENDING.md, docs/archive/plans/questions-2026-11-15.md, docs/DECISIONS.md, docs/CHANGELOG.md.
 
 ### 14 Nov 2026 (night): Phase 2B page written (text box and Pencil)
 
@@ -261,7 +338,7 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - What: the scroll fix (`slice/fix-scroll-frame` 0db04220) merged alone into `build/next` (d91b83d8); the owner's three answers to the audit recorded (folders deleted by the owner's script, Fable's `xhigh` effort entry removed from the user settings, security updates planned as task 0.14 after 0.6); task 0.11 done (lint 0 errors).
 - Why: Phase 0 order; the owner's answers.
-- Files: docs/BUILD-STATE.md, docs/PENDING.md, docs/plans/phase-plan.md, docs/archive/plans/audit-2026-11-14.md, docs/CHANGELOG.md; `~/.claude/settings.json` (outside the repo).
+- Files: docs/BUILD-STATE.md, docs/PENDING.md, docs/archive/plans/phase-plan.md, docs/archive/plans/audit-2026-11-14.md, docs/CHANGELOG.md; `~/.claude/settings.json` (outside the repo).
 
 ### 14 Nov 2026 (evening): Fable audit after the restart; docs made to agree
 
@@ -307,7 +384,7 @@ Card close focus-trap fix c17bd0d9 on build/next (src/design/parts/Card.tsx, Car
 
 ### 13 Nov 2026: build system trial benchmark
 
-The new build system is a TRIAL against the old one. Added docs/plans/system-trial-2026-11-13.md (metrics, how to measure, baseline from git and gh), pulse script now appends a CSV row to docs/metrics/build-pulse.csv, trial line in ECONOMY-MODE.md and BUILD-STATE.md. No rule changed.
+The new build system is a TRIAL against the old one. Added docs/archive/plans/system-trial-2026-11-13.md (metrics, how to measure, baseline from git and gh), pulse script now appends a CSV row to docs/metrics/build-pulse.csv, trial line in ECONOMY-MODE.md and BUILD-STATE.md. No rule changed.
 
 ### 13 Nov 2026: build system replaced by the simple system (owner request)
 
@@ -433,7 +510,7 @@ The new build system is a TRIAL against the old one. Added docs/plans/system-tri
 
 ## 21 Nov 2026, night: the pause talk with Fable (plan draft, method v2)
 
-- **What:** the owner paused the build and planned with Fable. New: docs/plans/uniformity-and-specs-2026-11-21.md (code audit: the bars rebuild placement, overflow, colour, size, hover names and customisers five to six times; the shared Object bar is unused), docs/plans/method-v2/ (pictures 1 to 4: the feature loop, the owner's touchpoints and the ladder, one source two faces, the PC-1 timeline; 1 to 3 approved), docs/plans/phases/phase-pc-1.md (plan draft with the main questionnaire). docs/DECISIONS.md gained rounds 1 to 5 of the talk: PC first with four conditions, Pencil work parked, GitHub Issues as the bug source, a generated site on GitHub Pages, Spec Kit installed and adapted, the Opus-high rung, honesty rules, the "builds on" reuse check, no AI notes in this phase.
+- **What:** the owner paused the build and planned with Fable. New: docs/archive/plans/uniformity-and-specs-2026-11-21.md (code audit: the bars rebuild placement, overflow, colour, size, hover names and customisers five to six times; the shared Object bar is unused), docs/plans/method-v2/ (pictures 1 to 4: the feature loop, the owner's touchpoints and the ladder, one source two faces, the PC-1 timeline; 1 to 3 approved), docs/plans/phases/phase-pc-1.md (plan draft with the main questionnaire). docs/DECISIONS.md gained rounds 1 to 5 of the talk: PC first with four conditions, Pencil work parked, GitHub Issues as the bug source, a generated site on GitHub Pages, Spec Kit installed and adapted, the Opus-high rung, honesty rules, the "builds on" reuse check, no AI notes in this phase.
 - **Why:** 40 days without a usable product; features rebuilt instead of reused; specs in four shapes; no closed loop from finding to spec to test.
 - **Files:** as above, plus docs/PENDING.md (Needs you).
 
@@ -1244,7 +1321,7 @@ Plan: [archive/plans/tools-robustness-plan.md](archive/plans/tools-robustness-pl
 ## 2026-11-09 (Database pages part 2: List view, grouping, windowed rows)
 
 - **What:** new List view (one line per row, sort picker, group by); Table and List can group rows by any column (collapsible groups, saved in the view as `groupBy`); Table and List draw only the rows near the screen above 200 rows (spacer rows, measured row height), so 10,000+ rows scroll smoothly; the Table's "More" button is gone. Board and Gallery keep their own "Show more" paging.
-- **Why:** owner queue 3a, full Notion-like databases (plan: docs/plans/database-pages-plan.md).
+- **Why:** owner queue 3a, full Notion-like databases (plan: docs/archive/plans/database-pages-plan.md).
 - **Files:** src/databases/views/ListView.tsx, GroupSelect.tsx, rowGroups.ts, rowWindow.ts, useRowWindow.ts (+ tests), TableView.tsx, viewTypes.ts, src/i18n/enO.ts, esO.ts, hiO.ts, e2e/databasePages.spec.ts, docs.
 
 ## 2026-11-09 (C2b: ink on PDF and EPUB pages)
@@ -1857,7 +1934,7 @@ Plan: [archive/plans/polish-2-2026-11.md](archive/plans/polish-2-2026-11.md). It
 
 - **What:** Committed the owner-approved final master plan (Phases A–Q), the deep research, the inventory and the owner test notes; linked the plan and research from docs/INDEX.md. Owner decisions D1–D4, D6, D7 accepted as recommended; D5 (opt-in on-device voice) yes, later phase.
 - **Why:** Phase A builds from these files.
-- **Files:** `docs/plans/master-plan-2026-11.md`, `inventory-2026-11.md`, `owner-test-notes-2026-11.md`, `docs/research/deep-research-2026-11.md`, `ink-layers-pencil-ux.md`, `docs/INDEX.md`.
+- **Files:** `docs/archive/plans/master-plan-2026-11.md`, `inventory-2026-11.md`, `owner-test-notes-2026-11.md`, `docs/research/deep-research-2026-11.md`, `ink-layers-pencil-ux.md`, `docs/INDEX.md`.
 
 ## 2026-11-06 (step 4a)
 
@@ -2077,11 +2154,11 @@ The owner paused the build at 11:10 IST. All helpers and the hourly check were s
 
 ## 14 Nov 2026: clean-up for the phased build (Fable, owner-approved)
 
-What: new docs/plans/phase-plan.md (the plan) and docs/HOW-WE-BUILD.md (how helpers work); three helper files (.claude/agents/phase-manager.md, builder.md, reviewer.md) replace the ten old ones; CLAUDE.md rewritten (9.2 KB to 4.8 KB); rules/building.md, sessions.md, testing.md, quality.md, planning.md, phase-end.md now describe one method; docs/PENDING.md rebuilt (530 to about 80 lines), the owner decisions and approved designs moved word for word to docs/design/owner-decisions.md, the iPad checklist to docs/archive/plans/ipad-checklist-first-preview.md, the old list kept in docs/plans/archive/; docs/HANDOFF.md trimmed (old entries in ARCHIVE); docs/BUILD-STATE.md rewritten (paused, Phase 0 tasks, every parked part with its commit); docs/ECONOMY-MODE.md archived; INDEX, token-efficiency, next command updated. Why: the audit in docs/archive/plans/build-diagnosis-2026-11-14.md section 7 found contradicting rules and a plan that had been overridden without being rewritten. No app code changed. The build stays PAUSED.
+What: new docs/archive/plans/phase-plan.md (the plan) and docs/HOW-WE-BUILD.md (how helpers work); three helper files (.claude/agents/phase-manager.md, builder.md, reviewer.md) replace the ten old ones; CLAUDE.md rewritten (9.2 KB to 4.8 KB); rules/building.md, sessions.md, testing.md, quality.md, planning.md, phase-end.md now describe one method; docs/PENDING.md rebuilt (530 to about 80 lines), the owner decisions and approved designs moved word for word to docs/design/owner-decisions.md, the iPad checklist to docs/archive/plans/ipad-checklist-first-preview.md, the old list kept in docs/plans/archive/; docs/HANDOFF.md trimmed (old entries in ARCHIVE); docs/BUILD-STATE.md rewritten (paused, Phase 0 tasks, every parked part with its commit); docs/ECONOMY-MODE.md archived; INDEX, token-efficiency, next command updated. Why: the audit in docs/archive/plans/build-diagnosis-2026-11-14.md section 7 found contradicting rules and a plan that had been overridden without being rewritten. No app code changed. The build stays PAUSED.
 
 ## 14 Nov 2026: final plan pass (Fable, owner decisions)
 
-What: docs/plans/phase-plan.md and docs/HOW-WE-BUILD.md rewritten with the roles (Sonnet builds, Opus reviews code and look, Fable plans and is the last resort), the lean and full ways to run, the test preset (task 0.6) and the one code line at the end of Phase 1 (task 0.7); .claude/agents/reviewer.md does the look check; CLAUDE.md owner settings, rules/quality.md gates, rules/building.md roles line, docs/PENDING.md "Needs you", docs/BUILD-STATE.md Phase 0 table; .claude/settings.json lets helpers push (force pushes denied); mcp/src/setup.ts lint line so the checks on main pass. Global: ~/.claude/CLAUDE.md, playbook.md, agents/. Why: the owner's answers of 14 Nov and the two audits. No app behaviour changed.
+What: docs/archive/plans/phase-plan.md and docs/HOW-WE-BUILD.md rewritten with the roles (Sonnet builds, Opus reviews code and look, Fable plans and is the last resort), the lean and full ways to run, the test preset (task 0.6) and the one code line at the end of Phase 1 (task 0.7); .claude/agents/reviewer.md does the look check; CLAUDE.md owner settings, rules/quality.md gates, rules/building.md roles line, docs/PENDING.md "Needs you", docs/BUILD-STATE.md Phase 0 table; .claude/settings.json lets helpers push (force pushes denied); mcp/src/setup.ts lint line so the checks on main pass. Global: ~/.claude/CLAUDE.md, playbook.md, agents/. Why: the owner's answers of 14 Nov and the two audits. No app behaviour changed.
 
 ## 14 Nov 2026: Phase 1 page and results record (Fable)
 
@@ -2101,7 +2178,7 @@ What: `main` merged into `build/next` (4d2b12cb), pull request #5 mergeable agai
 
 ## 14 Nov 2026: agents research recommendations applied (owner's word)
 
-What: rules/phase-end.md, the rule check became a rule and memory tidy-up at every phase end; task 0.13 added to docs/plans/phase-plan.md and docs/BUILD-STATE.md (trial of the builder's own-copy setting after 0.7 and 0.11); docs/PENDING.md and docs/DECISIONS.md updated; one line added to the owner's global playbook. Why: the owner asked to add the research recommendations. The stop check was left out because the push guard already does that job.
+What: rules/phase-end.md, the rule check became a rule and memory tidy-up at every phase end; task 0.13 added to docs/archive/plans/phase-plan.md and docs/BUILD-STATE.md (trial of the builder's own-copy setting after 0.7 and 0.11); docs/PENDING.md and docs/DECISIONS.md updated; one line added to the owner's global playbook. Why: the owner asked to add the research recommendations. The stop check was left out because the push guard already does that job.
 
 ## 14 Nov 2026: reviewer locked; thinking effort back to the defaults
 

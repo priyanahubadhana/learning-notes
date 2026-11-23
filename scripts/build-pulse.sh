@@ -42,7 +42,7 @@ else
   echo "PROGRESS"
 fi
 
-# CSV row for later comparison (system trial, docs/plans/system-trial-2026-11-13.md)
+# CSV row for later comparison (system trial, docs/archive/plans/system-trial-2026-11-13.md)
 csv=docs/metrics/build-pulse.csv
 mkdir -p docs/metrics
 [ -f "$csv" ] || echo "timestamp,merges_60min,active_slices,green_60min,red_60min,cancelled_60min,state_age_min,verdict" > "$csv"

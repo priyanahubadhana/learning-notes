@@ -27,7 +27,7 @@ As a learner who edits AI-made notes on the iPad with the Apple Pencil, I want t
 - **No doubled space.** After a delete in the middle of a line one space is left, not two, as the iPad itself does (Fable's pick; the owner did not answer this one directly, 20 Nov).
 
 - **On the selection, my stroke acts on it** (owner, 20 Nov). Pressing on the selected words and dragging moves them to where I drop them. Going over them again and again, back and forth or round and round, deletes them. The handles at the two ends make the selection longer or shorter.
-- **A tap elsewhere lets go.** A tap anywhere else ends the selection. A single tap on the selected words gives the typing cursor at that spot (owner, 19 Nov).
+- **A tap elsewhere lets go.** A tap anywhere else ends the selection. A single tap on the selected words gives the typing cursor at that spot (owner, 19 Nov). **Only five things replace a selection** (owner, 22 Nov): Backspace, typing (a drawn letter or comma counts), the Delete button, Cut, and Paste. A single stray Pencil touch never deletes it (issue #56).
 
 **Can never happen**
 

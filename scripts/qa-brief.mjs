@@ -94,7 +94,7 @@ ${tail('cursor')}
 ${common('antigravity')}
 App to test: https://learning-notes-app.pages.dev (live build of main)${base ? '' : ''}. The owner signs you in with the test account; use only the "Test" notebook; never delete a notebook, sign out other sessions or change settings you cannot put back.
 ${scope}
-Walk every scenario and user story in scope as a real user, by mouse and by keyboard (phase pages "Scenarios", docs/plans/user-stories-2b.md, the spec rows). Try the edges: empty state, reload mid-action, offline (DevTools), a very long title, pasting odd text, a second tab, back and forward, a narrow window. Note usability and accessibility problems, wrong or missing error messages, anything slower than a second.
+Walk every scenario and user story in scope as a real user, by mouse and by keyboard (phase pages "Scenarios", docs/archive/plans/user-stories-2b.md, the spec rows). Try the edges: empty state, reload mid-action, offline (DevTools), a very long title, pasting odd text, a second tab, back and forward, a narrow window. Note usability and accessibility problems, wrong or missing error messages, anything slower than a second.
 Security, app level only (docs/qa/SECURITY-CHECKLIST.md "Accounts", "Input and injection", "Headers"): what a signed-out visitor sees, URL tampering, script text in a note title, response headers. Nothing destructive.
 Save a screenshot and the console log for every finding.
 ${planning}

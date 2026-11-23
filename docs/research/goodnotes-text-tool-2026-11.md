@@ -1,6 +1,6 @@
 # GoodNotes 6 Text tool, compared (research, 10 Nov 2026)
 
-For owner bug batch 2 item 8. Plan: [plans/text-tool-plan.md](../plans/text-tool-plan.md). Facts marked (S) come from an official GoodNotes source or the owner's screenshots. Facts marked (F) come from GoodNotes feedback threads or reviews. Facts marked (K) are general product knowledge that a web source did not confirm in this pass.
+For owner bug batch 2 item 8. Plan: [archive/plans/text-tool-plan.md](../archive/plans/text-tool-plan.md). Facts marked (S) come from an official GoodNotes source or the owner's screenshots. Facts marked (F) come from GoodNotes feedback threads or reviews. Facts marked (K) are general product knowledge that a web source did not confirm in this pass.
 
 ## GoodNotes 6
 

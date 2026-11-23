@@ -20,7 +20,7 @@ React + TypeScript (strict), Vite, Tailwind, BlockNote, IndexedDB through Dexie.
 
 ## Status
 
-**Current phase:** the master plan ([docs/plans/master-plan-2026-11.md](docs/plans/master-plan-2026-11.md)), Phase A (Trustworthy Pencil). Phases 1–8 and most of Phase 9 are complete; the live app is at https://learning-notes-app.pages.dev.
+**Current plan:** [docs/MASTER-PLAN.md](docs/MASTER-PLAN.md) and the stage 1 plan ([docs/plans/stage-1-plan.md](docs/plans/stage-1-plan.md)); the old master plan is archived in [docs/archive/plans/master-plan-2026-11.md](docs/archive/plans/master-plan-2026-11.md). The live app is at https://learning-notes-app.pages.dev.
 
 **Next step:** see [docs/HANDOFF.md](docs/HANDOFF.md).
 

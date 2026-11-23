@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: Action bar iPad and phone pictures approved (docs only)
+
+- **What:** the owner approved all 17 device frames; the approval and what it accepts (the upright iPad overflow, the phone ending and its 2 px gap) are in docs/design/owner-decisions.md and DECISIONS; STATE updated.
+- **Why:** the owner's yes of 24 Nov. **Files:** docs/design/owner-decisions.md, docs/DECISIONS.md, docs/STATE.md, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: Action bar on the iPad sideways, iPad upright and the phone (pictures only, docs only)
 
 - **What:** docs/mockups/action-bar/devices.html with 17 frames in png-devices/ (iPad sideways 8, iPad upright 4, phone 5; four added after the review so every stage 1 state is drawn; Day, Night for the two marked), built by docs/mockups/action-bar/devices.mjs from the approved PC bar markup (copied, not redrawn); too-wide rows fold into ⋯▾ by width, the ending stays.

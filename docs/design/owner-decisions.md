@@ -556,3 +556,4 @@ Plan: docs/plans/phases/phase-2-finish.md. Spec pattern: docs/features/lasso.md.
 - Right-click always opens the Hold menu, also on a misspelled word; a spelling pop-up at the cursor is a stage 3 idea.
 - Toast: a pill on one line, corner 14 on two lines. Top bar 52, Tool bar 64. Breakpoints 640 and 1180. Undo and Redo only at the top left of the top bar.
 - Names (owner, 24 Nov 2026): the four names are Tool bar, Action bar, Selection bar, Hold menu; the part that opens from a bar button to choose a colour, size, font or thickness is the Selection bar (it was called picker).
+- **iPad and phone pictures approved (owner, 24 Nov 2026):** docs/mockups/action-bar/devices.html and png-devices/ (17 frames). iPad sideways: every row fits. iPad upright: for a box, List and Box style move to the top of ⋯. Phone: the bar shows Cut, Copy, Paste ▾, Delete, ⋯▾; every other tool is in ⋯ in the table's order; 2 px gap (phone is stage 3).

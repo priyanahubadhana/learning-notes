@@ -153,7 +153,7 @@ export const PRO_FEATURE_TEXT: Record<string, readonly [string, string]> = {
   ],
   'tb.miniToolbar': [
     'Mini toolbar and hold menu',
-    'Selection bar with Dictate, and the hold-still menu (paste, select, insert).',
+    'Action bar with Dictate, and the hold-still menu (paste, select, insert).',
   ],
   'tb.layouts': [
     'Bar layouts and customise',

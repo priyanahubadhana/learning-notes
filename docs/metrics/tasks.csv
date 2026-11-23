@@ -74,3 +74,4 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 2026-11-22T06:40+05:30,PC-1/1A,M3 GitHub Issues as bug source,sonnet,67174,1,,,0.4,"43 issues #7-#49; review PASS first round; form labels bug and found-by:owner added by the manager (style note); reviewer 56433"
 2026-11-22T07:30+05:30,PC-1/1A,Ideas sort and Pillar column,sonnet,115595,3,,,1.2,"review FAIL (5 stage rows), fix script corrupted header, repaired, manager diff check; reviewer 75188"
 2026-11-22T07:30+05:30,PC-1/1A,M8 rules and paths (manager share),sonnet,83065,3,,,1.0,"two review FAILs (one caused by the manager instruction); last pointer fixed by the manager; reviewers about 115000"
+2026-11-23T14:30+05:30,PC-1/1A,U0c + S0 update fix (window 2),sonnet,,,,,,"window 2: prompt moved to toast queue; S6 double-ask race fixed; S3/S3b harness opens A at full speed; run times not measured"

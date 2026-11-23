@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 23 Nov 2026: PC-1 U0c + S0 (the update fix behind `update.v2`)
+
+- **What:** the 3-second "Restarting in N s" prompt (Cancel, Restart now, Esc) now lives in the toast queue (src/app/UpdatePrompt.tsx, a top-layer popover), the pill keeps the status text only. The download numbers no longer overwrite a restart that was already asked for. An update offer made while the prompt is open (or after Cancel) never asks again. S3 and S3b now open version A at full speed and slow only the download of B. The duplicate "reach" test in e2e/firstBoxTap.spec.ts was removed (38 tests listed).
+- **Why:** the spec (update-v2.md, parts table) puts the prompt in the Toast queue; S6 showed a second ask 2 s after Cancel; S3b never reached "The update did not finish" because the progress poll replaced the status.
+- **Files:** src/app/UpdatePrompt.tsx, UpdatePill.tsx, updateProgress.ts, autoUpdate.ts, autoUpdate.test.ts, e2e/updateV2.spec.ts, e2e/u0aUpdateRepro.spec.ts (the trace now reads the prompt too), e2e/firstBoxTap.spec.ts.
+
 ### 22 Nov 2026: PC-1 U0a (the update bug, reproduced by test)
 
 - **What:** e2e/u0aUpdateRepro.spec.ts builds two real versions (A, B), serves them from one origin like the host, swaps A to B while the app runs and logs every pill and Settings-line state with a time. New switch `update.versionLine` (ON on the preview host) draws "Version abc1234 · Up to date" at the top of Settings. Reproduced: on a slow line the page restarts again and again on the OLD version (WebKit from 100 ms a file: 3 restarts, 14 at 1000 ms; every file fetched twice), the pill says "Restarting" while the download is at 17 to 91 percent, and the download shows 107 percent. These are `test.fail` with the bug id U0. No fix yet (U0c).

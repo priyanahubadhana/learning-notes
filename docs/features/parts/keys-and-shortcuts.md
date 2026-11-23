@@ -51,7 +51,7 @@ None named: inventory section 3 names no code file; keyboard-shortcuts.md's curr
 - **KS-OPEN-1** Enter on a focused button with a ▾ (Paste ▾, B/I ▾): press, or open the list? Marked open in the PC picture (23 Nov).
 - **KS-OPEN-2** Mac and iPad keyboards: Cmd in place of Ctrl, and is Alt+F10 kept there? Not in the spec.
 - **KS-OPEN-3** Keys for the format tools (Ctrl+B, Ctrl+I, …) and for dock, Hold menu, Customise: not in AB-09.
-- **KS-OPEN-4** Where focus goes when the bar is left (back to the text?), and Esc inside an open picker: not in AB-09.
+- **KS-OPEN-4** Where focus goes when the bar is left (back to the text?), and Esc inside an open selection bar: not in AB-09.
 
 ## Fable attack read
 

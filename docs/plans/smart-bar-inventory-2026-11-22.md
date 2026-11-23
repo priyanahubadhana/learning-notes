@@ -59,8 +59,8 @@ Missing in **every** picture: the pin (OD:442); the ▾ on ⋯ (PR:127); a PC ve
 | 15    | Five places, short bar Cut, Copy, Delete, ⋯ (MK:328)                          | Paste ▾                                                                                                |
 | 16-19 | Big boxes a to d, bar Cut, Copy, ⋯ (MK:343-346)                               | Delete and Paste ▾: the "comes and goes" the owner saw                                                 |
 | 20    | Customise bar… sheet (MK:350)                                                 | "Done" text, not ✕ top left and ✓ top right (PR:97, Q8)                                                |
-| 21    | Font picker (MK:362)                                                          | words selected but the bar shows the box set: wrong state                                              |
-| 22    | Size picker (MK:363)                                                          | same wrong state as 21                                                                                 |
+| 21    | Font selection bar (MK:362)                                                   | words selected but the bar shows the box set: wrong state                                              |
+| 22    | Size selection bar (MK:363)                                                   | same wrong state as 21                                                                                 |
 
 ## 3. Doubts for the owner (A or B, my pick, the case against)
 
@@ -85,8 +85,8 @@ Every picture: light and dark, one state per picture, the state's name in the co
 
 ## 5. Rules the redraw must obey
 
-- **App frame (PR:15):** Tool bar, Action bar, side panel solid and fixed; pop-ups, pickers and toasts live inside the page area, never across the frame (see D8).
-- **Q4 (PR:85):** menus radius 8; inputs 8; cards, pickers, panels 20; sheets 24; dialogs 24; toast 14; chips pill.
+- **App frame (PR:15):** Tool bar, Action bar, side panel solid and fixed; pop-ups, selection bars and toasts live inside the page area, never across the frame (see D8).
+- **Q4 (PR:85):** menus radius 8; inputs 8; cards, selection bars, panels 20; sheets 24; dialogs 24; toast 14; chips pill.
 - **Q5 (PR:88):** toast = pill, bottom-right on every device, 2.6 s, 6 s with Undo; small ✕ at its top-left, Undo on the other side.
 - **Q11 (PR:106):** Tool bar 64 px high.
 - **Q15 (PR:118):** names Action bar, Tool bar, pickers, Hold menu; never "smart bar", "selection bar", "strip".

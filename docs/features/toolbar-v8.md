@@ -22,12 +22,12 @@ Card / ▾ frame (304 / 376 px), Sheet (Organise, Add favourite, Layouts; from p
 Decided 22 Nov 2026 (owner, design questionnaire in docs/design/principles.md): this list is the one table for the Tool bar's own sizes; tokens (stroke, radii, glass, motion) come from docs/design/system.md and are not repeated here.
 
 - Tool bar: **64 px** tall row of tools (owner, 22 Nov 2026, Q11; was 52), 44 px targets, icon 20 px Lucide at the system.md §7 stroke; Beginner icons only (names on hover with a mouse or the Pencil; a held finger shows nothing for now, Q12), Professional icon + name.
-- Names (owner, 22 Nov 2026, Q15): **Tool bar, Action bar, pickers, Hold menu**; the older "smart bar", "selection bar" and "strip" in this spec mean the Action bar and the Hold menu and are renamed (24 Nov 2026).
+- Names (owner, 24 Nov 2026, Q15 changed): **Tool bar, Action bar, Selection bar, Hold menu**. Selection bar is the row or card that opens from a bar button to choose a colour, size, font or thickness. The older "smart bar" and "strip" in this spec mean the Action bar and the Hold menu; the old "selection bar" of the 18 to 22 Nov specs is the Action bar (see selection-bar.md).
 - ⋯ (owner, 22 Nov 2026, Q18): one control, last on the bar, with a small ▾ when more options exist; it ends with Customise bar….
 - Tool row (second line): 44 px tall chips, 8 px gap, single line; never scrolls sideways. Order: tool options, then Favourites chips, then a hairline, then "+" and "☰" (both 44 px) at the right end.
 - Cards: radius and card glass per system.md §3 and §5, padding 12 px, hairline edge, header title 15 px semibold, ✕ 30 px circle in a 44 px target, arrow pointing at its ▾. Picker 304 px, Panel 376 px. Hangs 8 px under the bar, left edge on its ▾, at least 12 px from every screen edge. Body scrolls with a bottom fade when too tall.
 - Group labels and wells: type and radius per system.md §3 and §4, with hairlines.
-- Motion: the one scale and its named uses in system.md §6 (card open and close, section thumb, press, new pick pop, ▾ glow, picker close). Reduced motion = instant.
+- Motion: the one scale and its named uses in system.md §6 (card open and close, section thumb, press, new pick pop, ▾ glow, selection bar close). Reduced motion = instant.
 - Organise sheet: docked right, sheet width per shell-spec.md §8, full height on phone; rows 56 px.
 - Show toolbar pill: 36 px tall (44 px target), accent chip with icon + "Show toolbar", 12 px from the top-right edge.
 
@@ -227,7 +227,7 @@ Favourite names and layout names are plain text (escaped, max 40 characters). No
 ## Decisions to review
 
 1. "Fountain pen" kept as the name (alternative "Ink pen").
-2. Simple pickers close 190 ms after a pick (alternative: stay open).
+2. Simple selection bars close 190 ms after a pick (alternative: stay open).
 3. Favourites are in Beginner too (the approved mock shows them in Beginner); the limit of 6 per tool and custom colours stay behind `tb.customColours`.
 4. Pen favourites from today migrate into the new Favourites row on first open (no data dropped; old field kept one release).
 5. Professional pins (v6 condition 2) are kept alongside Favourites through the same "+", since the ★ removal did not remove pins.

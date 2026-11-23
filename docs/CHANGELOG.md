@@ -7,6 +7,11 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** docs/mockups/action-bar/devices.html with 17 frames in png-devices/ (iPad sideways 8, iPad upright 4, phone 5; four added after the review so every stage 1 state is drawn; Day, Night for the two marked), built by docs/mockups/action-bar/devices.mjs from the approved PC bar markup (copied, not redrawn); too-wide rows fold into ⋯▾ by width, the ending stays.
 - **Why:** the plan's next step after the PC picture. **Files:** docs/mockups/action-bar/, docs/CHANGELOG.md.
 
+### 24 Nov 2026: the part called picker is now the Selection bar (docs only)
+
+- **What:** owner decision of 24 Nov: the four names are Tool bar, Action bar, Selection bar, Hold menu. The live pages call the row or card that opens from a bar button to choose a colour, size, font or thickness the Selection bar (was picker). The part card files keep their names (colour-picker.md and so on). Q15 in principles.md gets a Changed line; toolbar-v8.md Names line and selection-bar.md Names line rewritten.
+- **Why:** the owner overrides the 22 Nov naming (Q15). **Files:** docs/design/principles.md, quality-standard.md, system.md, docs/features/action-bar.md, toolbar-v8.md, selection-bar.md, parts/ (colour, size, font, keys), docs/FEATURES.md, docs/MASTER-PLAN.md, docs/plans/ (phase-pc-1, stage-map, smart-bar-inventory), docs/mockups/ (box-bar, toolbar-v8 study), docs/design/owner-decisions.md, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: Action bar PC picture approved; the Colour circle; toast shape C (docs only)
 
 - **What:** the Colour button on all 18 frames is a circle filled with the chosen colour (the owner's one change at the approval); docs/mockups/action-bar/shot.mjs re-shoots every frame; the approval and its conditions in docs/design/owner-decisions.md; the toast shape (pill on one line, 14 on two) in system.md §3 and shell-spec §7; DECISIONS and STATE updated.

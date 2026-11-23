@@ -19,8 +19,11 @@ async function likeTheLiveServer(page: Page, missing?: (u: string) => boolean) {
   await page.route('**/assets/**', async (r) => {
     const path = new URL(r.request().url()).pathname
     if (missing?.(path)) return r.fulfill({ status: 404, body: 'Not found' })
-    const res = await r.fetch()
-    const body = await res.body()
+    // The page may reload while this file is fetched (the restart): the
+    // answer is then not needed, and the harness must not fail on that.
+    const res = await r.fetch().catch(() => null)
+    const body = await res?.body().catch(() => null)
+    if (!res || !body) return r.abort().catch(() => {})
     if (/text\/html/.test(res.headers()['content-type'] ?? ''))
       return r.fulfill({
         status: 404,

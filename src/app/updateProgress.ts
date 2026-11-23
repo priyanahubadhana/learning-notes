@@ -281,13 +281,15 @@ export async function follow(
         }, 800)
       }
       const cur = updateStatus.get()
+      const total = cur.total || warm?.total || 0
       if (
         cur.phase === 'downloading' &&
-        cur.total &&
-        (cur.loaded ?? 0) < cur.total
+        total > 0 &&
+        (cur.total !== total || (cur.loaded ?? 0) < total)
       ) {
-        // The last poll can stop short (99 percent): the bar ends at 100 first.
-        updateStatus.set({ ...cur, loaded: cur.total, etaS: undefined })
+        // The last poll can stop short (99 percent) or not run at all on a
+        // fast line: the bar ends at 100 first.
+        updateStatus.set({ phase: 'downloading', loaded: total, total })
         setTimeout(() => {
           if (updateStatus.get().phase === 'downloading') installing()
         }, 400)

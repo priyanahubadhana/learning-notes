@@ -75,3 +75,4 @@ merged_at,phase,task,builder_model,helper_tokens,review_rounds,test_runs_green,t
 2026-11-22T07:30+05:30,PC-1/1A,Ideas sort and Pillar column,sonnet,115595,3,,,1.2,"review FAIL (5 stage rows), fix script corrupted header, repaired, manager diff check; reviewer 75188"
 2026-11-22T07:30+05:30,PC-1/1A,M8 rules and paths (manager share),sonnet,83065,3,,,1.0,"two review FAILs (one caused by the manager instruction); last pointer fixed by the manager; reviewers about 115000"
 2026-11-23T13:00+05:30,PC-1/1A,M5 Analyze v1,sonnet,,,,,1.0,"tooling only; 16 tests; analyze today 0 of 2 v2 pages pass, ratchet 2"
+2026-11-23T13:30+05:30,PC-1/1A,M6 Weekly card,sonnet,,,,,0.5,"tooling only; 5 tests"

@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 23 Nov 2026: Weekly card script (phase 1A, M6, tooling only)
+
+- **What:** `npm run weekly-card [2026-W47]` (scripts/weekly-card.mjs) computes the eight numbers of METHOD-v2 M-05 from docs/metrics/tasks.csv, git and `gh issue list` and writes docs/metrics/weekly/<iso-week>.md with an empty "Owner's line" (kept on re-run). Numbers the repo cannot know yet (waits, estimates) say "not recorded". First card: docs/metrics/weekly/2026-W47.md (10 skipped or only tests found).
+- **Why:** METHOD-v2 M6. **Files:** scripts/weekly-card.mjs, scripts/weekly-card.test.mjs (5 tests), package.json.
+
 ### 23 Nov 2026: Analyze v1 (phase 1A, M5, tooling only)
 
 - **What:** `npm run analyze` (scripts/analyze.mjs) reads every template-v2 spec and part card and checks: rule ids in a scenario, scenario ids in an e2e test, task ids in the bottom-layer table, the Builds on cell, and the private-placement ratchet (docs/metrics/ratchet.json, today 2). It writes docs/qa/analyze-report.md with the status each page may show; it never edits a spec. Wired into the push guard as a warning only. Today: 0 of 2 v2 pages pass (checks 1 and 2 fail on both), 88 old-template pages skipped.

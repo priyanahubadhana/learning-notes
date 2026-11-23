@@ -18,7 +18,7 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 ## Now
 
-STOPPED cleanly 22 Nov 07:30 IST (the owner ended the session). A new phase-manager starts from this section. Replan count since Fable last planned (22 Nov): 2 of 10 (drag and dock of the Action bar moved to stage 1; guest mode added as a part for the 1B boundary, #52).
+RUNNING 23 Nov (main chat, Fable coordinating only; the owner away 8 to 10 hours, said "execute what you can"). Done today: the design numbers fold (b582f3e0, fed23166; five open clashes in DECISIONS "to review"); the Action bar PC picture drawn, reviewed once, fixed, re-checked (ca52303b; waits for the owner's yes). The duplicate-title red of e2e/firstBoxTap.spec.ts lives only on the U0a branch (build/next loads 38 tests); the U0a builder merges build/next in. In flight: U0a finish (builder window). Next: U0c + S0, then 1M-02 onward. Replan count since Fable last planned (22 Nov): 2 of 10 (drag and dock of the Action bar moved to stage 1; guest mode added as a part for the 1B boundary, #52).
 
 **Resume steps (morning, in order):**
 
@@ -73,7 +73,8 @@ git fetch -q origin && for b in $(git for-each-ref --format='%(refname:short)' r
 
 - **The catch-up check C0 on the iPad, items 4 to 11** (about 15 minutes; the eleven items are in docs/plans/phases/phase-2-finish.md section 6; "Circle recorder" off). Items 1 to 3 answered 22 Nov evening (#55, #56, #57). Reply with the numbers that felt wrong, or "rest fine".
 - **C1a, the Lasso session, 5 minutes:** Settings, Try new features, Lasso recorder on; "Copy last trace" when an outline stays or a loop acts on the old selection. A trace of a wrong circle pick unlocks #57.
-- **Later, in this order:** the Action bar PC picture (yes or "change X"); the phase 1B planning (one questionnaire); the Notion mirror only on your word (docs/IDEAS.md).
+- **The Action bar PC picture is ready (23 Nov):** docs/mockups/action-bar/png/, 13 frames with captions; reply "yes" or "change X" by frame. Two design questions wait in docs/DECISIONS.md "Decisions to review" (the fold clashes, AB-05 vs the Pinned row).
+- **Later, in this order:** the phase 1B planning (one questionnaire); the Notion mirror only on your word (docs/IDEAS.md).
 - **Small, not urgent:** Decisions to review in docs/DECISIONS.md; the security-header check E6 (#54); developer-tool warnings (glob, minimatch; the fix breaks the offline plugin, re-checked at each phase end); old working copies you may delete when you like.
 
 Preview address: https://build-next.learning-notes-app.pages.dev (the parts you test start ON there). The live app has had no new code since 12 Nov. The formatted site: https://priyanahubadhana.github.io/learning-notes/

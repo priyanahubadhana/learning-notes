@@ -496,3 +496,15 @@ details.bottom > .inner {
 .gallery figure {
   margin: 0;
 }
+.layout.home {
+  grid-template-columns: minmax(0, 1100px);
+}
+.layout.home main {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.layout.home main > h1,
+.layout.home main > p,
+.layout.home main > .badges {
+  max-width: 760px;
+}

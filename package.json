@@ -21,6 +21,8 @@
     "aitools:catalog": "node scripts/aitools-catalog.mjs",
     "check:ratchet": "node scripts/check-ratchet.mjs",
     "check:dod": "node scripts/check-dod.mjs",
+    "analyze": "node scripts/analyze.mjs",
+    "weekly-card": "node scripts/weekly-card.mjs",
     "check:bar-inventory": "node scripts/check-bar-inventory.mjs",
     "dashboard": "node scripts/dashboard.mjs",
     "probe:inventory": "node scripts/probe-inventory.mjs",

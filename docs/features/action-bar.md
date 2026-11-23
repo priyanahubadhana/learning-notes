@@ -70,7 +70,7 @@ PC drawn (23 Nov, waiting for the owner's yes): docs/mockups/action-bar/index.ht
 
 ## The tool table (the checklist; the script reads it)
 
-Every bar starts with ⠿ (move) and the pin (filled when pinned; tapping it again unpins and hides; no ✕). "B/I ▾" opens Bold, Italic, Underline, Strike, Highlight.
+Every bar starts with ⠿ (move) and the pin (filled when pinned; tapping it again unpins and hides; no ✕). Pinned with nothing selected, the bar is folded into one round pin button (44 px, filled pin, accent tint) that is also the move handle; "Keep bar open" (ticked in ⋯▾, pinned only) keeps the full bar instead. "B/I ▾" opens Bold, Italic, Underline, Strike, Highlight.
 
 <!-- tool-table:start -->
 
@@ -80,7 +80,8 @@ Every bar starts with ⠿ (move) and the pin (filled when pinned; tapping it aga
 | Words selected           | 1     | B/I ▾, Colour, Size, Font, Highlight, Cut, Copy, Paste ▾, Delete, ⋯▾                             | Link, Make card, Add to summary, Revise mark, Customise bar…                                |
 | A box                    | 1     | Edit text, B/I ▾, Colour, Size, Font, Align ▾, List ▾, Box style, Cut, Copy, Paste ▾, Delete, ⋯▾ | Duplicate, Lock box, Make card, Add to summary, Revise mark, Customise bar…                 |
 | A picture                | 1     | Cut, Copy, Paste ▾, Delete, ⋯▾                                                                   | Duplicate, Make card, Add to summary, Customise bar…                                        |
-| Pinned, nothing selected | 1     | pin (filled), ⋯▾                                                                                 | Customise bar…                                                                              |
+| Pinned, nothing selected | 1     | pin (filled)                                                                                     |                                                                                             |
+| Pinned, Keep bar open on | 1     | pin (filled), ⋯▾                                                                                 | Keep bar open, Customise bar…                                                               |
 | A drawing                | 2     | Colour, Thickness, Cut, Copy, Paste ▾, Delete, ⋯▾                                                | Turn, Resize, Duplicate, Replay, Convert to text, Make card, Add to summary, Customise bar… |
 | Mixed                    | 2     | Edit text, Colour, Thickness, Resize, Duplicate, Cut, Copy, Paste ▾, Delete, ⋯▾                  | Make card, Add to summary, Customise bar…                                                   |
 | PC mouse notes           | 1     | the row of the selected state, unchanged; every button names itself on hover                     | the same; right-click opens the Hold menu; keys in AB-09                                    |

@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: Action bar PC picture redrawn after the owner's first look (docs only)
+
+- **What:** every change of the owner's list: Size shows the number with ▾, Font shows "Aa" in the UI font with ▾, Colour is a letter with a colour line (Lucide baseline style), Box style is a rounded square with a colour drop and ▾, every picker button has ▾, Paste is one split button (hairline, no "F" badge), 4-pt gaps, Lucide 1.75 and no fills except the filled pin, ⋯ always has ▾. New frames: 5 folded round pin button, 9 pinned with words, 10 Keep bar open, 11 its ⋯ list. The tool table gets the row "Pinned, nothing selected" = the round pin button and a new row "Pinned, Keep bar open on"; the test of the script follows the table.
+- **Why:** the owner did not approve the first picture; Fable's check against the design principles. **Files:** docs/mockups/action-bar/index.html and png/ (18 frames), docs/features/action-bar.md, scripts/check-bar-inventory.test.mjs, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: the Action bar fold, two choice pictures (docs only)
 
 - **What:** docs/features/action-bar.md gets the owner's change: a pinned bar folds into a round pin button when nothing is selected, "Keep bar open" in ⋯ (the Pinned folds rule, S15, AB-14, a Changes line; the tool table row waits for the redraw so check:bar-inventory stays green); a small mock-up page with two pictures for the toast shape and the top bar height, docs/mockups/design-clashes/ (index.html, shot.mjs, png/); DECISIONS and STATE updated with the owner's answers on the fold and the design-number clashes.

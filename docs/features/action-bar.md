@@ -1,8 +1,8 @@
 # Action bar (template v2, method v2)
 
-| Status                                                                                                     | Stage | Switch             | Phase and parts                                                                  | Pictures                                                                            | Builds on                                                                                                                       | Last change        |
-| ---------------------------------------------------------------------------------------------------------- | ----- | ------------------ | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| Confirmed (all 21 sheet rows Yes, owner 22 Nov evening; set from the sheet answers, no status program yet) | `1`   | `select.actionBar` | stage 1, phase set by docs/plans/stage-1-plan.md; parts `Bar shell`, `Bar place` | none yet, by design: drawn after the sheet (PC, iPad sideways, iPad upright, phone) | selection-bar.md (replaced), text-select.md, page-menus.md (Hold menu), parts: `Bar shell` and `Bar place` (to be carded in M9) | 22 Nov 2026, Fable |
+| Status                                                                                                     | Stage | Switch             | Phase and parts                                                                  | Pictures                                                                                                       | Builds on                                                                                                                       | Last change        |
+| ---------------------------------------------------------------------------------------------------------- | ----- | ------------------ | -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Confirmed (all 21 sheet rows Yes, owner 22 Nov evening; set from the sheet answers, no status program yet) | `1`   | `select.actionBar` | stage 1, phase set by docs/plans/stage-1-plan.md; parts `Bar shell`, `Bar place` | PC drawn: docs/mockups/action-bar/ (waiting for the owner's yes); iPad sideways, iPad upright, phone to follow | selection-bar.md (replaced), text-select.md, page-menus.md (Hold menu), parts: `Bar shell` and `Bar place` (to be carded in M9) | 22 Nov 2026, Fable |
 
 <!-- The top layer (down to the confirm sheet) is written for the owner. Sources: docs/plans/smart-bar-inventory-2026-11-22.md (the table and section 3), docs/DECISIONS.md 22 Nov (rounds 1 to 4), docs/design/owner-decisions.md (18 to 21 Nov), docs/design/principles.md. Security rules: rules/security.md. -->
 
@@ -21,7 +21,7 @@ As the owner, who edits AI-made notes all day, I want one bar that changes its t
 
 ## Picture
 
-To be drawn after the sheet: PC, iPad sideways, iPad upright, phone. Every picture is checked by `scripts/check-bar-inventory.mjs` against the tool table below before you see it (owner, 22 Nov: the tool list comes before pictures).
+PC drawn (23 Nov, waiting for the owner's yes): docs/mockups/action-bar/index.html, 13 frames in docs/mockups/action-bar/png/. To be drawn after it: iPad sideways, iPad upright, phone. Every picture is checked by `scripts/check-bar-inventory.mjs` against the tool table below before you see it (owner, 22 Nov: the tool list comes before pictures).
 
 ## Rules
 

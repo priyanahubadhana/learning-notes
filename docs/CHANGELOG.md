@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 23 Nov 2026: Action bar PC picture (phase 1A, mock-up only)
+
+- **What:** docs/mockups/action-bar/index.html and png/ (13 frames: the five stage 1 states in Day and Night, Paste ▾ open, ⋯▾ open, one hover name), drawn from the confirmed tool table and the system.md tokens; a keyboard note under the page. Spec: Pictures cell and Picture section point at it, waiting for the owner's yes.
+- **Why:** the tool list came first, now the picture (owner, 22 Nov). **Files:** the mock-up folder, docs/features/action-bar.md.
+
 ### 23 Nov 2026: design numbers fold (phase 1A item 2b)
 
 - **What:** the 18 "Decided 22 Nov" lines of docs/design/principles.md are folded into the files that own them; each line in principles.md is now a one-line pointer, and the shared rules table points instead of repeating numbers. system.md (tokens) holds stroke (Q1), the one motion scale with its named uses (Q2), the two glasses (Q3), the radius table (Q4), quick fonts (Q13), Day as default theme (Q14), red for Delete and Again (Q16), 44 px targets in every density (Q17), rail icons (Q7). shell-spec.md (frame) holds toasts (Q5), sidebar 288 and sheet 376 in a new frame table (Q6, Q9), ✕ and ✓ at the top of sheets (Q8), Undo and Redo in the top bar (Q10), the rail icon pick (Q7), More last with ▾ (Q18). toolbar-v8.md holds the Tool bar height (Q11), hover names (Q12), names (Q15), ⋯ (Q18). quality-standard.md gets the pass lines for all 18, pointing at the tables.

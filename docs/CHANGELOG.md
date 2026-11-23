@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: research on long agent builds; the proof moves to CI (docs only)
+
+- **What:** docs/research/long-autonomous-agent-builds-2026-11-24.md (four researchers, one writer; builds on agent-practice-2026-11-23.md): the real numbers and limits of the C compiler, the eight-day operating system, the Cursor browser and the Codex projects, and a ranked list of what to copy; part 1M-14 in the build-machine plan (the 20 of 20 proof on the hosted CI machines); the measured reasons for the missed 20:00 target in docs/metrics/pace-2026-11-23.md; resume steps in STATE.
+- **Why:** the owner asked what went wrong, how to speed up, and how Anthropic does long builds; the owner decided the proof moves to the hosted machines with 20 repeats kept. **Files:** docs/research/long-autonomous-agent-builds-2026-11-24.md, docs/plans/phases/phase-1m-build-machine.md, docs/metrics/pace-2026-11-23.md, docs/STATE.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: Action bar iPad and phone pictures approved (docs only)
 
 - **What:** the owner approved all 17 device frames; the approval and what it accepts (the upright iPad overflow, the phone ending and its 2 px gap) are in docs/design/owner-decisions.md and DECISIONS; STATE updated.

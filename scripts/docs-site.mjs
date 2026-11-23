@@ -109,6 +109,20 @@ marked.use({
       return ok.test(text) ? text : esc(text)
     },
     table(token) {
+      const pi = token.header.findIndex((h) => cellText(h).trim() === 'Pillar')
+      if (pi >= 0)
+        for (const r of token.rows) {
+          const L = cellText(r[pi]).trim()
+          if (/^[A-Za-z]{1,2}$/.test(L))
+            r[pi].tokens = [
+              {
+                type: 'text',
+                escaped: true,
+                raw: L,
+                text: `<span class="pillar">${esc(L)}</span>`,
+              },
+            ]
+        }
       return `<div class="tw">${Renderer.prototype.table.call(this, token)}</div>`
     },
   },
@@ -117,8 +131,17 @@ marked.use({
 const inline = (s) => marked.parseInline(s)
 const cellText = (c) => c.text
 
+/** "Stage 1 · 2 · 3", the stage(s) the page carries highlighted. */
+function stageBadge(val) {
+  const on = new Set((String(val).match(/[123]/g) || []).map(Number))
+  const parts = [1, 2, 3]
+    .map((n) => `<b class="${on.has(n) ? 'on' : ''}">${n}</b>`)
+    .join(' · ')
+  return `<span class="badge stage"><small>Stage</small><span>${parts}</span></span>`
+}
+
 function badgesFrom(table) {
-  const want = ['Status', 'Switch', 'Phase', 'Last change']
+  const want = ['Status', 'Stage', 'Switch', 'Phase', 'Last change']
   const badges = []
   const rest = []
   table.header.forEach((h, i) => {
@@ -133,6 +156,10 @@ function badgesFrom(table) {
     const ok =
       b.key === 'Status' &&
       /^(built|verified|live|confirmed)/i.test(b.val.trim())
+    if (b.key === 'Stage') {
+      html += stageBadge(b.val)
+      continue
+    }
     const cls = b.key === 'Status' ? `badge status${ok ? ' ok' : ''}` : 'badge'
     html += `<span class="${cls}"><small>${esc(b.name)}</small>${inline(b.val)}</span>`
   }
@@ -235,10 +262,12 @@ function renderTokens(tokens, opts = {}) {
     }
     if (t.type === 'paragraph' && /^\*\*Must never/i.test(t.raw.trim())) {
       // the bold label and the list that follows share a red-bordered block
-      const next = tokens[i + 1]
+      let j = i + 1
+      while (tokens[j]?.type === 'space') j++
+      const next = tokens[j]
       if (next && next.type === 'list') {
         out.push(`<div class="must-never">${marked.parser([t, next])}</div>`)
-        i++
+        i = j
         continue
       }
     }
@@ -393,6 +422,24 @@ function card(p, depthPrefix = '') {
   return `<a class="card" href="${depthPrefix}${p.out}" data-text="${esc(text)}"><b>${esc(p.title)}</b>${p.desc ? `<span>${esc(p.desc)}</span>` : ''}${status}</a>`
 }
 
+/** The stage the project is in, read from the stage 1 plan's own Stage cell. */
+function homeStage() {
+  try {
+    const md = fs.readFileSync(path.join(DOCS, 'plans/stage-1-plan.md'), 'utf8')
+    const t = marked
+      .lexer(md)
+      .find(
+        (x) =>
+          x.type === 'table' &&
+          x.header.some((h) => /^stage$/i.test(cellText(h))),
+      )
+    const i = t.header.findIndex((h) => /^stage$/i.test(cellText(h)))
+    return `<div class="badges">${stageBadge(cellText(t.rows[0][i]))}</div>`
+  } catch {
+    return ''
+  }
+}
+
 function homePage(pages) {
   const by = (rel) => pages.find((p) => p.rel === rel)
   const used = new Set()
@@ -410,10 +457,15 @@ function homePage(pages) {
     status: '',
   }
   const start = [
-    ...take(['METHOD-v2.md', 'plans/phases/phase-pc-1.md']),
+    ...take([
+      'MASTER-PLAN.md',
+      'STATE.md',
+      'FEATURES.md',
+      'METHOD-v2.md',
+      'plans/phases/phase-pc-1.md',
+    ]),
     galleryCard,
   ]
-  const state = take(['STATE.md'])
   const specs = pages
     .filter(
       (p) =>
@@ -450,9 +502,8 @@ function homePage(pages) {
       ? `<section><h2>${name}</h2><div class="cards">${list.map((p) => card(p)).join('')}</div></section>`
       : ''
   const body =
-    `<h1>${SITE_NAME}</h1><p>Everything in the repo's docs, formatted. Tap a card, or search above.</p>` +
+    `<h1>${SITE_NAME}</h1>${homeStage()}<p>Everything in the repo's docs, formatted. Tap a card, or search above.</p>` +
     sec('Start here', start) +
-    sec('State', state) +
     sec('Specs', specs) +
     sec('Plans', plans) +
     sec('Decisions and history', history) +

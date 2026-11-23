@@ -293,10 +293,29 @@ tr:last-child td {
 .facts dd {
   margin: 0;
 }
-.must-never ul {
-  border-left: 4px solid var(--bad);
-  padding-left: 28px;
-  margin-left: 0;
+.must-never {
+  border: 2px solid var(--bad);
+  border-radius: 12px;
+  padding: 4px 16px;
+  margin: 16px 0;
+}
+.badge.stage b {
+  font-weight: 400;
+  color: var(--mute);
+}
+.badge.stage b.on {
+  font-weight: 700;
+  color: var(--ink);
+}
+.pillar {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: var(--accent-bg);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
 }
 details.bottom {
   margin-top: 2em;

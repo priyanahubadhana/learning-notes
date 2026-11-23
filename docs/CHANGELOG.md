@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 23 Nov 2026: docs site, home order and badges (phase 1A, site only)
+
+- **What:** the home list starts with the master plan, then State and the feature register, then the rest; a "Stage 1 · 2 · 3" badge on the home page and on each page header (read from the page's own Stage cell); Pillar letters in the register tables shown as small badges; "Must never happen" blocks in a full red-bordered box.
+- **Why:** phase 1A step 6, the last small item. **Files:** scripts/docs-site.mjs, scripts/docs-site/site.css, docs/CHANGELOG.md.
+
 ### 23 Nov 2026: agent practice research pass (phase 1A, M7)
 
 - **What:** docs/research/agent-practice-2026-11-23.md: twelve findings from Anthropic (Claude Code subagents, hooks, best practices, agent teams, two engineering posts), Google (Gemini CLI subagents, ADK compaction and loops) and three papers on long context, each set against what we do; eight keep, try or drop proposals for M0.

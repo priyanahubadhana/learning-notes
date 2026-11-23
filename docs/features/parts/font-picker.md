@@ -1,0 +1,63 @@
+# Part card: Font picker
+
+| Status | Stage | Code                                             | Used by                           | Replaces                                        | Last change     |
+| ------ | ----- | ------------------------------------------------ | --------------------------------- | ----------------------------------------------- | --------------- |
+| Draft  | `1`   | `src/design/parts/FontPicker.tsx` (the one file) | [action-bar.md](../action-bar.md) | none named yet (see "Private copies to retire") | 23 Nov 2026, M9 |
+
+Name: the brief said "Font strip"; the owner's names rule (Q15) says "pickers", never "strip", so the card uses "Font picker" as in docs/FEATURES.md F-024.
+
+## Job (the one job; no other code may do it)
+
+Opens from the Action bar's Font button: the three quick fonts and More fonts…, each shown in its own look (AB-06); applies the pick to the selection.
+
+## Looks and numbers
+
+- The quick fonts and the More fonts… list are named in system.md §4 (Q13); this card does not repeat them.
+- Card glass, radius of pickers (system.md §3, §5); `elev-2`; the current font marked with a tick and the `accent` ring.
+- Opens like a card and closes at "simple picker closes" after a pick (system.md §6).
+
+## Rules
+
+- **FP-01** Three quick fonts first, each written in its own font; More fonts… last (AB-06).
+- **FP-02** One click applies the font to the selection and closes the picker.
+- **FP-03** The current font is marked by a tick, not by colour alone.
+- **FP-04** Esc or a click elsewhere closes it with no change; focus returns to Font.
+- **FP-N1** A font name falls back to another font without any sign.
+- **FP-N2** A second font list for the same job elsewhere in the app.
+
+## Scenarios
+
+- **FP-S1, the plain case.** Given words selected, when I pick Classic, then the words show in Classic and one Undo restores the old font.
+- **FP-S2, More fonts.** Given the picker open, when I choose More fonts…, then the longer list opens, each name in its look.
+- **FP-S3, the thing that goes wrong.** Given a font is still loading, then its row still shows its name and the pick applies once it loads (see FP-OPEN-2).
+- Tests: one per scenario in `src/design/parts/FontPicker.test.tsx`.
+
+## On the iPad later: what changes, what does not
+
+- **Changes:** touch rows; a font picker for ink labels is a stage 2 idea (F-312), not this card.
+- **Does not change:** the three quick fonts, More fonts…, 44 px rows, one Undo per pick.
+
+## Design and quality check
+
+Tokens: card glass, pickers radius, `elev-2`, `accent`; rows 44 px; click, arrows and Enter; i18n `actionBar.font` plus the font group labels; one Undo per applied font.
+
+## Builds on
+
+[action-bar.md](../action-bar.md) (AB-06; Font on the caret, words and box rows); [editor-and-blocks.md](../editor-and-blocks.md) (fonts today, F-008).
+
+## Private copies to retire
+
+None named: inventory section 3 names no code file.
+
+## Open points
+
+- **FP-OPEN-1** More fonts…: a longer list inside the same picker, or a sheet? Not in the spec.
+- **FP-OPEN-2** What a slow-loading font shows meanwhile (FP-S3) is this card's guess; confirm.
+
+## Fable attack read
+
+> waiting for Fable's attack read
+
+## Changes
+
+- 23 Nov 2026 · - · card drafted from action-bar.md and the inventory · M9

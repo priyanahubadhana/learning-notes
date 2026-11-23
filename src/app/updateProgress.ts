@@ -243,13 +243,14 @@ export async function follow(
   const poll = async () => {
     if (!live) return
     // A restart already asked for (the prompt, the wait, "did not finish")
-    // is not overwritten by the numbers of a download still running.
-    if (countOnly && updateStatus.get().phase === 'updating')
-      return void setTimeout(() => void poll(), 500)
+    // is never overwritten by the numbers of a download still running. The
+    // phase is read again right before each write, after any wait (issue 58).
+    const asked = () => updateStatus.get().phase === 'updating'
+    if (countOnly && asked()) return void setTimeout(() => void poll(), 500)
     if (!navigator.onLine) {
-      updateStatus.set({ phase: 'offline' })
+      if (!asked()) updateStatus.set({ phase: 'offline' })
     } else if (warm) {
-      if (warm.total > 0)
+      if (warm.total > 0 && !asked())
         updateStatus.set({
           phase: 'downloading',
           loaded: warm.loaded,
@@ -258,7 +259,7 @@ export async function follow(
         })
     } else {
       const p = progressOf(listed, before, await cachedPaths())
-      if (live && p.total > 0)
+      if (live && p.total > 0 && !asked())
         updateStatus.set({
           phase: 'downloading',
           loaded: p.loaded,

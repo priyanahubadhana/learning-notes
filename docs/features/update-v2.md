@@ -195,6 +195,7 @@ U0c: the fix behind `update.v2`. First failing test: U0a's WebKit loop at 1000 m
 - **UP-03** The restart waits for the new worker at most 3 s after the prompt ends and after U8's save wait (so 8 s at worst with an unsaved change; outside audit, 22 Nov); then the pill shows "The update did not finish" with Try again. It never reloads onto the old version silently (U0a: today it waits 15 s and reloads old).
 - **UP-04** After a restart, a version equal to the running one is never downloaded again; a version already cached is installed, not fetched.
 - **UP-05** Prompt: 3-second ring, Cancel and Restart now, 44 px buttons; waits while a stroke or typing is active (today's `isSafeMoment`, `app/autoUpdate.ts:46`).
+  - Detail (issue 58): the download poll in `follow` (`app/updateProgress.ts`) re-reads the phase right before every status write, after any wait, and never overwrites a restart already asked for (phase "updating"); otherwise the prompt loses its countdown and stops for good.
 - **UP-06** Required: decided by `level` (slice 10 rule 3 below); edits blocked through the Event router; reading and scrolling stay.
 - **UP-07** Settings card: first item of today's Settings page now, drawn in the Settings v5 card style, so it moves into v5 unchanged in stage 3 (owner, 22 Nov). Up to date: version, "Up to date", last check, Check now. Update ready: new version, size, Update.
 - **UP-08** Timings: pill states cross-fade 150 ms; reduced motion = instant, the numbers still change each second.

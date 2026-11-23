@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: the download poll no longer wipes the restart prompt (fixes #58)
+
+- **What:** the poll in `follow` re-checks that no restart was asked for right before each status write (offline, bytes, cache count). A new unit test holds the cache read open while the prompt starts.
+- **Why:** on a loaded WebKit the cache read outlasted the prompt start; the write erased the countdown, the prompt stopped, no restart and no "did not finish" (S3b red on ipad-webkit, 2 of 14). UP-03, UP-05.
+- **Files:** src/app/updateProgress.ts, src/app/updateProgress.test.ts, docs/features/update-v2.md.
+
 ### 23 Nov 2026: U0c review fixes and the required-update restart on WebKit (S2)
 
 - **What:** with `update.v2` ON a restart that was asked for still reloads the page when the new version takes over after "The update did not finish" showed (slow WebKit); the poll skip, the 100 percent push and the percent cap are ON-only; U0a-11 is a plain assertion (no `test.fail`).

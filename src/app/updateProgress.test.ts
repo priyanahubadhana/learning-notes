@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
-import { etaSeconds, progressOf } from './updateProgress'
+import { etaSeconds, follow, progressOf } from './updateProgress'
+import { setFlag } from './flags'
 import { SPLASH_MAX_MS, showUpdatingPill } from './autoUpdate'
 import { updateStatus } from './updateStatus'
 
@@ -30,5 +31,36 @@ describe('update progress', () => {
     vi.advanceTimersByTime(SPLASH_MAX_MS + 10)
     expect(updateStatus.get().phase).toBe('ready')
     vi.useRealTimers()
+  })
+  it('the download poll never overwrites a restart already asked for (issue 58)', async () => {
+    setFlag('update.v2', true)
+    // The first cache read (before the install) is quick; the poll's own read is held open.
+    let release: (v: string[]) => void = () => {}
+    const held = new Promise<string[]>((r) => (release = r))
+    const keys = vi.fn().mockResolvedValueOnce([]).mockReturnValueOnce(held)
+    vi.stubGlobal('caches', { keys, open: vi.fn() })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ files: [{ u: '/a.js', s: 100 }] }),
+      }),
+    )
+    const worker = Object.assign(new EventTarget(), {
+      state: 'installing',
+    }) as unknown as ServiceWorker
+    void follow(worker)
+    await vi.waitFor(() => expect(keys).toHaveBeenCalledTimes(2))
+    // The 3 s prompt starts while the poll waits for the cache.
+    updateStatus.set({ phase: 'updating', countdown: 3 })
+    release([])
+    await new Promise((r) => setTimeout(r, 20))
+    expect(updateStatus.get()).toMatchObject({
+      phase: 'updating',
+      countdown: 3,
+    })
+    ;(worker as { state: string }).state = 'activated'
+    vi.unstubAllGlobals()
+    setFlag('update.v2', false)
   })
 })

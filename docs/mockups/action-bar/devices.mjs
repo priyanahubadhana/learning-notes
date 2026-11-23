@@ -102,6 +102,27 @@ add({
   cap: '9. iPad upright, pinned and nothing selected: the round pin button. Day.',
 })
 
+// ---- the other stage-1 states
+const CARET = pick('f-1-caret-light', 'bar')
+const PIC = pick('f-4-picture-light', 'bar')
+const KEEP = pick('f-10-keep-open-light', 'bar')
+const picbox = (l, t, w, h) =>
+  `<div class="selbox pic" style="left:${l}px;top:${t}px;width:${w}px;height:${h}px"><i class="h" style="left:0;top:0"></i><i class="h" style="left:100%;top:0"></i><i class="h" style="left:0;top:100%"></i><i class="h" style="left:100%;top:100%"></i></div>`
+add({
+  id: 'ipad-sideways-5-caret-day', dev: 'sw', night: false, state: 'Caret in text', open: false,
+  body: ln('Service 23-11 2000<span class="caret"></span> rate-is up on the old plan.', 150, 80) + muted('Next line of the note, unselected.', 262, 80) + at(CARET, 80, 190),
+  cap: '14. iPad sideways, only the cursor in the text. Cut, Copy and Delete greyed; nothing moves. Day.',
+})
+add({
+  id: 'ipad-sideways-6-picture-day', dev: 'sw', night: false, state: 'A picture', open: false,
+  body: muted('Notes above the picture.', 110, 80) + picbox(80, 150, 260, 164) + at(PIC, 80, 334),
+  cap: '15. iPad sideways, a picture selected: only the ending (Cut, Copy, Paste ▾, Delete, ⋯▾). Day.',
+})
+add({
+  id: 'ipad-sideways-7-keep-open-day', dev: 'sw', night: false, state: 'Pinned, Keep bar open on', open: false,
+  body: ln(PLAIN, 150, 80) + muted('Nothing is selected, "Keep bar open" is on: the bar stays open with the pin and ⋯▾.', 206, 80) + at(KEEP, 24, 56),
+  cap: '16. iPad sideways, pinned with Keep bar open on and nothing selected: the bar stays open with the filled pin and ⋯▾. Day.',
+})
 // ---- phone
 const phLines = (t) => ln(t, 40, 20, 'wrap')
 add({
@@ -113,6 +134,11 @@ add({
   id: 'phone-1-words-night', dev: 'ph', night: true, state: 'Words selected', open: false,
   body: ln(LINE, 40, 20, 'wrap') + muted('Next line of the note, unselected.', 190, 20, 'wrap') + at(WORDS, 8, 104),
   cap: '11. Phone, words selected. Night.',
+})
+add({
+  id: 'phone-0-picture-day', dev: 'ph', night: false, state: 'A picture', open: false,
+  body: picbox(20, 40, 200, 120) + at(PIC, 8, 176),
+  cap: '17. Phone, a picture selected: only the ending, which fits in full. Day.',
 })
 add({
   id: 'phone-2-box-day', dev: 'ph', night: false, state: 'A box', open: false,
@@ -129,7 +155,7 @@ void phLines
 const NOTES = {
   sw: 'iPad sideways (1180 x 820). What changes against the PC picture: the screen, touch only (no hover names, hold opens the Hold menu), a bar that can be dragged by ⠿ by finger. What does not: every button, its icon, its order, the 44 px targets, the one row, the ending, the pin and the fold. Here even the long box row fits, so nothing sits under ⋯ that the PC picture does not already have there.',
   up: 'iPad upright (820 x 1180). What changes: the width. The bar folds its tail into ⋯▾ by the width it has (confirm row 20): the box row no longer fits, so the tools next to the ending move under ⋯▾ from the right, in bar order, before the state\'s own list. What does not: the ending, the order, 44 px, one row, the pin and the fold.',
-  ph: 'Phone (390 x 844, stage 3, drawn now so the rule is seen). What changes: the width again, and the gap tightens from 4 to 2 px and the divider loses its margin (Compact tightens spacing only, 44 px stays). Everything before the ending moves under ⋯▾ (S10); the bar keeps ⠿, the pin and the ending. What does not: the tools and their order, the icons, Delete the only red, ⋯ always last with ▾ and Customise bar… at the end of its list.',
+  ph: 'Phone (390 x 844, stage 3, drawn now so the rule is seen). What changes: the width again, and the gap between buttons is 2 px instead of 4 so the ending fits 390 px (flagged for the owner; phone is stage 3), and the divider loses its margin (Compact tightens spacing only, 44 px stays). Everything before the ending moves under ⋯▾ (S10); the bar keeps ⠿, the pin and the ending. What does not: the tools and their order, the icons, Delete the only red, ⋯ always last with ▾ and Customise bar… at the end of its list.',
 }
 
 function figure(f) {
@@ -183,7 +209,7 @@ const report = await p.evaluate(() => {
     const kids = [...bar.children]
     const pin = kids.findIndex((k) => k.classList.contains('pin'))
     const sep = kids.findIndex((k) => k.classList.contains('sep'))
-    const lead = kids.slice(pin + 1, sep)
+    const lead = sep < 0 ? [] : kids.slice(pin + 1, sep)
     const moved = []
     while (bar.getBoundingClientRect().width > fit && lead.length) {
       const el = lead.pop()
@@ -238,6 +264,7 @@ const data = await p.evaluate(() => {
     if (bar) {
       const br = bar.getBoundingClientRect()
       row.bar = [...bar.children].map((k) => k.dataset.tool).filter(Boolean)
+      row.flags = Object.fromEntries([...bar.children].filter((k) => k.dataset.flag).map((k) => [k.dataset.tool, k.dataset.flag]))
       const menu = bar.querySelector('[data-bar-more]')
       const items = [...menu.children]
       row.moved = items.filter((i) => i.classList.contains('moved')).map((i) => i.dataset.tool)
@@ -276,9 +303,9 @@ for (const r of data) {
     if (r.w < 44 || r.h < 44 || !r.inside) problems.push(`${r.id}: fold size or place`)
     continue
   }
-  const names = (a) => a.map((name) => ({ name }))
+  const names = (a) => a.map((name) => (r.flags[name] ? { name, flag: r.flags[name] } : { name }))
   const lead = r.bar.filter((n) => !['⠿', 'pin'].includes(n))
-  const sepAt = r.bar.indexOf('Cut')
+  const sepAt = r.bar.includes('Cut') ? r.bar.indexOf('Cut') : r.bar.indexOf('⋯▾')
   const remaining = r.bar.slice(2, sepAt)
   const ending = r.bar.slice(sepAt)
   const full = [...names(['⠿', 'pin']), ...names(remaining), ...names(r.moved), ...names(ending)]

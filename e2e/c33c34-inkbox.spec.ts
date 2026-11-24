@@ -448,3 +448,41 @@ test('#65: a selection handle of ink in the first box can be dragged below the b
     })
     .toBeGreaterThan(h0 * 2.5)
 })
+
+/**
+ * C30b (owner 25 Nov, "the border should click text box selection", with ANY
+ * tool): with the Pen tool, a Pencil tap within 22 px inside the left, right
+ * or bottom border of a box picks the box and leaves no ink dot; a stroke
+ * further inside still draws, down to the border. (The top is not part of
+ * the band: the first line sits there.)
+ */
+test('C30b: with the Pen tool a Pencil tap in the 22 px border band picks the box and leaves no dot; a stroke inside still draws', async ({
+  page,
+}) => {
+  const box = await pickedExtra(page, 'Ink30b')
+  await growDown(page, box, 220)
+  await page.keyboard.press('Escape')
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur?.())
+  await expect(box).not.toHaveAttribute('data-picked', '')
+  await pickTool(page, 'Pen')
+  const r = (await box.boundingBox())!
+  const taps = [
+    { x: r.x + r.width / 2, y: r.y + r.height - 10 },
+    { x: r.x + 10, y: r.y + 60 },
+    { x: r.x + r.width - 10, y: r.y + 60 },
+  ]
+  for (const [i, p] of taps.entries()) {
+    await realPen(page, [p])
+    await expect(box, `band ${i}`).toHaveAttribute('data-picked', '')
+    await page.waitForTimeout(600)
+    expect((await savedInk(page)).strokes.length, `dot ${i}`).toBe(0)
+    await page.keyboard.press('Escape')
+    await expect(box).not.toHaveAttribute('data-picked', '')
+  }
+  // Further inside, a stroke draws as before.
+  await drawSaved(
+    page,
+    line(r.x + r.width * 0.4, r.y + 80, r.y + r.height - 40),
+    1,
+  )
+})

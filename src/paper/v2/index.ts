@@ -5,6 +5,7 @@ import {
 } from '../../app/input/eventRouter'
 import {
   PICK_BOX,
+  inBorderBand,
   nearText,
   tapsCaret,
   textFirstTap,
@@ -172,13 +173,26 @@ export function installBoxV2(): () => void {
     sweepOnPaper(e)
     tap = null
     touchEndHold.until = 0
-    if (e.button > 0 || activeTool.get() !== 'text') return
+    // Owner 25 Nov, "with any tool": under the Pen (and highlighter) only the
+    // 22 px border band is the box's (a tap there picks it, no ink dot).
+    const tool = activeTool.get()
+    const inkTool = tool === 'pen' || tool === 'highlighter'
+    if (e.button > 0 || (tool !== 'text' && !inkTool)) return
     const target = e.target instanceof Element ? e.target : null
     const box =
       target?.closest(EXTRA) ??
       mainEmptyPart(target, e) ??
       mainFrameHit(target, e)
     if (!box || target?.closest(OWN_TAP)) return
+    if (inkTool) {
+      const inkEd = box.querySelector<HTMLElement>('.ProseMirror')
+      if (
+        box.getAttribute('data-paper-box') === 'main' ||
+        !inkEd ||
+        !inBorderBand(inkEd, e.clientX, e.clientY, true)
+      )
+        return
+    }
     const isMain = box.getAttribute('data-paper-box') === 'main'
     const focused = box.contains(document.activeElement)
     const picked =

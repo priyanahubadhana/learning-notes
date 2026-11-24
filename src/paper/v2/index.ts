@@ -94,6 +94,20 @@ function mainFrameHit(target: Element | null, e: PointerEvent): Element | null {
   return inside ? main : null
 }
 
+/**
+ * The Pen's border band: the left and right band, and the bottom band only
+ * below the last written line (a one-line box is shorter than the band, and
+ * ink on its words must stay ink).
+ */
+function inkBand(ed: HTMLElement, x: number, y: number): boolean {
+  if (inBorderBand(ed, x, y)) return true
+  if (!inBorderBand(ed, x, y, true)) return false
+  let low = -1e9
+  for (const el of ed.querySelectorAll('.bn-inline-content'))
+    low = Math.max(low, el.getBoundingClientRect().bottom)
+  return y > low
+}
+
 /** Has this box any words (the empty line of a new box has none)? */
 const hasWords = (box: Element) =>
   !!box.querySelector('.ProseMirror')?.textContent?.trim()
@@ -189,7 +203,7 @@ export function installBoxV2(): () => void {
       if (
         box.getAttribute('data-paper-box') === 'main' ||
         !inkEd ||
-        !inBorderBand(inkEd, e.clientX, e.clientY, true)
+        !inkBand(inkEd, e.clientX, e.clientY)
       )
         return
     }

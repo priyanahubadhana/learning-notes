@@ -3,27 +3,55 @@ import { dockArea } from './oneBarArea'
 import {
   HOLD_AFTER_MS,
   isTap,
-  placeAfterDrop,
-  zoneAt,
+  zoneForBar,
   type BarPlace,
   type BarSide,
 } from './oneBarDockModel'
 
 let releaseTimer: ReturnType<typeof setTimeout> | undefined
+/** The pointers that are down right now, by id (the shield must not flip under a press, #62). */
+const pressed = new Set<number>()
+let watching = false
+/** Longest the shield lasts after a drop when a press seems still down (ms): a lost lift must not freeze the page. */
+export const SHIELD_WAIT_MAX_MS = 2000
+function watchPresses() {
+  if (watching) return
+  watching = true
+  document.addEventListener(
+    'pointerdown',
+    (e) => pressed.add(e.pointerId),
+    true,
+  )
+  const up = (e: globalThis.PointerEvent) => void pressed.delete(e.pointerId)
+  document.addEventListener('pointerup', up, true)
+  document.addEventListener('pointercancel', up, true)
+  // A lift eaten by a context menu or a lost window never comes.
+  const clear = () => pressed.clear()
+  window.addEventListener('blur', clear)
+  document.addEventListener('visibilitychange', clear)
+}
 /**
  * The page under the bar gets no touch while the grip is held and for a moment
  * after (the click an iPad sends after a touch must not land on the words
  * under the bar). Module level: it outlives the grip, which may unmount on a drop.
+ * The shield does not end while a press is down (a Pencil tap on the pin that
+ * straddles the end would lose its lift to the page behind, #62), but ends at
+ * most SHIELD_WAIT_MAX_MS for it.
  */
 function shield(on: boolean) {
   const root = document.documentElement
   clearTimeout(releaseTimer)
+  watchPresses()
   if (on) root.setAttribute('data-bar-dragging', '')
-  else
-    releaseTimer = setTimeout(
-      () => root.removeAttribute('data-bar-dragging'),
-      HOLD_AFTER_MS,
-    )
+  else {
+    const until = performance.now() + SHIELD_WAIT_MAX_MS
+    const release = () => {
+      if (pressed.size > 0 && performance.now() < until)
+        releaseTimer = setTimeout(release, 50)
+      else root.removeAttribute('data-bar-dragging')
+    }
+    releaseTimer = setTimeout(release, HOLD_AFTER_MS)
+  }
 }
 
 /**
@@ -63,9 +91,27 @@ export function useGripDrag({
       top: Math.max(a.top + 8, Math.min(a.bottom - 8 - h, e.clientY - g.dy)),
     }
   }
+  // The side the bar's leading edge (or else the pointer) is in (#61).
+  const zoneOf = (e: PointerEvent, at: { left: number; top: number }) => {
+    const el = bar()
+    const d = down.current
+    const bx = {
+      left: at.left,
+      top: at.top,
+      right: at.left + (el?.offsetWidth ?? 0),
+      bottom: at.top + (el?.offsetHeight ?? 0),
+    }
+    return zoneForBar(
+      bx,
+      d ? { x: e.clientX - d.x, y: e.clientY - d.y } : { x: 0, y: 0 },
+      dockArea(),
+      { x: e.clientX, y: e.clientY },
+    )
+  }
   const end = (e: PointerEvent, drop: boolean) => {
     if (!grab.current) return
     const travelled = moving.current
+    const landed = travelled ? zoneOf(e, free(e)) : null
     moving.current = false
     down.current = null
     shield(false)
@@ -75,7 +121,6 @@ export function useGripDrag({
       return
     }
     const at = free(e)
-    const a = dockArea()
     // A touch the system cancels (a finger at the very edge of the iPad) still
     // docks where the finger was last seen, when that was a side zone (#61).
     const seen = lastZone.current
@@ -84,7 +129,7 @@ export function useGripDrag({
     setDragging(false)
     setZone(null)
     onLive(null)
-    if (drop) onDrop(placeAfterDrop({ x: e.clientX, y: e.clientY }, at, a))
+    if (drop) onDrop({ side: landed ?? 'free', ...at })
     else if (seen && seen !== 'free') onDrop({ side: seen, ...at })
   }
   // The grip never reaches the editor under it: no caret, no selection, no focus.
@@ -130,7 +175,7 @@ export function useGripDrag({
           setDragging(true)
         }
         last.current = free(e)
-        const z = zoneAt({ x: e.clientX, y: e.clientY }, dockArea())
+        const z = zoneOf(e, last.current)
         lastZone.current = z
         setZone(z)
         onLive(last.current)

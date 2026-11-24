@@ -173,3 +173,50 @@ export function isTap(
 ): boolean {
   return Math.hypot(to.x - from.x, to.y - from.y) < TAP_SLOP
 }
+
+/** A bar this close (px) to the area's edge is held against it (free() stops it at 8). */
+const HELD = 10
+/** The travel (px) toward a side that makes a held bar mean that side (#61). */
+export const PUSH = 24
+/** The travel (px) toward a left or right zone that lets the pointer alone choose it. */
+export const SIDE_TRAVEL = 40
+
+/**
+ * The side a bar being dragged would dock on (issue #61). A bar almost as wide
+ * as the page is held by its left-end grip, so the finger never gets near the
+ * right edge. A side wins when the bar is HELD against that edge (the clamp
+ * stopped it), the pointer has travelled at least PUSH toward it since the
+ * press AND the pointer is itself in some side zone (it may be the wrong one: the
+ * grip of a page-wide bar). Otherwise the pointer decides (zoneAt), as before.
+ * `travel` is how far the pointer has moved since the press.
+ */
+export function zoneForBar(
+  bar: Area,
+  travel: { x: number; y: number },
+  a: Area,
+  pointer?: { x: number; y: number },
+): BarSide | null {
+  const pushed: [BarSide, number][] = [
+    ['right', a.right - bar.right <= HELD ? travel.x : 0],
+    ['left', bar.left - a.left <= HELD ? -travel.x : 0],
+    ['bottom', a.bottom - bar.bottom <= HELD ? travel.y : 0],
+    ['top', bar.top - a.top <= HELD ? -travel.y : 0],
+  ]
+  const win = pushed.filter(([, n]) => n >= PUSH).sort((x, y) => y[1] - x[1])[0]
+  const raw = pointer ? zoneAt(pointer, a) : null
+  let at = raw
+  // A left or right zone from the pointer alone needs SIDE_TRAVEL toward it: the
+  // grip of a page-wide bar always sits in the left zone, and a vertical drag
+  // must still drop free. Top and bottom stay as they were.
+  if (
+    pointer &&
+    ((at === 'left' && -travel.x < SIDE_TRAVEL) ||
+      (at === 'right' && travel.x < SIDE_TRAVEL))
+  )
+    at = zoneAt(pointer, { ...a, left: -1e6, right: 1e6 })
+  // The finger in the middle of the page is a free drop (a bar held at the edge
+  // by its clamp is then only where the finger dragged it); the finger in a side
+  // zone that is not the pushed side is the #61 case: the push decides.
+  if (win && (!pointer || raw)) return win[0]
+  return at
+}

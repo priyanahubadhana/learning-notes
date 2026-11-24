@@ -4,6 +4,7 @@ import {
   dockStyle,
   placeAfterDrop,
   zoneAt,
+  zoneForBar,
   cutByPanels,
   barFits,
   clampFree,
@@ -164,5 +165,73 @@ describe('issue #62: a tap on the grip is a tap, not a drop', () => {
   })
   it('the page stays shielded for a moment after the grip is let go', () => {
     expect(HOLD_AFTER_MS).toBeGreaterThanOrEqual(400)
+  })
+})
+
+describe('zoneForBar (#61: a page-wide bar pushed against a side docks there)', () => {
+  // A bar almost as wide as the page, held at the right edge (free() stops it at 8 px).
+  const wide = { left: 108, top: 300, right: 892, bottom: 360 }
+  it('docks right: held against the right edge, pushed right, the finger still in the left zone', () => {
+    expect(zoneAt({ x: 130, y: 330 }, area)).toBe('left')
+    expect(zoneForBar(wide, { x: 40, y: 0 }, area, { x: 130, y: 330 })).toBe(
+      'right',
+    )
+  })
+  it('docks left: held against the left edge, pushed left, the finger in the right zone', () => {
+    expect(zoneForBar(wide, { x: -40, y: 0 }, area, { x: 870, y: 330 })).toBe(
+      'left',
+    )
+  })
+  it('docks top and bottom the same way', () => {
+    const tall = { left: 400, top: 68, right: 460, bottom: 692 }
+    expect(zoneForBar(tall, { x: 0, y: 40 }, area, { x: 430, y: 70 })).toBe(
+      'bottom',
+    )
+    expect(zoneForBar(tall, { x: 0, y: -40 }, area, { x: 430, y: 690 })).toBe(
+      'top',
+    )
+  })
+  it('a held, pushed bar with the finger in the middle of the page is a free drop (B2)', () => {
+    expect(
+      zoneForBar(wide, { x: 287, y: 0 }, area, { x: 500, y: 330 }),
+    ).toBeNull()
+  })
+  it('a push of 10 px, or a bar not held against the edge, stays on the pointer', () => {
+    expect(
+      zoneForBar(wide, { x: 10, y: 0 }, area, { x: 500, y: 330 }),
+    ).toBeNull()
+    const mid = { left: 300, top: 300, right: 500, bottom: 360 }
+    expect(
+      zoneForBar(mid, { x: 300, y: 0 }, area, { x: 320, y: 330 }),
+    ).toBeNull()
+  })
+  it('falls back to the pointer zone as before', () => {
+    const bar = { left: 110, top: 300, right: 300, bottom: 360 }
+    expect(zoneForBar(bar, { x: -40, y: 0 }, area, { x: 120, y: 330 })).toBe(
+      'left',
+    )
+    expect(
+      zoneForBar(bar, { x: 30, y: 0 }, area, { x: 500, y: 330 }),
+    ).toBeNull()
+  })
+  it('a side zone from the pointer needs 40 px of travel toward it (a vertical drag of a page-wide bar is free)', () => {
+    const bar = { left: 300, top: 300, right: 500, bottom: 360 }
+    const inLeft = { x: 130, y: 330 }
+    expect(zoneForBar(bar, { x: 0, y: 150 }, area, inLeft)).toBeNull()
+    expect(zoneForBar(wide, { x: 0, y: 150 }, area, inLeft)).toBeNull()
+    expect(zoneForBar(bar, { x: -39, y: 0 }, area, inLeft)).toBeNull()
+    expect(zoneForBar(bar, { x: -40, y: 0 }, area, inLeft)).toBe('left')
+    const inRight = { x: 870, y: 330 }
+    expect(zoneForBar(bar, { x: 0, y: -150 }, area, inRight)).toBeNull()
+    expect(zoneForBar(bar, { x: 40, y: 0 }, area, inRight)).toBe('right')
+  })
+  it('top and bottom from the pointer need no travel', () => {
+    const bar = { left: 300, top: 300, right: 500, bottom: 360 }
+    expect(zoneForBar(bar, { x: 0, y: 0 }, area, { x: 500, y: 70 })).toBe('top')
+    expect(zoneForBar(bar, { x: 5, y: 0 }, area, { x: 120, y: 66 })).toBe('top')
+  })
+  it('works without a pointer', () => {
+    expect(zoneForBar(wide, { x: 40, y: 0 }, area)).toBe('right')
+    expect(zoneForBar(wide, { x: 5, y: 0 }, area)).toBeNull()
   })
 })

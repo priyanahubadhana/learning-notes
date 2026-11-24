@@ -64,9 +64,9 @@ async function addBox(page: Page, text: string, gap = 60) {
   await expect(boxes).toHaveCount(before + 1)
   await expect(boxes.nth(before).locator('.bn-editor')).toBeFocused()
   await page.keyboard.type(text)
-  await page.waitForTimeout(700)
+  await expect(boxes.nth(before)).toContainText(text)
   await page.evaluate(() => (document.activeElement as HTMLElement).blur())
-  await page.waitForTimeout(900)
+  await expect(boxes.nth(before).locator('.bn-editor')).not.toBeFocused()
   return boxes.nth(before)
 }
 
@@ -143,83 +143,108 @@ for (const side of ['right', 'left'] as const) {
   })
 }
 
-test('F63. (#63) the bar beside a selected box has the pin from its first show, not pressed; a Pencil tap pins it', async ({
+test('F61v. (#61) the page-wide bar dragged straight down 150 px stays free and lying', async ({
   page,
 }) => {
   await ready(page)
+  const g = await centre(page.getByTestId('ob-grip'))
+  await realPen(page, [g, { x: g.x, y: g.y + 150 }], 8)
+  const b = await rect(page.getByTestId('object-bar'))
+  expect(b.width).toBeGreaterThan(b.height)
+  await expect(page.getByTestId('ob-pin')).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  )
+})
+
+test('F63. (#63) the bar beside a selected box has the pin from its first show, not pressed; a Pencil tap pins it and changes nothing else; a second tap unpins', async ({
+  page,
+}) => {
+  const box = await ready(page)
   const pin = page.getByTestId('ob-pin')
   await expect(pin).toBeVisible()
   await expect(pin).toHaveAttribute('aria-pressed', 'false')
+  const before = await rect(page.getByTestId('object-bar'))
   await realPenTaps(page, await centre(pin), [{ hold: 60 }])
   await expect(page.getByTestId('ob-pin')).toHaveAttribute(
     'aria-pressed',
     'true',
   )
+  const pinned = await rect(page.getByTestId('object-bar'))
+  expect(Math.abs(pinned.x - before.x)).toBeLessThanOrEqual(2)
+  expect(Math.abs(pinned.y - before.y)).toBeLessThanOrEqual(2)
+  expect(Math.abs(pinned.width - before.width)).toBeLessThanOrEqual(1)
+  await expect(box).toHaveAttribute('data-picked', '')
+  await realPenTaps(page, await centre(page.getByTestId('ob-pin')), [
+    { hold: 60 },
+  ])
+  await expect(page.getByTestId('ob-pin')).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  )
+  const back = await rect(page.getByTestId('object-bar'))
+  expect(Math.abs(back.x - before.x)).toBeLessThanOrEqual(2)
+  expect(Math.abs(back.y - before.y)).toBeLessThanOrEqual(2)
+  await expect(box).toHaveAttribute('data-picked', '')
 })
 
-test('F62. (#62, red test only) a Pencil tap on the pin of a moved, unpinned bar pins it and the box stays selected', async ({
-  page,
-}) => {
+/** The bar moved down a little, away from every edge: free, not pinned. */
+async function movedFree(page: Page) {
   const box = await ready(page)
-  const a = await area(page)
   const g = await centre(page.getByTestId('ob-grip'))
-  // A free move down, away from every edge (the grip of a page-wide bar starts inside the left zone: 40 px right takes it out): not a dock, so not pinned.
-  await realPen(page, [g, { x: g.x + 40, y: (g.y + a.b) / 2 - 100 }], 8)
+  await realPen(page, [g, { x: g.x, y: g.y + 120 }], 8)
   const pin = page.getByTestId('ob-pin')
   await expect(pin).toBeVisible()
   await expect(pin).toHaveAttribute('aria-pressed', 'false')
-  // What the tip sends, and where it lands.
-  await page.evaluate(() => {
-    const w = window as unknown as { __log: string[] }
-    w.__log = []
-    const t0 = performance.now()
-    const note = (m: string) =>
-      w.__log.push(`${Math.round(performance.now() - t0)}ms ${m}`)
-    const state = () => {
-      const r = document
-        .querySelector('[data-box-bar]')
-        ?.getBoundingClientRect()
-      const pe = document
-        .querySelector('[data-testid="ob-pin"]')
-        ?.getBoundingClientRect()
-      return `shield=${document.documentElement.hasAttribute('data-bar-dragging')} pin=${pe ? Math.round(pe.x) + ',' + Math.round(pe.y) : 'none'} picked=${document.querySelectorAll('[data-picked]').length} bar=${r ? Math.round(r.x) + ',' + Math.round(r.y) : 'none'} focus=${document.activeElement?.tagName}`
-    }
-    new MutationObserver(() => note('mut ' + state())).observe(document.body, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ['data-picked', 'style'],
-    })
-    for (const type of ['pointerdown', 'pointerup', 'click'])
-      document.addEventListener(
-        type,
-        (e) => {
-          const t = e.target as Element
-          note(
-            `${type} at ${Math.round((e as MouseEvent).clientX)},${Math.round((e as MouseEvent).clientY)} ${state()}`,
-          )
-          w.__log.push(
-            `${type}:${(e as PointerEvent).pointerType ?? ''}:${t.tagName}.${
-              t.getAttribute('data-testid') ?? String(t.className)
-            }`,
-          )
-        },
-        true,
-      )
-  })
+  return { box, pin }
+}
+
+test('F62. (#62) a Pencil tap on the pin of a moved, unpinned bar pins it and the box stays selected', async ({
+  page,
+}) => {
+  const { box, pin } = await movedFree(page)
+  // The tap comes inside the page shield that follows a drop (450 ms).
   await realPenTaps(page, await centre(pin), [{ hold: 60 }])
-  await page.waitForTimeout(300)
-  console.log(
-    'F62 targets:',
-    JSON.stringify(
-      await page.evaluate(
-        () => (window as unknown as { __log: string[] }).__log,
-      ),
-    ),
-  )
   await expect(page.getByTestId('ob-pin')).toHaveAttribute(
     'aria-pressed',
     'true',
   )
   await expect(box).toHaveAttribute('data-picked', '')
+})
+
+test('F62b. (#62) the same tap after the shield is over', async ({ page }) => {
+  const { box, pin } = await movedFree(page)
+  await expect(page.locator('html')).not.toHaveAttribute(
+    'data-bar-dragging',
+    '',
+  )
+  await realPenTaps(page, await centre(pin), [{ hold: 60 }])
+  await expect(page.getByTestId('ob-pin')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+  await expect(box).toHaveAttribute('data-picked', '')
+})
+
+test('F62c. (#62) a press whose lift never comes does not freeze the page: it takes input within 2.5 s of a drop', async ({
+  page,
+}) => {
+  await movedFree(page)
+  // A press the page never sees end (a right-click whose menu ate the lift).
+  await page.evaluate(() =>
+    document.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        pointerId: 77,
+        bubbles: true,
+        composed: true,
+      }),
+    ),
+  )
+  const g = await centre(page.getByTestId('ob-grip'))
+  await realPen(page, [g, { x: g.x, y: g.y + 60 }], 8)
+  await expect(page.locator('html')).not.toHaveAttribute(
+    'data-bar-dragging',
+    '',
+    { timeout: 2500 },
+  )
 })

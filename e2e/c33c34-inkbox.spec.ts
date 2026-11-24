@@ -281,14 +281,10 @@ test('#64: a box made taller can be shrunk part of the way with the bottom handl
     .toBeLessThanOrEqual(4)
   expect((await box.boundingBox())!.height).toBeGreaterThan(text + 40)
   // Far up: it stops at the text, never under it.
-  // (WebKit sometimes lets a press go by while the page is busy: press again.)
-  await expect(async () => {
-    if ((await box.boundingBox())!.height > text + 2)
-      await dragBottomDot(page, box, -400)
-    await expect
-      .poll(async () => (await box.boundingBox())!.height, { timeout: 4000 })
-      .toBeLessThanOrEqual(text + 2)
-  }).toPass({ timeout: 20000 })
+  await dragBottomDot(page, box, -400)
+  await expect
+    .poll(async () => (await box.boundingBox())!.height)
+    .toBeLessThanOrEqual(text + 2)
   expect((await box.boundingBox())!.height).toBeGreaterThanOrEqual(text - 2)
 })
 

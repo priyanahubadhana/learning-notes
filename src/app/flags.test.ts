@@ -191,10 +191,7 @@ describe('preview defaults (F5)', () => {
   })
 
   it('other hosts keep everything OFF', () => {
-    for (const h of [
-      'localhost',
-      `${PREVIEW}.example.com`,
-    ]) {
+    for (const h of ['localhost', `${PREVIEW}.example.com`]) {
       onHost(h)
       for (const id of FLAG_IDS) expect(isOn(id)).toBe(false)
     }

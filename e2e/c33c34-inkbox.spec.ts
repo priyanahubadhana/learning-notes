@@ -209,7 +209,11 @@ async function dragBottomDot(page: Page, box: Locator, by: number) {
       const a = (await dot.boundingBox())!
       await settle(page)
       const b = (await dot.boundingBox())!
-      return Math.abs(a.y - b.y) + Math.abs(a.x - b.x) + Math.abs((await gapNow()) - gap)
+      return (
+        Math.abs(a.y - b.y) +
+        Math.abs(a.x - b.x) +
+        Math.abs((await gapNow()) - gap)
+      )
     })
     .toBeLessThanOrEqual(1)
   const h = (await dot.boundingBox())!

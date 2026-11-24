@@ -884,12 +884,19 @@ export class InkController {
     // an empty first box (and its frame) 3 lines or more tall on the iPad.
     const onPaper =
       isOn('textbox.v2') && !!wrap.closest('[data-paper-box="main"]')
+    // #65 (owner 24 Nov): ink never changes the shape of a box on paper. The
+    // old rule (lowest stroke + 240 px) made the first box grow to wherever
+    // the Pencil went, and it stayed tall after a reload.
+    if (onPaper) {
+      this.roomKey = ''
+      wrap.style.minHeight = ''
+      return
+    }
     const inking =
-      !onPaper &&
-      (tool === 'pen' ||
-        tool === 'highlighter' ||
-        tool === 'eraser' ||
-        tool === 'lasso')
+      tool === 'pen' ||
+      tool === 'highlighter' ||
+      tool === 'eraser' ||
+      tool === 'lasso'
     const key = `${doc.version}|${this.layout.version}|${inking}`
     if (key === this.roomKey) return
     this.roomKey = key

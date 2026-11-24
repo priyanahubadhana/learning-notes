@@ -376,6 +376,9 @@ interface OverlayPlace {
   zoom: number
 }
 
+/** How far (px) below a box a saved stroke must reach to count as old ink under the border. */
+const OLD_INK_MARGIN = 24
+
 export class InkController {
   readonly layout: PageLayout
   readonly renderer: InkRenderer
@@ -887,9 +890,24 @@ export class InkController {
     // #65 (owner 24 Nov): ink never changes the shape of a box on paper. The
     // old rule (lowest stroke + 240 px) made the first box grow to wherever
     // the Pencil went, and it stayed tall after a reload.
+    // Old pages may hold strokes below the text: their room stays, up to the
+    // lowest SAVED stroke (no extra, nothing from a stroke being drawn; a new
+    // stroke stops at the box border, see world()), so they are not hidden.
     if (onPaper) {
-      this.roomKey = ''
+      const key = `${doc.version}|${this.layout.version}|paper`
+      if (key === this.roomKey) return
+      this.roomKey = key
+      let low = 0
+      for (const p of doc.all()) {
+        const r = strokeRect(p.stroke, this.layout.frame(p.blockId))
+        if (r) low = Math.max(low, r.y + r.h)
+      }
+      // Only ink that lies clearly below the box's own height keeps room: a
+      // stroke stopped at the border (and its pen width) must not make it grow.
       wrap.style.minHeight = ''
+      const own = wrap.getBoundingClientRect().height
+      wrap.style.minHeight =
+        low > own + OLD_INK_MARGIN ? `${Math.ceil(low)}px` : ''
       return
     }
     const inking =
@@ -1253,7 +1271,12 @@ export class InkController {
 
   private world(e: PointerEvent | { clientX: number; clientY: number }): Pt {
     const b = this.env.wrap.getBoundingClientRect()
-    return { x: e.clientX - b.left, y: e.clientY - b.top }
+    const y = e.clientY - b.top
+    // #64/#65: in a box on paper the ink stops at the box border (the
+    // Pencil may go on past it, the stroke does not).
+    const inBox =
+      isOn('textbox.v2') && !!this.env.wrap.closest('[data-paper-box]')
+    return { x: e.clientX - b.left, y: inBox ? Math.min(y, b.height) : y }
   }
 
   private scaled(e: PointerEvent): number {

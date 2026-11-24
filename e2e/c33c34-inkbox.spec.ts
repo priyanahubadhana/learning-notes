@@ -22,11 +22,10 @@ test.use({
 })
 
 // The app's own numbers (the e2e project cannot import them): the dot's hold
-// (HOLD_MS in src/paper/v2/boxDrag.ts, pinned by boxDrag.test.ts), the stroke
-// stride (src/core/inkTypes.ts) and the ink unit (src/ink/outline.ts).
+// (HOLD_MS in src/paper/v2/boxDrag.ts, pinned by boxDrag.test.ts) and the
+// stroke stride (src/core/inkTypes.ts).
 const HOLD_MS = 120
 const STRIDE = 6
-const UNIT = 1000
 const MAIN = '[data-paper-box="main"]'
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 type Rc = { x: number; y: number; width: number; height: number }
@@ -154,7 +153,7 @@ test('#65: old ink saved below the first box text is still visible after a reloa
         }
       })
     },
-    { dy: (200 * UNIT) / box.width, stride: STRIDE },
+    { dy: 200 / box.width, stride: STRIDE },
   )
   await page.reload()
   await expect(page.locator(MAIN)).toBeVisible()

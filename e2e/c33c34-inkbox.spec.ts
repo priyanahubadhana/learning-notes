@@ -182,18 +182,36 @@ async function pickedExtra(page: Page, name: string) {
   return box
 }
 
+const dotGap = new WeakMap<Page, number>()
+
 /** Drag the bottom dot by `by` px (down is plus) with the Pencil, after the hold the app asks for. */
 async function dragBottomDot(page: Page, box: Locator, by: number) {
-  // Press the dot only once it has stopped moving (the box may still be settling).
+  // Press the dot only once it has stopped moving AND sits on the box's
+  // bottom edge. Trace of 24 Nov (ipad-webkit, 1 in 160 under load): after a
+  // shrink the box was already short while its frame and dot were still drawn
+  // at the old height for over 150 ms, so a press at once hit empty paper. A
+  // person cannot press again that fast; the test waits for what a person sees.
+  // The gap between the dot and the box's bottom is fixed by the frame's
+  // layout; it is read once, on the first drag of a fresh, settled box.
   const dot = box.locator('[data-resize-handle="s"]')
+  const gapNow = async () => {
+    const b = (await dot.boundingBox())!
+    const r = (await box.boundingBox())!
+    return b.y + b.height / 2 - (r.y + r.height)
+  }
+  if (!dotGap.has(page)) {
+    await settle(page)
+    dotGap.set(page, await gapNow())
+  }
+  const gap = dotGap.get(page)!
   await expect
     .poll(async () => {
       const a = (await dot.boundingBox())!
       await settle(page)
       const b = (await dot.boundingBox())!
-      return Math.abs(a.y - b.y) + Math.abs(a.x - b.x)
+      return Math.abs(a.y - b.y) + Math.abs(a.x - b.x) + Math.abs((await gapNow()) - gap)
     })
-    .toBeLessThanOrEqual(0.5)
+    .toBeLessThanOrEqual(1)
   const h = (await dot.boundingBox())!
   const from = { x: h.x + h.width / 2, y: h.y + h.height / 2 }
   await page.evaluate(() => {

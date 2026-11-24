@@ -163,8 +163,8 @@ test('F62. (#62, red test only) a Pencil tap on the pin of a moved, unpinned bar
   const box = await ready(page)
   const a = await area(page)
   const g = await centre(page.getByTestId('ob-grip'))
-  // A free move down, away from every edge (the grip of a page-wide bar starts inside the left zone: 20 px right takes it out): not a dock, so not pinned.
-  await realPen(page, [g, { x: g.x + 20, y: (g.y + a.b) / 2 - 100 }], 8)
+  // A free move down, away from every edge (the grip of a page-wide bar starts inside the left zone: 40 px right takes it out): not a dock, so not pinned.
+  await realPen(page, [g, { x: g.x + 40, y: (g.y + a.b) / 2 - 100 }], 8)
   const pin = page.getByTestId('ob-pin')
   await expect(pin).toBeVisible()
   await expect(pin).toHaveAttribute('aria-pressed', 'false')
@@ -172,11 +172,32 @@ test('F62. (#62, red test only) a Pencil tap on the pin of a moved, unpinned bar
   await page.evaluate(() => {
     const w = window as unknown as { __log: string[] }
     w.__log = []
+    const t0 = performance.now()
+    const note = (m: string) =>
+      w.__log.push(`${Math.round(performance.now() - t0)}ms ${m}`)
+    const state = () => {
+      const r = document
+        .querySelector('[data-box-bar]')
+        ?.getBoundingClientRect()
+      const pe = document
+        .querySelector('[data-testid="ob-pin"]')
+        ?.getBoundingClientRect()
+      return `shield=${document.documentElement.hasAttribute('data-bar-dragging')} pin=${pe ? Math.round(pe.x) + ',' + Math.round(pe.y) : 'none'} picked=${document.querySelectorAll('[data-picked]').length} bar=${r ? Math.round(r.x) + ',' + Math.round(r.y) : 'none'} focus=${document.activeElement?.tagName}`
+    }
+    new MutationObserver(() => note('mut ' + state())).observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['data-picked', 'style'],
+    })
     for (const type of ['pointerdown', 'pointerup', 'click'])
       document.addEventListener(
         type,
         (e) => {
           const t = e.target as Element
+          note(
+            `${type} at ${Math.round((e as MouseEvent).clientX)},${Math.round((e as MouseEvent).clientY)} ${state()}`,
+          )
           w.__log.push(
             `${type}:${(e as PointerEvent).pointerType ?? ''}:${t.tagName}.${
               t.getAttribute('data-testid') ?? String(t.className)

@@ -9,20 +9,36 @@ import {
 } from './oneBarDockModel'
 
 let releaseTimer: ReturnType<typeof setTimeout> | undefined
+let pressed = 0
+let watching = false
+/** How many pointers are down right now (the shield must not flip under a press, #62). */
+function watchPresses() {
+  if (watching) return
+  watching = true
+  document.addEventListener('pointerdown', () => pressed++, true)
+  const up = () => (pressed = Math.max(0, pressed - 1))
+  document.addEventListener('pointerup', up, true)
+  document.addEventListener('pointercancel', up, true)
+}
 /**
  * The page under the bar gets no touch while the grip is held and for a moment
  * after (the click an iPad sends after a touch must not land on the words
  * under the bar). Module level: it outlives the grip, which may unmount on a drop.
+ * The shield never ends while a press is down: a Pencil tap on the pin that
+ * straddles the end would lose its lift to the page behind (#62).
  */
 function shield(on: boolean) {
   const root = document.documentElement
   clearTimeout(releaseTimer)
+  watchPresses()
   if (on) root.setAttribute('data-bar-dragging', '')
-  else
-    releaseTimer = setTimeout(
-      () => root.removeAttribute('data-bar-dragging'),
-      HOLD_AFTER_MS,
-    )
+  else {
+    const release = () => {
+      if (pressed > 0) releaseTimer = setTimeout(release, 50)
+      else root.removeAttribute('data-bar-dragging')
+    }
+    releaseTimer = setTimeout(release, HOLD_AFTER_MS)
+  }
 }
 
 /**

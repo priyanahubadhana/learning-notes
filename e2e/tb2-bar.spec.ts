@@ -125,7 +125,8 @@ test('TB-24: one bar over a selected box: Cut, Delete, Box style, ⋯ (Copy and 
   for (const n of ['Cut', 'Delete box', 'Box style', 'Box actions'])
     await expect(bar(page).getByRole('button', { name: n })).toBeVisible()
   // Box bar part B (owner decisions 18 Nov, moving and docking): the grip is a button too, so 13.
-  await expect(bar(page).getByRole('button')).toHaveCount(13)
+  // Owner, 24 Nov 2026 (#63, DECISIONS): the pin shows on this bar from the first show, so 14.
+  await expect(bar(page).getByRole('button')).toHaveCount(14)
   // Copy (under ⋯) copies the text; Cut copies it and removes the box.
   await bar(page).getByRole('button', { name: 'Box actions' }).click()
   await more(page).getByRole('menuitem', { name: 'Copy' }).click()

@@ -285,7 +285,13 @@ test('B6. unpin: the bar goes back beside the box', async ({ page }) => {
   await drag(page, { x: (a.l + a.r) / 2, y: a.b - 24 })
   await page.mouse.up()
   await page.getByTestId('ob-pin').click()
-  await expect(page.getByTestId('ob-pin')).toHaveCount(0)
+  // Owner, 24 Nov 2026 (#63, DECISIONS): the bar beside the box has the pin
+  // from the first show, not pressed (was: no pin on that bar).
+  await expect(page.getByTestId('ob-pin')).toBeVisible()
+  await expect(page.getByTestId('ob-pin')).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  )
   const b = await rect(page.getByTestId('object-bar'))
   const x = await rect(box)
   expect(b.y + b.height).toBeLessThanOrEqual(x.y)

@@ -132,13 +132,9 @@ for (const side of ['right', 'left'] as const) {
     await ready(page)
     const a = await area(page)
     const g = await centre(page.getByTestId('ob-grip'))
-    const barBox = await rect(page.getByTestId('object-bar'))
     // The grip sits at the bar's left end. A finger on it travels only as far
     // as the bar can move: the bar's leading edge reaches the page edge first.
-    const toX =
-      side === 'right'
-        ? Math.min(a.r - 75, g.x + (a.r - 8 - (barBox.x + barBox.width)))
-        : g.x - 40
+    const toX = side === 'right' ? g.x + 26 : g.x - 40
     await realPen(page, [g, { x: toX, y: g.y }], 8)
     const b = await rect(page.getByTestId('object-bar'))
     expect(b.height).toBeGreaterThan(b.width)

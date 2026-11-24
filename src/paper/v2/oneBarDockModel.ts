@@ -174,12 +174,18 @@ export function isTap(
   return Math.hypot(to.x - from.x, to.y - from.y) < TAP_SLOP
 }
 
+/** A bar this close (px) to the area's edge is held against it (free() stops it at 8). */
+const HELD = 10
+/** The travel (px) toward a side that makes a held bar mean that side (#61). */
+export const PUSH = 24
+
 /**
- * The side a bar being dragged would dock on (issue #61). The bar's LEADING
- * edge in the direction of travel picks the side: a bar almost as wide as the
- * page is held by its left-end grip, so the finger never gets near the right
- * edge, but the bar's right end does. Not moving, or the leading edge in no
- * zone: the pointer decides (zoneAt).
+ * The side a bar being dragged would dock on (issue #61). A bar almost as wide
+ * as the page is held by its left-end grip, so the finger never gets near the
+ * right edge. A side wins when the bar is HELD against that edge (the clamp
+ * stopped it), the pointer has travelled at least PUSH toward it since the
+ * press AND the pointer is itself in some side zone (it may be the wrong one: the
+ * grip of a page-wide bar). Otherwise the pointer decides (zoneAt), as before.
  * `travel` is how far the pointer has moved since the press.
  */
 export function zoneForBar(
@@ -188,20 +194,17 @@ export function zoneForBar(
   a: Area,
   pointer?: { x: number; y: number },
 ): BarSide | null {
-  const horizontal = Math.abs(travel.x) >= Math.abs(travel.y)
-  if (travel.x !== 0 || travel.y !== 0) {
-    let lead: [BarSide, number, number]
-    if (horizontal)
-      lead =
-        travel.x > 0
-          ? ['right', a.right - bar.right, ZONE_SIDE]
-          : ['left', bar.left - a.left, ZONE_SIDE]
-    else
-      lead =
-        travel.y > 0
-          ? ['bottom', a.bottom - bar.bottom, ZONE]
-          : ['top', bar.top - a.top, ZONE]
-    if (lead[1] <= lead[2]) return lead[0]
-  }
-  return pointer ? zoneAt(pointer, a) : null
+  const pushed: [BarSide, number][] = [
+    ['right', a.right - bar.right <= HELD ? travel.x : 0],
+    ['left', bar.left - a.left <= HELD ? -travel.x : 0],
+    ['bottom', a.bottom - bar.bottom <= HELD ? travel.y : 0],
+    ['top', bar.top - a.top <= HELD ? -travel.y : 0],
+  ]
+  const win = pushed.filter(([, n]) => n >= PUSH).sort((x, y) => y[1] - x[1])[0]
+  const at = pointer ? zoneAt(pointer, a) : null
+  // The finger in the middle of the page is a free drop (a bar held at the edge
+  // by its clamp is then only where the finger dragged it); the finger in a side
+  // zone that is not the pushed side is the #61 case: the push decides.
+  if (win && (!pointer || at)) return win[0]
+  return at
 }

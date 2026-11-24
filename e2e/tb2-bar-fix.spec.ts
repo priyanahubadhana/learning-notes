@@ -248,3 +248,74 @@ test('F62c. (#62) a press whose lift never comes does not freeze the page: it ta
     { timeout: 2500 },
   )
 })
+
+/** What the v8 tool bar does when it loads (applyLayerVars, src/app/overlay/layers.ts): --z-bar becomes 100. */
+const v8Layers = (page: Page) =>
+  page.evaluate(() => {
+    const root = document.documentElement.style
+    const layers = { bar: 100, pill: 200, menu: 300, card: 400, sheet: 500 }
+    for (const [k, v] of Object.entries(layers))
+      root.setProperty('--z-' + k, String(v))
+  })
+
+/** The stacking number an element paints with (its own, or the nearest ancestor's that has one). */
+const layerOf = (page: Page, sel: string) =>
+  page.evaluate((q) => {
+    for (let el = document.querySelector(q); el; el = el.parentElement) {
+      const z = parseInt(getComputedStyle(el).zIndex, 10)
+      if (!Number.isNaN(z)) return z
+    }
+    return -1
+  }, sel)
+
+test('F62d. (layers) a moved bar lies under the notebooks drawer and above the page, also with the v8 tool bar layers', async ({
+  page,
+}) => {
+  await movedFree(page)
+  await v8Layers(page)
+  const bar = await layerOf(page, 'body > [data-box-bar]')
+  // The shell layers that never move (tokens.css, index.css).
+  const token = (n: string) =>
+    page.evaluate(
+      (v) =>
+        parseInt(
+          getComputedStyle(document.documentElement).getPropertyValue(v),
+          10,
+        ),
+      n,
+    )
+  const under = Math.min(
+    await token('--z-mini'),
+    await token('--z-drawer-scrim'),
+    await token('--z-pop'),
+    await token('--z-tagpick'),
+  )
+  const text = await layerOf(
+    page,
+    '[data-paper-box]:not([data-paper-box="main"])',
+  )
+  expect(bar).toBeGreaterThan(text)
+  expect(bar).toBeLessThan(under)
+})
+
+test('F62e. (layers) the bar menu lies over the moved bar', async ({
+  page,
+}) => {
+  await movedFree(page)
+  await v8Layers(page)
+  await page
+    .getByTestId('object-bar')
+    .getByRole('button', { name: 'Box actions' })
+    .click()
+  const menu = page.getByRole('menu', { name: 'Box actions' })
+  await expect(menu).toBeVisible()
+  const m = await rect(menu)
+  const top = await page.evaluate(
+    ([x, y]) => !!document.elementFromPoint(x, y)?.closest('[role="menu"]'),
+    [m.x + m.width / 2, m.y + 12],
+  )
+  expect(top).toBe(true)
+  expect(await layerOf(page, '[role="menu"]')).toBeGreaterThan(
+    await layerOf(page, 'body > [data-box-bar]'),
+  )
+})

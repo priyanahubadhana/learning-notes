@@ -479,6 +479,7 @@
   /* Shell layer scale (shell-spec 8, D10) */
   --z-sticky: 1; /* a sticky bar above its own scrolling list (F9) */
   --z-tabbar: 30;
+  --z-boxbar: 34; /* a moved or pinned box bar: above the page and its boxes, under the mini bar (35), the fbar (40), the drawer, pop menus and sheets (#62) */
   --z-fbar: 40;
   --z-chip: 41;
   --z-drawer-scrim: 59;

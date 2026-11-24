@@ -166,15 +166,32 @@ describe('preview defaults (F5)', () => {
     expect(isOn('textbox.v2')).toBe(true)
   })
 
-  it('the live host never gets the marker or the phase', () => {
+  it('the live host never gets the marker', () => {
     onHost('learning-notes-app.pages.dev')
     expect(localStorage.getItem(PREVIEW_PHASE_KEY)).toBeNull()
-    expect(isOn('textbox.v2')).toBe(false)
   })
 
-  it('the live host and other hosts keep everything OFF', () => {
+  // Owner, 25 Nov 2026 (phase 1A live, option A): live starts as the preview does.
+  it('the live host starts with the same parts ON as the preview host', () => {
+    onHost(PREVIEW)
+    const preview = FLAG_IDS.filter((id) => isOn(id))
+    localStorage.clear()
+    onHost('learning-notes-app.pages.dev')
+    expect(FLAG_IDS.filter((id) => isOn(id))).toEqual(preview)
+    expect(isOn('textbox.v2')).toBe(true)
+    expect(isOn('reader.v2')).toBe(false)
+  })
+
+  it('a switch the user turned OFF stays OFF on the live host', () => {
+    onHost('learning-notes-app.pages.dev')
+    setFlag('search.v2', false)
+    reloadFlags()
+    expect(isOn('search.v2')).toBe(false)
+    expect(isOn('home.v2')).toBe(true)
+  })
+
+  it('other hosts keep everything OFF', () => {
     for (const h of [
-      'learning-notes-app.pages.dev',
       'localhost',
       `${PREVIEW}.example.com`,
     ]) {

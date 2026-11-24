@@ -486,3 +486,41 @@ test('C30b: with the Pen tool a Pencil tap in the 22 px border band picks the bo
     1,
   )
 })
+
+test('C30b: with the Pen tool a stroke that starts in the border band stays ink (only a tap picks the box)', async ({
+  page,
+}) => {
+  const box = await pickedExtra(page, 'Ink30c')
+  await growDown(page, box, 220)
+  await page.keyboard.press('Escape')
+  await page.evaluate(() => (document.activeElement as HTMLElement)?.blur?.())
+  await expect(box).not.toHaveAttribute('data-picked', '')
+  await pickTool(page, 'Pen')
+  const r = (await box.boundingBox())!
+  const x = r.x + r.width - 10
+  const y = r.y + 80
+  await drawSaved(
+    page,
+    Array.from({ length: 10 }, (_, i) => ({ x: x - i * 4.5, y: y + i })),
+    1,
+  )
+  await expect(box).not.toHaveAttribute('data-picked', '')
+  // The same from the left border and from the bottom border.
+  await drawSaved(
+    page,
+    Array.from({ length: 10 }, (_, i) => ({
+      x: r.x + 10 + i * 4.5,
+      y: y + 40,
+    })),
+    2,
+  )
+  await drawSaved(
+    page,
+    Array.from({ length: 10 }, (_, i) => ({
+      x: r.x + 100 + i * 4.5,
+      y: r.y + r.height - 10,
+    })),
+    3,
+  )
+  await expect(box).not.toHaveAttribute('data-picked', '')
+})

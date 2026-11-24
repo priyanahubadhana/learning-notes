@@ -427,6 +427,22 @@ export function inBorderBand(
 }
 
 /**
+ * Owner 25 Nov (any tool): is (x, y) in the band where a Pen TAP picks the
+ * box? The left and right band, and the bottom band only below the last
+ * written line (a one-line box is shorter than the band; ink on its words
+ * stays ink). The page's first box is left out: it is the page itself and
+ * shows no border until it is picked or typed in.
+ */
+export function inkBand(dom: HTMLElement, x: number, y: number): boolean {
+  if (inBorderBand(dom, x, y)) return true
+  if (!inBorderBand(dom, x, y, true)) return false
+  let low = -1e9
+  for (const el of dom.querySelectorAll('.bn-inline-content'))
+    low = Math.max(low, el.getBoundingClientRect().bottom)
+  return y > low
+}
+
+/**
  * Owner 25 Nov: does a tap here put the caret in an extra box? On or near the
  * words (nearText), or in the empty part below / above the written lines,
  * but never in the border band. Further out on a written line, a tap still

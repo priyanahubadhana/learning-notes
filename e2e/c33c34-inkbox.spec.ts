@@ -111,7 +111,18 @@ async function growDown(
 ) {
   const h = (await box.locator('[data-resize-handle="s"]').boundingBox())!
   const from = { x: h.x + h.width / 2, y: h.y + h.height / 2 }
-  await realPen(page, [from, { x: from.x, y: from.y + by }], 8)
+  // The dot needs its short hold before the drag starts (as in tb2-resize-c31c32).
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
+  await page.mouse.move(from.x, from.y)
+  await page.mouse.down()
+  await page.waitForTimeout(200)
+  await page.mouse.move(from.x, from.y + by, { steps: 8 })
+  await page.mouse.up()
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
   await page.waitForTimeout(700)
 }
 

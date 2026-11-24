@@ -267,10 +267,9 @@ test('#64: a box made taller can be shrunk part of the way with the bottom handl
   // Back up by about two lines: still taller than the text.
   await dragBottomDot(page, box, -80)
   await expect
-    .poll(async () => (await box.boundingBox())!.height, { timeout: 5000 })
-    .toBeGreaterThan(text + 40)
-  const part = (await box.boundingBox())!.height
-  expect(Math.abs(part - (tall - 80))).toBeLessThanOrEqual(4)
+    .poll(async () => Math.abs((await box.boundingBox())!.height - (tall - 80)))
+    .toBeLessThanOrEqual(4)
+  expect((await box.boundingBox())!.height).toBeGreaterThan(text + 40)
   // Far up: it stops at the text, never under it.
   await dragBottomDot(page, box, -400)
   await expect

@@ -2,6 +2,10 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026: the fast-set job limit on CI, 20 to 45 minutes (measured)
+
+- **What:** `.github/workflows/ci.yml`, the `e2e-fast` job: `timeout-minutes` 20 → 45. **Why:** the update spec (49 tests, three of 4 to 5 minutes) is in the fast list since U0c; on the hosted machine its shard passed 20 minutes and run 45289772955 cancelled two shards at the limit with every test green. Before U0c the longest fast job took 13 minutes (run 45172619408). No test changed. DECISIONS "Decisions to review" holds the phase-end choice (keep, move the slow scenarios to the nightly, or more shards). **Files:** .github/workflows/ci.yml, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: the download poll no longer wipes the restart prompt (fixes #58)
 
 - **What:** the poll in `follow` re-checks that no restart was asked for right before each status write (offline, bytes, cache count). A new unit test holds the cache read open while the prompt starts.

@@ -9,23 +9,34 @@ import {
 } from './oneBarDockModel'
 
 let releaseTimer: ReturnType<typeof setTimeout> | undefined
-let pressed = 0
+/** The pointers that are down right now, by id (the shield must not flip under a press, #62). */
+const pressed = new Set<number>()
 let watching = false
-/** How many pointers are down right now (the shield must not flip under a press, #62). */
+/** Longest the shield lasts after a drop when a press seems still down (ms): a lost lift must not freeze the page. */
+export const SHIELD_WAIT_MAX_MS = 2000
 function watchPresses() {
   if (watching) return
   watching = true
-  document.addEventListener('pointerdown', () => pressed++, true)
-  const up = () => (pressed = Math.max(0, pressed - 1))
+  document.addEventListener(
+    'pointerdown',
+    (e) => pressed.add(e.pointerId),
+    true,
+  )
+  const up = (e: globalThis.PointerEvent) => void pressed.delete(e.pointerId)
   document.addEventListener('pointerup', up, true)
   document.addEventListener('pointercancel', up, true)
+  // A lift eaten by a context menu or a lost window never comes.
+  const clear = () => pressed.clear()
+  window.addEventListener('blur', clear)
+  document.addEventListener('visibilitychange', clear)
 }
 /**
  * The page under the bar gets no touch while the grip is held and for a moment
  * after (the click an iPad sends after a touch must not land on the words
  * under the bar). Module level: it outlives the grip, which may unmount on a drop.
- * The shield never ends while a press is down: a Pencil tap on the pin that
- * straddles the end would lose its lift to the page behind (#62).
+ * The shield does not end while a press is down (a Pencil tap on the pin that
+ * straddles the end would lose its lift to the page behind, #62), but ends at
+ * most SHIELD_WAIT_MAX_MS for it.
  */
 function shield(on: boolean) {
   const root = document.documentElement
@@ -33,8 +44,10 @@ function shield(on: boolean) {
   watchPresses()
   if (on) root.setAttribute('data-bar-dragging', '')
   else {
+    const until = performance.now() + SHIELD_WAIT_MAX_MS
     const release = () => {
-      if (pressed > 0) releaseTimer = setTimeout(release, 50)
+      if (pressed.size > 0 && performance.now() < until)
+        releaseTimer = setTimeout(release, 50)
       else root.removeAttribute('data-bar-dragging')
     }
     releaseTimer = setTimeout(release, HOLD_AFTER_MS)

@@ -187,7 +187,7 @@ export default function PinnedBoxBar({
       data-pinned-bar={place.pinned ? '' : undefined}
       data-ui
       style={style}
-      className="fixed"
+      className="fixed z-(--z-bar)"
     >
       <OneBarView
         pageId={pageId}

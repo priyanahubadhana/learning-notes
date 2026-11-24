@@ -18,8 +18,8 @@ import { installRealPen, realPen } from './realPen.ts'
  *  - a tap on or near the words of a box that is not selected (on a written
  *    line, up to about 1.75 letters past its last letter) puts the caret
  *    there at once;
- *  - a tap in the box's empty part (further right, below the lines) selects
- *    the box;
+ *  - a tap in the box's empty part further right on a line selects
+ *    the box (owner 25 Nov: within 22 px of the border, any tap picks it);
  *  - a tap in the empty part of a selected box keeps it selected.
  * With the Pencil and with a finger.
  */
@@ -104,6 +104,10 @@ for (const how of ['pen', 'finger'] as const) {
     expect(await typingIn(box)).toBe(false)
   })
 
+  // C30, rewritten on the owner's word (owner, 25 Nov: "the border should
+  // click text box selection"): a tap within about 22 px inside the border
+  // picks the box; the rest of the inside (empty or not) takes the caret
+  // with the Text tool.
   test(`C30 (${how}): below the lines selects the box; a tap in the empty part of a selected box keeps it selected`, async ({
     page,
   }) => {
@@ -115,19 +119,46 @@ for (const how of ['pen', 'finger'] as const) {
     await page.keyboard.press('Escape')
     await page.waitForTimeout(500)
     await expect(box).not.toHaveAttribute('data-picked', '')
+    // The whole tall box must be on screen for the edge taps (tablet height).
+    await box.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+    await page.waitForTimeout(300)
     const e = await lineEnd(box)
     const r = await rect(box)
+    const unpick = async () => {
+      await page.keyboard.press('Escape')
+      await page.evaluate(() =>
+        (document.activeElement as HTMLElement | null)?.blur?.(),
+      )
+      await page.waitForTimeout(500)
+      await expect(box).not.toHaveAttribute('data-picked', '')
+    }
+    // (a) 80 px below the words, well inside: the caret, not a pick.
     const below = { x: r.x + r.width / 2, y: e.bottom + 80 }
-    expect(below.y).toBeLessThan(r.y + r.height - 20)
+    expect(below.y).toBeLessThan(r.y + r.height - 40)
     await tapAt(page, below.x, below.y, how)
-    await expect(box).toHaveAttribute('data-picked', '')
-    expect(await typingIn(box)).toBe(false)
-    // Already selected: the empty part keeps it selected, no caret.
-    await page.waitForTimeout(500)
-    await tapAt(page, below.x + 20, below.y, how)
-    await expect(box).toHaveAttribute('data-picked', '')
-    expect(await typingIn(box)).toBe(false)
-    // Its words still take the caret.
+    expect(await typingIn(box)).toBe(true)
+    await expect(box).not.toHaveAttribute('data-picked', '')
+    await unpick()
+    // (b) within 22 px inside the bottom, left and right border: picks, no caret.
+    const edges = [
+      { x: r.x + r.width / 2, y: r.y + r.height - 10 },
+      { x: r.x + 10, y: r.y + 90 },
+      { x: r.x + r.width - 10, y: r.y + 90 },
+    ]
+    for (const [i, p] of edges.entries()) {
+      await tapAt(page, p.x, p.y, how)
+      await expect(box, `border ${i}`).toHaveAttribute('data-picked', '')
+      expect(await typingIn(box), `caret after border ${i}`).toBe(false)
+      if (i === 0) {
+        // (c) on a picked box a border tap keeps it picked.
+        await page.waitForTimeout(500)
+        await tapAt(page, p.x + 20, p.y, how)
+        await expect(box).toHaveAttribute('data-picked', '')
+        expect(await typingIn(box)).toBe(false)
+      }
+      await unpick()
+    }
+    // (d) Its words still take the caret.
     await tapAt(page, e.right - 10, e.mid, how)
     expect(await typingIn(box)).toBe(true)
   })

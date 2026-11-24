@@ -6,6 +6,7 @@ import {
 import {
   PICK_BOX,
   nearText,
+  tapsCaret,
   textFirstTap,
   touchEndHold,
 } from '../../editor/tapSelect'
@@ -136,7 +137,9 @@ export function installBoxV2(): () => void {
       // Only that tap's own events in the box text are held back (a link,
       // page link or toggle there too); the bar or a menu answers at once.
       const t = e.target instanceof Element ? e.target : null
-      if (!t?.closest('.ProseMirror')) return
+      // The box's own area (its text, the empty band under it) too: its click
+      // must not reach the paper's "tap on a frame puts the caret at the end".
+      if (!t?.closest('[data-paper-box]') || t.closest(OWN_TAP)) return
     }
     e.preventDefault()
     e.stopImmediatePropagation()
@@ -190,7 +193,7 @@ export function installBoxV2(): () => void {
       !isMain &&
       target?.closest('.ProseMirror') &&
       !target.closest('[contenteditable="false"]') &&
-      !(focused && ed && !nearText(ed, e.clientX, e.clientY))
+      !(focused && ed && !tapsCaret(ed, e.clientX, e.clientY))
     )
       return
     // Typing in an empty box: a tap away from the caret keeps the caret.
@@ -237,7 +240,7 @@ export function installBoxV2(): () => void {
     // the caret there, picked or not; anywhere else in the empty part, an
     // unpicked box is selected and a picked one stays selected.
     const ed = box.querySelector<HTMLElement>('.ProseMirror')
-    if (ed && nearText(ed, e.clientX, e.clientY))
+    if (ed && tapsCaret(ed, e.clientX, e.clientY))
       return placeCaretNearest(box, e.clientX, e.clientY)
     if (t.kind === 'select') {
       // One selection, one kind: words selected elsewhere stop being selected.

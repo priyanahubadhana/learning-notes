@@ -251,6 +251,8 @@ type Gesture =
       /** The ruler edge this stroke slides along, if it began at one. */
       edge: Edge | null
       frame: { blockId: string | null }
+      /** #64/#65: the pen left the box by the bottom, so the stroke ended at the border. */
+      cut: boolean
     }
   | {
       kind: 'erase'
@@ -1271,12 +1273,19 @@ export class InkController {
 
   private world(e: PointerEvent | { clientX: number; clientY: number }): Pt {
     const b = this.env.wrap.getBoundingClientRect()
-    const y = e.clientY - b.top
-    // #64/#65: in a box on paper the ink stops at the box border (the
-    // Pencil may go on past it, the stroke does not).
-    const inBox =
-      isOn('textbox.v2') && !!this.env.wrap.closest('[data-paper-box]')
-    return { x: e.clientX - b.left, y: inBox ? Math.min(y, b.height) : y }
+    return { x: e.clientX - b.left, y: e.clientY - b.top }
+  }
+
+  /**
+   * #64/#65: in a box on paper the ink stops at the box's bottom border (the
+   * Pencil may go on past it, the ink does not). Its y in page px, or null
+   * where nothing stops it. Only the drawing path asks; the eraser, the
+   * hover ring and the selection handles use the plain pointer.
+   */
+  private inkBottom(): number | null {
+    const { wrap } = this.env
+    if (!isOn('textbox.v2') || !wrap.closest('[data-paper-box]')) return null
+    return wrap.getBoundingClientRect().height
   }
 
   private scaled(e: PointerEvent): number {
@@ -1348,6 +1357,7 @@ export class InkController {
         tool === 'pen' ? penSettings.get().drawAs : 'free',
       ),
       frame: { blockId },
+      cut: false,
     }
     this.gesture = g
     this.addPoint(g, e, frame)
@@ -1408,10 +1418,19 @@ export class InkController {
     frame: { x: number; y: number; w: number },
   ): void {
     // A pen that began at a ruler edge slides along it.
+    if (g.cut) return
     const raw = this.world(e)
-    const w = g.edge ? projectOnEdge(raw, g.edge) : raw
+    let w = g.edge ? projectOnEdge(raw, g.edge) : raw
     const last = g.world[g.world.length - 1]
-    if (last && dist(last, w) < MIN_MOVE) return
+    const floor = this.inkBottom()
+    if (floor !== null && w.y > floor) {
+      // Past the border: the stroke ends where it crossed it, nothing is
+      // drawn along the border or outside the box.
+      g.cut = true
+      if (!last || last.y >= floor) return
+      const f = (floor - last.y) / (w.y - last.y)
+      w = { x: last.x + (w.x - last.x) * f, y: floor }
+    } else if (last && dist(last, w) < MIN_MOVE) return
     g.world.push(w)
     const l = toLocal(w, frame)
     g.pts.push({
@@ -1462,7 +1481,10 @@ export class InkController {
       if (g.dragAs !== 'free') {
         // A chosen shape (or tape): the two corners are where the drag began
         // and where it is now; the shape follows the pen.
-        const now = this.world(e)
+        const raw = this.world(e)
+        const floor = this.inkBottom()
+        const now =
+          floor === null ? raw : { x: raw.x, y: Math.min(raw.y, floor) }
         g.shape = shapeFromDrag(
           g.dragAs === 'tape' ? 'rect' : g.dragAs,
           g.origin,
@@ -1480,8 +1502,11 @@ export class InkController {
         this.addPoint(g, c, frame)
       // Predicted points are drawn for the moment only, never saved.
       g.predicted = []
+      const floor = this.inkBottom()
       for (const p of e.getPredictedEvents?.() ?? []) {
-        const l = toLocal(this.world(p), frame)
+        const at = this.world(p)
+        if (g.cut || (floor !== null && at.y > floor)) continue
+        const l = toLocal(at, frame)
         g.predicted.push({
           x: l.x,
           y: l.y,

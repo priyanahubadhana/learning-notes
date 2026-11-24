@@ -46,7 +46,7 @@ async function start(page: Page, name: string) {
 }
 
 /** Choose a tool and wait until it is pressed (a late re-render can swallow a tap). */
-async function pickTool(page: Page, name: 'Pen' | 'Text') {
+async function pickTool(page: Page, name: 'Pen' | 'Text' | 'Eraser' | 'Lasso') {
   await expect(async () => {
     if ((await tool(page, name).getAttribute('aria-pressed')) !== 'true')
       await tool(page, name).click()
@@ -277,4 +277,143 @@ test('#64: a box made taller can be shrunk part of the way with the bottom handl
     .poll(async () => (await box.boundingBox())!.height)
     .toBeLessThanOrEqual(text + 2)
   expect((await box.boundingBox())!.height).toBeGreaterThanOrEqual(text - 2)
+})
+
+/** The saved strokes' points as page px inside the first box (x, y). */
+async function savedPoints(page: Page, boxWidth: number) {
+  return (await savedInk(page)).strokes.map((s) => {
+    const out: Pt[] = []
+    for (let i = 0; i + 1 < s.pts.length; i += STRIDE)
+      out.push({ x: s.pts[i] * boxWidth, y: s.pts[i + 1] * boxWidth })
+    return out
+  })
+}
+
+test('#65: a stroke that leaves the first box by the bottom and goes sideways outside leaves no ink along the border', async ({
+  page,
+}) => {
+  await start(page, 'Ink65side')
+  await pickTool(page, 'Pen')
+  const box = await rect(page, MAIN)
+  const x = box.x + 60
+  const outside = box.y + box.height + 50
+  await drawSaved(
+    page,
+    [
+      { x, y: box.y + box.height / 2 },
+      { x, y: outside },
+      ...Array.from({ length: 8 }, (_, i) => ({
+        x: x + ((i + 1) * 150) / 8,
+        y: outside,
+      })),
+    ],
+    1,
+  )
+  const [pts] = await savedPoints(page, box.width)
+  // Nothing past the border, and no run of points sitting on it.
+  expect(Math.max(...pts.map((p) => p.y))).toBeLessThanOrEqual(box.height + 1)
+  expect(pts.filter((p) => p.y >= box.height - 1.5).length).toBeLessThanOrEqual(
+    1,
+  )
+  expect(Math.max(...pts.map((p) => p.x)) - x).toBeLessThanOrEqual(10)
+})
+
+test('#65: an eraser drag that leaves the first box by the bottom erases nothing along the border', async ({
+  page,
+}) => {
+  await start(page, 'Ink65erase')
+  await pickTool(page, 'Pen')
+  const box = await rect(page, MAIN)
+  const x0 = box.x + 40
+  const lowY = box.y + box.height - 3
+  // A short stroke lying just above the border, to the right of the eraser's way down.
+  await drawSaved(
+    page,
+    Array.from({ length: 8 }, (_, i) => ({ x: x0 + 60 + i * 20, y: lowY })),
+    1,
+  )
+  // A second short stroke, mid-box, far to the right: the eraser's proof of life.
+  const midY = box.y + box.height / 2
+  await drawSaved(
+    page,
+    Array.from({ length: 6 }, (_, i) => ({ x: box.x + 250 + i * 8, y: midY })),
+    2,
+  )
+  await expect.poll(() => painted(page, 'ink')).toBeGreaterThan(0)
+  await pickTool(page, 'Eraser')
+  const ink = await painted(page, 'ink')
+  // The page ignores the first moments after a tool is chosen: rub the second stroke until it goes.
+  await expect(async () => {
+    if ((await savedInk(page)).strokes.length > 1)
+      await realPen(page, [
+        { x: box.x + 270, y: midY - 8 },
+        { x: box.x + 270, y: midY + 8 },
+      ])
+    await expect
+      .poll(async () => (await savedInk(page)).strokes.length, {
+        timeout: 3000,
+      })
+      .toBe(1)
+  }).toPass({ timeout: 20000 })
+  await expect.poll(() => painted(page, 'ink')).toBeLessThan(ink)
+  const alone = await painted(page, 'ink')
+  // Down the left side, then sideways 50 px below the border, under the stroke.
+  await realPen(page, [
+    { x: x0, y: box.y + box.height / 2 },
+    { x: x0, y: box.y + box.height + 50 },
+    ...Array.from({ length: 10 }, (_, i) => ({
+      x: x0 + ((i + 1) * 220) / 10,
+      y: box.y + box.height + 50,
+    })),
+  ])
+  await settle(page)
+  // The first stroke is still all there (the live canvas, not the slower save).
+  expect(Math.abs((await painted(page, 'ink')) - alone)).toBeLessThanOrEqual(
+    alone * 0.02,
+  )
+  await expect
+    .poll(async () => (await savedPoints(page, box.width)).length)
+    .toBe(1)
+})
+
+test('#65: a selection handle of ink in the first box can be dragged below the box border', async ({
+  page,
+}) => {
+  await start(page, 'Ink65handle')
+  await pickTool(page, 'Pen')
+  const box = await rect(page, MAIN)
+  const x0 = box.x + 60
+  const y0 = box.y + box.height / 2
+  await drawSaved(
+    page,
+    Array.from({ length: 8 }, (_, i) => ({
+      x: x0 + i * 4,
+      y: y0 - 5 + i * 1.5,
+    })),
+    1,
+  )
+  const before = await savedPoints(page, box.width)
+  const h0 =
+    Math.max(...before[0].map((p) => p.y)) -
+    Math.min(...before[0].map((p) => p.y))
+  await pickTool(page, 'Lasso')
+  await realPen(page, [
+    { x: x0 - 10, y: y0 - 12 },
+    { x: x0 + 40, y: y0 - 12 },
+    { x: x0 + 40, y: y0 + 12 },
+    { x: x0 - 10, y: y0 + 12 },
+    { x: x0 - 10, y: y0 - 12 },
+  ])
+  const handle = page.locator('[data-handle="scale"][data-axis="both"]').last()
+  await expect(handle).toBeVisible()
+  const hb = (await handle.boundingBox())!
+  const from = { x: hb.x + hb.width / 2, y: hb.y + hb.height / 2 }
+  await realPen(page, [from, { x: from.x, y: box.y + box.height + 120 }], 8)
+  await settle(page)
+  await expect
+    .poll(async () => {
+      const [pts] = await savedPoints(page, box.width)
+      return Math.max(...pts.map((p) => p.y)) - Math.min(...pts.map((p) => p.y))
+    })
+    .toBeGreaterThan(h0 * 2.5)
 })

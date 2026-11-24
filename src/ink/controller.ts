@@ -558,6 +558,10 @@ export class InkController {
     ro.observe(wrap)
     const editorEl = this.env.editorEl()
     if (editorEl) ro.observe(editorEl)
+    const frameEl = wrap.closest(
+      '[data-paper-box]:not([data-paper-box="main"])',
+    )
+    if (frameEl) ro.observe(frameEl)
     this.cleanups.push(() => ro.disconnect())
     const mo = new MutationObserver((records) => {
       // The ink's own canvases and menus changing is not the page changing.
@@ -1037,6 +1041,19 @@ export class InkController {
     this.applyPlace(this.measurePlace())
   }
 
+  /**
+   * #64: in a box on paper (not the first) that a handle made taller than its
+   * text, the ink pad covers the whole frame, down to its border; the content
+   * block itself stays as tall as the text (C21).
+   */
+  private fillHeight(wr: DOMRect): number {
+    const { wrap } = this.env
+    if (!isOn('textbox.v2')) return wr.height
+    const frame = wrap.closest('[data-paper-box]:not([data-paper-box="main"])')
+    if (!frame) return wr.height
+    return Math.max(wr.height, frame.getBoundingClientRect().bottom - wr.top)
+  }
+
   /** The read half of placeOverlay (no style writes). */
   measurePlace(): OverlayPlace {
     const { wrap } = this.env
@@ -1055,7 +1072,7 @@ export class InkController {
     if (Math.abs(zoom - 1) < 0.004) zoom = 1
     const left = Math.round((wr.left - ar.left) * 100) / 100
     const top = Math.round((wr.top - ar.top) * 100) / 100
-    return { left, top, width: wr.width, height: wr.height, zoom }
+    return { left, top, width: wr.width, height: this.fillHeight(wr), zoom }
   }
 
   /** The write half of placeOverlay (no layout reads). */
@@ -1285,7 +1302,7 @@ export class InkController {
   private inkBottom(): number | null {
     const { wrap } = this.env
     if (!isOn('textbox.v2') || !wrap.closest('[data-paper-box]')) return null
-    return wrap.getBoundingClientRect().height
+    return this.fillHeight(wrap.getBoundingClientRect())
   }
 
   private scaled(e: PointerEvent): number {

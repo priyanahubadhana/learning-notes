@@ -2,6 +2,7 @@ import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { activeTool } from '../app/tools/main/mainTools'
 import { holdMenuSetting } from '../settings/builtinSettings'
 import { readDeviceSetting } from '../settings/settingsService'
+import { PEN_QUIET_MS, holdMsFor, holdSlopFor } from '../app/input/penHold'
 import type { AppSchema } from './schema'
 
 /**
@@ -26,11 +27,14 @@ export const PEN_CARET_PX = 12
 export const RING_AFTER_MS = 400
 
 /** No Pencil hold within this long after text was written (ms, item 5). */
-export const PEN_QUIET_MS = 1000
+export { PEN_QUIET_MS }
 
 /** Pure rule: has the press moved too far to stay a hold? */
-export const movedTooFar = (dx: number, dy: number): boolean =>
-  Math.hypot(dx, dy) > HOLD_STILL_PX
+export const movedTooFar = (
+  dx: number,
+  dy: number,
+  slop = HOLD_STILL_PX,
+): boolean => Math.hypot(dx, dy) > slop
 
 /** Pure rule: distance from a point to a rectangle (0 inside). */
 export const distToRect = (
@@ -157,7 +161,8 @@ export function watchHoldMenu(
     // C0-7: the Pencil may hold anywhere in the box, but not right after
     // text went in (Scribble rests still before a stroke).
     if (e.pointerType === 'pen' && Date.now() - wroteAt < PEN_QUIET_MS) return
-    const hold = readDeviceSetting(holdMenuSetting)
+    // The Pencil's hold is fixed (0.8 s, 18 px: penHold.ts); the setting is for finger and mouse.
+    const hold = holdMsFor(e.pointerType, readDeviceSetting(holdMenuSetting))
     const me = {
       id: e.pointerId,
       x: e.clientX,
@@ -189,7 +194,11 @@ export function watchHoldMenu(
     // Any drift beyond the radius, or a harder press, ends this hold for the
     // whole stroke (nothing re-arms until the next pointerdown).
     if (
-      movedTooFar(e.clientX - press.x, e.clientY - press.y) ||
+      movedTooFar(
+        e.clientX - press.x,
+        e.clientY - press.y,
+        holdSlopFor(press.type, HOLD_STILL_PX),
+      ) ||
       (press.type === 'pen' && e.pressure - press.pressure > 0.2)
     )
       stop()

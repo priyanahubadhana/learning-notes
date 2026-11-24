@@ -14,6 +14,7 @@ import {
   type GestureRouter,
   type GestureStart,
 } from './gestureRouter'
+import { PEN_HOLD_MS, PEN_HOLD_SLOP_PX } from './penHold'
 import { PALM_TAIL_MS, STALE_MS } from '../palmGuard'
 import { MAX_MOVE, MAX_MS } from '../penTap'
 import { AGE_LIMIT_MS } from '../inputMachine'
@@ -710,5 +711,34 @@ describe('faults', () => {
     gr.destroy()
     gr.register(rec('a', 'draw').c)()
     expect(targets.live()).toBe(0)
+  })
+})
+
+describe('long-press by the Pencil (owner, 25 Nov 2026)', () => {
+  it('starts after 0.8 s, and a wobble inside 18 px does not break it', () => {
+    const a = rec('a', 'longpress')
+    gr.register(a.c)
+    gr.pointerDown(pe(1, 'pen', 10, 10))
+    gr.pointerMove(pe(1, 'pen', 10 + 15, 10, 'pointermove'))
+    vi.advanceTimersByTime(PEN_HOLD_MS - 1)
+    expect(a.starts).toHaveLength(0)
+    vi.advanceTimersByTime(1)
+    expect(a.starts).toHaveLength(1)
+  })
+  it('a Pencil moving past 18 px gives it up', () => {
+    const a = rec('a', 'longpress')
+    gr.register(a.c)
+    gr.pointerDown(pe(1, 'pen', 0, 0))
+    gr.pointerMove(pe(1, 'pen', PEN_HOLD_SLOP_PX + 1, 0, 'pointermove'))
+    expect(a.ends).toEqual(['cancelled'])
+  })
+  it('lifted at 500 ms stays a mark', () => {
+    const a = rec('a', 'longpress')
+    gr.register(a.c)
+    gr.pointerDown(pe(1, 'pen'))
+    vi.advanceTimersByTime(500)
+    gr.pointerUp(pe(1, 'pen'))
+    vi.advanceTimersByTime(PEN_HOLD_MS)
+    expect(a.starts).toHaveLength(0)
   })
 })

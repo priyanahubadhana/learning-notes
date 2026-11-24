@@ -1,3 +1,4 @@
+import { holdMsFor, holdSlopFor } from '../app/input/penHold'
 import { clampDpr } from '../app/canvasBudget'
 import { isUiEvent } from '../app/uiGuard'
 import {
@@ -291,12 +292,13 @@ type Gesture =
       second: { id: number; start: Pt; now: Pt; firstNow: Pt } | null
     }
 
+/** Shape hold for a finger or mouse; the Pencil uses penHold.ts. */
 const HOLD_MS = 600
 /** Phase Q rule 10: strokes this close in time can be one drawing (ms). */
 const DRAWING_MS = 20_000
 /** A drawing over this many lines or more belongs to its top line. */
 const DRAWING_LINES = 3
-const HOLD_SLOP = 3
+const HOLD_SLOP = 3 // finger or mouse; the Pencil: PEN_HOLD_SLOP_PX
 /** A stroke is selected when this share of its points lies inside the loop. */
 export const LASSO_INSIDE = 0.6
 
@@ -1449,16 +1451,19 @@ export class InkController {
     if (g.highlight || g.dragAs !== 'free' || !penSettings.get().holdShape) {
       return
     }
-    g.holdTimer = setTimeout(() => {
-      if (this.gesture !== g || g.world.length < 4) return
-      const found = recogniseShape(g.world, {
-        snap: penSettings.get().shapeSnap,
-      })
-      if (found) {
-        g.shape = found
-        this.requestDraw()
-      }
-    }, HOLD_MS)
+    g.holdTimer = setTimeout(
+      () => {
+        if (this.gesture !== g || g.world.length < 4) return
+        const found = recogniseShape(g.world, {
+          snap: penSettings.get().shapeSnap,
+        })
+        if (found) {
+          g.shape = found
+          this.requestDraw()
+        }
+      },
+      holdMsFor(g.type, HOLD_MS),
+    )
   }
 
   private move(e: PointerEvent): void {
@@ -1515,7 +1520,7 @@ export class InkController {
         })
       }
       const now = g.world[g.world.length - 1]
-      if (now && dist(now, g.holdOrigin) > HOLD_SLOP) {
+      if (now && dist(now, g.holdOrigin) > holdSlopFor(g.type, HOLD_SLOP)) {
         g.holdOrigin = now
         this.armHold(g)
       }

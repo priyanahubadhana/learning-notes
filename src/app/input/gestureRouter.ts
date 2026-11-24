@@ -14,6 +14,7 @@
  * document listeners); gestureRouter.test.ts asserts they stay equal.
  */
 import { PRIORITY, getEventRouter, type EventRouter } from './eventRouter'
+import { holdMsFor, holdSlopFor } from './penHold'
 
 export type GestureKind =
   'draw' | 'scroll' | 'select' | 'drag' | 'longpress' | 'tap'
@@ -45,7 +46,7 @@ export interface Claimant {
   onEnd?(g: Gesture, reason: EndReason): void
 }
 
-/** Hold time before a long-press starts. */
+/** Hold time before a finger or mouse long-press starts (the Pencil: penHold.ts). */
 export const LONG_PRESS_MS = 500
 /** No event for this long (ms) = the pointerup was lost; same as inputMachine AGE_LIMIT_MS. */
 export const STUCK_MS = 4000
@@ -263,10 +264,13 @@ export function createGestureRouter(
       entries.set(e.pointerId, en)
       armStuck(en)
       if (kind === 'longpress') {
-        en.hold = setTimeout(() => {
-          en.hold = null
-          if (entries.get(en.g.pointerId) === en) start(en)
-        }, LONG_PRESS_MS)
+        en.hold = setTimeout(
+          () => {
+            en.hold = null
+            if (entries.get(en.g.pointerId) === en) start(en)
+          },
+          holdMsFor(en.g.pointerType, LONG_PRESS_MS),
+        )
       } else start(en)
       return true
     }
@@ -282,7 +286,10 @@ export function createGestureRouter(
     armStuck(en)
     if (!en.started) {
       // Long-press waiting: moving too far gives it up.
-      if (Math.hypot(e.clientX - en.g.x, e.clientY - en.g.y) > SHARED.MAX_MOVE)
+      if (
+        Math.hypot(e.clientX - en.g.x, e.clientY - en.g.y) >
+        holdSlopFor(en.g.pointerType, SHARED.MAX_MOVE)
+      )
         end(en, 'cancelled')
       return true
     }

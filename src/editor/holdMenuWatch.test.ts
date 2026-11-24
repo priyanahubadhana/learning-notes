@@ -27,3 +27,12 @@ describe('press-and-hold menu', () => {
     expect(distToRect(140, 60, caret)).toBeGreaterThan(PEN_CARET_PX)
   })
 })
+
+describe('the Pencil hold slop (owner, 25 Nov 2026)', () => {
+  it('a Pencil wobble up to 18 px stays a hold, beyond breaks it', () => {
+    expect(movedTooFar(15, 0, 18)).toBe(false)
+    expect(movedTooFar(12, 12, 18)).toBe(false)
+    expect(movedTooFar(13, 13, 18)).toBe(true)
+    expect(movedTooFar(15, 0)).toBe(true) // the finger's 10 px is unchanged
+  })
+})

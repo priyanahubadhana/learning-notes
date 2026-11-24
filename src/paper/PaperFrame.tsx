@@ -121,6 +121,21 @@ import {
 
 /** Item 7: the page scroll bar loads when a paper page shows (first-load size). */
 /** Text box v2: the group pill (task 2B.10) loads only with the switch ON. */
+/**
+ * The least height of a box: its text with the content's padding. A box made
+ * taller than its text has a content block that fills it (#64), so the text's
+ * own height is measured with the block let go of the fill for a moment (no
+ * paint in between).
+ */
+function textHeight(content: HTMLElement | null | undefined): number {
+  if (!content) return 0
+  const was = content.style.flex
+  content.style.flex = '0 0 auto'
+  const h = content.getBoundingClientRect().height
+  content.style.flex = was
+  return h
+}
+
 const GroupPill = lazy(() => import('./v2/boxGroup'))
 const PageScrollBar = lazy(() =>
   import('./PageScrollBar').then((m) => ({ default: m.PageScrollBar })),
@@ -1505,7 +1520,7 @@ export function PaperFrame({
       x0: e.clientX,
       y0: e.clientY,
       h0: (el?.getBoundingClientRect().height ?? 0) / k,
-      minH: (content?.getBoundingClientRect().height ?? 0) / k,
+      minH: textHeight(content) / k,
       rowId: i !== null && row ? row.id : null,
       i: phone ? null : i,
       vert: how.includes('s') || north || flip || (phone && how.includes('n')),

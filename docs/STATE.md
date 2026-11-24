@@ -18,7 +18,9 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 ## Now
 
-**Resume here (24 Nov 2026, 06:15 IST, the night's handoff; the owner clears the chat in the morning, a new chat only needs "continue").**
+**Resume here (24 Nov 2026, 12:40 IST, midday; a new chat only needs "continue").**
+
+**Done at midday (24 Nov, all pushed):** the cut scenarios job of run 45299069262 was rerun by hand and is green (install 39 s, the mirror is normal). The S9 ✘ of the night was a misread: S6, S7 and S9 are `@notbuilt @fail` since 20 Nov and the total was "20 passed" (DECISIONS 24 Nov 12:35); nothing is flaky. The scenarios job got the browser cache (slice/scenarios-browser-cache 0bb6bb9e, worktree ln-scen-cache, merged into build/next as ed70da65 and pushed with main merged in). **Check in a new chat:** `gh run list --branch build/next --limit 1` must be green and the preview's version.json must equal the pull request's merge commit; the run after that must show a cache hit in the scenarios job. The morning message (step 2 below) was sent to the owner at 12:45; **the line now waits for the owner's answers and iPad tests (step 3).** Step 1 below is done.
 
 **Done tonight (all pushed):**
 

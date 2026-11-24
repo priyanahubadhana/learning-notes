@@ -512,7 +512,9 @@ test.describe('the Pencil hold, circle and loop (owner, 25 Nov)', () => {
     await expect(anyMenu(page).first()).toBeVisible({ timeout: 2000 })
   })
 
-  test('the same wobble lifted at about 0.6 s opens nothing', async ({ page }) => {
+  test('the same wobble lifted at about 0.6 s opens nothing', async ({
+    page,
+  }) => {
     await open(page, 'pencil')
     const w = centre(await boxOf(page, 'rate-is'))
     await page.waitForTimeout(1300)

@@ -18,6 +18,13 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 ## Now
 
+**Resume here (24 Nov 2026, about 22:35 IST; phase 1A release to live, on the owner's yes).**
+
+- **Done:** the owner passed #61 to #65 on the iPad; #60 to #65 closed with proof comments. Answers: the small bar over the tabs = issue #67 (label stage-3, later); box smaller than its ink: no change; fast set: **A** (keep, 45-minute limit stays); no "must never happen" lines now. Live switches: **option A** (live starts as the preview; src/app/flags.ts). CI tooling fix (ipad-webkit helper match). **PR #5 merged into main (88f2ded8).**
+- **Running:** CI run 45443692412 on main (full set, then the deploy only if green). A new chat: `gh run view 45443692412`; when green, `node scripts/check-live.mjs <main sha>` and check https://learning-notes-app.pages.dev/version.json equals main. Any red: stop, root cause, fix on build/next, merge again; the live site keeps the old version meanwhile.
+- **Also running:** the hand-started full set on build/next (45442656756, a rehearsal) and the preview runs 45442666182, 45443538728 (the preview gets b593dd71).
+- **Next:** (1) when the preview serves b593dd71, write "ready" to the owner for the update test (S5, S1, S4 on the PC; S6, S1, S7, S4 on the iPad; steps in the chat of 24 Nov evening); (2) after the live deploy, tell the owner, and ask for the iPad reading check on the live app (the first live update still uses the old updater); (3) phase 1A close-out (step 5 below); (4) 1B planning with Fable and the owner.
+
 **Resume here (24 Nov 2026, about 21:45 IST; final handoff of the fix session; the owner sleeps and opens a new chat with "continue").**
 
 **State: the fix session is merged and pushed.** build/next a551b50b holds the five fixes of the owner's iPad check (#61, #62, #63, #64, #65) and main. CI run 45430735905 on PR #5 is green and the preview serves it (step 1). Details and proof numbers: CHANGELOG "24 Nov 2026, evening". Both slice branches (slice/box-bar-61-63 in ln-barfix, slice/ink-box-64-65 in ln-inkbox) are merged locally into build/next and were never pushed alone; do not delete the worktrees (the owner decides).

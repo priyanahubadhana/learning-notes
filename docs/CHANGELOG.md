@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 25 Nov 2026 (24 Nov, 22:30 IST): phase 1A goes live on the owner's yes
+
+- **What:** (1) the nightly full set had failed to load in both pencil-webkit shards (run 45329345242): the ipad-webkit match `/u0aUpdateRepro/` also took e2e/u0aUpdateRepro.helper.ts as a test file; now `/u0aUpdateRepro[.]spec/` (c4ec28a5; 2307 tests in 240 files list cleanly). (2) The owner chose option A: the live host starts with the same parts ON as the preview (PREVIEW_DEFAULT_ON plus the phase under test); a user's own switches win; local and test hosts keep everything OFF (0e5c34fb, b593dd71; the flag tests follow the new rule, 28 of 28, tryNew and freezeWatch 15 of 15). (3) PR #5 merged into main (88f2ded8); the push to main runs the full set and deploys only when it is green (run 45443692412). No backup first: the owner has nothing on the live app yet.
+- **Why:** the owner's iPad pass of #61 to #65 and "release it". **Files:** playwright.config.ts, src/app/flags.ts, src/app/flags.test.ts.
+
 ### 24 Nov 2026, evening: the fix session for the owner's iPad check (#61 to #65) is on build/next (code on build/next, docs on main)
 
 - **What:** build/next a551b50b = slice/box-bar-61-63 (#63 the bar beside a box selected by its border has the pin from the first show, BoxBarV2 passes a free place and onPin; #61 a side dock needs the pointer in the side zone and 40 px of travel toward it; #62 the bar's page shield waits while a press is down, pointer-id set, cleared on background, 2 s cap, now through the event router; the moved bar gets its own layer `--z-boxbar: 34`, above the page and box text, under the mini bar, drawer, pop menus and sheets) + slice/ink-box-64-65 (#65 `ensureRoom` keeps room only for saved ink below a paper box, no +240; only the pen stops at a paper box's bottom border, a stroke that leaves it ends there, the eraser and handles are free; #64 the editor and the ink pad fill a resized box, a caret tap in the empty lower part, resize `minH` from the text height) + origin/main. Two test lines changed on the owner's yes (B6, TB-24; DECISIONS 24 Nov 14:20). The #64 shrink test waits until the dot is back on the box edge (trace: under load on WebKit the frame follows a shrink about 150 ms late; no retry).

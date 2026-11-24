@@ -19,6 +19,7 @@ import {
   getStudyTemplate,
   isPageBlank,
   listTemplateSummaries,
+  startersReady,
 } from './templateService'
 
 /**
@@ -53,6 +54,10 @@ export function NewPageStart({
     () => listTemplateSummaries(db, workspaceId),
     [db, workspaceId],
   )
+  const ready = useLiveQuery(
+    () => startersReady(db, workspaceId),
+    [db, workspaceId],
+  )
   const always = useSyncedSetting(db, newPageStudySetting)
   const chooser = useSyncedSetting(db, newPageChooserSetting)
   const [hidden, setHidden] = useState(false)
@@ -60,7 +65,7 @@ export function NewPageStart({
     async () => (await db.pages.get(pageId))?.inkBg,
     [db, pageId],
   )
-  if (!blank || !templates || hidden || chooser === 'off') return null
+  if (!blank || !templates || !ready || hidden || chooser === 'off') return null
 
   const others = templates.filter((x) => !x.isDaily && x.id !== study?.id)
   const choose = (templateId: string) =>

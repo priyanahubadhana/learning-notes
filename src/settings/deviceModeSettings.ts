@@ -20,6 +20,7 @@ import {
 } from '../app/deviceMode'
 import { isBoolean, readPref, writePref } from '../app/uiPrefs'
 import { t } from '../i18n/t'
+import { keyNamesShown } from '../app/keyNames'
 import {
   applyDeviceMode,
   applyModePreset,
@@ -130,7 +131,8 @@ export function useBarSettings(): BarSettings {
     size,
     buttonPx: barButtonPx(size, mode),
     hoverTips: hoverTips === 'on',
-    shortcutHints: hints === 'on' || keyboard,
+    // T31: key names only in Computer mode, even with a keyboard attached.
+    shortcutHints: keyNamesShown(mode) && (hints === 'on' || keyboard),
     autoHide: autoHide === 'on',
   }
 }
@@ -179,19 +181,44 @@ const keyboardInset = () => {
     : 0
 }
 
+/*
+ * P1 speed (17 Nov 2026): reading innerHeight and the visual viewport forces
+ * the browser to lay out the page. React reads this value on every render of
+ * every editor (one per box), so a page switch laid the page out again and
+ * again (about 80 ms on a desktop, several times that on an iPad). The value
+ * is now read once per viewport change, by one shared listener, and kept.
+ */
+const insetListeners = new Set<() => void>()
+let cachedInset = 0
+
+function onViewportChange() {
+  cachedInset = keyboardInset()
+  for (const listener of [...insetListeners]) listener()
+}
+
 function subscribeViewport(listener: () => void) {
   const vv = window.visualViewport
-  vv?.addEventListener('resize', listener)
-  vv?.addEventListener('scroll', listener)
+  if (insetListeners.size === 0) {
+    cachedInset = keyboardInset()
+    vv?.addEventListener('resize', onViewportChange)
+    vv?.addEventListener('scroll', onViewportChange)
+  }
+  insetListeners.add(listener)
   return () => {
-    vv?.removeEventListener('resize', listener)
-    vv?.removeEventListener('scroll', listener)
+    insetListeners.delete(listener)
+    if (insetListeners.size > 0) return
+    vv?.removeEventListener('resize', onViewportChange)
+    vv?.removeEventListener('scroll', onViewportChange)
   }
 }
 
+/** The last measured inset while someone listens; a fresh read otherwise. */
+const insetSnapshot = () =>
+  insetListeners.size > 0 ? cachedInset : keyboardInset()
+
 /** Pixels the on-screen keyboard covers at the bottom (0 without one). */
 export function useKeyboardInset(): number {
-  return useSyncExternalStore(subscribeViewport, keyboardInset)
+  return useSyncExternalStore(subscribeViewport, insetSnapshot)
 }
 
 // ---- Switching by itself when a Pencil or a finger is used ----

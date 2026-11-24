@@ -1,0 +1,46 @@
+# 2A.9 Format card, first look (chromium, touch; taken after the last source edit)
+
+File name: format-<tab>-<device>-<day|night>-<level>.png. Day = light, night = dark. Devices: phone 390x844, ipad-landscape 1180x820, ipad-portrait 820x1180. Beginner has tabs text, style, paragraph; professional adds advanced. Approved picture: docs/mockups/toolbar-v9/toolbar-v9.html (Format card). Sepia and PC come at the end of the phase.
+
+- format-advanced-ipad-landscape-day-professional.png
+- format-advanced-ipad-landscape-night-professional.png
+- format-advanced-ipad-portrait-day-professional.png
+- format-advanced-ipad-portrait-night-professional.png
+- format-advanced-phone-day-professional.png
+- format-advanced-phone-night-professional.png
+- format-paragraph-ipad-landscape-day-beginner.png
+- format-paragraph-ipad-landscape-day-professional.png
+- format-paragraph-ipad-landscape-night-beginner.png
+- format-paragraph-ipad-landscape-night-professional.png
+- format-paragraph-ipad-portrait-day-beginner.png
+- format-paragraph-ipad-portrait-day-professional.png
+- format-paragraph-ipad-portrait-night-beginner.png
+- format-paragraph-ipad-portrait-night-professional.png
+- format-paragraph-phone-day-beginner.png
+- format-paragraph-phone-day-professional.png
+- format-paragraph-phone-night-beginner.png
+- format-paragraph-phone-night-professional.png
+- format-style-ipad-landscape-day-beginner.png
+- format-style-ipad-landscape-day-professional.png
+- format-style-ipad-landscape-night-beginner.png
+- format-style-ipad-landscape-night-professional.png
+- format-style-ipad-portrait-day-beginner.png
+- format-style-ipad-portrait-day-professional.png
+- format-style-ipad-portrait-night-beginner.png
+- format-style-ipad-portrait-night-professional.png
+- format-style-phone-day-beginner.png
+- format-style-phone-day-professional.png
+- format-style-phone-night-beginner.png
+- format-style-phone-night-professional.png
+- format-text-ipad-landscape-day-beginner.png
+- format-text-ipad-landscape-day-professional.png
+- format-text-ipad-landscape-night-beginner.png
+- format-text-ipad-landscape-night-professional.png
+- format-text-ipad-portrait-day-beginner.png
+- format-text-ipad-portrait-day-professional.png
+- format-text-ipad-portrait-night-beginner.png
+- format-text-ipad-portrait-night-professional.png
+- format-text-phone-day-beginner.png
+- format-text-phone-day-professional.png
+- format-text-phone-night-beginner.png
+- format-text-phone-night-professional.png

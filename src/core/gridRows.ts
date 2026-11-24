@@ -43,13 +43,10 @@ export function isGridRows(v: unknown): v is GridRow[] {
         seen.add(id)
       }
     }
-    if (Math.abs(total - 1) > 0.02) return false
-    // Only a lone box can be free.
-    if (
-      cols.length > 1 &&
-      (row.x !== undefined || row.wmm !== undefined || row.auto)
-    )
-      return false
+    // A row may leave room at its right (the last box's right edge pulled in).
+    if (total > 1.02 || (cols.length === 1 && total < 0.98)) return false
+    // Only a lone box can be free; a row of columns may have a left offset (x).
+    if (cols.length > 1 && (row.wmm !== undefined || row.auto)) return false
   }
   return true
 }

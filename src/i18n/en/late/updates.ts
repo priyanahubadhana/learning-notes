@@ -12,6 +12,8 @@ export const enLateUpdates = {
   'upd.updated': 'Updated to version {version}',
   'upd.updating': 'Restarting into the new version…',
   'update.auto.done': 'Updated to the latest version',
+  'upd.restartFailed': "Couldn't restart. Tap to try again",
+  'upd.restartNow': 'Restart now',
   'update.req.body':
     'This update changes how your notes are stored, so it is needed to keep going. Your notes stay safe.',
   'update.req.countdown':
@@ -36,4 +38,21 @@ export const enLateUpdates = {
     'A new version is ready, but this device is low on space, so no safety copy was made.',
   'update.risk.unsaved':
     'A new version is ready, but some changes could not be saved yet.',
+  'upd.line.version': 'Version {commit}',
+  'upd.line.upToDate': 'Up to date',
+  'upd.line.notChecked': 'Not checked yet',
+  'upd.line.checking': 'Checking for updates…',
+  'upd.line.downloading': 'Downloading the update…',
+  'upd.line.ready': 'Update ready',
+  'upd.line.restarting': 'Restarting…',
+  'upd.line.failed': 'Could not check',
+  'upd.line.offline': 'Offline',
+  'update.prompt': 'Restarting in {s} s…',
+  'update.cancel': 'Cancel',
+  'update.tryAgain': 'Try again',
+  'update.didNotFinish': 'The update did not finish',
+  'update.postponed': 'Update postponed',
+  'update.card.title': 'Update',
+  'update.card.check': 'Check now',
+  'update.card.update': 'Update',
 }

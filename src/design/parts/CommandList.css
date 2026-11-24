@@ -1,0 +1,225 @@
+/* SP-45..48 Command list. Card look from design-study 3: glass, hairline, two-layer shadow. */
+.cl {
+  --cl-w: 320px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: min(var(--cl-w), calc(100vw - 24px));
+  min-height: 240px;
+  max-height: min(420px, calc(100dvh - 24px));
+  padding: 8px;
+  border-radius: 20px;
+  background: var(--card-fill);
+  color: var(--color-ink);
+  box-shadow:
+    0 0 0 1px var(--card-hair),
+    var(--card-hi),
+    var(--card-shadow);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
+  font-size: 14px;
+  animation: cl-in var(--card-dur-in, 160ms) var(--ease-out) both;
+}
+.cl[data-mode='floating'] {
+  position: fixed;
+}
+.cl[data-phone] {
+  --cl-w: calc(100vw - 24px);
+}
+.cl[data-state='closing'] {
+  animation: cl-out 120ms var(--ease-in) both;
+  pointer-events: none;
+}
+:root[data-glass='lite'] .cl {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .cl {
+    background: var(--color-surface-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@keyframes cl-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes cl-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+.cl__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 14px;
+  background: var(--card-well);
+  color: var(--color-ink-soft, var(--color-muted));
+}
+.cl__search:focus-within {
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+.cl__input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: 15px;
+}
+.cl__input::placeholder {
+  color: var(--color-muted);
+}
+.cl__list {
+  flex: 1;
+  min-height: 0;
+  margin-top: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* No bar taking width: rows run edge to edge, same as the search box. */
+  scrollbar-width: none;
+}
+.cl__list::-webkit-scrollbar {
+  display: none;
+}
+/* G3-2: on touch the scroll hint reserves a 24 px gutter; here its handle
+   floats over the rows instead, so rows keep the search box's right edge. */
+.cl__list[data-scroll-gutter] {
+  padding-inline-end: 0;
+}
+.cl__clear {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink-soft, var(--color-muted));
+  cursor: pointer;
+}
+.cl__clear:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -6px;
+  border-radius: var(--r-pill);
+}
+/* Phone: a solid surface, so nothing behind (tab highlight) shows through. */
+.cl[data-phone] {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.cl__group {
+  padding: 10px 12px 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.cl__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 12px;
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-out);
+}
+.cl__row:hover {
+  background: var(--card-well);
+}
+.cl__row[data-active] {
+  background: var(--card-well-2);
+}
+.cl__row--danger {
+  color: var(--color-danger);
+}
+.cl__row--all {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+.cl__label {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cl__hint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-muted);
+}
+.cl__key {
+  flex: none;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--card-well);
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 12px;
+}
+.cl__none {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--color-muted);
+}
+.cl__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cl,
+  .cl[data-state='closing'] {
+    animation: none;
+  }
+  .cl__row {
+    transition: none;
+  }
+}
+:root[data-motion='reduce'] .cl,
+:root[data-motion='reduce'] .cl[data-state='closing'] {
+  animation: none;
+}
+
+/* Top-layer (popover) element: undo the browser's default box. */
+.cl[popover] {
+  inset: auto;
+  margin: 0;
+  border: 0;
+  overflow: visible;
+  color: var(--color-ink);
+}
+
+/* Gallery examples sit on a plain page, where the blur shows nothing, and a
+   dozen 28 px blurs at once stall software-rendered WebKit (CI). */
+.cl[data-mode='inline'] {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}

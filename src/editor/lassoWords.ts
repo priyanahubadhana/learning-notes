@@ -2,7 +2,9 @@ import type { Node as PMNode } from 'prosemirror-model'
 import { TextSelection } from 'prosemirror-state'
 import type { EditorView } from 'prosemirror-view'
 import { miniToolbarOpen } from '../app/tools/main/mainTools'
+import { isOn } from '../app/flags'
 import type { AppSchema } from './schema'
+import { tokenSpans } from './textTokens'
 
 /**
  * The Lasso's T filter around PART of a paragraph (R6-17, owner's iPad). A
@@ -31,14 +33,17 @@ export interface Box {
   h: number
 }
 
-const isWordChar = (ch: string) => /[\p{L}\p{N}_’'-]/u.test(ch)
-
 /**
  * The words of one text block as document ranges (pure, tested): a word is a
- * run of letters, digits and the usual joins; an inline thing that is not
+ * run of letters, digits and the usual joins (with `symbols`, also a run of
+ * symbols, textTokens.ts); an inline thing that is not
  * text (a mention, a break) splits words.
  */
-export function wordRanges(block: PMNode, pos: number): [number, number][] {
+export function wordRanges(
+  block: PMNode,
+  pos: number,
+  symbols = isOn('textbox.v2'),
+): [number, number][] {
   const chars: { ch: string; pos: number }[] = []
   block.forEach((child, offset) => {
     const at = pos + 1 + offset
@@ -50,19 +55,12 @@ export function wordRanges(block: PMNode, pos: number): [number, number][] {
       chars.push({ ch: ' ', pos: at })
     }
   })
-  const out: [number, number][] = []
-  let i = 0
-  while (i < chars.length) {
-    if (!isWordChar(chars[i].ch)) {
-      i++
-      continue
-    }
-    let j = i
-    while (j < chars.length && isWordChar(chars[j].ch)) j++
-    out.push([chars[i].pos, chars[j - 1].pos + 1])
-    i = j
-  }
-  return out
+  // C5: with switch textbox.v2 symbol runs (→ , / ①) count as words too.
+  const text = chars.map((c) => c.ch).join('')
+  return tokenSpans(text, symbols).map(([from, to]) => [
+    chars[from].pos,
+    chars[to - 1].pos + 1,
+  ])
 }
 
 /** The id of the page block (BlockNote container) that holds `pos`. */
@@ -82,12 +80,44 @@ const overlaps = (r: DOMRect, b: Box) =>
   r.right >= b.x && r.left <= b.x + b.w && r.bottom >= b.y && r.top <= b.y + b.h
 
 /**
+ * The middle of the text from `from` to `to` on screen. The characters' own
+ * box when the view can give it (C5: a caret's box spans the whole line
+ * height, and in a text box a tall glyph such as ① makes it reach into the
+ * row above, so a loop round one row picked words of the next); else the
+ * caret boxes at both ends.
+ */
+function centreOf(
+  view: Pick<EditorView, 'coordsAtPos'> & Partial<Pick<EditorView, 'domAtPos'>>,
+  from: number,
+  to: number,
+): { x: number; y: number } {
+  if (isOn('textbox.v2') && view.domAtPos && typeof document !== 'undefined') {
+    try {
+      const a = view.domAtPos(from, 1)
+      const b = view.domAtPos(to, -1)
+      const r = document.createRange()
+      r.setStart(a.node, a.offset)
+      r.setEnd(b.node, b.offset)
+      const box = r.getBoundingClientRect()
+      if (box.width > 0 || box.height > 0)
+        return { x: box.left + box.width / 2, y: box.top + box.height / 2 }
+    } catch {
+      // Fall back to the caret boxes below.
+    }
+  }
+  const a = view.coordsAtPos(from, 1)
+  const b = view.coordsAtPos(to, -1)
+  return { x: (a.left + b.left) / 2, y: (a.top + a.bottom) / 2 }
+}
+
+/**
  * The words whose centre is inside the region (client px), as one range from
  * the first to the last in reading order. `box` is the region's bounds: only
  * blocks and words that touch it are measured.
  */
 export function wordsInRegion(
-  view: Pick<EditorView, 'state' | 'nodeDOM' | 'coordsAtPos'>,
+  view: Pick<EditorView, 'state' | 'nodeDOM' | 'coordsAtPos'> &
+    Partial<Pick<EditorView, 'domAtPos'>>,
   inside: (x: number, y: number) => boolean,
   box: Box,
 ): WordsFound | null {
@@ -109,10 +139,7 @@ export function wordsInRegion(
     const ranges = wordRanges(node, pos)
     let hits = 0
     for (const [from, to] of ranges) {
-      const a = view.coordsAtPos(from, 1)
-      const b = view.coordsAtPos(to, -1)
-      const x = (a.left + b.left) / 2
-      const y = (a.top + a.bottom) / 2
+      const { x, y } = centreOf(view, from, to)
       if (x < box.x || x > box.x + box.w || y < box.y || y > box.y + box.h) {
         continue
       }

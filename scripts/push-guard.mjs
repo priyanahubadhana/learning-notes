@@ -176,6 +176,7 @@ for (const [, localSha, remoteRef, remoteSha] of lines) {
     runEach('eslint', 'npx eslint --quiet', plan.eslint)
     if (plan.tsc) run('tsc', 'npx tsc -b')
     if (plan.ratchet) run('check:ratchet', 'npm run check:ratchet')
+    if (plan.spec) run('check:spec', 'npm run check:spec')
     runEach(
       'vitest related',
       'node scripts/run-vitest.mjs related --run --passWithNoTests',

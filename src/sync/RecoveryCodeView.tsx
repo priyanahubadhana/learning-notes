@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { t } from '../i18n/t'
+import { AreaInput } from '../settings/AreaInput'
 
 const field =
   'min-h-11 w-full rounded-lg border border-line bg-bg px-3 text-sm outline-none focus:border-accent'
@@ -85,7 +86,7 @@ export function RecoveryCodeView({
       </div>
       <label className="flex flex-col gap-1 text-sm">
         {t('sync.codeCheck')}
-        <input
+        <AreaInput
           className={field}
           value={check}
           autoComplete="off"

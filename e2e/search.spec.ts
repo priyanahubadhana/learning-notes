@@ -22,7 +22,7 @@ test.beforeEach(async ({ page }) => {
   await createNotebook(page, 'Biology', 'Cells')
   await typeInEditor(page, 'The nucleus holds DNA')
   await page.keyboard.press('Enter')
-  await makeCard(page, 'What does the nucleus hold?', 1)
+  await makeCard(page, 'What does the nucleus hold?', 1, { keepCaret: true })
   await addPage(page, 'Biology', 'Energy')
   await typeInEditor(page, 'Mitochondria make energy')
   await page.waitForTimeout(700) // autosave

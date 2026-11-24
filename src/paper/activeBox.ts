@@ -15,6 +15,17 @@ export const activeBox = {
     current = { pageId, boxId }
     for (const fn of listeners) fn()
   },
+  /**
+   * A box left the page (deleted, or the page closed): if it was the bar's
+   * owner, hand the bar back to the default box. Why: with nobody mounted as
+   * owner no editor drew the docked bar, and the whole tool row vanished
+   * (re-test 18 Nov, bug 1).
+   */
+  clear(pageId: string, boxId: string) {
+    if (current?.pageId !== pageId || current.boxId !== boxId) return
+    current = null
+    for (const fn of listeners) fn()
+  },
   subscribe(fn: () => void) {
     listeners.add(fn)
     return () => listeners.delete(fn)

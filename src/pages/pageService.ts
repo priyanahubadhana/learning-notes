@@ -175,6 +175,23 @@ export async function createPage(
   })
 }
 
+/**
+ * Marks journal month pages the user chose to keep apart (Undo of the month
+ * repair). Saved with a new time, so it syncs to every device.
+ */
+export async function markMonthJoinDeclined(
+  db: LearningNotesDB,
+  ids: readonly string[],
+): Promise<void> {
+  await db.transaction('rw', db.pages, async () => {
+    const now = Date.now()
+    for (const id of ids) {
+      await getLive(db.pages, id)
+      await db.pages.update(id, { monthJoinDeclined: true, updatedAt: now })
+    }
+  })
+}
+
 /** Sets (or, with undefined, clears) a page's own path style. */
 export async function setPagePathStyle(
   db: LearningNotesDB,

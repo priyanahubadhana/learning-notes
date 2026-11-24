@@ -52,7 +52,7 @@ export function useLockItem(
   return [
     {
       label: t(locked ? `lock.menu.remove.${kind}` : `lock.menu.lock.${kind}`),
-      icon: '🔒',
+      icon: 'lock',
       onSelect,
     },
   ]

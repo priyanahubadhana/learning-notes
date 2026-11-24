@@ -64,9 +64,10 @@ export async function syncCardRecords(
   pageId: string,
   now: number = Date.now(),
 ): Promise<void> {
-  await db.transaction('rw', db.pages, db.blocks, db.cards, async () => {
+  /** The card records the page should have but does not. */
+  const missingCards = async () => {
     const page = await db.pages.get(pageId)
-    if (!page) return
+    if (!page) return []
     const blocks = await db.blocks
       .where('pageId')
       .equals(pageId)
@@ -75,16 +76,30 @@ export async function syncCardRecords(
     const wanted = blocks.flatMap((block) =>
       cardParts(block).map((part) => ({ block, part })),
     )
-    if (wanted.length === 0) return
+    if (wanted.length === 0) return []
 
     // Card ids are fixed from block and part, so look them up by key: one
     // bulk read, not one index lookup per block (slow with thousands).
     const found = await db.cards.bulkGet(
       wanted.map(({ block, part }) => stableId(`card:${block.id}/${part}`)),
     )
-    const missing = wanted
+    return wanted
       .filter((_, i) => !found[i])
       .map(({ block, part }) => newCard(block, page.notebookId, part, now))
+  }
+  // P1 speed (17 Nov 2026): a read-only look first. A write transaction waits
+  // for every other one, and this runs each time a page (or box) opens; it
+  // almost never has anything to add.
+  const first = await db.transaction(
+    'r',
+    db.pages,
+    db.blocks,
+    db.cards,
+    missingCards,
+  )
+  if (first.length === 0) return
+  await db.transaction('rw', db.pages, db.blocks, db.cards, async () => {
+    const missing = await missingCards()
     if (missing.length > 0) await db.cards.bulkAdd(missing)
   })
 }

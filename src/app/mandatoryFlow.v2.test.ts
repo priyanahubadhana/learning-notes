@@ -8,7 +8,11 @@ import {
   startMandatoryUpdate,
   type MandatoryDeps,
 } from './mandatoryFlow'
-import { mandatoryMeta, mandatoryUpdate } from './mandatoryState'
+import {
+  mandatoryFailure,
+  mandatoryMeta,
+  mandatoryUpdate,
+} from './mandatoryState'
 import { resetUpdates } from './updates'
 
 afterEach(() => {
@@ -179,5 +183,198 @@ describe('install', () => {
     await vi.advanceTimersByTimeAsync(FORCE_RESTART_MS + 10)
     expect(hardRestart).toHaveBeenCalledTimes(1)
     expect(phase()).toBe('installing')
+  })
+})
+
+describe('L13 failure note for the preview host', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+    resetMandatoryUpdate()
+  })
+  it('a restart that did not come records the step and the time waited', async () => {
+    vi.useFakeTimers()
+    startMandatoryUpdate(deps({ restartMs: 30_000 }))
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    // Still waiting at 6 s: no failure yet (the longer limit).
+    await vi.advanceTimersByTimeAsync(FORCE_RESTART_MS + 10)
+    expect(phase()).toBe('installing')
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(phase()).toBe('failed')
+    expect(mandatoryFailure.get()).toEqual({
+      what: 'restart',
+      waitedMs: 30_000,
+    })
+  })
+  it('a download that failed records the download step', async () => {
+    vi.useFakeTimers()
+    startMandatoryUpdate(
+      deps({
+        download: async () => {
+          throw new Error('x')
+        },
+      }),
+    )
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    expect(mandatoryFailure.get()?.what).toBe('download')
+  })
+})
+
+describe('P1.8 picture: Update now, the waiting pill, true numbers', () => {
+  it('"Update now" in the countdown starts the download at once', async () => {
+    vi.useFakeTimers()
+    const download = vi.fn(() => new Promise<void>(() => {}))
+    const f = startMandatoryUpdate(deps({ download }))
+    expect(phase()).toBe('countdown')
+    f.startNow()
+    expect(phase()).toBe('downloading')
+    expect(download).toHaveBeenCalledTimes(1)
+    // the old countdown timer must not start a second download
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000 + 100)
+    expect(download).toHaveBeenCalledTimes(1)
+  })
+  it('"Not now" after a failure leaves a waiting pill, not nothing', async () => {
+    vi.useFakeTimers()
+    const f = startMandatoryUpdate(
+      deps({
+        download: async () => {
+          throw new Error('x')
+        },
+      }),
+    )
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    expect(phase()).toBe('failed')
+    f.dismiss()
+    expect(phase()).toBe('waiting')
+    expect(mandatoryFailure.get()).toBeNull()
+  })
+  it('"Try again" on the pill downloads again, with a blocked app', async () => {
+    vi.useFakeTimers()
+    let fail = true
+    const f = startMandatoryUpdate(
+      deps({
+        download: async (progress) => {
+          if (fail) throw new Error('x')
+          progress(10, 10)
+        },
+      }),
+    )
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    f.dismiss()
+    fail = false
+    f.retry()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(phase()).toBe('installing')
+  })
+  it('a new look for updates starts the notice again while the pill waits', async () => {
+    vi.useFakeTimers()
+    const f = startMandatoryUpdate(
+      deps({
+        download: async () => {
+          throw new Error('x')
+        },
+      }),
+    )
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    f.dismiss()
+    startMandatoryUpdate(deps())
+    expect(phase()).toBe('countdown')
+  })
+  it('a pill is not a pause: the other-tab rule still has no way out', async () => {
+    vi.useFakeTimers()
+    const f = startMandatoryUpdate(
+      deps({
+        mayLeave: () => false,
+        download: async () => {
+          throw new Error('x')
+        },
+      }),
+    )
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    f.dismiss()
+    expect(phase()).toBe('failed')
+  })
+  it('slow and the time left come from the real speed', async () => {
+    vi.useFakeTimers()
+    let report: (l: number, t: number) => void = () => {}
+    startMandatoryUpdate(
+      deps({
+        now: () => Date.now(),
+        download: (p) => {
+          report = p
+          return new Promise<void>(() => {})
+        },
+      }),
+    )
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    report(1000, 1_000_000)
+    // 9 s with almost nothing arriving: the clock ticks by itself
+    await vi.advanceTimersByTimeAsync(9000)
+    const s = mandatoryUpdate.get()
+    expect(s).toMatchObject({ phase: 'downloading', slow: true })
+    // the speed is back
+    for (let i = 0; i < 6; i++) {
+      report(1000 + (i + 1) * 400_000, 3_000_000)
+      await vi.advanceTimersByTimeAsync(1000)
+    }
+    expect(mandatoryUpdate.get()).toMatchObject({ slow: false })
+  })
+})
+
+describe('T29 a failed download stays until the person chooses', () => {
+  const failing = (over: Partial<MandatoryDeps> = {}) =>
+    deps({
+      download: async () => {
+        throw new Error('dead line')
+      },
+      ...over,
+    })
+
+  it('a late progress report from the dead download cannot replace the note', async () => {
+    vi.useFakeTimers()
+    let late: (l: number, t: number) => void = () => {}
+    startMandatoryUpdate(
+      deps({
+        download: async (progress) => {
+          late = progress
+          throw new Error('dead line')
+        },
+      }),
+    )
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    expect(phase()).toBe('failed')
+    late(5, 10)
+    await vi.advanceTimersByTimeAsync(5000)
+    expect(phase()).toBe('failed')
+  })
+  it('the network flapping never clears it (iPad Airplane mode)', async () => {
+    vi.useFakeTimers()
+    const n = net(true)
+    startMandatoryUpdate(failing({ ...n }))
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    expect(phase()).toBe('failed')
+    n.set(false)
+    n.set(true)
+    n.set(false)
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(phase()).toBe('failed')
+  })
+  it('a repeated look for updates keeps it, and nothing else ends it', async () => {
+    vi.useFakeTimers()
+    startMandatoryUpdate(failing())
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000)
+    for (let i = 0; i < 3; i++) startMandatoryUpdate(failing())
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(phase()).toBe('failed')
+  })
+  it('Try again and Not now still work after the wait', async () => {
+    vi.useFakeTimers()
+    const f = startMandatoryUpdate(failing())
+    await vi.advanceTimersByTimeAsync(COUNTDOWN_S * 1000 + 20_000)
+    f.retry()
+    expect(phase()).toBe('downloading')
+    await vi.advanceTimersByTimeAsync(0)
+    expect(phase()).toBe('failed')
+    f.dismiss()
+    expect(phase()).toBe('waiting')
   })
 })

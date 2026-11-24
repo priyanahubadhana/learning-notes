@@ -6,6 +6,10 @@ export interface TreeState {
   isNotebookOpen: (id: string) => boolean
   toggleNotebook: (id: string) => void
   expandNotebook: (id: string) => void
+  /** Folds all the given notebooks (the sidebar's "Collapse all"). */
+  collapseAllNotebooks: (ids: readonly string[]) => void
+  /** Opens every notebook again. */
+  expandAllNotebooks: () => void
   isPageOpen: (id: string) => boolean
   togglePage: (id: string) => void
   expandPage: (id: string) => void
@@ -32,6 +36,8 @@ export function useTreeState(): TreeState {
     toggleNotebook: (id) => setCollapsedNotebooks((list) => toggle(list, id)),
     expandNotebook: (id) =>
       setCollapsedNotebooks((list) => list.filter((x) => x !== id)),
+    collapseAllNotebooks: (ids) => setCollapsedNotebooks([...ids]),
+    expandAllNotebooks: () => setCollapsedNotebooks([]),
     isPageOpen: (id) => expandedPages.includes(id),
     togglePage: (id) => setExpandedPages((list) => toggle(list, id)),
     expandPage: (id) =>

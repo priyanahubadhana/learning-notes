@@ -6,23 +6,21 @@ import {
   useRef,
   useState,
   type PointerEvent,
+  type ReactNode,
 } from 'react'
 import { startGripDrag } from '../gripDrag'
 import { createPortal } from 'react-dom'
 import { t } from '../../../i18n/t'
 import type { Editor } from '../../../editor/barActions'
 import { addLineAfterCursor } from '../../../editor/lineActions'
-import { setKeyboard } from '../../../editor/keyboardPolicy'
+import { noteTyped } from '../../../editor/typedSignal'
 import { Icon } from '../icons'
-import { currentRunner } from '../toolRuntime'
-import {
-  DEFAULT_KEYS_PLACE,
-  finalText,
-  miniKeysOn,
-  miniKeysPlace,
-  speechCtor,
-  type Recognition,
-} from './miniKeys'
+import { DEFAULT_KEYS_PLACE, miniKeysOn, miniKeysPlace } from './miniKeys'
+import { useFlag } from '../../flags'
+import { useBarSettings } from '../../../settings/deviceModeSettings'
+import { PasteButton } from './PasteButton'
+import { floatingBarShown } from './pasteButtons'
+import { dictating, heardText, stopMic, toggleMic } from './micControl'
 import { BackspaceButton } from './MainBar'
 import { clampInside, positionOf, snapPlace, vertical } from './pillPlace'
 import { keepFocus } from './pillKit'
@@ -35,16 +33,85 @@ import { reducedMotion } from './pillRoom'
  * remembered. The buttons never take focus, so the caret stays in the page.
  */
 
+const BUBBLE = {
+  left: 'left-full ml-2 top-1/2 -translate-y-1/2',
+  right: 'right-full mr-2 top-1/2 -translate-y-1/2',
+  top: 'top-full mt-2 left-1/2 -translate-x-1/2',
+  bottom: 'bottom-full mb-2 left-1/2 -translate-x-1/2',
+} as const
+
 const BTN =
   'grid min-h-11 min-w-11 place-items-center rounded-xl text-ink-soft hover:bg-hover hover:text-ink select-none'
 
-export function MiniKeys({ editor }: { editor: Editor }) {
-  const on = miniKeysOn.useValue()
-  if (!on) return null
-  return <Strip editor={editor} />
+/**
+ * A strip button acts when the tip lifts on it (a Pencil or a finger), not on
+ * "click": a Pencil tap may never send one (C17). A click that follows is
+ * ignored; a click with no touch before it (keyboard, VoiceOver) acts.
+ */
+function KeyButton({
+  action,
+  className,
+  children,
+  ...rest
+}: {
+  action: () => void
+  className: string
+  children: ReactNode
+  'data-keys': string
+  'aria-label': string
+  'aria-pressed'?: boolean
+}) {
+  const lastAct = useRef(0)
+  return (
+    <button
+      type="button"
+      data-pen-own
+      {...rest}
+      onMouseDown={keepFocus}
+      onPointerDown={(e) => {
+        e.stopPropagation()
+        e.preventDefault()
+      }}
+      onPointerUp={(e) => {
+        const r = e.currentTarget.getBoundingClientRect()
+        if (
+          e.clientX < r.left ||
+          e.clientX > r.right ||
+          e.clientY < r.top ||
+          e.clientY > r.bottom
+        )
+          return
+        lastAct.current = performance.now()
+        action()
+      }}
+      onClick={() => {
+        if (performance.now() - lastAct.current < 700) return
+        action()
+      }}
+      className={className}
+    >
+      {children}
+    </button>
+  )
 }
 
-function Strip({ editor }: { editor: Editor }) {
+export function MiniKeys({ editor }: { editor: Editor }) {
+  const toggledOn = miniKeysOn.useValue()
+  const switchedOn = useFlag('page.menus')
+  const { mode } = useBarSettings()
+  const listening = dictating.useValue()
+  if (!floatingBarShown({ mode, toggledOn, dictating: listening, switchedOn }))
+    return null
+  return <Strip editor={editor} switchedOn={switchedOn} />
+}
+
+function Strip({
+  editor,
+  switchedOn,
+}: {
+  editor: Editor
+  switchedOn: boolean
+}) {
   const saved = miniKeysPlace.useValue()
   const place = saved ?? DEFAULT_KEYS_PLACE
   const isVertical = vertical(place.edge)
@@ -55,8 +122,6 @@ function Strip({ editor }: { editor: Editor }) {
   const grab = useRef({ dx: 0, dy: 0 })
   // The newest drag point (state alone can lag behind a quick pointer up).
   const dragAt = useRef<{ x: number; y: number } | null>(null)
-  const [listening, setListening] = useState(false)
-  const rec = useRef<Recognition | null>(null)
 
   useLayoutEffect(() => {
     const el = ref.current
@@ -75,7 +140,6 @@ function Strip({ editor }: { editor: Editor }) {
     watch.observe(el)
     return () => watch.disconnect()
   }, [isVertical])
-  useEffect(() => () => rec.current?.stop(), [])
 
   const pos = useMemo(() => positionOf(place, size, room), [place, size, room])
   const at = drag ? clampInside(drag.x, drag.y, size, room) : pos
@@ -108,45 +172,10 @@ function Strip({ editor }: { editor: Editor }) {
     setDrag(null)
   }
 
-  const mic = useCallback(() => {
-    const toast = (m: string) => currentRunner().app?.toast(m)
-    if (rec.current) {
-      rec.current.stop()
-      return
-    }
-    const Ctor = speechCtor()
-    if (!Ctor) {
-      // No SpeechRecognition here: the keyboard's own microphone does it.
-      setKeyboard(editor, true)
-      toast(t('keys.useKeyboardMic'))
-      return
-    }
-    const r = new Ctor()
-    r.lang = document.documentElement.lang || 'en'
-    r.continuous = true
-    r.interimResults = false
-    r.onresult = (e) => {
-      const text = finalText(e)
-      if (text) editor.insertInlineContent(text + ' ')
-    }
-    r.onerror = (e) => {
-      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
-        toast(t('keys.denied'))
-        setKeyboard(editor, true)
-      }
-    }
-    r.onend = () => {
-      rec.current = null
-      setListening(false)
-    }
-    rec.current = r
-    try {
-      r.start()
-      setListening(true)
-    } catch {
-      rec.current = null
-    }
-  }, [editor])
+  const listening = dictating.useValue()
+  const heard = heardText.useValue()
+  useEffect(() => stopMic, [])
+  const mic = useCallback(() => toggleMic(editor), [editor])
 
   const micLabel = listening ? t('keys.micStop') : t('keys.mic')
   return createPortal(
@@ -184,32 +213,49 @@ function Strip({ editor }: { editor: Editor }) {
       >
         <Icon name="grip" />
       </button>
-      <button
-        type="button"
+      <KeyButton
         data-keys="mic"
-        data-pen-own
         aria-label={micLabel}
         aria-pressed={listening}
-        onMouseDown={keepFocus}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={mic}
+        action={mic}
         className={`${BTN} ${listening ? 'bg-hover !text-accent' : ''}`}
       >
         <Icon name="mic" />
-      </button>
-      <button
-        type="button"
+      </KeyButton>
+      <KeyButton
         data-keys="enter"
-        data-pen-own
         aria-label={t('keys.enter')}
-        onMouseDown={keepFocus}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={() => addLineAfterCursor(editor)}
+        action={() => {
+          addLineAfterCursor(editor)
+          noteTyped()
+        }}
         className={BTN}
       >
         <Icon name="newLine" />
-      </button>
+      </KeyButton>
       <BackspaceButton editor={editor} min={44} />
+      {switchedOn && <PasteButton editor={editor} testId="floating-paste" />}
+      <KeyButton
+        data-keys="close"
+        aria-label={t('keys.close')}
+        action={() => {
+          stopMic()
+          miniKeysOn.set(false)
+        }}
+        className={BTN}
+      >
+        <Icon name="close" />
+      </KeyButton>
+      {listening && heard && (
+        <span
+          data-keys="heard"
+          aria-live="polite"
+          // A bubble beside the strip: the strip itself keeps its size.
+          className={`pointer-events-none absolute max-w-48 truncate rounded-xl border border-ink-soft bg-bg px-3 py-1.5 text-xs text-ink-soft ${BUBBLE[place.edge]}`}
+        >
+          {heard}
+        </span>
+      )}
     </div>,
     document.body,
   )

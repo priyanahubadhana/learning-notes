@@ -1,11 +1,9 @@
-import {
-  copyBlocks,
-  createBlock,
-  deleteBlock,
-  listBlocks,
-} from '../core/blockService'
+import { copyBlocks, deleteBlock, listBlocks } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
-import type { Notebook, Page } from '../core/types'
+import { byOrder, orderAtIndex } from '../core/order'
+import { stableId } from '../core/ids'
+import { isLive, newRecordFields } from '../core/records'
+import type { Block, JsonObject, Notebook, OrderKey, Page } from '../core/types'
 import {
   linkTargets,
   mapNoteLinks,
@@ -29,25 +27,74 @@ import {
  * are edited like any page. Using a template copies its blocks.
  */
 
-/** Creates one starter page (and its sub-pages) from its definition. */
-async function addStarterPage(
+/** Records collected in memory, then written with one bulk write each. */
+interface StarterBatch {
+  pages: Page[]
+  blocks: Block[]
+}
+
+/**
+ * Builds one starter page (and its sub-pages) from its definition, in
+ * memory only. Fast start: one write per record cost ~600 IndexedDB
+ * round-trips on iPad Safari; the caller writes the whole batch at once.
+ * `siblingOrders` are the order keys already used under `parentId`.
+ */
+async function buildStarterPage(
   db: LearningNotesDB,
+  batch: StarterBatch,
   notebookId: string,
   parentId: string | null,
+  siblingOrders: OrderKey[],
   starter: StarterPage & { role?: 'daily'; children?: StarterPage[] },
+  /** A fixed id (the daily template's). */
+  fixedId?: string,
 ): Promise<string> {
-  const page = await createPage(
-    db,
+  const order = orderAtIndex(siblingOrders, siblingOrders.length)
+  siblingOrders.push(order)
+  const page: Page = {
+    ...newRecordFields(),
+    ...(fixedId && { id: fixedId }),
     notebookId,
     parentId,
-    starter.title,
-    { ...(starter.role && { templateRole: starter.role }) },
-    true, // the app's own starter pages: allowed while read-only
-  )
-  const childIds: string[] = []
-  for (const child of starter.children ?? []) {
-    childIds.push(await addStarterPage(db, notebookId, page.id, child))
+    title: starter.title,
+    order,
+    ...(starter.role && { templateRole: starter.role }),
   }
+  batch.pages.push(page)
+  const childIds: string[] = []
+  const childOrders: OrderKey[] = []
+  for (const child of starter.children ?? []) {
+    childIds.push(
+      await buildStarterPage(
+        db,
+        batch,
+        notebookId,
+        page.id,
+        childOrders,
+        child,
+      ),
+    )
+  }
+  const addBlock = (
+    type: string,
+    content: JsonObject,
+    blockParentId: string | null,
+    orders: OrderKey[],
+  ): Block => {
+    const blockOrder = orderAtIndex(orders, orders.length)
+    orders.push(blockOrder)
+    const made: Block = {
+      ...newRecordFields(),
+      pageId: page.id,
+      parentId: blockParentId,
+      type,
+      content,
+      order: blockOrder,
+    }
+    batch.blocks.push(made)
+    return made
+  }
+  const topOrders: OrderKey[] = []
   for (const block of starter.blocks) {
     // A link to "child N" (see childLink) points at that sub-page's id.
     const { childIndex } = block.content
@@ -55,19 +102,11 @@ async function addStarterPage(
       typeof childIndex === 'number'
         ? { pageId: childIds[childIndex] }
         : block.content
-    const made = await createBlock(db, {
-      pageId: page.id,
-      type: block.type,
-      content,
-    })
+    const made = addBlock(block.type, content, null, topOrders)
     // Nested blocks (e.g. a card's answer).
+    const nestedOrders: OrderKey[] = []
     for (const child of block.children ?? []) {
-      await createBlock(db, {
-        pageId: page.id,
-        type: child.type,
-        content: child.content,
-        parentId: made.id,
-      })
+      addBlock(child.type, child.content, made.id, nestedOrders)
     }
   }
   return page.id
@@ -82,27 +121,75 @@ export async function ensureTemplates(
   db: LearningNotesDB,
   workspaceId: string,
 ): Promise<Notebook> {
-  return db.transaction(
+  const notebook = await db.transaction(
     'rw',
-    [db.workspaces, db.notebooks, db.pages, db.blocks],
+    [db.workspaces, db.notebooks],
     async () => {
-      const existing = await findNotebookOfKind(db, workspaceId, 'templates')
-      const seeded = existing ? (existing.starterVersion ?? 1) : 0
-      if (existing && seeded >= STARTER_VERSION) return existing
-
-      const notebook =
-        existing ??
-        (await createNotebook(db, workspaceId, 'Templates', 'templates'))
-      for (const starter of starterTemplates()) {
-        if ((starter.since ?? 1) > seeded) {
-          await addStarterPage(db, notebook.id, null, starter)
-        }
-      }
-      const changes = { starterVersion: STARTER_VERSION, updatedAt: Date.now() }
-      await db.notebooks.update(notebook.id, changes)
-      return { ...notebook, ...changes }
+      const found = await findNotebookOfKind(db, workspaceId, 'templates')
+      if (found) return found
+      // Version 0 = "starters not all written yet", so a cut-short first run
+      // is finished by the next one.
+      const made = await createNotebook(
+        db,
+        workspaceId,
+        'Templates',
+        'templates',
+      )
+      await db.notebooks.update(made.id, { starterVersion: 0 })
+      return { ...made, starterVersion: 0 }
     },
   )
+  const seeded = notebook.starterVersion ?? 1
+  if (seeded >= STARTER_VERSION) return notebook
+  return seedStarters(db, notebook, seeded)
+}
+
+/**
+ * Writes the missing starters, one bulk write per table for each starter
+ * (about 600 single writes took ~14 s on iPad Safari). Each starter is its
+ * own short transaction so the app stays usable meanwhile. A run that was
+ * cut short (or two runs at once) finds the starters already written (also
+ * deleted ones, by their title) and adds only the rest, never doubles.
+ */
+async function seedStarters(
+  db: LearningNotesDB,
+  notebook: Notebook,
+  seeded: number,
+): Promise<Notebook> {
+  for (const starter of starterTemplates()) {
+    if ((starter.since ?? 1) <= seeded) continue
+    await db.transaction('rw', [db.pages, db.blocks], async () => {
+      const roots = (
+        await db.pages.where('notebookId').equals(notebook.id).toArray()
+      ).filter((p) => p.parentId === null)
+      if (roots.some((p) => p.title === starter.title)) return
+      // The daily page has a fixed id (sync L1) unless a deleted copy has it.
+      const roleId = starter.role
+        ? stableId(`${notebook.id}:template:${starter.role}`)
+        : undefined
+      const fixedId =
+        roleId && !(await db.pages.get(roleId)) ? roleId : undefined
+      const batch: StarterBatch = { pages: [], blocks: [] }
+      const rootOrders = roots
+        .filter(isLive)
+        .sort(byOrder)
+        .map((p) => p.order)
+      await buildStarterPage(
+        db,
+        batch,
+        notebook.id,
+        null,
+        rootOrders,
+        starter,
+        fixedId,
+      )
+      await db.pages.bulkAdd(batch.pages)
+      await db.blocks.bulkAdd(batch.blocks)
+    })
+  }
+  const changes = { starterVersion: STARTER_VERSION, updatedAt: Date.now() }
+  await db.notebooks.update(notebook.id, changes)
+  return { ...notebook, ...changes }
 }
 
 /**
@@ -157,6 +244,19 @@ async function copyPageTree(
   for (const [childId, copyId] of copies) {
     await copyPageTree(db, childId, copyId, withCards, made)
   }
+}
+
+/**
+ * True once every starter template is written. While the background seeding
+ * runs this is false, so lists that show templates wait instead of flashing
+ * a short list (a missing Study row) that then jumps (perf-start).
+ */
+export async function startersReady(
+  db: LearningNotesDB,
+  workspaceId: string,
+): Promise<boolean> {
+  const notebook = await findNotebookOfKind(db, workspaceId, 'templates')
+  return !!notebook && (notebook.starterVersion ?? 1) >= STARTER_VERSION
 }
 
 /** Template pages of a workspace, in order. */

@@ -14,6 +14,9 @@ export function AnchoredMenu({
   label,
   width = 220,
   focusFirst = true,
+  bottomReserve = 0,
+  solid = false,
+  footer,
   children,
 }: {
   menu: AnchoredMenuState
@@ -21,6 +24,16 @@ export function AnchoredMenu({
   width?: number
   /** Move the keyboard focus to the first item when it opens. */
   focusFirst?: boolean
+  /** Screen height at the bottom the menu must not use (a bottom bar), px. */
+  bottomReserve?: number
+  /**
+   * A fully opaque card whose title row stays put and whose rows scroll
+   * inside it: the scroll-hint fade then touches the rows only, never the
+   * card (R12).
+   */
+  solid?: boolean
+  /** Solid cards only: a row that stays put under the scrolling rows (C23: Delete). */
+  footer?: ReactNode
   children: ReactNode
 }) {
   const panel = useRef<HTMLDivElement>(null)
@@ -59,7 +72,10 @@ export function AnchoredMenu({
       }
     : {
         top: Math.max(8, at.bottom + 4),
-        maxHeight: Math.max(120, window.innerHeight - at.bottom - 12),
+        maxHeight: Math.max(
+          120,
+          window.innerHeight - at.bottom - 12 - bottomReserve,
+        ),
       }
   return createPortal(
     <div
@@ -75,15 +91,32 @@ export function AnchoredMenu({
       role="menu"
       aria-label={label}
       onKeyDown={arrows}
+      data-solid={solid || undefined}
       style={{
         left,
         ...vertical,
         width,
+        // Opened from a sheet or dialog (the Organise sheet's "..."): above it.
+        // C25: above every scroll bar (a bar in a drawer or sheet is drawn above it).
+        // With the overlay switch a sheet sits far above --z-pop, so a menu
+        // opened from a sheet or dialog takes the dialog layer (full CI 17 Nov).
+        zIndex: opener?.closest('[role="dialog"]')
+          ? 'var(--z-dialog)'
+          : 'var(--z-pop)',
       }}
-      className="fixed z-50 glass overflow-y-auto rounded-xl p-1 text-ink"
+      className={`fixed glass rounded-xl p-1 text-ink ${solid ? 'flex flex-col' : 'overflow-y-auto'}`}
     >
       <PopupHeader title={label} onClose={close} />
-      {children}
+      {solid ? (
+        <>
+          <div data-menu-rows className="min-h-0 flex-1 overflow-y-auto">
+            {children}
+          </div>
+          {footer && <div data-menu-footer>{footer}</div>}
+        </>
+      ) : (
+        children
+      )}
     </div>,
     document.body,
   )

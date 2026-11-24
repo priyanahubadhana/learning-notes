@@ -1,0 +1,95 @@
+/* Part B of the one bar: grip, pin, upright bar, dashed drop zones. */
+.ob1 .ob1-grip--drag {
+  min-width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  border-radius: 22px;
+}
+.ob1 .ob1-grip--drag.is-moved {
+  color: var(--color-accent);
+}
+.ob1 .ob1-grip--drag:active {
+  cursor: grabbing;
+}
+.ob1[data-vertical] {
+  flex-direction: column;
+  border-radius: 28px;
+  padding: 6px 4px;
+  width: 56px;
+}
+.ob1[data-vertical] .ob1-sep {
+  width: 26px;
+  height: 1px;
+  margin: 4px 0;
+}
+.ob1[data-vertical] .ob1-it {
+  flex-direction: column;
+}
+.ob1[data-vertical] .ob1-pasteGroup {
+  flex-direction: column;
+}
+.ob1[data-vertical] .ob1-chev {
+  margin-left: 0;
+  margin-top: -14px;
+}
+.ob1[data-vertical] .ob1-pop {
+  top: 0;
+  left: calc(100% + 10px);
+}
+.ob1[data-vertical][data-dock='right'] .ob1-pop {
+  left: auto;
+  right: calc(100% + 10px);
+}
+.ob1[data-off] .ob1-it,
+.ob1[data-off] > .ob1-btn:not(.ob1-keep) {
+  opacity: 0.38;
+}
+.ob1-zones {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+.ob1-zone {
+  position: fixed;
+  display: grid;
+  place-items: center;
+  border: 1.5px dashed var(--color-accent);
+  border-radius: 14px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.ob1-zone.is-on {
+  opacity: 1;
+}
+
+/* A docked bar keeps its strip of the page free: no words lie under it. */
+html[data-ob1-dock='left'] [data-page-scroller] {
+  padding-left: var(--ob1-pad);
+}
+html[data-ob1-dock='right'] [data-page-scroller] {
+  padding-right: calc(22px + var(--ob1-pad));
+}
+html[data-ob1-dock='top'] [data-page-scroller] {
+  padding-top: var(--ob1-pad);
+}
+html[data-ob1-dock='bottom'] [data-page-scroller] {
+  padding-bottom: var(--ob1-pad);
+}
+
+/* The grip is held: the page under the bar gets no touch, no caret, no selection (#62). */
+html[data-bar-dragging] main,
+html[data-bar-dragging] [data-paper-box] {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+html[data-bar-dragging] [data-box-bar] {
+  pointer-events: auto;
+}

@@ -1,0 +1,1646 @@
+// Browser types for code that runs inside the page.
+/// <reference lib="dom" />
+import { readFileSync } from 'node:fs'
+import { expect, test, type Locator, type Page } from '@playwright/test'
+import {
+  cardRecordCount,
+  createNotebook,
+  startInMode,
+  typeInEditor,
+  waitForSaved,
+} from './helpers.ts'
+import {
+  expectStrokes,
+  inkClientBox,
+  line,
+  savedInk,
+  stroke,
+  type Pt,
+} from './inkHelpers.ts'
+import { tool } from './mainBarHelpers.ts'
+import { png } from './fixtures/png.ts'
+
+/**
+ * B1 (phase-2-finish.md, Appendix C; docs/features/selection-bar.md): the
+ * list of every button of the old selection bars, and a test that fails if
+ * one is lost. The list is docs/features/selection-bar-buttons.md; each test
+ * here is named after its ids (SB-B01 ...). Every bar is opened as the
+ * owner meets it, every button is found, and where the list says "works" one
+ * small check shows it does its job. A button the list marks "no" is a
+ * `test.fail` with its id: the day it starts to work the test goes green and
+ * says so (then the list is updated, never the test weakened).
+ *
+ * No timers: every wait is a condition. No app file is touched.
+ */
+test.use({ viewport: { width: 1180, height: 820 }, hasTouch: true })
+
+type Level = 'beginner' | 'professional'
+const PRO = ['tb.pictureEdit', 'tb.selectionMenu', 'tb.lassoOptions']
+const TEXT = 'The nucleus holds the DNA'
+
+/** A clipboard the page can read and write (Playwright cannot grant it in WebKit). */
+async function stubClipboard(page: Page) {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __clipOut: string[] }
+    w.__clipOut = []
+    let held = 'pasted words'
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: {
+        read: async () => [
+          {
+            types: ['text/plain'],
+            getType: async () => new Blob([held], { type: 'text/plain' }),
+          },
+        ],
+        readText: async () => held,
+        writeText: async (s: string) => {
+          held = s
+          w.__clipOut.push(s)
+        },
+        write: async (items: ClipboardItem[]) => {
+          for (const it of items) {
+            const type = it.types.includes('text/plain')
+              ? 'text/plain'
+              : it.types[0]
+            const blob = await it.getType(type)
+            if (type === 'text/plain') held = await blob.text()
+          }
+          w.__clipOut.push(held)
+        },
+      },
+    })
+    // The old box menu copies with the browser's own copy command.
+    document.addEventListener('copy', () => w.__clipOut.push('copy'), true)
+    Object.defineProperty(navigator, 'permissions', {
+      configurable: true,
+      value: { query: async () => ({ state: 'granted' }) },
+    })
+  })
+}
+
+/** A page with the given level, in touch mode, switches as given. */
+async function open(
+  page: Page,
+  o: {
+    level?: Level
+    flags?: string[]
+    text?: string
+    prefs?: Record<string, unknown>
+    mode?: 'touch' | 'pencil'
+  } = {},
+) {
+  const level = o.level ?? 'professional'
+  await stubClipboard(page)
+  await page.addInitScript(
+    ([l, u]) => {
+      localStorage.setItem(
+        'learning-notes:level',
+        JSON.stringify({ level: l, unlocked: u }),
+      )
+      localStorage.setItem('learning-notes:advanced.autoSwitch', '"off"')
+    },
+    [level, level === 'professional' ? PRO : []] as const,
+  )
+  await page.addInitScript((entries) => {
+    for (const [k, v] of Object.entries(entries))
+      localStorage.setItem('learning-notes:' + k, JSON.stringify(v))
+  }, o.prefs ?? {})
+  await startInMode(page, o.mode ?? 'touch')
+  const flags = o.flags ?? []
+  await page.goto(flags.length ? `/?flags=${flags.join(',')}` : '/')
+  await createNotebook(page, 'Biology', 'First')
+  await typeInEditor(page, o.text ?? TEXT)
+}
+
+/** How many times the page wrote to the (stand-in) clipboard. */
+const copied = (page: Page) =>
+  page.evaluate(
+    () => (window as unknown as { __clipOut: string[] }).__clipOut.length,
+  )
+/** The titles of every page in the open database. */
+const pageTitles = (page: Page) =>
+  page.evaluate(
+    () =>
+      new Promise<string[]>((resolve, reject) => {
+        const open = indexedDB.open('learning-notes')
+        open.onerror = () => reject(open.error)
+        open.onsuccess = () => {
+          const db = open.result
+          const all = db.transaction('pages').objectStore('pages').getAll()
+          all.onsuccess = () => {
+            db.close()
+            resolve((all.result as { title: string }[]).map((r) => r.title))
+          }
+        }
+      }),
+  )
+const toast = (page: Page) => page.locator('[data-toast]')
+
+/** The whole first line selected by the keyboard (the Lasso tool must be on). */
+async function lineSelected(page: Page) {
+  await page.getByText(TEXT).first().click({ force: true })
+  await page.keyboard.press('End')
+  await page.keyboard.press('Shift+Home')
+}
+
+/** The editor's text, as the page shows it. */
+const words = (page: Page) => page.locator('.bn-editor').first()
+
+/* ------------------------------------------------------------------ */
+/* The text mini bar (words picked by a double tap; MiniToolbar.tsx).  */
+/* ------------------------------------------------------------------ */
+
+const mini = (page: Page) => page.locator('[data-mini-toolbar]')
+const mb = (page: Page, id: string) => mini(page).locator(`[data-mini="${id}"]`)
+
+/** A pen tap at a point, as a trusted-looking pointer event. */
+async function penTap(page: Page, at: { x: number; y: number }) {
+  await page.evaluate((a) => {
+    const make = (name: string) =>
+      new PointerEvent(name, {
+        pointerType: 'pen',
+        pointerId: 9,
+        clientX: a.x,
+        clientY: a.y,
+        bubbles: true,
+        cancelable: true,
+        isPrimary: true,
+        button: 0,
+        buttons: name === 'pointerup' ? 0 : 1,
+      })
+    const el = document.elementFromPoint(a.x, a.y)!
+    el.dispatchEvent(make('pointerdown'))
+    el.dispatchEvent(make('pointerup'))
+  }, at)
+}
+
+/** The word "nucleus" picked by a double pen tap: the mini bar shows. */
+async function miniOpen(page: Page, o: { level?: Level } = {}) {
+  await open(page, { level: o.level })
+  await expect(async () => {
+    if (await mini(page).isVisible()) return
+    const at = await page.evaluate(() => {
+      const walker = document.createTreeWalker(
+        document.querySelector('.bn-editor')!,
+        NodeFilter.SHOW_TEXT,
+      )
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        const i = (n.textContent ?? '').indexOf('nucleus')
+        if (i < 0) continue
+        const r = document.createRange()
+        r.setStart(n, i)
+        r.setEnd(n, i + 7)
+        const b = r.getBoundingClientRect()
+        return { x: b.x + b.width / 2, y: b.y + b.height / 2 }
+      }
+      throw new Error('no word')
+    })
+    await penTap(page, at)
+    await penTap(page, { x: at.x + 2, y: at.y + 1 })
+    await expect(mini(page)).toBeVisible({ timeout: 1500 })
+  }).toPass()
+}
+
+const pillCard = (page: Page) => page.locator('[data-pill-card]')
+const moreRow = async (page: Page, id: string) => {
+  await mb(page, 'more').click()
+  return mb(page, id)
+}
+
+test.describe('the text mini bar', () => {
+  test('SB-B01 Move grip: dragging it moves the bar', async ({ page }) => {
+    await miniOpen(page)
+    const before = (await mini(page).boundingBox())!
+    const g = (await mb(page, 'grip').boundingBox())!
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(g.x + 80, g.y + 220, { steps: 6 })
+    await page.mouse.up()
+    await expect
+      .poll(async () => (await mini(page).boundingBox())!.y - before.y)
+      .toBeGreaterThan(150)
+  })
+
+  test('SB-B02 Text colour opens the colour card', async ({ page }) => {
+    await miniOpen(page)
+    await mb(page, 'colour').click()
+    await expect(
+      pillCard(page).locator('[data-card-colours="textColor"]'),
+    ).toBeVisible()
+  })
+
+  test('SB-B03 Text size steps the size', async ({ page }) => {
+    await miniOpen(page)
+    const size = () =>
+      page.evaluate(() =>
+        document.documentElement.style.getPropertyValue('--note-size'),
+      )
+    const before = await size()
+    await mb(page, 'size').click()
+    await expect.poll(size).not.toBe(before)
+  })
+
+  test('SB-B04 Text style (Aa) opens the style card', async ({ page }) => {
+    await miniOpen(page)
+    await mb(page, 'style').click()
+    await expect(pillCard(page)).toBeVisible()
+  })
+
+  for (const [id, no] of [
+    ['bold', 'SB-B05'],
+    ['italic', 'SB-B06'],
+    ['highlight', 'SB-B09'],
+  ] as const)
+    test(`${no} ${id} turns on for the picked words`, async ({ page }) => {
+      await miniOpen(page)
+      await expect(mb(page, id)).toHaveAttribute('aria-pressed', 'false')
+      await mb(page, id).click()
+      await expect(mb(page, id)).toHaveAttribute('aria-pressed', 'true')
+    })
+
+  test('SB-B07 Alignment turns the line', async ({ page }) => {
+    await miniOpen(page)
+    const align = () =>
+      page
+        .locator('.bn-block-content')
+        .first()
+        .getAttribute('data-text-alignment')
+    const before = await align()
+    await mb(page, 'align').click()
+    await expect.poll(align).not.toBe(before)
+  })
+
+  test('SB-B08 List makes a bullet list', async ({ page }) => {
+    await miniOpen(page)
+    await mb(page, 'list').click()
+    await expect(
+      page.locator('.bn-block-content[data-content-type="bulletListItem"]'),
+    ).toHaveCount(1)
+  })
+
+  test('SB-B10 Link opens the link box', async ({ page }) => {
+    await miniOpen(page)
+    await mb(page, 'link').click()
+    await expect(
+      page.getByRole('button', { name: 'Create link' }),
+    ).toBeVisible()
+  })
+
+  test('SB-B11 Cut takes the words out and copies them', async ({ page }) => {
+    await miniOpen(page)
+    await mb(page, 'cut').click()
+    await expect(words(page)).not.toContainText('nucleus')
+    await expect(toast(page)).toContainText('Copied')
+  })
+
+  test('SB-B12 Copy copies the words', async ({ page }) => {
+    await miniOpen(page)
+    await mb(page, 'copy').click()
+    await expect(toast(page)).toContainText('Copied')
+    await expect(words(page)).toContainText('nucleus')
+  })
+
+  test('SB-B13 Delete removes the words and closes the bar', async ({
+    page,
+  }) => {
+    await miniOpen(page)
+    await mb(page, 'delete').click()
+    await expect(words(page)).not.toContainText('nucleus')
+    await expect(mini(page)).toBeHidden()
+  })
+
+  test('SB-B14 More opens the rest', async ({ page }) => {
+    await miniOpen(page)
+    await mb(page, 'more').click()
+    await expect(mini(page).locator('[role="group"]')).toBeVisible()
+  })
+
+  test('SB-B15 Pin keeps the bar', async ({ page }) => {
+    await miniOpen(page)
+    await mb(page, 'pin').click()
+    await expect(mini(page)).toHaveAttribute('data-pinned', 'true')
+  })
+
+  test('SB-B16 Close puts the selection away', async ({ page }) => {
+    await miniOpen(page)
+    await mb(page, 'close').click()
+    await expect(mini(page)).toBeHidden()
+  })
+
+  test('SB-B17 More: Paste puts plain words in', async ({ page }) => {
+    await miniOpen(page)
+    await (await moreRow(page, 'paste')).click()
+    await expect(words(page)).toContainText('pasted words')
+  })
+
+  test('SB-B18 More: Make card', async ({ page }) => {
+    await miniOpen(page)
+    await (await moreRow(page, 'makeCard')).click()
+    await expect.poll(() => cardRecordCount(page)).toBe(1)
+  })
+
+  test('SB-B19 More: Add to Summary', async ({ page }) => {
+    await miniOpen(page)
+    await (await moreRow(page, 'summary')).click()
+    await expect(toast(page)).toBeVisible()
+  })
+
+  test('SB-B20 More: Key point marks the words', async ({ page }) => {
+    await miniOpen(page)
+    await (await moreRow(page, 'keyPoint')).click()
+    await expect(page.locator('.recall-mark[data-mark="key"]')).toBeVisible()
+  })
+
+  test('SB-B21 More: Save to notes says "coming later"', async ({ page }) => {
+    await miniOpen(page)
+    await (await moreRow(page, 'saveToNotes')).click()
+    await expect(toast(page)).toContainText('later update')
+  })
+})
+
+/* ------------------------------------------------------------------ */
+/* Things to select: words, a picture, a drawing, drawing + page.      */
+/* ------------------------------------------------------------------ */
+
+const V8 = ['toolbar.v8']
+
+/** A tool of the v8 row (folded into More on a narrow screen). */
+async function pickV8(page: Page, name: string) {
+  // Why: the row is laid out a moment after the page opens; looking for the
+  // tool before that sent the click to the More card for a tool that was there.
+  await expect(page.getByTestId('v8-bar')).toBeVisible()
+  const direct = page.getByTestId(`v8-tool-${name}`)
+  await expect(async () => {
+    if (await direct.isVisible())
+      return void (await direct.click({ timeout: 2000 }))
+    await page.getByTestId('v8-more').click({ timeout: 2000 })
+    await page.getByTestId(`v8-fold-${name}`).click({ timeout: 2000 })
+  }).toPass()
+}
+
+/** A tool of the classic main bar. */
+const pickClassic = (page: Page, name: string) =>
+  tool(page, name[0]!.toUpperCase() + name.slice(1)).click()
+
+type Kind = 'words' | 'picture' | 'drawing'
+
+/** A picture in the page, picked with a tap. */
+async function picturePicked(page: Page) {
+  await page.locator('.bn-editor').click({ force: true })
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('/image')
+  await page.keyboard.press('Enter')
+  await page.getByTestId('picture-input-photos').setInputFiles({
+    name: 'p.png',
+    mimeType: 'image/png',
+    buffer: png(400, 200),
+  })
+  await page.getByRole('button', { name: 'Place picture' }).click()
+  const img = page.locator('.bn-editor img').first()
+  await expect(img).toHaveAttribute('src', /^blob:/)
+  // The page may still be settling: bring the picture into view, tap, repeat.
+  await expect(async () => {
+    await img.evaluate((e) => e.scrollIntoView({ block: 'center' }))
+    await img.click({ force: true, timeout: 2000 })
+    await expect(page.getByTestId('v8-selbar')).toBeVisible({ timeout: 1500 })
+  }).toPass()
+  return img
+}
+
+/** A loop of small steps round a box (a hand does not jump). */
+function loopAround(b: {
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+}): Pt[] {
+  const c: Pt[] = [
+    [b.x0 - 16, b.y1 + 14],
+    [b.x0 - 16, b.y0 - 14],
+    [b.x1 + 16, b.y0 - 14],
+    [b.x1 + 16, b.y1 + 14],
+    [b.x0 - 12, b.y1 + 12],
+  ]
+  return c.slice(1).flatMap((p, i) => line(c[i]!, p, 10))
+}
+
+/**
+ * One line drawn with the Pen and looped with the Lasso. `pick` chooses a
+ * tool (the v8 row or the classic bar). The first strokes of a freshly chosen
+ * tool can be lost, so each is drawn again until it shows.
+ */
+async function drawingPicked(
+  page: Page,
+  pick: (name: 'pen' | 'lasso') => Promise<void>,
+  below = 60,
+) {
+  await pick('pen')
+  await expect(page.locator('[data-ink-pad]')).toBeAttached()
+  const box = (await page.locator('.bn-block-content').first().boundingBox())!
+  await expect(async () => {
+    if ((await savedInk(page)).strokes.length === 0)
+      await stroke(
+        page,
+        line([box.x + 20, box.y + below], [box.x + 220, box.y + below]),
+      )
+    await expectStrokes(page, 1)
+  }).toPass()
+  await pick('lasso')
+  await expect(async () => {
+    if (await page.locator('[data-ink-box]').isVisible()) return
+    const b = await inkClientBox(page)
+    expect(b).not.toBeNull()
+    await stroke(page, loopAround(b!))
+    await expect(page.locator('[data-ink-box]')).toBeVisible({ timeout: 2000 })
+  }).toPass()
+}
+
+const selbar = (page: Page) => page.getByTestId('v8-selbar')
+const selCard = (page: Page, id: string) => page.getByTestId(`v8-card-${id}`)
+const selButton = (page: Page, id: string) => page.getByTestId(`v8-sel-${id}`)
+const strokesNow = async (page: Page) => (await savedInk(page)).strokes.length
+
+/** The v8 bar, as the owner meets it: words, a picture, or a drawing picked. */
+async function v8Open(page: Page, kind: Kind, level: Level = 'professional') {
+  await open(page, { level, flags: V8 })
+  if (kind === 'words') {
+    await pickV8(page, 'lasso')
+    await expect(async () => {
+      await lineSelected(page)
+      await expect(selbar(page)).toBeVisible({ timeout: 1500 })
+    }).toPass()
+  } else if (kind === 'picture') await picturePicked(page)
+  else await drawingPicked(page, (n) => pickV8(page, n))
+  await expect(selbar(page)).toBeVisible()
+}
+
+/** Opens the bar's ⋯ list. */
+async function v8More(page: Page) {
+  await selButton(page, 'more').click()
+  const list = selCard(page, 'sel.more').locator('.v8sel-more')
+  await expect(list).toBeVisible()
+  return list
+}
+const moreItem = (list: Locator, id: string) =>
+  list.locator(`[data-sel="${id}"]`)
+
+test.describe('the v8 selection bar, top row', () => {
+  const TOP = [
+    ['SB-B22', 'cut', 'Cut'],
+    ['SB-B23', 'copy', 'Copy'],
+    ['SB-B24', 'paste', 'Paste'],
+    ['SB-B25', 'duplicate', 'Duplicate'],
+    ['SB-B26', 'colour', 'Colour'],
+    ['SB-B27', 'resize', 'Resize'],
+    ['SB-B28', 'delete', 'Delete'],
+  ] as const
+  for (const kind of ['words', 'picture', 'drawing'] as const)
+    for (const [no, id, name] of TOP)
+      test(`${no} ${name} (${kind})`, async ({ page }) => {
+        await v8Open(page, kind)
+        const b = selButton(page, id)
+        await expect(b).toBeVisible()
+        await b.click()
+        const imgs = page.locator('.bn-editor img')
+        const colours = page.getByText('Highlight color', { exact: true })
+        if (kind === 'words') {
+          if (id === 'cut' || id === 'delete')
+            await expect(words(page)).not.toContainText('nucleus')
+          if (id === 'copy') await expect(toast(page)).toContainText('Copied')
+          if (id === 'paste')
+            await expect(words(page)).toContainText('pasted words')
+          if (id === 'duplicate')
+            await expect(
+              page.locator('.bn-block-content', { hasText: TEXT }),
+            ).toHaveCount(2)
+          if (id === 'resize')
+            await expect(selCard(page, 'sel.size')).toBeVisible()
+          if (id === 'colour') await expect(colours).toBeVisible()
+        } else if (kind === 'picture') {
+          if (id === 'cut' || id === 'delete') await expect(imgs).toHaveCount(0)
+          if (id === 'duplicate') await expect(imgs).toHaveCount(2)
+          if (id === 'copy')
+            await expect.poll(() => copied(page)).toBeGreaterThan(0)
+          if (id === 'resize')
+            await expect(selCard(page, 'sel.resize')).toBeVisible()
+          if (id === 'paste')
+            await expect(words(page)).toContainText('pasted words')
+          if (id === 'colour') await expect(colours).toBeVisible()
+        } else {
+          if (id === 'cut' || id === 'delete')
+            await expect.poll(() => strokesNow(page)).toBe(0)
+          if (id === 'duplicate')
+            await expect.poll(() => strokesNow(page)).toBe(2)
+          if (id === 'copy')
+            await expect(toast(page)).toContainText('Picture copied')
+          if (id === 'resize')
+            await expect(selCard(page, 'sel.resize')).toBeVisible()
+          if (id === 'colour')
+            await expect(selCard(page, 'sel.colour')).toBeVisible()
+          if (id === 'paste') {
+            // Paste puts back a drawing that was copied first.
+            await selButton(page, 'copy').click()
+            await expect(toast(page)).toContainText('Picture copied')
+            await b.click()
+            await expect.poll(() => strokesNow(page)).toBe(2)
+          }
+        }
+      })
+})
+
+test.describe('the v8 selection bar, Edit picture and ⋯', () => {
+  test('SB-B29 Edit picture (Professional, picture) opens the picture list', async ({
+    page,
+  }) => {
+    await v8Open(page, 'picture')
+    await selButton(page, 'picture').click()
+    await expect(selCard(page, 'sel.picture')).toBeVisible()
+    await expect(page.getByTestId('v8-sel-picture-list')).toContainText(
+      'Border',
+    )
+  })
+
+  test('SB-B29 Edit picture is not on the Beginner bar', async ({ page }) => {
+    await v8Open(page, 'picture', 'beginner')
+    await expect(selButton(page, 'picture')).toHaveCount(0)
+  })
+
+  test('SB-B30 ⋯ opens the list (words)', async ({ page }) => {
+    await v8Open(page, 'words')
+    const list = await v8More(page)
+    for (const id of [
+      'convert',
+      'screenshot',
+      'keyPoint',
+      'makeCard',
+      'summary',
+      'saveToNotes',
+      'move',
+      'scale',
+      'rotate',
+      'deselect',
+    ])
+      await expect(moreItem(list, id)).toBeVisible()
+  })
+
+  test('SB-B30 ⋯ on the Beginner bar lists only Deselect', async ({ page }) => {
+    await v8Open(page, 'words', 'beginner')
+    const list = await v8More(page)
+    await expect(list.locator('[data-sel]')).toHaveCount(1)
+    await expect(moreItem(list, 'deselect')).toBeVisible()
+  })
+
+  test('SB-B31 ⋯ Deselect puts the selection away (words)', async ({
+    page,
+  }) => {
+    await v8Open(page, 'words', 'beginner')
+    await moreItem(await v8More(page), 'deselect').click()
+    await expect(selbar(page)).toBeHidden()
+    await expect(words(page)).toContainText('nucleus')
+  })
+
+  test('SB-B31 ⋯ Deselect puts the selection away (drawing)', async ({
+    page,
+  }) => {
+    await v8Open(page, 'drawing')
+    await moreItem(await v8More(page), 'deselect').click()
+    await expect(page.locator('[data-ink-box]')).toBeHidden()
+  })
+
+  test('SB-B31 ⋯ Deselect puts the selection away (picture)', async ({
+    page,
+  }) => {
+    await v8Open(page, 'picture', 'beginner')
+    await moreItem(await v8More(page), 'deselect').click()
+    await expect(selbar(page)).toBeHidden()
+  })
+
+  test('SB-B32 ⋯ Border (picture) cycles the border', async ({ page }) => {
+    await v8Open(page, 'picture', 'beginner')
+    const img = page.locator('.bn-editor img').first()
+    await page.getByTestId('v8-sel-more').click()
+    await selCard(page, 'sel.more')
+      .locator('.v8sel-more')
+      .getByRole('button', { name: 'Border' })
+      .click()
+    await expect
+      .poll(() => img.evaluate((el) => getComputedStyle(el).borderTopWidth))
+      .not.toBe('0px')
+  })
+})
+
+/** ⋯ rows: what each does on words and on a drawing. */
+const MORE_ROWS = [
+  ['SB-B33', 'convert', 'Convert to text'],
+  ['SB-B34', 'screenshot', 'Screenshot'],
+  ['SB-B35', 'keyPoint', 'Key point'],
+  ['SB-B36', 'makeCard', 'Make card'],
+  ['SB-B37', 'summary', 'Add to Summary'],
+  ['SB-B38', 'saveToNotes', 'Save to notes'],
+  ['SB-B39', 'move', 'Move'],
+  ['SB-B40', 'scale', 'Scale'],
+  ['SB-B41', 'rotate', 'Rotate'],
+] as const
+
+test.describe('the v8 selection bar, ⋯ rows on words', () => {
+  /** Rows made for drawings: on words they only say "works on drawings". */
+  const FOR_DRAWINGS = new Set([
+    'convert',
+    'screenshot',
+    'move',
+    'scale',
+    'rotate',
+  ])
+  for (const [no, id, name] of MORE_ROWS) {
+    const body = async ({ page }: { page: Page }) => {
+      await v8Open(page, 'words')
+      await moreItem(await v8More(page), id).click()
+      if (FOR_DRAWINGS.has(id)) {
+        // The job (list: "no" on words): do something, not refuse.
+        await expect(toast(page)).toBeVisible()
+        await expect(toast(page)).not.toContainText('works on drawings', {
+          timeout: 1500,
+        })
+      } else if (id === 'keyPoint')
+        await expect(
+          page.locator('.recall-mark[data-mark="key"]'),
+        ).toBeVisible()
+      else if (id === 'makeCard')
+        await expect.poll(() => cardRecordCount(page)).toBe(1)
+      else if (id === 'summary') await expect(toast(page)).toBeVisible()
+      else if (id === 'saveToNotes')
+        await expect.poll(() => pageTitles(page)).toContain('Highlights')
+    }
+    // Known broken on words: the row is shown, then says "works on drawings".
+    if (FOR_DRAWINGS.has(id)) test.fail(`${no} ⋯ ${name} (words)`, body)
+    else test(`${no} ⋯ ${name} (words)`, body)
+  }
+})
+
+test.describe('the v8 selection bar, ⋯ rows on a drawing', () => {
+  /** Rows made for words: on a drawing they only say "works on words". */
+  const FOR_WORDS = new Set(['keyPoint', 'saveToNotes'])
+  for (const [no, id, name] of MORE_ROWS) {
+    const body = async ({ page }: { page: Page }) => {
+      await v8Open(page, 'drawing')
+      const list = await v8More(page)
+      if (FOR_WORDS.has(id)) {
+        await moreItem(list, id).click()
+        // The job (list: "no" on drawings): do something, not refuse.
+        await expect(toast(page)).toBeVisible()
+        await expect(toast(page)).not.toContainText('works on words', {
+          timeout: 1500,
+        })
+        return
+      }
+      if (id === 'screenshot') {
+        const [download] = await Promise.all([
+          page.waitForEvent('download'),
+          moreItem(list, id).click(),
+        ])
+        expect(download.suggestedFilename()).toContain('.png')
+        return
+      }
+      if (id === 'rotate') {
+        const before = (await page.locator('[data-ink-box]').boundingBox())!
+        await moreItem(list, id).click()
+        await expect
+          .poll(
+            async () =>
+              (await page.locator('[data-ink-box]').boundingBox())!.height,
+          )
+          .toBeGreaterThan(before.height + 20)
+        return
+      }
+      await moreItem(list, id).click()
+      if (id === 'convert' || id === 'makeCard')
+        await expect(page.getByRole('dialog').first()).toBeVisible()
+      else if (id === 'summary')
+        await expect(toast(page)).toContainText('Name this drawing first')
+      else if (id === 'scale')
+        await expect(selCard(page, 'sel.resize')).toBeVisible()
+      else if (id === 'move')
+        await expect(selCard(page, 'sel.move')).toBeVisible()
+    }
+    // Known broken on drawings: the row is shown, then says "works on words".
+    if (FOR_WORDS.has(id)) test.fail(`${no} ⋯ ${name} (drawing)`, body)
+    else test(`${no} ⋯ ${name} (drawing)`, body)
+  }
+})
+
+/* ------------------------------------------------------------------ */
+/* Boxes: the old box bar (switch off) and the one bar (textbox.v2).   */
+/* ------------------------------------------------------------------ */
+
+const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
+
+/**
+ * A page with one extra box ("Box one", picked: not typing). `v2` turns the
+ * one bar on; off, the old box bar shows. Computer mode, as the box specs.
+ */
+async function boxOpen(page: Page, v2: boolean, o: { second?: boolean } = {}) {
+  await stubClipboard(page)
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:advanced.autoSwitch', '"off"'),
+  )
+  const phone = (page.viewportSize()?.width ?? 1336) < 600
+  await startInMode(page, phone ? 'touch' : 'computer')
+  await page.goto(v2 ? '/?flags=textbox.v2' : '/')
+  await createNotebook(page, 'Paper', 'Boxes')
+  await typeInEditor(page, 'Main text')
+  const box = await addBoxAt(page, 'Box one', 0.2, 60)
+  if (o.second) await addBoxAt(page, 'Box two', 0.2, 170)
+  await pickBox(page, box)
+  return box
+}
+
+/** A new box `down` px under the first box's text, with a line typed in it. */
+async function addBoxAt(page: Page, text: string, fx: number, down: number) {
+  // Phones draw no sheets: the first box's column is the page.
+  const sheetEl = page.locator('[data-paper-sheet="1"]')
+  const sheet = (await (
+    (await sheetEl.count()) ? sheetEl : page.locator('[data-paper-box="main"]')
+  ).boundingBox())!
+  const main = (await page.locator('[data-paper-box="main"]').boundingBox())!
+  const n = await page.locator(EXTRA).count()
+  await page.mouse.click(
+    sheet.x + sheet.width * fx,
+    main.y + main.height + down,
+  )
+  const box = page.locator(EXTRA).nth(n)
+  await expect(page.locator(EXTRA)).toHaveCount(n + 1)
+  await expect(box.locator('.bn-editor')).toBeFocused()
+  await page.keyboard.type(text)
+  await waitForSaved(page)
+  await page.evaluate(() => (document.activeElement as HTMLElement).blur())
+  return box
+}
+
+/** One tap on the edge of the box until it is picked and not typed in. */
+async function pickBox(page: Page, box: Locator) {
+  if ((page.viewportSize()?.width ?? 1336) < 600) {
+    // A phone: a finger tap on the box's border picks it (nothing beside it).
+    await expect(async () => {
+      const r = (await box.boundingBox())!
+      await page.evaluate(
+        ({ x, y }) => {
+          const el = document.elementFromPoint(x, y)!
+          for (const type of ['pointerdown', 'pointerup'])
+            el.dispatchEvent(
+              new PointerEvent(type, {
+                pointerType: 'touch',
+                pointerId: 7,
+                isPrimary: true,
+                clientX: x,
+                clientY: y,
+                buttons: type === 'pointerdown' ? 1 : 0,
+                bubbles: true,
+                cancelable: true,
+              }),
+            )
+        },
+        { x: r.x + r.width - 4, y: r.y + r.height / 2 },
+      )
+      await expect(box).toHaveAttribute('data-picked', '', { timeout: 1500 })
+    }).toPass()
+    return
+  }
+  let turn = 0
+  await expect(async () => {
+    const r = (await box.boundingBox())!
+    // Beside the box first; on a phone there is no room beside it, so above, under.
+    const spots = [
+      [r.x - 5, r.y + r.height / 2],
+      [r.x + r.width / 2, r.y - 4],
+      [r.x + r.width / 2, r.y + r.height + 4],
+      [r.x + r.width + 4, r.y + r.height / 2],
+    ]
+    const [x, y] = spots[turn++ % spots.length]!
+    await page.mouse.click(x, y)
+    await expect(box).toHaveAttribute('data-picked', '', { timeout: 1500 })
+    await expect(box).not.toHaveAttribute('data-typing', '')
+  }).toPass()
+}
+
+const boxBar = (page: Page) => page.locator('[data-box-bar]').first()
+const boxCount = (page: Page) => page.locator(EXTRA)
+
+test.describe('the old box bar (one bar switch off)', () => {
+  test.use({ viewport: { width: 1336, height: 1100 } })
+  const old = (page: Page, id: string) =>
+    boxBar(page).locator(`[data-box-bar-action="${id}"]`)
+
+  test('SB-B42 old box bar: Box style opens the style card', async ({
+    page,
+  }) => {
+    await boxOpen(page, false)
+    await old(page, 'style').click()
+    await expect(page.locator('[data-box-style-panel]')).toBeVisible()
+  })
+
+  test('SB-B43 old box bar: Duplicate box makes a second box', async ({
+    page,
+  }) => {
+    await boxOpen(page, false)
+    await old(page, 'duplicate').click()
+    await expect(boxCount(page)).toHaveCount(2)
+  })
+
+  test('SB-B44 old box bar: Cut takes the box away and copies it', async ({
+    page,
+  }) => {
+    await boxOpen(page, false)
+    await old(page, 'cut').click()
+    await expect(boxCount(page)).toHaveCount(0)
+    await expect.poll(() => copied(page)).toBeGreaterThan(0)
+  })
+
+  test('SB-B45 old box bar: Copy copies the words', async ({ page }) => {
+    await boxOpen(page, false)
+    await old(page, 'copy').click()
+    await expect.poll(() => copied(page)).toBeGreaterThan(0)
+    await expect(boxCount(page)).toHaveCount(1)
+  })
+
+  test('SB-B46 old box bar: Delete box removes it', async ({ page }) => {
+    await boxOpen(page, false)
+    await old(page, 'delete').click()
+    await expect(boxCount(page)).toHaveCount(0)
+  })
+
+  test('SB-B47 old box bar: ⋯ opens the box menu', async ({ page }) => {
+    await boxOpen(page, false)
+    await old(page, 'more').click()
+    await expect(page.getByRole('menu')).toBeVisible()
+    for (const name of [
+      'Box style',
+      'Copy',
+      'Cut',
+      'Duplicate',
+      'Colour',
+      'Layout',
+      'Delete box',
+    ])
+      await expect(
+        page.getByRole('menuitem', { name: new RegExp(`^${name}`) }),
+      ).toBeVisible()
+  })
+})
+
+test.describe('the old box ⋯ menu (one bar switch off)', () => {
+  test.use({ viewport: { width: 1336, height: 1100 } })
+  const ROWS = [
+    ['SB-B48', 'Box style'],
+    ['SB-B49', 'Copy'],
+    ['SB-B50', 'Cut'],
+    ['SB-B51', 'Duplicate'],
+    ['SB-B52', 'Colour'],
+    ['SB-B53', 'Layout'],
+    ['SB-B54', 'Delete box'],
+  ] as const
+  for (const [no, name] of ROWS)
+    test(`${no} old ⋯ menu: ${name}`, async ({ page }) => {
+      await boxOpen(page, false)
+      await boxBar(page).locator('[data-box-bar-action="more"]').click()
+      await page.getByRole('menuitem', { name: new RegExp(`^${name}`) }).click()
+      if (name === 'Box style')
+        await expect(page.locator('[data-box-style-panel]')).toBeVisible()
+      if (name === 'Copy')
+        await expect.poll(() => copied(page)).toBeGreaterThan(0)
+      if (name === 'Cut') await expect(boxCount(page)).toHaveCount(0)
+      if (name === 'Duplicate') await expect(boxCount(page)).toHaveCount(2)
+      if (name === 'Colour')
+        await expect(page.getByRole('menuitemradio').first()).toBeVisible()
+      if (name === 'Layout')
+        await expect(page.getByRole('dialog')).toBeVisible()
+      if (name === 'Delete box') await expect(boxCount(page)).toHaveCount(0)
+    })
+})
+
+const one = (page: Page, id: string) => page.getByTestId(`ob-${id}`)
+const pop = (page: Page, id: string) =>
+  page.locator(`[data-onebar-pop="${id}"]`)
+const more = (page: Page, id: string) => page.locator(`[data-box-more="${id}"]`)
+
+test.describe('the one bar of a box (textbox.v2)', () => {
+  test.use({ viewport: { width: 1336, height: 1100 } })
+
+  test('SB-B60 one bar: Move bar grip drags the bar, then Pin shows', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await expect(one(page, 'grip')).toBeVisible()
+    const before = (await page.getByTestId('object-bar').boundingBox())!
+    const g = (await one(page, 'grip').boundingBox())!
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(g.x + 60, g.y + 200, { steps: 8 })
+    await page.mouse.up()
+    await expect(one(page, 'pin')).toBeVisible()
+    const after = (await page.getByTestId('object-bar').boundingBox())!
+    expect(
+      Math.abs(after.y - before.y) + Math.abs(after.x - before.x),
+    ).toBeGreaterThan(40)
+  })
+
+  test('SB-B61 one bar: Pin bar here pins it', async ({ page }) => {
+    await boxOpen(page, true)
+    const g = (await one(page, 'grip').boundingBox())!
+    await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(g.x + 60, g.y + 200, { steps: 8 })
+    await page.mouse.up()
+    await one(page, 'pin').click()
+    await expect(one(page, 'pin')).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  test('SB-B62 one bar: Text colour opens colours and a pick colours the words', async ({
+    page,
+  }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'colour').click()
+    await expect(pop(page, 'colour')).toBeVisible()
+    await pop(page, 'colour').getByRole('button', { name: /^Red/ }).click()
+    await expect(
+      box.locator('[data-style-type="textColor"][data-value="red"]').first(),
+    ).toBeVisible()
+  })
+
+  test('SB-B63 one bar: Size opens sizes and a pick sets it', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    const before = await one(page, 'size').innerText()
+    await one(page, 'size').click()
+    await expect(pop(page, 'size')).toBeVisible()
+    await pop(page, 'size').getByRole('button', { name: 'Larger' }).click()
+    await expect.poll(() => one(page, 'size').innerText()).not.toBe(before)
+  })
+
+  test('SB-B64 one bar: Font opens fonts and a pick sets one', async ({
+    page,
+  }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'font').click()
+    await expect(pop(page, 'font')).toBeVisible()
+    await pop(page, 'font').getByRole('button').nth(1).click()
+    await expect(box.locator('[data-look-face]').first()).toBeVisible()
+  })
+
+  test('SB-B65 one bar: Bold and italic strip has Bold, Italic, Underline, Strike, Highlight', async ({
+    page,
+  }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'bi').click()
+    const p = pop(page, 'bi')
+    for (const name of ['Bold', 'Italic', 'Underline', 'Strike', 'Highlight'])
+      await expect(p.getByRole('button', { name })).toBeVisible()
+    await p.getByRole('button', { name: 'Bold' }).click()
+    await expect(box.locator('strong, b').first()).toBeVisible()
+    for (const name of ['Italic', 'Underline', 'Strike', 'Highlight']) {
+      await p.getByRole('button', { name }).click()
+      await expect(p.getByRole('button', { name })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      )
+    }
+  })
+
+  test('SB-B66 one bar: Align strip aligns the box and sets line spacing', async ({
+    page,
+  }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'align').click()
+    const p = pop(page, 'align')
+    await expect(p.getByRole('button', { name: 'Line spacing' })).toBeVisible()
+    await p.getByRole('button', { name: 'Align right' }).click()
+    await expect(
+      box.locator('[data-text-alignment="right"]').first(),
+    ).toBeVisible()
+  })
+
+  test('SB-B67 one bar: List strip makes a list', async ({ page }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'list').click()
+    await expect(pop(page, 'list')).toBeVisible()
+    await pop(page, 'list').getByRole('button').first().click()
+    await expect(
+      box
+        .locator('.bn-block-content:not([data-content-type="paragraph"])')
+        .first(),
+    ).toBeVisible()
+  })
+
+  test('SB-B68 one bar: Box style (fill) opens the Box card', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await one(page, 'style').click()
+    await expect(page.getByTestId('bc-tab-box')).toBeVisible()
+  })
+
+  test('SB-B69 one bar: Cut takes the box away and copies it', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await one(page, 'cut').click()
+    await expect(boxCount(page)).toHaveCount(0)
+    await expect.poll(() => copied(page)).toBeGreaterThan(0)
+  })
+
+  test('SB-B70 one bar: Paste puts the clipboard in the box', async ({
+    page,
+  }) => {
+    const box = await boxOpen(page, true)
+    await one(page, 'pastenow').click()
+    await expect(box).toContainText('pasted words')
+  })
+
+  test('SB-B71 one bar: Paste options (▾) opens Keep look, Plain text, More', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await one(page, 'paste').click()
+    await expect(pop(page, 'paste')).toBeVisible()
+    await expect(pop(page, 'paste').getByRole('button')).not.toHaveCount(0)
+  })
+
+  test('SB-B72 one bar: Delete box removes it', async ({ page }) => {
+    await boxOpen(page, true)
+    await one(page, 'delete').click()
+    await expect(boxCount(page)).toHaveCount(0)
+  })
+
+  test('SB-B73 one bar: ⋯ opens the Box actions list', async ({ page }) => {
+    await boxOpen(page, true)
+    await one(page, 'boxmore').click()
+    for (const id of [
+      'copy',
+      'duplicate',
+      'lock',
+      'style',
+      'layout',
+      'text',
+      'up',
+      'down',
+      'group',
+      'delete',
+    ])
+      await expect(more(page, id)).toBeVisible()
+  })
+})
+
+test.describe('the one bar ⋯ list rows', () => {
+  test.use({ viewport: { width: 1336, height: 1100 } })
+  const open2 = async (page: Page) => {
+    const box = await boxOpen(page, true, { second: true })
+    await one(page, 'boxmore').click()
+    await expect(more(page, 'copy')).toBeVisible()
+    return box
+  }
+  test('SB-B74 ⋯ list: Copy', async ({ page }) => {
+    await open2(page)
+    await more(page, 'copy').click()
+    await expect.poll(() => copied(page)).toBeGreaterThan(0)
+  })
+  test('SB-B75 ⋯ list: Duplicate box', async ({ page }) => {
+    await open2(page)
+    await more(page, 'duplicate').click()
+    await expect(boxCount(page)).toHaveCount(3)
+  })
+  test('SB-B76 ⋯ list: Lock in place', async ({ page }) => {
+    const box = await open2(page)
+    await more(page, 'lock').click()
+    await one(page, 'boxmore').click()
+    await expect(more(page, 'lock')).toContainText('Unlock')
+    await expect(box).toBeVisible()
+  })
+  test('SB-B77 ⋯ list: Box style…', async ({ page }) => {
+    await open2(page)
+    await more(page, 'style').click()
+    await expect(page.getByTestId('bc-tab-box')).toBeVisible()
+  })
+  test('SB-B78 ⋯ list: Layout…', async ({ page }) => {
+    await open2(page)
+    await more(page, 'layout').click()
+    await expect(page.getByTestId('bc-tab-box')).toBeVisible()
+  })
+  test('SB-B79 ⋯ list: Text options…', async ({ page }) => {
+    await open2(page)
+    await more(page, 'text').click()
+    await expect(page.getByTestId('v8-format')).toBeVisible()
+  })
+  test('SB-B80 ⋯ list: Move up / Move down reorder boxes', async ({ page }) => {
+    await open2(page)
+    const yOf = async (text: string) =>
+      (await boxCount(page).filter({ hasText: text }).boundingBox())!.y
+    expect(await yOf('Box one')).toBeLessThan(await yOf('Box two'))
+    await expect(more(page, 'down')).toBeEnabled()
+    await more(page, 'down').click()
+    await expect
+      .poll(async () => (await yOf('Box one')) > (await yOf('Box two')))
+      .toBe(true)
+  })
+  test('SB-B81 ⋯ list: Group waits for two boxes (tip)', async ({ page }) => {
+    await open2(page)
+    await more(page, 'group').click({ force: true })
+    await expect(toast(page)).toBeVisible()
+  })
+  test('SB-B82 ⋯ list: Delete box', async ({ page }) => {
+    await open2(page)
+    await more(page, 'delete').click()
+    await expect(boxCount(page)).toHaveCount(1)
+  })
+})
+
+/* ------------------------------------------------------------------ */
+/* The classic Lasso menu on words (v8 off; SelectionMenu.tsx).        */
+/* ------------------------------------------------------------------ */
+
+const classicMenu = (page: Page) => page.locator('[data-selection-menu]')
+
+async function classicWords(page: Page, level: Level = 'professional') {
+  await open(page, { level })
+  await pickClassic(page, 'lasso')
+  await expect(async () => {
+    await lineSelected(page)
+    await expect(classicMenu(page)).toBeVisible({ timeout: 1500 })
+  }).toPass()
+}
+
+test.describe('the classic Lasso menu on words (v8 off)', () => {
+  const ROWS = [
+    ['SB-B90', 'copy', 'Copy'],
+    ['SB-B91', 'cut', 'Cut'],
+    ['SB-B92', 'duplicate', 'Duplicate'],
+    ['SB-B93', 'delete', 'Delete'],
+    ['SB-B94', 'colour', 'Colour'],
+    ['SB-B95', 'move', 'Move'],
+    ['SB-B96', 'scale', 'Scale'],
+    ['SB-B97', 'rotate', 'Rotate'],
+    ['SB-B98', 'screenshot', 'Screenshot'],
+    ['SB-B99', 'keyPoint', 'Key point'],
+    ['SB-B100', 'makeCard', 'Make card'],
+    ['SB-B101', 'summary', 'Add to Summary'],
+    ['SB-B102', 'saveToNotes', 'Save to notes'],
+    ['SB-B103', 'convert', 'Convert handwriting'],
+    ['SB-B104', 'deselect', 'Deselect'],
+  ] as const
+  /** The rows the menu shows dimmed ("coming"): they do nothing on words. */
+  const DIM = new Set(['move', 'scale', 'rotate', 'screenshot', 'convert'])
+  for (const [no, id, name] of ROWS) {
+    const body = async ({ page }: { page: Page }) => {
+      await classicWords(page)
+      const b = classicMenu(page).locator(`[data-sel="${id}"]`)
+      await expect(b).toBeVisible()
+      await b.click()
+      if (DIM.has(id)) {
+        // Known broken (list: "no"): the button should do its job on words.
+        await expect(toast(page)).toBeVisible()
+        await expect(toast(page)).not.toContainText(/works on|later update/, {
+          timeout: 1500,
+        })
+        return
+      }
+      if (id === 'copy') await expect(toast(page)).toContainText('Copied')
+      if (id === 'cut' || id === 'delete')
+        await expect(words(page)).not.toContainText('nucleus')
+      if (id === 'duplicate')
+        await expect(
+          page.locator('.bn-block-content', { hasText: TEXT }),
+        ).toHaveCount(2)
+      if (id === 'colour')
+        await expect(
+          page.getByText('Highlight color', { exact: true }),
+        ).toBeVisible()
+      if (id === 'keyPoint')
+        await expect(
+          page.locator('.recall-mark[data-mark="key"]'),
+        ).toBeVisible()
+      if (id === 'makeCard')
+        await expect.poll(() => cardRecordCount(page)).toBe(1)
+      if (id === 'summary') await expect(toast(page)).toBeVisible()
+      if (id === 'saveToNotes')
+        await expect.poll(() => pageTitles(page)).toContain('Highlights')
+      if (id === 'deselect') await expect(classicMenu(page)).toBeHidden()
+    }
+    if (DIM.has(id))
+      // Known broken: the dimmed rows only say "works on drawings" / "later".
+      test.fail(`${no} classic Lasso menu: ${name} (words)`, body)
+    else test(`${no} classic Lasso menu: ${name} (words)`, body)
+  }
+})
+
+/* ------------------------------------------------------------------ */
+/* The classic drawing menu (v8 off; InkSurface.tsx).                  */
+/* ------------------------------------------------------------------ */
+
+const inkMenu = (page: Page) => page.locator('[data-ink-menu]').first()
+const inkAct = (page: Page, id: string) =>
+  inkMenu(page).locator(`[data-ink-action="${id}"]`)
+
+async function classicInk(page: Page) {
+  await open(page, { level: 'professional' })
+  await drawingPicked(page, (n) => pickClassic(page, n))
+  await expect(inkMenu(page)).toBeVisible()
+}
+
+/** A row that lives under the drawing menu's ⋯ when it is not in the row. */
+async function inkRow(page: Page, id: string) {
+  if (!(await inkAct(page, id).isVisible())) {
+    await inkAct(page, 'more').click()
+    await expect(page.locator('[data-ink-more]')).toBeVisible()
+  }
+  return inkAct(page, id)
+}
+
+test.describe('the classic drawing menu (v8 off)', () => {
+  test('SB-B110 drawing menu: Deselect', async ({ page }) => {
+    await classicInk(page)
+    await inkAct(page, 'deselect').click()
+    await expect(page.locator('[data-ink-box]')).toBeHidden()
+  })
+  test('SB-B111 drawing menu: Copy', async ({ page }) => {
+    await classicInk(page)
+    await inkAct(page, 'copy').click()
+    await expect(toast(page)).toContainText('Picture copied')
+  })
+  test('SB-B112 drawing menu: Cut', async ({ page }) => {
+    await classicInk(page)
+    await inkAct(page, 'cut').click()
+    await expect.poll(() => strokesNow(page)).toBe(0)
+  })
+  test('SB-B113 drawing menu: Duplicate', async ({ page }) => {
+    await classicInk(page)
+    await inkAct(page, 'duplicate').click()
+    await expect.poll(() => strokesNow(page)).toBe(2)
+  })
+  test('SB-B114 drawing menu: Convert to text opens the sheet', async ({
+    page,
+  }) => {
+    await classicInk(page)
+    await inkAct(page, 'convert').click()
+    await expect(page.getByRole('dialog').first()).toBeVisible()
+  })
+  test('SB-B115 drawing menu: Colour recolours the drawing', async ({
+    page,
+  }) => {
+    await classicInk(page)
+    const before = (await savedInk(page)).strokes[0]!.style.colour
+    await inkAct(page, 'colour').click()
+    await page.locator('[data-ink-colour="red"]').click()
+    await expect
+      .poll(async () => (await savedInk(page)).strokes[0]!.style.colour)
+      .not.toBe(before)
+  })
+  test('SB-B116 drawing menu: Delete', async ({ page }) => {
+    await classicInk(page)
+    // The handler is proved with a dispatched click: at iPad width this button
+    // can sit under the sidebar's resize handle (see the next test).
+    await (await inkRow(page, 'delete')).dispatchEvent('click')
+    await expect.poll(() => strokesNow(page)).toBe(0)
+  })
+  // Known broken (list: partly): a finger on Delete lands on the sidebar's
+  // resize handle when the menu is open wide (⋯ shown) at 1180 px.
+  test.fail(
+    'SB-B116 drawing menu ⋯: Delete can be tapped (not under the sidebar edge)',
+    async ({ page }) => {
+      await classicInk(page)
+      const b = await inkRow(page, 'delete')
+      const hit = await b.evaluate((el) => {
+        const r = el.getBoundingClientRect()
+        const top = document.elementFromPoint(
+          r.x + r.width / 2,
+          r.y + r.height / 2,
+        )
+        return el === top || el.contains(top)
+      })
+      expect(hit).toBe(true)
+    },
+  )
+  test('SB-B117 drawing menu: ⋯ opens the rest', async ({ page }) => {
+    await classicInk(page)
+    await inkAct(page, 'more').click()
+    await expect(page.locator('[data-ink-more]')).toBeVisible()
+  })
+  test('SB-B118 drawing menu ⋯: Thickness changes the pen width', async ({
+    page,
+  }) => {
+    await classicInk(page)
+    const before = (await savedInk(page)).strokes[0]!.style.width
+    await (await inkRow(page, 'thickness')).click()
+    await page.locator('[data-ink-thickness]').last().click()
+    await expect
+      .poll(async () => (await savedInk(page)).strokes[0]!.style.width)
+      .not.toBe(before)
+  })
+  test('SB-B119 drawing menu ⋯: Make card asks for the question', async ({
+    page,
+  }) => {
+    await classicInk(page)
+    await (await inkRow(page, 'makeCard')).click()
+    await expect(page.getByRole('dialog').first()).toBeVisible()
+  })
+  test('SB-B120 drawing menu ⋯: Add to Summary needs a name first', async ({
+    page,
+  }) => {
+    await classicInk(page)
+    await (await inkRow(page, 'summary')).click()
+    await expect(toast(page)).toContainText('Name this drawing first')
+  })
+  test('SB-B121 drawing menu ⋯: Name this drawing saves a name', async ({
+    page,
+  }) => {
+    await classicInk(page)
+    await (await inkRow(page, 'label')).click()
+    const field = inkMenu(page).locator('input').first()
+    await field.fill('Cell sketch')
+    await field.press('Enter')
+    await (await inkRow(page, 'summary')).click()
+    await expect(toast(page)).not.toContainText('Name this drawing first')
+  })
+  test('SB-B122 drawing menu ⋯: Paste puts a copied drawing back', async ({
+    page,
+  }) => {
+    await classicInk(page)
+    await inkAct(page, 'copy').click()
+    await expect(toast(page)).toContainText('Picture copied')
+    await inkAct(page, 'more').click()
+    await inkAct(page, 'paste').click()
+    await expect.poll(() => strokesNow(page)).toBe(2)
+  })
+  test('SB-B123 drawing menu ⋯: Copy as picture', async ({ page }) => {
+    await classicInk(page)
+    await inkAct(page, 'more').click()
+    await inkAct(page, 'copyPng').click()
+    await expect(toast(page)).toContainText('Picture copied')
+  })
+  test('SB-B124 drawing menu ⋯: Save as picture downloads a file', async ({
+    page,
+  }) => {
+    await classicInk(page)
+    await inkAct(page, 'more').click()
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      inkAct(page, 'savePng').click(),
+    ])
+    expect(download.suggestedFilename()).toContain('.png')
+  })
+})
+
+/* ------------------------------------------------------------------ */
+/* The mixed menu: a loop round drawings and page words together.      */
+/* ------------------------------------------------------------------ */
+
+const mixedMenu = (page: Page) => page.locator('[data-ink-menu="mixed"]')
+const mixedAct = (page: Page, id: string) =>
+  mixedMenu(page).locator(`[data-ink-action="${id}"]`)
+
+async function mixedPicked(page: Page) {
+  await open(page, {
+    level: 'professional',
+    prefs: { 'ink.lasso': { text: true, pictures: true, ink: true } },
+  })
+  // A second line of words, with a drawing across it.
+  await page.keyboard.press('Enter')
+  await page.keyboard.type('Second line of notes')
+  await waitForSaved(page)
+  await pickClassic(page, 'pen')
+  await expect(page.locator('[data-ink-pad]')).toBeAttached()
+  const line2 = page.locator('.bn-block-content').nth(1)
+  await expect(async () => {
+    const r = (await line2.boundingBox())!
+    if ((await savedInk(page)).strokes.length === 0)
+      await stroke(
+        page,
+        line([r.x + 10, r.y + r.height / 2], [r.x + 160, r.y + r.height / 2]),
+      )
+    await expectStrokes(page, 1)
+  }).toPass()
+  await pickClassic(page, 'lasso')
+  await expect(async () => {
+    if (await mixedMenu(page).isVisible()) return
+    const r = (await line2.boundingBox())!
+    await stroke(
+      page,
+      loopAround({
+        x0: r.x,
+        y0: r.y + 2,
+        x1: r.x + 200,
+        y1: r.y + r.height - 2,
+      }),
+    )
+    await expect(mixedMenu(page)).toBeVisible({ timeout: 2000 })
+  }).toPass()
+}
+
+test.describe('the mixed menu (drawing and words in one loop)', () => {
+  test('SB-B130 mixed menu: Copy', async ({ page }) => {
+    await mixedPicked(page)
+    await mixedAct(page, 'copy').click()
+    await expect(toast(page)).toContainText('Picture copied')
+  })
+  test('SB-B131 mixed menu: Cut takes drawing and words out', async ({
+    page,
+  }) => {
+    await mixedPicked(page)
+    await mixedAct(page, 'cut').click()
+    await expect(words(page)).not.toContainText('Second line')
+    await expect.poll(() => strokesNow(page)).toBe(0)
+  })
+  test('SB-B132 mixed menu: Delete takes drawing and words out', async ({
+    page,
+  }) => {
+    await mixedPicked(page)
+    await mixedAct(page, 'delete').click()
+    await expect(words(page)).not.toContainText('Second line')
+    await expect.poll(() => strokesNow(page)).toBe(0)
+  })
+  test('SB-B133 mixed menu: Screenshot saves a picture', async ({ page }) => {
+    await mixedPicked(page)
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      mixedAct(page, 'screenshot').click(),
+    ])
+    expect(download.suggestedFilename()).toContain('.png')
+  })
+  test('SB-B134 mixed menu: Make card', async ({ page }) => {
+    await mixedPicked(page)
+    await mixedAct(page, 'makeCard').click()
+    await expect.poll(() => cardRecordCount(page)).toBe(1)
+  })
+  test('SB-B135 mixed menu: Deselect', async ({ page }) => {
+    await mixedPicked(page)
+    await mixedAct(page, 'deselect').click()
+    await expect(mixedMenu(page)).toBeHidden()
+  })
+})
+
+/* ------------------------------------------------------------------ */
+/* Appendix C of the phase page: what the Goodnotes pictures show.     */
+/* ------------------------------------------------------------------ */
+
+test.describe('Appendix C: reachable with the Pencil', () => {
+  /** A Pencil-mode page with the new tool bar; the caret at the end of the first line. */
+  async function cursorOnly(page: Page) {
+    await open(page, { flags: ['toolbar.v8', 'page.menus'], mode: 'pencil' })
+    await pickV8(page, 'text')
+    await page.locator('.bn-block-content').first().click()
+    await page.keyboard.press('End')
+  }
+  /** The Format card opens on its first tab; tabs are searched for a tile. */
+  async function formatTile(page: Page, id: string) {
+    await page.getByTestId('v8-chip-text.format').click()
+    await expect(page.getByTestId('v8-format')).toBeVisible()
+    const tile = page.getByTestId(`v8-format-${id}`)
+    for (const tab of ['text', 'style', 'paragraph', 'advanced']) {
+      if (await tile.isVisible()) break
+      const t = page.getByTestId(`v8-format-tab-${tab}`)
+      if (await t.isVisible()) await t.click()
+    }
+    return tile
+  }
+
+  test('SB-B140 cursor only: Paste ▾, Mic, Enter, Backspace, Undo and Redo are on the top row', async ({
+    page,
+  }) => {
+    await cursorOnly(page)
+    for (const id of [
+      'top-paste',
+      'v8-mic',
+      'v8-newline',
+      'v8-backspace',
+      'v8-undo',
+      'v8-redo',
+    ])
+      await expect(page.getByTestId(id)).toBeVisible()
+  })
+
+  test('SB-B141 cursor only: Format, Bold and Italic sit on the Text row; Bold works', async ({
+    page,
+  }) => {
+    await cursorOnly(page)
+    await expect(page.getByTestId('v8-chip-text.format')).toBeVisible()
+    await expect(page.getByTestId('v8-chip-text.italic')).toBeVisible()
+    await page.getByTestId('v8-chip-text.bold').click()
+    await expect(page.getByTestId('v8-chip-text.bold')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+  })
+
+  test("SB-B142 Format card: Underline and Strike are there (the keyboard bar's B I U S)", async ({
+    page,
+  }) => {
+    await cursorOnly(page)
+    await expect(await formatTile(page, 'underline')).toBeVisible()
+    await expect(page.getByTestId('v8-format-strike')).toBeVisible()
+  })
+
+  test('SB-B143 Format card: Indent and Outdent are there', async ({
+    page,
+  }) => {
+    await cursorOnly(page)
+    await expect(await formatTile(page, 'indent')).toBeVisible()
+    await expect(page.getByTestId('v8-format-outdent')).toBeVisible()
+  })
+
+  test('SB-B144 Format card: lists and alignment are there', async ({
+    page,
+  }) => {
+    await cursorOnly(page)
+    await expect(await formatTile(page, 'bulletList')).toBeVisible()
+    await expect(page.getByTestId('v8-format-numberedList')).toBeVisible()
+    await page.getByTestId('v8-format-tab-paragraph').click()
+    await expect(page.getByTestId('v8-format-alignRight')).toBeVisible()
+  })
+
+  test('SB-B145 one bar Paste ▾ offers Keep look, Match style and Plain text', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await one(page, 'paste').click()
+    for (const name of ['Keep', 'Match', 'Plain'])
+      await expect(
+        pop(page, 'paste').getByRole('button', { name: new RegExp(name) }),
+      ).toBeVisible()
+  })
+
+  test('SB-B146 a picked drawing has four corner dots and a turn handle', async ({
+    page,
+  }) => {
+    await classicInk(page)
+    expect(
+      await page.locator('[data-handle="scale"]').count(),
+    ).toBeGreaterThanOrEqual(4)
+    await expect(page.locator('[data-handle="rotate"]')).toBeVisible()
+  })
+
+  test('SB-B147 a picked box has its eight resize dots', async ({ page }) => {
+    const box = await boxOpen(page, true)
+    await expect(box.locator('[data-resize-handle]')).toHaveCount(8)
+  })
+
+  test('SB-B148 Lasso Picks (what it selects) and Undo/Redo are on the page bars', async ({
+    page,
+  }) => {
+    await open(page, { flags: V8 })
+    await pickV8(page, 'lasso')
+    await expect(page.getByTestId('v8-lasso-bar-picks')).toBeVisible()
+    await expect(page.getByTestId('v8-undo')).toBeVisible()
+    await expect(page.getByTestId('v8-redo')).toBeVisible()
+  })
+})
+
+test.describe('Appendix C: not in the app today (a new part must change these on purpose)', () => {
+  const ABSENT = [
+    ['SB-B160', 'Edit Text', /edit text/i],
+    ['SB-B161', 'Front and Back', /^(front|back)$/i],
+    ['SB-B162', 'Screenshot (a box has none)', /screenshot/i],
+    ['SB-B163', 'Create Element', /create element/i],
+  ] as const
+  for (const [no, name, match] of ABSENT)
+    test(`${no} the box bar and its ⋯ have no ${name}`, async ({ page }) => {
+      await boxOpen(page, true)
+      await one(page, 'boxmore').click()
+      await expect(more(page, 'copy')).toBeVisible()
+      await expect(page.getByRole('menuitem', { name: match })).toHaveCount(0)
+      await expect(
+        page.getByTestId('object-bar').getByRole('button', { name: match }),
+      ).toHaveCount(0)
+    })
+})
+
+test.describe('the one bar on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+  test('SB-B150 phone: the short bar keeps Font, List, Cut and Paste under ⋯', async ({
+    page,
+  }) => {
+    await boxOpen(page, true)
+    await expect(one(page, 'font')).toHaveCount(0)
+    await expect(one(page, 'list')).toHaveCount(0)
+    await expect(one(page, 'cut')).toHaveCount(0)
+    await one(page, 'boxmore').click()
+    for (const id of ['font', 'list', 'cut', 'pasteMore'])
+      await expect(more(page, id)).toBeVisible()
+    await more(page, 'font').click()
+    await expect(pop(page, 'font')).toBeVisible()
+  })
+})
+
+test('SB-B000 the list and the tests name the same buttons', () => {
+  // A button dropped from the list, or a test dropped from the spec, shows here.
+  const idsOf = (text: string) => new Set(text.match(/SB-B\d{2,3}/g) ?? [])
+  const list = readFileSync('docs/features/selection-bar-buttons.md', 'utf8')
+  const rows = new Set(
+    [...list.matchAll(/^\| (SB-B\d{2,3})\s*\|/gm)].map((m) => m[1]!),
+  )
+  const spec = idsOf(readFileSync('e2e/selectionBarButtons.spec.ts', 'utf8'))
+  // SB-B125 (the recording) is proved by inkReplay.spec.ts, SB-B000 is this test.
+  const proved = new Set([...spec, 'SB-B125', 'SB-B000'])
+  const noTest = [...rows].filter((id) => !proved.has(id))
+  const noRow = [...spec].filter((id) => !rows.has(id) && id !== 'SB-B000')
+  expect(noTest, 'rows of the list with no test').toEqual([])
+  expect(noRow, 'tests with no row in the list').toEqual([])
+})

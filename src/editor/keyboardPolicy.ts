@@ -1,4 +1,6 @@
+import { typingPaused } from './typingPaused'
 import { activeTool } from '../app/tools/main/mainTools'
+import { isOn } from '../app/flags'
 import { tapTwiceActive } from './penMode'
 import { deselect } from './ownSelection'
 import type { AppSchema } from './schema'
@@ -139,7 +141,11 @@ export function watchKeyboardPolicy(editor: Editor): () => void {
     const { id, words } = blockOf(e.target)
     if (tool === 'text' || tool === 'lasso') {
       // The two-tap rule. Text: if "tap twice" is on. Lasso: always.
-      const twice = tool === 'lasso' || tapTwiceActive()
+      // C30b (owner 17 Nov, "same as every box"): with text box v2 the first
+      // tap on or near the words of the page's first box gives the caret at
+      // once, as in every other box (those never had the two-tap rule).
+      const twice =
+        tool === 'lasso' || (tapTwiceActive() && !isOn('textbox.v2'))
       if (onText && id) {
         // Lasso: a blank line or new block takes no caret (a stroke there is a lasso).
         if (tool === 'lasso' && !words) {
@@ -194,6 +200,7 @@ export function watchKeyboardPolicy(editor: Editor): () => void {
     const view = editor.prosemirrorView
     if (
       view &&
+      !typingPaused() &&
       !view.state.selection.empty &&
       !dom.contains(doc.activeElement) &&
       !(doc.activeElement instanceof HTMLInputElement) &&

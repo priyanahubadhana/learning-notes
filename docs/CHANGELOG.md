@@ -13,6 +13,36 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** `.github/workflows/ci.yml`, job `scenarios`: a browser cache in front of the install (its own key for Chromium and WebKit together), the system packages on a cache hit, the retry install only on a miss; the 25-minute limit unchanged (slice/scenarios-browser-cache 0bb6bb9e, merged into build/next). The cut scenarios job of run 45299069262 was rerun by hand. The S9 ✘ of last night was read in the log: S6, S7 and S9 are `@notbuilt @fail` since 20 Nov, the total was "20 passed" (DECISIONS 24 Nov 12:35).
 - **Why:** a slow mirror took about 20 of the job's 25 minutes twice last night and cut the job; the other e2e jobs already had the cache. **Files:** .github/workflows/ci.yml (build/next), docs/DECISIONS.md, docs/STATE.md, docs/CHANGELOG.md.
 
+### 24 Nov 2026: the fast-set job limit on CI, 20 to 45 minutes (measured)
+
+- **What:** `.github/workflows/ci.yml`, the `e2e-fast` job: `timeout-minutes` 20 → 45. **Why:** the update spec (49 tests, three of 4 to 5 minutes) is in the fast list since U0c; on the hosted machine its shard passed 20 minutes and run 45289772955 cancelled two shards at the limit with every test green. Before U0c the longest fast job took 13 minutes (run 45172619408). No test changed. DECISIONS "Decisions to review" holds the phase-end choice (keep, move the slow scenarios to the nightly, or more shards). **Files:** .github/workflows/ci.yml, docs/CHANGELOG.md.
+
+### 24 Nov 2026: the box bar stays in the page column, docks on the sides, never touches the page behind (fixes #60, #61, #62, #63)
+
+- **What:** the bar's area now excludes panels lying over the page; a pinned bar with no room folds (the pin is kept); left and right dock zones are 96 px and a cancelled touch in a zone still docks; the grip, the bar, its strips and the ⋯ list stop presses at their surface and the page gets no touch while the grip is held; the bar's area is re-read when the page column changes.
+- **Why:** owner's iPad check, 24 Nov 03:21 to 03:26: bar over the sidebar, no side docking, grip typed into the title, no bar on a new box.
+- **Review round 1 (24 Nov):** the real #62 cause: a tap on the grip always dropped the bar, the in-box bar unmounted for the page bar, the grip node left before touchend, and iOS sent its click to the words under the finger (the title). Now a tap (under 8 px) is no drop, the page stays shielded 450 ms after release, and the pinned bar chunk is preloaded. For #63, an UNPINNED bar is hidden by design while a caret blinks in its box (approved picture, frame 15): this is reported as a spec question, the code is unchanged.
+- **Not proven (hypotheses, to be tested on the real iPad):** #61 (the 96 px side zones and the cancelled-touch drop are my guess at why the finger never docked) and #63 (the stale area is a real bug and is fixed, but the owner's first-show failure was not reproduced in a browser).
+- **Files:** src/paper/v2/oneBarDockModel.ts (+ .test.ts), oneBarArea.ts, oneBarGrip.ts, oneBarDock.tsx, oneBarPlaceStore.ts, PinnedBoxBar.tsx, BoxBarV2.tsx, OneBar.tsx, BoxMoreHost.tsx, oneBarB.css, e2e/tb2-bar-b.spec.ts, docs/features/selection-bar.md.
+
+### 24 Nov 2026: the download poll no longer wipes the restart prompt (fixes #58)
+
+- **What:** the poll in `follow` re-checks that no restart was asked for right before each status write (offline, bytes, cache count). A new unit test holds the cache read open while the prompt starts.
+- **Why:** on a loaded WebKit the cache read outlasted the prompt start; the write erased the countdown, the prompt stopped, no restart and no "did not finish" (S3b red on ipad-webkit, 2 of 14). UP-03, UP-05.
+- **Files:** src/app/updateProgress.ts, src/app/updateProgress.test.ts, docs/features/update-v2.md.
+
+### 23 Nov 2026: U0c review fixes and the required-update restart on WebKit (S2)
+
+- **What:** with `update.v2` ON a restart that was asked for still reloads the page when the new version takes over after "The update did not finish" showed (slow WebKit); the poll skip, the 100 percent push and the percent cap are ON-only; U0a-11 is a plain assertion (no `test.fail`).
+- **Why:** S2 never reached B on ipad-webkit (the failed note blocked the controllerchange reload); switch OFF must equal today (U13); U0c's done-when is U0a without `test.fail`.
+- **Files:** src/main.tsx, src/app/updateProgress.ts, src/app/UpdatePill.tsx, e2e/u0aUpdateRepro.spec.ts.
+
+### 23 Nov 2026: PC-1 U0c + S0 (the update fix behind `update.v2`)
+
+- **What:** the 3-second "Restarting in N s" prompt (Cancel, Restart now, Esc) now lives in the toast queue (src/app/UpdatePrompt.tsx, a top-layer popover), the pill keeps the status text only. The download numbers no longer overwrite a restart that was already asked for. An update offer made while the prompt is open (or after Cancel) never asks again. S3 and S3b now open version A at full speed and slow only the download of B. The duplicate "reach" test in e2e/firstBoxTap.spec.ts was removed (38 tests listed).
+- **Why:** the spec (update-v2.md, parts table) puts the prompt in the Toast queue; S6 showed a second ask 2 s after Cancel; S3b never reached "The update did not finish" because the progress poll replaced the status.
+- **Files:** src/app/UpdatePrompt.tsx, UpdatePill.tsx, updateProgress.ts, autoUpdate.ts, autoUpdate.test.ts, e2e/updateV2.spec.ts, e2e/u0aUpdateRepro.spec.ts (the trace now reads the prompt too), e2e/firstBoxTap.spec.ts.
+
 ### 24 Nov 2026: the proof found a real red, S3b; the line is stopped (issue #58; docs only)
 
 - **What:** S3b failed twice in 14 ipad-webkit runs ("The update did not finish" never showed). Root cause found by a read-only review and confirmed in the code: the download-progress poll (src/app/updateProgress.ts) can overwrite the 3 s restart prompt after its cache read, and the prompt then stops for good. GitHub issue #58 opened; a builder fixes it on slice/u0d-prompt-race (worktree ln-u0d); STATE step 0 holds the order of work (no merge of build/next, S3b counted from zero after the fix).
@@ -144,6 +174,12 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 - **What:** docs/plans/found-wishes-2026-11-22.md, the sweep of past owner wishes with no register row (31 confirm rows by pillar and stage, 13 leftovers, 11 earlier no's, about 30 matched to existing F-ids).
 - **Why:** MASTER-PLAN row 5 and DECISIONS 22 Nov 06:00; the owner's one-pass confirm before the old plan pages are archived.
 - **Files:** docs/plans/found-wishes-2026-11-22.md, docs/STATE.md, docs/CHANGELOG.md.
+
+### 22 Nov 2026: PC-1 U0a (the update bug, reproduced by test)
+
+- **What:** e2e/u0aUpdateRepro.spec.ts builds two real versions (A, B), serves them from one origin like the host, swaps A to B while the app runs and logs every pill and Settings-line state with a time. New switch `update.versionLine` (ON on the preview host) draws "Version abc1234 · Up to date" at the top of Settings. Reproduced: on a slow line the page restarts again and again on the OLD version (WebKit from 100 ms a file: 3 restarts, 14 at 1000 ms; every file fetched twice), the pill says "Restarting" while the download is at 17 to 91 percent, and the download shows 107 percent. These are `test.fail` with the bug id U0. No fix yet (U0c).
+- **Why:** the owner's report: after every release the download fills, "Restarting" sticks, the loop lasts 5 to 10 minutes.
+- **Files:** e2e/u0aUpdateRepro.spec.ts, e2e/u0aUpdateRepro.helper.ts, playwright.config.ts (ipad-webkit list), src/settings/UpdateLine.tsx, SettingsScreen.tsx, v3/SettingsV3.tsx, src/app/flags.ts (+ test), texts en/es/hi (updates, flags), .gitignore (.u0a).
 
 ### 22 Nov 2026: the local unit-test red fixed (drive-letter case)
 

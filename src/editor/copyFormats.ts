@@ -2,6 +2,7 @@ import { blockToNode } from '@blocknote/core'
 import { Fragment, Slice } from 'prosemirror-model'
 import { t } from '../i18n/t'
 import { isApproved, isRemoteUrl, resolveForCopy } from '../images/remoteImages'
+import { rememberAppCopy } from './appClipboard'
 import { embedPictures, inlineText } from './clipboard'
 import type { AppSchema } from './schema'
 
@@ -489,6 +490,10 @@ function copyWithEvent(fill: (data: DataTransfer) => void): boolean {
     e.stopImmediatePropagation()
     e.clipboardData.clearData()
     fill(e.clipboardData)
+    rememberAppCopy(
+      e.clipboardData.getData('text/html'),
+      e.clipboardData.getData('text/plain'),
+    )
   }
   document.addEventListener('copy', handler, true)
   try {
@@ -508,10 +513,12 @@ async function writeItem(items: Record<string, string>): Promise<boolean> {
       entry[type] = new Blob([text], { type })
     }
     await navigator.clipboard.write([new ClipboardItem(entry)])
+    rememberAppCopy(items['text/html'] ?? '', items['text/plain'] ?? '')
     return true
   } catch {
     try {
       await navigator.clipboard.writeText(items['text/plain'] ?? '')
+      rememberAppCopy('', items['text/plain'] ?? '')
       return true
     } catch {
       return false

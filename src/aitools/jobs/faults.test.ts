@@ -470,3 +470,37 @@ describe('offline and limits', () => {
     expect(kit.port.count('cards', true)).toBe(2)
   })
 })
+
+describe('recover with a job that waits for an answer', () => {
+  it('a job waiting for a paste does not hold back runnable jobs after a restart', async () => {
+    const kit = makeKit()
+    // First by age: needs an answer. Second: needs nothing from anyone.
+    await kit.runner.create(plan('w1'))
+    kit.clock.time += 10
+    await kit.runner.create({
+      ...onePlan('notebooks.create', { title: 'Quick' }),
+      id: 'w2',
+    })
+    for (const id of ['w1', 'w2']) {
+      const j = (await kit.store.get(id))!
+      j.state = 'queued'
+      await kit.store.put(j)
+    }
+    let release: (v: unknown) => void = () => undefined
+    const waiting = new Promise((res) => (release = res))
+    const r = kit.restart({
+      filler: { fill: () => waiting },
+    })
+    const all = r.recover()
+    // The quick job reaches its preview while the first still waits.
+    for (let i = 0; i < 200; i++) {
+      if ((await kit.store.get('w2'))?.state === 'preview') break
+      await new Promise((res) => setTimeout(res, 0))
+    }
+    expect((await kit.store.get('w2'))?.state).toBe('preview')
+    expect((await kit.store.get('w1'))?.state).toBe('running')
+    release({ page: PAGE })
+    await all
+    expect((await kit.store.get('w1'))?.state).toBe('preview')
+  })
+})

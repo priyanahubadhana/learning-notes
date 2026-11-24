@@ -1,4 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
+import { lazy, Suspense, type ComponentProps } from 'react'
+import { useFlag } from '../app/flags'
 import type { LearningNotesDB } from '../core/db'
 import { t } from '../i18n/t'
 import { listSources } from './libraryService'
@@ -7,7 +9,7 @@ import { listSources } from './libraryService'
  * The sidebar of the Library space: Capture and the sources, newest first,
  * so any book opens in one tap while the gallery fills the main area.
  */
-export function LibrarySidebar({
+function LibrarySidebarToday({
   db,
   workspaceId,
   currentPageId,
@@ -56,5 +58,27 @@ export function LibrarySidebar({
         <p className="px-1 text-xs text-muted">{t('library.empty')}</p>
       )}
     </section>
+  )
+}
+
+const ShelvesPanel = lazy(() =>
+  import('./v2/ShelvesPanel').then((m) => ({ default: m.ShelvesPanel })),
+)
+
+/** The Library side panel: today's list, or the Shelves panel when the library.v2 switch is on. */
+export function LibrarySidebar(
+  props: ComponentProps<typeof LibrarySidebarToday>,
+) {
+  const v2 = useFlag('library.v2')
+  if (!v2) return <LibrarySidebarToday {...props} />
+  return (
+    <Suspense fallback={null}>
+      <ShelvesPanel
+        db={props.db}
+        workspaceId={props.workspaceId}
+        currentPageId={props.currentPageId}
+        onOpenPage={props.onOpenPage}
+      />
+    </Suspense>
   )
 }

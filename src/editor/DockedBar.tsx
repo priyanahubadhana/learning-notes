@@ -14,7 +14,7 @@ import {
 } from '@blocknote/react'
 import {
   Suspense,
-  lazy,
+  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -24,6 +24,10 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
+import { lazyNow } from '../app/lazyNow'
+import { preloadAhead } from '../app/idlePrefetch'
+import { HoldMenuLazy } from './HoldMenuLazy'
+import { PageStripLazy } from './menus/PageStripLazy'
 import type { Place } from '../app/tools/toolbarState'
 import { AppUiContext } from '../app/appUi'
 import { isApple } from '../app/keys'
@@ -33,8 +37,13 @@ import {
   useKeyboardInset,
 } from '../settings/deviceModeSettings'
 import { historyState } from '../core/historySteps'
+import { useFlag } from '../app/flags'
+import { OLD_BAR_H } from './barRoomRule'
+import { tuckState } from '../app/tools/v8/tuck'
+import { ScrollBar } from '../design/parts/ScrollBar'
 import { padHistoryState } from './writePad/padHistory'
 import { MainBarRow } from '../app/tools/main/MainBar'
+import { ToolbarV8Lazy } from '../app/tools/v8/ToolbarV8Lazy'
 import { HoverName } from '../app/tools/HoverName'
 import { MiniToolbar } from '../app/tools/main/MiniToolbar'
 import { MicroBar } from '../app/tools/main/MicroBar'
@@ -66,6 +75,7 @@ import { EditBarPanel } from './EditBarPanel'
 import { useBarActions, type BarAction, type Editor } from './barActions'
 import { clearSelection } from './lineActions'
 import { ColorPanel } from './ColorPicker'
+import { ToolbarMenuV2 } from './toolbarMenu/ToolbarMenuV2'
 import { PopupHeader } from '../app/tools/PopupClose'
 import {
   copyAs,
@@ -84,7 +94,7 @@ import {
 /** Keeps the editor's selection and keyboard when a bar button is pressed. */
 const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
 
-const LazyEditToolbar = lazy(() =>
+const LazyEditToolbar = lazyNow(() =>
   import('../app/tools/main/EditToolbarSheet').then((m) => ({
     default: m.EditToolbarSheet,
   })),
@@ -114,11 +124,15 @@ function useToolActive(editor: Editor): (id: string) => boolean {
 }
 
 // The iPad keyboard bar loads only when the keyboard is up (bug batch 2, item 8).
-const KeyboardBar = lazy(() => import('../app/tools/main/KeyboardBar'))
+const KeyboardBar = lazyNow(() => import('../app/tools/main/KeyboardBar'))
 
 function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const kbInset = useKeyboardInset()
   const settings = useBarSettings()
+  const toolbarV8 = useFlag('toolbar.v8')
+  const menuV2 = useFlag('toolbar.menu')
+  // BUG-003: the bar tucked away while writing (the Show toolbar pill is up).
+  const tucked = tuckState.useValue().tucked
   const { buttonPx, hoverTips, shortcutHints, autoHide } = settings
   const layout = useBarLayout()
   const groups = barGroups(layout)
@@ -152,11 +166,25 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
   const isActive = useToolActive(editor)
   const pageHistory = historyState.useValue()
   const pad = padHistoryState.useValue()
+  // The new shell's top bar already has the pair (SH-05), so the bar drops its copy.
+  const shellOn = useFlag('foundation.shell')
   const history = {
     canUndo: pageHistory.canUndo || pad.canUndo,
     canRedo: pageHistory.canRedo || pad.canRedo,
+    hidden: shellOn,
   }
   usePenPicksPen()
+  // Menus and sheets a tap or hold opens: fetched ahead, so they paint at once (R13).
+  useEffect(
+    () =>
+      preloadAhead([
+        LazyEditToolbar.preload,
+        KeyboardBar.preload,
+        HoldMenuLazy.preload,
+        PageStripLazy.preload,
+      ]),
+    [],
+  )
 
   // Ctrl/Cmd+F1: "Tools close after use" or "Tools stay open".
   useEffect(() => {
@@ -288,22 +316,39 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
       aria-label={t('bar.label')}
       onKeyDown={arrowKeys}
       {...focusHandlers}
+      // P1.9 R19: one height in every mode, so nothing below moves when the mode changes.
+      style={
+        shellOn && !toolbarV8 && place !== 'free'
+          ? {
+              minHeight: OLD_BAR_H,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }
+          : undefined
+      }
       className={
         place === 'free'
           ? 'relative rounded-2xl border border-ink-soft bg-bg px-1.5 py-1 shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.16)]'
           : 'relative border-y border-line bg-bg px-2 py-1 phone:px-1'
       }
     >
-      <MainBarRow
-        editor={editor}
-        px={buttonPx}
-        tips={hoverTips}
-        history={history}
-        menuOpen={panel === 'menu'}
-        menuRef={menuButton}
-        onMenu={() => setPanel(panel === 'menu' ? null : 'menu')}
-      />
-      <ContextBar up={up(place)} />
+      {toolbarV8 ? (
+        <ToolbarV8Lazy />
+      ) : (
+        <>
+          <MainBarRow
+            editor={editor}
+            px={buttonPx}
+            tips={hoverTips}
+            history={history}
+            menuOpen={panel === 'menu'}
+            menuRef={menuButton}
+            onMenu={() => setPanel(panel === 'menu' ? null : 'menu')}
+          />
+          <ContextBar up={up(place)} />
+        </>
+      )}
     </div>
   )
 
@@ -371,90 +416,124 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
             bottom={bottom}
             label={t('bar.menu')}
             focusFirst
+            quietFocus={menuV2}
             onClose={() => setPanel(null)}
           >
-            <MenuItem px={buttonPx} accent onClick={() => openSheet()}>
-              {t('editBar.open')}
-            </MenuItem>
-            {!ribbon && (
-              <MenuItem px={buttonPx} onClick={openRibbon}>
-                {t('bar.allTools')}
-              </MenuItem>
-            )}
-            <MenuItem
-              px={buttonPx}
-              onClick={() => {
-                setPanel(null)
-                getAppActions()?.openControlPanel()
-              }}
-            >
-              {t('bar.search')}
-            </MenuItem>
-            <MenuItem px={buttonPx} onClick={done}>
-              {t('bar.done')}
-            </MenuItem>
-            <MenuItem px={buttonPx} onClick={() => setPanel('edit')}>
-              {t('bar.edit')}
-            </MenuItem>
-            <hr className="my-1 border-line" />
-            <MenuItem
-              px={buttonPx}
-              onClick={() => {
-                void copyAs(editor, 'plain', toast)
-                setPanel(null)
-              }}
-            >
-              {t('copy.plain')}
-            </MenuItem>
-            <MenuItem
-              px={buttonPx}
-              onClick={() => {
-                void copyAs(editor, 'markdown', toast)
-                setPanel(null)
-              }}
-            >
-              {t('copy.markdown')}
-            </MenuItem>
-            <MenuItem
-              px={buttonPx}
-              hint={isApple() ? '⌘⇧V' : 'Ctrl+Shift+V'}
-              onClick={() => {
-                void pastePlainFromClipboard(editor, toast)
-                setPanel(null)
-              }}
-            >
-              {t('paste.plain')}
-            </MenuItem>
-            <MenuItem
-              px={buttonPx}
-              onClick={() => {
-                void copyPageWithPictures(editor, toast)
-                setPanel(null)
-              }}
-            >
-              {t('copy.pictures')}
-            </MenuItem>
-            {(layout.short === 'free' || layout.ribbon === 'free') && (
-              <MenuItem
-                px={buttonPx}
-                onClick={() => {
+            {menuV2 ? (
+              <ToolbarMenuV2
+                editor={editor}
+                actions={actions}
+                ribbon={ribbon}
+                freePos={layout.short === 'free' || layout.ribbon === 'free'}
+                hints={shortcutHints}
+                rowPx={buttonPx}
+                onEdit={() => openSheet()}
+                onAllTools={openRibbon}
+                onSearch={() => {
+                  setPanel(null)
+                  getAppActions()?.openControlPanel()
+                }}
+                onDone={done}
+                onBarSettings={() => setPanel('edit')}
+                onResetPos={() => {
                   resetFreePos()
                   setPanel(null)
                 }}
-              >
-                {t('bar.resetPos')}
-              </MenuItem>
-            )}
-            <hr className="my-1 border-line" />
-            {actions.map((action) => (
-              <MoreRow
-                key={action.id}
-                action={action}
-                px={buttonPx}
-                hint={shortcutHints}
                 onColor={() => setPanel('color')}
+                onClose={() => setPanel(null)}
               />
-            ))}
+            ) : (
+              <>
+                <MenuItem px={buttonPx} accent onClick={() => openSheet()}>
+                  {t('editBar.open')}
+                </MenuItem>
+                {!ribbon && (
+                  <MenuItem px={buttonPx} onClick={openRibbon}>
+                    {t('bar.allTools')}
+                  </MenuItem>
+                )}
+                <MenuItem
+                  px={buttonPx}
+                  onClick={() => {
+                    setPanel(null)
+                    getAppActions()?.openControlPanel()
+                  }}
+                >
+                  {t('bar.search')}
+                </MenuItem>
+                <MenuItem px={buttonPx} onClick={done}>
+                  {t('bar.done')}
+                </MenuItem>
+                <MenuItem px={buttonPx} onClick={() => setPanel('edit')}>
+                  {t('bar.edit')}
+                </MenuItem>
+                <hr className="my-1 border-line" />
+                <MenuItem
+                  px={buttonPx}
+                  onClick={() => {
+                    void copyAs(editor, 'plain', toast)
+                    setPanel(null)
+                  }}
+                >
+                  {t('copy.plain')}
+                </MenuItem>
+                <MenuItem
+                  px={buttonPx}
+                  onClick={() => {
+                    void copyAs(editor, 'markdown', toast)
+                    setPanel(null)
+                  }}
+                >
+                  {t('copy.markdown')}
+                </MenuItem>
+                <MenuItem
+                  px={buttonPx}
+                  hint={
+                    shortcutHints
+                      ? isApple()
+                        ? '⌘⇧V'
+                        : 'Ctrl+Shift+V'
+                      : undefined
+                  }
+                  onClick={() => {
+                    void pastePlainFromClipboard(editor, toast)
+                    setPanel(null)
+                  }}
+                >
+                  {t('paste.plain')}
+                </MenuItem>
+                <MenuItem
+                  px={buttonPx}
+                  onClick={() => {
+                    void copyPageWithPictures(editor, toast)
+                    setPanel(null)
+                  }}
+                >
+                  {t('copy.pictures')}
+                </MenuItem>
+                {(layout.short === 'free' || layout.ribbon === 'free') && (
+                  <MenuItem
+                    px={buttonPx}
+                    onClick={() => {
+                      resetFreePos()
+                      setPanel(null)
+                    }}
+                  >
+                    {t('bar.resetPos')}
+                  </MenuItem>
+                )}
+                <hr className="my-1 border-line" />
+                {actions.map((action) => (
+                  <MoreRow
+                    key={action.id}
+                    action={action}
+                    px={buttonPx}
+                    hint={shortcutHints}
+                    onColor={() => setPanel('color')}
+                  />
+                ))}
+              </>
+            )}
           </Tray>
         )}
         {sheet && (
@@ -481,7 +560,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
             key={place}
             place={place}
             kind={kinds.includes('short') ? 'short' : 'ribbon'}
-            hidden={place !== 'free' && !shown}
+            hidden={(toolbarV8 && tucked) || (place !== 'free' && !shown)}
             onFraction={setFreeFraction}
           >
             {kinds.map((kind) =>
@@ -504,7 +583,7 @@ function Bar({ editor, slot }: { editor: Editor; slot: HTMLElement }) {
         <MiniKeys editor={editor} />
       </ToolsBoundary>
       <HoverName />
-      {layout.short !== null && (
+      {!toolbarV8 && layout.short !== null && (
         <ToolsBoundary name="options pill">
           <OptionsPill editor={editor} barPlace={layout.short} />
         </ToolsBoundary>
@@ -609,6 +688,7 @@ function Tray({
   wide,
   label,
   focusFirst,
+  quietFocus,
   onClose,
   children,
 }: {
@@ -619,16 +699,49 @@ function Tray({
   label?: string
   /** Moves the keyboard focus into the tray (the toolbar menu). */
   focusFirst?: boolean
+  /** With focusFirst: focus the tray, not the first item, so no ring shows for a tap. */
+  quietFocus?: boolean
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
+  // The menu's own list gets the shared bar from the start (new frame), not only once touched (P1.1).
+  const shell = useFlag('foundation.shell')
+  const [listEl, setListEl] = useState<HTMLDivElement | null>(null)
+  const setRef = useCallback((el: HTMLDivElement | null) => {
+    ref.current = el
+    setListEl(el)
+  }, [])
   useEffect(() => {
-    if (focusFirst) {
+    if (!focusFirst) return
+    // Quiet: the tray itself takes the focus (no ring); an arrow key then
+    // reaches the first item, and the ring shows for the keyboard only.
+    if (quietFocus) ref.current?.focus({ preventScroll: true })
+    else
       ref.current
         ?.querySelector<HTMLElement>('button:not([data-popup-close])')
         ?.focus({ preventScroll: true })
+  }, [focusFirst, quietFocus])
+  // R5: on a phone the tray ends above the tab bar (and the screen edge), so its
+  // last row can be scrolled into view and is never hidden behind the bar.
+  const [room, setRoom] = useState<number | null>(null)
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el || bottom) return
+    const measure = () => {
+      const bar = document.querySelector<HTMLElement>('.sh-tabbar')
+      const barTop =
+        bar && bar.offsetParent !== null
+          ? bar.getBoundingClientRect().top
+          : window.innerHeight
+      setRoom(
+        Math.max(160, Math.floor(barTop - el.getBoundingClientRect().top - 8)),
+      )
     }
-  }, [focusFirst])
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(document.documentElement)
+    return () => ro.disconnect()
+  }, [bottom])
   const arrows = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
     const items = [
@@ -638,22 +751,26 @@ function Tray({
     ]
     const at = items.indexOf(document.activeElement as HTMLElement)
     e.preventDefault()
-    const next = at + (e.key === 'ArrowDown' ? 1 : -1)
+    const down = e.key === 'ArrowDown'
+    const next = at < 0 ? (down ? 0 : items.length - 1) : at + (down ? 1 : -1)
     items[(next + items.length) % items.length]?.focus()
   }
   return (
     <div
-      ref={ref}
+      ref={setRef}
       role={label ? 'group' : undefined}
       aria-label={label}
       onKeyDown={label ? arrows : undefined}
       data-bar="tray"
-      className={`absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 shadow-lg ${
+      tabIndex={quietFocus ? -1 : undefined}
+      style={room == null ? undefined : { maxHeight: `min(75vh, ${room}px)` }}
+      className={`${quietFocus ? 'outline-none ' : ''}absolute right-3 z-40 grid max-h-[75vh] max-w-[calc(100vw-24px)] gap-0.5 overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 shadow-lg ${
         wide ? 'w-[340px]' : 'min-w-[230px]'
       } ${bottom ? 'bottom-full mb-1' : 'top-full'}`}
     >
       <PopupHeader title={label} onClose={onClose} />
       {children}
+      {shell && <ScrollBar scroller={listEl} />}
     </div>
   )
 }

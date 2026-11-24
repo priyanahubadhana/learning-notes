@@ -80,3 +80,314 @@ exports[`golden plans (records compared with stored snapshots) > tidy up an exis
   ],
 }
 `;
+
+exports[`golden plans 5 to 20 > g5 notebook from sources, deep effort 1`] = `
+{
+  "counts": {
+    "blocks": 9,
+    "cards": 2,
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "blocks new {"id":"b3efbc30-43e1-8d4b-b0c9-0376c2de697c","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","parentId":"b3efc130-43e1-85ca-b0c9-0276c2de67c9","type":"paragraph","content":{"text":[{"type":"text","text":"The reward.","styles":{}}]},"order":"a0","source":"ai","batchId":"5f17c03f-862f-813e-8b50-8718e35e97f7"}",
+    "blocks new {"id":"b3efbf30-43e1-8264-b0c9-0076c2de6463","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What starts a habit loop?","styles":{}}]},"order":"a4OV","source":"ai","batchId":"5f17c03f-862f-813e-8b50-8718e35e97f7"}",
+    "blocks new {"id":"b3efc030-43e1-8417-b0c8-ff76c2de62b0","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","parentId":null,"type":"heading","content":{"level":2,"text":[{"type":"text","text":"Recall cards","styles":{}}]},"order":"a3zZ","source":"ai","batchId":"5f17c03f-862f-813e-8b50-8718e35e97f7"}",
+    "blocks new {"id":"b3efc130-43e1-85ca-b0c9-0276c2de67c9","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What ends it?","styles":{}}]},"order":"a5S6","source":"ai","batchId":"5f17c03f-862f-813e-8b50-8718e35e97f7"}",
+    "blocks new {"id":"b3efc230-43e1-877d-b0c9-0176c2de6616","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","parentId":"b3efbf30-43e1-8264-b0c9-0076c2de6463","type":"paragraph","content":{"text":[{"type":"text","text":"The cue.","styles":{}}]},"order":"a0","source":"ai","batchId":"5f17c03f-862f-813e-8b50-8718e35e97f7"}",
+    "blocks new {"id":"bd5e5330-4970-8340-a833-ec76be07bdc7","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","parentId":"bd5e5a30-4970-8f25-a833-e976be07b8ae","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"5f17c03f-862f-813e-8b50-8718e35e97f7"}",
+    "blocks new {"id":"bd5e5830-4970-8bbf-a833-e776be07b548","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"5f17c03f-862f-813e-8b50-8718e35e97f7"}",
+    "blocks new {"id":"bd5e5930-4970-8d72-a833-ea76be07ba61","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"5f17c03f-862f-813e-8b50-8718e35e97f7"}",
+    "blocks new {"id":"bd5e5a30-4970-8f25-a833-e976be07b8ae","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"5f17c03f-862f-813e-8b50-8718e35e97f7"}",
+    "cards new {"id":"61c7c5bd-a029-82bb-943b-c05f5fdcd856","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"b3efbf30-43e1-8264-b0c9-0076c2de6463","part":"main","pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","notebookId":"c5f38e30-4e47-8c21-8186-6d76cc2f54fa","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "cards new {"id":"a82030e5-e2b9-8052-bafd-13b97dd1049b","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"b3efc130-43e1-85ca-b0c9-0276c2de67c9","part":"main","pageId":"bd5e5730-4970-8a0c-a833-e876be07b6fb","notebookId":"c5f38e30-4e47-8c21-8186-6d76cc2f54fa","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "notebooks new {"id":"c5f38e30-4e47-8c21-8186-6d76cc2f54fa","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Habits that stick","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:c5f38e30-4e47-8c21-8186-6d76cc2f54fa"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}]}",
+    "pages new {"id":"bd5e5730-4970-8a0c-a833-e876be07b6fb","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"c5f38e30-4e47-8c21-8186-6d76cc2f54fa","parentId":null,"title":"Habits","order":"a0","summary":"How habits form."}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g6 recall cards given in full on an existing page 1`] = `
+{
+  "counts": {
+    "blocks": 4,
+    "cards": 2,
+  },
+  "records": [
+    "blocks new {"id":"0cf5fb24-cff3-8958-a189-d715c73f77f7","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What ends it?","styles":{}}]},"order":"a7sH","source":"ai","batchId":"db098d99-a4d5-8283-b567-f02c11e2a5e2"}",
+    "blocks new {"id":"0cf5fc24-cff3-8b0b-a189-d615c73f7644","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":"0cf5fb24-cff3-8958-a189-d715c73f77f7","type":"paragraph","content":{"text":[{"type":"text","text":"The reward.","styles":{}}]},"order":"a0","source":"ai","batchId":"db098d99-a4d5-8283-b567-f02c11e2a5e2"}",
+    "blocks new {"id":"0cf5fd24-cff3-8cbe-a189-d915c73f7b5d","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What starts a habit loop?","styles":{}}]},"order":"a6LC","source":"ai","batchId":"db098d99-a4d5-8283-b567-f02c11e2a5e2"}",
+    "blocks new {"id":"0cf5fe24-cff3-8e71-a189-d815c73f79aa","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":"0cf5fd24-cff3-8cbe-a189-d915c73f7b5d","type":"paragraph","content":{"text":[{"type":"text","text":"The cue.","styles":{}}]},"order":"a0","source":"ai","batchId":"db098d99-a4d5-8283-b567-f02c11e2a5e2"}",
+    "cards new {"id":"2e267d65-a5c9-8c1c-a20b-4ed0cf3c4a0d","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"0cf5fd24-cff3-8cbe-a189-d915c73f7b5d","part":"main","pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "cards new {"id":"4b8a567f-9962-866d-b48b-5287a15b182c","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"0cf5fb24-cff3-8958-a189-d715c73f77f7","part":"main","pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g7 notes given in full into an existing notebook 1`] = `
+{
+  "counts": {
+    "blocks": 2,
+    "pages": 1,
+  },
+  "records": [
+    "blocks new {"id":"f629ab6a-aa64-80b8-8d8f-9c0754003a03","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"f629ac6a-aa64-826b-8d8f-9b0754003850","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"138ed7d8-ba2c-8cec-90e0-4db280abc711"}",
+    "blocks new {"id":"f629ae6a-aa64-85d1-8d8f-9d0754003bb6","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"f629ac6a-aa64-826b-8d8f-9b0754003850","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"138ed7d8-ba2c-8cec-90e0-4db280abc711"}",
+    "pages new {"id":"f629ac6a-aa64-826b-8d8f-9b0754003850","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","parentId":null,"title":"Sleep","order":"a0VxU"}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g8 cloze cards given in full 1`] = `
+{
+  "counts": {
+    "blocks": 1,
+    "cards": 1,
+  },
+  "records": [
+    "blocks new {"id":"cd1e5c50-cfaa-82a0-a5d7-3195686f529b","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"The ","styles":{}},{"type":"text","text":"cue","styles":{"blank":"cd1e5d50-cfaa-8453-a5d7-3095686f50e8"}},{"type":"text","text":" starts a loop.","styles":{}}]},"order":"a65W","source":"ai","batchId":"90018b5f-b261-8b41-b65b-55d5ed81cb3c"}",
+    "cards new {"id":"a0a1708c-3bb7-8dbf-afc1-b0bf32f28c36","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"cd1e5c50-cfaa-82a0-a5d7-3195686f529b","part":"cd1e5d50-cfaa-8453-a5d7-3095686f50e8","pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g9 database into an existing notebook 1`] = `
+{
+  "counts": {
+    "databases": 1,
+    "dbColumns": 1,
+    "dbViews": 3,
+    "pages": 1,
+  },
+  "records": [
+    "databases new {"id":"7656cb94-d2bf-8fed-a3d7-bbddc9b9cc6e","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","title":"Books","titleName":"Name","order":"a0"}",
+    "dbColumns new {"id":"7656c794-d2bf-8921-a3d7-bfddc9b9d33a","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"7656cb94-d2bf-8fed-a3d7-bbddc9b9cc6e","name":"Status","type":"choice","config":{"options":[{"id":"7656c694-d2bf-876e-a3d7-c0ddc9b9d4ed","name":"To read"},{"id":"7656c594-d2bf-85bb-a3d7-bdddc9b9cfd4","name":"Done"}]},"order":"a0"}",
+    "dbViews new {"id":"7656c894-d2bf-8ad4-a3d7-baddc9b9cabb","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"7656cb94-d2bf-8fed-a3d7-bbddc9b9cc6e","name":"Board","type":"board","config":{},"order":"a2"}",
+    "dbViews new {"id":"7656c994-d2bf-8c87-a3d7-b9ddc9b9c908","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"7656cb94-d2bf-8fed-a3d7-bbddc9b9cc6e","name":"Dashboard","type":"dashboard","config":{},"order":"a1"}",
+    "dbViews new {"id":"7656ca94-d2bf-8e3a-a3d7-bcddc9b9ce21","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"7656cb94-d2bf-8fed-a3d7-bbddc9b9cc6e","name":"Table","type":"table","config":{},"order":"a0"}",
+    "pages new {"id":"7656c494-d2bf-8408-a3d7-beddc9b9d187","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","parentId":null,"title":"Atomic Habits","order":"a0","databaseId":"7656cb94-d2bf-8fed-a3d7-bbddc9b9cc6e","values":{"7656c794-d2bf-8921-a3d7-bfddc9b9d33a":"7656c594-d2bf-85bb-a3d7-bdddc9b9cfd4"}}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g10 style on an existing notebook (an edit, then undo) 1`] = `
+{
+  "counts": {
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "notebooks edit {"id":"8e0c4184-ea3d-8e96-b8a0-700818135b99","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Habits that stick","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:8e0c4184-ea3d-8e96-b8a0-700818135b99"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}],"colour":"#2f6feb","view":"tabs"}",
+    "pages edit {"id":"744cdc84-dbb9-8517-b00b-5908133cafe4","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","parentId":null,"title":"Habits","order":"a0","summary":"How habits form.","sheet":"A4"}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g11 page tidy-up: insert after a block 1`] = `
+{
+  "counts": {
+    "blocks": 1,
+  },
+  "records": [
+    "blocks new {"id":"b2018bef-13e3-8c32-bf70-879bda55f943","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"Added after the first block.","styles":{}}]},"order":"a0V","source":"ai","batchId":"fffa089b-fba5-89ff-b825-ebb67996a794"}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g12 page tidy-up from a brief: two replaces and an add 1`] = `
+{
+  "counts": {
+    "blocks": 3,
+  },
+  "records": [
+    "blocks edit {"id":"744cdb84-dbb9-8364-b00b-5a08133cb197","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"Rewritten 0.","styles":{}}]},"order":"a0","source":"ai","batchId":"f88fb80d-fdd3-88ca-9e46-a944bd46f0f5"}",
+    "blocks edit {"id":"744cde84-dbb9-887d-b00b-5b08133cb34a","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"Rewritten 1.","styles":{}}]},"order":"a1","source":"ai","batchId":"f88fb80d-fdd3-88ca-9e46-a944bd46f0f5"}",
+    "blocks new {"id":"a8d88368-1b37-82cf-a24f-85d2d08ce592","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":null,"type":"quote","content":{"text":[{"type":"text","text":"End.","styles":{}}]},"order":"a6Tg","source":"ai","batchId":"f88fb80d-fdd3-88ca-9e46-a944bd46f0f5"}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g13 chain: one notebook, two pages, cards on the second 1`] = `
+{
+  "counts": {
+    "blocks": 13,
+    "cards": 2,
+    "notebooks": 1,
+    "pages": 2,
+  },
+  "records": [
+    "blocks new {"id":"bfc47e18-9bdc-8173-a0bf-0a895f585cb6","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","parentId":"bfc48318-9bdc-89f2-a0bf-0d895f5861cf","type":"paragraph","content":{"text":[{"type":"text","text":"The reward.","styles":{}}]},"order":"a0","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"bfc48118-9bdc-868c-a0bf-0f895f586535","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What starts a habit loop?","styles":{}}]},"order":"a4ha","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"bfc48218-9bdc-883f-a0bf-0e895f586382","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","parentId":null,"type":"heading","content":{"level":2,"text":[{"type":"text","text":"Recall cards","styles":{}}]},"order":"a3mE","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"bfc48318-9bdc-89f2-a0bf-0d895f5861cf","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What ends it?","styles":{}}]},"order":"a53Q","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"bfc48418-9bdc-8ba5-a0bf-0c895f58601c","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","parentId":"bfc48118-9bdc-868c-a0bf-0f895f586535","type":"paragraph","content":{"text":[{"type":"text","text":"The cue.","styles":{}}]},"order":"a0","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"f3b00818-b941-8991-acd3-a08941f3baf8","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"f3b00c18-b941-805d-acd3-a48941f3c1c4","parentId":"f3b00918-b941-8b44-acd3-a78941f3c6dd","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"f3b00918-b941-8b44-acd3-a78941f3c6dd","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"f3b00c18-b941-805d-acd3-a48941f3c1c4","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"f3b00a18-b941-8cf7-acd3-a68941f3c52a","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"f3b00c18-b941-805d-acd3-a48941f3c1c4","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"f3b00b18-b941-8eaa-acd3-a58941f3c377","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"f3b00c18-b941-805d-acd3-a48941f3c1c4","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"fb6b9f18-bd5f-8b06-a364-e9893c640ea3","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","parentId":"fb6ba218-bd5f-801f-a364-ee893c641722","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"fb6ba118-bd5f-8e6c-a364-ef893c6418d5","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"fb6ba218-bd5f-801f-a364-ee893c641722","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "blocks new {"id":"fb6ba418-bd5f-8385-a364-ec893c6413bc","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"7a750f07-3fc7-8c19-91ee-855fa6383e86"}",
+    "cards new {"id":"42265815-745d-87b9-8f66-bc6ae9d35ec4","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"bfc48318-9bdc-89f2-a0bf-0d895f5861cf","part":"main","pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","notebookId":"eb1ad518-b46a-8e48-b568-bb8946ca6d79","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "cards new {"id":"ed905429-9458-83f6-8535-77f918a75627","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"bfc48118-9bdc-868c-a0bf-0f895f586535","part":"main","pageId":"fb6ba318-bd5f-81d2-a364-ed893c64156f","notebookId":"eb1ad518-b46a-8e48-b568-bb8946ca6d79","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "notebooks new {"id":"eb1ad518-b46a-8e48-b568-bb8946ca6d79","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Golden","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:eb1ad518-b46a-8e48-b568-bb8946ca6d79"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}]}",
+    "pages new {"id":"f3b00c18-b941-805d-acd3-a48941f3c1c4","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"eb1ad518-b46a-8e48-b568-bb8946ca6d79","parentId":null,"title":"Habits","order":"a0","summary":"How habits form."}",
+    "pages new {"id":"fb6ba318-bd5f-81d2-a364-ed893c64156f","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"eb1ad518-b46a-8e48-b568-bb8946ca6d79","parentId":null,"title":"Habits","order":"a0Vka","summary":"How habits form."}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g14 chain: recall and cloze cards from the same page 1`] = `
+{
+  "counts": {
+    "blocks": 10,
+    "cards": 3,
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "blocks new {"id":"2f2345c1-bb95-863c-81b6-53cca8c1ba51","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"blank":"2f2346c1-bb95-87ef-81b6-52cca8c1b89e"}},{"type":"text","text":" is a loop.","styles":{}}]},"order":"a66G","source":"ai","batchId":"2e141c3f-e318-8dbc-9e15-985384389157"}",
+    "blocks new {"id":"5a7994c1-d423-8579-9a9c-3cccb68d305c","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","parentId":"5a7995c1-d423-872c-9a9c-3bccb68d2ea9","type":"paragraph","content":{"text":[{"type":"text","text":"The reward.","styles":{}}]},"order":"a0","source":"ai","batchId":"2e141c3f-e318-8dbc-9e15-985384389157"}",
+    "blocks new {"id":"5a7995c1-d423-872c-9a9c-3bccb68d2ea9","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What ends it?","styles":{}}]},"order":"a5Pl","source":"ai","batchId":"2e141c3f-e318-8dbc-9e15-985384389157"}",
+    "blocks new {"id":"5a7996c1-d423-88df-9a9c-3accb68d2cf6","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","parentId":"5a7997c1-d423-8a92-9a9c-39ccb68d2b43","type":"paragraph","content":{"text":[{"type":"text","text":"The cue.","styles":{}}]},"order":"a0","source":"ai","batchId":"2e141c3f-e318-8dbc-9e15-985384389157"}",
+    "blocks new {"id":"5a7997c1-d423-8a92-9a9c-39ccb68d2b43","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What starts a habit loop?","styles":{}}]},"order":"a45h","source":"ai","batchId":"2e141c3f-e318-8dbc-9e15-985384389157"}",
+    "blocks new {"id":"5a7998c1-d423-8c45-9a9c-38ccb68d2990","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","parentId":null,"type":"heading","content":{"level":2,"text":[{"type":"text","text":"Recall cards","styles":{}}]},"order":"a3HK","source":"ai","batchId":"2e141c3f-e318-8dbc-9e15-985384389157"}",
+    "blocks new {"id":"63e84bc1-d9b3-81ce-9207-25ccb1b684a7","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","parentId":"63e84ec1-d9b3-86e7-9207-22ccb1b67f8e","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"2e141c3f-e318-8dbc-9e15-985384389157"}",
+    "blocks new {"id":"63e84dc1-d9b3-8534-9207-23ccb1b68141","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"2e141c3f-e318-8dbc-9e15-985384389157"}",
+    "blocks new {"id":"63e84ec1-d9b3-86e7-9207-22ccb1b67f8e","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"2e141c3f-e318-8dbc-9e15-985384389157"}",
+    "blocks new {"id":"63e850c1-d9b3-8a4d-9207-20ccb1b67c28","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"2e141c3f-e318-8dbc-9e15-985384389157"}",
+    "cards new {"id":"bae0ee66-d6b6-8cd1-86ed-3cb012c04094","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"2f2345c1-bb95-863c-81b6-53cca8c1ba51","part":"2f2346c1-bb95-87ef-81b6-52cca8c1b89e","pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","notebookId":"48e2cac1-ca1a-861b-ad0c-a6ccc14fb05a","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "cards new {"id":"eef113ef-1f25-83ff-8bb8-e098b15e7f2a","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"5a7997c1-d423-8a92-9a9c-39ccb68d2b43","part":"main","pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","notebookId":"48e2cac1-ca1a-861b-ad0c-a6ccc14fb05a","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "cards new {"id":"fab4b9aa-bbfa-810a-926d-efb2eb8aa443","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"5a7995c1-d423-872c-9a9c-3bccb68d2ea9","part":"main","pageId":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","notebookId":"48e2cac1-ca1a-861b-ad0c-a6ccc14fb05a","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "notebooks new {"id":"48e2cac1-ca1a-861b-ad0c-a6ccc14fb05a","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Golden","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:48e2cac1-ca1a-861b-ad0c-a6ccc14fb05a"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}]}",
+    "pages new {"id":"63e84fc1-d9b3-889a-9207-21ccb1b67ddb","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"48e2cac1-ca1a-861b-ad0c-a6ccc14fb05a","parentId":null,"title":"Habits","order":"a0","summary":"How habits form."}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g15 an optional step with unusable content is skipped 1`] = `
+{
+  "counts": {
+    "blocks": 4,
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "blocks new {"id":"6bddcc0a-1bcb-86a3-b3c5-869070550992","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"6bddd00a-1bcb-8d6f-b3c5-8290705502c6","parentId":"6bddd10a-1bcb-8f22-b3c5-819070550113","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"d7071656-6b9a-89d3-99cc-d7f990eb06a0"}",
+    "blocks new {"id":"6bddcf0a-1bcb-8bbc-b3c5-839070550479","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"6bddd00a-1bcb-8d6f-b3c5-8290705502c6","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"d7071656-6b9a-89d3-99cc-d7f990eb06a0"}",
+    "blocks new {"id":"6bddd10a-1bcb-8f22-b3c5-819070550113","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"6bddd00a-1bcb-8d6f-b3c5-8290705502c6","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"d7071656-6b9a-89d3-99cc-d7f990eb06a0"}",
+    "blocks new {"id":"6bddd20a-1bcb-80d5-b3c5-80907054ff60","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"6bddd00a-1bcb-8d6f-b3c5-8290705502c6","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"d7071656-6b9a-89d3-99cc-d7f990eb06a0"}",
+    "notebooks new {"id":"86e3550a-2b64-8fee-992c-9d906117ff07","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Habits that stick","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:86e3550a-2b64-8fee-992c-9d906117ff07"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}]}",
+    "pages new {"id":"6bddd00a-1bcb-8d6f-b3c5-8290705502c6","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"86e3550a-2b64-8fee-992c-9d906117ff07","parentId":null,"title":"Habits","order":"a0","summary":"How habits form."}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g16 a switched-off step is left out 1`] = `
+{
+  "counts": {
+    "blocks": 4,
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "blocks new {"id":"b278649e-f674-8c30-ae46-1c9e6a0714d9","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b278689e-f674-82fc-ae46-209e6a071ba5","parentId":"b2786b9e-f674-8815-ae46-1d9e6a07168c","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"605b46e0-23a4-8c0e-855c-785f326a31f1"}",
+    "blocks new {"id":"b278699e-f674-84af-ae46-1f9e6a0719f2","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b278689e-f674-82fc-ae46-209e6a071ba5","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"605b46e0-23a4-8c0e-855c-785f326a31f1"}",
+    "blocks new {"id":"b2786a9e-f674-8662-ae46-1e9e6a07183f","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b278689e-f674-82fc-ae46-209e6a071ba5","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"605b46e0-23a4-8c0e-855c-785f326a31f1"}",
+    "blocks new {"id":"b2786b9e-f674-8815-ae46-1d9e6a07168c","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b278689e-f674-82fc-ae46-209e6a071ba5","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"605b46e0-23a4-8c0e-855c-785f326a31f1"}",
+    "notebooks new {"id":"bbe71f9e-fc04-8f51-a544-699e64d44130","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Habits that stick","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:bbe71f9e-fc04-8f51-a544-699e64d44130"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}]}",
+    "pages new {"id":"b278689e-f674-82fc-ae46-209e6a071ba5","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"bbe71f9e-fc04-8f51-a544-699e64d44130","parentId":null,"title":"Habits","order":"a0","summary":"How habits form."}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g17 library destination: a notebook with a database 1`] = `
+{
+  "counts": {
+    "databases": 1,
+    "dbColumns": 1,
+    "dbViews": 3,
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "databases new {"id":"5dfc4dcf-d309-82b9-9785-5b6e2a16b5a8","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","notebookId":"556736cf-ce32-8704-a01a-126e2eecbe3d","title":"Books","titleName":"Name","order":"a0"}",
+    "dbColumns new {"id":"5dfc51cf-d309-8985-9785-5f6e2a16bc74","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"5dfc4dcf-d309-82b9-9785-5b6e2a16b5a8","name":"Status","type":"choice","config":{"options":[{"id":"5dfc50cf-d309-87d2-9785-606e2a16be27","name":"To read"},{"id":"5dfc4fcf-d309-861f-9785-616e2a16bfda","name":"Done"}]},"order":"a0"}",
+    "dbViews new {"id":"5dfc4acf-d309-8da0-9785-5e6e2a16bac1","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"5dfc4dcf-d309-82b9-9785-5b6e2a16b5a8","name":"Board","type":"board","config":{},"order":"a2"}",
+    "dbViews new {"id":"5dfc4bcf-d309-8f53-9785-5d6e2a16b90e","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"5dfc4dcf-d309-82b9-9785-5b6e2a16b5a8","name":"Dashboard","type":"dashboard","config":{},"order":"a1"}",
+    "dbViews new {"id":"5dfc4ccf-d309-8106-9785-5c6e2a16b75b","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"5dfc4dcf-d309-82b9-9785-5b6e2a16b5a8","name":"Table","type":"table","config":{},"order":"a0"}",
+    "notebooks new {"id":"556736cf-ce32-8704-a01a-126e2eecbe3d","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Library find","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:556736cf-ce32-8704-a01a-126e2eecbe3d"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}]}",
+    "pages new {"id":"5dfc4ecf-d309-846c-9785-626e2a16c18d","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"556736cf-ce32-8704-a01a-126e2eecbe3d","parentId":null,"title":"Atomic Habits","order":"a0","databaseId":"5dfc4dcf-d309-82b9-9785-5b6e2a16b5a8","values":{"5dfc51cf-d309-8985-9785-5f6e2a16bc74":"5dfc4fcf-d309-861f-9785-616e2a16bfda"}}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g18 page destination: refine, then colour its tab 1`] = `
+{
+  "counts": {
+    "blocks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "blocks new {"id":"359ff07e-5d1c-84a7-a51c-8a72651dc4ce","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":null,"type":"quote","content":{"text":[{"type":"text","text":"Keep going.","styles":{}}]},"order":"a6f6","source":"ai","batchId":"5d1da685-71eb-8740-bd44-7a9e0fbeca33"}",
+    "pages edit {"id":"744cdc84-dbb9-8517-b00b-5908133cafe4","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"8e0c4184-ea3d-8e96-b8a0-700818135b99","parentId":null,"title":"Habits","order":"a0","summary":"How habits form.","tabColour":"#d9822b"}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g19 new notebook with a summary and a look, notes only 1`] = `
+{
+  "counts": {
+    "blocks": 4,
+    "notebooks": 1,
+    "pages": 1,
+  },
+  "records": [
+    "blocks new {"id":"8b3f80a3-1fb2-88c8-bf6c-f0eddfb5c9ad","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"8b3f81a3-1fb2-8a7b-bf6c-efeddfb5c7fa","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"83094d82-d8f5-8a77-9fa5-670ba65d199c"}",
+    "blocks new {"id":"8b3f82a3-1fb2-8c2e-bf6c-eeeddfb5c647","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"8b3f81a3-1fb2-8a7b-bf6c-efeddfb5c7fa","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"83094d82-d8f5-8a77-9fa5-670ba65d199c"}",
+    "blocks new {"id":"8b3f83a3-1fb2-8de1-bf6c-ededdfb5c494","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"8b3f81a3-1fb2-8a7b-bf6c-efeddfb5c7fa","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"83094d82-d8f5-8a77-9fa5-670ba65d199c"}",
+    "blocks new {"id":"8b3f85a3-1fb2-8147-bf6c-ebeddfb5c12e","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"8b3f81a3-1fb2-8a7b-bf6c-efeddfb5c7fa","parentId":"8b3f82a3-1fb2-8c2e-bf6c-eeeddfb5c647","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"83094d82-d8f5-8a77-9fa5-670ba65d199c"}",
+    "notebooks new {"id":"a49206a3-2dda-887a-a61a-6aedd18e29fb","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Golden","order":"a0","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:a49206a3-2dda-887a-a61a-6aedd18e29fb"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}],"colour":"#c2417f","view":"shelf","pathStyle":"full"}",
+    "pages new {"id":"8b3f81a3-1fb2-8a7b-bf6c-efeddfb5c7fa","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"a49206a3-2dda-887a-a61a-6aedd18e29fb","parentId":null,"title":"Habits","order":"a0","summary":"How habits form."}",
+  ],
+}
+`;
+
+exports[`golden plans 5 to 20 > g20 every tool in one plan 1`] = `
+{
+  "counts": {
+    "blocks": 11,
+    "cards": 3,
+    "databases": 1,
+    "dbColumns": 1,
+    "dbViews": 3,
+    "notebooks": 1,
+    "pages": 2,
+  },
+  "records": [
+    "blocks new {"id":"9b8cf759-1c81-8b7c-954c-a23547d64511","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"744cdc84-dbb9-8517-b00b-5908133cafe4","parentId":null,"type":"quote","content":{"text":[{"type":"text","text":"Done.","styles":{}}]},"order":"a6Ct","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "blocks new {"id":"a4fbae59-2211-87d1-8bdd-eb35424698bc","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"blank":"a4fbad59-2211-861e-8bdd-ec3542469a6f"}},{"type":"text","text":" is a loop.","styles":{}}]},"order":"a6fj","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "blocks new {"id":"b54c7b59-2b05-89a8-80a2-f63560643ccd","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","parentId":null,"type":"heading","content":{"level":1,"text":[{"type":"text","text":"Habits","styles":{}}]},"order":"a0","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "blocks new {"id":"b54c7d59-2b05-8d0e-80a2-f43560643967","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","parentId":null,"type":"bulletListItem","content":{"text":[{"type":"text","text":"Cue","styles":{}}]},"order":"a2","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "blocks new {"id":"b54c7e59-2b05-8ec1-80a2-f335606437b4","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","parentId":null,"type":"paragraph","content":{"text":[{"type":"text","text":"A ","styles":{}},{"type":"text","text":"habit","styles":{"bold":true}},{"type":"text","text":" is a loop: cue, craving, response, reward.","styles":{}}]},"order":"a1","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "blocks new {"id":"b54c8059-2b05-8227-80a2-f1356064344e","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","parentId":"b54c7d59-2b05-8d0e-80a2-f43560643967","type":"paragraph","content":{"text":[{"type":"text","text":"The trigger.","styles":{}}]},"order":"a0","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "blocks new {"id":"bde19359-2fdc-8710-b734-3e355ad48ec5","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","parentId":null,"type":"heading","content":{"level":2,"text":[{"type":"text","text":"Recall cards","styles":{}}]},"order":"a3xe","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "blocks new {"id":"bde19459-2fdc-88c3-b734-3d355ad48d12","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What starts a habit loop?","styles":{}}]},"order":"a4q7","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "blocks new {"id":"bde19559-2fdc-8a76-b734-3c355ad48b5f","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","parentId":"bde19459-2fdc-88c3-b734-3d355ad48d12","type":"paragraph","content":{"text":[{"type":"text","text":"The cue.","styles":{}}]},"order":"a0","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "blocks new {"id":"bde19659-2fdc-8c29-b734-3b355ad489ac","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","parentId":null,"type":"card","content":{"text":[{"type":"text","text":"What ends it?","styles":{}}]},"order":"a5D6","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "blocks new {"id":"bde19759-2fdc-8ddc-b734-3a355ad487f9","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","parentId":"bde19659-2fdc-8c29-b734-3b355ad489ac","type":"paragraph","content":{"text":[{"type":"text","text":"The reward.","styles":{}}]},"order":"a0","source":"ai","batchId":"9c3bf505-a5f9-81d7-afed-bf8dc1580d3c"}",
+    "cards new {"id":"7779c8b1-fecb-8afd-b15e-e3217eb36c34","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"bde19459-2fdc-88c3-b734-3d355ad48d12","part":"main","pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","notebookId":"d0520159-3a9e-8dda-a59d-703550cb089b","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "cards new {"id":"7ab618ef-c1d8-89b6-a3fc-05ac8799e0f7","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"a4fbae59-2211-87d1-8bdd-eb35424698bc","part":"a4fbad59-2211-861e-8bdd-ec3542469a6f","pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","notebookId":"d0520159-3a9e-8dda-a59d-703550cb089b","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "cards new {"id":"dc55ac65-db3e-861b-9114-d1f54e5eb8ce","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"blockId":"bde19659-2fdc-8c29-b734-3b355ad489ac","part":"main","pageId":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","notebookId":"d0520159-3a9e-8dda-a59d-703550cb089b","due":1700000000000,"intervalDays":0,"step":0,"reps":0,"lapses":0,"suspendedAt":null}",
+    "databases new {"id":"ad90c559-26e7-8386-8348-d4353d6fed07","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","notebookId":"d0520159-3a9e-8dda-a59d-703550cb089b","title":"Books","titleName":"Name","order":"a0"}",
+    "dbColumns new {"id":"ad90c959-26e7-8a52-8348-d0353d6fe63b","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"ad90c559-26e7-8386-8348-d4353d6fed07","name":"Status","type":"choice","config":{"options":[{"id":"ad90ca59-26e7-8c05-8348-cf353d6fe488","name":"To read"},{"id":"ad90c759-26e7-86ec-8348-d2353d6fe9a1","name":"Done"}]},"order":"a0"}",
+    "dbViews new {"id":"ad90c359-26e7-8020-8348-d6353d6ff06d","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"ad90c559-26e7-8386-8348-d4353d6fed07","name":"Dashboard","type":"dashboard","config":{},"order":"a1"}",
+    "dbViews new {"id":"ad90c459-26e7-81d3-8348-d5353d6feeba","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"ad90c559-26e7-8386-8348-d4353d6fed07","name":"Board","type":"board","config":{},"order":"a2"}",
+    "dbViews new {"id":"ad90c659-26e7-8539-8348-d3353d6feb54","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"databaseId":"ad90c559-26e7-8386-8348-d4353d6fed07","name":"Table","type":"table","config":{},"order":"a0"}",
+    "notebooks new {"id":"d0520159-3a9e-8dda-a59d-703550cb089b","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"workspaceId":"ws1","title":"Everything","order":"a0VAX","tabs":[{"id":"notes","kind":"notes"},{"id":"summary","kind":"summary"},{"id":"database","kind":"database","databaseId":"tracker:d0520159-3a9e-8dda-a59d-703550cb089b"},{"id":"cards","kind":"cards"},{"id":"revise","kind":"revise"}]}",
+    "pages new {"id":"ad90c859-26e7-889f-8348-d1353d6fe7ee","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"d0520159-3a9e-8dda-a59d-703550cb089b","parentId":null,"title":"Atomic Habits","order":"a0","databaseId":"ad90c559-26e7-8386-8348-d4353d6fed07","values":{"ad90c959-26e7-8a52-8348-d0353d6fe63b":"ad90c759-26e7-86ec-8348-d2353d6fe9a1"},"inkBg":"dots"}",
+    "pages new {"id":"b54c7c59-2b05-8b5b-80a2-f53560643b1a","createdAt":1700000000000,"updatedAt":1700000000000,"deletedAt":null,"notebookId":"d0520159-3a9e-8dda-a59d-703550cb089b","parentId":null,"title":"Habits","order":"a0","summary":"How habits form.","inkBg":"dots"}",
+  ],
+}
+`;

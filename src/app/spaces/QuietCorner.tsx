@@ -2,8 +2,10 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Settings } from 'lucide-react'
 import { DeviceModeMenuRow } from '../DeviceModeMenu'
+import { pressHome } from '../input/pressHome'
 import { THEMES, type Theme } from '../theme'
 import type { LearningNotesDB } from '../../core/db'
+import { useFootLift } from './footLift'
 import { Tip } from '../../help/Help'
 import { t } from '../../i18n/t'
 import { TrashSection } from '../../trash/TrashSection'
@@ -59,7 +61,9 @@ export function QuietCorner({
       button.current?.focus()
     }
     const onDown = (e: PointerEvent) => {
-      const target = e.target as Element | null
+      // A press on a list's scroll bar counts for that list (pressHome, L11).
+      const pressed = e.target instanceof Element ? e.target : null
+      const target = pressed && pressHome(pressed)
       if (
         target?.closest('[data-corner], [role="menu"], [data-popup]') ||
         button.current?.contains(target)
@@ -78,6 +82,9 @@ export function QuietCorner({
   useEffect(() => {
     if (open) panel.current?.querySelector('button')?.focus()
   }, [open])
+
+  // BUG-006: the panel rises from the foot of what can be SEEN.
+  const lift = useFootLift()
 
   const choose = (run: () => void) => () => {
     setOpen(false)
@@ -107,6 +114,12 @@ export function QuietCorner({
           <div
             ref={panel}
             data-corner
+            style={{
+              marginBottom: lift,
+              maxHeight: lift
+                ? `min(80vh, ${Math.max(160, innerHeight - lift - 16)}px)`
+                : undefined,
+            }}
             data-testid="corner-panel"
             role="region"
             aria-label={t('corner.label')}

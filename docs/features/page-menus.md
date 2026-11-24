@@ -51,18 +51,18 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 
 **Long-press = right-click Hold menu (Hold menu)**
 
-- PM-20 When I right-click (PC) or long-press 0.5 s (finger or Pencil) on text or a block → the Hold menu opens above the selection: Paste ▾ · Copy · Cut · Duplicate · Turn into ▾ · Colour ▾ · Add to favourites · Comment · Delete (as menu-1.png); Beginner shows Cut, Copy, Paste ▾, Delete, ⋯.
-- PM-21 The Hold menu never covers the selection handles or the B/I/U bar (approval fix 1): Hold menu above, format bar below.
+- PM-20 When I right-click (PC) or long-press 0.5 s (finger or Pencil) on text or a block → the Hold menu opens above the selection: Paste ▾ · Copy · Cut · Duplicate · Turn into ▾ · Colour ▾ · Add to favourites · Comment · Delete (as menu-1.png); Beginner shows Cut, Copy, Paste ▾, Delete, ⋯ (the rest sits in ⋯). Add to favourites stars the open page (it reads Remove from favourites when starred). Comment opens the app's comment entry point; until comments exist in the app the item stays hidden (docs/DECISIONS.md) and this line stays.
+- PM-21 The Hold menu never covers the selection handles or the B/I/U bar (approval fix 1): strip above, format bar below.
 - PM-22 When I tap ⋯ on the Hold menu → the full list opens as a Command list in the same place (Select, Select all, Insert picture, Insert line, Copy as ▾, Move to page, Make card, Key point) (Pro extras: `tb.miniToolbar`, `page.contextMore` new).
-- PM-23 When I long-press a page row, notebook row, library row or task row → the same Hold menu opens at that point with that row's actions.
-- PM-24 The hold time follows Settings "Press-and-hold menu time" (`advanced.holdMenu`).
+- PM-23 When I long-press a page row, notebook row, library row or task row → the same strip opens at that point with that row's actions.
+- PM-24 The hold time follows Settings "Press-and-hold menu time" (`advanced.holdMenu`). A row long-press opens the Hold menu after that time, default 1.5 s.
 - PM-25 When I drag after the long-press starts (more than the move distance) → the Hold menu does not open and the gesture router hands the touch to select / drag.
 - PM-26 On a phone → the Hold menu shows up to 4 items + ⋯; every item in ⋯ is tappable (approval fix 2).
 
 **Paste**
 
 - PM-40 When I paste (Ctrl/Cmd+V, Hold menu Paste, ⋯ Paste) → the content appears at once with its original look; no question first.
-- PM-41 When I tap Paste ▾ → options: Keep original, Plain text, As text box (paper pages), As table (tab rows), As quote, Link / Embed (lone address), Clean up with AI (AI on with a key; cost shown first); the pick pastes in that form.
+- PM-41 When I tap Paste ▾ → options: Keep original, Plain text, As text box (paper pages), As table (tab rows), As quote, Link / Embed (lone address), Clean up with AI (AI on with a key; cost shown first); the pick pastes in that form. Only the forms this clipboard allows are listed (all of them while the browser has not allowed a look).
 - PM-42 When I press Ctrl/Cmd+Shift+V → plain text, as today.
 - PM-43 Settings › General › "Paste as" → Keep original (default), Plain text, Always ask; "Always ask" opens today's paste chooser before pasting.
 - PM-44 Professional switch "Show 'Pasted as' chip" (default off in Beginner; on in Professional, where every switch reads as on per SET-B43, and can be turned off by itself) → after a paste the chip "Pasted as <form> ▾" shows for 8 s; choosing another form re-pastes it (Pro: `page.pastedChip` new).
@@ -124,7 +124,7 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 | Slash menu builder `src/editor/slashMenu.tsx:44`, aliases `:15`                                                                 | Command list PM-01–03            |
 | Slash items `src/editor/slashMenu.tsx:72-202`                                                                                   | PM-01/02 groups                  |
 | Slash mounted / close-on-select `src/editor/PageEditor.tsx:946-972`                                                             | Command list via overlay manager |
-| "[[" trigger `src/editor/tagActions.ts:28`                                                                                      | Command list (same part)         |
+| "[[" trigger `src/editor/linkActions.ts:13`                                                                                     | Command list (same part)         |
 | Hold menu `src/editor/HoldMenu.tsx:43-98`, watcher `holdMenuWatch.ts:204`                                                       | Hold menu PM-20/22               |
 | Long-press hook `src/app/useLongPress.ts:19`                                                                                    | Gesture router long-press        |
 | Pen contextmenu `src/app/penTap.ts:200`                                                                                         | Gesture router                   |
@@ -144,13 +144,13 @@ Each line is one end-to-end test (Chromium + `ipad-webkit`). "(Pro: `id`)" is th
 | Breadcrumb `src/pages/PagePath.tsx:178`, style `pathStyle.ts:2`                                                                 | PM-120/121                       |
 | Page tabs `src/notebooks/pageTabs.ts:13-41`, `app/summary/PageTabs.tsx:4`                                                       | PM-122                           |
 | Page tabs settings `src/settings/PageTabsSection.tsx:43`                                                                        | Kept                             |
-| Template picker `src/App.tsx:193-195`, `appUi.ts:25`                                                                            | PM-110                           |
+| Template picker `src/App.tsx:193-195`, `src/app/appUi.ts:25`                                                                    | PM-110                           |
 | New from template `src/App.tsx:1122-1127`, template service `templates/templateService.ts:28`                                   | PM-110/111                       |
 | Templates sidebar `src/templates/TemplatesSection.tsx:32`                                                                       | Kept (`nb.sideTemplates`)        |
 | Starter templates `src/templates/starterTemplates.ts:73`                                                                        | Picker                           |
 | New page start `src/templates/NewPageStart.tsx:31`, `PageView.tsx:685`                                                          | PM-100–102                       |
 | Page favourites `src/app/favourites.ts:43`                                                                                      | Page section "Favourite"         |
-| Toast `src/app/ui.tsx:401`, state `App.tsx:854-898`, `toastTiming.ts`                                                           | Toast queue                      |
+| Toast `src/app/ui.tsx:401`, state `src/App.tsx:854-898`, `toastTiming.ts`                                                       | Toast queue                      |
 | Undo trash `src/pages/pageTrash.ts:17`                                                                                          | PM-64/141                        |
 | Attention banner `src/app/attention/AttentionBanner.tsx:137`                                                                    | Banner                           |
 | Confirm `src/app/ui.tsx:486`, Choice `:635`, Name sheet `app/NameSheet.tsx:15`                                                  | Dialog set                       |
@@ -209,3 +209,11 @@ Pasted HTML cleaned as before; My blocks and template names escaped, max 40 char
 5. Beginner "/" short list: the 12 items listed in PM-01.
 6. Long-press time 0.5 s default, following `advanced.holdMenu` when set.
 7. The Hold menu order follows menu-1.png (Paste first); Delete stays last in red.
+
+## Paste ▾ in the Pencil buttons (flag page.menus, 19 Nov 2026)
+
+- Top tool row: Paste ▾ in every mode; Mic in every mode. One table: `src/app/tools/main/pasteButtons.ts`.
+- Floating Pencil bar gets Paste ▾; it is hidden while the top row shows all four buttons (Pencil mode), unless dictation runs.
+- Paste ▾: Keep look, Plain text, More (Match style, As quote, As text box, Link / Embed). A tap follows Settings › Paste as.
+- B9: the caret is restored before the paste. B10: a Pencil or finger hold on an empty spot shows the page strip (Paste; no Cut/Copy without words).
+- Tests: e2e/pasteButtons.spec.ts; pictures: screenshots/paste-buttons/.

@@ -30,18 +30,22 @@ export function SpacePlaceholder({
         {t(`space.${space}.title`)}
       </h2>
       <p className="mb-3 text-sm leading-relaxed text-muted">
-        {t(`space.${space}.soon`)}
+        {compact && space === 'home'
+          ? t('space.home.side')
+          : t(`space.${space}.soon`)}
       </p>
       {space === 'home' ? (
         <button
           type="button"
           onClick={onOpenToday}
-          className="min-h-11 w-full rounded-lg border border-line bg-bg px-3 text-left text-sm hover:border-accent"
+          className={`min-h-11 w-full rounded-lg border border-line bg-bg px-3 text-left text-sm hover:border-accent ${compact ? 'truncate whitespace-nowrap' : ''}`}
         >
           ☀{' '}
-          {t('space.home.today', {
-            date: shortDayLabel(dateKey(new Date())),
-          })}
+          {compact
+            ? t('space.home.todayShort')
+            : t('space.home.today', {
+                date: shortDayLabel(dateKey(new Date())),
+              })}
         </button>
       ) : (
         <button

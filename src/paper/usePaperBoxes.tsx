@@ -6,12 +6,16 @@ import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { activeTool } from '../app/tools/main/mainTools'
 import { MenuPopover, type MenuItem } from '../app/ui'
+import { barRects, boxWithBar, frameOfBox } from './v2/listPlace'
 import type { LearningNotesDB } from '../core/db'
 import type { GridRow, PaperBox } from '../core/types'
 import { triggerFirstUse } from '../help/firstUse'
 import { t } from '../i18n/t'
 import { BOX_COLOURS, MAIN_BOX } from './boxes'
+import { wakeBox } from './wakeBox'
 import { type GridInfo } from './layoutPlan'
+import { NARROW_PX } from './sheets'
+import { LayoutAssistLazy } from './v2/LayoutAssistLazy'
 import { LayoutDialogLazy } from './LayoutDialogLazy'
 import { LAYOUT_MODE_EVENT } from './layoutModeBus'
 import { BoxStylePopoverLazy } from './BoxStylePopoverLazy'
@@ -27,6 +31,7 @@ import {
   removeIfEmptyBox,
   duplicateBox,
   setGroup,
+  nextAfterMain,
   removeBox,
   restoreBox,
   updateBox,
@@ -34,6 +39,20 @@ import {
 } from './boxService'
 import type { BoxChange } from './PaperFrame'
 import { BoxBar } from './BoxBar'
+import {
+  BoxBarV2Lazy,
+  BoxCardV2Lazy,
+  BoxMoreV2Lazy,
+  PinnedBoxBarLazy,
+  TextOptionsV2Lazy,
+} from './v2/BoxBarV2Lazy'
+import { barMoved, barPin } from './v2/oneBarPlaceStore'
+import { listenOneBar } from './v2/oneBarBus'
+import { prefetchBoxBarV2 } from './v2/boxBarV2Load'
+import { applyNoteStyle } from '../app/tools/main/textStyle'
+import { watchNextSize } from '../app/tools/main/nextSizeWatch'
+import { isOn } from '../app/flags'
+import { pickWhenShown } from './pickSignal'
 import { clearPageWide, pageWideClip, pageWideRange } from './pageWide'
 
 const DOTS: Record<string, string> = {
@@ -51,6 +70,21 @@ const DOTS: Record<string, string> = {
  */
 /** The time an action starts (a toast's Undo checks nothing newer happened). */
 const stamp = (): number => Date.now()
+const boxEl = (id: string) =>
+  document.querySelector('[data-paper-box="' + CSS.escape(id) + '"]')
+/** C23: the box and its bar, which its menu never covers. */
+const clearOf = (id: string) => {
+  const el = boxEl(id)
+  if (!el) return undefined
+  const r = el.getBoundingClientRect()
+  // Best: clear of the box and its bars as one block; else of each one.
+  return [boxWithBar(el), ...barRects(), r]
+}
+/** C23: the page frame, whose edge its menu never crosses. */
+const frameOf = (id: string) => {
+  const el = boxEl(id)
+  return el ? frameOfBox(el) : undefined
+}
 
 export function usePaperBoxes(
   db: LearningNotesDB,
@@ -62,6 +96,7 @@ export function usePaperBoxes(
     y: number
     row?: number
     free?: boolean
+    wmm?: number
     rows?: GridRow[]
   }) => void
   /** Phones: a new box in the reading order (after a box id, 'start' or 'end'). */
@@ -106,17 +141,37 @@ export function usePaperBoxes(
     if (editable) runTask(repairBoxes(db, pageId).then(() => {}))
   }, [db, pageId, editable])
 
+  // Text box v2: the box bar's code comes in while the page opens, so the
+  // first tap that selects a box shows its bar at once.
+  useEffect(() => {
+    if (isOn('textbox.v2')) {
+      prefetchBoxBarV2()
+      // The note font (Easy to read by default) is written onto the page.
+      applyNoteStyle()
+      return watchNextSize()
+    }
+  }, [])
+
   // Item 6/9: an accidental box left empty is removed when the caret leaves
   // it (a short wait first: the caret may be moving to its own bar or menu).
   useEffect(() => {
     if (!editable) return
     const BOX = '[data-paper-box]:not([data-paper-box="main"])'
+    // Where focus may rest while the box is being set up. A dialog counts: the
+    // paste chooser takes focus from an empty box that was just pasted into
+    // (CI reds 4: the box and its chooser vanished together, C28 paste).
+    const SETUP =
+      'button, input, select, textarea, [role="menu"], [role="dialog"]'
     const out = (e: FocusEvent) => {
       const box = (e.target as Element | null)?.closest?.(BOX)
       const id = box?.getAttribute('data-paper-box')
       if (!box || !id) return
       if (box.contains(e.relatedTarget as Node | null)) return
-      window.setTimeout(() => {
+      // T23 (15 Nov): focus resting on a bar button or a field (the title, a
+      // box card field) keeps the box for now, but the box is looked at again
+      // until that focus is gone: an empty box never stays whatever its style.
+      let tries = 0
+      const check = () => {
         const live = document.querySelector(
           '[data-paper-box="' + CSS.escape(id) + '"]',
         )
@@ -134,16 +189,74 @@ export function usePaperBoxes(
           return
         // Focus on a bar button or field (the user is setting up the box): keep it.
         if (
-          document.activeElement?.closest(
-            'button, input, select, textarea, [role="menu"]',
-          )
-        )
+          document.activeElement?.closest(SETUP) &&
+          !document.activeElement.closest('[data-page-title]')
+        ) {
+          if (++tries < 40) window.setTimeout(check, 600)
           return
+        }
         runTask(removeIfEmptyBox(db, pageId, id).then(() => {}))
-      }, 600)
+      }
+      // Owner 18 Nov (textbox.v2): an empty box goes at once when the user taps
+      // away (the caret goes nowhere in particular): no wait, no flash.
+      const to = e.relatedTarget as Element | null
+      if (isOn('textbox.v2') && !to?.closest?.(SETUP)) return void vanishNow(id)
+      window.setTimeout(check, 600)
     }
+    /**
+     * Owner 18 Nov: the box is hidden on the spot (the next frame), the store
+     * removes it right after; if it turns out to hold something (ink the page
+     * does not show yet) it comes back.
+     */
+    const vanishNow = (id: string, keepPicked = true) => {
+      const live = document.querySelector<HTMLElement>(
+        '[data-paper-box="' + CSS.escape(id) + '"]',
+      )
+      if (!live || (keepPicked && live.hasAttribute('data-picked'))) return
+      const ed = live.querySelector('.bn-editor')
+      if (
+        (ed?.textContent ?? '').trim() !== '' ||
+        live.querySelector(
+          '.bn-block-content:not([data-content-type="paragraph"])',
+        )
+      )
+        return
+      live.style.display = 'none'
+      runTask(
+        removeIfEmptyBox(db, pageId, id).then((gone) => {
+          if (!gone && live.isConnected) live.style.display = ''
+        }),
+      )
+    }
+    // Picking another tool also ends an empty box at once.
+    const offTool = isOn('textbox.v2')
+      ? activeTool.subscribe(() => {
+          // A shape being drawn puts the Pen out for a moment (PaperFrame).
+          if (document.documentElement.hasAttribute('data-shape-making')) return
+          for (const b of document.querySelectorAll(BOX)) {
+            const id = b.getAttribute('data-paper-box')
+            if (id) vanishNow(id)
+          }
+        })
+      : undefined
+    /**
+     * Bug 6 (owner 18 Nov, textbox.v2): a press on the paper (v2/index.ts) makes
+     * every empty box it is not on go at once, even a box that never had the
+     * caret (no focus-out came for it).
+     */
+    const offSweep = listenOneBar((m) => {
+      if (m.kind !== 'sweep' || !isOn('textbox.v2')) return
+      for (const b of document.querySelectorAll(BOX)) {
+        const id = b.getAttribute('data-paper-box')
+        if (id && id !== m.except) vanishNow(id)
+      }
+    })
     document.addEventListener('focusout', out, true)
-    return () => document.removeEventListener('focusout', out, true)
+    return () => {
+      offTool?.()
+      document.removeEventListener('focusout', out, true)
+      offSweep()
+    }
   }, [db, pageId, editable])
 
   // Cut and Delete of a page-wide selection (Ctrl+A, third step): every box
@@ -199,18 +312,43 @@ export function usePaperBoxes(
   // The Box style panel (bug batch 2, item 8): a lazy panel, opened by an event
   // from the Box bar, the Text strip or the box menu.
   const [styleFor, setStyleFor] = useState<string | null>(null)
+  // Which tab the Box card opens on (⋯ › Layout… opens it on Layout).
+  const [styleStart, setStyleStart] = useState<'presets' | 'layout'>('presets')
+  // ⋯ › Text options… (box bar part A): the Text tool's Format card.
+  const [textFor, setTextFor] = useState<string | null>(null)
+  // A moved, docked or pinned bar (box bar part B) is the page's, not a box's.
+  const pin = barPin.useValue()
+  const moved = barMoved.useValue()
   useEffect(() => {
-    const on = (e: Event) => setStyleFor((e as CustomEvent<string>).detail)
+    const on = (e: Event) => {
+      setStyleStart('presets')
+      setStyleFor((e as CustomEvent<string>).detail)
+    }
     window.addEventListener(BOX_STYLE_EVENT, on)
-    return () => window.removeEventListener(BOX_STYLE_EVENT, on)
+    const off = listenOneBar((m) => {
+      if (m.kind === 'text') setTextFor(m.boxId)
+      else if (m.kind === 'layout') {
+        setStyleStart('layout')
+        setStyleFor(m.boxId)
+      }
+    })
+    return () => {
+      window.removeEventListener(BOX_STYLE_EVENT, on)
+      off()
+    }
   }, [])
   // Layout mode v2 (owner, 11 Nov): a full-screen pop-up with a live preview,
   // opened from the toolbar's Layout button, the Text strip and the box menu.
   // It writes nothing until Done, and then as one Undo step.
   const [layoutOpen, setLayoutOpen] = useState(false)
+  // Text box v2 (switch textbox.v2, task 2B.10): Layout Assist on the page
+  // itself instead of the pop-up.
+  const [assist, setAssist] = useState(false)
   const openLayoutHere = () => {
     if (!editable) return toast(t('layout.assist.readOnly'))
-    setLayoutOpen(true)
+    if (!isOn('textbox.v2')) return setLayoutOpen(true)
+    if (window.innerWidth < NARROW_PX) return toast(t('layout.assist.phone'))
+    setAssist(true)
   }
   // The Text strip's, the toolbar's and the box menu's Layout button.
   useEffect(() => {
@@ -244,6 +382,7 @@ export function usePaperBoxes(
     y: number
     row?: number
     free?: boolean
+    wmm?: number
     rows?: GridRow[]
   }) => {
     if (activeTool.get() !== 'text') return
@@ -274,8 +413,83 @@ export function usePaperBoxes(
     })
 
   const duplicate = (box: PaperBox) =>
-    runTask(duplicateBox(db, pageId, box.id).then((id) => id && setFresh(id)))
+    runTask(duplicateBox(db, pageId, box.id).then(pickWhenShown))
+  /** The same blocks without ids, so an editor makes them as new lines. */
+  const plain = (blocks: readonly object[]): object[] =>
+    blocks.map((blk) => {
+      const { children, ...rest } = blk as Record<string, unknown>
+      delete rest.id
+      return { ...rest, children: plain((children as object[]) ?? []) }
+    })
+  /** A box's editor; a far box wakes first (its editor is made on demand). */
+  const editorOf = async (id: string) => {
+    wakeBox(id)
+    for (let i = 0; i < 30; i++) {
+      const ed = boxEditors.get(pageId, id)
+      if (ed) return ed
+      await new Promise((r) => setTimeout(r, 50))
+    }
+    return undefined
+  }
+  /**
+   * Owner Q-3: "Delete box" on the page's first box deletes it. The next box
+   * moves up and becomes the first box (its text and look); with no other box
+   * the page shows no first box (the box's `gone` mark) until the user makes a
+   * box. It is done in the first box's own editor, so the page saves it as it
+   * saves typing. The toast's Undo puts all of it back in one step.
+   */
+  const removeMain = async (box: PaperBox) => {
+    const ed = boxEditors.get(pageId, MAIN_BOX)
+    if (!ed) return
+    const before = ed.document
+    const { style, colour, h, locked } = box
+    const next = await nextAfterMain(db, pageId)
+    let moved: Awaited<ReturnType<typeof removeBox>> = null
+    if (next) {
+      const from = await editorOf(next.id)
+      if (!from) return
+      const doc = plain(from.document)
+      moved = await removeBox(db, pageId, next.id)
+      ed.replaceBlocks(
+        before,
+        (doc.length ? doc : [{ type: 'paragraph' }]) as typeof before,
+      )
+      onBoxChange(MAIN_BOX, {
+        style: next.style,
+        colour: next.colour,
+        h: next.h,
+        locked: next.locked,
+        gone: undefined,
+      })
+    } else {
+      ed.replaceBlocks(before, [{ type: 'paragraph' }])
+      onBoxChange(MAIN_BOX, {
+        style: undefined,
+        colour: undefined,
+        h: undefined,
+        locked: undefined,
+        gone: true,
+      })
+    }
+    toast(t('paper.box.deleted'), {
+      label: t('paper.box.undo'),
+      onSelect: () => {
+        ed.replaceBlocks(ed.document, before)
+        onBoxChange(MAIN_BOX, {
+          style,
+          colour,
+          h,
+          locked,
+          gone: undefined,
+        })
+        if (moved) runTask(restoreBox(db, pageId, moved))
+      },
+    })
+  }
   const remove = (box: PaperBox) => {
+    // A locked box cannot be deleted until it is unlocked (box bar part A).
+    if (box.locked) return toast(t('onebar.locked'))
+    if (box.id === MAIN_BOX) return runTask(removeMain(box))
     const since = stamp()
     return runTask(
       removeBox(db, pageId, box.id).then((removed) => {
@@ -300,12 +514,10 @@ export function usePaperBoxes(
         view.state.tr.setSelection(new AllSelection(view.state.doc)),
       )
     document.execCommand('copy')
-    if (cut && box.id !== MAIN_BOX) void remove(box)
+    if (cut) void remove(box)
   }
-  // Every box has the same menu; the page's first box cannot be deleted.
-  const items = (box: PaperBox): MenuItem[] =>
-    allItems(box).filter((i) => !(box.id === MAIN_BOX && i.danger))
-  const allItems = (box: PaperBox): MenuItem[] => [
+  // Every box has the same menu (Q-3: the first box can be deleted too).
+  const items = (box: PaperBox): MenuItem[] => [
     {
       label: t('boxStyle.title'),
       icon: 'palette',
@@ -325,9 +537,7 @@ export function usePaperBoxes(
       label: t('paper.box.duplicate'),
       icon: '⧉',
       onSelect: () =>
-        runTask(
-          duplicateBox(db, pageId, box.id).then((id) => id && setFresh(id)),
-        ),
+        runTask(duplicateBox(db, pageId, box.id).then(pickWhenShown)),
     },
     {
       label: t('paper.box.colour'),
@@ -363,9 +573,16 @@ export function usePaperBoxes(
   ]
 
   return {
-    layoutMode: false,
+    layoutMode: assist,
     onBoxHeight: (id: string, h: number | undefined) => onBoxChange(id, { h }),
-    layoutBar: null,
+    layoutBar: assist ? (
+      <LayoutAssistLazy
+        db={db}
+        pageId={pageId}
+        getInfo={() => gridView.current}
+        onDone={() => setAssist(false)}
+      />
+    ) : null,
     onAddBox: editable ? onAddBox : undefined,
     onAddBoxInOrder: editable ? onAddBoxInOrder : undefined,
     onBoxChange,
@@ -377,17 +594,28 @@ export function usePaperBoxes(
     onBoxMenu: (box, at) => setMenuFor({ box, at }),
     onGroup: (ids, group) => runTask(setGroup(db, pageId, ids, group)),
     onDeleteBox: remove,
-    renderBar: (box) => (
-      <BoxBar
-        pageId={pageId}
-        boxId={box.id}
-        canEdit={editable}
-        onDuplicate={() => editable && duplicate(box)}
-        onDelete={() => remove(box)}
-        onMenu={(at) => setMenuFor({ box, at })}
-        onLayout={openLayoutHere}
-      />
-    ),
+    renderBar: (box) =>
+      // Text box v2 (switch textbox.v2, task 2B.8): the Object bar and the ⋯ list.
+      isOn('textbox.v2') ? (
+        <BoxBarV2Lazy
+          pageId={pageId}
+          box={box}
+          canEdit={editable}
+          onDelete={() => remove(box)}
+          onMenu={(at) => setMenuFor({ box, at })}
+          onLine={(line) => onBoxChange(box.id, { line })}
+        />
+      ) : (
+        <BoxBar
+          pageId={pageId}
+          boxId={box.id}
+          canEdit={editable}
+          onDuplicate={() => editable && duplicate(box)}
+          onDelete={() => remove(box)}
+          onMenu={(at) => setMenuFor({ box, at })}
+          onLayout={openLayoutHere}
+        />
+      ),
     onInkOnPaper: editable
       ? (at, lines) =>
           addBoxWithLines(db, pageId, at, lines).catch((error: unknown) => {
@@ -398,13 +626,33 @@ export function usePaperBoxes(
     fresh,
     menu: (
       <>
-        {menuFor && (
-          <MenuPopover
-            anchor={menuFor.at}
-            items={items(menuFor.box)}
-            onClose={() => setMenuFor(null)}
-          />
-        )}
+        {menuFor &&
+          (isOn('textbox.v2') ? (
+            <BoxMoreV2Lazy
+              db={db}
+              pageId={pageId}
+              box={menuFor.box}
+              at={menuFor.at}
+              canEdit={editable}
+              getGrid={() => gridView.current}
+              onClose={() => setMenuFor(null)}
+              onDuplicate={() => editable && duplicate(menuFor.box)}
+              onDelete={() => remove(menuFor.box)}
+              onLock={(locked) =>
+                onBoxChange(menuFor.box.id, {
+                  locked: locked ? true : undefined,
+                })
+              }
+            />
+          ) : (
+            <MenuPopover
+              anchor={menuFor.at}
+              keepClear={clearOf(menuFor.box.id)}
+              within={frameOf(menuFor.box.id)}
+              items={items(menuFor.box)}
+              onClose={() => setMenuFor(null)}
+            />
+          ))}
         {layoutOpen && (
           <LayoutDialogLazy
             db={db}
@@ -413,12 +661,40 @@ export function usePaperBoxes(
             onClose={() => setLayoutOpen(false)}
           />
         )}
-        {styleFor && (
-          <BoxStylePopoverLazy
+        {styleFor &&
+          (isOn('textbox.v2') ? (
+            // Text box v2 (2B.9): the Box card beside the box.
+            <BoxCardV2Lazy
+              db={db}
+              pageId={pageId}
+              boxId={styleFor}
+              getGrid={() => gridView.current}
+              start={styleStart}
+              onClose={() => setStyleFor(null)}
+            />
+          ) : (
+            <BoxStylePopoverLazy
+              db={db}
+              pageId={pageId}
+              boxId={styleFor}
+              onClose={() => setStyleFor(null)}
+            />
+          ))}
+        {isOn('textbox.v2') && (pin || moved) && (
+          <PinnedBoxBarLazy
             db={db}
             pageId={pageId}
-            boxId={styleFor}
-            onClose={() => setStyleFor(null)}
+            canEdit={editable}
+            onDelete={remove}
+            onMenu={(box, at) => setMenuFor({ box, at })}
+            onLine={(box, line) => onBoxChange(box.id, { line })}
+          />
+        )}
+        {textFor && isOn('textbox.v2') && (
+          <TextOptionsV2Lazy
+            pageId={pageId}
+            boxId={textFor}
+            onClose={() => setTextFor(null)}
           />
         )}
       </>

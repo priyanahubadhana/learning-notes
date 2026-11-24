@@ -3,6 +3,7 @@ import { keySyncOn, setKeySync } from '../ai/keySync'
 import type { LearningNotesDB } from '../core/db'
 import type { JsonValue } from '../core/types'
 import { t } from '../i18n/t'
+import { OnOff } from '../design/parts/OnOff'
 import {
   resetAllToSynced,
   restoreOverrides,
@@ -58,16 +59,14 @@ export function WhatSyncs({
           const disabled = keys ? !canKeys : !signedIn
           return (
             <li key={g.id} className="py-1">
-              <label className="flex min-h-11 items-center gap-3 text-sm font-medium">
-                <input
-                  type="checkbox"
-                  role="switch"
+              <div className="flex min-h-11 items-center justify-between gap-3 text-sm font-medium">
+                <span>{t(g.labelKey)}</span>
+                <OnOff
                   checked={checked}
                   disabled={disabled}
-                  data-testid={`sync-group-${g.id}`}
-                  aria-label={t('syncWhat.switch', { group: t(g.labelKey) })}
-                  onChange={(e) => {
-                    const on = e.target.checked
+                  testId={`sync-group-${g.id}`}
+                  label={t('syncWhat.switch', { group: t(g.labelKey) })}
+                  onChange={(on) => {
                     if (keys) {
                       setKeysOn(on)
                       void setKeySync(db, on)
@@ -82,11 +81,9 @@ export function WhatSyncs({
                       )
                     }
                   }}
-                  className="size-5"
                 />
-                {t(g.labelKey)}
-              </label>
-              <p className="ml-8 text-xs text-muted">
+              </div>
+              <p className="text-xs text-muted">
                 {t(g.listKey)}
                 {disabled && !signedIn && ` ${t('syncWhat.signedOut')}.`}
               </p>

@@ -7,7 +7,7 @@ import { AppUiContext } from '../app/appUi'
  */
 export function SettingsLink({
   to,
-  className = 'underline',
+  className = 'text-accent underline',
   children,
 }: {
   to: string

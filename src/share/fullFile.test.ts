@@ -22,6 +22,7 @@ import {
 import {
   FULL_FORMAT_VERSION,
   fullFileName,
+  NEVER_SAVED,
   LIMITS,
   MAX_FULL_BYTES,
   MAX_UNZIPPED_BYTES,
@@ -134,7 +135,7 @@ const goodManifest = (over: Record<string, unknown> = {}) => ({
   app: 'learning-notes',
   kind: 'full',
   formatVersion: FULL_FORMAT_VERSION,
-  dbVersion: 23,
+  dbVersion: 24,
   createdAt: 1,
   tables: {},
   counts: { notebooks: 0, pages: 0, cards: 0, pictures: 0 },
@@ -161,10 +162,11 @@ describe('full file', () => {
     const names = await entryNames(blob)
     expect(names).toContain('manifest.json')
     for (const table of db.tables) {
-      if (table.name === 'secrets') continue // AI keys never go into a file
+      if (NEVER_SAVED.has(table.name)) continue // keys and job history never go into a file
       expect(names).toContain(`tables/${table.name}.jsonl`)
     }
     expect(names).not.toContain('tables/secrets.jsonl')
+    expect(names).not.toContain('tables/aiJobs.jsonl')
     expect(names.some((n) => n.startsWith('media/images/'))).toBe(true)
     const manifest = JSON.parse(
       new TextDecoder().decode(
@@ -175,7 +177,7 @@ describe('full file', () => {
       app: 'learning-notes',
       kind: 'full',
       formatVersion: 2,
-      dbVersion: 23,
+      dbVersion: 24,
       createdAt: 1000,
     })
     expect(manifest.counts.notebooks).toBeGreaterThan(0)
@@ -270,6 +272,16 @@ describe('full file', () => {
       await readBrowserBackup(target.name, indexedDB, [], safetyDbName),
     ).toBeUndefined()
     await expect(undoRestore(target)).rejects.toBeInstanceOf(RestoreError)
+  })
+
+  it('leaves AI job history alone on both sides (never saved, never replaced)', async () => {
+    const job = { id: 'j1', state: 'applied', updatedAt: 1 }
+    await db.aiJobs.add(job as never)
+    await target.aiJobs.add({ ...job, id: 'mine' } as never)
+    const blob = await writeFullFile(db, 'full')
+    expect(await entryNames(blob)).not.toContain('tables/aiJobs.jsonl')
+    await replaceWithFile(target, await readFullFile(blob, target))
+    expect((await target.aiJobs.toArray()).map((j) => j.id)).toEqual(['mine'])
   })
 
   it('does not touch the upgrade backup database', async () => {
@@ -373,7 +385,7 @@ describe('refusing bad files', () => {
       { app: 'other' },
       { kind: 'weird' },
       { formatVersion: 3 },
-      { dbVersion: 24 },
+      { dbVersion: 25 },
       { formatVersion: 'x' },
     ]) {
       await expect(

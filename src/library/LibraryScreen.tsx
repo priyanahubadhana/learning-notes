@@ -1,7 +1,17 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useRef, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useContext,
+  useRef,
+  useState,
+  type ComponentProps,
+} from 'react'
+import { useFlag } from '../app/flags'
 import { AppUiContext } from '../app/appUi'
-import { ConfirmDialog, EmptyState, IconButton, MenuPopover } from '../app/ui'
+import { ConfirmDialog, EmptyState, IconButton } from '../app/ui'
+import { RowMenu } from '../app/RowStrip'
+import { rowHoldMs, type RowPoint } from '../app/rowStripLogic'
 import { useLongPress } from '../app/useLongPress'
 import { deletePage } from '../pages/pageService'
 import { runTask } from '../app/errors'
@@ -30,7 +40,7 @@ const FILTERS: SourceFilter[] = ['all', 'books', 'videos', 'articles', 'pasted']
  * cover, a progress bar and Continue. Import with the button, or drop files
  * (PC); links and text dropped here open Capture.
  */
-export function LibraryScreen({
+function LibraryScreenToday({
   db,
   workspaceId,
   onOpenPage,
@@ -209,6 +219,23 @@ export function LibraryScreen({
   )
 }
 
+const LibraryV2 = lazy(() =>
+  import('./v2/LibraryV2').then((m) => ({ default: m.LibraryV2 })),
+)
+
+/** The Library space: today's screen, or Library v2 when the library.v2 switch is on. */
+export function LibraryScreen(
+  props: ComponentProps<typeof LibraryScreenToday>,
+) {
+  const v2 = useFlag('library.v2')
+  if (!v2) return <LibraryScreenToday {...props} />
+  return (
+    <Suspense fallback={null}>
+      <LibraryV2 {...props} />
+    </Suspense>
+  )
+}
+
 function SourceCard({
   page,
   onOpenPage,
@@ -222,10 +249,19 @@ function SourceCard({
 }) {
   // The ⋯ button or a press-and-hold (finger or Pencil) opens the actions.
   const [menuAt, setMenuAt] = useState<DOMRect | null>(null)
-  const hold = useLongPress((x, y) => {
-    const card = document.elementFromPoint(x, y)?.closest('article')
-    if (card) setMenuAt(card.getBoundingClientRect())
-  }, true)
+  // Flag page.menus: a long-press opens the strip at the press point (PM-23).
+  const [menuPt, setMenuPt] = useState<RowPoint | null>(null)
+  const hold = useLongPress(
+    (x, y) => {
+      const card = document.elementFromPoint(x, y)?.closest('article')
+      if (card) {
+        setMenuPt({ x, y })
+        setMenuAt(card.getBoundingClientRect())
+      }
+    },
+    true,
+    rowHoldMs,
+  )
   const source = page.source
   const cover = useImageUrl(
     source?.coverImageId ? imageRef(source.coverImageId) : null,
@@ -265,14 +301,18 @@ function SourceCard({
         data-testid="source-menu-button"
         aria-label={t('library.cardMenu')}
         aria-haspopup="menu"
-        onClick={(e) => setMenuAt(e.currentTarget.getBoundingClientRect())}
+        onClick={(e) => {
+          setMenuPt(null)
+          setMenuAt(e.currentTarget.getBoundingClientRect())
+        }}
         className="grid size-11 place-items-center rounded-full bg-bg/80 text-ink-soft hover:bg-hover"
       >
         ⋯
       </IconButton>
       {menuAt && (
-        <MenuPopover
+        <RowMenu
           anchor={menuAt}
+          at={menuPt}
           onClose={() => setMenuAt(null)}
           items={[
             {

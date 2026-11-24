@@ -9,3 +9,4 @@
 - Update all project files (README, CLAUDE.md, docs/, `rules/`).
 - **Archive:** move active rules to CLAUDE.md or the rule files; move finished history to docs/ARCHIVE.md under a phase heading; start docs/CHANGELOG.md and docs/DECISIONS.md fresh.
 - **Rule and memory tidy-up, at every phase end:** check CLAUDE.md, `rules/`, the helper files and the memory index for duplicates, contradictions and outdated lines (Claude Code's `/doctor` and `/memory` help; only the first 200 lines of the memory index are ever loaded). Read `/usage` for what each helper cost. Give the owner one short list of proposed cuts; the owner approves every change; log it in docs/DECISIONS.md. Rules do not change in the middle of a phase.
+- When a phase goes to the preview for testing, bump PREVIEW_PHASE in src/app/flags.ts (the preview then switches that phase ON once on every device).

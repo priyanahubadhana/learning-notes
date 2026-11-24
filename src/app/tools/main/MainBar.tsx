@@ -11,6 +11,7 @@ import {
 import { applyPageMode } from '../../../editor/editPolicy'
 import { setKeyboard } from '../../../editor/keyboardPolicy'
 import { AnchoredMenu } from '../AnchoredMenu'
+import { useFlag as useFlagOn } from '../../flags'
 import { Icon, type IconName } from '../icons'
 import { TOOL_ICON } from './mainToolIcons'
 import { resolveBar } from './barOrder'
@@ -41,6 +42,16 @@ import {
 } from './newLineGesture'
 import { openToolPill, selectTool } from './selectTool'
 import { miniKeysOn } from './miniKeys'
+import { PasteButton } from './PasteButton'
+import {
+  MIC_SLOT,
+  PASTE_SLOT,
+  topRowHasAll,
+  topRowTokens,
+} from './pasteButtons'
+import { dictating, toggleMic } from './micControl'
+import { useBarSettings } from '../../../settings/deviceModeSettings'
+import { noteTyped } from '../../../editor/typedSignal'
 import { REPEAT_AFTER_MS, backspaceStep } from './backspaceHold'
 
 /**
@@ -66,7 +77,7 @@ export function MainBarRow({
   editor: Editor
   px: number
   tips: boolean
-  history: { canUndo: boolean; canRedo: boolean }
+  history: { canUndo: boolean; canRedo: boolean; hidden?: boolean }
   menuOpen: boolean
   menuRef: RefObject<HTMLButtonElement | null>
   onMenu: () => void
@@ -79,7 +90,14 @@ export function MainBarRow({
   const pinned = pillPinned.useValue()
   const showing = shownPill(opened, pinned, active)
   const min = Math.max(px, 44)
+  // P1.9 R19 (new frame): the bar keeps its 64 px; the icons grow with the mode (18 / 20 / 24).
+  const shellOn = useFlagOn('foundation.shell')
+  const iconPx = shellOn ? (px >= 54 ? 24 : px >= 44 ? 20 : 18) : 20
   const hold = useHoldSlide((tool) => openToolPill(tool as never))
+  // Paste ▾ in the top row, and the Mic that speaks (page.menus; paste-mock2).
+  const pasteOn = useFlagOn('page.menus')
+  const { mode } = useBarSettings()
+  const barTokens = topRowTokens(resolveBar(order, list, extras), mode, pasteOn)
 
   const toolButton = (tool: MainTool) => {
     if (tool === 'newLine') {
@@ -120,7 +138,7 @@ export function MainBarRow({
         }}
         className={`${BUTTON} ${on ? 'bg-hover !text-accent' : ''}`}
       >
-        <Icon name={TOOL_ICON[tool]} />
+        <Icon name={TOOL_ICON[tool]} size={iconPx} />
         {(on || showing === tool) && (
           // Not colour alone: a bar under the icon says "selected".
           <span
@@ -148,34 +166,56 @@ export function MainBarRow({
   const redo = findTool('redo')
   return (
     <div className="flex items-start gap-1 phone:flex-wrap" data-main-bar>
-      <div
-        role="group"
-        aria-label={t('main.history')}
-        data-slot="history"
-        className="flex shrink-0 rounded-xl bg-hover"
-      >
-        {undo && (
-          <ToolButton
-            tool={undo}
-            px={min}
-            variant="bar"
-            disabled={!history.canUndo || undefined}
-            tip={tips}
-          />
-        )}
-        {redo && (
-          <ToolButton
-            tool={redo}
-            px={min}
-            variant="bar"
-            disabled={!history.canRedo || undefined}
-            tip={tips}
-          />
-        )}
-      </div>
+      {!history.hidden && (
+        <div
+          role="group"
+          aria-label={t('main.history')}
+          data-slot="history"
+          className="flex shrink-0 rounded-xl bg-hover"
+        >
+          {undo && (
+            <ToolButton
+              tool={undo}
+              px={min}
+              variant="bar"
+              disabled={!history.canUndo || undefined}
+              tip={tips}
+            />
+          )}
+          {redo && (
+            <ToolButton
+              tool={redo}
+              px={min}
+              variant="bar"
+              disabled={!history.canRedo || undefined}
+              tip={tips}
+            />
+          )}
+        </div>
+      )}
       <LayoutButton px={min} />
-      <BarScroll className="flex-1 phone:order-last phone:basis-full">
-        {resolveBar(order, list, extras).map((token) => {
+      <BarScroll
+        className="flex-1 phone:order-last phone:basis-full"
+        minPx={54}
+      >
+        {barTokens.map((token) => {
+          if (token === MIC_SLOT)
+            return (
+              <MiniKeysButton
+                key={token}
+                min={min}
+                speaks={topRowHasAll(mode) ? editor : undefined}
+              />
+            )
+          if (token === PASTE_SLOT)
+            return (
+              <PasteButton
+                key={token}
+                editor={editor}
+                min={min}
+                testId="top-paste"
+              />
+            )
           const id = token.slice(2)
           if (token.startsWith('m:')) return toolButton(id as MainTool)
           const tool = findTool(id)
@@ -191,7 +231,7 @@ export function MainBarRow({
         })}
       </BarScroll>
       <KeyboardButton editor={editor} min={min} />
-      <MiniKeysButton min={min} />
+      {!pasteOn && <MiniKeysButton min={min} />}
       <Tip
         id="bar.menu"
         touchInfo={false}
@@ -348,6 +388,7 @@ export function BackspaceButton({
         stop()
         // The first press deletes at once; a hold starts repeating later.
         deleteBackward(editor, 'char')
+        noteTyped()
         const r = run.current
         r.start = Date.now()
         r.active = true
@@ -355,6 +396,7 @@ export function BackspaceButton({
           if (!r.active) return
           const { unit, next } = backspaceStep(Date.now() - r.start)
           if (!deleteBackward(editor, unit)) return stop()
+          noteTyped()
           r.timer = window.setTimeout(step, next)
         }
         r.timer = window.setTimeout(step, REPEAT_AFTER_MS)
@@ -454,9 +496,18 @@ function KeyboardButton({ editor, min }: { editor: Editor; min: number }) {
 }
 
 /** Shows or hides the mini keyboard strip (mic, Enter, Backspace). */
-function MiniKeysButton({ min }: { min: number }) {
-  const on = miniKeysOn.useValue()
-  const label = t('keys.toggle')
+function MiniKeysButton({
+  min,
+  speaks,
+}: {
+  min: number
+  /** Set when the floating bar is hidden here: the button speaks directly. */
+  speaks?: Editor
+}) {
+  const toggled = miniKeysOn.useValue()
+  const listening = dictating.useValue()
+  const on = speaks ? listening : toggled
+  const label = speaks ? t('keys.mic') : t('keys.toggle')
   return (
     <button
       type="button"
@@ -465,7 +516,7 @@ function MiniKeysButton({ min }: { min: number }) {
       aria-label={label}
       aria-pressed={on}
       onMouseDown={keepFocus}
-      onClick={() => miniKeysOn.set(!on)}
+      onClick={() => (speaks ? toggleMic(speaks) : miniKeysOn.set(!on))}
       style={{ minHeight: min, minWidth: min }}
       className={`${BUTTON} ${on ? 'bg-hover !text-accent' : ''}`}
     >

@@ -157,3 +157,35 @@ describe('the two-tap rule for the Pencil', () => {
     expect(pencilTapAction({ ...base, tapTwice: false })).toBe('place')
   })
 })
+
+describe('a word after a line break (box lines are soft breaks)', () => {
+  // Why: a box Enter makes a line break inside ONE paragraph. The break is a
+  // node of size 1 but no text, so the word was found 1 character too early
+  // for every break before it (a double tap selected "a be" for "beta").
+  const brSchema = new Schema({
+    nodes: {
+      doc: { content: 'paragraph+' },
+      paragraph: { content: 'inline*', group: 'block' },
+      text: { group: 'inline' },
+      hardBreak: { inline: true, group: 'inline' },
+    },
+  })
+  const br = brSchema.node('hardBreak')
+  const brDoc = brSchema.node('doc', null, [
+    brSchema.node('paragraph', null, [
+      brSchema.text('One one'),
+      br,
+      brSchema.text('Two two'),
+      br,
+      brSchema.text('Alpha beta gamma'),
+    ]),
+  ])
+  const view = {
+    state: EditorState.create({ doc: brDoc }),
+  } as unknown as Parameters<typeof rangeForTaps>[0]
+
+  it('selects the word under the tap on the third line', () => {
+    // Paragraph starts at 1; line 3 starts at 1 + 7 + 1 + 7 + 1 = 17; "beta" at 23.
+    expect(rangeForTaps(view, 25, 2)).toEqual([23, 27])
+  })
+})

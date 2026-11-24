@@ -3,6 +3,36 @@ export const esFlags = {
   'settings.category.tryNew': 'Funciones nuevas para probar',
   'settings.category.tryNew.hint':
     'Partes nuevas de la app, apagadas hasta que las pruebes.',
+  'flags.preset.phase.name': 'Probar una fase',
+  'flags.preset.phase.desc': 'Elige la fase que quieres probar.',
+  'flags.lassoRecorder.name': 'Grabador del Lazo',
+  'flags.lassoRecorder.desc':
+    'Guarda en silencio el último minuto de eventos del Pencil y del dedo, para poder copiar y enviar un fallo del Lazo. No dibuja nada y no graba palabras de las notas. Solo para pruebas. Nada sale de este dispositivo.',
+  'recorder.copyTrace': 'Copiar último registro',
+  'recorder.copied': 'Registro copiado: pégalo en el chat',
+  'recorder.copyFailed':
+    'No se pudo copiar. Selecciona el texto, cópialo y pégalo en el chat.',
+  'recorder.close': 'Cerrar',
+  'flags.tapSpeed.name': 'Velocidad de toque',
+  'flags.tapSpeed.desc':
+    'Lo rápido que deben seguirse los toques para contar como doble o triple toque. Solo para pruebas.',
+  'flags.tapSpeed.quick': 'Rápida',
+  'flags.tapSpeed.normal': 'Normal',
+  'flags.tapSpeed.relaxed': 'Tranquila',
+  'flags.tapSpeed.wide': 'Amplia (1 s)',
+  'flags.preset.on.name': 'Probar esta fase',
+  'flags.preset.on.desc':
+    'Sí: esta fase funciona y las siguientes siguen apagadas. No: todo lo nuevo se apaga.',
+  'flags.preset.phase1': 'Fase 1',
+  'flags.preset.phase2a': 'Hasta la fase 2A',
+  'flags.preset.phase2b': 'Hasta la fase 2B',
+  'flags.preset.phase3': 'Hasta la fase 3',
+  'flags.preset.phase4': 'Hasta la fase 4',
+  'flags.preset.phase5': 'Hasta la fase 5',
+  'flags.preset.phase6': 'Hasta la fase 6',
+  'flags.preset.phase7': 'Hasta la fase 7',
+  'flags.preset.phase8': 'Hasta la fase 8',
+  'flags.preset.everything': 'Todo',
   'flags.foundation.events.name': 'Eventos compartidos',
   'flags.foundation.events.desc':
     'Un solo lugar para toques, teclas y eventos del lápiz.',
@@ -49,6 +79,9 @@ export const esFlags = {
   'flags.security.m1.name': 'Mejora de seguridad',
   'flags.security.m1.desc':
     'El primer conjunto de controles de seguridad extra.',
+  'flags.toolbar.menu.name': 'Nuevo menú de la barra',
+  'flags.toolbar.menu.desc':
+    'El menú ⋯ de la barra en grupos cortos, con lo poco usado bajo Más.',
   'flags.page.menus.name': 'Nuevos menús de página',
   'flags.page.menus.desc': 'Los menús de página rediseñados.',
   'flags.page.objects.name': 'Nuevos objetos de página',
@@ -62,4 +95,13 @@ export const esFlags = {
   'flags.safety.v2.desc': 'Las copias y el historial de deshacer rediseñados.',
   'flags.system.v2.name': 'Nuevas partes del sistema',
   'flags.system.v2.desc': 'Las partes internas de la app rediseñadas.',
+  'flags.storage.safety.name': 'Seguridad del almacenamiento',
+  'flags.storage.safety.desc':
+    'Avisos tranquilos cuando las notas no se guardan y una copia con un toque.',
+  'flags.journal.monthRepair.name': 'Reparar meses del diario',
+  'flags.journal.monthRepair.desc':
+    'Une dos páginas del mismo mes del diario en una, con Deshacer.',
+  'flags.update.versionLine.name': 'Línea de versión en Ajustes',
+  'flags.update.versionLine.desc':
+    'Muestra la versión y si la app está al día al principio de Ajustes.',
 }

@@ -1,3 +1,8 @@
+import { mandatoryUpdate } from './app/mandatoryState'
+import {
+  browserRestartDeps,
+  restartIntoNewFiles as restartNow,
+} from './app/restartNow'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
@@ -5,6 +10,8 @@ import './index.css'
 import App from './App.tsx'
 import { reloadOnFailedChunk } from './app/chunkReload'
 import { ErrorBoundary } from './app/ErrorBoundary'
+import { applyLanguage } from './i18n/languages'
+import { ScrollBarHost } from './design/parts/ScrollBarHost'
 import { startNavHistory } from './app/navHistory'
 import { installPenTap, penTapOptions } from './app/penTap'
 import { fingerOnlyBars } from './app/tools/main/mainTools'
@@ -55,6 +62,7 @@ import { prefetchAfterIdle } from './app/idlePrefetch'
 import { installScrollHints } from './app/scrollHints'
 import {
   autoUpdateSetting,
+  languageSetting,
   scrollHintsSetting,
 } from './settings/builtinSettings'
 import {
@@ -65,6 +73,7 @@ import { saveEverythingLazy as saveEverything } from './share/saveEverythingLazy
 import { loadInter } from './design/loadInter'
 import { isDesignTokensRoute } from './design/designRoute'
 import { isConnectRoute } from './connector/connectRoute'
+import { syncRecorder } from './editor/circleRecorderKey'
 import { setSlowMomentsOn, slowMomentsWanted } from './perf/slowMomentsSwitch'
 
 initDeviceMode()
@@ -77,9 +86,15 @@ installGestureWatchdog()
 // never came is dropped after 4 s, and a tool change drops a half gesture.
 installListenerCount() // the dump counts the document listeners
 installInputMachine()
+syncRecorder() // the Lasso recorder (preview switch): a lazy chunk, only when on
 inputMachine.setTool(activeTool.get())
 activeTool.subscribe(() => inputMachine.setTool(activeTool.get()))
 installPenTap()
+// P1.5: a Pencil drag scrolls lists, menus and panels (new app frame only).
+// Loaded after the start, so the first load stays inside its size budget.
+void import('./app/input/penScroll').then((m) =>
+  m.installPenScroll(() => isOn('foundation.shell')),
+)
 penTapOptions.fingerOnly = fingerOnlyBars.get()
 fingerOnlyBars.subscribe(() => {
   penTapOptions.fingerOnly = fingerOnlyBars.get()
@@ -87,6 +102,7 @@ fingerOnlyBars.subscribe(() => {
 {
   const hints = installScrollHints(
     () => readDeviceSetting(scrollHintsSetting) === 'on',
+    () => isOn('foundation.shell'),
   )
   subscribeDeviceSettings(hints.refresh)
 }
@@ -155,6 +171,13 @@ if (
 // Q3a: a device with no sign-in is read-only until the person signs in.
 startAccountGate()
 
+// T29: while the "did not finish" note shows, nothing restarts the app by
+// itself (a new worker taking over, a look for updates): only Try again or
+// Not now moves on.
+let restartWasAsked = false
+const restartAsked = () => isOn('update.v2') && restartWasAsked
+const noteHolds = () => mandatoryUpdate.get()?.phase === 'failed'
+
 // A unique build name makes the silent backup due right now.
 async function backupForUpdate(): Promise<'ok' | 'space' | 'error'> {
   const result = await runAutoBackup(
@@ -169,7 +192,9 @@ async function backupForUpdate(): Promise<'ok' | 'space' | 'error'> {
 // setting "Update automatically"); with it off the "Update" bar is shown.
 const autoUpdate = startAutoUpdate({
   enabled: () =>
-    readDeviceSetting(autoUpdateSetting) === 'on' && !isUpdateRequired(),
+    readDeviceSetting(autoUpdateSetting) === 'on' &&
+    !isUpdateRequired() &&
+    !noteHolds(),
   win: window,
   penDown: () => penIsDown(),
   hasPendingSaves,
@@ -182,6 +207,7 @@ const autoUpdate = startAutoUpdate({
   backup: backupForUpdate,
   onReset: (fn) => void onGestureReset(fn),
   hardRestart: () => void restartIntoNewFiles(),
+  v2: () => isOn('update.v2'),
   announce: () =>
     void import('./app/updateChannel').then((c) => c.announceApply()),
 })
@@ -189,15 +215,18 @@ onUpdateOffer((apply) => void autoUpdate(apply))
 // A REQUIRED update (storage change or data fix) uses the full-screen flow.
 const startRequired = (
   apply: () => void,
-  test?: { reason?: UpdateReason; unsaved?: boolean },
+  test?: { reason?: UpdateReason; unsaved?: boolean; real?: boolean },
 ) =>
   void import('./app/mandatoryFlow').then((m) =>
     m.startMandatoryUpdate({
       v2: isOn('update.v2'),
       reason: test?.reason ?? updateReason(),
+      // A real reload (About test button) is slow on Safari: give it 30 s.
+      restartMs: test?.real ? m.INSTALL_MAX_MS : undefined,
       apply: () => {
         resetGestures('manual')
         rememberPlace()
+        restartWasAsked = true
         apply()
       },
       // Another tab upgraded the notes: this tab must not touch the database.
@@ -220,25 +249,37 @@ if (isOn('update.v2'))
   void import('./app/otherTab').then((m) =>
     m.watchOtherTabUpgrade(db, () => triggerMustHave('storage')),
   )
-window.addEventListener('learning-notes:test-required-update', (e) =>
-  startRequired(
-    () => {
-      ;(
-        window as unknown as { __requiredApplied?: boolean }
-      ).__requiredApplied = true
-    },
-    (e as CustomEvent<{ reason?: UpdateReason; unsaved?: boolean } | null>)
-      .detail ?? undefined,
-  ),
-)
+// The About button ("real") reloads into the same page (keeps the offline copy).
+// Tests without it only set a marker (the page must stay).
+window.addEventListener('learning-notes:test-required-update', (e) => {
+  const detail =
+    (
+      e as CustomEvent<{
+        reason?: UpdateReason
+        unsaved?: boolean
+        real?: boolean
+      } | null>
+    ).detail ?? undefined
+  startRequired(() => {
+    ;(window as unknown as { __requiredApplied?: boolean }).__requiredApplied =
+      true
+    if (detail?.real) {
+      // Only a restart into the same page; the offline copy stays.
+      rememberPlace()
+      location.reload()
+    }
+  }, detail)
+})
 subscribeDeviceSettings(() => {
   if (updateWaiting()) repeatUpdateOffer()
 })
 // Tests: pretend a new version was found (the restart is a plain reload).
-window.addEventListener('learning-notes:test-update', () =>
+// detail.stuck: the apply step does nothing (only the forced restart acts).
+window.addEventListener('learning-notes:test-update', (e) =>
   offerUpdate(() => {
     resetGestures('manual')
-    location.reload()
+    if (!(e as CustomEvent<{ stuck?: boolean } | null>).detail?.stuck)
+      location.reload()
   }),
 )
 
@@ -266,6 +307,7 @@ const update = registerSW({
 // Looking works with or without a service worker: version.json is compared
 // with this build, and a newer one is applied by the auto-update rule.
 setUpdateFallback(() => {
+  if (noteHolds()) return
   resetGestures('manual')
   rememberPlace()
   void restartIntoNewFiles()
@@ -293,17 +335,17 @@ watchUpdateTriggers(window, lookQuietly)
   }
 }
 
-/** Drops the saved copy of the old files, then restarts on the live ones. */
-async function restartIntoNewFiles() {
-  try {
-    const regs = (await navigator.serviceWorker?.getRegistrations()) ?? []
-    await Promise.all(regs.map((r) => r.unregister()))
-    for (const key of (await caches?.keys()) ?? []) await caches.delete(key)
-  } catch {
-    // Restart anyway.
+// C22: a restart that had to ask twice leaves `_r` in the address; remove it.
+{
+  const u = new URL(location.href)
+  if (u.searchParams.has('_r')) {
+    u.searchParams.delete('_r')
+    history.replaceState(history.state, '', u.href)
   }
-  location.reload()
 }
+
+/** Restarts on the live files; never drops them while a new version installs. */
+const restartIntoNewFiles = () => restartNow(browserRestartDeps(flushAllSaves))
 
 // R7-1: a new version took over this page without a restart (Update pressed
 // in another window, or the restart was missed): the old code must not keep
@@ -312,8 +354,15 @@ async function restartIntoNewFiles() {
 watchControllerChange(navigator.serviceWorker, () =>
   reloadWhenSafe(
     () =>
-      document.visibilityState === 'visible' && !penIsDown() && !hasUnsaved(),
+      document.visibilityState === 'visible' &&
+      !penIsDown() &&
+      !hasUnsaved() &&
+      // update.v2 (S2): the restart was asked for and the new version took
+      // over, but a slow WebKit made "did not finish" show first: the old
+      // page must still restart. Without a restart asked, the note stays.
+      (!noteHolds() || restartAsked()),
     () => {
+      if (noteHolds() && !restartAsked()) return
       rememberPlace()
       location.reload()
     },
@@ -345,18 +394,37 @@ if (isConnectRoute(location.hash)) {
   )
 } else if (isDesignTokensRoute(location.hash)) {
   void import('./design/DesignTokensPage').then((m) =>
-    createRoot(document.getElementById('root')!).render(<m.default />),
+    createRoot(document.getElementById('root')!).render(
+      <>
+        <m.default />
+        <ScrollBarHost />
+      </>,
+    ),
   )
 } else {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <ErrorBoundary onHome={goHome} onSaveAll={saveEverything} fullScreen>
-        <UpgradeGate>
-          <App />
-        </UpgradeGate>
-      </ErrorBoundary>
-    </StrictMode>,
+  const draw = () =>
+    createRoot(document.getElementById('root')!).render(
+      <StrictMode>
+        <ErrorBoundary onHome={goHome} onSaveAll={saveEverything} fullScreen>
+          <UpgradeGate>
+            <App />
+            <ScrollBarHost />
+          </UpgradeGate>
+        </ErrorBoundary>
+      </StrictMode>,
+    )
+
+  // The first draw waits for the app's language texts (the late English pack):
+  // a screen restored from the address (Settings, a locked page) would
+  // otherwise show raw text keys. It waits at most 3 s (a hanging request on
+  // weak Wi-Fi must not leave a blank screen); the texts then fill in by
+  // themselves, because App asks for the same pack again and redraws when it
+  // is in. A failed load still draws.
+  const waitForTexts = applyLanguage(readDeviceSetting(languageSetting)).catch(
+    (error: unknown) => console.error('Could not load the language', error),
   )
+  const giveUp = new Promise<void>((resolve) => setTimeout(resolve, 3000))
+  void Promise.race([waitForTexts, giveUp]).then(draw)
 }
 
 // Inter comes after the first paint (never in the critical path).

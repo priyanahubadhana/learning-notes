@@ -18,7 +18,7 @@ const LONG_PRESS_SLOP = 8
  */
 export function createLongPress(
   onLong: (x: number, y: number) => void,
-  ms = LONG_PRESS_MS,
+  ms: number | (() => number) = LONG_PRESS_MS,
   slop = LONG_PRESS_SLOP,
 ) {
   let timer: ReturnType<typeof setTimeout> | null = null
@@ -36,11 +36,14 @@ export function createLongPress(
       fired = false
       x0 = x
       y0 = y
-      timer = setTimeout(() => {
-        timer = null
-        fired = true
-        handler(x0, y0)
-      }, ms)
+      timer = setTimeout(
+        () => {
+          timer = null
+          fired = true
+          handler(x0, y0)
+        },
+        typeof ms === 'function' ? ms() : ms,
+      )
     },
     move(x: number, y: number) {
       if (timer !== null && Math.hypot(x - x0, y - y0) > slop) cancel()
@@ -72,8 +75,10 @@ export function useLongPress(
   onLong: (x: number, y: number) => void,
   /** Rows: a press that starts on a tipped icon is the icon's own (its tip). */
   ignoreTips = false,
+  /** How long to hold (ms), read at each press. Default 500. */
+  ms?: number | (() => number),
 ) {
-  const [machine] = useState(() => createLongPress(onLong))
+  const [machine] = useState(() => createLongPress(onLong, ms))
   useEffect(() => {
     machine.setHandler(onLong)
   })

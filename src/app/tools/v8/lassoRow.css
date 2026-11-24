@@ -1,0 +1,140 @@
+/* The Lasso's Professional row (2A.11): segmented groups on the bar. Chosen
+   parts are filled with the accent, so they read as on in dark too. */
+.v8seg {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--r-md);
+  background: var(--color-neutral-fill);
+}
+.v8seg-label {
+  padding: 0 var(--space-2) 0 var(--space-3);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-ink-soft);
+}
+.v8seg-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: calc(var(--r-md) - 2px);
+  background: transparent;
+  color: var(--color-ink-soft);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--dur-1) var(--ease-out);
+}
+.v8seg-opt[aria-checked='true'] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: 600;
+}
+.v8seg-opt:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Lasso › Options: the picture of the selection menu, and the order rows. */
+.v8lpreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-radius: var(--r-md);
+  background: var(--card-well);
+}
+.v8lpreview-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  border-radius: var(--r-md);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-size: 13px;
+}
+.v8lrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  font-size: 14px;
+}
+.v8lrow + .v8lrow {
+  border-top: 1px solid var(--color-line);
+}
+.v8lrow-name {
+  flex: 1;
+  min-width: 0;
+}
+.v8lrow-arrow {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--color-ink-soft);
+  cursor: pointer;
+}
+.v8lrow-arrow:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.v8lrow-arrow:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.v8lrow-switch {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.v8lrow-switch:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.v8lstack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.v8lstack .fgroup-body {
+  padding-top: var(--space-2);
+}
+/* Inside the Layers fold: the groups keep the card's gap and one left edge.
+   The shared Layers parts pad their text rows; here boxes, text and icons all
+   start on the fold's edge (Pen > Feel > Page keeps its own look). */
+.v8llayers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-inline: 4px;
+}
+.v8llayers > * {
+  margin-inline: 0;
+}
+.v8llayers > p:not(.pcard-note),
+.v8llayers [data-layer-add],
+.v8llayers [data-layer-merge],
+.v8llayers [data-card-action],
+.v8llayers [data-card-chips] {
+  padding-inline-start: 0;
+}

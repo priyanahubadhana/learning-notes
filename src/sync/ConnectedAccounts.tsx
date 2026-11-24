@@ -5,6 +5,7 @@ import type { SignInMethods } from './connectors'
 import { passwordProblem } from './passwordRules'
 import { errorKey } from './signInErrors'
 import { accountAuth, linkGoogleAccount } from './syncService'
+import { AreaInput } from '../settings/AreaInput'
 
 const button =
   'min-h-11 rounded-lg border border-line px-4 text-sm font-medium hover:bg-hover disabled:opacity-50'
@@ -249,7 +250,7 @@ function PasswordEditor({
     <form className="flex w-full flex-col gap-2" onSubmit={save}>
       <label className="flex flex-col gap-1 text-sm">
         {t('signin.newPassword')}
-        <input
+        <AreaInput
           type="password"
           autoComplete="new-password"
           required

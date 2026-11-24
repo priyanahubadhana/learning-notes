@@ -1,3 +1,4 @@
+import { sheetOf } from '../paper/boxes'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { createBlock } from '../core/blockService'
 import type { LearningNotesDB } from '../core/db'
@@ -161,5 +162,18 @@ describe('pageService', () => {
     })
     await setPageInkBg(db, a.id, undefined)
     expect((await getPage(db, a.id))?.inkBg).toBeUndefined()
+  })
+
+  it('"Fit page" is a stored sheet value; a page saved before it still reads as A4', async () => {
+    const old = await createPage(db, nb, null, 'Old')
+    // A page from before "Fit page": no sheet field at all.
+    expect((await getPage(db, old.id))?.sheet).toBeUndefined()
+    expect(sheetOf((await getPage(db, old.id))!)).toEqual({ w: 210, h: 297 })
+    await setPageSheet(db, old.id, 'fit')
+    const fit = (await getPage(db, old.id))!
+    expect(fit.sheet).toBe('fit')
+    expect(sheetOf(fit)).toEqual({ w: 210, h: 297 })
+    await setPageSheet(db, old.id, 'Letter')
+    expect(sheetOf((await getPage(db, old.id))!).w).toBe(215.9)
   })
 })

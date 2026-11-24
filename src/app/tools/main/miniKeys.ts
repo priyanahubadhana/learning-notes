@@ -28,6 +28,7 @@ export interface Recognition {
   lang: string
   continuous: boolean
   interimResults: boolean
+  onstart: (() => void) | null
   onresult: ((e: RecognitionEvent) => void) | null
   onerror: ((e: { error?: string }) => void) | null
   onend: (() => void) | null

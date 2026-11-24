@@ -23,6 +23,7 @@ import {
 import { createId } from '../core/ids'
 import type { InkLayer, Stroke } from '../core/inkTypes'
 import {
+  eraseScope,
   eraserSettings,
   ERASER_SIZES,
   highlighterSettings,
@@ -95,15 +96,13 @@ import {
   type RawPoint,
 } from './style'
 import {
-  clearHighlightRuns,
-  eraseHighlightsLive,
-  restoreHighlights,
-  type LiveRemoved,
   highlightRuns,
   nearestHighlightName,
   runsText,
   textRunsUnder,
 } from './textSnap'
+import { WordEraseSession } from './eraseText'
+import { isOn } from '../app/flags'
 import { MAX_LABEL, STRIDE } from '../core/inkTypes'
 import { selectGesture } from '../editor/gesture'
 import { mostlyInside } from './lassoMenu'
@@ -252,6 +251,8 @@ type Gesture =
       /** The ruler edge this stroke slides along, if it began at one. */
       edge: Edge | null
       frame: { blockId: string | null }
+      /** #64/#65: the pen left the box by the bottom, so the stroke ended at the border. */
+      cut: boolean
     }
   | {
       kind: 'erase'
@@ -260,8 +261,8 @@ type Gesture =
       path: Pt[]
       del: Map<string, Placed>
       add: Map<string, Placed>
-      /** Text highlights taken off live (put back before the real edit). */
-      live: LiveRemoved[]
+      /** The words under the eraser (highlights, typed text), made on the first move. */
+      words: WordEraseSession | null
     }
   | {
       kind: 'lasso'
@@ -346,6 +347,40 @@ registerKind('ink', {
   },
 })
 
+/**
+ * P1 speed (17 Nov 2026): a page opens one ink surface per box. Each used to
+ * measure its place right when it mounted, between the other boxes' style
+ * writes, so the browser laid out the whole page once per box. New surfaces
+ * now queue, and one pass in the next frame (before it is painted) measures
+ * them all, then moves them all: one style pass per frame instead of one per
+ * box (boxes mount one after another, in separate steps).
+ */
+const placeQueue = new Set<InkController>()
+function flushPlaceQueue(): void {
+  const list = [...placeQueue]
+  placeQueue.clear()
+  // Reads first (the scroller of each, then where each overlay goes), then
+  // the writes and listeners.
+  const scrollers = list.map((c) => c.findScroller())
+  const places = list.map((c) => c.measurePlace())
+  list.forEach((c, i) => {
+    c.attachScroller(scrollers[i])
+    c.applyPlace(places[i])
+  })
+}
+
+/** Where the overlay goes (screen px) and the CSS zoom to undo. */
+interface OverlayPlace {
+  left: number
+  top: number
+  width: number
+  height: number
+  zoom: number
+}
+
+/** How far (px) below a box a saved stroke must reach to count as old ink under the border. */
+const OLD_INK_MARGIN = 24
+
 export class InkController {
   readonly layout: PageLayout
   readonly renderer: InkRenderer
@@ -373,6 +408,8 @@ export class InkController {
   /** Pointers the pad holds captured now (the browser says when one goes). */
   private captured = new Set<number>()
   private scroller: HTMLElement | Window = window
+  /** Watches the page's size; the scroller joins it in attachScroller. */
+  private resizeWatch: ResizeObserver | null = null
   /** The overlay's position or the page's zoom may have changed. */
   private placeDirty = true
   private placed = ''
@@ -445,19 +482,10 @@ export class InkController {
   mount(): void {
     const { wrap, doc } = this.env
     wrap.append(this.anchor)
-    this.placeOverlay()
-    this.scroller = scrollParent(wrap)
-    const on = (
-      el: EventTarget,
-      type: string,
-      fn: (e: never) => void,
-      opts?: AddEventListenerOptions | boolean,
-    ) => {
-      el.addEventListener(type, fn as EventListener, opts)
-      this.cleanups.push(() =>
-        el.removeEventListener(type, fn as EventListener, opts),
-      )
-    }
+    // Placed with the other new surfaces in one pass (flushPlaceQueue).
+    if (placeQueue.size === 0) requestAnimationFrame(flushPlaceQueue)
+    placeQueue.add(this)
+    const on = this.listen
     on(this.pad, 'pointerdown', (e: PointerEvent) =>
       this.guard(() => this.down(e)),
     )
@@ -519,10 +547,6 @@ export class InkController {
     if (this.env.book?.watch) {
       this.cleanups.push(this.env.book.watch(() => this.dirty()))
     }
-    // The ink scrolls with the page by itself. The tiles near the screen are
-    // chosen again only after a good step of scrolling (or while something
-    // live follows the screen).
-    on(this.scroller, 'scroll', () => this.onScroll(), { passive: true })
     on(
       document,
       'keydown',
@@ -530,10 +554,8 @@ export class InkController {
       true,
     )
     const ro = new ResizeObserver(() => this.dirty())
+    this.resizeWatch = ro
     ro.observe(wrap)
-    // The page moves when the bars above it grow or shrink (a pill opens or
-    // closes): the scroller's size changes then, and the overlay must follow.
-    if (this.scroller !== window) ro.observe(this.scroller as HTMLElement)
     const editorEl = this.env.editorEl()
     if (editorEl) ro.observe(editorEl)
     this.cleanups.push(() => ro.disconnect())
@@ -698,14 +720,47 @@ export class InkController {
       strokes: this.strokeTotal(),
       layers: this.env.doc.layers.length,
       chosenLayer: this.env.doc.chosenLayer,
-      lastTap: this.lastTap ? Date.now() - this.lastTap.at : null,
+      lastTap: this.lastTap
+        ? Math.round(performance.now() - this.lastTap.at)
+        : null,
       fingerTap: this.fingerTap?.id ?? null,
       taps: { ...this.taps },
       cancels: { ...this.cancels },
     }
   }
 
+  /** Adds a listener that destroy() removes. */
+  private listen = (
+    el: EventTarget,
+    type: string,
+    fn: (e: never) => void,
+    opts?: AddEventListenerOptions | boolean,
+  ) => {
+    el.addEventListener(type, fn as EventListener, opts)
+    this.cleanups.push(() =>
+      el.removeEventListener(type, fn as EventListener, opts),
+    )
+  }
+
+  /** The scroller around the page (read in the shared pass, flushPlaceQueue). */
+  findScroller(): HTMLElement | Window {
+    return scrollParent(this.env.wrap)
+  }
+
+  /** Listens to the scroller found by findScroller (once, in the shared pass). */
+  attachScroller(scroller: HTMLElement | Window): void {
+    this.scroller = scroller
+    // The ink scrolls with the page by itself. The tiles near the screen are
+    // chosen again only after a good step of scrolling (or while something
+    // live follows the screen).
+    this.listen(scroller, 'scroll', () => this.onScroll(), { passive: true })
+    // The page moves when the bars above it grow or shrink (a pill opens or
+    // closes): the scroller's size changes then, and the overlay must follow.
+    if (scroller !== window) this.resizeWatch?.observe(scroller as HTMLElement)
+  }
+
   destroy(): void {
+    placeQueue.delete(this)
     liveInk.delete(this)
     releaseOwner(this)
     cancelAnimationFrame(this.raf)
@@ -763,6 +818,11 @@ export class InkController {
   /** Tells the pad what to catch for the tool now selected. */
   syncPad(): void {
     const tool = this.env.tool()
+    // B11: a tool change ends a draw or erase the new tool does not own (its
+    // lift may never come: Scribble took it). Real writing is kept, a stray
+    // touch is dropped; nothing of the old gesture can go on in another tool.
+    if (this.gesture && !this.toolOwns(this.gesture.kind, tool))
+      this.resetGestures('toolchange')
     const on =
       (tool === 'pen' ||
         tool === 'highlighter' ||
@@ -776,6 +836,22 @@ export class InkController {
       tool === 'lasso' ? this.fingerLassos() : this.fingerCanDraw()
     this.pad.style.touchAction = fingerOwns ? 'none' : 'pan-x pan-y pinch-zoom'
     this.requestDraw()
+  }
+
+  /** Does this tool own a gesture of this kind (draw: pens; erase: eraser)? */
+  private toolOwns(kind: Gesture['kind'], tool: string): boolean {
+    if (kind === 'draw') return tool === 'pen' || tool === 'highlighter'
+    if (kind === 'erase') return tool === 'eraser'
+    return true
+  }
+
+  /**
+   * B11: a Pencil that hovers (no button, no pressure) is not drawing. After a
+   * lost lift (Scribble) the hover moves still reach a captured pad: they end
+   * the stroke, they are never its points.
+   */
+  private hoverEnds(e: PointerEvent): boolean {
+    return e.pointerType === 'pen' && e.buttons === 0 && e.pressure === 0
   }
 
   fingerCanDraw(): boolean {
@@ -808,6 +884,34 @@ export class InkController {
     if (this.env.growRoom === false) return
     const { doc, wrap } = this.env
     const tool = this.env.tool()
+    // C33 (owner 18 Nov, textbox.v2): the page's first box on paper is as tall
+    // as its text, with a tool on or not. Why: the ink room (a screenful) made
+    // an empty first box (and its frame) 3 lines or more tall on the iPad.
+    const onPaper =
+      isOn('textbox.v2') && !!wrap.closest('[data-paper-box="main"]')
+    // #65 (owner 24 Nov): ink never changes the shape of a box on paper. The
+    // old rule (lowest stroke + 240 px) made the first box grow to wherever
+    // the Pencil went, and it stayed tall after a reload.
+    // Old pages may hold strokes below the text: their room stays, up to the
+    // lowest SAVED stroke (no extra, nothing from a stroke being drawn; a new
+    // stroke stops at the box border, see world()), so they are not hidden.
+    if (onPaper) {
+      const key = `${doc.version}|${this.layout.version}|paper`
+      if (key === this.roomKey) return
+      this.roomKey = key
+      let low = 0
+      for (const p of doc.all()) {
+        const r = strokeRect(p.stroke, this.layout.frame(p.blockId))
+        if (r) low = Math.max(low, r.y + r.h)
+      }
+      // Only ink that lies clearly below the box's own height keeps room: a
+      // stroke stopped at the border (and its pen width) must not make it grow.
+      wrap.style.minHeight = ''
+      const own = wrap.getBoundingClientRect().height
+      wrap.style.minHeight =
+        low > own + OLD_INK_MARGIN ? `${Math.ceil(low)}px` : ''
+      return
+    }
     const inking =
       tool === 'pen' ||
       tool === 'highlighter' ||
@@ -829,7 +933,10 @@ export class InkController {
       this.scroller === window
         ? window.innerHeight
         : (this.scroller as HTMLElement).clientHeight
-    const want = Math.max(scrollerH, bottom > 0 ? bottom + 240 : 0)
+    const want = Math.max(
+      onPaper ? 0 : scrollerH,
+      bottom > 0 ? bottom + 240 : 0,
+    )
     const have = parseFloat(wrap.style.minHeight) || 0
     if (Math.abs(want - have) > 8)
       wrap.style.minHeight = `${Math.round(want)}px`
@@ -927,7 +1034,11 @@ export class InkController {
    * numbers; the overlay is zoomed back so its units are screen px.
    */
   private placeOverlay(): void {
-    this.placeDirty = false
+    this.applyPlace(this.measurePlace())
+  }
+
+  /** The read half of placeOverlay (no style writes). */
+  measurePlace(): OverlayPlace {
     const { wrap } = this.env
     const wr = wrap.getBoundingClientRect()
     const ar = this.anchor.getBoundingClientRect()
@@ -944,15 +1055,21 @@ export class InkController {
     if (Math.abs(zoom - 1) < 0.004) zoom = 1
     const left = Math.round((wr.left - ar.left) * 100) / 100
     const top = Math.round((wr.top - ar.top) * 100) / 100
-    const key = `${left}|${top}|${Math.round(wr.width * 100)}|${Math.round(wr.height * 100)}|${zoom}`
+    return { left, top, width: wr.width, height: wr.height, zoom }
+  }
+
+  /** The write half of placeOverlay (no layout reads). */
+  applyPlace({ left, top, width, height, zoom }: OverlayPlace): void {
+    this.placeDirty = false
+    const key = `${left}|${top}|${Math.round(width * 100)}|${Math.round(height * 100)}|${zoom}`
     if (key === this.placed) return
     this.placed = key
     const st = this.overlay.style
     st.zoom = zoom === 1 ? '' : String(1 / zoom)
     st.left = `${left}px`
     st.top = `${top}px`
-    st.width = `${wr.width}px`
-    st.height = `${wr.height}px`
+    st.width = `${width}px`
+    st.height = `${height}px`
   }
 
   private redraw(): void {
@@ -1024,6 +1141,7 @@ export class InkController {
     r.clearLive()
     const g = this.gesture
     const target = r.liveTarget()
+    target.night = this.env.night()
     if (g?.kind === 'draw') {
       const stroke = this.liveStroke(g)
       if (stroke) {
@@ -1158,6 +1276,18 @@ export class InkController {
     return { x: e.clientX - b.left, y: e.clientY - b.top }
   }
 
+  /**
+   * #64/#65: in a box on paper the ink stops at the box's bottom border (the
+   * Pencil may go on past it, the ink does not). Its y in page px, or null
+   * where nothing stops it. Only the drawing path asks; the eraser, the
+   * hover ring and the selection handles use the plain pointer.
+   */
+  private inkBottom(): number | null {
+    const { wrap } = this.env
+    if (!isOn('textbox.v2') || !wrap.closest('[data-paper-box]')) return null
+    return wrap.getBoundingClientRect().height
+  }
+
   private scaled(e: PointerEvent): number {
     if (e.pointerType !== 'pen') return 0.5
     const raw = e.pressure
@@ -1180,6 +1310,7 @@ export class InkController {
     }
     const tool = this.env.tool()
     e.preventDefault()
+    this.leaveField()
     try {
       this.pad.setPointerCapture(e.pointerId)
     } catch {
@@ -1195,7 +1326,7 @@ export class InkController {
         path: [],
         del: new Map(),
         add: new Map(),
-        live: [],
+        words: null,
       }
       this.eraseTo(w)
       return
@@ -1226,11 +1357,26 @@ export class InkController {
         tool === 'pen' ? penSettings.get().drawAs : 'free',
       ),
       frame: { blockId },
+      cut: false,
     }
     this.gesture = g
     this.addPoint(g, e, frame)
     this.armHold(g)
     this.requestDraw()
+  }
+
+  /**
+   * A stroke or a lasso starts while a text field (a new page's title) still
+   * has the focus: let it go first. Why (PR-3): the press does not move the
+   * focus (the pad sits in a user-select: none layer and cannot take it), so
+   * the browser keeps the field's caret and scrolls the page back to it, to
+   * the top, as the press starts.
+   */
+  private leaveField(): void {
+    const a = this.pad.ownerDocument.activeElement
+    const field =
+      a instanceof HTMLInputElement || a instanceof HTMLTextAreaElement
+    if (field && !this.env.wrap.contains(a)) a.blur()
   }
 
   lockedMessage = 'Unlock a layer to draw'
@@ -1272,10 +1418,19 @@ export class InkController {
     frame: { x: number; y: number; w: number },
   ): void {
     // A pen that began at a ruler edge slides along it.
+    if (g.cut) return
     const raw = this.world(e)
-    const w = g.edge ? projectOnEdge(raw, g.edge) : raw
+    let w = g.edge ? projectOnEdge(raw, g.edge) : raw
     const last = g.world[g.world.length - 1]
-    if (last && dist(last, w) < MIN_MOVE) return
+    const floor = this.inkBottom()
+    if (floor !== null && w.y > floor) {
+      // Past the border: the stroke ends where it crossed it, nothing is
+      // drawn along the border or outside the box.
+      g.cut = true
+      if (!last || last.y >= floor) return
+      const f = (floor - last.y) / (w.y - last.y)
+      w = { x: last.x + (w.x - last.x) * f, y: floor }
+    } else if (last && dist(last, w) < MIN_MOVE) return
     g.world.push(w)
     const l = toLocal(w, frame)
     g.pts.push({
@@ -1316,11 +1471,20 @@ export class InkController {
       return
     }
     if (g.id !== e.pointerId) return
+    if (!this.toolOwns(g.kind, this.env.tool())) return this.cancelGesture()
+    if ((g.kind === 'draw' || g.kind === 'erase') && this.hoverEnds(e)) {
+      this.cancel(e)
+      if (this.gesture === g) this.cancelGesture()
+      return
+    }
     if (g.kind === 'draw') {
       if (g.dragAs !== 'free') {
         // A chosen shape (or tape): the two corners are where the drag began
         // and where it is now; the shape follows the pen.
-        const now = this.world(e)
+        const raw = this.world(e)
+        const floor = this.inkBottom()
+        const now =
+          floor === null ? raw : { x: raw.x, y: Math.min(raw.y, floor) }
         g.shape = shapeFromDrag(
           g.dragAs === 'tape' ? 'rect' : g.dragAs,
           g.origin,
@@ -1338,8 +1502,11 @@ export class InkController {
         this.addPoint(g, c, frame)
       // Predicted points are drawn for the moment only, never saved.
       g.predicted = []
+      const floor = this.inkBottom()
       for (const p of e.getPredictedEvents?.() ?? []) {
-        const l = toLocal(this.world(p), frame)
+        const at = this.world(p)
+        if (g.cut || (floor !== null && at.y > floor)) continue
+        const l = toLocal(at, frame)
         g.predicted.push({
           x: l.x,
           y: l.y,
@@ -1368,6 +1535,13 @@ export class InkController {
     if (!g || g.id !== e.pointerId || g.kind === 'lasso') return
     if (g.kind === 'transform') return
     this.gesture = null
+    if (!this.toolOwns(g.kind, this.env.tool())) {
+      // The tool changed under the gesture: no ink, no erase (B11).
+      if (g.kind === 'draw') clearTimeout(g.holdTimer)
+      if (g.kind === 'erase') this.finishErase(g)
+      this.requestDraw()
+      return
+    }
     if (g.kind === 'draw') {
       clearTimeout(g.holdTimer)
       if (!this.peelTape(g)) this.finishDraw(g, e.timeStamp - g.t0)
@@ -1537,8 +1711,10 @@ export class InkController {
     if (!first) return true
     const travel = travelOf(g.world)
     // The double-tap window runs from the first stroke's end to the second's start.
-    const began = { at: Date.now() - ms, x: first.x, y: first.y }
-    const now = { at: Date.now(), x: first.x, y: first.y }
+    // C14: by the events' own time stamps (g.t0 is the press's), not by when
+    // this ran: a busy page must not stretch the gap between two taps.
+    const began = { at: g.t0, x: first.x, y: first.y }
+    const now = { at: g.t0 + ms, x: first.x, y: first.y }
     if (isShort(ms, travel) && isDoubleTap(this.lastTap, began)) {
       this.takeBackTap()
       this.lastTap = null
@@ -1817,7 +1993,7 @@ export class InkController {
       path: [],
       del: new Map(),
       add: new Map(),
-      live: [],
+      words: null,
     }
     this.eraseTo(w)
     this.requestDraw()
@@ -1850,23 +2026,26 @@ export class InkController {
     const hit = boundsOf([from, w])
     const area = inflate(hit, radius + 4)
     // The eraser only touches the active layer.
-    // Highlights on the words go as the Pencil rubs them (put back at the end).
-    if (settings.highlightsOnly) {
+    // Highlights and typed words go as the Pencil rubs them (2A.8, T10): the
+    // letters are measured once, the page changes once per frame.
+    const scope = eraseScope(settings, isOn('toolbar.v8'))
+    if (scope.hlWords || scope.text) {
       const root = this.env.editorEl()
       if (root) {
-        const box = this.env.wrap.getBoundingClientRect()
-        g.live.push(
-          ...eraseHighlightsLive(
-            this.env.editor,
-            textRunsUnder(root, box, [from, w], radius, true),
-          ),
+        g.words ??= new WordEraseSession(
+          this.env.editor as never,
+          root,
+          this.env.wrap.getBoundingClientRect(),
+          { hl: scope.hlWords, text: scope.text },
         )
+        g.words.move(from, w, radius)
       }
     }
     const active = eraserLayer(this.env.doc.layers, this.env.doc.chosenLayer)
     for (const p of this.selectable()) {
       if (active && p.layerId !== active.id) continue
-      if (settings.highlightsOnly && p.stroke.kind !== 'highlight') continue
+      if (!scope.penInk && p.stroke.kind !== 'highlight') continue
+      if (!scope.hlInk && p.stroke.kind === 'highlight') continue
       const frame = this.layout.frame(p.blockId)
       const r = strokeRect(p.stroke, frame)
       if (!r || !intersects(r, area)) continue
@@ -1882,24 +2061,13 @@ export class InkController {
   }
 
   private finishErase(g: Extract<Gesture, { kind: 'erase' }>): void {
-    restoreHighlights(this.env.editor, g.live)
     const edit: Edit = {
       del: [...g.del.values()],
       add: [...g.add.values()],
       layers: [],
     }
     this.commit(edit, true)
-    if (eraserSettings.get().highlightsOnly && g.path.length > 0) {
-      const root = this.env.editorEl()
-      if (root) {
-        const box = this.env.wrap.getBoundingClientRect()
-        const radius = ERASER_SIZES[eraserSettings.get().size] / 2
-        clearHighlightRuns(
-          this.env.editor,
-          textRunsUnder(root, box, g.path, radius, true),
-        )
-      }
-    }
+    g.words?.finish()
   }
 
   // ---- Lasso ----
@@ -2003,6 +2171,7 @@ export class InkController {
     doc.getSelection()?.removeAllRanges()
     const a = doc.activeElement as HTMLElement | null
     if (a && a.isContentEditable) a.blur()
+    this.leaveField()
   }
 
   private lassoDownInner(e: PointerEvent): void {
@@ -2216,9 +2385,15 @@ export class InkController {
         ? this.wordsInRegion(region)
         : null
     // Lines taken in whole (most of the line, or every word, inside).
+    // C5 (switch textbox.v2): a text box's lines are one block, so "most of
+    // the block's middle row inside" took a loop round "① → 6" as the whole
+    // box. A block counts as whole only when every word and symbol is inside.
+    const strict = isOn('textbox.v2')
     const wholeLines =
       !words ||
-      words.blocks.every((id) => blocks.includes(id) || words.full.includes(id))
+      words.blocks.every(
+        (id) => words.full.includes(id) || (!strict && blocks.includes(id)),
+      )
     if (found.length > 0) {
       this.select(found.map((p) => p.stroke.id))
       // Ink and words or pictures in one loop: the mixed menu.
@@ -3096,6 +3271,28 @@ export class InkController {
       },
     }
     return { layerId: p.layerId, blockId, stroke }
+  }
+
+  /**
+   * The selection bar's Resize, Rotate and Move (toolbar.v8, TB-33): the
+   * picked drawings change by one step, about the middle of the selection.
+   * One Undo step each; the drawings stay picked.
+   */
+  transformSelectionBy(step: {
+    scale?: number
+    turn?: number
+    dx?: number
+    dy?: number
+  }): void {
+    const box = this.selectionRect()
+    const before = this.selected()
+    if (!box || before.length === 0) return
+    const scale = Math.max(0.1, Math.min(10, step.scale ?? 1))
+    const centre = { x: box.x + box.w / 2, y: box.y + box.h / 2 }
+    const m = around(centre, scale, step.turn ?? 0, step.dx ?? 0, step.dy ?? 0)
+    const add = before.map((p) => this.transformed(p, m, scale))
+    this.commit({ del: before, add, layers: [] })
+    this.select(add.map((p) => p.stroke.id))
   }
 
   // ---- Undo and Redo (one history with the text) ----

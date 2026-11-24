@@ -8,11 +8,26 @@ import type { UpdateReason } from './updateLevel'
  */
 export type MandatoryState =
   | { phase: 'countdown'; left: number }
-  | { phase: 'downloading'; loaded: number; total: number; etaS?: number }
+  | {
+      phase: 'downloading'
+      loaded: number
+      total: number
+      /** update.v2: seconds left as a step (updateSpeed.STEPS); unknown at first. */
+      etaS?: number
+      /** update.v2: true only after 8 s in a row under 50 KB/s. */
+      slow?: boolean
+      /** update.v2: bytes a second over the last 5 s. */
+      bps?: number
+    }
   | { phase: 'paused' }
   | { phase: 'installing' }
   /** update.v2 only: no network, waiting. The app stays usable. */
   | { phase: 'offline' }
+  /**
+   * update.v2: after "Not now" on the failed screen. The app is usable; a
+   * small pill offers Try again (picture P1-3, panel 5).
+   */
+  | { phase: 'waiting' }
   | { phase: 'failed'; reason: 'download' | 'unsaved' | 'install' }
 
 /** What the screen needs besides the phase (update.v2 sets v2). */
@@ -23,6 +38,13 @@ export const mandatoryMeta = memStore<{ v2: boolean; reason: UpdateReason }>({
 
 /** null = no required update (the normal pill handles updates). */
 export const mandatoryUpdate = memStore<MandatoryState | null>(null)
+
+/** Which step failed and how long it waited (shown on the preview host only). */
+export interface MandatoryFailure {
+  what: 'download' | 'restart'
+  waitedMs: number
+}
+export const mandatoryFailure = memStore<MandatoryFailure | null>(null)
 
 /** The stacking class of the must-have update screens (above everything). */
 export const MANDATORY_TOP = 'z-[2147483000]'

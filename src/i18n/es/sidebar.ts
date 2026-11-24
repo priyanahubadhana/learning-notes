@@ -131,6 +131,7 @@ export const esSidebar = {
   'sidebar.group.quick': 'Acceso rápido',
   'sidebar.group.study': 'Estudio',
   'sidebar.groups': 'Grupos de la barra lateral',
+  'sidebar.closeList': 'Cerrar la lista',
   'sidebar.label': 'Barra lateral',
   'sidebar.newNotebook.title': 'Cuaderno nuevo',
   'sidebar.notebooks': 'Cuadernos',
@@ -145,7 +146,9 @@ export const esSidebar = {
   'space.home.soon':
     'Tu día vivirá aquí: prioridades, tareas y un temporizador de enfoque. Por ahora, abre el diario de hoy.',
   'space.home.title': 'Hoy',
+  'space.home.side': 'Tu día está en el tablero de Inicio.',
   'space.home.today': 'Abrir el diario de hoy ({date})',
+  'space.home.todayShort': 'Abrir el diario de hoy',
   'space.library': 'Biblioteca',
   'space.library.import': 'Importar',
   'space.library.importSoon': 'Importar libros llegará con la Biblioteca.',
@@ -222,4 +225,7 @@ export const esSidebar = {
   'tree.moveTop': 'Mover al nivel superior',
   'tree.moveUp': 'Subir',
   'tree.moved': 'Página movida.',
+  'journal.tidiedTwo': 'Diario ordenado: dos páginas de {month} unidas',
+  'journal.tidiedMany': 'Diario ordenado: {count} páginas de {month} unidas',
+  'journal.tidiedMonths': 'Diario ordenado: páginas de {count} meses unidas',
 }

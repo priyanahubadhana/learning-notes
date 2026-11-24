@@ -6,7 +6,12 @@ export const enSettings = {
   'about.failed': 'Could not check. Are you offline?',
   'about.lastChecked': 'Last checked for updates: {time}',
   'about.neverChecked': 'Not checked for updates yet.',
-  'about.ready': 'Update ready. Use the Update button at the top.',
+  'about.ready': 'Update ready. Tap Update in the notice at the top.',
+  'about.readyAuto': 'Updating… the app restarts by itself.',
+  'about.readyWait':
+    'Update ready. It installs by itself when you pause. Or tap Update below.',
+  'about.readyClosed': 'Update ready. Tap Update below to restart into it.',
+  'about.updateNow': 'Update',
   'about.title': 'About this app',
   'about.version': 'Version {commit}, built {date}',
   'color.blue': 'Blue',
@@ -56,6 +61,14 @@ export const enSettings = {
   'font.sample': 'Try your own words',
   'font.tooBig': 'This font file is too big (the limit is 10 MB).',
   'keys.backspace': 'Backspace',
+  'keys.close': 'Close the mini keyboard',
+  'keys.errNetwork':
+    'Speaking needs the internet and it is not reachable. Use the keyboard’s mic.',
+  'keys.errNoMic': 'No microphone was found. Use the keyboard’s mic.',
+  'keys.errLanguage':
+    'This language cannot be dictated here. Use the keyboard’s mic.',
+  'keys.errOther':
+    'Speaking stopped and could not restart. Use the keyboard’s mic.',
   'keys.denied':
     'The microphone is not allowed. Allow it in the browser settings, or use the keyboard microphone.',
   'keys.enter': 'New line',

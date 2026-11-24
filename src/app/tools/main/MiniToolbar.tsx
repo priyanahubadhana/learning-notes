@@ -20,7 +20,7 @@ import { runEditorCommand } from '../editorCommands'
 import { Icon, type IconName } from '../icons'
 import { runTool } from '../toolRegistry'
 import { CHROME_SELECTOR } from '../../penTap'
-import { tapSelected } from '../../../editor/tapSelect'
+import { handleTapped, tapSelected } from '../../../editor/tapSelect'
 import { currentRunner } from '../toolRuntime'
 import { highlightChoice, textColourChoice } from './pillChoices'
 import { miniToolbarOpen, openCard, openPillTool } from './mainTools'
@@ -36,6 +36,8 @@ import {
 import { NOTE_SIZES, applyNoteStyle, noteSize } from './textStyle'
 import { ALIGNS, alignOf, setAlign, setList } from './textOps'
 import { useEditorRedraw } from './useEditorRedraw'
+import { onRouted } from '../../input/eventRouter'
+import { placeBar, type Rect } from './miniBarPlace'
 
 /**
  * The mini toolbar: a small bar that floats near a selection made by a
@@ -49,6 +51,9 @@ interface Spot {
   left: number
   top: number
   below: boolean
+  /** The top of the first line and the bottom of the last (the words' own box). */
+  lineTop: number
+  lineBottom: number
   start: { x: number; y: number }
   end: { x: number; y: number }
 }
@@ -72,6 +77,8 @@ function spotOf(editor: Editor): Spot | null {
       ),
       top: edge(above < 8 ? b.bottom + 28 : above),
       below: above < 8,
+      lineTop: a.top,
+      lineBottom: b.bottom,
       // iOS style: the start handle above-left of the first letter, the end
       // handle below-right of the last.
       start: { x: a.left, y: a.top },
@@ -80,6 +87,34 @@ function spotOf(editor: Editor): Spot | null {
   } catch {
     return null
   }
+}
+
+/** The text lines of the page (every editor on it), as screen rectangles. */
+function textLines(editor: Editor): Rect[] {
+  const doc = editor.domElement?.ownerDocument
+  if (!doc) return []
+  const out: Rect[] = []
+  const range = doc.createRange()
+  for (const root of doc.querySelectorAll('.ProseMirror')) {
+    const walker = doc.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+    for (
+      let n = walker.nextNode();
+      n && out.length < 600;
+      n = walker.nextNode()
+    ) {
+      if (!(n.textContent ?? '').trim()) continue
+      range.selectNodeContents(n)
+      for (const r of range.getClientRects())
+        if (r.width > 0 && r.height > 0)
+          out.push({
+            left: r.left,
+            top: r.top,
+            right: r.right,
+            bottom: r.bottom,
+          })
+    }
+  }
+  return out
 }
 
 export function MiniToolbar({ editor }: { editor: Editor }) {
@@ -113,41 +148,84 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
     doc: unknown
     text: string
   } | null>(null)
-  const anchor = useRef<{ left: number; top: number } | null>(null)
+  const anchor = useRef<{
+    left: number
+    lineTop: number
+    lineBottom: number
+  } | null>(null)
   // The handles always follow the words; the bar moves only for a new
   // selection, or when its target has scrolled off the screen (R5-7).
-  const measure = useCallback(() => {
-    const s = spotOf(editor)
-    const v = editor.prosemirrorView
-    if (!s || !v) return setSpot(null)
-    const sel = v.state.selection
-    const now = {
-      from: sel.from,
-      to: sel.to,
-      doc: v.state.doc as unknown,
-      text: v.state.doc.textBetween(sel.from, sel.to, ' '),
-    }
-    const fresh = isNewSelection(placed.current, now)
-    placed.current = now
-    const off = s.start.y < 0 || s.start.y > window.innerHeight
-    if (fresh || off || !anchor.current) {
-      anchor.current = { left: s.left, top: s.top }
-      if (fresh) setDragPos(null)
-    }
-    setSpot({ ...s, ...anchor.current })
-  }, [editor])
+  const measure = useCallback(
+    (replace?: unknown) => {
+      const s = spotOf(editor)
+      const v = editor.prosemirrorView
+      if (!s || !v) return setSpot(null)
+      const sel = v.state.selection
+      const now = {
+        from: sel.from,
+        to: sel.to,
+        doc: v.state.doc as unknown,
+        text: v.state.doc.textBetween(sel.from, sel.to, ' '),
+      }
+      const fresh = isNewSelection(placed.current, now)
+      placed.current = now
+      const off = s.start.y < 0 || s.start.y > window.innerHeight
+      // A turn or the keyboard reflows the page: the bar comes back next to its
+      // words, so it is where it was when the screen is back (BUG-002).
+      if (fresh || off || replace === 'resize' || !anchor.current) {
+        anchor.current = {
+          left: s.left,
+          lineTop: s.lineTop,
+          lineBottom: s.lineBottom,
+        }
+        if (fresh) setDragPos(null)
+      }
+      setSpot({ ...s, ...anchor.current })
+    },
+    [editor],
+  )
   useLayoutEffect(() => {
     if (open && hasSelection) measure()
   }, [open, hasSelection, measure, view?.state.selection])
   useEffect(() => {
     if (!open) return
     document.addEventListener('scroll', measure, true)
-    window.addEventListener('resize', measure)
-    return () => {
-      document.removeEventListener('scroll', measure, true)
-      window.removeEventListener('resize', measure)
+    // Why: after a turn WebKit keeps moving the page for a few hundred ms with
+    // no resize or scroll event (the kept bar room shrinks), so the bar kept
+    // the place for the old layout and covered its words (BUG-002 turn test,
+    // ipad-webkit). A bar already placed follows its words every frame until
+    // they have kept still for 500 ms (at most 4 s): a slow iPad settles later
+    // than the fixed 1 s used before, which left the bar over its words (CI run
+    // 44514113315, miniBarBounds BUG-002 1180x820).
+    let frame = 0
+    const resized = () => {
+      cancelAnimationFrame(frame)
+      measure('resize')
+      if (!anchor.current) return
+      const start = performance.now()
+      let still = start
+      let last = ''
+      const follow = () => {
+        measure('resize')
+        const s = spotOf(editor)
+        const key = s ? `${s.left},${s.lineTop},${s.lineBottom}` : ''
+        const now = performance.now()
+        if (key !== last) {
+          last = key
+          still = now
+        }
+        if (now - still < 500 && now - start < 4000)
+          frame = requestAnimationFrame(follow)
+      }
+      frame = requestAnimationFrame(follow)
     }
-  }, [open, measure])
+    const stopResize = onRouted('resize', resized, { name: 'miniToolbar' })
+    return () => {
+      cancelAnimationFrame(frame)
+      document.removeEventListener('scroll', measure, true)
+      stopResize()
+    }
+  }, [open, measure, editor])
   // A tap on the page away from the selection, or Esc, dismisses it (the
   // selection otherwise stays until the person acts). A tap that is part of
   // making the selection (a triple or quadruple tap) says so (tapSelect.ts).
@@ -405,8 +483,19 @@ export function MiniToolbar({ editor }: { editor: Editor }) {
 
   const area = pageArea()
   const size = measured
+  // Above the words by the bar's own measured height (two rows are taller
+  // than one), else below them: it never covers the words it formats.
+  // F7 (owner 18 Nov): never over any text line of the page, never past the frame.
+  const wanted = placeBar({
+    centre: spot.left,
+    size,
+    area,
+    lines: textLines(editor),
+    lineTop: spot.lineTop,
+    lineBottom: spot.lineBottom,
+  })
   const at: FreePos = clampInArea(
-    (pinned && savedPos) || dragPos || { left: spot.left, top: spot.top },
+    (pinned && savedPos) || dragPos || wanted,
     size,
     area,
   )
@@ -593,6 +682,8 @@ function Handle({
         onPointerDown={(e) => {
           e.preventDefault()
           e.stopPropagation()
+          // Sweep 2B: the next tap of a run on the words, not a drag.
+          if (handleTapped(e.nativeEvent)) return
           dragging.current = true
           const at0 = edge()
           grab.current = at0

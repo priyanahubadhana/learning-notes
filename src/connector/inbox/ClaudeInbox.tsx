@@ -1,6 +1,7 @@
-import { useContext, useEffect, useState } from 'react'
+import { lazy, Suspense, useContext, useEffect, useState } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { AppUiContext } from '../../app/appUi'
+import { useFlag } from '../../app/flags'
 import type { LearningNotesDB } from '../../core/db'
 import { isLive } from '../../core/records'
 import type { ClaudeInboxItem } from '../../core/types'
@@ -17,6 +18,11 @@ import {
  * here with a diff: green = new, the old text struck through = replaced. Accept
  * or Reject; neither deletes anything.
  */
+
+// A whole job from Claude (flag ai.framework): loaded only when one is there.
+const JobItem = lazy(() =>
+  import('./JobItem').then((m) => ({ default: m.JobItem })),
+)
 
 const button =
   'min-h-11 rounded-lg border border-line px-4 text-sm font-medium hover:bg-hover disabled:opacity-50'
@@ -191,13 +197,16 @@ function Item({ db, item }: { db: LearningNotesDB; item: ClaudeInboxItem }) {
 }
 
 export function ClaudeInbox({ db }: { db: LearningNotesDB }) {
-  const items = useLiveQuery(
+  const framework = useFlag('ai.framework')
+  const all = useLiveQuery(
     async () =>
       (await db.claudeInbox.toArray())
         .filter(isLive)
         .sort((a, b) => b.createdAt - a.createdAt),
     [db],
   )
+  // Job items belong to the flag: with it off they are not shown.
+  const items = all?.filter((i) => framework || !i.job)
   const pending = (items ?? []).filter((i) => i.status === 'pending')
   const decided = (items ?? [])
     .filter((i) => i.status !== 'pending')
@@ -218,9 +227,15 @@ export function ClaudeInbox({ db }: { db: LearningNotesDB }) {
         </p>
       )}
       <ul className="flex flex-col gap-3">
-        {pending.map((i) => (
-          <Item key={i.id} db={db} item={i} />
-        ))}
+        {pending.map((i) =>
+          i.job ? (
+            <Suspense key={i.id} fallback={null}>
+              <JobItem db={db} item={i} />
+            </Suspense>
+          ) : (
+            <Item key={i.id} db={db} item={i} />
+          ),
+        )}
       </ul>
       {decided.length > 0 && (
         <details>
@@ -230,7 +245,12 @@ export function ClaudeInbox({ db }: { db: LearningNotesDB }) {
           <ul className="flex flex-col gap-1 text-sm text-muted">
             {decided.map((i) => (
               <li key={i.id}>
-                {t('claude.inbox.item', { page: i.pageTitle })},{' '}
+                {i.job
+                  ? t('aifw.inbox.job.decidedItem', {
+                      goal: i.job.job.plan.goal,
+                    })
+                  : t('claude.inbox.item', { page: i.pageTitle })}
+                ,{' '}
                 {t(
                   i.status === 'accepted'
                     ? 'claude.inbox.status.accepted'

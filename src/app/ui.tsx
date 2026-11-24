@@ -8,15 +8,19 @@ import {
   useState,
   type ComponentProps,
 } from 'react'
+import { Undo2 } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { usePopup } from './popups'
 import { PopupHeader } from './tools/PopupClose'
 import { t } from '../i18n/t'
 import { touchUi } from './touchUi'
 import { useKeyboardInset } from '../settings/deviceModeSettings'
+import { useKeyName } from './keyNames'
 import type { ChoiceRequest, ToastAction } from './appUi'
+import { aboveTabBar } from './aboveTabBar'
 import { toastBottom } from './toastTiming'
 import { Glyph, Icon } from './tools/icons'
+import { placeClear, type Frame, type Rect } from './menuPlace'
 
 /** Small UI building blocks shared across features. */
 
@@ -196,6 +200,8 @@ export interface MenuItem {
   danger?: boolean
   /** Red but kept where it was put, not moved to the end. */
   inPlace?: boolean
+  /** A small colour dot before the label (a colour choice). */
+  swatch?: string
 }
 
 /**
@@ -209,9 +215,15 @@ export function MenuPopover({
   label,
   opener,
   onDone,
+  keepClear,
+  within,
 }: {
   anchor: DOMRect
   items: MenuItem[]
+  /** C23: the menu never covers this (a box and its bar). */
+  keepClear?: Rect | Rect[]
+  /** C23: the menu never crosses these edges (a page frame or a panel). */
+  within?: Frame
   onClose: () => void
   /** Accessible name of the list (a submenu is named after its item). */
   label?: string
@@ -221,6 +233,7 @@ export function MenuPopover({
   onDone?: () => void
 }) {
   const ref = useRef<HTMLDivElement>(null)
+  const keyName = useKeyName()
   const nested = !!opener
   const top = nested
     ? Math.max(8, Math.min(anchor.top, window.innerHeight - 260))
@@ -243,7 +256,16 @@ export function MenuPopover({
     const ox = vv?.offsetLeft ?? 0
     const oy = vv?.offsetTop ?? 0
     const room = vh - 16
-    const h = Math.min(el.scrollHeight, room)
+    // The card's own height, as if nothing scrolled (the rows scroll inside it).
+    const natural = [...el.children].reduce(
+      (n, c) =>
+        n +
+        (c.hasAttribute('data-menu-rows')
+          ? c.scrollHeight
+          : (c as HTMLElement).offsetHeight),
+      8,
+    )
+    const h = Math.min(natural, room)
     const w = el.offsetWidth
     let y: number
     if (nested) y = anchor.top
@@ -251,13 +273,36 @@ export function MenuPopover({
     else if (anchor.top - 6 - h >= oy + 8) y = anchor.top - 6 - h
     else y = oy + vh - h - 8
     y = Math.max(oy + 8, Math.min(y, oy + vh - h - 8))
-    const x = Math.max(
+    const x0 = Math.max(
       ox + 8,
       Math.min(anchor.left + (nested ? 12 : 0), ox + vw - w - 8),
     )
-    el.style.left = x + 'px'
-    el.style.top = y + 'px'
-    el.style.maxHeight = room + 'px'
+    // A menu opened from the side panel stays on the panel's side of its border.
+    const panel = nested
+      ? null
+      : document
+          .elementFromPoint(
+            anchor.left + anchor.width / 2,
+            anchor.top + anchor.height / 2,
+          )
+          ?.closest('aside')
+    const pr = panel?.getBoundingClientRect()
+    const lim =
+      within ??
+      (pr && pr.width >= w + 16
+        ? { left: pr.left, right: pr.right }
+        : undefined)
+    const spot = placeClear(
+      { w, h, minH: Math.min(h, 220) },
+      { x: x0, y },
+      { left: ox, top: oy, right: ox + vw, bottom: oy + vh },
+      lim,
+      keepClear,
+    )
+    el.style.left = spot.x + 'px'
+    el.style.top = spot.y + 'px'
+    // A little shorter where room is tight (the rows scroll; Delete stays).
+    el.style.maxHeight = (spot.h < h ? spot.h : room) + 'px'
   })
   // Esc gives the focus back to the button that opened the menu.
   const [returnTo] = useState(
@@ -291,6 +336,71 @@ export function MenuPopover({
     return () => document.removeEventListener('keydown', onKey)
   }, [])
 
+  const row = (item: MenuItem) => (
+    <button
+      key={item.label}
+      type="button"
+      role={item.checked !== undefined ? 'menuitemradio' : 'menuitem'}
+      aria-checked={item.checked}
+      aria-haspopup={item.submenu ? 'menu' : undefined}
+      aria-expanded={item.submenu ? sub?.item === item : undefined}
+      disabled={item.disabled}
+      onClick={(e) => {
+        if (item.submenu) {
+          const el = e.currentTarget
+          setSub(
+            sub?.item === item
+              ? null
+              : { item, at: el.getBoundingClientRect(), el },
+          )
+          return
+        }
+        onClose()
+        onDone?.()
+        item.onSelect()
+      }}
+      className={`flex min-h-11 w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none enabled:hover:bg-hover enabled:focus:bg-hover disabled:text-muted ${
+        item.danger ? 'text-danger' : ''
+      }`}
+    >
+      <span
+        aria-hidden
+        className={`w-5 text-center ${item.danger ? 'text-danger' : 'text-muted'}`}
+      >
+        {item.checked !== undefined ? (
+          item.checked ? (
+            <Icon name="check" size={16} />
+          ) : (
+            ''
+          )
+        ) : (
+          <Glyph icon={item.icon} />
+        )}
+      </span>
+      {item.swatch && (
+        <span
+          aria-hidden
+          className="size-3 shrink-0 rounded-full"
+          style={{ background: item.swatch }}
+        />
+      )}
+      <span className="flex-1">
+        {item.label}
+        {item.description && (
+          <span className="block text-xs text-muted">{item.description}</span>
+        )}
+      </span>
+      {keyName(item.hint) && (
+        <span className="text-xs text-muted">{keyName(item.hint)}</span>
+      )}
+      {item.submenu && (
+        <span aria-hidden className="text-muted">
+          ▸
+        </span>
+      )}
+    </button>
+  )
+
   // In the body, not in the sidebar: a scrolling sidebar would hide it behind the page.
   return createPortal(
     <div
@@ -308,71 +418,23 @@ export function MenuPopover({
         top,
         // A long menu scrolls inside the screen instead of running off it.
         maxHeight: window.innerHeight - top - 8,
+        // C25: above every scroll bar.
+        zIndex: 'var(--z-pop)',
       }}
-      className={`fixed z-50 ${nested ? 'w-64' : 'w-52'} glass overflow-y-auto rounded-xl p-1 text-ink`}
+      // Cards are solid (C23 review): nothing under the menu shows through.
+      data-solid
+      className={`fixed ${nested ? 'w-64' : 'w-52'} glass flex flex-col rounded-xl p-1 text-ink`}
     >
       <PopupHeader onClose={onDone ?? onClose} />
-      {/* Destructive items are red and come last. */}
-      {[
-        ...items.filter((i) => !i.danger || i.inPlace),
-        ...items.filter((i) => i.danger && !i.inPlace),
-      ].map((item) => (
-        <button
-          key={item.label}
-          type="button"
-          role={item.checked !== undefined ? 'menuitemradio' : 'menuitem'}
-          aria-checked={item.checked}
-          aria-haspopup={item.submenu ? 'menu' : undefined}
-          aria-expanded={item.submenu ? sub?.item === item : undefined}
-          disabled={item.disabled}
-          onClick={(e) => {
-            if (item.submenu) {
-              const el = e.currentTarget
-              setSub(
-                sub?.item === item
-                  ? null
-                  : { item, at: el.getBoundingClientRect(), el },
-              )
-              return
-            }
-            onClose()
-            onDone?.()
-            item.onSelect()
-          }}
-          className={`flex min-h-11 w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm outline-none enabled:hover:bg-hover enabled:focus:bg-hover disabled:text-muted ${
-            item.danger ? 'text-danger' : ''
-          }`}
-        >
-          <span
-            aria-hidden
-            className={`w-5 text-center ${item.danger ? 'text-danger' : 'text-muted'}`}
-          >
-            {item.checked !== undefined ? (
-              item.checked ? (
-                <Icon name="check" size={16} />
-              ) : (
-                ''
-              )
-            ) : (
-              <Glyph icon={item.icon} />
-            )}
-          </span>
-          <span className="flex-1">
-            {item.label}
-            {item.description && (
-              <span className="block text-xs text-muted">
-                {item.description}
-              </span>
-            )}
-          </span>
-          {item.hint && <span className="text-xs text-muted">{item.hint}</span>}
-          {item.submenu && (
-            <span aria-hidden className="text-muted">
-              ▸
-            </span>
-          )}
-        </button>
-      ))}
+      {/* Destructive items are red and come last, in a footer that never scrolls away (C23). */}
+      <div data-menu-rows className="min-h-0 flex-1 overflow-y-auto">
+        {items.filter((i) => !i.danger || i.inPlace).map(row)}
+      </div>
+      {items.some((i) => i.danger && !i.inPlace) && (
+        <div data-menu-footer>
+          {items.filter((i) => i.danger && !i.inPlace).map(row)}
+        </div>
+      )}
       {sub?.item.submenu &&
         createPortal(
           <MenuPopover
@@ -453,16 +515,22 @@ export function Toast({
       // the pill's height (62 px) under the person's pen.
       data-popup-trigger
       data-toast
-      style={{ bottom: toastBottom(kb) }}
-      className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
+      style={{ bottom: toastBottom(kb) ?? aboveTabBar(24) }}
+      className="fixed bottom-6 left-1/2 z-40 flex max-w-[calc(100vw-32px)] items-center gap-3 rounded-xl border border-line bg-surface-3 px-3.5 py-2 text-[13px] text-ink shadow-[var(--elev-2)]"
     >
       <span>{message}</span>
       {action && (
         <button
           type="button"
           onClick={action.onSelect}
-          className="-my-1 min-h-9 shrink-0 rounded-md px-2.5 font-semibold text-accent underline underline-offset-2 hover:bg-hover"
+          className={
+            '-my-1 min-h-9 shrink-0 rounded-md px-2.5 font-semibold text-accent hover:bg-hover ' +
+            (action.icon
+              ? 'inline-flex items-center gap-1.5'
+              : 'underline underline-offset-2')
+          }
         >
+          {action.icon === 'undo' && <Undo2 size={16} aria-hidden />}
           {action.label}
         </button>
       )}

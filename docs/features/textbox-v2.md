@@ -43,16 +43,16 @@ Beginner and Professional unless marked. **Pro** lines name their unlock switch 
 
 **Select and type (surface group T1)**
 
-- TB-01 When I tap a box with the Text tool → if the box is not selected yet, this first tap selects the whole box (the TB-02 look) and nothing else; a tap in a box that is already selected puts the caret exactly where I tapped (± 1 character), and it does not jump on the next render or keystroke. A Pencil tap never opens the keyboard; a finger tap that places the caret opens it. (owner, 14 Nov)
+- TB-01 When I tap a box with the Text tool → by where the tap lands (owner, 17 Nov, docs/design/owner-decisions.md "First tap in a box"; replaces the 14 Nov rule "the first tap selects the box"): on or near the words (on a written line, up to about 1.75 letters past its last letter) the caret goes there at once (± 1 character, no jump on the next render or keystroke); in the empty part of the box (further from the text, above or below the lines) the box is selected (TB-02 look) and nothing else; in the empty part of a box that is already selected it stays selected, no caret. A Pencil tap never opens the keyboard; a finger tap that places the caret opens it.
 - TB-02 When I tap a box with Select or another non-writing tool → the whole box is selected: solid 1.5 px accent border with 8 dots; no outline or highlight around a single line or block inside. This is the one selection look everywhere, whatever tool or tap selected the box. (owner, 14 Nov)
 - TB-03 When I select a box → any text, ink, picture or table-cell selection elsewhere clears (selection store, one kind at a time).
-- TB-04 When I double-tap a word in a selected box, with the Pencil or a finger → that word is selected; a triple-tap selects the line, four taps the paragraph (`src/editor/tapSelect.ts`). In a box that is not selected, the first tap only selects the box (TB-01) and the count starts with the next tap: there is no shortcut that selects a word in an unselected box. (owner, 14 Nov)
-- TB-05 When I tap the padding or an empty corner inside a box with the Text tool → it counts as a tap on that box: the first tap selects it (TB-01), the next puts the caret at the nearest line; no new box is made on top (B3-4). (owner, 14 Nov)
-- TB-06 When I tap empty paper with the Text tool → a new box with "Type here" and the caret appears there; not if a drag is in progress or ended under 400 ms ago (B3-2). A tap beside or below an existing box makes the new box in its own row under that box, never beside it; columns are made by dragging a box beside another (TB-13). With the Pencil the keyboard stays down; with a finger it opens. (owner, 14 Nov)
+- TB-04 When I double-tap a word in a selected box, with the Pencil or a finger → that word is selected; a triple-tap selects the line, four taps the paragraph (`src/editor/tapSelect.ts`). In a box that was not active, the first tap only puts the caret or selects the box (TB-01) and the count starts with the next tap: there is no shortcut that selects a word in an unselected box. (owner, 14 Nov)
+- TB-05 When I tap the padding or an empty corner inside a box with the Text tool → it counts as a tap on that box, with the TB-01 rule (owner, 17 Nov): next to the words the caret goes to the nearest line; anywhere else it selects the box, and in a selected box it keeps it selected (no caret); no new box is made on top (B3-4).
+- TB-06 When I tap empty paper with the Text tool → a new box (no "Type here" hint, owner 17 Nov "Box size and hints") and the caret appears there; not if a drag is in progress or ended under 400 ms ago (B3-2). A tap beside or below an existing box makes the new box in its own row under that box, never beside it; columns are made by dragging a box beside another (TB-13). With the Pencil the keyboard stays down; with a finger it opens. (owner, 14 Nov)
 - TB-07 When I tap empty paper with any tool while a box is selected → the box deselects; nothing else happens.
 - TB-08 When the page's first (default) box is selected → it shows the same ≡ tab and ⋯ as every other box (B3-6).
 - TB-09 When I press Delete or Backspace with a box selected and no caret → the box is deleted and a toast offers Undo.
-- TB-10 When I type in a new box → it stays one line wide until it nears the right margin; it never wraps letter by letter; its minimum width is its longest word.
+- TB-10 A new box is as wide as the whole line (the page text width, like a Notion block) and one line tall; it grows downward only as I write, never wider; the first box on a page is one line tall when empty, then as tall as its text. A box I sized by hand keeps its size. Its dots still make it narrower or taller and it can be moved beside another box. (owner, 17 Nov; replaces "starts narrow, grows to the right")
 
 **Move (T2)**
 
@@ -102,7 +102,7 @@ Beginner and Professional unless marked. **Pro** lines name their unlock switch 
 
 **Hints (T1)**
 
-- TB-42 On an empty page → one writing hint only ("Type, or tap anywhere…"); "Tap here to keep writing" waits until the page has something to continue; the hint goes the moment I type or draw. Two hints never show together. (owner, 14 Nov; picture `docs/mockups/textbox-2b/states.html` panel 7)
+- TB-42 On an empty page → one writing hint only ("Type, or tap anywhere…"); "Tap here to keep writing" is gone everywhere (owner, 17 Nov: only an empty page shows a hint); the hint goes the moment I type or draw. Two hints never show together. (owner, 14 Nov; picture `docs/mockups/textbox-2b/states.html` panel 7)
 
 ### States
 
@@ -210,3 +210,15 @@ No new input from outside; preset names go through the existing text limits (80 
 5. **Delete with a box selected shows a toast with Undo** although the toast rule removes plain "done" toasts: it is destructive, so the rule allows it.
 6. Foundation folders (`src/app/input/`, `selection/`, `overlay/`) are not on `main` yet; the slice is blocked until slice 0 parts 0c–0g step 1 are merged.
 7. New code goes in `src/paper/v2/` so flag OFF keeps today's files untouched; they are removed after release.
+
+## Owner iPad test fixes, 16 Nov 2026 (C8, C10 to C13, C15, C16)
+
+Tests: `e2e/cBoxes.spec.ts`. Pictures: `screenshots/c-boxes/INDEX.md`.
+
+- **C8** "Delete box" on the page's first box empties it (it cannot go); one Undo on the toast brings the text back.
+- **C10** typing pauses while a resize dot is dragged or a card or list is open; keys go nowhere; the caret returns to the same place afterwards (`src/paper/typingPause.ts`). Tool bar taps and cards pause typing too (the keyboard policy also stops pulling a key into the text meanwhile).
+- **C11** typing shows a thin border and no dots; one tap outside leaves the box selected; a second tap selects nothing.
+- **C12** the first box's frame takes its real height (fill and padding included).
+- **C13** the last column's right dot and the first column's left dot set that column's width; the freed space stays empty (a row's fractions may sum to less than 1).
+- **C15** the top dot works from any box; past the free space above, the box keeps growing downward; a box under another grows downward.
+- **C16** one selected box at a time: Shift no longer adds; typing in another box unselects the first; only the Lasso picks several.

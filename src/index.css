@@ -545,6 +545,23 @@ html[data-note-line] .bn-editor {
   line-height: var(--note-line);
 }
 
+/* The one bar (box bar part A): a star list, and a box's own line spacing. */
+.bn-block-content[data-content-type='bulletListItem'][data-marker='star']::before {
+  content: '★';
+}
+[data-paper-box][data-line='tight'] .bn-editor {
+  line-height: 1.35;
+}
+[data-paper-box][data-line='loose'] .bn-editor {
+  line-height: 1.95;
+}
+
+/* Paste ▾ buttons: the hover highlight on a plain :hover, so a Pencil hovering over an iPad shows it (C0-3). */
+.pastebtn:hover {
+  background: var(--color-hover);
+  color: var(--color-ink);
+}
+
 /* The mini toolbar replaces the iOS copy/paste callout on the page text. */
 .bn-editor {
   -webkit-touch-callout: none;
@@ -750,6 +767,65 @@ html[data-note-line] .bn-editor {
     transparent 100%
   );
 }
+/*
+ * R12: a list that is a solid surface (a card, sheet or menu) is never masked:
+ * the page would show through its edge. Only its inside fades, with a soft
+ * edge in the surface's own colour (--scroll-fade-bg, set by scrollHints.ts).
+ * A surface laid out as a grid, with gaps or its own ::before / ::after is
+ * marked 'edge': solid, with a soft edge shadow drawn in its own background
+ * (layers: a cover that scrolls with the content hides each shadow at the end).
+ * A surface that already has a background image stays 'plain' (solid, no cue).
+ */
+[data-scroll-solid='edge'][data-scroll-more] {
+  background-image:
+    linear-gradient(var(--scroll-fade-bg) 30%, transparent),
+    linear-gradient(to top, var(--scroll-fade-bg) 30%, transparent),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-ink) 18%, transparent),
+      transparent
+    ),
+    linear-gradient(
+      to top,
+      color-mix(in srgb, var(--color-ink) 18%, transparent),
+      transparent
+    );
+  background-position: top, bottom, top, bottom;
+  background-size:
+    100% 28px,
+    100% 28px,
+    100% 14px,
+    100% 14px;
+  background-repeat: no-repeat;
+  background-attachment: local, local, scroll, scroll;
+}
+[data-scroll-solid][data-scroll-more] {
+  mask-image: none;
+}
+[data-scroll-solid='fade'][data-scroll-more='top']::before,
+[data-scroll-solid='fade'][data-scroll-more='both']::before {
+  content: '';
+  display: block;
+  flex: none;
+  position: sticky;
+  top: 0;
+  height: 28px;
+  margin-bottom: -28px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--scroll-fade-bg), transparent);
+}
+[data-scroll-solid='fade'][data-scroll-more='bottom']::after,
+[data-scroll-solid='fade'][data-scroll-more='both']::after {
+  content: '';
+  display: block;
+  flex: none;
+  position: sticky;
+  bottom: 0;
+  height: 28px;
+  margin-top: -28px;
+  pointer-events: none;
+  background: linear-gradient(to top, var(--scroll-fade-bg), transparent);
+}
 /* Lists with our own handle hide the system scrollbar (a second, bigger bar). */
 [data-scroll-more] {
   scrollbar-width: none;
@@ -930,6 +1006,11 @@ html[data-note-line] .bn-editor {
   pointer-events: none !important;
 }
 
+/* C11: typing in a box shows its thin border only: no ⠿ and + beside it. */
+[data-paper-box][data-hide-side] .bn-side-menu {
+  display: none !important;
+}
+
 /* A page push at a sheet gap must land at once (BlockNote animates margins). */
 [data-paper-box] .bn-block-outer {
   transition: none;
@@ -1048,9 +1129,16 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   content: none !important;
 }
 
+/* C26 (17 Nov): once the box has any text (PageEditor sets data-has-text), an
+   empty line has no "Enter text or type '/'" hint: it is for an empty box. */
+.bn-container[data-has-text] .bn-block-content::after {
+  content: none !important;
+}
+
 /* Item 7 (10 Nov): the page has its own scroll bar (paper/PageScrollBar.tsx).
    Its gutter is reserved here so the bar never covers the paper, and the
-   system bar hides so there are not two. */
+   system bar hides so there are not two. With the new app frame on
+   (foundation.shell) the shared bar's ScrollBar.css reserves it instead. */
 [data-page-scroller][data-pagebar] {
   padding-inline-end: 24px;
   scrollbar-width: none;
@@ -1117,6 +1205,13 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
   -webkit-touch-callout: none;
 }
 
+/* C0-7: while our hold strip is open, Apple's magnifier takes no text. */
+.bn-editor[data-hold-lock],
+.bn-editor[data-hold-lock] * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* Owner bug batch 2, item 9: with other boxes on the page, the "Tap here to
    keep writing" line under the page's text would float among them. */
 [data-paper][data-has-boxes] .ln-tap-below {
@@ -1128,6 +1223,7 @@ body:has([data-ink-pad]) [data-sel-handle]::after {
    accent dashed frame and "Type here" (not the page hint) until the first
    character. The text comes from BoxFrame (--type-here, in the chosen language). */
 [data-paper-box]:not([data-paper-box='main'])
+  .bn-container:not([data-has-text])
   .bn-block-content[data-is-empty-and-focused]:has(
     .ProseMirror-trailingBreak:only-child
   )::after {
@@ -1228,4 +1324,93 @@ html[data-box-drag] {
 }
 [data-reorder-mark='below'] > * {
   box-shadow: inset 0 -2px 0 0 var(--color-accent);
+}
+
+/* A sideways row that always shows a thin track, so a cut-off card says
+   "there is more" (also on touch screens, where bars hide by default). */
+.h-track {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.h-track::-webkit-scrollbar {
+  display: none;
+}
+.h-track__bar {
+  position: relative;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-soft, var(--color-line));
+}
+.h-track__bar > span {
+  position: absolute;
+  inset-block: 0;
+  border-radius: 2px;
+  background: var(--card-track, var(--color-line-strong));
+}
+
+/* Search v2: a solid surface at every size (the covers behind must not show through). */
+.srv2-dialog {
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* Toolbar v8 (gate 3, tenth visit): a picked picture has one set of handles
+   (ours) and the accent frame of a drawing; BlockNote's side pills,
+   the orange outline and the text box frame stay quiet. */
+.bn-file-block-content-wrapper[data-v8-picked] .bn-resize-handle {
+  display: none !important;
+}
+.bn-editor .bn-file-block-content-wrapper[data-v8-picked] img.bn-visual-media {
+  outline: 1px dashed var(--color-accent) !important;
+  outline-offset: 2px !important;
+  border-radius: 2px;
+}
+:root[data-v8-picture] [data-box-frame] {
+  border-color: transparent !important;
+}
+:root[data-v8-picture] [data-main-frame],
+:root[data-v8-picture] [data-main-handles],
+:root[data-v8-picture] [data-box-grip],
+:root[data-v8-picture] [data-box-menu],
+:root[data-v8-picture] [data-resize-handle] {
+  visibility: hidden;
+}
+
+/* F5: the search field fills the header row, so the close ✕ sits at the right edge. */
+.srv2-dialog .clr-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+/* C33 (owner 18 Nov, switch textbox.v2): a box is as tall as its text. The
+   editor's spare "trailing block" (30 px, a click adds a line) stays only
+   after a block that is no text (a table, a picture), where it is the way to
+   go on writing; after a text block Enter does the same, so it takes no room. */
+[data-paper][data-box-v2]
+  [data-paper-box]
+  .bn-block-outer:has(
+    > .bn-block
+      > .bn-block-content:is(
+        [data-content-type='paragraph'],
+        [data-content-type='heading'],
+        [data-content-type='quote'],
+        [data-content-type='bulletListItem'],
+        [data-content-type='numberedListItem'],
+        [data-content-type='checkListItem'],
+        [data-content-type='toggleListItem']
+      )
+  )
+  + .bn-trailing-block {
+  height: 0;
+  overflow: hidden;
+}
+
+/* C33 review (18 Nov, textbox.v2): a selected box (dots showing) hides the block
+   handle (⠿ and +): it lay over the box's left middle dot. A tap on the words
+   brings it back with the caret. */
+[data-paper-box][data-picked] .bn-side-menu,
+[data-paper-box][data-main-picked] .bn-side-menu,
+[data-paper][data-box-v2]:has([data-picked], [data-main-picked]) .bn-side-menu {
+  display: none;
 }

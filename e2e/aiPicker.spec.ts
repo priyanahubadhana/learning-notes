@@ -129,9 +129,33 @@ test('model cards: badges, Move up/down for the keyboard, drag with a pointer, o
 
   // Pointer drag: the Gemini 3.5 card to the top.
   const grip = gemini.getByTestId('ai-model-grip')
-  await grip.scrollIntoViewIfNeeded()
-  const g = (await grip.boundingBox())!
-  const top = (await cards(page).first().boundingBox())!
+  // Both the first card (the landing place) and the grip must be on screen.
+  await cards(page)
+    .first()
+    .evaluate((el) =>
+      el.scrollIntoView({ block: 'start', behavior: 'instant' }),
+    )
+  // Why: the scroll above can still be moving (WebKit scrolls smoothly), so a
+  // box read right away is stale and the drag missed. Read both boxes until two
+  // reads in a row match, then drag.
+  const grab = async () => {
+    const a = (await grip.boundingBox())!
+    const b = (await cards(page).first().boundingBox())!
+    return { g: a, top: b }
+  }
+  let last = JSON.stringify(await grab())
+  await expect
+    .poll(async () => {
+      const now = JSON.stringify(await grab())
+      const same = now === last
+      last = now
+      return same
+    })
+    .toBe(true)
+  const { g, top } = JSON.parse(last) as Awaited<ReturnType<typeof grab>>
+  const vh = page.viewportSize()!.height
+  expect(top.y, 'the first card is on screen').toBeGreaterThanOrEqual(0)
+  expect(g.y + g.height, 'the grip is on screen').toBeLessThanOrEqual(vh)
   await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
   await page.mouse.down()
   await page.mouse.move(g.x + g.width / 2, g.y - 40, { steps: 6 })
@@ -141,10 +165,35 @@ test('model cards: badges, Move up/down for the keyboard, drag with a pointer, o
     .poll(async () => (await order(page))[0])
     .toBe('gemini-3.5-flash-lite')
 
+  // The choice is also saved to the local database a moment later (slow in
+  // WebKit on this PC): reload only once that copy has it, or the older copy
+  // wins on the way back.
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          new Promise<string>((resolve) => {
+            const open = indexedDB.open('learning-notes')
+            open.onsuccess = () => {
+              const req = open.result
+                .transaction('settings')
+                .objectStore('settings')
+                .get('ai.modelOrder')
+              req.onsuccess = () => {
+                open.result.close()
+                resolve(String(req.result?.value?.[0]))
+              }
+            }
+          }),
+      ),
+    )
+    .toBe('gemini-3.5-flash-lite')
   // The order is kept after a reload.
   await page.reload()
   await expect(cards(page).first()).toBeVisible()
-  expect((await order(page))[0]).toBe('gemini-3.5-flash-lite')
+  await expect
+    .poll(async () => (await order(page))[0])
+    .toBe('gemini-3.5-flash-lite')
 })
 
 test('a notebook uses its own key and model; the default is used elsewhere', async ({

@@ -1,0 +1,406 @@
+import { useState } from 'react'
+import { useActiveStyles, useBlockNoteEditor } from '@blocknote/react'
+import { CardTrigger } from '../../../design/parts/Card'
+import { t, type MessageKey } from '../../../i18n/t'
+import { Icon } from '../icons'
+import { rowItemsFor, cardIdOf, type RowItem } from './rowItems'
+import { orderItems, toolOrder } from './toolOrder'
+import { useBarPref } from './barPrefs'
+import { LassoPickChips, LassoShapeChips } from './LassoRowParts'
+import { dotPx, usePenFace, type PenFace } from './penFace'
+import { PenPic } from './PenPictures'
+import { sizeDotPx } from './penRow'
+import { FavGroup, FavMeasure, FavStar } from './PenFavChip'
+import { rowOf } from './favs2'
+import { useFavs } from './favRow'
+import { AddFavSheet, OrganiseFavSheet, ResetFavDialog } from './FavSheets'
+import { activeTool } from '../main/mainTools'
+import { useChangeCounts } from './changeCount'
+import type { V8ToolId } from './registryV8'
+import { FoldCard } from './FoldCard'
+import type { OpenCard } from './barState'
+import { useFold, type FoldSpec } from './useFold'
+import type { FoldResult } from './rowFold'
+import { displayInk } from '../../../design/ink'
+import { ErasesChips, BackAfterOne } from './EraserRowParts'
+import {
+  ERASER_SIZES,
+  eraserSettings,
+  lassoSettings,
+} from '../main/inkSettings'
+import './toolbarV8.css'
+
+/** The sheets hang below the whole bar, never over its second row. */
+const barOf = (el: HTMLElement): HTMLElement =>
+  el.closest<HTMLElement>('[data-testid="toolbar-v8"]') ?? el
+
+const keepFocus = (e: { preventDefault: () => void }) => e.preventDefault()
+
+/** What a chip says, and how its dot looks, from the pen's saved settings. */
+function view(item: RowItem, pen: PenFace) {
+  let text = t(item.label)
+  let eraserDot = 0
+  if (item.tool === 'eraser') {
+    // The chip says what is chosen now (mock v9): "Standard", "Medium".
+    const e = eraserSettings.get()
+    if (item.id === 'mode') text = t(`ink.eraser.${e.mode}` as MessageKey)
+    if (item.id === 'size') {
+      text = t(`v8.pen.size.${e.size}` as MessageKey)
+      eraserDot = Math.round(ERASER_SIZES[e.size] / 3)
+    }
+  }
+  if (item.tool === 'pen' && item.id === 'type')
+    text = t(`v8.pen.type.${pen.typeId}`)
+  if (item.tool === 'pen' && item.id === 'size')
+    text = t(`v8.pen.size.${pen.size}`)
+  return {
+    text,
+    colour: item.dot === 'colour' ? pen.colour : undefined,
+    dotPx:
+      item.dot === 'size'
+        ? eraserDot || (item.tool === 'pen' ? sizeDotPx(pen.size) : dotPx(pen))
+        : 0,
+  }
+}
+
+function Face({
+  item,
+  pen,
+  names,
+}: {
+  item: RowItem
+  pen: PenFace
+  names: boolean
+}) {
+  const v = view(item, pen)
+  return (
+    <>
+      {item.dot === 'colour' ? (
+        <span
+          className="v8dot v8dot-colour"
+          style={{
+            background: v.colour ? displayInk(v.colour) : undefined,
+          }}
+          aria-hidden
+        />
+      ) : item.dot === 'size' ? (
+        <span className="v8dot-box" aria-hidden>
+          <span
+            className={item.tool === 'pen' ? 'v8dot v8dot-ring' : 'v8dot'}
+            style={{
+              width: v.dotPx,
+              height: v.dotPx,
+              ...(item.tool === 'pen'
+                ? { background: displayInk(pen.colour) }
+                : null),
+            }}
+          />
+        </span>
+      ) : item.tool === 'pen' && item.id === 'type' ? (
+        <PenPic typeId={pen.typeId} colour={displayInk(pen.colour)} />
+      ) : item.icon ? (
+        <Icon name={item.icon} size={18} />
+      ) : null}
+      {names && item.kind === 'menu' && !item.iconOnly && !item.noName ? (
+        <span className="v8chip-text">{v.text}</span>
+      ) : null}
+    </>
+  )
+}
+
+export interface ToolRowProps {
+  tool: V8ToolId
+  /** The open card, if any. */
+  card: OpenCard | null
+  onToggleCard: (id: string, anchor: HTMLElement) => void
+  onCloseCard: (id: string) => void
+}
+
+/** The second line: the tool's options, then (1g) Favourites, "+" and "☰". */
+export function ToolRow({
+  tool,
+  card,
+  onToggleCard,
+  onCloseCard,
+}: ToolRowProps) {
+  const openCard = card?.id ?? null
+  const pen = usePenFace()
+  activeTool.useValue() // a favourite's ring follows the tool
+  const saved = useFavs()
+  lassoSettings.useValue() // a lasso favourite's ring follows it
+  const [sheet, setSheet] = useState<{
+    kind: 'add' | 'org' | 'reset'
+    anchor: HTMLElement
+    back?: boolean
+  } | null>(null)
+  const favItems = rowOf(saved, tool)
+  // Each changed chip glows once (TB-70).
+  const glow = useChangeCounts({
+    'pen.type': pen.typeId,
+    'pen.size': `${pen.size}-${pen.px}`,
+    'pen.colour': pen.colour,
+  })
+  const editor = useBlockNoteEditor()
+  const active = useActiveStyles(editor as never) as Record<string, unknown>
+  const items = orderItems(
+    rowItemsFor(tool, useBarPref('eraserMenus'), useBarPref('biggerLasso')),
+    toolOrder.useValue()[tool],
+  )
+  eraserSettings.useValue() // the Eraser chips say what is chosen
+  // What the row showed while no card was open. A chip that was already on the
+  // row keeps its place while its card is open (the open chip may show its word,
+  // but nothing else re-folds, so "⋯ n" does not jump and Format stays put).
+  // Only a chip brought out of "⋯" is made room for.
+  const [free, setFree] = useState<FoldResult | null>(null)
+  const openItem = items.find(
+    (it) => it.kind === 'menu' && openCard === cardIdOf(it),
+  )
+  const frozen = !!openItem && !!free && free.shown.includes(openItem.id)
+  const specs: FoldSpec[] = [
+    ...items.map((it, i) => ({
+      id: it.id,
+      priority: 100 - i,
+      fixedW:
+        it.kind === 'toggle'
+          ? 44
+          : it.kind === 'erases'
+            ? 310
+            : it.kind === 'lshape'
+              ? 230
+              : it.kind === 'lpicks'
+                ? 300
+                : it.kind === 'flag'
+                  ? 130
+                  : undefined,
+      keepName: it === openItem && !frozen,
+    })),
+    // The favourites are one group that keeps its names and gives way first,
+    // into its own "★ n" (TB-21c).
+    ...(favItems.length
+      ? [{ id: 'favs', priority: 50, keepName: true, stubW: 44 }]
+      : []),
+  ]
+  const {
+    rowRef,
+    measureRef,
+    result: live,
+  } = useFold(specs, {
+    gap: 8,
+    moreW: 44,
+  })
+  const result = frozen ? free : live
+  // Remember the free row (React's "adjust state while rendering" pattern).
+  if (
+    openCard === null &&
+    (!free || JSON.stringify(free) !== JSON.stringify(live))
+  )
+    setFree(live)
+  const shown = items.filter((i) => result.shown.includes(i.id))
+  const folded = items.filter((i) => result.folded.includes(i.id))
+  const favsShown = favItems.length > 0 && result.shown.includes('favs')
+  const favsFolded = favItems.length > 0 && result.folded.includes('favs')
+  const foldedCount = folded.length
+  const favsOpen = openCard === 'fold.favs'
+  const moreOpen = openCard === 'fold.row'
+
+  // A sheet steps aside for the form or the question and then returns. Its
+  // own close (also run when it unmounts) must not undo that switch, so a
+  // close only counts while the same kind is still showing.
+  const back = (from: 'add' | 'org' | 'reset', to: 'org' | null) =>
+    setSheet((cur) =>
+      !cur || cur.kind !== from ? cur : to ? { ...cur, kind: to } : null,
+    )
+
+  const toggleStyle = (item: RowItem) => {
+    if (!item.style) return
+    ;(
+      editor as { toggleStyles: (s: Record<string, boolean>) => void }
+    ).toggleStyles({ [item.style]: true })
+  }
+
+  return (
+    <div
+      className="v8row"
+      role="group"
+      aria-label={t('v8.row.label')}
+      data-testid="v8-row"
+      data-tool={tool}
+    >
+      <div className="v8row-items" ref={rowRef}>
+        {shown.map((item) =>
+          item.kind === 'lshape' ? (
+            <LassoShapeChips key={item.id} />
+          ) : item.kind === 'lpicks' ? (
+            <LassoPickChips key={item.id} />
+          ) : item.kind === 'erases' ? (
+            <ErasesChips key={item.id} />
+          ) : item.kind === 'flag' ? (
+            <BackAfterOne key={item.id} />
+          ) : item.kind === 'menu' ? (
+            <CardTrigger
+              key={item.id}
+              className="v8chip"
+              open={openCard === cardIdOf(item)}
+              label={view(item, pen).text}
+              glowKey={glow[cardIdOf(item)]}
+              testId={`v8-chip-${cardIdOf(item)}`}
+              onClick={(el) => onToggleCard(cardIdOf(item), el)}
+            >
+              <Face
+                item={item}
+                pen={pen}
+                names={result.names || openCard === cardIdOf(item)}
+              />
+            </CardTrigger>
+          ) : (
+            <button
+              key={item.id}
+              type="button"
+              data-chrome
+              data-testid={`v8-chip-${cardIdOf(item)}`}
+              className="v8chip v8chip-icon"
+              aria-label={t(item.label)}
+              aria-pressed={!!item.style && !!active[item.style]}
+              onMouseDown={keepFocus}
+              onClick={() => toggleStyle(item)}
+            >
+              <Face item={item} pen={pen} names={false} />
+            </button>
+          ),
+        )}
+        {favsShown ? <FavGroup items={favItems} /> : null}
+        {foldedCount > 0 ? (
+          <button
+            type="button"
+            data-chrome
+            data-popup-trigger=""
+            data-testid="v8-row-more"
+            className="v8chip v8chip-more"
+            aria-haspopup="dialog"
+            aria-expanded={moreOpen}
+            aria-label={t('v8.row.moreN', { count: foldedCount })}
+            data-pressed={moreOpen || undefined}
+            onMouseDown={keepFocus}
+            onClick={(e) => onToggleCard('fold.row', e.currentTarget)}
+          >
+            <Icon name="more" size={16} />
+            <span className="v8chip-count">{foldedCount}</span>
+            <Icon name="chevronDown" size={14} />
+          </button>
+        ) : null}
+        {favsFolded ? (
+          <FavStar
+            items={favItems}
+            open={favsOpen}
+            card={card}
+            onToggle={(el) => onToggleCard('fold.favs', el)}
+            onClose={() => onCloseCard('fold.favs')}
+          />
+        ) : null}
+        <div className="v8measure" ref={measureRef} aria-hidden inert>
+          {items
+            .filter((i) => i.kind === 'menu')
+            .flatMap((item) =>
+              (['full', 'short'] as const).map((mode) => (
+                <span
+                  key={`${item.id}-${mode}`}
+                  className="pcard-trigger v8chip"
+                  data-m-id={item.id}
+                  data-m-mode={mode}
+                >
+                  <Face item={item} pen={pen} names={mode === 'full'} />
+                  <Icon name="chevronDown" size={14} />
+                </span>
+              )),
+            )}
+          {favItems.length > 0 ? <FavMeasure items={favItems} /> : null}
+        </div>
+      </div>
+      {moreOpen && card ? (
+        <FoldCard
+          anchor={card.anchor}
+          testId="v8-card-fold.row"
+          entries={[
+            ...folded.map((item) => ({
+              id: item.id,
+              label: view(item, pen).text,
+              icon: item.icon,
+              pressed: !!item.style && !!active[item.style],
+              onPick: () => {
+                if (item.kind === 'lshape')
+                  onToggleCard('lasso.shape', card.anchor)
+                else if (item.kind === 'lpicks')
+                  onToggleCard('lasso.picks', card.anchor)
+                else if (item.kind === 'erases')
+                  onToggleCard('eraser.options', card.anchor)
+                else if (item.kind === 'flag')
+                  eraserSettings.update({
+                    returnAfter: !eraserSettings.get().returnAfter,
+                  })
+                if (item.kind === 'flag') onCloseCard('fold.row')
+                else if (item.kind === 'menu')
+                  onToggleCard(cardIdOf(item), card.anchor)
+                else {
+                  toggleStyle(item)
+                  onCloseCard('fold.row')
+                }
+              },
+            })),
+          ]}
+          onClose={() => onCloseCard('fold.row')}
+        />
+      ) : null}
+      <span className="v8hair" aria-hidden />
+      {/* Favourites: "+" opens the Add form, the list button opens Organise (TB-52, TB-53). */}
+      <button
+        type="button"
+        data-chrome
+        data-popup-trigger=""
+        data-testid="v8-add"
+        className="v8chip v8chip-icon"
+        aria-label={t('v8.row.add')}
+        aria-haspopup="dialog"
+        onMouseDown={keepFocus}
+        onClick={(e) =>
+          setSheet({ kind: 'add', anchor: barOf(e.currentTarget) })
+        }
+      >
+        <Icon name="plus" size={18} />
+      </button>
+      <button
+        type="button"
+        data-chrome
+        data-popup-trigger=""
+        data-testid="v8-organise"
+        className="v8chip v8chip-icon"
+        aria-label={t('v8.row.organise')}
+        aria-haspopup="dialog"
+        onMouseDown={keepFocus}
+        onClick={(e) =>
+          setSheet({ kind: 'org', anchor: barOf(e.currentTarget) })
+        }
+      >
+        <Icon name="list" size={18} />
+      </button>
+      {sheet?.kind === 'add' ? (
+        <AddFavSheet
+          anchor={sheet.anchor}
+          tool={tool}
+          onClose={() => back('add', sheet.back ? 'org' : null)}
+        />
+      ) : null}
+      {sheet?.kind === 'org' ? (
+        <OrganiseFavSheet
+          anchor={sheet.anchor}
+          tool={tool}
+          onAdd={() => setSheet({ ...sheet, kind: 'add', back: true })}
+          onReset={() => setSheet({ ...sheet, kind: 'reset', back: true })}
+          onDone={() => back('org', null)}
+        />
+      ) : null}
+      {sheet?.kind === 'reset' ? (
+        <ResetFavDialog tool={tool} onClose={() => back('reset', 'org')} />
+      ) : null}
+    </div>
+  )
+}

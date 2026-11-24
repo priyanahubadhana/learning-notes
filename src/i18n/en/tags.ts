@@ -10,6 +10,7 @@ export const enTags = {
   'links.noPage': 'No page called “{query}”',
   'links.none':
     'No pages link here yet. Type [[ in any page and pick “{page}”.',
+  'links.open': 'Open',
   'links.openHint': 'Open ({key} when the cursor is next to it)',
   'links.pages': 'Pages',
   'links.picker': 'Link to a page',

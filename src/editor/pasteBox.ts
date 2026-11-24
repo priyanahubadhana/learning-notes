@@ -11,6 +11,8 @@ import {
   removeBox,
 } from '../paper/boxService'
 import { MAIN_BOX } from '../paper/boxes'
+import { isOn } from '../app/flags'
+import { FREE_MIN_W, ROW_GAP } from '../paper/grid'
 import type { AppSchema } from './schema'
 
 /**
@@ -79,6 +81,45 @@ export function caretSpot(
   return { x, y, w: Math.max(MIN_W, Math.min(w, sheet.w - MARGIN - x)) }
 }
 
+/**
+ * C28 (text box v2): the box goes in as a free box at the paste spot, as wide
+ * as the free paper to the next box on its right allows, in the row order of
+ * the page (rows whose top is above the spot come first). Reads the boxes'
+ * places from the sheet.
+ */
+function freePlace(
+  host: BoxHost,
+  spot: { x: number; y: number; w: number },
+  rows: { cols: { boxIds: string[] }[] }[],
+): { wmm: number; row: number } {
+  const sheet =
+    SHEETS[host.sheetEl.dataset.sheet === 'Letter' ? 'Letter' : 'A4']
+  const paper = host.sheetEl.getBoundingClientRect()
+  const k = paper.width / sheet.w
+  const top = new Map<string, number>()
+  let wmm = spot.w
+  for (const el of host.sheetEl.querySelectorAll<HTMLElement>(
+    '[data-paper-box]',
+  )) {
+    const r = el.getBoundingClientRect()
+    const id = el.dataset.paperBox ?? ''
+    const t = (r.top - paper.top) / k
+    top.set(id, t)
+    // A box to the right that overlaps the new box's lines limits its width.
+    const left = (r.left - paper.left) / k
+    const overlaps = r.bottom - paper.top > spot.y * k && t < spot.y + 8
+    if (id !== host.boxId && overlaps && left > spot.x)
+      wmm = Math.min(wmm, left - spot.x - ROW_GAP)
+  }
+  const row = rows.filter(
+    (r) =>
+      Math.min(
+        ...r.cols.flatMap((c) => c.boxIds).map((id) => top.get(id) ?? 1e9),
+      ) <= spot.y,
+  ).length
+  return { wmm: Math.max(FREE_MIN_W + 24, wmm), row }
+}
+
 /** A BlockNote block as the storable input of `addBlocks`. */
 export function toInput(block: EditorBlock): BlockInput {
   const content: Record<string, unknown> = { ...(block.props ?? {}) }
@@ -112,10 +153,18 @@ export async function pasteIntoNewBox(
     db.blocks,
     db.settings,
     async () => {
+      const page = await db.pages.get(host.pageId)
       boxId =
         narrow || !spot
           ? await addBoxInOrder(db, host.pageId, host.boxId || MAIN_BOX)
-          : await addBox(db, host.pageId, spot)
+          : isOn('textbox.v2') && page?.rows
+            ? await addBox(db, host.pageId, {
+                x: spot.x,
+                y: spot.y,
+                free: true,
+                ...freePlace(host, spot, page.rows),
+              })
+            : await addBox(db, host.pageId, spot)
       const made = await addBlocks(db, host.pageId, blocks.map(toInput))
       const top = made.filter((b) => b.parentId === null).map((b) => b.id)
       await db.blocks.where('id').anyOf(top).modify({ boxId })

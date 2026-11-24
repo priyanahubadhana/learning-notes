@@ -10,6 +10,7 @@ export interface UpdateStatus {
     | 'ready'
     | 'updating'
     | 'updated'
+    | 'postponed'
     | 'current'
     | 'offline'
     | 'failed'
@@ -18,6 +19,10 @@ export interface UpdateStatus {
   /** Seconds left, when the download is slow. */
   etaS?: number
   version?: string
+  /** While restarting: waiting too long, or could not restart (C22). */
+  restart?: 'slow' | 'failed'
+  /** update.v2: seconds left in the 3-second restart prompt (UP-05). */
+  countdown?: number
 }
 
 export const updateStatus = memStore<UpdateStatus>({ phase: 'idle' })

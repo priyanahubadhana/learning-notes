@@ -1,0 +1,30 @@
+# Box bar part B pictures (iPad sideways first)
+
+- phone-light-pinned-nothing-selected.png
+- phone-light-drag-zones.png
+- phone-light-docked-right.png
+- phone-light-docked-bottom.png
+- phone-dark-pinned-nothing-selected.png
+- phone-dark-drag-zones.png
+- phone-dark-docked-right.png
+- phone-dark-docked-bottom.png
+- ipad-upright-light-text-tool-size.png
+- ipad-upright-light-pinned-nothing-selected.png
+- ipad-upright-light-drag-zones.png
+- ipad-upright-light-docked-right.png
+- ipad-upright-light-docked-bottom.png
+- ipad-upright-dark-text-tool-size.png
+- ipad-upright-dark-pinned-nothing-selected.png
+- ipad-upright-dark-drag-zones.png
+- ipad-upright-dark-docked-right.png
+- ipad-upright-dark-docked-bottom.png
+- ipad-sideways-light-text-tool-size.png
+- ipad-sideways-light-pinned-nothing-selected.png
+- ipad-sideways-light-drag-zones.png
+- ipad-sideways-light-docked-right.png
+- ipad-sideways-light-docked-bottom.png
+- ipad-sideways-dark-text-tool-size.png
+- ipad-sideways-dark-pinned-nothing-selected.png
+- ipad-sideways-dark-drag-zones.png
+- ipad-sideways-dark-docked-right.png
+- ipad-sideways-dark-docked-bottom.png

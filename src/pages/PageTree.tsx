@@ -1,7 +1,7 @@
 import { displayName, sampleName } from '../i18n/defaultNames'
 import { t } from '../i18n/t'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useContext, useState, type ReactNode } from 'react'
+import { useContext, useRef, useState, type ReactNode } from 'react'
 import { AppUiContext } from '../app/appUi'
 import { runTask } from '../app/errors'
 import { pushStep, quietAsync } from '../core/historySteps'
@@ -9,10 +9,12 @@ import { favourites, toggleFavourite } from '../app/favourites'
 import { RenameInput, RowMenuButton, IconButton } from '../app/ui'
 import { LazyPageMenu } from '../app/LazyNameSheet'
 import { useLongPress } from '../app/useLongPress'
+import { rowHoldMs } from '../app/rowStripLogic'
 import { touchUi } from '../app/touchUi'
 import type { TreeState } from '../app/useTreeState'
 import type { LearningNotesDB } from '../core/db'
 import type { Page } from '../core/types'
+import { useFlag } from '../app/flags'
 import { monthLabel, shortDayLabel } from '../journal/dates'
 import {
   currentPlace,
@@ -58,11 +60,23 @@ export function PageTree({
   onAddSubPage,
   onRequestDelete,
 }: PageTreeProps) {
+  const v2 = useFlag('notebooks.v2')
   const pages = useLiveQuery(
     () => listNotePages(db, notebookId),
     [db, notebookId],
   )
   const [renamingId, setRenamingId] = useState<string | null>(null)
+  // R20 / B10-6: a finger gives no reliable double-click, so two taps on the same row within half a second rename it.
+  const lastTap = useRef<{ id: string; at: number } | null>(null)
+  const tapRename = (page: Page, now: number) => {
+    if (!touchUi()) return
+    const prev = lastTap.current
+    lastTap.current = { id: page.id, at: now }
+    if (prev && prev.id === page.id && now - prev.at < 500) {
+      lastTap.current = null
+      startRename(page)
+    }
+  }
   const starred = favourites.useValue()
   const { toast, askName } = useContext(AppUiContext)
   const [dragId, setDragId] = useState<string | null>(null)
@@ -73,19 +87,25 @@ export function PageTree({
   const [rowMenu, setRowMenu] = useState<{
     id: string
     anchor: DOMRect
+    at?: { x: number; y: number }
   } | null>(null)
   const menuPage = rowMenu ? pages?.find((p) => p.id === rowMenu.id) : undefined
-  const hold = useLongPress((x, y) => {
-    const row = document
-      .elementFromPoint(x, y)
-      ?.closest<HTMLElement>('[data-page-id]')
-    if (row) {
-      setRowMenu({
-        id: row.dataset.pageId!,
-        anchor: row.getBoundingClientRect(),
-      })
-    }
-  }, true)
+  const hold = useLongPress(
+    (x, y) => {
+      const row = document
+        .elementFromPoint(x, y)
+        ?.closest<HTMLElement>('[data-page-id]')
+      if (row) {
+        setRowMenu({
+          id: row.dataset.pageId!,
+          anchor: row.getBoundingClientRect(),
+          at: { x, y },
+        })
+      }
+    },
+    true,
+    rowHoldMs,
+  )
   if (!pages) return null
 
   // A move with one Undo that puts the page back where it was.
@@ -215,9 +235,13 @@ export function PageTree({
             ) : (
               <button
                 type="button"
-                onClick={() => onOpen(page.id)}
+                onClick={(e) => {
+                  onOpen(page.id)
+                  tapRename(page, e.timeStamp)
+                }}
                 onDoubleClick={() => startRename(page)}
-                className={`line-clamp-2 min-w-[5rem] flex-1 text-left break-words ${active ? '' : 'text-ink-soft'}`}
+                aria-current={v2 && active ? 'page' : undefined}
+                className={`line-clamp-2 min-w-[5rem] flex-1 text-left break-words ${active ? (v2 ? 'font-bold' : '') : 'text-ink-soft'}`}
               >
                 {page.locked && (
                   <Icon name="lock" size={13} className="me-1 inline" />
@@ -320,6 +344,7 @@ export function PageTree({
           db={db}
           page={menuPage}
           anchor={rowMenu.anchor}
+          at={rowMenu.at}
           toast={toast}
           rootId={rootId}
           canMove={canMove}

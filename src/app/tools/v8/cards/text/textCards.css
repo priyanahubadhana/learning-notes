@@ -1,0 +1,271 @@
+/* Toolbar v8, slice 1e: Format and Box cards. Tokens only. */
+.v8look {
+  display: block;
+  line-height: 1;
+  color: var(--color-ink);
+}
+.v8look-h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+.v8look-h2 {
+  font-size: 20px;
+  font-weight: 650;
+}
+.v8look-h3 {
+  font-size: 17px;
+  font-weight: 600;
+}
+.v8look-bold {
+  font-size: 20px;
+  font-weight: 700;
+}
+.v8look-italic {
+  font-size: 20px;
+  font-style: italic;
+}
+.v8look-underline {
+  font-size: 20px;
+  text-decoration: underline;
+}
+.v8look-strike {
+  font-size: 20px;
+  text-decoration: line-through;
+}
+.v8look-code {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 17px;
+}
+.v8boxprev {
+  display: block;
+  width: 44px;
+  height: 28px;
+  border-radius: var(--r-sm);
+  box-sizing: border-box;
+}
+.v8boxprev-sm {
+  width: 28px;
+  height: 24px;
+  border: 1px solid var(--color-line);
+}
+.v8num {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.v8actrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+}
+/* The card's own body scrolls (Card.css, data-cut): no second scroller inside it. */
+.v8scroll.v8thin {
+  max-height: none;
+  overflow: visible;
+}
+/* The Box card is short so it fits above or under a box on a phone. */
+.pcard[data-testid='v8-card-text.box'] {
+  max-height: min(calc(100dvh - 200px), 400px);
+}
+/* TB-41 line height: the sample is drawn with that spacing, two lines. */
+.v8line {
+  display: block;
+  max-width: 2em;
+  height: 48px;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+.v8line-tight {
+  line-height: 1.1;
+}
+.v8line-loose {
+  line-height: 2;
+}
+/* Box settings row: icon, label, the look's name on the right, then a tick. */
+.v8setrow > span:nth-of-type(1) {
+  flex: 1;
+}
+.v8setrow-value {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+.v8setrow:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+/* TB-41 (v9) tab row: full width inside the card, 44 pt tall, one well with a raised chosen tab. */
+.v8tabs {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-md);
+  background: var(--card-well);
+}
+.v8tab {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: calc(var(--r-md) - 3px);
+  background: transparent;
+  color: var(--color-ink-soft);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out);
+}
+.v8tab-sel {
+  background: var(--v9-thumb);
+  box-shadow: var(--v9-thumb-sh);
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.v8tab:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+.v8tabpanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+/* Colour swatches: the dot only (the name is the tile's label for screen readers). */
+.v8swatches .pcard-tile {
+  min-height: 44px;
+  padding: 10px 2px;
+}
+.v8swatches .pcard-tile-label {
+  display: none;
+}
+/* The Format card keeps the same height on every tab and is short enough to open under the bar (never over it or the side bar); the rest scrolls inside. */
+@media (min-width: 641px) {
+  .pcard[data-testid='v8-card-text.format'] {
+    min-height: min(480px, calc(100dvh - 220px));
+    max-height: min(calc(100dvh - 220px), 560px);
+  }
+}
+
+.v8seg .v8tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.v8look-quote {
+  font-size: 17px;
+  font-style: italic;
+}
+/* Headings and Quote as rows of one well, each in its own look. */
+.v8stylerow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.v8stylerow:hover {
+  background: var(--card-well-2);
+}
+.v8stylerow[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+}
+.v8stylerow .v8look-h1 {
+  font-size: 22px;
+}
+.v8stylerow .v8look-h2 {
+  font-size: 19px;
+}
+.v8stylerow .v8look-h3 {
+  font-size: 16px;
+}
+.v8linkrow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+.v8linkrow > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+.v8linkadd {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--color-accent);
+  color: var(--color-surface-0);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.v8linkadd:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 2A.10 (T15, v9): an option that is on shows the accent fill (from the tile) and a check badge. Colour swatches keep their ring. */
+.v8scroll .pcard-tile[data-selected]:not(:has(.pcard-swatch))::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+.v8scroll .pcard-tile[data-selected]:not(:has(.pcard-swatch))::after {
+  content: '';
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 4px;
+  height: 7px;
+  border: solid var(--color-on-accent);
+  border-width: 0 1.8px 1.8px 0;
+  transform: rotate(45deg);
+}
+
+/* 2A.10 (T15): the chosen Font tile gets the same accent fill and check as every other on option. */
+.v8scroll [data-card-chips='font'] [aria-checked='true'] {
+  position: relative;
+  background: var(--color-accent-soft);
+}
+/* 2A.16: the check sits in the lower right corner, beside the Aa, never over a name. */
+.v8scroll [data-card-chips='font'] [aria-checked='true']::before {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+.v8scroll [data-card-chips='font'] [aria-checked='true']::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 3.5px;
+  height: 6.5px;
+  border: solid var(--color-on-accent);
+  border-width: 0 1.6px 1.6px 0;
+  transform: rotate(45deg);
+}

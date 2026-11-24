@@ -5,6 +5,8 @@ import { createRoot } from 'react-dom/client'
 import {
   FLAG_IDS,
   FLAG_STORAGE_KEY,
+  PREVIEW_PHASE,
+  PREVIEW_PHASE_KEY,
   isOn,
   reloadFlags,
   resetFlags,
@@ -24,9 +26,9 @@ beforeEach(() => {
 afterEach(() => vi.restoreAllMocks())
 
 describe('flags', () => {
-  it('lists 25 unique switches, each with a name and a description', () => {
-    expect(FLAG_IDS).toHaveLength(25)
-    expect(new Set(FLAG_IDS).size).toBe(25)
+  it('lists 29 unique switches, each with a name and a description', () => {
+    expect(FLAG_IDS).toHaveLength(29)
+    expect(new Set(FLAG_IDS).size).toBe(29)
     for (const id of FLAG_IDS) {
       expect(all[`flags.${id}.name`]).toBeTruthy()
       expect(all[`flags.${id}.desc`]).toBeTruthy()
@@ -107,5 +109,129 @@ describe('flags', () => {
     act(() => setFlag('library.v2', true))
     expect(host.textContent).toBe('true')
     act(() => root.unmount())
+  })
+})
+
+describe('preview defaults (F5)', () => {
+  const PREVIEW_ON = [
+    'foundation.shell',
+    'toolbar.v8',
+    'toolbar.menu',
+    'settings.v3',
+    'notebooks.v2',
+    'search.v2',
+    'home.v2',
+    'library.v2',
+    'review.v2',
+    'ai.framework',
+    'update.v2',
+    'update.versionLine',
+    'page.menus',
+    'storage.safety',
+    'journal.monthRepair',
+  ] as const
+  const PREVIEW = 'build-next.learning-notes-app.pages.dev'
+  const onHost = (hostname: string) => {
+    vi.stubGlobal('location', { hostname, search: '' })
+    reloadFlags()
+  }
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    reloadFlags()
+  })
+
+  it('the build-next preview host starts with the tested parts ON', () => {
+    onHost(PREVIEW)
+    for (const id of PREVIEW_ON) expect(isOn(id)).toBe(true)
+    expect(isOn('textbox.v2')).toBe(true) // the phase under test (PREVIEW_PHASE)
+    expect(isOn('reader.v2')).toBe(false)
+  })
+
+  it('a device with an old saved choice gets the phase once, then its own changes stick', () => {
+    localStorage.setItem(FLAG_STORAGE_KEY, JSON.stringify(['reader.v2']))
+    onHost(PREVIEW)
+    expect(isOn('textbox.v2')).toBe(true)
+    expect(isOn('reader.v2')).toBe(true) // extra switch kept
+    expect(localStorage.getItem(PREVIEW_PHASE_KEY)).toBe(PREVIEW_PHASE)
+    setFlag('textbox.v2', false)
+    reloadFlags()
+    expect(isOn('textbox.v2')).toBe(false)
+  })
+
+  it('a newer published phase is applied again', () => {
+    onHost(PREVIEW)
+    setFlag('textbox.v2', false)
+    localStorage.setItem(PREVIEW_PHASE_KEY, 'phase1')
+    reloadFlags()
+    expect(isOn('textbox.v2')).toBe(true)
+  })
+
+  it('the live host never gets the marker', () => {
+    onHost('learning-notes-app.pages.dev')
+    expect(localStorage.getItem(PREVIEW_PHASE_KEY)).toBeNull()
+  })
+
+  // Owner, 25 Nov 2026 (phase 1A live, option A): live starts as the preview does.
+  it('the live host starts with the same parts ON as the preview host', () => {
+    onHost(PREVIEW)
+    const preview = FLAG_IDS.filter((id) => isOn(id))
+    localStorage.clear()
+    onHost('learning-notes-app.pages.dev')
+    expect(FLAG_IDS.filter((id) => isOn(id))).toEqual(preview)
+    expect(isOn('textbox.v2')).toBe(true)
+    expect(isOn('reader.v2')).toBe(false)
+  })
+
+  it('a switch the user turned OFF stays OFF on the live host', () => {
+    onHost('learning-notes-app.pages.dev')
+    setFlag('search.v2', false)
+    reloadFlags()
+    expect(isOn('search.v2')).toBe(false)
+    expect(isOn('home.v2')).toBe(true)
+  })
+
+  it('other hosts keep everything OFF', () => {
+    for (const h of ['localhost', `${PREVIEW}.example.com`]) {
+      onHost(h)
+      for (const id of FLAG_IDS) expect(isOn(id)).toBe(false)
+    }
+  })
+
+  it('a switch the user turned OFF stays OFF on the preview host', () => {
+    onHost(PREVIEW)
+    setFlag('search.v2', false)
+    reloadFlags()
+    expect(isOn('search.v2')).toBe(false)
+    expect(isOn('home.v2')).toBe(true)
+  })
+
+  it('a switch the user turned ON is kept on the preview host', () => {
+    localStorage.setItem(FLAG_STORAGE_KEY, JSON.stringify(['textbox.v2']))
+    onHost(PREVIEW)
+    expect(isOn('textbox.v2')).toBe(true)
+    expect(isOn('search.v2')).toBe(false)
+  })
+})
+
+describe('saved switches survive a reload on the preview host (re-test 18 Nov, bug 2)', () => {
+  it('a fresh start of the module keeps the saved list and writes the marker', async () => {
+    const { vi } = await import('vitest')
+    localStorage.clear()
+    localStorage.setItem(
+      FLAG_STORAGE_KEY,
+      JSON.stringify(['foundation.shell', 'textbox.v2']),
+    )
+    vi.stubGlobal('location', {
+      hostname: 'build-next.learning-notes-app.pages.dev',
+      search: '',
+    })
+    vi.resetModules()
+    const fresh = await import('./flags')
+    // Importing used to fail inside readStored (table not built yet) and returned an empty list.
+    expect(fresh.isOn('textbox.v2')).toBe(true)
+    expect(fresh.isOn('foundation.shell')).toBe(true)
+    expect(localStorage.getItem(PREVIEW_PHASE_KEY)).toBe(PREVIEW_PHASE)
+    vi.unstubAllGlobals()
+    localStorage.clear()
   })
 })

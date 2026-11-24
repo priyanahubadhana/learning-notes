@@ -33,6 +33,12 @@ export interface Geometry {
   bottom: number
   /** Measured widths (mm) of boxes that are as wide as their text (free `auto` rows). */
   autoW?: Readonly<Record<string, number>>
+  /**
+   * C21 (text box v2): a free box placed at a height sits there, beside the
+   * free boxes before it, as long as it overlaps none of them; else it goes
+   * under the ones it would cover. Off: each row starts under the one before.
+   */
+  beside?: boolean
 }
 
 /** Free boxes stop this far (mm) before the right margin, then wrap. */
@@ -113,6 +119,16 @@ let counter = 0
 export const newRowId = () =>
   'r' + Date.now().toString(36) + (counter++).toString(36)
 
+/**
+ * C13: the last column's right edge may leave room at the page's right (the
+ * fractions then sum to less than 1). That is kept while no column went away.
+ */
+const keepsRoom = (before: number, fracs: readonly number[]): boolean =>
+  fracs.length === before &&
+  fracs.length > 1 &&
+  sum(fracs) < 1 - 1e-6 &&
+  fracs.every((f) => f >= MIN_FRAC - 1e-9)
+
 /** Tidies: empty columns and rows go, fractions sum to 1 again. */
 function tidy(rows: GridRow[]): GridRow[] {
   const out: GridRow[] = []
@@ -123,14 +139,20 @@ function tidy(rows: GridRow[]): GridRow[] {
     const fracs =
       row.cols.length === 1 && cols.length === 1
         ? [Math.min(1, Math.max(MIN_FRAC, cols[0].w || 1))]
-        : normaliseFracs(cols.map((c) => c.w))
+        : keepsRoom(
+              row.cols.length,
+              cols.map((c) => c.w),
+            )
+          ? cols.map((c) => c.w)
+          : normaliseFracs(cols.map((c) => c.w))
     const next: GridRow = {
       ...row,
       cols: cols.map((c, i) => ({ ...c, w: round(fracs[i]) })),
     }
     // Only a lone box can be free: a row with columns is the page grid again.
     if (cols.length !== 1) {
-      delete next.x
+      // C13: a row of columns may keep a left offset (its first column's left edge pulled in).
+      if (cols.length < 2 || row.cols.length < 2) delete next.x
       delete next.wmm
       delete next.auto
     }
@@ -246,23 +268,55 @@ export function layoutRows(
   const usable = g.sheetH - g.top - g.bottom
   const period = g.sheetH + g.gapMm
   let y = g.top
+  // C21: the free boxes placed since the last full-width row (beside mode).
+  let floorY = g.top
+  let placed: { x0: number; x1: number; y0: number; y1: number }[] = []
   for (const row of rows) {
     const n = row.cols.length
     if (n === 0) continue
-    const avail = contentW - COL_GAP * (n - 1)
-    const free = isFreeRow(row) && row.cols[0].boxIds.length >= 1
+    // C13: a row whose first column's left edge was pulled in starts at `x`.
+    const off = isFreeRow(row) ? 0 : Math.max(0, (row.x ?? g.left) - g.left)
+    const avail = contentW - off - COL_GAP * (n - 1)
     const colH = row.cols.map(
       (c) =>
         sum(c.boxIds.map((id) => Math.max(1, heights[id] ?? DEFAULT_H))) +
         ROW_GAP * Math.max(0, c.boxIds.length - 1),
     )
     const rowH = Math.max(...colH)
-    let start = Math.max(y, row.y ?? 0)
+    const free = isFreeRow(row) && row.cols[0].boxIds.length >= 1
+    const freeW = free
+      ? Math.min(
+          row.wmm ??
+            (row.auto
+              ? (g.autoW?.[row.cols[0].boxIds[0]] ?? FREE_MIN_W)
+              : freeMaxW(g, row.x!)),
+          g.sheetW - row.x!,
+        )
+      : 0
+    const side = !!g.beside && free && row.y !== undefined
+    let start = Math.max(side ? floorY : y, row.y ?? 0)
+    if (side) {
+      // Under every earlier free box it would cover, else at its own height.
+      const x0 = row.x!
+      const x1 = row.x! + freeW
+      for (let moved = true; moved;) {
+        moved = false
+        for (const p of placed) {
+          const across = Math.min(x1, p.x1) - Math.max(x0, p.x0) > 1e-6
+          const down =
+            start < p.y1 + ROW_GAP - 1e-6 && start + rowH + ROW_GAP > p.y0
+          if (across && down) {
+            start = p.y1 + ROW_GAP
+            moved = true
+          }
+        }
+      }
+    }
     const sheet = Math.max(0, Math.floor((start + 1e-6) / period))
     const end = sheet * period + g.sheetH - g.bottom
     if (start >= end - 1e-6 || (rowH <= usable && start + rowH > end))
       start = (sheet + 1) * period + g.top
-    let x = g.left
+    let x = g.left + off
     if (free) {
       // A free box: at its own left edge, as wide as it was set or as its text.
       const id0 = row.cols[0].boxIds[0]
@@ -278,7 +332,10 @@ export function layoutRows(
         out.set(id, { x: round(x), y: round(yy), w: round(w), h: bh })
         yy += bh + ROW_GAP
       }
-      y = start + rowH + ROW_GAP
+      if (g.beside) {
+        placed.push({ x0: x, x1: x + w, y0: start, y1: start + rowH })
+        y = Math.max(y, start + rowH + ROW_GAP)
+      } else y = start + rowH + ROW_GAP
       continue
     }
     row.cols.forEach((c) => {
@@ -292,6 +349,8 @@ export function layoutRows(
       x += w + COL_GAP
     })
     y = start + rowH + ROW_GAP
+    floorY = y
+    placed = []
   }
   return out
 }
@@ -345,6 +404,12 @@ export function insertAt(
   }
   if (zone === 'left' || zone === 'right') {
     if (row.cols.length >= MAX_COLS) return newRow(zone === 'right')
+    // A free box that gets a neighbour is a row of columns again.
+    if (isFreeRow(row)) {
+      delete row.x
+      delete row.wmm
+      delete row.auto
+    }
     const n = row.cols.length
     const share = 1 / (n + 1)
     const cols = row.cols.map((c) => ({ ...c, w: c.w * (1 - share) }))
@@ -399,6 +464,8 @@ export function resizeCols(
   i: number,
   at: number,
   snap = true,
+  /** Text box v2: the least each side needs (fractions of the row), e.g. its longest word. */
+  floor?: { l: number; r: number },
 ): GridRow {
   if (i < 0 || i + 1 >= row.cols.length) return row
   const before = sum(row.cols.slice(0, i).map((c) => c.w))
@@ -408,13 +475,19 @@ export function resizeCols(
     const hit = SNAPS.find((s) => Math.abs(s - edge) <= 0.03)
     if (hit !== undefined) edge = hit
   }
-  const left = Math.min(span - MIN_FRAC, Math.max(MIN_FRAC, edge - before))
+  // A floor that does not fit in the span is ignored.
+  const fits = !!floor && floor.l + floor.r <= span
+  const minL = Math.max(MIN_FRAC, fits ? floor!.l : 0)
+  const minR = Math.max(MIN_FRAC, fits ? floor!.r : 0)
+  const left = Math.min(span - minR, Math.max(minL, edge - before))
+  // Why: widths are kept to 0.01 of the row (about 7 px on an iPad), and
+  // plain rounding could cut a column up to 3.5 px under its floor, so its
+  // longest word broke (TB-21, CI run 44514113315). A floor rounds outward.
+  let l = round(left)
+  if (fits && l < minL) l = Math.ceil(minL * 100 - 1e-9) / 100
+  if (fits && span - l < minR) l = Math.floor((span - minR) * 100 + 1e-9) / 100
   const cols = row.cols.map((c, j) =>
-    j === i
-      ? { ...c, w: round(left) }
-      : j === i + 1
-        ? { ...c, w: round(span - left) }
-        : c,
+    j === i ? { ...c, w: l } : j === i + 1 ? { ...c, w: round(span - l) } : c,
   )
   return { ...row, cols }
 }

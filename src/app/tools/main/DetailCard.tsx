@@ -88,6 +88,8 @@ import {
   noteLine,
   noteSize,
 } from './textStyle'
+import { isOn } from '../../flags'
+import { NextSizeStrip } from './NextSizeStrip'
 
 /**
  * The detail card: opens when the active option is tapped again (or its ▾).
@@ -261,6 +263,8 @@ function StyleCard({
 
 /** The size chips (Aa › Style, and the Text strip's own size card). */
 function SizeChips({ value }: { value: number }) {
+  // Box bar part B (switch textbox.v2): the one size strip, for what is written next.
+  if (isOn('textbox.v2')) return <NextSizeStrip />
   return (
     <ChipRow
       id="size"

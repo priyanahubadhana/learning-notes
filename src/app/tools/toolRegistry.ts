@@ -38,6 +38,7 @@ import { runInkTool } from '../../ink/inkTools'
 import { toggleWritePad } from '../../editor/writePad/padState'
 import { openHandwritingChooser } from './handwriting'
 import { swapToLastTool } from './main/selectTool'
+import { miniKeysOn } from './main/miniKeys'
 import {
   isAudioPanelOpen,
   setAudioPanel,
@@ -363,6 +364,14 @@ export const TOOLS: readonly ToolDef[] = [
     section: 'insert',
     group: 'media',
     run: () => openHandwritingChooser(),
+  },
+  {
+    // Speak to type: shows the strip with the mic (the old bar's mini keys).
+    id: 'mic',
+    icon: 'mic',
+    section: 'insert',
+    group: 'media',
+    run: () => miniKeysOn.set(true),
   },
   {
     id: 'audio',

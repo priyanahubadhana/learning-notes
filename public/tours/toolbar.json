@@ -1,0 +1,11 @@
+{
+  "id": "toolbar",
+  "version": 1,
+  "steps": [
+    { "setting": "toolbar.show" },
+    { "setting": "toolbar.layout" },
+    { "setting": "advanced.barPlacement" },
+    { "setting": "advanced.barSize" },
+    { "setting": "toolbar.showNames" }
+  ]
+}

@@ -113,6 +113,23 @@ function Pill({
     return () => watch.disconnect()
   }, [tool, isVertical])
 
+  // Why: opening a card can change the pill's own height (it wraps in a narrow
+  // screen); the observer above answers a frame late, so the card was placed
+  // for the old height and sat over the pill for a frame (BUG-002, ipad-webkit).
+  // Measured after every commit, before the paint, so card and pill agree.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- runs after every draw on purpose; setSize bails out when the size is unchanged
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    setSize((old) =>
+      Math.abs(old.width - r.width) < 0.5 &&
+      Math.abs(old.height - r.height) < 0.5
+        ? old
+        : { width: r.width, height: r.height },
+    )
+  })
+
   const pos = useMemo(() => positionOf(place, size, room), [place, size, room])
 
   // Follows the rule for every pop-up (closes on a tap outside, Esc, another
@@ -193,7 +210,17 @@ function Pill({
 
   // The card sits next to the pill.
   const screen = { width: window.innerWidth, height: window.innerHeight }
-  const anchor = cardAnchor(pos, size, place.edge, screen)
+  // The card never covers the selection mini bar.
+  const miniBox = document
+    .querySelector('[data-mini-toolbar]')
+    ?.getBoundingClientRect()
+  const anchor = cardAnchor(
+    pos,
+    size,
+    place.edge,
+    screen,
+    miniBox && miniBox.width > 0 ? miniBox : undefined,
+  )
   const zones = dropZones(room)
   const label = t(`main.pill.${tool}` as MessageKey)
 
@@ -328,14 +355,21 @@ function Pill({
                 maxHeight: anchor.maxHeight,
                 width: Math.min(340, screen.width - 16),
               }}
-              className="fixed z-[45] overflow-y-auto rounded-2xl border border-ink-soft bg-bg p-1.5 text-ink shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
+              className="fixed z-[45] overflow-hidden rounded-2xl border border-ink-soft bg-bg text-ink shadow-[0_2px_4px_rgba(0,0,0,0.08),0_10px_28px_rgba(0,0,0,0.2)]"
             >
-              <DetailCard
-                card={card}
-                editor={editor}
-                onPage={(page) => openCard.set({ tool, page })}
-                onClose={() => openCard.set(null)}
-              />
+              {/* The surface stays solid; only this inner box scrolls and gets
+                  the scroll-hint fade (a fade on the surface let the page show through). */}
+              <div
+                className="overflow-y-auto p-1.5"
+                style={{ maxHeight: anchor.maxHeight - 2 }}
+              >
+                <DetailCard
+                  card={card}
+                  editor={editor}
+                  onPage={(page) => openCard.set({ tool, page })}
+                  onClose={() => openCard.set(null)}
+                />
+              </div>
             </div>
           )}
           {tool === 'lasso' && editor && !card && (

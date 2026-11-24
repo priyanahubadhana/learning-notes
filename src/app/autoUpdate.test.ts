@@ -162,3 +162,50 @@ describe('waiting saves are counted', () => {
     expect(hasPendingSaves()).toBe(false)
   })
 })
+
+describe('the 3-second prompt (update.v2)', () => {
+  // Why: a second offer that was still waiting for a safe moment asked again
+  // 2 s after Cancel (S6 flaked). Cancel is final until the next start.
+  it('Cancel is final: an offer made during the prompt does not ask again', async () => {
+    vi.useFakeTimers()
+    try {
+      const { startAutoUpdate, promptControls } = await import('./autoUpdate')
+      const { updateStatus } = await import('./updateStatus')
+      const offer = startAutoUpdate({
+        enabled: () => true,
+        win: {
+          document: {
+            visibilityState: 'visible',
+            addEventListener: () => {},
+            querySelector: () => null,
+          },
+          addEventListener: () => {},
+          setInterval: (f: () => void, ms: number) => setInterval(f, ms),
+          clearInterval: (id: number) => clearInterval(id),
+          setTimeout: (f: () => void, ms: number) => setTimeout(f, ms),
+        } as unknown as Window,
+        penDown: () => false,
+        hasPendingSaves: () => false,
+        hasUnsaved: () => false,
+        padDraft: () => false,
+        flush: async () => {},
+        backup: async () => 'ok',
+        onReset: () => {},
+        v2: () => true,
+      })
+      const apply = vi.fn()
+      void offer(apply)
+      await vi.advanceTimersByTimeAsync(500)
+      expect(updateStatus.get().countdown).toBe(3)
+      void offer(apply) // asked again while the prompt is on screen
+      await vi.advanceTimersByTimeAsync(600)
+      promptControls.cancel()
+      expect(updateStatus.get().phase).toBe('postponed')
+      await vi.advanceTimersByTimeAsync(8000)
+      expect(updateStatus.get().phase).toBe('postponed')
+      expect(apply).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+})

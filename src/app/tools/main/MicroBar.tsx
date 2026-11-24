@@ -160,17 +160,21 @@ export function MicroBar({ editor }: { editor: Editor }) {
       <Icon name={b.icon} />
     </button>
   )
+  const placeAt = (e: React.PointerEvent) =>
+    clampInArea({ left: e.clientX, top: e.clientY - 22 }, size, area)
   const moveBar = (e: React.PointerEvent) => {
     if (!dragging.current) return
-    const next = clampInArea(
-      { left: e.clientX, top: e.clientY - 22 },
-      size,
-      area,
-    )
-    setDrag(next)
+    setDrag(placeAt(e))
   }
-  const endDrag = () => {
-    if (dragging.current && drag) microPos.set(drag)
+  const endDrag = (e: React.PointerEvent) => {
+    // The place comes from this event's own position: a quick drag can lift before
+    // the last move was drawn, so the `drag` state may be older (or still empty).
+    if (dragging.current) {
+      // A lift saves the place under the finger. A cancel (the system took the drag)
+      // has no useful position: it keeps the last place that was drawn.
+      if (e.type === 'pointerup') microPos.set(placeAt(e))
+      else if (drag) microPos.set(drag)
+    }
     dragging.current = false
     setHeld(false)
   }

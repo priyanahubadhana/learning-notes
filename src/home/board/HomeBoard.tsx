@@ -1,0 +1,355 @@
+import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { AppUiContext } from '../../app/appUi'
+import { Icon, type IconName } from '../../app/tools/icons'
+import { useUnlocked } from '../../settings/level'
+import { usePref } from '../../app/usePref'
+import type { LearningNotesDB } from '../../core/db'
+import type { Project, Task } from '../../core/homeTypes'
+import { ReorderList } from '../../design/parts/drag/ReorderList'
+import { t, type MessageKey } from '../../i18n/t'
+import type { Briefing } from '../briefing'
+import { BriefingCard } from '../BriefingCard'
+import { TimerCard } from '../TimerCard'
+import { Top3 } from '../Top3'
+import {
+  BOARD_COLS,
+  columnsFor,
+  DEFAULT_LAYOUT,
+  SIZES,
+  spanOf,
+  fitsSlot,
+  isLayoutish,
+  moveWidget,
+  normalizeLayout,
+  setSize,
+  settleWidget,
+  type Layout,
+  type Slot,
+  type WidgetId,
+} from './boardLogic'
+import { PendingCard } from './PendingCard'
+import { SourcePopup } from './SourcePopup'
+import './board.css'
+
+export interface BoardData {
+  db: LearningNotesDB
+  today: string
+  tasks: Task[]
+  projects: Project[]
+  briefing: Briefing | null
+  cardsDue: number
+  record: { open: unknown[]; done: unknown[]; carried: unknown[] }
+  openReview: () => void
+}
+
+/**
+ * Home v2 > Today: a board of widgets you can arrange. Edit layout turns on
+ * the grip, S / M / L and the up/down buttons on each widget, with Done,
+ * Cancel and Reset.
+ */
+export function HomeBoard({ data }: { data: BoardData }) {
+  const { toast } = useContext(AppUiContext)
+  const [stored, setStored] = usePref<unknown[]>(
+    'home.v2.layout',
+    isLayoutish,
+    DEFAULT_LAYOUT,
+  )
+  const saved = normalizeLayout(stored)
+  const [draft, setDraft] = useState<Layout | null>(null)
+  const editing = draft !== null
+  const layout = draft ?? saved
+  const [cols, listRef, most] = useGridCols()
+
+  const done = () => {
+    if (draft) setStored(draft)
+    setDraft(null)
+    toast(t('home.v2.saved'))
+  }
+
+  return (
+    <div
+      data-testid="home-board"
+      data-editing={editing ? '' : undefined}
+      className="flex flex-col"
+    >
+      <div ref={listRef}>
+        <ReorderList<Slot>
+          items={layout}
+          getId={(s) => s.id}
+          axis="grid"
+          cols={most}
+          span={(s) => spanOf(s.size, cols)}
+          handle="grip"
+          showMoveButtons
+          disabled={!editing}
+          label={(s) => t(`home.v2.w.${s.id}` as MessageKey)}
+          fit={(_id, slot, order) => fitsSlot(layout, order, slot, cols)}
+          onMove={(id, to) => setDraft(moveWidget(layout, id as WidgetId, to))}
+          aria-label={t('home.v2.board')}
+          testId="home-widgets"
+          className="home-board"
+          renderItem={(slot, ctx) => (
+            <WidgetFrame
+              slot={slot}
+              editing={editing}
+              grip={ctx.grip}
+              moveButtons={ctx.moveButtons}
+              onSize={(size) =>
+                setDraft(
+                  settleWidget(setSize(layout, slot.id, size), slot.id, cols),
+                )
+              }
+            >
+              <WidgetBody id={slot.id} data={data} />
+            </WidgetFrame>
+          )}
+        />
+      </div>
+      {/* After the list in the page, shown first: it then paints above the widgets. */}
+      {editing ? (
+        <div
+          role="toolbar"
+          aria-label={t('home.v2.editBar')}
+          data-testid="home-edit-bar"
+          className="sticky top-0 order-first mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-accent bg-bg px-3 py-2"
+        >
+          {/* Phone: title on its own line, then one row of three equal buttons. */}
+          <span className="basis-full text-sm font-semibold sm:me-auto sm:basis-auto">
+            {t('home.v2.editBar')}
+          </span>
+          <div className="grid w-full grid-cols-3 gap-2 sm:flex sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setDraft(null)}
+              className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+            >
+              {t('home.v2.cancel')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setDraft(normalizeLayout(null))}
+              className="min-h-11 rounded-lg border border-line px-4 text-sm hover:bg-hover"
+            >
+              {t('home.v2.reset')}
+            </button>
+            <button
+              type="button"
+              onClick={done}
+              className="min-h-11 rounded-lg bg-accent px-5 text-sm font-semibold text-on-accent"
+            >
+              {t('home.v2.done')}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="order-first mb-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setDraft(saved)}
+            data-testid="home-edit"
+            className="min-h-11 rounded-lg border border-line px-4 text-sm hover:border-accent"
+          >
+            {t('home.v2.edit')}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Viewport width from which the board has 4 columns (spec: 860). */
+const WIDE_FROM = 860
+
+/** How many columns the grid really has right now (it drops to fewer on narrow screens). */
+function useGridCols() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [cols, setCols] = useState(BOARD_COLS)
+  const [most, setMost] = useState(BOARD_COLS)
+  useEffect(() => {
+    const el = ref.current
+    const ul = el?.querySelector('ul')
+    if (!el || !ul) return
+    const read = () => {
+      const cs = getComputedStyle(ul)
+      const gap = parseFloat(cs.columnGap) || 0
+      const rem =
+        parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+      // Spec: 2 columns below 860 px wide (phone, iPad portrait), 4 from there.
+      const most = window.innerWidth >= WIDE_FROM ? BOARD_COLS : 2
+      setMost(most)
+      setCols(columnsFor(ul.clientWidth, gap, 9 * rem, most))
+    }
+    read()
+    if (typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(read)
+    ro.observe(ul)
+    return () => ro.disconnect()
+  }, [])
+  return [cols, ref, most] as const
+}
+
+const WIDGET_ICON: Record<WidgetId, IconName> = {
+  cards: 'cards',
+  briefing: 'sunrise',
+  top3: 'star',
+  timer: 'clock',
+  pending: 'list',
+  record: 'checkSquare',
+}
+
+function WidgetFrame({
+  slot,
+  editing,
+  grip,
+  moveButtons,
+  onSize,
+  children,
+}: {
+  slot: Slot
+  editing: boolean
+  grip: ReactNode
+  moveButtons: ReactNode
+  onSize: (size: Slot['size']) => void
+  children: ReactNode
+}) {
+  const [source, setSource] = useState(false)
+  // Professional only (home.builtFrom): Beginner shows no explanation entry (HM-B64).
+  const builtFrom = useUnlocked('home.builtFrom')
+  const opener = useRef<HTMLButtonElement>(null)
+  const name = t(`home.v2.w.${slot.id}` as MessageKey)
+  return (
+    <section
+      aria-label={name}
+      data-testid={`widget-${slot.id}`}
+      data-size={slot.size}
+      className={`home-widget rounded-xl border border-line bg-bg p-3 ${editing ? 'select-none' : ''}`}
+    >
+      {/* One header row. Editing: it reaches into the card padding so grip and arrows
+          fit an S card on a phone; the icon steps aside there (gate 3 v4 item 4). */}
+      <header
+        className={`mb-2 flex min-h-10 flex-nowrap items-center gap-1 ${editing ? '-mx-2' : ''}`}
+      >
+        {editing && grip}
+        {!(editing && slot.size === 's') && (
+          <Icon
+            name={WIDGET_ICON[slot.id]}
+            size={17}
+            className="shrink-0 text-ink-soft"
+          />
+        )}
+        <h3 className="me-auto min-w-0 flex-1 truncate text-[13px] font-semibold text-ink-soft">
+          {name}
+        </h3>
+        {editing && moveButtons}
+        {/* Stays in the header row while editing (gate 3 v4 item 3). */}
+        {builtFrom && !(editing && slot.size === 's') && (
+          <button
+            ref={opener}
+            type="button"
+            aria-label={t('home.v2.source')}
+            onClick={() => setSource(true)}
+            data-testid={`source-${slot.id}`}
+            className="grid min-h-11 min-w-11 place-items-center rounded-lg text-muted hover:bg-hover hover:text-ink"
+          >
+            <Icon name="layers" size={17} />
+          </button>
+        )}
+      </header>
+      {editing && (
+        <div
+          role="radiogroup"
+          aria-label={t('home.v2.size', { name })}
+          className="mb-2 flex w-full"
+        >
+          {SIZES.map((size) => (
+            <button
+              key={size}
+              type="button"
+              role="radio"
+              aria-checked={slot.size === size}
+              aria-label={t(`home.v2.size.${size}.name` as MessageKey)}
+              data-testid={`size-${slot.id}-${size}`}
+              onClick={() => onSize(size)}
+              className={`min-h-11 min-w-0 flex-1 rounded-lg text-sm ${
+                slot.size === size
+                  ? 'bg-hover font-semibold text-accent'
+                  : 'text-ink-soft hover:bg-hover'
+              }`}
+            >
+              {t(`home.v2.size.${size}` as MessageKey)}
+            </button>
+          ))}
+        </div>
+      )}
+      {/* key: a size change replays the short settle animation. */}
+      <div
+        key={slot.size}
+        className="home-widget-body"
+        inert={editing}
+        data-testid={`body-${slot.id}`}
+      >
+        {children}
+      </div>
+      {source && (
+        <SourcePopup
+          id={slot.id}
+          opener={opener}
+          onClose={() => setSource(false)}
+        />
+      )}
+    </section>
+  )
+}
+
+function WidgetBody({ id, data }: { id: WidgetId; data: BoardData }) {
+  const { db, today, tasks, projects } = data
+  switch (id) {
+    case 'cards':
+      return data.cardsDue > 0 ? (
+        <button
+          type="button"
+          data-testid="due-tile"
+          onClick={data.openReview}
+          className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg px-3 text-start text-accent hover:bg-hover"
+        >
+          <span className="font-semibold tabular-nums">
+            {t('home.due.tile', { count: data.cardsDue })}
+          </span>
+          <span aria-hidden>›</span>
+        </button>
+      ) : (
+        <p className="text-sm text-muted">{t('home.v2.cards.none')}</p>
+      )
+    case 'briefing':
+      return data.briefing ? (
+        <BriefingCard
+          briefing={data.briefing}
+          onOpenCards={data.openReview}
+          bare
+        />
+      ) : null
+    case 'top3':
+      return <Top3 db={db} tasks={tasks} today={today} bare />
+    case 'timer':
+      return <TimerCard db={db} projects={projects} bare />
+    case 'pending':
+      return <PendingCard db={db} tasks={tasks} today={today} />
+    case 'record':
+      return (
+        <div className="grid grid-cols-3 gap-2 text-center">
+          {(
+            [
+              ['home.record.open', data.record.open.length],
+              ['home.record.done', data.record.done.length],
+              ['home.record.carried', data.record.carried.length],
+            ] as const
+          ).map(([key, n]) => (
+            <div key={key}>
+              <div className="text-2xl font-semibold tabular-nums">{n}</div>
+              <div className="text-xs text-muted">{t(key)}</div>
+            </div>
+          ))}
+        </div>
+      )
+  }
+}

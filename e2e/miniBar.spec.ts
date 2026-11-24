@@ -105,8 +105,10 @@ test('drag the mini bar by its grip, pin it, and the place is remembered', async
   await page.mouse.down()
   await page.mouse.move(gx + 80, gy + 220, { steps: 6 })
   await page.mouse.up()
-  const moved = (await mini(page).boundingBox())!
-  expect(moved.y - before.y).toBeGreaterThan(150)
+  // The bar is drawn at the lifted place a frame after the lift (WebKit is slower): wait for it.
+  await expect
+    .poll(async () => (await mini(page).boundingBox())!.y - before.y)
+    .toBeGreaterThan(150)
   await mini(page)
     .getByRole('button', { name: 'Keep the selection tools here' })
     .click()

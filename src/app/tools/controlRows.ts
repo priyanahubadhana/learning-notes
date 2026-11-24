@@ -1,4 +1,5 @@
 import { en } from '../../i18n/en'
+import { enLate } from '../../i18n/en/late'
 import { t } from '../../i18n/t'
 import { settingsRegistry } from '../../settings/builtinSettings'
 import '../../settings/toolbarSettings'
@@ -9,6 +10,7 @@ import '../../settings/lockSettings'
 import '../../settings/accountSettings'
 import { getAppActions } from './toolRuntime'
 import type { IconName } from './icons'
+import { shownByFlags } from '../../settings/flagGate'
 import {
   allTools,
   comingText,
@@ -38,7 +40,7 @@ export interface Row {
 }
 
 const englishName = (key: string): string =>
-  (en as Record<string, string>)[key] ?? ''
+  (({ ...en, ...enLate }) as Record<string, string>)[key] ?? ''
 
 /** All rows: the tools, then the settings (labels follow the language). */
 export function buildRows(): Row[] {
@@ -60,6 +62,7 @@ export function buildRows(): Row[] {
     }
   })
   for (const setting of settingsRegistry.list()) {
+    if (!shownByFlags(setting.id)) continue
     const category = settingsRegistry
       .categories()
       .find((c) => c.id === setting.category)

@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { LearningNotesDB } from '../core/db'
 import {
@@ -143,7 +143,18 @@ export default function BoxStylePopover({
 
   // A new box remembers the last style you gave a box (owner, 11 Nov); the
   // page's own box is not the example, it keeps its style to itself.
+  // Why (base red textTool:125): two quick taps (radius, then padding) both
+  // read the saved style before the first write came back, so the second
+  // write dropped the first change. A style written a moment ago is the base.
+  const lastWrite = useRef<{ style: BoxStyle | undefined } | null>(null)
+  const baseStyle = (): BoxStyle =>
+    lastWrite.current ? (lastWrite.current.style ?? {}) : style
   const apply = (next: BoxStyle | undefined) => {
+    const mine = { style: cleanStyle(next) }
+    lastWrite.current = mine
+    window.setTimeout(() => {
+      if (lastWrite.current === mine) lastWrite.current = null
+    }, 1500)
     void updateBox(db, pageId, boxId, { style: cleanStyle(next) })
     if (boxId !== MAIN_BOX) {
       setDflt(cleanStyle(next))
@@ -151,7 +162,7 @@ export default function BoxStylePopover({
     }
   }
   const set = (patch: Partial<BoxStyle>) => {
-    const next = { ...style, ...patch, preset: undefined } as BoxStyle
+    const next = { ...baseStyle(), ...patch, preset: undefined } as BoxStyle
     apply(next)
   }
   const useNew = sameStyle(dflt, style) && !!dflt

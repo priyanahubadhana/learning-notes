@@ -2,7 +2,15 @@
 import { describe, expect, it } from 'vitest'
 import { Schema } from 'prosemirror-model'
 import { EditorState } from 'prosemirror-state'
-import { refuseDelete, refuseInput, refuseTransaction } from './penGuard'
+import {
+  refuseDelete,
+  refuseInput,
+  refuseTransaction,
+  TAP_PATH_PX,
+  tipPathTo,
+  wasPenTap,
+  type TipPath,
+} from './penGuard'
 
 const idle = { down: false, upAt: -1e9 }
 
@@ -170,5 +178,45 @@ describe('grace period: only the selection is protected', () => {
   it('lets a synced change to another block through', () => {
     const tr = EditorState.create({ doc }).tr.insertText('synced', 20, 25)
     expect(refuseTransaction(tr, 1200, pen, true, sel)).toBe(false)
+  })
+})
+
+describe('a Pencil tap is told by the whole path of the tip (C4, C14)', () => {
+  /** The path length (px) of a press through these points. */
+  const pathOf = (pts: [number, number][]) => {
+    let path: TipPath = { len: 0, x: pts[0][0], y: pts[0][1] }
+    pts.slice(1).forEach(([x, y], i) => {
+      path = tipPathTo(path, x, y, i === pts.length - 2)
+    })
+    return path.len
+  }
+  it('a quick scratch-out over a small glyph that ends where it began is not a tap', () => {
+    // Four strokes across a 9 px glyph, back at the start: 0 px from start
+    // to end (the old rule called it a tap), 36 px of travel.
+    const zigzag: [number, number][] = [
+      [100, 100],
+      [109, 102],
+      [100, 104],
+      [109, 102],
+      [100, 100],
+    ]
+    expect(pathOf(zigzag)).toBeGreaterThan(TAP_PATH_PX)
+    expect(wasPenTap(180, pathOf(zigzag))).toBe(false)
+  })
+  it('a tap that drifts 5 px, with the sensor trembling, is a tap', () => {
+    const tap: [number, number][] = [
+      [100, 100],
+      [100.6, 100.4],
+      [100.1, 99.8],
+      [101.2, 101],
+      [102, 102.5],
+      [103, 104],
+    ]
+    expect(pathOf(tap)).toBeLessThanOrEqual(8)
+    expect(wasPenTap(220, pathOf(tap))).toBe(true)
+  })
+  it('a press held longer than 300 ms is not a tap', () => {
+    expect(wasPenTap(301, 0)).toBe(false)
+    expect(wasPenTap(300, TAP_PATH_PX)).toBe(true)
   })
 })

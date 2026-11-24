@@ -30,6 +30,22 @@ export function stopReading(): boolean {
   return true
 }
 
+let pagesOpen = 0
+/**
+ * A page screen opened (call the returned function when it closes). Reading
+ * mode ends with the last page screen; a next page opening in its place (same
+ * tick) keeps it. "Lock to reading" is still respected.
+ */
+export function pageOpened(): () => void {
+  pagesOpen++
+  return () => {
+    pagesOpen--
+    setTimeout(() => {
+      if (pagesOpen === 0 && isReading()) stopReading()
+    }, 0)
+  }
+}
+
 /** Tests only. */
 export function resetReadingState(): void {
   readingView.set('off')

@@ -83,6 +83,7 @@ const NOT_ACTIONS = [
   'files',
   'secrets',
   'claudeInbox',
+  'aiJobs',
 ]
 
 describe('page history', () => {
@@ -302,5 +303,25 @@ describe('AI results and imports (bug batch 1, item 47)', () => {
     expect(
       (await db.blocks.toArray()).filter((b) => b.deletedAt === null),
     ).toHaveLength(2)
+  })
+
+  it('R15: Undo turns off the moment its click takes the last step, so a second click is no extra step', async () => {
+    // Cause (traced on ipad-webkit): the button stayed on until the slow last
+    // step finished, a second click then undid nothing and was counted as a
+    // step (45 Undos, 44 Redos).
+    let release!: () => void
+    const slow = new Promise<void>((r) => (release = r))
+    pushStep({ kind: 'x', label: 'A', undo: () => slow, redo: () => true })
+    await tick()
+    expect(historyState.get().canUndo).toBe(true)
+    const first = undo()
+    expect(historyState.get().canUndo).toBe(false)
+    release()
+    expect(await first).toBe(true)
+    expect(historyState.get().canUndo).toBe(false)
+    expect(historyState.get().canRedo).toBe(true)
+    // One Undo, one Redo.
+    expect(await redo()).toBe(true)
+    expect(await redo()).toBe(false)
   })
 })

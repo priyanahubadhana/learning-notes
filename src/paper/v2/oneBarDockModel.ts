@@ -35,8 +35,14 @@ export function cleanBarPlace(v: unknown): BarPlace | null {
   }
 }
 
-/** How close to a side of the page the pointer must be to dock there (px). */
+/** How close to the top or bottom of the page the pointer must be to dock there (px). */
 export const ZONE = 64
+/**
+ * The same for the left and right sides: wider, because a finger stopping at the
+ * very edge of an iPad is taken by the system (the touch is cancelled) and the
+ * drop would be lost (issue #61).
+ */
+export const ZONE_SIDE = 96
 
 /** The side whose drop zone holds the pointer, or null in the middle. */
 export function zoneAt(p: { x: number; y: number }, a: Area): BarSide | null {
@@ -46,7 +52,12 @@ export function zoneAt(p: { x: number; y: number }, a: Area): BarSide | null {
     ['left', p.x - a.left],
     ['right', a.right - p.x],
   ]
-  const near = d.filter(([, n]) => n <= ZONE).sort((x, y) => x[1] - y[1])
+  const near = d
+    .filter(
+      ([side, n]) =>
+        n <= (side === 'left' || side === 'right' ? ZONE_SIDE : ZONE),
+    )
+    .sort((x, y) => x[1] - y[1])
   return near.length ? near[0][0] : null
 }
 
@@ -106,4 +117,59 @@ export function dockStyle(
         },
       }
   }
+}
+
+const EDGE = 8
+
+/**
+ * The area less every panel that lies over it (issue #60): a panel on the left
+ * side takes the left, one on the right the right. A panel that covers most of
+ * the width is a sheet, not a side panel, and is left alone.
+ */
+export function cutByPanels(a: Area, panels: readonly Area[]): Area {
+  const out = { ...a }
+  const width = a.right - a.left
+  const mid = (a.left + a.right) / 2
+  for (const p of panels) {
+    if (p.right <= out.left || p.left >= out.right) continue
+    if (p.bottom <= a.top || p.top >= a.bottom) continue
+    if (p.right - p.left > width * 0.7) continue
+    if ((p.left + p.right) / 2 < mid) out.left = Math.max(out.left, p.right)
+    else out.right = Math.min(out.right, p.left)
+  }
+  return out
+}
+
+/** Does a bar of this size have room in the area? If not, a pinned bar folds. */
+export function barFits(a: Area, size: { w: number; h: number }): boolean {
+  return (
+    a.right - a.left >= size.w + 2 * EDGE &&
+    a.bottom - a.top >= size.h + 2 * EDGE
+  )
+}
+
+/** A free place kept inside the area. */
+export function clampFree(
+  p: { left: number; top: number },
+  a: Area,
+  size: { w: number; h: number },
+): { left: number; top: number } {
+  return {
+    left: Math.max(a.left + EDGE, Math.min(p.left, a.right - EDGE - size.w)),
+    top: Math.max(a.top + EDGE, Math.min(p.top, a.bottom - EDGE - size.h)),
+  }
+}
+
+/** A touch that moves less than this (px) is a tap on the grip, not a drag. */
+export const TAP_SLOP = 8
+
+/** The page stays shielded this long after the grip is let go (ms): the click
+ * an iPad sends after a touch must not land on the words under the bar. */
+export const HOLD_AFTER_MS = 450
+
+export function isTap(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+): boolean {
+  return Math.hypot(to.x - from.x, to.y - from.y) < TAP_SLOP
 }

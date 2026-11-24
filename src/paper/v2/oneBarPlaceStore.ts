@@ -43,3 +43,10 @@ export function togglePin(place: BarPlace): void {
   barMoved.set(null)
   barPin.set(place.pinned ? null : { ...place, pinned: true })
 }
+
+/**
+ * True while the pinned or docked bar has no room (a panel took its place, or
+ * the page is too narrow): it folds, and the bar beside the box stands in. The
+ * pin itself is kept and the bar goes back when the room comes back (#60).
+ */
+export const barFolded = memStore<boolean>(false)

@@ -8,8 +8,9 @@ import type { PaperBox } from '../../core/types'
 import { usePhone } from '../../design/parts/useAnchoredCard'
 import { boxesOf } from '../boxes'
 import OneBarView from './OneBar'
-import { dockStyle } from './oneBarDockModel'
+import { barFits, clampFree, dockStyle, type Area } from './oneBarDockModel'
 import {
+  barFolded,
   barMoved,
   barPin,
   dropBar,
@@ -47,6 +48,55 @@ function useTargetBox(): string | null {
     }
   }, [])
   return id
+}
+
+/**
+ * Draws again whenever the page column changes (a panel opens, the screen
+ * turns, a scroll bar appears): the area is read from the page, so a bar placed
+ * before the page had its final size must be placed again (#60, #63).
+ */
+function useAreaTick(on: boolean): Area {
+  const [area, setArea] = useState<Area>(() => dockArea())
+  useEffect(() => {
+    if (!on) return
+    let raf = 0
+    let settle: ReturnType<typeof setTimeout> | undefined
+    const read = () => {
+      // A panel slides in over a moment: read again once it has settled.
+      clearTimeout(settle)
+      settle = setTimeout(measure, 400)
+      measure()
+    }
+    const measure = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => {
+        const a = dockArea()
+        setArea((p) =>
+          p.left === a.left &&
+          p.top === a.top &&
+          p.right === a.right &&
+          p.bottom === a.bottom
+            ? p
+            : a,
+        )
+      })
+    }
+    read()
+    const ro = new ResizeObserver(read)
+    const main = document.querySelector('main')
+    if (main) ro.observe(main)
+    const mo = new MutationObserver(read)
+    mo.observe(document.body, { childList: true, subtree: true })
+    const offResize = onRouted('resize', () => void read())
+    return () => {
+      cancelAnimationFrame(raf)
+      ro.disconnect()
+      mo.disconnect()
+      offResize()
+      clearTimeout(settle)
+    }
+  }, [on])
+  return area
 }
 
 /**
@@ -100,9 +150,22 @@ export default function PinnedBoxBar({
       root.style.removeProperty('--ob1-pad')
     }
   }, [dockedSide, size.w, size.h])
-  if (!place) return null
+  const area = useAreaTick(!!place)
+  // No room (a panel took it, or the page is too narrow): fold, keep the pin.
+  const folded =
+    !!place &&
+    !barFits(
+      area,
+      place.side === 'left' || place.side === 'right'
+        ? { w: 56, h: 280 }
+        : { w: 280, h: 56 },
+    )
+  useEffect(() => {
+    barFolded.set(folded)
+    return () => barFolded.set(false)
+  }, [folded])
+  if (!place || folded) return null
 
-  const area = dockArea()
   const docked = place.side !== 'free'
   const dock = docked
     ? dockStyle(place.side as Exclude<typeof place.side, 'free'>, area)
@@ -112,16 +175,7 @@ export default function PinnedBoxBar({
     ? { left: live.left, top: live.top }
     : dock
       ? dock.css
-      : {
-          left: Math.max(
-            area.left + 8,
-            Math.min(place.left, area.right - 8 - size.w),
-          ),
-          top: Math.max(
-            area.top + 8,
-            Math.min(place.top, area.bottom - 8 - size.h),
-          ),
-        }
+      : clampFree(place, area, size)
   const compact = vertical
     ? area.bottom - area.top < 640
     : area.right - area.left < 640

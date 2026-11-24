@@ -3,7 +3,13 @@ import { onRouted } from '../../app/input/eventRouter'
 import type { PaperBox } from '../../core/types'
 import { frameOfBox } from './listPlace'
 import OneBarView from './OneBar'
-import { barMoved, barPin, dropBar, placeFor } from './oneBarPlaceStore'
+import {
+  barFolded,
+  barMoved,
+  barPin,
+  dropBar,
+  placeFor,
+} from './oneBarPlaceStore'
 import { placeOneBar, SAFE, type Rect } from './oneBarPlace'
 import './oneBar.css'
 
@@ -65,12 +71,16 @@ export default function BoxBarV2({
 }) {
   const wrap = useRef<HTMLDivElement>(null)
   // Moved, docked or pinned: the page's bar (PinnedBoxBar) stands in for this one.
-  const place = placeFor(barPin.useValue(), barMoved.useValue(), box.id)
+  const folded = barFolded.useValue()
+  const kept = placeFor(barPin.useValue(), barMoved.useValue(), box.id)
+  const place = folded ? null : kept
   // True while the grip is held: the bar follows the finger, not its place.
   const held = useRef(false)
   // The ⋯ list is a lazy piece: fetch it now, so the first ⋯ tap shows it at once.
   useEffect(() => {
     void import('./BoxMoreHost')
+    // The page's bar (a pinned place) is a lazy piece too: have it ready.
+    void import('./PinnedBoxBar')
   }, [])
   // While a caret blinks in the box (typing), the bar steps aside; with words
   // selected, or the box only picked, it stays and acts on them.

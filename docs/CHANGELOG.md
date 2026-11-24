@@ -6,6 +6,14 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 - **What:** `.github/workflows/ci.yml`, the `e2e-fast` job: `timeout-minutes` 20 → 45. **Why:** the update spec (49 tests, three of 4 to 5 minutes) is in the fast list since U0c; on the hosted machine its shard passed 20 minutes and run 45289772955 cancelled two shards at the limit with every test green. Before U0c the longest fast job took 13 minutes (run 45172619408). No test changed. DECISIONS "Decisions to review" holds the phase-end choice (keep, move the slow scenarios to the nightly, or more shards). **Files:** .github/workflows/ci.yml, docs/CHANGELOG.md.
 
+### 24 Nov 2026: the box bar stays in the page column, docks on the sides, never touches the page behind (fixes #60, #61, #62, #63)
+
+- **What:** the bar's area now excludes panels lying over the page; a pinned bar with no room folds (the pin is kept); left and right dock zones are 96 px and a cancelled touch in a zone still docks; the grip, the bar, its strips and the ⋯ list stop presses at their surface and the page gets no touch while the grip is held; the bar's area is re-read when the page column changes.
+- **Why:** owner's iPad check, 24 Nov 03:21 to 03:26: bar over the sidebar, no side docking, grip typed into the title, no bar on a new box.
+- **Review round 1 (24 Nov):** the real #62 cause: a tap on the grip always dropped the bar, the in-box bar unmounted for the page bar, the grip node left before touchend, and iOS sent its click to the words under the finger (the title). Now a tap (under 8 px) is no drop, the page stays shielded 450 ms after release, and the pinned bar chunk is preloaded. For #63, an UNPINNED bar is hidden by design while a caret blinks in its box (approved picture, frame 15): this is reported as a spec question, the code is unchanged.
+- **Not proven (hypotheses, to be tested on the real iPad):** #61 (the 96 px side zones and the cancelled-touch drop are my guess at why the finger never docked) and #63 (the stale area is a real bug and is fixed, but the owner's first-show failure was not reproduced in a browser).
+- **Files:** src/paper/v2/oneBarDockModel.ts (+ .test.ts), oneBarArea.ts, oneBarGrip.ts, oneBarDock.tsx, oneBarPlaceStore.ts, PinnedBoxBar.tsx, BoxBarV2.tsx, OneBar.tsx, BoxMoreHost.tsx, oneBarB.css, e2e/tb2-bar-b.spec.ts, docs/features/selection-bar.md.
+
 ### 24 Nov 2026: the download poll no longer wipes the restart prompt (fixes #58)
 
 - **What:** the poll in `follow` re-checks that no restart was asked for right before each status write (offline, bytes, cache count). A new unit test holds the cache read open while the prompt starts.

@@ -49,6 +49,7 @@ import {
 } from './oneBarPops'
 import '../../design/parts/partsMisc.css'
 import { DockZones } from './oneBarDock'
+import { holdPage } from './oneBarGrip'
 import { useGripDrag } from './oneBarGrip'
 import type { BarPlace } from './oneBarDockModel'
 import './oneBar.css'
@@ -383,6 +384,7 @@ export default function OneBarView({
       // With the caret or words in the box, a press keeps them where they are.
       // A box only picked has no caret: the press focuses the button as before
       // (so a card or list it opens shows no focus ring).
+      {...holdPage}
       onMouseDown={(e) => {
         if (
           ed?.prosemirrorView?.hasFocus() &&

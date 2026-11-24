@@ -22,6 +22,7 @@ import { usePhone } from '../../design/parts/useAnchoredCard'
 import { openBoxStyle } from '../boxStyleBus'
 import { openBoxLayout, openOneBarPop, openTextOptions } from './oneBarBus'
 import { copyBox, cutBox } from './oneBarOps'
+import { holdPage } from './oneBarGrip'
 
 /**
  * TB-30 (switch textbox.v2): the ⋯ list of one box. Both ⋯ buttons open it:
@@ -247,22 +248,24 @@ export default function BoxMoreHost({
       ]
     : []
   return (
-    <BoxMoreList
-      menu={menu}
-      groups={groups}
-      footer={footer}
-      bottomReserve={
-        sheetSpot
-          ? Math.max(0, window.innerHeight - sheetSpot.y - 8 - sheetSpot.h)
-          : !spot && boxEl
-            ? // No place beside, under or over the box: the list opens under its
-              // button and scrolls inside the gap, never down over the box.
-              Math.max(
-                bottomBar(),
-                window.innerHeight - (boxEl.getBoundingClientRect().top - 8),
-              )
-            : undefined
-      }
-    />
+    <div style={{ display: 'contents' }} {...holdPage}>
+      <BoxMoreList
+        menu={menu}
+        groups={groups}
+        footer={footer}
+        bottomReserve={
+          sheetSpot
+            ? Math.max(0, window.innerHeight - sheetSpot.y - 8 - sheetSpot.h)
+            : !spot && boxEl
+              ? // No place beside, under or over the box: the list opens under its
+                // button and scrolls inside the gap, never down over the box.
+                Math.max(
+                  bottomBar(),
+                  window.innerHeight - (boxEl.getBoundingClientRect().top - 8),
+                )
+              : undefined
+        }
+      />
+    </div>
   )
 }

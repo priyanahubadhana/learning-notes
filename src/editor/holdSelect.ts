@@ -1,18 +1,17 @@
 import { TextSelection } from 'prosemirror-state'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { activeTool } from '../app/tools/main/mainTools'
-import { readDeviceSetting } from '../settings/settingsService'
-import { holdSelectSetting } from '../settings/builtinSettings'
 import { autoScrollWhileSelecting } from './dragSelect'
 import { beginSelectGesture, endSelectGesture } from './gesture'
 import { inputMachine } from '../app/inputMachine'
 import { lookThrough, padOf, posNear } from './tapSelect'
+import { PEN_HOLD_MS, PEN_HOLD_SLOP_PX } from '../app/input/penHold'
 import type { AppSchema } from './schema'
 
 /**
  * Hold-to-select, like the native iOS gesture (owner, real iPad). Under the
- * Text tool the Pencil is free for Scribble, so a quick stroke is handwriting.
- * A Pencil that touches text and stays still (under 6 px) for about 300 ms
+ * A Pencil that touches text and stays within about 18 px for 0.8 s (the
+ * Pencil's one hold, src/app/input/penHold.ts) enters SELECTION mode: Scribble is held
  * (Settings > Advanced, 200 to 600 ms) enters SELECTION mode: Scribble is held
  * off for the rest of that stroke (stylus touchmove is cancelled), the caret
  * grows (a cue) and dragging extends the selection, with moderate edge
@@ -20,11 +19,12 @@ import type { AppSchema } from './schema'
  */
 
 type Editor = AppSchema['BlockNoteEditor']
-const HOLD_MOVE_PX = 6
+// The Pencil's one hold (owner, 25 Nov): 0.8 s, about 18 px from the first touch.
+const HOLD_MOVE_PX = PEN_HOLD_SLOP_PX
 
 /** Pure rule: has the press moved too far to become a hold? */
 const movedTooFar = (dx: number, dy: number): boolean =>
-  Math.hypot(dx, dy) >= HOLD_MOVE_PX
+  Math.hypot(dx, dy) > HOLD_MOVE_PX
 
 export function watchHoldSelect(
   editor: Editor,
@@ -103,7 +103,8 @@ export function watchHoldSelect(
     // Only a block that already has words (an empty block takes the caret at once).
     const block = target.closest('.bn-block-content')
     if ((block?.textContent ?? '').trim() === '') return
-    const ms = readDeviceSetting(holdSelectSetting)
+    // Only the Pencil comes here, so its one hold applies; the Settings time is no longer used.
+    const ms = PEN_HOLD_MS
     // The press is dropped by the machine if its lift never comes (4 s).
     inputMachine.begin(e, 'holdSelect', () => void finish())
     press = {

@@ -2,6 +2,8 @@
 
 Written for: Fable, at the review after phase 1A is live and the full test set is green. Kept by the manager (Opus) while the phase runs; one entry per event, facts first, then the proposal. The owner asked for this file on 25 Nov 2026.
 
+The talk itself (prompt, all topics, the owner's part): [fable-talk-pack.md](fable-talk-pack.md).
+
 How to read: each entry has **What happened** (facts, dates, numbers), **Cost** (time or risk), **Why** (the root cause, not the symptom) and **Proposal** (a rule or a tool, small). Fable decides; nothing here changes a rule by itself.
 
 ## Entries

@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026, midday: the scenarios job caches its browsers; S9 was not a red (CI file on build/next, docs on main)
+
+- **What:** `.github/workflows/ci.yml`, job `scenarios`: a browser cache in front of the install (its own key for Chromium and WebKit together), the system packages on a cache hit, the retry install only on a miss; the 25-minute limit unchanged (slice/scenarios-browser-cache 0bb6bb9e, merged into build/next). The cut scenarios job of run 45299069262 was rerun by hand. The S9 ✘ of last night was read in the log: S6, S7 and S9 are `@notbuilt @fail` since 20 Nov, the total was "20 passed" (DECISIONS 24 Nov 12:35).
+- **Why:** a slow mirror took about 20 of the job's 25 minutes twice last night and cut the job; the other e2e jobs already had the cache. **Files:** .github/workflows/ci.yml (build/next), docs/DECISIONS.md, docs/STATE.md, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: the proof found a real red, S3b; the line is stopped (issue #58; docs only)
 
 - **What:** S3b failed twice in 14 ipad-webkit runs ("The update did not finish" never showed). Root cause found by a read-only review and confirmed in the code: the download-progress poll (src/app/updateProgress.ts) can overwrite the 3 s restart prompt after its cache read, and the prompt then stops for good. GitHub issue #58 opened; a builder fixes it on slice/u0d-prompt-race (worktree ln-u0d); STATE step 0 holds the order of work (no merge of build/next, S3b counted from zero after the fix).

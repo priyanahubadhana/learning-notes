@@ -138,3 +138,23 @@ html[data-box-drag] [data-box-bar] {
 [data-paper-box='main'] .ln-tap-below {
   display: none;
 }
+
+/*
+ * #64 (owner 24 Nov): a box made taller by a handle is filled to its border.
+ * The handle sets only the frame's minHeight; the editor, and the ink pad laid
+ * over it, stayed as tall as the text, so ink and typing stopped there. The
+ * frame is a column, its content grows to the border and so does the editor.
+ */
+[data-paper-box]:not([data-paper-box='main']) {
+  display: flex;
+  flex-direction: column;
+}
+[data-paper-box]:not([data-paper-box='main']) [data-box-content] {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+[data-paper-box]:not([data-paper-box='main']) [data-box-content] .bn-container {
+  flex: 1 1 auto;
+}

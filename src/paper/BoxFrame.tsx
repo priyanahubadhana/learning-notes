@@ -258,7 +258,13 @@ export function BoxFrame({
         // box with the Text tool; it never makes a box on top.
         const el = e.target as HTMLElement
         if (activeTool.get() !== 'text' || box.locked) return
-        if (el === e.currentTarget || el.hasAttribute('data-box-content'))
+        // #64: the editor's container now fills a taller box, so the empty
+        // part below the text is that container.
+        if (
+          el === e.currentTarget ||
+          el.hasAttribute('data-box-content') ||
+          el.classList.contains('bn-container')
+        )
           caretAtEnd(e.currentTarget)
       }}
     >

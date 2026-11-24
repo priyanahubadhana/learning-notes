@@ -184,15 +184,16 @@ async function pickedExtra(page: Page, name: string) {
 
 /** Drag the bottom dot by `by` px (down is plus) with the Pencil, after the hold the app asks for. */
 async function dragBottomDot(page: Page, box: Locator, by: number) {
-  // The dot sits on the bottom edge: press it only once it has got there.
+  // Press the dot only once it has stopped moving (the box may still be settling).
   const dot = box.locator('[data-resize-handle="s"]')
   await expect
     .poll(async () => {
-      const d = (await dot.boundingBox())!
-      const b = (await box.boundingBox())!
-      return Math.abs(d.y + d.height / 2 - (b.y + b.height))
+      const a = (await dot.boundingBox())!
+      await settle(page)
+      const b = (await dot.boundingBox())!
+      return Math.abs(a.y - b.y) + Math.abs(a.x - b.x)
     })
-    .toBeLessThanOrEqual(6)
+    .toBeLessThanOrEqual(0.5)
   const h = (await dot.boundingBox())!
   const from = { x: h.x + h.width / 2, y: h.y + h.height / 2 }
   await page.evaluate(() => {

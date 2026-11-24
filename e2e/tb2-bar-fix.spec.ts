@@ -138,7 +138,7 @@ for (const side of ['right', 'left'] as const) {
     const toX =
       side === 'right'
         ? Math.min(a.r - 75, g.x + (a.r - 8 - (barBox.x + barBox.width)))
-        : Math.max(a.l + 75, g.x - (barBox.x - a.l - 8))
+        : g.x - 40
     await realPen(page, [g, { x: toX, y: g.y }], 8)
     const b = await rect(page.getByTestId('object-bar'))
     expect(b.height).toBeGreaterThan(b.width)
@@ -146,6 +146,20 @@ for (const side of ['right', 'left'] as const) {
     else expect(b.x + b.width).toBeGreaterThan(a.r - 40)
   })
 }
+
+test('F63. (#63) the bar beside a selected box has the pin from its first show, not pressed; a Pencil tap pins it', async ({
+  page,
+}) => {
+  await ready(page)
+  const pin = page.getByTestId('ob-pin')
+  await expect(pin).toBeVisible()
+  await expect(pin).toHaveAttribute('aria-pressed', 'false')
+  await realPenTaps(page, await centre(pin), [{ hold: 60 }])
+  await expect(page.getByTestId('ob-pin')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+})
 
 test('F62. (#62, red test only) a Pencil tap on the pin of a moved, unpinned bar pins it and the box stays selected', async ({
   page,

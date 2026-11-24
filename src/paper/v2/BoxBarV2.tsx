@@ -9,9 +9,14 @@ import {
   barPin,
   dropBar,
   placeFor,
+  togglePin,
 } from './oneBarPlaceStore'
 import { placeOneBar, SAFE, type Rect } from './oneBarPlace'
 import './oneBar.css'
+import type { BarPlace } from './oneBarDockModel'
+
+/** The bar beside its box as a place: free and not pinned (its left and top are read at the tap). */
+const BESIDE: BarPlace = { side: 'free', left: 0, top: 0, pinned: false }
 
 /** A page column narrower than this gets the short bar (px). */
 const SHORT_UNDER = 640
@@ -191,7 +196,9 @@ export default function BoxBarV2({
         onMenu={onMenu}
         onLine={onLine}
         mover={{
-          place: null,
+          // A free place from its own rect, not pressed: the pin shows from the
+          // first show (#63). onPin reads where the bar stands at the tap.
+          place: BESIDE,
           vertical: false,
           onLive: (at) => {
             const el = wrap.current
@@ -204,7 +211,10 @@ export default function BoxBarV2({
             el.style.translate = `${tx + at.left - r.left}px ${ty + at.top - r.top}px`
           },
           onDrop: (p) => dropBar(box.id, p),
-          onPin: () => {},
+          onPin: () => {
+            const r = wrap.current?.getBoundingClientRect()
+            if (r) togglePin({ ...BESIDE, left: r.left, top: r.top })
+          },
         }}
       />
     </div>

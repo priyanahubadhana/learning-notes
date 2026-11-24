@@ -3,8 +3,7 @@ import { dockArea } from './oneBarArea'
 import {
   HOLD_AFTER_MS,
   isTap,
-  placeAfterDrop,
-  zoneAt,
+  zoneForBar,
   type BarPlace,
   type BarSide,
 } from './oneBarDockModel'
@@ -63,9 +62,27 @@ export function useGripDrag({
       top: Math.max(a.top + 8, Math.min(a.bottom - 8 - h, e.clientY - g.dy)),
     }
   }
+  // The side the bar's leading edge (or else the pointer) is in (#61).
+  const zoneOf = (e: PointerEvent, at: { left: number; top: number }) => {
+    const el = bar()
+    const d = down.current
+    const bx = {
+      left: at.left,
+      top: at.top,
+      right: at.left + (el?.offsetWidth ?? 0),
+      bottom: at.top + (el?.offsetHeight ?? 0),
+    }
+    return zoneForBar(
+      bx,
+      d ? { x: e.clientX - d.x, y: e.clientY - d.y } : { x: 0, y: 0 },
+      dockArea(),
+      { x: e.clientX, y: e.clientY },
+    )
+  }
   const end = (e: PointerEvent, drop: boolean) => {
     if (!grab.current) return
     const travelled = moving.current
+    const landed = travelled ? zoneOf(e, free(e)) : null
     moving.current = false
     down.current = null
     shield(false)
@@ -75,7 +92,6 @@ export function useGripDrag({
       return
     }
     const at = free(e)
-    const a = dockArea()
     // A touch the system cancels (a finger at the very edge of the iPad) still
     // docks where the finger was last seen, when that was a side zone (#61).
     const seen = lastZone.current
@@ -84,7 +100,7 @@ export function useGripDrag({
     setDragging(false)
     setZone(null)
     onLive(null)
-    if (drop) onDrop(placeAfterDrop({ x: e.clientX, y: e.clientY }, at, a))
+    if (drop) onDrop({ side: landed ?? 'free', ...at })
     else if (seen && seen !== 'free') onDrop({ side: seen, ...at })
   }
   // The grip never reaches the editor under it: no caret, no selection, no focus.
@@ -130,7 +146,7 @@ export function useGripDrag({
           setDragging(true)
         }
         last.current = free(e)
-        const z = zoneAt({ x: e.clientX, y: e.clientY }, dockArea())
+        const z = zoneOf(e, last.current)
         lastZone.current = z
         setZone(z)
         onLive(last.current)

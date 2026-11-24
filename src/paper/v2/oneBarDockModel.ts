@@ -173,3 +173,35 @@ export function isTap(
 ): boolean {
   return Math.hypot(to.x - from.x, to.y - from.y) < TAP_SLOP
 }
+
+/**
+ * The side a bar being dragged would dock on (issue #61). The bar's LEADING
+ * edge in the direction of travel picks the side: a bar almost as wide as the
+ * page is held by its left-end grip, so the finger never gets near the right
+ * edge, but the bar's right end does. Not moving, or the leading edge in no
+ * zone: the pointer decides (zoneAt).
+ * `travel` is how far the pointer has moved since the press.
+ */
+export function zoneForBar(
+  bar: Area,
+  travel: { x: number; y: number },
+  a: Area,
+  pointer?: { x: number; y: number },
+): BarSide | null {
+  const horizontal = Math.abs(travel.x) >= Math.abs(travel.y)
+  if (travel.x !== 0 || travel.y !== 0) {
+    let lead: [BarSide, number, number]
+    if (horizontal)
+      lead =
+        travel.x > 0
+          ? ['right', a.right - bar.right, ZONE_SIDE]
+          : ['left', bar.left - a.left, ZONE_SIDE]
+    else
+      lead =
+        travel.y > 0
+          ? ['bottom', a.bottom - bar.bottom, ZONE]
+          : ['top', bar.top - a.top, ZONE]
+    if (lead[1] <= lead[2]) return lead[0]
+  }
+  return pointer ? zoneAt(pointer, a) : null
+}

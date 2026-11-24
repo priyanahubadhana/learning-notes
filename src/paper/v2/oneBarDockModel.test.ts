@@ -4,6 +4,7 @@ import {
   dockStyle,
   placeAfterDrop,
   zoneAt,
+  zoneForBar,
   cutByPanels,
   barFits,
   clampFree,
@@ -164,5 +165,49 @@ describe('issue #62: a tap on the grip is a tap, not a drop', () => {
   })
   it('the page stays shielded for a moment after the grip is let go', () => {
     expect(HOLD_AFTER_MS).toBeGreaterThanOrEqual(400)
+  })
+})
+
+describe('zoneForBar (#61: a page-wide bar dragged to a side docks there)', () => {
+  // A bar almost as wide as the page: its grip (the finger) is at its left end.
+  const wide = { left: 108, top: 300, right: 892, bottom: 360 }
+  it('docks right when the leading edge is in the right zone, the finger still in the left zone', () => {
+    expect(zoneAt({ x: 130, y: 330 }, area)).toBe('left')
+    expect(zoneForBar(wide, { x: 40, y: 0 }, area, { x: 130, y: 330 })).toBe(
+      'right',
+    )
+  })
+  it('docks left for a leftward travel with the trailing end near the left edge', () => {
+    const bar = { left: 108, top: 300, right: 892, bottom: 360 }
+    expect(zoneForBar(bar, { x: -40, y: 0 }, area, { x: 870, y: 330 })).toBe(
+      'left',
+    )
+  })
+  it('docks top and bottom by the leading edge of a vertical travel', () => {
+    const tall = { left: 400, top: 70, right: 460, bottom: 640 }
+    expect(zoneForBar(tall, { x: 0, y: 40 }, area, { x: 430, y: 100 })).toBe(
+      'bottom',
+    )
+    expect(zoneForBar(tall, { x: 0, y: -40 }, area, { x: 430, y: 600 })).toBe(
+      'top',
+    )
+  })
+  it('a travel toward the middle docks nowhere', () => {
+    const bar = { left: 300, top: 300, right: 500, bottom: 360 }
+    expect(
+      zoneForBar(bar, { x: 30, y: 0 }, area, { x: 320, y: 330 }),
+    ).toBeNull()
+  })
+  it('falls back to the pointer when the leading edge is not in a zone', () => {
+    const bar = { left: 110, top: 300, right: 300, bottom: 360 }
+    expect(zoneForBar(bar, { x: 0, y: 0 }, area, { x: 120, y: 330 })).toBe(
+      'left',
+    )
+    expect(
+      zoneForBar(bar, { x: 30, y: 0 }, area, { x: 500, y: 330 }),
+    ).toBeNull()
+  })
+  it('works without a pointer', () => {
+    expect(zoneForBar(wide, { x: 40, y: 0 }, area)).toBe('right')
   })
 })

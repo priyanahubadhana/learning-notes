@@ -119,6 +119,9 @@ for (const how of ['pen', 'finger'] as const) {
     await page.keyboard.press('Escape')
     await page.waitForTimeout(500)
     await expect(box).not.toHaveAttribute('data-picked', '')
+    // The whole tall box must be on screen for the edge taps (tablet height).
+    await box.evaluate((el) => el.scrollIntoView({ block: 'center' }))
+    await page.waitForTimeout(300)
     const e = await lineEnd(box)
     const r = await rect(box)
     const unpick = async () => {

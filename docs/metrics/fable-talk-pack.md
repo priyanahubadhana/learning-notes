@@ -26,6 +26,8 @@ B. Give me a plan for bug #68 (quick Apple Pencil taps on words). Say what can b
 C. Check the phase-end items (pack section 2C), then help me plan phase 1B (section 2D).
 
 My own words on Pencil selection and my "worst first" pick are in section 3 of the pack.
+Section 6 is Opus's deep background: the 18-day history of this bug, a code map,
+the test gap, and Opus's own questions for you. Please answer those too.
 Ask me all your questions at once, in easy words, with your pick for each.
 ```
 
@@ -133,3 +135,47 @@ From [STATE.md](../STATE.md) "Phase 1A close-out" and DECISIONS of 24 Nov evenin
 - Keep your exact words, for example "a selection comes and disappears". They point straight to the cause.
 - If a test step is unclear, say "I cannot do this step" (as you did on 25 Nov). Opus then rewrites it in easier steps.
 - A bug report is not a rule. If you want a new behaviour, say it as a rule ("a tap near the border should pick the box"), so Opus never invents one for you.
+
+---
+
+## 6. Deep background for Fable (gathered by Opus, 25 Nov; facts with places)
+
+### 6.1 #68 is not new: about 18 days of "fixed in tests, back on the iPad"
+
+| Date      | What the owner saw                                                                               | What was done                                                                                                                                                                                      | Held on the iPad? |
+| --------- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| 7 Nov     | R4-11, R6-17 to R6-20: a double or triple tap selection vanishes after about 1 s                 | The tap's own late synthetic click collapsed it: pen pointerdown and stylus touchstart from the 2nd tap on are preventDefault-ed; `keepSelection` restores; 600 ms grace (DECISIONS ~:318, ~:1400) | No                |
+| 8 Nov     | R7-4, R7-6: same fault back; multi-tap dead after the app goes to the background                 | Gesture watchdog (app/gestureReset.ts); app/inputMachine.ts notes the iPad "often drops pointerup and pointercancel"                                                                               | No                |
+| 11 Nov    | A double tap erased the word                                                                     | 600 ms grace (CHANGELOG ~:967)                                                                                                                                                                     | Partly            |
+| 14 Nov    | F7: selection, then Apple's edit menu flashes                                                    | Touchend hold (`ownLiftUntil`)                                                                                                                                                                     | No                |
+| 16 Nov    | C14 double tap deletes the word, slow taps work best; C19 a tap on the caret shows the edit menu | Default tap speed "Relaxed" 700 ms; a tap within 24 px or on the same word counts; rule "a tap never deletes" (DECISIONS ~:137)                                                                    | Partly            |
+| 18-19 Nov | Planning                                                                                         | docs/archive/plans/pencil-select-plan.md left fork **A (take Scribble's result) vs B (our own reading of the gesture)** open, "to be decided by the owner's recorder traces"                       | Not decided       |
+| 24-25 Nov | #68: wrong thing picked, nothing picked, "comes and disappears", Apple's menu                    | Five traces taken; owner: hold for Fable                                                                                                                                                           | —                 |
+
+Related open issues: #55 (press-and-hold near punctuation shows no strip), #56 (a stray Pencil touch deletes the circled selection), #57 (a circle picks the word before, about 1 in 10), #38 and #10 (cursor jumps, handles grab the next word), #42 (Journal rename by double tap fails on ipad-webkit), #67 (bar stays; stage 3).
+
+### 6.2 Where the code is (build/next, src/)
+
+- **editor/tapSelect.ts**: the one tap counter (double = word, triple = line, four = paragraph; Text tool only). `onDown` ~:656, `onUp` ~:770 (selects after setTimeout 0, then `keepSelection`), `onCancel` ~:935, listeners ~:950-961 (pointer and touch, capture).
+  - **A tap ends only on pointerup, pointercancel or the watchdog.** It never ends on touchend or on the next pointerdown, and touchend only preventDefaults the lift. This matches cause A in the digest.
+  - It has no isPrimary filter.
+- **app/inputMachine.ts**: the states idle / pressing / drawing / selecting / transforming. `end()` runs only on pointerup, pointercancel or lostpointercapture (~:249-253). A sweeper drops a down older than 4000 ms. There is no touchend path. This matches the trace: it stays in "pressing" until the next tap.
+- **isPrimary is filtered in** app/useLongPress.ts:89, **editor/holdMenuWatch.ts:146** (drops exactly the quick-tap pointers that come as `pri 0`) and paper/blankHold.ts:23. This matches cause B, in those places only.
+- editor/ownSelection.ts (`keepSelection` puts back a late collapse; has its own `pointerDown` flag), editor/penSelect.ts, holdSelect.ts, circleSelect.ts, dragSelect.ts, app/penTap.ts, app/gestureReset.ts, app/palmGuard.ts, app/input/* (router, recorder).
+- **CSS:** `-webkit-touch-callout: none` and `user-select: none` are set only on the app's chrome (bars and panels), **never on the note text** (src/index.css ~:389-409 has an iOS block). Part of cause C.
+
+### 6.3 The test gap (the most important fact for any plan)
+
+- e2e/realPen.ts sends trusted Playwright mouse events relabelled as pen. It **always sends both down and up, always isPrimary = true, no touch events, no mouse and click chain, no native iOS selection.**
+- So **no current test can show the #68 fault.** TB-04, pencilTaps, iosSelect F7 and ownSelection all pass for that reason, while the iPad fails.
+- A red test needs dispatched events built from the trace sequences: down without up, touchend just before the next down, `isPrimary: false`, a native selectionchange to word, then paragraph, at 300 to 500 ms. Older specs and paper/penOnPaper.ts dispatch events this way.
+- The project rule for an iPad-only fault: no new try without a new trace from the owner. Five traces exist now.
+
+### 6.4 Opus's questions for Fable
+
+1. **Fork A or B?** Should the app stop fighting iOS and adopt its native word and paragraph selection, showing our bar on it, or keep its own tap counter and suppress iOS? 18 days of B-style patches have not held. The case for B is TS-N1, "never Apple's bar", in docs/features/text-select.md.
+2. **A replay harness first?** Should the first part be a tool that replays a recorder trace as dispatched events in ipad-webkit, so every iPad trace becomes a red test? It would cost about a day and make every later fix provable.
+3. **Should a pen tap end on whichever comes first:** pointerup, touchend, or a new pen pointerdown? If so, what does that break in circle select and hold (#55, #56)?
+4. **What can a web app not control on iPadOS Safari**, so the owner is told plainly what moves to stage 2? Examples: the edit menu, the triple-tap paragraph, Scribble.
+5. **The CI-only reds (retro entry 6):** are they one cause (slow CI WebKit timing) or many? What is the right rule for timing budgets on CI without weakening tests?
+6. **Is the ladder right for iPad-only faults?** Sonnet tries cannot be proven without a replay harness, so should iPad-only faults start at Opus or Fable?

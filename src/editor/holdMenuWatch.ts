@@ -2,7 +2,13 @@ import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { activeTool } from '../app/tools/main/mainTools'
 import { holdMenuSetting } from '../settings/builtinSettings'
 import { readDeviceSetting } from '../settings/settingsService'
-import { PEN_QUIET_MS, holdMsFor, holdSlopFor } from '../app/input/penHold'
+import {
+  PEN_QUIET_MS,
+  holdMsFor,
+  holdSlopFor,
+  noteWritten,
+  wroteRecently,
+} from '../app/input/penHold'
 import type { AppSchema } from './schema'
 
 /**
@@ -124,7 +130,6 @@ export function watchHoldMenu(
   /** When the last menu opened: its press's own context menu is cancelled. */
   let openedAt = 0
   /** When text last went into the page (typing, Scribble). */
-  let wroteAt = 0
 
   /**
    * C0-7: Apple's magnifier starts at about the same time as our strip. Once
@@ -160,7 +165,7 @@ export function watchHoldMenu(
       return
     // C0-7: the Pencil may hold anywhere in the box, but not right after
     // text went in (Scribble rests still before a stroke).
-    if (e.pointerType === 'pen' && Date.now() - wroteAt < PEN_QUIET_MS) return
+    if (e.pointerType === 'pen' && wroteRecently()) return
     // The Pencil's hold is fixed (0.8 s, 18 px: penHold.ts); the setting is for finger and mouse.
     const hold = holdMsFor(e.pointerType, readDeviceSetting(holdMenuSetting))
     const me = {
@@ -210,7 +215,7 @@ export function watchHoldMenu(
   // Text going in (keys, Scribble, dictation): note it, and end a hold.
   const onInput = (e: Event) => {
     if (e.target instanceof Node && dom.contains(e.target)) {
-      wroteAt = Date.now()
+      noteWritten()
       stop()
     }
   }

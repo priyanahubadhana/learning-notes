@@ -3,7 +3,7 @@ import type { EditorView } from 'prosemirror-view'
 import { watchPointers } from '../app/input/pointerWatch'
 import { isOn } from '../app/flags'
 import { activeTool } from '../app/tools/main/mainTools'
-import { PEN_QUIET_MS } from '../app/input/penHold'
+import { wroteRecently } from '../app/input/penHold'
 import { stampOf } from '../app/tapTiming'
 import { keepSelection } from './ownSelection'
 import { noteTapSelected } from './penGuard'
@@ -212,17 +212,11 @@ export function watchCircleSelect(
   if (!dom) return () => {}
   const doc = dom.ownerDocument
   let stroke: { id: number; path: P[] } | null = null
-  /** When text last went into the page: a loop soon after is ink, not a circle. */
-  let wroteAt = 0
-  const onInput = (e: Event) => {
-    if (e.target instanceof Node && dom.contains(e.target)) wroteAt = Date.now()
-  }
-  doc.addEventListener('beforeinput', onInput, true)
   const onDown = (e: PointerEvent) => {
     stroke = null
     if (e.pointerType !== 'pen' || e.button > 0) return
     if (!isOn('textbox.v2') || activeTool.get() !== 'text') return
-    if (Date.now() - wroteAt < PEN_QUIET_MS) return
+    if (wroteRecently()) return
     if (!(e.target instanceof Node) || !dom.contains(e.target)) return
     if (e.target instanceof Element && e.target.closest('a, button, input'))
       return
@@ -284,6 +278,5 @@ export function watchCircleSelect(
   })
   return () => {
     stopWatch()
-    doc.removeEventListener('beforeinput', onInput, true)
   }
 }

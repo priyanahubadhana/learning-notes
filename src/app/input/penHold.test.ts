@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   PEN_HOLD_MS,
   PEN_HOLD_SLOP_PX,
+  PEN_QUIET_MS,
+  noteWritten,
+  wroteRecently,
   holdMsFor,
   holdSlopFor,
 } from './penHold'
@@ -18,5 +21,14 @@ describe('the Pencil hold (owner, 25 Nov 2026)', () => {
     expect(holdSlopFor('pen', 12)).toBe(18)
     expect(holdSlopFor('touch', 12)).toBe(12)
     expect(holdSlopFor('mouse', 10)).toBe(10)
+  })
+})
+
+describe('quiet after writing', () => {
+  it('is on for 1 s after text went in, then off', () => {
+    expect(PEN_QUIET_MS).toBe(1000)
+    noteWritten(10_000)
+    expect(wroteRecently(10_999)).toBe(true)
+    expect(wroteRecently(11_000)).toBe(false)
   })
 })

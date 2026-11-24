@@ -25,3 +25,12 @@ export const holdSlopFor = (pointerType: string, other: number): number =>
  * that is ink (owner, 25 Nov 2026, 01:30).
  */
 export const PEN_QUIET_MS = 1000
+
+let wroteAt = 0
+/** Text went into a page just now (typing, Scribble, dictation). */
+export const noteWritten = (at = Date.now()): void => {
+  wroteAt = at
+}
+/** Was text written within PEN_QUIET_MS? Then Pencil holds and circles wait. */
+export const wroteRecently = (now = Date.now()): boolean =>
+  now - wroteAt < PEN_QUIET_MS

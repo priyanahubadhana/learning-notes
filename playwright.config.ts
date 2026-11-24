@@ -280,7 +280,7 @@ const config = defineConfig({
         /journalMonthRepair/,
         /noticeClose/,
         /sweep2b/, // bug sweep to Phase 2B (17 Nov)
-        /u0aUpdateRepro/, // U0a: a real update, two builds (approved in the brief)
+        /u0aUpdateRepro[.]spec/, // U0a: a real update, two builds (approved in the brief)
       ],
       use: { ...devices['iPad Pro 11'], hasTouch: true },
       expect: { timeout: 15_000 },

@@ -20,11 +20,11 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 **Resume here (24 Nov 2026, about 21:45 IST; final handoff of the fix session; the owner sleeps and opens a new chat with "continue").**
 
-**State: the fix session is merged and pushed.** build/next a551b50b holds the five fixes of the owner's iPad check (#61, #62, #63, #64, #65) and main. CI run 45430735905 on PR #5 started 15:53 UTC; result: see step 1. Details and proof numbers: CHANGELOG "24 Nov 2026, evening". Both slice branches (slice/box-bar-61-63 in ln-barfix, slice/ink-box-64-65 in ln-inkbox) are merged locally into build/next and were never pushed alone; do not delete the worktrees (the owner decides).
+**State: the fix session is merged and pushed.** build/next a551b50b holds the five fixes of the owner's iPad check (#61, #62, #63, #64, #65) and main. CI run 45430735905 on PR #5 is green and the preview serves it (step 1). Details and proof numbers: CHANGELOG "24 Nov 2026, evening". Both slice branches (slice/box-bar-61-63 in ln-barfix, slice/ink-box-64-65 in ln-inkbox) are merged locally into build/next and were never pushed alone; do not delete the worktrees (the owner decides).
 
 **Steps for the new chat, in order:**
 
-1. **Check CI and the preview.** `gh run view 45430735905` (or `gh run list --branch build/next --limit 1`): checks, fast-set shards, scenarios, preview must be green. Then `curl https://build-next.learning-notes-app.pages.dev/version.json`: its commit must equal PR #5's `merge_commit_sha` (`gh api repos/priyanahubadhana/learning-notes/pulls/5 --jq .merge_commit_sha`; it was c506f8f5 at the push). A red: stop, root cause first (a cut iPad shard at 45 min with green tests = the known slow update spec, DECISIONS 24 Nov 07:10). The scenarios job should show a browser cache hit.
+1. **DONE 24 Nov, about 22:15 IST:** CI run 45430735905 is green (checks, all five fast-set shards, scenarios with a browser cache hit, preview); **the preview serves c506f8f5 = PR #5's merge commit, so the five fixes are on the preview.** A new chat only re-checks that nothing was pushed since (`gh run list --branch build/next --limit 1`).
 2. **Send the owner the iPad test list** (preview, about 10 minutes, Pencil, recorder OFF):
    - a. #63: tap a box's border → the bar shows WITH the pin, not pressed. Tap the pin → pinned.
    - b. #61: drag a page-wide bar to the right, drop it about 2 cm from the right edge → it docks RIGHT (vertical). A drop straight down stays free.

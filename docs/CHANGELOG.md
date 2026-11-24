@@ -2,6 +2,11 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 24 Nov 2026, midday: the scenarios job caches its browsers; S9 was not a red (CI file on build/next, docs on main)
+
+- **What:** `.github/workflows/ci.yml`, job `scenarios`: a browser cache in front of the install (its own key for Chromium and WebKit together), the system packages on a cache hit, the retry install only on a miss; the 25-minute limit unchanged (slice/scenarios-browser-cache 0bb6bb9e, merged into build/next). The cut scenarios job of run 45299069262 was rerun by hand. The S9 ✘ of last night was read in the log: S6, S7 and S9 are `@notbuilt @fail` since 20 Nov, the total was "20 passed" (DECISIONS 24 Nov 12:35).
+- **Why:** a slow mirror took about 20 of the job's 25 minutes twice last night and cut the job; the other e2e jobs already had the cache. **Files:** .github/workflows/ci.yml (build/next), docs/DECISIONS.md, docs/STATE.md, docs/CHANGELOG.md.
+
 ### 24 Nov 2026: the fast-set job limit on CI, 20 to 45 minutes (measured)
 
 - **What:** `.github/workflows/ci.yml`, the `e2e-fast` job: `timeout-minutes` 20 → 45. **Why:** the update spec (49 tests, three of 4 to 5 minutes) is in the fast list since U0c; on the hosted machine its shard passed 20 minutes and run 45289772955 cancelled two shards at the limit with every test green. Before U0c the longest fast job took 13 minutes (run 45172619408). No test changed. DECISIONS "Decisions to review" holds the phase-end choice (keep, move the slow scenarios to the nightly, or more shards). **Files:** .github/workflows/ci.yml, docs/CHANGELOG.md.

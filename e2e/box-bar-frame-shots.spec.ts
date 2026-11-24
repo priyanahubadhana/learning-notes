@@ -51,55 +51,75 @@ async function pickIt(page: Page) {
   await expect(box).toHaveAttribute('data-picked', '')
 }
 
-for (const [look, theme] of [
-  ['light', 'day'],
-  ['dark', 'night'],
-] as const) {
-  test.describe(`ipad-upright ${look}`, () => {
-    test.use({
-      viewport: { width: 834, height: 1194 },
-      hasTouch: true,
-      deviceScaleFactor: 2,
-    })
-    test('pictures', async ({ page }) => {
-      mkdirSync(OUT, { recursive: true })
-      const shot = (n: string) =>
-        page.screenshot({ path: `${OUT}/ipad-upright-${look}-${n}.png` })
-      await page.addInitScript(() =>
-        localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
-      )
-      await startInMode(page, 'touch')
-      await page.goto('/')
-      await createNotebook(page, 'Paper', `F ${look}`)
-      await typeInEditor(page, 'Main text')
-      await page.evaluate(
-        (th) => document.documentElement.setAttribute('data-theme', th),
-        theme,
-      )
-      const mb = (await page.locator('[data-paper-box="main"]').boundingBox())!
-      await page.mouse.click(mb.x + mb.width * 0.3, mb.y + mb.height + 120)
-      await expect(
-        page.locator(EXTRA).first().locator('.bn-editor'),
-      ).toBeFocused()
-      await page.keyboard.type('How to read books')
-      await page.waitForTimeout(700)
-      await page.evaluate(() => (document.activeElement as HTMLElement).blur())
-      await page.waitForTimeout(900)
-      await pickIt(page)
-      const area = await page.evaluate(() => {
-        const a = document.querySelector('main')!.getBoundingClientRect()
-        return { l: a.left, t: a.top, r: a.right, b: a.bottom }
+const SIZES = [
+  ['ipad-upright', 834, 1194],
+  ['ipad-sideways', 1194, 834],
+  // The sidebar is a drawer over the page here (the owner's real case, #60).
+  ['overlay-upright', 600, 1000],
+] as const
+for (const [label, w, h] of SIZES)
+  for (const level of ['beginner', 'professional'] as const)
+    for (const [look, theme] of [
+      ['light', 'day'],
+      ['dark', 'night'],
+    ] as const) {
+      test.describe(`${label} ${level} ${look}`, () => {
+        test.use({
+          viewport: { width: w, height: h },
+          hasTouch: true,
+          deviceScaleFactor: 2,
+        })
+        test('pictures', async ({ page }) => {
+          mkdirSync(OUT, { recursive: true })
+          const shot = (n: string) =>
+            page.screenshot({
+              path: `${OUT}/${label}-${level}-${look}-${n}.png`,
+            })
+          await page.addInitScript((lv) => {
+            localStorage.setItem('learning-notes:flags', '["textbox.v2"]')
+            localStorage.setItem(
+              'learning-notes:level',
+              JSON.stringify({ level: lv, unlocked: [], off: [] }),
+            )
+          }, level)
+          await startInMode(page, 'touch')
+          await page.goto('/')
+          await createNotebook(page, 'Paper', `F ${look}`)
+          await typeInEditor(page, 'Main text')
+          await page.evaluate(
+            (th) => document.documentElement.setAttribute('data-theme', th),
+            theme,
+          )
+          const mb = (await page
+            .locator('[data-paper-box="main"]')
+            .boundingBox())!
+          await page.mouse.click(mb.x + mb.width * 0.3, mb.y + mb.height + 120)
+          await expect(
+            page.locator(EXTRA).first().locator('.bn-editor'),
+          ).toBeFocused()
+          await page.keyboard.type('How to read books')
+          await page.waitForTimeout(700)
+          await page.evaluate(() =>
+            (document.activeElement as HTMLElement).blur(),
+          )
+          await page.waitForTimeout(900)
+          await pickIt(page)
+          const area = await page.evaluate(() => {
+            const a = document.querySelector('main')!.getBoundingClientRect()
+            return { l: a.left, t: a.top, r: a.right, b: a.bottom }
+          })
+          const g = (await page.getByTestId('ob-grip').boundingBox())!
+          await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
+          await page.mouse.down()
+          await page.mouse.move(area.r - 80, (area.t + area.b) / 2, {
+            steps: 8,
+          })
+          await page.mouse.up()
+          await expect(page.locator('[data-pinned-bar]')).toHaveCount(1)
+          await shot('docked-right')
+          await openSidebar(page)
+          await page.waitForTimeout(800)
+          await shot('sidebar-open-folded')
+        })
       })
-      const g = (await page.getByTestId('ob-grip').boundingBox())!
-      await page.mouse.move(g.x + g.width / 2, g.y + g.height / 2)
-      await page.mouse.down()
-      await page.mouse.move(area.r - 80, (area.t + area.b) / 2, { steps: 8 })
-      await page.mouse.up()
-      await expect(page.locator('[data-pinned-bar]')).toHaveCount(1)
-      await shot('docked-right')
-      await openSidebar(page)
-      await page.waitForTimeout(800)
-      await shot('sidebar-open-folded')
-    })
-  })
-}
+    }

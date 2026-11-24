@@ -1,4 +1,5 @@
 import { useRef, useState, type PointerEvent, type SyntheticEvent } from 'react'
+import { onRouted, PRIORITY } from '../../app/input/eventRouter'
 import { dockArea } from './oneBarArea'
 import {
   HOLD_AFTER_MS,
@@ -17,19 +18,20 @@ export const SHIELD_WAIT_MAX_MS = 2000
 function watchPresses() {
   if (watching) return
   watching = true
-  document.addEventListener(
-    'pointerdown',
-    (e) => pressed.add(e.pointerId),
-    true,
-  )
+  // Through the app's event router (the ratchet: no raw listeners). Highest
+  // priority, and it never handles the event, so every later handler still
+  // gets it.
+  const o = { priority: SHIELD_WATCH_PRIORITY, name: 'oneBarGrip.presses' }
+  onRouted('pointerdown', (e) => void pressed.add(e.pointerId), o)
   const up = (e: globalThis.PointerEvent) => void pressed.delete(e.pointerId)
-  document.addEventListener('pointerup', up, true)
-  document.addEventListener('pointercancel', up, true)
-  // A lift eaten by a context menu or a lost window never comes.
-  const clear = () => pressed.clear()
-  window.addEventListener('blur', clear)
-  document.addEventListener('visibilitychange', clear)
+  onRouted('pointerup', up, o)
+  onRouted('pointercancel', up, o)
+  // A lift eaten by a context menu or a lost window never comes (the router's
+  // "background" is a blur, a hidden page or a pagehide).
+  onRouted('background', () => void pressed.clear(), o)
 }
+/** Above every router priority, so a handler that stops a press cannot hide it from the shield. */
+const SHIELD_WATCH_PRIORITY = PRIORITY.gesture + 1000
 /**
  * The page under the bar gets no touch while the grip is held and for a moment
  * after (the click an iPad sends after a touch must not land on the words

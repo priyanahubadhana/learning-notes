@@ -463,17 +463,27 @@ const anyMenu = (page: Page) =>
  * still, then the lift. Time is the subject of these tests, so the waits are
  * on purpose.
  */
-async function slowPen(page: Page, pts: Pt[], gap: number, rest = 0) {
+async function slowPen(
+  page: Page,
+  pts: Pt[],
+  gap: number,
+  rest = 0,
+  /** Lift this long (ms) after the touch, whatever the moves took. */
+  liftAt = 0,
+) {
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = true
   })
   await page.mouse.move(pts[0].x - 3, pts[0].y - 6)
   await page.mouse.move(pts[0].x, pts[0].y)
   await page.mouse.down()
+  const t0 = Date.now()
   for (const p of pts.slice(1)) {
+    if (liftAt && Date.now() - t0 + gap > liftAt) break
     await page.mouse.move(p.x, p.y)
     await page.waitForTimeout(gap)
   }
+  if (liftAt) await page.waitForTimeout(Math.max(0, liftAt - (Date.now() - t0)))
   if (rest) await page.waitForTimeout(rest)
   await page.mouse.up()
   await page.evaluate(() => {
@@ -519,7 +529,7 @@ test.describe('the Pencil hold, circle and loop (owner, 25 Nov)', () => {
     const w = centre(await boxOf(page, 'rate-is'))
     await page.waitForTimeout(1300)
     const before = await editorText(page)
-    await slowPen(page, wobble(w, 10), 60)
+    await slowPen(page, wobble(w, 14), 40, 0, 600)
     await page.waitForTimeout(1200)
     await expect(anyMenu(page)).toHaveCount(0)
     expect(await editorText(page)).toBe(before)

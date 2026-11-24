@@ -178,6 +178,8 @@ export function isTap(
 const HELD = 10
 /** The travel (px) toward a side that makes a held bar mean that side (#61). */
 export const PUSH = 24
+/** The travel (px) toward a left or right zone that lets the pointer alone choose it. */
+export const SIDE_TRAVEL = 40
 
 /**
  * The side a bar being dragged would dock on (issue #61). A bar almost as wide
@@ -201,10 +203,20 @@ export function zoneForBar(
     ['top', bar.top - a.top <= HELD ? -travel.y : 0],
   ]
   const win = pushed.filter(([, n]) => n >= PUSH).sort((x, y) => y[1] - x[1])[0]
-  const at = pointer ? zoneAt(pointer, a) : null
+  const raw = pointer ? zoneAt(pointer, a) : null
+  let at = raw
+  // A left or right zone from the pointer alone needs SIDE_TRAVEL toward it: the
+  // grip of a page-wide bar always sits in the left zone, and a vertical drag
+  // must still drop free. Top and bottom stay as they were.
+  if (
+    pointer &&
+    ((at === 'left' && -travel.x < SIDE_TRAVEL) ||
+      (at === 'right' && travel.x < SIDE_TRAVEL))
+  )
+    at = zoneAt(pointer, { ...a, left: -1e6, right: 1e6 })
   // The finger in the middle of the page is a free drop (a bar held at the edge
   // by its clamp is then only where the finger dragged it); the finger in a side
   // zone that is not the pushed side is the #61 case: the push decides.
-  if (win && (!pointer || at)) return win[0]
+  if (win && (!pointer || raw)) return win[0]
   return at
 }

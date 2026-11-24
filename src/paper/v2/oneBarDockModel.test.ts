@@ -207,12 +207,28 @@ describe('zoneForBar (#61: a page-wide bar pushed against a side docks there)', 
   })
   it('falls back to the pointer zone as before', () => {
     const bar = { left: 110, top: 300, right: 300, bottom: 360 }
-    expect(zoneForBar(bar, { x: 0, y: 0 }, area, { x: 120, y: 330 })).toBe(
+    expect(zoneForBar(bar, { x: -40, y: 0 }, area, { x: 120, y: 330 })).toBe(
       'left',
     )
     expect(
       zoneForBar(bar, { x: 30, y: 0 }, area, { x: 500, y: 330 }),
     ).toBeNull()
+  })
+  it('a side zone from the pointer needs 40 px of travel toward it (a vertical drag of a page-wide bar is free)', () => {
+    const bar = { left: 300, top: 300, right: 500, bottom: 360 }
+    const inLeft = { x: 130, y: 330 }
+    expect(zoneForBar(bar, { x: 0, y: 150 }, area, inLeft)).toBeNull()
+    expect(zoneForBar(wide, { x: 0, y: 150 }, area, inLeft)).toBeNull()
+    expect(zoneForBar(bar, { x: -39, y: 0 }, area, inLeft)).toBeNull()
+    expect(zoneForBar(bar, { x: -40, y: 0 }, area, inLeft)).toBe('left')
+    const inRight = { x: 870, y: 330 }
+    expect(zoneForBar(bar, { x: 0, y: -150 }, area, inRight)).toBeNull()
+    expect(zoneForBar(bar, { x: 40, y: 0 }, area, inRight)).toBe('right')
+  })
+  it('top and bottom from the pointer need no travel', () => {
+    const bar = { left: 300, top: 300, right: 500, bottom: 360 }
+    expect(zoneForBar(bar, { x: 0, y: 0 }, area, { x: 500, y: 70 })).toBe('top')
+    expect(zoneForBar(bar, { x: 5, y: 0 }, area, { x: 120, y: 66 })).toBe('top')
   })
   it('works without a pointer', () => {
     expect(zoneForBar(wide, { x: 40, y: 0 }, area)).toBe('right')

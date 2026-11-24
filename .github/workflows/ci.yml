@@ -89,7 +89,10 @@ jobs:
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && !inputs.full)
     needs: checks
     runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    timeout-minutes: 20
+    # 24 Nov: 20 became 45. The update spec (U0c, 49 tests, three of 4 to 5 minutes) is in the fast
+    # list, and its shard passed 20 minutes on the hosted machine (run 45289772955, two shards
+    # cancelled at the limit with every test green). Measured, not guessed; see DECISIONS 24 Nov.
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:

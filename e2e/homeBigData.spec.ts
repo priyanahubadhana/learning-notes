@@ -10,6 +10,13 @@ test('Home opens fast with 5,000 tasks (4,950 of them done long ago)', async ({
 }) => {
   await page.goto('/')
   await closeCorner(page)
+  // Wait until the app has made its database (version above 1). Opening it
+  // earlier would create an empty one, and the seed below would then hang
+  // (root cause of the timeouts: a race in the test, not the app).
+  await page.waitForFunction(async () => {
+    const dbs = await indexedDB.databases()
+    return dbs.some((d) => d.name === 'learning-notes' && (d.version ?? 0) > 1)
+  })
   // Seed the database directly: 50 open tasks and 4,950 old done ones.
   await page.evaluate(
     () =>

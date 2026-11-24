@@ -26,3 +26,10 @@ Owner, 25 Nov 2026 03:13 to 03:14 IST, iPad upright (820 x 1180), preview build 
 ## Ladder (owner, 25 Nov)
 
 Builder tries (each try needs new evidence: a red test built from these sequences), then Opus, then Fable; only then the stage-2 refinement.
+
+## Trace 5 (owner, 25 Nov 03:22, Lasso tool, photo [5](../shots/2026-11-25-issue68-5.png))
+
+- Owner: double taps on words did not select them in any box except the box that already had the caret; there a double tap worked (native iOS selection, since that box's editor had focus).
+- Trace: every tap in Lasso mode goes pressing → selecting → idle with `sel: box`; pointerup arrives normally here (the Lasso captures the pointer), and the app makes no word selection. This is by design for the Lasso (see the owner's rule below), not part of the fault.
+- **Owner's rule, 25 Nov:** the Lasso selects only by circling. Taps on words do not select words in Lasso mode; mixing tap-to-select into the Lasso brings back the bugs the Lasso was made to avoid.
+- **Owner, 25 Nov: do nothing on #68 now; the owner takes it to Fable** (it has been happening for a long time).

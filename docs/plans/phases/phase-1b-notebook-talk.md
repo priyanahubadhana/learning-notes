@@ -166,6 +166,20 @@ Fable's reading of the top row of a notebook, to be confirmed by the owner: Note
 
 Planned in depth but built after stage 1's first use: the map of the notebook as a view; the "Database" option and its trackers; a richer dashboard; pages under pages inside a database; custom filters; lines that stay joined to boxes.
 
+## 5B. The owner's decisions on the audit (25 Nov)
+
+| Audit point                          | Decided                                                                                                                                                                                                                           |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1, highlights on words              | The text's own highlight colour, which moves with the words. The pen is for arrows, circles and underlines.                                                                                                                       |
+| A2, diagrams                         | Boxes and hand-drawn arrows, in one group that moves together. Lines that stay joined to boxes come later.                                                                                                                        |
+| A3, short and deep notes             | Both stay. The short one opens first; the deep one is one tap away. **The names are the ones the app already has: "Summary" for the short notes and "Notes" for the full notes** (docs/features/summary.md, line 7). No new name. |
+| A10, how deep to plan later features | One page of direction now; numbered lines when a feature's turn comes.                                                                                                                                                            |
+| The stage-1 slice                    | The four points of section 5A.                                                                                                                                                                                                    |
+
+**The name check the owner asked for.** Searched: the specs, the decision lists, the collected earlier decisions and the app's texts. The only names in use are Summary (short key points), Notes (the full notes) and Review (recall cards). No other name for the deep notes was decided. One line in STATE speaks of "the four levels" that the connector must write; no list of four levels of notes was found, and the Claude skill format has three levels of importance for a point (must, good, extra). Opus confirms what "the four levels" are before the spec is closed.
+
+**A fact found in the code (25 Nov).** The row of options under a page's name already takes more options. Every page has Notes, Summary and Review. A notebook can switch on four more, off by default: Mind map, Slides, Audio and video, Database (src/notebooks/pageTabs.ts on build/next). A "Dashboard" option is not in that list.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

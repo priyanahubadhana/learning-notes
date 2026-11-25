@@ -86,13 +86,18 @@ test('long page names wrap to two lines on PC and at most three on the iPad', as
   // taller than its text in the CI WebKit (80 px there), and the owner's rule
   // is about lines. A line counts when its text box is inside the button.
   const lines = await name.evaluate((b) => {
-    const r = document.createRange()
-    r.selectNodeContents(b)
+    // Text only (an element's own box inside the button is not a line), and
+    // only what lies inside the button: clamped lines are cut off below it.
     const at = b.getBoundingClientRect()
     const tops = new Set<number>()
-    for (const q of r.getClientRects())
-      if (q.width > 0 && q.top >= at.top - 1 && q.bottom <= at.bottom + 1)
-        tops.add(Math.round(q.top))
+    const walker = document.createTreeWalker(b, NodeFilter.SHOW_TEXT)
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const r = document.createRange()
+      r.selectNodeContents(n)
+      for (const q of r.getClientRects())
+        if (q.width > 0 && q.top >= at.top - 1 && q.bottom <= at.bottom + 1)
+          tops.add(Math.round(q.top))
+    }
     return tops.size
   })
   expect(lines).toBeLessThanOrEqual(tablet ? 3 : 2)

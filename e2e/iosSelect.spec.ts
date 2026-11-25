@@ -153,6 +153,21 @@ const boxOf = (page: Page, word: string, from = 0, to = word.length) =>
     { sel: MAIN, word, from, to },
   ) as Promise<Box>
 
+/** The word's box once the page has stopped moving (a turn or a resize keeps re-wrapping for a moment on a slow machine), not after a fixed time. */
+async function stillBox(page: Page, word: string) {
+  let last = ''
+  let same = 0
+  await expect
+    .poll(async () => {
+      const now = JSON.stringify(await boxOf(page, word))
+      same = now === last ? same + 1 : 0
+      last = now
+      return same
+    })
+    .toBeGreaterThanOrEqual(3)
+  return JSON.parse(last) as Box
+}
+
 const centre = (b: Box): Pt => ({ x: b.x + b.width / 2, y: b.y + b.height / 2 })
 const selectedText = (page: Page) =>
   page.evaluate(() => window.getSelection()?.toString() ?? '')
@@ -654,7 +669,7 @@ for (const mode of MODES)
       await page.setViewportSize(vp)
       await page.waitForTimeout(600)
       // A circle round "rate-is" (first line).
-      const b = await boxOf(page, 'rate-is')
+      const b = await stillBox(page, 'rate-is')
       await realPen(page, loop(centre(b), b.width / 2 + 1, b.height / 2 + 5))
       await expect
         .poll(() => selectedText(page), { timeout: 800 })
@@ -665,7 +680,7 @@ for (const mode of MODES)
       // A slow double tap on "plain" (second line): the same kind of strip.
       await page.keyboard.press('Escape')
       await page.waitForTimeout(400)
-      const w = await boxOf(page, 'plain')
+      const w = await stillBox(page, 'plain')
       await tapRunArrived(page, 'pen', centre(w), 2, 600)
       await expect
         .poll(() => selectedText(page), { timeout: 800 })

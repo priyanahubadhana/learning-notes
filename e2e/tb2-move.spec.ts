@@ -225,21 +225,50 @@ test('TB-14 the drop glides 200 ms, is not tappable until it lands, says "Box mo
   await page.evaluate((boxId) => {
     const w = window as unknown as { glide?: { seen: boolean; pe: string } }
     w.glide = { seen: false, pe: '' }
+    // A record says the attribute was set, even when the glide has ended by the
+    // time a slow machine runs this callback; the pointer rule is read from a
+    // probe that carries the same two attributes.
+    const probe = () => {
+      const p = document.createElement('div')
+      p.setAttribute('data-paper-box', boxId ?? '')
+      p.setAttribute('data-gliding', '')
+      document.body.appendChild(p)
+      const pe = getComputedStyle(p).pointerEvents
+      p.remove()
+      return pe
+    }
     const mo = new MutationObserver((list) => {
+      // The box may come back as a new element that already carries the attribute.
+      const live = document.querySelector<HTMLElement>(
+        '[data-paper-box="' + boxId + '"][data-gliding]',
+      )
+      if (live && !w.glide!.seen) {
+        w.glide = { seen: true, pe: getComputedStyle(live).pointerEvents }
+        mo.disconnect()
+        return
+      }
       for (const m of list) {
         const el = m.target as HTMLElement
         if (
-          el.hasAttribute('data-gliding') &&
+          m.attributeName === 'data-gliding' &&
+          m.oldValue === null &&
           el.getAttribute('data-paper-box') === boxId &&
           !w.glide!.seen
         ) {
-          w.glide = { seen: true, pe: getComputedStyle(el).pointerEvents }
+          w.glide = {
+            seen: true,
+            pe: el.hasAttribute('data-gliding')
+              ? getComputedStyle(el).pointerEvents
+              : probe(),
+          }
           mo.disconnect()
         }
       }
     })
     mo.observe(document.body, {
       attributes: true,
+      attributeOldValue: true,
+      childList: true,
       attributeFilter: ['data-gliding'],
       subtree: true,
     })
@@ -250,7 +279,25 @@ test('TB-14 the drop glides 200 ms, is not tappable until it lands, says "Box mo
       () =>
         (window as unknown as { glide: { seen: boolean; pe: string } }).glide,
     )
-  await expect.poll(async () => (await glide()).seen).toBe(true)
+  await expect
+    .poll(async () => {
+      const g = await glide()
+      // CI evidence (run 45582678197 lost its failure text): what the page saw.
+      console.log(
+        'TB-14 DBG ' +
+          JSON.stringify({
+            g,
+            now: await page.evaluate(() => ({
+              gliding: document.querySelectorAll('[data-gliding]').length,
+              reduced: matchMedia('(prefers-reduced-motion: reduce)').matches,
+              moved: !!document.querySelector('[data-paper-box]'),
+              toast: document.body.innerText.includes('Box moved'),
+            })),
+          }),
+      )
+      return g.seen
+    })
+    .toBe(true)
   expect((await glide()).pe).toBe('none')
   await expect(b).not.toHaveAttribute('data-gliding', '', { timeout: 1000 })
   await expect(page.getByText('Box moved')).toBeVisible()

@@ -320,6 +320,10 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 - NB-08 changed by the owner: no limits on the mind map. "If needed, I can zoom in, zoom out, I can drag it ... but the entire diagram should be available to view. That's all I wanted." "Too many restrictions there."
 - NB-11 changed by the owner: "sources need to be mentioned in the end, not at the top or between or anywhere ... it will be disturbing, kind of like noise."
 - NB-12: where a point that is not checked is named is open.
+- NB-09 changed by the owner: the number of cards was "also kind of restriction". The same for the mind map and the cards: "Make what is necessary to be done. Don't add too much unnecessary stuff." The owner recalls that the questions Claude asks at the start include how many cards to make (the start questions of 16 Nov name "cards").
+- NB-12 decided: a quiet mark beside a point that is not checked, and the list at the end explains it.
+- NB-16 added from the owner's words: what the subject needs and no more.
+- A lesson for Fable: three of its own numbers were restrictions the owner never asked for (the mind map's levels, the count of cards, and before that the accuracy rule). Every number in the draft that is Fable's own is shown to the owner as such.
 - The other lines of the group: the owner has not said yes yet.
 
 ## 6. What comes next

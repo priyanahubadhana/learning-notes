@@ -365,7 +365,10 @@ for (const mode of MODES) {
         ring.push({ x: c.x + Math.cos(a) * rx, y: c.y + Math.sin(a) * ry })
       }
       const before = await editorText(page)
-      await realPen(page, ring)
+      // One move per point: a hand circles in well under 0.8 s. A tiny loop (the "vi" one) that
+      // takes longer stays within 3 mm for 0.8 s, and by the owner's rule (25 Nov) that is a hold,
+      // not a circle. (4 moves per point took 1.8 s here.)
+      await realPen(page, ring, 1)
       const lift = await stylusLiftCancelled(page, c)
       await expect.poll(() => selectedText(page), { timeout: 800 }).toBe(want)
       await page.waitForTimeout(800)

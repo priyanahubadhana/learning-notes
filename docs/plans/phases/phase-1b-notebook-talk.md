@@ -210,6 +210,20 @@ A helper checked each wish against the code, not against the specs. Opus confirm
 
 **"The four levels":** the Study tracker has a column named "Levels". This is the likely meaning; Opus confirms.
 
+## 5D. The owner's way to build a diagram (25 Nov), and the facts behind it
+
+**The owner's idea.** Make one text box and draw in it. Put smaller boxes with the sticky look on it. Put all of them in one group. Then the whole diagram is one thing. And: "the tool need to use our text box feature a lot. Using that, we can get a lot of beautiful flows through the page."
+
+**The owner's belief, checked in the code: true.** A pen stroke is stored with the block it was drawn over, as an offset from that block's corner. So it moves and resizes with its box (src/ink/anchor.ts, lines 3 to 10; `InkChunk.blockId` in src/core/inkTypes.ts). A box has its place, its width, its look and an optional group; boxes with the same group move together (`PaperBox` in src/core/types.ts; `setGroup` in src/paper/boxService.ts).
+
+**What this gives.** A diagram as the owner describes it needs no new storage: a large box that carries the drawn arrows, small sticky boxes placed on it, one group for all of them. This replaces Fable's note under audit point A2.
+
+**Not proven yet (Opus proves it in the real app before the spec is closed):** that a small box can sit on top of a larger box and stay there; that a group of such boxes moves with every stroke in place on the tablet and on the PC.
+
+**What Claude needs so that it can write such pages.** The storage is there; the way in is missing. The notes format and the importer must be able to write, for a page: each box with its place, size and look; which boxes form a group; the strokes and shapes that belong to a box; the highlight of words. This is the main new work of the notebook path.
+
+**A request to the owner:** one page made by hand in the app, the way the owner likes it (a title, a few boxes, one diagram built this way). It is the reference for the look, and its stored data is the model for the format.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

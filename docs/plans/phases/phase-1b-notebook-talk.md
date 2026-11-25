@@ -180,6 +180,36 @@ Planned in depth but built after stage 1's first use: the map of the notebook as
 
 **A fact found in the code (25 Nov).** The row of options under a page's name already takes more options. Every page has Notes, Summary and Review. A notebook can switch on four more, off by default: Mind map, Slides, Audio and video, Database (src/notebooks/pageTabs.ts on build/next). A "Dashboard" option is not in that list.
 
+## 5C. What the code has today (checked 25 Nov on build/next 7649a35e, on the owner's word)
+
+A helper checked each wish against the code, not against the specs. Opus confirms each line before the spec is closed.
+
+**Already there**
+
+| The owner's wish                         | What exists                                                                                                                                                                                                                 | Where                                                    |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| A row of options under a page's name     | Notes, Summary, Review always. A notebook can switch on Mind map, Slides, Audio and video, Database.                                                                                                                        | src/notebooks/pageTabs.ts:13; src/pages/PageView.tsx:734 |
+| "Mind map" as an option                  | The page's Mind map option lists the page's mind maps, or builds one from the page's headings.                                                                                                                              | src/pages/tabs/MindMapTab.tsx:54                         |
+| The chapters of a notebook as a database | The notebook's **Study tracker**: its rows are the notebook's top-level pages. Columns filled by the app: Status, Last revised, Cards due, percent correct, Confidence, Levels. Cards of sub-pages count toward their page. | src/databases/databaseService.ts:137, 162, 877           |
+| A dashboard that tracks everything       | The Study tracker has a Dashboard view (charts: number, bar, line, donut, progress, heatmap; percent correct by week, answers by day, the streak) and opens on it once it has rows.                                         | src/databases/dashboard/; databaseService.ts:196         |
+| "Continue reading"                       | A "Continue where you stopped" strip, and the last page of each notebook.                                                                                                                                                   | src/notebooks/v2/ContinueStrip.tsx:13                    |
+| Two kinds of database                    | Inside a page ("/database") and as a whole page ("Database page").                                                                                                                                                          | src/databases/databasePage.ts:10                         |
+| Views and filters as in Notion           | Table, Dashboard, Calendar, Gallery, Board, List. Filters with "all" or "any", grouping, hidden columns, kept for each view.                                                                                                | src/databases/views/viewTypes.ts:48                      |
+| Sticky notes and other looks of a box    | Plain, outline, soft, note, sticky, card; a callout preset; ten colours.                                                                                                                                                    | src/core/boxStyle.ts:132                                 |
+| The pen tools                            | Five pens, a highlighter, an eraser, the Lasso, tape. Shapes: line, **arrow**, rectangle, ellipse, triangle.                                                                                                                | src/core/inkTypes.ts:23; src/app/tools/v8/cards/shapes/  |
+| Pages under pages                        | Nesting by drag, with no limit of depth; the Pages panel indents three levels.                                                                                                                                              | src/pages/PageTree.tsx:163                               |
+| Cards on the phone                       | The Review screen has a phone layout, tested at phone width. Counts of due cards for a page, a notebook and all.                                                                                                            | src/review/v2/; e2e/review-v2.spec.ts:393                |
+
+**Not there**
+
+- "Dashboard" as an option in the row under a name; a mind map or a dashboard option for a whole notebook. Tabs of a notebook can be renamed and hidden, but not added or put in another order.
+- A map made from the pages of a notebook. A map, tree or outline view of a database.
+- Rows under rows in a database. A database of ordinary pages other than the Study tracker.
+- Lines that stay joined to boxes. Rotating a box or a sticky note. A group that holds ink: a group holds boxes only. (So audit point A2 needs care: today the arrows of a diagram do not move with a group of boxes. Ink does move with the box it was drawn on.)
+- **Any import format that writes boxes on paper, the looks of a box, ink, or the choice of options in the row.** Three formats are read today (ln-notes/1, ln-skill/1, ln-spec/1); none can. This is the main new work of the notebook path (parts N1 to N7 of the stage-1 plan).
+
+**"The four levels":** the Study tracker has a column named "Levels". This is the likely meaning; Opus confirms.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

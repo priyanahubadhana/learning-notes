@@ -324,7 +324,14 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 - NB-12 decided: a quiet mark beside a point that is not checked, and the list at the end explains it.
 - NB-16 added from the owner's words: what the subject needs and no more.
 - A lesson for Fable: three of its own numbers were restrictions the owner never asked for (the mind map's levels, the count of cards, and before that the accuracy rule). Every number in the draft that is Fable's own is shown to the owner as such.
-- The other lines of the group: the owner has not said yes yet.
+- NB-05 changed by the owner: "fits one sheet" was "little hard of a condition too". The Summary gives a brief idea; it does not miss what is important; "too many of the words are noise itself", and a diagram takes their place; the length "depends on the content". "We don't need to limit the quality of output."
+- NB-20 changed by the owner: a list of allowed things was a limit again. "Everything should be allowed, the app features, every app feature." "It should be a goal, not a particular condition."
+- The owner's final example, which became the one test (NB-01): a picture that Claude inserts can be resized; a pen cross can be removed with the eraser; a highlight can be removed with the eraser; the parts of a diagram can be changed. And Claude marks a page as the owner would with the Apple Pencil: a star, an arrow, a dot, a red cross, a free-hand sketch (NB-23).
+- The owner on numbers: Fable may set them, "just make sure that it's not too limiting. It should have more of a freedom."
+
+**Second draft (25 Nov).** Fable rewrote the draft after this: three kinds of line (goals, a few fences, and what the app does), no numbers of Fable's own, and no list of allowed things. The ids did not change.
+
+- The other lines: the owner has not said yes yet.
 
 ## 6. What comes next
 

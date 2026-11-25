@@ -224,6 +224,30 @@ A helper checked each wish against the code, not against the specs. Opus confirm
 
 **A request to the owner:** one page made by hand in the app, the way the owner likes it (a title, a few boxes, one diagram built this way). It is the reference for the look, and its stored data is the model for the format.
 
+## 5E. The owner tried to build the page by hand (25 Nov): one fault, one wish, five reference pictures
+
+**The owner could not build the diagram in the app.** "I failed to make within our own box, within our own app."
+
+**The fault (the owner's words, to become an issue when the device and the tool are known).**
+
+- Saw: a text box with one line (the word "skill"), made taller by its handle to about ten lines. A drawn arrow stays in the first line; "the arrow does not go beyond one line, even though there is space there." Drawing and typing reach only the first line, until the owner clicks in the text with the Text tool and presses Enter to make the lines.
+- Expected: "The area should expand the moment the box is extended." The whole of the box can be drawn on and typed in at once.
+- Related: fault 3 of [the real-app page](../../mockups/notebook-look/real-app/README.md) (ink that starts in a box is cut at the box's edge), and issue #64 of phase 1A (drawing in the lower part of a taller box), which the owner passed on the iPad on 24 Nov. Opus checks why this case still fails.
+
+**The wish: a box drawn inside a text box holds text.** The owner picks Shapes, then Box, and draws it inside a text box. That drawn box should then act as a small text box of its own kind: text can be typed in it, and it lives inside the larger text box. An ordinary text box is hard to put inside another text box, and that was made so on purpose; this kind is the one that can sit inside. With the Shapes tool (boxes, arrows) the diagrams of the reference pictures can then be made.
+
+What follows for the plan: Fable's note in 5D ("small sticky boxes placed on a large box") does not hold, because ordinary boxes are kept from sitting on each other. The owner's diagram is: one text box as the ground; drawn boxes inside it that hold text; arrows between them; all of it moves with the one box.
+
+**Five reference pictures from the owner** (in the chat of 25 Nov; not copied into the repo, they belong to their makers):
+
+1. "Bacterial cell" (GoodNotes): a brush-lettered title; one coloured drawing in the middle; short labels with an orange highlight, joined to the parts by thin lines.
+2. "Community acquired pneumonia" (Notability): two colours only (orange and dark blue); a cloud in the middle with arrows to the sections; boxes with orange borders; a flow of boxes and arrows; grid paper. Very full.
+3. "Age of Exploration" (paper): a hand-lettered title; section names in small hand-drawn coloured boxes; bullets, arrows and brackets; grid paper.
+4. "Cornell notes" (a template): a cue column, a notes column, a summary box at the foot; pink highlighter behind handwritten headings; small arrows with handwritten remarks; much empty space.
+5. A typed page in an app frame ("Why Physical AI probably won't scale like LLMs"): a typed title; a two-column table with coloured heads; typed bullets; two small hand-drawn sketches beside the text; handwritten remarks with a star and an underline; one yellow highlighter line.
+
+What they share: a title lettered by hand; one or two accent colours, used the same way all over the page; section names set in a coloured box or on a highlighter stroke; arrows and thin lines that join a label to its part; short phrases; small sketches right beside the words they explain.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

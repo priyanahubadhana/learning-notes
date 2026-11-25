@@ -221,20 +221,28 @@ for (const size of [
     await page.waitForTimeout(250)
     // The page may have scrolled meanwhile, so the place is checked against the
     // words: the bar is next to them, never over them, and has its own size.
-    const back = await box(page)
-    expect(back.width).toBeCloseTo(first.width, 0)
-    expect(back.height).toBeCloseTo(first.height, 0)
-    const word = await page.evaluate(() => {
-      const r = getSelection()!.getRangeAt(0).getBoundingClientRect()
-      return { x: r.x, y: r.y, width: r.width, height: r.height }
-    })
-    expect(
-      apart(back, word),
-      `the bar covers its words: ${JSON.stringify({ back, word })}`,
-    ).toBe(true)
-    expect(
-      Math.abs(back.y + back.height / 2 - (word.y + word.height / 2)),
-    ).toBeLessThan(160)
+    // The bar wraps to the size again a moment after the turn back (CI WebKit:
+    // still the turned width 250 ms later), so wait for that state, not a time.
+    const word = () =>
+      page.evaluate(() => {
+        const r = getSelection()!.getRangeAt(0).getBoundingClientRect()
+        return { x: r.x, y: r.y, width: r.width, height: r.height }
+      })
+    await expect
+      .poll(async () => {
+        const back = await box(page)
+        const w = await word()
+        if (
+          Math.abs(back.width - first.width) >= 0.5 ||
+          Math.abs(back.height - first.height) >= 0.5
+        )
+          return 'size ' + JSON.stringify({ back, first })
+        if (!apart(back, w)) return 'covers ' + JSON.stringify({ back, w })
+        if (Math.abs(back.y + back.height / 2 - (w.y + w.height / 2)) >= 160)
+          return 'far ' + JSON.stringify({ back, w })
+        return 'ok'
+      })
+      .toBe('ok')
   })
 }
 

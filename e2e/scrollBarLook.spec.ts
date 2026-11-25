@@ -130,10 +130,29 @@ test.describe('pointer states', () => {
     const width = () => thumb.evaluate((el) => el.getBoundingClientRect().width)
     const rest = await bg()
     expect(await width()).toBeCloseTo(8, 0)
-    const box = (await thumb.boundingBox())!
-    const at = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
-    await page.mouse.move(at.x, at.y)
-    await expect.poll(bg).not.toBe(rest)
+    // The thumb's size and place follow the page's height, which keeps settling
+    // for a moment (CI's wider fonts: after the first measure). Wait until it
+    // stands still, and hover where it stands each time we look: a mouse that
+    // moved once onto the old place gives no hover on the new one.
+    let was = ''
+    let still = 0
+    await expect
+      .poll(async () => {
+        const now = JSON.stringify(await thumb.boundingBox())
+        still = now === was ? still + 1 : 0
+        was = now
+        return still
+      })
+      .toBeGreaterThanOrEqual(3)
+    let at = { x: 0, y: 0 }
+    await expect
+      .poll(async () => {
+        const box = (await thumb.boundingBox())!
+        at = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+        await page.mouse.move(at.x, at.y)
+        return bg()
+      })
+      .not.toBe(rest)
     const hover = await bg()
     // Hover is the stronger ink: brighter than rest on a dark page.
     const light = (c: string) =>

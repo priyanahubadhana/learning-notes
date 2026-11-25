@@ -241,20 +241,27 @@ export function PageTree({
                 }}
                 onDoubleClick={() => startRename(page)}
                 aria-current={v2 && active ? 'page' : undefined}
-                className={`line-clamp-2 min-w-[5rem] flex-1 text-left break-words ${active ? (v2 ? 'font-bold' : '') : 'text-ink-soft'}`}
+                className={`min-w-[5rem] flex-1 text-left break-words ${active ? (v2 ? 'font-bold' : '') : 'text-ink-soft'}`}
               >
-                {page.locked && (
-                  <Icon name="lock" size={13} className="me-1 inline" />
-                )}
-                {page.editLocked && (
-                  <Icon name="lockKeyhole" size={13} className="me-1 inline" />
-                )}
-                {page.journalDate && !page.customTitle
-                  ? shortDayLabel(page.journalDate)
-                  : page.journalMonth && !page.customTitle
-                    ? monthLabel(page.journalMonth)
-                    : (rootId ? displayName(page.title) : sampleName(page)) ||
-                      t('review.untitled')}
+                {/* The 2-line clamp sits on a span: WebKit does not clamp the lines of a button itself (4 lines showed on the iPad). */}
+                <span className="line-clamp-2 break-words">
+                  {page.locked && (
+                    <Icon name="lock" size={13} className="me-1 inline" />
+                  )}
+                  {page.editLocked && (
+                    <Icon
+                      name="lockKeyhole"
+                      size={13}
+                      className="me-1 inline"
+                    />
+                  )}
+                  {page.journalDate && !page.customTitle
+                    ? shortDayLabel(page.journalDate)
+                    : page.journalMonth && !page.customTitle
+                      ? monthLabel(page.journalMonth)
+                      : (rootId ? displayName(page.title) : sampleName(page)) ||
+                        t('review.untitled')}
+                </span>
               </button>
             )}
             {/* May be clipped on a deep row, so the page name keeps its room. */}

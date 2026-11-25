@@ -137,6 +137,20 @@ test('SH-11 a pop menu opens by its button, arrows move, Delete is last after a 
 }) => {
   await open(page, { width: 1366, height: 800 })
   const btn = page.getByTestId('open-pop')
+  // The menu opens below its button when there is room, above when there is
+  // none (CI: the button stood at the bottom edge). Give it room, wait until
+  // the page stands still, then press.
+  await btn.evaluate((el) => el.scrollIntoView({ block: 'start' }))
+  let was = ''
+  let still = 0
+  await expect
+    .poll(async () => {
+      const now = JSON.stringify(await btn.boundingBox())
+      still = now === was ? still + 1 : 0
+      was = now
+      return still
+    })
+    .toBeGreaterThanOrEqual(3)
   await btn.click()
   const menu = page.getByRole('menu', { name: 'Page actions' })
   await expect(menu).toBeVisible()

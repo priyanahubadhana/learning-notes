@@ -58,6 +58,14 @@ What stands with no change: sections 2, 4.3 (the rows the owner decided on 24 No
 - **Sonnet always has an Opus manager of its own.** Many Sonnet builders under one manager failed more than once. Now each part has its own Opus part manager (13.5).
 - **A new measure for the comparison with 1A:** each fault the owner finds gets one cause: the builder misread the spec; the spec was silent or wrong; a test missed it; only the real iPad shows it.
 
+### 0.7 Ninth round (owner, 25 Nov)
+
+- **The fences.** The five fences of 0.6 stand. The list is not closed: when a fence is added, the owner is told in the next message, with the reason.
+- **How a deep spec is approved.** The owner and Fable go through it together, in depth, line by line. No line counts as yes by default. This is done before a phase part starts, while the builders build the part before it, so that no builder waits for planning. When the planning of a part is done, Opus executes it.
+- **Why.** Before, the owner planned less and Fable and Opus planned the rest; the build then differed from what the owner wanted. The owner and Fable must be on the same page: each learns from the other.
+- **The earlier decisions are collected** for the whole app: [earlier-decisions/README.md](earlier-decisions/README.md), with the pairs that seem to disagree in [earlier-decisions/clashes.md](earlier-decisions/clashes.md).
+- **Still open:** what the two teams do in the next week (0.5).
+
 **Read for this review:** [the talk pack](../metrics/fable-talk-pack.md), [the retro input](../metrics/phase-1a-retro-input.md), [the #68 digest](../qa/traces/2026-11-25-issue68-digest.md), [STATE](../STATE.md), the master instructions pack (CLAUDE.md, GUIDEBOOK.md, QUESTIONS.md), the CI file and the Playwright config on build/next (4bf4d5b2), the Pencil tap code, [the stage-1 plan](stage-1-plan.md), [the 1M plan](phases/phase-1m-build-machine.md), [METHOD-v2](../METHOD-v2.md) and the last 40 CI runs.
 
 ## 1. The short answer

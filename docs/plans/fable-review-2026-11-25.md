@@ -44,9 +44,19 @@ What stands with no change: sections 2, 4.3 (the rows the owner decided on 24 No
 ### 0.5 Seventh round (owner, 25 Nov)
 
 - **How much is planned again now: decided.** For the whole app: collect only. Helpers read every decision list and every spec and make one index of the earlier decisions for each area; nothing is rewritten and nothing is decided. In depth: only the next phase part. Fable started the collection on 25 Nov; the result goes to `docs/plans/earlier-decisions/`.
-- **Accuracy and speed: decided.** Accuracy wins, and it must be rational. Accuracy means: the built thing matches the numbered lines of the spec. The pace is the fastest that keeps this. A check that proves no spec line, or that caught no real fault in a whole phase part, is dropped at the end of that part, from the numbers.
+- **Accuracy and speed.** Accuracy wins: an accurate result, based on the specs, at the fastest pace. (Fable first wrote this as a hard rule about checks; the owner took that rule back in the eighth round. See 0.6.)
 - **The owner's objective for time:** stage 1 complete within the next week. Fable's reply from the measured pace: one lane gives 6 to 8 sized hours a day; 1B alone is about 80 sized hours, so 5 to 7 working days with both lanes on features; all of stage 1 is about four times that. Fable's proposal for the next week: "I can use the app every day", which is the end of 1B. **Open.**
-- **Still open:** the target for the next week; what the two lanes do in that week (both on features after the gate day, or one on the machine); what is given up first when the weekly limit runs low.
+- **Still open:** what the two teams do in the next week (both on features after the first machine day, or one on the machine).
+
+### 0.6 Eighth round (owner, 25 Nov)
+
+- **No hard rules on how Opus works.** Hard rules restricted Opus in 1A and the output suffered. The specs say what the owner wants; Opus judges how to build it and how much checking a part needs. Fable's rule "a check is dropped when it caught nothing" is withdrawn.
+- **The few fences that stay** (they say what must never happen, not how to work; the owner confirms the list): the four things that wait for the owner (13.1); an earlier decision of the owner is never lost or ignored; a spec line is never reworded on its way to a helper; the builder does not change a test that was written from the spec; nothing goes live without the owner's yes.
+- **Planning goes deeper, never thinner.** In planning mode the owner and Fable go into as much depth as the feature needs. Thin specs gave a fast app that was of no use.
+- **The target for the next week:** "I can use the app every day", the end of 1B.
+- **The weekly limit.** Full speed; nothing is turned down when the limit runs low. The owner has a Max plan with room left and buys more if needed (the owner's decision each time; Opus asks first). If the limit stops the work, the state file and the scheduled restart carry it over, as the continuity rules say. Opus shows the level of the limit in its daily message.
+- **Sonnet always has an Opus manager of its own.** Many Sonnet builders under one manager failed more than once. Now each part has its own Opus part manager (13.5).
+- **A new measure for the comparison with 1A:** each fault the owner finds gets one cause: the builder misread the spec; the spec was silent or wrong; a test missed it; only the real iPad shows it.
 
 **Read for this review:** [the talk pack](../metrics/fable-talk-pack.md), [the retro input](../metrics/phase-1a-retro-input.md), [the #68 digest](../qa/traces/2026-11-25-issue68-digest.md), [STATE](../STATE.md), the master instructions pack (CLAUDE.md, GUIDEBOOK.md, QUESTIONS.md), the CI file and the Playwright config on build/next (4bf4d5b2), the Pencil tap code, [the stage-1 plan](stage-1-plan.md), [the 1M plan](phases/phase-1m-build-machine.md), [METHOD-v2](../METHOD-v2.md) and the last 40 CI runs.
 

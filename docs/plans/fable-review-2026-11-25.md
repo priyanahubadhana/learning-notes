@@ -66,6 +66,11 @@ What stands with no change: sections 2, 4.3 (the rows the owner decided on 24 No
 - **The earlier decisions are collected** for the whole app: [earlier-decisions/README.md](earlier-decisions/README.md), with the pairs that seem to disagree in [earlier-decisions/clashes.md](earlier-decisions/clashes.md).
 - **Still open:** what the two teams do in the next week (0.5).
 
+### 0.8 Tenth round (owner, 25 Nov)
+
+- The owner asked what the build machine is for, whether Opus can do these things itself, and for a Fable audit of it. The audit is section 14. It waits for the owner's answer (14.7).
+- Until the owner answers, nothing of phase 1M is built except the online test gate (G1).
+
 **Read for this review:** [the talk pack](../metrics/fable-talk-pack.md), [the retro input](../metrics/phase-1a-retro-input.md), [the #68 digest](../qa/traces/2026-11-25-issue68-digest.md), [STATE](../STATE.md), the master instructions pack (CLAUDE.md, GUIDEBOOK.md, QUESTIONS.md), the CI file and the Playwright config on build/next (4bf4d5b2), the Pencil tap code, [the stage-1 plan](stage-1-plan.md), [the 1M plan](phases/phase-1m-build-machine.md), [METHOD-v2](../METHOD-v2.md) and the last 40 CI runs.
 
 ## 1. The short answer
@@ -509,3 +514,89 @@ Nobody stops and waits: park the part and go on. The ladder for a failing build 
 
 - At a phase's end: the numbers of section 11, and three lines on what to change. Rules change only then.
 - The first numbers to watch: the hours from the morning yes to "ready"; the owner's findings in a day part; how many `silent-visible` decisions a day part makes (many means the spec was too thin there).
+
+## 14. Audit of the build machine (Fable, 25 Nov, on the owner's word)
+
+**Status:** an audit, not a decision. The owner decides (14.7). Until then nothing of phase 1M is built, except the online test gate (G1), which the order of work already holds.
+
+### 14.1 The test each tool must pass
+
+1. Does it answer a fault that really happened and was measured?
+2. Can Opus prevent that fault by its own judgment, with no tool?
+3. Does something the project already has do the same job?
+4. Does it check a result, or does it tell Opus how to work? (The owner, 25 Nov: no hard rules on how.)
+
+A tool is needed now only with: 1 yes, 2 no, 3 no, and 4 "checks a result".
+
+### 14.2 What phase 1A showed
+
+- **The checks the project already has do work.** The push guard blocked 350 of about 2,000 pushes: 117 for format, 73 for red browser tests, 56 for red unit tests, 54 for the ratchet, 27 for lint, 8 for types. So a builder already cannot push with its own tests red.
+- **What was missing was not a tool for the builders.** It was test capacity at the right moment (the full set ran last and was never green) and the real iPad (no test can copy it).
+- **The machine's own rules failed their first real use.** The one code part of 1A was planned under 100K tokens and took three windows of 163K, 231K and 110K. One spec took 3.5 hours and three review rounds before any code. On 22 Nov, 4 of 6 review fails were process mistakes.
+- **A tool nobody acts on is only noise.** `analyze` prints "0 of 2 pages pass, 2 fail, 99 skipped" on every push, as a warning, and no one acts on it.
+- **The project already carries much machinery:** about 25 process scripts, 3 hooks, 3 helper files, 10 rule files. Each more tool is one more thing to keep working.
+
+### 14.3 The 14 parts, one by one
+
+| Part  | What it is                                                           | The fault it was made for                               | What already does it, or can Opus do it                                                                                                 | Result                                                  |
+| ----- | -------------------------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| 1M-01 | The plan page and the research                                       | -                                                       | Done on 22 Nov.                                                                                                                         | Done.                                                   |
+| 1M-02 | Helper files with a token budget and report caps; a new checker file | Builders with too little guidance                       | The role files must name the new roles (part manager, test-writer, reviewer). Opus writes them in about an hour. No budget, no checker. | **A small update, by Opus.**                            |
+| 1M-03 | A start message for each new chat                                    | A chat that does not know the state                     | `CLAUDE.md` loads by itself and points to STATE; the "continue" step reads it. No fault of this kind in 1A.                             | Not needed.                                             |
+| 1M-04 | A stop check: no "done" while tests are red; a round counter         | A builder that says done too early                      | The push guard runs the touched tests before every push (129 blocks for red tests). Each builder now has its own Opus manager.          | Not needed now. The counter is a rule on how.           |
+| 1M-05 | A "verify" recipe that drives the app like a user                    | Features marked done with no user-like test             | Every scenario already is a test through the real screen (511 test files). Opus can open the app and look before it reports.            | Not needed.                                             |
+| 1M-06 | A standard test notebook                                             | Tests that each make their own data                     | Needed for the notebook work. Phase 1B already has this part (N9, the Test notebook).                                                   | **Needed, inside 1B, not as a machine part.**           |
+| 1M-07 | A program that compares a screen with the mock-up                    | Screens unlike the approved picture (15 Nov)            | The reviewer compares a screenshot with the picture; Opus can see pictures. Pixel tests exist in `e2e/visual/`. A fragile tool to keep. | Not needed now.                                         |
+| 1M-08 | A second checker; no merge without its PASS                          | The wrong thing built nicely                            | The one fresh reviewer checks the result against the spec lines. The same job twice.                                                    | Not needed. A hard rule on how.                         |
+| 1M-09 | `analyze`: specs, scenarios and tests agree                          | A rule with no test                                     | It exists, as a warning nobody acts on. For the first part the reviewer checks 20 to 40 spec lines by reading.                          | Later, if a line with no test reaches the owner.        |
+| 1M-10 | Numbers written by a program                                         | Numbers typed by hand                                   | The fault in 1A was that no numbers were written at all. Opus writes one line for each day part from git and CI.                        | Not needed.                                             |
+| 1M-11 | A report page for each task                                          | Reports the owner could not read                        | The day's message and the owner's check replace it.                                                                                     | Not needed.                                             |
+| 1M-12 | A script that copies the machine into a new project                  | Starting the next project fast                          | There is no next project yet, and the method is not proven yet.                                                                         | Later, when a second project starts.                    |
+| 1M-13 | A practice run of the machine, with Fable's read of 1M-04, 07 and 08 | An untested machine                                     | It tests parts that are not built. The next phase part is the real test.                                                                | Not needed.                                             |
+| 1M-14 | The proof on the free hosted machines                                | The full set ran last; the proof took 7 hours on the PC | Nothing does this. Opus cannot do it by judgment: it is machine capacity.                                                               | **Needed, first.** It is part G1: the online test gate. |
+
+### 14.4 The rules of the machine page
+
+| Rule (22 Nov)                                                              | Result                                                                                                                         |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| A task is planned under 100K tokens; a warning at 80K; a hand-over dossier | Old architecture (small Sonnet windows on a short lead). Broken in its first use, with no fault shown from it. Drop as a rule. |
+| A relay of three windows for a big task                                    | Old architecture. Drop. A part manager splits a big part by its own judgment.                                                  |
+| Four gate layers for a normal task, each in its own window                 | Old architecture. The path of section 4.4 stands: the push guard, one review, the full set, the owner's check.                 |
+| Three failed rounds at a gate, then the ladder                             | The owner's ladder of 24 Nov stays as the owner decided it. No counter by program.                                             |
+| "Done" is said by a program                                                | **Keep.** It is what works: the push guard, the tests, CI. It checks a result.                                                 |
+| Every merged task writes its own numbers by program                        | Drop (see 1M-10).                                                                                                              |
+| The machine lives in a template that a script copies                       | Later (see 1M-12).                                                                                                             |
+
+### 14.5 Fable's own additions of this talk, put to the same test
+
+| Addition                                        | Result                                                                                                                                                                     |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| G1, the full set on every push                  | **Needed, first** (the same as 1M-14).                                                                                                                                     |
+| G2, the replay tool for iPad traces             | Not a machine part. `e2e/circleTrace.ts` and `e2e/inkReplay.spec.ts` already replay traces; the builder of the Pencil taps day extends them as that work needs.            |
+| G3, the helper files and the stop check         | The helper files: the small update of 1M-02. The stop check: not needed now (1M-04).                                                                                       |
+| The program that cuts the small brief (13.3)    | Not needed now. Opus copies the numbered lines word for word; the reviewer checks against the big spec. Built only if a reworded line is ever found.                       |
+| Eleven procedures written as skills (13.9)      | Not needed up front. A skill is written when the same mistake happens twice; then it has earned its place.                                                                 |
+| Fable's "Group 1" of seven tools (chat, 25 Nov) | Withdrawn. Five of the seven are already covered or are Opus's own work. Fable had not weighed the push guard's 350 blocks and the 511 scenario tests when it listed them. |
+
+### 14.6 The result
+
+- **Before the features, one thing is built: the online test gate** (about one day; an estimate until measured).
+- **Beside it, with no builder's time:** Opus updates the three helper files to the new roles.
+- **Inside 1B:** the Test notebook.
+- **All the rest waits for a reason.** The reasons come from the cause that each fault of the next part gets (section 0.6):
+
+| If this happens in the next part                            | Then this is built                                |
+| ----------------------------------------------------------- | ------------------------------------------------- |
+| Builders report "done" with red tests, more than twice      | The stop check (1M-04)                            |
+| The owner finds a screen unlike its approved picture, twice | The look compare (1M-07)                          |
+| A spec line with no test reaches the owner                  | The spec check by program (1M-09)                 |
+| A helper's brief holds a reworded spec line                 | The brief cutter (13.3)                           |
+| The same mistake in a procedure happens twice               | A skill for that procedure                        |
+| A second project starts                                     | The copy script, or the pack as a plug-in (1M-12) |
+
+- **The need of a build machine, in one line:** a judge that is not the builder, with enough test machines behind it. The project has the judge already; it lacks the machines. Everything else Opus can do itself.
+
+### 14.7 The owner decides
+
+- **A (Fable's pick):** accept this audit. The 22 Nov yes to the confirm sheet of phase 1M is replaced: rows 2, 3, 4, 5, 7 and 8 no longer hold; rows 1, 6, 9, 10 and 11 hold in the form of this page. Case against: a fault that one of the dropped tools would have caught can reach the owner once before the tool is built.
+- **B:** keep the machine whole, as decided in the second round (0.2), and build it in day parts.

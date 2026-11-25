@@ -114,13 +114,10 @@ const exactPair = (page: Page, at: { x: number; y: number }, gap: number) =>
             composed: true,
           }),
         )
+      // A timer, not animation frames: CI WebKit draws a frame only every 100 ms or so, which made
+      // a "150 ms" gap come out as 335 ms in every one of 12 tries (run 45565136359).
       const wait = (ms: number) =>
-        new Promise<void>((done) => {
-          const t0 = performance.now()
-          const tick = () =>
-            performance.now() - t0 >= ms ? done() : requestAnimationFrame(tick)
-          tick()
-        })
+        new Promise<void>((done) => setTimeout(done, ms))
       const at: number[] = []
       for (const [i, type] of [
         'pointerdown',

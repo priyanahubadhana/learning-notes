@@ -18,6 +18,14 @@ The plan: [plans/stage-1-plan.md](plans/stage-1-plan.md) (stage 1, phases 1A to 
 
 ## Now
 
+**Read this first (26 Nov 2026, 01:45 IST; written by Fable on the owner's word "find root cause and fix it permanently"). It is newer than everything below it in this section.**
+
+- **PHASE 1A IS LIVE** since 26 Nov, 01:31 IST: main 7e53ae5d (the merge of pull request #70), live `version.json` = 7e53ae5d (checked by the run and by hand). Open with the owner: the reading check on the iPad.
+- **Why the three release runs of 25 Nov published nothing, and what changed:** docs/plans/plan-after-1a.md, section 5, step 1. In short: `.github/workflows/ci.yml` has a new job `proven` (`.github/scripts/find-proven-run.mjs`): on main the same app code is tested in full once, not twice; and the publish step compares the code, so a commit of docs only on main no longer stops a publish. **A release from now on:** a full run by hand on build/next ("full" ticked) is green → the owner's yes → merge the pull request → the run on main finds that proof and publishes in about 10 minutes → check the live `version.json`.
+- **The unsteady tests are diagnosed, not fixed yet:** docs/qa/unsteady-tests-2026-11-26/README.md (six causes: two real faults in the app, three test faults, and hosted machines that redraw the page about once a second). They are the first work of the online test gate (the plan, section 5, step 3). Until they are fixed, a full run is green about one time in ten. Do not add waits to these tests; read the reports.
+- **Branches:** build/next was moved forward to main after the release (same content). No pull request is open; the next one is opened with the next change. The working copy `C:\Users\pc\Downloads\ln-rel-gate` (branch `slice/release-proven`, merged) is new and holds nothing unsaved; it is removed only with the owner, like the others.
+- **The plan to follow:** docs/plans/plan-after-1a.md (third version). It waits for the owner's yes; until then: step 2a (the close-out of 1A) and the read-only proofs of its section 6. The line "Run 1M from 1M-02" further down no longer holds (the owner accepted the audit of the build machine on 25 Nov).
+
 **Resume here (24 Nov 2026, about 22:35 IST; phase 1A release to live, on the owner's yes).**
 
 - **25 Nov, ~07:30 IST, owner update test:** S5 pass on the PC and the iPad (preview ad3bee94). S6, S1, S7, S4 wait: the preview has no newer version (the b593dd71 preview never deployed; the earlier "ready" was wrong, told to the owner). After both slices are green: open the build/next → main PR (it deploys the preview), check version.json shows the new commit, then write "ready". Owner: remove the Pencil hold time setting (A), given to the pencil builder.

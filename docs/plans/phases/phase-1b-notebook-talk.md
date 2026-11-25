@@ -368,6 +368,16 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 
 **Phase 1A was not live on 26 Nov, 00:20.** Three release runs on 25 Nov: the first could not publish because main had moved; the second and the third failed on tests of the iPad engine, different ones each time, on app code that had passed in full earlier that evening. Fable asked the owner how such failures are treated (the plan, section 10).
 
+## 5L. Round 3, the release that would not publish, and five small questions (26 Nov)
+
+**The owner, 26 Nov, on the release that did not publish:** "Ok please find root cause and fix it permanently." And: "What's next for our planning's".
+
+**Round 3 of the audits.** A fresh helper checked each finding of rounds 1 and 2 against the text and looked for new faults made by the fixes. Most were fixed. Corrected after it, in the fifth draft of the spec: NB-42 contradicted itself and did not say what "No" does; NB-53 showed the Database option by default, against the owner's word of 25 Nov ("not in the row by default"; "the dashboard opens first"); NB-04 against "a chapter with no cards"; the owner's "a tap on the corner" (NB-80) and "edit" (NB-91) were missing; the zip that carries pictures and the A4 sheet (22 Nov) were missing; "interactive" had no line; sentences that were Fable's were marked as the owner's (where the front page sits in the page list; the oval). In the plan: see its section 12.
+
+**The release: the root cause and the fix.** The plan, section 5, steps 1 and 3, holds it; the reports on the unsteady tests are in [docs/qa/unsteady-tests-2026-11-26](../../qa/unsteady-tests-2026-11-26/README.md). In short: the same code had to pass the full test set twice in a row, and the set passed about one time in ten; a notes-only commit on main stopped a publish. Fixed in the test machine's settings (pull request #70): the same app code is tested in full once, and the publish step compares the code. Behind the unsteady tests the recordings showed two real faults in the app (a mouse click outside a box can drop the selection; a fresh pen stroke is saved late), three faults in tests, and hosted machines that redraw the page about once a second. **phase 1A is live since 26 Nov, 01:31 IST.** Pull request #70 was merged (main 7e53ae5d); the run on main (45689636839) found the proof (run 45610217196), skipped the second full run, and published in 8 minutes; the live `version.json` holds 7e53ae5d (checked).
+
+**Five small questions to the owner (26 Nov), each with Fable's pick.** They are product decisions, so the spec marks its line "Fable's" until the answer: what "No" does at "Replace the old one?"; where the front page sits in the page list; whether a notebook made by hand changes; a shape drawn with the option on, outside any text box; a shape whose text is removed.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

@@ -157,7 +157,11 @@ export async function realPenTaps(
       timestamp: stamp(t),
     })
   const probe: string[] = []
-  const timed = async (p: Promise<unknown>) => { const t = performance.now(); await p; return performance.now() - t }
+  const timed = async (p: Promise<unknown>) => {
+    const t = performance.now()
+    await p
+    return performance.now() - t
+  }
   let back: Promise<unknown> = Promise.resolve()
   let next = performance.now()
   let plan = next
@@ -201,18 +205,38 @@ export async function realPenTaps(
     await page.mouse.down()
     const tDown = performance.now() - down
     const drift = tap.drift
-      ? timed(page.mouse.move(spot.x + tap.drift * 0.6, spot.y + tap.drift * 0.8))
+      ? timed(
+          page.mouse.move(spot.x + tap.drift * 0.6, spot.y + tap.drift * 0.8),
+        )
       : Promise.resolve(0)
-    const dd = await Promise.all([until(down + Math.max(0, tap.hold - lead.hold)), drift])
+    const dd = await Promise.all([
+      until(down + Math.max(0, tap.hold - lead.hold)),
+      drift,
+    ])
     next = performance.now()
     const u0 = next
     await page.mouse.up()
     const tUp = performance.now() - u0
-    back = tap.drift ? timed(page.mouse.move(spot.x, spot.y)) : Promise.resolve(0)
-    if (process.env.PEN_PROBE) probe.push(`wait ${tw|0} down ${tDown|0} drift ${dd[1]|0} up ${tUp|0}`)
+    back = tap.drift
+      ? timed(page.mouse.move(spot.x, spot.y))
+      : Promise.resolve(0)
+    if (process.env.PEN_PROBE)
+      probe.push(
+        `wait ${tw | 0} down ${tDown | 0} drift ${dd[1] | 0} up ${tUp | 0}`,
+      )
   }
   const bk = await back
-  if (process.env.PEN_PROBE) console.log('PROBE lead ' + lead.hold + '/' + lead.gap + ' | ' + probe.join(' | ') + ' | back ' + (bk|0))
+  if (process.env.PEN_PROBE)
+    console.log(
+      'PROBE lead ' +
+        lead.hold +
+        '/' +
+        lead.gap +
+        ' | ' +
+        probe.join(' | ') +
+        ' | back ' +
+        (bk | 0),
+    )
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })

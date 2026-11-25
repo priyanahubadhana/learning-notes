@@ -475,7 +475,6 @@ export function nearText(dom: HTMLElement, x: number, y: number): boolean {
   if (boxEl) {
     const b = boxEl.getBoundingClientRect()
     if (b.width > 0 && (x < b.left || x > b.right - BORDER_PX)) return false
-    if (inBorderBand(dom, x, y)) return false
   }
   const range = dom.ownerDocument.createRange()
   for (const el of dom.querySelectorAll<HTMLElement>('.bn-inline-content')) {

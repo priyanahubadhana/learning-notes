@@ -134,7 +134,7 @@ jobs:
           path: test-results
           retention-days: 7
 
-  # The full set, part 1: every Chrome end-to-end spec, split in four so each
+  # The full set, part 1: every Chrome end-to-end spec, split in six so each
   # part finishes well inside the time limit (the whole set takes over an hour
   # on one machine). The full set runs on a push to main (the deploy needs
   # it), every night on the code line, and by hand with "full" ticked.
@@ -146,7 +146,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -173,7 +173,7 @@ jobs:
         run: |
           for i in 1 2 3; do npx playwright install --with-deps chromium && exit 0; echo "install failed, retry $i"; sleep 45; done
           npx playwright install chromium
-      - run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/4
+      - run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/6
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:

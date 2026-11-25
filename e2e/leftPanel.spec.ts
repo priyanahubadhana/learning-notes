@@ -82,7 +82,20 @@ test('long page names wrap to two lines on PC and at most three on the iPad', as
   const tablet = testInfo.project.name.includes('ipad')
   expect(box?.height ?? 0).toBeGreaterThan(30)
   // PC: two lines, not three. iPad: up to three lines, fails at four.
-  expect(box?.height ?? 99).toBeLessThan(tablet ? 70 : 48)
+  // Measured in lines, not px: the row (and so the button, a flex item) is
+  // taller than its text in the CI WebKit (80 px there), and the owner's rule
+  // is about lines. A line counts when its text box is inside the button.
+  const lines = await name.evaluate((b) => {
+    const r = document.createRange()
+    r.selectNodeContents(b)
+    const at = b.getBoundingClientRect()
+    const tops = new Set<number>()
+    for (const q of r.getClientRects())
+      if (q.width > 0 && q.top >= at.top - 1 && q.bottom <= at.bottom + 1)
+        tops.add(Math.round(q.top))
+    return tops.size
+  })
+  expect(lines).toBeLessThanOrEqual(tablet ? 3 : 2)
   await hideSidebar(page)
 })
 

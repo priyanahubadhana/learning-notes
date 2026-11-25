@@ -46,6 +46,7 @@ import {
 } from './boxes'
 import { BoxFrame, ResizeDots, type GrabHow } from './BoxFrame'
 import { caretAtEnd, type ResizeHow } from './boxHandles'
+import { cancelFrameOrTimer, frameOrTimer } from './v2/frameOrTimer'
 import { SAFE_GAP_PX, TOUCH_PX, TOUCH_STYLE } from './safeGap'
 import { clampBox, MIN_W, type BoxPatch } from './boxService'
 import {
@@ -1078,7 +1079,7 @@ export function PaperFrame({
     }
     pending.current = { clientX: e.clientX, clientY: e.clientY }
     if (frame.current) return
-    frame.current = requestAnimationFrame(() => {
+    frame.current = frameOrTimer(() => {
       frame.current = 0
       const at = pending.current
       pending.current = null
@@ -1208,7 +1209,7 @@ export function PaperFrame({
     hovered = false,
   ) => {
     document.documentElement.removeAttribute('data-box-drag')
-    if (frame.current) cancelAnimationFrame(frame.current)
+    if (frame.current) cancelFrameOrTimer(frame.current)
     frame.current = 0
     const e: {
       clientX: number
@@ -1568,7 +1569,7 @@ export function PaperFrame({
     d.last = { x: e.clientX, y: e.clientY }
     if (!d.held || resizeFrame.current) return
     // C21: one update per frame, at the newest point.
-    resizeFrame.current = requestAnimationFrame(() => {
+    resizeFrame.current = frameOrTimer(() => {
       resizeFrame.current = 0
       if (resizing.current === d) resizeAt(d.last.x, d.last.y)
     })
@@ -1703,7 +1704,7 @@ export function PaperFrame({
     // Another pointer's lift (a second finger) does not end this resize.
     if (e.pointerId !== d0.pointerId && e.type !== 'pointerdown') return
     if (resizeFrame.current) {
-      cancelAnimationFrame(resizeFrame.current)
+      cancelFrameOrTimer(resizeFrame.current)
       resizeFrame.current = 0
       // The newest point is drawn before the commit (a hover adds none).
       if (d0.held && !hovered) resizeAt(d0.last.x, d0.last.y)

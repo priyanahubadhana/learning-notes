@@ -313,3 +313,32 @@ for (const name of ['pen', 'highlighter', 'eraser', 'lasso'])
     await page.waitForTimeout(700)
     await expect(page.locator(EXTRA)).toHaveCount(0)
   })
+
+/**
+ * C33 (CI, run 45578586071; probe trace): Shift+Enter in a box made a hard
+ * break AND, 200 ms later, a new empty block. Why: on an iPad ProseMirror
+ * never runs the key bindings for Enter (it waits for the browser's own change
+ * and, after 200 ms, runs a plain Enter if none looked like a new paragraph);
+ * the browser's own Shift+Enter is a line break, so the plain Enter ran too.
+ */
+test('C33: Shift+Enter makes one hard break and no extra block, also 400 ms later', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await start(page, 'ShiftEnter', false, PRESET_2B)
+  await page.waitForTimeout(900)
+  await page.locator(MAIN + ' .bn-editor').click({ position: { x: 5, y: 5 } })
+  await page.keyboard.type('One')
+  await page.keyboard.press('Shift+Enter')
+  await page.keyboard.type('Two')
+  await page.keyboard.press('Shift+Enter')
+  await page.keyboard.type('Three')
+  await page.waitForTimeout(700)
+  await expect(page.locator(MAIN + ' .bn-block-outer')).toHaveCount(1)
+  await expect(page.locator(MAIN + ' .bn-inline-content')).toHaveCount(1)
+  expect(
+    await page
+      .locator(MAIN + ' .bn-inline-content br:not(.ProseMirror-trailingBreak)')
+      .count(),
+  ).toBe(2)
+})

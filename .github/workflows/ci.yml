@@ -25,15 +25,24 @@ permissions:
 # What runs when (Phase 0 task 0.8):
 # - pull request: checks, then the fast set (e2e-fast), about 10 minutes.
 # - push to main: checks, the full set (e2e, pencil-webkit), then deploy.
+#   The same app code is tested in full once, not twice (26 Nov): when an
+#   earlier run already passed the full set on exactly this app code (job
+#   `proven`), the full set is not run again and the deploy follows the checks.
 # - every night: checks and the full set on the code line.
 # - by hand: checks and the fast set; tick "full" for the full set (and, on
-#   main, the deploy).
+#   main, the deploy). On main, a run by hand without "full" deploys only
+#   when `proven` finds the earlier green full run.
 # - Monday: the whole suite in desktop WebKit (webkit), a warning only.
 env:
   # A timed run always starts from main's copy of this file. The nightly full
   # set tests the code line instead: build/next until Phase 0 task 0.7 puts
   # the code on main (then set this to main).
   NIGHTLY_REF: build/next
+  # How many jobs the full set has. Keep in step with the two `shard` lists
+  # below (jobs e2e and pencil-webkit): `proven` counts a run as a green full
+  # run only when it has at least this many passed jobs of each kind.
+  E2E_SHARDS: 6
+  IPAD_SHARDS: 8
 
 # A newer push to main replaces a run still waiting or running, so the
 # queue never backs up and the newest code deploys first.
@@ -79,6 +88,35 @@ jobs:
           name: site
           path: dist
           retention-days: 1
+
+  # Tested once, not twice (26 Nov 2026). On main only: looks for an earlier CI
+  # run whose full set (every e2e and pencil-webkit job) passed on exactly this
+  # app code, that is, with no file different outside docs/, *.md and .github/.
+  # The pull request merge into main brings the code that build/next already
+  # proved, so a second 56-minute full run proved nothing new and could fail
+  # on a slow machine (25 Nov: three release runs, no publish). When such a run
+  # exists, e2e and pencil-webkit are skipped and deploy follows the checks.
+  # Any doubt gives "none" and the full set runs as before. Ticking "full" on
+  # a run by hand always runs the full set.
+  proven:
+    if: (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.full)) && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      run: ${{ steps.find.outputs.run }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: lts/*
+      - name: Find an earlier green full run on the same app code
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node .github/scripts/find-proven-run.mjs
 
   # The fast set: the key flows listed in e2e/fastSet.ts, in Chrome and in the
   # iPad stand-in (projects fast-chromium and fast-ipad). It guards every
@@ -139,8 +177,10 @@ jobs:
   # on one machine). The full set runs on a push to main (the deploy needs
   # it), every night on the code line, and by hand with "full" ticked.
   e2e:
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *') || (github.event_name == 'workflow_dispatch' && inputs.full)
-    needs: checks
+    # `proven` is skipped off main (its answer is then empty) and never stops
+    # this job by failing: only a found run skips the full set.
+    if: ${{ !cancelled() && needs.checks.result == 'success' && needs.proven.outputs.run == '' && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *') || (github.event_name == 'workflow_dispatch' && inputs.full)) }}
+    needs: [checks, proven]
     timeout-minutes: 60
     runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
     strategy:
@@ -187,8 +227,8 @@ jobs:
   # `checks` run does not spend time here, and the deploy needs it. The list
   # is in playwright.config.ts (project ipad-webkit).
   pencil-webkit:
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *') || (github.event_name == 'workflow_dispatch' && inputs.full)
-    needs: checks
+    if: ${{ !cancelled() && needs.checks.result == 'success' && needs.proven.outputs.run == '' && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *') || (github.event_name == 'workflow_dispatch' && inputs.full)) }}
+    needs: [checks, proven]
     timeout-minutes: 60
     runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
     strategy:
@@ -246,8 +286,10 @@ jobs:
   # two secrets are set on GitHub by the owner, never in the code. One publish
   # at a time, so an older push can never finish last.
   deploy:
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
-    needs: [checks, e2e, pencil-webkit]
+    # Publishes when the checks passed AND the full set is green: either in
+    # this run, or (both test jobs skipped) in the earlier run `proven` found.
+    if: ${{ !cancelled() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && needs.checks.result == 'success' && ((needs.e2e.result == 'success' && needs.pencil-webkit.result == 'success') || (needs.proven.outputs.run != '' && needs.e2e.result == 'skipped' && needs.pencil-webkit.result == 'skipped')) }}
+    needs: [checks, proven, e2e, pencil-webkit]
     runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
     timeout-minutes: 15
     concurrency:
@@ -272,11 +314,23 @@ jobs:
         with:
           name: site
           path: dist
-      - name: Skip if main has moved on (the newer commit publishes itself)
+      # Only a newer commit that changes the app or its tests starts its own
+      # run and publishes itself. A newer commit that changes only docs/ or
+      # *.md starts no run (paths-ignore above), so it must not stop this
+      # publish (25 Nov: three notes-only commits stopped a release).
+      - name: Skip if main has moved on in the code (the newer commit publishes itself)
         id: head
         run: |
-          HEAD_SHA=$(git ls-remote origin refs/heads/main | cut -f1)
-          if [ "$HEAD_SHA" != "$GITHUB_SHA" ]; then echo "stale=true" >> "$GITHUB_OUTPUT"; echo "Newer commit $HEAD_SHA on main; not publishing $GITHUB_SHA."; fi
+          git fetch --no-tags --depth=1 --quiet origin refs/heads/main
+          HEAD_SHA=$(git rev-parse FETCH_HEAD)
+          if [ "$HEAD_SHA" = "$GITHUB_SHA" ]; then
+            echo "Main is at this commit."
+          elif git diff --quiet "$GITHUB_SHA" "$HEAD_SHA" -- . ':(exclude)docs' ':(exclude,glob)**/*.md'; then
+            echo "Main moved to $HEAD_SHA with changes in docs only; publishing $GITHUB_SHA."
+          else
+            echo "stale=true" >> "$GITHUB_OUTPUT"
+            echo "Newer code $HEAD_SHA on main; not publishing $GITHUB_SHA."
+          fi
       - name: Publish
         if: steps.head.outputs.stale != 'true'
         env:

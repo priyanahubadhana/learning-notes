@@ -1,6 +1,29 @@
 # Fable review, 25 Nov 2026: why the work was slow, and the plan from here
 
-**Status:** Fable's decisions from the owner's deep talk of 25 Nov 2026. Rows marked **Owner** wait for the owner's answers (section 10). All other rows are in force from the phase 1A close-out. Where an older page says something else, this page wins; section 4.3 lists the lines to correct.
+**Status:** Fable's proposals from the owner's deep talk of 25 Nov 2026. **Section 0 holds the owner's answers and wins over every section below.** Nothing is cut and no rule changes without the owner's yes. The talk is still open (section 0.2).
+
+## 0. The owner's answers (25 Nov 2026, after the first read)
+
+### 0.1 Answered
+
+| Question (section 10)  | The owner's answer                                                                                                                                                                                                                                        | What Opus does                                                                                                                                                                                                                                         |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1. The size of a phase | A phase keeps its full size and its name; the whole of it stays. It is divided into parts of one working day. Each day part holds 3 to 5 parts of work and ends on the preview with the owner's check. Where this page says "day-phase", read "day part". | Plan by day parts from the day after 1A is live (section 4.6). Names until the owner picks others: phase 1B has the days 1B.1, 1B.2 and so on.                                                                                                         |
+| 2. The quick taps, #68 | Yes to the pick (as Fable read the answer; the owner corrects it if wrong): the iPad's own selection stands, our bar shows on it, the triple tap takes the paragraph, Apple's menu may show at times until stage 2. No more fighting the iPad in stage 1. | Section 5 is approved: G2, then P1 to P4, then the owner's session. It starts after 1A is live.                                                                                                                                                        |
+| 3. Less machinery      | **Not approved. On hold.** Nothing shrinks before the owner and Fable have discussed it. The build machine (1M) stays whole; it is divided into day parts, like every phase.                                                                              | **Cut nothing.** These are proposals only: every "Cut" row of 4.2; the rows "The repeat bar" and "Spec size" of 4.3; section 4.5; the line "Dropped" of section 6 where it names 1M parts, Spec Kit and the Notion window. Work by the rules in force. |
+| 4. Three small picks   | Yes to all three.                                                                                                                                                                                                                                         | Apply now, each with its reason line: the speed test warns on the slow hosted iPad engine and stays hard on the PC; the eraser test ignores the named corner pixels, the same on every machine; "Hide toolbar while writing" starts OFF.               |
+| 5. Clearing up in bulk | Yes, but only after the talk with Fable is closed.                                                                                                                                                                                                        | Do not start it. Wait for the owner's word.                                                                                                                                                                                                            |
+
+What stands with no change: sections 2, 4.3 (the rows the owner decided on 24 Nov), 4.4, 4.6, 5, 9, 11, and the order of work in section 7 (G1, G2 and G3 are an order, not a cut).
+
+### 0.2 Still open (the owner asked on 25 Nov; Fable researches, then the owner decides)
+
+- Each manager sees only a small part of the goal, so that it reads the specs the right way.
+- Several Opus managers that work side by side.
+- Skills: how to use them in this system, and what public method or repository the project is missing.
+- Specs that state the objectives; Opus is free in how it builds.
+
+The result is added here after the owner's yes.
 
 **Read for this review:** [the talk pack](../metrics/fable-talk-pack.md), [the retro input](../metrics/phase-1a-retro-input.md), [the #68 digest](../qa/traces/2026-11-25-issue68-digest.md), [STATE](../STATE.md), the master instructions pack (CLAUDE.md, GUIDEBOOK.md, QUESTIONS.md), the CI file and the Playwright config on build/next (4bf4d5b2), the Pencil tap code, [the stage-1 plan](stage-1-plan.md), [the 1M plan](phases/phase-1m-build-machine.md), [METHOD-v2](../METHOD-v2.md) and the last 40 CI runs.
 

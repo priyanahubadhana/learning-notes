@@ -34,6 +34,14 @@ What stands with no change: sections 2, 4.3 (the rows the owner decided on 24 No
 - The bulk clearing (question 5 of section 10) starts at the 1A close-out, unless the owner says no.
 - Words: the owner's "phase 1" is stage 1 of the plan; "phase 1 part A" and "part B" are 1A and 1B; a "day part" is one working day inside them.
 
+### 0.4 Sixth round (owner, 25 Nov)
+
+- **The objective of stage 1 ("I can use the app every day").** On the PC, Claude writes a notebook, the app imports it in full, and the owner reads it and corrects it by typing. On the iPad the owner reads. Pencil fine work stays in stage 2.
+- **The order after 1A is confirmed:** the gate day, the Pencil taps day, then 1B, with the machine lane beside it (section 7).
+- **The owner has no fixed hours** and looks in several times a day. So a day part does not wait for a yes when its parts are on the approved phase page: the day's message informs and asks. The owner's check is done whenever the owner comes; each message repeats what waits. The limit of two unchecked day parts stays (4.6, step 7). This replaces "The owner's yes starts the day" in 4.6, step 2.
+- **The next phase part is a test of the new way against 1A.** At its end the owner and Fable compare the two with the same measures (section 11 and the numbers of 1A) and keep what was better in each.
+- **Still open:** how much is planned again now (the whole app, or an index of the whole app with a deep plan of the next phase part only; the second is Fable's pick); which wins when speed and accuracy disagree; what is given up first when the weekly limit runs low.
+
 **Read for this review:** [the talk pack](../metrics/fable-talk-pack.md), [the retro input](../metrics/phase-1a-retro-input.md), [the #68 digest](../qa/traces/2026-11-25-issue68-digest.md), [STATE](../STATE.md), the master instructions pack (CLAUDE.md, GUIDEBOOK.md, QUESTIONS.md), the CI file and the Playwright config on build/next (4bf4d5b2), the Pencil tap code, [the stage-1 plan](stage-1-plan.md), [the 1M plan](phases/phase-1m-build-machine.md), [METHOD-v2](../METHOD-v2.md) and the last 40 CI runs.
 
 ## 1. The short answer

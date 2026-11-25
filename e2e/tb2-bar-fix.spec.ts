@@ -179,6 +179,7 @@ test('F63. (#63) the bar beside a selected box has the pin from its first show, 
   await expect
     .poll(async () => {
       const pinned = await rect(page.getByTestId('object-bar'))
+      console.log('F63 DBG pinned ' + JSON.stringify({ before, pinned }))
       return (
         Math.abs(pinned.x - before.x) <= 2 &&
         Math.abs(pinned.y - before.y) <= 2 &&
@@ -198,6 +199,8 @@ test('F63. (#63) the bar beside a selected box has the pin from its first show, 
     .poll(async () => {
       const back = await rect(page.getByTestId('object-bar'))
       const gap = back.y - (await rect(box)).y
+      // CI evidence (run 45582678197 lost its failure text): the numbers each poll.
+      console.log('F63 DBG ' + JSON.stringify({ before, back, gapBefore, gap }))
       return Math.abs(back.x - before.x) <= 2 && Math.abs(gap - gapBefore) <= 2
     })
     .toBe(true)

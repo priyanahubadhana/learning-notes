@@ -279,7 +279,25 @@ test('TB-14 the drop glides 200 ms, is not tappable until it lands, says "Box mo
       () =>
         (window as unknown as { glide: { seen: boolean; pe: string } }).glide,
     )
-  await expect.poll(async () => (await glide()).seen).toBe(true)
+  await expect
+    .poll(async () => {
+      const g = await glide()
+      // CI evidence (run 45582678197 lost its failure text): what the page saw.
+      console.log(
+        'TB-14 DBG ' +
+          JSON.stringify({
+            g,
+            now: await page.evaluate(() => ({
+              gliding: document.querySelectorAll('[data-gliding]').length,
+              reduced: matchMedia('(prefers-reduced-motion: reduce)').matches,
+              moved: !!document.querySelector('[data-paper-box]'),
+              toast: document.body.innerText.includes('Box moved'),
+            })),
+          }),
+      )
+      return g.seen
+    })
+    .toBe(true)
   expect((await glide()).pe).toBe('none')
   await expect(b).not.toHaveAttribute('data-gliding', '', { timeout: 1000 })
   await expect(page.getByText('Box moved')).toBeVisible()

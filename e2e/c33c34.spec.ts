@@ -72,6 +72,26 @@ for (const mode of ['computer'] as const) {
     const frame = page.locator('[data-main-frame]')
     await expect(frame).toBeVisible()
     expect((await rect(frame)).height).toBeLessThan(lh * 1.6 + 16)
+    // Why the log: on the CI iPad (Linux WebKit) a 4th empty line appeared under "Three" with the
+    // caret in it (run 45548141476). Every input the editor gets is noted, to read in the message.
+    await page.evaluate(() => {
+      const w = window as unknown as { __in?: string[] }
+      w.__in = []
+      const t0 = performance.now()
+      for (const type of ['beforeinput', 'keydown'])
+        document.addEventListener(
+          type,
+          (e) =>
+            w.__in!.push(
+              Math.round(performance.now() - t0) +
+                ' ' +
+                type +
+                ' ' +
+                ((e as InputEvent).inputType ?? (e as KeyboardEvent).key),
+            ),
+          true,
+        )
+    })
     // Three lines of one paragraph (a line break each), not three blocks.
     await page.keyboard.type('One')
     await page.keyboard.press('Shift+Enter')
@@ -82,7 +102,13 @@ for (const mode of ['computer'] as const) {
     const three = await rect(box)
     const ed = await rect(box.locator('.bn-editor'))
     expect(three.height).toBeGreaterThan(one.height * 2.4)
-    expect(three.height).toBeLessThanOrEqual(one.height * 3 + 4)
+    const note = await page.evaluate(
+      () =>
+        (window as unknown as { __in: string[] }).__in.join(' | ') +
+        ' || ' +
+        document.querySelector('[data-paper-box="main"] .bn-editor')!.innerHTML,
+    )
+    expect(three.height, note).toBeLessThanOrEqual(one.height * 3 + 4)
     // No gap under the last line: the box ends where the editor ends.
     expect(three.height - ed.height).toBeLessThan(8)
   })

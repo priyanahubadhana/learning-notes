@@ -122,27 +122,45 @@ const cases: {
 
 for (const c of cases)
   test(`R13: ${c.name} paints within ${LIMIT_MS} ms of the tap`, async ({
+    browser,
     page,
   }, testInfo) => {
-    await open(page)
     const limit = testInfo.project.name.includes('webkit')
       ? LIMIT_WEBKIT_MS
       : LIMIT_MS
-    // The page is opened fresh for each try (the chunk is fetched on the first tap only).
-    // A busy machine can stall one try by a few frames; a real slowdown is slow in all three.
-    let ms = Infinity
-    for (let attempt = 0; attempt < 3 && ms >= limit; attempt++) {
-      if (attempt > 0) {
-        await page.reload()
-        await page.waitForTimeout(2500)
-      }
-      if (c.select) await page.keyboard.press('ControlOrMeta+a')
+    // One fresh open of the whole app, the case's tap, and the ms to paint (the chunk is
+    // fetched on the first tap only, so each try needs its own browser context).
+    const once = async (p: Page) => {
+      await open(p)
+      if (c.select) await p.keyboard.press('ControlOrMeta+a')
       if (c.before) {
-        await page.getByTestId(c.before).click()
-        await page.waitForTimeout(1500)
+        await p.getByTestId(c.before).click()
+        await p.waitForTimeout(1500)
       }
-      ms = Math.min(ms, await tapToPaint(page, c.tap, c.appear, c.min))
+      return tapToPaint(p, c.tap, c.appear, c.min)
     }
+    // Three fresh opens, the median against the limit. A busy machine can stall one open by a
+    // few frames; a slowdown that comes back one time in three still moves the median, a real
+    // one fails it.
+    const tries = [await once(page)]
+    for (let attempt = 1; attempt < 3; attempt++) {
+      // The same options as this file's test.use (a new context gets the project's otherwise).
+      const ctx = await browser.newContext({
+        ...testInfo.project.use,
+        viewport: { width: 1180, height: 820 },
+        hasTouch: true,
+      })
+      try {
+        tries.push(await once(await ctx.newPage()))
+      } finally {
+        await ctx.close()
+      }
+    }
+    const ms = [...tries].sort((x, y) => x - y)[1]
+    test.info().annotations.push({
+      type: 'tap to paint (ms)',
+      description: tries.map(Math.round).join(', '),
+    })
     expect(ms).toBeLessThan(limit)
   })
 

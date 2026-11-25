@@ -252,13 +252,15 @@ test('locked box: lock on the tab, no dots, text still edits; Unlock brings the 
   // Why: C10 (docs/features/textbox-v2.md line 219): a list pauses typing and
   // the caret put away earlier comes back when it closes; while it is in the
   // text there are no dots (C11). Put it away again, then the dots are there.
+  // CI evidence (run 45548141476, trace of this test): the caret came back into the box a
+  // moment after the first look, so the dots were gone again at the next line. Put it away
+  // and look in the same step, until the dots are visible then.
   await expect
     .poll(async () => {
       await page.evaluate(() => (document.activeElement as HTMLElement).blur())
-      return box.locator('[data-resize-handle]').count()
+      return box.locator('[data-resize-handle]').first().isVisible()
     })
-    .toBeGreaterThan(0)
-  await expect(box.locator('[data-resize-handle]').first()).toBeVisible()
+    .toBe(true)
 })
 
 test('TB-19: Move down swaps places with the next box; Move up swaps back; one Undo', async ({

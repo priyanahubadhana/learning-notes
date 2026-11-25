@@ -153,6 +153,21 @@ const boxOf = (page: Page, word: string, from = 0, to = word.length) =>
     { sel: MAIN, word, from, to },
   ) as Promise<Box>
 
+/** The word's box once the page has stopped moving (a turn or a resize keeps re-wrapping for a moment on a slow machine), not after a fixed time. */
+async function stillBox(page: Page, word: string) {
+  let last = ''
+  let same = 0
+  await expect
+    .poll(async () => {
+      const now = JSON.stringify(await boxOf(page, word))
+      same = now === last ? same + 1 : 0
+      last = now
+      return same
+    })
+    .toBeGreaterThanOrEqual(3)
+  return JSON.parse(last) as Box
+}
+
 const centre = (b: Box): Pt => ({ x: b.x + b.width / 2, y: b.y + b.height / 2 })
 const selectedText = (page: Page) =>
   page.evaluate(() => window.getSelection()?.toString() ?? '')
@@ -448,41 +463,140 @@ for (const mode of MODES) {
   })
 }
 
-// Owner decision pending: does a small stroke that keeps moving inside the 10 px
-// radius (a slow small "o", about 0.8 s) count as a press and hold? Today it does
-// (holdMenuWatch measures the distance from the start only, and a 9 px loop never
-// leaves 10 px). This test says what should happen and is expected to fail until
-// the owner decides.
-test.fail(
-  'HOLD-MOVE: a moving stroke inside 10 px counts as a hold; owner decision pending',
-  async ({ page }) => {
+// Owner, 25 Nov (DECISIONS 01:30 rule 2, 02:00 and 02:10): the Pencil hold, the circle and
+// the loop are three gestures. A hold = the Pencil stays within about 3 mm (18 px) of where
+// it touched for 0.8 s (a wobble inside that does not break it). A small loop drawn over
+// typed text, not inside the 1 s after writing, selects (our strip). A small loop anywhere
+// else, or inside the 1 s after writing, is ink and opens nothing.
+
+/** Anything our hold opens: the strip, the hold menu. */
+const anyMenu = (page: Page) =>
+  page.locator('[data-mini-toolbar], [role="menubar"], [role="menu"]')
+
+/**
+ * One Pencil press along `pts`, `gap` ms between two points, then `rest` ms
+ * still, then the lift. Time is the subject of these tests, so the waits are
+ * on purpose.
+ */
+async function slowPen(
+  page: Page,
+  pts: Pt[],
+  gap: number,
+  rest = 0,
+  /** Lift this long (ms) after the touch, whatever the moves took. */
+  liftAt = 0,
+) {
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = true
+  })
+  await page.mouse.move(pts[0].x - 3, pts[0].y - 6)
+  await page.mouse.move(pts[0].x, pts[0].y)
+  await page.mouse.down()
+  const t0 = Date.now()
+  for (const p of pts.slice(1)) {
+    if (liftAt && Date.now() - t0 + gap > liftAt) break
+    await page.mouse.move(p.x, p.y)
+    await page.waitForTimeout(gap)
+  }
+  if (liftAt) await page.waitForTimeout(Math.max(0, liftAt - (Date.now() - t0)))
+  if (rest) await page.waitForTimeout(rest)
+  await page.mouse.up()
+  await page.evaluate(() => {
+    ;(window as unknown as { __realPen?: boolean }).__realPen = false
+  })
+}
+
+/**
+ * A comma-sized wobble from `c`: up to 7 px away (inside the 18 px) and 15 px of path in
+ * all (under the 18 px that a loop passes), back and forth along x.
+ */
+const wobble = (c: Pt): Pt[] =>
+  [0, 6, 3, 7, 5].map((dx) => ({ x: c.x + dx, y: c.y }))
+
+test.describe('the Pencil hold, circle and loop (owner, 25 Nov)', () => {
+  test('HOLD-MOVE: a small loop round letters of typed text, after 1 s, opens our strip (owner, 25 Nov)', async ({
+    page,
+  }) => {
     await open(page, 'pencil')
-    const gap = await boxOf(page, 'e r', 1, 2)
-    // Longer than the 1 s after writing in which a Pencil hold is ignored. Time is
-    // the subject here, so these two waits are on purpose.
+    // Two letters of a typed word ("vi"): the loop is small, inside 18 px of where it began.
+    const b = await boxOf(page, 'Service', 3, 5)
+    // Longer than the 1 s after writing in which a Pencil hold is ignored.
     await page.waitForTimeout(1300)
-    const pts = loop(centre(gap), 4.5, 5.5)
-    await page.evaluate(() => {
-      ;(window as unknown as { __realPen?: boolean }).__realPen = true
-    })
-    await page.mouse.move(pts[0].x - 3, pts[0].y - 6)
-    await page.mouse.move(pts[0].x, pts[0].y)
-    await page.mouse.down()
-    for (const p of pts.slice(1)) {
-      await page.mouse.move(p.x, p.y)
-      await page.waitForTimeout(32) // 26 moves: the stroke takes about 0.8 s
-    }
-    await page.mouse.up()
-    await page.evaluate(() => {
-      ;(window as unknown as { __realPen?: boolean }).__realPen = false
-    })
-    await page.waitForTimeout(300)
-    // A slow small stroke is handwriting, not a hold: no strip.
-    await expect(
-      page.locator('[data-mini-toolbar], [role="menubar"]'),
-    ).toHaveCount(0)
-  },
-)
+    // 26 moves, 40 ms apart (about 1 s): slow, but a loop is deliberate movement, not a hold,
+    // so it is a circle select (our strip), not "nothing".
+    await slowPen(page, loop(centre(b), b.width / 2 + 1, b.height / 2 + 5), 40)
+    await expect(anyMenu(page).first()).toBeVisible({ timeout: 2000 })
+    expect(await selectedText(page)).toBe('vi')
+  })
+
+  test('a wobbling Pencil hold (a comma-sized wobble, 15 px of path, 0.9 s) opens the hold', async ({
+    page,
+  }) => {
+    await open(page, 'pencil')
+    const w = centre(await boxOf(page, 'rate-is'))
+    await page.waitForTimeout(1300)
+    await slowPen(page, wobble(w), 45, 750)
+    await expect(anyMenu(page).first()).toBeVisible({ timeout: 2000 })
+  })
+
+  test('the same wobble lifted at about 0.6 s opens nothing', async ({
+    page,
+  }) => {
+    await open(page, 'pencil')
+    const w = centre(await boxOf(page, 'rate-is'))
+    await page.waitForTimeout(1300)
+    const before = await editorText(page)
+    await slowPen(page, wobble(w), 40, 0, 600)
+    await page.waitForTimeout(1200)
+    await expect(anyMenu(page)).toHaveCount(0)
+    expect(await editorText(page)).toBe(before)
+  })
+
+  test('a comma-like quick stroke stays ink: nothing opens', async ({
+    page,
+  }) => {
+    await open(page, 'pencil')
+    const w = centre(await boxOf(page, 'rate-is'))
+    await page.waitForTimeout(1300)
+    const before = await editorText(page)
+    await slowPen(
+      page,
+      [w, { x: w.x + 3, y: w.y + 4 }, { x: w.x + 2, y: w.y + 9 }],
+      30,
+    )
+    await page.waitForTimeout(1200)
+    await expect(anyMenu(page)).toHaveCount(0)
+    expect(await selectedText(page)).toBe('')
+    expect(await editorText(page)).toBe(before)
+  })
+
+  test('a small loop on empty paper stays ink: nothing opens', async ({
+    page,
+  }) => {
+    await open(page, 'pencil')
+    const line = await boxOf(page, 'Another line')
+    const empty = { x: line.x + 60, y: line.y + line.height * 6 }
+    await page.waitForTimeout(1300)
+    await realPen(page, loop(empty, 14, 14), 1)
+    await page.waitForTimeout(1200)
+    await expect(anyMenu(page)).toHaveCount(0)
+    expect(await selectedText(page)).toBe('')
+  })
+
+  test('a small loop over text within 1 s of writing stays ink: nothing opens', async ({
+    page,
+  }) => {
+    await open(page, 'pencil')
+    const words = await boxOf(page, 'rate-is')
+    await page.keyboard.press('ControlOrMeta+End')
+    await page.keyboard.type('!')
+    const c = centre(words)
+    await realPen(page, loop(c, words.width / 2 + 1, words.height / 2 + 5), 1)
+    await page.waitForTimeout(600)
+    await expect(anyMenu(page)).toHaveCount(0)
+    expect(await selectedText(page)).toBe('')
+  })
+})
 
 /** The bar's box, the page frame, and every text line on the page (screen rects). */
 const barGeometry = (page: Page) =>
@@ -555,7 +669,7 @@ for (const mode of MODES)
       await page.setViewportSize(vp)
       await page.waitForTimeout(600)
       // A circle round "rate-is" (first line).
-      const b = await boxOf(page, 'rate-is')
+      const b = await stillBox(page, 'rate-is')
       await realPen(page, loop(centre(b), b.width / 2 + 1, b.height / 2 + 5))
       await expect
         .poll(() => selectedText(page), { timeout: 800 })
@@ -566,7 +680,7 @@ for (const mode of MODES)
       // A slow double tap on "plain" (second line): the same kind of strip.
       await page.keyboard.press('Escape')
       await page.waitForTimeout(400)
-      const w = await boxOf(page, 'plain')
+      const w = await stillBox(page, 'plain')
       await tapRunArrived(page, 'pen', centre(w), 2, 600)
       await expect
         .poll(() => selectedText(page), { timeout: 800 })

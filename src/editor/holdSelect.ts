@@ -1,18 +1,17 @@
 import { TextSelection } from 'prosemirror-state'
 import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { activeTool } from '../app/tools/main/mainTools'
-import { readDeviceSetting } from '../settings/settingsService'
-import { holdSelectSetting } from '../settings/builtinSettings'
 import { autoScrollWhileSelecting } from './dragSelect'
 import { beginSelectGesture, endSelectGesture } from './gesture'
 import { inputMachine } from '../app/inputMachine'
 import { lookThrough, padOf, posNear } from './tapSelect'
+import { HoldPath, PEN_HOLD_MS } from '../app/input/penHold'
 import type { AppSchema } from './schema'
 
 /**
  * Hold-to-select, like the native iOS gesture (owner, real iPad). Under the
- * Text tool the Pencil is free for Scribble, so a quick stroke is handwriting.
- * A Pencil that touches text and stays still (under 6 px) for about 300 ms
+ * A Pencil that touches text and stays within about 18 px for 0.8 s (the
+ * Pencil's one hold, src/app/input/penHold.ts) enters SELECTION mode: Scribble is held
  * (Settings > Advanced, 200 to 600 ms) enters SELECTION mode: Scribble is held
  * off for the rest of that stroke (stylus touchmove is cancelled), the caret
  * grows (a cue) and dragging extends the selection, with moderate edge
@@ -20,11 +19,6 @@ import type { AppSchema } from './schema'
  */
 
 type Editor = AppSchema['BlockNoteEditor']
-const HOLD_MOVE_PX = 6
-
-/** Pure rule: has the press moved too far to become a hold? */
-const movedTooFar = (dx: number, dy: number): boolean =>
-  Math.hypot(dx, dy) >= HOLD_MOVE_PX
 
 export function watchHoldSelect(
   editor: Editor,
@@ -39,6 +33,8 @@ export function watchHoldSelect(
     y: number
     timer: number
     anchor: number
+    /** The Pencil's hold: within 18 px and under 18 px of path (penHold.ts). */
+    path: HoldPath
     /** The ink pad the press landed on (under Lasso with ink it covers the words). */
     pad: HTMLElement | null
   } | null = null
@@ -103,7 +99,8 @@ export function watchHoldSelect(
     // Only a block that already has words (an empty block takes the caret at once).
     const block = target.closest('.bn-block-content')
     if ((block?.textContent ?? '').trim() === '') return
-    const ms = readDeviceSetting(holdSelectSetting)
+    // Only the Pencil comes here, so its one hold applies; the Settings time is no longer used.
+    const ms = PEN_HOLD_MS
     // The press is dropped by the machine if its lift never comes (4 s).
     inputMachine.begin(e, 'holdSelect', () => void finish())
     press = {
@@ -111,6 +108,7 @@ export function watchHoldSelect(
       x: e.clientX,
       y: e.clientY,
       anchor: pos,
+      path: new HoldPath(e.clientX, e.clientY),
       pad,
       timer: window.setTimeout(() => {
         if (!press) return
@@ -129,7 +127,12 @@ export function watchHoldSelect(
     if (!press || e.pointerId !== press.id) return
     if (!holding) {
       // Moved before the hold time: a quick stroke, left to Scribble.
-      if (movedTooFar(e.clientX - press.x, e.clientY - press.y)) finish()
+      const pts = e.getCoalescedEvents?.() ?? []
+      for (const c of pts.length > 0 ? pts : [e])
+        if (press.path.add(c.clientX, c.clientY)) {
+          finish()
+          break
+        }
       return
     }
     e.preventDefault()

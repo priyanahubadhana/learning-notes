@@ -408,7 +408,7 @@ test('hold-to-select: a still Pencil on text selects; a quick stroke is left to 
   await ev('pointerup', { x: a.x + 20, y: a.y })
   // A still hold: selection mode (the caret cue), then dragging extends.
   await ev('pointerdown', a)
-  await page.waitForTimeout(700)
+  await page.waitForTimeout(1000)
   await expect(page.locator('.bn-editor')).toHaveAttribute(
     'data-hold-select',
     '',
@@ -421,6 +421,51 @@ test('hold-to-select: a still Pencil on text selects; a quick stroke is left to 
     '',
   )
   await expect(page.locator('[data-mini-toolbar]')).toBeVisible()
+})
+
+// Owner, 25 Nov: ONE Pencil hold (about 18 px, 0.8 s). A short pause (a comma, a dot)
+// must never read as a hold, so hold-to-select waits for the same 0.8 s. Time is the
+// subject, so the waits are on purpose.
+test('hold-to-select: a Pencil pause of 0.5 s then a short move starts no selection; 0.9 s still does', async ({
+  page,
+}) => {
+  await openNote(page)
+  const a = await wordPoint(page, 'nucleus')
+  const ev = (name: string, p: Pt) =>
+    page.evaluate(
+      ({ name, p }) => {
+        const el = document.elementFromPoint(p.x, p.y)!
+        el.dispatchEvent(
+          new PointerEvent(name, {
+            pointerType: 'pen',
+            pointerId: 12,
+            clientX: p.x,
+            clientY: p.y,
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            buttons: name === 'pointerup' ? 0 : 1,
+            isPrimary: true,
+          }),
+        )
+      },
+      { name, p },
+    )
+  const editor = page.locator('.bn-editor')
+  await ev('pointerdown', a)
+  await page.waitForTimeout(500)
+  await expect(editor).not.toHaveAttribute('data-hold-select', '')
+  await ev('pointermove', { x: a.x + 5, y: a.y })
+  await page.waitForTimeout(150)
+  await expect(editor).not.toHaveAttribute('data-hold-select', '')
+  await ev('pointerup', { x: a.x + 5, y: a.y })
+  expect(await selection(page)).toBe('')
+  // Still for 0.9 s: selecting starts, a wobble of 12 px does not break it.
+  await ev('pointerdown', a)
+  await ev('pointermove', { x: a.x + 12, y: a.y })
+  await page.waitForTimeout(900)
+  await expect(editor).toHaveAttribute('data-hold-select', '')
+  await ev('pointerup', { x: a.x + 12, y: a.y })
 })
 
 test('under Text a Pencil double-tap selects the word and keeps the Text tool', async ({
@@ -437,7 +482,7 @@ test('under Text a Pencil double-tap selects the word and keeps the Text tool', 
 })
 
 for (const name of ['Text']) {
-  test(`${name}: hold the Pencil still 0.5 s and the caret is placed there; a short tap keeps the two-tap rule`, async ({
+  test(`${name}: hold the Pencil still 0.8 s and the caret is placed there; a short tap keeps the two-tap rule`, async ({
     page,
   }) => {
     await openNote(page)
@@ -477,9 +522,9 @@ for (const name of ['Text']) {
     )
     await ev('pointerup')
     await page.waitForTimeout(400)
-    // 0.5 s still: the caret is placed, the cue shows, nothing changes.
+    // 0.8 s still: the caret is placed, the cue shows, nothing changes.
     await ev('pointerdown')
-    await page.waitForTimeout(700)
+    await page.waitForTimeout(1000)
     await expect(page.locator('.bn-editor')).toHaveAttribute(
       'data-hold-select',
       '',

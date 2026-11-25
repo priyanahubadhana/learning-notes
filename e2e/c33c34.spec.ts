@@ -72,6 +72,26 @@ for (const mode of ['computer'] as const) {
     const frame = page.locator('[data-main-frame]')
     await expect(frame).toBeVisible()
     expect((await rect(frame)).height).toBeLessThan(lh * 1.6 + 16)
+    // Why the log: on the CI iPad (Linux WebKit) a 4th empty line appeared under "Three" with the
+    // caret in it (run 45548141476). Every input the editor gets is noted, to read in the message.
+    await page.evaluate(() => {
+      const w = window as unknown as { __in?: string[] }
+      w.__in = []
+      const t0 = performance.now()
+      for (const type of ['beforeinput', 'keydown'])
+        document.addEventListener(
+          type,
+          (e) =>
+            w.__in!.push(
+              Math.round(performance.now() - t0) +
+                ' ' +
+                type +
+                ' ' +
+                ((e as InputEvent).inputType ?? (e as KeyboardEvent).key),
+            ),
+          true,
+        )
+    })
     // Three lines of one paragraph (a line break each), not three blocks.
     await page.keyboard.type('One')
     await page.keyboard.press('Shift+Enter')
@@ -82,7 +102,13 @@ for (const mode of ['computer'] as const) {
     const three = await rect(box)
     const ed = await rect(box.locator('.bn-editor'))
     expect(three.height).toBeGreaterThan(one.height * 2.4)
-    expect(three.height).toBeLessThanOrEqual(one.height * 3 + 4)
+    const note = await page.evaluate(
+      () =>
+        (window as unknown as { __in: string[] }).__in.join(' | ') +
+        ' || ' +
+        document.querySelector('[data-paper-box="main"] .bn-editor')!.innerHTML,
+    )
+    expect(three.height, note).toBeLessThanOrEqual(one.height * 3 + 4)
     // No gap under the last line: the box ends where the editor ends.
     expect(three.height - ed.height).toBeLessThan(8)
   })
@@ -287,3 +313,32 @@ for (const name of ['pen', 'highlighter', 'eraser', 'lasso'])
     await page.waitForTimeout(700)
     await expect(page.locator(EXTRA)).toHaveCount(0)
   })
+
+/**
+ * C33 (CI, run 45578586071; probe trace): Shift+Enter in a box made a hard
+ * break AND, 200 ms later, a new empty block. Why: on an iPad ProseMirror
+ * never runs the key bindings for Enter (it waits for the browser's own change
+ * and, after 200 ms, runs a plain Enter if none looked like a new paragraph);
+ * the browser's own Shift+Enter is a line break, so the plain Enter ran too.
+ */
+test('C33: Shift+Enter makes one hard break and no extra block, also 400 ms later', async ({
+  page,
+}) => {
+  await startInMode(page, 'computer')
+  await start(page, 'ShiftEnter', false, PRESET_2B)
+  await page.waitForTimeout(900)
+  await page.locator(MAIN + ' .bn-editor').click({ position: { x: 5, y: 5 } })
+  await page.keyboard.type('One')
+  await page.keyboard.press('Shift+Enter')
+  await page.keyboard.type('Two')
+  await page.keyboard.press('Shift+Enter')
+  await page.keyboard.type('Three')
+  await page.waitForTimeout(700)
+  await expect(page.locator(MAIN + ' .bn-block-outer')).toHaveCount(1)
+  await expect(page.locator(MAIN + ' .bn-inline-content')).toHaveCount(1)
+  expect(
+    await page
+      .locator(MAIN + ' .bn-inline-content br:not(.ProseMirror-trailingBreak)')
+      .count(),
+  ).toBe(2)
+})

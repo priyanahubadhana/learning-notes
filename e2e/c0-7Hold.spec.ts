@@ -6,7 +6,7 @@ import { installRealPen } from './realPen.ts'
 
 /**
  * C0-7 (owner, 20 Nov check C0): holding still in a box opens OUR strip after
- * about 0.5 s; a finger may drift about 10 px; a Pencil hold works anywhere in
+ * about 0.5 s (a Pencil: 0.8 s, owner 25 Nov); a finger may drift about 10 px; a Pencil hold works anywhere in
  * the box, but not within 1 s after writing. Time only with page.clock.
  */
 test.use({ viewport: { width: 1024, height: 900 }, hasTouch: true })
@@ -128,7 +128,7 @@ test('C0-7: a Pencil hold far from the cursor opens it', async ({ page }) => {
   await page.mouse.click(p.x - 60, p.y) // caret far from where we hold
   await page.clock.runFor(1500) // typed text is older than 1 s
   await penDown(page, { x: p.x + 90, y: p.y })
-  await page.clock.runFor(700)
+  await page.clock.runFor(900)
   await expect(page.locator(MENU)).toBeVisible()
   await penUp(page)
 })
@@ -147,7 +147,7 @@ test('C0-7: a Pencil hold 0.5 s after writing does not open; 1.2 s after does', 
   await penUp(page)
   await page.clock.runFor(1200)
   await penDown(page, p)
-  await page.clock.runFor(700)
+  await page.clock.runFor(900)
   await expect(page.locator(MENU)).toBeVisible()
   await penUp(page)
 })
@@ -166,7 +166,7 @@ test('C0-7: an empty box opens the strip with a finger and with the Pencil', asy
   await expect(page.locator(MENU)).toHaveCount(0)
   await page.clock.runFor(1500)
   await penDown(page, e)
-  await page.clock.runFor(700)
+  await page.clock.runFor(900)
   await expect(page.locator(MENU)).toBeVisible()
   await penUp(page)
 })

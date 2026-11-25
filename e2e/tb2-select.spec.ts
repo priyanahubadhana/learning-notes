@@ -394,7 +394,14 @@ test('C11 + TB-08: the first box has the thin typing border while the caret is i
   page,
 }) => {
   await start(page, 'TB08thin')
-  await page.locator('[data-paper-box="main"] .bn-editor').click()
+  // On the words (the empty part of a box selects it instead, and typing goes
+  // nowhere: CI's page had scrolled so the old centre click missed the words).
+  const editor = page.locator('[data-paper-box="main"] .bn-editor')
+  await editor
+    .locator('.bn-inline-content')
+    .first()
+    .click({ position: { x: 8, y: 8 } })
+  await expect(editor).toBeFocused()
   await page.keyboard.type(' more')
   const frame = page.locator('[data-main-frame]')
   await expect(frame).toBeVisible()
@@ -469,6 +476,17 @@ test('turning the device with a box selected keeps the box where it was (same as
     return { x: (b.x - s.x) / s.width, w: b.width / s.width }
   }
   // The empty part selects the box (owner 17 Nov); the words take the caret.
+  // The box has stopped moving after the turn (a tap at the old place hit no element).
+  let was = ''
+  let still = 0
+  await expect
+    .poll(async () => {
+      const now = JSON.stringify(await rect(box))
+      still = now === was ? still + 1 : 0
+      was = now
+      return still
+    })
+    .toBeGreaterThanOrEqual(3)
   const p = await emptyPart(page, box)
   await tapAt(page, p.x, p.y, 'touch')
   await expect(box).toHaveAttribute('data-picked', '')

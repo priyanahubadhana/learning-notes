@@ -70,6 +70,7 @@ import {
 } from './editPolicy'
 import { watchPenSelect } from './penSelect'
 import { watchKeyboardPolicy } from './keyboardPolicy'
+import { watchShiftEnter } from './shiftEnter'
 import { watchTapSelect } from './tapSelect'
 import { watchScribbleDelete } from './scribbleDelete'
 import { watchHoldSelect } from './holdSelect'
@@ -853,6 +854,7 @@ function LoadedPageEditor({
       const stopDrag = watchDragSelect(editor)
       const stopPen = watchPenSelect(editor)
       const stopKeys = watchKeyboardPolicy(editor)
+      const stopShiftEnter = watchShiftEnter(editor)
       // After a tap or hold selection the Lasso context takes over, with a mini toolbar.
       // In typing mode the Pencil acts like a finger (owner, 7 Nov): the
       // Text tool stays, only the mini toolbar shows.
@@ -884,6 +886,7 @@ function LoadedPageEditor({
         stopDrag()
         stopPen()
         stopKeys()
+        stopShiftEnter()
         stopTap()
         stopHold()
         stopCircle()

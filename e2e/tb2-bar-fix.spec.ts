@@ -165,15 +165,28 @@ test('F63. (#63) the bar beside a selected box has the pin from its first show, 
   await expect(pin).toBeVisible()
   await expect(pin).toHaveAttribute('aria-pressed', 'false')
   const before = await rect(page.getByTestId('object-bar'))
+  // Where the bar stands against its box. The first real Pencil touch switches
+  // the page to Pencil mode, whose toolbar is a few px taller on some machines
+  // (CI WebKit: 7 px), so the whole page can move; the bar must keep its place
+  // beside the box, not on the screen.
+  const gapBefore = before.y - (await rect(box)).y
   await realPenTaps(page, await centre(pin), [{ hold: 60 }])
   await expect(page.getByTestId('ob-pin')).toHaveAttribute(
     'aria-pressed',
     'true',
   )
-  const pinned = await rect(page.getByTestId('object-bar'))
-  expect(Math.abs(pinned.x - before.x)).toBeLessThanOrEqual(2)
-  expect(Math.abs(pinned.y - before.y)).toBeLessThanOrEqual(2)
-  expect(Math.abs(pinned.width - before.width)).toBeLessThanOrEqual(1)
+  // The bar settles where it was (a slow machine moves it a moment later): wait for it.
+  await expect
+    .poll(async () => {
+      const pinned = await rect(page.getByTestId('object-bar'))
+      console.log('F63 DBG pinned ' + JSON.stringify({ before, pinned }))
+      return (
+        Math.abs(pinned.x - before.x) <= 2 &&
+        Math.abs(pinned.y - before.y) <= 2 &&
+        Math.abs(pinned.width - before.width) <= 1
+      )
+    })
+    .toBe(true)
   await expect(box).toHaveAttribute('data-picked', '')
   await realPenTaps(page, await centre(page.getByTestId('ob-pin')), [
     { hold: 60 },
@@ -182,9 +195,15 @@ test('F63. (#63) the bar beside a selected box has the pin from its first show, 
     'aria-pressed',
     'false',
   )
-  const back = await rect(page.getByTestId('object-bar'))
-  expect(Math.abs(back.x - before.x)).toBeLessThanOrEqual(2)
-  expect(Math.abs(back.y - before.y)).toBeLessThanOrEqual(2)
+  await expect
+    .poll(async () => {
+      const back = await rect(page.getByTestId('object-bar'))
+      const gap = back.y - (await rect(box)).y
+      // CI evidence (run 45582678197 lost its failure text): the numbers each poll.
+      console.log('F63 DBG ' + JSON.stringify({ before, back, gapBefore, gap }))
+      return Math.abs(back.x - before.x) <= 2 && Math.abs(gap - gapBefore) <= 2
+    })
+    .toBe(true)
   await expect(box).toHaveAttribute('data-picked', '')
 })
 

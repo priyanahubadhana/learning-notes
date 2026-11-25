@@ -175,7 +175,21 @@ for (const [tool, id, w0, h0, w1, h1] of TURNS) {
     const card = page.getByTestId(`v8-card-${id}`)
     await expect(card).toBeVisible()
     await page.setViewportSize(PORTRAIT)
-    await page.waitForTimeout(350)
+    // The card has followed the turn: 350 ms AND at least 20 frames after it (a slow
+    // machine draws fewer frames in 350 ms, so the count, not the clock, decides).
+    await page.evaluate(
+      () =>
+        new Promise<void>((done) => {
+          const t0 = performance.now()
+          let frames = 0
+          const tick = () => {
+            frames++
+            if (frames >= 20 && performance.now() - t0 >= 350) done()
+            else requestAnimationFrame(tick)
+          }
+          requestAnimationFrame(tick)
+        }),
+    )
     const early = (await card.boundingBox())!
     const turned = await settledBox(card)
 

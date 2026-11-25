@@ -88,6 +88,26 @@ test('C21 a resize whose lift never arrives ends: the hover after it never resiz
   await realPenDrag(page, [s, { x: s.x, y: s.y - 20 }, { x: s.x, y: s.y - 40 }])
   await page.waitForTimeout(300)
   const h1 = await height(box)
+  // Why the log: on the CI iPad (Linux WebKit) the hover resized the box by 40 px (run
+  // 45548141476). The pointer moves of the hover are noted, to read in the message.
+  await page.evaluate(() => {
+    const w = window as unknown as { __hv?: string[] }
+    w.__hv = []
+    window.addEventListener(
+      'pointermove',
+      (e) =>
+        w.__hv!.push(
+          e.pointerType +
+            ' b' +
+            e.buttons +
+            ' p' +
+            e.pressure +
+            ' ' +
+            Math.round(e.clientY),
+        ),
+      true,
+    )
+  })
   // The tip hovers back over the dot and up the page.
   const p = await centre(ring(box, 's'))
   await realPenHover(page, [
@@ -97,7 +117,10 @@ test('C21 a resize whose lift never arrives ends: the hover after it never resiz
     { x: p.x, y: p.y + 40 },
   ])
   await page.waitForTimeout(300)
-  expect(Math.abs((await height(box)) - h1)).toBeLessThan(1)
+  const log = await page.evaluate(() =>
+    (window as unknown as { __hv: string[] }).__hv.join(' | '),
+  )
+  expect(Math.abs((await height(box)) - h1), log).toBeLessThan(1)
 })
 
 test('C21 shrinking with the Pencil is steady and reaches the text height', async ({

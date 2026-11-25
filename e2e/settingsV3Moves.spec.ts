@@ -66,12 +66,13 @@ test('Pencil & touch has its own section with the pencil rows, and Advanced no l
   )
   for (const id of [
     'advanced.pencilWrites',
-    'advanced.holdSelect',
     'advanced.holdMenu',
     'advanced.pencilTapTwice',
     'advanced.pencilScrolls',
   ])
     await expect(row(page, id)).toBeVisible()
+  // owner, 25 Nov: remove it. The Pencil hold is fixed at 0.8 s, so the select-time row is gone.
+  await expect(row(page, 'advanced.holdSelect')).toHaveCount(0)
   await page.locator('[data-section="advanced"]').click()
   await expect(row(page, 'advanced.pencilWrites')).toHaveCount(0)
   await expect(row(page, 'advanced.showRefresh')).toBeVisible()

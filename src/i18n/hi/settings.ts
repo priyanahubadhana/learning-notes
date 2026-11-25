@@ -206,10 +206,6 @@ export const hiSettings = {
     'टेक्स्ट पर कितनी देर दबाए रखने पर मेनू (चिपकाएँ, चुनें, जोड़ें) खुले।',
   'settings.holdMenu.label': 'दबाकर रखने पर मेनू का समय',
   'settings.holdMenu.s': '{s} से.',
-  'settings.holdSelect.description':
-    'टेक्स्ट टूल में पेंसिल की तेज़ लकीर हस्तलेख होती है। पेंसिल को इतनी देर टेक्स्ट पर बिना हिलाए रखें तो वह चुन लेती है; फिर खींचकर बढ़ाएँ।',
-  'settings.holdSelect.label': 'पेंसिल दबाकर चुनने का समय',
-  'settings.holdSelect.ms': '{ms} मि.से.',
   'settings.hoverTips.description':
     'पॉइंटर बटन पर रुकने पर बटन का नाम एक छोटी टिप में दिखाएँ।',
   'settings.hoverTips.label': 'बटन टिप',

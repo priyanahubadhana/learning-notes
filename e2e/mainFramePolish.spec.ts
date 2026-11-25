@@ -26,7 +26,10 @@ test('the first box frame has an even gap round its words and the words stay', a
   expect(Math.abs(w.x - before.x)).toBeLessThan(1)
   expect(Math.abs(w.y - before.y)).toBeLessThan(1)
   // Same gap as a box beside it (words to frame: sides and top).
-  const other = await addBox(page, ['One'])
+  // The first box is selected, so its bar floats just under it (about 24 to 80 px below a
+  // one-line box) and takes a tap there; a slow machine shows the bar before the tap, a fast
+  // one after it. Tap well under the bar (140 px), where nothing floats on any machine.
+  const other = await addBox(page, ['One'], 0.3, 140)
   await other.locator('.bn-editor').click()
   const of = await rect(other.locator('[data-box-frame]').first())
   const ow = await rect(other.locator('.bn-inline-content').first())

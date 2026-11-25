@@ -122,18 +122,55 @@ const cases: {
 
 for (const c of cases)
   test(`R13: ${c.name} paints within ${LIMIT_MS} ms of the tap`, async ({
+    browser,
     page,
   }, testInfo) => {
-    await open(page)
-    if (c.select) await page.keyboard.press('ControlOrMeta+a')
-    if (c.before) {
-      await page.getByTestId(c.before).click()
-      await page.waitForTimeout(1500)
+    const limit = testInfo.project.name.includes('webkit')
+      ? LIMIT_WEBKIT_MS
+      : LIMIT_MS
+    // One fresh open of the whole app, the case's tap, and the ms to paint (the chunk is
+    // fetched on the first tap only, so each try needs its own browser context).
+    const once = async (p: Page) => {
+      await open(p)
+      if (c.select) await p.keyboard.press('ControlOrMeta+a')
+      if (c.before) {
+        await p.getByTestId(c.before).click()
+        await p.waitForTimeout(1500)
+      }
+      return tapToPaint(p, c.tap, c.appear, c.min)
     }
-    const ms = await tapToPaint(page, c.tap, c.appear, c.min)
-    expect(ms).toBeLessThan(
-      testInfo.project.name.includes('webkit') ? LIMIT_WEBKIT_MS : LIMIT_MS,
-    )
+    // Three fresh opens, the median against the limit. A busy machine can stall one open by a
+    // few frames; a slowdown that comes back one time in three still moves the median, a real
+    // one fails it.
+    const tries = [await once(page)]
+    for (let attempt = 1; attempt < 3; attempt++) {
+      // The same options as this file's test.use (a new context gets the project's otherwise).
+      const ctx = await browser.newContext({
+        ...testInfo.project.use,
+        viewport: { width: 1180, height: 820 },
+        hasTouch: true,
+      })
+      try {
+        tries.push(await once(await ctx.newPage()))
+      } finally {
+        await ctx.close()
+      }
+    }
+    const ms = [...tries].sort((x, y) => x - y)[1]
+    test.info().annotations.push({
+      type: 'tap to paint (ms)',
+      description: tries.map(Math.round).join(', '),
+    })
+    // owner, 25 Nov: on the hosted iPad engine in CI the time is a warning (annotation and
+    // console), not a failure; chromium keeps the hard limit everywhere, and so does a local
+    // ipad-webkit run.
+    if (process.env.CI && testInfo.project.name === 'ipad-webkit') {
+      if (ms >= limit) {
+        const msg = `R13 warning: ${c.name} median ${Math.round(ms)} ms is over ${limit} ms (hosted iPad engine, not failing)`
+        test.info().annotations.push({ type: 'warning', description: msg })
+        console.warn(msg)
+      }
+    } else expect(ms).toBeLessThan(limit)
   })
 
 // With foundation.shell OFF the live app loads as before: nothing is fetched ahead.

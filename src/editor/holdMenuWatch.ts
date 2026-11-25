@@ -2,6 +2,13 @@ import { onGestureReset, registerToolState } from '../app/gestureReset'
 import { activeTool } from '../app/tools/main/mainTools'
 import { holdMenuSetting } from '../settings/builtinSettings'
 import { readDeviceSetting } from '../settings/settingsService'
+import {
+  PEN_QUIET_MS,
+  holdMsFor,
+  HoldPath,
+  noteWritten,
+  wroteRecently,
+} from '../app/input/penHold'
 import type { AppSchema } from './schema'
 
 /**
@@ -26,11 +33,14 @@ export const PEN_CARET_PX = 12
 export const RING_AFTER_MS = 400
 
 /** No Pencil hold within this long after text was written (ms, item 5). */
-export const PEN_QUIET_MS = 1000
+export { PEN_QUIET_MS }
 
 /** Pure rule: has the press moved too far to stay a hold? */
-export const movedTooFar = (dx: number, dy: number): boolean =>
-  Math.hypot(dx, dy) > HOLD_STILL_PX
+export const movedTooFar = (
+  dx: number,
+  dy: number,
+  slop = HOLD_STILL_PX,
+): boolean => Math.hypot(dx, dy) > slop
 
 /** Pure rule: distance from a point to a rectangle (0 inside). */
 export const distToRect = (
@@ -113,6 +123,7 @@ export function watchHoldMenu(
     y: number
     type: string
     pressure: number
+    path: HoldPath
     timer: number
     ringTimer: number
     ring: (() => void) | null
@@ -120,7 +131,6 @@ export function watchHoldMenu(
   /** When the last menu opened: its press's own context menu is cancelled. */
   let openedAt = 0
   /** When text last went into the page (typing, Scribble). */
-  let wroteAt = 0
 
   /**
    * C0-7: Apple's magnifier starts at about the same time as our strip. Once
@@ -156,14 +166,16 @@ export function watchHoldMenu(
       return
     // C0-7: the Pencil may hold anywhere in the box, but not right after
     // text went in (Scribble rests still before a stroke).
-    if (e.pointerType === 'pen' && Date.now() - wroteAt < PEN_QUIET_MS) return
-    const hold = readDeviceSetting(holdMenuSetting)
+    if (e.pointerType === 'pen' && wroteRecently()) return
+    // The Pencil's hold is fixed (0.8 s, 18 px: penHold.ts); the setting is for finger and mouse.
+    const hold = holdMsFor(e.pointerType, readDeviceSetting(holdMenuSetting))
     const me = {
       id: e.pointerId,
       x: e.clientX,
       y: e.clientY,
       type: e.pointerType,
       pressure: e.pressure,
+      path: new HoldPath(e.clientX, e.clientY),
       ring: null as (() => void) | null,
       ringTimer: 0,
       timer: window.setTimeout(() => {
@@ -188,10 +200,16 @@ export function watchHoldMenu(
     if (!press || e.pointerId !== press.id) return
     // Any drift beyond the radius, or a harder press, ends this hold for the
     // whole stroke (nothing re-arms until the next pointerdown).
-    if (
-      movedTooFar(e.clientX - press.x, e.clientY - press.y) ||
-      (press.type === 'pen' && e.pressure - press.pressure > 0.2)
-    )
+    // The Pencil also breaks it by travelling a path longer than 18 px (a loop).
+    let broke = false
+    if (press.type === 'pen') {
+      const pts = e.getCoalescedEvents?.() ?? []
+      for (const c of pts.length > 0 ? pts : [e])
+        if (press.path.add(c.clientX, c.clientY)) broke = true
+    } else {
+      broke = movedTooFar(e.clientX - press.x, e.clientY - press.y)
+    }
+    if (broke || (press.type === 'pen' && e.pressure - press.pressure > 0.2))
       stop()
   }
   const onEnd = (e: PointerEvent) => {
@@ -201,7 +219,7 @@ export function watchHoldMenu(
   // Text going in (keys, Scribble, dictation): note it, and end a hold.
   const onInput = (e: Event) => {
     if (e.target instanceof Node && dom.contains(e.target)) {
-      wroteAt = Date.now()
+      noteWritten()
       stop()
     }
   }

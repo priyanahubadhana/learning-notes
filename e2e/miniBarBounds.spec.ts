@@ -72,15 +72,23 @@ async function selectWordAt(page: Page, align: 'left' | 'right') {
   await expect(mini(page)).toBeVisible()
 }
 
+/** The bar follows its words for a moment after a turn or a resize (up to 4 s on a slow machine), so this waits for the on-screen state, not a fixed time. */
 async function expectOnScreen(page: Page) {
-  const m = (await mini(page).boundingBox())!
   const v = page.viewportSize()!
-  expect(m.x).toBeGreaterThanOrEqual(-0.5)
-  expect(m.y).toBeGreaterThanOrEqual(-0.5)
-  expect(m.x + m.width).toBeLessThanOrEqual(v.width + 0.5)
-  expect(m.y + m.height).toBeLessThanOrEqual(v.height + 0.5)
-  // Never taller than the screen, never wider than the screen.
-  expect(m.width).toBeLessThanOrEqual(v.width)
+  await expect
+    .poll(async () => {
+      const m = (await mini(page).boundingBox())!
+      const bad: string[] = []
+      if (m.x < -0.5) bad.push('left ' + m.x)
+      if (m.y < -0.5) bad.push('top ' + m.y)
+      if (m.x + m.width > v.width + 0.5) bad.push('right ' + (m.x + m.width))
+      if (m.y + m.height > v.height + 0.5)
+        bad.push('bottom ' + (m.y + m.height))
+      // Never taller than the screen, never wider than the screen.
+      if (m.width > v.width) bad.push('wider ' + m.width)
+      return bad.join(', ')
+    })
+    .toBe('')
 }
 
 type Box = { x: number; y: number; width: number; height: number }
@@ -221,20 +229,28 @@ for (const size of [
     await page.waitForTimeout(250)
     // The page may have scrolled meanwhile, so the place is checked against the
     // words: the bar is next to them, never over them, and has its own size.
-    const back = await box(page)
-    expect(back.width).toBeCloseTo(first.width, 0)
-    expect(back.height).toBeCloseTo(first.height, 0)
-    const word = await page.evaluate(() => {
-      const r = getSelection()!.getRangeAt(0).getBoundingClientRect()
-      return { x: r.x, y: r.y, width: r.width, height: r.height }
-    })
-    expect(
-      apart(back, word),
-      `the bar covers its words: ${JSON.stringify({ back, word })}`,
-    ).toBe(true)
-    expect(
-      Math.abs(back.y + back.height / 2 - (word.y + word.height / 2)),
-    ).toBeLessThan(160)
+    // The bar wraps to the size again a moment after the turn back (CI WebKit:
+    // still the turned width 250 ms later), so wait for that state, not a time.
+    const word = () =>
+      page.evaluate(() => {
+        const r = getSelection()!.getRangeAt(0).getBoundingClientRect()
+        return { x: r.x, y: r.y, width: r.width, height: r.height }
+      })
+    await expect
+      .poll(async () => {
+        const back = await box(page)
+        const w = await word()
+        if (
+          Math.abs(back.width - first.width) >= 0.5 ||
+          Math.abs(back.height - first.height) >= 0.5
+        )
+          return 'size ' + JSON.stringify({ back, first })
+        if (!apart(back, w)) return 'covers ' + JSON.stringify({ back, w })
+        if (Math.abs(back.y + back.height / 2 - (w.y + w.height / 2)) >= 160)
+          return 'far ' + JSON.stringify({ back, w })
+        return 'ok'
+      })
+      .toBe('ok')
   })
 }
 

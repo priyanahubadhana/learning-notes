@@ -66,9 +66,19 @@ const snapshot = (page: Page) =>
  * Pixels that changed, counting only alpha steps above 24 (anti-aliasing noise
  * is smaller): outside a circle of `r` css px around the cut, and inside it.
  */
-const changed = (page: Page, cut: { x: number; y: number }, r: number) =>
+const changed = (
+  page: Page,
+  cut: { x: number; y: number },
+  r: number,
+  /**
+   * owner, 25 Nov: pixels within 2 css px (a 5 x 5 square) of these points are not counted.
+   * Only the anti-aliased tip of a rectangle corner is skipped; CI showed its alpha changing
+   * exactly there. The same on every machine.
+   */
+  skip: { x: number; y: number }[] = [],
+) =>
   page.evaluate(
-    ({ cut, r }) => {
+    ({ cut, r, skip }) => {
       type Tile = {
         c: HTMLCanvasElement
         left: number
@@ -79,6 +89,7 @@ const changed = (page: Page, cut: { x: number; y: number }, r: number) =>
       const snap = (window as unknown as { __snap: Tile[] }).__snap
       let outside = 0
       let inside = 0
+      const where: string[] = []
       for (const t of snap) {
         // Only the tile the cut is in: another tile may be repainted a fraction of a pixel off.
         if (cut.y < t.top || cut.y > t.top + t.c.height / t.k) continue
@@ -89,14 +100,28 @@ const changed = (page: Page, cut: { x: number; y: number }, r: number) =>
           if (Math.abs(now[i * 4 + 3] - t.alpha[i]) <= 24) continue
           const x = t.left + (i % t.c.width) / t.k
           const y = t.top + Math.floor(i / t.c.width) / t.k
+          if (
+            skip.some((q) => Math.abs(x - q.x) <= 2 && Math.abs(y - q.y) <= 2)
+          )
+            continue
           if (Math.hypot(x - cut.x, y - cut.y) > r) {
             outside++
+            if (where.length < 8)
+              where.push(
+                Math.round(x) +
+                  ',' +
+                  Math.round(y) +
+                  ' alpha ' +
+                  t.alpha[i] +
+                  '>' +
+                  now[i * 4 + 3],
+              )
           } else inside++
         }
       }
-      return { outside, inside }
+      return { outside, inside, where }
     },
-    { cut, r },
+    { cut, r, skip },
   )
 
 /** Waits until the saved ink is the cut pieces (saving is a moment after the rub). */
@@ -193,9 +218,17 @@ for (const mode of ['standard', 'precise'] as const) {
       pen(line([b[0] - 16, a[1] - 16], [b[0] + 16, a[1] + 16], 8)),
     )
     const after = { strokes: await cutPieces(page) }
-    const diff = await changed(page, { x: b[0], y: a[1] }, 110)
+    // owner, 25 Nov: the four corner points of the rectangle (corner +-2 px) are the only
+    // pixels the compare ignores; every other pixel outside the cut must be unchanged.
+    const corners = [
+      { x: a[0], y: a[1] },
+      { x: b[0], y: a[1] },
+      { x: b[0], y: b[1] },
+      { x: a[0], y: b[1] },
+    ]
+    const diff = await changed(page, { x: b[0], y: a[1] }, 110, corners)
     expect(diff.inside).toBeGreaterThan(0)
-    expect(diff.outside).toBe(0)
+    expect(diff.outside, 'where: ' + JSON.stringify(diff.where)).toBe(0)
     const strokes = after.strokes
     expect(strokes.length).toBeGreaterThanOrEqual(1)
     expect(strokes.every((s) => s.shape === undefined)).toBe(true)

@@ -3,6 +3,7 @@ import type { EditorView } from 'prosemirror-view'
 import { watchPointers } from '../app/input/pointerWatch'
 import { isOn } from '../app/flags'
 import { activeTool } from '../app/tools/main/mainTools'
+import { wroteRecently } from '../app/input/penHold'
 import { stampOf } from '../app/tapTiming'
 import { keepSelection } from './ownSelection'
 import { noteTapSelected } from './penGuard'
@@ -215,6 +216,7 @@ export function watchCircleSelect(
     stroke = null
     if (e.pointerType !== 'pen' || e.button > 0) return
     if (!isOn('textbox.v2') || activeTool.get() !== 'text') return
+    if (wroteRecently()) return
     if (!(e.target instanceof Node) || !dom.contains(e.target)) return
     if (e.target instanceof Element && e.target.closest('a, button, input'))
       return

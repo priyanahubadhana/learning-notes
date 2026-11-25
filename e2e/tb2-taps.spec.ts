@@ -114,20 +114,24 @@ const exactPair = (page: Page, at: { x: number; y: number }, gap: number) =>
             composed: true,
           }),
         )
+      // A timer, not animation frames: CI WebKit draws a frame only every 100 ms or so, which made
+      // a "150 ms" gap come out as 335 ms in every one of 12 tries (run 45565136359).
       const wait = (ms: number) =>
-        new Promise<void>((done) => {
-          const t0 = performance.now()
-          const tick = () =>
-            performance.now() - t0 >= ms ? done() : requestAnimationFrame(tick)
-          tick()
-        })
-      fire('pointerdown')
-      await wait(30)
-      fire('pointerup')
-      await wait(gap)
-      fire('pointerdown')
-      await wait(30)
-      fire('pointerup')
+        new Promise<void>((done) => setTimeout(done, ms))
+      const at: number[] = []
+      for (const [i, type] of [
+        'pointerdown',
+        'pointerup',
+        'pointerdown',
+        'pointerup',
+      ].entries()) {
+        fire(type)
+        at.push(performance.now())
+        if (i === 0 || i === 2) await wait(30)
+        else if (i === 1) await wait(gap)
+      }
+      // What the page really got: first press, the gap, second press (ms).
+      return { p1: at[1] - at[0], gap: at[2] - at[1], p2: at[3] - at[2] }
     },
     { ...at, gap },
   )
@@ -215,7 +219,20 @@ test('TB-04: taps 80 to 350 ms apart (Pencil) all make a word', async ({
   for (const gap of [80, 150, 250, 350]) {
     await page.waitForTimeout(1500)
     await page.evaluate(() => window.getSelection()?.removeAllRanges())
-    await exactPair(page, at, gap)
+    // A slow machine can hold a frame back, so the gap or a press comes out longer than
+    // asked (a press over 250 ms is no tap). Such a pair proves nothing about the app:
+    // it is sent again, never excused. The pair that counts is within 40 ms of the ask.
+    let got = { p1: 0, gap: 0, p2: 0 }
+    for (let tries = 0; tries < 12; tries++) {
+      got = await exactPair(page, at, gap)
+      if (got.gap < gap + 40 && got.p1 < 120 && got.p2 < 120) break
+      await page.waitForTimeout(1500)
+      await page.evaluate(() => window.getSelection()?.removeAllRanges())
+    }
+    expect(
+      got.gap < gap + 40 && got.p1 < 120 && got.p2 < 120,
+      'gap ' + gap + ': the pair arrived as asked ' + JSON.stringify(got),
+    ).toBe(true)
     await expect.poll(() => selected(page), 'gap ' + gap).toBe('gamma')
   }
 })

@@ -539,31 +539,6 @@ export const pencilWritesSetting: SettingDefinition<OnOff> = {
   control: { kind: 'segmented', options: onOffOptions() },
 }
 
-/**
- * How long the Pencil rests on text before hold-to-select starts (ms).
- * Under the Text tool a quick stroke is handwriting; a still hold selects.
- */
-const HOLD_SELECT_CHOICES = [300, 400, 500, 600, 800, 1000, 1500] as const
-export const holdSelectSetting: SettingDefinition<number> = {
-  id: 'advanced.holdSelect',
-  labelKey: 'settings.holdSelect.label',
-  descriptionKey: 'settings.holdSelect.description',
-  category: 'advanced',
-  keywords: 'pencil hold select long press text scribble',
-  scope: 'device',
-  defaultValue: 500,
-  isValid: (v): v is number =>
-    typeof v === 'number' &&
-    (HOLD_SELECT_CHOICES as readonly number[]).includes(v),
-  control: {
-    kind: 'select',
-    options: HOLD_SELECT_CHOICES.map((value) => ({
-      value,
-      label: () => t('settings.holdSelect.ms', { ms: value }),
-    })),
-  },
-}
-
 /** How long a still press waits before our hold menu opens (ms, item 19). */
 const HOLD_MENU_CHOICES = [400, 500, 600, 800, 1000, 1500, 2000, 3000] as const
 export const holdMenuSetting: SettingDefinition<number> = {
@@ -946,7 +921,6 @@ for (const definition of [
   autoUpdateSetting,
   autoSwitchSetting,
   pencilWritesSetting,
-  holdSelectSetting,
   holdMenuSetting,
   pencilScrollsSetting,
   smartGuidesSetting,

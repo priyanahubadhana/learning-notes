@@ -104,6 +104,7 @@ import {
 } from './textSnap'
 import { WordEraseSession } from './eraseText'
 import { isOn } from '../app/flags'
+import { PICK_BOX, inkBand } from '../editor/tapSelect'
 import { MAX_LABEL, STRIDE } from '../core/inkTypes'
 import { selectGesture } from '../editor/gesture'
 import { mostlyInside } from './lassoMenu'
@@ -378,6 +379,9 @@ interface OverlayPlace {
   width: number
   height: number
   zoom: number
+  /** #64/C30b: how far the pad reaches past the content block, left and right (screen px). */
+  padL: number
+  padR: number
 }
 
 /** How far (px) below a box a saved stroke must reach to count as old ink under the border. */
@@ -414,6 +418,8 @@ export class InkController {
   private resizeWatch: ResizeObserver | null = null
   /** The overlay's position or the page's zoom may have changed. */
   private placeDirty = true
+  /** C30b: a Pen press that began in a box's border band (a tap there picks the box). */
+  private bandTap: { id: number; x: number; y: number } | null = null
   private placed = ''
   /** Something moves on the live canvas now (it follows the screen). */
   private liveOn = false
@@ -560,6 +566,10 @@ export class InkController {
     ro.observe(wrap)
     const editorEl = this.env.editorEl()
     if (editorEl) ro.observe(editorEl)
+    const frameEl = wrap.closest(
+      '[data-paper-box]:not([data-paper-box="main"])',
+    )
+    if (frameEl) ro.observe(frameEl)
     this.cleanups.push(() => ro.disconnect())
     const mo = new MutationObserver((records) => {
       // The ink's own canvases and menus changing is not the page changing.
@@ -1039,6 +1049,19 @@ export class InkController {
     this.applyPlace(this.measurePlace())
   }
 
+  /**
+   * #64: in a box on paper (not the first) that a handle made taller than its
+   * text, the ink pad covers the whole frame, down to its border; the content
+   * block itself stays as tall as the text (C21).
+   */
+  private fillHeight(wr: DOMRect): number {
+    const { wrap } = this.env
+    if (!isOn('textbox.v2')) return wr.height
+    const frame = wrap.closest('[data-paper-box]:not([data-paper-box="main"])')
+    if (!frame) return wr.height
+    return Math.max(wr.height, frame.getBoundingClientRect().bottom - wr.top)
+  }
+
   /** The read half of placeOverlay (no style writes). */
   measurePlace(): OverlayPlace {
     const { wrap } = this.env
@@ -1057,13 +1080,34 @@ export class InkController {
     if (Math.abs(zoom - 1) < 0.004) zoom = 1
     const left = Math.round((wr.left - ar.left) * 100) / 100
     const top = Math.round((wr.top - ar.top) * 100) / 100
-    return { left, top, width: wr.width, height: wr.height, zoom }
+    const fr = this.env.wrap
+      .closest('[data-paper-box]:not([data-paper-box="main"])')
+      ?.getBoundingClientRect()
+    const padL = fr && isOn('textbox.v2') ? Math.max(0, wr.left - fr.left) : 0
+    const padR = fr && isOn('textbox.v2') ? Math.max(0, fr.right - wr.right) : 0
+    return {
+      left,
+      top,
+      width: wr.width,
+      height: this.fillHeight(wr),
+      zoom,
+      padL,
+      padR,
+    }
   }
 
   /** The write half of placeOverlay (no layout reads). */
-  applyPlace({ left, top, width, height, zoom }: OverlayPlace): void {
+  applyPlace({
+    left,
+    top,
+    width,
+    height,
+    zoom,
+    padL,
+    padR,
+  }: OverlayPlace): void {
     this.placeDirty = false
-    const key = `${left}|${top}|${Math.round(width * 100)}|${Math.round(height * 100)}|${zoom}`
+    const key = `${left}|${top}|${Math.round(width * 100)}|${Math.round(height * 100)}|${zoom}|${padL}|${padR}`
     if (key === this.placed) return
     this.placed = key
     const st = this.overlay.style
@@ -1072,6 +1116,8 @@ export class InkController {
     st.top = `${top}px`
     st.width = `${width}px`
     st.height = `${height}px`
+    this.pad.style.left = `${-padL}px`
+    this.pad.style.right = `${-padR}px`
   }
 
   private redraw(): void {
@@ -1287,7 +1333,7 @@ export class InkController {
   private inkBottom(): number | null {
     const { wrap } = this.env
     if (!isOn('textbox.v2') || !wrap.closest('[data-paper-box]')) return null
-    return wrap.getBoundingClientRect().height
+    return this.fillHeight(wrap.getBoundingClientRect())
   }
 
   private scaled(e: PointerEvent): number {
@@ -1362,6 +1408,13 @@ export class InkController {
       cut: false,
     }
     this.gesture = g
+    // C30b (owner 25 Nov): a press in the 22 px band of a box may be a tap
+    // that picks the box. The stroke starts as usual; on the lift, a tap
+    // drops it (see up) and anything longer stays ink.
+    this.bandTap =
+      isOn('textbox.v2') && inkBand(this.env.wrap, e.clientX, e.clientY)
+        ? { id: e.pointerId, x: e.clientX, y: e.clientY }
+        : null
     this.addPoint(g, e, frame)
     this.armHold(g)
     this.requestDraw()
@@ -1545,6 +1598,29 @@ export class InkController {
       if (g.kind === 'draw') clearTimeout(g.holdTimer)
       if (g.kind === 'erase') this.finishErase(g)
       this.requestDraw()
+      return
+    }
+    const band = this.bandTap
+    this.bandTap = null
+    if (
+      g.kind === 'draw' &&
+      band &&
+      band.id === e.pointerId &&
+      Math.hypot(e.clientX - band.x, e.clientY - band.y) < 6 &&
+      e.timeStamp - g.t0 < 300
+    ) {
+      // A tap in the border band picks the box; the stroke is dropped before
+      // it was saved (no dot, no Undo step).
+      clearTimeout(g.holdTimer)
+      const id = this.env.wrap
+        .closest('[data-paper-box]')
+        ?.getAttribute('data-paper-box')
+      if (id)
+        window.dispatchEvent(
+          new CustomEvent(PICK_BOX, { detail: { id, add: e.shiftKey } }),
+        )
+      this.requestDraw()
+      this.notify()
       return
     }
     if (g.kind === 'draw') {

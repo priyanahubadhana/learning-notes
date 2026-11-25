@@ -68,14 +68,21 @@ test('the left panel lists pages, the outline and audio', async ({ page }) => {
   await expect(panel).toBeHidden()
 })
 
-test('long page names wrap to two lines in the sidebar', async ({ page }) => {
+// Owner's rule, 25 Nov 2026 (DECISIONS.md, "two more answers"): on the iPad a
+// long page name may take AT MOST 3 lines in the sidebar (the owner tested it:
+// 3 lines looked neat). On the PC width it still wraps to two lines.
+test('long page names wrap to two lines on PC and at most three on the iPad', async ({
+  page,
+}, testInfo) => {
   const long = 'A long page name that needs two lines'
   await createNotebook(page, 'Wrap NB', long)
   await showSidebar(page)
   const name = sidebar(page).getByRole('button', { name: long, exact: true })
   const box = await name.boundingBox()
+  const tablet = testInfo.project.name.includes('ipad')
   expect(box?.height ?? 0).toBeGreaterThan(30)
-  expect(box?.height ?? 99).toBeLessThan(48) // two lines, not three
+  // PC: two lines, not three. iPad: up to three lines, fails at four.
+  expect(box?.height ?? 99).toBeLessThan(tablet ? 70 : 48)
   await hideSidebar(page)
 })
 

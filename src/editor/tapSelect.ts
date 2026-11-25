@@ -398,6 +398,73 @@ export const NEAR_REACH_EM = 0.6
 const BORDER_PX = 6
 
 /**
+ * Owner 25 Nov, rule 1: a tap within about 22 px (3 to 4 mm) inside the left,
+ * right or bottom border of a box (not the page's first) picks the box. The
+ * rest of the inside takes the caret (and ink).
+ */
+export const BORDER_BAND_PX = 22
+
+/**
+ * Is (x, y) in the side border band (left or right) of this editor's extra
+ * box, or, with `bottom`, in its bottom band too? (The bottom band does not
+ * cover the words: a one-line box is shorter than the band.)
+ */
+export function inBorderBand(
+  dom: HTMLElement,
+  x: number,
+  y: number,
+  bottom = false,
+): boolean {
+  const boxEl = dom.closest('[data-paper-box]:not([data-paper-box="main"])')
+  if (!boxEl) return false
+  const b = boxEl.getBoundingClientRect()
+  if (b.width <= 0) return false
+  return (
+    x < b.left + BORDER_BAND_PX ||
+    x > b.right - BORDER_BAND_PX ||
+    (bottom && y > b.bottom - BORDER_BAND_PX)
+  )
+}
+
+/**
+ * Owner 25 Nov (any tool): is (x, y) in the band where a Pen TAP picks the
+ * box? The left and right band, and the bottom band only below the last
+ * written line (a one-line box is shorter than the band; ink on its words
+ * stays ink). The page's first box is left out: it is the page itself and
+ * shows no border until it is picked or typed in.
+ */
+export function inkBand(dom: HTMLElement, x: number, y: number): boolean {
+  if (inBorderBand(dom, x, y)) return true
+  if (!inBorderBand(dom, x, y, true)) return false
+  let low = -1e9
+  for (const el of dom.querySelectorAll('.bn-inline-content'))
+    low = Math.max(low, el.getBoundingClientRect().bottom)
+  return y > low
+}
+
+/**
+ * Owner 25 Nov: does a tap here put the caret in an extra box? On or near the
+ * words (nearText), or in the empty part below / above the written lines,
+ * but never in the border band. Further out on a written line, a tap still
+ * selects the box (C30).
+ */
+export function tapsCaret(dom: HTMLElement, x: number, y: number): boolean {
+  if (!dom.closest('[data-paper-box]:not([data-paper-box="main"])'))
+    return nearText(dom, x, y)
+  if (nearText(dom, x, y)) return true
+  if (inBorderBand(dom, x, y, true)) return false
+  const range = dom.ownerDocument.createRange()
+  for (const el of dom.querySelectorAll<HTMLElement>('.bn-inline-content')) {
+    const lh = parseFloat(getComputedStyle(el).lineHeight) || 24
+    range.selectNodeContents(el)
+    for (const r of range.getClientRects())
+      if (r.width > 0 && Math.abs(y - (r.top + r.bottom) / 2) <= lh / 2)
+        return false
+  }
+  return true
+}
+
+/**
  * C30 (owner 17 Nov): is (x, y) on a written line of the editor, or up to one
  * letter's width (NEAR_REACH_EM, in that line's font size) before or past its words?
  */
@@ -408,6 +475,7 @@ export function nearText(dom: HTMLElement, x: number, y: number): boolean {
   if (boxEl) {
     const b = boxEl.getBoundingClientRect()
     if (b.width > 0 && (x < b.left || x > b.right - BORDER_PX)) return false
+    if (inBorderBand(dom, x, y)) return false
   }
   const range = dom.ownerDocument.createRange()
   for (const el of dom.querySelectorAll<HTMLElement>('.bn-inline-content')) {
@@ -702,7 +770,7 @@ export function watchTapSelect(
       count === 1 &&
       dom.closest('[data-paper-box]:not([data-paper-box="main"])')
     ) {
-      const near = nearText(dom, e.clientX, e.clientY)
+      const near = tapsCaret(dom, e.clientX, e.clientY)
       // A tap on a link keeps the old way (it selects the box and opens no
       // link; the caret and the link follow with the next tap).
       const onLink = target instanceof Element && !!target.closest('a')

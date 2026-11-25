@@ -17,9 +17,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps webkit
-      - name: the shaky ones, two workers, no retry
+      - name: the shaky ones, one worker x3
         run: |
-          npx playwright test --project=ipad-webkit --workers=2 --retries=0 e2e/cBoxes.spec.ts e2e/tb2-bar-fix.spec.ts e2e/tb2-group.spec.ts e2e/tb2-pencil.spec.ts e2e/tb2-bar.spec.ts -g "C10 a resize drag|C10 a card pauses|C11 typing|F63|TB-32|TB-37|a tap on the bar works at once" --reporter=list > probe.log 2>&1 || true
+          npx playwright test --project=ipad-webkit --workers=1 --repeat-each=3 --retries=0 e2e/cBoxes.spec.ts e2e/tb2-bar-fix.spec.ts e2e/tb2-group.spec.ts e2e/tb2-pencil.spec.ts e2e/tb2-bar.spec.ts -g "C10 a resize drag|C10 a card pauses|C11 typing|F63|TB-32|TB-37|a tap on the bar works at once" --reporter=list > probe.log 2>&1 || true
           awk '/^  [0-9]+\) \[/{p=1} p' probe.log | grep -v '^\s*$' | cut -c1-200 | head -300
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()

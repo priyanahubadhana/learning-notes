@@ -100,6 +100,27 @@ The way of working: [the Fable review](../fable-review-2026-11-25.md), section 1
 - The views are a registry: a new kind of view can be added without a change to the database screen. A "Map" view is not there today.
 - A point for the spec: today the rows of a database are hidden from the notebook's page list.
 
+### 5.6 The owner's third answers (25 Nov): the sample pictures are rejected
+
+The owner on the eight sample pictures in docs/mockups/notebook-look/: "I don't like them at all."
+
+- **Too computerized.** "Make it more like human."
+- **Not in the app's frame.** "We have created a frame in our app. Follow it and then show me the image. How will it look in tablet in the frame, or in the PC with the frame on."
+- **Not clean; too many elements.** "Learn from Apple design principles and follow our design principle here too." "Too much information is harmful."
+- **Diagrams and text do not belong together.** "Make it more interactive by using diagrams at right place."
+- **Not made with the app's own tools.** Sticky notes in place of the bars and boxes beside the big diagram. The pen tool to highlight, to scribble and to draw arrows. "If you don't build it using our own tool, it will be hard for me to customize using our own tool."
+
+What this means for the spec: a notebook that Claude writes is made only of things the owner can change with the app's own tools (text boxes, sticky notes, pen and highlighter ink, shapes, the mind map). A diagram is built from such things, not placed as a flat picture. The next samples are made in the real app, inside its frame, on the tablet and on the PC.
+
+### 5.7 The owner's third answers (25 Nov): the front page
+
+- **What "filter by summary, mind map, review card" means.** Under the name of a page there is a row of options: Summary, Notes, Mind map and others. The database sits below it. A tap on "Mind map" switches the database to its mind map form, with the filters and tools that belong to mind maps; "Summary" shows what belongs to summaries; "Notes" what belongs to notes. Inside each of these the database still has its own filters (ticks, and filters as in Notion) and its own view switch, which the app already has.
+- **The columns:** the owner asked for a plainer explanation.
+- **The view that opens first:** the Table (Fable's pick).
+- **The chapters show in both places:** in the page list on the left and in the front page database, in the same form.
+- **Pages under pages.** The owner wants pages, sub-pages and pages under those to show in the database the way they show in the list: like heading 1, 2 and 3. References named by the owner: how Notion shows sub-pages in a database; how OneNote orders a page, a sub-page and a page under it.
+- The owner: "I do not know the answers. I am just telling you what I could think is better. Together we both will find the best answer." Fable researches and comes back with a full proposal.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

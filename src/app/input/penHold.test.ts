@@ -35,12 +35,12 @@ describe('quiet after writing', () => {
 })
 
 describe('HoldPath (a loop is not a hold)', () => {
-  it('a wobble with a path of 20 px still holds', () => {
+  it('a comma-sized wobble with a path of 15 px still holds', () => {
     const h = new HoldPath(100, 100)
-    expect(h.add(110, 100)).toBe(false)
-    expect(h.add(105, 100)).toBe(false)
-    expect(h.add(100, 104)).toBe(false)
-    expect(h.add(102, 100)).toBe(false)
+    expect(h.add(106, 100)).toBe(false)
+    expect(h.add(103, 100)).toBe(false)
+    expect(h.add(103, 104)).toBe(false)
+    expect(h.add(101, 104)).toBe(false)
   })
   it('breaks beyond 18 px from the first touch', () => {
     const h = new HoldPath(0, 0)

@@ -35,8 +35,8 @@ export const noteWritten = (at = Date.now()): void => {
 export const wroteRecently = (now = Date.now()): boolean =>
   now - wroteAt < PEN_QUIET_MS
 
-/** The longest path (px) the Pencil may travel from its first touch and still hold: twice the drift. */
-export const PEN_HOLD_PATH_PX = PEN_HOLD_SLOP_PX * 2
+/** The longest path (px) the Pencil may travel from its first touch and still hold: the drift itself (a comma-sized wobble; a slow loop round letters is over it before 0.8 s). */
+export const PEN_HOLD_PATH_PX = PEN_HOLD_SLOP_PX
 
 /**
  * A Pencil hold in progress (owner, 25 Nov, review of the "vi" loop). It breaks when

@@ -492,11 +492,11 @@ async function slowPen(
 }
 
 /**
- * A comma-sized wobble from `c`: up to 14 px away (inside the 18 px) and about 32 px
- * of path in all (under the 36 px a loop would pass), back and forth along x.
+ * A comma-sized wobble from `c`: up to 7 px away (inside the 18 px) and 15 px of path in
+ * all (under the 18 px that a loop passes), back and forth along x.
  */
 const wobble = (c: Pt): Pt[] =>
-  [0, 12, 6, 14, 8].map((dx) => ({ x: c.x + dx, y: c.y }))
+  [0, 6, 3, 7, 5].map((dx) => ({ x: c.x + dx, y: c.y }))
 
 test.describe('the Pencil hold, circle and loop (owner, 25 Nov)', () => {
   test('HOLD-MOVE: a small loop over typed text, after 1 s, opens our strip (owner, 25 Nov)', async ({
@@ -511,7 +511,7 @@ test.describe('the Pencil hold, circle and loop (owner, 25 Nov)', () => {
     await expect(anyMenu(page).first()).toBeVisible({ timeout: 2000 })
   })
 
-  test('a wobbling Pencil hold (up to 14 px, 32 px of path, 0.9 s) opens the hold', async ({
+  test('a wobbling Pencil hold (a comma-sized wobble, 15 px of path, 0.9 s) opens the hold', async ({
     page,
   }) => {
     await open(page, 'pencil')

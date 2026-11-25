@@ -33,7 +33,7 @@ export function watchHoldSelect(
     y: number
     timer: number
     anchor: number
-    /** The Pencil's hold: within 18 px and under 36 px of path (penHold.ts). */
+    /** The Pencil's hold: within 18 px and under 18 px of path (penHold.ts). */
     path: HoldPath
     /** The ink pad the press landed on (under Lasso with ink it covers the words). */
     pad: HTMLElement | null

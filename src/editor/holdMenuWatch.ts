@@ -200,7 +200,7 @@ export function watchHoldMenu(
     if (!press || e.pointerId !== press.id) return
     // Any drift beyond the radius, or a harder press, ends this hold for the
     // whole stroke (nothing re-arms until the next pointerdown).
-    // The Pencil also breaks it by travelling a path longer than 36 px (a loop).
+    // The Pencil also breaks it by travelling a path longer than 18 px (a loop).
     let broke = false
     if (press.type === 'pen') {
       const pts = e.getCoalescedEvents?.() ?? []

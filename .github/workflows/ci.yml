@@ -194,7 +194,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -225,7 +225,7 @@ jobs:
       # milliseconds, so a machine busy with other tests stalls them (run 45548141476:
       # 11 late runs of 61 against a cap of 10). They run once, alone, with one worker,
       # in the next step; the shards leave them out.
-      - run: npx playwright test --project=ipad-webkit --shard=${{ matrix.shard }}/6 --grep-invert "$TIMED_TAPS"
+      - run: npx playwright test --project=ipad-webkit --shard=${{ matrix.shard }}/8 --grep-invert "$TIMED_TAPS"
         env:
           TIMED_TAPS: 'C14: 50 Pencil|C19: 50 Pencil|C14: a double tap on a word that is already selected|TB-04: taps 80 to 350'
       - name: Timed Pencil taps, one worker (shard 3 only, so each runs once)

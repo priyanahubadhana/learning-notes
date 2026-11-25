@@ -72,15 +72,23 @@ async function selectWordAt(page: Page, align: 'left' | 'right') {
   await expect(mini(page)).toBeVisible()
 }
 
+/** The bar follows its words for a moment after a turn or a resize (up to 4 s on a slow machine), so this waits for the on-screen state, not a fixed time. */
 async function expectOnScreen(page: Page) {
-  const m = (await mini(page).boundingBox())!
   const v = page.viewportSize()!
-  expect(m.x).toBeGreaterThanOrEqual(-0.5)
-  expect(m.y).toBeGreaterThanOrEqual(-0.5)
-  expect(m.x + m.width).toBeLessThanOrEqual(v.width + 0.5)
-  expect(m.y + m.height).toBeLessThanOrEqual(v.height + 0.5)
-  // Never taller than the screen, never wider than the screen.
-  expect(m.width).toBeLessThanOrEqual(v.width)
+  await expect
+    .poll(async () => {
+      const m = (await mini(page).boundingBox())!
+      const bad: string[] = []
+      if (m.x < -0.5) bad.push('left ' + m.x)
+      if (m.y < -0.5) bad.push('top ' + m.y)
+      if (m.x + m.width > v.width + 0.5) bad.push('right ' + (m.x + m.width))
+      if (m.y + m.height > v.height + 0.5)
+        bad.push('bottom ' + (m.y + m.height))
+      // Never taller than the screen, never wider than the screen.
+      if (m.width > v.width) bad.push('wider ' + m.width)
+      return bad.join(', ')
+    })
+    .toBe('')
 }
 
 type Box = { x: number; y: number; width: number; height: number }

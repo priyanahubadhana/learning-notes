@@ -270,6 +270,35 @@ About the screenshot in 5E: it was taken after the owner pressed Enter down to t
 
 **More answers of the owner (25 Nov):** the diagram in a box belongs to stage 1; both themes, light and dark; handwriting for titles and short labels only. The owner asked Fable to ask again which reference is the model for the Summary and which for the Notes, and said that none of Fable's sample pictures was close to what the owner wants.
 
+## 5G. How known apps let a shape hold text (research of 25 Nov, on the owner's word)
+
+From the makers' help pages where they could be opened. Several pages could not be opened (Miro, GoodNotes, Canva); those points come from search summaries and are marked.
+
+**What most apps agree on**
+
+- A shape with an inside holds text. A line or an arrow does not; in some apps it takes a label instead (PowerPoint, Freeform, draw.io, FigJam, tldraw).
+- Typing starts with a double tap or a double click in the shape, or by picking the shape and typing (Keynote, Freeform, draw.io, Canva; tldraw uses Enter).
+- The text sits in the middle of the shape and wraps at the shape's width (tldraw and Excalidraw say so; PowerPoint offers "middle").
+- In the diagram apps a line stays joined to its shapes when a shape moves (Freeform, FigJam, draw.io, Excalidraw, tldraw).
+
+**Where the apps differ: what happens when the text is too long**
+
+| What the app does                 | Which app                                                            | The known trouble                                      |
+| --------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------ |
+| The shape grows, taller only      | tldraw; PowerPoint ("Resize shape to fit text"); draw.io (a command) | A circle becomes an oval.                              |
+| The text gets smaller             | PowerPoint and Google Slides, for some boxes                         | Tiny text; users complain.                             |
+| The text is cut, with a mark      | Keynote                                                              | The user must resize by hand.                          |
+| Nothing; the user resizes by hand | Miro (not verified)                                                  | Text runs out of the shape; users ask for auto-resize. |
+
+**Two findings that matter for the owner's wish**
+
+- **No help page that was read describes a circle that stays round while it grows.** The owner's rule (a circle stays a circle and grows both ways) is the app's own rule. It must be tried on the real tablet.
+- **The owner's tick answers a known complaint.** GoodNotes users report that after a rectangle is drawn the app assumes they want to type, and they ask for a plain shape by default (a search summary, not verified). With the owner's tick, a plain shape is the default.
+
+**One useful rule from tldraw:** a shape grows only when its text needs the room, and it never gets smaller than the size it was drawn at.
+
+Sources: support.microsoft.com (PowerPoint: "Set text direction and position in a shape or text box"); support.apple.com (Keynote and Freeform guides); support.google.com/docs/answer/10364036; drawio.com/doc/faq/labels-add and /autosize; help.figma.com (FigJam connectors); tldraw.dev/sdk-features/geo-shape.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

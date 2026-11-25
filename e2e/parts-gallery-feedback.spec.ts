@@ -95,6 +95,13 @@ async function settled(l: Locator) {
     .toBe(true)
 }
 
+/** Clicks a button once the page has stopped moving under it: lazy parts above can still push the page after the scroll (seen: the click landed on another section's button, no dialog). */
+async function pressSteady(l: Locator) {
+  await l.scrollIntoViewIfNeeded()
+  await settled(l)
+  await l.click()
+}
+
 const said = (page: Page) => page.getByTestId('fb-said')
 const activeIn = (page: Page, sel: string) =>
   page.evaluate(
@@ -235,7 +242,7 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
     }) => {
       await open(page, size)
       const opener = page.getByTestId('fb-open-confirm')
-      await opener.click()
+      await pressSteady(opener)
       const dlg = page.getByTestId('fb-dialog')
       await expect(dlg).toBeVisible()
       await settled(dlg)
@@ -272,14 +279,14 @@ test.describe('Feedback parts (SP-50 to SP-56)', () => {
       await expect(said(page)).toHaveText('Cancelled')
       await expect(opener).toBeFocused()
       // Enter confirms
-      await opener.click()
+      await pressSteady(opener)
       await expect(dlg).toBeVisible()
       await page.keyboard.press('Enter')
       await expect(dlg).toHaveCount(0)
       await expect(said(page)).toHaveText('Confirmed')
       await expect(opener).toBeFocused()
       // the close button cancels
-      await opener.click()
+      await pressSteady(opener)
       await page.getByTestId('fb-dialog-close').tap()
       await expect(said(page)).toHaveText('Cancelled')
     })

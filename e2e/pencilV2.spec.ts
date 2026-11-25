@@ -80,7 +80,20 @@ for (const mode of ['pencil', 'touch'] as const)
   }) => {
     await open(page, mode)
     const main = page.locator(MAIN)
-    const box = await rect(main.locator('.bn-block-content').first())
+    // The box has stopped moving (the page still settles for a moment on a slow
+    // machine; a tap at an old place misses the box), then it is measured.
+    const first = main.locator('.bn-block-content').first()
+    let was = ''
+    let still = 0
+    await expect
+      .poll(async () => {
+        const now = JSON.stringify(await rect(first))
+        still = now === was ? still + 1 : 0
+        was = now
+        return still
+      })
+      .toBeGreaterThanOrEqual(3)
+    const box = await rect(first)
     // Tap the empty first box with the Pencil: caret in, our hint, not BlockNote's.
     await realPen(page, [{ x: box.x + 6, y: box.y + 8 }])
     await page.waitForTimeout(600)

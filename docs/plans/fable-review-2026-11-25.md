@@ -1,6 +1,29 @@
 # Fable review, 25 Nov 2026: why the work was slow, and the plan from here
 
-**Status:** Fable's proposals from the owner's deep talk of 25 Nov 2026. **Section 0 holds the owner's answers and wins over every section below.** Nothing is cut and no rule changes without the owner's yes. The talk is still open (section 0.2).
+**Status:** Fable's proposals from the owner's deep talk of 25 Nov 2026. **Section 0 holds the owner's answers and wins over every section below.** Nothing is cut and no rule changes without the owner's yes. The talk on the method closed on 25 Nov. The block "Start here" is the current order of work.
+
+## Start here: what Opus does now, in order
+
+This block is the current truth. Where a section below says something else, this block and section 0 win.
+
+1. **Finish phase 1A** (section 6, "Now"). Merge the hover fix after its review. Find the cause of the extra empty line (c33c34). Apply the three small picks (0.1, row 4). Get the full set green on build/next. Send the owner the update tests (S6, S7, S1, S4) only after the version check. Go live on the owner's yes.
+2. **Close 1A.**
+   - Correct the lines of 4.3 that the owner decided on 24 Nov (the ladder, two builders, the time limit, the state file), set the replan counter to 0, and drop the Goodnotes idea.
+   - Write the phase row. Give every open issue a stage label. Close the 12 issues marked fixed, and #45 when the update tests pass.
+   - Do the bulk clearing (section 10, question 5): old picks that are built count as accepted; working copies whose branch is fully merged are removed with git; the rest is listed for the owner.
+   - Update the main clone, so that the push guard runs its current copy; do it when no builder is in the middle of a push.
+   - Save the five #68 traces from the chat into the repo.
+   - Update the three helper files to the new roles (13.5): no token budget, no checker.
+3. **The first day after live: the online test gate** (G1, section 7). The full set on every push to the build/next pull request, in about 20 jobs; the list check; a red nightly as the first line of the morning message; a proof run by hand. Measure one full run and write its wall time down.
+4. **The second day: the quick Pencil taps** (section 5.4). Extend the replay that exists (`e2e/circleTrace.ts`) for the traces, then P1, P2 and P3, then the owner's 10-minute session. If it fails, it waits for stage 2. The second team does the small 1B fixes (#50, #42) and the board until the first big specs of 1B are approved.
+5. **Then phase 1B in day parts**, both teams on features. A day part does not wait for a yes (0.4). For each part: a fresh Opus part manager (13.5); tests written from the spec lines by a helper that is not the builder (13.4); one review; the full set; the owner's check. Opus records its own decisions (13.6) and reaches Fable as 13.7 says.
+6. **Not built now:** the rest of the build machine, the skills, the brief cutter, a second checker (section 14). One of them is built only when its trigger in 14.6 happens; Opus tells the owner when it does.
+7. **Numbers:** one line for each day part (section 11), and one cause for each fault the owner finds (0.6).
+8. **What waits for the owner:** money; logins and secrets; anything that goes live; deleting data or files; a test on the real device. Nothing else.
+
+**Planning mode runs beside this.** The owner and Fable plan phase 1B in depth while Opus finishes 1A. The big specs of 1B come into `docs/features/` with numbered lines (13.2); Opus builds a feature of 1B only from its approved big spec.
+
+**Sections that no longer hold:** 4.2 (section 14 replaces it); 4.5 (13.2 and 13.3 replace the card); G2 and G3 in section 7 (see 14.5); the skills list in 13.9 (see 14.5); "less paper" in section 3, row C3, where it speaks of the card and of 1M.
 
 ## 0. The owner's answers (25 Nov 2026, after the first read)
 
@@ -70,6 +93,12 @@ What stands with no change: sections 2, 4.3 (the rows the owner decided on 24 No
 
 - The owner asked what the build machine is for, whether Opus can do these things itself, and for a Fable audit of it. The audit is section 14. It waits for the owner's answer (14.7).
 - Until the owner answers, nothing of phase 1M is built except the online test gate (G1).
+
+### 0.9 Eleventh round (owner, 25 Nov)
+
+- **The owner accepts the audit of the build machine** (14.7, pick A). Before the features only the online test gate is built. The 22 Nov yes to the confirm sheet of phase 1M is replaced as 14.7 says.
+- **The two teams:** after the gate day, both build features. This closes the open point of 0.5 and 0.7.
+- The decision of the second round, "the build machine stays whole" (0.2), is replaced by this one.
 
 **Read for this review:** [the talk pack](../metrics/fable-talk-pack.md), [the retro input](../metrics/phase-1a-retro-input.md), [the #68 digest](../qa/traces/2026-11-25-issue68-digest.md), [STATE](../STATE.md), the master instructions pack (CLAUDE.md, GUIDEBOOK.md, QUESTIONS.md), the CI file and the Playwright config on build/next (4bf4d5b2), the Pencil tap code, [the stage-1 plan](stage-1-plan.md), [the 1M plan](phases/phase-1m-build-machine.md), [METHOD-v2](../METHOD-v2.md) and the last 40 CI runs.
 

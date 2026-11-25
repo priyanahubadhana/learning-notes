@@ -406,33 +406,10 @@ test('C11 typing: thin border and no dots; one tap outside: selected; a second: 
 }) => {
   await start(page, 'C11')
   const box = await addBox(page, ['Typing here'])
-  const st = async (w: string) =>
-    console.log(
-      'C11DBG ' +
-        w +
-        ' ' +
-        (await box.evaluate(
-          (el) =>
-            'picked=' +
-            el.hasAttribute('data-picked') +
-            ' typing=' +
-            el.hasAttribute('data-typing') +
-            ' focus=' +
-            !!el.querySelector('.bn-editor:focus-within') +
-            ' t=' +
-            Math.round(performance.now()),
-        )),
-    )
-  await st('before pick')
   await pick(page, box)
-  await st('after pick')
   await tapTextEnd(page, box)
-  await st('after tapTextEnd')
   await expect(box.locator('.bn-editor')).toBeFocused()
   await expect(box).toHaveAttribute('data-typing', '')
-  await st('typing seen')
-  await page.waitForTimeout(1500)
-  await st('typing +1.5s')
   await expect(dots(box)).toHaveCount(0)
   await expect(box.locator('[data-box-grip]')).toBeHidden()
   const frame = box.locator('[data-box-frame]').first()
@@ -441,7 +418,6 @@ test('C11 typing: thin border and no dots; one tap outside: selected; a second: 
   )
   expect(w).toBeLessThanOrEqual(1.01)
   await tapOut(page)
-  await st('after tapOut')
   await expect(box.locator('.bn-editor')).not.toBeFocused()
   await expect(box).toHaveAttribute('data-picked', '')
   await expect(box).not.toHaveAttribute('data-typing', '')

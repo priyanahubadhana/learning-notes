@@ -194,7 +194,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+        shard: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -221,11 +221,16 @@ jobs:
         run: |
           for i in 1 2 3; do npx playwright install --with-deps webkit && exit 0; echo "install failed, retry $i"; sleep 45; done
           npx playwright install webkit
+      # 25 Nov: one worker per machine (was two) and 12 shards (was 8). Measured on the
+      # runner (probe runs 45671588543, 45675688484, 45676817722): with two workers the
+      # same seven tests failed 3 to 14 times of 64 (cBoxes C10/C11, tb2-bar, tb2-bar-fix,
+      # tb2-group, tb2-pencil); with one worker five of them never failed. A busy WebKit
+      # answers a mouse move only after a repaint (500 ms), and two workers starve each other.
       # The timed Pencil tap tests (c45 double and triple taps, TB-04) measure real
       # milliseconds, so a machine busy with other tests stalls them (run 45548141476:
       # 11 late runs of 61 against a cap of 10). They run once, alone, with one worker,
       # in the next step; the shards leave them out.
-      - run: npx playwright test --project=ipad-webkit --shard=${{ matrix.shard }}/8 --grep-invert "$TIMED_TAPS"
+      - run: npx playwright test --project=ipad-webkit --workers=1 --shard=${{ matrix.shard }}/12 --grep-invert "$TIMED_TAPS"
         env:
           TIMED_TAPS: 'C14: 50 Pencil|C19: 50 Pencil|C14: a double tap on a word that is already selected|TB-04: taps 80 to 350'
       - name: Timed Pencil taps, one worker (shard 3 only, so each runs once)

@@ -86,6 +86,20 @@ The way of working: [the Fable review](../fable-review-2026-11-25.md), section 1
 - Which device the owner holds on the way to the office (the tablet or the phone).
 - The look: asked with sample pictures.
 
+### 5.4 The owner's second answers (25 Nov)
+
+- **A correction: the structure is not universal.** "This system is not universal for every notebook and same structure whatever the subject." The structure of 5 (1) is the owner's own preference for this subject, like a prompt. Another user can have other preferences; changing them is a stage 3 refinement. Stage 1 tests the app for the owner, with these preferences. So the app and the notes format must not fix one structure; the preference lives in what Claude is asked to make.
+- **The front page works like a Notion database.** One row is a chapter, with its name; the other columns are what the owner filters by (mind map, review cards, summary, and more). The owner does not fully like Fable's sample of the front page. Fable studies how Notion databases work, and adds the app's own features to that model.
+- **The mind map as a view.** The owner's idea: the map of the whole notebook can be one of the views of that database.
+- **On the way to the office the owner holds the phone.** So reading the recall cards on the phone must work in stage 1.
+- The owner answers the questions about the look (the two sample looks, the strength of the highlight colours, the handwritten font) in a later message.
+
+### 5.5 What the app already has for this (read 25 Nov)
+
+- "Database pages (Notion-like)" exist: every row is a page; the property types are text, number (with stars), date, checkbox, choice, choices, link, tag, note link, relation, rollup and formula; the views are Table, Board, Gallery, Calendar, Dashboard and List; each view keeps its own filters, sorts and hidden columns; a database can be a full page or sit inside a note (docs/features/database.md, databases.md, database-views.md).
+- The views are a registry: a new kind of view can be added without a change to the database screen. A "Map" view is not there today.
+- A point for the spec: today the rows of a database are hidden from the notebook's page list.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

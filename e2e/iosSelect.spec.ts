@@ -499,16 +499,19 @@ const wobble = (c: Pt): Pt[] =>
   [0, 6, 3, 7, 5].map((dx) => ({ x: c.x + dx, y: c.y }))
 
 test.describe('the Pencil hold, circle and loop (owner, 25 Nov)', () => {
-  test('HOLD-MOVE: a small loop over typed text, after 1 s, opens our strip (owner, 25 Nov)', async ({
+  test('HOLD-MOVE: a small loop round letters of typed text, after 1 s, opens our strip (owner, 25 Nov)', async ({
     page,
   }) => {
     await open(page, 'pencil')
-    const gap = await boxOf(page, 'e r', 1, 2)
+    // Two letters of a typed word ("vi"): the loop is small, inside 18 px of where it began.
+    const b = await boxOf(page, 'Service', 3, 5)
     // Longer than the 1 s after writing in which a Pencil hold is ignored.
     await page.waitForTimeout(1300)
-    // 26 moves, 40 ms apart: the stroke stays within 18 px for over 0.8 s.
-    await slowPen(page, loop(centre(gap), 4.5, 5.5), 40)
+    // 26 moves, 40 ms apart (about 1 s): slow, but a loop is deliberate movement, not a hold,
+    // so it is a circle select (our strip), not "nothing".
+    await slowPen(page, loop(centre(b), b.width / 2 + 1, b.height / 2 + 5), 40)
     await expect(anyMenu(page).first()).toBeVisible({ timeout: 2000 })
+    expect(await selectedText(page)).toBe('vi')
   })
 
   test('a wobbling Pencil hold (a comma-sized wobble, 15 px of path, 0.9 s) opens the hold', async ({

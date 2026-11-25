@@ -163,6 +163,11 @@ export async function realPenTaps(
     return performance.now() - t
   }
   let back: Promise<unknown> = Promise.resolve()
+  const answers: Promise<unknown>[] = []
+  const moves = (p: Promise<unknown>) => {
+    answers.push(p)
+    return p
+  }
   let next = performance.now()
   let plan = next
   let tip = at
@@ -170,8 +175,11 @@ export async function realPenTaps(
     // Where this tap lands: the hover there goes alongside the pause.
     const spot = { x: at.x + (tap.dx ?? 0), y: at.y + (tap.dy ?? 0) }
     if (spot.x !== tip.x || spot.y !== tip.y) {
-      const before = back
-      back = before.then(() => page.mouse.move(spot.x, spot.y))
+      // WebKit: sent at once, in order behind the way back; its answer
+      // (a repaint away, 500 ms on a busy runner) is awaited at the end.
+      back = cdp
+        ? back.then(() => page.mouse.move(spot.x, spot.y))
+        : moves(page.mouse.move(spot.x, spot.y))
       tip = spot
     }
     if (cdp) {
@@ -196,10 +204,7 @@ export async function realPenTaps(
     }
     // The pause before this tap, counted from when the last lift was sent.
     const T0 = performance.now()
-    await Promise.all([
-      until(next + Math.max(0, (tap.gap ?? 0) - lead.gap)),
-      back,
-    ])
+    await until(next + Math.max(0, (tap.gap ?? 0) - lead.gap))
     const down = performance.now()
     const tw = down - T0
     await page.mouse.down()
@@ -217,15 +222,13 @@ export async function realPenTaps(
     const u0 = next
     await page.mouse.up()
     const tUp = performance.now() - u0
-    back = tap.drift
-      ? timed(page.mouse.move(spot.x, spot.y))
-      : Promise.resolve(0)
+    if (tap.drift) back = moves(page.mouse.move(spot.x, spot.y))
     if (process.env.PEN_PROBE)
       probe.push(
         `wait ${tw | 0} down ${tDown | 0} drift ${dd[1] | 0} up ${tUp | 0}`,
       )
   }
-  const bk = await back
+  const bk = await Promise.all([back, ...answers])
   if (process.env.PEN_PROBE)
     console.log(
       'PROBE lead ' +
@@ -235,7 +238,7 @@ export async function realPenTaps(
         ' | ' +
         probe.join(' | ') +
         ' | back ' +
-        (Number(bk) | 0),
+        bk.length,
     )
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false

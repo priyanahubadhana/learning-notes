@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 jobs:
-  probe:
+  timed:
     runs-on: ubuntu-24.04
     timeout-minutes: 40
     steps:
@@ -19,6 +19,21 @@ jobs:
       - run: npx playwright install --with-deps webkit
       - name: timed taps alone
         run: |
-          npx playwright test --project=ipad-webkit --workers=1 --retries=0 --grep "C14: 50 Pencil double" 2>&1 | grep -E "PROBE|ok |late|passed|failed" | head -120
+          npx playwright test --project=ipad-webkit --workers=1 --retries=0 --grep "$TIMED_TAPS" 2>&1 | grep -E "PROBE|ok |late|passed|failed" | cut -c1-300 | head -150
         env:
           PEN_PROBE: '1'
+          TIMED_TAPS: 'C14: 50 Pencil|C19: 50 Pencil|C14: a double tap on a word that is already selected|TB-04: taps 80 to 350'
+  others:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - name: the shaky ones, two workers, no retry, 4 times each
+        run: |
+          npx playwright test --project=ipad-webkit --workers=2 --retries=0 --repeat-each=4 e2e/cBoxes.spec.ts e2e/tb2-bar-fix.spec.ts e2e/tb2-group.spec.ts e2e/tb2-pencil.spec.ts e2e/tb2-bar.spec.ts -g "C10 a resize drag|C10 a card pauses|C11 typing|F63|TB-32|TB-37|a tap on the bar works at once" --reporter=list 2>&1 | grep -E "✘|ok |passed|failed|flaky" | cut -c1-250 | head -150

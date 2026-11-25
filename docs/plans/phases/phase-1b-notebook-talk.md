@@ -252,6 +252,24 @@ What they share: a title lettered by hand; one or two accent colours, used the s
 
 A point for the spec: the owner works in the dark theme. Every look of a notebook must be right in dark and in light.
 
+## 5F. The owner corrects the wish (25 Nov): a tick on the Shapes tool that lets a shape hold text
+
+Fable's reading in 5E was not right. The owner's own description:
+
+- **The Shapes tool stays as it is.** A shape drawn today is drawn over what is there, and that works. "We don't need to change anything in it."
+- **One more option on the tool: a tick.** It sits in the settings of the Shapes tool, in the Tool bar itself. With the tick on, a shape that is drawn can be used as a text box.
+- **Only some shapes.** Oval, rectangle, square: shapes with an inside. An arrow or a line never holds text: "it will not make sense."
+- **With the tick on,** the drawn shape is a text box inside a text box: the owner clicks in it, the typing cursor goes there, and the owner types "just like a normal text box".
+- **It grows with its text and keeps its form.** A circle stays a circle and grows both ways. A line of three words sits in the middle; with a line of ten words the circle is larger and the words are still in the middle.
+- **Where the cursor can go.** While the shape grows by itself, the cursor is in the lines that exist, and Enter makes the next line. When the owner makes the shape larger by hand, the whole of the shape can be typed in.
+- **With the tick off,** a shape holds no text. It is only drawn over what is there. "This way, no ruckus is there": text is never typed over other text by accident.
+- **Both ways stay.** Small sticky boxes placed on a large box were right too. "Do not lose that functionality." The shape that holds text is one more option, not a replacement.
+- **Why:** "This way our notes will be very interactive."
+
+About the screenshot in 5E: it was taken after the owner pressed Enter down to the end of the box; before that, nothing could be drawn below the first line. The owner then wants to write "manager 1" and "manager 2" inside a circle under each arrow.
+
+**More answers of the owner (25 Nov):** the diagram in a box belongs to stage 1; both themes, light and dark; handwriting for titles and short labels only. The owner asked Fable to ask again which reference is the model for the Summary and which for the Notes, and said that none of Fable's sample pictures was close to what the owner wants.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

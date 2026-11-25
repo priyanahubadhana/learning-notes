@@ -91,12 +91,20 @@ How to read a line: an id that never changes; the kind (**always** true, must **
 
 ### 2.6 The diagram in a box (the owner's fault and wish of 25 Nov)
 
-| Id    | Kind | The line                                                                                                                                                          | From                                   |
-| ----- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| NB-74 | when | When the owner makes a text box taller, then the whole of the box can be drawn on and typed in at once, with no extra step.                                       | owner, 25 Nov. A fault today. iPad.    |
-| NB-75 | when | When the owner draws a box with Shapes inside a text box, then text can be typed in that drawn box, and the drawn box moves with the text box.                    | owner, 25 Nov. New. Open (question 1). |
-| NB-76 | when | When the owner draws an arrow with Shapes between two drawn boxes inside a text box, then the arrow shows, stays where it was drawn, and moves with the text box. | owner, 25 Nov; faults 1 and 2. iPad.   |
-| NB-77 | when | When Claude writes a diagram, then it is made this way (NB-24), and the owner can change each drawn box, its text and each arrow.                                 | owner, 25 Nov. Open (question 3).      |
+| Id    | Kind   | The line                                                                                                                                                                                                                   | From                                 |
+| ----- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| NB-74 | when   | When the owner makes a text box taller, then the whole of the box can be drawn on and typed in at once, with no extra step.                                                                                                | owner, 25 Nov. A fault today. iPad.  |
+| NB-75 | always | The Shapes tool works as it does today. A shape drawn with the tick off is drawn over what is there and holds no text.                                                                                                     | owner, 25 Nov. Exists.               |
+| NB-76 | when   | When the owner draws an arrow with Shapes between two shapes inside a text box, then the arrow shows, stays where it was drawn, and moves with the text box.                                                               | owner, 25 Nov; faults 1 and 2. iPad. |
+| NB-77 | when   | When Claude writes a diagram, then it is made this way (NB-24), and the owner can change each shape, its text and each arrow.                                                                                              | owner, 25 Nov. In stage 1.           |
+| NB-78 | always | The Shapes tool has a tick in its own settings in the Tool bar. With the tick on, a shape that is drawn can hold text.                                                                                                     | owner, 25 Nov. New.                  |
+| NB-79 | always | The tick is offered for shapes with an inside: box, square, oval, circle. A line and an arrow never hold text.                                                                                                             | owner, 25 Nov. New.                  |
+| NB-80 | when   | When the tick is on and the owner draws such a shape inside a text box, then a click in the shape puts the typing cursor there, and the owner types as in a text box. The shape belongs to the text box and moves with it. | owner, 25 Nov. New. iPad.            |
+| NB-81 | when   | When the text in such a shape needs more room, then the shape grows and keeps its form: a circle stays a circle. The text stays in the middle.                                                                             | owner, 25 Nov. New.                  |
+| NB-82 | when   | When the owner presses Enter in such a shape, then the next line starts and the shape grows to hold it.                                                                                                                    | owner, 25 Nov. New.                  |
+| NB-83 | when   | When the owner makes such a shape larger by hand, then the whole of its inside can be typed in.                                                                                                                            | owner, 25 Nov. New.                  |
+| NB-84 | never  | Text is typed over other text by accident: with the tick off, a shape takes no text.                                                                                                                                       | owner, 25 Nov                        |
+| NB-85 | always | The way that exists stays: boxes with the sticky look placed with a large box. The shape that holds text is one more way, not a replacement.                                                                               | owner, 25 Nov                        |
 
 ## 3. Direction for what is built after stage 1 (one page; gets its lines when its turn comes)
 
@@ -110,13 +118,13 @@ How to read a line: an id that never changes; the kind (**always** true, must **
 
 ## 4. Open points
 
-**Questions to the owner (asked 25 Nov)**
+**Answered by the owner on 25 Nov:** the diagram in a box is part of stage 1 (NB-25, NB-77); both themes, the dark one checked first (NB-29); handwriting for titles and short labels only (NB-28); the wish for a shape that holds text, as NB-78 to NB-85 now say.
 
-1. NB-75: is the reading of the wish right?
-2. Which reference picture is the model for the Summary, and which for the Notes? (It sets the limits of NB-26.)
-3. NB-25 and NB-77: is the diagram in a box part of stage 1, or do diagrams come as pictures first?
-4. NB-29: both themes, the dark one first?
-5. NB-28: handwriting for titles and labels only?
+**Questions to the owner (still open)**
+
+1. Which of the owner's five reference pictures is the model for the Summary, and which for the Notes? (It sets the limits of NB-26.) Asked again on 25 Nov in plainer words.
+2. NB-81: the exact way a shape grows (a research of how known apps do it is running).
+3. NB-79: does a triangle hold text?
 
 **For Opus to prove in the real app before the spec is closed**
 

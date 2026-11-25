@@ -299,6 +299,18 @@ From the makers' help pages where they could be opened. Several pages could not 
 
 Sources: support.microsoft.com (PowerPoint: "Set text direction and position in a shape or text box"); support.apple.com (Keynote and Freeform guides); support.google.com/docs/answer/10364036; drawio.com/doc/faq/labels-add and /autosize; help.figma.com (FigJam connectors); tldraw.dev/sdk-features/geo-shape.
 
+## 5H. The owner's answers on shapes, and what the Summary and the Notes are (25 Nov)
+
+- **The tick, once more in the owner's words.** Tick off: the owner draws a shape and uses it as a shape, as today. Tick on: the shape can be edited and acts as a text box; "the same feature like text box will work on it." A tap in the middle or on the text gives the typing cursor. A tap on the corner brings the bar for moving and selecting.
+- **A triangle holds text.** Only arrows and lines do not.
+- **Typing starts with one tap** of the Text tool, as in a text box.
+- **When the text is too long,** the shape grows and keeps its form; it never gets smaller than drawn, and the text never gets smaller. "The same thing we do in the text box."
+- **The five reference pictures were not models for a page.** They only show that such notes can be made. Fable had asked the wrong question.
+- **The Summary, as the owner sees it:** short notes as a picture. "A visual diagram, a flow chart with the text blocks like circle ... with different kinds of color, different kinds of sizes of text based on the importance." Diagrams, fonts, text colours, text boxes, arrows and symbols, combined "into a small page, at the same time keeping it informative". The bacterial cell picture is the nearest of the five.
+- **The Notes, as the owner sees it:** "more of a text kind of document", with text box colours and the other looks, and with flow charts and diagrams between the parts or at the end to explain things.
+
+Fable's picks for the two had been the wrong way round.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

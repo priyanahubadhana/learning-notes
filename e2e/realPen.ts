@@ -235,7 +235,7 @@ export async function realPenTaps(
         ' | ' +
         probe.join(' | ') +
         ' | back ' +
-        (bk | 0),
+        (Number(bk) | 0),
     )
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false

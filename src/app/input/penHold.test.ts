@@ -66,3 +66,35 @@ describe('HoldPath (a loop is not a hold)', () => {
     expect(broke).toBe(true)
   })
 })
+
+describe('HoldPath with a real Pencil (jitter, slow loop, drift)', () => {
+  // A small seeded random number generator, so the test is the same every time.
+  const rng = (seed: number) => () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296
+    return seed / 4294967296
+  }
+  it('240 points of +-0.8 px jitter around the touch do not break the hold', () => {
+    const r = rng(7)
+    const h = new HoldPath(300, 300)
+    let broke = false
+    for (let i = 0; i < 240; i++)
+      if (h.add(300 + (r() - 0.5) * 1.6, 300 + (r() - 0.5) * 1.6)) broke = true
+    expect(broke).toBe(false)
+  })
+  it('the slow small loop round "vi" (about 23 px of path by 0.8 s) breaks it', () => {
+    const h = new HoldPath(100, 100)
+    let broke = false
+    // 108 points round 8.5 x 13 px (the "vi" loop, about 68 px round); 0.8 s is about 40 of them.
+    for (let i = 1; i <= 40; i++) {
+      const a = Math.PI + (i / 108) * Math.PI * 2
+      if (h.add(108.5 + Math.cos(a) * 8.5, 100 + Math.sin(a) * 13)) broke = true
+    }
+    expect(broke).toBe(true)
+  })
+  it('a straight drift of 19 px breaks it', () => {
+    const h = new HoldPath(0, 0)
+    let broke = false
+    for (let i = 1; i <= 19; i++) if (h.add(i, 0)) broke = true
+    expect(broke).toBe(true)
+  })
+})

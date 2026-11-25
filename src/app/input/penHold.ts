@@ -37,6 +37,8 @@ export const wroteRecently = (now = Date.now()): boolean =>
 
 /** The longest path (px) the Pencil may travel from its first touch and still hold: the drift itself (a comma-sized wobble; a slow loop round letters is over it before 0.8 s). */
 export const PEN_HOLD_PATH_PX = PEN_HOLD_SLOP_PX
+/** A step smaller than this (px) from the last counted point is jitter and adds nothing to the path. */
+export const PEN_HOLD_STEP_PX = 2
 
 /**
  * A Pencil hold in progress (owner, 25 Nov, review of the "vi" loop). It breaks when
@@ -61,9 +63,14 @@ export class HoldPath {
   /** Add the next point; true once the hold is broken (and it stays broken). */
   add(x: number, y: number): boolean {
     if (this.gone) return true
-    this.len += Math.hypot(x - this.x, y - this.y)
-    this.x = x
-    this.y = y
+    // Jitter (a real Pencil sends 120-240 Hz with up to 1 px of noise) must not add up:
+    // only a step of PEN_HOLD_STEP_PX or more from the last counted point counts.
+    const step = Math.hypot(x - this.x, y - this.y)
+    if (step >= PEN_HOLD_STEP_PX) {
+      this.len += step
+      this.x = x
+      this.y = y
+    }
     if (
       Math.hypot(x - this.x0, y - this.y0) > PEN_HOLD_SLOP_PX ||
       this.len > PEN_HOLD_PATH_PX

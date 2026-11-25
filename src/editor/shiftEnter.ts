@@ -1,3 +1,4 @@
+import { PRIORITY, onRouted } from '../app/input/eventRouter'
 import type { AppSchema } from './schema'
 
 type Editor = AppSchema['BlockNoteEditor']
@@ -19,18 +20,18 @@ type Editor = AppSchema['BlockNoteEditor']
 export function watchShiftEnter(editor: Editor): () => void {
   const dom = editor.domElement
   if (!dom) return () => {}
-  const doc = dom.ownerDocument
-  const onKey = (e: KeyboardEvent) => {
-    if (e.key !== 'Enter' || !e.shiftKey) return
-    if (e.ctrlKey || e.altKey || e.metaKey || e.isComposing) return
-    if (!(e.target instanceof Node) || !dom.contains(e.target)) return
-    const view = editor.prosemirrorView
-    if (!view) return
-    if (view.someProp('handleKeyDown', (f) => f(view, e))) {
+  return onRouted(
+    'keydown',
+    (e) => {
+      if (e.key !== 'Enter' || !e.shiftKey) return
+      if (e.ctrlKey || e.altKey || e.metaKey || e.isComposing) return
+      const view = editor.prosemirrorView
+      if (!view) return
+      if (!view.someProp('handleKeyDown', (f) => f(view, e))) return
       e.preventDefault()
       e.stopImmediatePropagation()
-    }
-  }
-  doc.addEventListener('keydown', onKey, true)
-  return () => doc.removeEventListener('keydown', onKey, true)
+      return true
+    },
+    { scope: dom, priority: PRIORITY.editor, name: 'editor-shift-enter' },
+  )
 }

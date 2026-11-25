@@ -121,6 +121,15 @@ What this means for the spec: a notebook that Claude writes is made only of thin
 - **Pages under pages.** The owner wants pages, sub-pages and pages under those to show in the database the way they show in the list: like heading 1, 2 and 3. References named by the owner: how Notion shows sub-pages in a database; how OneNote orders a page, a sub-page and a page under it.
 - The owner: "I do not know the answers. I am just telling you what I could think is better. Together we both will find the best answer." Fable researches and comes back with a full proposal.
 
+### 5.8 The owner's fourth answers (25 Nov): two kinds of database, and a dashboard
+
+- **Two kinds of database, as in Notion: one inside a page, and one that is a whole page.**
+- **The one inside a page is the one used most.** The first page of a notebook shows the content of that notebook (its chapters, with their notes and summaries) in the form of a database inside the page. "It will give user the complete customization that we want."
+- **"Database" is also an option in the top row,** beside Summary, Mind map and Review. It opens the whole database page: all the databases made before, filtered to this notebook. There the owner can filter by time, by date or by any property, make custom filters, and make trackers.
+- **"Dashboard" is an option in the top row too,** built from that database, "so that we can keep track of everything."
+
+Fable's reading of the top row of a notebook, to be confirmed by the owner: Notes, Summary, Mind map, Review, Database, Dashboard.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

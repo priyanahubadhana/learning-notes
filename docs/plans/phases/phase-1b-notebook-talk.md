@@ -248,6 +248,10 @@ What follows for the plan: Fable's note in 5D ("small sticky boxes placed on a l
 
 What they share: a title lettered by hand; one or two accent colours, used the same way all over the page; section names set in a coloured box or on a highlighter stroke; arrows and thin lines that join a label to its part; short phrases; small sketches right beside the words they explain.
 
+**The owner's own try, as a picture (25 Nov, 19:14):** [owner-try-2026-11-25.png](../../mockups/notebook-look/owner-try-2026-11-25.png). The iPad, the Apple Pencil Pro, the dark theme, the Shapes tool. One tall text box holds the words "Opus → two manager →"; two arrows drawn with Shapes run down from the words to two drawn boxes. This is the diagram the owner means: the two drawn boxes should take text, and the whole of it should belong to the one text box. It also answers which device and tool the fault above was seen with.
+
+A point for the spec: the owner works in the dark theme. Every look of a notebook must be right in dark and in light.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

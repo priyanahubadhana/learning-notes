@@ -61,15 +61,30 @@ The way of working: [the Fable review](../fable-review-2026-11-25.md), section 1
 
 **One clash for the owner.** On 22 Nov the owner put Review and recall cards out of stage 1 ("stage 2, left working as is meanwhile", `docs/plans/stage-questionnaire-2026-11-22.md:95`). On 25 Nov the owner wants review cards in the stage-1 notebook. Question 4 below settles it.
 
-## 5. Questions to the owner (asked 25 Nov; answers are added here)
+## 5. The owner's answers (25 Nov 2026, first round)
 
-1. **The shape of a notebook.** Fable's pick: every chapter has its own summary, deep notes, mind map and cards; one front page holds the map of the whole notebook.
-2. **Where the facts come from.** Fable's pick: the sources the owner names, plus the official documents Claude finds; every key point carries its source; what could not be checked is marked.
-3. **How big each part is.** Fable's pick: a chapter's summary fits one sheet; a mind map fits one tablet screen; 10 to 20 cards for a chapter.
-4. **Review cards in stage 1.** Fable's pick: the notebook brings its cards and the owner reviews them with the Review that exists; the Review screens are not changed in stage 1.
-5. **What "customize on the PC" must cover.** Fable's pick: the ten actions of the stage-1 plan (open, read, fix a sentence, rewrite, highlight, colour and size, add a box beside, paste a picture, move things, save and sync), and two more: change the mind map, change a card.
+1. **The shape of a notebook.** "The system should be universal." Every chapter has its own summary, deep notes, mind map and cards. The first page of a notebook is "the database kind of thing": it lists everything the notebook holds (the pages, the summaries, the mind maps, the review cards) and can be sorted and filtered. Fable's reading: the same structure for every subject.
+2. **Where the facts come from.** Fable's pick, with the owner's order of trust: first the official Claude and Anthropic documents on their websites; then what members of the Claude team themselves said or showed (YouTube, Twitter); other sources after these. Every key point carries its source; what could not be checked is marked.
+3. **How big each part is.** Fable's pick: a chapter's summary fits one sheet; a mind map fits one tablet screen with no scrolling; 10 to 20 cards for a chapter.
+4. **Review cards in stage 1.** Yes, in the notebook. The owner reviews them with the Review that exists. No rework of the Review screens in stage 1. This replaces the 22 Nov answer for the cards that a notebook brings.
+5. **Customize on the PC.** The ten actions of the stage-1 plan, and two more: change the mind map, change a card.
 
-The look (the kinds of boxes, diagrams, pictures) is asked in a second round, with pictures.
+### 5.1 How the owner will use it
+
+- Most of the time as a book: to read, understand and gain the knowledge. On the tablet most of the time, or on the PC, whenever there is free time.
+- The recall cards in spare moments, for example on the way to the office: read a card, get the brief idea, and fix it in memory.
+
+### 5.2 The owner's references for the look
+
+- Notes made by doctors and medical students, for their diagrams.
+- Ali Abdaal, and other creators who show notes made in GoodNotes and OneNote that look good.
+
+### 5.3 Still open (asked 25 Nov)
+
+- What a row of the front database page is: one row for each chapter, or one row for each thing (a summary, a map, a set of cards).
+- Where the map of the whole notebook lives, if the front page is a database.
+- Which device the owner holds on the way to the office (the tablet or the phone).
+- The look: asked with sample pictures.
 
 ## 6. What comes next
 

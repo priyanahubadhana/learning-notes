@@ -24,11 +24,14 @@ What stands with no change: sections 2, 4.3 (the rows the owner decided on 24 No
 - **Two modes (owner, third round).** Planning mode: the owner and Fable work together and write the plan and the specs, with as much depth as the wish needs. Execution mode: Opus builds from those specs and decides by itself; it records every decision it takes by itself; it has the permissions it needs for that.
 - **Two briefs (owner, third round).** A helper gets a small brief to work from and can open the big spec to check a fact. The specs do not limit how Opus builds.
 - **Earlier decisions (owner, third round).** A decision the owner made earlier must never get lost or be ignored.
-- **Not started yet.** Opus waits for the detailed plan (the lanes, the skills, the order). Fable writes it here when the spec form is decided. The full set on every push (G1) comes before any side-by-side lanes.
+- **The spec form and the rest (owner, fourth round).** Decided; written out in section 13. It starts with the phase after 1A. The full set on every push (G1) comes before any side-by-side lanes.
+- **The next phase** is the one the stage plan names next. It is planned in planning mode, built the new way, and measured; each later phase improves from those numbers.
 
-### 0.3 Still open
+### 0.3 Still open (three questions to the owner)
 
-- The form of a spec: how the small brief is made from the big spec with no change of meaning; what the checks are made from; which of Opus's own decisions the owner sees; which actions still wait for the owner in execution mode. Until it is decided, specs are written as today.
+- When the earlier decisions of a feature are collected (section 13.8).
+- Who builds a part: the Opus part manager, a Sonnet builder, or the manager's choice for each part (section 13.5).
+- How Opus reaches Fable: by itself for a few short questions a day, or only through the owner (section 13.7).
 - The bulk clearing (question 5 of section 10) waits until this talk is closed.
 
 **Read for this review:** [the talk pack](../metrics/fable-talk-pack.md), [the retro input](../metrics/phase-1a-retro-input.md), [the #68 digest](../qa/traces/2026-11-25-issue68-digest.md), [STATE](../STATE.md), the master instructions pack (CLAUDE.md, GUIDEBOOK.md, QUESTIONS.md), the CI file and the Playwright config on build/next (4bf4d5b2), the Pencil tap code, [the stage-1 plan](stage-1-plan.md), [the 1M plan](phases/phase-1m-build-machine.md), [METHOD-v2](../METHOD-v2.md) and the last 40 CI runs.
@@ -368,3 +371,109 @@ Opus writes one line in [phase-results.md](../metrics/phase-results.md) at each 
 - The stage-1 estimate uses the plan's sizes. They are not yet corrected by a measured day-phase.
 - The found wishes were placed by their one-line titles. Opus checks each against its part card.
 - Web sources for section 5: WebKit bug 217430; Apple Developer Forums thread 662874; the ProseMirror forum thread "How to disable the mobile Safari selection menu"; Wikimedia task T281771.
+
+## 13. The way of working from the phase after 1A (decided in the talk of 25 Nov)
+
+This section holds what the owner decided in rounds two to four. Where it differs from sections 3, 4 and 7, this section wins. Lines marked **Open** wait for the owner (section 0.3).
+
+### 13.1 Two modes
+
+**Planning mode: the owner and Fable.**
+
+- When: once for each phase, before it starts, and for each new feature. Never in the middle of a build.
+- How: the owner talks freely, by voice or text. Fable writes "What I heard", asks all its questions at once, then writes the big spec. The owner approves it line by line: Yes, Explain again, or Change to.
+- Output: one big spec for each feature (13.2); the phase page with its day parts and lanes; the owner's check list for each day part.
+- After each talk Fable gives the owner three lines: what would make the next talk give a better spec.
+- Planning for the next phase runs while Opus builds the current one. Planning never stops the build.
+
+**Execution mode: Opus.**
+
+- Opus builds from the specs and decides by itself. It records each decision it takes by itself (13.6).
+- Opus has the permissions it needs. At the start of the phase the main chat lists the kinds of action that still ask for a click, and the owner allows them once.
+- **Four things still wait for the owner:** money; logins and secrets; anything that goes live (a merge to main, a switch ON in the live app); deleting data or files (working copies too). A test on the real device is the owner's by its nature.
+- Nothing else waits. When a part cannot go on, Opus parks that part, goes on with another, and puts the question in the daily list.
+
+### 13.2 The big spec (one for each feature; written in planning mode)
+
+- **Holds:** the objective in the owner's words, with the date; real examples with real values; the numbered lines; the approved picture; "not in this feature"; open points.
+- **The numbered lines.** One sentence each. Four kinds: always true; must never happen; "when ... then ..." (an acceptance line); a situation the tests must cover (resized, first item, small screen; Pencil, finger, mouse). A line that only the real iPad can prove is marked iPad-only.
+- **Each line has an id** (the feature's short name and a number). An id is never used again and never renumbered.
+- **Depth:** as deep as the wish needs on what the owner wants. Nothing on how: no file names, no build plan, no tasks.
+- **Where the spec is silent, Opus decides** and records it (13.6).
+- **A change to a line** is made only by the owner (in planning, or by an answer in the daily list). The line keeps its id; the change carries its date.
+- **One place.** When the big spec of a feature is approved, the older spec files of that feature get the head line "replaced by" with a link and move to the archive. Nothing is deleted.
+
+### 13.3 The small brief (one for each part; cut, never rewritten)
+
+- A part's brief holds: the goal sentence; the spec lines of the part, copied word for word with their ids; the picture link; the lane and its files; "done when" (the tests, by line id); the report form.
+- The main chat chooses which line ids belong to a part. Choosing is allowed; rewording is not.
+- A program makes the brief from the ids (a new machine part, `scripts/part-brief.mjs`). Until it exists, the main chat copies the lines by hand, with no change of a word.
+- The brief names the big spec. A helper opens it when: it would have to guess; two lines seem to clash; the part touches something the brief does not name.
+- `analyze` fails a feature when a line id belongs to no part or to no test.
+
+### 13.4 The checks
+
+- **"Is the plan what we want?"** The owner's yes to the big spec, line by line, in planning mode.
+- **"Is the built thing what the spec says?"** Tests. Before the build of a part, a test-writer helper (never the builder) writes them from the lines. The title of each test carries its line id.
+- The builder cannot change these tests (the test guard). If it thinks a test is wrong, it reports; the part manager decides or escalates.
+- The reviewer (fresh, read-only, once) checks the result against the lines of the big spec, never against the small brief.
+- An iPad-only line is proved by the owner's check or by a replay test from the owner's trace.
+
+### 13.5 Who does what in execution mode
+
+| Who                                   | Does                                                                                                                                                                       | Sees                                         |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| The main chat (Opus)                  | Talks to the owner. Plans the day part. Starts the part managers. Merges into build/next, one at a time. Owns the shared files. Keeps STATE.                               | STATE, the phase page, the short reports     |
+| A part manager (a fresh Opus, a part) | Gets one small brief and its lane's brief. Is free in how. Starts the test-writer and the build. Returns the branch, the proof, its decision records, in 15 lines at most. | Its brief; the big spec when it needs a fact |
+| The test-writer                       | Writes the tests of the part from the lines, before the build.                                                                                                             | The lines of the part                        |
+| The builder                           | **Open:** the part manager itself, a Sonnet builder, or the manager's choice for each part.                                                                                | Its brief                                    |
+| The reviewer (a fresh Opus)           | One read-only review against the big spec's lines.                                                                                                                         | The diff and the lines                       |
+| Fable                                 | Planning mode with the owner. In execution mode only what 13.7 names.                                                                                                      | The question and its line ids                |
+
+- **Lanes.** A lane is one area of the app (its folders). Two lanes for the first three day parts: the machine lane and one feature lane. A third lane only when the numbers of section 11 are good.
+- A part manager never touches another lane's files or a shared file. It asks the main chat.
+
+### 13.6 The record of Opus's own decisions
+
+One line for each decision, in `docs/DECISIONS.md`, newest first:
+
+`date | part | kind | what was decided | why | the line id it rests on, or "silent" | easy to undo: yes or no`
+
+| Kind             | Meaning                                                     | Who looks                                                           |
+| ---------------- | ----------------------------------------------------------- | ------------------------------------------------------------------- |
+| `in-spec`        | The spec's lines decide it.                                 | Nobody has to.                                                      |
+| `how`            | A choice of how to build. This is Opus's freedom.           | Nobody has to.                                                      |
+| `silent-visible` | The spec is silent on something the owner will see or feel. | The owner, in the daily list: five a day at most, the oldest first. |
+
+- A `silent-visible` decision that is easy to undo is built as Opus picked, and shown to the owner.
+- A `silent-visible` decision that is hard to undo parks its part until the owner or Fable answers.
+- The owner's answer becomes a new numbered line in the big spec the same day. The record gets "closed" and the line id.
+
+### 13.7 Who decides what (the escalation for decisions)
+
+1. **The part manager** decides all it can from the lines.
+2. **The main chat** decides a clash between two parts or two lanes, and all about shared files.
+3. **Fable** gets one short question (under 200 words, with the line ids) when: two spec lines or two earlier decisions of the owner contradict each other; the spec is silent on something hard to undo; a fault is still there after Opus's tries; a risky part needs its attack read. Fable's answer is recorded as a spec line or as a decision record. **Open:** Opus calls Fable by itself for at most three such questions a day and asks the owner before a fourth; or every call goes through the owner.
+4. **The owner** gets the `silent-visible` decisions and the four things of 13.1.
+
+Nobody stops and waits: park the part and go on. The ladder for a failing build stays as the owner decided on 24 Nov (4.3).
+
+### 13.8 Earlier decisions are never lost
+
+- Before a feature is planned, a helper collects every earlier decision about it, with its date and place: `docs/DECISIONS.md`, `docs/design/owner-decisions.md`, the old spec, the issues, the comments in the tests.
+- Fable puts each one into the big spec as a numbered line with its date. From then on the big spec is the one place for that feature.
+- The owner sees only the clashes: pairs of earlier decisions that disagree. The owner picks; the pick is a line.
+- **Open:** this is done feature by feature, just before each planning talk (Fable's pick); or for all features at once.
+
+### 13.9 The build machine, as skills and checks (the machine lane)
+
+- All 14 parts of the 1M plan stay. Each becomes a skill (a procedure Claude loads when it needs it), a program, or a hook (a rule that must hold every time).
+- The first machine day part is G1, G2 and G3 of section 7.
+- The procedures that become skills: write a big spec; cut a part brief; write the checks; build a part; verify like a user (1M-05); review a part; sort a red run; turn an iPad trace into a test; plan a day part; write to the owner; check a release.
+- The order of the other machine parts is set in the planning talk for the next phase. After each machine day part the owner sees the numbers and says if the next machine part is still wanted.
+- No public skill pack is installed as a whole. Two shapes are borrowed: one small spec for each change, and acceptance lines as "when ... then ...".
+
+### 13.10 Each phase improves the next
+
+- At a phase's end: the numbers of section 11, and three lines on what to change. Rules change only then.
+- The first numbers to watch: the hours from the morning yes to "ready"; the owner's findings in a day part; how many `silent-visible` decisions a day part makes (many means the spec was too thin there).

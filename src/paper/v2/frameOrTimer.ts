@@ -20,7 +20,7 @@ export function frameOrTimer(fn: () => void): number {
   }
   live.set(id, {
     raf: requestAnimationFrame(run),
-    timer: window.setTimeout(run, FRAME_FALLBACK_MS),
+    timer: setTimeout(run, FRAME_FALLBACK_MS) as unknown as number,
   })
   return id
 }
@@ -30,5 +30,5 @@ export function cancelFrameOrTimer(id: number): void {
   if (!e) return
   live.delete(id)
   cancelAnimationFrame(e.raf)
-  window.clearTimeout(e.timer)
+  clearTimeout(e.timer)
 }

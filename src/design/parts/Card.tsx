@@ -318,8 +318,9 @@ export function Card(props: CardProps) {
             setTrack(trackOf(b))
           }}
         >
+          {/* Keyed by sheet or floating too: a phone turned with the card open changes its width, and WebKit kept the old tile heights (labels overlapped, card too short) until the card was opened again. */}
           <div
-            key={viewKey}
+            key={`${viewKey ?? ''}${phone ? 'sheet' : ''}`}
             className="pcard-view"
             aria-busy={loading || undefined}
           >

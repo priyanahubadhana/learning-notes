@@ -348,6 +348,26 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 
 **What was done with it:** the third draft of [the spec](phase-1b-notebook-spec-draft.md); one compiled page, [the plan after phase 1A](../plan-after-1a.md); a safety note in the review. Three questions to the owner came out of the audits (the spec, section 8).
 
+## 5K. Round 2 of the audits, the owner's answers, and the release that did not publish (25 and 26 Nov)
+
+**Round 2: two attack reads by fresh helpers.**
+
+- On the compiled plan: a release run puts the app live only if main has not moved since it started, and three docs commits had been pushed to main after the release commit (one by Opus, two by Fable). Also: no pull request was open after the merge; decisions of the owner had become "advice"; steps that were not safe for unsaved work.
+- On the third draft of the spec, checked against the code: lines that two builders would build in two ways (the shape that holds text, the first screen, the Summary, the import); three things called "summary" in the code; today's import makes one page in the notebook "Sources", not a notebook; musts of the owner left as goals.
+
+**The owner's answers of 25 Nov (after round 2):**
+
+1. The Summary of a chapter becomes a page of boxes, shapes and diagrams, changed with the same tools; today's short lines stay as a list under it.
+2. A notebook has a front page. The owner: a tap on the notebook's name, or on the notebook in the address row at the top, opens it; a page opened from the side list opens that page.
+3. A notebook brought in a second time: the app asks "Replace the old one?"; the owner's yes moves the old one to the Trash, and one Undo brings it back. (The owner first said the old one can be removed, "there is nothing important there"; then chose this rule.)
+4. The shape that holds text: the option starts off and stays as last set; a shape left empty stays; if it grows larger than its text box, the text box grows. And from the owner: the dots depend on the shape: "A triangle will work with 3 ... a circle will work with 4 dots, a rectangle will require 4 ... a square will require 4."
+5. The import carries everything in stage 1, in two steps: first what a notebook like "Claude skills" needs, so that daily use can start; then the rest, still in stage 1. (The owner first chose "everything"; Fable named the clash with "build only a small part in stage 1"; the owner chose the two steps.)
+6. Yes: ordinary boxes never lie on each other, sticky boxes too (the 10 Nov rule). Yes: an import never changes what was there; the page list holds the order of the chapters.
+
+**The owner's note on how the Claude Code team manages agents (25 Nov).** Checked against its sources. Already in the plan: a copy of the project for each agent; one main agent that briefs the others; work split by ownership and tested after the merge; clear briefs; limits and cost watched; a start with two. Not taken: agent teams (experimental; their agents share one copy; about seven times the tokens). Taken as advice: a fast first pass with only the tests a change touches, beside the full set; the fences in every brief; a check that a reviewer cannot change files through the command line.
+
+**Phase 1A was not live on 26 Nov, 00:20.** Three release runs on 25 Nov: the first could not publish because main had moved; the second and the third failed on tests of the iPad engine, different ones each time, on app code that had passed in full earlier that evening. Fable asked the owner how such failures are treated (the plan, section 10).
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

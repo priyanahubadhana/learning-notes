@@ -47,16 +47,21 @@ test('Professional Lasso on an iPad: turn, scroll, close and reload keep the set
         { intervals: [150] },
       )
       .toBe(true)
-    const chip = page.getByTestId('v8-chip-lasso.opts')
-    if (await chip.isVisible()) await chip.click()
-    else {
-      await page.getByTestId('v8-row-more').click()
-      await page
-        .getByTestId('v8-card-fold.row')
-        .getByRole('button', { name: 'Options' })
-        .click()
-    }
-    await expect(c).toBeVisible()
+    // Open the card by the chip, or by the fold when the row has no room: look again each
+    // time (a slow machine re-fits the row after the first look), until the card is open.
+    await expect(async () => {
+      if (await c.isVisible()) return
+      const chip = page.getByTestId('v8-chip-lasso.opts')
+      if (await chip.isVisible()) await chip.click({ timeout: 2000 })
+      else {
+        await page.getByTestId('v8-row-more').click({ timeout: 2000 })
+        await page
+          .getByTestId('v8-card-fold.row')
+          .getByRole('button', { name: 'Options' })
+          .click({ timeout: 2000 })
+      }
+      await expect(c).toBeVisible({ timeout: 2000 })
+    }).toPass({ timeout: 20_000 })
     const b = (await c.boundingBox())!
     expect(b.x).toBeGreaterThanOrEqual(0)
     expect(b.x + b.width).toBeLessThanOrEqual(vp.width)

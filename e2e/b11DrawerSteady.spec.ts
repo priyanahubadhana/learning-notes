@@ -37,7 +37,8 @@ for (const [frame, url] of [
     await expect(side).toBeHidden()
     // The month row is made a moment after the page (slow in WebKit): wait for it.
     await expect(page.locator(`aside [aria-label="${label}"]`)).toBeAttached()
-    // From the tap on Open menu, once per frame for 600 ms: where the ⋯ of the
+    // From the tap on Open menu, once per frame for 600 ms (and at least 20 frames: a slow
+    // machine draws fewer frames in 600 ms, so the count, not the clock, decides): where the ⋯ of the
     // month row is inside the drawer, and how wide the row is.
     const seen = await page.evaluate(
       (name) =>
@@ -63,7 +64,9 @@ for (const [frame, url] of [
                   Math.round(row.getBoundingClientRect().width),
               )
             }
-            if (performance.now() - t0 < 600) requestAnimationFrame(tick)
+            const enough = performance.now() - t0 >= 600 && out.length >= 20
+            if (!enough && performance.now() - t0 < 4000)
+              requestAnimationFrame(tick)
             else done(out)
           }
           tick()

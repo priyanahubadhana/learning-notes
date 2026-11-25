@@ -170,10 +170,17 @@ test('F63. (#63) the bar beside a selected box has the pin from its first show, 
     'aria-pressed',
     'true',
   )
-  const pinned = await rect(page.getByTestId('object-bar'))
-  expect(Math.abs(pinned.x - before.x)).toBeLessThanOrEqual(2)
-  expect(Math.abs(pinned.y - before.y)).toBeLessThanOrEqual(2)
-  expect(Math.abs(pinned.width - before.width)).toBeLessThanOrEqual(1)
+  // The bar settles where it was (a slow machine moves it a moment later): wait for it.
+  await expect
+    .poll(async () => {
+      const pinned = await rect(page.getByTestId('object-bar'))
+      return (
+        Math.abs(pinned.x - before.x) <= 2 &&
+        Math.abs(pinned.y - before.y) <= 2 &&
+        Math.abs(pinned.width - before.width) <= 1
+      )
+    })
+    .toBe(true)
   await expect(box).toHaveAttribute('data-picked', '')
   await realPenTaps(page, await centre(page.getByTestId('ob-pin')), [
     { hold: 60 },
@@ -182,9 +189,14 @@ test('F63. (#63) the bar beside a selected box has the pin from its first show, 
     'aria-pressed',
     'false',
   )
-  const back = await rect(page.getByTestId('object-bar'))
-  expect(Math.abs(back.x - before.x)).toBeLessThanOrEqual(2)
-  expect(Math.abs(back.y - before.y)).toBeLessThanOrEqual(2)
+  await expect
+    .poll(async () => {
+      const back = await rect(page.getByTestId('object-bar'))
+      return (
+        Math.abs(back.x - before.x) <= 2 && Math.abs(back.y - before.y) <= 2
+      )
+    })
+    .toBe(true)
   await expect(box).toHaveAttribute('data-picked', '')
 })
 

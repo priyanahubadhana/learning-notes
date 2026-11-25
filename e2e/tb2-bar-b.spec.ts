@@ -481,18 +481,26 @@ test('B10b. (#60) the pin is kept while the bar is folded, and the bar is back a
   const placed = await rect(bar(page))
   // The page column shrinks to a sliver: the pinned bar has no room and folds.
   await page.setViewportSize({ width: 300, height: 1194 })
-  await page.waitForTimeout(700)
-  const stored = await page.evaluate(() =>
-    Object.entries(localStorage).filter(([k]) => k.includes('boxBarPin')),
-  )
-  expect(JSON.stringify(stored)).toContain('right')
+  // The pin is stored when the bar folds: wait for that state, not for a time.
+  await expect
+    .poll(async () =>
+      JSON.stringify(
+        await page.evaluate(() =>
+          Object.entries(localStorage).filter(([k]) => k.includes('boxBarPin')),
+        ),
+      ),
+    )
+    .toContain('right')
   // The room is back: the bar returns to its pinned place.
   await page.setViewportSize({ width: 1336, height: 1100 })
-  await page.waitForTimeout(900)
   await expect(page.getByTestId('ob-pin')).toBeVisible()
-  const back = await rect(bar(page))
-  expect(back.height).toBeGreaterThan(back.width)
-  expect(Math.abs(back.x - placed.x)).toBeLessThan(2)
+  // Back at its pinned place: the state, not a fixed wait (a slow machine lays out later).
+  await expect
+    .poll(async () => {
+      const back = await rect(bar(page))
+      return back.height > back.width && Math.abs(back.x - placed.x) < 2
+    })
+    .toBe(true)
 })
 
 for (const side of ['left', 'right'] as const) {

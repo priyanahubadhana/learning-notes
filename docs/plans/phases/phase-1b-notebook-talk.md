@@ -333,6 +333,21 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 
 - The other lines: the owner has not said yes yet.
 
+## 5J. The owner asks for a final audit, and for one compiled page (25 Nov, evening)
+
+- The owner: "Just do a final audit, make sure you verify everything, that we did not miss anything, and then if there is nothing new, I guess this is okay to pass from my end." "Let's compile everything now into one thing. And all the learning from phase 1A, all the previous learning, let's apply them all now." "Do at least 2 or 3 audits of your own work."
+- A sentence of the owner from the walk-through that these notes had not kept: "Just make sure that any feature you add should be easy to customize."
+- Phase 1A: the owner's update tests passed and the owner said "yes, go live" (25 Nov, about 20:15).
+
+**Round 1: four audits by helpers that had not seen Fable's reasoning.**
+
+1. The second draft of the spec against these notes: 16 statements of the owner with no line or a weaker one (among them accuracy, "interactive", Dashboard in the row of options, the database inside the first page); 11 limits of the planner's own that were still in lines ("one fact for a card", "no new controls", "nothing else on the phone", a closed list of what an import brings); 6 pairs of lines that fought; faults of the real app that block a line with no line naming them.
+2. The spec against the collected earlier decisions: the 10 Nov rule that ordinary boxes never lie on each other was missing; the three themes (Night, Day, Sepia) had become two; the ink rules of 8 Nov were missing; two changes of stage (cards, dashboards) were made without saying so; the fixed names of the bars were not used.
+3. The Fable review itself: places that told Opus two different things; stale proposals not marked; steps that, followed to the letter, could remove working copies with unsaved work.
+4. The state of the project and every lesson of phase 1A.
+
+**What was done with it:** the third draft of [the spec](phase-1b-notebook-spec-draft.md); one compiled page, [the plan after phase 1A](../plan-after-1a.md); a safety note in the review. Three questions to the owner came out of the audits (the spec, section 8).
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

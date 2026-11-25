@@ -1,5 +1,7 @@
 # Fable review, 25 Nov 2026: why the work was slow, and the plan from here
 
+**Read this first.** This page is the record of the talk of 25 Nov: it grew by rounds, and parts of it were replaced later in the same day. Everything decided is compiled into one page: [the plan after phase 1A](plan-after-1a.md). That page waits for the owner's yes. Until that yes, Opus follows steps 1 and 2 of "Start here" below. After it, Opus follows the plan, and this page is read only for its reasons and its numbers.
+
 **Status:** Fable's proposals from the owner's deep talk of 25 Nov 2026. **Section 0 holds the owner's answers and wins over every section below.** Nothing is cut and no rule changes without the owner's yes. The talk on the method closed on 25 Nov. The block "Start here" is the current order of work.
 
 ## Start here: what Opus does now, in order

@@ -491,13 +491,12 @@ async function slowPen(
   })
 }
 
-/** A wobble from `c`: up to 15 px away, back and forth (inside the 18 px). */
-const wobble = (c: Pt, n: number): Pt[] =>
-  Array.from({ length: n }, (_, i) => ({
-    // The first point is where it touched; the rest stay within 15 px of it.
-    x: c.x + (i === 0 ? 0 : (i % 2 ? 15 : -10) * (i % 4 < 2 ? 1 : 0.6)),
-    y: c.y + (i === 0 ? 0 : (i % 3) * 3),
-  }))
+/**
+ * A comma-sized wobble from `c`: up to 14 px away (inside the 18 px) and about 32 px
+ * of path in all (under the 36 px a loop would pass), back and forth along x.
+ */
+const wobble = (c: Pt): Pt[] =>
+  [0, 12, 6, 14, 8].map((dx) => ({ x: c.x + dx, y: c.y }))
 
 test.describe('the Pencil hold, circle and loop (owner, 25 Nov)', () => {
   test('HOLD-MOVE: a small loop over typed text, after 1 s, opens our strip (owner, 25 Nov)', async ({
@@ -512,13 +511,13 @@ test.describe('the Pencil hold, circle and loop (owner, 25 Nov)', () => {
     await expect(anyMenu(page).first()).toBeVisible({ timeout: 2000 })
   })
 
-  test('a wobbling Pencil hold (up to 15 px, 900 ms) opens the hold', async ({
+  test('a wobbling Pencil hold (up to 14 px, 32 px of path, 0.9 s) opens the hold', async ({
     page,
   }) => {
     await open(page, 'pencil')
     const w = centre(await boxOf(page, 'rate-is'))
     await page.waitForTimeout(1300)
-    await slowPen(page, wobble(w, 10), 45, 500)
+    await slowPen(page, wobble(w), 45, 750)
     await expect(anyMenu(page).first()).toBeVisible({ timeout: 2000 })
   })
 
@@ -529,7 +528,7 @@ test.describe('the Pencil hold, circle and loop (owner, 25 Nov)', () => {
     const w = centre(await boxOf(page, 'rate-is'))
     await page.waitForTimeout(1300)
     const before = await editorText(page)
-    await slowPen(page, wobble(w, 14), 40, 0, 600)
+    await slowPen(page, wobble(w), 40, 0, 600)
     await page.waitForTimeout(1200)
     await expect(anyMenu(page)).toHaveCount(0)
     expect(await editorText(page)).toBe(before)

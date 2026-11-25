@@ -57,8 +57,6 @@ export const enLateSettings = {
     'How long you hold still on text before the menu (Paste, Select, Insert) opens. Longer avoids opening it by mistake.',
   'settings.holdMenu.label': 'Press-and-hold menu time',
   'settings.holdMenu.s': '{s} s',
-  'settings.holdSelect.description':
-    'Under Text and Lasso, rest the Pencil on text this long without moving and the cursor is placed right there. Keep moving while held and it extends a selection. A quick stroke stays handwriting.',
   'settings.hoverTips.description':
     'Show a small tip with the name of a formatting bar button when the pointer rests on it.',
   'settings.language.description':

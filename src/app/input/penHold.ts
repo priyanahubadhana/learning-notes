@@ -34,3 +34,41 @@ export const noteWritten = (at = Date.now()): void => {
 /** Was text written within PEN_QUIET_MS? Then Pencil holds and circles wait. */
 export const wroteRecently = (now = Date.now()): boolean =>
   now - wroteAt < PEN_QUIET_MS
+
+/** The longest path (px) the Pencil may travel from its first touch and still hold: twice the drift. */
+export const PEN_HOLD_PATH_PX = PEN_HOLD_SLOP_PX * 2
+
+/**
+ * A Pencil hold in progress (owner, 25 Nov, review of the "vi" loop). It breaks when
+ * the Pencil goes further than PEN_HOLD_SLOP_PX from the first touch, or when the
+ * path it has travelled since (the sum of point-to-point distances) passes
+ * PEN_HOLD_PATH_PX. A comma-sized wobble stays a hold; a loop round letters,
+ * even a small one that never leaves 3 mm, is deliberate movement and breaks it.
+ */
+export class HoldPath {
+  private readonly x0: number
+  private readonly y0: number
+  private x: number
+  private y: number
+  private len = 0
+  private gone = false
+  constructor(x0: number, y0: number) {
+    this.x0 = x0
+    this.y0 = y0
+    this.x = x0
+    this.y = y0
+  }
+  /** Add the next point; true once the hold is broken (and it stays broken). */
+  add(x: number, y: number): boolean {
+    if (this.gone) return true
+    this.len += Math.hypot(x - this.x, y - this.y)
+    this.x = x
+    this.y = y
+    if (
+      Math.hypot(x - this.x0, y - this.y0) > PEN_HOLD_SLOP_PX ||
+      this.len > PEN_HOLD_PATH_PX
+    )
+      this.gone = true
+    return this.gone
+  }
+}

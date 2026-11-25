@@ -41,7 +41,6 @@ const ORDER = [
  */
 export const MOVED: Record<string, string> = {
   'advanced.pencilWrites': 'pencil',
-  'advanced.holdSelect': 'pencil',
   'advanced.holdMenu': 'pencil',
   'advanced.pencilTapTwice': 'pencil',
   'advanced.pencilScrolls': 'pencil',

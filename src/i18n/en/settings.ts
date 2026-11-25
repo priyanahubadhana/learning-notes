@@ -150,8 +150,6 @@ export const enSettings = {
   'settings.goodSteps.label': 'Steps for “Good”',
   'settings.goodSteps.remove': 'Remove last step',
   'settings.goodSteps.step': 'Step {n}, in days',
-  'settings.holdSelect.label': 'Pencil hold time (caret and select)',
-  'settings.holdSelect.ms': '{ms} ms',
   'settings.hoverTips.label': 'Button tips',
   'settings.language.label': 'Language',
   'settings.lock.idle.label': 'Lock again after',

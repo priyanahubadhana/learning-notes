@@ -209,10 +209,6 @@ export const esSettings = {
     'Cuánto mantienes pulsado sobre el texto antes de abrir el menú (Pegar, Seleccionar, Insertar).',
   'settings.holdMenu.label': 'Tiempo del menú al mantener pulsado',
   'settings.holdMenu.s': '{s} s',
-  'settings.holdSelect.description':
-    'Con la herramienta Texto, un trazo rápido del Pencil es escritura. Mantén el Pencil quieto sobre el texto este tiempo y selecciona; luego arrastra para ampliar.',
-  'settings.holdSelect.label': 'Tiempo para seleccionar con el Pencil',
-  'settings.holdSelect.ms': '{ms} ms',
   'settings.hoverTips.description':
     'Muestra un consejo con el nombre del botón de la barra cuando el puntero se detiene sobre él.',
   'settings.hoverTips.label': 'Consejos de botones',

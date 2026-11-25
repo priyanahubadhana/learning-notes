@@ -5,7 +5,7 @@ import { readDeviceSetting } from '../settings/settingsService'
 import {
   PEN_QUIET_MS,
   holdMsFor,
-  holdSlopFor,
+  HoldPath,
   noteWritten,
   wroteRecently,
 } from '../app/input/penHold'
@@ -123,6 +123,7 @@ export function watchHoldMenu(
     y: number
     type: string
     pressure: number
+    path: HoldPath
     timer: number
     ringTimer: number
     ring: (() => void) | null
@@ -174,6 +175,7 @@ export function watchHoldMenu(
       y: e.clientY,
       type: e.pointerType,
       pressure: e.pressure,
+      path: new HoldPath(e.clientX, e.clientY),
       ring: null as (() => void) | null,
       ringTimer: 0,
       timer: window.setTimeout(() => {
@@ -198,14 +200,16 @@ export function watchHoldMenu(
     if (!press || e.pointerId !== press.id) return
     // Any drift beyond the radius, or a harder press, ends this hold for the
     // whole stroke (nothing re-arms until the next pointerdown).
-    if (
-      movedTooFar(
-        e.clientX - press.x,
-        e.clientY - press.y,
-        holdSlopFor(press.type, HOLD_STILL_PX),
-      ) ||
-      (press.type === 'pen' && e.pressure - press.pressure > 0.2)
-    )
+    // The Pencil also breaks it by travelling a path longer than 36 px (a loop).
+    let broke = false
+    if (press.type === 'pen') {
+      const pts = e.getCoalescedEvents?.() ?? []
+      for (const c of pts.length > 0 ? pts : [e])
+        if (press.path.add(c.clientX, c.clientY)) broke = true
+    } else {
+      broke = movedTooFar(e.clientX - press.x, e.clientY - press.y)
+    }
+    if (broke || (press.type === 'pen' && e.pressure - press.pressure > 0.2))
       stop()
   }
   const onEnd = (e: PointerEvent) => {

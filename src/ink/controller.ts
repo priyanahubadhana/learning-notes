@@ -1,4 +1,4 @@
-import { holdMsFor, holdSlopFor } from '../app/input/penHold'
+import { PEN_HOLD_PATH_PX, holdMsFor, holdSlopFor } from '../app/input/penHold'
 import { clampDpr } from '../app/canvasBudget'
 import { isUiEvent } from '../app/uiGuard'
 import {
@@ -243,6 +243,9 @@ type Gesture =
       t0: number
       at: number
       holdOrigin: Pt
+      /** Pencil hold: path travelled since holdOrigin, and how many world points are counted. */
+      holdLen: number
+      holdIdx: number
       holdTimer: ReturnType<typeof setTimeout> | undefined
       shape: Recognised | null
       highlight: boolean
@@ -1395,6 +1398,8 @@ export class InkController {
       t0: e.timeStamp,
       at: Date.now(),
       holdOrigin: w,
+      holdLen: 0,
+      holdIdx: 1,
       holdTimer: undefined,
       shape: null,
       highlight: tool === 'highlighter',
@@ -1573,8 +1578,18 @@ export class InkController {
         })
       }
       const now = g.world[g.world.length - 1]
-      if (now && dist(now, g.holdOrigin) > holdSlopFor(g.type, HOLD_SLOP)) {
+      // The Pencil's hold also breaks by a path over PEN_HOLD_PATH_PX (a loop).
+      let tooLong = false
+      for (; g.holdIdx < g.world.length; g.holdIdx++) {
+        g.holdLen += dist(g.world[g.holdIdx - 1], g.world[g.holdIdx])
+        if (g.type === 'pen' && g.holdLen > PEN_HOLD_PATH_PX) tooLong = true
+      }
+      if (
+        now &&
+        (tooLong || dist(now, g.holdOrigin) > holdSlopFor(g.type, HOLD_SLOP))
+      ) {
         g.holdOrigin = now
+        g.holdLen = 0
         this.armHold(g)
       }
       this.requestDraw()

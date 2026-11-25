@@ -117,10 +117,14 @@ test('the control panel finds New line extras, the hold time and Pencil settings
     ['new line extras', 'New line extras'],
     ['new line hold', 'New line hold time'],
     ['pencil picks', 'Pencil picks the Pen tool'],
-    ['hold time', 'Pencil hold time'],
     ['tap twice', 'Pencil: tap twice to start typing'],
   ]) {
     await input.fill(query)
     await expect(page.getByRole('dialog').getByText(row).first()).toBeVisible()
   }
+  // owner, 25 Nov: remove it. The Pencil select-time row is gone (the hold is fixed at 0.8 s).
+  await input.fill('hold time')
+  await expect(
+    page.getByRole('dialog').getByText('Pencil hold time'),
+  ).toHaveCount(0)
 })

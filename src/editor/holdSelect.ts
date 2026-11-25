@@ -5,7 +5,7 @@ import { autoScrollWhileSelecting } from './dragSelect'
 import { beginSelectGesture, endSelectGesture } from './gesture'
 import { inputMachine } from '../app/inputMachine'
 import { lookThrough, padOf, posNear } from './tapSelect'
-import { PEN_HOLD_MS, PEN_HOLD_SLOP_PX } from '../app/input/penHold'
+import { HoldPath, PEN_HOLD_MS } from '../app/input/penHold'
 import type { AppSchema } from './schema'
 
 /**
@@ -19,12 +19,6 @@ import type { AppSchema } from './schema'
  */
 
 type Editor = AppSchema['BlockNoteEditor']
-// The Pencil's one hold (owner, 25 Nov): 0.8 s, about 18 px from the first touch.
-const HOLD_MOVE_PX = PEN_HOLD_SLOP_PX
-
-/** Pure rule: has the press moved too far to become a hold? */
-const movedTooFar = (dx: number, dy: number): boolean =>
-  Math.hypot(dx, dy) > HOLD_MOVE_PX
 
 export function watchHoldSelect(
   editor: Editor,
@@ -39,6 +33,8 @@ export function watchHoldSelect(
     y: number
     timer: number
     anchor: number
+    /** The Pencil's hold: within 18 px and under 36 px of path (penHold.ts). */
+    path: HoldPath
     /** The ink pad the press landed on (under Lasso with ink it covers the words). */
     pad: HTMLElement | null
   } | null = null
@@ -112,6 +108,7 @@ export function watchHoldSelect(
       x: e.clientX,
       y: e.clientY,
       anchor: pos,
+      path: new HoldPath(e.clientX, e.clientY),
       pad,
       timer: window.setTimeout(() => {
         if (!press) return
@@ -130,7 +127,12 @@ export function watchHoldSelect(
     if (!press || e.pointerId !== press.id) return
     if (!holding) {
       // Moved before the hold time: a quick stroke, left to Scribble.
-      if (movedTooFar(e.clientX - press.x, e.clientY - press.y)) finish()
+      const pts = e.getCoalescedEvents?.() ?? []
+      for (const c of pts.length > 0 ? pts : [e])
+        if (press.path.add(c.clientX, c.clientY)) {
+          finish()
+          break
+        }
       return
     }
     e.preventDefault()

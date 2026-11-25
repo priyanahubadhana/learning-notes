@@ -14,7 +14,7 @@
  * document listeners); gestureRouter.test.ts asserts they stay equal.
  */
 import { PRIORITY, getEventRouter, type EventRouter } from './eventRouter'
-import { holdMsFor, holdSlopFor } from './penHold'
+import { HoldPath, holdMsFor, holdSlopFor } from './penHold'
 
 export type GestureKind =
   'draw' | 'scroll' | 'select' | 'drag' | 'longpress' | 'tap'
@@ -84,6 +84,8 @@ interface Entry {
   started: boolean
   stuck: ReturnType<typeof setTimeout> | null
   hold: ReturnType<typeof setTimeout> | null
+  /** A waiting Pencil long-press: breaks on drift or on a long path (penHold.ts). */
+  path?: HoldPath
 }
 
 function kindOf(t: string): PointerKind {
@@ -260,6 +262,7 @@ export function createGestureRouter(
         started: false,
         stuck: null,
         hold: null,
+        path: type === 'pen' ? new HoldPath(e.clientX, e.clientY) : undefined,
       }
       entries.set(e.pointerId, en)
       armStuck(en)
@@ -286,11 +289,11 @@ export function createGestureRouter(
     armStuck(en)
     if (!en.started) {
       // Long-press waiting: moving too far gives it up.
-      if (
-        Math.hypot(e.clientX - en.g.x, e.clientY - en.g.y) >
-        holdSlopFor(en.g.pointerType, SHARED.MAX_MOVE)
-      )
-        end(en, 'cancelled')
+      const far = en.path
+        ? en.path.add(e.clientX, e.clientY)
+        : Math.hypot(e.clientX - en.g.x, e.clientY - en.g.y) >
+          holdSlopFor(en.g.pointerType, SHARED.MAX_MOVE)
+      if (far) end(en, 'cancelled')
       return true
     }
     guarded(en, () => en.c.onMove?.(en.g, e))

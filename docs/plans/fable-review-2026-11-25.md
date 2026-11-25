@@ -40,7 +40,13 @@ What stands with no change: sections 2, 4.3 (the rows the owner decided on 24 No
 - **The order after 1A is confirmed:** the gate day, the Pencil taps day, then 1B, with the machine lane beside it (section 7).
 - **The owner has no fixed hours** and looks in several times a day. So a day part does not wait for a yes when its parts are on the approved phase page: the day's message informs and asks. The owner's check is done whenever the owner comes; each message repeats what waits. The limit of two unchecked day parts stays (4.6, step 7). This replaces "The owner's yes starts the day" in 4.6, step 2.
 - **The next phase part is a test of the new way against 1A.** At its end the owner and Fable compare the two with the same measures (section 11 and the numbers of 1A) and keep what was better in each.
-- **Still open:** how much is planned again now (the whole app, or an index of the whole app with a deep plan of the next phase part only; the second is Fable's pick); which wins when speed and accuracy disagree; what is given up first when the weekly limit runs low.
+
+### 0.5 Seventh round (owner, 25 Nov)
+
+- **How much is planned again now: decided.** For the whole app: collect only. Helpers read every decision list and every spec and make one index of the earlier decisions for each area; nothing is rewritten and nothing is decided. In depth: only the next phase part. Fable started the collection on 25 Nov; the result goes to `docs/plans/earlier-decisions/`.
+- **Accuracy and speed: decided.** Accuracy wins, and it must be rational. Accuracy means: the built thing matches the numbered lines of the spec. The pace is the fastest that keeps this. A check that proves no spec line, or that caught no real fault in a whole phase part, is dropped at the end of that part, from the numbers.
+- **The owner's objective for time:** stage 1 complete within the next week. Fable's reply from the measured pace: one lane gives 6 to 8 sized hours a day; 1B alone is about 80 sized hours, so 5 to 7 working days with both lanes on features; all of stage 1 is about four times that. Fable's proposal for the next week: "I can use the app every day", which is the end of 1B. **Open.**
+- **Still open:** the target for the next week; what the two lanes do in that week (both on features after the gate day, or one on the machine); what is given up first when the weekly limit runs low.
 
 **Read for this review:** [the talk pack](../metrics/fable-talk-pack.md), [the retro input](../metrics/phase-1a-retro-input.md), [the #68 digest](../qa/traces/2026-11-25-issue68-digest.md), [STATE](../STATE.md), the master instructions pack (CLAUDE.md, GUIDEBOOK.md, QUESTIONS.md), the CI file and the Playwright config on build/next (4bf4d5b2), the Pencil tap code, [the stage-1 plan](stage-1-plan.md), [the 1M plan](phases/phase-1m-build-machine.md), [METHOD-v2](../METHOD-v2.md) and the last 40 CI runs.
 

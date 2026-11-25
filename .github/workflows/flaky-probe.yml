@@ -1,0 +1,23 @@
+name: flaky-probe
+on:
+  push:
+    branches: [fix/flaky-g1]
+    paths: ['.github/workflows/flaky-probe.yml']
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit
+      - name: timed taps alone
+        run: npx playwright test --project=ipad-webkit --workers=1 --retries=0 --grep "C14: 50 Pencil double" 2>&1 | grep -E "PROBE|ok |✘|late|passed|failed" | head -120
+        env:
+          PEN_PROBE: '1'

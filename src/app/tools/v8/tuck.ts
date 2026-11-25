@@ -56,7 +56,10 @@ export function nextTuck(
 /** The state now (memory only: a reload shows the bar again). */
 export const tuckState = memStore<TuckState>(IDLE_TUCK)
 
-/** "Hide toolbar while writing" (Settings › Tool bar), off by default. */
+/**
+ * "Hide toolbar while writing" (Settings › Tool bar), off by default.
+ * owner, 25 Nov: starts OFF. A value the user already saved stays as saved.
+ */
 export const hideWhileWriting = prefStore(
   'toolbar.hideWhileWriting',
   isBoolean,

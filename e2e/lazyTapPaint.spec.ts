@@ -161,7 +161,16 @@ for (const c of cases)
       type: 'tap to paint (ms)',
       description: tries.map(Math.round).join(', '),
     })
-    expect(ms).toBeLessThan(limit)
+    // owner, 25 Nov: on the hosted iPad engine in CI the time is a warning (annotation and
+    // console), not a failure; chromium keeps the hard limit everywhere, and so does a local
+    // ipad-webkit run.
+    if (process.env.CI && testInfo.project.name === 'ipad-webkit') {
+      if (ms >= limit) {
+        const msg = `R13 warning: ${c.name} median ${Math.round(ms)} ms is over ${limit} ms (hosted iPad engine, not failing)`
+        test.info().annotations.push({ type: 'warning', description: msg })
+        console.warn(msg)
+      }
+    } else expect(ms).toBeLessThan(limit)
   })
 
 // With foundation.shell OFF the live app loads as before: nothing is fetched ahead.

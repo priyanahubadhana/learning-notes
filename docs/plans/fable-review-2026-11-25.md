@@ -21,11 +21,14 @@ What stands with no change: sections 2, 4.3 (the rows the owner decided on 24 No
 - **Lanes.** The work is split by area of the app. One manager for each lane; a manager sees only the papers of its lane. Two lanes for three day parts; a third lane only when the numbers of section 11 are good. The shared files (the hot files in STATE) go through the main chat, one at a time.
 - **Where the managers live.** Inside the one main chat; the owner talks to one chat. The main chat starts a fresh Opus manager for each part, with only that part's page and the lane's brief. That manager starts the Sonnet builder.
 - **The build machine.** It stays whole: all 14 parts of the 1M plan. It is built as skills and checks, in day parts, in its own lane beside the feature lane. After each machine day the owner sees the numbers and says if the next machine part is still wanted. The "verify" step (1M-05) stays; Fable changed its view because the reports of Anthropic and OpenAI name the builder's own end-to-end check as what most raised accuracy.
+- **Two modes (owner, third round).** Planning mode: the owner and Fable work together and write the plan and the specs, with as much depth as the wish needs. Execution mode: Opus builds from those specs and decides by itself; it records every decision it takes by itself; it has the permissions it needs for that.
+- **Two briefs (owner, third round).** A helper gets a small brief to work from and can open the big spec to check a fact. The specs do not limit how Opus builds.
+- **Earlier decisions (owner, third round).** A decision the owner made earlier must never get lost or be ignored.
 - **Not started yet.** Opus waits for the detailed plan (the lanes, the skills, the order). Fable writes it here when the spec form is decided. The full set on every push (G1) comes before any side-by-side lanes.
 
 ### 0.3 Still open
 
-- The form of a spec (question 4 of the second round): the owner and Fable are still talking. Until it is decided, specs are written as today.
+- The form of a spec: how the small brief is made from the big spec with no change of meaning; what the checks are made from; which of Opus's own decisions the owner sees; which actions still wait for the owner in execution mode. Until it is decided, specs are written as today.
 - The bulk clearing (question 5 of section 10) waits until this talk is closed.
 
 **Read for this review:** [the talk pack](../metrics/fable-talk-pack.md), [the retro input](../metrics/phase-1a-retro-input.md), [the #68 digest](../qa/traces/2026-11-25-issue68-digest.md), [STATE](../STATE.md), the master instructions pack (CLAUDE.md, GUIDEBOOK.md, QUESTIONS.md), the CI file and the Playwright config on build/next (4bf4d5b2), the Pencil tap code, [the stage-1 plan](stage-1-plan.md), [the 1M plan](phases/phase-1m-build-machine.md), [METHOD-v2](../METHOD-v2.md) and the last 40 CI runs.

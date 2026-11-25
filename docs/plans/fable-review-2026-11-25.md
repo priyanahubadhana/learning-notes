@@ -16,14 +16,17 @@
 
 What stands with no change: sections 2, 4.3 (the rows the owner decided on 24 Nov), 4.4, 4.6, 5, 9, 11, and the order of work in section 7 (G1, G2 and G3 are an order, not a cut).
 
-### 0.2 Still open (the owner asked on 25 Nov; Fable researches, then the owner decides)
+### 0.2 Decided in the second round (owner, 25 Nov, after Fable's research)
 
-- Each manager sees only a small part of the goal, so that it reads the specs the right way.
-- Several Opus managers that work side by side.
-- Skills: how to use them in this system, and what public method or repository the project is missing.
-- Specs that state the objectives; Opus is free in how it builds.
+- **Lanes.** The work is split by area of the app. One manager for each lane; a manager sees only the papers of its lane. Two lanes for three day parts; a third lane only when the numbers of section 11 are good. The shared files (the hot files in STATE) go through the main chat, one at a time.
+- **Where the managers live.** Inside the one main chat; the owner talks to one chat. The main chat starts a fresh Opus manager for each part, with only that part's page and the lane's brief. That manager starts the Sonnet builder.
+- **The build machine.** It stays whole: all 14 parts of the 1M plan. It is built as skills and checks, in day parts, in its own lane beside the feature lane. After each machine day the owner sees the numbers and says if the next machine part is still wanted. The "verify" step (1M-05) stays; Fable changed its view because the reports of Anthropic and OpenAI name the builder's own end-to-end check as what most raised accuracy.
+- **Not started yet.** Opus waits for the detailed plan (the lanes, the skills, the order). Fable writes it here when the spec form is decided. The full set on every push (G1) comes before any side-by-side lanes.
 
-The result is added here after the owner's yes.
+### 0.3 Still open
+
+- The form of a spec (question 4 of the second round): the owner and Fable are still talking. Until it is decided, specs are written as today.
+- The bulk clearing (question 5 of section 10) waits until this talk is closed.
 
 **Read for this review:** [the talk pack](../metrics/fable-talk-pack.md), [the retro input](../metrics/phase-1a-retro-input.md), [the #68 digest](../qa/traces/2026-11-25-issue68-digest.md), [STATE](../STATE.md), the master instructions pack (CLAUDE.md, GUIDEBOOK.md, QUESTIONS.md), the CI file and the Playwright config on build/next (4bf4d5b2), the Pencil tap code, [the stage-1 plan](stage-1-plan.md), [the 1M plan](phases/phase-1m-build-machine.md), [METHOD-v2](../METHOD-v2.md) and the last 40 CI runs.
 

@@ -311,6 +311,17 @@ Sources: support.microsoft.com (PowerPoint: "Set text direction and position in 
 
 Fable's picks for the two had been the wrong way round.
 
+## 5I. The walk-through of the draft spec (begun 25 Nov)
+
+The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) group by group. A line is approved only by the owner's yes.
+
+**Group 1, what a notebook is (NB-01 to NB-15):**
+
+- NB-08 changed by the owner: no limits on the mind map. "If needed, I can zoom in, zoom out, I can drag it ... but the entire diagram should be available to view. That's all I wanted." "Too many restrictions there."
+- NB-11 changed by the owner: "sources need to be mentioned in the end, not at the top or between or anywhere ... it will be disturbing, kind of like noise."
+- NB-12: where a point that is not checked is named is open.
+- The other lines of the group: the owner has not said yes yet.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

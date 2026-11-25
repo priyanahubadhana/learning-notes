@@ -89,5 +89,5 @@ The way of working: [the Fable review](../fable-review-2026-11-25.md), section 1
 ## 6. What comes next
 
 1. The owner's answers go into section 5.
-2. Sample pictures of one chapter (a summary page, a notes page, the mind map) in the app's own design, for the owner's choice of the look.
+2. Sample pictures of one chapter in two looks, for the owner's choice: [docs/mockups/notebook-look/](../../mockups/notebook-look/README.md). Made on 25 Nov; the owner's choice is open.
 3. The big spec with numbered lines; the owner and Fable go through it line by line.

@@ -4,8 +4,16 @@
 // code as this commit. If there is one, the full set is not run a second time
 // before the deploy: the same code is tested in full once, not twice.
 //
-// "The same app code" means: no file differs outside docs/, *.md and
-// .github/ (none of these is in the published app or in a test).
+// "The same app code" means: no file differs outside docs/, rules/,
+// .claude/, .github/ and the *.md files at the top of the repo. None of
+// these is built into the published app. (Markdown elsewhere can be: the
+// claude-skill folder is zipped into the site, so it counts as code. One
+// browser test reads a docs file, e2e/selectionBarButtons.spec.ts; the unit
+// tests that read docs files run in `checks` in every run.)
+//
+// Only runs of main and build/next can count: both change only through
+// reviewed merges, so their own copy of ci.yml (which is not compared, as it
+// lies in .github/) cannot be a weakened one from a side branch.
 //
 // Safe side: any doubt (an error, a missing commit, a job that did not pass,
 // too few test jobs) gives "no such run", and the full set runs as before.
@@ -23,10 +31,13 @@ const need = {
   'pencil-webkit (': Number(process.env.IPAD_SHARDS),
 }
 const LOOK_BACK = 60
+const TRUSTED_BRANCHES = ['main', 'build/next']
 const NOT_CODE = [
   ':(exclude)docs',
-  ':(exclude,glob)**/*.md',
+  ':(exclude)rules',
+  ':(exclude).claude',
   ':(exclude).github',
+  ':(exclude,glob)*.md',
 ]
 
 const out = (run, why) => {
@@ -99,7 +110,8 @@ async function main() {
   const able = runs.filter(
     (r) =>
       String(r.id) !== ownRun &&
-      (r.event === 'push' || r.event === 'workflow_dispatch'),
+      (r.event === 'push' || r.event === 'workflow_dispatch') &&
+      TRUSTED_BRANCHES.includes(r.head_branch),
   )
   const seen = new Map()
   for (const r of able) {

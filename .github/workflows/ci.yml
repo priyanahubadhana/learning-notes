@@ -91,7 +91,8 @@ jobs:
 
   # Tested once, not twice (26 Nov 2026). On main only: looks for an earlier CI
   # run whose full set (every e2e and pencil-webkit job) passed on exactly this
-  # app code, that is, with no file different outside docs/, *.md and .github/.
+  # app code (no file different outside docs/, rules/, .claude/, .github/ and
+  # the *.md files at the top), in a run of main or build/next.
   # The pull request merge into main brings the code that build/next already
   # proved, so a second 56-minute full run proved nothing new and could fail
   # on a slow machine (25 Nov: three release runs, no publish). When such a run

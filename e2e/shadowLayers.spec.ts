@@ -143,7 +143,11 @@ test.describe('wide screen', () => {
     await page.keyboard.press('Control+End')
     await typeUntilSheets(page, before + 1)
     await expect.poll(() => worstSheetGap(page)).toBeLessThanOrEqual(0.5)
-    expect(await page.locator(SHADOW).count()).toBe(before + 1)
+    // Typing goes in batches of ten lines, so one or more sheets may be new;
+    // every sheet has its box (the poll above also checks the counts match).
+    const after = await sheetRects(page)
+    expect(after.sheets.length).toBeGreaterThan(before)
+    expect(after.shadows.length).toBe(after.sheets.length)
 
     // Back to 100 %: the boxes follow.
     await fit.click()
@@ -232,12 +236,15 @@ test.describe('wide screen', () => {
       const r = sheet.getBoundingClientRect()
       const vw = window.innerWidth
       const vh = window.innerHeight
-      const midY = Math.min(Math.max(r.top + r.height / 2, 1), vh - 2)
       const midX = r.left + r.width / 2
-      const points: [string, number, number][] = [
-        ['left', r.left + 1, midY],
-        ['right', r.right - 1, midY],
-      ]
+      // Five heights on each side edge, within the visible part of the sheet.
+      const top = Math.max(r.top, 0)
+      const bottom = Math.min(r.bottom, vh)
+      const points: [string, number, number][] = []
+      for (const f of [0.1, 0.3, 0.5, 0.7, 0.9]) {
+        const y = top + (bottom - top) * f
+        points.push(['left', r.left + 1, y], ['right', r.right - 1, y])
+      }
       if (r.top >= 0 && r.top < vh) points.push(['top', midX, r.top + 1])
       if (r.bottom > 0 && r.bottom <= vh)
         points.push(['bottom', midX, r.bottom - 1])
@@ -252,6 +259,12 @@ test.describe('wide screen', () => {
           name,
           inViewport: x >= 0 && x < vw,
           onSheet: !!el && el.closest('[data-paper-sheet]') === sheet,
+          // A text box, its handle or a floating button over the sheet: a real target.
+          onBox:
+            !!el &&
+            !!el.closest(
+              '[data-paper-box], [data-main-frame], [data-resize-handle], [data-chrome]',
+            ),
           inMain: !!el && main.contains(el),
           onShadow:
             !!el &&
@@ -266,11 +279,14 @@ test.describe('wide screen', () => {
       expect(h.onShadow, `${h.name}: ${h.what}`).toBe(false)
       if (h.name.startsWith('page')) expect(h.inMain, h.what).toBe(true)
       else if (h.inViewport)
-        expect(h.onSheet, `${h.name}: ${h.what}`).toBe(true)
+        expect(h.onSheet || h.onBox, `${h.name}: ${h.what}`).toBe(true)
     }
-    expect(
-      hits.filter((h) => !h.name.startsWith('page')).length,
-    ).toBeGreaterThanOrEqual(2)
+    // Most edge hits land on the sheet itself (a box can cover a few).
+    for (const side of ['left', 'right'])
+      expect(
+        hits.filter((h) => h.name === side && h.onSheet).length,
+        side,
+      ).toBeGreaterThanOrEqual(3)
   })
 })
 

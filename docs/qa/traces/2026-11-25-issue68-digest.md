@@ -1,6 +1,6 @@
 # Issue #68: quick Pencil taps on a word act at random (trace digest)
 
-Owner, 25 Nov 2026 03:13 to 03:14 IST, iPad upright (820 x 1180), preview build ad3bee94, Apple Pencil, Lasso recorder ON. Four traces (pasted in the chat; spans 69 to 99 s, 114 to 143 s, 152 to 179 s, 186 to 211 s of the session) and four photos: [1](../shots/2026-11-25-issue68-1.png), [2](../shots/2026-11-25-issue68-2.png), [3](../shots/2026-11-25-issue68-3.png), [4](../shots/2026-11-25-issue68-4.png). Digest by Opus; the raw JSON stays in the chat (too large for the repo).
+Owner, 25 Nov 2026 03:13 to 03:14 IST, iPad upright (820 x 1180), preview build ad3bee94, Apple Pencil, Lasso recorder ON. Four traces (pasted in the chat; spans 69 to 99 s, 114 to 143 s, 152 to 179 s, 186 to 211 s of the session) and four photos: [1](../shots/2026-11-25-issue68-1.png), [2](../shots/2026-11-25-issue68-2.png), [3](../shots/2026-11-25-issue68-3.png), [4](../shots/2026-11-25-issue68-4.png). Digest by Opus; the raw JSON was recovered from the chat on 26 Nov (links below).
 
 Raw traces (recovered from the chat, 26 Nov): [1](2026-11-25-issue68-trace-1.json), [2](2026-11-25-issue68-trace-2.json), [3](2026-11-25-issue68-trace-3.json), [4](2026-11-25-issue68-trace-4.json), [5](2026-11-25-issue68-trace-5.json).
 

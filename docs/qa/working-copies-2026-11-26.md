@@ -4,21 +4,21 @@ A list only (plan-after-1a, section 5, step 2a). **Nothing is removed before the
 
 ## Hold work that is not in main (keep, or decide one by one)
 
-| Working copy | Branch | Not in main | Not saved |
-| --- | --- | --- | --- |
-| ln-buildnext | build/next | merged | 131 (the old screenshot edits; never `git commit -a`, `git reset --keep` only) |
-| ln-flaky | fix/flaky-g1 | 8 commits (the stopped test fixes, kept for the test gate) | 0 |
-| ln-s7 | slice/7-reader-v2 | 85 commits | 0 |
-| ln-s15 | slice/15-study-v2 | 36 commits | 0 |
-| ln-s9cost | slice/9-ai-cost | 20 commits | 0 |
-| ln-s0g3 | slice/0g-parts-3 | 18 commits | 0 |
-| ln-s9 | slice/9-ai-framework-6 | 15 commits | 0 |
-| ln-s8b | slice/8b-review-rest | 4 commits | 0 |
-| ln-livecheck | slice/live-check-sha | 2 commits | 0 |
-| ln-2a16 | slice/b11-g5-tb28 | 1 commit | 35 |
-| ln-redfix | slice/fix-ci-red | 1 commit | 0 |
-| ln-sshell | slice/shell-fixes | 1 commit | 3 |
-| ln-fix-pencil-base | (no branch) | – | 0; removed only with the owner (earlier rule) |
+| Working copy       | Branch                 | Not in main                                                | Not saved                                                                      |
+| ------------------ | ---------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| ln-buildnext       | build/next             | merged                                                     | 131 (the old screenshot edits; never `git commit -a`, `git reset --keep` only) |
+| ln-flaky           | fix/flaky-g1           | 8 commits (the stopped test fixes, kept for the test gate) | 0                                                                              |
+| ln-s7              | slice/7-reader-v2      | 85 commits                                                 | 0                                                                              |
+| ln-s15             | slice/15-study-v2      | 36 commits                                                 | 0                                                                              |
+| ln-s9cost          | slice/9-ai-cost        | 20 commits                                                 | 0                                                                              |
+| ln-s0g3            | slice/0g-parts-3       | 18 commits                                                 | 0                                                                              |
+| ln-s9              | slice/9-ai-framework-6 | 15 commits                                                 | 0                                                                              |
+| ln-s8b             | slice/8b-review-rest   | 4 commits                                                  | 0                                                                              |
+| ln-livecheck       | slice/live-check-sha   | 2 commits                                                  | 0                                                                              |
+| ln-2a16            | slice/b11-g5-tb28      | 1 commit                                                   | 35                                                                             |
+| ln-redfix          | slice/fix-ci-red       | 1 commit                                                   | 0                                                                              |
+| ln-sshell          | slice/shell-fixes      | 1 commit                                                   | 3                                                                              |
+| ln-fix-pencil-base | (no branch)            | –                                                          | 0; removed only with the owner (earlier rule)                                  |
 
 ## Merged, but with files not saved (look before removing)
 

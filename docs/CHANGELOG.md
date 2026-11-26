@@ -2,6 +2,13 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 26 Nov 2026: the close-out of phase 1A (plan-after-1a, step 2a)
+
+- **What:** the owner's iPad reading check on the live app passed. Issues: the 12 marked fixed and #45 closed; a `stage-1` label made and every open issue given a stage (except #7, #39, #46 to #49: tests and the docs site); #74 to #87 opened from the real-app page and the owner's taller-box fault; #68 labelled stage-2 by the owner's own line in it. The five raw #68 recordings saved (docs/qa/traces/). The phase row (docs/metrics/phase-results.md and the owner's cross-project log). The list of working copies (docs/qa/working-copies-2026-11-26.md, nothing removed). The product picks of the last week for the owner (docs/qa/picks-1a-closeout.md). STATE rewritten short, with the owner's decisions of 24 and 25 Nov as notes.
+- **Why:** the plan after 1A, section 5, step 2a.
+- **Not done:** the main clone could not fast-forward (pictures in its screenshots folder that are not committed would be overwritten); it waits for the owner.
+- **Files:** docs/STATE.md, docs/CHANGELOG.md, docs/metrics/phase-results.md, docs/qa/working-copies-2026-11-26.md, docs/qa/picks-1a-closeout.md, docs/qa/traces/.
+
 ### 26 Nov 2026: the release path: the same app code is tested in full once, and a notes-only commit no longer stops a publish
 
 - **What:** `.github/workflows/ci.yml`: a new job `proven` (main only) looks for an earlier CI run whose full set (every `e2e` and `pencil-webkit` job) passed on exactly this app code, that is, with no file different outside `docs/`, `rules/`, `.claude/`, `.github/` and the `*.md` files at the top of the repo, in a run of main or build/next (`.github/scripts/find-proven-run.mjs`). When it finds one, `e2e` and `pencil-webkit` are skipped and `deploy` follows the checks; any doubt (an error, a commit that is gone, a job that did not pass, too few jobs) gives "none" and the full set runs as before; a run by hand with "full" ticked always runs the full set. The deploy step "Skip if main has moved on" now compares the code, not the commit id: a newer commit that changes only `docs/` or `*.md` starts no run of its own, so it no longer stops the publish. No test and no app file changed.

@@ -7,10 +7,18 @@ The plan: [plans/plan-after-1a.md](plans/plan-after-1a.md) (third version); olde
 ## Now (26 Nov 2026)
 
 - **PHASE 1A IS LIVE** since 26 Nov, 01:31 IST: main 7e53ae5d (the merge of pull request #70), live `version.json` = 7e53ae5d (checked by the run and by hand). The owner's iPad reading check on the live app passed (26 Nov, "Reading, okay").
-- **The plan to follow:** docs/plans/plan-after-1a.md (third version). It waits for the owner's yes; until then: step 2a (the close-out of 1A) and the read-only proofs of its section 6.
+- **The plan to follow:** docs/plans/plan-after-1a.md (third version). **The owner said yes on 26 Nov, with a review afterwards.** To go on with the planning: a new Fable chat reads [plans/fable-handoff-2026-11-26.md](plans/fable-handoff-2026-11-26.md).
 - **A release from now on:** a full run by hand on build/next ("full" ticked) is green → the owner's yes → merge the pull request → the run on main finds that proof and publishes in about 10 minutes → check the live `version.json`.
 - **The unsteady tests are diagnosed, not fixed yet:** docs/qa/unsteady-tests-2026-11-26/README.md. Issues #71, #72, #73. Do not add waits to these tests; read the reports.
-- **Branches:** build/next was moved forward to main after the release (same content). No pull request is open; the next one is opened with the next change.
+- **Branches:** build/next is ahead of main with the #71 and #72 fixes (15c8f878, not live). No pull request is open; the next one is opened with the next change.
+
+## Resume here (next chat, after the PC restart of 26 Nov night)
+
+1. **Test gate (plan section 5, step 3).** build/next 15c8f878 holds the #71 and #72 app fixes (each with a test that failed first; 20/20 on chromium and ipad-webkit). Branch slice/g1-test-causes (ln-g1-tests, not merged, not reviewed): causes 2, 3, 4 (frame-time note in every iPad-engine result), 6 and tb2-bar:407 by position. Not done there: the 20/20 proofs, the blur frame-time numbers (probe.yml cannot be dispatched until it is on the default branch), the audit of other tests with the same pattern. Its full CI run 45747467400: read the result first. Review it once before merging; look hard at cause 2 (a pen touch repeated until the mode is Pencil: make sure it is a wait for a state, not a retry that hides a fault; F9).
+2. **Step 2b (rule files), part done, NOT in force.** Branch docs/rules-2b (ln-rules, 447eed76): CLAUDE.md and docs/METHOD-v2.md changed, the owner's list docs/plans/rule-changes-2026-11-26.md (on that branch) with 5 questions. Left: phase-1m-build-machine.md, stage-1-plan.md, builder.md, reviewer.md, phase-manager.md, the new part-manager.md and test-writer.md, the two STATE fixed facts; then a CHANGELOG entry and a DECISIONS line per Owner-settings change; then the check by a fresh helper; then merge to main. The undo mark: tag rules-before-2b-2026-11-26. Until the fresh check, work by the old rules. The list waits for the owner's review (say so in each daily message).
+3. **The advisor** (/advisor opus) was turned on by the owner on 26 Nov; counting tries and usage per part starts at the first 1B day part.
+4. Then the #68 Pencil taps (step 4), then 1B (section 6). To go on with the planning: a new Fable chat reads plans/fable-handoff-2026-11-26.md.
+5. Leftovers after the restart: the git notes in the main clone's .git/worktrees for the 45 removed copies, and some left node_modules folders (Permission denied on 26 Nov); try `git worktree prune` once.
 
 ## Close-out of 1A (step 2a), 26 Nov
 
@@ -19,11 +27,11 @@ Done:
 - Issues: the 12 fixed ones and #45 are closed. Stage labels are on the open issues (the stage-1 label was made; #7, #39, #46 to #49 have none: tests and docs site). New issues #74 to #87 from the real-app page and the owner's taller-box fault (#87). #68 is labelled stage-2 by the owner's line in it.
 - The phase row is in docs/metrics/phase-results.md.
 - The five raw #68 recordings are in docs/qa/traces/.
-- The working-copy list: docs/qa/working-copies-2026-11-26.md (nothing removed).
+- The working-copy list: docs/qa/working-copies-2026-11-26.md. On the owner's yes (26 Nov), 45 merged and clean copies were removed (no branch deleted).
 - The picks list for the owner: docs/qa/picks-1a-closeout.md.
-- The main clone could NOT fast-forward (untracked screenshots would be overwritten). It waits for the owner.
+- The main clone was fast-forwarded to main on the owner's yes (26 Nov), after its 123 clashing untracked pictures were copied to C:/Users/pc/Downloads/learning-notes-untracked-backup-2026-11-26/; `npm ci` done.
 
-Still open in 2a: main merged into build/next after the docs push.
+All of 2a is done. The owner kept the six product picks; AB-05 wins over the picture (issue #88).
 
 ## Owner decisions of 24 and 25 Nov, as notes (no rule file changed before step 2b)
 

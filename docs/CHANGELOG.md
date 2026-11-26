@@ -2,11 +2,18 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 26 Nov 2026, afternoon: the proofs of the notebook spec, the owner's answers, the approved spec, and the first findings of the test gate
+
+- **What:** (1) The proofs page [docs/plans/phases/phase-1b-proofs/](plans/phases/phase-1b-proofs/README.md): four read-only reports on what the code has for the notebook spec, with the facts that corrected four sentences of the spec. (2) The owner's answers after the proofs (talk notes, sections 5N, 5O, 5Q): the front page is a preset (NB-98); the shape that holds text; the tap on the edge line of a shape; the import by hand in stage 1 ("So will be A", NB-99, NB-46); the same row of options on all chapters; "Continue reading" on all devices; the yes to the spec ("Go ahead with your pick"). (3) The approved spec moved to docs/features/claude-notebook.md. (4) The test gate: the full run on slice/g1-test-causes (45747467400) had two reds. TB-42 (e2e/toolbarV8Text.spec.ts:390): the machine drew one frame in 464 ms (cause 4). TB-33 (e2e/toolbarV8Tools.spec.ts:442): the machine drew normally; the first pen touch switched the app to Pencil mode by the clock and the line was not saved. One review: merge after four fixes. The fixes are made on that branch by the same builder.
+- **Why:** the plan after 1A, section 5 (step 3, the test gate) and section 6; the owner's answers of 26 Nov.
+- **Not done:** the four fixes of the review are not merged yet; main is not merged into build/next yet (it goes with the merge of slice/g1-test-causes, DECISIONS 26 Nov). The rule files are not changed; the list of rule changes waits for the owner's review.
+- **Files:** docs/plans/phases/phase-1b-proofs/, docs/plans/phases/phase-1b-notebook-talk.md, docs/features/claude-notebook.md, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 26 Nov 2026: the close-out of phase 1A (plan-after-1a, step 2a)
 
 - **What:** the owner's iPad reading check on the live app passed. Issues: the 12 marked fixed and #45 closed; a `stage-1` label made and every open issue given a stage (except #7, #39, #46 to #49: tests and the docs site); #74 to #87 opened from the real-app page and the owner's taller-box fault; #68 labelled stage-2 by the owner's own line in it. The five raw #68 recordings saved (docs/qa/traces/). The phase row (docs/metrics/phase-results.md and the owner's cross-project log). The list of working copies (docs/qa/working-copies-2026-11-26.md, nothing removed). The product picks of the last week for the owner (docs/qa/picks-1a-closeout.md). STATE rewritten short, with the owner's decisions of 24 and 25 Nov as notes.
 - **Why:** the plan after 1A, section 5, step 2a.
-- **Not done:** the main clone could not fast-forward (pictures in its screenshots folder that are not committed would be overwritten); it waits for the owner.
+- **Done later, on the owner's yes of 26 Nov:** the main clone was fast-forwarded to main after its 123 clashing untracked pictures were copied to a backup folder (commit 790e5588, docs/qa/working-copies-2026-11-26.md); the 45 merged and clean working copies were removed. (At first the fast-forward could not be done, because the pictures would have been overwritten.)
 - **Files:** docs/STATE.md, docs/CHANGELOG.md, docs/metrics/phase-results.md, docs/qa/working-copies-2026-11-26.md, docs/qa/picks-1a-closeout.md, docs/qa/traces/.
 
 ### 26 Nov 2026: the release path: the same app code is tested in full once, and a notes-only commit no longer stops a publish

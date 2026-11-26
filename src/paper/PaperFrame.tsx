@@ -2150,6 +2150,8 @@ export function PaperFrame({
     t: number
     /** The farthest the pointer got from the press (a closed loop ends where it began). */
     far: number
+    /** The box state at the press: a mouse moves the focus then, before the release (#71). */
+    bs: typeof bsRef.current
   } | null>(null)
   const lastCreate = useRef<{ t: number; x: number; y: number } | null>(null)
   const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -2184,12 +2186,12 @@ export function PaperFrame({
     // paper only deselects; the next tap makes a box.
     // C11: typing in a box that was never picked ("fresh") is not a
     // selection: the tap goes on and makes the next box (TB-06, C27).
-    const now = bsRef.current
+    const now = down.bs
     if (now.kind === 'typing' && now.fresh) send({ type: 'clear' })
     else if (now.kind !== 'idle') {
       // Text box v2 (C11): the first tap outside ends typing and leaves the box
       // selected; the second tap outside selects nothing.
-      if (isOn('textbox.v2') && bsRef.current.kind === 'typing')
+      if (isOn('textbox.v2') && now.kind === 'typing')
         send({ type: 'caretOut' })
       else {
         send({ type: 'clear' })
@@ -2549,6 +2551,7 @@ export function PaperFrame({
                   y: e.clientY,
                   t: Date.now(),
                   far: 0,
+                  bs: bsRef.current,
                 }
                 penDown(e)
                 // Hold on blank paper: "Start typing here" (loads on demand).

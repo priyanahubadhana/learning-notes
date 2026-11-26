@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /** Real use on an iPad size (2A.11 step 5): turn the screen, scroll the card, reload, open and close. */

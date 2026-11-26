@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 import { makePdf } from './fixtures/books.ts'
 import { addHighlights } from './fixtures/highlights.ts'
 

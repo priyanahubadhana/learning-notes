@@ -60,11 +60,15 @@ export const test = base.extend<{ frameTimeNote: void }>({
       if (!testInfo.project.name.includes('ipad')) return
       if (page.isClosed()) return
       const ms = await frameTime(page)
-      testInfo.annotations.push({
-        type: 'frame time',
-        description:
-          ms === null ? 'no frame in 3000 ms' : `${ms.toFixed(1)} ms per frame`,
-      })
+      const text =
+        ms === null ? 'no frame in 3000 ms' : `${ms.toFixed(1)} ms per frame`
+      testInfo.annotations.push({ type: 'frame time', description: text })
+      // The list reporter does not print annotations: a failed test says it
+      // in the log, so a machine that is not drawing is seen at once.
+      if (testInfo.status !== testInfo.expectedStatus)
+        console.log(
+          `FRAMETIME ${testInfo.project.name} ${testInfo.title.slice(0, 60)}: ${text}`,
+        )
     },
     { auto: true },
   ],

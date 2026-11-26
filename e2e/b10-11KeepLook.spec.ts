@@ -1,5 +1,5 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 
 /**
  * B10-11: Settings names the paste choice "Keep look", the same words as the

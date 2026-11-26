@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 
 /**
  * Slices 0c/0d (docs/features/foundation-input.md): the event and gesture

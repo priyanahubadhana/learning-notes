@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { caretAtEnd, openV8, stubClipboard } from './c0Clipboard.ts'
 

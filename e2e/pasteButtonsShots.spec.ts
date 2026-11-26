@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { test, type Page } from '@playwright/test'
+import { test, type Page } from './frameFixture.ts'
 import { mkdirSync } from 'node:fs'
 import { openNote, tool } from './mainBarHelpers.ts'
 

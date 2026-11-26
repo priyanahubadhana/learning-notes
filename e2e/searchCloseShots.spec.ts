@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { test } from './frameFixture.ts'
 import { createNotebook, openSearchPopup, typeInEditor } from './helpers.ts'
 
 /**

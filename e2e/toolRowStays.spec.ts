@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 import { closeSidebarIfNarrow, startInMode } from './helpers.ts'
 import { addBox, EXTRA, pick, start } from './cBoxesHelpers.ts'
 

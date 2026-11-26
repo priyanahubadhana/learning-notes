@@ -96,8 +96,8 @@ const sum = (gaps: number[]) => {
   return `${gaps.length} frames in the window, median ${q(0.5).toFixed(1)} ms, p90 ${q(0.9).toFixed(1)} ms, worst ${s[s.length - 1].toFixed(1)} ms`
 }
 
-for (const look of ['blur', 'lite', 'blur', 'lite'] as const) {
-  for (let round = 0; round < 3; round++) {
+for (const look of ['blur', 'lite'] as const) {
+  for (let round = 0; round < 6; round++) {
     test(`bar frames: ${look} (${round})`, async ({ page }) => {
       const box = await ready(
         page,
@@ -115,7 +115,11 @@ for (const look of ['blur', 'lite', 'blur', 'lite'] as const) {
       await expect(page.locator('[data-picked]')).toHaveCount(1)
       await expect(page.locator('[data-box-bar]')).toHaveCount(1)
       const { gaps } = await during
-      const text = `${look}: before the bar ${sum(quiet.gaps)}; around its first show ${sum(gaps)}`
+      // The app's own frame probe may turn the blur off by itself: say what the page had at the end.
+      const glass = await page.evaluate(
+        () => document.documentElement.dataset.glass ?? 'blur',
+      )
+      const text = `${look} (glass at the end: ${glass}): before the bar ${sum(quiet.gaps)}; around its first show ${sum(gaps)}`
       test.info().annotations.push({ type: 'bar frames', description: text })
       console.log(`BARFRAMES ${test.info().project.name} ${text}`)
     })

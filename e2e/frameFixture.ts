@@ -70,6 +70,7 @@ export const test = base.extend<{ frameTimeNote: void }>({
           `FRAMETIME ${testInfo.project.name} ${testInfo.title.slice(0, 60)}: ${text}`,
         )
     },
-    { auto: true },
+    // Its own time limit: the note never eats the test's own time.
+    { auto: true, timeout: 5_000 },
   ],
 })

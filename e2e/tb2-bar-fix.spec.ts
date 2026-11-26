@@ -21,7 +21,11 @@ test.use({
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 const rect = async (l: Locator) => (await l.boundingBox())!
 
-async function start(page: Page, name: string, mode: 'computer' = 'computer') {
+async function start(
+  page: Page,
+  name: string,
+  mode: 'computer' | 'pencil' = 'computer',
+) {
   await page.addInitScript(() => {
     localStorage.setItem('learning-notes:flags', '["textbox.v2"]')
     const w = window as unknown as { __clip: string[]; __paste: string }
@@ -118,49 +122,34 @@ const centre = async (l: Locator) => {
 
 async function ready(page: Page) {
   await installRealPen(page)
-  await start(page, 'Fix' + Math.random().toString(36).slice(2, 6))
+  // Pencil mode from the start: the first Pencil touch of a Computer-mode page
+  // switches it to Pencil mode (when no key was pressed for 1.5 s) and the page
+  // moves, which depends on how long the setup took. No switch, no clock.
+  await start(page, 'Fix' + Math.random().toString(36).slice(2, 6), 'pencil')
   const box = await addBox(page, 'Alpha beta', 300)
   await pick(page, box)
-  await intoPencilMode(page)
+  await dockSettled(page)
   await expect(bar(page)).toHaveCount(1)
   return box
 }
 
 /**
- * The first Pencil touch of a Computer-mode page switches it to Pencil mode
- * (unless a key was pressed in the last 1.5 s) and the page moves 10 px. The
- * tests read positions, so the switch is made here, before any is read: a
- * Pencil touch on the page's root, repeated until the mode is Pencil (the
- * outcome does not depend on how long the setup took), then the page settles.
+ * The docked top stack tells the page its height through --dock-top (set by a
+ * ResizeObserver): positions are read only when the two agree.
  */
-async function intoPencilMode(page: Page) {
+async function dockSettled(page: Page) {
   await expect
-    .poll(
-      async () => {
-        await page.evaluate(() => {
-          const mk = (type: string, buttons: number) =>
-            new PointerEvent(type, {
-              pointerType: 'pen',
-              pointerId: 41,
-              isPrimary: true,
-              clientX: 1,
-              clientY: 1,
-              button: 0,
-              buttons,
-              bubbles: true,
-              composed: true,
-            })
-          document.documentElement.dispatchEvent(mk('pointerdown', 1))
-          document.documentElement.dispatchEvent(mk('pointerup', 0))
-        })
-        return page.evaluate(() =>
-          localStorage.getItem('learning-notes:general.deviceMode'),
+    .poll(() =>
+      page.evaluate(() => {
+        const stack = document.querySelector<HTMLElement>(
+          '[data-bar="docked"][data-placement="top"]',
         )
-      },
-      { message: 'the page is in Pencil mode' },
+        const set =
+          document.documentElement.style.getPropertyValue('--dock-top')
+        return stack ? set === stack.offsetHeight + 'px' : true
+      }),
     )
-    .toBe('"pencil"')
-  await expect(page.getByText('Switched to Pencil mode')).toBeVisible()
+    .toBe(true)
 }
 
 for (const side of ['right', 'left'] as const) {

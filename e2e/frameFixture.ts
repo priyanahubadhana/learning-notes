@@ -99,14 +99,21 @@ export const test = base.extend<{ frameTimeNote: void }>({
               if (add()) o.disconnect()
             }).observe(document, { childList: true })
         })
-      // PROBE_NOSHADOW=all|cards: box-shadow off everywhere, or on the cards only.
+      // PROBE_NOSHADOW=all|cards|sheet|handles|scroller|rest: box-shadow off on that group only.
       if (process.env.PROBE_NOSHADOW)
         await page.addInitScript((which) => {
           const s = document.createElement('style')
-          s.textContent =
-            which === 'cards'
-              ? '.pcard,.cs__bar,.cs-pick,.cl,.fb-dialog,.fb-sheet{box-shadow:none!important}'
-              : '*,*::before,*::after{box-shadow:none!important}'
+          const css: Record<string, string> = {
+            all: '*,*::before,*::after{box-shadow:none!important}',
+            cards:
+              '.pcard,.cs__bar,.cs-pick,.cl,.fb-dialog,.fb-sheet{box-shadow:none!important}',
+            sheet: '[data-paper-sheet]{box-shadow:none!important}',
+            handles: '.shadow-md{box-shadow:none!important}',
+            scroller:
+              '[class*="shadow-[var(--elev-1)]"]{box-shadow:none!important}',
+            rest: '*:not(.pcard,.cs__bar,.cs-pick,.cl,.fb-dialog,.fb-sheet):not(.glass):not(.glass-flat){box-shadow:none!important}',
+          }
+          s.textContent = css[which as string] ?? css.all
           const add = () => {
             const r = document.documentElement
             if (!r) return false

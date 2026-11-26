@@ -68,9 +68,10 @@ jobs:
           PROBE_FILES: g1Frames
           PROBE_TRACE: 'off'
           PROBE_LABEL: action-2w
+          PROBE_VARIANTS: asis,shsheet,shhandles,shscroller,shrest
         run: |
           npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=2 --repeat-each=2 --grep "action frames" --reporter=list --output=results/action 2>&1 | tee -a probe.log | grep -E "G1ACTION|passed|failed|Error" | cut -c1-400 || true
-      - name: TB-42 and TB-75, interleaved variants (round 3)
+      - name: TB-42 and TB-75, interleaved variants (round 4)
         env:
           PROBE_FILES: 'toolbarV8Text|toolbarV8Tuck'
           PROBE_LOG: '1'
@@ -84,13 +85,15 @@ jobs:
             echo "=== VARIANT $1 end $(date +%s)"
           }
           mkdir -p results
-          for r in 1 2 3; do
-            case $r in 1) order="A B C" ;; 2) order="C B A" ;; 3) order="B C A" ;; esac
+          for r in 1 2; do
+            case $r in 1) order="A B C D E" ;; 2) order="E D C B A" ;; esac
             for v in $order; do
               case $v in
                 A) run "asis-r$r" "" ;;
-                B) run "noshadow-all-r$r" all ;;
-                C) run "noshadow-cards-r$r" cards ;;
+                B) run "noshadow-sheet-r$r" sheet ;;
+                C) run "noshadow-handles-r$r" handles ;;
+                D) run "noshadow-scroller-r$r" scroller ;;
+                E) run "noshadow-rest-r$r" rest ;;
               esac
             done
           done

@@ -179,6 +179,9 @@ const STYLE: Record<string, string> = {
   shcards:
     '.pcard,.cs__bar,.cs-pick,.cl,.fb-dialog,.fb-sheet{box-shadow:none!important}',
   shglass: '.glass,.glass-flat{box-shadow:none!important}',
+  shsheet: '[data-paper-sheet]{box-shadow:none!important}',
+  shhandles: '.shadow-md{box-shadow:none!important}',
+  shscroller: '[class*="shadow-[var(--elev-1)]"]{box-shadow:none!important}',
   shrest:
     '*:not(.pcard,.cs__bar,.cs-pick,.cl,.fb-dialog,.fb-sheet):not(.glass):not(.glass-flat){box-shadow:none!important}',
 }
@@ -220,7 +223,9 @@ for (const dsf of [2]) {
       await typeInEditor(page, 'The nucleus holds the DNA')
       await page.locator('.bn-editor').first().click()
       const c = page.getByTestId('v8-card-text.box')
-      const variants = ['asis', 'noshadow', 'shcards', 'shglass', 'shrest']
+      const variants = (
+        process.env.PROBE_VARIANTS ?? 'asis,noshadow,shcards,shglass,shrest'
+      ).split(',')
       for (let rep = 0; rep < 3; rep++)
         for (const v of rep % 2 ? [...variants].reverse() : variants) {
           await look(page, v)

@@ -2,9 +2,9 @@
 
 **Status: approved by the owner on 26 Nov 2026. Opus builds from this page.** The owner, asked whether Opus may build from it, with the choices "yes, with Fable's marked readings", "yes to the owner's own lines only" and "not yet": "Go ahead with your pick", which was the first. This is the tenth draft, after three audit rounds, the proofs, the owner's answers of 26 Nov, a final audit and a check of its fixes.
 
-What the yes covers: the owner's own lines, and Fable's readings, each marked as Fable's (the list is in section 8). If a reading turns out wrong when the owner sees the real thing, the owner says so and the line is changed. What the yes does not cover: the two points that are asked with the real thing on the preview (section 8, the daily list); the time; and the look, which is approved only on a real chapter (section 7). A line is changed only by the owner and keeps its id. The facts marked "Proof" were read from the code on 26 Nov ([the proofs](phase-1b-proofs/README.md)); some points still wait for a look in the running app or on the iPad (section 8), and if such a look goes against a line, the question goes to the owner. Opus moves this page to `docs/features/`.
+What the yes covers: the owner's own lines, and Fable's readings, each marked as Fable's (the list is in section 8). If a reading turns out wrong when the owner sees the real thing, the owner says so and the line is changed. What the yes does not cover: the two points that are asked with the real thing on the preview (section 8, the daily list); the time; and the look, which is approved only on a real chapter (section 7). A line is changed only by the owner and keeps its id. The facts marked "Proof" were read from the code on 26 Nov ([the proofs](../plans/phases/phase-1b-proofs/README.md)); some points still wait for a look in the running app or on the iPad (section 8), and if such a look goes against a line, the question goes to the owner. Opus moved this page to `docs/features/` on 26 Nov 2026 (it was `docs/plans/phases/phase-1b-notebook-spec-draft.md`).
 
-Where it comes from: [the talk notes](phase-1b-notebook-talk.md) (the owner's words, the code check, the walk-through, the audits). The plan it belongs to: [the plan after phase 1A](../plan-after-1a.md).
+Where it comes from: [the talk notes](../plans/phases/phase-1b-notebook-talk.md) (the owner's words, the code check, the walk-through, the audits). The plan it belongs to: [the plan after phase 1A](../plans/plan-after-1a.md).
 
 ## How to read this page
 
@@ -155,7 +155,7 @@ Finger, Pencil and mouse. The tablet upright and sideways, the PC, and the phone
 
 - **The first notebook:** "Claude skills", with chapters such as: What a skill is; How a skill loads; Writing a good skill; Do skills work? The evidence; Best practices; Skills, hooks and helpers.
 - **A diagram in a box, from that notebook:** one text box "What loads when", with four shapes that hold text (Name and description; Body; Extra files; Scripts) and an arrow from each to the next.
-- **The owner's own diagram of 25 Nov** ([the picture](../../mockups/notebook-look/owner-try-2026-11-25.png)): one text box with the words "Opus → two manager →", two arrows down, and under each arrow a circle to type in: "manager 1", "manager 2".
+- **The owner's own diagram of 25 Nov** ([the picture](../mockups/notebook-look/owner-try-2026-11-25.png)): one text box with the words "Opus → two manager →", two arrows down, and under each arrow a circle to type in: "manager 1", "manager 2".
 - **The Summary the owner means:** of the owner's five reference pictures, the "bacterial cell" page is the nearest: one picture in the middle and short labels joined to it.
 
 **The front page, in the owner's example (26 Nov).** A notebook is named "My name is Priyanshu". Its chapters are "My son's name is", "My wife's name is", "My brother's name is", "My parents' name is". A tap on "My name is Priyanshu" opens the front page of that notebook. A tap on "My wife's name is" opens that chapter.
@@ -174,7 +174,7 @@ Each part of this spec also fills the "Design and quality check" that every spec
 
 **Answered by the owner on 25 Nov after the audits:** the Summary is the page of NB-13; a notebook has a front page, and a tap on its name or on the address row opens it (NB-92; where it sits was answered on 26 Nov: NB-50); the chapters show there as a database (NB-57, from the owner's words of 25 Nov); a notebook brought in again asks before it replaces (NB-42); the three points on the shape (NB-78, NB-93, NB-95) and the dots (NB-94); everything is imported in stage 1, in two steps (NB-41); the 10 Nov rule holds, sticky boxes too (NB-86); NB-42 and NB-52 are confirmed.
 
-**The proofs (26 Nov, from the code; the full facts are in [the proofs](phase-1b-proofs/README.md))**
+**The proofs (26 Nov, from the code; the full facts are in [the proofs](../plans/phases/phase-1b-proofs/README.md))**
 
 - NB-41: the app's own notebook file already carries a whole notebook; "Paste notes" cannot. New is a form that Claude can write. Today's readers refuse a whole file for one bad part and drop some parts with no word, so NB-43 is new work.
 - NB-13 and NB-45: the Summary holds a short typed text and a list of lines. A page has one sheet. A Summary of boxes is new and large; the empty Summary after an import is a small fix.

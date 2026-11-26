@@ -4,7 +4,7 @@
 
 **What this page is.** The one page Opus follows after phase 1A. It holds what the owner and Fable decided on 25 Nov 2026, with every lesson of phase 1A applied. It replaces, as an instruction, the block "Start here" and sections 0, 4, 7, 13 and 14 of [the Fable review](fable-review-2026-11-25.md). Four parts of the review still instruct: section 5 (the quick Pencil taps); section 6 (where each pending wish and issue is placed); section 13.2 (the big spec: a line is changed only by the owner and keeps its id; an older spec file gets the head line "replaced by" and nothing is deleted); and the table of section 14.6 (what is built only when a named fault happens, which the owner accepted on 25 Nov). The rest of the review is the record of the talk. Where the two differ, this page wins.
 
-**The other pages that hold:** [the notebook spec](phases/phase-1b-notebook-spec-draft.md) (approved by the owner on 26 Nov; Opus moves it to `docs/features/`); [the talk notes](phases/phase-1b-notebook-talk.md); [the earlier decisions, collected](earlier-decisions/README.md); `docs/STATE.md` (where the work stands, kept by Opus).
+**The other pages that hold:** [the notebook spec](../features/claude-notebook.md) (approved by the owner on 26 Nov; Opus moves it to `docs/features/`); [the talk notes](phases/phase-1b-notebook-talk.md); [the earlier decisions, collected](earlier-decisions/README.md); `docs/STATE.md` (where the work stands, kept by Opus).
 
 ## 1. The targets
 
@@ -144,7 +144,7 @@ The owner, 25 Nov: no hard rules on how Opus works; hard rules restricted Opus i
 
 **What it is for:** "I can use the app every day."
 
-**What is built:** [the notebook spec](phases/phase-1b-notebook-spec-draft.md), which the owner approved on 26 Nov; the editing path of the stage-1 plan (its parts E2 to E10: the twelve actions with no blocking fault, data safety, the side-by-side check and the owner's test T1B); and what section 6 of the review places in 1B (#50, #42, #52 to #54, the board, the found wishes).
+**What is built:** [the notebook spec](../features/claude-notebook.md), which the owner approved on 26 Nov; the editing path of the stage-1 plan (its parts E2 to E10: the twelve actions with no blocking fault, data safety, the side-by-side check and the owner's test T1B); and what section 6 of the review places in 1B (#50, #42, #52 to #54, the board, the found wishes).
 
 **An order inside 1B** (Fable's proposal; Opus sizes it and may change it, and records why):
 

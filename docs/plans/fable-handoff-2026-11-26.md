@@ -4,7 +4,7 @@
 
 ## Update, 26 Nov, evening: the planning of phase 1B is closed
 
-- **The notebook spec has the owner's yes** (26 Nov, with Fable's marked readings): [the spec](phases/phase-1b-notebook-spec-draft.md). Opus builds from it and moves it to `docs/features/`.
+- **The notebook spec has the owner's yes** (26 Nov, with Fable's marked readings): [the spec](../features/claude-notebook.md). Opus builds from it and moves it to `docs/features/`.
 - **How it got there:** the proofs were made by reading the code ([the proofs](phases/phase-1b-proofs/README.md)); the owner answered two short rounds of questions and one last question; a fresh helper audited the spec and a second one checked the fixes. The record is in [the talk notes](phases/phase-1b-notebook-talk.md), sections 5M to 5Q.
 - **Left for Opus:** the looks in the running app (the proofs, section 4), first of all whether a pen mark stays on its words at another width; the sized estimate for phase 1B; the two points that are asked of the owner with the real thing on the preview (the spec, section 8).
 - **No planning step is open.** The next planning talk with Fable is for the phase part after 1B; the owner opens it.
@@ -22,7 +22,7 @@
 - **Why it would not go live, and what was changed:** the same code had to pass every test twice in a row, the full test set passed only about one time in ten, and a notes-only change on main could stop a publish. Now the same app code is tested in full once, and notes cannot stop a publish. The release then took 8 minutes.
 - **The unsteady tests:** their causes were read from the recordings. Two were real faults in the app (a mouse click outside a box could drop the selection; the first pen stroke in a new box was saved late). Opus has fixed both on the code line; they are not live yet. The faults in the tests themselves, and the hosted machines that redraw the page about once a second, are Opus's work now. Until that is done, a full test run still passes only about one time in ten, so the next release waits for it.
 - **The plan page has your yes** (26 Nov), with a review afterwards: [the plan after phase 1A](plan-after-1a.md). Opus works by it.
-- **The notebook that Claude writes** (phase 1B): [the spec, fifth draft](phases/phase-1b-notebook-spec-draft.md). What you want is written down and every question you were asked is answered. The detailed lines of what the app does are not final yet.
+- **The notebook that Claude writes** (phase 1B): [the spec, fifth draft](../features/claude-notebook.md). What you want is written down and every question you were asked is answered. The detailed lines of what the app does are not final yet.
 
 ## What you decided in this talk (25 and 26 Nov)
 

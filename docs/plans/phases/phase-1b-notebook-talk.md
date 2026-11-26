@@ -313,7 +313,7 @@ Fable's picks for the two had been the wrong way round.
 
 ## 5I. The walk-through of the draft spec (begun 25 Nov)
 
-The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) group by group. A line is approved only by the owner's yes.
+The owner and Fable go through [the draft](../../features/claude-notebook.md) group by group. A line is approved only by the owner's yes.
 
 **Group 1, what a notebook is (NB-01 to NB-15):**
 
@@ -346,7 +346,7 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 3. The Fable review itself: places that told Opus two different things; stale proposals not marked; steps that, followed to the letter, could remove working copies with unsaved work.
 4. The state of the project and every lesson of phase 1A.
 
-**What was done with it:** the third draft of [the spec](phase-1b-notebook-spec-draft.md); one compiled page, [the plan after phase 1A](../plan-after-1a.md); a safety note in the review. Three questions to the owner came out of the audits (the spec, section 8).
+**What was done with it:** the third draft of [the spec](../../features/claude-notebook.md); one compiled page, [the plan after phase 1A](../plan-after-1a.md); a safety note in the review. Three questions to the owner came out of the audits (the spec, section 8).
 
 ## 5K. Round 2 of the audits, the owner's answers, and the release that did not publish (25 and 26 Nov)
 

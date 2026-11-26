@@ -1,6 +1,6 @@
 # The proofs for the notebook spec (26 Nov 2026)
 
-**What this page is.** The facts that [the notebook spec](../phase-1b-notebook-spec-draft.md) waited for (its list "For Opus to prove", section 8). They say what the app does today, what is new work, and where a spec line was wrong. The spec's sixth draft holds these facts.
+**What this page is.** The facts that [the notebook spec](../../../features/claude-notebook.md) waited for (its list "For Opus to prove", section 8). They say what the app does today, what is new work, and where a spec line was wrong. The spec's sixth draft holds these facts.
 
 **How they were made.** Four helpers (Opus) read the code. They changed nothing, ran nothing and signed in nowhere. Fable started them on 26 Nov, because the build's own list for that day did not name the proofs and the planning waited for them. Fable then checked the main claims of each report against the code. The code that was read: `main` at `fcc433f3` (the app code of the live version `7e53ae5d`). The code line `build/next` differs only by the fixes of #71 and #72.
 

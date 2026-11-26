@@ -38,6 +38,7 @@ export const FLAG_IDS = [
   'system.v2',
   'storage.safety',
   'journal.monthRepair',
+  'look.calmEdge',
 ] as const
 
 export type FlagId = (typeof FLAG_IDS)[number]
@@ -86,6 +87,12 @@ export const PREVIEW_DEFAULT_ON: readonly FlagId[] = [
   'journal.monthRepair',
 ]
 
+/**
+ * Parts ON on the preview host only, until the owner says yes (the live site
+ * does not get them). 'look.calmEdge': the paper look "B Calm edge" (27 Nov 2026).
+ */
+const PREVIEW_ONLY_ON: readonly FlagId[] = ['look.calmEdge']
+
 /** The live site. Owner, 25 Nov 2026 (phase 1A live, option A): it starts with the preview's parts ON. */
 const LIVE_HOST = 'learning-notes-app.pages.dev'
 
@@ -97,7 +104,8 @@ const LIVE_HOST = 'learning-notes-app.pages.dev'
  * always wins. The live host never gets the once-per-phase marker.
  */
 function defaults(): Set<FlagId> {
-  if (isPreviewHost()) return new Set(PREVIEW_DEFAULT_ON)
+  if (isPreviewHost())
+    return new Set([...PREVIEW_DEFAULT_ON, ...PREVIEW_ONLY_ON])
   if (globalThis.location?.hostname === LIVE_HOST)
     return new Set([...PREVIEW_DEFAULT_ON, ...presetFlags(PREVIEW_PHASE)])
   return new Set()

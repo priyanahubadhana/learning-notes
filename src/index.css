@@ -1414,3 +1414,25 @@ html[data-box-drag] {
 [data-paper][data-box-v2]:has([data-picked], [data-main-picked]) .bn-side-menu {
   display: none;
 }
+
+/* Paper look "B Calm edge" (switch look.calmEdge, set on <html> by App). A grey
+   page area, the paper in its own colour, no shadow, and a hairline drawn on
+   the still shadow layers (nothing repaints while drawing). Not on a phone,
+   where the paper fills the screen. */
+@media not ((width < 40rem) or (height < 32rem)) {
+  :root[data-look='calm-edge'] main[data-page-scroller]:has([data-paper-sheet]) {
+    background-color: var(--look-page);
+  }
+  :root[data-look='calm-edge'] [data-paper-sheet] {
+    background-color: var(--look-paper);
+    background-clip: padding-box;
+    border-color: transparent;
+  }
+  :root[data-look='calm-edge'] [data-paper-shadow] {
+    box-shadow: none;
+    border: 1px solid var(--look-edge);
+  }
+  :root[data-look='calm-edge'] [data-page-shadow] {
+    box-shadow: none;
+  }
+}

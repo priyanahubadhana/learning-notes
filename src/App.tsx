@@ -724,6 +724,15 @@ function App() {
   const tree = useTreeState()
   const shellOn = useFlag('foundation.shell')
   const settingsV3 = useFlag('settings.v3')
+  const calmEdge = useFlag('look.calmEdge')
+  useEffect(() => {
+    const root = document.documentElement
+    if (calmEdge) root.dataset.look = 'calm-edge'
+    else delete root.dataset.look
+    return () => {
+      delete root.dataset.look
+    }
+  }, [calmEdge])
   const [theme, setTheme] = useDeviceSetting(themeSetting)
   // Dates follow this setting everywhere; changing it re-draws the app.
   const [dateStyle] = useDeviceSetting(dateStyleSetting)

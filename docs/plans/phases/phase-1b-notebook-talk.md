@@ -208,7 +208,7 @@ A helper checked each wish against the code, not against the specs. Opus confirm
 - Lines that stay joined to boxes. Rotating a box or a sticky note. A group that holds ink: a group holds boxes only. (So audit point A2 needs care: today the arrows of a diagram do not move with a group of boxes. Ink does move with the box it was drawn on.)
 - **Any import format that writes boxes on paper, the looks of a box, ink, or the choice of options in the row.** Three formats are read today (ln-notes/1, ln-skill/1, ln-spec/1); none can. This is the main new work of the notebook path (parts N1 to N7 of the stage-1 plan).
 
-**"The four levels":** the Study tracker has a column named "Levels". This is the likely meaning; Opus confirms.
+**"The four levels":** the Study tracker has a column named "Levels". This is the likely meaning; Opus confirms. (Corrected by the proofs of 26 Nov, section 5M: this guess was wrong. The four levels are Notebook, Subject, Topic, Page.)
 
 ## 5D. The owner's way to build a diagram (25 Nov), and the facts behind it
 
@@ -383,6 +383,23 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 **The owner on the first small question (26 Nov, after it was explained again):** "what we can do as the question number 1 answer, give them 3 options. First, replace the old one. Second, make a copy, new copy. Third, no, drop it. I guess it will solve the problem." It is NB-42 now. No small question is open.
 
 **The owner on features of Claude Code (26 Nov):** the advisor with Opus for the Sonnet builders, as a trial: yes. The built-in code review for each finished part: yes. The deep review in the cloud: "Don't use the deep code review now. We'll do it once the entire app is made or entire stage is made. Ask me before using it ... Just remind me at that point of time." It is in the plan, section 3.
+
+## 5M. The proofs, and what they opened (26 Nov, afternoon)
+
+**The owner, to a new Fable chat:** "Read docs/plans/fable-handoff-2026-11-26.md and continue."
+
+**How the proofs were made.** The build's own list for the day did not name them, and the last planning step waited for them. So Fable started four read-only helpers (Opus) that read the code, and then checked the main claims of each report against the code. Opus's chat was told and does not repeat them. Nothing was changed, nothing was run, nobody signed in. The facts: [the proofs](phase-1b-proofs/README.md). The spec's sixth draft holds them; no sentence of the owner was changed.
+
+**What the proofs corrected in Fable's own text.**
+
+- "No format makes a whole notebook today" was wrong: the app's own notebook file does. What is missing is a form that Claude can write.
+- "Removing a whole notebook with one Undo is new" was wrong: it exists.
+- "The four levels are likely the tracker's column" was wrong: they are the owner's Notebook, Subject, Topic, Page of 16 Nov.
+- "A taller box cannot be drawn on" is two things: a fault (the first box of a page was left out of the fix) and a new behaviour (typing at the place that was tapped).
+
+**What is larger than the plan knew.** A shape that holds text; a Summary made of boxes; the form that Claude writes and its import; ink that crosses from one box to another (in no plan at all).
+
+**Four questions to the owner (26 Nov), each with Fable's pick.** A shape that holds text gets its own room, or may lie over words; an arrow from one text box to another in stage 1, or later; the front page as a screen that the app arranges, or as a free sheet; two additions to the one test (an import never sets a lock; what the app counts is changed at its source). A second, short round follows with the sentences that are still Fable's.
 
 ## 6. What comes next
 

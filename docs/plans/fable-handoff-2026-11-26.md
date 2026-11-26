@@ -2,6 +2,13 @@
 
 **For the owner, to come back and continue. Also for a new Fable chat: read this page first.**
 
+## Update, 26 Nov, afternoon
+
+- **The proofs are made** (by reading the code): [the proofs for the notebook spec](phases/phase-1b-proofs/README.md). The spec is in its sixth draft and holds their facts.
+- **The short round with Fable has begun.** Four questions went to the owner; a second, short round follows with the sentences that are still Fable's. Both lists are in section 8 of the spec.
+- **Left for Opus:** the points that need a look in the running app (the proofs, section 4), and the sized estimate for phase 1B.
+- Where this page and the lines below differ, this update wins.
+
 ## How to continue
 
 - **To go on with the build:** open Opus's chat and type "continue". Opus reads `docs/STATE.md` and goes on.

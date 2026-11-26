@@ -85,6 +85,7 @@ export class InkDoc {
   private layerVer = new Map<string, number>()
   private listeners = new Set<() => void>()
   private timer: ReturnType<typeof setTimeout> | undefined
+  private due = 0
   private saving: Promise<void> = Promise.resolve()
   private readonly save: SaveFn
   private readonly delay: number
@@ -338,7 +339,11 @@ export class InkDoc {
   // ---- Saving ----
 
   private schedule(wait: number): void {
+    const due = Date.now() + wait
+    // A waiting save is never moved later (#72): a nearer one stays.
+    if (this.timer !== undefined && this.due <= due) return
     clearTimeout(this.timer)
+    this.due = due
     this.timer = setTimeout(() => void this.flush(), wait)
   }
 
@@ -349,6 +354,7 @@ export class InkDoc {
   /** Writes what changed. Safe to call any time; calls queue up. */
   flush(): Promise<void> {
     clearTimeout(this.timer)
+    this.timer = undefined
     if (!this.dirty) return this.saving
     const layers = [...this.dirtyLayers]
       .map((id) => this.layerMap.get(id))
@@ -372,6 +378,7 @@ export class InkDoc {
   dispose(): Promise<void> {
     open.delete(this)
     clearTimeout(this.timer)
+    this.timer = undefined
     this.listeners.clear()
     return this.flush()
   }

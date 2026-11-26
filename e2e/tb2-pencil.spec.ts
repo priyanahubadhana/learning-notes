@@ -112,6 +112,7 @@ type PenEv = {
   x: number
   y: number
   buttons: number
+  co: number
 }
 
 /**
@@ -135,6 +136,8 @@ async function installPenLog(page: Page) {
             x: p.clientX,
             y: p.clientY,
             buttons: p.buttons,
+            // The points the browser merged into this event (itself included).
+            co: p.getCoalescedEvents?.().length ?? 0,
           })
         },
         { capture: true },
@@ -247,6 +250,61 @@ async function quickPens(page: Page, paths: Pt[][]): Promise<Seen[]> {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })
   return strokesSeen(await penLog(page), paths)
+}
+
+/** `path` with `k` evenly spaced points on each segment (its first point left out). */
+const finePath = (path: Pt[], k: number): Pt[] =>
+  path.slice(1).flatMap((q, i) =>
+    Array.from({ length: k }, (_, j) => ({
+      x: path[i].x + ((q.x - path[i].x) * (j + 1)) / k,
+      y: path[i].y + ((q.y - path[i].y) * (j + 1)) / k,
+    })),
+  )
+
+/**
+ * One quick Pencil stroke: the press, then every move sent at once without
+ * waiting for each answer (as a fast hand on a busy iPad, where the browser
+ * hands the page one move per frame and keeps the rest in
+ * getCoalescedEvents), then the lift. Checks the browser really merged the
+ * moves and kept every point, or fails saying it did not.
+ */
+async function burstPen(page: Page, path: Pt[], k = 4) {
+  const moves = finePath(path, k)
+  await clearPenLog(page)
+  await asPen(page, true)
+  await page.mouse.move(path[0].x - 3, path[0].y - 6)
+  await page.mouse.move(path[0].x, path[0].y)
+  await page.mouse.down()
+  await Promise.all(moves.map((q) => page.mouse.move(q.x, q.y)))
+  await page.mouse.up()
+  await asPen(page, false)
+  const log = await penLog(page)
+  const ends = log.filter((e) => e.type !== 'pointermove')
+  expect(
+    ends.map((e) => e.type),
+    'the burst stroke: one press then one lift',
+  ).toEqual(['pointerdown', 'pointerup'])
+  const got = log.filter(
+    (e) =>
+      e.type === 'pointermove' &&
+      e.t >= ends[0].t &&
+      e.t <= ends[1].t &&
+      e.buttons,
+  )
+  expect(
+    got.length,
+    `the page got ${got.length} moves for ${moves.length} points sent: this ` +
+      'browser did not merge them, so the test does not prove coalescing',
+  ).toBeLessThan(moves.length)
+  expect(
+    got.reduce((n, e) => n + e.co, 0),
+    'getCoalescedEvents holds every point sent (the rest of the stroke)',
+  ).toBeGreaterThanOrEqual(moves.length)
+  const last = moves[moves.length - 1]
+  expect(
+    Math.hypot(got[got.length - 1].x - last.x, got[got.length - 1].y - last.y),
+    'the last move is at the stroke end',
+  ).toBeLessThan(2)
 }
 
 const asPen = (page: Page, on: boolean) =>
@@ -462,6 +520,64 @@ test.describe('TB-37 the Text tool: shapes and circled numbers', () => {
     expect((await savedInk(page)).strokes).toHaveLength(0)
     await page.keyboard.press('Control+z')
     await expect(box.locator('.ProseMirror')).toContainText('Step 7 done')
+  })
+
+  // Issue #90: a quick stroke reaches the page as a few moves with the rest
+  // of its points in getCoalescedEvents; the Text tool must use them all.
+  test('a quick ring round a digit (moves merged by the browser) still becomes a circled number', async ({
+    page,
+  }) => {
+    await start(page, 'TB37digitBurst')
+    const box = await oneBox(page, 'Step 7 done')
+    await tool(page, 'Text').click()
+    await page.waitForTimeout(800)
+    // A first Pencil tap settles the page (the box moves a little at the first touch).
+    const bb = (await box.boundingBox())!
+    await realPen(page, [{ x: bb.x + 60, y: bb.y + 20 }])
+    await page.waitForTimeout(600)
+    const d = await page.evaluate(() => {
+      const ed = document.querySelector(
+        '[data-paper-box]:not([data-paper-box="main"]) .ProseMirror',
+      )!
+      const w = document.createTreeWalker(ed, NodeFilter.SHOW_TEXT)
+      for (let n = w.nextNode(); n; n = w.nextNode()) {
+        const i = (n.textContent ?? '').indexOf('7')
+        if (i < 0) continue
+        const r = document.createRange()
+        r.setStart(n, i)
+        r.setEnd(n, i + 1)
+        const b = r.getBoundingClientRect()
+        return { x: b.x, y: b.y, w: b.width, h: b.height }
+      }
+      return null
+    })
+    expect(d).not.toBeNull()
+    const cx = d!.x + d!.w / 2
+    const cy = d!.y + d!.h / 2
+    const rx = d!.w / 2 + 10
+    const ry = d!.h / 2 - 1
+    const ring: Pt[] = Array.from({ length: 24 }, (_, i) => {
+      const a = (i / 23) * Math.PI * 2 - Math.PI / 2
+      return { x: cx + Math.cos(a) * rx, y: cy + Math.sin(a) * ry }
+    })
+    await burstPen(page, ring)
+    await expect(box.locator('.ProseMirror')).toContainText('Step ⑦ done')
+  })
+
+  test('a quick rectangle on empty paper (moves merged by the browser) still becomes a clean shape in a new box', async ({
+    page,
+  }) => {
+    await start(page, 'TB37rectBurst')
+    await tool(page, 'Text').click()
+    const at = await blank(page, 120)
+    await burstPen(page, square(at.x, at.y, 160), 20)
+    await expect(page.locator(EXTRA)).toHaveCount(1)
+    await expect
+      .poll(
+        async () => cleanSquares((await savedInk(page)).strokes, 160).length,
+        { timeout: 8000 },
+      )
+      .toBe(1)
   })
 })
 

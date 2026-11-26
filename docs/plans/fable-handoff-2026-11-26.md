@@ -4,7 +4,7 @@
 
 ## Update, 26 Nov, evening: the planning of phase 1B is closed
 
-- **The notebook spec has the owner's yes** (26 Nov, with Fable's marked readings): [the spec](../features/claude-notebook.md). Opus builds from it and moves it to `docs/features/`.
+- **The notebook spec has the owner's yes** (26 Nov, with Fable's marked readings): [the spec](../features/claude-notebook.md). Opus builds from it; it lives in `docs/features/` since 26 Nov.
 - **How it got there:** the proofs were made by reading the code ([the proofs](phases/phase-1b-proofs/README.md)); the owner answered two short rounds of questions and one last question; a fresh helper audited the spec and a second one checked the fixes. The record is in [the talk notes](phases/phase-1b-notebook-talk.md), sections 5M to 5Q.
 - **Left for Opus:** the looks in the running app (the proofs, section 4), first of all whether a pen mark stays on its words at another width; the sized estimate for phase 1B; the two points that are asked of the owner with the real thing on the preview (the spec, section 8).
 - **No planning step is open.** The next planning talk with Fable is for the phase part after 1B; the owner opens it.
@@ -13,7 +13,7 @@
 ## How to continue
 
 - **To go on with the build:** open Opus's chat and type "continue". Opus reads `docs/STATE.md` and goes on.
-- **To go on with the planning:** open a new chat with Fable and type: "Read docs/plans/fable-handoff-2026-11-26.md and continue." The one planning step that is left is the short round on the last spec lines (below).
+- **To go on with the planning:** open a new chat with Fable and type: "Read docs/plans/fable-handoff-2026-11-26.md and continue." No planning step is left for phase 1B (see the update above); the next talk is for the phase part after 1B.
 - The PC was switched off on your word after this page was saved. Nothing unsaved was left: everything is on GitHub.
 
 ## Where things stand
@@ -22,7 +22,7 @@
 - **Why it would not go live, and what was changed:** the same code had to pass every test twice in a row, the full test set passed only about one time in ten, and a notes-only change on main could stop a publish. Now the same app code is tested in full once, and notes cannot stop a publish. The release then took 8 minutes.
 - **The unsteady tests:** their causes were read from the recordings. Two were real faults in the app (a mouse click outside a box could drop the selection; the first pen stroke in a new box was saved late). Opus has fixed both on the code line; they are not live yet. The faults in the tests themselves, and the hosted machines that redraw the page about once a second, are Opus's work now. Until that is done, a full test run still passes only about one time in ten, so the next release waits for it.
 - **The plan page has your yes** (26 Nov), with a review afterwards: [the plan after phase 1A](plan-after-1a.md). Opus works by it.
-- **The notebook that Claude writes** (phase 1B): [the spec, fifth draft](../features/claude-notebook.md). What you want is written down and every question you were asked is answered. The detailed lines of what the app does are not final yet.
+- **The notebook that Claude writes** (phase 1B): [the spec](../features/claude-notebook.md), approved by you on 26 Nov. What you want is written down and every question you were asked is answered.
 
 ## What you decided in this talk (25 and 26 Nov)
 
@@ -36,22 +36,24 @@ The full record is in the plan page and in [the talk notes](phases/phase-1b-note
 
 ## What waits for you
 
-1. **Opus's list of rule changes** (`docs/plans/rule-changes-2026-11-26.md`, when Opus has written it): for each item say "ok" or "put back". About 10 to 15 minutes.
-2. **The short round with Fable on the last spec lines,** after Opus's read-only proofs in the real app. About 15 to 30 minutes. Then the planning of 1B is closed.
-3. **Once, on the first build day of 1B:** type "/advisor opus" in Opus's chat.
-4. **During the build:** the daily look on the real iPad (what you saw, what you expected); your yes to the look of one real chapter; the 10-minute Pencil session; signing in on the phone for the cards.
+1. **Opus's list of rule changes.** Opus has written part of it. It is on a side branch (`docs/rules-2b`) and not on the main line yet, so the notes site does not show it. Opus tells you when it is ready to read. Then: for each item say "ok" or "put back". About 10 to 15 minutes.
+2. **Two questions with the real thing on the preview,** when their parts are built: what a round shape does when it grows as wide as its text box; whether words run around a shape or stand above and below it.
+3. **During the build:** the daily look on the real iPad (what you saw, what you expected); your yes to the look of one real chapter; the 10-minute Pencil session; signing in on the phone for the cards (a new device asks once for the passphrase or the recovery code).
+4. **Short checks on your own devices,** when Opus asks: do pen marks stay on their words with the iPad upright and then sideways; which box you made taller in your try of 25 Nov.
 5. **At the end of stage 1:** Opus reminds you of the deep review in the cloud. Three runs are free; later ones are paid.
+
+Done on 26 Nov, so no longer waiting: the short round with Fable; typing "/advisor opus"; the reading check on the iPad; the yes to the picks and to the list of working copies.
 
 ## Time left
 
-- Closing the 1B planning: about one day (an estimate): Opus's proofs, then the short round.
+- Closing the 1B planning: done on 26 Nov (measured).
 - Phase 1B itself: not known yet. Opus gives an estimate after the proofs and corrects it after three measured days.
 - The whole project: not known yet.
 
 ## For a new Fable chat
 
-- **Read, in this order:** this page; `docs/STATE.md` ("Now"); the plan page; the spec draft, its sections 4 and 8; the talk notes from section 5I on. The reports on the unsteady tests are in `docs/qa/unsteady-tests-2026-11-26/`.
-- **The next planning step:** take Opus's proofs (the list "For Opus to prove" in the spec's section 8), correct the lines of section 4 with them, ask the owner what the proofs open (all at once, easy words, with a pick), then set the spec to approved; Opus moves it to `docs/features/`.
+- **Read, in this order:** this page; `docs/STATE.md` ("Now"); the plan page; the spec (`docs/features/claude-notebook.md`), its sections 4 and 8; the talk notes from section 5I on. The reports on the unsteady tests are in `docs/qa/unsteady-tests-2026-11-26/`.
+- **The next planning step:** none for phase 1B: the proofs were made, the owner answered, the spec is approved (26 Nov; the talk notes, sections 5M to 5R). The next step is the planning of the phase part after 1B, when the owner opens it.
 - **Sentences in the spec that are still Fable's and not the owner's:** the tool's Oval counts as the owner's "circle" (NB-94); a tap on a shape's border picks it, like on a text box (NB-80); the list of what step one of the import carries (NB-41). In the plan: a step of the ladder that reaches Fable counts as one of the three daily questions.
 - **How the owner wants to be answered:** plain words for a beginner; each message starts with Status, Time left and Needs you; "what I heard" after a free talk; 2 to 5 questions at once, each with the options, their sides and a pick; no ids, counts or tables in the chat; pages live in the repo, no hosted pages. A goal, not a condition: no limits or numbers of the planner's own. Never a hard rule on how Opus works. Anything that is Fable's own sentence is marked so.
 - **How a docs page reaches main:** formatted with the project's prettier, committed on top of `origin/main` without touching a working copy, pushed so that the push guard runs, then read back from main. Only docs go straight to main.

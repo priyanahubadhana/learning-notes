@@ -241,16 +241,17 @@ Opus corrects them in step 2b, under its safeguards (the owner's yes of 26 Nov, 
 
 - Answered on 26 Nov: how a failed test in a release run is treated. The owner: "find root cause and fix it permanently." It is F9 now. The owner's rule of the same night for the 1A release (each failed test 20 times alone; 20 of 20 means the machine, and the failed jobs are run again) was not needed, because the release fix came first. It stays on record in `docs/DECISIONS.md` and is used for a later release only on the owner's word.
 - Answered on 26 Nov: the five small questions of the notebook spec (its section 8).
-- A reading check of the live app on the iPad, when Opus says it is live.
+- Done on 26 Nov: the owner's reading check of the live app on the iPad ("Reading, okay").
 - Given on 26 Nov: the yes to this page, with a review afterwards. Waiting: the owner's review of the list of rule changes (`docs/plans/rule-changes-2026-11-26.md`), when the owner chooses; the two points of the notebook spec that are asked with the real thing on the preview (its section 8). Given on 26 Nov, after the proofs ([the proofs](phases/phase-1b-proofs/README.md)), two short rounds of questions and a final audit: the yes to the notebook spec, with Fable's marked readings.
-- Yes or no to the product picks of the last week, and to the list of working copies.
+- Answered on 26 Nov: the product picks of the last week are kept, and the list of working copies had the owner's yes (`docs/DECISIONS.md`).
 - The kinds of action Opus may do without a click, allowed once.
 - The changes to the owner's own `~/.claude` files.
 - Answered on 26 Nov: the tests' sign-in switch may be used on the preview for the read-only proofs (section 3).
 - The check of each day part on the real device, about 15 minutes; the 10-minute Pencil session; the look of one real chapter; signing in on the phone for the cards.
 - Opening the planning talk with Fable for the phase part after 1B.
 - At the end of stage 1: Opus reminds the owner of the deep review in the cloud (section 3), and the owner decides.
-- Once, at the start of the first build day of 1B: typing `/advisor opus` in the main chat (section 3).
+- Done on 26 Nov: the owner typed `/advisor opus` in the main chat (section 3). Opus counts the tries and the usage from the first day part of 1B.
+- The checks on the owner's own devices that the proofs of the notebook spec name: pen marks with the iPad upright and then sideways; the due cards on the phone (after the sign-in a new device asks once for the passphrase or the recovery code); which box was made taller in the owner's try of 25 Nov, the first box of the page or a later one.
 
 ## 11. Words
 

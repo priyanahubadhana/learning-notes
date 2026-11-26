@@ -472,6 +472,38 @@ The yes does not cover: the two points that Opus asks with the real thing on the
 
 **The planning of phase 1B is closed.** Three lines for the next planning talk, as the plan asks: (1) make the proofs before the lines are written, not after: four of Fable's sentences were wrong about what the app has; (2) put each question to the owner with its choices lettered, and write the choices into these notes the same hour: the audit could not tell which choice "A" was; (3) do not set two ways against each other before asking what the owner pictures: on the front page the owner's answer was neither.
 
+## 5R. The last audit, on the owner's word (26 Nov, evening)
+
+**The owner:** "just do one final audit that we have not missed anything. All things are following our plan, and the structure we built called management structure, the kind of universal management system."
+
+**How.** Two fresh helpers that had seen neither Fable's nor Opus's reasoning read a copy of main. One looked for anything lost between the pages. The other held the day's work against the way of working: the fences F1 to F12, who does what, the order of work, the records. Fable checked the hard facts itself.
+
+**What holds.**
+
+- Every answer the owner gave on 26 Nov is in the spec, says the same and is not weakened. No link between the pages is broken. The spec was not changed by its move, except for its links.
+- Only docs went to main (every commit since the live version); no release run was working at any push; the live app is unchanged (7e53ae5d); nothing was spent; no test was changed.
+- The order of work is the plan's: the test gate, the rule files under their safeguards (the tag before the first change, commits of their own, the list for the owner, not in force before the fresh check), then the Pencil taps, then 1B.
+- The phase 1A row and its line in the owner's results file are written.
+
+**What Fable did against the way of working.**
+
+- **Fable started the proofs, which the plan gives to Opus.** It was read-only and open, and Opus was told. But it changed the order: the owner said yes to the spec before Opus's looks in the running app. So Opus makes those looks before it builds any line that they touch, and a look that goes against a line goes to the owner.
+- **Two questions went to the owner alone** (the direct way of the import; the yes to the spec), against "2 to 5 questions at once".
+- **These notes did not hold Fable's picks of the second round.** They were: yes to the oval, the border tap, the same row of options and "Continue reading" on all devices; "keep the list" for step one of the import.
+- **Lists of what waits for the owner were out of step** in the plan, the hand-over page and the proofs page: things that were done still stood as waiting. Corrected on 26 Nov.
+- Two notes in the spec were not exact (NB-54 said "asked", though it was not asked by itself; NB-86 pointed to a line number that had moved). Corrected; no line of the owner changed.
+
+**What was handed to Opus, because the pages and the work are Opus's.**
+
+- The code line has had no test run since the two app fixes were merged on 26 Nov in the morning, and no pull request is open.
+- Last night's test run was red and no page names it.
+- Opus's own decisions of the day are not in the decisions page, and no entry has a kind; the owner's answers of the second round, the answer on the direct way and the yes to the spec have no entry there.
+- No entry in the change log for the afternoon; no numbers row for the two merged fixes.
+- The state page still says in one place that questions are with the owner, and its list of what waits for the owner misses several items.
+- The owner cannot read the list of rule changes yet: it is on a side branch.
+- Three facts of the proofs are held nowhere outside the proofs page: "Add as copies" loses the Summary lines; no test changes the words of a card that exists; which box the owner made taller.
+- One doubt for Opus to settle: "work by the old rules until the fresh check" stands against the fence that the builder does not write the tests of its own part.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

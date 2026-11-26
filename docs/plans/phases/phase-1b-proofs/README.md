@@ -84,4 +84,4 @@ Asked on 26 Nov and answered the same day: [the talk notes](../phase-1b-notebook
 3. The front page: a screen that the app arranges, or a free sheet.
 4. Two additions to the one test (NB-01): an import never sets a lock; what the app counts is changed at its source.
 
-Small sentences of Fable's that still need the owner's word: the tool's Oval is the owner's "circle" (NB-94); a tap on a shape's border picks it (NB-80); what step one of the import carries (NB-41); "a chapter has the options" means the chapters of one notebook (NB-53); the four levels are given by pages under pages; "Continue reading" follows the owner from one device to the other; the line on text size holds for what Claude writes and for the default look (NB-54).
+The small sentences of Fable's went to the owner in a second round on 26 Nov and are answered (the talk notes, section 5O): the circle and the oval; a tap on a shape's border; what step one of the import carries; the row of options; "Continue reading" on all devices. The sentences that are still Fable's are listed in the spec, section 8.

@@ -502,7 +502,7 @@ button.tag-chip:hover {
 .reading-reader {
   right: var(--rd-dock, 0px);
 }
-main[data-page-scroller] {
+[data-page-wrap] {
   margin-right: var(--rd-dock, 0px);
 }
 ::highlight(reading-find) {

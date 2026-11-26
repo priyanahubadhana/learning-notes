@@ -65,6 +65,13 @@ The owner, 25 Nov: no hard rules on how Opus works; hard rules restricted Opus i
 - A spec is audited before the owner approves it, by helpers that have not seen the planner's reasoning: against the owner's words and against the earlier decisions.
 - A tool or a skill is built when the same fault happened twice. A tool that prints a warning nobody acts on is taken out or made to count.
 
+**Features of Claude Code itself (owner, 26 Nov; checked against its documents that day):**
+
+- **The advisor: yes, as a trial.** In the first day part of 1B the Sonnet builders have Opus as their advisor: a builder asks Opus for advice in the middle of its task, with no hand-over. The owner turns it on once by typing `/advisor opus` in the main chat (only a person can turn it on; the feature is experimental). Opus records the tries for each part and the usage with it; it stays only if those numbers are better than without it. Fable is not set as an advisor: each such call is billed outside the plan, and nothing limits how many there are (F1).
+- **The built-in code review: yes.** The reviewer runs it at the normal level on each finished part, beside its own read of the result against the spec lines. It runs as a helper apart from the builder, so F4 holds.
+- **The deep review in the cloud (also called the ultra review): not during the build.** It is used when the whole of stage 1 is done. Opus reminds the owner then, and asks before each run: three runs are free, later ones are paid. Only the owner can start it.
+- **Not taken:** `/ship` and `/steward` (only a person can start them; on a Windows PC their watching half does not start; the review is done by the chat that built the work, against F4), and Code Mode (experimental; it runs only in the plain terminal and changes speed, not the result). Opus keeps doing the useful part of `/ship` itself: it opens the pull request, watches its tests, and merges only on the owner's yes.
+
 ## 4. Who does what
 
 **Two modes (owner, 25 Nov).** Planning mode: the owner and Fable write the specs together, in depth, before a phase part starts and while the part before it is built; the owner opens that talk. After each free talk Fable writes "What I heard" and three lines on what would make the next talk give a better spec. Execution mode: Opus builds from the specs, decides by itself, records its decisions, and has the permissions it needs. At the start of a phase part the main chat lists the kinds of action that still ask for a click, and the owner allows them once.
@@ -233,6 +240,8 @@ Opus corrects them in step 2b, after the owner's yes. Each file gets a head line
 - Whether a helper may use the tests' sign-in switch on the preview again.
 - The check of each day part on the real device, about 15 minutes; the 10-minute Pencil session; the look of one real chapter; signing in on the phone for the cards.
 - Opening the planning talk with Fable for the phase part after 1B.
+- At the end of stage 1: Opus reminds the owner of the deep review in the cloud (section 3), and the owner decides.
+- Once, at the start of the first build day of 1B: typing `/advisor opus` in the main chat (section 3).
 
 ## 11. Words
 

@@ -382,6 +382,8 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 
 **The owner on the first small question (26 Nov, after it was explained again):** "what we can do as the question number 1 answer, give them 3 options. First, replace the old one. Second, make a copy, new copy. Third, no, drop it. I guess it will solve the problem." It is NB-42 now. No small question is open.
 
+**The owner on features of Claude Code (26 Nov):** the advisor with Opus for the Sonnet builders, as a trial: yes. The built-in code review for each finished part: yes. The deep review in the cloud: "Don't use the deep code review now. We'll do it once the entire app is made or entire stage is made. Ask me before using it ... Just remind me at that point of time." It is in the plan, section 3.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

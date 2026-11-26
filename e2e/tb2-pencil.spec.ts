@@ -109,12 +109,25 @@ async function quickPens(page: Page, paths: Pt[][]) {
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = true
   })
-  for (const path of paths) {
-    await page.mouse.move(path[0].x, path[0].y)
-    await page.mouse.down()
+  // The lift of one stroke, the move to the next start and its press are sent
+  // together, without waiting for each answer: on WebKit each answer takes
+  // about 70 ms (a repaint), which put 200 ms between two strokes, half of the
+  // 400 ms the shape waits. The moves along a stroke are still sent one by one.
+  const [first, ...more] = paths
+  await page.mouse.move(first[0].x, first[0].y)
+  await page.mouse.down()
+  let path = first
+  for (const next of more) {
     for (const q of path.slice(1)) await page.mouse.move(q.x, q.y)
-    await page.mouse.up()
+    await Promise.all([
+      page.mouse.up(),
+      page.mouse.move(next[0].x, next[0].y),
+      page.mouse.down(),
+    ])
+    path = next
   }
+  for (const q of path.slice(1)) await page.mouse.move(q.x, q.y)
+  await page.mouse.up()
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })

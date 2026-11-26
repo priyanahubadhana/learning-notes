@@ -56,7 +56,35 @@ export async function frameTime(
 export const test = base.extend<{ frameTimeNote: void }>({
   frameTimeNote: [
     async ({ page }, use, testInfo) => {
+      // PROBE (branch probe/g1-frames only, never merged): PROBE_NOBLUR=1 removes
+      // every backdrop-filter and nothing else, so one variable changes.
+      if (process.env.PROBE_NOBLUR === '1')
+        await page.addInitScript(() => {
+          const s = document.createElement('style')
+          s.textContent =
+            '*,*::before,*::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}'
+          const add = () => {
+            const r = document.documentElement
+            if (!r) return false
+            r.appendChild(s)
+            return true
+          }
+          if (!add())
+            new MutationObserver((_m, o) => {
+              if (add()) o.disconnect()
+            }).observe(document, { childList: true })
+        })
+      const t0 = Date.now()
       await use()
+      if (process.env.PROBE_LOG === '1' && !page.isClosed()) {
+        const ms = await frameTime(page, 20, 8000)
+        const glass = await page
+          .evaluate(() => document.documentElement.dataset.glass ?? 'blur')
+          .catch(() => '?')
+        console.log(
+          `PROBEFT label=${process.env.PROBE_LABEL} title=${testInfo.title.slice(0, 20).replace(/ /g, '_')} rep=${testInfo.repeatEachIndex} status=${testInfo.status} body_s=${((Date.now() - t0) / 1000).toFixed(1)} endframe_ms=${ms === null ? 'none' : ms.toFixed(1)} glass=${glass}`,
+        )
+      }
       if (!testInfo.project.name.includes('ipad')) return
       if (page.isClosed()) return
       const ms = await frameTime(page)
@@ -71,6 +99,6 @@ export const test = base.extend<{ frameTimeNote: void }>({
         )
     },
     // Its own time limit: the note never eats the test's own time.
-    { auto: true, timeout: 5_000 },
+    { auto: true, timeout: 15_000 },
   ],
 })

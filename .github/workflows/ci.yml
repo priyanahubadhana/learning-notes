@@ -1,245 +1,28 @@
 name: CI
 
+# PROBE ONLY (branch probe/g1-frames, never merged; issue 73). This copy of
+# ci.yml replaces every job with one measurement job. Nothing deploys.
+# On one machine, interleaved: TB-42 (toolbarV8Text.spec.ts:390) and TB-75
+# (toolbarV8Tuck.spec.ts:237) on ipad-webkit with every backdrop-filter on or
+# off, the trace recording on or off, and device pixel ratio 2 or 1; plus a
+# per-screen frame probe (e2e/g1Frames.probe.ts).
 on:
-  push:
-    branches: [main]
-    paths-ignore: ['docs/**', '**/*.md']
-  pull_request:
-  schedule:
-    - cron: '0 3 * * 1' # WebKit, every Monday
-    - cron: '30 20 * * *' # the full test set, every night (02:00 IST)
   workflow_dispatch:
     inputs:
       full:
-        description: 'Run the full test set (every end-to-end test, about 40 minutes) instead of the fast set; a deploy from main needs it'
-        type: boolean
-        default: false
-      full_webkit:
-        description: 'Also run the full WebKit suite (about 30 minutes, warning only)'
+        description: 'unused in the probe'
         type: boolean
         default: false
 
 permissions:
   contents: read
 
-# What runs when (Phase 0 task 0.8):
-# - pull request: checks, then the fast set (e2e-fast), about 10 minutes.
-# - push to main: checks, the full set (e2e, pencil-webkit), then deploy.
-#   The same app code is tested in full once, not twice (26 Nov): when an
-#   earlier run already passed the full set on exactly this app code (job
-#   `proven`), the full set is not run again and the deploy follows the checks.
-# - every night: checks and the full set on the code line.
-# - by hand: checks and the fast set; tick "full" for the full set (and, on
-#   main, the deploy). On main, a run by hand without "full" deploys only
-#   when `proven` finds the earlier green full run.
-# - Monday: the whole suite in desktop WebKit (webkit), a warning only.
-env:
-  # A timed run always starts from main's copy of this file. The nightly full
-  # set tests the code line instead: build/next until Phase 0 task 0.7 puts
-  # the code on main (then set this to main).
-  NIGHTLY_REF: build/next
-  # How many jobs the full set has. Keep in step with the two `shard` lists
-  # below (jobs e2e and pencil-webkit): `proven` counts a run as a green full
-  # run only when it has at least this many passed jobs of each kind.
-  E2E_SHARDS: 6
-  IPAD_SHARDS: 8
-
-# A newer push to main replaces a run still waiting or running, so the
-# queue never backs up and the newest code deploys first.
-concurrency:
-  # One run at a time per branch: a running test run always finishes (no
-  # cancels), and only the NEWEST waiting push runs next (older waiting ones
-  # are skipped), so the queue never backs up when several builders push.
-  # Timed runs (nightly, Monday) have their own queue: they never hold up a
-  # deploy of main and are never dropped while they wait behind one.
-  group: ci-${{ github.event_name == 'schedule' && 'schedule' || github.ref }}
-  cancel-in-progress: false
-
 jobs:
-  checks:
-    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *')
-    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          # Empty means the code this run was started for.
-          ref: ${{ github.event_name == 'schedule' && env.NIGHTLY_REF || '' }}
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: lts/*
-          cache: npm
-      - run: npm ci
-      - run: npm audit --omit=dev
-      - run: npm run lint
-      - run: npm run format:check
-      - run: npm run check:links
-      - run: npm run check:spec-template
-      - run: npm run check:ratchet
-      # B0 (SC-08): every scenario sentence has a step, every spec line a test.
-      - run: npm run check:spec
-      - run: npm test
-      - run: npm run build
-      - run: npm run check:size
-      # The build the tests just used is exactly what gets published.
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main') || (github.event_name == 'pull_request' && github.head_ref == 'build/next' && github.event.pull_request.head.repo.full_name == github.repository)
-        with:
-          name: site
-          path: dist
-          retention-days: 1
-
-  # Tested once, not twice (26 Nov 2026). On main only: looks for an earlier CI
-  # run whose full set (every e2e and pencil-webkit job) passed on exactly this
-  # app code (no file different outside docs/, rules/, .claude/, .github/ and
-  # the *.md files at the top), in a run of main or build/next.
-  # The pull request merge into main brings the code that build/next already
-  # proved, so a second 56-minute full run proved nothing new and could fail
-  # on a slow machine (25 Nov: three release runs, no publish). When such a run
-  # exists, e2e and pencil-webkit are skipped and deploy follows the checks.
-  # Any doubt gives "none" and the full set runs as before. Ticking "full" on
-  # a run by hand always runs the full set.
-  proven:
-    if: (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.full)) && github.ref == 'refs/heads/main'
+  g1-frames:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      actions: read
-    outputs:
-      run: ${{ steps.find.outputs.run }}
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: lts/*
-      - name: Find an earlier green full run on the same app code
-        id: find
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: node .github/scripts/find-proven-run.mjs
-
-  # The fast set: the key flows listed in e2e/fastSet.ts, in Chrome and in the
-  # iPad stand-in (projects fast-chromium and fast-ipad). It guards every
-  # merge. It is split so that, with `checks` before it, a pull request has
-  # its answer in about 10 minutes. The browsers come from the same cache as
-  # the full set.
-  e2e-fast:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && !inputs.full)
-    needs: checks
-    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    # 24 Nov: 20 became 45. The update spec (U0c, 49 tests, three of 4 to 5 minutes) is in the fast
-    # list, and its shard passed 20 minutes on the hosted machine (run 45289772955, two shards
-    # cancelled at the limit with every test green). Measured, not guessed; see DECISIONS 24 Nov.
-    timeout-minutes: 45
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { project: fast-chromium, browser: chromium, shard: 1/3 }
-          - { project: fast-chromium, browser: chromium, shard: 2/3 }
-          - { project: fast-chromium, browser: chromium, shard: 3/3 }
-          - { project: fast-ipad, browser: webkit, shard: 1/2 }
-          - { project: fast-ipad, browser: webkit, shard: 2/2 }
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: lts/*
-          cache: npm
-      - run: npm ci
-      - name: Read the exact Playwright version
-        id: pw
-        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
-      - name: Cache the browser
-        id: pw-cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ matrix.browser }}-${{ steps.pw.outputs.version }}
-      - name: Install the system packages for the browser (every run, when cached)
-        if: steps.pw-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps ${{ matrix.browser }}
-      - name: Install the browser (retries if the Ubuntu mirror is down)
-        if: steps.pw-cache.outputs.cache-hit != 'true'
-        run: |
-          for i in 1 2 3; do npx playwright install --with-deps ${{ matrix.browser }} && exit 0; echo "install failed, retry $i"; sleep 45; done
-          npx playwright install ${{ matrix.browser }}
-      - run: npx playwright test --project=${{ matrix.project }} --shard=${{ matrix.shard }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: failure()
-        with:
-          name: playwright-results-${{ matrix.project }}-${{ strategy.job-index }}
-          path: test-results
-          retention-days: 7
-
-  # The full set, part 1: every Chrome end-to-end spec, split in six so each
-  # part finishes well inside the time limit (the whole set takes over an hour
-  # on one machine). The full set runs on a push to main (the deploy needs
-  # it), every night on the code line, and by hand with "full" ticked.
-  e2e:
-    # `proven` is skipped off main (its answer is then empty) and never stops
-    # this job by failing: only a found run skips the full set.
-    if: ${{ !cancelled() && needs.checks.result == 'success' && needs.proven.outputs.run == '' && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *') || (github.event_name == 'workflow_dispatch' && inputs.full)) }}
-    needs: [checks, proven]
-    timeout-minutes: 60
-    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4, 5, 6]
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: ${{ github.event_name == 'schedule' && env.NIGHTLY_REF || '' }}
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: lts/*
-          cache: npm
-      - run: npm ci
-      - name: Read the exact Playwright version
-        id: pw
-        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
-      - name: Cache the Chromium browser
-        id: pw-cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-chromium-${{ steps.pw.outputs.version }}
-      - name: Install the system packages for Chromium (every run, when cached)
-        if: steps.pw-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-      - name: Install chromium (retries if the Ubuntu mirror is down)
-        if: steps.pw-cache.outputs.cache-hit != 'true'
-        run: |
-          for i in 1 2 3; do npx playwright install --with-deps chromium && exit 0; echo "install failed, retry $i"; sleep 45; done
-          npx playwright install chromium
-      - run: npx playwright test --project=chromium --shard=${{ matrix.shard }}/6
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: failure()
-        with:
-          name: playwright-results-${{ matrix.shard }}
-          path: test-results
-          retention-days: 7
-
-  # The full set, part 2: the Pencil and keyboard specs again in WebKit with
-  # an iPad profile (the nearest stand-in for the owner's iPad). It runs when
-  # `e2e` runs. It waits for `checks` to pass first (needs: checks), so a red
-  # `checks` run does not spend time here, and the deploy needs it. The list
-  # is in playwright.config.ts (project ipad-webkit).
-  pencil-webkit:
-    if: ${{ !cancelled() && needs.checks.result == 'success' && needs.proven.outputs.run == '' && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'schedule' && github.event.schedule == '30 20 * * *') || (github.event_name == 'workflow_dispatch' && inputs.full)) }}
-    needs: [checks, proven]
-    timeout-minutes: 60
-    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: ${{ github.event_name == 'schedule' && env.NIGHTLY_REF || '' }}
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: lts/*
@@ -254,226 +37,74 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-webkit-${{ steps.pw.outputs.version }}
-      - name: Install the system packages for WebKit (every run, when cached)
+      - name: Install the system packages for WebKit (when cached)
         if: steps.pw-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps webkit
-      - name: Install webkit (retries if the Ubuntu mirror is down)
+      - name: Install webkit
         if: steps.pw-cache.outputs.cache-hit != 'true'
         run: |
           for i in 1 2 3; do npx playwright install --with-deps webkit && exit 0; echo "install failed, retry $i"; sleep 45; done
           npx playwright install webkit
-      # The timed Pencil tap tests (c45 double and triple taps, TB-04) measure real
-      # milliseconds, so a machine busy with other tests stalls them (run 45548141476:
-      # 11 late runs of 61 against a cap of 10). They run once, alone, with one worker,
-      # in the next step; the shards leave them out.
-      - run: npx playwright test --project=ipad-webkit --shard=${{ matrix.shard }}/8 --grep-invert "$TIMED_TAPS"
+      - name: The machine
+        run: |
+          nproc; lscpu | grep -iE 'model name|^CPU\(s\)|MHz' || true; free -m
+          ls /dev/dri 2>&1 || true
+      - name: Build once and start the server once
         env:
-          TIMED_TAPS: 'C14: 50 Pencil|C19: 50 Pencil|C14: a double tap on a word that is already selected|TB-04: taps 80 to 350'
-      - name: Timed Pencil taps, one worker (shard 3 only, so each runs once)
-        if: ${{ !cancelled() && matrix.shard == 3 }}
-        run: npx playwright test --project=ipad-webkit --workers=1 --grep "$TIMED_TAPS"
+          E2E: '1'
+        run: |
+          npm run build
+          (npx vite preview --port 5199 --strictPort > preview.log 2>&1 &)
+          for i in $(seq 1 60); do curl -sf http://localhost:5199 > /dev/null && break; sleep 1; done
+          curl -sf http://localhost:5199 > /dev/null && echo server up
+      - name: Per-screen frame probe (blur on and off on the same page)
         env:
-          TIMED_TAPS: 'C14: 50 Pencil|C19: 50 Pencil|C14: a double tap on a word that is already selected|TB-04: taps 80 to 350'
+          PROBE_FILES: g1Frames
+          PROBE_TRACE: 'off'
+          PROBE_LABEL: probe-alone
+        run: |
+          npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=1 --reporter=list --output=results/probe-alone 2>&1 | tee -a probe.log | grep -E "G1PROBE|passed|failed|Error" | cut -c1-1500 || true
+      - name: TB-42 and TB-75, interleaved variants
+        env:
+          PROBE_FILES: 'toolbarV8Text|toolbarV8Tuck'
+          PROBE_LOG: '1'
+          GREP: 'TB-42 with tb.textBox|TB-75 bar turned off'
+        run: |
+          run() { # label noblur trace dsf
+            echo "=== VARIANT $1 start $(date +%s)"
+            PROBE_LABEL="$1" PROBE_NOBLUR="$2" PROBE_TRACE="$3" PROBE_DSF="$4" \
+            PLAYWRIGHT_JSON_OUTPUT_NAME="results/$1.json" \
+              npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=2 --repeat-each=2 \
+              --grep "$GREP" --reporter=list,json --output="results/$1" > "results/$1.log" 2>&1 || true
+            grep -E "PROBEFT|✓|✘|passed|failed" "results/$1.log" | cut -c1-300
+            echo "=== VARIANT $1 end $(date +%s)"
+          }
+          mkdir -p results
+          for r in 1 2; do
+            if [ $r = 1 ]; then order="A B C D E"; else order="E D C B A"; fi
+            for v in $order; do
+              case $v in
+                A) run "blur-trace-r$r" 0 on "" ;;
+                B) run "noblur-trace-r$r" 1 on "" ;;
+                C) run "blur-notrace-r$r" 0 off "" ;;
+                D) run "noblur-notrace-r$r" 1 off "" ;;
+                E) run "blur-trace-dpr1-r$r" 0 on 1 ;;
+              esac
+            done
+          done
+      - name: Per-screen frame probe again, at the end
+        env:
+          PROBE_FILES: g1Frames
+          PROBE_TRACE: 'off'
+          PROBE_LABEL: probe-end
+        run: |
+          npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=1 --reporter=list --output=results/probe-end 2>&1 | tee -a probe.log | grep -E "G1PROBE|passed|failed|Error" | cut -c1-1500 || true
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: failure()
+        if: always()
         with:
-          name: playwright-results-ipad-${{ matrix.shard }}
-          path: test-results
+          name: g1-frames
+          path: |
+            results
+            probe.log
+            preview.log
           retention-days: 7
-
-  # Publishes the tested build only after every check above has passed on
-  # main, then checks the live site. The Cloudflare key is given to the one
-  # step that needs it, and nothing runs package install scripts here. The
-  # two secrets are set on GitHub by the owner, never in the code. One publish
-  # at a time, so an older push can never finish last.
-  deploy:
-    # Publishes when the checks passed AND the full set is green: either in
-    # this run, or (both test jobs skipped) in the earlier run `proven` found.
-    if: ${{ !cancelled() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' && needs.checks.result == 'success' && ((needs.e2e.result == 'success' && needs.pencil-webkit.result == 'success') || (needs.proven.outputs.run != '' && needs.e2e.result == 'skipped' && needs.pencil-webkit.result == 'skipped')) }}
-    needs: [checks, proven, e2e, pencil-webkit]
-    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    timeout-minutes: 15
-    concurrency:
-      group: production
-      cancel-in-progress: false
-    steps:
-      - name: Stop if the Cloudflare secrets are missing
-        env:
-          HAS_KEYS: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
-        run: |
-          if [ "$HAS_KEYS" != "true" ]; then
-            echo "::error::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not set on GitHub."
-            exit 1
-          fi
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: lts/*
-          cache: npm
-      - run: npm ci --ignore-scripts
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: site
-          path: dist
-      # Only a newer commit that changes the app or its tests starts its own
-      # run and publishes itself. A newer commit that changes only docs/ or
-      # *.md starts no run (paths-ignore above), so it must not stop this
-      # publish (25 Nov: three notes-only commits stopped a release).
-      - name: Skip if main has moved on in the code (the newer commit publishes itself)
-        id: head
-        run: |
-          git fetch --no-tags --depth=1 --quiet origin refs/heads/main
-          HEAD_SHA=$(git rev-parse FETCH_HEAD)
-          if [ "$HEAD_SHA" = "$GITHUB_SHA" ]; then
-            echo "Main is at this commit."
-          elif git diff --quiet "$GITHUB_SHA" "$HEAD_SHA" -- . ':(exclude)docs' ':(exclude,glob)**/*.md'; then
-            echo "Main moved to $HEAD_SHA with changes in docs only; publishing $GITHUB_SHA."
-          else
-            echo "stale=true" >> "$GITHUB_OUTPUT"
-            echo "Newer code $HEAD_SHA on main; not publishing $GITHUB_SHA."
-          fi
-      - name: Publish
-        if: steps.head.outputs.stale != 'true'
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler pages deploy dist --project-name=learning-notes-app --branch=main
-      - name: Check the live site
-        if: steps.head.outputs.stale != 'true'
-        run: node scripts/check-live.mjs "$GITHUB_SHA"
-
-  # B0 (SC-05, SC-08): the scenarios of e2e/features on Chrome and the iPad
-  # stand-in, then the report page. It runs on every pull request; the preview
-  # publishes the report at /scenarios/ (one fixed address). A failing scenario
-  # fails the job, but only after the report is made.
-  scenarios:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref != 'refs/heads/main') || github.event_name == 'workflow_dispatch'
-    needs: checks
-    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    timeout-minutes: 25
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: lts/*
-          cache: npm
-      - run: npm ci
-      - name: Read the exact Playwright version
-        id: pw
-        run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
-      - name: Cache the browsers
-        id: pw-cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-scenarios-chromium-webkit-${{ steps.pw.outputs.version }}
-      - name: Install the system packages for the browsers (every run, when cached)
-        if: steps.pw-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium webkit
-      - name: Install the browsers (retries if the Ubuntu mirror is down)
-        if: steps.pw-cache.outputs.cache-hit != 'true'
-        run: |
-          for i in 1 2 3; do npx playwright install --with-deps chromium webkit && exit 0; echo "install failed, retry $i"; sleep 45; done
-          npx playwright install chromium webkit
-      - run: npx bddgen
-      - name: Run the scenarios
-        id: run
-        continue-on-error: true
-        env:
-          PLAYWRIGHT_JSON_OUTPUT_NAME: scenario-results.json
-        run: npx playwright test --project=bdd-chromium --project=bdd-ipad-webkit --reporter=list,json
-      - name: Make the report
-        if: always()
-        run: node scripts/scenario-report.mjs scenario-report "Built from commit ${GITHUB_SHA::7} on $(date -u +%Y-%m-%d)" scenario-results.json
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always()
-        with:
-          name: scenario-report
-          path: scenario-report
-          retention-days: 1
-      - name: Fail when a scenario failed
-        if: steps.run.outcome == 'failure'
-        run: exit 1
-
-  # A test copy of build/next for the owner at a free Cloudflare preview
-  # address (never the live site): only for the build/next pull request from
-  # this repository (never a fork), after the checks pass. No other job needs
-  # it; the two secrets go only to the publish step.
-  preview:
-    if: always() && needs.checks.result == 'success' && github.event_name == 'pull_request' && github.head_ref == 'build/next' && github.event.pull_request.head.repo.full_name == github.repository
-    # The report is published even when a scenario failed (that is when it is read).
-    needs: [checks, scenarios]
-    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    timeout-minutes: 15
-    concurrency:
-      group: preview-build-next
-      cancel-in-progress: true
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: lts/*
-          cache: npm
-      - run: npm ci --ignore-scripts
-      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: site
-          path: dist
-      - name: Add the scenario report (served at /scenarios/)
-        continue-on-error: true
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: scenario-report
-          path: dist/scenarios
-      - name: Publish the preview
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler pages deploy dist --project-name=learning-notes-app --branch=build-next
-
-  # Weekly (Monday schedule) and a warning only: it takes about 30 minutes, and
-  # the known WebKit differences are on the Phase 9 iPad list. A hand-started
-  # run skips it unless the full_webkit box is ticked. The nightly timer does
-  # not start it.
-  webkit:
-    if: (github.event_name == 'schedule' && github.event.schedule == '0 3 * * 1') || (github.event_name == 'workflow_dispatch' && inputs.full_webkit)
-    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    timeout-minutes: 40
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: lts/*
-          cache: npm
-      - run: npm ci
-      - name: Install webkit (retries if the Ubuntu mirror is down)
-        run: |
-          for i in 1 2 3; do npx playwright install --with-deps webkit && exit 0; echo "install failed, retry $i"; sleep 45; done
-          npx playwright install webkit
-      - run: npm run test:e2e:webkit
-
-  # By hand only (Run workflow): makes the screenshot baselines for Linux
-  # and keeps them as a download. Download, put the pictures in
-  # e2e/visual/__screenshots__/linux/ and commit them.
-  visual-baselines:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-24.04 # pinned 19 Nov: ubuntu-latest became 26.04, where the Playwright WebKit build cannot start (libicudata.so.74 missing)
-    timeout-minutes: 45
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: lts/*
-          cache: npm
-      - run: npm ci
-      - name: Install chromium (retries if the Ubuntu mirror is down)
-        run: |
-          for i in 1 2 3; do npx playwright install --with-deps chromium && exit 0; echo "install failed, retry $i"; sleep 45; done
-          npx playwright install chromium
-      - run: npm run test:visual:update
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: visual-baselines-linux
-          path: e2e/visual/__screenshots__/linux
-          retention-days: 14

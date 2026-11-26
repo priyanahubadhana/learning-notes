@@ -5,6 +5,8 @@ The product picks of the last week (19 to 26 Nov) are shown to the owner here. F
 
 ## Shown to the owner (6)
 
+**The owner's answer (26 Nov 2026):** keep 1 to 4 and 6; for 5 the spec line AB-05 wins (the arrow shows only when the list holds more than "Customise bar..."), so the Action bar picture changes. The spec line is not reworded.
+
 1. **25 Nov. The Pencil hold stops at 18 px of travel.** If the Pencil creeps more than 18 px while held, it is no longer a hold (it was 36 px first). Tiny Pencil wobble under 2 px is ignored. This touches your 25 Nov numbers (3 mm, 0.8 s).
    The case against: a Pencil that slowly creeps past 18 px while held no longer holds.
    Keep or change?

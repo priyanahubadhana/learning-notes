@@ -306,13 +306,8 @@ export function watchPenGuard(
     }
     if (e.pointerType !== 'pen') return
     if (e.type === 'pointermove') {
-      if (downAt && e.pointerId === gesturePointer) {
-        // A quick stroke arrives as a few moves; the browser keeps the rest
-        // in getCoalescedEvents. Without them a fast ring looked like a tap.
-        const more = e.getCoalescedEvents?.() ?? []
-        for (const c of more.length > 0 ? more : [e])
-          downAt.path = tipPathTo(downAt.path, c.clientX, c.clientY)
-      }
+      if (downAt && e.pointerId === gesturePointer)
+        downAt.path = tipPathTo(downAt.path, e.clientX, e.clientY)
       return
     }
     if (e.type === 'pointerdown') {

@@ -8,6 +8,16 @@ The rule files themselves are not changed yet; this list waits for the owner's r
 
 **How each change was chosen.** Only the lines that section 9 of the plan names. A rule that came from your decision changes only where a later decision of yours replaces it; both are named below. Where I was not sure, the line stays and becomes a question.
 
+## The owner's answers (26 Nov 2026, evening, in the Opus chat)
+
+- **1.5 and 2.3 (20 of 20 before a merge no longer holds): ok.** The owner took Opus's recommendation: drop the blanket local rule; many repeats on the hosted machines for the risky parts (Pencil, boxes, bars, ink). The evidence of that day: every fix passed 20 of 20 on the PC, and the full run on the hosted machines was still red twice.
+- **Q1 (the release train): A, keep the train words for now.**
+- **Q2 (the manager chat is cleared at each part boundary): A, keep.**
+- **Q3 (never call Fable by itself for replanning): A, keep.** The owner expects Opus to need few questions, because the plan is deep and Opus decides many things by itself in execution mode.
+- **Q4 (old words in the records of METHOD-v2): A, leave them.**
+- **Q5 (who writes the tests): Opus writes the tests, Sonnet runs them** (owner: "they are very important for the project"). This is not one of the two offered choices: the test-writer helper is Opus, the builder (Sonnet) builds against those tests and runs them.
+- **Still open:** 2.7 (the confirm sheet goes with the questionnaire; Opus explains it), 2.8 ("built" needs analyze clean; Opus proposes: clean for the files a part changes), and the other items of sections 1 and 2.
+
 ## 1. CLAUDE.md (the project rules) — commit 2d5c4c51
 
 A head line at the top now says: these lines were changed in step 2b, the plan wins where they differ, and this list holds the changes.

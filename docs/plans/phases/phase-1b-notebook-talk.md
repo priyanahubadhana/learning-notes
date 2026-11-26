@@ -378,6 +378,8 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 
 **Five small questions to the owner (26 Nov), each with Fable's pick.** They are product decisions, so the spec marks its line "Fable's" until the answer: what "No" does at "Replace the old one?"; where the front page sits in the page list; whether a notebook made by hand changes; a shape drawn with the option on, outside any text box; a shape whose text is removed.
 
+**The owner's answers of 26 Nov to the five small questions.** The first: "Can you explain the question 1 again?" (still open). The second, in the owner's words: "When I click the notebook itself, then it should open. Suppose there is a notebook name, my name is Priyanshu, and the chapters are my son name is, my wife name is, my brother name is, my parents name is. When I click on my name is Priyanshu, this type of page will open, the front page I am talking about." Fable's reading: the front page is the notebook's own page, reached by the notebook's name; it is not one more entry among the chapters. The third, fourth and fifth: "A" each (a notebook made by hand stays as today; a shape drawn with the option on outside a text box becomes its own small box; a shape whose text is removed goes back to the size it was drawn).
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

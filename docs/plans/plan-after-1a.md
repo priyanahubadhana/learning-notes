@@ -224,7 +224,7 @@ Opus corrects them in step 2b, after the owner's yes. Each file gets a head line
 ## 10. What waits for the owner
 
 - Answered on 26 Nov: how a failed test in a release run is treated. The owner: "find root cause and fix it permanently." It is F9 now. The owner's rule of the same night for the 1A release (each failed test 20 times alone; 20 of 20 means the machine, and the failed jobs are run again) was not needed, because the release fix came first. It stays on record in `docs/DECISIONS.md` and is used for a later release only on the owner's word.
-- **Now: one small question of the notebook spec** (its section 8): what "No" does when the app asks "Replace the old one?". The other four were answered on 26 Nov.
+- Answered on 26 Nov: the five small questions of the notebook spec (its section 8).
 - A reading check of the live app on the iPad, when Opus says it is live.
 - A yes to this page; a yes to the spec's fences and goals; after Opus's proofs, a yes to the last spec lines.
 - Yes or no to the product picks of the last week, and to the list of working copies.

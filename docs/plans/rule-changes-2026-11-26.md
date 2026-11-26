@@ -16,7 +16,9 @@ The rule files themselves are not changed yet; this list waits for the owner's r
 - **Q3 (never call Fable by itself for replanning): A, keep.** The owner expects Opus to need few questions, because the plan is deep and Opus decides many things by itself in execution mode.
 - **Q4 (old words in the records of METHOD-v2): A, leave them.**
 - **Q5 (who writes the tests): Opus writes the tests, Sonnet runs them** (owner: "they are very important for the project"). This is not one of the two offered choices: the test-writer helper is Opus, the builder (Sonnet) builds against those tests and runs them.
-- **Still open:** 2.7 (the confirm sheet goes with the questionnaire; Opus explains it), 2.8 ("built" needs analyze clean; Opus proposes: clean for the files a part changes), and the other items of sections 1 and 2.
+- **2.7 (the confirm sheet goes with the questionnaire): ok.** The owner's yes to the big spec replaces the question sheet and the confirm sheet for each part.
+- **2.8 ("built"): ok, with analyze clean only for the files a part changes.**
+- **All the other items of sections 1 and 2: ok.** The review of this list is closed (26 Nov evening). The files of section 5 are still to change, under these answers; then the check by a fresh helper.
 
 ## 1. CLAUDE.md (the project rules) — commit 2d5c4c51
 

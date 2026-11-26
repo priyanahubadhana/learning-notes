@@ -148,7 +148,7 @@ export async function pick(page: Page, box: Locator) {
 }
 
 /** One tap on bare paper below every box. */
-export async function tapOut(page: Page) {
+export async function tapOut(page: Page, holdMs = 0) {
   // Phones draw no sheets: the column is the first box.
   const sheetEl = page.locator('[data-paper-sheet="1"]')
   const sheet = await rect(
@@ -162,7 +162,9 @@ export async function tapOut(page: Page) {
       ),
     ),
   )
-  await page.mouse.click(sheet.x + sheet.width * 0.85, bottom + 120)
+  await page.mouse.click(sheet.x + sheet.width * 0.85, bottom + 120, {
+    delay: holdMs,
+  })
   await page.waitForTimeout(350)
 }
 

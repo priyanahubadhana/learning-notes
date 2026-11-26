@@ -429,6 +429,23 @@ test('C11 typing: thin border and no dots; one tap outside: selected; a second: 
   await expect(dots(box)).toHaveCount(0)
 })
 
+// #71: a mouse holds the button down; the browser moves the focus at the press,
+// so the release must be read from the box state at the press.
+test('C11 one mouse click outside, button held 100 ms: the box stays selected', async ({
+  page,
+}) => {
+  await start(page, 'C11hold')
+  const box = await addBox(page, ['Typing here'])
+  await pick(page, box)
+  await tapTextEnd(page, box)
+  await expect(box).toHaveAttribute('data-typing', '')
+  await tapOut(page, 100)
+  await expect(box.locator('.bn-editor')).not.toBeFocused()
+  await expect(box).toHaveAttribute('data-picked', '')
+  await expect(box).not.toHaveAttribute('data-typing', '')
+  await expect(dots(box)).toHaveCount(8)
+})
+
 test('C12 the frame of the first box matches its fill and padding', async ({
   page,
 }) => {

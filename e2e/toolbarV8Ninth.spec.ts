@@ -24,6 +24,7 @@ async function open(
   page: Page,
   level: Level = 'beginner',
   theme: 'day' | 'night' = 'day',
+  mode: 'touch' | 'pencil' = 'touch',
 ) {
   await page.addInitScript(
     ([l, u]) => {
@@ -35,7 +36,7 @@ async function open(
     [level, level === 'professional' ? PRO : []] as const,
   )
   await startInTheme(page, theme)
-  await startInMode(page, 'touch')
+  await startInMode(page, mode)
   await page.goto('/?flags=toolbar.v8')
   await createNotebook(page, 'Biology', 'First')
   await typeInEditor(page, 'The nucleus holds the DNA')
@@ -124,7 +125,9 @@ test('TB-33 Beginner Resize on words opens a Text size card and a pick changes t
 test('TB-33 the Resize card on a drawing: a keyboard ring sits inside the row, so no card edge cuts it', async ({
   page,
 }) => {
-  await open(page, 'professional')
+  // Pencil start: in another mode the first pen touch can switch the page to
+  // Pencil mode by the clock (the switch itself: penFirstLineSwitch.spec.ts).
+  await open(page, 'professional', 'day', 'pencil')
   await drawAndLoop(page)
   // Open and close another card first: the pointer, not the keyboard, led here.
   await page.getByTestId('v8-sel-colour').click()
@@ -144,7 +147,9 @@ test('TB-33 the Resize card on a drawing: a keyboard ring sits inside the row, s
 })
 
 test('TB-33 the Resize rows have an icon and a word', async ({ page }) => {
-  await open(page, 'professional')
+  // Pencil start: in another mode the first pen touch can switch the page to
+  // Pencil mode by the clock (the switch itself: penFirstLineSwitch.spec.ts).
+  await open(page, 'professional', 'day', 'pencil')
   await drawAndLoop(page)
   await page.getByTestId('v8-sel-resize').click()
   const rows = card(page, 'sel.resize').locator('.v8sel-more button')
@@ -156,7 +161,9 @@ test('TB-33 the Resize rows have an icon and a word', async ({ page }) => {
 test('TB-33 Colour card: names start with a capital and the selection colour has the ring', async ({
   page,
 }) => {
-  await open(page, 'professional')
+  // Pencil start: in another mode the first pen touch can switch the page to
+  // Pencil mode by the clock (the switch itself: penFirstLineSwitch.spec.ts).
+  await open(page, 'professional', 'day', 'pencil')
   await drawAndLoop(page)
   await page.getByTestId('v8-sel-colour').click()
   const c = card(page, 'sel.colour')
@@ -224,7 +231,7 @@ for (const [name, size] of [
 test('TB-33 at night a drawn black line is drawn light, so it can be seen', async ({
   page,
 }) => {
-  await open(page, 'professional', 'night')
+  await open(page, 'professional', 'night', 'pencil')
   await page.getByTestId('v8-tool-pen').click()
   await page.waitForTimeout(600)
   const box = (await page.locator('.bn-block-content').first().boundingBox())!
@@ -254,7 +261,9 @@ test('TB-33 at night a drawn black line is drawn light, so it can be seen', asyn
 test('TB-33 a loop around a drawing leaves no faint line to the text (new bar)', async ({
   page,
 }) => {
-  await open(page, 'professional')
+  // Pencil start: in another mode the first pen touch can switch the page to
+  // Pencil mode by the clock (the switch itself: penFirstLineSwitch.spec.ts).
+  await open(page, 'professional', 'day', 'pencil')
   await drawAndLoop(page)
   await expect(page.locator('[data-ink-link]')).toHaveCount(0)
 })

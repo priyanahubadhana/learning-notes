@@ -6,6 +6,11 @@ import { savedInk } from './inkHelpers.ts'
 import { tool } from './mainBarHelpers.ts'
 import { installRealPen, realPen, type Pt } from './realPen.ts'
 import { editableTargetsInRect } from './scribbleProbe.ts'
+// The rule's numbers, as in src/paper/textPencil.ts (the e2e build cannot
+// import it): the shape waits HOLD_MS for a next stroke; a press within
+// WRITING_NEAR_PX of the shape's bounds is close by.
+const HOLD_MS = 400
+const WRITING_NEAR_PX = 80
 
 /**
  * Phase 2B, task 2B.11 (switch textbox.v2 ON), the Pencil on paper and in a
@@ -27,6 +32,7 @@ type Rc = { x: number; y: number; width: number; height: number }
 
 async function start(page: Page, name: string, flag = true) {
   await installRealPen(page)
+  await installPenLog(page)
   if (flag)
     await page.addInitScript(() =>
       localStorage.setItem('learning-notes:flags', '["textbox.v2"]'),
@@ -100,12 +106,120 @@ const square = (x: number, y: number, s: number): Pt[] => [
   { x, y },
 ]
 
+type PenEv = {
+  type: string
+  t: number
+  x: number
+  y: number
+  buttons: number
+}
+
+/**
+ * The page's own record of every Pencil event (capture listeners on window,
+ * so each is noted before the app sees it, on the page's clock). The TB-37
+ * tests read it to prove the timing they claim really happened.
+ */
+async function installPenLog(page: Page) {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __penLog: unknown[] }
+    w.__penLog = []
+    for (const type of ['pointerdown', 'pointermove', 'pointerup'])
+      window.addEventListener(
+        type,
+        (e) => {
+          const p = e as PointerEvent
+          if (!p.isTrusted || p.pointerType !== 'pen') return
+          w.__penLog.push({
+            type,
+            t: performance.now(),
+            x: p.clientX,
+            y: p.clientY,
+            buttons: p.buttons,
+          })
+        },
+        { capture: true },
+      )
+  })
+}
+
+const penLog = (page: Page) =>
+  page.evaluate(() =>
+    (window as unknown as { __penLog: PenEv[] }).__penLog.slice(),
+  )
+const clearPenLog = (page: Page) =>
+  page.evaluate(() => {
+    ;(window as unknown as { __penLog: unknown[] }).__penLog = []
+  })
+
+type Seen = { down: PenEv; up: PenEv }
+
+/**
+ * Each stroke arrived whole and in order: its press at its first point, every
+ * move along it with the tip down, its lift at its last point, and its lift
+ * before the next stroke's press.
+ */
+function strokesSeen(log: PenEv[], paths: Pt[][]): Seen[] {
+  const ends = log.filter((e) => e.type !== 'pointermove')
+  expect(
+    ends.map((e) => e.type),
+    'each stroke: one press then one lift, in order',
+  ).toEqual(paths.flatMap(() => ['pointerdown', 'pointerup']))
+  return paths.map((path, i) => {
+    const down = ends[2 * i]
+    const up = ends[2 * i + 1]
+    const last = path[path.length - 1]
+    expect(
+      Math.hypot(down.x - path[0].x, down.y - path[0].y),
+      `stroke ${i + 1}: pressed at its first point`,
+    ).toBeLessThan(2)
+    expect(
+      Math.hypot(up.x - last.x, up.y - last.y),
+      `stroke ${i + 1}: lifted at its last point`,
+    ).toBeLessThan(2)
+    const moves = log.filter(
+      (e) =>
+        e.type === 'pointermove' && e.t >= down.t && e.t <= up.t && e.buttons,
+    )
+    expect(
+      moves.length,
+      `stroke ${i + 1}: all its moves arrived with the tip down`,
+    ).toBeGreaterThanOrEqual(path.length - 1)
+    return { down, up }
+  })
+}
+
+/** The next stroke was pressed within the hold; else the case was never made. */
+function pressedWithinHold(seen: Seen[]) {
+  const gap = seen[1].down.t - seen[0].up.t
+  expect(
+    gap,
+    `the next stroke came ${Math.round(gap)} ms after the lift: this machine ` +
+      `could not press it within the ${HOLD_MS} ms hold, so the test proves nothing`,
+  ).toBeLessThan(HOLD_MS)
+}
+
+/**
+ * The saved strokes that are the drawn square made clean: a few corner points
+ * (6 numbers each), as wide as the square (points are in box widths, `bw`).
+ */
+const cleanSquares = (
+  strokes: { pts: ArrayLike<number>; bw: number }[],
+  size: number,
+) =>
+  strokes.filter((s) => {
+    const xs = Array.from(s.pts).filter((_, i) => i % 6 === 0)
+    const w = (Math.max(...xs) - Math.min(...xs)) * s.bw
+    return s.pts.length / 6 <= 8 && Math.abs(w - size) < size * 0.1
+  })
+
 /**
  * Strokes one after the other with as little between them as the browser
  * allows (the shape waits 400 ms for a next stroke; a slow WebKit round trip
- * between two realPen calls would be longer than that).
+ * between two realPen calls would be longer than that). Returns what the page
+ * saw of each stroke, checked whole and in order (strokesSeen).
  */
-async function quickPens(page: Page, paths: Pt[][]) {
+async function quickPens(page: Page, paths: Pt[][]): Promise<Seen[]> {
+  await clearPenLog(page)
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = true
   })
@@ -113,6 +227,7 @@ async function quickPens(page: Page, paths: Pt[][]) {
   // together, without waiting for each answer: on WebKit each answer takes
   // about 70 ms (a repaint), which put 200 ms between two strokes, half of the
   // 400 ms the shape waits. The moves along a stroke are still sent one by one.
+  // Promise.all does not promise the order; strokesSeen checks it.
   const [first, ...more] = paths
   await page.mouse.move(first[0].x, first[0].y)
   await page.mouse.down()
@@ -131,6 +246,7 @@ async function quickPens(page: Page, paths: Pt[][]) {
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })
+  return strokesSeen(await penLog(page), paths)
 }
 
 const asPen = (page: Page, on: boolean) =>
@@ -215,10 +331,11 @@ test.describe('TB-37 the Text tool: shapes and circled numbers', () => {
     await tool(page, 'Text').click()
     const at = await blank(page, 120)
     // The next stroke, close by and within the hold: it was handwriting.
-    await quickPens(page, [
+    const seen = await quickPens(page, [
       square(at.x, at.y, 160),
       wavy(at.x + 175, at.y + 60, 60, 8, 8),
     ])
+    pressedWithinHold(seen)
     await page.waitForTimeout(1800)
     await expect(page.locator(EXTRA)).toHaveCount(0)
     expect((await savedInk(page)).strokes).toHaveLength(0)
@@ -235,13 +352,59 @@ test.describe('TB-37 the Text tool: shapes and circled numbers', () => {
     // A shape on blank paper a little under the box.
     const at = { x: b.x + 20, y: b.y + b.height + 30 }
     // Handwriting on the box text, near the shape, before the hold ends.
-    await quickPens(page, [
+    const seen = await quickPens(page, [
       square(at.x, at.y, 160),
       wavy(b.x + 10, b.y + 20, 50, 6, 8),
     ])
+    pressedWithinHold(seen)
     await page.waitForTimeout(1800)
     await expect(page.locator(EXTRA)).toHaveCount(1)
     expect((await savedInk(page)).strokes).toHaveLength(0)
+  })
+
+  test('handwriting close by but after the hold does not cancel: the shape is made in a new box', async ({
+    page,
+  }) => {
+    await start(page, 'TB37late')
+    await tool(page, 'Text').click()
+    const at = await blank(page, 120)
+    const sq = square(at.x, at.y, 160)
+    // The same next stroke as in the cancel test, close by.
+    const next = wavy(at.x + 175, at.y + 60, 60, 8, 8)
+    await clearPenLog(page)
+    await realPen(page, sq, 1)
+    // Wait on the page's own clock until the hold is over, then press.
+    const lift = (await penLog(page)).filter((e) => e.type === 'pointerup')
+    expect(lift).toHaveLength(1)
+    await page.waitForFunction(({ t, wait }) => performance.now() - t > wait, {
+      t: lift[0].t,
+      wait: HOLD_MS + 100,
+    })
+    await realPen(page, next, 1)
+    const seen = strokesSeen(await penLog(page), [sq, next])
+    expect(seen[1].down.t - seen[0].up.t).toBeGreaterThan(HOLD_MS)
+    await page.waitForTimeout(1800)
+    await expect(page.locator(EXTRA)).toHaveCount(1)
+    expect(cleanSquares((await savedInk(page)).strokes, 160)).toHaveLength(1)
+  })
+
+  test('a quick next stroke far from the shape does not cancel it: the shape is made in a new box', async ({
+    page,
+  }) => {
+    await start(page, 'TB37far')
+    await tool(page, 'Text').click()
+    const at = await blank(page, 120)
+    // "Close" (PaperFrame textPenDown) is a press inside the shape's bounds
+    // grown by WRITING_NEAR_PX on each side; this press is 30 px outside it.
+    const fx = at.x + 160 + WRITING_NEAR_PX + 30
+    const seen = await quickPens(page, [
+      square(at.x, at.y, 160),
+      wavy(fx, at.y + 60, 60, 8, 8),
+    ])
+    pressedWithinHold(seen)
+    await page.waitForTimeout(1800)
+    await expect(page.locator(EXTRA)).toHaveCount(1)
+    expect(cleanSquares((await savedInk(page)).strokes, 160)).toHaveLength(1)
   })
 
   test('a ring round a digit becomes a circled number, one Undo', async ({

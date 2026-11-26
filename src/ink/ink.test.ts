@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { STRIDE, type InkLayer, type Stroke } from '../core/inkTypes'
 import { pickAnchor, toLocal, toWorld, type BlockRect } from './anchor'
 import { eraseStroke, touches } from './eraser'
@@ -670,5 +670,31 @@ describe('merged ink stays editable (R5-11)', () => {
     const a = setLocked(a0, true)
     expect(eraserLayer([a, b], a.id)).toBeNull()
     expect(eraserLayer([a0, b], b.id)?.id).toBe(b.id)
+  })
+})
+
+describe('a waiting save is never moved later (#72)', () => {
+  it('an edit, then noteBlock for a new block: saved after 400 ms', async () => {
+    vi.useFakeTimers()
+    try {
+      const save = vi.fn()
+      const layer = newLayer('p', [], 'Layer 1')
+      const doc = new InkDoc({
+        pageId: 'p',
+        data: { layers: [layer], chunks: [] },
+        save,
+        delay: 400,
+      })
+      const s = line(5, (i) => ({ x: i * 0.01, y: 0 }))
+      doc.apply({
+        ...emptyEdit(),
+        add: [{ layerId: layer.id, blockId: 'b1', stroke: s }],
+      })
+      doc.noteBlock('b1', { x: 10, y: 20, w: 100 })
+      await vi.advanceTimersByTimeAsync(400)
+      expect(save).toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

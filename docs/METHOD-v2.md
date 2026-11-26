@@ -1,5 +1,7 @@
 # The method, as a spec (method v2)
 
+> **26 Nov 2026:** the lines that [plans/plan-after-1a.md](plans/plan-after-1a.md) section 9 names were changed in its step 2b (the owner's yes of 26 Nov, with a review afterwards). Where this page and that page differ, that page wins. The list of the changes: plans/rule-changes-2026-11-26.md.
+
 | Status                                         | Switch                  | Phase         | Pictures                                              | Builds on                                                      | Last change        |
 | ---------------------------------------------- | ----------------------- | ------------- | ----------------------------------------------------- | -------------------------------------------------------------- | ------------------ |
 | Confirmed 22 Nov 2026 (owner, all 11 rows Yes) | none (a way of working) | PC-1, part M0 | docs/plans/method-v2/ 1 to 4 (1 to 3 approved 21 Nov) | docs/archive/METHOD.md of 20 Nov (replaced), CLAUDE.md, rules/ | 21 Nov 2026, Fable |
@@ -23,24 +25,24 @@ As the owner, who is a beginner and is often away from the PC, I want to say wha
 
 **Always true**
 
-- **One loop for everything** (picture 1): your words, "what I heard", plan, main questionnaire, spec page, confirm sheet, plan and tasks, build, analyze, review once, your test, issues, fix loop, switch ON.
-- **Two layers, one file.** Every spec has a top layer for the owner (goal, non-negotiables, story, picture, rules, scenarios, how we get there, done when, open points, confirm sheet) and a bottom layer for builders (builds on, plan, tasks, detail lines, numbers, not in this part, security, tests, changes). The top layer stands on its own.
+- **Two modes** (owner, 25 Nov; replaces the one loop with a confirm sheet for every part): planning mode, where the owner and Fable write the specs together and the owner approves them; execution mode, where Opus builds from the specs and decides by itself (plan-after-1a section 4).
+- **A big spec and a small brief** (owner, 25 Nov; replaces the one spec size with a bottom layer for builders). Each helper sees only what it needs: a small brief, with the big spec at hand to check a fact; the spec lines in a brief are equal to the lines in the spec (plan-after-1a F3 and section 3).
 - **Options, not open questions.** Every question to the owner carries what it is, why it matters, option A (the pick) with the case against it, option B, Other.
 - **"What I heard".** After every free-talk round, five lines in the owner's words, corrected on the spot.
 - **Small questions only when they change the build.** Otherwise the safest option is taken and logged.
 - **Builds on.** A new spec names the specs and part cards it extends, or says "none, checked on <date>". The questionnaire lists the related specs before a word is written. A spec that outgrows one sitting is split, the new one pointing at the old.
 - **Shared parts only.** A builder may not create code for a job a part card owns. The reviewer checks it. A counter of private copies may only go down.
-- **Tests from the spec.** One scenario, one test through the real screen, named after the id. Red first, then green, then broken once on purpose. 20 of 20 before a merge. Unit tests for the logic inside, never instead.
+- **Tests from the spec.** One scenario, one test through the real screen, named after the id. Red first, then green, then broken once on purpose. "Done" is said by a program; "ready" only when the full set is green (plan-after-1a F6). Unit tests for the logic inside, never instead.
 - **Bugs are issues.** Every finding is a GitHub Issue in the owner's words with a screenshot; the issue number is the bug id; a bug changes the scenario before the code.
 - **One source, two faces** (picture 3). The repo is the only source. A program renders the site, the board and the data file on every push. No copy is kept by hand.
 - **Honesty.** Every pick carries the case against it. A position changes only for a named new reason. An override is logged as "owner chose X; the reason against was Y". "Done" needs proof.
 - **The ladder** (picture 2). Sonnet, three fails with new evidence each; Opus medium; Opus high; Fable; the owner last.
-- **The register and the stages.** Every feature has one row and one id (F-…) in docs/FEATURES.md with its stage (1 the working app for the owner, 2 the premium app for the owner, 3 for everyone), state and phase; the id is used everywhere. Every spec and part card carries its Stage in the header. A stage holds phases of at most two weeks, each ending with a train release (preview every Friday, live every second Friday on the owner's yes); a phase holds 10 to 20 parts; a part is under a day. A move between stages or phases goes through the stage map and the owner's yes.
+- **The register and the stages.** Every feature has one row and one id (F-…) in docs/FEATURES.md with its stage (1 the working app for the owner, 2 the premium app for the owner, 3 for everyone), state and phase; the id is used everywhere. Every spec and part card carries its Stage in the header. A stage holds phase parts; a phase part keeps its full size and is divided into day parts of 3 to 5 parts of work (owner, 25 Nov; plan-after-1a section 3), each phase part ending with a train release (preview every Friday, live every second Friday on the owner's yes); a part is under a day. A move between stages or phases goes through the stage map and the owner's yes.
 - **Replan trigger.** Opus counts meaningful changes to the live plan since Fable last planned (a confirmed spec's scope changed, a feature moved between stages or phases, a part added or removed, an estimate slip over three days; trivial edits do not count). At 10, or at any stage move, Opus stops adding and asks the owner to open a Fable window to replan; never on its own.
 - **Short lines.** A rule or a must-never line is one short line, about twelve words; the detail lives in scenarios and detail lines.
 - **Design and quality in the spec.** The Design and quality check is filled before the confirm sheet and the reviewer checks it. No new UI where an approved one exists.
 - **Flexible.** Everything a user might want to change is customisable: simple default, advanced under the ▾; never drop a feature.
-- **Measured, then changed.** Eight numbers a week, computed; the owner's one line; rules change only at a phase end, from the numbers.
+- **Measured, then changed.** One numbers line for each day part, written by Opus from git and CI (plan-after-1a section 8); rules change only at a phase end, from the numbers.
 
 **Must never happen**
 
@@ -56,7 +58,7 @@ As the owner, who is a beginner and is often away from the PC, I want to say wha
 **Limits**
 
 - The owner's own time is never counted in an estimate; estimates come from the measured pace and are marked estimate until three merged parts correct them.
-- Fable plans a phase and writes what everything else copies; otherwise it is reached only by the ladder.
+- Fable plans a phase and writes what everything else copies; otherwise it is reached by the ladder, or by Opus's own short questions, three a day at most (owner, 25 Nov; plan-after-1a section 4).
 - Two lanes at most on this PC; one iPad-size test run at a time.
 
 ## Scenarios
@@ -121,7 +123,7 @@ M0 to M8 proved as above; the first feature of Phase PC-1 has gone through steps
 
 - **Owner:** free talk, corrections, choices in the plan, questionnaire answers, confirm sheets, tests by scenario, bugs, the yes to go live, the weekly line. Never asked for anything else.
 - **Fable:** the phase plan with the owner; the method spec; the spec and part card templates; attack reads of the part cards and of risky specs; the ladder's last step before the owner.
-- **Opus (main chat, medium effort):** drafts ordinary specs with the lenses; runs the questionnaire and the confirm sheet; writes plan and tasks; hands tasks to Sonnet; reviews once; takes over after three Sonnet fails; raises its own effort to high before escalating; keeps STATE.md, DECISIONS.md and CHANGELOG.md current.
+- **Opus (main chat, medium effort):** builds from the specs that the owner and Fable write in planning mode (plan-after-1a section 4); writes plan and tasks; hands tasks to Sonnet; reviews once; takes over after three Sonnet fails; raises its own effort to high before escalating; keeps STATE.md, DECISIONS.md and CHANGELOG.md current.
 - **Sonnet (builder, medium effort):** one task; tests first; shared parts only; its own fixes; reports with proof.
 - **Programs:** analyze, the site and board generator, the weekly card, the ratchet, the test runs.
 
@@ -142,14 +144,14 @@ M0 to M8 proved as above; the first feature of Phase PC-1 has gone through steps
 
 ### Statuses and who sets them
 
-| Status           | Set when                                                       | By                                                              |
-| ---------------- | -------------------------------------------------------------- | --------------------------------------------------------------- |
-| Draft            | the page exists                                                | the writer                                                      |
-| Confirmed <date> | every confirm-sheet row is Yes in the chat log                 | Opus records the date; analyze checks the sheet has no open row |
-| Building         | the first task branch exists                                   | the program, from git                                           |
-| Built            | every scenario test green 20 of 20 and analyze clean           | the program                                                     |
-| Verified <date>  | the owner's yes by scenario is in the issue thread of the part | the program, from the issue                                     |
-| Live             | the switch is on in the live app                               | the program, from the release record                            |
+| Status           | Set when                                                                       | By                                                              |
+| ---------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| Draft            | the page exists                                                                | the writer                                                      |
+| Confirmed <date> | every confirm-sheet row is Yes in the chat log                                 | Opus records the date; analyze checks the sheet has no open row |
+| Building         | the first task branch exists                                                   | the program, from git                                           |
+| Built            | the full set green after the merge (plan-after-1a section 9) and analyze clean | the program                                                     |
+| Verified <date>  | the owner's yes by scenario is in the issue thread of the part                 | the program, from the issue                                     |
+| Live             | the switch is on in the live app                                               | the program, from the release record                            |
 
 ### Detail lines
 

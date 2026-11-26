@@ -1420,7 +1420,8 @@ html[data-box-drag] {
    the still shadow layers (nothing repaints while drawing). Not on a phone,
    where the paper fills the screen. */
 @media not ((width < 40rem) or (height < 32rem)) {
-  :root[data-look='calm-edge'] main[data-page-scroller]:has([data-paper-sheet]) {
+  :root[data-look='calm-edge']
+    main[data-page-scroller]:has([data-paper-sheet]) {
     background-color: var(--look-page);
   }
   :root[data-look='calm-edge'] [data-paper-sheet] {

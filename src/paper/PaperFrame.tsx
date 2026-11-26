@@ -1929,7 +1929,11 @@ export function PaperFrame({
       textPen.current = null
       return
     }
-    tp.pts.push({ x: e.clientX, y: e.clientY })
+    // The browser merges moves that come faster than one per frame: all the
+    // merged points are used, or a quick ring/rectangle has too few (#90).
+    const more = e.nativeEvent.getCoalescedEvents?.() ?? []
+    for (const c of more.length > 0 ? more : [e.nativeEvent])
+      tp.pts.push({ x: c.clientX, y: c.clientY })
   }
   const textPenUp = (e: ReactPointerEvent) => {
     const tp = textPen.current

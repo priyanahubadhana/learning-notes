@@ -172,11 +172,16 @@ async function expectAboveBars(card: ReturnType<Page['locator']>) {
 test('C25: the sidebar page ⋯ menu is above every scroll bar', async ({
   page,
 }, info) => {
-  await page.setViewportSize({ width: 1180, height: 820 })
+  // A short window, so a few pages already overflow the sidebar list and its
+  // scroll bar shows; 14 pages in a tall window took 15 add-page flows, which
+  // alone filled the whole test time on a slow machine (CI, 26 Nov).
+  await page.setViewportSize({ width: 1180, height: 520 })
   await page.goto('/')
   await createNotebook(page, 'Paper', 'First')
-  for (let i = 0; i < 14; i++) await addPage(page, 'Paper', 'Page ' + i)
+  for (let i = 0; i < 4; i++) await addPage(page, 'Paper', 'Page ' + i)
   await showSidebar(page)
+  // The scroll bar this test is about is really there.
+  await expect(page.locator('.sbar').first()).toBeVisible()
   const more = row(page, 'First').getByRole('button', { name: /^More for/ })
   await more.click()
   const card = page.getByRole('menu').last()

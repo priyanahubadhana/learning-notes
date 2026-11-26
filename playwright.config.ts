@@ -102,6 +102,7 @@ const config = defineConfig({
       name: 'ipad-webkit',
       testIgnore: [/visual\//, /tb2-resize-phone-swipe/], // 2B.5b: a real swipe, chromium only
       testMatch: [
+        /shadowLayers/, // G1 shadow: the still shadow layers (27 Nov)
         /penFirstLineSwitch/, // the first Pencil line survives the automatic switch to Pencil mode (TB-33, 26 Nov)
         /eraserShapes/,
         /toolRowStays/, // re-test 18 Nov bug 1

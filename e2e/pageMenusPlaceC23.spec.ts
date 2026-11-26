@@ -2,13 +2,14 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from './frameFixture.ts'
 import {
-  addPage,
   createNotebook,
   row,
   showSidebar,
+  sidebar,
   startInMode,
   typeInEditor,
 } from './helpers.ts'
+import { seedNotebook } from './notebooksV2PanelHelpers.ts'
 
 /**
  * C23 / C25 / C26 (owner iPad re-test, 17 Nov), switch textbox.v2:
@@ -169,20 +170,105 @@ async function expectAboveBars(card: ReturnType<Page['locator']>) {
   expect(res.allHit).toBe(true)
 }
 
+/**
+ * The sidebar's own scroll bar: the one `.sbar` drawn at the right edge of the
+ * sidebar's scrolling list (the bar is a portal on <body>, so it is found by
+ * place: inside the sidebar, flush with its list's right edge).
+ */
+async function sidebarBar(page: Page) {
+  return page.evaluate(() => {
+    const list = document.querySelector<HTMLElement>('aside [data-scrollbar]')
+    const aside = document.querySelector('aside')!.getBoundingClientRect()
+    if (!list) return null
+    const l = list.getBoundingClientRect()
+    const bars = [...document.querySelectorAll('.sbar')]
+      .map((b) => b.getBoundingClientRect())
+      .filter(
+        (q) =>
+          q.width > 0 &&
+          q.left >= aside.left - 1 &&
+          q.right <= aside.right + 1 &&
+          q.top >= aside.top - 1 &&
+          q.bottom <= aside.bottom + 1 &&
+          Math.abs(q.right - l.right) <= 2,
+      )
+    return {
+      overflows: list.scrollHeight > list.clientHeight + 1,
+      count: bars.length,
+      bar: bars[0]
+        ? {
+            left: bars[0].left,
+            right: bars[0].right,
+            top: bars[0].top,
+            bottom: bars[0].bottom,
+          }
+        : null,
+    }
+  })
+}
+
 test('C25: the sidebar page ⋯ menu is above every scroll bar', async ({
   page,
 }, info) => {
+  // The owner's iPad sideways (1180 x 820), with the shell's own scroll bars
+  // (foundation.shell, on in the preview the owner uses): without it the
+  // sidebar has no `.sbar` and nothing would be checked.
+  await page.addInitScript(() =>
+    localStorage.setItem('learning-notes:flags', '["foundation.shell"]'),
+  )
   await page.setViewportSize({ width: 1180, height: 820 })
   await page.goto('/')
-  await createNotebook(page, 'Paper', 'First')
-  for (let i = 0; i < 14; i++) await addPage(page, 'Paper', 'Page ' + i)
+  // 15 pages: the notebook and its first page through the UI, 14 more written
+  // into the database (14 add-page flows took over 60 s on the slow CI iPad
+  // engine, issue C25 timeout, 27 Nov).
+  await seedNotebook(
+    page,
+    'Paper',
+    'First',
+    Array.from({ length: 14 }, (_, i) => ({ title: 'Page ' + i })),
+  )
+  await page.reload()
   await showSidebar(page)
+  await expect(
+    sidebar(page).getByRole('button', { name: 'Page 13', exact: true }),
+  ).toBeAttached()
+  // The sidebar list really overflows and draws its own bar inside the sidebar.
+  await expect.poll(async () => (await sidebarBar(page))?.count).toBe(1)
+  const before = (await sidebarBar(page))!
+  expect(before.overflows).toBe(true)
+  const bar = before.bar!
+
   const more = row(page, 'First').getByRole('button', { name: /^More for/ })
   await more.click()
   const card = page.getByRole('menu').last()
   await expect(
     card.getByRole('menuitem', { name: /^Delete page/ }),
   ).toBeVisible()
+  // The card covers part of the sidebar's bar...
+  const c = (await card.boundingBox())!
+  const x = Math.max(c.x, bar.left)
+  const x2 = Math.min(c.x + c.width, bar.right)
+  const y = Math.max(c.y, bar.top)
+  const y2 = Math.min(c.y + c.height, bar.bottom)
+  expect(x2 - x).toBeGreaterThan(1)
+  expect(y2 - y).toBeGreaterThan(1)
+  // ...and is drawn above it there: the top thing at the middle of the
+  // shared area is the menu, never the bar (the bar may also step aside).
+  await expect
+    .poll(() =>
+      page.evaluate(
+        ([px, py]) => {
+          const hit = document.elementFromPoint(px, py)
+          return hit?.closest('.sbar')
+            ? 'bar'
+            : hit?.closest('[role="menu"]')
+              ? 'menu'
+              : 'other'
+        },
+        [(x + x2) / 2, (y + y2) / 2],
+      ),
+    )
+    .toBe('menu')
   await expectAboveBars(card)
   await page.screenshot({ path: `${OUT}/pagemenu-${info.project.name}.png` })
 })

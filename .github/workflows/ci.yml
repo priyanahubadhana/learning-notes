@@ -57,6 +57,12 @@ jobs:
           (npx vite preview --port 5199 --strictPort > preview.log 2>&1 &)
           for i in $(seq 1 60); do curl -sf http://localhost:5199 > /dev/null && break; sleep 1; done
           curl -sf http://localhost:5199 > /dev/null && echo server up
+      - name: Shadow inventory per screen
+        env:
+          PROBE_FILES: g1Frames
+          PROBE_TRACE: 'off'
+        run: |
+          npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=1 --grep "inventory" --reporter=list --output=results/inv 2>&1 | tee -a probe.log | grep -E "G1SHADOW|passed|failed|Error" | cut -c1-3000 || true
       - name: Frames around a real action (Box card open and close), two pages at once
         env:
           PROBE_FILES: g1Frames
@@ -64,29 +70,27 @@ jobs:
           PROBE_LABEL: action-2w
         run: |
           npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=2 --repeat-each=2 --grep "action frames" --reporter=list --output=results/action 2>&1 | tee -a probe.log | grep -E "G1ACTION|passed|failed|Error" | cut -c1-400 || true
-      - name: TB-42 and TB-75, interleaved variants (round 2)
+      - name: TB-42 and TB-75, interleaved variants (round 3)
         env:
           PROBE_FILES: 'toolbarV8Text|toolbarV8Tuck'
           PROBE_LOG: '1'
           PROBE_TRACE: 'on'
           GREP: 'TB-42 with tb.textBox|TB-75 bar turned off'
         run: |
-          run() { # label lite noanim dsf
+          run() { # label noshadow
             echo "=== VARIANT $1 start $(date +%s)"
-            PROBE_LABEL="$1" PROBE_LITE="$2" PROBE_NOANIM="$3" PROBE_DSF="$4"             PLAYWRIGHT_JSON_OUTPUT_NAME="results/$1.json"               npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=2 --repeat-each=2               --grep "$GREP" --reporter=list,json --output="results/$1" > "results/$1.log" 2>&1 || true
+            PROBE_LABEL="$1" PROBE_NOSHADOW="$2" PLAYWRIGHT_JSON_OUTPUT_NAME="results/$1.json" npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=2 --repeat-each=2 --grep "$GREP" --reporter=list,json --output="results/$1" > "results/$1.log" 2>&1 || true
             grep -E "PROBEFT|✓|✘|passed|failed" "results/$1.log" | cut -c1-300
             echo "=== VARIANT $1 end $(date +%s)"
           }
           mkdir -p results
-          for r in 1 2; do
-            if [ $r = 1 ]; then order="A B C D E"; else order="E D C B A"; fi
+          for r in 1 2 3; do
+            case $r in 1) order="A B C" ;; 2) order="C B A" ;; 3) order="B C A" ;; esac
             for v in $order; do
               case $v in
-                A) run "asis-dpr2-r$r" 0 0 "" ;;
-                B) run "lite-dpr2-r$r" 1 0 "" ;;
-                C) run "lite-dpr1-r$r" 1 0 1 ;;
-                D) run "noanim-dpr2-r$r" 0 1 "" ;;
-                E) run "asis-dpr1-r$r" 0 0 1 ;;
+                A) run "asis-r$r" "" ;;
+                B) run "noshadow-all-r$r" all ;;
+                C) run "noshadow-cards-r$r" cards ;;
               esac
             done
           done

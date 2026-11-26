@@ -99,6 +99,25 @@ export const test = base.extend<{ frameTimeNote: void }>({
               if (add()) o.disconnect()
             }).observe(document, { childList: true })
         })
+      // PROBE_NOSHADOW=all|cards: box-shadow off everywhere, or on the cards only.
+      if (process.env.PROBE_NOSHADOW)
+        await page.addInitScript((which) => {
+          const s = document.createElement('style')
+          s.textContent =
+            which === 'cards'
+              ? '.pcard,.cs__bar,.cs-pick,.cl,.fb-dialog,.fb-sheet{box-shadow:none!important}'
+              : '*,*::before,*::after{box-shadow:none!important}'
+          const add = () => {
+            const r = document.documentElement
+            if (!r) return false
+            r.appendChild(s)
+            return true
+          }
+          if (!add())
+            new MutationObserver((_m, o) => {
+              if (add()) o.disconnect()
+            }).observe(document, { childList: true })
+        }, process.env.PROBE_NOSHADOW)
       const t0 = Date.now()
       await use()
       if (process.env.PROBE_LOG === '1' && !page.isClosed()) {

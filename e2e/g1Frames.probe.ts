@@ -176,6 +176,11 @@ const STYLE: Record<string, string> = {
   noanim:
     '*,*::before,*::after{animation:none!important;transition:none!important}',
   noshadow: '*,*::before,*::after{box-shadow:none!important}',
+  shcards:
+    '.pcard,.cs__bar,.cs-pick,.cl,.fb-dialog,.fb-sheet{box-shadow:none!important}',
+  shglass: '.glass,.glass-flat{box-shadow:none!important}',
+  shrest:
+    '*:not(.pcard,.cs__bar,.cs-pick,.cl,.fb-dialog,.fb-sheet):not(.glass):not(.glass-flat){box-shadow:none!important}',
 }
 async function look(page: Page, v: string) {
   await page.evaluate(
@@ -195,7 +200,7 @@ async function look(page: Page, v: string) {
   )
 }
 
-for (const dsf of [2, 1]) {
+for (const dsf of [2]) {
   test.describe(`action dpr ${dsf}`, () => {
     test.use({ deviceScaleFactor: dsf })
     test(`g1 action frames: Box card open and close (dpr ${dsf})`, async ({
@@ -215,14 +220,7 @@ for (const dsf of [2, 1]) {
       await typeInEditor(page, 'The nucleus holds the DNA')
       await page.locator('.bn-editor').first().click()
       const c = page.getByTestId('v8-card-text.box')
-      const variants = [
-        'asis',
-        'noblur',
-        'lite',
-        'noanim',
-        'noshadow',
-        'lite+noanim',
-      ]
+      const variants = ['asis', 'noshadow', 'shcards', 'shglass', 'shrest']
       for (let rep = 0; rep < 3; rep++)
         for (const v of rep % 2 ? [...variants].reverse() : variants) {
           await look(page, v)
@@ -243,3 +241,43 @@ for (const dsf of [2, 1]) {
     })
   })
 }
+
+/** Every visible box-shadow on screen: element, size, shadow. */
+const shadows = (page: Page) =>
+  page.evaluate(() => {
+    const out: string[] = []
+    for (const el of Array.from(document.querySelectorAll('*'))) {
+      const cs = getComputedStyle(el)
+      if (!cs.boxShadow || cs.boxShadow === 'none') continue
+      const r = el.getBoundingClientRect()
+      if (r.width * r.height === 0 || cs.visibility === 'hidden') continue
+      if (r.bottom < 0 || r.top > innerHeight) continue
+      out.push(
+        `${(el.getAttribute('data-testid') || el.className.toString() || el.tagName).slice(0, 30)}:${Math.round(r.width)}x${Math.round(r.height)}:${cs.boxShadow.replace(/rgba?([^)]*)/g, 'c')}`,
+      )
+    }
+    return out.join(' | ')
+  })
+
+test('g1 shadow inventory per screen of TB-42', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'learning-notes:level',
+      JSON.stringify({ level: 'beginner', unlocked: ['tb.textBox'] }),
+    )
+  })
+  await startInMode(page, 'touch')
+  await page.goto('/?flags=toolbar.v8')
+  await createNotebook(page, 'Biology', 'First')
+  console.log(`G1SHADOW screen=notebook ${await shadows(page)}`)
+  await hideSidebar(page)
+  await typeInEditor(page, 'The nucleus holds the DNA')
+  await page.locator('.bn-editor').first().click()
+  console.log(`G1SHADOW screen=editor ${await shadows(page)}`)
+  await page.getByTestId('v8-chip-text.box').click()
+  const c = page.getByTestId('v8-card-text.box')
+  await expect(c).toBeVisible()
+  await c.getByTestId('v8-box-bg-yellow').click()
+  await c.getByRole('switch', { name: 'Shadow' }).click()
+  console.log(`G1SHADOW screen=card_open ${await shadows(page)}`)
+})

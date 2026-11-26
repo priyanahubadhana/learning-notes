@@ -2542,6 +2542,24 @@ export function PaperFrame({
           {/* One place in the tree for both layouts: a switch never remounts the
               boxes (their editors). Fit width shows them after the text. */}
           {layerEl}
+          {/* The sheets' soft shadow, painted once on its own still layer: a change
+              inside a sheet does not repaint it (the iPad engine has no GPU). It
+              only draws outside each sheet and never takes a touch. */}
+          {!flat && !narrow && (
+            <div
+              aria-hidden
+              className="pointer-events-none"
+              style={{ position: 'relative', height: 0 }}
+            >
+              {Array.from({ length: sheets }, (_, i) => (
+                <div
+                  key={i}
+                  className="absolute inset-x-0 transform-gpu rounded-sm shadow-sm"
+                  style={{ top: i * (sheetPx + SHEET_GAP_PX), height: sheetPx }}
+                />
+              ))}
+            </div>
+          )}
           {!flat && !narrow && (
             <div
               data-paper-sheets
@@ -2610,9 +2628,7 @@ export function PaperFrame({
                   key={i}
                   data-paper-sheet={i + 1}
                   data-paper-bg={page.inkBg}
-                  // The soft shadow lives on its own still layer (::before), so a change
-                  // inside the sheet does not repaint it (iPad engine has no GPU).
-                  className="relative rounded-sm border border-line bg-surface before:pointer-events-none before:absolute before:-inset-px before:rounded-sm before:shadow-sm before:transform-gpu before:content-['']"
+                  className="rounded-sm border border-line bg-surface"
                   style={
                     {
                       height: sheetPx,

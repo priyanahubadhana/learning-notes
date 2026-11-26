@@ -19,7 +19,9 @@ for (const from of ['touch', 'computer'] as const) {
     const y = box.y + 150
     await stroke(page, line([box.x + 20, y], [box.x + 300, y]))
     expect(
-      await page.evaluate(() => localStorage.getItem('learning-notes:general.deviceMode')),
+      await page.evaluate(() =>
+        localStorage.getItem('learning-notes:general.deviceMode'),
+      ),
       'the first Pencil touch switched the page',
     ).toBe('"pencil"')
     await expectStrokes(page, 1)

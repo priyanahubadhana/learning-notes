@@ -307,6 +307,58 @@ async function burstPen(page: Page, path: Pt[], k = 4) {
   ).toBeLessThan(2)
 }
 
+/**
+ * The Pencil guard's numbers (src/app/tapTiming.ts TAP_SPEEDS and
+ * TAP_SPEED_KEY, src/editor/penGuard.ts SELECT_GRACE_MS and tapGraceOn):
+ * after a Pencil tap on text, no replacement for the tap gap + 200 ms; after
+ * a tap selects text, none for 600 ms.
+ */
+const TAP_SPEEDS: Record<string, number> = {
+  quick: 350,
+  normal: 500,
+  relaxed: 700,
+  wide: 1000,
+}
+const SELECT_GRACE_MS = 600
+
+/**
+ * Waits until the guard's own state (`__lnTools.toolState().penGuard`) says
+ * its last Pencil lift is older than both graces, and asserts it.
+ */
+async function penGracesOver(page: Page) {
+  const speed = await page.evaluate(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem('learning-notes:preview.tapSpeed') ?? 'null',
+      ) as string | null
+    } catch {
+      return null
+    }
+  })
+  const grace = Math.max(
+    (TAP_SPEEDS[speed ?? ''] ?? TAP_SPEEDS.wide) + 200,
+    SELECT_GRACE_MS,
+  )
+  type Guard = { down: boolean; upAgoMs: number | null }
+  const guard = () =>
+    page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            __lnTools?: { toolState: () => Record<string, unknown> }
+          }
+        ).__lnTools?.toolState().penGuard as Guard | undefined,
+    )
+  await expect
+    .poll(async () => (await guard())?.upAgoMs ?? -1, {
+      message: `the Pencil guard's last lift is over ${grace} ms old`,
+    })
+    .toBeGreaterThan(grace)
+  const g = await guard()
+  expect(g?.down, 'no Pencil gesture is going on').toBe(false)
+  expect(g?.upAgoMs).toBeGreaterThan(grace)
+}
+
 const asPen = (page: Page, on: boolean) =>
   page.evaluate((v) => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = v
@@ -560,6 +612,10 @@ test.describe('TB-37 the Text tool: shapes and circled numbers', () => {
       const a = (i / 23) * Math.PI * 2 - Math.PI / 2
       return { x: cx + Math.cos(a) * rx, y: cy + Math.sin(a) * ry }
     })
+    // The settle tap starts the Pencil guard's graces, which rightly refuse
+    // a replacement of the text meanwhile; the slow ring above comes late
+    // enough, a burst does not. Start once the guard says they are over.
+    await penGracesOver(page)
     await burstPen(page, ring)
     await expect(box.locator('.ProseMirror')).toContainText('Step ⑦ done')
   })

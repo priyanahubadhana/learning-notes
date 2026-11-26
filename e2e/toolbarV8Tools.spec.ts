@@ -27,6 +27,7 @@ async function open(
   tool: 'pen' | 'eraser' | 'shapes' | 'lasso',
   level: Level = 'beginner',
   unlocked: string[] = [],
+  mode: 'touch' | 'pencil' = 'touch',
 ) {
   await page.addInitScript(
     ([l, u]) => {
@@ -37,7 +38,7 @@ async function open(
     },
     [level, unlocked] as const,
   )
-  await startInMode(page, 'touch')
+  await startInMode(page, mode)
   await page.goto('/?flags=toolbar.v8')
   await createNotebook(page, 'Biology', 'First')
   await typeInEditor(page, 'The nucleus holds the DNA')
@@ -365,7 +366,10 @@ test('TB-33 no bar action is dimmed or "soon": on words each one answers in plai
 
 /** A drawing under the text, then the Lasso loops it (Pen then Lasso). */
 async function lassoInk(page: Page) {
-  await open(page, 'pen', 'professional', ['tb.selectionMenu'])
+  // Start in Pencil mode: the first pen touch of any other mode may switch the
+  // page to Pencil mode (when no key was pressed for 1.5 s), which depends on
+  // how long the setup took on the machine. The switch keeps the first line: penFirstLineSwitch.spec.ts.
+  await open(page, 'pen', 'professional', ['tb.selectionMenu'], 'pencil')
   await page.waitForTimeout(800)
   const box = await textBox(page)
   const y = box.y + 150

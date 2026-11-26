@@ -401,6 +401,23 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 
 **Four questions to the owner (26 Nov), each with Fable's pick.** A shape that holds text gets its own room, or may lie over words; an arrow from one text box to another in stage 1, or later; the front page as a screen that the app arranges, or as a free sheet; two additions to the one test (an import never sets a lock; what the app counts is changed at its source). A second, short round follows with the sentences that are still Fable's.
 
+## 5N. The owner's four answers after the proofs (26 Nov)
+
+**The owner's words:** "Point number 1A. Point number 2. A. Three. I guess you got it wrong. The front page is not an app, it's a preset. What I mean by it, it's a sheet that is made using our own features Thus, it will also have the complete customization possibilities. I hope you understand. It's just like an alteration our own app feature will use to build this app. This kind of screen. It will be more like a template and the things we are building. The university uniformity will be maintained. Fourth, both"
+
+**What Fable heard.**
+
+1. A shape that holds text gets its own room in the text box; words that are there make room; it never lies over words.
+2. In stage 1 a diagram lives inside one text box. An arrow from one text box to another comes after stage 1, with the lines that stay joined to boxes. The two small faults (the arrow in a gap, the stroke on empty paper) are fixed in stage 1.
+3. The front page is not a screen that the app arranges. It is a preset, like a template: a sheet made with the app's own features, so all of it can be changed with the same tools. What is built for it is built as features of the app, and the app stays uniform. ("University uniformity": Fable reads it as the uniformity of the app.)
+4. Both additions to the one test: an import never sets a lock, and what the app counts by itself is changed at its source.
+
+**On point 3, for the record:** the owner chose the sheet as a preset; Fable's pick was a screen that the app arranges; the reason against the owner's choice was that it is larger and daily use starts later. Fable's question had also set the two as opposites. The owner's answer joins them: a sheet, made by a preset.
+
+**What the code has for point 3 (read 26 Nov).** Templates exist: they are ordinary pages in the notebook "Templates", edited like any page, and using one copies it (`src/templates/templateService.ts`). A database can stand inside a page and show its Dashboard. Not there: "continue reading" and "the cards that are due" as things that stand on a page; a page that is the front page of a notebook and is not among its chapters.
+
+**In the spec (seventh draft):** NB-96, NB-97, NB-98, and two more sentences in NB-01.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

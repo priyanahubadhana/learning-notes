@@ -77,7 +77,7 @@ For the owner's device (asked when its turn comes):
 
 ## 5. What the proofs open for the owner
 
-Asked on 26 Nov; the answers go into [the talk notes](../phase-1b-notebook-talk.md) and into the spec.
+Asked on 26 Nov and answered the same day: [the talk notes](../phase-1b-notebook-talk.md), section 5N, and the spec, section 8. In short: the shape gets its own room; an arrow from one text box to another comes after stage 1; the front page is a preset, a sheet made with the app's own features; both additions, yes.
 
 1. A shape that holds text: does it get its own room in the text box, or may it lie over words that are there.
 2. An arrow from one text box to another: in stage 1, or later.

@@ -567,6 +567,10 @@ test.describe('TB-37 the Text tool: shapes and circled numbers', () => {
       const a = (i / 23) * Math.PI * 2 - Math.PI / 2
       return { x: cx + Math.cos(a) * rx, y: cy + Math.sin(a) * ry }
     })
+    // The settle tap starts the Pencil guard's tap grace (1.2 s), which
+    // refuses replacing the 7: a ring that ends inside it is refused
+    // (the repeat-11 failure). Start once the guard says it is over.
+    await penGracesOver(page)
     await realPen(page, ring)
     await expect(box.locator('.ProseMirror')).toContainText('Step ⑦ done')
     expect((await savedInk(page)).strokes).toHaveLength(0)
@@ -576,7 +580,15 @@ test.describe('TB-37 the Text tool: shapes and circled numbers', () => {
 
   // Issue #90: a quick stroke reaches the page as a few moves with the rest
   // of its points in getCoalescedEvents; the Text tool must use them all.
-  test('a quick ring round a digit (moves merged by the browser) still becomes a circled number', async ({
+  // The rectangle below is the red-first proof of #90. This ring is not: a
+  // 92-point burst still reaches the page as about 10 to 13 move events,
+  // enough points for a ring even without the merged ones (it passed on the
+  // code before the fix). Tried: keeping the page busy during the burst
+  // still let 2 to 7 move events through on chromium, so not steadily
+  // under 6 points (Playwright sends each move after the last is answered). What it
+  // proves: a ring whose moves the browser merged (checked by burstPen)
+  // still circles the digit once the guard's graces are over.
+  test('a quick ring round a digit, its moves merged by the browser, becomes a circled number after the guard graces', async ({
     page,
   }) => {
     await start(page, 'TB37digitBurst')

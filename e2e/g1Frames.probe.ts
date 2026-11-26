@@ -145,3 +145,94 @@ for (const dsf of [2, 1]) {
     })
   })
 }
+
+/** Starts recording frame gaps in the page for `ms`; read with `stopRec`. */
+const startRec = (page: Page, ms: number) =>
+  page.evaluate((ms) => {
+    const w = window as unknown as { __rec?: Promise<number[]> }
+    w.__rec = new Promise<number[]>((resolve) => {
+      const g: number[] = []
+      let last = performance.now()
+      const t0 = last
+      const step = (t: number) => {
+        g.push(t - last)
+        last = t
+        if (t - t0 < ms) requestAnimationFrame(step)
+        else resolve(g)
+      }
+      requestAnimationFrame(step)
+    })
+  }, ms)
+const stopRec = (page: Page) =>
+  page.evaluate(() => (window as unknown as { __rec: Promise<number[]> }).__rec)
+const stat = (g: number[]) => {
+  const s = [...g].sort((a, b) => a - b)
+  const q = (f: number) => s[Math.min(s.length - 1, Math.floor(s.length * f))]
+  return `n=${s.length} med=${q(0.5).toFixed(0)} p90=${q(0.9).toFixed(0)} worst=${s[s.length - 1].toFixed(0)}`
+}
+const STYLE: Record<string, string> = {
+  noblur:
+    '*,*::before,*::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}',
+  noanim:
+    '*,*::before,*::after{animation:none!important;transition:none!important}',
+  noshadow: '*,*::before,*::after{box-shadow:none!important}',
+}
+async function look(page: Page, v: string) {
+  await page.evaluate(
+    ([v, css]) => {
+      document.querySelectorAll('style[data-probe]').forEach((e) => e.remove())
+      if (v === 'lite') document.documentElement.dataset.glass = 'lite'
+      else delete document.documentElement.dataset.glass
+      for (const k of Object.keys(css))
+        if (v.split('+').includes(k)) {
+          const s = document.createElement('style')
+          s.dataset.probe = k
+          s.textContent = css[k]
+          document.documentElement.appendChild(s)
+        }
+    },
+    [v, STYLE] as const,
+  )
+}
+
+for (const dsf of [2, 1]) {
+  test.describe(`action dpr ${dsf}`, () => {
+    test.use({ deviceScaleFactor: dsf })
+    test(`g1 action frames: Box card open and close (dpr ${dsf})`, async ({
+      page,
+    }) => {
+      test.setTimeout(420_000)
+      await page.addInitScript(() => {
+        localStorage.setItem(
+          'learning-notes:level',
+          JSON.stringify({ level: 'beginner', unlocked: ['tb.textBox'] }),
+        )
+      })
+      await startInMode(page, 'touch')
+      await page.goto('/?flags=toolbar.v8')
+      await createNotebook(page, 'Biology', 'First')
+      await hideSidebar(page)
+      await typeInEditor(page, 'The nucleus holds the DNA')
+      await page.locator('.bn-editor').first().click()
+      const c = page.getByTestId('v8-card-text.box')
+      const variants = ['asis', 'noblur', 'lite', 'noanim', 'noshadow', 'lite+noanim']
+      for (let rep = 0; rep < 3; rep++)
+        for (const v of rep % 2 ? [...variants].reverse() : variants) {
+          await look(page, v)
+          await page.waitForTimeout(400)
+          await startRec(page, 1200)
+          await page.getByTestId('v8-chip-text.box').click({ force: true })
+          await expect(c).toBeVisible()
+          const open = await stopRec(page)
+          await startRec(page, 1200)
+          await c.getByTestId('pcard-close').click({ force: true })
+          await expect(c).toHaveCount(0)
+          const close = await stopRec(page)
+          await page.locator('.bn-editor').first().click({ force: true })
+          const line = `G1ACTION label=${process.env.PROBE_LABEL} dpr=${dsf} rep=${rep} look=${v} open(${stat(open)}) close(${stat(close)})`
+          console.log(line)
+          test.info().annotations.push({ type: 'g1 action', description: line })
+        }
+    })
+  })
+}

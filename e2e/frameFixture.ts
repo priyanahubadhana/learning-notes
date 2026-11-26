@@ -74,6 +74,28 @@ export const test = base.extend<{ frameTimeNote: void }>({
               if (add()) o.disconnect()
             }).observe(document, { childList: true })
         })
+      // PROBE_LITE=1: the app's own "Reduce glass" setting, from the first frame.
+      if (process.env.PROBE_LITE === '1')
+        await page.addInitScript(() =>
+          localStorage.setItem('learning-notes:general.reduceGlass', '"reduce"'),
+        )
+      // PROBE_NOANIM=1: every CSS animation and transition off, nothing else.
+      if (process.env.PROBE_NOANIM === '1')
+        await page.addInitScript(() => {
+          const s = document.createElement('style')
+          s.textContent =
+            '*,*::before,*::after{animation:none!important;transition:none!important}'
+          const add = () => {
+            const r = document.documentElement
+            if (!r) return false
+            r.appendChild(s)
+            return true
+          }
+          if (!add())
+            new MutationObserver((_m, o) => {
+              if (add()) o.disconnect()
+            }).observe(document, { childList: true })
+        })
       const t0 = Date.now()
       await use()
       if (process.env.PROBE_LOG === '1' && !page.isClosed()) {

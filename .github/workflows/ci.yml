@@ -57,25 +57,23 @@ jobs:
           (npx vite preview --port 5199 --strictPort > preview.log 2>&1 &)
           for i in $(seq 1 60); do curl -sf http://localhost:5199 > /dev/null && break; sleep 1; done
           curl -sf http://localhost:5199 > /dev/null && echo server up
-      - name: Per-screen frame probe (blur on and off on the same page)
+      - name: Frames around a real action (Box card open and close), two pages at once
         env:
           PROBE_FILES: g1Frames
           PROBE_TRACE: 'off'
-          PROBE_LABEL: probe-alone
+          PROBE_LABEL: action-2w
         run: |
-          npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=1 --reporter=list --output=results/probe-alone 2>&1 | tee -a probe.log | grep -E "G1PROBE|passed|failed|Error" | cut -c1-1500 || true
-      - name: TB-42 and TB-75, interleaved variants
+          npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=2 --repeat-each=2 --grep "action frames" --reporter=list --output=results/action 2>&1 | tee -a probe.log | grep -E "G1ACTION|passed|failed|Error" | cut -c1-400 || true
+      - name: TB-42 and TB-75, interleaved variants (round 2)
         env:
           PROBE_FILES: 'toolbarV8Text|toolbarV8Tuck'
           PROBE_LOG: '1'
+          PROBE_TRACE: 'on'
           GREP: 'TB-42 with tb.textBox|TB-75 bar turned off'
         run: |
-          run() { # label noblur trace dsf
+          run() { # label lite noanim dsf
             echo "=== VARIANT $1 start $(date +%s)"
-            PROBE_LABEL="$1" PROBE_NOBLUR="$2" PROBE_TRACE="$3" PROBE_DSF="$4" \
-            PLAYWRIGHT_JSON_OUTPUT_NAME="results/$1.json" \
-              npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=2 --repeat-each=2 \
-              --grep "$GREP" --reporter=list,json --output="results/$1" > "results/$1.log" 2>&1 || true
+            PROBE_LABEL="$1" PROBE_LITE="$2" PROBE_NOANIM="$3" PROBE_DSF="$4"             PLAYWRIGHT_JSON_OUTPUT_NAME="results/$1.json"               npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=2 --repeat-each=2               --grep "$GREP" --reporter=list,json --output="results/$1" > "results/$1.log" 2>&1 || true
             grep -E "PROBEFT|✓|✘|passed|failed" "results/$1.log" | cut -c1-300
             echo "=== VARIANT $1 end $(date +%s)"
           }
@@ -84,21 +82,14 @@ jobs:
             if [ $r = 1 ]; then order="A B C D E"; else order="E D C B A"; fi
             for v in $order; do
               case $v in
-                A) run "blur-trace-r$r" 0 on "" ;;
-                B) run "noblur-trace-r$r" 1 on "" ;;
-                C) run "blur-notrace-r$r" 0 off "" ;;
-                D) run "noblur-notrace-r$r" 1 off "" ;;
-                E) run "blur-trace-dpr1-r$r" 0 on 1 ;;
+                A) run "asis-dpr2-r$r" 0 0 "" ;;
+                B) run "lite-dpr2-r$r" 1 0 "" ;;
+                C) run "lite-dpr1-r$r" 1 0 1 ;;
+                D) run "noanim-dpr2-r$r" 0 1 "" ;;
+                E) run "asis-dpr1-r$r" 0 0 1 ;;
               esac
             done
           done
-      - name: Per-screen frame probe again, at the end
-        env:
-          PROBE_FILES: g1Frames
-          PROBE_TRACE: 'off'
-          PROBE_LABEL: probe-end
-        run: |
-          npx playwright test -c playwright.probe.config.ts --project=ipad-webkit --workers=1 --reporter=list --output=results/probe-end 2>&1 | tee -a probe.log | grep -E "G1PROBE|passed|failed|Error" | cut -c1-1500 || true
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

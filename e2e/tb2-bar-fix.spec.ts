@@ -21,12 +21,17 @@ test.use({
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 const rect = async (l: Locator) => (await l.boundingBox())!
 
-async function start(
-  page: Page,
-  name: string,
-  mode: 'computer' | 'pencil' = 'computer',
-) {
+async function start(page: Page, name: string, mode: 'computer' = 'computer') {
   await page.addInitScript(() => {
+    // When the last key went down, on the page's own clock: the app switches to
+    // Pencil mode on a Pencil touch only when this is older than 1.5 s.
+    ;(window as unknown as { __lastKey: number }).__lastKey = 0
+    window.addEventListener(
+      'keydown',
+      () =>
+        ((window as unknown as { __lastKey: number }).__lastKey = Date.now()),
+      true,
+    )
     localStorage.setItem('learning-notes:flags', '["textbox.v2"]')
     const w = window as unknown as { __clip: string[]; __paste: string }
     w.__clip = []
@@ -122,15 +127,52 @@ const centre = async (l: Locator) => {
 
 async function ready(page: Page) {
   await installRealPen(page)
-  // Pencil mode from the start: the first Pencil touch of a Computer-mode page
-  // switches it to Pencil mode (when no key was pressed for 1.5 s) and the page
-  // moves, which depends on how long the setup took. No switch, no clock.
-  await start(page, 'Fix' + Math.random().toString(36).slice(2, 6), 'pencil')
+  await start(page, 'Fix' + Math.random().toString(36).slice(2, 6))
   const box = await addBox(page, 'Alpha beta', 300)
   await pick(page, box)
+  await intoPencilMode(page)
   await dockSettled(page)
   await expect(bar(page)).toHaveCount(1)
   return box
+}
+
+/**
+ * The first Pencil touch of a Computer-mode page switches it to Pencil mode,
+ * but only when the last key is older than 1.5 s, and the page moves. The
+ * tests read positions, so the switch is made here, before any is read, by ONE
+ * Pencil touch sent once the page itself measures the quiet time (a Pencil
+ * mode start cannot be used: the box is added by a click that Pencil mode
+ * does not take). A tap that does not switch fails the test.
+ */
+async function intoPencilMode(page: Page) {
+  await page.waitForFunction(
+    () =>
+      Date.now() - (window as unknown as { __lastKey: number }).__lastKey >
+      1600,
+  )
+  await page.evaluate(() => {
+    const mk = (type: string, buttons: number) =>
+      new PointerEvent(type, {
+        pointerType: 'pen',
+        pointerId: 41,
+        isPrimary: true,
+        clientX: 1,
+        clientY: 1,
+        button: 0,
+        buttons,
+        bubbles: true,
+        composed: true,
+      })
+    document.documentElement.dispatchEvent(mk('pointerdown', 1))
+    document.documentElement.dispatchEvent(mk('pointerup', 0))
+  })
+  await expect(page.getByText('Switched to Pencil mode')).toBeVisible()
+  expect(
+    await page.evaluate(() =>
+      localStorage.getItem('learning-notes:general.deviceMode'),
+    ),
+  ).toBe('"pencil"')
+  await dockSettled(page)
 }
 
 /**

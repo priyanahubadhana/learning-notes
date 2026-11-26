@@ -2612,7 +2612,7 @@ export function PaperFrame({
                   data-paper-bg={page.inkBg}
                   // The soft shadow lives on its own still layer (::before), so a change
                   // inside the sheet does not repaint it (iPad engine has no GPU).
-                  className="relative isolate rounded-sm border border-line bg-surface before:pointer-events-none before:absolute before:-inset-px before:-z-10 before:rounded-sm before:shadow-sm before:transform-gpu before:content-['']"
+                  className="relative rounded-sm border border-line bg-surface before:pointer-events-none before:absolute before:-inset-px before:rounded-sm before:shadow-sm before:transform-gpu before:content-['']"
                   style={
                     {
                       height: sheetPx,

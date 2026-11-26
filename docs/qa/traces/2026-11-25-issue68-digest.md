@@ -4,7 +4,6 @@ Owner, 25 Nov 2026 03:13 to 03:14 IST, iPad upright (820 x 1180), preview build 
 
 Raw traces (recovered from the chat, 26 Nov): [1](2026-11-25-issue68-trace-1.json), [2](2026-11-25-issue68-trace-2.json), [3](2026-11-25-issue68-trace-3.json), [4](2026-11-25-issue68-trace-4.json), [5](2026-11-25-issue68-trace-5.json).
 
-
 ## What the owner saw
 
 - Photo 1 (trace 1, tool = Lasso): taps on a word picked the whole box (frame and dots), no word selected.

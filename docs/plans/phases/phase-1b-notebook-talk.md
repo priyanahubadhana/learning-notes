@@ -462,6 +462,16 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 
 **The one question after the final audit, and the owner's answer (26 Nov).** The "most direct way" of the import: **A (Fable's pick):** still a file that the owner brings in by hand; Claude makes the file, and the owner adds it on the Data screen with one tap. **B:** Claude may also write straight into the app, which brings the connector forward from the end of stage 2. The owner: "So will be A." The decision of 22 Nov stands.
 
+## 5Q. The owner's yes to the spec (26 Nov)
+
+Fable asked whether Opus may build from the spec, and gave three choices. **A (Fable's pick):** yes, with Fable's marked readings; if a reading turns out wrong when the owner sees the real thing, the owner says so and the line is changed. Named against A: a wrong reading may be built before the owner sees it, and that part is then done again. **B:** yes to the owner's own lines only; each reading of Fable's comes as a question before its part is built. **C:** not yet.
+
+**The owner:** "Go ahead with your pick."
+
+The yes does not cover: the two points that Opus asks with the real thing on the preview (what a round shape does when it reaches the width of its text box; whether words run around a shape or stand above and below it); the time; the look, which is approved on a real chapter. Still to come from Opus: the looks in the running app that the proofs name, first of all whether a pen mark stays on its words at another width; and the sized estimate for phase 1B.
+
+**The planning of phase 1B is closed.** Three lines for the next planning talk, as the plan asks: (1) make the proofs before the lines are written, not after: four of Fable's sentences were wrong about what the app has; (2) put each question to the owner with its choices lettered, and write the choices into these notes the same hour: the audit could not tell which choice "A" was; (3) do not set two ways against each other before asking what the owner pictures: on the front page the owner's answer was neither.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

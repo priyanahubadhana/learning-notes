@@ -1,6 +1,8 @@
-# The notebook that Claude writes: big spec, tenth draft (26 Nov 2026, after three audit rounds, the proofs, the owner's answers, a final audit and a check of its fixes)
+# The notebook that Claude writes: big spec (approved by the owner on 26 Nov 2026)
 
-**Status: DRAFT. Not approved. Opus builds nothing from this page.** A line is approved only by the owner's yes. Section 4 is not final. The proofs were made on 26 Nov by reading the code ([the proofs](phase-1b-proofs/README.md)), and this draft holds their facts: each is marked "Proof". No sentence of the owner was changed by them. What the proofs opened waits for the owner's answers (section 8), and some points still wait for a look in the running app or on the iPad (section 8). A sentence marked "Fable's" is not the owner's yet. When the page is approved, Opus moves it to `docs/features/`.
+**Status: approved by the owner on 26 Nov 2026. Opus builds from this page.** The owner, asked whether Opus may build from it, with the choices "yes, with Fable's marked readings", "yes to the owner's own lines only" and "not yet": "Go ahead with your pick", which was the first. This is the tenth draft, after three audit rounds, the proofs, the owner's answers of 26 Nov, a final audit and a check of its fixes.
+
+What the yes covers: the owner's own lines, and Fable's readings, each marked as Fable's (the list is in section 8). If a reading turns out wrong when the owner sees the real thing, the owner says so and the line is changed. What the yes does not cover: the two points that are asked with the real thing on the preview (section 8, the daily list); the time; and the look, which is approved only on a real chapter (section 7). A line is changed only by the owner and keeps its id. The facts marked "Proof" were read from the code on 26 Nov ([the proofs](phase-1b-proofs/README.md)); some points still wait for a look in the running app or on the iPad (section 8), and if such a look goes against a line, the question goes to the owner. Opus moves this page to `docs/features/`.
 
 Where it comes from: [the talk notes](phase-1b-notebook-talk.md) (the owner's words, the code check, the walk-through, the audits). The plan it belongs to: [the plan after phase 1A](../plan-after-1a.md).
 
@@ -85,7 +87,7 @@ An id never changes. "Exists" means the code check found it in the app; "new" me
 | NB-51 | The front page of a notebook is calm too. It shows where to continue reading, the chapters with their state, and the cards that are due, and it helps the owner keep track of everything.                                               | owner, 25 Nov                                                                                                                                                                                                                                                                                       |
 | NB-91 | The front page, the row of options and the new option of the Shapes tool are as easy to change as everything else: the owner can add, edit, remove and reorder what they show.                                                          | owner, 25 Nov ("easy to customize"); the owner's rule for rows of tabs. New for the row of options: today its order is fixed. Proof: the new Settings hold an editor that adds, renames, removes and reorders the options; it is kept on one device, and the row under a page does not obey it yet. |
 
-## 4. What the app does (not final: see the note in the Status)
+## 4. What the app does
 
 ### 4.1 From Claude into the app
 

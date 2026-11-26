@@ -2,12 +2,13 @@
 
 **For the owner, to come back and continue. Also for a new Fable chat: read this page first.**
 
-## Update, 26 Nov, afternoon
+## Update, 26 Nov, evening: the planning of phase 1B is closed
 
-- **The proofs are made** (by reading the code): [the proofs for the notebook spec](phases/phase-1b-proofs/README.md). The spec is in its sixth draft and holds their facts.
-- **The short round with Fable has begun.** Four questions went to the owner; a second, short round follows with the sentences that are still Fable's. Both lists are in section 8 of the spec.
-- **Left for Opus:** the points that need a look in the running app (the proofs, section 4), and the sized estimate for phase 1B.
-- Where this page and the lines below differ, this update wins.
+- **The notebook spec has the owner's yes** (26 Nov, with Fable's marked readings): [the spec](phases/phase-1b-notebook-spec-draft.md). Opus builds from it and moves it to `docs/features/`.
+- **How it got there:** the proofs were made by reading the code ([the proofs](phases/phase-1b-proofs/README.md)); the owner answered two short rounds of questions and one last question; a fresh helper audited the spec and a second one checked the fixes. The record is in [the talk notes](phases/phase-1b-notebook-talk.md), sections 5M to 5Q.
+- **Left for Opus:** the looks in the running app (the proofs, section 4), first of all whether a pen mark stays on its words at another width; the sized estimate for phase 1B; the two points that are asked of the owner with the real thing on the preview (the spec, section 8).
+- **No planning step is open.** The next planning talk with Fable is for the phase part after 1B; the owner opens it.
+- Where this update and the lines below differ, this update wins.
 
 ## How to continue
 

@@ -60,7 +60,7 @@ The owner, 25 Nov: no hard rules on how Opus works; hard rules restricted Opus i
 - A bug fix says only "the fault is gone"; a new behaviour needs the owner's own sentence; before a fix, the tests of the same spot are read for a clash.
 - A helper file for tests ends in `.helper.ts`, and a pattern that picks test files ends in `[.]spec`.
 - A recording from the iPad is saved in the repo the day it is taken. After a push, what is on main is read back. After a rename in the docs, the text generators are run.
-- A helper stops at a sign-in screen. The tests' own switch for that screen is used on the preview only with the owner's yes.
+- A helper stops at a sign-in screen. The tests' own switch for that screen is used on the preview only with the owner's yes. The owner gave that yes on 26 Nov for one use: Opus's read-only proofs of section 6, on the preview only, to look, with no real account and no real data. Any other use asks again.
 - A reviewer that has no edit tools can still change files through the command line; Opus checks that the reviewer is stopped there too.
 - A spec is audited before the owner approves it, by helpers that have not seen the planner's reasoning: against the owner's words and against the earlier decisions.
 - A tool or a skill is built when the same fault happened twice. A tool that prints a warning nobody acts on is taken out or made to count.
@@ -237,7 +237,7 @@ Opus corrects them in step 2b, after the owner's yes. Each file gets a head line
 - Yes or no to the product picks of the last week, and to the list of working copies.
 - The kinds of action Opus may do without a click, allowed once.
 - The changes to the owner's own `~/.claude` files.
-- Whether a helper may use the tests' sign-in switch on the preview again.
+- Answered on 26 Nov: the tests' sign-in switch may be used on the preview for the read-only proofs (section 3).
 - The check of each day part on the real device, about 15 minutes; the 10-minute Pencil session; the look of one real chapter; signing in on the phone for the cards.
 - Opening the planning talk with Fable for the phase part after 1B.
 - At the end of stage 1: Opus reminds the owner of the deep review in the cloud (section 3), and the owner decides.

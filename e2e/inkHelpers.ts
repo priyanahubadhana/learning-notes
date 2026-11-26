@@ -299,8 +299,14 @@ export const inkAndRect = (page: Page, sel: string | null, alpha = 8) =>
         ink: x1 < 0 ? null : { x0, y0, x1, y1 },
         rect: r ? { x: r.x, y: r.y, width: r.width, height: r.height } : null,
         // Transitions and animations of the element and what is inside it that
-        // have not ended (a slide shows its start value until its first frame).
-        running: el ? el.getAnimations({ subtree: true }).length : 0,
+        // have not ended, endless ones (a blinking caret) left out (a slide shows its start value until its first frame).
+        running: el
+          ? el
+              .getAnimations({ subtree: true })
+              .filter(
+                (a) => a.effect?.getComputedTiming().iterations !== Infinity,
+              ).length
+          : 0,
       }
     },
     { min: alpha, sel },

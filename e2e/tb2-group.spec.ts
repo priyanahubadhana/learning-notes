@@ -308,7 +308,11 @@ test('TB-32 the loop picks the boxes with their ink: the ink moves with them', a
   await lassoAround(page, [0, 1])
   await expect(pill(page)).toContainText('2 boxes')
   const aSel = `[data-paper-box="${await a.getAttribute('data-paper-box')}"]`
-  const first = await inkAndRect(page, aSel)
+  // The pick's own slide (if any) has ended before the first read.
+  let first = await inkAndRect(page, aSel)
+  await expect
+    .poll(async () => (first = await inkAndRect(page, aSel)).running)
+    .toBe(0)
   const ink0 = first.ink!
   const a0 = first.rect!
   const from = await centre(b.locator('[data-box-grip]'))

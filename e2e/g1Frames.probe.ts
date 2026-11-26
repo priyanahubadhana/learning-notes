@@ -215,7 +215,14 @@ for (const dsf of [2, 1]) {
       await typeInEditor(page, 'The nucleus holds the DNA')
       await page.locator('.bn-editor').first().click()
       const c = page.getByTestId('v8-card-text.box')
-      const variants = ['asis', 'noblur', 'lite', 'noanim', 'noshadow', 'lite+noanim']
+      const variants = [
+        'asis',
+        'noblur',
+        'lite',
+        'noanim',
+        'noshadow',
+        'lite+noanim',
+      ]
       for (let rep = 0; rep < 3; rep++)
         for (const v of rep % 2 ? [...variants].reverse() : variants) {
           await look(page, v)

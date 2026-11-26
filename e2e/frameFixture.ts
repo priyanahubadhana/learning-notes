@@ -77,7 +77,10 @@ export const test = base.extend<{ frameTimeNote: void }>({
       // PROBE_LITE=1: the app's own "Reduce glass" setting, from the first frame.
       if (process.env.PROBE_LITE === '1')
         await page.addInitScript(() =>
-          localStorage.setItem('learning-notes:general.reduceGlass', '"reduce"'),
+          localStorage.setItem(
+            'learning-notes:general.reduceGlass',
+            '"reduce"',
+          ),
         )
       // PROBE_NOANIM=1: every CSS animation and transition off, nothing else.
       if (process.env.PROBE_NOANIM === '1')

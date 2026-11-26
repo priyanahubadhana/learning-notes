@@ -262,33 +262,53 @@ export const paintedBox = (page: Page, canvas: 'ink' | 'highlights') =>
 
 /**
  * The painted ink (all tiles) as a box in client px, counting pixels whose
- * alpha is above `alpha`; null when nothing is painted.
+ * alpha is above `alpha` (null when nothing is painted), read in the SAME
+ * step as the box `sel` (its client rect) and the number of its animations
+ * still running. Two reads at two moments can straddle a slide.
  */
-export const inkClientBox = (page: Page, alpha = 8) =>
-  page.evaluate((min) => {
-    let x0 = Infinity
-    let y0 = Infinity
-    let x1 = -Infinity
-    let y1 = -Infinity
-    for (const c of document.querySelectorAll<HTMLCanvasElement>(
-      '[data-ink-canvas="ink"]',
-    )) {
-      const { width, height } = c
-      if (width === 0 || height === 0) continue
-      const r = c.getBoundingClientRect()
-      const sx = r.width / width
-      const sy = r.height / height
-      const d = c.getContext('2d')!.getImageData(0, 0, width, height).data
-      for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-          if (d[(y * width + x) * 4 + 3] > min) {
-            x0 = Math.min(x0, r.x + x * sx)
-            x1 = Math.max(x1, r.x + x * sx)
-            y0 = Math.min(y0, r.y + y * sy)
-            y1 = Math.max(y1, r.y + y * sy)
+export const inkAndRect = (page: Page, sel: string | null, alpha = 8) =>
+  page.evaluate(
+    ({ min, sel }) => {
+      let x0 = Infinity
+      let y0 = Infinity
+      let x1 = -Infinity
+      let y1 = -Infinity
+      for (const c of document.querySelectorAll<HTMLCanvasElement>(
+        '[data-ink-canvas="ink"]',
+      )) {
+        const { width, height } = c
+        if (width === 0 || height === 0) continue
+        const r = c.getBoundingClientRect()
+        const sx = r.width / width
+        const sy = r.height / height
+        const d = c.getContext('2d')!.getImageData(0, 0, width, height).data
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            if (d[(y * width + x) * 4 + 3] > min) {
+              x0 = Math.min(x0, r.x + x * sx)
+              x1 = Math.max(x1, r.x + x * sx)
+              y0 = Math.min(y0, r.y + y * sy)
+              y1 = Math.max(y1, r.y + y * sy)
+            }
           }
         }
       }
-    }
-    return x1 < 0 ? null : { x0, y0, x1, y1 }
-  }, alpha)
+      const el = sel ? document.querySelector(sel) : null
+      const r = el?.getBoundingClientRect()
+      return {
+        ink: x1 < 0 ? null : { x0, y0, x1, y1 },
+        rect: r ? { x: r.x, y: r.y, width: r.width, height: r.height } : null,
+        // Transitions and animations of the element and what is inside it that
+        // have not ended (a slide shows its start value until its first frame).
+        running: el ? el.getAnimations({ subtree: true }).length : 0,
+      }
+    },
+    { min: alpha, sel },
+  )
+
+/**
+ * The painted ink (all tiles) as a box in client px, counting pixels whose
+ * alpha is above `alpha`; null when nothing is painted.
+ */
+export const inkClientBox = async (page: Page, alpha = 8) =>
+  (await inkAndRect(page, null, alpha)).ink

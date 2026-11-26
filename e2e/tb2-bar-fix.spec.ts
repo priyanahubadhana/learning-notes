@@ -21,7 +21,11 @@ test.use({
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
 const rect = async (l: Locator) => (await l.boundingBox())!
 
-async function start(page: Page, name: string, mode: 'computer' = 'computer') {
+async function start(
+  page: Page,
+  name: string,
+  mode: 'computer' | 'pencil' = 'computer',
+) {
   await page.addInitScript(() => {
     localStorage.setItem('learning-notes:flags', '["textbox.v2"]')
     const w = window as unknown as { __clip: string[]; __paste: string }
@@ -118,7 +122,10 @@ const centre = async (l: Locator) => {
 
 async function ready(page: Page) {
   await installRealPen(page)
-  await start(page, 'Fix' + Math.random().toString(36).slice(2, 6))
+  // Pencil mode from the start: the first real Pencil touch of a Computer-mode
+  // page switches it to Pencil mode (unless a key was pressed in the last 1.5 s)
+  // and the page moves 10 px, so nothing is read before the mode is fixed.
+  await start(page, 'Fix' + Math.random().toString(36).slice(2, 6), 'pencil')
   const box = await addBox(page, 'Alpha beta', 300)
   await pick(page, box)
   await expect(bar(page)).toHaveCount(1)

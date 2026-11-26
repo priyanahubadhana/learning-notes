@@ -7,7 +7,7 @@ import {
   startInMode,
   typeInEditor,
 } from './helpers.ts'
-import { inkClientBox, line, savedInk, stroke } from './inkHelpers.ts'
+import { inkAndRect, line, savedInk, stroke } from './inkHelpers.ts'
 import { tool } from './mainBarHelpers.ts'
 import { lassoAround } from './groupHelpers.ts'
 
@@ -307,17 +307,32 @@ test('TB-32 the loop picks the boxes with their ink: the ink moves with them', a
     .toBe(1)
   await lassoAround(page, [0, 1])
   await expect(pill(page)).toContainText('2 boxes')
-  const ink0 = (await inkClientBox(page))!
-  const a0 = await rect(a)
+  const aSel = `[data-paper-box="${await a.getAttribute('data-paper-box')}"]`
+  const first = await inkAndRect(page, aSel)
+  const ink0 = first.ink!
+  const a0 = first.rect!
   const from = await centre(b.locator('[data-box-grip]'))
   await page.mouse.move(from.x, from.y)
   await page.mouse.down()
   await page.waitForTimeout(200)
   await page.mouse.move(from.x + 60, from.y + 20, { steps: 10 })
   await page.mouse.up()
-  await page.waitForTimeout(900)
-  const ink1 = (await inkClientBox(page))!
-  const a1 = await rect(a)
+  // The drop's own slide is waited for by its animations, not by a number of
+  // milliseconds; the ink and the box are read in one step.
+  let after = await inkAndRect(page, aSel)
+  await expect
+    .poll(
+      async () => {
+        after = await inkAndRect(page, aSel)
+        const moved =
+          Math.abs(after.rect!.x - a0.x) + Math.abs(after.rect!.y - a0.y) > 4
+        return moved && after.running === 0
+      },
+      { message: 'the box has landed and its animations have ended' },
+    )
+    .toBe(true)
+  const ink1 = after.ink!
+  const a1 = after.rect!
   expect(Math.abs(a1.x - a0.x) + Math.abs(a1.y - a0.y)).toBeGreaterThan(4)
   expect(Math.abs(ink1.x0 - ink0.x0 - (a1.x - a0.x))).toBeLessThan(4)
   expect(Math.abs(ink1.y0 - ink0.y0 - (a1.y - a0.y))).toBeLessThan(4)

@@ -183,12 +183,14 @@ async function dockSettled(page: Page) {
   await expect
     .poll(() =>
       page.evaluate(() => {
+        // The page is in Pencil mode here with the bar docked at the top, so the
+        // stack must exist: a missing one fails the wait.
         const stack = document.querySelector<HTMLElement>(
           '[data-bar="docked"][data-placement="top"]',
         )
         const set =
           document.documentElement.style.getPropertyValue('--dock-top')
-        return stack ? set === stack.offsetHeight + 'px' : true
+        return !!stack && set === stack.offsetHeight + 'px'
       }),
     )
     .toBe(true)

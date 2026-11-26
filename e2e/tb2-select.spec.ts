@@ -468,11 +468,17 @@ test('TB-10 (C27): a new box is the whole line wide; typing grows it down, never
  * (In CI the re-layout came 0.85 to 1.3 s after the turn.)
  */
 async function turnTo(page: Page, vp: { width: number; height: number }) {
-  const before = await page.evaluate(
-    () =>
-      document.querySelector('[data-paper-sheet="1"]')!.getBoundingClientRect()
-        .width,
-  )
+  // The sheet and the box as they are before the turn: the wait ends only on
+  // a layout where BOTH differ, so the read can never be of the old layout.
+  const before = await page.evaluate(() => {
+    const s = document
+      .querySelector('[data-paper-sheet="1"]')!
+      .getBoundingClientRect()
+    const b = document
+      .querySelector('[data-paper-box]:not([data-paper-box="main"])')!
+      .getBoundingClientRect()
+    return { sheet: s.width, box: [b.x, b.width].join(',') }
+  })
   await page.setViewportSize(vp)
   await page.waitForFunction(
     (was) => {
@@ -486,7 +492,9 @@ async function turnTo(page: Page, vp: { width: number; height: number }) {
       const b = document
         .querySelector('[data-paper-box]:not([data-paper-box="main"])')
         ?.getBoundingClientRect()
-      if (!b || Math.abs(s.width - was) < 1) return false
+      if (!b) return false
+      if (Math.abs(s.width - was.sheet) < 1) return false
+      if ([b.x, b.width].join(',') === was.box) return false
       const now = [s.x, s.width, b.x, b.width].join(',')
       w.__turnSame = now === w.__turnSeen ? (w.__turnSame ?? 0) + 1 : 0
       w.__turnSeen = now

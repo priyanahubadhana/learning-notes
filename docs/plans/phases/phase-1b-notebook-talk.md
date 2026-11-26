@@ -418,6 +418,20 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 
 **In the spec (seventh draft):** NB-96, NB-97, NB-98, and two more sentences in NB-01.
 
+## 5O. The owner's answers to the five small sentences (26 Nov)
+
+**The owner's words:** "But what I meant by point number 1 is suppose there is a circle which I draw and perfect symmetrical circle. Then it should maintain its shapes. Text should not increase it. Suppose I made an oval. Then the oval shape should be intact. It need to expand. For contrast based on the words. I hope you understand. Or there are two things here too. Suppose it's expanding, it should expand automatically with the words. Suppose it's contracting, it will contract by default, but the moment I stretch it, even though there is a lot of empty space, it will still keep its shapes intact. Now point number 2, a tap on the edge line of a shape picks yes. Third, A. But also you understand the import kind of features can be added in stage 3. Right now I am only utilizing it. Thus you can directly make those changes keeping in mind that we need to have these changes and ability to do so. If it's take too much time. If it's just like you are building for me, it will be few code of lines or few minutes of hours and work then just make it import, no issue. Fourth, all chapter of one notebook show the same row of options. By default, yes, but a user can customize it if they want something more to be added. Fifth, no, let me continue reading. Synchronized for all devices."
+
+**What Fable heard.**
+
+1. A circle stays a circle and an oval stays the oval it was drawn as. The words change the size of the shape, never its form. It grows by itself with the words and gets smaller again by itself when words go. But when the owner stretches it by hand, it keeps that size and form, also when much of it is empty. (Fable reads "Text should not increase it" as: the text must not change its form.)
+2. A tap on the edge line of a shape picks it: yes.
+3. The list of step one stays as it is. And a new point: the import as a feature for every user can come in stage 3, because in stage 1 only the owner uses it. If the full import takes too much time, the notebook is put into the app in the most direct way, with the later import kept in mind. If it is little work, the import is built now.
+4. By default all chapters of one notebook show the same row of options. The owner can customize it and add more.
+5. Where to continue reading is in step on all devices. (Fable reads the first word "no" as an answer to the point against, not to the sentence.)
+
+**In the spec (eighth draft):** NB-81, NB-94, NB-80, NB-41, the new NB-99, NB-53 and NB-57. Fable's own readings are marked in the lines: what may wait for the full import (NB-99), and that what the owner adds to the row shows on all chapters of that notebook (NB-53).
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

@@ -385,7 +385,14 @@ test.describe('TB-37 the Text tool: shapes and circled numbers', () => {
     expect(seen[1].down.t - seen[0].up.t).toBeGreaterThan(HOLD_MS)
     await page.waitForTimeout(1800)
     await expect(page.locator(EXTRA)).toHaveCount(1)
-    expect(cleanSquares((await savedInk(page)).strokes, 160)).toHaveLength(1)
+    // The ink is saved a moment later (about 2 s after the strokes on WebKit):
+    // wait for it as the rectangle test does.
+    await expect
+      .poll(
+        async () => cleanSquares((await savedInk(page)).strokes, 160).length,
+        { timeout: 8000 },
+      )
+      .toBe(1)
   })
 
   test('a quick next stroke far from the shape does not cancel it: the shape is made in a new box', async ({
@@ -404,7 +411,14 @@ test.describe('TB-37 the Text tool: shapes and circled numbers', () => {
     pressedWithinHold(seen)
     await page.waitForTimeout(1800)
     await expect(page.locator(EXTRA)).toHaveCount(1)
-    expect(cleanSquares((await savedInk(page)).strokes, 160)).toHaveLength(1)
+    // The ink is saved a moment later (about 2 s after the strokes on WebKit):
+    // wait for it as the rectangle test does.
+    await expect
+      .poll(
+        async () => cleanSquares((await savedInk(page)).strokes, 160).length,
+        { timeout: 8000 },
+      )
+      .toBe(1)
   })
 
   test('a ring round a digit becomes a circled number, one Undo', async ({

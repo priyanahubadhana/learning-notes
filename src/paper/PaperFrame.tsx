@@ -2548,12 +2548,14 @@ export function PaperFrame({
           {!flat && !narrow && (
             <div
               aria-hidden
+              data-paper-shadows
               className="pointer-events-none"
               style={{ position: 'relative', height: 0 }}
             >
               {Array.from({ length: sheets }, (_, i) => (
                 <div
                   key={i}
+                  data-paper-shadow={i + 1}
                   className="absolute inset-x-0 transform-gpu rounded-sm shadow-sm"
                   style={{ top: i * (sheetPx + SHEET_GAP_PX), height: sheetPx }}
                 />

@@ -1579,6 +1579,7 @@ function App() {
             scrolling page (iPad engine has no GPU: no repaint per change). */}
         <div
           aria-hidden
+          data-page-shadow
           className="pointer-events-none col-start-1 row-start-1 rounded-[var(--r-lg)] shadow-[var(--elev-1)] will-change-transform phone:rounded-none phone:shadow-none"
         />
         <main

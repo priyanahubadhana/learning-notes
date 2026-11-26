@@ -432,6 +432,30 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 
 **In the spec (eighth draft):** NB-81, NB-94, NB-80, NB-41, the new NB-99, NB-53 and NB-57. Fable's own readings are marked in the lines: what may wait for the full import (NB-99), and that what the owner adds to the row shows on all chapters of that notebook (NB-53).
 
+## 5P. The questions of 26 Nov as they were put to the owner, and the final audit
+
+**Why this section.** The final audit found that these notes did not show which choice was "A". The choices are written here as the owner read them in the chat.
+
+**The first round (answers in 5N).**
+
+1. A shape that holds text: where does it sit? **A (Fable's pick):** the shape gets its own room; if words are already there, they move to make room; the shape, its text and the arrows beside it stay together as one small drawing inside the text box. **B:** the shape stays exactly where it was drawn, also on top of words. The owner: A.
+2. An arrow from one text box to another: now or later? **A (Fable's pick):** in stage 1 a diagram lives inside one text box; arrows from box to box come after stage 1, with the lines that stay joined to boxes; two small faults are fixed now (the arrow in a gap that resizes the boxes, the stroke on empty paper that does not show). Named against A: a pen mark still ends at the edge of its box. **B:** stage 1 builds one pen layer over the whole sheet. The owner: A.
+3. The front page: **A (Fable's pick):** a screen that the app arranges on the notebook's own screen. **B:** a free sheet like any page. The owner chose neither as written and corrected the question (5N).
+4. Two additions to the one test: a file from Claude can never lock anything, and if a file carries a lock the app drops it when it brings the file in; numbers that the app counts by itself cannot be typed over and are changed at their source. The owner: both.
+
+**The second round (answers in 5O).** The oval is the owner's circle and keeps the form it was drawn with; a tap on the edge line of a shape picks it; the list of step one of the import, keep it (A) or move the tables that Claude writes and the tags to step two (B); all chapters of one notebook show the same row of options; "Continue reading" follows the owner from one device to the other.
+
+**The final audit (26 Nov).** A fresh helper that had not seen Fable's reasoning read the spec against these notes, the proofs and the earlier decisions. What it found, and what was done (the spec's ninth draft):
+
+- Readings of Fable's that were not marked as readings: marked now (NB-57, NB-81, NB-98, NB-83, NB-80, NB-95).
+- The lock sentence of NB-01 was wider than what the owner was asked: it now speaks only of a notebook that Claude wrote.
+- NB-99 fought NB-41, NB-42 and NB-46: the line now says which part is the owner's and which is Fable's, and one question went to the owner (a file brought in by hand, or Claude writes straight into the app).
+- An owner's sentence of 25 Nov had no line ("the same feature like text box will work on it"): it is in NB-80.
+- The decision of 10 Nov was not whole in NB-86 (a column holds one or two boxes): added.
+- Three proof notes said more than the proofs: corrected (NB-01, NB-41, NB-44).
+- Two points that two builders would build in two ways go to the owner with the real thing on the preview: what a shape does when it reaches the width of its text box; whether words run around a shape or stand above and below it.
+- Sections 8, 9 and 10 were out of date in five places: corrected. "A shape that lies over words" is no longer listed as something for later: the owner chose against it.
+
 ## 6. What comes next
 
 1. The owner's answers go into section 5.

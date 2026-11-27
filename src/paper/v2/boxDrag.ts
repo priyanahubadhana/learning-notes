@@ -116,22 +116,42 @@ export function playGlide(
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (reduced || typeof el.animate !== 'function') return done?.()
   el.setAttribute('data-gliding', '')
+  let ended = false
+  let timer: ReturnType<typeof setTimeout> | undefined
   const end = () => {
+    if (ended) return
+    ended = true
+    clearTimeout(timer)
     el.removeAttribute('data-gliding')
     done?.()
   }
   try {
-    void el
-      .animate(
-        [
-          {
-            transform: `translate(${by.dx}px, ${by.dy}px) scale(${LIFT_SCALE})`,
-          },
-          { transform: 'translate(0px, 0px) scale(1)' },
-        ],
-        { duration: GLIDE_MS, easing: 'cubic-bezier(.2,.8,.2,1)' },
-      )
-      .finished.then(end, end)
+    const a = el.animate(
+      [
+        {
+          transform: `translate(${by.dx}px, ${by.dy}px) scale(${LIFT_SCALE})`,
+        },
+        { transform: 'translate(0px, 0px) scale(1)' },
+      ],
+      { duration: GLIDE_MS, easing: 'cubic-bezier(.2,.8,.2,1)' },
+    )
+    void a.finished.then(end, end)
+    // WebKit settles `finished` (and even the start) only at its next paint,
+    // which came over 1 s late on CI (TB-14): the box stayed not tappable. The
+    // landing follows the glide's own clock instead.
+    const check = () => {
+      const t = a.currentTime == null ? null : Number(a.currentTime)
+      if (t === null) {
+        try {
+          a.finish() // never started: land it now
+        } catch {
+          // no finish: the box is where it lands anyway
+        }
+      } else if (t < GLIDE_MS)
+        return void (timer = setTimeout(check, GLIDE_MS - t))
+      end()
+    }
+    timer = setTimeout(check, GLIDE_MS)
   } catch {
     end()
   }

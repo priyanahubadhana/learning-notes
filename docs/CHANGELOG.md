@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 27 Nov 2026: G1, the C0-1 red of run 45918658223
+
+- **What:** `e2e/c0-1BoxStyle.spec.ts` "old boxes keep their look" (test fault, not caused by 0ee968fe): the test typed into the new box before the box had the focus, so the words went nowhere (local log: focus not in the box and the box empty, 1 in 40); the box came back empty after the reload and the tap on the main text removed it, so 0 boxes. It also reloaded with the words not yet written. Now it waits for the box's focus, checks the words are in the box, waits for the save (`waitForSaved`) and checks the words after the reload. Before the fix: 4d407ab1 failed 1 of 60, 7d8d25e3 1 of 40 (both alike); after: 60/60. The `selectionBarButtons` ✘ marks in shard 4 are `test.fail` rows (known broken, expected to fail); the shard reported 609 passed, 0 flaky, the same as run 45908185759.
+- **Why:** rule F9, a red test stops the line.
+- **Files:** e2e/c0-1BoxStyle.spec.ts, docs/CHANGELOG.md.
+
 ### 27 Nov 2026: G1, the two pass-on-retry tests of run 45908185759
 
 - **What:** `e2e/writePad.spec.ts` (test fault): `selectWord` now waits, after focusing the page, until every timer the focus started has run, then sets the selection. ProseMirror's focus timer (20 ms) wrote the old cursor back over a selection set before the editor had read it (in-page log: the selection was set, and 0.4 ms later, 21 ms after the focus, it was collapsed). No check weakened. `e2e/toolbarV8Tools.spec.ts` (app fault, TB-34): a new test by the Opus test-writer, "Crop and rotate in the frame after a resize redraw", failed on the app 5 of 5: in the frame after Smaller redraws the picture, Crop and rotate opened nothing and said "Only pictures kept in this app can be edited." (src/editor/PictureHandles.tsx took the block id from the old, detached picture, so it was empty, and opened the editor with it). Fixed in 0ee968fe: PictureHandles keeps the block id while a picture is picked and uses it only while the old element of the same block is held; a deleted or undone picture still gets the toast, never the wrong picture (review, 27 Nov). Red test 20/20, TB-34 20/20, toolbarV8Tools 28/28 on chromium; vitest src/editor 399/399. Later, as cover: a test of the toast for a picture with an outside link.

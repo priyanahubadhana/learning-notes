@@ -2,6 +2,7 @@
 /// <reference lib="dom" />
 import { expect, test, type Page } from './frameFixture.ts'
 import { start, rect, EXTRA } from './cBoxesHelpers.ts'
+import { waitForSaved } from './helpers.ts'
 
 /**
  * C0-1 (owner, 20 Nov): every NEW box starts with the "Use for new boxes"
@@ -165,11 +166,19 @@ test('C0-1 old boxes keep their look when the style is set later', async ({
   const m = await rect(page.locator(MAIN))
   await tapAt(page, sheet.x + sheet.width * 0.3, m.y + m.height + 120)
   await expect(page.locator(EXTRA)).toHaveCount(1)
+  // The new box takes the focus a moment after it is drawn; words typed
+  // before that go nowhere (1 in 40 locally, both tries in CI 45918658223).
+  await expect(page.locator(EXTRA + ' .bn-editor')).toBeFocused()
   await page.keyboard.type('Old box words')
+  await expect(page.locator(EXTRA)).toContainText('Old box words')
   await expect.poll(async () => (await boxes(page)).length).toBe(1)
+  // The words must be written before the reload: a box that comes back
+  // empty is removed by the tap on the main text below (CI run 45918658223).
+  await waitForSaved(page)
   await setDefault(page, STYLE)
   await page.reload()
   await textTool(page)
+  await expect(page.locator(EXTRA)).toContainText('Old box words')
   await tapFirstLine(page)
   await expect(page.locator(MAIN + ' .bn-editor')).toBeFocused()
   await expect(page.locator(EXTRA)).toHaveCount(1)

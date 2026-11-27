@@ -136,22 +136,19 @@ export function playGlide(
       { duration: GLIDE_MS, easing: 'cubic-bezier(.2,.8,.2,1)' },
     )
     void a.finished.then(end, end)
-    // WebKit settles `finished` (and even the start) only at its next paint,
-    // which came over 1 s late on CI (TB-14): the box stayed not tappable. The
-    // landing follows the glide's own clock instead.
-    const check = () => {
-      const t = a.currentTime == null ? null : Number(a.currentTime)
-      if (t === null) {
-        try {
-          a.finish() // never started: land it now
-        } catch {
-          // no finish: the box is where it lands anyway
-        }
-      } else if (t < GLIDE_MS)
-        return void (timer = setTimeout(check, GLIDE_MS - t))
+    // WebKit settles `finished` only at a paint, and the animation's own clock
+    // (currentTime) also moves only at a paint: on CI both stood still for over
+    // 1 s and the box stayed not tappable (TB-14). The glide lasts 200 ms by the
+    // wall clock: then it is brought to its end and the box has landed.
+    const land = () => {
+      try {
+        a.finish()
+      } catch {
+        // no finish: the box is where it lands anyway
+      }
       end()
     }
-    timer = setTimeout(check, GLIDE_MS)
+    timer = setTimeout(land, GLIDE_MS)
   } catch {
     end()
   }

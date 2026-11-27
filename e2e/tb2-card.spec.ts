@@ -51,6 +51,9 @@ async function addBox(page: Page, text: string) {
   let bottom = 0
   const all = page.locator('[data-paper-box]')
   for (let i = 0; i < (await all.count()); i++) {
+    // A box is shown once it is placed (under the page's text, once that has
+    // loaded): only then is where it ends known.
+    await expect(all.nth(i)).toBeVisible()
     const r = await rect(all.nth(i))
     bottom = Math.max(bottom, r.y + r.height)
   }

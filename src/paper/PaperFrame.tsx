@@ -370,14 +370,17 @@ export function PaperFrame({
       const ed = el.querySelector<HTMLElement>('.bn-editor')
       const real = Math.round(el.getBoundingClientRect().height)
       setMainRealH((h) => (h === real ? h : real))
+      // Why (CI run 46076474347): the page's text loads a moment after the
+      // page opens. Until its editor is there the empty box is about 0 high;
+      // reported, it put the other boxes over where the text comes, and they
+      // jumped down when it came. No editor yet: the height is not known.
+      if (!ed) return
       reportHeight(
         MAIN_BOX,
         Math.round(
-          ed
-            ? ed.getBoundingClientRect().bottom -
-                el.getBoundingClientRect().top +
-                MARGIN * k
-            : el.offsetHeight,
+          ed.getBoundingClientRect().bottom -
+            el.getBoundingClientRect().top +
+            MARGIN * k,
         ),
       )
     }
@@ -2329,7 +2332,17 @@ export function PaperFrame({
         style={
           narrow
             ? { position: 'relative', paddingBottom: MARGIN * k, order: 2 }
-            : { position: 'relative', height: 0, zIndex: 6 }
+            : {
+                position: 'relative',
+                height: 0,
+                zIndex: 6,
+                // The boxes are placed under the page's text: until its height
+                // is known they are not shown, so they never show at a place
+                // they then leave (TB-28, CI run 46076474347).
+                ...(heights[MAIN_BOX] === undefined && extra.length > 0
+                  ? { visibility: 'hidden' as const }
+                  : {}),
+              }
         }
       >
         <LoopLayer ref={loopLayer} />

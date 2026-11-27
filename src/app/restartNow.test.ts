@@ -340,4 +340,34 @@ describe('an update restart always finishes (T27)', () => {
     expect(reloadFresh).toHaveBeenCalledTimes(1)
     await c.advance(WATCHDOG_MS * 3)
   })
+
+  it('C22 (red, app fault, CI run 45960613042): "Restart now" stays on screen while the restart waits; the pill keeper never wipes it', async () => {
+    // The real order (autoUpdate.begin): the pill at 0, the forced restart
+    // 4 s later, "slow" 5 s after that (9 s). The pill keeper re-sets
+    // { phase: 'updating' } every 5 s while the restart runs (10 s, 15 s),
+    // which dropped `restart: 'slow'`: the button lived about one second.
+    const c = clock()
+    const w = fakeWorker('installing')
+    const { d } = deps(c, {
+      getRegistration: async () => ({ installing: w, waiting: null }),
+      report: (state) =>
+        updateStatus.set(
+          state ? { phase: 'updating', restart: state } : { phase: 'updating' },
+        ),
+    })
+    showUpdatingPill(c.after)
+    await c.advance(4000)
+    void restartIntoNewFiles(d)
+    await c.advance(SLOW_AFTER_MS + 1)
+    expect(updateStatus.get().restart).toBe('slow')
+    // Still waiting for the worker (15 s limit): the button must still be there.
+    for (let t = 0; t < 8; t++) {
+      await c.advance(1000)
+      expect(restartRunning()).toBe(true)
+      expect(updateStatus.get()).toMatchObject({
+        phase: 'updating',
+        restart: 'slow',
+      })
+    }
+  })
 })

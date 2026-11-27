@@ -108,7 +108,12 @@ const square = (x: number, y: number, s: number): Pt[] => [
 
 type PenEv = {
   type: string
+  /** On the page's clock (performance.now, which page.clock may hold still). */
   t: number
+  /** The event's own time stamp, on the real clock (page.clock leaves it). */
+  ts: number
+  /** A press only: a shape hold (a HOLD_MS timer) was waiting when it came. */
+  hold?: boolean
   x: number
   y: number
   buttons: number
@@ -117,12 +122,15 @@ type PenEv = {
 
 /**
  * The page's own record of every Pencil event (capture listeners on window,
- * so each is noted before the app sees it, on the page's clock). The TB-37
- * tests read it to prove the timing they claim really happened.
+ * so each is noted before the app sees it). The TB-37 tests read it to prove
+ * the timing they claim really happened.
  */
 async function installPenLog(page: Page) {
   await page.addInitScript(() => {
-    const w = window as unknown as { __penLog: unknown[] }
+    const w = window as unknown as {
+      __penLog: unknown[]
+      __holdWaiting?: () => boolean
+    }
     w.__penLog = []
     for (const type of ['pointerdown', 'pointermove', 'pointerup'])
       window.addEventListener(
@@ -133,6 +141,10 @@ async function installPenLog(page: Page) {
           w.__penLog.push({
             type,
             t: performance.now(),
+            ts: p.timeStamp,
+            ...(type === 'pointerdown'
+              ? { hold: w.__holdWaiting?.() ?? false }
+              : {}),
             x: p.clientX,
             y: p.clientY,
             buttons: p.buttons,
@@ -179,8 +191,8 @@ function strokesSeen(log: PenEv[], paths: Pt[][]): Seen[] {
       Math.hypot(up.x - last.x, up.y - last.y),
       `stroke ${i + 1}: lifted at its last point`,
     ).toBeLessThan(2)
-    // By the log's order, not its times: while the page's clock stands
-    // still (quickPens), all of a stroke's events carry the same time.
+    // By the log's order, not its times: the page's clock stands still at
+    // times (quickPens), so several events can carry the same time.
     const moves = log
       .slice(log.indexOf(down), log.indexOf(up))
       .filter((e) => e.type === 'pointermove' && e.buttons)
@@ -193,16 +205,56 @@ function strokesSeen(log: PenEv[], paths: Pt[][]): Seen[] {
 }
 
 /**
- * The next stroke was pressed within the hold (on the page's clock, which
- * quickPens holds still across the lift); else the case was never made.
+ * The next stroke was pressed while the shape still waited: the app's own
+ * HOLD_MS timer, set at the lift, had neither run nor been cleared when the
+ * press came (watchHolds). Else the case was never made. The real time from
+ * lift to press (event time stamps) is noted too; it is the machine's speed
+ * (WebKit hands each input over after a repaint), not the app's.
  */
 function pressedWithinHold(seen: Seen[]) {
-  const gap = seen[1].down.t - seen[0].up.t
+  const real = Math.round(seen[1].down.ts - seen[0].up.ts)
+  const onPage = Math.round(seen[1].down.t - seen[0].up.t)
+  test.info().annotations.push({
+    type: 'lift to press',
+    description: real + ' ms real, ' + onPage + ' ms on the page clock',
+  })
   expect(
-    gap,
-    `the next stroke came ${Math.round(gap)} ms after the lift: this machine ` +
-      `could not press it within the ${HOLD_MS} ms hold, so the test proves nothing`,
-  ).toBeLessThan(HOLD_MS)
+    seen[1].down.hold,
+    'the next stroke came ' +
+      real +
+      ' ms after the lift and the shape no ' +
+      'longer waited (its ' +
+      HOLD_MS +
+      ' ms hold had run): the test proves nothing',
+  ).toBe(true)
+}
+
+/**
+ * Notes the app's HOLD_MS timers (the shape hold, PaperFrame textPenUp) so a
+ * press can tell whether one is still waiting. Wraps the page clock's own
+ * setTimeout and clearTimeout, so it runs after page.clock.install.
+ */
+async function watchHolds(page: Page) {
+  await page.evaluate((holdMs) => {
+    const w = window as unknown as { __holdWaiting: () => boolean }
+    const waiting = new Set<number>()
+    const set = window.setTimeout.bind(window)
+    const clear = window.clearTimeout.bind(window)
+    window.setTimeout = ((fn: TimerHandler, ms?: number, ...a: unknown[]) => {
+      if (ms !== holdMs || typeof fn !== 'function') return set(fn, ms, ...a)
+      const id: number = set(() => {
+        waiting.delete(id)
+        ;(fn as (...x: unknown[]) => void)(...a)
+      }, ms)
+      waiting.add(id)
+      return id
+    }) as typeof window.setTimeout
+    window.clearTimeout = ((id?: number) => {
+      if (id !== undefined) waiting.delete(id)
+      clear(id)
+    }) as typeof window.clearTimeout
+    w.__holdWaiting = () => waiting.size > 0
+  }, HOLD_MS)
 }
 
 /**
@@ -225,21 +277,30 @@ const cleanSquares = (
  * between two realPen calls would be longer than that). Returns what the page
  * saw of each stroke, checked whole and in order (strokesSeen).
  *
- * The page's clock (page.clock: its timers, performance.now and Date) stands
- * still from just before the first press until the last stroke's press has
- * arrived, then runs on. Why: WebKit hands the page each input only after a
- * repaint, and on a busy machine a repaint can take a second (CI run
- * 45918658223: 478 ms from lift to press, then "no frame in 3000 ms"; here
- * under load up to 1150 ms while the page itself was idle 30 ms after the
- * lift). On the page's clock the press now comes within the hold whatever
- * the machine's speed: the shape's hold timer cannot run before it. Event
- * timeStamps stay real, so the writing-gap rules see the real times.
+ * The page's clock (page.clock: its timers, performance.now and Date) keeps
+ * pace with the real clock while a stroke is drawn (every timer of the app
+ * runs then, a long press too), and stands still only from a lift to the
+ * next press. Why: WebKit hands the page each input only after a repaint,
+ * and on a busy machine a repaint can take a second (CI run 45918658223:
+ * 478 ms from lift to press, then "no frame in 3000 ms"; here under load up
+ * to 1150 ms while the page itself was idle 30 ms after the lift). So the
+ * shape's hold cannot run out between a lift and the press sent with it,
+ * whatever the machine's speed. Event time stamps stay real, so the
+ * writing-gap rules see the real times.
  */
 async function quickPens(page: Page, paths: Pt[][]): Promise<Seen[]> {
   await page.clock.install()
-  // Two seconds on: no stroke is down yet, so this is only a wait before
-  // drawing (the timers due in it run now).
+  // Held still now (two seconds on: no stroke is down yet, so this is only a
+  // wait before drawing); from here the page's clock moves on by the real
+  // time each step took (tick), but not across a lift.
   await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 2000)
+  let real = Date.now()
+  const tick = async () => {
+    const now = Date.now()
+    await page.clock.runFor(now - real)
+    real = now
+  }
+  await watchHolds(page)
   await clearPenLog(page)
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = true
@@ -251,15 +312,23 @@ async function quickPens(page: Page, paths: Pt[][]): Promise<Seen[]> {
   // Promise.all does not promise the order; strokesSeen checks it.
   const [first, ...more] = paths
   await page.mouse.move(first[0].x, first[0].y)
+  await tick()
   await page.mouse.down()
   let path = first
   for (const next of more) {
-    for (const q of path.slice(1)) await page.mouse.move(q.x, q.y)
+    for (const q of path.slice(1)) {
+      await tick()
+      await page.mouse.move(q.x, q.y)
+    }
+    await tick()
+    // Lift, move and press: the page's clock does not move across them.
     await Promise.all([
       page.mouse.up(),
       page.mouse.move(next[0].x, next[0].y),
       page.mouse.down(),
     ])
+    // The time they took is not given to the page's clock (real is reset).
+    real = Date.now()
     path = next
   }
   // The last press has arrived: the page's clock runs on (the hold counts).

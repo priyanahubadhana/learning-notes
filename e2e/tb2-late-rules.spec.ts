@@ -13,7 +13,8 @@ import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
  * page opened, the tap put the caret in, data-picked never came).
  *
  * Here the rules' file is held back on purpose, so the case is made every
- * time. A tap while they load must not put the caret in the box.
+ * time. A tap while they load must not put the caret in the box, and it
+ * must select the box.
  */
 test.use({
   viewport: { width: 834, height: 1194 },
@@ -96,9 +97,11 @@ test('TB-late a tap on a box while the box tap rules still load never puts the c
   await expect(box.locator('.bn-editor')).not.toBeFocused()
   await expect(box).not.toHaveAttribute('data-typing')
 
-  // A tap in the empty part while the rules load: the caret stays out.
+  // A tap in the empty part while the rules load: the caret stays out and
+  // the box is selected (F62e: data-picked never came).
   expect(
     await tapEmptyPart(page, box),
     'the tap put the caret in the box',
   ).toBe(false)
+  await expect(box).toHaveAttribute('data-picked', '')
 })

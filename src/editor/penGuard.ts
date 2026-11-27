@@ -306,8 +306,13 @@ export function watchPenGuard(
     }
     if (e.pointerType !== 'pen') return
     if (e.type === 'pointermove') {
-      if (downAt && e.pointerId === gesturePointer)
-        downAt.path = tipPathTo(downAt.path, e.clientX, e.clientY)
+      if (downAt && e.pointerId === gesturePointer) {
+        // Travel inside a merged move counts: walk the packed points (WebKit
+        // folds a quick stroke into few moves), else the event itself.
+        const packed = e.getCoalescedEvents?.() ?? []
+        for (const p of packed.length ? packed : [e])
+          downAt.path = tipPathTo(downAt.path, p.clientX, p.clientY)
+      }
       return
     }
     if (e.type === 'pointerdown') {

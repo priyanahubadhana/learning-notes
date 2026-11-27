@@ -415,4 +415,76 @@ describe('a quick ring whose moves the browser merged is not a tap', () => {
       stop()
     }
   })
+
+  /** `corners` walked with `n` points per leg (the first corner left out). */
+  const legs = (corners: [number, number][], n: number) =>
+    corners.slice(1).flatMap(([x, y], i) =>
+      Array.from({ length: n }, (_, j) => ({
+        x: corners[i][0] + ((x - corners[i][0]) * (j + 1)) / n,
+        y: corners[i][1] + ((y - corners[i][1]) * (j + 1)) / n,
+      })),
+    )
+  /** A press, its points sent `k` merged per move, a lift: was it a tap? */
+  const pressTap = (
+    down: [number, number],
+    points: { x: number; y: number }[],
+    k: number,
+    up: [number, number],
+    t0: number,
+    held: number,
+  ) => {
+    const { text, stop } = page()
+    try {
+      penState.tapAt = -1e9
+      pen('pointerdown', down[0], down[1], t0, text)
+      const moves = Math.ceil(points.length / k)
+      for (let m = 0; m < moves; m++) {
+        const some = points.slice(m * k, m * k + k)
+        const last = some[some.length - 1]
+        const t = t0 + Math.round(((m + 1) * (held - 10)) / moves)
+        pen('pointermove', last.x, last.y, t, text, some)
+      }
+      pen('pointerup', up[0], up[1], t0 + held, text)
+      return penState.tapAt === t0 + held
+    } finally {
+      stop()
+    }
+  }
+
+  it('a quick scratch-out over a 5 px glyph, its points merged, stays a stroke (C4)', () => {
+    // Four strokes across a 5 px glyph, back at the start, 6 points each,
+    // sent 3 to a move: 18.3 px of travel once averaged (the line is 16).
+    const zigzag: [number, number][] = [
+      [100, 100],
+      [105, 102],
+      [100, 104],
+      [105, 102],
+      [100, 100],
+    ]
+    expect(
+      pressTap([100, 100], legs(zigzag, 6), 3, [100, 100], 50_000, 200),
+    ).toBe(false)
+  })
+
+  // Known gap, accepted (manager, 27 Nov 2026, docs/DECISIONS.md; issue #91):
+  // a tiny fast scratch-out of merged points is read as a tap, so its delete
+  // is refused. Three 6 px strokes in 100 ms, 8 points each, merged 4 to a
+  // move, measure 10.5 px once averaged (18 px raw; the line is 16). The
+  // trade-off: a refused delete loses nothing, while the opposite error (a
+  // trembling tap read as a stroke) turns off the data-loss guard. The day
+  // this works the test goes red: change it to it(...).
+  it.fails(
+    'a tiny fast scratch-out of merged points is a stroke, not a tap (known gap #91)',
+    () => {
+      const strokes: [number, number][] = [
+        [200, 200],
+        [206, 200],
+        [200, 200],
+        [206, 200],
+      ]
+      expect(
+        pressTap([200, 200], legs(strokes, 8), 4, [206, 200], 60_000, 100),
+      ).toBe(false)
+    },
+  )
 })

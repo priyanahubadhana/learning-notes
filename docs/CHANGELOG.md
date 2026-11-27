@@ -4,9 +4,9 @@ Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
 ### 27 Nov 2026: G1, the Pencil tap rule averages merged points (Fable)
 
-- **What:** `penGuard.ts` measures a press's travel on its merged (coalesced) points, each averaged with the two before it; a move with no merged points is taken raw. The trembling-tap test now passes; the ring is still not a tap.
+- **What:** `penGuard.ts` measures a press's travel on its merged (coalesced) points, each averaged with the two before it; a move with no merged points is taken raw. The trembling-tap test now passes; the ring is still not a tap. `circleDigit` (textPencil.ts) returns false when a filter refuses its change, so a refused ring is not taken as done. Known gap, accepted: a tiny fast scratch-out of merged points is read as a tap (#91, an `it.fails` row).
 - **Why:** a quick ring merged into two moves counted as a tap (TB-37); the merged points carry the Pencil's tremble. Decision and the case against: docs/DECISIONS.md, 27 Nov.
-- **Files:** src/editor/penGuard.ts, docs/DECISIONS.md, docs/CHANGELOG.md.
+- **Files:** src/editor/penGuard.ts, src/paper/textPencil.ts, src/editor/penGuard.test.ts, src/paper/textPencil.test.ts, docs/DECISIONS.md, docs/CHANGELOG.md.
 
 ### 27 Nov 2026: G1, the C0-1 red of run 45918658223
 

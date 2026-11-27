@@ -97,9 +97,27 @@ test('TB-02 upright Pencil mode: a long press shows the name and does not choose
   await tool(page, 'eraser').click()
   await expect(tool(page, 'eraser')).toHaveAttribute('data-active', 'true')
   const box = (await tool(page, 'pen').boundingBox())!
+  // The held name lives from 350 ms until edit mode opens at 900 ms (S5-22):
+  // about half a second, shorter than the gaps between expect's checks on a
+  // slow machine (CI run 45960613042: never seen in 15 s). The page records
+  // the name the moment it is drawn, and the test waits for that record.
+  await page.evaluate(() => {
+    const w = window as unknown as { __heldTip: string | null }
+    w.__heldTip = null
+    new MutationObserver(() => {
+      const tip = document.querySelector('[data-testid="v8-tip"]')
+      if (tip && w.__heldTip === null) w.__heldTip = tip.textContent
+    }).observe(document.body, { childList: true, subtree: true })
+  })
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
   await page.mouse.down()
-  await expect(page.getByTestId('v8-tip')).toHaveText('Pen')
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window as unknown as { __heldTip: string | null }).__heldTip,
+      ),
+    )
+    .toBe('Pen')
   await page.mouse.up()
   await expect(tool(page, 'pen')).not.toHaveAttribute('data-active', 'true')
   await expect(tool(page, 'eraser')).toHaveAttribute('data-active', 'true')

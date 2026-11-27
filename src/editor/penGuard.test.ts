@@ -328,4 +328,91 @@ describe('a quick ring whose moves the browser merged is not a tap', () => {
       stop()
     }
   })
+
+  /** [x, y, x, y, ...] as points. */
+  const pts = (a: number[]) =>
+    Array.from({ length: a.length / 2 }, (_, i) => ({
+      x: a[2 * i],
+      y: a[2 * i + 1],
+    }))
+
+  it("the owner's longest recorded tap (#68 trace 5) stays a tap with its merged samples", () => {
+    // docs/qa/traces/2026-11-25-issue68-trace-5.json, the press at 534047
+    // (duplicate log lines removed): 158 ms, 9 moves holding 32 samples, the
+    // tip up to 5.1 px from where it began. Of the 71 quick taps in the five
+    // traces it has the longest path, 10 px, by moves or by samples alike.
+    const moves: [number, number, number, number[]][] = [
+      [
+        54,
+        275,
+        653,
+        [
+          278.5, 654, 278, 654, 277.5, 654, 277.5, 654, 277, 654, 276.5, 653.5,
+          276, 653.5, 276, 653.5, 275.5, 653.5, 275.5, 653, 275, 653, 275, 653,
+        ],
+      ],
+      [
+        71,
+        274.5,
+        652.5,
+        [274.5, 653, 274.5, 652.5, 274.5, 652.5, 274.5, 652.5],
+      ],
+      [87, 274.5, 652, [274.5, 652.5, 274.5, 652, 274.5, 652, 274.5, 652]],
+      [96, 274.5, 651.5, [274.5, 652, 274.5, 651.5]],
+      [104, 275.5, 651.5, [275, 651.5, 275.5, 651.5]],
+      [112, 276, 651.5, [275.5, 651.5, 276, 651.5]],
+      [121, 277, 651, [276.5, 651.5, 277, 651]],
+      [129, 278, 651, [277.5, 651, 278, 651]],
+      [137, 278.5, 651, [278.5, 651, 278.5, 651]],
+    ]
+    const { text, stop } = page()
+    try {
+      penState.tapAt = -1e9
+      pen('pointerdown', 279, 654, 30_000, text)
+      for (const [t, x, y, co] of moves)
+        pen('pointermove', x, y, 30_000 + t, text, pts(co))
+      pen('pointerup', 280, 651.5, 30_158, text)
+      expect(penState.tapAt, 'a real tap must keep its grace').toBe(30_158)
+    } finally {
+      stop()
+    }
+  })
+
+  it('a 250 ms tap whose 60 merged samples tremble just over 2 px stays a tap', () => {
+    // Harsher than any tap in the owner's traces (their merged samples step
+    // 0.5 px at the 90th percentile, 2.2 px at the 99th, 3.4 px at most): every
+    // sample sits 1.15 px from a centre that drifts 1.5 px out and back, at a
+    // fixed pseudo-random angle, so many steps from one sample to the next are
+    // over the 2 px noise floor (PATH_STEP_PX). 15 moves of 4 samples, the
+    // tip ends 0.3 px from where it began.
+    let seed = 68
+    const rnd = () => {
+      seed = (seed * 1103515245 + 12345) % 2147483648
+      return seed / 2147483648
+    }
+    const sx = 400
+    const sy = 400
+    const samples = Array.from({ length: 60 }, (_, i) => {
+      const drift = Math.sin((i / 59) * Math.PI) * 1.5
+      const a = rnd() * Math.PI * 2
+      return {
+        x: sx + drift + Math.cos(a) * 1.15,
+        y: sy + Math.sin(a) * 1.15,
+      }
+    })
+    const { text, stop } = page()
+    try {
+      penState.tapAt = -1e9
+      pen('pointerdown', sx, sy, 40_000, text)
+      for (let m = 0; m < 15; m++) {
+        const four = samples.slice(4 * m, 4 * m + 4)
+        const last = four[3]
+        pen('pointermove', last.x, last.y, 40_000 + 16 * (m + 1), text, four)
+      }
+      pen('pointerup', sx + 0.3, sy, 40_250, text)
+      expect(penState.tapAt, 'a trembling tap must keep its grace').toBe(40_250)
+    } finally {
+      stop()
+    }
+  })
 })

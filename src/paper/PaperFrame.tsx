@@ -801,6 +801,9 @@ export function PaperFrame({
     if (!isOn('textbox.v2')) return
     let off: (() => void) | undefined
     let gone = false
+    // The first-tap rule is decided by the switch, not by the file: a tap
+    // before the file arrives selects the box, it never falls back to a caret.
+    textFirstTap.on = true
     void import('./v2').then((m) => {
       if (gone) return
       v2.current = m
@@ -809,6 +812,7 @@ export function PaperFrame({
     return () => {
       gone = true
       off?.()
+      textFirstTap.on = false
       v2.current = null
     }
   }, [])

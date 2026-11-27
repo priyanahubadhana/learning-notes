@@ -1,10 +1,10 @@
 # The plan after phase 1A: one page (compiled 25 Nov 2026; third version, 26 Nov, after three audit rounds)
 
-**Status: compiled by Fable on the owner's word ("let's compile everything now into one thing"). It waits for the owner's yes.** Until that yes, Opus does step 1 and step 2a of section 5, and may start the read-only proofs of section 6. Each item of those steps was decided by the owner before; what Opus adds there is only the issues it opens and test data built from the digest.
+**Status: the owner said yes on 26 Nov, with a review afterwards.** The owner: "Let's give Opus an opportunity to do it. Just make sure ... it does not changes something which we have already decided and made a rule out of by mistake. I want to review those changes later ... It can continue working." Opus works by this page from now on. The rule files are brought in line under the safeguards of step 2b in section 5, and the owner reviews the list of those changes when the owner chooses. Compiled by Fable on the owner's word of 25 Nov ("let's compile everything now into one thing").
 
 **What this page is.** The one page Opus follows after phase 1A. It holds what the owner and Fable decided on 25 Nov 2026, with every lesson of phase 1A applied. It replaces, as an instruction, the block "Start here" and sections 0, 4, 7, 13 and 14 of [the Fable review](fable-review-2026-11-25.md). Four parts of the review still instruct: section 5 (the quick Pencil taps); section 6 (where each pending wish and issue is placed); section 13.2 (the big spec: a line is changed only by the owner and keeps its id; an older spec file gets the head line "replaced by" and nothing is deleted); and the table of section 14.6 (what is built only when a named fault happens, which the owner accepted on 25 Nov). The rest of the review is the record of the talk. Where the two differ, this page wins.
 
-**The other pages that hold:** [the notebook spec](phases/phase-1b-notebook-spec-draft.md) (a draft until the owner's yes); [the talk notes](phases/phase-1b-notebook-talk.md); [the earlier decisions, collected](earlier-decisions/README.md); `docs/STATE.md` (where the work stands, kept by Opus).
+**The other pages that hold:** [the notebook spec](../features/claude-notebook.md) (approved by the owner on 26 Nov; Opus moves it to `docs/features/`); [the talk notes](phases/phase-1b-notebook-talk.md); [the earlier decisions, collected](earlier-decisions/README.md); `docs/STATE.md` (where the work stands, kept by Opus).
 
 ## 1. The targets
 
@@ -60,10 +60,17 @@ The owner, 25 Nov: no hard rules on how Opus works; hard rules restricted Opus i
 - A bug fix says only "the fault is gone"; a new behaviour needs the owner's own sentence; before a fix, the tests of the same spot are read for a clash.
 - A helper file for tests ends in `.helper.ts`, and a pattern that picks test files ends in `[.]spec`.
 - A recording from the iPad is saved in the repo the day it is taken. After a push, what is on main is read back. After a rename in the docs, the text generators are run.
-- A helper stops at a sign-in screen. The tests' own switch for that screen is used on the preview only with the owner's yes.
+- A helper stops at a sign-in screen. The tests' own switch for that screen is used on the preview only with the owner's yes. The owner gave that yes on 26 Nov for one use: Opus's read-only proofs of section 6, on the preview only, to look, with no real account and no real data. Any other use asks again.
 - A reviewer that has no edit tools can still change files through the command line; Opus checks that the reviewer is stopped there too.
 - A spec is audited before the owner approves it, by helpers that have not seen the planner's reasoning: against the owner's words and against the earlier decisions.
 - A tool or a skill is built when the same fault happened twice. A tool that prints a warning nobody acts on is taken out or made to count.
+
+**Features of Claude Code itself (owner, 26 Nov; checked against its documents that day):**
+
+- **The advisor: yes, as a trial.** In the first day part of 1B the Sonnet builders have Opus as their advisor: a builder asks Opus for advice in the middle of its task, with no hand-over. The owner turns it on once by typing `/advisor opus` in the main chat (only a person can turn it on; the feature is experimental). Opus records the tries for each part and the usage with it; it stays only if those numbers are better than without it. Fable is not set as an advisor: each such call is billed outside the plan, and nothing limits how many there are (F1).
+- **The built-in code review: yes.** The reviewer runs it at the normal level on each finished part, beside its own read of the result against the spec lines. It runs as a helper apart from the builder, so F4 holds.
+- **The deep review in the cloud (also called the ultra review): not during the build.** It is used when the whole of stage 1 is done. Opus reminds the owner then, and asks before each run: three runs are free, later ones are paid. Only the owner can start it.
+- **Not taken:** `/ship` and `/steward` (only a person can start them; on a Windows PC their watching half does not start; the review is done by the chat that built the work, against F4), and Code Mode (experimental; it runs only in the plain terminal and changes speed, not the result). Opus keeps doing the useful part of `/ship` itself: it opens the pull request, watches its tests, and merges only on the owner's yes. Checked twice on 26 Nov, the second time on the owner's word: the documents say "/ship starts only from a line that you type" and "On native Windows, no watch starts" (it "can still review your change"); it needs Claude Code 2.1.330 or later in a terminal (the terminal copy on this PC was 2.1.316). What is in public beta on GitHub is another thing with a like name, "Claude Ship" (a managed review, a pull request steward and approvals); the documents say it "is available on Team and Enterprise plans", and the owner's plan is Max. If the owner moves to such a plan, or builds on a Mac or Linux machine, this is looked at again.
 
 ## 4. Who does what
 
@@ -106,7 +113,15 @@ The owner, 25 Nov: no hard rules on how Opus works; hard rules restricted Opus i
      - The owner's decisions of 24 and 25 Nov that the rule files do not hold yet are written into STATE as notes (no rule file is touched before step 2b): the ladder; two builders; a time limit from the measured length, 60 minutes at most; the state file is `docs/STATE.md`; the replan counter is 0; the idea "a tap on text switches to the Lasso" is dropped (the Lasso selects only by circling).
      - STATE rewritten in place, short, with a pointer to this page. Its line "Run 1M from 1M-02" and its old close-out list are replaced by that pointer now, because a new chat would follow them. Kept word for word: the lines that protect unsaved work (above), the list of hot files, "one iPad-engine suite at a time on this PC", and what waits for the owner. The open items of STATE's own close-out list are carried over, none dropped: the test-method proposals from the six faults of 24 Nov, the open point S1 of the selection bar spec, the phone-shot tests as an issue, and the LEARNING lines.
      - After a docs push to main, main is merged into build/next, so that its pull request does not clash; not while the owner is in the middle of a test on the preview.
-   - **2b, after the owner's yes to this page:** the rule files and the helper files (section 9). The helper files are done before the first part of 1B is built.
+   - **2b, the rule files and the helper files (section 9), on the owner's yes of 26 Nov, with a review afterwards.** The helper files are done before the first part of 1B is built. What must hold, so that no rule the owner decided is changed by mistake:
+     - **The old rule files can be put back in one step.** Before the first change Opus marks the state of the repo (a tag), and the list below names that mark.
+     - **Only the lines that section 9 names are changed.** Every other line of a rule file stays word for word. A line Opus doubts stays as it is and goes on the list as a question.
+     - **A rule that came from a decision of the owner changes only where a later decision of the owner replaces it.** The list names both decisions, with their dates (F2). Where no later decision exists, the rule stays.
+     - **The changes stand apart:** in commits of their own, never mixed with other work.
+     - **A list for the owner,** in easy words, at `docs/plans/rule-changes-2026-11-26.md`: for each change the file, the old words, the new words, and the decision of the owner it comes from; then the questions; then how to put everything back.
+     - **One check by a fresh helper that did not make the changes,** before Opus works by them: each change against this page and against [the earlier decisions, collected](earlier-decisions/README.md). What it finds is corrected, or put on the list.
+     - **The owner's review, when the owner chooses.** Until it is done, Opus's daily message says that the list waits. For each item the owner says "ok" or "put back". A "put back" is done the same day, and the work done under that rule since then is looked at again.
+     - The owner's own global files under `~/.claude` are not touched: Opus only proposes (section 9).
 3. **The online test gate.**
    - Done on 26 Nov: the pull request from build/next to main is open again (#70), and the release fix of step 1.
    - Measured on 25 Nov: the full set takes 56 minutes in 14 jobs; a push to the pull request runs only the fast set (30 minutes in run 45629335226). The full set was green in about one run of ten.
@@ -129,7 +144,7 @@ The owner, 25 Nov: no hard rules on how Opus works; hard rules restricted Opus i
 
 **What it is for:** "I can use the app every day."
 
-**What is built:** [the notebook spec](phases/phase-1b-notebook-spec-draft.md), when the owner has approved it; the editing path of the stage-1 plan (its parts E2 to E10: the twelve actions with no blocking fault, data safety, the side-by-side check and the owner's test T1B); and what section 6 of the review places in 1B (#50, #42, #52 to #54, the board, the found wishes).
+**What is built:** [the notebook spec](../features/claude-notebook.md), which the owner approved on 26 Nov; the editing path of the stage-1 plan (its parts E2 to E10: the twelve actions with no blocking fault, data safety, the side-by-side check and the owner's test T1B); and what section 6 of the review places in 1B (#50, #42, #52 to #54, the board, the found wishes).
 
 **An order inside 1B** (Fable's proposal; Opus sizes it and may change it, and records why):
 
@@ -190,6 +205,7 @@ The editing path runs beside these from the first day, on the second team.
 | 38  | The same code had to pass the full set twice in a row to go live, while the set passed about one time in ten (25 Nov).            | Section 5, step 1 (tested in full once).                                       |
 | 39  | Tests that passed only on their second try were shown as green for days; two of them pointed at a real fault in the app (25 Nov). | F9; section 5, step 3.                                                         |
 | 40  | Unsteady tests got longer waits and failed again; reading the recordings gave each cause within the hour (25 and 26 Nov).         | F9; section 3, advice.                                                         |
+| 41  | A rule can be changed by mistake when many rule files are rewritten at once (the owner's caution, 26 Nov).                        | Section 5, step 2b (the safeguards and the owner's review).                    |
 | 37  | A plan of one small window for a task broke at its first real use (1A).                                                           | No such rule in this plan.                                                     |
 
 ## 8. The numbers
@@ -206,7 +222,7 @@ The editing path runs beside these from the first day, on the second team.
 
 ## 9. Lines in other files that this page replaces
 
-Opus corrects them in step 2b, after the owner's yes. Each file gets a head line that points to this page.
+Opus corrects them in step 2b, under its safeguards (the owner's yes of 26 Nov, with a review afterwards). Each file gets a head line that points to this page.
 
 | File                                          | What no longer holds                                                                                                                                                                                                                                                              |
 | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -225,14 +241,17 @@ Opus corrects them in step 2b, after the owner's yes. Each file gets a head line
 
 - Answered on 26 Nov: how a failed test in a release run is treated. The owner: "find root cause and fix it permanently." It is F9 now. The owner's rule of the same night for the 1A release (each failed test 20 times alone; 20 of 20 means the machine, and the failed jobs are run again) was not needed, because the release fix came first. It stays on record in `docs/DECISIONS.md` and is used for a later release only on the owner's word.
 - Answered on 26 Nov: the five small questions of the notebook spec (its section 8).
-- A reading check of the live app on the iPad, when Opus says it is live.
-- A yes to this page; a yes to the spec's fences and goals; after Opus's proofs, a yes to the last spec lines.
-- Yes or no to the product picks of the last week, and to the list of working copies.
+- Done on 26 Nov: the owner's reading check of the live app on the iPad ("Reading, okay").
+- Given on 26 Nov: the yes to this page, with a review afterwards. Waiting: the owner's review of the list of rule changes (`docs/plans/rule-changes-2026-11-26.md`), when the owner chooses; the two points of the notebook spec that are asked with the real thing on the preview (its section 8). Given on 26 Nov, after the proofs ([the proofs](phases/phase-1b-proofs/README.md)), two short rounds of questions and a final audit: the yes to the notebook spec, with Fable's marked readings.
+- Answered on 26 Nov: the product picks of the last week are kept, and the list of working copies had the owner's yes (`docs/DECISIONS.md`).
 - The kinds of action Opus may do without a click, allowed once.
 - The changes to the owner's own `~/.claude` files.
-- Whether a helper may use the tests' sign-in switch on the preview again.
+- Answered on 26 Nov: the tests' sign-in switch may be used on the preview for the read-only proofs (section 3).
 - The check of each day part on the real device, about 15 minutes; the 10-minute Pencil session; the look of one real chapter; signing in on the phone for the cards.
 - Opening the planning talk with Fable for the phase part after 1B.
+- At the end of stage 1: Opus reminds the owner of the deep review in the cloud (section 3), and the owner decides.
+- Done on 26 Nov: the owner typed `/advisor opus` in the main chat (section 3). Opus counts the tries and the usage from the first day part of 1B.
+- The checks on the owner's own devices that the proofs of the notebook spec name: pen marks with the iPad upright and then sideways; the due cards on the phone (after the sign-in a new device asks once for the passphrase or the recovery code); which box was made taller in the owner's try of 25 Nov, the first box of the page or a later one.
 
 ## 11. Words
 

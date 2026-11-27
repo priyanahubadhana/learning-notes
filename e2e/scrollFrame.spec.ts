@@ -50,6 +50,37 @@ async function frameOf(page: Page) {
   })
 }
 
+/**
+ * Turns the iPad and waits until the page has been told: its resize event
+ * with the new width, then two drawn frames (the frame's own re-read and
+ * React's commit). The hosted Linux WebKit delivers that event only with its
+ * next drawn frame: 0.75 s late at normal speed (probe run 45970799946) and
+ * later than the old fixed 1.5 s wait at 290 ms per frame (CI run
+ * 45960613042), so the frame was measured before it had heard of the turn.
+ */
+async function turn(page: Page, size: { width: number; height: number }) {
+  await page.evaluate(() => {
+    const w = window as unknown as { __turnedTo?: number }
+    if (w.__turnedTo === undefined)
+      addEventListener('resize', () => (w.__turnedTo = innerWidth))
+    w.__turnedTo = 0
+  })
+  await page.setViewportSize(size)
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window as unknown as { __turnedTo: number }).__turnedTo,
+      ),
+    )
+    .toBe(size.width)
+  await page.evaluate(
+    () =>
+      new Promise((done) =>
+        requestAnimationFrame(() => requestAnimationFrame(done)),
+      ),
+  )
+}
+
 test('F8 rotating landscape, portrait, landscape equals a fresh load', async ({
   page,
 }) => {
@@ -65,11 +96,9 @@ test('F8 rotating landscape, portrait, landscape equals a fresh load', async ({
   await expect(page.getByTestId('left-panel')).toBeVisible()
   await settle()
 
-  await page.setViewportSize(PORT)
-  await settle()
+  await turn(page, PORT)
   const rotatedPort = await frameOf(page)
-  await page.setViewportSize(LAND)
-  await settle()
+  await turn(page, LAND)
   const rotatedLand = await frameOf(page)
 
   await page.reload()

@@ -1,3 +1,4 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useContext, useId } from 'react'
 import { AppUiContext } from '../../app/appUi'
 import { runTask } from '../../app/errors'
@@ -5,6 +6,7 @@ import type { AnchoredMenuState } from '../../app/tools/useAnchoredMenu'
 import type { LearningNotesDB } from '../../core/db'
 import type { PaperBox } from '../../core/types'
 import { t } from '../../i18n/t'
+import { boxesOf } from '../boxes'
 import type { GridInfo } from '../layoutPlan'
 import { BoxMoreList, type MoreRow } from './BoxMoreList'
 import { moveStep, neighbourOf } from './boxOrder'
@@ -119,7 +121,10 @@ export default function BoxMoreHost({
   const rows = getGrid().rows
   const move = (step: 'up' | 'down') =>
     runTask(moveStep(db, pageId, getGrid(), box.id, step).then(() => {}))
-  const locked = !!box.locked
+  // The box as it is now: a lock that lands after the list opened shows here.
+  const page = useLiveQuery(() => db.pages.get(pageId), [db, pageId])
+  const now = page ? boxesOf(page).find((b) => b.id === box.id) : undefined
+  const locked = !!(now ?? box).locked
   const copy = async () => {
     if (!(await copyBox(pageId, box.id))) toast(t('paper.box.copyFailed'))
   }

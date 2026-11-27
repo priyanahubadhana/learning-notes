@@ -651,7 +651,12 @@ test('RC-N2 (R4) no note words in a trace: typed and selected words never appear
   await page.mouse.dblclick(w.x, w.y)
   await page.keyboard.type('x')
   const tr = await copyTrace(page)
-  const text = JSON.stringify(tr)
+  // Every word the trace holds: its names and texts. Its numbers (times,
+  // places, counts) are left out: CI run 45918658223 failed on "p":12000, a
+  // time, not the typed "2000". Typed words would come back as text.
+  const text = JSON.stringify(tr, (_k, v: unknown) =>
+    typeof v === 'number' ? 0 : v,
+  )
   for (const word of ['Service', '2000', 'rate-is', '23-11'])
     expect(text, word).not.toContain(word)
   expect(types(tr)).toContain('input')

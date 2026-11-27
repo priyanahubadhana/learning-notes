@@ -179,10 +179,11 @@ function strokesSeen(log: PenEv[], paths: Pt[][]): Seen[] {
       Math.hypot(up.x - last.x, up.y - last.y),
       `stroke ${i + 1}: lifted at its last point`,
     ).toBeLessThan(2)
-    const moves = log.filter(
-      (e) =>
-        e.type === 'pointermove' && e.t >= down.t && e.t <= up.t && e.buttons,
-    )
+    // By the log's order, not its times: while the page's clock stands
+    // still (quickPens), all of a stroke's events carry the same time.
+    const moves = log
+      .slice(log.indexOf(down), log.indexOf(up))
+      .filter((e) => e.type === 'pointermove' && e.buttons)
     expect(
       moves.length,
       `stroke ${i + 1}: all its moves arrived with the tip down`,
@@ -191,7 +192,10 @@ function strokesSeen(log: PenEv[], paths: Pt[][]): Seen[] {
   })
 }
 
-/** The next stroke was pressed within the hold; else the case was never made. */
+/**
+ * The next stroke was pressed within the hold (on the page's clock, which
+ * quickPens holds still across the lift); else the case was never made.
+ */
 function pressedWithinHold(seen: Seen[]) {
   const gap = seen[1].down.t - seen[0].up.t
   expect(
@@ -220,8 +224,22 @@ const cleanSquares = (
  * allows (the shape waits 400 ms for a next stroke; a slow WebKit round trip
  * between two realPen calls would be longer than that). Returns what the page
  * saw of each stroke, checked whole and in order (strokesSeen).
+ *
+ * The page's clock (page.clock: its timers, performance.now and Date) stands
+ * still from just before the first press until the last stroke's press has
+ * arrived, then runs on. Why: WebKit hands the page each input only after a
+ * repaint, and on a busy machine a repaint can take a second (CI run
+ * 45918658223: 478 ms from lift to press, then "no frame in 3000 ms"; here
+ * under load up to 1150 ms while the page itself was idle 30 ms after the
+ * lift). On the page's clock the press now comes within the hold whatever
+ * the machine's speed: the shape's hold timer cannot run before it. Event
+ * timeStamps stay real, so the writing-gap rules see the real times.
  */
 async function quickPens(page: Page, paths: Pt[][]): Promise<Seen[]> {
+  await page.clock.install()
+  // Two seconds on: no stroke is down yet, so this is only a wait before
+  // drawing (the timers due in it run now).
+  await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 2000)
   await clearPenLog(page)
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = true
@@ -244,6 +262,8 @@ async function quickPens(page: Page, paths: Pt[][]): Promise<Seen[]> {
     ])
     path = next
   }
+  // The last press has arrived: the page's clock runs on (the hold counts).
+  await page.clock.resume()
   for (const q of path.slice(1)) await page.mouse.move(q.x, q.y)
   await page.mouse.up()
   await page.evaluate(() => {

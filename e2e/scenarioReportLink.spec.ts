@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 
 /**
  * B0 (SC-05): Settings > Try new features has a plain link to the scenario

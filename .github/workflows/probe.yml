@@ -1,0 +1,45 @@
+name: probe
+# Runs chosen end-to-end files on the hosted machine, by hand, with no retry
+# (issue 73: frame-time measurements and 20-times proofs of the test fixes).
+on:
+  workflow_dispatch:
+    inputs:
+      files:
+        description: 'Regular expression on the test file path (e.g. tb2-group|tb2-bar-fix)'
+        required: true
+      grep:
+        description: 'Only tests whose title matches (regular expression); empty = all of the files'
+        default: ''
+      repeat:
+        description: 'Times each test runs'
+        default: '1'
+      project:
+        description: 'ipad-webkit or chromium'
+        default: 'ipad-webkit'
+      workers:
+        description: 'Workers'
+        default: '2'
+permissions:
+  contents: read
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps webkit chromium
+      - name: the tests
+        env:
+          PROBE_FILES: ${{ inputs.files }}
+          GREP: ${{ inputs.grep }}
+          REPEAT: ${{ inputs.repeat }}
+          PROJECT: ${{ inputs.project }}
+          WORKERS: ${{ inputs.workers }}
+        run: |
+          npx playwright test -c playwright.probe.config.ts --project="$PROJECT" --workers="$WORKERS" --repeat-each="$REPEAT" ${GREP:+--grep "$GREP"} --reporter=list 2>&1 | tee run.log | grep -E "BARFRAMES|✘|passed|failed|flaky|did not run|Error:" | cut -c1-500
+          grep -qE "^\s+[0-9]+ (failed|flaky)" run.log && exit 1 || exit 0

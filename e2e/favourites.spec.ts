@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 import { openNote, openPill, option, pref } from './mainBarHelpers.ts'
 
 /**

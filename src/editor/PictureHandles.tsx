@@ -76,7 +76,13 @@ export function PictureHandles({ editor }: { editor: Host }) {
   const [, redraw] = useState(0)
   // The newest actions, for the strip (it outlives a render).
   const latest = useRef<(a: PictureAction) => void>(() => undefined)
-  const blockId = img?.closest('[data-id]')?.getAttribute('data-id') ?? ''
+  // The block id outlives the picture element: a redraw detaches the old
+  // element for a frame, but the block is still the same one.
+  const lastId = useRef('')
+  const liveId = img?.closest('[data-id]')?.getAttribute('data-id') ?? ''
+  if (!img) lastId.current = ''
+  else if (liveId) lastId.current = liveId
+  const blockId = img ? liveId || lastId.current : ''
   const block = blockId ? editor.getBlock(blockId) : undefined
   const align = ((block?.props.textAlignment as string) ?? 'left') as
     'left' | 'center' | 'right'

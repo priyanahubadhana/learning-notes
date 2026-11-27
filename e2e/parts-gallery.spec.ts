@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 
 /**
  * Slice 0g step 3: the "Parts" gallery at #/design-tokens. One test per line

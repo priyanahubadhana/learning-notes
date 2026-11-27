@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 
 /**
  * Slice 0g step 2: the Context menu strip and the Command list on the Parts

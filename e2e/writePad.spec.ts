@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 import { savedInk } from './inkHelpers.ts'
 import { openNote, option, tool } from './mainBarHelpers.ts'
 
@@ -31,7 +31,49 @@ async function openPad(page: Page) {
 
 /** Selects the first `word` in the page text with the page focused. */
 async function selectWord(page: Page, word: string) {
-  await page.locator('.bn-editor').focus()
+  // Focusing the page makes ProseMirror schedule a timer that writes its own
+  // (old) selection back into the page if the two differ. A selection set
+  // before that timer has run, and before the editor has read it, is wiped
+  // (G1 flake, run 45908185759). So focus, then wait until every timer the
+  // focus started has run: after that nothing can put the old cursor back.
+  await page.evaluate(async () => {
+    const plainSet = window.setTimeout
+    const plainClear = window.clearTimeout
+    // The timers the focus starts, until each has run or was cleared.
+    const open = new Set<number>()
+    let settled = () => {}
+    const finish = (id: number) => {
+      open.delete(id)
+      if (open.size === 0) settled()
+    }
+    window.setTimeout = ((
+      fn: TimerHandler,
+      ms?: number,
+      ...args: unknown[]
+    ) => {
+      const id: number = plainSet(() => {
+        try {
+          if (typeof fn === 'function') fn(...args)
+        } finally {
+          finish(id)
+        }
+      }, ms)
+      open.add(id)
+      return id
+    }) as typeof window.setTimeout
+    window.clearTimeout = ((id?: number) => {
+      plainClear(id)
+      if (id !== undefined && open.has(id)) finish(id)
+    }) as typeof window.clearTimeout
+    try {
+      ;(document.querySelector('.bn-editor') as HTMLElement).focus()
+    } finally {
+      window.setTimeout = plainSet
+    }
+    if (open.size > 0) await new Promise<void>((done) => (settled = done))
+    window.clearTimeout = plainClear
+  })
+  await expect(page.locator('.bn-editor')).toBeFocused()
   await page.evaluate((w) => {
     const walker = document.createTreeWalker(
       document.querySelector('.bn-editor')!,

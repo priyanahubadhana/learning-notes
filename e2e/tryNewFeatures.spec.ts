@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 
 const main = (page: Page) => page.locator('main')
 

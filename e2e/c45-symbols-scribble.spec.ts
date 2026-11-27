@@ -1,12 +1,13 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 import { painted, savedInk } from './inkHelpers.ts'
 import { tool } from './mainBarHelpers.ts'
 import {
   installRealPen,
   realPen,
+  driverLate,
   realPenTaps,
   type PenTap,
   type Pt,
@@ -710,7 +711,7 @@ const c14 = (n: 2 | 3) =>
         asked.push(hold)
         run.push({ gap, hold, drift: 5 })
       }
-      await realPenTaps(page, at, run, lead)
+      const sent = await realPenTaps(page, at, run, lead)
       const want = n === 3 ? LINE : i === 1 ? 'Text' : LINE[i]
       const { ms, seen } = await pressLog(page)
       expect(ms.length, `repeat ${r}: every down and up arrived`).toBe(
@@ -729,7 +730,7 @@ const c14 = (n: 2 | 3) =>
         late++
         expect(
           late,
-          `late runs (repeat ${r}: ${whole(ms)}, asked ${asked})`,
+          `late runs (repeat ${r}: ${whole(ms)}, asked ${asked}; the driver sent at most ${driverLate(sent)} ms after plan)`,
         ).toBeLessThanOrEqual(10)
       }
       await page.waitForTimeout(150)
@@ -757,7 +758,7 @@ const c14Selected = () =>
     let late = 0
     for (let r = 0; done < 10; r++) {
       await pressLog(page)
-      await realPenTaps(page, at, [
+      const sent = await realPenTaps(page, at, [
         { hold: 200, drift: 5 },
         { gap: 400, hold: 210, drift: 6 },
       ])
@@ -768,7 +769,10 @@ const c14Selected = () =>
         await expect.poll(() => selected(page), said).toBe('Text')
       } else {
         late++
-        expect(late, `late runs (${said})`).toBeLessThanOrEqual(3)
+        expect(
+          late,
+          `late runs (${said}; the driver sent at most ${driverLate(sent)} ms after plan)`,
+        ).toBeLessThanOrEqual(3)
       }
       // What a stray scratch-out would send right after the taps.
       await iPadDelete(page)
@@ -828,7 +832,7 @@ const c19 = (n: 2 | 3) =>
           dy: k === 0 ? 0 : ((r + k) % 3) - 1,
         })
       }
-      await realPenTaps(page, at, run, lead)
+      const sent = await realPenTaps(page, at, run, lead)
       const { ms } = await pressLog(page)
       expect(ms.length, `repeat ${r}: every down and up arrived`).toBe(
         asked.length,
@@ -842,7 +846,10 @@ const c19 = (n: 2 | 3) =>
           .toBe(n === 2 ? WORD : WORD_LINE)
       } else {
         late++
-        expect(late, `late runs (${said})`).toBeLessThanOrEqual(10)
+        expect(
+          late,
+          `late runs (${said}; the driver sent at most ${driverLate(sent)} ms after plan)`,
+        ).toBeLessThanOrEqual(10)
       }
       await page.waitForTimeout(150)
       expect(await boxText(box), `repeat ${r}`).toBe(before)
@@ -889,7 +896,7 @@ const c19far = (n: 2 | 3, same: boolean) =>
         asked.push(hold)
         run.push({ gap, hold, drift: 3, dx: k === 0 ? 0 : far, dy: 0 })
       }
-      await realPenTaps(page, at, run, lead)
+      const sent = await realPenTaps(page, at, run, lead)
       const { ms } = await pressLog(page)
       expect(ms.length, `repeat ${r}: every down and up arrived`).toBe(
         asked.length,
@@ -908,7 +915,10 @@ const c19far = (n: 2 | 3, same: boolean) =>
         }
       } else {
         late++
-        expect(late, `late runs (${said})`).toBeLessThanOrEqual(10)
+        expect(
+          late,
+          `late runs (${said}; the driver sent at most ${driverLate(sent)} ms after plan)`,
+        ).toBeLessThanOrEqual(10)
       }
       await page.waitForTimeout(150)
       expect(await boxText(box), `repeat ${r}`).toBe(before)

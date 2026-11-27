@@ -208,7 +208,7 @@ A helper checked each wish against the code, not against the specs. Opus confirm
 - Lines that stay joined to boxes. Rotating a box or a sticky note. A group that holds ink: a group holds boxes only. (So audit point A2 needs care: today the arrows of a diagram do not move with a group of boxes. Ink does move with the box it was drawn on.)
 - **Any import format that writes boxes on paper, the looks of a box, ink, or the choice of options in the row.** Three formats are read today (ln-notes/1, ln-skill/1, ln-spec/1); none can. This is the main new work of the notebook path (parts N1 to N7 of the stage-1 plan).
 
-**"The four levels":** the Study tracker has a column named "Levels". This is the likely meaning; Opus confirms.
+**"The four levels":** the Study tracker has a column named "Levels". This is the likely meaning; Opus confirms. (Corrected by the proofs of 26 Nov, section 5M: this guess was wrong. The four levels are Notebook, Subject, Topic, Page.)
 
 ## 5D. The owner's way to build a diagram (25 Nov), and the facts behind it
 
@@ -313,7 +313,7 @@ Fable's picks for the two had been the wrong way round.
 
 ## 5I. The walk-through of the draft spec (begun 25 Nov)
 
-The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) group by group. A line is approved only by the owner's yes.
+The owner and Fable go through [the draft](../../features/claude-notebook.md) group by group. A line is approved only by the owner's yes.
 
 **Group 1, what a notebook is (NB-01 to NB-15):**
 
@@ -346,7 +346,7 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 3. The Fable review itself: places that told Opus two different things; stale proposals not marked; steps that, followed to the letter, could remove working copies with unsaved work.
 4. The state of the project and every lesson of phase 1A.
 
-**What was done with it:** the third draft of [the spec](phase-1b-notebook-spec-draft.md); one compiled page, [the plan after phase 1A](../plan-after-1a.md); a safety note in the review. Three questions to the owner came out of the audits (the spec, section 8).
+**What was done with it:** the third draft of [the spec](../../features/claude-notebook.md); one compiled page, [the plan after phase 1A](../plan-after-1a.md); a safety note in the review. Three questions to the owner came out of the audits (the spec, section 8).
 
 ## 5K. Round 2 of the audits, the owner's answers, and the release that did not publish (25 and 26 Nov)
 
@@ -381,6 +381,128 @@ The owner and Fable go through [the draft](phase-1b-notebook-spec-draft.md) grou
 **The owner's answers of 26 Nov to the five small questions.** The first: "Can you explain the question 1 again?" (still open). The second, in the owner's words: "When I click the notebook itself, then it should open. Suppose there is a notebook name, my name is Priyanshu, and the chapters are my son name is, my wife name is, my brother name is, my parents name is. When I click on my name is Priyanshu, this type of page will open, the front page I am talking about." Fable's reading: the front page is the notebook's own page, reached by the notebook's name; it is not one more entry among the chapters. The third, fourth and fifth: "A" each (a notebook made by hand stays as today; a shape drawn with the option on outside a text box becomes its own small box; a shape whose text is removed goes back to the size it was drawn).
 
 **The owner on the first small question (26 Nov, after it was explained again):** "what we can do as the question number 1 answer, give them 3 options. First, replace the old one. Second, make a copy, new copy. Third, no, drop it. I guess it will solve the problem." It is NB-42 now. No small question is open.
+
+**The owner on features of Claude Code (26 Nov):** the advisor with Opus for the Sonnet builders, as a trial: yes. The built-in code review for each finished part: yes. The deep review in the cloud: "Don't use the deep code review now. We'll do it once the entire app is made or entire stage is made. Ask me before using it ... Just remind me at that point of time." It is in the plan, section 3.
+
+## 5M. The proofs, and what they opened (26 Nov, afternoon)
+
+**The owner, to a new Fable chat:** "Read docs/plans/fable-handoff-2026-11-26.md and continue."
+
+**How the proofs were made.** The build's own list for the day did not name them, and the last planning step waited for them. So Fable started four read-only helpers (Opus) that read the code, and then checked the main claims of each report against the code. Opus's chat was told and does not repeat them. Nothing was changed, nothing was run, nobody signed in. The facts: [the proofs](phase-1b-proofs/README.md). The spec's sixth draft holds them; no sentence of the owner was changed.
+
+**What the proofs corrected in Fable's own text.**
+
+- "No format makes a whole notebook today" was wrong: the app's own notebook file does. What is missing is a form that Claude can write.
+- "Removing a whole notebook with one Undo is new" was wrong: it exists.
+- "The four levels are likely the tracker's column" was wrong: they are the owner's Notebook, Subject, Topic, Page of 16 Nov.
+- "A taller box cannot be drawn on" is two things: a fault (the first box of a page was left out of the fix) and a new behaviour (typing at the place that was tapped).
+
+**What is larger than the plan knew.** A shape that holds text; a Summary made of boxes; the form that Claude writes and its import; ink that crosses from one box to another (in no plan at all).
+
+**Four questions to the owner (26 Nov), each with Fable's pick.** A shape that holds text gets its own room, or may lie over words; an arrow from one text box to another in stage 1, or later; the front page as a screen that the app arranges, or as a free sheet; two additions to the one test (an import never sets a lock; what the app counts is changed at its source). A second, short round follows with the sentences that are still Fable's.
+
+## 5N. The owner's four answers after the proofs (26 Nov)
+
+**The owner's words:** "Point number 1A. Point number 2. A. Three. I guess you got it wrong. The front page is not an app, it's a preset. What I mean by it, it's a sheet that is made using our own features Thus, it will also have the complete customization possibilities. I hope you understand. It's just like an alteration our own app feature will use to build this app. This kind of screen. It will be more like a template and the things we are building. The university uniformity will be maintained. Fourth, both"
+
+**What Fable heard.**
+
+1. A shape that holds text gets its own room in the text box; words that are there make room; it never lies over words.
+2. In stage 1 a diagram lives inside one text box. An arrow from one text box to another comes after stage 1, with the lines that stay joined to boxes. The two small faults (the arrow in a gap, the stroke on empty paper) are fixed in stage 1.
+3. The front page is not a screen that the app arranges. It is a preset, like a template: a sheet made with the app's own features, so all of it can be changed with the same tools. What is built for it is built as features of the app, and the app stays uniform. ("University uniformity": Fable reads it as the uniformity of the app.)
+4. Both additions to the one test: an import never sets a lock, and what the app counts by itself is changed at its source.
+
+**On point 3, for the record:** the owner chose the sheet as a preset; Fable's pick was a screen that the app arranges; the reason against the owner's choice was that it is larger and daily use starts later. Fable's question had also set the two as opposites. The owner's answer joins them: a sheet, made by a preset.
+
+**What the code has for point 3 (read 26 Nov).** Templates exist: they are ordinary pages in the notebook "Templates", edited like any page, and using one copies it (`src/templates/templateService.ts`). A database can stand inside a page and show its Dashboard. Not there: "continue reading" and "the cards that are due" as things that stand on a page; a page that is the front page of a notebook and is not among its chapters.
+
+**In the spec (seventh draft):** NB-96, NB-97, NB-98, and two more sentences in NB-01.
+
+## 5O. The owner's answers to the five small sentences (26 Nov)
+
+**The owner's words:** "But what I meant by point number 1 is suppose there is a circle which I draw and perfect symmetrical circle. Then it should maintain its shapes. Text should not increase it. Suppose I made an oval. Then the oval shape should be intact. It need to expand. For contrast based on the words. I hope you understand. Or there are two things here too. Suppose it's expanding, it should expand automatically with the words. Suppose it's contracting, it will contract by default, but the moment I stretch it, even though there is a lot of empty space, it will still keep its shapes intact. Now point number 2, a tap on the edge line of a shape picks yes. Third, A. But also you understand the import kind of features can be added in stage 3. Right now I am only utilizing it. Thus you can directly make those changes keeping in mind that we need to have these changes and ability to do so. If it's take too much time. If it's just like you are building for me, it will be few code of lines or few minutes of hours and work then just make it import, no issue. Fourth, all chapter of one notebook show the same row of options. By default, yes, but a user can customize it if they want something more to be added. Fifth, no, let me continue reading. Synchronized for all devices."
+
+**What Fable heard.**
+
+1. A circle stays a circle and an oval stays the oval it was drawn as. The words change the size of the shape, never its form. It grows by itself with the words and gets smaller again by itself when words go. But when the owner stretches it by hand, it keeps that size and form, also when much of it is empty. (Fable reads "Text should not increase it" as: the text must not change its form.)
+2. A tap on the edge line of a shape picks it: yes.
+3. The list of step one stays as it is. And a new point: the import as a feature for every user can come in stage 3, because in stage 1 only the owner uses it. If the full import takes too much time, the notebook is put into the app in the most direct way, with the later import kept in mind. If it is little work, the import is built now.
+4. By default all chapters of one notebook show the same row of options. The owner can customize it and add more.
+5. Where to continue reading is in step on all devices. (Fable reads the first word "no" as an answer to the point against, not to the sentence.)
+
+**In the spec (eighth draft):** NB-81, NB-94, NB-80, NB-41, the new NB-99, NB-53 and NB-57. Fable's own readings are marked in the lines: what may wait for the full import (NB-99), and that what the owner adds to the row shows on all chapters of that notebook (NB-53).
+
+## 5P. The questions of 26 Nov as they were put to the owner, and the final audit
+
+**Why this section.** The final audit found that these notes did not show which choice was "A". The choices are written here as the owner read them in the chat.
+
+**The first round (answers in 5N).**
+
+1. A shape that holds text: where does it sit? **A (Fable's pick):** the shape gets its own room; if words are already there, they move to make room; the shape, its text and the arrows beside it stay together as one small drawing inside the text box. **B:** the shape stays exactly where it was drawn, also on top of words. The owner: A.
+2. An arrow from one text box to another: now or later? **A (Fable's pick):** in stage 1 a diagram lives inside one text box; arrows from box to box come after stage 1, with the lines that stay joined to boxes; two small faults are fixed now (the arrow in a gap that resizes the boxes, the stroke on empty paper that does not show). Named against A: a pen mark still ends at the edge of its box. **B:** stage 1 builds one pen layer over the whole sheet. The owner: A.
+3. The front page: **A (Fable's pick):** a screen that the app arranges on the notebook's own screen. **B:** a free sheet like any page. The owner chose neither as written and corrected the question (5N).
+4. Two additions to the one test: a file from Claude can never lock anything, and if a file carries a lock the app drops it when it brings the file in; numbers that the app counts by itself cannot be typed over and are changed at their source. The owner: both.
+
+**The second round (answers in 5O).** The oval is the owner's circle and keeps the form it was drawn with; a tap on the edge line of a shape picks it; the list of step one of the import, keep it (A) or move the tables that Claude writes and the tags to step two (B); all chapters of one notebook show the same row of options; "Continue reading" follows the owner from one device to the other.
+
+**The final audit (26 Nov).** A fresh helper that had not seen Fable's reasoning read the spec against these notes, the proofs and the earlier decisions. What it found, and what was done (the spec's ninth draft):
+
+- Readings of Fable's that were not marked as readings: marked now (NB-57, NB-81, NB-98, NB-83, NB-80, NB-95).
+- The lock sentence of NB-01 was wider than what the owner was asked: it now speaks only of a notebook that Claude wrote.
+- NB-99 fought NB-41, NB-42 and NB-46: the line now says which part is the owner's and which is Fable's, and one question went to the owner (a file brought in by hand, or Claude writes straight into the app).
+- An owner's sentence of 25 Nov had no line ("the same feature like text box will work on it"): it is in NB-80.
+- The decision of 10 Nov was not whole in NB-86 (a column holds one or two boxes): added.
+- Three proof notes said more than the proofs: corrected (NB-01, NB-41, NB-44).
+- Two points that two builders would build in two ways go to the owner with the real thing on the preview: what a shape does when it reaches the width of its text box; whether words run around a shape or stand above and below it.
+- Sections 8, 9 and 10 were out of date in five places: corrected. "A shape that lies over words" is no longer listed as something for later: the owner chose against it.
+
+**What the owner was told of Fable's readings (26 Nov, in the chat).** After the first round: "university uniformity" read as the uniformity of the app; "features of the app" read as: "where to continue reading" and "the cards that are due" can stand on any page, and the preset can be changed like a template. After the second round: "Text should not increase it" read as "the text must not change the form", and a shape stretched by hand keeps that size and form; on the import, Opus decides between the full way and the direct way and tells the owner, three things may wait with the direct way (a form a person could write by hand, "Paste notes" as the way in, the three choices), and the safety rules hold in both ways; on the row of options, what the owner adds shows on all chapters of that notebook, and a row for one single chapter is not built. The owner read these and did not correct them; that is not the same as the owner's own sentence, so the spec keeps them marked as Fable's. The readings marked after the final audit (NB-80, NB-83, NB-95, NB-97) were not put to the owner one by one.
+
+**The check of the audit's fixes (26 Nov).** A second fresh helper found seven of the ten findings fixed and three partly fixed, and six small new faults made by the fixes: words of Fable's inside a list and inside a proof note of NB-41; a wrong pointer and an unmarked reading in NB-97; a reading in NB-81 not marked; and a claim that the owner "was told" which these notes did not support. All are corrected in the spec's tenth draft, and the paragraph above is the record that was missing.
+
+**The one question after the final audit, and the owner's answer (26 Nov).** The "most direct way" of the import: **A (Fable's pick):** still a file that the owner brings in by hand; Claude makes the file, and the owner adds it on the Data screen with one tap. **B:** Claude may also write straight into the app, which brings the connector forward from the end of stage 2. The owner: "So will be A." The decision of 22 Nov stands.
+
+## 5Q. The owner's yes to the spec (26 Nov)
+
+Fable asked whether Opus may build from the spec, and gave three choices. **A (Fable's pick):** yes, with Fable's marked readings; if a reading turns out wrong when the owner sees the real thing, the owner says so and the line is changed. Named against A: a wrong reading may be built before the owner sees it, and that part is then done again. **B:** yes to the owner's own lines only; each reading of Fable's comes as a question before its part is built. **C:** not yet.
+
+**The owner:** "Go ahead with your pick."
+
+The yes does not cover: the two points that Opus asks with the real thing on the preview (what a round shape does when it reaches the width of its text box; whether words run around a shape or stand above and below it); the time; the look, which is approved on a real chapter. Still to come from Opus: the looks in the running app that the proofs name, first of all whether a pen mark stays on its words at another width; and the sized estimate for phase 1B.
+
+**The planning of phase 1B is closed.** Three lines for the next planning talk, as the plan asks: (1) make the proofs before the lines are written, not after: four of Fable's sentences were wrong about what the app has; (2) put each question to the owner with its choices lettered, and write the choices into these notes the same hour: the audit could not tell which choice "A" was; (3) do not set two ways against each other before asking what the owner pictures: on the front page the owner's answer was neither.
+
+## 5R. The last audit, on the owner's word (26 Nov, evening)
+
+**The owner:** "just do one final audit that we have not missed anything. All things are following our plan, and the structure we built called management structure, the kind of universal management system."
+
+**How.** Two fresh helpers that had seen neither Fable's nor Opus's reasoning read a copy of main. One looked for anything lost between the pages. The other held the day's work against the way of working: the fences F1 to F12, who does what, the order of work, the records. Fable checked the hard facts itself.
+
+**What holds.**
+
+- Every answer the owner gave on 26 Nov is in the spec, says the same and is not weakened. No link between the pages is broken. The spec was not changed by its move, except for its links.
+- Only docs went to main (every commit since the live version); no release run was working at any push; the live app is unchanged (7e53ae5d); nothing was spent; no test was changed.
+- The order of work is the plan's: the test gate, the rule files under their safeguards (the tag before the first change, commits of their own, the list for the owner, not in force before the fresh check), then the Pencil taps, then 1B.
+- The phase 1A row and its line in the owner's results file are written.
+
+**What Fable did against the way of working.**
+
+- **Fable started the proofs, which the plan gives to Opus.** It was read-only and open, and Opus was told. But it changed the order: the owner said yes to the spec before Opus's looks in the running app. So Opus makes those looks before it builds any line that they touch, and a look that goes against a line goes to the owner.
+- **Two questions went to the owner alone** (the direct way of the import; the yes to the spec), against "2 to 5 questions at once".
+- **These notes did not hold Fable's picks of the second round.** They were: yes to the oval, the border tap, the same row of options and "Continue reading" on all devices; "keep the list" for step one of the import.
+- **Lists of what waits for the owner were out of step** in the plan, the hand-over page and the proofs page: things that were done still stood as waiting. Corrected on 26 Nov.
+- Two notes in the spec were not exact (NB-54 said "asked", though it was not asked by itself; NB-86 pointed to a line number that had moved). Corrected; no line of the owner changed.
+
+**What was handed to Opus, because the pages and the work are Opus's.**
+
+- The code line has had no test run since the two app fixes were merged on 26 Nov in the morning, and no pull request is open.
+- Last night's test run was red and no page names it.
+- Opus's own decisions of the day are not in the decisions page, and no entry has a kind; the owner's answers of the second round, the answer on the direct way and the yes to the spec have no entry there.
+- No entry in the change log for the afternoon; no numbers row for the two merged fixes.
+- The state page still says in one place that questions are with the owner, and its list of what waits for the owner misses several items.
+- The owner cannot read the list of rule changes yet: it is on a side branch.
+- Three facts of the proofs are held nowhere outside the proofs page: "Add as copies" loses the Summary lines; no test changes the words of a card that exists; which box the owner made taller.
+- One doubt for Opus to settle: "work by the old rules until the fresh check" stands against the fence that the builder does not write the tests of its own part.
 
 ## 6. What comes next
 

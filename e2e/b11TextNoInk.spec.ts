@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 import { expectStrokes, inkNote, line, savedInk, stroke } from './inkHelpers.ts'
 import { tool } from './mainBarHelpers.ts'
@@ -219,4 +219,36 @@ test('B11 a Pen touch left open, then Text tool, then Pencil hover and lift: no 
   await expectStrokes(page, 1)
   await page.waitForTimeout(1500)
   expect((await savedInk(page)).strokes).toHaveLength(1)
+})
+
+/**
+ * CI run 45990737316: back from the Text tool to the Pen, the page grows to
+ * its writing room again at once, but WebKit tells the ink engine a few
+ * hundred ms late; until then the pad covered only the text's own line, and
+ * a stroke written below it fell on the page with no ink and nothing saved.
+ * The stroke is written as soon as the Pen is on, well below the text.
+ */
+test('B11 back from the Text tool, a stroke written at once below the text is saved', async ({
+  page,
+}) => {
+  await inkNote(page, 'Pen', 'pencil')
+  const box = (await page.locator('.bn-block-content').first().boundingBox())!
+  await tool(page, 'Text').click()
+  await expect(tool(page, 'Text')).toHaveAttribute('aria-pressed', 'true')
+  // In the Text tool the page is as tall as its text (no writing room).
+  await expect
+    .poll(() =>
+      page
+        .locator('[data-ink-overlay]')
+        .evaluate((el) => el.getBoundingClientRect().height),
+    )
+    .toBeLessThan(150)
+  await tool(page, 'Pen').click()
+  await expect(tool(page, 'Pen')).toHaveAttribute('aria-pressed', 'true')
+  await stroke(
+    page,
+    line([box.x + 10, box.y + 200], [box.x + 200, box.y + 200]),
+    { id: 9 },
+  )
+  await expectStrokes(page, 1)
 })

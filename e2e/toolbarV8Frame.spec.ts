@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /** Toolbar v8, slice 1a: the switch chooses the old or the new bar. */

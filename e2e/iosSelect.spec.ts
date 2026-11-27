@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 import {
   addPage,
   createNotebook,
@@ -287,9 +287,24 @@ async function tapRunArrived(
  * "Acts at once" on the page's own clock: the words were selected within
  * `ms` of the run's last tap. A wall-clock poll in the test also counts the
  * runner's slowness (a loaded runner took 600 ms just to answer).
+ *
+ * The wait is for the page's own record of the selection (`__sel`, set by the
+ * selectionchange listener), not for the selected text: WebKit sends
+ * selectionchange as a later task, so the text can be there a frame or more
+ * before the record (19 ms locally; on CI the record was still missing when
+ * read, run 46013460259). The record is the time the checks below use.
  */
 async function selectedWithin(page: Page, ms: number) {
-  await expect.poll(() => selectedText(page), { timeout: 10_000 }).not.toBe('')
+  await expect
+    .poll(
+      () =>
+        page.evaluate(
+          () => (window as unknown as { __sel?: number }).__sel !== undefined,
+        ),
+      { timeout: 10_000 },
+    )
+    .toBe(true)
+  expect(await selectedText(page)).not.toBe('')
   const t = await page.evaluate(() => {
     const w = window as unknown as { __down: number[]; __sel?: number }
     return { last: w.__down[w.__down.length - 1]!, sel: w.__sel }

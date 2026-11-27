@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import {
   createNotebook,
   pickBox,
@@ -25,6 +25,9 @@ test.use({
 })
 
 const EXTRA = '[data-paper-box]:not([data-paper-box="main"])'
+// The hold that lifts a box (HOLD_MS in src/paper/v2/boxDrag.ts, pinned by
+// boxDrag.test.ts), counted from the press.
+const HOLD_MS = 120
 const rect = async (l: Locator) => (await l.boundingBox())!
 const centre = async (l: Locator) => {
   const r = await rect(l)
@@ -103,11 +106,53 @@ test('TB-11 hold the tab 120 ms: the box lifts (scale 1.02, elevation 3); a flic
   const from = await centre(grip(b))
   // A quick flick (no hold) is no drag.
   await page.mouse.move(from.x, from.y)
-  await page.mouse.down()
-  await page.mouse.move(from.x + 5, from.y + 200, { steps: 2 })
-  await page.mouse.up()
+  // Press, moves and lift reach the page in one go, like a finger. Why (CI
+  // run 45990737316, chromium): each awaited mouse step returns only once the
+  // page has handled it; on a slow runner the gap passed the 120 ms hold
+  // (counted from the press), so the box lifted between the two moves and the
+  // second one moved it 101 px: a hold, not a flick (reproduced with a 150 ms
+  // gap: 101.34 px). Sent together with Promise.all, the lift overtook the
+  // moves. So the page sends them itself, to the tab, as the captured pointer.
+  const flick = await page.evaluate(
+    ({ x, y }) => {
+      const tab = document.elementFromPoint(x, y)!.closest('[data-box-grip]')!
+      const send = (type: string, dx: number, dy: number, buttons: number) =>
+        tab.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            pointerId: 1,
+            pointerType: 'mouse',
+            isPrimary: true,
+            button: type === 'pointermove' ? -1 : 0,
+            buttons,
+            clientX: x + dx,
+            clientY: y + dy,
+          }),
+        )
+      const t0 = performance.now()
+      send('pointerdown', 0, 0, 1)
+      const took = document.documentElement.hasAttribute('data-box-drag')
+      send('pointermove', 2.5, 100, 1)
+      send('pointermove', 5, 200, 1)
+      const gap = performance.now() - t0
+      send('pointerup', 5, 200, 0)
+      return { took, gap }
+    },
+    { x: from.x, y: from.y },
+  )
+  expect(flick.took, 'the press on the tab started a drag').toBe(true)
+  // The flick is a flick only if its moves came inside the hold.
+  expect(
+    flick.gap,
+    `the flick's moves came ${Math.round(flick.gap)} ms after the press, past the ${HOLD_MS} ms hold: not a flick, this run cannot test it`,
+  ).toBeLessThan(HOLD_MS)
   await page.waitForTimeout(500)
   expect(away(await rect(b), f0)).toBeLessThan(3)
+  // The lift ended the flick: nothing is left lifted for the hold below.
+  await expect(b).not.toHaveAttribute('data-lifted', '')
+  await expect(page.locator('html')).not.toHaveAttribute('data-box-drag', '')
   // Holding makes it lift.
   await page.mouse.move(from.x, from.y)
   await page.mouse.down()

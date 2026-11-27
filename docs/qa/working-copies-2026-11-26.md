@@ -39,3 +39,10 @@ Seven working copies sit in old chats' temporary folders (C:/Users/pc/AppData/Lo
 ## The main clone
 
 `C:/Users/pc/Downloads/learning-notes` is on main, 1,621 commits behind. A fast-forward was tried on 26 Nov and **refused by git**: new pictures in its `screenshots/` folder (not committed) would be overwritten by files of the same name in main. By the plan, it stops here for the owner: the choice is to move those pictures aside (keep a copy) and then fast-forward. Until then the push guard runs its old copy of the script (lesson 31).
+
+## Done on 26 Nov (the owner's yes: 2A and 1A)
+
+- **Removed (45):** the working copies of the list "Merged and clean", each checked again just before (nothing unsaved, its commit in main), with `git worktree remove` (never forced): ln-2a5 to ln-2a14, ln-2acfg2, ln-2a16b, ln-abar, ln-abar-dev, ln-c2, ln-c17, ln-c36, ln-c45, ln-c45x, ln-fix-box, ln-fix-ci, ln-fix-ci2, ln-journal-merge, ln-m1, ln-m2, ln-m5, ln-m9, ln-names, ln-names2, ln-p1-f10, ln-p1-scrolllook, ln-p110, ln-p111, ln-p112, ln-p14-eslint, ln-picks, ln-red1, ln-rel-gate, ln-s12, ln-scen-cache, ln-u0b, ln-u0c, ln-wheel, ln-release and .claude/worktrees/agent-a1656aa102a867aa7. No branch was deleted.
+- **Left behind:** in some of those folders a `node_modules` folder that Windows would not let go (files held open), and git's small notes about each removed copy in `.git/worktrees/` ("Permission denied"). Neither holds work; they can go after a restart of the PC.
+- **Kept on purpose:** learning-notes-mcp (the app's connector for Claude runs from it), ln-docs (in use), ln-qa-antigravity, ln-qa-codex, ln-qa-cursor (the auditors' copies), and the copies of helpers that are working (ln-g1-tests, ln-rules, ln-flaky, ln-g1-app).
+- **The main clone:** the 123 untracked pictures that main also holds were copied, with their folders, to `C:/Users/pc/Downloads/learning-notes-untracked-backup-2026-11-26/` (their list in LIST.txt there), then removed from the clone; the clone was fast-forwarded to main (fcc433f3) and `npm ci` was run. The other untracked files there were not touched.

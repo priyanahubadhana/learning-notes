@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 
 /**
  * Slices 0e and 0f add the selection store and the overlay manager without

@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 import { addPage, createNotebook, typeInEditor } from './helpers.ts'
 
 /** Polish 2 item 9: paper style and size, and sheet thumbnails. */

@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 import { inkClientBox, line, savedInk, stroke, type Pt } from './inkHelpers.ts'
 import { openNote, tool } from './mainBarHelpers.ts'
 

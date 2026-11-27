@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /** Task 2A.4, TB-01b: Undo and Redo live in the page top bar; the < > arrows go. */

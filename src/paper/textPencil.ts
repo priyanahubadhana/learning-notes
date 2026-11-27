@@ -268,6 +268,8 @@ export function circleDigit(
 ): boolean {
   const hit = digitInCircle(view, ring)
   if (!hit) return false
+  const before = view.state.doc
   view.dispatch(view.state.tr.insertText(hit.text, hit.from, hit.to) as never)
-  return true
+  // A refused change (a filter said no) leaves the doc as it was: no success.
+  return view.state.doc !== before
 }

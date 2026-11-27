@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import { Schema } from 'prosemirror-model'
+import { EditorState, Plugin } from 'prosemirror-state'
 import {
   bigEnough,
+  circleDigit,
   circledNumber,
   cleanShape,
   digitInCircle,
@@ -133,5 +136,53 @@ describe('Text tool + Pencil: handwriting is not misread', () => {
     expect(circledNumber(1.5)).toBeNull()
     expect(digitRuns('page 2024 and 123')).toEqual([])
     expect(digitRuns('a 7,8')).toHaveLength(2)
+  })
+})
+
+describe('circleDigit tells the truth about its change', () => {
+  const schema = new Schema({
+    nodes: {
+      doc: { content: 'paragraph+' },
+      paragraph: { content: 'text*' },
+      text: {},
+    },
+  })
+  /** An editor view on "Step 7 done" whose filter answers `allow`. */
+  const viewOf = (allow: boolean) => {
+    let state = EditorState.create({
+      doc: schema.node('doc', null, [
+        schema.node('paragraph', null, schema.text('Step 7 done')),
+      ]),
+      plugins: [new Plugin({ filterTransaction: () => allow })],
+    })
+    return {
+      get state() {
+        return state
+      },
+      // 10 px per letter from x = 0 (pos 1 is the first letter).
+      coordsAtPos: (pos: number) => ({
+        left: (pos - 1) * 10,
+        right: (pos - 1) * 10 + 10,
+        top: 100,
+        bottom: 120,
+      }),
+      // As EditorView.dispatch: state.apply runs the filters.
+      dispatch: (tr: never) => {
+        state = state.apply(tr)
+      },
+    }
+  }
+  // "7" is the 6th letter: x 50..60.
+  const ring = { x: 40, y: 90, w: 40, h: 40 }
+
+  it('a refused change (the Pencil guard said no) returns false and leaves the text', () => {
+    const view = viewOf(false)
+    expect(circleDigit(view as unknown as DigitView, ring)).toBe(false)
+    expect(view.state.doc.textContent).toBe('Step 7 done')
+  })
+  it('an allowed change returns true and circles the digit', () => {
+    const view = viewOf(true)
+    expect(circleDigit(view as unknown as DigitView, ring)).toBe(true)
+    expect(view.state.doc.textContent).toBe('Step ⑦ done')
   })
 })

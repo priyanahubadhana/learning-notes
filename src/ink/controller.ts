@@ -1145,7 +1145,17 @@ export class InkController {
       }
       if (gone.length && !this.gesture) this.adoptOrphans(gone)
     }
+    const roomWas = this.env.wrap.style.minHeight
     this.ensureRoom()
+    // Why: the room changed the page's height (the Pen back from the Text
+    // tool), and the pad must cover the new page now. WebKit's resize report
+    // came a few hundred ms late, and a stroke written below the text in that
+    // time fell outside the pad and was lost (CI run 45990737316).
+    if (this.env.wrap.style.minHeight !== roomWas) {
+      this.placeOverlay()
+      this.layoutDirty = true
+      this.fresh = true
+    }
     const cached = this.fresh ? null : this.visibleCached()
     this.fresh = false
     if (!cached) this.scrollNow = this.scrollPos()

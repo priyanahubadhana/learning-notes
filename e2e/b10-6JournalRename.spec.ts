@@ -115,7 +115,9 @@ async function doubleTap(page: Page, el: Locator) {
   const r = (await el.boundingBox())!
   const x = r.x + r.width / 2
   const y = r.y + r.height / 2
-  // Both taps leave together, like a finger. Why: an awaited tap returns only
+  // Both taps are sent back to back (a gap near 0 ms; a finger leaves 100-300
+  // ms, so this tests the low end of the 500 ms window; a stall over 0.5 s on
+  // a real iPad is issue #92). Why: an awaited tap returns only
   // once the page has handled it, and the first tap opens the month page; on
   // a slow machine (CI WebKit, 141 ms a frame) the second tap then left
   // 0.7-1.4 s later by the page's own clock, past the 500 ms window, so the

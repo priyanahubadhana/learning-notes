@@ -315,6 +315,54 @@ test('TB-34 a selected picture offers Edit picture (Professional): crop, turn, s
     .toBe(true)
 })
 
+// Cause of the TB-34 flake above (G1, run 45908185759): saving a new width
+// draws the picture block again, and for about one frame the handles still
+// hold the old, detached picture, so "Crop and rotate" opens nothing and says
+// "Only pictures kept in this app can be edited." A tap in that frame must
+// still open the editor.
+test('TB-34 Crop and rotate in the frame after a resize redraw still opens Edit picture', async ({
+  page,
+}) => {
+  await open(page, 'lasso', 'professional', PRO_ALL)
+  await pickPicture(page)
+  await page.getByTestId('v8-sel-picture').click()
+  const list = card(page, 'sel.picture')
+  await expect(
+    list.getByRole('button', { name: 'Crop and rotate' }),
+  ).toBeVisible()
+  // In the page: when the old picture leaves the page (the redraw), tap
+  // "Crop and rotate" on the next frame, as a quick person would.
+  const tapped = page.evaluate(
+    () =>
+      new Promise<void>((done) => {
+        const old = document.querySelector('.bn-editor img')!
+        const watch = new MutationObserver(() => {
+          if (old.isConnected) return
+          watch.disconnect()
+          requestAnimationFrame(() => {
+            const crop = [
+              ...document.querySelectorAll<HTMLButtonElement>(
+                '[data-testid="v8-card-sel.picture"] button',
+              ),
+            ].find((b) => b.textContent?.includes('Crop and rotate'))!
+            crop.click()
+            done()
+          })
+        })
+        watch.observe(document.querySelector('.bn-editor')!, {
+          childList: true,
+          subtree: true,
+        })
+      }),
+  )
+  await list.getByRole('button', { name: 'Smaller' }).click()
+  await tapped
+  await expect(page.getByRole('dialog', { name: 'Edit picture' })).toBeVisible()
+  await expect(
+    page.getByText('Only pictures kept in this app can be edited.'),
+  ).toHaveCount(0)
+})
+
 test('TB-33 Undo and Redo: the picture Resize step from the bar', async ({
   page,
 }) => {

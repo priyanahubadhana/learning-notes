@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 27 Nov 2026: G1, the two pass-on-retry tests of run 45908185759
+
+- **What:** `e2e/writePad.spec.ts` (test fault): `selectWord` now waits, after focusing the page, until every timer the focus started has run, then sets the selection. ProseMirror's focus timer (20 ms) wrote the old cursor back over a selection set before the editor had read it (in-page log: the selection was set, and 0.4 ms later, 21 ms after the focus, it was collapsed). No check weakened. `e2e/toolbarV8Tools.spec.ts` (app fault, not fixed here): a new test, "Crop and rotate in the frame after a resize redraw", fails on the app 5 of 5: in the frame after Smaller redraws the picture, Crop and rotate opens nothing and says "Only pictures kept in this app can be edited." (src/editor/PictureHandles.tsx:79 takes the block id from the old, detached picture, so it is empty; line 427 opens the editor with it).
+- **Why:** rule F9, a pass on retry counts as red.
+- **Files:** e2e/writePad.spec.ts, e2e/toolbarV8Tools.spec.ts, docs/CHANGELOG.md.
+
 ### 26 Nov 2026: the close-out of phase 1A (plan-after-1a, step 2a)
 
 - **What:** the owner's iPad reading check on the live app passed. Issues: the 12 marked fixed and #45 closed; a `stage-1` label made and every open issue given a stage (except #7, #39, #46 to #49: tests and the docs site); #74 to #87 opened from the real-app page and the owner's taller-box fault; #68 labelled stage-2 by the owner's own line in it. The five raw #68 recordings saved (docs/qa/traces/). The phase row (docs/metrics/phase-results.md and the owner's cross-project log). The list of working copies (docs/qa/working-copies-2026-11-26.md, nothing removed). The product picks of the last week for the owner (docs/qa/picks-1a-closeout.md). STATE rewritten short, with the owner's decisions of 24 and 25 Nov as notes.

@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 27 Nov 2026: G1, two rare reds of run 46013460259 (r8a)
+
+- **What:** `e2e/pagesBarFade.spec.ts` (test fault): it counted frames drawn in a fixed 600 ms and wanted more than 3; the iPad engine on the hosted machine draws a frame of this glass bar in 230-350 ms, so it saw 2-3. Now the bar's fade is held the moment the bar appears and checked at 11 points from start to end (no move, fades 0 to 1, same bar), then let finish (waited for, not timed). Turning the slide back on makes it fail. 20/20 on ipad-webkit. `e2e/reading.spec.ts` "always open in Reading mode": the Aa button was not found for 20 s once (passed on retry); no recording was kept and it does not happen here (80 runs, also with the processor slowed 6x and 15x), so the cause is not known yet. Two checks now say which state was wrong next time. CI keeps the recordings of a test that passed only on retry, and the timed-taps run no longer empties the shard's recordings folder.
+- **Why:** rule F9; no recording, no root cause.
+- **Files:** e2e/pagesBarFade.spec.ts, e2e/reading.spec.ts, .github/workflows/ci.yml, docs/CHANGELOG.md.
+
 ### 27 Nov 2026: G1, the Pencil tap rule averages merged points (Fable)
 
 - **What:** `penGuard.ts` measures a press's travel on its merged (coalesced) points, each averaged with the two before it; a move with no merged points is taken raw. The trembling-tap test now passes; the ring is still not a tap. `circleDigit` (textPencil.ts) returns false when a filter refuses its change, so a refused ring is not taken as done. Known gap, accepted: a tiny fast scratch-out of merged points is read as a tap (#91, an `it.fails` row).

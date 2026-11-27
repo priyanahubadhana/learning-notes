@@ -38,6 +38,7 @@ export const FLAG_IDS = [
   'system.v2',
   'storage.safety',
   'journal.monthRepair',
+  'look.calmEdge',
 ] as const
 
 export type FlagId = (typeof FLAG_IDS)[number]
@@ -84,6 +85,7 @@ export const PREVIEW_DEFAULT_ON: readonly FlagId[] = [
   'page.menus',
   'storage.safety',
   'journal.monthRepair',
+  'look.calmEdge',
 ]
 
 /** The live site. Owner, 25 Nov 2026 (phase 1A live, option A): it starts with the preview's parts ON. */

@@ -127,6 +127,20 @@ export function TimeRangeBar({
       : rangeFor(current, now, weekStart)
   }, [current, custom, now, weekStart])
 
+  // The picked option stays in view inside its own track when the choice
+  // changes. Only the track scrolls sideways: scrollIntoView on every redraw
+  // also scrolled the page back to the bar (SP-40, CI run 46041556992).
+  const currentId = current?.id
+  useLayoutEffect(() => {
+    const el = track.current
+    const on = el?.querySelector<HTMLElement>('[aria-checked="true"]')
+    if (!el || !on) return
+    const t = el.getBoundingClientRect()
+    const r = on.getBoundingClientRect()
+    if (r.left < t.left) el.scrollLeft += r.left - t.left
+    else if (r.right > t.right) el.scrollLeft += r.right - t.right
+  }, [currentId])
+
   const valid = isValidRange(draft.from, draft.to)
 
   const choose = (p: Preset) => {
@@ -193,10 +207,6 @@ export function TimeRangeBar({
                 className="pm-seg"
                 data-testid={`range-${p.id}`}
                 onClick={() => choose(p)}
-                ref={(el) => {
-                  if (el && on)
-                    el.scrollIntoView?.({ inline: 'nearest', block: 'nearest' })
-                }}
               >
                 {p.label}
               </button>

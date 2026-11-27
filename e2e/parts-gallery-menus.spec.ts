@@ -116,6 +116,37 @@ test.describe('Parts gallery: menus', () => {
     }
   })
 
+  // CI run 46041556992 (ipad-webkit): the page jumped back to the gallery's
+  // open time range bar between the scroll to 'middle' and the tap, so the
+  // tap missed. Any redraw of that bar scrolled its picked option into view,
+  // and with it the whole page.
+  test('SP-40 a time range bar drawing again never scrolls the page away from the strip buttons', async ({
+    page,
+  }) => {
+    await open(page, { width: 1180, height: 820 })
+    const b = page.getByTestId('menus-at-middle')
+    await b.scrollIntoViewIfNeeded()
+    await expect(b).toBeInViewport()
+    const y = await page.evaluate(() => window.scrollY)
+    const bar = page.getByTestId('range-editing').getByTestId('time-range-bar')
+    await expect(bar).not.toBeInViewport()
+    // A change inside the bar (out of view) makes it draw again: an end
+    // before the start, typed the way React hears it.
+    await page.getByTestId('range-editing').evaluate((host) => {
+      const input = host.querySelector<HTMLInputElement>(
+        '[data-testid="range-from"]',
+      )!
+      const set = Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        'value',
+      )!.set!
+      set.call(input, '2026-12-31')
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    await expect(bar).toHaveAttribute('data-state', 'invalid')
+    expect(await page.evaluate(() => window.scrollY)).toBe(y)
+    await expect(b).toBeInViewport()
+  })
   test('SP-40 Beginner shows exactly Cut, Copy, Paste, Delete and more', async ({
     page,
   }) => {

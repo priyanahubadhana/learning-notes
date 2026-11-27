@@ -634,6 +634,76 @@ test('TB-28: Undo of "all pages" keeps edits made since: a box added on another 
   await expect.poll(() => sameRow(a, b)).toBe(true)
 })
 
+test('TB-28 opening a page laid out by "all pages": its boxes show only where they land, never over the page text first', async ({
+  page,
+}) => {
+  // Why (CI run 46076474347, ipad-webkit): the page's own text loads a moment
+  // after the page opens; until then the grid took the first box as empty
+  // (about 0 high) and drew the two boxes up over where the text comes, for
+  // 1.1 s on CI, then they jumped down. A tap below them in that time hit a box.
+  await start(page, 'TB28open')
+  await addBox(page, 'Alpha')
+  await addBox(page, 'Bravo')
+  await addPage(page, 'Paper', 'Second')
+  await typeInEditor(page, 'Main two')
+  await addBox(page, 'Charlie')
+  const d = await addBox(page, 'Delta')
+  await openCard(page, d)
+  await page.getByTestId('bc-tab-layout').tap()
+  await tapSwitch(
+    card(page).getByRole('switch', {
+      name: 'Apply to all pages in the notebook',
+    }),
+  )
+  await page.getByTestId('bc-layout-two').tap()
+  await page.keyboard.press('Escape')
+  // Every place each box of the next page is shown at, from its first frame.
+  await page.evaluate(() => {
+    const seen: Record<string, string[]> = {}
+    ;(window as unknown as { __seen: typeof seen }).__seen = seen
+    const look = () => {
+      for (const el of document.querySelectorAll<HTMLElement>(
+        '[data-paper-box]:not([data-paper-box="main"])',
+      )) {
+        if (getComputedStyle(el).visibility !== 'visible') continue
+        const id = el.getAttribute('data-paper-box')!
+        const at = `${el.style.left} ${el.style.top}`
+        const list = (seen[id] ??= [])
+        if (list[list.length - 1] !== at) list.push(at)
+      }
+    }
+    new MutationObserver(look).observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+    })
+    const frame = () => {
+      look()
+      requestAnimationFrame(frame)
+    }
+    requestAnimationFrame(frame)
+  })
+  await openPage(page, 'TB28open')
+  // The page has its text and both boxes theirs: everything has loaded.
+  await expect(page.locator('[data-paper-box="main"]')).toContainText(
+    'Main text',
+  )
+  const boxes = page.locator(EXTRA)
+  await expect(boxes.nth(0)).toContainText('Alpha')
+  await expect(boxes.nth(1)).toContainText('Bravo')
+  await expect(boxes.nth(0)).toBeVisible()
+  await expect(boxes.nth(1)).toBeVisible()
+  const seen = await page.evaluate(
+    () => (window as unknown as { __seen: Record<string, string[]> }).__seen,
+  )
+  for (const box of [boxes.nth(0), boxes.nth(1)]) {
+    const id = (await box.getAttribute('data-paper-box'))!
+    const now = await box.evaluate((el) => `${el.style.left} ${el.style.top}`)
+    // Shown once, at the place it keeps.
+    expect(seen[id], `box ${id} was shown at`).toEqual([now])
+  }
+})
+
 test('TB-27: a later layout that moves a box off its full row switches Full width off', async ({
   page,
 }) => {

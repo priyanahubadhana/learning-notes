@@ -163,12 +163,14 @@ describe('playGlide', () => {
     el.animate = vi.fn(() => lateAnimation(clock))
     const done = vi.fn()
     playGlide(el, { dx: 20, dy: 10 }, done)
-    clock.t = GLIDE_MS - 50 // started 50 ms late: still moving at 200 ms
+    // CI run 45990737316: the animation clock only moves when WebKit paints
+    // (the timeline's time is set once per frame), so it can stand still
+    // before 200 ms for over a second. The landing keeps to the wall clock.
+    clock.t = GLIDE_MS - 50
     vi.advanceTimersByTime(GLIDE_MS)
-    expect(el.hasAttribute('data-gliding')).toBe(true)
-    clock.t = GLIDE_MS
-    vi.advanceTimersByTime(50)
     expect(el.hasAttribute('data-gliding')).toBe(false)
+    expect(done).toHaveBeenCalledTimes(1)
+    vi.advanceTimersByTime(5 * GLIDE_MS) // the clock never moves: still once
     expect(done).toHaveBeenCalledTimes(1)
   })
   it('lands at once when the glide never started by its end time', () => {

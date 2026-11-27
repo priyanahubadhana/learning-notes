@@ -76,6 +76,11 @@ const TAP_PRESS_MS = 300
 export const TAP_PATH_PX = 16
 /** Tip moves shorter than this (px) are the sensor's own noise, not travel. */
 const PATH_STEP_PX = 2
+/**
+ * Packed (coalesced) Pencil points averaged together before the noise floor:
+ * three at the Pencil's 240 a second is about one move event's time.
+ */
+const SMOOTH_SAMPLES = 3
 
 /** The tip's path so far: its length and the last point counted. */
 export interface TipPath {
@@ -290,7 +295,12 @@ export function watchPenGuard(
   // Only a Pencil gesture that began in the page text counts: a tap on the
   // bar or a menu (Delete, Undo) is the user asking, so it is never held back.
   let gesturePointer: number | null = null
-  let downAt: { t: number; path: TipPath } | null = null
+  let downAt: {
+    t: number
+    path: TipPath
+    /** The last packed points, averaged to take out the tremble. */
+    recent: { x: number; y: number }[]
+  } | null = null
 
   const onPointer = (e: PointerEvent) => {
     // A press on a bar, menu or button (Delete, Cut ...) is the person asking:
@@ -309,9 +319,28 @@ export function watchPenGuard(
       if (downAt && e.pointerId === gesturePointer) {
         // Travel inside a merged move counts: walk the packed points (WebKit
         // folds a quick stroke into few moves), else the event itself.
+        // Packed points come at the Pencil's own rate (about 240 a second)
+        // and carry its tremble, which the 2 px floor was never tuned for:
+        // each is averaged with the two before it (SMOOTH_SAMPLES), about
+        // the rate of move events again. A lone point (a move the browser
+        // did not merge) is taken as it is, so a scratch-out sent as one
+        // point per stroke keeps its full travel.
         const packed = e.getCoalescedEvents?.() ?? []
-        for (const p of packed.length ? packed : [e])
-          downAt.path = tipPathTo(downAt.path, p.clientX, p.clientY)
+        if (packed.length > 1) {
+          for (const p of packed) {
+            downAt.recent.push({ x: p.clientX, y: p.clientY })
+            if (downAt.recent.length > SMOOTH_SAMPLES) downAt.recent.shift()
+            const n = downAt.recent.length
+            downAt.path = tipPathTo(
+              downAt.path,
+              downAt.recent.reduce((a, q) => a + q.x, 0) / n,
+              downAt.recent.reduce((a, q) => a + q.y, 0) / n,
+            )
+          }
+        } else {
+          downAt.recent = []
+          downAt.path = tipPathTo(downAt.path, e.clientX, e.clientY)
+        }
       }
       return
     }
@@ -322,6 +351,7 @@ export function watchPenGuard(
         downAt = {
           t: stampOf(e),
           path: { len: 0, x: e.clientX, y: e.clientY },
+          recent: [],
         }
         // A Pencil lift that never comes is dropped after 4 s without movement.
         inputMachine.begin(e, 'penGuard', () => {

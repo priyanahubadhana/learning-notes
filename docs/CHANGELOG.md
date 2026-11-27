@@ -2,6 +2,12 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 27 Nov 2026: G1, the Pencil tap rule averages merged points (Fable)
+
+- **What:** `penGuard.ts` measures a press's travel on its merged (coalesced) points, each averaged with the two before it; a move with no merged points is taken raw. The trembling-tap test now passes; the ring is still not a tap.
+- **Why:** a quick ring merged into two moves counted as a tap (TB-37); the merged points carry the Pencil's tremble. Decision and the case against: docs/DECISIONS.md, 27 Nov.
+- **Files:** src/editor/penGuard.ts, docs/DECISIONS.md, docs/CHANGELOG.md.
+
 ### 27 Nov 2026: G1, the C0-1 red of run 45918658223
 
 - **What:** `e2e/c0-1BoxStyle.spec.ts` "old boxes keep their look" (test fault, not caused by 0ee968fe): the test typed into the new box before the box had the focus, so the words went nowhere (local log: focus not in the box and the box empty, 1 in 40); the box came back empty after the reload and the tap on the main text removed it, so 0 boxes. It also reloaded with the words not yet written. Now it waits for the box's focus, checks the words are in the box, waits for the save (`waitForSaved`) and checks the words after the reload. Before the fix: 4d407ab1 failed 1 of 60, 7d8d25e3 1 of 40 (both alike); after: 60/60. The `selectionBarButtons` ✘ marks in shard 4 are `test.fail` rows (known broken, expected to fail); the shard reported 609 passed, 0 flaky, the same as run 45908185759.

@@ -141,6 +141,48 @@ describe('playGlide', () => {
         expect(done).toHaveBeenCalledTimes(1)
       })
   })
+  // CI run 45979405230 (TB-14, ipad-webkit): the box kept data-gliding for over
+  // 1.2 s after a 200 ms glide. Measured on WebKit: the animation reports
+  // playState 'finished' up to 300 ms before its finished promise settles, and
+  // its start can wait for a paint too. The landing must follow the glide's own
+  // clock, not the promise.
+  const lateAnimation = (clock: { t: number | null }) => {
+    const finish = vi.fn(() => (clock.t = GLIDE_MS))
+    const a = {
+      finished: new Promise<void>(() => {}), // settles late (here never)
+      get currentTime() {
+        return clock.t
+      },
+      finish,
+    }
+    return a as unknown as Animation & { finish: typeof finish }
+  }
+  it('lands when the glide time is up, even if the finished promise is late', () => {
+    const clock = { t: 0 as number | null }
+    const el = document.createElement('div')
+    el.animate = vi.fn(() => lateAnimation(clock))
+    const done = vi.fn()
+    playGlide(el, { dx: 20, dy: 10 }, done)
+    clock.t = GLIDE_MS - 50 // started 50 ms late: still moving at 200 ms
+    vi.advanceTimersByTime(GLIDE_MS)
+    expect(el.hasAttribute('data-gliding')).toBe(true)
+    clock.t = GLIDE_MS
+    vi.advanceTimersByTime(50)
+    expect(el.hasAttribute('data-gliding')).toBe(false)
+    expect(done).toHaveBeenCalledTimes(1)
+  })
+  it('lands at once when the glide never started by its end time', () => {
+    const clock = { t: null as number | null }
+    const el = document.createElement('div')
+    const a = lateAnimation(clock)
+    el.animate = vi.fn(() => a)
+    const done = vi.fn()
+    playGlide(el, { dx: 20, dy: 10 }, done)
+    vi.advanceTimersByTime(GLIDE_MS)
+    expect(a.finish).toHaveBeenCalled()
+    expect(el.hasAttribute('data-gliding')).toBe(false)
+    expect(done).toHaveBeenCalledTimes(1)
+  })
   it('ends at once when the screen cannot animate or asks for less motion', () => {
     const el = document.createElement('div')
     const done = vi.fn()

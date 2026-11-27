@@ -3,12 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { Schema } from 'prosemirror-model'
 import { EditorState } from 'prosemirror-state'
 import {
+  penState,
   refuseDelete,
   refuseInput,
   refuseTransaction,
   TAP_PATH_PX,
   tipPathTo,
   wasPenTap,
+  watchPenGuard,
   type TipPath,
 } from './penGuard'
 
@@ -218,5 +220,112 @@ describe('a Pencil tap is told by the whole path of the tip (C4, C14)', () => {
   it('a press held longer than 300 ms is not a tap', () => {
     expect(wasPenTap(301, 0)).toBe(false)
     expect(wasPenTap(300, TAP_PATH_PX)).toBe(true)
+  })
+})
+
+/**
+ * TB-37 burst ring (e2e/tb2-pencil.spec.ts, "a quick ring round a digit, its
+ * moves merged by the browser"), failing 3 to 8 of 20 on ipad-webkit. The
+ * page log of a failing run: press at (578, 560), a move at (579, 560), ONE
+ * move back at (578, 560) holding the other 91 points of the ring in
+ * getCoalescedEvents, lift at (578, 560) after 239 ms. The guard measured
+ * the tip path from the two moves only (0 px), called the ring a tap (C14),
+ * and its tap grace refused the ring's own 7 -> (7) replacement.
+ */
+describe('a quick ring whose moves the browser merged is not a tap', () => {
+  type Ev = Event & { [k: string]: unknown }
+  /** A Pencil event as the browser hands it to the page. */
+  const pen = (
+    type: string,
+    x: number,
+    y: number,
+    t: number,
+    target: EventTarget,
+    merged: { x: number; y: number }[] = [],
+  ) => {
+    const e = new Event(type, { bubbles: true, cancelable: true }) as Ev
+    const props: Record<string, unknown> = {
+      pointerType: 'pen',
+      pointerId: 7,
+      clientX: x,
+      clientY: y,
+      button: 0,
+      buttons: type === 'pointerup' ? 0 : 1,
+      timeStamp: t,
+      getCoalescedEvents: () =>
+        merged.map((q) => ({ clientX: q.x, clientY: q.y })),
+    }
+    for (const [k, value] of Object.entries(props))
+      Object.defineProperty(e, k, { value })
+    target.dispatchEvent(e)
+  }
+  /** Sets up the guard on a page text; returns the text element. */
+  const page = () => {
+    const dom = document.createElement('div')
+    dom.className = 'bn-editor'
+    const text = document.createElement('p')
+    text.textContent = 'Step 7 done'
+    dom.appendChild(text)
+    document.body.appendChild(dom)
+    const editor = {
+      domElement: dom,
+      prosemirrorView: undefined,
+      onChange: () => () => {},
+    }
+    const stop = watchPenGuard(
+      editor as unknown as Parameters<typeof watchPenGuard>[0],
+      () => {},
+    )
+    return { text, stop: () => (stop(), dom.remove()) }
+  }
+  // The ring of the e2e test round the 7 (24 points, 4 sent per segment).
+  const cx = 578.5
+  const cy = 569.6
+  const ring = Array.from({ length: 24 }, (_, i) => {
+    const a = (i / 23) * Math.PI * 2 - Math.PI / 2
+    return { x: cx + Math.cos(a) * 14.5, y: cy + Math.sin(a) * 9.5 }
+  })
+  const fine = ring.slice(1).flatMap((q, i) =>
+    Array.from({ length: 4 }, (_, j) => ({
+      x: ring[i].x + ((q.x - ring[i].x) * (j + 1)) / 4,
+      y: ring[i].y + ((q.y - ring[i].y) * (j + 1)) / 4,
+    })),
+  )
+
+  it('the ring of a failing run (two moves, 91 points merged) does not start a tap grace', () => {
+    const { text, stop } = page()
+    try {
+      penState.tapAt = -1e9
+      const s = ring[0]
+      pen('pointerdown', s.x, s.y, 10_000, text)
+      pen('pointermove', fine[0].x, fine[0].y, 10_056, text, [fine[0]])
+      pen('pointermove', s.x, s.y, 10_133, text, fine.slice(1))
+      pen('pointerup', s.x, s.y, 10_239, text)
+      expect(penState.down).toBe(false)
+      expect(penState.upAt).toBe(10_239)
+      // 239 ms, but the tip went round a 75 px ring: not a tap.
+      expect(penState.tapAt, 'the ring was taken for a tap').not.toBe(10_239)
+    } finally {
+      stop()
+    }
+  })
+
+  it('a real tap stays a tap when its trembling samples are merged too', () => {
+    const { text, stop } = page()
+    try {
+      penState.tapAt = -1e9
+      // 20 samples within 1 px of the tip, drifting 3 px.
+      const shake = Array.from({ length: 20 }, (_, i) => ({
+        x: 300 + (i % 2 ? 0.9 : -0.9) + i * 0.15,
+        y: 300 + (i % 3 ? 0.8 : -0.8),
+      }))
+      pen('pointerdown', 300, 300, 20_000, text)
+      pen('pointermove', 301, 300, 20_060, text, shake.slice(0, 10))
+      pen('pointermove', 303, 300, 20_120, text, shake.slice(10))
+      pen('pointerup', 303, 300, 20_180, text)
+      expect(penState.tapAt, 'a tap must keep its grace').toBe(20_180)
+    } finally {
+      stop()
+    }
   })
 })

@@ -27,6 +27,9 @@ test('B10-6 double tap on a Journal month renames it (iPad size)', async ({
   const side = await openSidebar(page)
   const month = side.getByRole('button', { name: monthName(), exact: true })
   await doubleTap(page, month)
+  // Touch always names in the sheet: wait for it to show (however slow the
+  // machine), then fill it; sheetFill alone gives up after 1.5 s.
+  await expect(page.getByTestId('name-sheet')).toBeVisible()
   expect(await sheetFill(page, 'My exam month')).toBe(true)
   await expect(
     side.getByRole('button', { name: 'My exam month', exact: true }),
@@ -112,8 +115,13 @@ async function doubleTap(page: Page, el: Locator) {
   const r = (await el.boundingBox())!
   const x = r.x + r.width / 2
   const y = r.y + r.height / 2
-  await page.touchscreen.tap(x, y)
-  await page.touchscreen.tap(x, y)
+  // Both taps leave together, like a finger. Why: an awaited tap returns only
+  // once the page has handled it, and the first tap opens the month page; on
+  // a slow machine (CI WebKit, 141 ms a frame) the second tap then left
+  // 0.7-1.4 s later by the page's own clock, past the 500 ms window, so the
+  // test made two single taps (CI run 45948291035; reproduced with Chromium
+  // CPU throttled 9x: 6 of 6 failed before, 6 of 6 passed after).
+  await Promise.all([page.touchscreen.tap(x, y), page.touchscreen.tap(x, y)])
 }
 
 /** Waits until the drawer row has stopped moving: its position and size match on two reads in a row. */

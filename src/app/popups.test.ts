@@ -221,6 +221,33 @@ describe('the one pop-up rule', () => {
     expect(open('a')).toBe(false)
   })
 
+  it('a space typed in the text is typing, not scrolling: a scroll after it keeps it open', () => {
+    // CI run 46106138514 (handwritingChooser, chromium): words typed with
+    // spaces, then Insert tapped within 1.2 s on a bar that had to scroll to
+    // show it; the bar's scroll came after the tap and closed the new pill.
+    const text = document.createElement('div')
+    text.contentEditable = 'true'
+    document.body.append(text)
+    click('#a-open')
+    vi.setSystemTime(Date.now() + SCROLL_GRACE_MS + 50)
+    act(() => {
+      text.dispatchEvent(
+        new KeyboardEvent('keydown', { key: ' ', bubbles: true }),
+      )
+      document.dispatchEvent(new Event('scroll'))
+    })
+    expect(open('a')).toBe(true)
+    // A space on the page itself (not in a text) still scrolls it.
+    act(() => {
+      document.body.dispatchEvent(
+        new KeyboardEvent('keydown', { key: ' ', bubbles: true }),
+      )
+      document.dispatchEvent(new Event('scroll'))
+    })
+    expect(open('a')).toBe(false)
+    text.remove()
+  })
+
   it('navigating (the address changes, or Back) closes it', () => {
     click('#a-open')
     act(() => {

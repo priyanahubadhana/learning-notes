@@ -335,6 +335,38 @@ test.describe('Parts gallery: menus', () => {
     await expect(picker(page).getByTestId('cs-pick-red')).toBeFocused()
   })
 
+  // Cause of the flake above (CI run 46122961075, ipad-webkit): the app loads
+  // a lazy part's style sheet at about the moment the strip or its picker
+  // opens. While a style sheet is loading, WebKit's focus() judges the new
+  // button by its old style (hidden until placed), so the old focus goes and
+  // nothing gets it (the page body). Here a style sheet is held open on
+  // purpose while the strip and the picker open.
+  test('the strip and its picker take the keyboard focus while a style sheet is still loading', async ({
+    page,
+  }) => {
+    let release = () => {}
+    const held = new Promise<void>((r) => (release = r))
+    await page.route(/held-sheet\.css/, async (route) => {
+      await held
+      await route.fulfill({ contentType: 'text/css', body: '' })
+    })
+    await open(page, { width: 1180, height: 820 })
+    await page.evaluate(() => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = '/held-sheet.css'
+      document.head.appendChild(link)
+    })
+    await openAt(page, 'middle')
+    await expect(cs(page, 'cs-paste')).toBeFocused()
+    await page.keyboard.press('ArrowRight')
+    await expect(cs(page, 'cs-colour')).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(picker(page)).toBeVisible()
+    await expect(picker(page).getByTestId('cs-pick-ink')).toBeFocused()
+    release()
+  })
+
   const list = (page: Page) => page.getByTestId('demo-list')
 
   test('SP-45 typing filters by name and alias; No match shows', async ({

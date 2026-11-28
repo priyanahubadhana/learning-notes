@@ -8,6 +8,7 @@ import {
   startInMode,
   typeInEditor,
 } from './helpers.ts'
+import { tool } from './mainBarHelpers.ts'
 
 /**
  * Phase 2B, task 2B.9 (switch textbox.v2 ON): the Box card.
@@ -705,6 +706,40 @@ test('TB-28 opening a page laid out by "all pages": its boxes show only where th
     // Shown once, at the place it keeps.
     expect(seen[id], `box ${id} was shown at`).toEqual([now])
   }
+})
+
+test('TB-28 opening a page laid out by "all pages" with the Pen on: its boxes are shown', async ({
+  page,
+}) => {
+  // Review of the TB-28 fix: the boxes stay hidden until the first box's text
+  // is measured. With an ink tool on, the first box is stretched past its
+  // text; its text arriving must still be measured, or the boxes never show.
+  await start(page, 'TB28pen')
+  await addBox(page, 'Alpha')
+  await addBox(page, 'Bravo')
+  await addPage(page, 'Paper', 'Second')
+  await typeInEditor(page, 'Main two')
+  await addBox(page, 'Charlie')
+  const d = await addBox(page, 'Delta')
+  await openCard(page, d)
+  await page.getByTestId('bc-tab-layout').tap()
+  await tapSwitch(
+    card(page).getByRole('switch', {
+      name: 'Apply to all pages in the notebook',
+    }),
+  )
+  await page.getByTestId('bc-layout-two').tap()
+  await page.keyboard.press('Escape')
+  await tool(page, 'Pen').click()
+  await expect(tool(page, 'Pen')).toHaveAttribute('aria-pressed', 'true')
+  await openPage(page, 'TB28pen')
+  await expect(page.locator('[data-paper-box="main"]')).toContainText(
+    'Main text',
+  )
+  const boxes = page.locator(EXTRA)
+  await expect(boxes).toHaveCount(2)
+  await expect(boxes.nth(0)).toBeVisible()
+  await expect(boxes.nth(1)).toBeVisible()
 })
 
 test('TB-27: a later layout that moves a box off its full row switches Full width off', async ({

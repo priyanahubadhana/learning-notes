@@ -385,9 +385,22 @@ export function PaperFrame({
       )
     }
     const ro = new ResizeObserver(measure)
+    // The text's editor arriving is measured even when the box keeps its
+    // size (an ink tool stretches it past its text): the other boxes wait
+    // for that height (review of the TB-28 fix).
+    const arrive = new MutationObserver(() => {
+      if (!el.querySelector('.bn-editor')) return
+      arrive.disconnect()
+      measure()
+    })
     measure()
     ro.observe(el)
-    return () => ro.disconnect()
+    if (!el.querySelector('.bn-editor'))
+      arrive.observe(el, { childList: true, subtree: true })
+    return () => {
+      arrive.disconnect()
+      ro.disconnect()
+    }
   }, [k, reportHeight])
   const lowest = Math.max(
     boxBottom,

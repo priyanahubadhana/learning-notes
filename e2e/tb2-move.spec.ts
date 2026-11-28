@@ -157,12 +157,16 @@ test('TB-11 hold the tab 120 ms: the box lifts (scale 1.02, elevation 3); a flic
   await page.mouse.move(from.x, from.y)
   await page.mouse.down()
   await expect(b).toHaveAttribute('data-lifted', '', { timeout: 600 })
-  // The lift is a 120 ms transition: wait for it to finish (slow CI runners
-  // paint it late), then it must be exactly the lifted look.
-  await expect
-    .poll(() => b.evaluate((el) => getComputedStyle(el).transform))
-    .toMatch(/^matrix\(1\.02/)
-  const look = await b.evaluate((el) => {
+  // The lift is a 120 ms transition: wait for it to end, then it must be
+  // exactly the lifted look. Why not a poll of the computed transform (CI run
+  // 46076474347, ipad-webkit): WebKit hands out the animated value of its last
+  // paint, not of now (seen held at 1.014047 for 100 ms after the transition
+  // had finished); the poll took a read of "1.02" as the end and the read 18 ms
+  // later gave less. So: the transition's own end, then the paint that shows
+  // it, then one read.
+  const look = await b.evaluate(async (el) => {
+    await Promise.all(el.getAnimations().map((a) => a.finished))
+    await new Promise((done) => requestAnimationFrame(done))
     const cs = getComputedStyle(el)
     return { t: cs.transform, s: cs.boxShadow }
   })

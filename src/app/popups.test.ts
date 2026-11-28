@@ -249,6 +249,35 @@ describe('the one pop-up rule', () => {
     text.remove()
   })
 
+  it('a caret key in the text (End, ArrowDown) is not scrolling: a scroll after it keeps it open', () => {
+    // CI run 46114247991 (pasteButtons, chromium): End pressed in the editor,
+    // then Paste ▾ clicked; the bar scrolled to show it and that scroll,
+    // within 1.2 s of the End, closed the menu the click had just opened.
+    const text = document.createElement('div')
+    text.setAttribute('contenteditable', 'true')
+    document.body.append(text)
+    click('#a-open')
+    // Past the open grace and past the scrolls earlier tests marked (their
+    // clocks ran ahead of this one).
+    vi.setSystemTime(Date.now() + 10_000)
+    for (const key of ['End', 'ArrowDown']) {
+      act(() => {
+        text.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
+        document.dispatchEvent(new Event('scroll'))
+      })
+      expect(open('a'), key).toBe(true)
+    }
+    // The same key on the page itself still scrolls it.
+    act(() => {
+      document.body.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'End', bubbles: true }),
+      )
+      document.dispatchEvent(new Event('scroll'))
+    })
+    expect(open('a')).toBe(false)
+    text.remove()
+  })
+
   it('navigating (the address changes, or Back) closes it', () => {
     click('#a-open')
     act(() => {

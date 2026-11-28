@@ -62,6 +62,15 @@ const SCROLL_KEYS = new Set([
   ' ',
 ])
 
+/** A key pressed in a text field or an editor (it types, it does not scroll). */
+const typedIn = (target: EventTarget | null): boolean =>
+  target instanceof HTMLElement &&
+  (target.isContentEditable ||
+    target.closest('[contenteditable]:not([contenteditable="false"])') !==
+      null ||
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement)
+
 /** When a pop-up last opened (a scroll just after it is the page settling). */
 let lastOpened = 0
 
@@ -140,7 +149,11 @@ export function usePopup(
       userScrollAt = Date.now()
     }
     const onScrollKey = (e: KeyboardEvent) => {
-      if (SCROLL_KEYS.has(e.key)) userScrollAt = Date.now()
+      if (!SCROLL_KEYS.has(e.key)) return
+      // A space typed in a text is a letter, not a scroll (CI run
+      // 46106138514: a scroll after typing closed a pill just opened).
+      if (e.key === ' ' && typedIn(e.target)) return
+      userScrollAt = Date.now()
     }
     const onNavigate = () => entry.close()
     document.addEventListener('pointerdown', onDown, true)

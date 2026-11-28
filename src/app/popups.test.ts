@@ -226,10 +226,11 @@ describe('the one pop-up rule', () => {
     // spaces, then Insert tapped within 1.2 s on a bar that had to scroll to
     // show it; the bar's scroll came after the tap and closed the new pill.
     const text = document.createElement('div')
-    text.contentEditable = 'true'
+    text.setAttribute('contenteditable', 'true')
     document.body.append(text)
     click('#a-open')
-    vi.setSystemTime(Date.now() + SCROLL_GRACE_MS + 50)
+    // Past the open grace and past any scroll of an earlier test (1200 ms).
+    vi.setSystemTime(Date.now() + 2000)
     act(() => {
       text.dispatchEvent(
         new KeyboardEvent('keydown', { key: ' ', bubbles: true }),

@@ -73,9 +73,19 @@ export async function realPen(
   // The hover a Pencil sends before it touches (no button, pressure 0).
   await page.mouse.move(first.x - 3, first.y - 6)
   await page.mouse.move(first.x, first.y)
-  await page.mouse.down()
-  for (const p of rest) await page.mouse.move(p.x, p.y, { steps })
-  await page.mouse.up()
+  if (rest.length === 0) {
+    // A tap: the lift goes with the press. Why (CI run 46092819007, F3 pen):
+    // WebKit answers a press only after its next repaint, so an awaited
+    // press sent the lift 315 ms later and the page stamped a hold (over the
+    // 300 ms of tapSelect.ts), not a tap. Probed 28 Nov with a page busy
+    // 350 ms on the press: awaited, the stamps were 371 ms apart; sent
+    // together, 1 ms apart, the press still first (chromium alike).
+    await Promise.all([page.mouse.down(), page.mouse.up()])
+  } else {
+    await page.mouse.down()
+    for (const p of rest) await page.mouse.move(p.x, p.y, { steps })
+    await page.mouse.up()
+  }
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })

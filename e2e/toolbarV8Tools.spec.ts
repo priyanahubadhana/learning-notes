@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import {
   expectStrokes,
   line,
@@ -27,6 +27,7 @@ async function open(
   tool: 'pen' | 'eraser' | 'shapes' | 'lasso',
   level: Level = 'beginner',
   unlocked: string[] = [],
+  mode: 'touch' | 'pencil' = 'touch',
 ) {
   await page.addInitScript(
     ([l, u]) => {
@@ -37,7 +38,7 @@ async function open(
     },
     [level, unlocked] as const,
   )
-  await startInMode(page, 'touch')
+  await startInMode(page, mode)
   await page.goto('/?flags=toolbar.v8')
   await createNotebook(page, 'Biology', 'First')
   await typeInEditor(page, 'The nucleus holds the DNA')
@@ -314,6 +315,54 @@ test('TB-34 a selected picture offers Edit picture (Professional): crop, turn, s
     .toBe(true)
 })
 
+// Cause of the TB-34 flake above (G1, run 45908185759): saving a new width
+// draws the picture block again, and for about one frame the handles still
+// hold the old, detached picture, so "Crop and rotate" opens nothing and says
+// "Only pictures kept in this app can be edited." A tap in that frame must
+// still open the editor.
+test('TB-34 Crop and rotate in the frame after a resize redraw still opens Edit picture', async ({
+  page,
+}) => {
+  await open(page, 'lasso', 'professional', PRO_ALL)
+  await pickPicture(page)
+  await page.getByTestId('v8-sel-picture').click()
+  const list = card(page, 'sel.picture')
+  await expect(
+    list.getByRole('button', { name: 'Crop and rotate' }),
+  ).toBeVisible()
+  // In the page: when the old picture leaves the page (the redraw), tap
+  // "Crop and rotate" on the next frame, as a quick person would.
+  const tapped = page.evaluate(
+    () =>
+      new Promise<void>((done) => {
+        const old = document.querySelector('.bn-editor img')!
+        const watch = new MutationObserver(() => {
+          if (old.isConnected) return
+          watch.disconnect()
+          requestAnimationFrame(() => {
+            const crop = [
+              ...document.querySelectorAll<HTMLButtonElement>(
+                '[data-testid="v8-card-sel.picture"] button',
+              ),
+            ].find((b) => b.textContent?.includes('Crop and rotate'))!
+            crop.click()
+            done()
+          })
+        })
+        watch.observe(document.querySelector('.bn-editor')!, {
+          childList: true,
+          subtree: true,
+        })
+      }),
+  )
+  await list.getByRole('button', { name: 'Smaller' }).click()
+  await tapped
+  await expect(page.getByRole('dialog', { name: 'Edit picture' })).toBeVisible()
+  await expect(
+    page.getByText('Only pictures kept in this app can be edited.'),
+  ).toHaveCount(0)
+})
+
 test('TB-33 Undo and Redo: the picture Resize step from the bar', async ({
   page,
 }) => {
@@ -365,7 +414,10 @@ test('TB-33 no bar action is dimmed or "soon": on words each one answers in plai
 
 /** A drawing under the text, then the Lasso loops it (Pen then Lasso). */
 async function lassoInk(page: Page) {
-  await open(page, 'pen', 'professional', ['tb.selectionMenu'])
+  // Start in Pencil mode: the first pen touch of any other mode may switch the
+  // page to Pencil mode (when no key was pressed for 1.5 s), which depends on
+  // how long the setup took on the machine. The switch keeps the first line: penFirstLineSwitch.spec.ts.
+  await open(page, 'pen', 'professional', ['tb.selectionMenu'], 'pencil')
   await page.waitForTimeout(800)
   const box = await textBox(page)
   const y = box.y + 150

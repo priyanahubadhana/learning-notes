@@ -9,7 +9,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { aboveTabBar } from '../../app/aboveTabBar'
-import { openInTopLayer, type Rect } from '../../app/overlay'
+import { focusShown, openInTopLayer, type Rect } from '../../app/overlay'
 import { Icon, type IconName } from '../../app/tools/icons'
 import { CommandList } from './CommandList'
 import type { Command, CommandGroup } from './commandListLogic'
@@ -274,7 +274,7 @@ export function ContextStrip(props: ContextStripProps) {
     if (!placed || view !== 'strip' || picker) return
     const first = barRef.current?.querySelector<HTMLElement>('[data-strip-btn]')
     if (floating && first && !barRef.current?.contains(document.activeElement))
-      first.focus()
+      focusShown(first)
     // Focus once, when the strip first shows.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placed, floating])
@@ -538,7 +538,7 @@ function FloatingPicker(props: {
     return () => ro.disconnect()
   }, [anchor, node])
   useEffect(() => {
-    if (pos) node?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
+    if (pos) focusShown(node?.querySelector<HTMLElement>('[role="menuitem"]'))
     // Focus the first choice once the card is visible.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!pos])

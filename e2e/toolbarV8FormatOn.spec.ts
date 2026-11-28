@@ -1,12 +1,13 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import {
   createNotebook,
   hideSidebar,
   startInMode,
   typeInEditor,
 } from './helpers.ts'
+import { focusEditor } from './editorFocus.ts'
 
 /** 2A.10 (T15): the Format card shows an "on" state for every option that is a state. */
 test.use({ viewport: { width: 1180, height: 820 }, hasTouch: true })
@@ -80,6 +81,8 @@ test('T15 the state moves with the selection: bold in one line, not in the next'
   await tile(c0, 'bold').click()
   await page.getByTestId('pcard-close').click()
   await expect(card(page)).toHaveCount(0)
+  // The editor's after-focus check would undo the End if the click focused it.
+  await focusEditor(page)
   await page.getByText('The nucleus holds the DNA').click()
   await page.keyboard.press('End')
   await page.keyboard.press('Enter')
@@ -87,7 +90,7 @@ test('T15 the state moves with the selection: bold in one line, not in the next'
   const c = await openCard(page, 'text')
   await off(tile(c, 'bold'))
   // The card covers the page: move the caret with the keyboard, card still open.
-  await page.locator('.ProseMirror[contenteditable="true"]').first().focus()
+  await focusEditor(page)
   await page.keyboard.press('ArrowUp')
   await on(tile(c, 'bold'))
   await expect(card(page)).toHaveCount(1)
@@ -204,6 +207,8 @@ test('T15 a list is on only on its own line and follows the cursor to another li
   await on(tile(c0, 'bulletList'))
   await page.getByTestId('pcard-close').click()
   await expect(card(page)).toHaveCount(0)
+  // The editor's after-focus check would undo the End if the click focused it.
+  await focusEditor(page)
   await page.getByText('The nucleus holds the DNA').click()
   await page.keyboard.press('End')
   await page.keyboard.press('Enter')
@@ -212,7 +217,7 @@ test('T15 a list is on only on its own line and follows the cursor to another li
   await on(tile(c, 'bulletList'))
   await tile(c, 'bulletList').click()
   await off(tile(c, 'bulletList'))
-  await page.locator('.ProseMirror[contenteditable="true"]').first().focus()
+  await focusEditor(page)
   await page.keyboard.press('ArrowUp')
   await on(tile(c, 'bulletList'))
   await page.keyboard.press('ArrowDown')

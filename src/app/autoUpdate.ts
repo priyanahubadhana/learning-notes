@@ -359,12 +359,17 @@ export function showUpdatingPill(
     setTimeout(run, ms),
 ): void {
   updateStatus.set({ phase: 'updating' })
+  watchUpdatingPill(after)
+}
+
+/** The 5 s keeper. Re-arms without touching the state, so `restart` survives (C22). */
+function watchUpdatingPill(after: (run: () => void, ms: number) => unknown) {
   after(() => {
     if (updateStatus.get().phase !== 'updating') return
     // A restart that could not finish stays on screen with its button (C22).
     if (updateStatus.get().restart === 'failed') return
     // A restart that is still waiting for the new files keeps the words.
-    if (restartRunning()) return void showUpdatingPill(after)
+    if (restartRunning()) return void watchUpdatingPill(after)
     updateStatus.set({ phase: 'ready' })
     void import('../perf/slowMoments').then((m) =>
       m.noteSlowMoment(

@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import {
   addPage,
   createNotebook,
@@ -8,6 +8,7 @@ import {
   startInMode,
   typeInEditor,
 } from './helpers.ts'
+import { tool } from './mainBarHelpers.ts'
 
 /**
  * Phase 2B, task 2B.9 (switch textbox.v2 ON): the Box card.
@@ -51,6 +52,9 @@ async function addBox(page: Page, text: string) {
   let bottom = 0
   const all = page.locator('[data-paper-box]')
   for (let i = 0; i < (await all.count()); i++) {
+    // A box is shown once it is placed (under the page's text, once that has
+    // loaded): only then is where it ends known.
+    await expect(all.nth(i)).toBeVisible()
     const r = await rect(all.nth(i))
     bottom = Math.max(bottom, r.y + r.height)
   }
@@ -632,6 +636,110 @@ test('TB-28: Undo of "all pages" keeps edits made since: a box added on another 
   await openPage(page, 'TB28keep')
   await expect(page.locator(EXTRA)).toHaveCount(3)
   await expect.poll(() => sameRow(a, b)).toBe(true)
+})
+
+test('TB-28 opening a page laid out by "all pages": its boxes show only where they land, never over the page text first', async ({
+  page,
+}) => {
+  // Why (CI run 46076474347, ipad-webkit): the page's own text loads a moment
+  // after the page opens; until then the grid took the first box as empty
+  // (about 0 high) and drew the two boxes up over where the text comes, for
+  // 1.1 s on CI, then they jumped down. A tap below them in that time hit a box.
+  await start(page, 'TB28open')
+  await addBox(page, 'Alpha')
+  await addBox(page, 'Bravo')
+  await addPage(page, 'Paper', 'Second')
+  await typeInEditor(page, 'Main two')
+  await addBox(page, 'Charlie')
+  const d = await addBox(page, 'Delta')
+  await openCard(page, d)
+  await page.getByTestId('bc-tab-layout').tap()
+  await tapSwitch(
+    card(page).getByRole('switch', {
+      name: 'Apply to all pages in the notebook',
+    }),
+  )
+  await page.getByTestId('bc-layout-two').tap()
+  await page.keyboard.press('Escape')
+  // Every place each box of the next page is shown at, from its first frame.
+  await page.evaluate(() => {
+    const seen: Record<string, string[]> = {}
+    ;(window as unknown as { __seen: typeof seen }).__seen = seen
+    const look = () => {
+      for (const el of document.querySelectorAll<HTMLElement>(
+        '[data-paper-box]:not([data-paper-box="main"])',
+      )) {
+        if (getComputedStyle(el).visibility !== 'visible') continue
+        const id = el.getAttribute('data-paper-box')!
+        const at = `${el.style.left} ${el.style.top}`
+        const list = (seen[id] ??= [])
+        if (list[list.length - 1] !== at) list.push(at)
+      }
+    }
+    new MutationObserver(look).observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+    })
+    const frame = () => {
+      look()
+      requestAnimationFrame(frame)
+    }
+    requestAnimationFrame(frame)
+  })
+  await openPage(page, 'TB28open')
+  // The page has its text and both boxes theirs: everything has loaded.
+  await expect(page.locator('[data-paper-box="main"]')).toContainText(
+    'Main text',
+  )
+  const boxes = page.locator(EXTRA)
+  await expect(boxes.nth(0)).toContainText('Alpha')
+  await expect(boxes.nth(1)).toContainText('Bravo')
+  await expect(boxes.nth(0)).toBeVisible()
+  await expect(boxes.nth(1)).toBeVisible()
+  const seen = await page.evaluate(
+    () => (window as unknown as { __seen: Record<string, string[]> }).__seen,
+  )
+  for (const box of [boxes.nth(0), boxes.nth(1)]) {
+    const id = (await box.getAttribute('data-paper-box'))!
+    const now = await box.evaluate((el) => `${el.style.left} ${el.style.top}`)
+    // Shown once, at the place it keeps.
+    expect(seen[id], `box ${id} was shown at`).toEqual([now])
+  }
+})
+
+test('TB-28 opening a page laid out by "all pages" with the Pen on: its boxes are shown', async ({
+  page,
+}) => {
+  // Review of the TB-28 fix: the boxes stay hidden until the first box's text
+  // is measured. With an ink tool on, the first box is stretched past its
+  // text; its text arriving must still be measured, or the boxes never show.
+  await start(page, 'TB28pen')
+  await addBox(page, 'Alpha')
+  await addBox(page, 'Bravo')
+  await addPage(page, 'Paper', 'Second')
+  await typeInEditor(page, 'Main two')
+  await addBox(page, 'Charlie')
+  const d = await addBox(page, 'Delta')
+  await openCard(page, d)
+  await page.getByTestId('bc-tab-layout').tap()
+  await tapSwitch(
+    card(page).getByRole('switch', {
+      name: 'Apply to all pages in the notebook',
+    }),
+  )
+  await page.getByTestId('bc-layout-two').tap()
+  await page.keyboard.press('Escape')
+  await tool(page, 'Pen').click()
+  await expect(tool(page, 'Pen')).toHaveAttribute('aria-pressed', 'true')
+  await openPage(page, 'TB28pen')
+  await expect(page.locator('[data-paper-box="main"]')).toContainText(
+    'Main text',
+  )
+  const boxes = page.locator(EXTRA)
+  await expect(boxes).toHaveCount(2)
+  await expect(boxes.nth(0)).toBeVisible()
+  await expect(boxes.nth(1)).toBeVisible()
 })
 
 test('TB-27: a later layout that moves a box off its full row switches Full width off', async ({

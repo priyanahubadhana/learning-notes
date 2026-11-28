@@ -24,7 +24,11 @@ const PRO = [
   'tb.shapesAids',
 ]
 
-async function open(page: Page, level: 'beginner' | 'professional') {
+async function open(
+  page: Page,
+  level: 'beginner' | 'professional',
+  mode: 'touch' | 'pencil' = 'touch',
+) {
   await page.addInitScript(
     ([l, u]) => {
       localStorage.setItem(
@@ -34,7 +38,7 @@ async function open(page: Page, level: 'beginner' | 'professional') {
     },
     [level, level === 'professional' ? PRO : []] as const,
   )
-  await startInMode(page, 'touch')
+  await startInMode(page, mode)
   await page.goto('/?flags=toolbar.v8')
   await createNotebook(page, 'Biology', 'First')
   await typeInEditor(page, 'The nucleus holds the DNA')
@@ -115,7 +119,9 @@ test('TB-31 Shapes › Colour picker is the shared round swatch with ▾, not a 
 test('TB-33 Resize card opened by the pointer shows no focus ring; the keyboard still gets one', async ({
   page,
 }) => {
-  await open(page, 'professional')
+  // Pencil start: in another mode the first pen touch can switch the page to
+  // Pencil mode by the clock (the switch itself: penFirstLineSwitch.spec.ts).
+  await open(page, 'professional', 'pencil')
   await drawAndLoop(page)
   // As in the pictures: Colour first, closed with its ✕, then Resize.
   await page.getByTestId('v8-sel-colour').click()

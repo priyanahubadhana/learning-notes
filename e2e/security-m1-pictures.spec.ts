@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 import { createNotebook, openSidebar } from './helpers.ts'
 
 /** Slice 11c (flag security.m1): a web picture in a gallery waits for a tap. */

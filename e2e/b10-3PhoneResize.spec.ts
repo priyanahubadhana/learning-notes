@@ -1,7 +1,7 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { expect, test } from '@playwright/test'
+import { expect, test } from './frameFixture.ts'
 import { centre, dot, drag, phoneBox, rect } from './phoneResizeHelpers.ts'
 
 /**

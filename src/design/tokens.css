@@ -56,6 +56,10 @@
 
   /* Elevation */
   --elev-1: 0 1px 2px rgba(24, 23, 28, 0.06);
+  /* Paper look "B Calm edge" (switch look.calmEdge): page area, paper, hairline. */
+  --look-page: #efeef4;
+  --look-paper: #ffffff;
+  --look-edge: rgba(105, 65, 224, 0.2);
   --elev-2: 0 4px 16px rgba(24, 23, 28, 0.08), 0 1px 2px rgba(24, 23, 28, 0.06);
   --elev-3: 0 16px 48px rgba(24, 23, 28, 0.14);
 
@@ -154,6 +158,9 @@
     radial-gradient(at 90% 10%, oklch(0.32 0.1 255 / 0.35), transparent 50%);
 
   --elev-1: 0 0 0 1px rgba(255, 255, 255, 0.06);
+  --look-page: #121218;
+  --look-paper: #1c1c24;
+  --look-edge: rgba(160, 140, 255, 0.26);
   --elev-2: 0 8px 24px rgba(0, 0, 0, 0.4);
   --elev-3: 0 16px 48px rgba(0, 0, 0, 0.55);
 
@@ -202,6 +209,9 @@
     radial-gradient(at 90% 10%, oklch(0.93 0.04 60 / 0.4), transparent 50%);
 
   --elev-1: 0 1px 2px rgba(67, 52, 34, 0.08);
+  --look-page: #ebe0c8;
+  --look-paper: #f8f1e3;
+  --look-edge: rgba(140, 100, 40, 0.28);
   --elev-2: 0 4px 16px rgba(67, 52, 34, 0.1), 0 1px 2px rgba(67, 52, 34, 0.08);
   --elev-3: 0 16px 48px rgba(67, 52, 34, 0.16);
 

@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 import { installRealPen, realPen, realPenHover } from './realPen.ts'
 import { caretAtEnd, openV8, stubClipboard, type Mode } from './c0Clipboard.ts'

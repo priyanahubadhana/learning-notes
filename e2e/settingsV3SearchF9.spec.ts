@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 
 /**
  * F9 (docs/plans/ipad-test-findings-2026-11-14.md): the existing "Search

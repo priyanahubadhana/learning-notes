@@ -9,6 +9,7 @@ export {
 } from './manager'
 export { placeBeside, type Placement, type Rect, type Side } from './place'
 export { trapFocus } from './focusTrap'
+export { focusShown } from './focusShown'
 export {
   createToastQueue,
   stackPositions,

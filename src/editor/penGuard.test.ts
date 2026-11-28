@@ -3,12 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { Schema } from 'prosemirror-model'
 import { EditorState } from 'prosemirror-state'
 import {
+  penState,
   refuseDelete,
   refuseInput,
   refuseTransaction,
   TAP_PATH_PX,
   tipPathTo,
   wasPenTap,
+  watchPenGuard,
   type TipPath,
 } from './penGuard'
 
@@ -219,4 +221,270 @@ describe('a Pencil tap is told by the whole path of the tip (C4, C14)', () => {
     expect(wasPenTap(301, 0)).toBe(false)
     expect(wasPenTap(300, TAP_PATH_PX)).toBe(true)
   })
+})
+
+/**
+ * TB-37 burst ring (e2e/tb2-pencil.spec.ts, "a quick ring round a digit, its
+ * moves merged by the browser"), failing 3 to 8 of 20 on ipad-webkit. The
+ * page log of a failing run: press at (578, 560), a move at (579, 560), ONE
+ * move back at (578, 560) holding the other 91 points of the ring in
+ * getCoalescedEvents, lift at (578, 560) after 239 ms. The guard measured
+ * the tip path from the two moves only (0 px), called the ring a tap (C14),
+ * and its tap grace refused the ring's own 7 -> (7) replacement.
+ */
+describe('a quick ring whose moves the browser merged is not a tap', () => {
+  type Ev = Event & { [k: string]: unknown }
+  /** A Pencil event as the browser hands it to the page. */
+  const pen = (
+    type: string,
+    x: number,
+    y: number,
+    t: number,
+    target: EventTarget,
+    merged: { x: number; y: number }[] = [],
+  ) => {
+    const e = new Event(type, { bubbles: true, cancelable: true }) as Ev
+    const props: Record<string, unknown> = {
+      pointerType: 'pen',
+      pointerId: 7,
+      clientX: x,
+      clientY: y,
+      button: 0,
+      buttons: type === 'pointerup' ? 0 : 1,
+      timeStamp: t,
+      getCoalescedEvents: () =>
+        merged.map((q) => ({ clientX: q.x, clientY: q.y })),
+    }
+    for (const [k, value] of Object.entries(props))
+      Object.defineProperty(e, k, { value })
+    target.dispatchEvent(e)
+  }
+  /** Sets up the guard on a page text; returns the text element. */
+  const page = () => {
+    const dom = document.createElement('div')
+    dom.className = 'bn-editor'
+    const text = document.createElement('p')
+    text.textContent = 'Step 7 done'
+    dom.appendChild(text)
+    document.body.appendChild(dom)
+    const editor = {
+      domElement: dom,
+      prosemirrorView: undefined,
+      onChange: () => () => {},
+    }
+    const stop = watchPenGuard(
+      editor as unknown as Parameters<typeof watchPenGuard>[0],
+      () => {},
+    )
+    return { text, stop: () => (stop(), dom.remove()) }
+  }
+  // The ring of the e2e test round the 7 (24 points, 4 sent per segment).
+  const cx = 578.5
+  const cy = 569.6
+  const ring = Array.from({ length: 24 }, (_, i) => {
+    const a = (i / 23) * Math.PI * 2 - Math.PI / 2
+    return { x: cx + Math.cos(a) * 14.5, y: cy + Math.sin(a) * 9.5 }
+  })
+  const fine = ring.slice(1).flatMap((q, i) =>
+    Array.from({ length: 4 }, (_, j) => ({
+      x: ring[i].x + ((q.x - ring[i].x) * (j + 1)) / 4,
+      y: ring[i].y + ((q.y - ring[i].y) * (j + 1)) / 4,
+    })),
+  )
+
+  it('the ring of a failing run (two moves, 91 points merged) does not start a tap grace', () => {
+    const { text, stop } = page()
+    try {
+      penState.tapAt = -1e9
+      const s = ring[0]
+      pen('pointerdown', s.x, s.y, 10_000, text)
+      pen('pointermove', fine[0].x, fine[0].y, 10_056, text, [fine[0]])
+      pen('pointermove', s.x, s.y, 10_133, text, fine.slice(1))
+      pen('pointerup', s.x, s.y, 10_239, text)
+      expect(penState.down).toBe(false)
+      expect(penState.upAt).toBe(10_239)
+      // 239 ms, but the tip went round a 75 px ring: not a tap.
+      expect(penState.tapAt, 'the ring was taken for a tap').not.toBe(10_239)
+    } finally {
+      stop()
+    }
+  })
+
+  it('a real tap stays a tap when its trembling samples are merged too', () => {
+    const { text, stop } = page()
+    try {
+      penState.tapAt = -1e9
+      // 20 samples within 1 px of the tip, drifting 3 px.
+      const shake = Array.from({ length: 20 }, (_, i) => ({
+        x: 300 + (i % 2 ? 0.9 : -0.9) + i * 0.15,
+        y: 300 + (i % 3 ? 0.8 : -0.8),
+      }))
+      pen('pointerdown', 300, 300, 20_000, text)
+      pen('pointermove', 301, 300, 20_060, text, shake.slice(0, 10))
+      pen('pointermove', 303, 300, 20_120, text, shake.slice(10))
+      pen('pointerup', 303, 300, 20_180, text)
+      expect(penState.tapAt, 'a tap must keep its grace').toBe(20_180)
+    } finally {
+      stop()
+    }
+  })
+
+  /** [x, y, x, y, ...] as points. */
+  const pts = (a: number[]) =>
+    Array.from({ length: a.length / 2 }, (_, i) => ({
+      x: a[2 * i],
+      y: a[2 * i + 1],
+    }))
+
+  it("the owner's longest recorded tap (#68 trace 5) stays a tap with its merged samples", () => {
+    // docs/qa/traces/2026-11-25-issue68-trace-5.json, the press at 534047
+    // (duplicate log lines removed): 158 ms, 9 moves holding 32 samples, the
+    // tip up to 5.1 px from where it began. Of the 71 quick taps in the five
+    // traces it has the longest path, 10 px, by moves or by samples alike.
+    const moves: [number, number, number, number[]][] = [
+      [
+        54,
+        275,
+        653,
+        [
+          278.5, 654, 278, 654, 277.5, 654, 277.5, 654, 277, 654, 276.5, 653.5,
+          276, 653.5, 276, 653.5, 275.5, 653.5, 275.5, 653, 275, 653, 275, 653,
+        ],
+      ],
+      [
+        71,
+        274.5,
+        652.5,
+        [274.5, 653, 274.5, 652.5, 274.5, 652.5, 274.5, 652.5],
+      ],
+      [87, 274.5, 652, [274.5, 652.5, 274.5, 652, 274.5, 652, 274.5, 652]],
+      [96, 274.5, 651.5, [274.5, 652, 274.5, 651.5]],
+      [104, 275.5, 651.5, [275, 651.5, 275.5, 651.5]],
+      [112, 276, 651.5, [275.5, 651.5, 276, 651.5]],
+      [121, 277, 651, [276.5, 651.5, 277, 651]],
+      [129, 278, 651, [277.5, 651, 278, 651]],
+      [137, 278.5, 651, [278.5, 651, 278.5, 651]],
+    ]
+    const { text, stop } = page()
+    try {
+      penState.tapAt = -1e9
+      pen('pointerdown', 279, 654, 30_000, text)
+      for (const [t, x, y, co] of moves)
+        pen('pointermove', x, y, 30_000 + t, text, pts(co))
+      pen('pointerup', 280, 651.5, 30_158, text)
+      expect(penState.tapAt, 'a real tap must keep its grace').toBe(30_158)
+    } finally {
+      stop()
+    }
+  })
+
+  it('a 250 ms tap whose 60 merged samples tremble just over 2 px stays a tap', () => {
+    // Harsher than any tap in the owner's traces (their merged samples step
+    // 0.5 px at the 90th percentile, 2.2 px at the 99th, 3.4 px at most): every
+    // sample sits 1.15 px from a centre that drifts 1.5 px out and back, at a
+    // fixed pseudo-random angle, so many steps from one sample to the next are
+    // over the 2 px noise floor (PATH_STEP_PX). 15 moves of 4 samples, the
+    // tip ends 0.3 px from where it began.
+    let seed = 68
+    const rnd = () => {
+      seed = (seed * 1103515245 + 12345) % 2147483648
+      return seed / 2147483648
+    }
+    const sx = 400
+    const sy = 400
+    const samples = Array.from({ length: 60 }, (_, i) => {
+      const drift = Math.sin((i / 59) * Math.PI) * 1.5
+      const a = rnd() * Math.PI * 2
+      return {
+        x: sx + drift + Math.cos(a) * 1.15,
+        y: sy + Math.sin(a) * 1.15,
+      }
+    })
+    const { text, stop } = page()
+    try {
+      penState.tapAt = -1e9
+      pen('pointerdown', sx, sy, 40_000, text)
+      for (let m = 0; m < 15; m++) {
+        const four = samples.slice(4 * m, 4 * m + 4)
+        const last = four[3]
+        pen('pointermove', last.x, last.y, 40_000 + 16 * (m + 1), text, four)
+      }
+      pen('pointerup', sx + 0.3, sy, 40_250, text)
+      expect(penState.tapAt, 'a trembling tap must keep its grace').toBe(40_250)
+    } finally {
+      stop()
+    }
+  })
+
+  /** `corners` walked with `n` points per leg (the first corner left out). */
+  const legs = (corners: [number, number][], n: number) =>
+    corners.slice(1).flatMap(([x, y], i) =>
+      Array.from({ length: n }, (_, j) => ({
+        x: corners[i][0] + ((x - corners[i][0]) * (j + 1)) / n,
+        y: corners[i][1] + ((y - corners[i][1]) * (j + 1)) / n,
+      })),
+    )
+  /** A press, its points sent `k` merged per move, a lift: was it a tap? */
+  const pressTap = (
+    down: [number, number],
+    points: { x: number; y: number }[],
+    k: number,
+    up: [number, number],
+    t0: number,
+    held: number,
+  ) => {
+    const { text, stop } = page()
+    try {
+      penState.tapAt = -1e9
+      pen('pointerdown', down[0], down[1], t0, text)
+      const moves = Math.ceil(points.length / k)
+      for (let m = 0; m < moves; m++) {
+        const some = points.slice(m * k, m * k + k)
+        const last = some[some.length - 1]
+        const t = t0 + Math.round(((m + 1) * (held - 10)) / moves)
+        pen('pointermove', last.x, last.y, t, text, some)
+      }
+      pen('pointerup', up[0], up[1], t0 + held, text)
+      return penState.tapAt === t0 + held
+    } finally {
+      stop()
+    }
+  }
+
+  it('a quick scratch-out over a 5 px glyph, its points merged, stays a stroke (C4)', () => {
+    // Four strokes across a 5 px glyph, back at the start, 6 points each,
+    // sent 3 to a move: 18.3 px of travel once averaged (the line is 16).
+    const zigzag: [number, number][] = [
+      [100, 100],
+      [105, 102],
+      [100, 104],
+      [105, 102],
+      [100, 100],
+    ]
+    expect(
+      pressTap([100, 100], legs(zigzag, 6), 3, [100, 100], 50_000, 200),
+    ).toBe(false)
+  })
+
+  // Known gap, accepted (manager, 27 Nov 2026, docs/DECISIONS.md; issue #91):
+  // a tiny fast scratch-out of merged points is read as a tap, so its delete
+  // is refused. Three 6 px strokes in 100 ms, 8 points each, merged 4 to a
+  // move, measure 10.5 px once averaged (18 px raw; the line is 16). The
+  // trade-off: a refused delete loses nothing, while the opposite error (a
+  // trembling tap read as a stroke) turns off the data-loss guard. The day
+  // this works the test goes red: change it to it(...).
+  it.fails(
+    'a tiny fast scratch-out of merged points is a stroke, not a tap (known gap #91)',
+    () => {
+      const strokes: [number, number][] = [
+        [200, 200],
+        [206, 200],
+        [200, 200],
+        [206, 200],
+      ]
+      expect(
+        pressTap([200, 200], legs(strokes, 8), 4, [206, 200], 60_000, 100),
+      ).toBe(false)
+    },
+  )
 })

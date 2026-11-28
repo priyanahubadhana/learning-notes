@@ -1,5 +1,5 @@
 /// <reference lib="dom" />
-import { expect, test, type Page, type Route } from '@playwright/test'
+import { expect, test, type Page, type Route } from './frameFixture.ts'
 
 /**
  * Sign-in is one-time: an expired access token plus a failing renewal

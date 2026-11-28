@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 
 const main = (page: Page) => page.locator('main')
 
@@ -28,7 +28,7 @@ test('Try new features: every switch starts off, one can be turned on and stays 
 }) => {
   await openTryNew(page)
   const switches = main(page).locator('[data-setting-id^="tryNew."]')
-  await expect(switches).toHaveCount(29) // one per flag in src/app/flags.ts
+  await expect(switches).toHaveCount(30) // one per flag in src/app/flags.ts (look.calmEdge is the 30th)
   await expect(
     main(page).locator('[aria-pressed="true"]', { hasText: 'On' }),
   ).toHaveCount(0)

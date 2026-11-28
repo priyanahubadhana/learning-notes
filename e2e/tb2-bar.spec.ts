@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 
 /**
@@ -411,9 +411,10 @@ test('a tap on the bar works at once after the tap that selected the box', async
   const box = await addBox(page, 'Quick tap')
   await pick(page, box)
   // Owner 18 Nov: Duplicate is under ⋯ now; the ⋯ button is the quick tap.
-  await bar(page).getByRole('button', { name: 'Box actions' }).click({
-    timeout: 800,
-  })
+  // A click by position, at once: it proves the tap is not swallowed without
+  // measuring how fast the machine draws (an element click waits for frames).
+  const at = await rect(bar(page).getByRole('button', { name: 'Box actions' }))
+  await page.mouse.click(at.x + at.width / 2, at.y + at.height / 2)
   await expect(more(page)).toBeVisible()
 })
 

@@ -417,6 +417,11 @@ test('a page can be set to always open in Reading mode', async ({ page }) => {
   await addPage(page, 'Heart', 'Plain page')
   await openPage(page, 'Cardiology book')
   await readSwitch(page).click()
+  // Run 46013460259: once the Aa button was not found for 20 s, with no
+  // recording kept. These say which it was: Reading mode never came on, or
+  // its bar slid away (hidden bars are not found by role).
+  await expect(frame(page)).toHaveAttribute('data-view', 'inPlace')
+  await expect(controls(page)).not.toHaveAttribute('data-hidden', 'true')
   const panel = await openPanel(page, 'Text size', LOOK)
   await panel.getByRole('tab', { name: 'More' }).click()
   await panel

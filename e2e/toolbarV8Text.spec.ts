@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import {
   createNotebook,
   hideSidebar,
@@ -387,9 +387,11 @@ test('TB-42 tb.textBox alone adds fill, border, corners, padding and shadow; Beg
   ).toHaveCount(0)
 })
 
-test('TB-42 with tb.textBox: fill, border, corners, padding and shadow each undo and redo', async ({
-  page,
-}) => {
+// The undo and redo of each Box card setting, one test each. Why (CI run
+// 46092819007, ipad-webkit): all five in one test took 44 s of its 60 s on a
+// good CI run and ran out at the shadow, its last step, on a slow one (39 ms
+// per frame). The steps and checks are the same as in the one test before.
+async function boxCard(page: Page) {
   await open(page, 'beginner', ['tb.textBox'])
   await page.locator('.bn-editor').first().click()
   const c = card(page, 'text.box')
@@ -417,10 +419,23 @@ test('TB-42 with tb.textBox: fill, border, corners, padding and shadow each undo
     await expect(c.getByTestId(id)).toHaveAttribute('aria-checked', 'true')
     await c.getByTestId('pcard-close').click()
   }
-  await pick('v8-box-bg-yellow', 'v8-box-bg-none')
-  await pick('v8-box-border-2', 'v8-box-border-0')
-  await pick('v8-box-radius-12', 'v8-box-radius-0')
-  await pick('v8-box-pad-12', 'v8-box-pad-0')
+  return { c, showCard, through, pick }
+}
+
+for (const [what, id, off] of [
+  ['fill', 'v8-box-bg-yellow', 'v8-box-bg-none'],
+  ['border', 'v8-box-border-2', 'v8-box-border-0'],
+  ['corners', 'v8-box-radius-12', 'v8-box-radius-0'],
+  ['padding', 'v8-box-pad-12', 'v8-box-pad-0'],
+] as const) {
+  test(`TB-42 with tb.textBox: ${what} undoes and redoes`, async ({ page }) => {
+    const { pick } = await boxCard(page)
+    await pick(id, off)
+  })
+}
+
+test('TB-42 with tb.textBox: shadow undoes and redoes', async ({ page }) => {
+  const { c, showCard, through } = await boxCard(page)
   const shadow = () => c.getByRole('switch', { name: 'Shadow' })
   await showCard()
   await shadow().click()

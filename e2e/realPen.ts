@@ -73,9 +73,19 @@ export async function realPen(
   // The hover a Pencil sends before it touches (no button, pressure 0).
   await page.mouse.move(first.x - 3, first.y - 6)
   await page.mouse.move(first.x, first.y)
-  await page.mouse.down()
-  for (const p of rest) await page.mouse.move(p.x, p.y, { steps })
-  await page.mouse.up()
+  if (rest.length === 0) {
+    // A tap: the lift goes with the press. Why (CI run 46092819007, F3 pen):
+    // WebKit answers a press only after its next repaint, so an awaited
+    // press sent the lift 315 ms later and the page stamped a hold (over the
+    // 300 ms of tapSelect.ts), not a tap. Probed 28 Nov with a page busy
+    // 350 ms on the press: awaited, the stamps were 371 ms apart; sent
+    // together, 1 ms apart, the press still first (chromium alike).
+    await Promise.all([page.mouse.down(), page.mouse.up()])
+  } else {
+    await page.mouse.down()
+    for (const p of rest) await page.mouse.move(p.x, p.y, { steps })
+    await page.mouse.up()
+  }
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })
@@ -102,6 +112,18 @@ async function until(t: number): Promise<void> {
 }
 
 /**
+ * When one press or lift was really sent by the driver (ms on its clock),
+ * against when it was planned. `sent - planned` is the driver's own lateness
+ * (a test fault if it is more than a few ms); what the page then stamps on
+ * top of that is the machine.
+ */
+export type PenSent = { what: 'down' | 'up'; planned: number; sent: number }
+
+/** The worst the driver was behind its own plan, in ms. */
+export const driverLate = (log: PenSent[]) =>
+  Math.round(Math.max(0, ...log.map((e) => e.sent - e.planned)))
+
+/**
  * A run of Pencil taps at one spot with a hand's own timing (C14).
  *
  * Why: the taps used to be driven call by call (hover, hover, down, up), and
@@ -125,7 +147,7 @@ export async function realPenTaps(
   at: Pt,
   taps: PenTap[],
   lead: { hold: number; gap: number } = { hold: 0, gap: 0 },
-): Promise<void> {
+): Promise<PenSent[]> {
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = true
   })
@@ -156,7 +178,16 @@ export async function realPenTaps(
       pointerType: 'pen',
       timestamp: stamp(t),
     })
-  let back: Promise<void> = Promise.resolve()
+  // When each press and lift was really sent, against the time planned for it.
+  const sentLog: PenSent[] = []
+  const log = (what: PenSent['what'], planned: number) =>
+    sentLog.push({ what, planned, sent: performance.now() })
+  let back: Promise<unknown> = Promise.resolve()
+  const answers: Promise<unknown>[] = []
+  const moves = (p: Promise<unknown>) => {
+    answers.push(p)
+    return p
+  }
   let next = performance.now()
   let plan = next
   let tip = at
@@ -164,8 +195,11 @@ export async function realPenTaps(
     // Where this tap lands: the hover there goes alongside the pause.
     const spot = { x: at.x + (tap.dx ?? 0), y: at.y + (tap.dy ?? 0) }
     if (spot.x !== tip.x || spot.y !== tip.y) {
-      const before = back
-      back = before.then(() => page.mouse.move(spot.x, spot.y))
+      // WebKit: sent at once, in order behind the way back; its answer
+      // (a repaint away, 500 ms on a busy runner) is awaited at the end.
+      back = cdp
+        ? back.then(() => page.mouse.move(spot.x, spot.y))
+        : moves(page.mouse.move(spot.x, spot.y))
       tip = spot
     }
     if (cdp) {
@@ -173,6 +207,7 @@ export async function realPenTaps(
       const planDown = plan + (tap.gap ?? 0)
       const planUp = planDown + tap.hold
       await Promise.all([until(planDown), back])
+      log('down', planDown)
       await send('mousePressed', spot, planDown, 1)
       const drift = tap.drift
         ? send(
@@ -183,30 +218,35 @@ export async function realPenTaps(
           )
         : Promise.resolve()
       await Promise.all([until(planUp), drift])
+      log('up', planUp)
       await send('mouseReleased', spot, planUp, 0)
       plan = planUp
       back = Promise.resolve()
       continue
     }
     // The pause before this tap, counted from when the last lift was sent.
-    await Promise.all([
-      until(next + Math.max(0, (tap.gap ?? 0) - lead.gap)),
-      back,
-    ])
+    // WebKit answers a move only at its next repaint (500 ms on a busy
+    // runner): a press is never held back for that answer.
+    const planDown = next + Math.max(0, (tap.gap ?? 0) - lead.gap)
+    await until(planDown)
     const down = performance.now()
+    log('down', planDown)
     await page.mouse.down()
     const drift = tap.drift
       ? page.mouse.move(spot.x + tap.drift * 0.6, spot.y + tap.drift * 0.8)
       : Promise.resolve()
-    await Promise.all([until(down + Math.max(0, tap.hold - lead.hold)), drift])
+    const planUp = down + Math.max(0, tap.hold - lead.hold)
+    await Promise.all([until(planUp), drift])
     next = performance.now()
+    log('up', planUp)
     await page.mouse.up()
-    back = tap.drift ? page.mouse.move(spot.x, spot.y) : Promise.resolve()
+    if (tap.drift) back = moves(page.mouse.move(spot.x, spot.y))
   }
-  await back
+  await Promise.all([back, ...answers])
   await page.evaluate(() => {
     ;(window as unknown as { __realPen?: boolean }).__realPen = false
   })
+  return sentLog
 }
 
 /** A browser channel that takes an event time (Chromium's), or null (WebKit). */

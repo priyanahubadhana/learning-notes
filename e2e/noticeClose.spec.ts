@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 
 /**
  * P1.12 (owner idea I1): a notice with Undo or an action gets a small close

@@ -62,6 +62,15 @@ const SCROLL_KEYS = new Set([
   ' ',
 ])
 
+/** A key pressed in a text field or an editor (it types or moves the caret, it does not scroll). */
+const typedIn = (target: EventTarget | null): boolean =>
+  target instanceof HTMLElement &&
+  (target.isContentEditable ||
+    target.closest('[contenteditable]:not([contenteditable="false"])') !==
+      null ||
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement)
+
 /** When a pop-up last opened (a scroll just after it is the page settling). */
 let lastOpened = 0
 
@@ -140,7 +149,12 @@ export function usePopup(
       userScrollAt = Date.now()
     }
     const onScrollKey = (e: KeyboardEvent) => {
-      if (SCROLL_KEYS.has(e.key)) userScrollAt = Date.now()
+      if (!SCROLL_KEYS.has(e.key)) return
+      // In a text these keys type or move the caret, they do not scroll
+      // the page (CI runs 46106138514 Space, 46114247991 End: a scroll
+      // right after them closed a pop-up just opened).
+      if (typedIn(e.target)) return
+      userScrollAt = Date.now()
     }
     const onNavigate = () => entry.close()
     document.addEventListener('pointerdown', onDown, true)

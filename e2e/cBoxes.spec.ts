@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import {
   EXTRA,
   HOW,
@@ -429,6 +429,23 @@ test('C11 typing: thin border and no dots; one tap outside: selected; a second: 
   await expect(dots(box)).toHaveCount(0)
 })
 
+// #71: a mouse holds the button down; the browser moves the focus at the press,
+// so the release must be read from the box state at the press.
+test('C11 one mouse click outside, button held 100 ms: the box stays selected', async ({
+  page,
+}) => {
+  await start(page, 'C11hold')
+  const box = await addBox(page, ['Typing here'])
+  await pick(page, box)
+  await tapTextEnd(page, box)
+  await expect(box).toHaveAttribute('data-typing', '')
+  await tapOut(page, 100)
+  await expect(box.locator('.bn-editor')).not.toBeFocused()
+  await expect(box).toHaveAttribute('data-picked', '')
+  await expect(box).not.toHaveAttribute('data-typing', '')
+  await expect(dots(box)).toHaveCount(8)
+})
+
 test('C12 the frame of the first box matches its fill and padding', async ({
   page,
 }) => {
@@ -550,6 +567,36 @@ test('C13 the right edge of the last box narrows and widens it; the freed space 
   )
 })
 
+/** The height (mm) a box has in the store, read from IndexedDB; undefined = none set. */
+const storedH = (page: Page, id: string) =>
+  page.evaluate(
+    (boxId) =>
+      new Promise<number | undefined>((resolve, reject) => {
+        const open = indexedDB.open('learning-notes')
+        open.onerror = () => reject(open.error)
+        open.onsuccess = () => {
+          const req = open.result
+            .transaction('pages', 'readonly')
+            .objectStore('pages')
+            .getAll()
+          req.onsuccess = () =>
+            resolve(
+              (
+                req.result as {
+                  boxes?: { id: string; h?: number }[]
+                  deletedAt?: number
+                }[]
+              )
+                .filter((p) => !p.deletedAt)
+                .flatMap((p) => p.boxes ?? [])
+                .find((x) => x.id === boxId)?.h,
+            )
+          req.onerror = () => reject(req.error)
+        }
+      }),
+    id,
+  )
+
 async function c15(page: Page, name: string) {
   await start(page, name)
   const { a, b, c } = await columns(page)
@@ -600,12 +647,21 @@ test('C15 after typing more lines the bottom dot still grows the box; after a re
   await page.keyboard.type('more')
   await expect(b).toHaveAttribute('data-typing', '')
   await tapOut(page)
+  const id = (await b.getAttribute('data-paper-box'))!
+  expect(await storedH(page, id)).toBeUndefined()
   expect(await grow(b, 's', 50)).toBeGreaterThan(40)
   const before = await rects([a, b, c])
-  await page.waitForTimeout(900)
+  // The reload comes once the new height is saved, not after a fixed wait.
+  await expect.poll(() => storedH(page, id)).toBeGreaterThan(0)
   await page.reload()
-  await page.waitForTimeout(1500)
+  // Measured on WebKit: the boxes come about 1 s after the reload and are
+  // empty (8 px tall) until their editors show the words, up to 1.6 s with 3
+  // workers and later on a slow CI machine. So the heights are read once
+  // every box shows all its words, not after a fixed 1.5 s.
   const boxes = page.locator(EXTRA)
+  await expect(boxes).toHaveCount(3)
+  for (const [k, w] of ['Brown 3', 'more', 'Blue 3'].entries())
+    await expect(boxes.nth(k).locator('.bn-editor')).toContainText(w)
   const after = await rects([boxes.nth(0), boxes.nth(1), boxes.nth(2)])
   for (const k of [0, 1, 2])
     expect(Math.abs(after[k].height - before[k].height)).toBeLessThan(3)

@@ -370,21 +370,37 @@ export function PaperFrame({
       const ed = el.querySelector<HTMLElement>('.bn-editor')
       const real = Math.round(el.getBoundingClientRect().height)
       setMainRealH((h) => (h === real ? h : real))
+      // Why (CI run 46076474347): the page's text loads a moment after the
+      // page opens. Until its editor is there the empty box is about 0 high;
+      // reported, it put the other boxes over where the text comes, and they
+      // jumped down when it came. No editor yet: the height is not known.
+      if (!ed) return
       reportHeight(
         MAIN_BOX,
         Math.round(
-          ed
-            ? ed.getBoundingClientRect().bottom -
-                el.getBoundingClientRect().top +
-                MARGIN * k
-            : el.offsetHeight,
+          ed.getBoundingClientRect().bottom -
+            el.getBoundingClientRect().top +
+            MARGIN * k,
         ),
       )
     }
     const ro = new ResizeObserver(measure)
+    // The text's editor arriving is measured even when the box keeps its
+    // size (an ink tool stretches it past its text): the other boxes wait
+    // for that height (review of the TB-28 fix).
+    const arrive = new MutationObserver(() => {
+      if (!el.querySelector('.bn-editor')) return
+      arrive.disconnect()
+      measure()
+    })
     measure()
     ro.observe(el)
-    return () => ro.disconnect()
+    if (!el.querySelector('.bn-editor'))
+      arrive.observe(el, { childList: true, subtree: true })
+    return () => {
+      arrive.disconnect()
+      ro.disconnect()
+    }
   }, [k, reportHeight])
   const lowest = Math.max(
     boxBottom,
@@ -801,6 +817,9 @@ export function PaperFrame({
     if (!isOn('textbox.v2')) return
     let off: (() => void) | undefined
     let gone = false
+    // The first-tap rule is decided by the switch, not by the file: a tap
+    // before the file arrives selects the box, it never falls back to a caret.
+    textFirstTap.on = true
     void import('./v2').then((m) => {
       if (gone) return
       v2.current = m
@@ -809,6 +828,7 @@ export function PaperFrame({
     return () => {
       gone = true
       off?.()
+      textFirstTap.on = false
       v2.current = null
     }
   }, [])
@@ -1929,7 +1949,11 @@ export function PaperFrame({
       textPen.current = null
       return
     }
-    tp.pts.push({ x: e.clientX, y: e.clientY })
+    // The browser merges moves that come faster than one per frame: all the
+    // merged points are used, or a quick ring/rectangle has too few (#90).
+    const more = e.nativeEvent.getCoalescedEvents?.() ?? []
+    for (const c of more.length > 0 ? more : [e.nativeEvent])
+      tp.pts.push({ x: c.clientX, y: c.clientY })
   }
   const textPenUp = (e: ReactPointerEvent) => {
     const tp = textPen.current
@@ -2150,6 +2174,8 @@ export function PaperFrame({
     t: number
     /** The farthest the pointer got from the press (a closed loop ends where it began). */
     far: number
+    /** The box state at the press: a mouse moves the focus then, before the release (#71). */
+    bs: typeof bsRef.current
   } | null>(null)
   const lastCreate = useRef<{ t: number; x: number; y: number } | null>(null)
   const tapPaper = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -2184,12 +2210,12 @@ export function PaperFrame({
     // paper only deselects; the next tap makes a box.
     // C11: typing in a box that was never picked ("fresh") is not a
     // selection: the tap goes on and makes the next box (TB-06, C27).
-    const now = bsRef.current
+    const now = down.bs
     if (now.kind === 'typing' && now.fresh) send({ type: 'clear' })
     else if (now.kind !== 'idle') {
       // Text box v2 (C11): the first tap outside ends typing and leaves the box
       // selected; the second tap outside selects nothing.
-      if (isOn('textbox.v2') && bsRef.current.kind === 'typing')
+      if (isOn('textbox.v2') && now.kind === 'typing')
         send({ type: 'caretOut' })
       else {
         send({ type: 'clear' })
@@ -2319,7 +2345,17 @@ export function PaperFrame({
         style={
           narrow
             ? { position: 'relative', paddingBottom: MARGIN * k, order: 2 }
-            : { position: 'relative', height: 0, zIndex: 6 }
+            : {
+                position: 'relative',
+                height: 0,
+                zIndex: 6,
+                // The boxes are placed under the page's text: until its height
+                // is known they are not shown, so they never show at a place
+                // they then leave (TB-28, CI run 46076474347).
+                ...(heights[MAIN_BOX] === undefined && extra.length > 0
+                  ? { visibility: 'hidden' as const }
+                  : {}),
+              }
         }
       >
         <LoopLayer ref={loopLayer} />
@@ -2540,6 +2576,26 @@ export function PaperFrame({
           {/* One place in the tree for both layouts: a switch never remounts the
               boxes (their editors). Fit width shows them after the text. */}
           {layerEl}
+          {/* The sheets' soft shadow, painted once on its own still layer: a change
+              inside a sheet does not repaint it (the iPad engine has no GPU). It
+              only draws outside each sheet and never takes a touch. */}
+          {!flat && !narrow && (
+            <div
+              aria-hidden
+              data-paper-shadows
+              className="pointer-events-none"
+              style={{ position: 'relative', height: 0 }}
+            >
+              {Array.from({ length: sheets }, (_, i) => (
+                <div
+                  key={i}
+                  data-paper-shadow={i + 1}
+                  className="absolute inset-x-0 transform-gpu rounded-sm shadow-sm"
+                  style={{ top: i * (sheetPx + SHEET_GAP_PX), height: sheetPx }}
+                />
+              ))}
+            </div>
+          )}
           {!flat && !narrow && (
             <div
               data-paper-sheets
@@ -2549,6 +2605,7 @@ export function PaperFrame({
                   y: e.clientY,
                   t: Date.now(),
                   far: 0,
+                  bs: bsRef.current,
                 }
                 penDown(e)
                 // Hold on blank paper: "Start typing here" (loads on demand).
@@ -2607,7 +2664,7 @@ export function PaperFrame({
                   key={i}
                   data-paper-sheet={i + 1}
                   data-paper-bg={page.inkBg}
-                  className="rounded-sm border border-line bg-surface shadow-sm"
+                  className="rounded-sm border border-line bg-surface"
                   style={
                     {
                       height: sheetPx,

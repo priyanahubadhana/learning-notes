@@ -41,9 +41,22 @@ const box = async (locator: Locator) => (await locator.boundingBox())!
 async function tapThree(page: Page, button: Locator) {
   await expect(button).toBeVisible()
   // Centre it: a chevron at the row's edge would cover a tool that sits flush with it.
-  await button.evaluate((el) =>
-    el.scrollIntoView({ inline: 'center', block: 'nearest' }),
-  )
+  const scrolled = await button.evaluate((el) => {
+    el.scrollIntoView({ inline: 'center', block: 'nearest' })
+    const row = el.closest('[data-bar-scroll] [data-slot="tools"]')
+    return row ? row.scrollLeft > 0 : null
+  })
+  // Why: the bar draws its "more this way" start chevron on its scroll event,
+  // a frame after the scroll; the chevron (44 px) then moves every tool right.
+  // Reading the box before that frame measured a place the button leaves at
+  // once (CI run 45979405230: 32 px). Wait until the start chevron matches
+  // the new scroll position. (The end chevron sits right of the tools.)
+  if (scrolled !== null) {
+    const cue = button
+      .locator('xpath=ancestor::*[@data-bar-scroll][1]')
+      .locator('[data-scroll-cue="start"]')
+    await (scrolled ? expect(cue).toBeVisible() : expect(cue).toHaveCount(0))
+  }
   const start = await blocks(page).count()
   const where = await box(button)
   for (let i = 1; i <= 3; i++) {

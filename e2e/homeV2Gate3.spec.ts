@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 import { closeCorner, sidebar } from './helpers.ts'
 
 /** Gate 3 (third visit) fixes for Home v2, flag `home.v2`: items 1 to 6. */

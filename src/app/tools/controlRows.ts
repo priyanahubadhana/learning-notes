@@ -39,8 +39,10 @@ export interface Row {
   run: () => void
 }
 
+let englishAll: Record<string, string> | null = null
+/** The merged English table is built once, not for every row. */
 const englishName = (key: string): string =>
-  (({ ...en, ...enLate }) as Record<string, string>)[key] ?? ''
+  (englishAll ??= { ...en, ...enLate } as Record<string, string>)[key] ?? ''
 
 /** All rows: the tools, then the settings (labels follow the language). */
 export function buildRows(): Row[] {

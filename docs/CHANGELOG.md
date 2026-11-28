@@ -2,6 +2,30 @@
 
 Current phase only. Older entries are in [ARCHIVE.md](ARCHIVE.md).
 
+### 27 Nov 2026: G1, two rare reds of run 46013460259 (r8a)
+
+- **What:** `e2e/pagesBarFade.spec.ts` (test fault): it counted frames drawn in a fixed 600 ms and wanted more than 3; the iPad engine on the hosted machine draws a frame of this glass bar in 230-350 ms, so it saw 2-3. Now the bar's fade is held the moment the bar appears and checked at 11 points from start to end (no move, fades 0 to 1, same bar), then let finish (waited for, not timed). Turning the slide back on makes it fail. 20/20 on ipad-webkit. `e2e/reading.spec.ts` "always open in Reading mode": the Aa button was not found for 20 s once (passed on retry); no recording was kept and it does not happen here (80 runs, also with the processor slowed 6x and 15x), so the cause is not known yet. Two checks now say which state was wrong next time. CI keeps the recordings of a test that passed only on retry, and the timed-taps run no longer empties the shard's recordings folder.
+- **Why:** rule F9; no recording, no root cause.
+- **Files:** e2e/pagesBarFade.spec.ts, e2e/reading.spec.ts, .github/workflows/ci.yml, docs/CHANGELOG.md.
+
+### 27 Nov 2026: G1, the Pencil tap rule averages merged points (Fable)
+
+- **What:** `penGuard.ts` measures a press's travel on its merged (coalesced) points, each averaged with the two before it; a move with no merged points is taken raw. The trembling-tap test now passes; the ring is still not a tap. `circleDigit` (textPencil.ts) returns false when a filter refuses its change, so a refused ring is not taken as done. Known gap, accepted: a tiny fast scratch-out of merged points is read as a tap (#91, an `it.fails` row).
+- **Why:** a quick ring merged into two moves counted as a tap (TB-37); the merged points carry the Pencil's tremble. Decision and the case against: docs/DECISIONS.md, 27 Nov.
+- **Files:** src/editor/penGuard.ts, src/paper/textPencil.ts, src/editor/penGuard.test.ts, src/paper/textPencil.test.ts, docs/DECISIONS.md, docs/CHANGELOG.md.
+
+### 27 Nov 2026: G1, the C0-1 red of run 45918658223
+
+- **What:** `e2e/c0-1BoxStyle.spec.ts` "old boxes keep their look" (test fault, not caused by 0ee968fe): the test typed into the new box before the box had the focus, so the words went nowhere (local log: focus not in the box and the box empty, 1 in 40); the box came back empty after the reload and the tap on the main text removed it, so 0 boxes. It also reloaded with the words not yet written. Now it waits for the box's focus, checks the words are in the box, waits for the save (`waitForSaved`) and checks the words after the reload. Before the fix: 4d407ab1 failed 1 of 60, 7d8d25e3 1 of 40 (both alike); after: 60/60. The `selectionBarButtons` ✘ marks in shard 4 are `test.fail` rows (known broken, expected to fail); the shard reported 609 passed, 0 flaky, the same as run 45908185759.
+- **Why:** rule F9, a red test stops the line.
+- **Files:** e2e/c0-1BoxStyle.spec.ts, docs/CHANGELOG.md.
+
+### 27 Nov 2026: G1, the two pass-on-retry tests of run 45908185759
+
+- **What:** `e2e/writePad.spec.ts` (test fault): `selectWord` now waits, after focusing the page, until every timer the focus started has run, then sets the selection. ProseMirror's focus timer (20 ms) wrote the old cursor back over a selection set before the editor had read it (in-page log: the selection was set, and 0.4 ms later, 21 ms after the focus, it was collapsed). No check weakened. `e2e/toolbarV8Tools.spec.ts` (app fault, TB-34): a new test by the Opus test-writer, "Crop and rotate in the frame after a resize redraw", failed on the app 5 of 5: in the frame after Smaller redraws the picture, Crop and rotate opened nothing and said "Only pictures kept in this app can be edited." (src/editor/PictureHandles.tsx took the block id from the old, detached picture, so it was empty, and opened the editor with it). Fixed in 0ee968fe: PictureHandles keeps the block id while a picture is picked and uses it only while the old element of the same block is held; a deleted or undone picture still gets the toast, never the wrong picture (review, 27 Nov). Red test 20/20, TB-34 20/20, toolbarV8Tools 28/28 on chromium; vitest src/editor 399/399. Later, as cover: a test of the toast for a picture with an outside link.
+- **Why:** rule F9, a pass on retry counts as red.
+- **Files:** e2e/writePad.spec.ts, e2e/toolbarV8Tools.spec.ts, src/editor/PictureHandles.tsx, docs/CHANGELOG.md.
+
 ### Night of 26-27 Nov 2026: the test gate down to one red; the root cause of the slow iPad-engine drawing; the owner picks the paper look
 
 - **What:** (1) Root cause of the TB-42 timeouts found (Opus, high effort, on probe/g1-frames, never merged): box shadows repainted at 2x pixel density without a GPU cost 230-350 ms per frame; the real iPad draws on its GPU and is not affected. Fix: the sheet and page-area shadows on their own static layers (slice/g1-shadow, look kept), with e2e/shadowLayers.spec.ts by the Opus test-writer (80/80 on chromium and ipad-webkit). (2) #90: the text pen reads merged pointer samples (textPenMove); in review, the penGuard.ts part was reverted (263285c6: no proof, and it could switch off a guard against losing work); penGuard.ts is again as at 9966b356. (3) slice/g1-shadow merged into slice/g1-test-causes (708d1204). (4) The full run by hand 45895918940 on it: red only on C25, e2e/pageMenusPlaceC23.spec.ts:172 (ipad-webkit shard 3), every other job green, TB-42 included. (5) A first C25 fix (ca8d16ac) was rejected in review as weaker; an Opus redo is under way. (6) The paper look: four looks redrawn (the paper now keeps its own colour; Night shows a lighter paper); the owner picked B Calm edge (a page area a few % darker than the paper, a faint tinted hairline, no shadow); built behind the switch look.calmEdge on slice/look-calm-edge (be929e11), off in the live app.

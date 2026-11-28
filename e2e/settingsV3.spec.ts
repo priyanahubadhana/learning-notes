@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 
 /**
  * Settings v3 (flag settings.v3), sub-slices 1 to 3: the flag, the shell, the

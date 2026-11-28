@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import { createNotebook, startInMode, typeInEditor } from './helpers.ts'
 import { tool } from './mainBarHelpers.ts'
 import { narrowBox, selectMain } from './cBoxesHelpers.ts'
@@ -462,19 +462,67 @@ test('TB-10 (C27): a new box is the whole line wide; typing grows it down, never
   expect(two.height).toBeLessThan(one.height * 1.6)
 })
 
+/**
+ * Turn the screen and wait for the page to re-lay out, by state: the sheet
+ * has taken a new width, and sheet and box have not moved for two frames.
+ * (In CI the re-layout came 0.85 to 1.3 s after the turn.)
+ */
+async function turnTo(page: Page, vp: { width: number; height: number }) {
+  // The sheet and the box as they are before the turn: the wait ends only on
+  // a layout where BOTH differ, so the read can never be of the old layout.
+  const before = await page.evaluate(() => {
+    const s = document
+      .querySelector('[data-paper-sheet="1"]')!
+      .getBoundingClientRect()
+    const b = document
+      .querySelector('[data-paper-box]:not([data-paper-box="main"])')!
+      .getBoundingClientRect()
+    return { sheet: s.width, box: [b.x, b.width].join(',') }
+  })
+  await page.setViewportSize(vp)
+  await page.waitForFunction(
+    (was) => {
+      const w = window as unknown as {
+        __turnSeen?: string
+        __turnSame?: number
+      }
+      const s = document
+        .querySelector('[data-paper-sheet="1"]')!
+        .getBoundingClientRect()
+      const b = document
+        .querySelector('[data-paper-box]:not([data-paper-box="main"])')
+        ?.getBoundingClientRect()
+      if (!b) return false
+      if (Math.abs(s.width - was.sheet) < 1) return false
+      if ([b.x, b.width].join(',') === was.box) return false
+      const now = [s.x, s.width, b.x, b.width].join(',')
+      w.__turnSame = now === w.__turnSeen ? (w.__turnSame ?? 0) + 1 : 0
+      w.__turnSeen = now
+      return w.__turnSame >= 2
+    },
+    before,
+    { polling: 'raf' },
+  )
+}
+
 test('turning the device with a box selected keeps the box where it was (same as a fresh load)', async ({
   page,
 }) => {
   await start(page, 'Turn')
   const box = await oneBox(page, 'Photosynthesis: light and water')
-  await page.setViewportSize({ width: 820, height: 1180 })
-  await page.waitForTimeout(800)
+  await turnTo(page, { width: 820, height: 1180 })
   await expect(box).toHaveCount(1)
-  const frac = async () => {
-    const s = await rect(page.locator('[data-paper-sheet="1"]'))
-    const b = await rect(box)
-    return { x: (b.x - s.x) / s.width, w: b.width / s.width }
-  }
+  // Sheet and box in ONE read, so a re-layout cannot fall between the two.
+  const frac = () =>
+    page.evaluate(() => {
+      const s = document
+        .querySelector('[data-paper-sheet="1"]')!
+        .getBoundingClientRect()
+      const b = document
+        .querySelector('[data-paper-box]:not([data-paper-box="main"])')!
+        .getBoundingClientRect()
+      return { x: (b.x - s.x) / s.width, w: b.width / s.width }
+    })
   // The empty part selects the box (owner 17 Nov); the words take the caret.
   // The box has stopped moving after the turn (a tap at the old place hit no element).
   let was = ''
@@ -495,8 +543,7 @@ test('turning the device with a box selected keeps the box where it was (same as
     { width: 1180, height: 820 },
     { width: 820, height: 1180 },
   ]) {
-    await page.setViewportSize(vp)
-    await page.waitForTimeout(800)
+    await turnTo(page, vp)
     await expect(box).toHaveCount(1)
   }
   const after = await frac()

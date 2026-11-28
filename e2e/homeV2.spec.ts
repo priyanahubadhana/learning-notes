@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 import { closeCorner } from './helpers.ts'
 
 /** Slice 5: Home v2 board (flag `home.v2`). Spec: docs/plans/home-v2-spec.md. */

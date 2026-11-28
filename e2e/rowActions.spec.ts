@@ -1,6 +1,6 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Locator } from '@playwright/test'
+import { expect, test, type Locator } from './frameFixture.ts'
 import { closeCorner, createNotebook, openSidebar } from './helpers.ts'
 
 /** Polish 1 · item 2: row actions reachable by touch (press and hold). */

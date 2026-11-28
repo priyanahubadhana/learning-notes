@@ -1,4 +1,4 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import { expect, test, type Locator, type Page } from './frameFixture.ts'
 
 /**
  * Slice 0g step 2: the Context menu strip and the Command list on the Parts
@@ -116,6 +116,37 @@ test.describe('Parts gallery: menus', () => {
     }
   })
 
+  // CI run 46041556992 (ipad-webkit): the page jumped back to the gallery's
+  // open time range bar between the scroll to 'middle' and the tap, so the
+  // tap missed. Any redraw of that bar scrolled its picked option into view,
+  // and with it the whole page.
+  test('SP-40 a time range bar drawing again never scrolls the page away from the strip buttons', async ({
+    page,
+  }) => {
+    await open(page, { width: 1180, height: 820 })
+    const b = page.getByTestId('menus-at-middle')
+    await b.scrollIntoViewIfNeeded()
+    await expect(b).toBeInViewport()
+    const y = await page.evaluate(() => window.scrollY)
+    const bar = page.getByTestId('range-editing').getByTestId('time-range-bar')
+    await expect(bar).not.toBeInViewport()
+    // A change inside the bar (out of view) makes it draw again: an end
+    // before the start, typed the way React hears it.
+    await page.getByTestId('range-editing').evaluate((host) => {
+      const input = host.querySelector<HTMLInputElement>(
+        '[data-testid="range-from"]',
+      )!
+      const set = Object.getOwnPropertyDescriptor(
+        HTMLInputElement.prototype,
+        'value',
+      )!.set!
+      set.call(input, '2026-12-31')
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    await expect(bar).toHaveAttribute('data-state', 'invalid')
+    expect(await page.evaluate(() => window.scrollY)).toBe(y)
+    await expect(b).toBeInViewport()
+  })
   test('SP-40 Beginner shows exactly Cut, Copy, Paste, Delete and more', async ({
     page,
   }) => {
@@ -302,6 +333,38 @@ test.describe('Parts gallery: menus', () => {
     await expect(picker(page).getByTestId('cs-pick-ink')).toBeFocused()
     await page.keyboard.press('ArrowDown')
     await expect(picker(page).getByTestId('cs-pick-red')).toBeFocused()
+  })
+
+  // Cause of the flake above (CI run 46122961075, ipad-webkit): the app loads
+  // a lazy part's style sheet at about the moment the strip or its picker
+  // opens. While a style sheet is loading, WebKit's focus() judges the new
+  // button by its old style (hidden until placed), so the old focus goes and
+  // nothing gets it (the page body). Here a style sheet is held open on
+  // purpose while the strip and the picker open.
+  test('the strip and its picker take the keyboard focus while a style sheet is still loading', async ({
+    page,
+  }) => {
+    let release = () => {}
+    const held = new Promise<void>((r) => (release = r))
+    await page.route(/held-sheet\.css/, async (route) => {
+      await held
+      await route.fulfill({ contentType: 'text/css', body: '' })
+    })
+    await open(page, { width: 1180, height: 820 })
+    await page.evaluate(() => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = '/held-sheet.css'
+      document.head.appendChild(link)
+    })
+    await openAt(page, 'middle')
+    await expect(cs(page, 'cs-paste')).toBeFocused()
+    await page.keyboard.press('ArrowRight')
+    await expect(cs(page, 'cs-colour')).toBeFocused()
+    await page.keyboard.press('ArrowDown')
+    await expect(picker(page)).toBeVisible()
+    await expect(picker(page).getByTestId('cs-pick-ink')).toBeFocused()
+    release()
   })
 
   const list = (page: Page) => page.getByTestId('demo-list')

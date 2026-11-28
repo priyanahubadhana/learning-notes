@@ -12,6 +12,10 @@ export function useEditorRedraw(editor: Editor | null): void {
     if (!editor) return
     const off1 = editor.onChange(redraw)
     const off2 = editor.onSelectionChange(redraw)
+    // A change between the first draw and now was not heard (the listeners
+    // come a task after the draw; a lazy part that mounts while the person
+    // selects, TB-33 run 46122961075): draw once more with what is there now.
+    redraw()
     return () => {
       off1?.()
       off2?.()

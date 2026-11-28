@@ -116,22 +116,39 @@ export function playGlide(
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (reduced || typeof el.animate !== 'function') return done?.()
   el.setAttribute('data-gliding', '')
+  let ended = false
+  let timer: ReturnType<typeof setTimeout> | undefined
   const end = () => {
+    if (ended) return
+    ended = true
+    clearTimeout(timer)
     el.removeAttribute('data-gliding')
     done?.()
   }
   try {
-    void el
-      .animate(
-        [
-          {
-            transform: `translate(${by.dx}px, ${by.dy}px) scale(${LIFT_SCALE})`,
-          },
-          { transform: 'translate(0px, 0px) scale(1)' },
-        ],
-        { duration: GLIDE_MS, easing: 'cubic-bezier(.2,.8,.2,1)' },
-      )
-      .finished.then(end, end)
+    const a = el.animate(
+      [
+        {
+          transform: `translate(${by.dx}px, ${by.dy}px) scale(${LIFT_SCALE})`,
+        },
+        { transform: 'translate(0px, 0px) scale(1)' },
+      ],
+      { duration: GLIDE_MS, easing: 'cubic-bezier(.2,.8,.2,1)' },
+    )
+    void a.finished.then(end, end)
+    // WebKit settles `finished` only at a paint, and the animation's own clock
+    // (currentTime) also moves only at a paint: on CI both stood still for over
+    // 1 s and the box stayed not tappable (TB-14). The glide lasts 200 ms by the
+    // wall clock: then it is brought to its end and the box has landed.
+    const land = () => {
+      try {
+        a.finish()
+      } catch {
+        // no finish: the box is where it lands anyway
+      }
+      end()
+    }
+    timer = setTimeout(land, GLIDE_MS)
   } catch {
     end()
   }

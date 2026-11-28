@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 import { createNotebook, openSearchPopup } from './helpers.ts'
 
 /** Polish 2, item 13: the empty screens a new user lands on have one button. */

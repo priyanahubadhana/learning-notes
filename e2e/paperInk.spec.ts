@@ -1,8 +1,9 @@
 // Browser types for code that runs inside the page.
 /// <reference lib="dom" />
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test, type Page } from './frameFixture.ts'
 import { inkClientBox, line, savedInk, stroke, type Pt } from './inkHelpers.ts'
 import { openNote, tool } from './mainBarHelpers.ts'
+import { focusEditor } from './editorFocus.ts'
 
 /**
  * Phase Q ink rules (owner, 8 Nov): ink is a layer on top of the text,
@@ -92,6 +93,10 @@ test('rule 7: deleting a line hands its ink to the next line, which it then foll
     const l = await lineAt(page, text)
     await page.mouse.click(l.x + 4, l.y + l.h / 2)
   }
+  // The editor takes the keyboard first and its after-focus check has run
+  // (CI run 46092819007: that check put the caret back at the click after End
+  // and Shift+Home, and the two Backspaces joined the lines instead).
+  await focusEditor(page)
   await clickLine('Line two')
   await page.keyboard.press('End')
   await page.keyboard.press('Shift+Home')
@@ -345,6 +350,8 @@ test('rule 9: copy and paste of a line also copies its linked ink', async ({
   await tool(page, 'Text').click()
   await page.waitForTimeout(600)
   const editor = page.locator('.bn-editor').first()
+  // The editor takes the keyboard first (see rule 7).
+  await focusEditor(page)
   await editor.getByText('Line two', { exact: true }).click()
   await page.keyboard.press('End')
   await page.keyboard.press('Shift+Home')

@@ -490,7 +490,7 @@ test.describe('the Lasso on drawings', () => {
 
   test('LS-42 a touch held without moving for 4 seconds is dropped (fake clock)', async ({
     page,
-  }) => {
+  }, testInfo) => {
     await page.clock.install()
     const s = await drawingsPage(page)
     // A loop whose Pencil stays down and still: the lift never comes.
@@ -502,6 +502,23 @@ test.describe('the Lasso on drawings', () => {
     await page.mouse.move(p[0].x, p[0].y)
     await page.mouse.down()
     for (const q of p) await page.mouse.move(q.x, q.y)
+    // Diagnostic only (CI run 46092819007: the machine read idle right after
+    // the moves and stayed so): what the tools said at that moment. It checks
+    // nothing and waits for nothing more than the poll below does.
+    if ((await machineState(page)) === 'idle') {
+      const seen = await page.evaluate(() => ({
+        toolState: window.__lnTools!.toolState(),
+        pressed: [
+          ...document.querySelectorAll('[data-main-bar] [aria-pressed="true"]'),
+        ].map((b) => b.getAttribute('aria-label') ?? b.textContent),
+      }))
+      const text = JSON.stringify(seen, null, 2)
+      console.log('LS-42 idle after the moves:', text)
+      await testInfo.attach('ls42-idle-tool-state', {
+        body: text,
+        contentType: 'application/json',
+      })
+    }
     await expect.poll(() => machineState(page)).not.toBe('idle')
     await page.clock.runFor(2500)
     expect(await machineState(page)).not.toBe('idle')

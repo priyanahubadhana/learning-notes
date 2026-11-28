@@ -62,7 +62,7 @@ const SCROLL_KEYS = new Set([
   ' ',
 ])
 
-/** A key pressed in a text field or an editor (it types, it does not scroll). */
+/** A key pressed in a text field or an editor (it types or moves the caret, it does not scroll). */
 const typedIn = (target: EventTarget | null): boolean =>
   target instanceof HTMLElement &&
   (target.isContentEditable ||
@@ -150,9 +150,10 @@ export function usePopup(
     }
     const onScrollKey = (e: KeyboardEvent) => {
       if (!SCROLL_KEYS.has(e.key)) return
-      // A space typed in a text is a letter, not a scroll (CI run
-      // 46106138514: a scroll after typing closed a pill just opened).
-      if (e.key === ' ' && typedIn(e.target)) return
+      // In a text these keys type or move the caret, they do not scroll
+      // the page (CI runs 46106138514 Space, 46114247991 End: a scroll
+      // right after them closed a pop-up just opened).
+      if (typedIn(e.target)) return
       userScrollAt = Date.now()
     }
     const onNavigate = () => entry.close()
